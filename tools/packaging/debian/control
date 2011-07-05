@@ -80,23 +80,6 @@ Description: Multi-modal medical and brain data visualization tool.
  This package contains the core API documentation of OpenWalnut.
 
 
-Package: openwalnut-qt4
-Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: Multi-modal medical and brain data visualization tool.
- OpenWalnut is a tool for multi-modal medical and brain data visualization. Its
- universality allows it to be easily extended and used in a large variety of
- application cases. It is both, a tool for the scientific user and a powerful
- framework for the visualization researcher. Besides others, it is able to load
- NIfTI data, VTK line data and RIFF-format CNT/AVR-files. OpenWalnut provides
- many standard visualization tools like line integral convolution (LIC),
- isosurface-extraction, glyph-rendering or interactive fiber-data exploration.
- The powerful framework of OpenWalnut allows researchers and power-users to
- easily extend the functionality to their specific needs.
- .
- This package contains the QT4 GUI for OpenWalnut.
-
-
 Package: openwalnut-modules
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
@@ -112,3 +95,22 @@ Description: Multi-modal medical and brain data visualization tool.
  easily extend the functionality to their specific needs.
  .
  This package contains the currently available modules for OpenWalnut.
+
+
+Package: openwalnut-qt4
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: openwalnut-modules (= ${binary:Version})
+Description: Multi-modal medical and brain data visualization tool.
+ OpenWalnut is a tool for multi-modal medical and brain data visualization. Its
+ universality allows it to be easily extended and used in a large variety of
+ application cases. It is both, a tool for the scientific user and a powerful
+ framework for the visualization researcher. Besides others, it is able to load
+ NIfTI data, VTK line data and RIFF-format CNT/AVR-files. OpenWalnut provides
+ many standard visualization tools like line integral convolution (LIC),
+ isosurface-extraction, glyph-rendering or interactive fiber-data exploration.
+ The powerful framework of OpenWalnut allows researchers and power-users to
+ easily extend the functionality to their specific needs.
+ .
+ This package contains the QT4 GUI for OpenWalnut.
+
