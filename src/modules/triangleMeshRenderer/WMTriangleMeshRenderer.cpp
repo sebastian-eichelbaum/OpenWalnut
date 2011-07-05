@@ -58,7 +58,7 @@ boost::shared_ptr< WModule > WMTriangleMeshRenderer::factory() const
 
 const char** WMTriangleMeshRenderer::getXPMIcon() const
 {
-    return trianglemeshrenderer_xpm;
+    return WMTriangleMeshRenderer_xpm;
 }
 
 const std::string WMTriangleMeshRenderer::getName() const
