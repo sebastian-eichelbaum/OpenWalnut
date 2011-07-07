@@ -161,7 +161,6 @@ IF( OW_PACKAGE_BUILD )
     SET( OW_PACKAGE_PACKAGER "cpack" CACHE STRING "Package builder. Set this to enable packager-specific options during install." )
 
     OPTION( OW_PACKAGE_NOCOPY_LICENSE "Disable to copy our licensing information. Enabling this can be useful for package maintainer since several packaging systems have their own licence mechanism (i.e. Debian)." OFF )
-    OPTION( OW_PACKAGE_NOLINK_OPENTHREADS "Enable this to avoid linking OpenThreads. On some systems, OpenSceneGraph already is linked against it and thus linking OpenThreads to OW is not needed (Debian and Ubuntu for example)." OFF )
     OPTION( OW_PACKAGE_NOCOPY_COREFONTS "Enable this if you have liberation fonts installed on your system. They will be linked. If disabled, our fonts are copied." OFF )
 ENDIF()
 
@@ -238,19 +237,6 @@ IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
   ENDIF()
 ENDIF()
 FIND_PACKAGE( OpenSceneGraph ${MIN_OSG_VERSION} REQUIRED osgDB osgUtil osgGA osgViewer osgSim osgWidget osgText )
-
-# If the user did not disable license-copying, do it
-# NOTE: use this "double-negative" to use the fact that undefined variables yield FALSE.
-IF( OW_PACKAGE_NOLINK_OPENTHREADS )
-    # NOTE: this is a hack to remove the openthread lib from the list of OSG libs. It gets automatically added by the current
-    #       find script but it is not really needed on some systems (since they provide an osg lib which already is linked against this.).
-    FOREACH( osglib ${OPENSCENEGRAPH_LIBRARIES} )
-        STRING( REGEX MATCH ".*OpenThreads.*" IsExcluded "${osglib}" )
-        IF( IsExcluded )
-            LIST( REMOVE_ITEM OPENSCENEGRAPH_LIBRARIES ${osglib} )
-        ENDIF( IsExcluded )
-    ENDFOREACH()
-ENDIF()
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # Eigen3, at least 3.0.0
