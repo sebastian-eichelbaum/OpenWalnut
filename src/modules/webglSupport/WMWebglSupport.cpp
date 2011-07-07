@@ -34,7 +34,7 @@
 
 #include "core/common/WPathHelper.h"
 #include "core/kernel/WKernel.h"
-#include "../emptyIcon.xpm" // Please put a real icon here.
+#include "WMWebglSupport.xpm"
 
 #include "WMWebglSupport.h"
 
@@ -59,12 +59,11 @@ boost::shared_ptr< WModule > WMWebglSupport::factory() const
 
 const char** WMWebglSupport::getXPMIcon() const
 {
-    return emptyIcon_xpm; // Please put a real icon here.
+    return WMWebglSupport_xpm; // Please put a real icon here.
 }
 const std::string WMWebglSupport::getName() const
 {
-    // Specify your module name here. This name must be UNIQUE!
-    return "WebglSupport";
+    return "WebGL Support";
 }
 
 const std::string WMWebglSupport::getDescription() const

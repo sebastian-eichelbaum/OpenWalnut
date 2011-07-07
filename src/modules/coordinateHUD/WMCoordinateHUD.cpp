@@ -68,7 +68,7 @@ const char** WMCoordinateHUD::getXPMIcon() const
 
 const std::string WMCoordinateHUD::getName() const
 {
-    return "CoordinateHUD";
+    return "Coordinate HUD";
 }
 
 const std::string WMCoordinateHUD::getDescription() const

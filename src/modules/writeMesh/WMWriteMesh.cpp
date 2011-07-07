@@ -27,7 +27,7 @@
 #include "core/common/math/WMath.h"
 #include "core/common/WPathHelper.h"
 #include "core/kernel/WKernel.h"
-#include "../emptyIcon.xpm" // Please put a real icon here.
+#include "WMWriteMesh.xpm"
 #include "WMWriteMesh.h"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
@@ -51,12 +51,11 @@ boost::shared_ptr< WModule > WMWriteMesh::factory() const
 
 const char** WMWriteMesh::getXPMIcon() const
 {
-    return emptyIcon_xpm; // Please put a real icon here.
+    return WMWriteMesh_xpm;
 }
 const std::string WMWriteMesh::getName() const
 {
-    // Specify your module name here. This name must be UNIQUE!
-    return "WriteMesh";
+    return "Write Mesh";
 }
 
 const std::string WMWriteMesh::getDescription() const
