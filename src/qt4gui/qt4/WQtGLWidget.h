@@ -244,6 +244,11 @@ protected:
      */
     WGECamera::ProjectionMode m_initialProjectionMode;
 
+    /**
+     * Saves a screenshot of the widget's current content, opens a file dialog to get the filename.
+     */
+    void makeScreenshot();
+
 private:
     /**
      * Timer for periodic repaints.
