@@ -55,8 +55,7 @@ const char** WMWriteMesh::getXPMIcon() const
 }
 const std::string WMWriteMesh::getName() const
 {
-    // Specify your module name here. This name must be UNIQUE!
-    return "WriteMesh";
+    return "Write Mesh";
 }
 
 const std::string WMWriteMesh::getDescription() const

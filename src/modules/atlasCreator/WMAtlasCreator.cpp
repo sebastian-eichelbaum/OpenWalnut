@@ -64,8 +64,7 @@ const char** WMAtlasCreator::getXPMIcon() const
 }
 const std::string WMAtlasCreator::getName() const
 {
-    // Specify your module name here. This name must be UNIQUE!
-    return "AtlasCreator";
+    return "Atlas Creator";
 }
 
 const std::string WMAtlasCreator::getDescription() const

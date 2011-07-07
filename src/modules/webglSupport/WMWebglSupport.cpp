@@ -63,8 +63,7 @@ const char** WMWebglSupport::getXPMIcon() const
 }
 const std::string WMWebglSupport::getName() const
 {
-    // Specify your module name here. This name must be UNIQUE!
-    return "WebglSupport";
+    return "WebGL Support";
 }
 
 const std::string WMWebglSupport::getDescription() const
