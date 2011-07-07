@@ -54,7 +54,7 @@ const char** WMSubtractDataSetScalar::getXPMIcon() const
 
 const std::string WMSubtractDataSetScalar::getName() const
 {
-    return "SubtractDataSetScalar";
+    return "Subtract DataSetScalar";
 }
 
 const std::string WMSubtractDataSetScalar::getDescription() const

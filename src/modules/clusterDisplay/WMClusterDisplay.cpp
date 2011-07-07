@@ -72,8 +72,7 @@ const char** WMClusterDisplay::getXPMIcon() const
 }
 const std::string WMClusterDisplay::getName() const
 {
-    // Specify your module name here. This name must be UNIQUE!
-    return "ClusterDisplay";
+    return "Cluster Display";
 }
 
 const std::string WMClusterDisplay::getDescription() const
