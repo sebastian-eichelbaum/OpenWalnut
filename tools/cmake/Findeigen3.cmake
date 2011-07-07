@@ -7,7 +7,12 @@
 # You can set the environment variable "EIGEN3_INCLUDE_DIR" to help this script finding it if
 # you placed it in some unusual location.
 
-FIND_PATH( EIGEN3_INCLUDE_DIR Eigen/Core $ENV{EIGEN3_INCLUDE_DIR} /usr/include/eigen3 /usr/local/include/eigen3 )
+FIND_PATH( EIGEN3_INCLUDE_DIR Eigen/Core $ENV{EIGEN3_INCLUDE_DIR} 
+                                         $ENV{HOME}/.local/include/eigen3
+                                         /usr/include/eigen3
+                                         /usr/local/include/eigen3 
+                                         /opt/local/include/eigen3
+                                         /sw/include/eigen3 )
 
 SET( EIGEN3_FOUND FALSE )
 IF( EIGEN3_INCLUDE_DIR )
