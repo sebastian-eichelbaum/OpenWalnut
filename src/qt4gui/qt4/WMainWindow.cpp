@@ -38,13 +38,16 @@
 #include <QtGui/QMenuBar>
 #include <QtGui/QMessageBox>
 #include <QtGui/QTextEdit>
-#include <QtWebKit/QWebView>
 #include <QtGui/QShortcut>
 #include <QtGui/QSlider>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
 #include <QtCore/QSettings>
 #include <QtGui/QInputDialog>
+
+#ifndef QT4GUI_NOWEBKIT
+    #include <QtWebKit/QWebView>
+#endif
 
 #include "core/common/WColor.h"
 #include "core/common/WIOTools.h"
@@ -790,6 +793,8 @@ void WMainWindow::openAboutDialog()
 void WMainWindow::openOpenWalnutHelpDialog()
 {
     std::string filename( WPathHelper::getDocPath().file_string() + "/openwalnut-qt4/OpenWalnutHelp.html" );
+
+#ifndef QT4GUI_NOWEBKIT
     std::string content = readFileIntoString( filename );
 
     QWidget* window = new QWidget( this, Qt::Window );
@@ -806,6 +811,10 @@ void WMainWindow::openOpenWalnutHelpDialog()
     view->setHtml( content.c_str(), QUrl( location  ) );
     view->show();
     layout->addWidget( view );
+#else
+    QMessageBox::information( this, "Help", QString::fromStdString( "Sorry! Your version of OpenWalnut was not compiled with embedded help. "
+                                                                    "To open the help pages, use this link: <a href="+filename+">Help</a>." ) );
+#endif
 }
 
 void WMainWindow::setPresetViewLeft()
