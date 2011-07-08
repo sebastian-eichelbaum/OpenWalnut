@@ -31,6 +31,8 @@
 #include <osg/MatrixTransform>
 #include <osg/ShapeDrawable>
 #include <osg/Vec3>
+#include <osg/LightModel>
+#include <osg/Material>
 
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../common/WPathHelper.h"
@@ -235,28 +237,95 @@ osg::ref_ptr< osg::Node > wge::generateSolidBoundingBoxNode( const WBoundingBox&
     return transform;
 }
 
-osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh* mesh, bool includeNormals )
+osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mesh, bool includeNormals, bool lighting )
 {
-    osg::ref_ptr< osg::Vec3Array > vertices = mesh->getVertexArray();
+    return wge::convertToOsgGeometry( mesh.get(), includeNormals, lighting );
+}
 
-    osg::DrawElementsUInt* triangles = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES );
-    triangles->reserve( 3 * mesh->triangleSize() );
-    for( size_t triangleID = 0; triangleID < mesh->triangleSize(); ++triangleID )
+osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh* mesh, bool includeNormals, bool lighting )
+{
+    osg::ref_ptr< osg::Geometry> geometry( new osg::Geometry );
+    geometry->setVertexArray( mesh->getVertexArray() );
+
+    osg::DrawElementsUInt* surfaceElement;
+
+    surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
+
+    std::vector< size_t > tris = mesh->getTriangles();
+    surfaceElement->reserve( tris.size() );
+
+    for( unsigned int vertId = 0; vertId < tris.size(); ++vertId )
     {
-        triangles->push_back( mesh->getTriVertId0( triangleID ) );
-        triangles->push_back( mesh->getTriVertId1( triangleID ) );
-        triangles->push_back( mesh->getTriVertId2( triangleID ) );
+        surfaceElement->push_back( tris[vertId] );
+    }
+    geometry->addPrimitiveSet( surfaceElement );
+
+    // add the mesh colors
+    if ( mesh->getVertexColorArray() )
+    {
+        geometry->setColorArray( mesh->getVertexColorArray() );
+        geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+    }
+    else
+    {
+        osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+        colors->push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
+        geometry->setColorArray( colors );
+        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
     }
 
-    osg::ref_ptr< osg::Geometry> geometry( new osg::Geometry );
-    geometry->setVertexArray( vertices );
-    geometry->addPrimitiveSet( triangles );
-
+    // ------------------------------------------------
+    // normals
     if( includeNormals )
     {
-        geometry->setNormalArray( mesh->getVertexNormalArray( true ) );
+        geometry->setNormalArray( mesh->getVertexNormalArray() );
         geometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
+
+        if( lighting )
+        {
+            // if normals are specified, we also setup a default lighting.
+            osg::StateSet* state = geometry->getOrCreateStateSet();
+            osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
+            lightModel->setTwoSided( true );
+            state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
+            state->setMode(  GL_BLEND, osg::StateAttribute::ON  );
+            {
+                osg::ref_ptr< osg::Material > material = new osg::Material();
+                material->setDiffuse(   osg::Material::FRONT, osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
+                material->setSpecular(  osg::Material::FRONT, osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
+                material->setAmbient(   osg::Material::FRONT, osg::Vec4( 0.1, 0.1, 0.1, 1.0 ) );
+                material->setEmission(  osg::Material::FRONT, osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
+                material->setShininess( osg::Material::FRONT, 25.0 );
+                state->setAttribute( material );
+            }
+        }
     }
+
+    return geometry;
+}
+
+osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mesh, const WColoredVertices& colorMap, const WColor& defaultColor, bool includeNormals, bool lighting )
+{
+    osg::Geometry* geometry = convertToOsgGeometry( mesh.get(), includeNormals, lighting );
+
+    // ------------------------------------------------
+    // colors
+    osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+    for( size_t i = 0; i < mesh->vertSize(); ++i )
+    {
+        colors->push_back( defaultColor );
+    }
+    for( std::map< size_t, WColor >::const_iterator vc = colorMap.getData().begin(); vc != colorMap.getData().end(); ++vc )
+    {
+        // ATTENTION: the colormap might not be available and hence an old one, but the new mesh might have triggered the update
+        if( vc->first < colors->size() )
+        {
+            colors->at( vc->first ) = vc->second;
+        }
+    }
+
+    geometry->setColorArray( colors );
+    geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
 
     return geometry;
 }

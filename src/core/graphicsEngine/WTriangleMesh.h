@@ -44,6 +44,17 @@ class WGE_EXPORT WTriangleMesh  : public WTransferable
 {
 friend class WTriangleMeshTest;
 public:
+
+    /**
+     * Shared pointer
+     */
+    typedef boost::shared_ptr< WTriangleMesh > SPtr;
+
+    /**
+     * Const shared pointer
+     */
+    typedef boost::shared_ptr< const WTriangleMesh > ConstSPtr;
+
     /**
      * constructor that already reserves space for a given number of triangles and vertexes
      *
