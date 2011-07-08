@@ -63,8 +63,7 @@ const char** WMDatasetManipulator::getXPMIcon() const
 }
 const std::string WMDatasetManipulator::getName() const
 {
-    // Specify your module name here. This name must be UNIQUE!
-    return "DatasetManipulator";
+    return "Dataset Manipulator";
 }
 
 const std::string WMDatasetManipulator::getDescription() const
