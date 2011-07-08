@@ -29,7 +29,6 @@ ADD_MODULE( probTractDisplay )
 ADD_MODULE( probTractDisplaySP )
 ADD_MODULE( scalarSegmentation )
 ADD_MODULE( splineSurface )
-ADD_MODULE( subtractDataSetScalar )
 ADD_MODULE( surfaceParameterAnimator )
 ADD_MODULE( webglSupport )
 
