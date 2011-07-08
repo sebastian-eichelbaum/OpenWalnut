@@ -34,6 +34,7 @@
 
 class WTriangleMesh;
 class WGEShader;
+class WGEManagedGroupNode;
 
 /**
  * This module renders the triangle mesh given at its input connector
@@ -125,24 +126,24 @@ private:
     WPropBool m_mainComponentOnly;
 
     /**
-     * The group containing all the external colormap props
+     * The color of the mesh to be rendered.
      */
-    WPropGroup m_externalColormapGroup;
+    WPropColor m_color;
 
     /**
-     * Coloring per vertex. This uses the specified colormap in m_colorMapInput.
+     * Which colormode should be used?
      */
-    WPropBool m_useExternalColormap;
+    WPropSelection m_colorMode;
 
     /**
-     * The color of the mesh to be rendered if in external colormap-mode.
+     * Updates the transformation matrix of the main node. Called every frame.
      */
-    WPropColor m_externalDefaultColor;
+    void updateTransformation();
 
     /**
-     * The shader doing proper lighting and colormapping.
+     * The node containing all geometry nodes.
      */
-    osg::ref_ptr< WGEShader > m_shader;
+    WGEManagedGroupNode::SPtr m_moduleNode;
 };
 
 #endif  // WMTRIANGLEMESHRENDERER_H

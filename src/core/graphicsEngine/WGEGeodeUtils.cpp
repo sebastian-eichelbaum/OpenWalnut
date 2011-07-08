@@ -237,12 +237,11 @@ osg::ref_ptr< osg::Node > wge::generateSolidBoundingBoxNode( const WBoundingBox&
     return transform;
 }
 
-osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mesh, bool includeNormals, bool lighting )
-{
-    return wge::convertToOsgGeometry( mesh.get(), includeNormals, lighting );
-}
-
-osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh* mesh, bool includeNormals, bool lighting )
+osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mesh,
+                                                         const WColor& defaultColor,
+                                                         bool includeNormals,
+                                                         bool lighting,
+                                                         bool useMeshColor)
 {
     osg::ref_ptr< osg::Geometry> geometry( new osg::Geometry );
     geometry->setVertexArray( mesh->getVertexArray() );
@@ -261,7 +260,7 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh* mesh, bo
     geometry->addPrimitiveSet( surfaceElement );
 
     // add the mesh colors
-    if ( mesh->getVertexColorArray() )
+    if ( mesh->getVertexColorArray() && useMeshColor )
     {
         geometry->setColorArray( mesh->getVertexColorArray() );
         geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
@@ -269,7 +268,7 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh* mesh, bo
     else
     {
         osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-        colors->push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
+        colors->push_back( defaultColor );
         geometry->setColorArray( colors );
         geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
     }
@@ -301,12 +300,16 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh* mesh, bo
         }
     }
 
+    // enable VBO
+    geometry->setUseDisplayList( false );
+    geometry->setUseVertexBufferObjects( true );
+
     return geometry;
 }
 
 osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mesh, const WColoredVertices& colorMap, const WColor& defaultColor, bool includeNormals, bool lighting )
 {
-    osg::Geometry* geometry = convertToOsgGeometry( mesh.get(), includeNormals, lighting );
+    osg::Geometry* geometry = convertToOsgGeometry( mesh, defaultColor, includeNormals, lighting, false );
 
     // ------------------------------------------------
     // colors

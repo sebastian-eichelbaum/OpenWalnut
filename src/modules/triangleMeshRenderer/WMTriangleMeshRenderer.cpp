@@ -99,13 +99,18 @@ void WMTriangleMeshRenderer::properties()
     m_opacity->setMin( 0.0 );
     m_opacity->setMax( 100.0 );
 
-    m_externalColormapGroup = m_properties->addPropertyGroup( "External ColorMap.", "All the properties for the external colormap." );
+    // Allow the user to select different colormodes
+    boost::shared_ptr< WItemSelection > colorModes( boost::shared_ptr< WItemSelection >( new WItemSelection() ) );
+    colorModes->addItem( "Single Color", "The whole surface is colored using the default color." );
+    colorModes->addItem( "From Mesh", "The surface is colored according to the mesh." );
+    colorModes->addItem( "From colormap connector", "The surface is colored using the colormap on colorMap connector." );
+    m_colorMode = m_properties->addProperty( "Color-Mode", "Choose one of the available colorings.", colorModes->getSelectorFirst(),
+                                             m_propCondition );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMode );
 
-    m_externalDefaultColor = m_externalColormapGroup->addProperty( "Default Color", "The color where no mapping is defined.",
-                                                        WColor( .9f, .9f, 0.9f, 1.0f ), m_propCondition );
-
-    m_useExternalColormap = m_externalColormapGroup->addProperty( "External Colormap", "If enabled, the renderer uses the external colormap "
-                                    "specified on the input connector \"colorMap\". If not, it uses the mesh colors.", false, m_propCondition );
+    // this is the color used if single color is selected
+    m_color = m_properties->addProperty( "Default Color", "The color of of the surface.",
+                                         WColor( .9f, .9f, 0.9f, 1.0f ), m_propCondition );
 
     // call WModule's initialization
     WModule::properties();
@@ -146,12 +151,18 @@ void WMTriangleMeshRenderer::moduleMain()
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // create a OSG node, which will contain the triangle data and allows easy transformations:
-    WGEManagedGroupNode::SPtr moduleNode( new WGEManagedGroupNode( m_active ) );
-    osg::StateSet* moduleNodeState = moduleNode->getOrCreateStateSet();
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( moduleNode );
+    WGEManagedGroupNode::SPtr m_moduleNode( new WGEManagedGroupNode( m_active ) );
+    osg::StateSet* moduleNodeState = m_moduleNode->getOrCreateStateSet();
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
+
+    // set the member function "updateTransformation" as callback
+    WGEFunctorCallback< osg::Node >::SPtr transformationCallback(
+        new WGEFunctorCallback< osg::Node >( boost::bind( &WMTriangleMeshRenderer::updateTransformation, this ) )
+    );
 
     // load the GLSL shader:
-    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMTriangleMeshRenderer", m_localPath ) );
+    osg::ref_ptr< WGEShader > shader( new WGEShader( "WMTriangleMeshRenderer", m_localPath ) );
+    shader->apply( m_moduleNode );
 
     // set the opacity and material color property as GLSL uniforms:
     moduleNodeState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_opacity", m_opacity ) );
@@ -196,33 +207,48 @@ void WMTriangleMeshRenderer::moduleMain()
         }
         ++*progress;
 
-        // Should the colorMap be enabled?
-        if( m_useExternalColormap->get() && colorMap )
+        // now create the mesh but handle the color mode properly
+        WItemSelector s = m_colorMode->get( true );
+        if( s.getItemIndexOfSelected( 0 ) == 0 )
         {
-            // this simply converts our triangle mesh to an OSG geometry.
-            geometry = wge::convertToOsgGeometry( mesh, *colorMap, m_externalDefaultColor->get(), true, true );
+            // use single color
+            geometry = wge::convertToOsgGeometry( mesh, m_color->get(), true, true, false );
         }
-        else if( m_useExternalColormap->get() )
+        else if( s.getItemIndexOfSelected( 0 ) == 1 )
         {
-            warnLog() << "External colormap not connected.";
-            geometry = wge::convertToOsgGeometry( mesh, true, true );
+            // take color from mesh
+            geometry = wge::convertToOsgGeometry( mesh, m_color->get(), true, true, true );
         }
         else
         {
-            geometry = wge::convertToOsgGeometry( mesh, true, true );
+            // take color from map
+            if( colorMap )
+            {
+                geometry = wge::convertToOsgGeometry( mesh, *colorMap, m_color->get(), true, true );
+            }
+            else
+            {
+                warnLog() << "External colormap not connected. Using default color.";
+                geometry = wge::convertToOsgGeometry( mesh, m_color->get(), true, true, false );
+            }
         }
         ++*progress;
 
         // done. Set the new drawable
         geode->addDrawable( geometry );
-        moduleNode->clear();
-        moduleNode->insert( geode );
+        m_moduleNode->clear();
+        m_moduleNode->insert( geode );
         debugLog() << "Rendering Mesh done";
         ++*progress;
         progress->finish();
     }
 
     // it is important to always remove the modules again
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( moduleNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
+}
+
+void WMTriangleMeshRenderer::updateTransformation()
+{
+    // this function is called every frame. It allows safely updating m_moduleNode states and properties.
 }
 

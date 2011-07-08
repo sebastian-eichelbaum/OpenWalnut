@@ -22,17 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
-varying vec4 VaryingTexCoord0;
+#version 120
 
-#include "WGELighting-vertex.glsl"
+/**
+ * The normal.
+ */
+varying vec3 v_normal;
 
 void main()
 {
-    VaryingTexCoord0 = gl_MultiTexCoord0;
+    // get normal
+    v_normal = gl_NormalMatrix * gl_Normal;
 
-    prepareLight();
-
+    // apply standard pipeline
     gl_FrontColor = gl_Color;
-
     gl_Position = ftransform();
 }

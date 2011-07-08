@@ -124,7 +124,7 @@ namespace wge
      *                                 triangulation
      * \return triangulation as WTriangleMesh
      */
-    WTriangleMesh WGE_EXPORT triangulate( const std::vector< WPosition >& points, double transformationFactor = 0.0 );
+    WTriangleMesh::SPtr WGE_EXPORT triangulate( const std::vector< WPosition >& points, double transformationFactor = 0.0 );
 }
 
 #endif  // WGEGEOMETRYUTILS_H
