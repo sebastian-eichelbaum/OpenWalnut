@@ -64,7 +64,7 @@ Description: Multi-modal medical and brain data visualization tool.
 
 Package: libopenwalnut1-doc
 Section: doc
-Architecture: any
+Architecture: all
 Depends: ${misc:Depends}
 Description: Multi-modal medical and brain data visualization tool.
  OpenWalnut is a tool for multi-modal medical and brain data visualization. Its
