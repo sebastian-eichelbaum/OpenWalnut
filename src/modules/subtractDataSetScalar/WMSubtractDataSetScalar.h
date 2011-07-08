@@ -98,6 +98,13 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * Deprecation marker.
+     *
+     * \return the message why it is deprecated.
+     */
+    virtual std::string deprecated() const;
+
 private:
 
     /**

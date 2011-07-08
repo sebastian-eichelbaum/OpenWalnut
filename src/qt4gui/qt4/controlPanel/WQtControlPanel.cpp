@@ -34,6 +34,7 @@
 #include <QtGui/QScrollArea>
 #include <QtGui/QShortcut>
 #include <QtGui/QSplitter>
+#include <QtGui/QMessageBox>
 
 #include "core/common/WLogger.h"
 #include "core/common/WPredicateHelper.h"
@@ -252,6 +253,16 @@ bool WQtControlPanel::event( QEvent* event )
         {
             WLogger::getLogger()->addLogMessage( "Inserting module " + e1->getModule()->getName() + " to control panel.",
                                                  "ControlPanel", LL_DEBUG );
+
+            // show deprecation message?
+            if( e1->getModule()->isDeprecated() )
+            {
+                std::string d = e1->getModule()->getDeprecationMessage();
+                std::string m = "The module \"" + e1->getModule()->getName() + "\" is marked deprecated. You should avoid using it."
+                                "<br><br>"
+                                "Message: " + d;
+                QMessageBox::warning( this, "Deprecation Warning", QString::fromStdString( m ) );
+            }
 
             // finally add the module
             // TODO(schurade): is this differentiation between data and "normal" modules really needed?

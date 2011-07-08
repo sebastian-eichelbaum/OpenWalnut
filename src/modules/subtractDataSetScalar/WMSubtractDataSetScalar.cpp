@@ -91,6 +91,12 @@ void WMSubtractDataSetScalar::properties()
 {
 }
 
+std::string WMSubtractDataSetScalar::deprecated() const
+{
+    // NOTE: do not add sentences like "this module is deprecated" or similar, since the GUI the user is using already shows this message.
+    return "This module is not as capable as the module \"Scalar Operator\".";
+}
+
 void WMSubtractDataSetScalar::moduleMain()
 {
     m_moduleState.setResetable( true, true );

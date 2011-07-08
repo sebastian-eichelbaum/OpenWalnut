@@ -221,6 +221,11 @@ void WModule::activate()
 {
 }
 
+std::string WModule::deprecated() const
+{
+    return "";
+}
+
 void WModule::initialize()
 {
     // doing it twice is not allowed
@@ -593,5 +598,15 @@ void WModule::setLocalPath( boost::filesystem::path path )
 boost::filesystem::path WModule::getLocalPath() const
 {
     return m_localPath;
+}
+
+bool WModule::isDeprecated() const
+{
+    return !deprecated().empty();
+}
+
+std::string WModule::getDeprecationMessage() const
+{
+    return deprecated();
 }
 
