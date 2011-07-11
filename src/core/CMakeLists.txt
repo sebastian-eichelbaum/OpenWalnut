@@ -129,6 +129,7 @@ SETUP_COMMON_DOC( ${OW_DOC_DIR_RELATIVE} "CORE" )
 INSTALL( DIRECTORY ${DEVDOC_DIR} 
          DESTINATION ${OW_DOC_DIR_RELATIVE}
          COMPONENT "CORE_DOC"
+         OPTIONAL
        )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------

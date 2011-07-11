@@ -429,6 +429,7 @@ ADD_CUSTOM_TARGET( install_devdoc
                         -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
                     DEPENDS core_devdoc
                  )
+ADD_DEPENDENCIES( install_devdoc core_devdoc )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
