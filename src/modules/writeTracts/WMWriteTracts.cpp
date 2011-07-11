@@ -76,10 +76,11 @@ void WMWriteTracts::properties()
     m_run      = m_properties->addProperty( "Save", "Start saving", WPVBaseTypes::PV_TRIGGER_READY );
 
     m_fileTypeSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_fileTypeSelectionsList->addItem( "VTK fib", "" );
+    m_fileTypeSelectionsList->addItem( "VTK fib", "Stores the fibers in the VTK line format." );
     m_fileTypeSelectionsList->addItem( "json", "" );
     m_fileTypeSelectionsList->addItem( "json2", "" );
     m_fileTypeSelectionsList->addItem( "json triangles", "" );
+    m_fileTypeSelectionsList->addItem( "POVRay Cylinders", "Stores the fibers as cylinders in a POVRay SDL file." );
 
     m_fileTypeSelection = m_properties->addProperty( "File type",  "file type.", m_fileTypeSelectionsList->getSelectorFirst() );
        WPropertyHelper::PC_SELECTONLYONE::addTo( m_fileTypeSelection );
@@ -131,6 +132,12 @@ void WMWriteTracts::moduleMain()
                     break;
                 case 3:
                     saveJsonTriangles();
+                    break;
+                case 4:
+                        if( m_tractIC->getData() )
+                        {
+                            savePOVRay( m_tractIC->getData() );
+                        }
                     break;
                 default:
                     debugLog() << "this shouldn't be reached";
@@ -445,5 +452,125 @@ bool WMWriteTracts::saveJsonTriangles() const
 
     dataFile.close();
     WLogger::getLogger()->addLogMessage( "saving done", "Write Tracts", LL_DEBUG );
+    return true;
+}
+
+bool WMWriteTracts::savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers ) const
+{
+    // open file
+    const char* file = m_savePath->get().file_string().c_str();
+    debugLog() << "Opening " << file << " for write.";
+    std::ofstream dataFile( file, std::ios_base::binary );
+    if ( !dataFile )
+    {
+        errorLog() << "Opening " << file << " failed.";
+        return false;
+    }
+
+    // needed arrays for iterating the fibers
+    WDataSetFibers::IndexArray  fibStart = fibers->getLineStartIndexes();
+    WDataSetFibers::LengthArray fibLen   = fibers->getLineLengths();
+    WDataSetFibers::VertexArray fibVerts = fibers->getVertices();
+    WDataSetFibers::TangentArray fibTangents = fibers->getTangents();
+
+    // get current color scheme - the mode is important as it defines the number of floats in the color array per vertex.
+    WDataSetFibers::ColorScheme::ColorMode fibColorMode = fibers->getColorScheme()->getMode();
+    debugLog() << "Color mode is " << fibColorMode << ".";
+    WDataSetFibers::ColorArray  fibColors = fibers->getColorScheme()->getColor();
+
+    boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Converting fibers", fibStart->size() ) );
+    m_progress->addSubProgress( progress1 );
+
+    // write some head data
+    dataFile << "#version 3.5;" << std::endl;
+    dataFile << "#include \"colors.inc\"" << std::endl;
+
+    // for each fiber:
+    debugLog() << "Iterating over all fibers.";
+
+    // find min and max
+    double minX = wlimits::MAX_DOUBLE;
+    double minY = wlimits::MAX_DOUBLE;
+    double minZ = wlimits::MAX_DOUBLE;
+    double maxX = wlimits::MIN_DOUBLE;
+    double maxY = wlimits::MIN_DOUBLE;
+    double maxZ = wlimits::MIN_DOUBLE;
+
+    size_t currentStart = 0;
+    for( size_t fidx = 0; fidx < fibStart->size() ; ++fidx )
+    {
+        ++*progress1;
+
+        // the start vertex index
+        size_t sidx = fibStart->at( fidx ) * 3;
+        size_t csidx = fibStart->at( fidx ) * fibColorMode;
+
+        // the length of the fiber
+        size_t len = fibLen->at( fidx );
+
+        // walk along the fiber
+        WVector3d lastvert( fibVerts->at( sidx ),
+                            fibVerts->at( sidx + 1 ),
+                            fibVerts->at( sidx + 2 ) );
+        for( size_t k = 1; k < len; ++k )
+        {
+            // grab vector and color
+            WVector3d vert( fibVerts->at( ( 3 * k ) + sidx ),
+                            fibVerts->at( ( 3 * k ) + sidx + 1 ),
+                            fibVerts->at( ( 3 * k ) + sidx + 2 ) );
+            WColor color( fibColors->at( ( fibColorMode * k ) + csidx + ( 0 % fibColorMode ) ),
+                          fibColors->at( ( fibColorMode * k ) + csidx + ( 1 % fibColorMode ) ),
+                          fibColors->at( ( fibColorMode * k ) + csidx + ( 2 % fibColorMode ) ),
+                          ( fibColorMode == WDataSetFibers::ColorScheme::RGBA ) ?
+                            fibColors->at( ( fibColorMode * k ) + csidx + ( 3 % fibColorMode ) ) : 1.0 );
+
+            if( vert.x() > maxX )
+                maxX = vert.x();
+            if( vert.y() > maxY )
+                maxY = vert.y();
+            if( vert.z() > maxZ )
+                maxZ = vert.z();
+            if( vert.x() < minX )
+                minX = vert.x();
+            if( vert.y() < minY )
+                minY = vert.y();
+            if( vert.z() < minZ )
+                minZ = vert.z();
+
+            // write it in POVRay style
+            dataFile << "cylinder" << std::endl <<
+                        "{" << std::endl <<
+                        "  < " << lastvert.x() << ", " << lastvert.y() << ", " << lastvert.z() << " >, " <<
+                          "< " << vert.x() << ", " << vert.y() << ", " << vert.z() << " >, 0.5" << std::endl <<
+                        "  pigment { color rgb < " << color.x() << ", " << color.y() << ", " << color.z() << "> }" << std::endl <<
+                        "  finish { " << std::endl <<
+                        //"    reflection 0.9 " << std::endl <<
+                        "    phong 1 " << std::endl <<
+                        "  }" << std::endl <<
+                        "}" << std::endl;
+
+            lastvert = vert;
+        }
+        currentStart += len;
+    }
+
+    double mX = minX + ( ( maxX - minX ) / 2.0 );
+    double mY = minY + ( ( maxY - minY ) / 2.0 );
+    double mZ = minZ + ( ( maxZ - minZ ) / 2.0 );
+
+    // save camera and add a light
+    dataFile << "camera {" << std::endl <<
+                "  location < " << mX << ", " << mY << ", -120.0 >" << std::endl <<
+                "  look_at  < " << mX << ", " << mY << ", 0.0 >" << std::endl <<
+                "}" << std::endl;
+    dataFile << "light_source {" << std::endl <<
+                "  < " << mX << ", " << mY << ", -120.0 >" << std::endl <<
+                "  color rgb <1.0, 1.0, 1.0>" << std::endl <<
+                "}" << std::endl;
+
+    // done. Close
+    infoLog() << "Done. Closing " << file << ".";
+    dataFile.close();
+    progress1->finish();
     return true;
 }
