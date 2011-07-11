@@ -241,7 +241,7 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mes
                                                          const WColor& defaultColor,
                                                          bool includeNormals,
                                                          bool lighting,
-                                                         bool useMeshColor)
+                                                         bool useMeshColor )
 {
     osg::ref_ptr< osg::Geometry> geometry( new osg::Geometry );
     geometry->setVertexArray( mesh->getVertexArray() );
@@ -307,7 +307,8 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mes
     return geometry;
 }
 
-osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mesh, const WColoredVertices& colorMap, const WColor& defaultColor, bool includeNormals, bool lighting )
+osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mesh, const WColoredVertices& colorMap,
+                                                         const WColor& defaultColor, bool includeNormals, bool lighting )
 {
     osg::Geometry* geometry = convertToOsgGeometry( mesh, defaultColor, includeNormals, lighting, false );
 
