@@ -49,10 +49,10 @@ public:
         points[2] = WPosition( 1.0, 1.0, 0.0 );
         points[3] = WPosition( 2.0, 1.0, 0.0 );
 
-        WTriangleMesh mesh = wge::triangulate( points );
+        WTriangleMesh::SPtr mesh = wge::triangulate( points );
 
         // test number of generated triangles
-        TS_ASSERT_EQUALS( mesh.triangleSize(), 2 );
+        TS_ASSERT_EQUALS( mesh->triangleSize(), 2 );
 
         // TODO(wiebel): add more of previous tests here
     }
