@@ -93,6 +93,8 @@ void WMFiberDisplaySimple::properties()
 
     m_illuminationEnable = m_properties->addProperty( "Illumination", "Enable line illumination.", true );
 
+    m_colormapEnabled = m_properties->addProperty( "Enable Colormapping", "Check this to enable colormapping. On large data, this can cause "
+                                                                              "massive FPS drop.", false );
     m_colormapRatio = m_properties->addProperty( "Colormap Ratio", "Defines the ratio between colormap and fiber color.", 0.0 );
     m_colormapRatio->setMin( 0.0 );
     m_colormapRatio->setMax( 1.0 );
@@ -194,6 +196,9 @@ void WMFiberDisplaySimple::moduleMain()
     osg::ref_ptr< WGEPropertyUniform< WPropDouble > > tubeSizeUniform = new WGEPropertyUniform< WPropDouble >( "u_tubeSize", m_tubeSize );
     osg::ref_ptr< WGEPropertyUniform< WPropDouble > > colormapRationUniform =
         new WGEPropertyUniform< WPropDouble >( "u_colormapRatio", m_colormapRatio );
+    m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_colormapEnabled, "COLORMAPPING_DISABLED", "COLORMAPPING_ENABLED" ) )
+    );
 
     // get notified about data changes
     m_moduleState.setResetable( true, true );
@@ -472,6 +477,9 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createFiberGeode( boost::shared_
     {
         geometry->setTexCoordArray( 0, texcoords );
     }
+    // enable VBO
+    geometry->setUseDisplayList( false );
+    geometry->setUseVertexBufferObjects( true );
 
     // set drawable
     geode->addDrawable( geometry );
