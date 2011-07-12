@@ -1,4 +1,5 @@
 ADD_MODULE( HARDIToSphericalHarmonics )
+ADD_MODULE( anisotropicFiltering )
 ADD_MODULE( applyMask )
 ADD_MODULE( atlasCreator )
 ADD_MODULE( atlasSurfaces )
@@ -34,7 +35,6 @@ ADD_MODULE( webglSupport )
 
 IF( Teem_FOUND )
     ADD_MODULE( teemGlyphs ${Teem_LIBRARIES} )
-#    ADD_MODULE( bermanTracking ${Teem_LIBRARIES} )
 ENDIF( Teem_FOUND )
 
 # demonstration modules
