@@ -67,7 +67,7 @@ public:
 
     /**
      * Apply the internal module structure to the target container. Be aware, that this operation might take some time, as modules can be
-     * connected only if they are "ready", which, at least with WMData modules, might take some time. It applies the loaded project file.
+     * connected only if they are "ready", which, at least with WDataModule modules, might take some time. It applies the loaded project file.
      *
      * \note the loader for project files is very tolerant. It does not abort. It tries to load as much as possible. The only exception that gets
      * thrown whenever the file could not be opened.

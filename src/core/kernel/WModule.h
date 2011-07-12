@@ -341,6 +341,19 @@ public:
      */
     boost::filesystem::path getLocalPath() const;
 
+    /**
+     * Checks whether the module was marked as deprecated.
+     *
+     * \return true if deprecated
+     */
+    bool isDeprecated() const;
+
+    /**
+     * Queries the deprecation message of a module if specified. If not specified, an empty string is returned. Check \ref isDeprecated first.
+     *
+     * \return deprecation message
+     */
+    std::string getDeprecationMessage() const;
 protected:
 
     /**
@@ -385,6 +398,16 @@ protected:
      * can require a running graphics engine or, in the case of module containers, other modules.
      */
     virtual void requirements();
+
+    /**
+     * This function allows module programmers to mark their modules deprecated in a user-friendly way. If you implement this function, you need
+     * to specify an text which should mention an alternative module.
+     *
+     * \note do not add sentences like "this module is deprecated" or similar, since the GUI the user is using already shows this message. The
+     * message should say WHY it is deprecated and what alternative module is available.
+     * \return deprecation message
+     */
+    virtual std::string deprecated() const;
 
     /**
      * Manages connector initialization. Gets called by module container.

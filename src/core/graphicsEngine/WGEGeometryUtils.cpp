@@ -95,7 +95,7 @@ osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuadNormals( const std::vector
     return vertices;
 }
 
-WTriangleMesh wge::triangulate( const std::vector< WPosition >& points, double transformationFactor )
+WTriangleMesh::SPtr wge::triangulate( const std::vector< WPosition >& points, double transformationFactor )
 {
     WAssert( points.size() > 2, "The Delaunay triangulation needs at least 3 vertices!" );
 
@@ -150,7 +150,5 @@ WTriangleMesh wge::triangulate( const std::vector< WPosition >& points, double t
     }
 
     // I needed this reconversion using osgVec3Array because the triangulator changed my positions somehow.
-    WTriangleMesh mesh( wge::osgVec3Array( points ), triangles );
-
-    return mesh;
+    return WTriangleMesh::SPtr( new WTriangleMesh( wge::osgVec3Array( points ), triangles ) );
 }

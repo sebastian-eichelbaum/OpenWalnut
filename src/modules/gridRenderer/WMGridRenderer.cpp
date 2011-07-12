@@ -40,7 +40,6 @@
 #include "core/dataHandler/WGridRegular3D.h"
 #include "core/graphicsEngine/WGEGeodeUtils.h"
 #include "core/graphicsEngine/callbacks/WGENodeMaskCallback.h"
-#include "core/kernel/modules/data/WMData.h"
 #include "core/kernel/WKernel.h"
 #include "WMGridRenderer.h"
 #include "WMGridRenderer.xpm"

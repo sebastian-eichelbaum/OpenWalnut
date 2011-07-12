@@ -1,7 +1,6 @@
+ADD_MODULE( data )
 ADD_MODULE( exportGeometry )
 ADD_MODULE( readMesh )
-ADD_MODULE( readSphericalHarmonics )
 ADD_MODULE( writeDendrogram )
 ADD_MODULE( writeMesh )
-ADD_MODULE( writeNIfTI )
 ADD_MODULE( writeTracts )

@@ -46,6 +46,16 @@ class WGEFunctorCallback: public WGECallbackTraits< Type >::CallbackType
 public:
 
     /**
+     * Shared pointer.
+     */
+    typedef osg::ref_ptr< WGEFunctorCallback > SPtr;
+
+    /**
+     * Const shared pointer.
+     */
+    typedef osg::ref_ptr< const WGEFunctorCallback > ConstSPtr;
+
+    /**
      * The type of functor supported in this callback.
      */
     typedef boost::function< void ( Type* )> FunctorType;

@@ -38,13 +38,16 @@
 #include <QtGui/QMenuBar>
 #include <QtGui/QMessageBox>
 #include <QtGui/QTextEdit>
-#include <QtWebKit/QWebView>
 #include <QtGui/QShortcut>
 #include <QtGui/QSlider>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
 #include <QtCore/QSettings>
 #include <QtGui/QInputDialog>
+
+#ifndef QT4GUI_NOWEBKIT
+    #include <QtWebKit/QWebView>
+#endif
 
 #include "core/common/WColor.h"
 #include "core/common/WIOTools.h"
@@ -55,7 +58,7 @@
 #include "core/dataHandler/WEEG2.h"
 #include "core/graphicsEngine/WGEZoomTrackballManipulator.h"
 #include "core/graphicsEngine/WROIBox.h"
-#include "core/kernel/modules/data/WMData.h"
+#include "core/kernel/WDataModule.h"
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleCombiner.h"
@@ -458,7 +461,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
 
         // data modules contain an member denoting the real data type. Currently we only have one data module and a not very modulated data
         // structures.
-        boost::shared_ptr< WMData > dataModule = boost::shared_static_cast< WMData >( module );
+        boost::shared_ptr< WDataModule > dataModule = boost::shared_static_cast< WDataModule >( module );
 
         // grab data and identify type
         if( dataModule->getDataSet()->isA< WDataSetSingle >() && dataModule->getDataSet()->isTexture() )
@@ -790,6 +793,8 @@ void WMainWindow::openAboutDialog()
 void WMainWindow::openOpenWalnutHelpDialog()
 {
     std::string filename( WPathHelper::getDocPath().file_string() + "/openwalnut-qt4/OpenWalnutHelp.html" );
+
+#ifndef QT4GUI_NOWEBKIT
     std::string content = readFileIntoString( filename );
 
     QWidget* window = new QWidget( this, Qt::Window );
@@ -806,6 +811,10 @@ void WMainWindow::openOpenWalnutHelpDialog()
     view->setHtml( content.c_str(), QUrl( location  ) );
     view->show();
     layout->addWidget( view );
+#else
+    QMessageBox::information( this, "Help", QString::fromStdString( "Sorry! Your version of OpenWalnut was not compiled with embedded help. "
+                                                                    "To open the help pages, use this link: <a href="+filename+">Help</a>." ) );
+#endif
 }
 
 void WMainWindow::setPresetViewLeft()

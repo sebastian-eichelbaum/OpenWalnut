@@ -27,17 +27,14 @@
 
 #include <string>
 
-#include <osg/Geode>
-
 #include "core/common/datastructures/WColoredVertices.h"
-#include "core/graphicsEngine/WGEGroupNode.h"
-#include "core/graphicsEngine/shaders/WGEShader.h"
-#include "core/graphicsEngine/WTriangleMesh.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
 #include "core/kernel/WModuleOutputData.h"
 
 class WTriangleMesh;
+class WGEShader;
+class WGEManagedGroupNode;
 
 /**
  * This module renders the triangle mesh given at its input connector
@@ -50,12 +47,12 @@ class WMTriangleMeshRenderer: public WModule
 public:
 
     /**
-     *
+     * Constructor. Creates the module skeleton.
      */
     WMTriangleMeshRenderer();
 
     /**
-     *
+     * Destructor.
      */
     virtual ~WMTriangleMeshRenderer();
 
@@ -84,11 +81,6 @@ public:
      */
     virtual const char** getXPMIcon() const;
 
-    /**
-     *  updates shader parameters
-     */
-    void update();
-
 protected:
 
     /**
@@ -106,75 +98,52 @@ protected:
      */
     virtual void properties();
 
-    /**
-     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
-     */
-    virtual void activate();
-
 private:
+
+    /**
+     * A condition used to notify about changes in several properties.
+     */
+    boost::shared_ptr< WCondition > m_propCondition;
 
     /**
      * An input connector used to get meshes from other modules. The connection management between connectors must not be handled by the module.
      */
     boost::shared_ptr< WModuleInputData< WTriangleMesh > > m_meshInput;
-    boost::shared_ptr< WModuleInputData< WColoredVertices > > m_colorMapInput; //!< for each vertex ID in that container a special color is given.
-
-    WPropColor m_meshColor; //!< The color of the mesh
-    WPropInt m_opacityProp; //!< Property holding the opacity value assigned to the surface
-    WPropBool m_mainComponentOnly; //!< En/Disable display of only the main component (biggest vertices number)
-
-    WPropBool m_usePerVertexColor; //!< En/Disable display of only the main component (biggest vertices number)
-
-    osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
-
-    osg::ref_ptr< osg::Geode > m_surfaceGeode; //!< Pointer to geode containing the surface.
-
-    osg::ref_ptr< WGEShader > m_shader; //!< The shader used for the iso surface in m_geode
-
 
     /**
-     * This function generates the osg geometry from the WTriangleMesh.
-     * \param mesh The triangle mesh that will be rendered.
+     * A map for mapping each vertex to a color.
      */
-    void renderMesh( boost::shared_ptr< WTriangleMesh > mesh );
+    boost::shared_ptr< WModuleInputData< WColoredVertices > > m_colorMapInput;
+
+    /**
+     * The mesh's opacity value.
+     */
+    WPropDouble m_opacity;
+
+    /**
+     * En/Disable display of only the main component (biggest vertices number)
+     */
+    WPropBool m_mainComponentOnly;
+
+    /**
+     * The color of the mesh to be rendered.
+     */
+    WPropColor m_color;
+
+    /**
+     * Which colormode should be used?
+     */
+    WPropSelection m_colorMode;
+
+    /**
+     * Updates the transformation matrix of the main node. Called every frame.
+     */
+    void updateTransformation();
+
+    /**
+     * The node containing all geometry nodes.
+     */
+    WGEManagedGroupNode::SPtr m_moduleNode;
 };
-
-/**
- * Adapter object for realizing callbacks of the node representing the surface in the osg
- */
-class TriangleMeshRendererCallback : public osg::NodeCallback
-{
-public:
-    /**
-     * Constructor of the callback adapter.
-     * \param module A function of this module will be called
-     */
-    explicit TriangleMeshRendererCallback( boost::shared_ptr< WMTriangleMeshRenderer > module );
-
-    /**
-     * Function that is called by the osg and that call the function in the module.
-     * \param node The node we are called.
-     * \param nv the visitor calling us.
-     */
-    virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-
-private:
-    boost::shared_ptr< WMTriangleMeshRenderer > m_module; //!< Pointer to the module to which the function that is called belongs to.
-};
-
-inline TriangleMeshRendererCallback::TriangleMeshRendererCallback( boost::shared_ptr< WMTriangleMeshRenderer > module )
-    : m_module( module )
-{
-}
-
-inline void TriangleMeshRendererCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    if( m_module )
-    {
-        m_module->update();
-    }
-    traverse( node, nv );
-}
-
 
 #endif  // WMTRIANGLEMESHRENDERER_H

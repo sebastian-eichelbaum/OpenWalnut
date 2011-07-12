@@ -40,6 +40,7 @@
 #include "../common/math/WPlane.h"
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../common/WColor.h"
+#include "../common/datastructures/WColoredVertices.h"
 #include "WExportWGE.h"
 #include "WGEGeometryUtils.h"
 #include "WGESubdividedPlane.h"
@@ -90,14 +91,42 @@ namespace wge
 
     /**
      * Extract the vertices and triangles from a WTriangleMesh and save them
-     * into an osg::Geometry.
+     * into an osg::Geometry. It can use the normals and per-vertex colors of the mesh.
      *
      * \param mesh the WTriangleMesh used as input
      * \param includeNormals When true, calculate the vertex normals and include
      *                       them into the geometry.
+     * \param defaultColor This color is used in case the useMeshColor parameter is false or no colors are defined in the mesh.
+     * \param lighting if true, a standard lighting is activated for this geometry
+     * \param useMeshColor if true, the mesh color is used. If false, the defaultColor is used.
      * \return an osg::Geometry containing the mesh
+     * \note mesh cannot be const since osg::Geometry needs non-const pointers to the contained arrays
      */
-    osg::ref_ptr< osg::Geometry > WGE_EXPORT convertToOsgGeometry( WTriangleMesh* mesh, bool includeNormals = false );
+    osg::ref_ptr< osg::Geometry > convertToOsgGeometry( WTriangleMesh::SPtr mesh,
+                                                        const WColor& defaultColor = WColor( 1.0, 1.0, 1.0, 1.0 ),
+                                                        bool includeNormals = false,
+                                                        bool lighting = false,
+                                                        bool useMeshColor = true );
+
+    /**
+     * Extract the vertices and triangles from a WTriangleMesh and save them
+     * into an osg::Geometry. It can use the normals and per-vertex colors of the mesh.
+     * This method additionally uses the specified vertexID-color map to provide additional coloring.
+     *
+     * \param mesh the WTriangleMesh used as input
+     * \param colorMap the map from vertex to color.
+     * \param includeNormals When true, calculate the vertex normals and include
+     *                       them into the geometry.
+     * \param defaultColor This color is used in case the colorMap does not provide a color for a vertex
+     * \param lighting if true, a standard lighting is activated for this geometry*
+     * \return an osg::Geometry containing the mesh
+     * \note mesh cannot be const since osg::Geometry needs non-const pointers to the contained arrays
+     */
+    osg::ref_ptr< osg::Geometry > WGE_EXPORT convertToOsgGeometry( WTriangleMesh::SPtr mesh, const WColoredVertices& colorMap,
+                                                                   const WColor& defaultColor = WColor( 1.0, 1.0, 1.0, 1.0 ),
+                                                                   bool includeNormals = false,
+                                                                   bool lighting = false
+                                                                   );
 
     /**
      * Generates a line geode with thickness and color as parameters.

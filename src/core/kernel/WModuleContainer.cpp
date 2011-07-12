@@ -44,7 +44,7 @@
 #include "exceptions/WModuleAlreadyAssociated.h"
 #include "exceptions/WModuleSignalSubscriptionFailed.h"
 #include "exceptions/WModuleUninitialized.h"
-#include "modules/data/WMData.h"
+#include "WDataModule.h"
 
 #include "WModuleContainer.h"
 
@@ -253,7 +253,7 @@ WModuleContainer::DataModuleListType WModuleContainer::getDataModules()
         // is this module a data module?
         if( ( *iter )->getType() == MODULE_DATA )
         {
-            boost::shared_ptr< WMData > dm = boost::shared_static_cast< WMData >( *iter );
+            boost::shared_ptr< WDataModule > dm = boost::shared_static_cast< WDataModule >( *iter );
 
             // now check the contained dataset ( isTexture and whether it is ready )
             if( dm->isReady()() )

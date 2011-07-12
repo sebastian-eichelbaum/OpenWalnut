@@ -45,6 +45,11 @@ SET( QT_LIBS ${QT_QTCORE_LIBRARY}
              ${QT_QTOPENGL_LIBRARY}
              ${QT_QTWEBKIT_LIBRARY} )
 
+# If Qt4 Webkit is not available:
+IF( NOT QT_QTWEBKIT_FOUND )
+    ADD_DEFINITIONS( "-DQT4GUI_NOWEBKIT" )
+ENDIF()
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Add sources as target
 # ---------------------------------------------------------------------------------------------------------------------------------------------------

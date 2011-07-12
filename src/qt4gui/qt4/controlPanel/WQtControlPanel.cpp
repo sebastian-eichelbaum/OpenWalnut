@@ -34,11 +34,12 @@
 #include <QtGui/QScrollArea>
 #include <QtGui/QShortcut>
 #include <QtGui/QSplitter>
+#include <QtGui/QMessageBox>
 
 #include "core/common/WLogger.h"
 #include "core/common/WPredicateHelper.h"
 #include "core/dataHandler/WDataSet.h"
-#include "core/kernel/modules/data/WMData.h"
+#include "core/kernel/WDataModule.h"
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleContainer.h"
@@ -253,9 +254,19 @@ bool WQtControlPanel::event( QEvent* event )
             WLogger::getLogger()->addLogMessage( "Inserting module " + e1->getModule()->getName() + " to control panel.",
                                                  "ControlPanel", LL_DEBUG );
 
+            // show deprecation message?
+            if( e1->getModule()->isDeprecated() )
+            {
+                std::string d = e1->getModule()->getDeprecationMessage();
+                std::string m = "The module \"" + e1->getModule()->getName() + "\" is marked deprecated. You should avoid using it."
+                                "<br><br>"
+                                "Message: " + d;
+                QMessageBox::warning( this, "Deprecation Warning", QString::fromStdString( m ) );
+            }
+
             // finally add the module
             // TODO(schurade): is this differentiation between data and "normal" modules really needed?
-            if( boost::shared_dynamic_cast< WMData >( e1->getModule() ).get() )
+            if( boost::shared_dynamic_cast< WDataModule >( e1->getModule() ).get() )
             {
                 addDataset( e1->getModule(), 0 );
             }
@@ -666,7 +677,7 @@ void WQtControlPanel::selectTreeItem()
                 createCompatibleButtons( module );
 
                 {
-                    boost::shared_ptr< WMData > dataModule = boost::shared_dynamic_cast< WMData >( module );
+                    boost::shared_ptr< WDataModule > dataModule = boost::shared_dynamic_cast< WDataModule >( module );
 
                     // if the selected module contains a texture, select the corresponding texture in the texture sorter.
                     if( dataModule )
@@ -779,8 +790,8 @@ void WQtControlPanel::selectDataModule( boost::shared_ptr< WDataSet > dataSet )
     {
         if( dynamic_cast< WQtDatasetTreeItem* >( *it ) )
         {
-            boost::shared_ptr< WMData > dataModule;
-            dataModule = boost::shared_dynamic_cast< WMData >( ( dynamic_cast< WQtDatasetTreeItem* >( *it ) )->getModule() );
+            boost::shared_ptr< WDataModule > dataModule;
+            dataModule = boost::shared_dynamic_cast< WDataModule >( ( dynamic_cast< WQtDatasetTreeItem* >( *it ) )->getModule() );
             if( dataModule )
             {
                 if( dataModule->getDataSet() == dataSet )

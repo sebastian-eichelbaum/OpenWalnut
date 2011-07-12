@@ -25,8 +25,10 @@
 #include <string>
 #include <iostream>
 
-#include <QtGui/QKeyEvent>
 #include <QtGui/QColorDialog>
+#include <QtGui/QFileDialog>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QPixmap>
 
 #include "WQtGLWidget.h"
 #include "WQtGLWidget.moc"
@@ -249,6 +251,10 @@ void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
         case Qt::Key_2:
             setCameraManipulator( TWO_D );
             break;
+        // TODO( ebaum ): replace this
+        case Qt::Key_F12:
+            makeScreenshot();
+            break;
     }
 
     switch( event->modifiers() )
@@ -349,3 +355,19 @@ void WQtGLWidget::changeBGColor()
     updateViewerBackground();
 }
 
+void WQtGLWidget::makeScreenshot()
+{
+    // TODO( ebaum ): replace this
+
+    // grab content first to avoid making a screenshot of the file dialog :)
+    QPixmap q = QPixmap::grabWindow( this->winId() );
+
+    QString path = QDir::currentPath() + tr( "/screenshot.png" );
+    QString fileName = QFileDialog::getSaveFileName( this, tr( "Save As" ), path, tr( "PNG Files (*.png);;All Files (*)" ) );
+
+    if( !fileName.isEmpty() )
+    {
+        q.save( fileName, tr( "png" ).toAscii() );
+        WLogger::getLogger()->addLogMessage( std::string( "Screenshot saved to " ) + fileName.toStdString(), "QtGLWidgetAll", LL_INFO );
+    }
+}

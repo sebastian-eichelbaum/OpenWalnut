@@ -57,8 +57,7 @@ const char** WMEigenSystem::getXPMIcon() const
 }
 const std::string WMEigenSystem::getName() const
 {
-    // Specify your module name here. This name must be UNIQUE!
-    return "EigenSystem";
+    return "Eigen System";
 }
 
 const std::string WMEigenSystem::getDescription() const

@@ -113,6 +113,15 @@ private:
     bool saveJsonTriangles() const;
 
     /**
+     * Saves the fiber tracts as POVRAY SDL.
+     *
+     * \param fibers the fibers to write
+     *
+     * \return true if successful.
+     */
+    bool savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers ) const;
+
+    /**
      * Input connector for writing the tracts out of a WFiberCluster to a file.
      */
     boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_clusterIC;

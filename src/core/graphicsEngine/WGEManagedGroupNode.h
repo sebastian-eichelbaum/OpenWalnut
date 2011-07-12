@@ -41,6 +41,16 @@ class WGE_EXPORT WGEManagedGroupNode: public WGEGroupNode
 public:
 
     /**
+     * Shared pointer.
+     */
+    typedef osg::ref_ptr< WGEManagedGroupNode > SPtr;
+
+    /**
+     * Const shared pointer.
+     */
+    typedef osg::ref_ptr< const WGEManagedGroupNode > ConstSPtr;
+
+    /**
      * Default constructor.
      *
      * \param active the flag denoting the node to be activated ( if flag == true ) or turned off.

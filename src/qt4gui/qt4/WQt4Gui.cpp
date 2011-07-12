@@ -46,7 +46,6 @@
 #include "core/dataHandler/WDataHandler.h"
 #include "core/dataHandler/WSubject.h"
 #include "core/graphicsEngine/WGraphicsEngine.h"
-#include "core/kernel/modules/data/WMData.h"
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WModuleContainer.h"
 #include "core/kernel/WProjectFile.h"
@@ -252,11 +251,6 @@ void WQt4Gui::slotActivateDatasetOrModuleInTree( boost::shared_ptr< WModule > mo
 void WQt4Gui::slotRemoveDatasetOrModuleInTree( boost::shared_ptr< WModule > module )
 {
     // create a new event for this and insert it into event queue
-    if( module->getName() == "Data Module" )
-    {
-        boost::shared_ptr< WMData > dataModule = boost::shared_dynamic_cast< WMData >( module );
-        WAssert( dataModule, "Internal failure." );
-    }
     QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleRemovedEvent( module ) );
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleRemovedEvent( module ) );
     QCoreApplication::postEvent( m_mainWindow, new WModuleRemovedEvent( module ) );

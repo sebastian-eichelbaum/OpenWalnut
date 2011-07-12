@@ -115,6 +115,7 @@ CreateSrcArchive()
 # Param $1 the directory to create
 # Param $2 the optional alternative name for the source archive. Some package mechanism need this to work
 #          properly
+# Param $3 the exlusion list for re-packing purposes
 #
 # POSTCONDITION the PWD is not changed
 CreateWorkingDir()
@@ -150,8 +151,18 @@ CreateWorkingDir()
         exit 1
     fi
 
+    # If source re-packing is needed, param $3 should contain the exclusion list
+    EXCLUDE_LIST=""
+    if [ $# -eq 3 ]; then
+        # re-package with exclusion list
+        for ex in $3
+        do
+            EXCLUDE_LIST="$EXCLUDE_LIST --exclude=$ex"
+        done
+    fi
+
     # Extract it
-    tar xzf $SRC_DIR.tar.gz
+    tar xzf $SRC_DIR.tar.gz $EXCLUDE_LIST
     if [ $? -ne 0 ]; then
         echo "  * Failed to extract source archive to \"$1\"."
         cd ..
@@ -159,11 +170,16 @@ CreateWorkingDir()
     fi
 
     # did the user specify some new name for the tar?
-    if [ $# -eq 2 ]; then
-        mv $SRC_DIR.tar.gz $2
-        if [ $? -ne 0 ]; then
-            echo "  * Failed to move \"$SRC_DIR.tar.gz\" to \"$2\"."
-            exit 1
+    if [ $# -ge 2 ]; then
+        if [ $# -eq 2 ]; then
+            mv $SRC_DIR.tar.gz $2
+            if [ $? -ne 0 ]; then
+                echo "  * Failed to move \"$SRC_DIR.tar.gz\" to \"$2\"."
+                exit 1
+            fi
+        else
+            echo "  * Repacking with exclusions."
+            tar czf $2 $SRC_DIR
         fi
     fi
 
@@ -197,8 +213,8 @@ BuildDeb()
     echo "* Creating all deb binary packages."
     DEB_WORKDIR=${SRC_DIR}_deb
 
-    # Create a working dir
-    CreateWorkingDir $DEB_WORKDIR ${ARCHIVE_PREFIX}_${VERSION}.orig.tar.gz
+    # Create a working dir and exclude some external code
+    CreateWorkingDir $DEB_WORKDIR ${ARCHIVE_PREFIX}_${VERSION}.orig.tar.gz "src/modules/data/ext/nifti* src/modules/data/ext/biosig*"
     if [ $? -ne 0 ]; then
         echo " * Failed to creating working diretory."
         exit 1
@@ -220,7 +236,7 @@ BuildDeb()
     #pdebuild --debbuildopts "-uc -us" --architecture $arch --buildresult ..
     debuild -uc -us
     if [ $? -ne 0 ]; then
-        echo "  * debuild for failed. You probably missed dependencies or have errors in the package config files."
+        echo "  * debuild failed. You probably missed dependencies or have errors in the package config files."
         cd ..
         exit 1
     fi

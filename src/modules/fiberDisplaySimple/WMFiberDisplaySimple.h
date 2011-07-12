@@ -129,6 +129,11 @@ private:
     WPropDouble m_colormapRatio;
 
     /**
+     * True if colormapping should be used.
+     */
+    WPropBool m_colormapEnabled;
+
+    /**
      * A property group for all the clipping related props.
      */
     WPropGroup m_clipPlaneGroup;

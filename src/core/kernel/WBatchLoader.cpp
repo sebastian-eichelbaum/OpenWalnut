@@ -26,6 +26,7 @@
 #include <vector>
 
 #include "WModule.h"
+#include "WDataModule.h"
 #include "WModuleContainer.h"
 #include "WModuleFactory.h"
 
@@ -64,7 +65,7 @@ void WBatchLoader::threadMain()
         );
 
         // set the filename
-        boost::shared_static_cast< WMData >( mod )->setFilename( *iter );
+        boost::shared_static_cast< WDataModule >( mod )->setFilename( *iter );
 
         m_targetContainer->add( mod );
         // serialize loading of a couple of data sets

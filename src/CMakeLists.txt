@@ -51,12 +51,6 @@ IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
   MARK_AS_ADVANCED( BUILD_SHARED_LIBS )
 ENDIF()
 
-# Visual Studio version prior to 2010 do not provide stdint.h and inttypes.h
-# TODO(all): WTF!?
-IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
-  INCLUDE_DIRECTORIES( "${PROJECT_SOURCE_DIR}/common/platformDependent/visualStudio/" )
-ENDIF()
-
 # The build types
 IF( NOT CMAKE_BUILD_TYPE )
     SET( CMAKE_BUILD_TYPE Release
@@ -133,7 +127,8 @@ ELSE()
     # Darwin's ld isn't GNU and doesn't like the following
     IF( NOT CMAKE_SYSTEM_NAME MATCHES "Darwin" )
         ## The following allows us to prevent cyclic dependencies even on linux
-        SET( CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined -Wl,--allow-shlib-undefined" CACHE STRING "" FORCE )
+        SET( CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined -Wl,--allow-shlib-undefined,--as-needed" CACHE STRING "" FORCE )
+        SET( CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed" CACHE STRING "" FORCE )
     ENDIF()
     SET( CMAKE_CXX_FLAGS_RELEASE "-O3" CACHE STRING "" FORCE )
     SET( CMAKE_CXX_FLAGS_DEBUG "-g -DDEBUG -O0" CACHE STRING "" FORCE )
@@ -164,8 +159,10 @@ ENDIF()
 # Provide several options to control some aspects of resource copy.
 OPTION( OW_PACKAGE_BUILD "Enable this to get fine-grained control over several resources and files getting installed. This is very handy for package building." OFF )
 IF( OW_PACKAGE_BUILD )
+    SET( OW_PACKAGE_PACKAGER "cpack" CACHE STRING "Package builder. Set this to enable packager-specific options during install." )
+
     OPTION( OW_PACKAGE_NOCOPY_LICENSE "Disable to copy our licensing information. Enabling this can be useful for package maintainer since several packaging systems have their own licence mechanism (i.e. Debian)." OFF )
-    OPTION( OW_PACKAGE_NOLINK_OPENTHREADS "Enable this to avoid linking OpenThreads. On some systems, OpenSceneGraph already is linked against it and thus linking OpenThreads to OW is not needed (Debian and Ubuntu for example)." OFF )
+    OPTION( OW_PACKAGE_NOCOPY_COREFONTS "Enable this if you have liberation fonts installed on your system. They will be linked. If disabled, our fonts are copied." OFF )
 ENDIF()
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -242,69 +239,13 @@ IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
 ENDIF()
 FIND_PACKAGE( OpenSceneGraph ${MIN_OSG_VERSION} REQUIRED osgDB osgUtil osgGA osgViewer osgSim osgWidget osgText )
 
-# If the user did not disable license-copying, do it
-# NOTE: use this "double-negative" to use the fact that undefined variables yield FALSE.
-IF( OW_PACKAGE_NOLINK_OPENTHREADS )
-    # NOTE: this is a hack to remove the openthread lib from the list of OSG libs. It gets automatically added by the current
-    #       find script but it is not really needed on some systems (since they provide an osg lib which already is linked against this.).
-    FOREACH( osglib ${OPENSCENEGRAPH_LIBRARIES} )
-        STRING( REGEX MATCH ".*OpenThreads.*" IsExcluded "${osglib}" )
-        IF( IsExcluded )
-            LIST( REMOVE_ITEM OPENSCENEGRAPH_LIBRARIES ${osglib} )
-        ENDIF( IsExcluded )
-    ENDFOREACH()
-ENDIF()
-
-# -----------------------------------------------------------------------------------------------------------------------------------------------
-# NiftiLib, at least 2.0.0
-# See  http://niftilib.sourceforge.net
-
-# we provide the niftilib in ext. If it is found on the system, the system version is used
-SET( OWExtNiftiIOName  "openwalnut_niftiio" )
-SET( OWExtNiftiZNZName  "openwalnut_niftiznz" )
-
-FIND_PACKAGE( niftilib QUIET )
-IF( NIFTILIB_FOUND )
-    MESSAGE( STATUS "Using system installed nifitlib." )
-    INCLUDE_DIRECTORIES( ${NIFTILIB_INCLUDE_DIR} )
-    SET( OWExtNiftiIOName  ${NIFTILIB_LIBRARY} )
-ELSE()
-    INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/ext/nifti )
-    ADD_SUBDIRECTORY( ext/nifti )
-ENDIF()
-
-# -----------------------------------------------------------------------------------------------------------------------------------------------
-# BioSig, at least 0.84
-# See http://biosig.sourceforge.net
-
-# we provide the biosig in ext. If it is found on the system, the system version is used
-SET( OWExtBioSigName "openwalnut_biosig" )
-
-FIND_PACKAGE( biosig QUIET )
-IF( BIOSIG_FOUND )
-    MESSAGE( STATUS "Using system installed biosig." )
-    INCLUDE_DIRECTORIES( ${BIOSIG_INCLUDE_DIR} )
-    SET( OWExtBioSigName  ${BIOSIG_LIBRARY} )
-ELSE()
-    IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
-        INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/ext/biosig )
-        ADD_SUBDIRECTORY( ext/biosig )
-    ELSE ()
-        INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/ext/biosigWin )
-        ADD_SUBDIRECTORY( ext/biosigWin )
-    ENDIF()
-ENDIF()
-
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # Eigen3, at least 3.0.0
 # See http://eigen.tuxfamily.org
 
-FIND_PACKAGE( eigen3 QUIET )
+FIND_PACKAGE( eigen3 REQUIRED )
 IF( EIGEN3_FOUND )
-    MESSAGE( STATUS "Using system installed eigen3." )
     INCLUDE_DIRECTORIES( ${EIGEN3_INCLUDE_DIR} )
-ELSE()
-    INCLUDE_DIRECTORIES( "${PROJECT_SOURCE_DIR}/ext/eigen3" )
 ENDIF()
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -488,6 +429,7 @@ ADD_CUSTOM_TARGET( install_devdoc
                         -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
                     DEPENDS core_devdoc
                  )
+ADD_DEPENDENCIES( install_devdoc core_devdoc )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
@@ -498,20 +440,8 @@ ADD_CUSTOM_TARGET( install_devdoc
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-# libcnt needs absolute inclusion somewhere
-INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/ext/libeep )
-INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/ext )
-
 # to allow non-core code to access core and ext absolutely
 INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR} )
-
-# -----------------------------------------------------------------------------------------------------------------------------------------------
-# external libs
-
-SET( OWExtEEPName    "openwalnut_eep" )
-
-# build external libs in ext/
-ADD_SUBDIRECTORY( ext ) # The needed external libraries
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # openwalnut core library

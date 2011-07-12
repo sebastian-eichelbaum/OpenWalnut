@@ -48,8 +48,7 @@ COLLECT_COMPILE_FILES( "${CMAKE_CURRENT_SOURCE_DIR}" TARGET_CPP_FILES TARGET_H_F
 
 # Setup the target
 ADD_LIBRARY( ${LibName} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${OW_VERSION_HEADER} )
-TARGET_LINK_LIBRARIES( ${LibName} ${OWExtBioSigName} ${OWExtEEPName} ${OWExtNiftiIOName}
-                                  ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES}
+TARGET_LINK_LIBRARIES( ${LibName} ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES}
                      )
 
 # Tell CMake that someone creates this file for us. See doc of SETUP_VERSION_HEADER in BuildUtils.cmake for details why this is needed.
@@ -96,7 +95,29 @@ ADD_CUSTOM_TARGET( core_devdoc
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # copy our own resources
-SETUP_RESOURCES( "core" "CORE" )
+IF( NOT OW_PACKAGE_NOCOPY_COREFONTS )
+    SETUP_RESOURCES( "core" "CORE" )
+ELSE()
+    # This is a hack which is quite debian specific. We do this here to avoid font duplicates since the ttf-liberation fonts are already
+    # available on Debian. If you need to modify this for another packaging thingy, please let me know (ebaum@informatik.uni-leipzig.d). We then
+    # should find a generic solution.
+    IF( OW_PACKAGE_PACKAGER STREQUAL "deb" )
+        INSTALL( CODE "MESSAGE( \"INSTALL: Symlinking fonts to \${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts.\" )"
+                COMPONENT "CORE" )
+        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E make_directory \${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts )"
+                COMPONENT "CORE" ) 
+        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Bold.ttf \${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/arial.ttf )"
+                COMPONENT "CORE" )
+        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Bold.ttf \${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/Bold.ttf )"
+                COMPONENT "CORE" )
+        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Italic.ttf \${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/Italic.ttf )"
+                COMPONENT "CORE" )
+        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Regular.ttf \${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/Regular.ttf )"
+                COMPONENT "CORE" )
+    ELSE()
+        MESSAGE( STATUS "Warning: You enabled \"OW_PACKAGE_NOCOPY_COREFONTS\" but packager unknown." ) 
+    ENDIF()
+ENDIF()
 
 # where to put doc files?
 # NOTE: the doc path should match the SONAME of lib. Use this command to query a proper name:
@@ -108,6 +129,7 @@ SETUP_COMMON_DOC( ${OW_DOC_DIR_RELATIVE} "CORE" )
 INSTALL( DIRECTORY ${DEVDOC_DIR} 
          DESTINATION ${OW_DOC_DIR_RELATIVE}
          COMPONENT "CORE_DOC"
+         OPTIONAL
        )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -124,5 +146,5 @@ SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${OW_SHARE_DIR_RELATIVE}/shaders" "CORE" 
 # setup the stylechecker. Ignore the platform specific stuff.
 SETUP_STYLECHECKER( "${LibName}"
                     "${TARGET_CPP_FILES};${TARGET_H_FILES};${TARGET_TEST_FILES};${TARGET_GLSL_FILES}"  # add all these files to the stylechecker
-                    ".*platformDependent\\/visualStudio\\/.*" )                                        # exlude some ugly files
+                    "" )                                        # exlude some ugly files
 

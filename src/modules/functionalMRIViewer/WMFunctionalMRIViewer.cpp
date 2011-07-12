@@ -56,7 +56,7 @@ const char** WMFunctionalMRIViewer::getXPMIcon() const
 }
 const std::string WMFunctionalMRIViewer::getName() const
 {
-    return "FunctionalMRIViewer";
+    return "Functional MRI Viewer";
 }
 
 const std::string WMFunctionalMRIViewer::getDescription() const

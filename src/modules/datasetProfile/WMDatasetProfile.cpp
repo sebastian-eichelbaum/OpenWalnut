@@ -65,8 +65,7 @@ const char** WMDatasetProfile::getXPMIcon() const
 }
 const std::string WMDatasetProfile::getName() const
 {
-    // Specify your module name here. This name must be UNIQUE!
-    return "DatasetProfile";
+    return "Dataset Profile";
 }
 
 const std::string WMDatasetProfile::getDescription() const
