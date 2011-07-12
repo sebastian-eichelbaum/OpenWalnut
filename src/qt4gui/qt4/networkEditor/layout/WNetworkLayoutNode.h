@@ -47,7 +47,7 @@ class WNetworkLayoutNode
         /**
          * destructor
          **/
-        ~WNetworkLayoutItem();
+        ~WNetworkLayoutNode();
 
         /**
          * add a new child to this node

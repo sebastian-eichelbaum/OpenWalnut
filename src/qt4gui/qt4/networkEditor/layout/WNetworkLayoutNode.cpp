@@ -45,12 +45,12 @@ std::list< WNetworkLayoutNode* > * getChildren()
     return &m_referencedItems;
 }
 
-QPointF WNetworkLayoutItem::getGridPos()
+QPointF WNetworkLayoutNode::getGridPos()
 {
     return m_gridPos;
 }
 
-void remove( WNetworkLayoutNode *node )
+void WNetworkLayoutNode::remove( WNetworkLayoutNode *node )
 {
     std::list< WNetworkLayoutNode * >::iterator iter;
     iter = std::find( m_referencedItems.begin(), m_referencedItems.end(), node );
@@ -60,7 +60,7 @@ void remove( WNetworkLayoutNode *node )
     }
 }
 
-void WNetworkLayoutItem::setGridPos( QPointF pos )
+void WNetworkLayoutNode::setGridPos( QPointF pos )
 {
     m_gridPos = pos;
     // calc positon for m_item
