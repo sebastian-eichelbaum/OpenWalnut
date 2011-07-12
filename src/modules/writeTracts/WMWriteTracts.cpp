@@ -482,8 +482,26 @@ bool WMWriteTracts::savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers
     m_progress->addSubProgress( progress1 );
 
     // write some head data
-    dataFile << "#version 3.5;" << std::endl;
+    dataFile << "#version 3.5;" << std::endl << std::endl;
     dataFile << "#include \"colors.inc\"" << std::endl;
+    dataFile << "#include \"rad_def.inc\"" << std::endl << std::endl;
+    dataFile << "global_settings {" << std::endl <<
+    " ambient_light 0" << std::endl << std::endl <<
+    " radiosity {" << std::endl <<
+    "  pretrace_start 0.08" << std::endl <<
+    "  pretrace_end   0.005" << std::endl <<
+    "  count 350" << std::endl <<
+    "  error_bound 0.15" << std::endl <<
+    "  recursion_limit 2" << std::endl <<
+    " }"  << std::endl <<
+    "}" << std::endl << std::endl <<
+    "#default{" << std::endl <<
+    " finish{" << std::endl <<
+    "  ambient 0" << std::endl <<
+    "  phong 1" << std::endl <<
+    //"  reflection 0.9yy " << std::endl <<
+    " }" << std::endl <<
+    "}" << std::endl << std::endl;
 
     // for each fiber:
     debugLog() << "Iterating over all fibers.";
@@ -540,13 +558,13 @@ bool WMWriteTracts::savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers
             // write it in POVRay style
             dataFile << "cylinder" << std::endl <<
                         "{" << std::endl <<
-                        "  < " << lastvert.x() << ", " << lastvert.y() << ", " << lastvert.z() << " >, " <<
-                          "< " << vert.x() << ", " << vert.y() << ", " << vert.z() << " >, 0.5" << std::endl <<
-                        "  pigment { color rgb < " << color.x() << ", " << color.y() << ", " << color.z() << "> }" << std::endl <<
-                        "  finish { " << std::endl <<
-                        //"    reflection 0.9 " << std::endl <<
-                        "    phong 1 " << std::endl <<
-                        "  }" << std::endl <<
+                        " <" << lastvert.x() << "," << lastvert.y() << "," << lastvert.z() << ">," <<
+                          "<" << vert.x() << "," << vert.y() << "," << vert.z() << ">,0.5" << std::endl <<
+                        " pigment{color rgb <" << color.x() << "," << color.y() << "," << color.z() << ">}" << std::endl <<
+                        "}" << std::endl;
+            dataFile << "sphere {" << std::endl <<
+                        " <" << vert.x() << "," << vert.y() << "," << vert.z() << ">,0.5" << std::endl <<
+                        " pigment{ color rgb <" << color.x() << "," << color.y() << "," << color.z() << ">}" << std::endl <<
                         "}" << std::endl;
 
             lastvert = vert;
@@ -564,7 +582,7 @@ bool WMWriteTracts::savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers
                 "  look_at  < " << mX << ", " << mY << ", 0.0 >" << std::endl <<
                 "}" << std::endl;
     dataFile << "light_source {" << std::endl <<
-                "  < " << mX << ", " << mY << ", -120.0 >" << std::endl <<
+                "  < " << mX << ", " << mY << ", -10000.0 >" << std::endl <<
                 "  color rgb <1.0, 1.0, 1.0>" << std::endl <<
                 "}" << std::endl;
 
