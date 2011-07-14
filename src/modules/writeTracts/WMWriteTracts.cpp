@@ -458,7 +458,7 @@ bool WMWriteTracts::saveJsonTriangles() const
 bool WMWriteTracts::savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers ) const
 {
     // open file
-    boost::filesystem::path meshFile( m_savePath->get());
+    boost::filesystem::path meshFile( m_savePath->get() );
     std::string fnPath = meshFile.parent_path().string();
     std::string fnBase = meshFile.stem();
     std::string fnExt = meshFile.extension();
@@ -506,7 +506,7 @@ bool WMWriteTracts::savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers
     double maxZ = wlimits::MIN_DOUBLE;
 
     size_t currentStart = 0;
-    for( size_t fidx = 0; fidx < fibStart->size() ; fidx+=5 )
+    for( size_t fidx = 0; fidx < fibStart->size(); fidx += 1 )
     {
         ++*progress1;
 
