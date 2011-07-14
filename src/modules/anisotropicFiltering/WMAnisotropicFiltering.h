@@ -26,6 +26,7 @@
 #define WMANISOTROPICFILTERING_H
 
 #include <string>
+#include <vector>
 
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
@@ -103,67 +104,71 @@ protected:
 
 private:
 
-	/**
-	 * Calculates the resulting smoothed image.
-	 *
-	 * \param iterations The number of diffusion time steps.
-	 */
-	void calcSmoothedImages( int iterations );
+    /**
+     * Calculates the resulting smoothed image.
+     *
+     * \param iterations The number of diffusion time steps.
+     */
+    void calcSmoothedImages( int iterations );
 
-	/**
-	 * Calculates grid indices from voxel coords.
-	 *
-	 * \param grid The grid.
-	 * \param x The x-coord.
-	 * \param y The y-coord.
-	 * \param z The z-coord.
-	 *
-	 * \return The voxel index.
-	 */
-	std::size_t coordsToIndex( boost::shared_ptr< WGridRegular3D > const& grid,
-	                           std::size_t x, std::size_t y, std::size_t z );
+    /**
+     * Calculates grid indices from voxel coords.
+     *
+     * \param grid The grid.
+     * \param x The x-coord.
+     * \param y The y-coord.
+     * \param z The z-coord.
+     *
+     * \return The voxel index.
+     */
+    std::size_t coordsToIndex( boost::shared_ptr< WGridRegular3D > const& grid,
+                               std::size_t x, std::size_t y, std::size_t z );
 
-	/**
-	 * Copy the datasets image data to a temp array.
-	 *
-	 * \param smoothed The temp array to copy to.
-	 * \param grid The grid.
-	 */
-	void copyData( boost::shared_ptr< std::vector< double > >& smoothed,
+    /**
+     * Copy the datasets image data to a temp array.
+     *
+     * \param smoothed The temp array to copy to.
+     * \param grid The grid.
+     */
+    void copyData( boost::shared_ptr< std::vector< double > >& smoothed,  // NOLINT non-const ref
                    boost::shared_ptr< WGridRegular3D > const& grid );
 
-	/**
-	 * Calculates an array containing the derivations in x, y and z directions of the image
-	 * intensity (i.e. contains the intensity gradient).
-	 *
-	 * \param deriv The memory used for the gradient values.
-	 * \param smoothed The intensity data.
-	 * \param grid The grid.
-	 */
-	void calcDeriv( std::vector< double >& deriv, boost::shared_ptr< std::vector< double > > const& smoothed,
+    /**
+     * Calculates an array containing the derivations in x, y and z directions of the image
+     * intensity (i.e. contains the intensity gradient).
+     *
+     * \param deriv The memory used for the gradient values.
+     * \param smoothed The intensity data.
+     * \param grid The grid.
+     * \param image The index of the image to calc the gradient from.
+     * \param numImages The number of images in this dataset.
+     */
+    void calcDeriv( std::vector< double >& deriv, boost::shared_ptr< std::vector< double > > const& smoothed,  // NOLINT non-const ref
+                    boost::shared_ptr< WGridRegular3D > const& grid, std::size_t image, std::size_t numImages );
+
+    /**
+     * Calculates the diffusion coeff for every voxel.
+     *
+     * \param coeff The memory used for the coeff data.
+     * \param deriv The gradient data.
+     * \param grid The grid.
+     */
+    void calcCoeff( std::vector< double >& coeff, std::vector< double > const& deriv,  // NOLINT non-const ref
                     boost::shared_ptr< WGridRegular3D > const& grid );
 
-	/**
-	 * Calculates the diffusion coeff for every voxel.
-	 *
-	 * \param coeff The memory used for the coeff data.
-	 * \param deriv The gradient data.
-	 * \param grid The grid.
-	 */
-	void calcCoeff( std::vector< double >& coeff, std::vector< double > const& deriv,
-                    boost::shared_ptr< WGridRegular3D > const& grid );
-
-	/**
-	 * Do the diffusion.
-	 *
-	 * \param deriv The intensity gradient data.
-	 * \param coeff The diffusion coeffs.
-	 * \param smoothed The new smoothed image.
-	 * \param grid The grid.
-	 */
-	void diffusion( std::vector< double > const& deriv, std::vector< double > const& coeff,
-					boost::shared_ptr< std::vector< double > >& smoothed,
-                    boost::shared_ptr< WGridRegular3D > const& grid );
+    /**
+     * Do the diffusion.
+     *
+     * \param deriv The intensity gradient data.
+     * \param coeff The diffusion coeffs.
+     * \param smoothed The new smoothed image.
+     * \param grid The grid.
+     * \param image The index of the image to calc the gradient from.
+     * \param numImages The number of images in this dataset.
+     */
+    void diffusion( std::vector< double > const& deriv, std::vector< double > const& coeff,
+                    boost::shared_ptr< std::vector< double > >& smoothed,  // NOLINT non-const ref
+                    boost::shared_ptr< WGridRegular3D > const& grid, std::size_t image, std::size_t numImages );
 
     /**
      * An input connector that accepts multi image datasets.
