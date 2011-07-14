@@ -35,6 +35,12 @@
 #include "core/graphicsEngine/WGEGeodeUtils.h"
 #include "core/graphicsEngine/shaders/WGEShader.h"
 #include "core/kernel/WKernel.h"
+#include "core/graphicsEngine/WGEColormapping.h"
+#include "core/common/math/WMath.h"
+#include "core/common/WLimits.h"
+#include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
+#include "core/graphicsEngine/shaders/WGEPropertyUniform.h"
+
 
 #include "WMTriangleMeshRenderer.xpm"
 #include "WMTriangleMeshRenderer.h"
@@ -75,6 +81,62 @@ const std::string WMTriangleMeshRenderer::getDescription() const
     return "Takes a triangle mesh as input and renders it as a shaded surface.";
 }
 
+void WMTriangleMeshRenderer::updateMinMix( double& minX, double& maxX, // NOLINT
+                                           double& minY, double& maxY, // NOLINT
+                                           double& minZ, double& maxZ, const osg::Vec3d& vector ) const // NOLINT
+{
+        minX = std::min( minX, vector.x() );
+        minY = std::min( minY, vector.y() );
+        minZ = std::min( minZ, vector.z() );
+
+        maxX = std::max( maxX, vector.x() );
+        maxY = std::max( maxY, vector.y() );
+        maxZ = std::max( maxZ, vector.z() );
+}
+
+double WMTriangleMeshRenderer::getMedian( double x, double y, double z ) const
+{
+    if( ( y < x && z > x ) || ( z < x && y > x) )
+    {
+        return x;
+    }
+
+
+    if( ( x < y && z > y ) || ( x < y && z > y) )
+    {
+        return y;
+    }
+
+    if( ( y < z && x > z ) || ( x < z && y > z) )
+    {
+        return z;
+    }
+
+    if( x == y )
+    {
+        return x;
+    }
+    if( x == z )
+    {
+        return x;
+    }
+    if( y == z )
+    {
+        return z;
+    }
+    if( x == y && y == z && x == z)
+    {
+        return x;
+    }
+
+        return 0;
+}
+
+double WMTriangleMeshRenderer::getIntervallCenterMiddle( double min, double max ) const
+{
+    return min + ( max - min) / 2;
+}
+
 void WMTriangleMeshRenderer::connectors()
 {
     // this input contains the triangle data
@@ -111,6 +173,61 @@ void WMTriangleMeshRenderer::properties()
     // this is the color used if single color is selected
     m_color = m_properties->addProperty( "Default Color", "The color of of the surface.",
                                          WColor( .9f, .9f, 0.9f, 1.0f ), m_propCondition );
+
+
+    m_colormap = m_properties->addProperty( "Enable Colormapping", "Turn Colormapping on", false );
+    m_colormapRatio = m_properties->addProperty( "Colormap Ratio", "Set the Colormap Ratio", 0.5 );
+    m_colormapRatio->setMin( 0.0 );
+    m_colormapRatio->setMax( 1.0 );
+    m_groupTransformation = m_properties->addPropertyGroup( "Transformation",  "A group which contains transformation tools." );
+
+    //Scaling
+
+
+    m_scale = m_groupTransformation->addProperty( "Scale whole surface?", "The whole surface will be scaled.", false );
+
+    m_scaleX = m_groupTransformation->addProperty( "Scale X", "Scaling X of surface.", 1.0 );
+    m_scaleX->setMin( -10.0 );
+    m_scaleX->setMax( 10.0 );
+
+    m_scaleY = m_groupTransformation->addProperty( "Scale Y", "Scaling Y of surface.", 1.0 );
+    m_scaleY->setMin( -10.0 );
+    m_scaleY->setMax( 10.0 );
+
+    m_scaleZ = m_groupTransformation->addProperty( "Scale Z", "Scaling Z of surface.", 1.0 );
+    m_scaleZ->setMin( -10.0 );
+    m_scaleZ->setMax( 10.0 );
+
+    //Rotating
+    m_rotateX = m_groupTransformation->addProperty( "Rotate X", "Rotate X in °", 0.0 );
+    m_rotateX->setMin( -360.0 );
+    m_rotateX->setMax( 360.0 );
+
+    m_rotateY = m_groupTransformation->addProperty( "Rotate Y", "Rotate Y in °", 0.0 );
+    m_rotateY->setMin( -360.0 );
+    m_rotateY->setMax( 360.0 );
+
+    m_rotateZ = m_groupTransformation->addProperty( "Rotate Z", "Rotate Z in °", 0.0 );
+    m_rotateZ->setMin( -360.0 );
+    m_rotateZ->setMax( 360.0 );
+
+    //Translating
+    m_translateX = m_groupTransformation->addProperty( "Translate X", "Translate the surface to X", 0.0 );
+    m_translateX->setMin( -100.0 );
+    m_translateX->setMax( 100.0 );
+
+    m_translateY = m_groupTransformation->addProperty( "Translate Y", "Translate the surface to Y", 0.0 );
+    m_translateY->setMin( -100.0 );
+    m_translateY->setMax( 100.0 );
+
+    m_translateZ = m_groupTransformation->addProperty( "Translate Z", "Translate the surface to Z", 0.0 );
+    m_translateZ->setMin( -100.0 );
+    m_translateZ->setMax( 100.0 );
+
+    m_setDefault = m_groupTransformation->addProperty( "Reset to default", "Set!",
+                                                        WPVBaseTypes::PV_TRIGGER_READY,
+                                                        boost::bind( &WMTriangleMeshRenderer::setToDefault, this ) );
+
 
     // call WModule's initialization
     WModule::properties();
@@ -151,7 +268,7 @@ void WMTriangleMeshRenderer::moduleMain()
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // create a OSG node, which will contain the triangle data and allows easy transformations:
-    WGEManagedGroupNode::SPtr m_moduleNode( new WGEManagedGroupNode( m_active ) );
+    m_moduleNode = new WGEManagedGroupNode( m_active );
     osg::StateSet* moduleNodeState = m_moduleNode->getOrCreateStateSet();
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
 
@@ -159,10 +276,15 @@ void WMTriangleMeshRenderer::moduleMain()
     WGEFunctorCallback< osg::Node >::SPtr transformationCallback(
         new WGEFunctorCallback< osg::Node >( boost::bind( &WMTriangleMeshRenderer::updateTransformation, this ) )
     );
+    m_moduleNode->addUpdateCallback( transformationCallback );
 
     // load the GLSL shader:
     osg::ref_ptr< WGEShader > shader( new WGEShader( "WMTriangleMeshRenderer", m_localPath ) );
-    shader->apply( m_moduleNode );
+    m_colorMapTransformation = new osg::Uniform( "u_colorMapTransformation", osg::Matrixd::identity() );
+    shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_colormap, "COLORMAPPING_DISABLED", "COLORMAPPING_ENABLED" ) )
+    );
+
 
     // set the opacity and material color property as GLSL uniforms:
     moduleNodeState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_opacity", m_opacity ) );
@@ -190,13 +312,50 @@ void WMTriangleMeshRenderer::moduleMain()
             continue;
         }
 
-        boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Rendering", 3 ) );
-        m_progress->addSubProgress( progress );
-
-        // prepare the geometry node
+          // prepare the geometry node
         debugLog() << "Start rendering Mesh";
         osg::ref_ptr< osg::Geometry > geometry;
         osg::ref_ptr< osg::Geode > geode( new osg::Geode );
+        geode->getOrCreateStateSet()->addUniform( m_colorMapTransformation );
+        geode->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_colormapRatio", m_colormapRatio ) );
+
+        // apply shader only to mesh
+        shader->apply( geode );
+
+        // get the middle point of the mesh
+        std::vector< size_t >triangles = mesh->getTriangles();
+        std::vector< size_t >::const_iterator trianglesIterator;
+        double minX = wlimits::MAX_DOUBLE;
+        double minY = wlimits::MAX_DOUBLE;
+        double minZ = wlimits::MAX_DOUBLE;
+
+        double maxX = wlimits::MIN_DOUBLE;
+        double maxY = wlimits::MIN_DOUBLE;
+        double maxZ = wlimits::MIN_DOUBLE;
+
+        for( trianglesIterator = triangles.begin();
+                trianglesIterator != triangles.end();
+                trianglesIterator++ )
+        {
+            osg::Vec3d vectorX = mesh->getVertex( *trianglesIterator );
+
+
+            updateMinMix( minX, maxX, minY, maxY, minZ, maxZ, vectorX );
+        }
+
+        middleX = getIntervallCenterMiddle( minX, maxX );
+        middleY = getIntervallCenterMiddle( minY, maxY );
+        middleZ = getIntervallCenterMiddle( minZ, maxZ );
+
+        debugLog() << "Min X:" << minX << " Min Y:" << minY << " Min Z:" << minZ;
+        debugLog() << "Max X:" << maxX << " Max Y:" << maxY << " Max Z:" << maxZ;
+        debugLog() << "Middle X:" << middleX << " Middle Y:" << middleY << " Middle Z:" << middleZ;
+
+
+        boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Rendering", 3 ) );
+        m_progress->addSubProgress( progress );
+
+
         if( m_mainComponentOnly->get( true ) )
         {
             // component decomposition
@@ -234,10 +393,24 @@ void WMTriangleMeshRenderer::moduleMain()
         }
         ++*progress;
 
+        WGEColormapping::apply( geode, shader );
+
         // done. Set the new drawable
         geode->addDrawable( geometry );
         m_moduleNode->clear();
         m_moduleNode->insert( geode );
+        m_moduleNode->insert(
+            wge::creatCoordinateSystem(
+                osg::Vec3(
+                    middleX,
+                    middleY,
+                    middleZ
+                ),
+                maxX-minX,
+                maxY-minY,
+                maxZ-minZ
+            )
+         );
         debugLog() << "Rendering Mesh done";
         ++*progress;
         progress->finish();
@@ -249,6 +422,75 @@ void WMTriangleMeshRenderer::moduleMain()
 
 void WMTriangleMeshRenderer::updateTransformation()
 {
-    // this function is called every frame. It allows safely updating m_moduleNode states and properties.
+    if ( m_moduleNode )
+    {
+        if ( m_scale->changed() && m_scale->get( true ) )
+        {
+            m_scaleX->set( getMedian( m_scaleX->get(), m_scaleY->get(), m_scaleZ->get() ) );
+            m_scaleY->set( getMedian( m_scaleX->get(), m_scaleY->get(), m_scaleZ->get() ) );
+            m_scaleZ->set( getMedian( m_scaleX->get(), m_scaleY->get(), m_scaleZ->get() ) );
+        }
+        if ( m_scale->get() )
+        {
+            if ( m_scaleX->changed() && m_scaleX->get( true ) )
+            {
+                m_scaleY->set( m_scaleX->get() );
+                m_scaleZ->set( m_scaleX->get() );
+            }
+            if( m_scaleY->changed() && m_scaleY->get( true ) )
+            {
+                m_scaleX->set( m_scaleY->get() );
+                m_scaleZ->set( m_scaleZ->get() );
+            }
+            if( m_scaleZ->changed() && m_scaleZ->get( true ) )
+            {
+                m_scaleX->set( m_scaleZ->get() );
+                m_scaleY->set( m_scaleZ->get() );
+            }
+        }
+
+        osg::Matrixd matrixTranslateTo0 = osg::Matrixd::translate( -middleX, -middleY, -middleZ );
+        osg::Matrixd matrixTranslateFrom0 = osg::Matrixd::translate( middleX, middleY, middleZ );
+        osg::Matrixd matrixScale = osg::Matrixd::scale( m_scaleX->get(), m_scaleY->get(), m_scaleZ->get() );
+        osg::Matrixd matrixRotateX = osg::Matrixd::rotate( m_rotateX->get() * piDouble / 180, osg::Vec3f( 1, 0, 0 ) );
+        osg::Matrixd matrixRotateY = osg::Matrixd::rotate( m_rotateY->get() * piDouble / 180, osg::Vec3f( 0, 1, 0 ) );
+        osg::Matrixd matrixRotateZ = osg::Matrixd::rotate( m_rotateZ->get() * piDouble / 180, osg::Vec3f( 0, 0, 1 ) );
+        osg::Matrixd matrixRotate = matrixRotateX * matrixRotateY * matrixRotateZ;
+        osg::Matrixd matrixTranslate = osg::Matrixd::translate( m_translateX->get(), m_translateY->get(), m_translateZ->get() );
+        osg::Matrixd matrixComplete =
+                                matrixTranslateTo0 *
+                                matrixScale *
+                                matrixTranslateFrom0 *
+                                matrixTranslateTo0 *
+                                matrixRotate *
+                                matrixTranslateFrom0 *
+                                matrixTranslate;
+
+        m_moduleNode->setMatrix( matrixComplete );
+        m_colorMapTransformation->set( matrixComplete );
+    }
+}
+
+void WMTriangleMeshRenderer::setToDefault()
+{
+    if( m_setDefault->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+    {
+        WMTriangleMeshRenderer::m_opacity->set( 100 );
+
+        WMTriangleMeshRenderer::m_scale->set( false );
+        WMTriangleMeshRenderer::m_scaleX->set( 1 );
+        WMTriangleMeshRenderer::m_scaleY->set( 1 );
+        WMTriangleMeshRenderer::m_scaleZ->set( 1 );
+
+        WMTriangleMeshRenderer::m_rotateX->set( 0 );
+        WMTriangleMeshRenderer::m_rotateY->set( 0 );
+        WMTriangleMeshRenderer::m_rotateZ->set( 0 );
+
+        WMTriangleMeshRenderer::m_translateX->set( 0 );
+        WMTriangleMeshRenderer::m_translateY->set( 0 );
+        WMTriangleMeshRenderer::m_translateZ->set( 0 );
+
+        m_setDefault->set( WPVBaseTypes::PV_TRIGGER_READY );
+    }
 }
 

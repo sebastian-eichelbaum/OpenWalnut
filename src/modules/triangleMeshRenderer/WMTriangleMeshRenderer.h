@@ -27,10 +27,13 @@
 
 #include <string>
 
+#include <osg/Uniform>
+
 #include "core/common/datastructures/WColoredVertices.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
 #include "core/kernel/WModuleOutputData.h"
+
 
 class WTriangleMesh;
 class WGEShader;
@@ -101,6 +104,38 @@ protected:
 private:
 
     /**
+     * A function which gives you the median of 3 ints
+     */
+    void updateMinMix( double& minX, double& maxX, double& minY, double& maxY, double& minZ, double& maxZ, const osg::Vec3d& vector ) const;
+
+    /**
+     * A function which gives you the median of 3 ints
+     */
+    double getMedian( double x, double y, double z ) const;
+
+    /**
+     * The middle point of the intervall center
+     */
+     double getIntervallCenterMiddle( double min, double max ) const;
+
+     /**
+      * Middle points of the intervall center
+      */
+      double middleX;
+      double middleY;
+      double middleZ;
+
+     /**
+      * Turn Colormapping on/off
+      */
+      WPropBool m_colormap;
+
+     /**
+      * Set Colormap Ratio
+      */
+      WPropDouble m_colormapRatio;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
@@ -116,9 +151,51 @@ private:
     boost::shared_ptr< WModuleInputData< WColoredVertices > > m_colorMapInput;
 
     /**
+     * A group wich contains all transformation tools.
+    */
+    WPropGroup m_groupTransformation;
+
+    /**
+     * Set the transformation tool to default
+    */
+    WPropTrigger  m_setDefault;
+
+    /**
+     * Set the transformation tool to default
+    */
+    void setToDefault();
+
+    /**
+     * OSG Uniform
+    */
+    osg::ref_ptr< osg::Uniform > m_colorMapTransformation;
+
+    /**
      * The mesh's opacity value.
      */
     WPropDouble m_opacity;
+
+    /**
+     * The mesh's scale value.
+     */
+    WPropBool m_scale;
+    WPropDouble m_scaleX;
+    WPropDouble m_scaleY;
+    WPropDouble m_scaleZ;
+
+    /**
+     * The mesh's rotate value.
+     */
+    WPropDouble m_rotateX;
+    WPropDouble m_rotateY;
+    WPropDouble m_rotateZ;
+
+    /**
+     * The mesh's translate value.
+     */
+     WPropDouble m_translateX;
+     WPropDouble m_translateY;
+     WPropDouble m_translateZ;
 
     /**
      * En/Disable display of only the main component (biggest vertices number)
