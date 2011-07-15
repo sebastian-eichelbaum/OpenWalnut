@@ -144,6 +144,16 @@ private:
     WVector3d m_meshCenter;
 
     /**
+     * Enables mesh's coordinate system.
+     */
+    WPropBool m_showCoordinateSystem;
+
+    /**
+     * Group for all color and colormapping options.
+     */
+    WPropGroup m_coloringGroup;
+
+    /**
      * Turn Colormapping on/off
      */
     WPropBool m_colormap;

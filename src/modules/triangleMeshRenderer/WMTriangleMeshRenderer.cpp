@@ -156,7 +156,12 @@ void WMTriangleMeshRenderer::properties()
 
     // setup all the properties. See header file for their meaning and purpose.
     m_mainComponentOnly = m_properties->addProperty( "Main Component", "Main component only", false, m_propCondition );
-    m_opacity = m_properties->addProperty( "Opacity %", "Opaqueness of surface.", 100.0 );
+    m_showCoordinateSystem = m_properties->addProperty( "Coordinate System", "If enabled, the coordinate system of the mesh will be shown.",
+                                                        false, m_propCondition );
+
+    m_coloringGroup = m_properties->addPropertyGroup( "Coloring", "Coloring options and colormap options." );
+
+    m_opacity = m_coloringGroup->addProperty( "Opacity %", "Opaqueness of surface.", 100.0 );
     m_opacity->setMin( 0.0 );
     m_opacity->setMax( 100.0 );
 
@@ -165,24 +170,22 @@ void WMTriangleMeshRenderer::properties()
     colorModes->addItem( "Single Color", "The whole surface is colored using the default color." );
     colorModes->addItem( "From Mesh", "The surface is colored according to the mesh." );
     colorModes->addItem( "From colormap connector", "The surface is colored using the colormap on colorMap connector." );
-    m_colorMode = m_properties->addProperty( "Color-Mode", "Choose one of the available colorings.", colorModes->getSelectorFirst(),
+    m_colorMode = m_coloringGroup->addProperty( "Color-Mode", "Choose one of the available colorings.", colorModes->getSelectorFirst(),
                                              m_propCondition );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMode );
 
     // this is the color used if single color is selected
-    m_color = m_properties->addProperty( "Default Color", "The color of of the surface.",
+    m_color = m_coloringGroup->addProperty( "Default Color", "The color of of the surface.",
                                          WColor( .9f, .9f, 0.9f, 1.0f ), m_propCondition );
 
-
-    m_colormap = m_properties->addProperty( "Enable Colormapping", "Turn Colormapping on", false );
-    m_colormapRatio = m_properties->addProperty( "Colormap Ratio", "Set the Colormap Ratio", 0.5 );
+    m_colormap = m_coloringGroup->addProperty( "Enable Colormapping", "Turn Colormapping on", false );
+    m_colormapRatio = m_coloringGroup->addProperty( "Colormap Ratio", "Set the Colormap Ratio", 0.5 );
     m_colormapRatio->setMin( 0.0 );
     m_colormapRatio->setMax( 1.0 );
+
     m_groupTransformation = m_properties->addPropertyGroup( "Transformation",  "A group which contains transformation tools." );
 
     //Scaling
-
-
     m_scale = m_groupTransformation->addProperty( "Scale whole surface?", "The whole surface will be scaled.", false );
 
     m_scaleX = m_groupTransformation->addProperty( "Scale X", "Scaling X of surface.", 1.0 );
@@ -226,7 +229,6 @@ void WMTriangleMeshRenderer::properties()
     m_setDefault = m_groupTransformation->addProperty( "Reset to default", "Set!",
                                                         WPVBaseTypes::PV_TRIGGER_READY,
                                                         boost::bind( &WMTriangleMeshRenderer::setToDefault, this ) );
-
 
     // call WModule's initialization
     WModule::properties();
@@ -391,14 +393,17 @@ void WMTriangleMeshRenderer::moduleMain()
         geode->addDrawable( geometry );
         m_moduleNode->clear();
         m_moduleNode->insert( geode );
-        m_moduleNode->insert(
-            wge::creatCoordinateSystem(
-                m_meshCenter,
-                maxX-minX,
-                maxY-minY,
-                maxZ-minZ
-            )
-         );
+        if( m_showCoordinateSystem->get() )
+        {
+            m_moduleNode->insert(
+                wge::creatCoordinateSystem(
+                    m_meshCenter,
+                    maxX-minX,
+                    maxY-minY,
+                    maxZ-minZ
+                )
+             );
+        }
         debugLog() << "Rendering Mesh done";
         ++*progress;
         progress->finish();
