@@ -82,9 +82,21 @@ void WMWriteTracts::properties()
     m_fileTypeSelectionsList->addItem( "json triangles", "" );
     m_fileTypeSelectionsList->addItem( "POVRay Cylinders", "Stores the fibers as cylinders in a POVRay SDL file." );
 
-    m_fileTypeSelection = m_properties->addProperty( "File type",  "file type.", m_fileTypeSelectionsList->getSelectorFirst() );
-       WPropertyHelper::PC_SELECTONLYONE::addTo( m_fileTypeSelection );
+    m_fileTypeSelection = m_properties->addProperty( "File type",  "file type.", m_fileTypeSelectionsList->getSelectorFirst(),
+        boost::bind( &WMWriteTracts::fileTypeChanged, this )
+    );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_fileTypeSelection );
 
+    m_povrayOptions = m_properties->addPropertyGroup( "POVRay Options", "Options for the POVRay Exporter." );
+    //m_povrayOptions->setHidden( true );
+    m_povrayTubeDiameter = m_povrayOptions->addProperty( "Tube Diameter",
+                                  "The tube diameter. Each fibers is represented as a tube with spheres as connections between them",
+                                  0.25 );
+    m_povrayTubeDiameter->setMin( 0.001 );
+    m_povrayTubeDiameter->setMax( 2.0 );
+    m_povrayRadiosity = m_povrayOptions->addProperty( "Enable Radiosity",
+                                  "Enable POVRay's radiosity renderer. Creates more realistic lighting but is very slow.",
+                                  false );
 
     WModule::properties();
 }
@@ -446,8 +458,6 @@ bool WMWriteTracts::saveJsonTriangles() const
         }
     }
 
-
-
     dataFile <<  "\n}";
 
     dataFile.close();
@@ -550,12 +560,12 @@ bool WMWriteTracts::savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers
             dataFile << "cylinder" << std::endl <<
                         "{" << std::endl <<
                         " <" << lastvert.x() << "," << lastvert.y() << "," << lastvert.z() << ">," <<
-                          "<" << vert.x() << "," << vert.y() << "," << vert.z() << ">,0.25" << std::endl <<
+                          "<" << vert.x() << "," << vert.y() << "," << vert.z() << ">," << m_povrayTubeDiameter->get() << std::endl <<
                         " pigment{color rgb <" << color.x() << "," << color.y() << "," << color.z() << ">}" << std::endl <<
                         " transform MoveToCenter" << std::endl <<
                         "}" << std::endl;
             dataFile << "sphere {" << std::endl <<
-                        " <" << vert.x() << "," << vert.y() << "," << vert.z() << ">,0.25" << std::endl <<
+                        " <" << vert.x() << "," << vert.y() << "," << vert.z() << ">,"  << m_povrayTubeDiameter->get() << std::endl <<
                         " pigment{ color rgb <" << color.x() << "," << color.y() << "," << color.z() << ">}" << std::endl <<
                         " transform MoveToCenter" << std::endl <<
                         "}" << std::endl;
@@ -588,16 +598,19 @@ bool WMWriteTracts::savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers
     // write some head data
     dataFileScene << "#version 3.6;" << std::endl << std::endl;
 
-    dataFileScene << "global_settings {" << std::endl <<
-    " ambient_light 0" << std::endl << std::endl <<
-    " radiosity {" << std::endl <<
-    "  pretrace_start 0.08" << std::endl <<
-    "  pretrace_end   0.005" << std::endl <<
-    "  count 350" << std::endl <<
-    "  error_bound 0.15" << std::endl <<
-    "  recursion_limit 2" << std::endl <<
-    " }"  << std::endl <<
-    "}" << std::endl << std::endl;
+    if( m_povrayRadiosity->get() )
+    {
+        dataFileScene << "global_settings {" << std::endl <<
+        " ambient_light 0" << std::endl << std::endl <<
+        " radiosity {" << std::endl <<
+        "  pretrace_start 0.08" << std::endl <<
+        "  pretrace_end   0.005" << std::endl <<
+        "  count 350" << std::endl <<
+        "  error_bound 0.15" << std::endl <<
+        "  recursion_limit 2" << std::endl <<
+        " }"  << std::endl <<
+        "}" << std::endl << std::endl;
+    }
 
     dataFileScene << "#default{" << std::endl <<
                    " finish{" << std::endl <<
@@ -637,3 +650,16 @@ bool WMWriteTracts::savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers
     dataFileScene.close();
     return true;
 }
+
+void WMWriteTracts::fileTypeChanged()
+{
+    if( m_fileTypeSelection->get().getItemIndexOfSelected( 0 ) == 4 )
+    {
+        m_povrayOptions->setHidden( false );
+    }
+    else
+    {
+        m_povrayOptions->setHidden( true );
+    }
+}
+
