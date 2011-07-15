@@ -81,17 +81,17 @@ const std::string WMTriangleMeshRenderer::getDescription() const
     return "Takes a triangle mesh as input and renders it as a shaded surface.";
 }
 
-void WMTriangleMeshRenderer::updateMinMix( double& minX, double& maxX, // NOLINT
+void WMTriangleMeshRenderer::updateMinMax( double& minX, double& maxX, // NOLINT
                                            double& minY, double& maxY, // NOLINT
                                            double& minZ, double& maxZ, const osg::Vec3d& vector ) const // NOLINT
 {
-        minX = std::min( minX, vector.x() );
-        minY = std::min( minY, vector.y() );
-        minZ = std::min( minZ, vector.z() );
+    minX = std::min( minX, vector.x() );
+    minY = std::min( minY, vector.y() );
+    minZ = std::min( minZ, vector.z() );
 
-        maxX = std::max( maxX, vector.x() );
-        maxY = std::max( maxY, vector.y() );
-        maxZ = std::max( maxZ, vector.z() );
+    maxX = std::max( maxX, vector.x() );
+    maxY = std::max( maxY, vector.y() );
+    maxZ = std::max( maxZ, vector.z() );
 }
 
 double WMTriangleMeshRenderer::getMedian( double x, double y, double z ) const
@@ -100,7 +100,6 @@ double WMTriangleMeshRenderer::getMedian( double x, double y, double z ) const
     {
         return x;
     }
-
 
     if( ( x < y && z > y ) || ( x < y && z > y) )
     {
@@ -129,7 +128,7 @@ double WMTriangleMeshRenderer::getMedian( double x, double y, double z ) const
         return x;
     }
 
-        return 0;
+    return 0;
 }
 
 double WMTriangleMeshRenderer::getIntervallCenterMiddle( double min, double max ) const
@@ -338,23 +337,16 @@ void WMTriangleMeshRenderer::moduleMain()
                 trianglesIterator++ )
         {
             osg::Vec3d vectorX = mesh->getVertex( *trianglesIterator );
-
-
-            updateMinMix( minX, maxX, minY, maxY, minZ, maxZ, vectorX );
+            updateMinMax( minX, maxX, minY, maxY, minZ, maxZ, vectorX );
         }
 
-        middleX = getIntervallCenterMiddle( minX, maxX );
-        middleY = getIntervallCenterMiddle( minY, maxY );
-        middleZ = getIntervallCenterMiddle( minZ, maxZ );
+        m_meshCenter = WVector3d( getIntervallCenterMiddle( minX, maxX ),
+                                  getIntervallCenterMiddle( minY, maxY ),
+                                  getIntervallCenterMiddle( minZ, maxZ ) );
 
-        debugLog() << "Min X:" << minX << " Min Y:" << minY << " Min Z:" << minZ;
-        debugLog() << "Max X:" << maxX << " Max Y:" << maxY << " Max Z:" << maxZ;
-        debugLog() << "Middle X:" << middleX << " Middle Y:" << middleY << " Middle Z:" << middleZ;
-
-
+        // start rendering
         boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Rendering", 3 ) );
         m_progress->addSubProgress( progress );
-
 
         if( m_mainComponentOnly->get( true ) )
         {
@@ -401,11 +393,7 @@ void WMTriangleMeshRenderer::moduleMain()
         m_moduleNode->insert( geode );
         m_moduleNode->insert(
             wge::creatCoordinateSystem(
-                osg::Vec3(
-                    middleX,
-                    middleY,
-                    middleZ
-                ),
+                m_meshCenter,
                 maxX-minX,
                 maxY-minY,
                 maxZ-minZ
@@ -449,8 +437,8 @@ void WMTriangleMeshRenderer::updateTransformation()
             }
         }
 
-        osg::Matrixd matrixTranslateTo0 = osg::Matrixd::translate( -middleX, -middleY, -middleZ );
-        osg::Matrixd matrixTranslateFrom0 = osg::Matrixd::translate( middleX, middleY, middleZ );
+        osg::Matrixd matrixTranslateTo0 = osg::Matrixd::translate( static_cast< osg::Vec3f >( m_meshCenter ) * -1.0 );
+        osg::Matrixd matrixTranslateFrom0 = osg::Matrixd::translate( static_cast< osg::Vec3f >( m_meshCenter ) );
         osg::Matrixd matrixScale = osg::Matrixd::scale( m_scaleX->get(), m_scaleY->get(), m_scaleZ->get() );
         osg::Matrixd matrixRotateX = osg::Matrixd::rotate( m_rotateX->get() * piDouble / 180, osg::Vec3f( 1, 0, 0 ) );
         osg::Matrixd matrixRotateY = osg::Matrixd::rotate( m_rotateY->get() * piDouble / 180, osg::Vec3f( 0, 1, 0 ) );
