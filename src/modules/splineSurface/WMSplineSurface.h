@@ -83,6 +83,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon
      */
     virtual const char** getXPMIcon() const;
 
@@ -115,6 +116,7 @@ private:
 
     /**
      * Store the mesh in legacy vtk file format.
+     * \return Did the save succeed?
      */
     bool save() const;
 

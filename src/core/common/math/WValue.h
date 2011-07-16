@@ -93,6 +93,7 @@ public:
 
     /**
      * Get number of components the value consists of.
+     * \return The number of components the value consists of.
      */
     size_t size() const
     {
@@ -103,6 +104,7 @@ public:
      * Returns a reference to the i-th component in order
      * to provide access to the component.
      * \param i element id
+     * \return A reference to the desired component.
      */
     T& operator[]( size_t i )
     {
@@ -111,9 +113,10 @@ public:
     }
 
     /**
-     * Returns a const reference to the i-th component in order
+     * Returns a CONST reference to the i-th component in order
      * to provide read-only access to the component.
      * \param i element id
+     * \return A CONST reference to the desired component
      */
     const T& operator[]( size_t i ) const
     {
@@ -124,6 +127,7 @@ public:
     /**
      * Compares two WValues and returns true if they contain the same data.
      * \param rhs The right hand side of the comparison
+     * \return The answer to whether both WValues contain the same data.
      */
     bool operator==( const WValue& rhs ) const
     {
@@ -133,6 +137,7 @@ public:
     /**
      * Compares two WValues and returns true if they contain the different data.
      * \param rhs The right hand side of the comparison
+     * \return The answer to whether both WValues do NOT contain the same data.
      */
     bool operator!=( const WValue& rhs ) const
     {
@@ -142,6 +147,7 @@ public:
     /**
      * Assigns the contents of its argument to the contents of this WValue.
      * \param rhs The right hand side of the assignment
+     * \return A reference to the left hand side of the assignment (i.e. the current object).
      */
     WValue& operator=( const WValue& rhs )
     {
@@ -152,6 +158,7 @@ public:
     /**
      * Adds a the argument component-wise to the components of this WValue
      * \param rhs The right hand side of the assignment
+     * \return A reference to the left hand side of the assignment (i.e. the current object).
      */
     WValue& operator+=( const WValue& rhs )
     {
@@ -164,6 +171,7 @@ public:
     /**
      * Subtracts the argument component-wise from the components of this WValue
      * \param rhs The right hand side of the assignment
+     * \return A reference to the left hand side of the assignment (i.e. the current object).
      */
     WValue& operator-=( const WValue& rhs )
     {
@@ -176,6 +184,7 @@ public:
     /**
      * Scales each component of this WValue with the given scalar argument
      * \param rhs The right hand side of the assignment
+     * \return A reference to the left hand side of the assignment (i.e. the (scaled) current object).
      */
     WValue& operator*=( double rhs )
     {
@@ -188,6 +197,7 @@ public:
      * Scales each component of this WValue with the corresponding
      * component of the given argument WValue
      * \param rhs The right hand side of the assignment
+     * \return A reference to the left hand side of the assignment (i.e. the current (scaled) object).
      */
     WValue& operator*=( const WValue& rhs )
     {
@@ -200,6 +210,7 @@ public:
     /**
      * Scales each component of this WValue with the given scalar argument
      * \param rhs The right hand side of the assignment
+     * \return A reference to the left hand side of the assignment (i.e. the current (scaled) object).
      */
     WValue& operator/=( const double rhs )
     {
@@ -212,6 +223,7 @@ public:
     /**
      * Component-wise addition.
      * \param summand2 The right hand side of the summation
+     * \result The sum of the WValues.
      */
     const WValue operator+( const WValue& summand2 ) const
     {
@@ -224,6 +236,7 @@ public:
     /**
      * Component-wise subtraction.
      * \param subtrahend The right hand side of the subtraction
+     * \result The difference of the WValues.
      */
     const WValue operator-( const WValue& subtrahend ) const
     {
@@ -236,6 +249,7 @@ public:
     /**
      * Component-wise multiplication.
      * \param factor2 The right hand side of the product
+     * \return The vector of the product of the components.
      */
     const WValue operator*( const WValue& factor2 ) const
     {
@@ -247,10 +261,11 @@ public:
 
     /**
      * Square root of sum of squares of elements.
-     * This function return double instead of T
+     * This function returns double instead of T
      * because norm includes a square root and thus
      * its computation automatically results in a
      * floating point number.
+     * \return Double-precision norm of the WValue.
      */
     double norm() const
     {
@@ -264,6 +279,7 @@ public:
      * might return large values that might not fit into
      * T's range of values. Double prevents an overflow.
      * Additionally this is consistent with norm().
+     * \return Double-precision squared norm of the WValue.
      */
     double normSquare() const
     {
@@ -292,6 +308,7 @@ public:
 
     /**
      * Return a normalized version of the current WValue without modifying it.
+     * \return Normalized version of the current WValue object.
      */
     WValue normalized() const
     {
@@ -302,6 +319,7 @@ public:
 
     /**
      * Returns the mean value of all values stored in this WValue.
+     * \return Mean of the WValues components.
      */
     T mean() const
     {
@@ -316,6 +334,7 @@ public:
 
     /**
      * Returns the median of all values stored in this WValue.
+     * \return Median of the WValues components.
      */
     T median() const
     {
@@ -336,6 +355,7 @@ public:
 
     /**
      * Returns this WValue as WVector_2.
+     * \return The WValue as WVector_2.
      */
     WVector_2 toWVector()
     {
@@ -359,6 +379,7 @@ private:
  * Multiplies a WValue with a scalar
  * \param lhs left hand side of product
  * \param rhs right hand side of product
+ * \return product of WValue with scalar
  */
 template< typename T > inline const WValue< T > operator*( const WValue< T >& lhs, double rhs )
 {
@@ -371,6 +392,7 @@ template< typename T > inline const WValue< T > operator*( const WValue< T >& lh
  * This functions only exists to make scalar multiplication commutative
  * \param lhs left hand side of product
  * \param rhs right hand side of product
+ * \return product of WValue with scalar
  */
 template< typename T > inline const WValue< T > operator*( double lhs, const WValue< T >& rhs )
 {
@@ -381,8 +403,9 @@ template< typename T > inline const WValue< T > operator*( double lhs, const WVa
 
 /**
  * Divides a WValue by a scalar
- * \param lhs left hand side of product
- * \param rhs right hand side of product
+ * \param lhs left hand side of division
+ * \param rhs right hand side of division
+ * \return Quotien of WValue with scalar
  */
 template< typename T > inline const WValue< T > operator/( const WValue< T >& lhs, double rhs )
 {
