@@ -191,6 +191,7 @@ public:
 
     /**
      * Get number of tracts in this data set.
+     * \return number of fibers
      */
     size_t size() const;
 
@@ -223,27 +224,32 @@ public:
     static boost::shared_ptr< WPrototyped > getPrototype();
 
     /**
-     * Getter for m_vertices
+     * Getter for the lines' vertices
+     * \return The vertices of the lines
      */
     VertexArray getVertices() const;
 
     /**
-     * Getter
+     * Return the indices that indicate at which vertex ID each line begins in the vertex array.
+     * \return The start indices of the lines
      */
     IndexArray getLineStartIndexes() const;
 
     /**
-     * Getter
+     * Return the number of vertices for all lines.
+     * \return The numbers of all lines' vertices
      */
     LengthArray getLineLengths() const;
 
     /**
-     * Getter
+     * Returns a reverse lookup table that allow do find out which vertex belongs to which line.
+     * \return Lookup table from vertices to lines.
      */
     IndexArray getVerticesReverse() const;
 
     /**
-     * Getter
+     * Returns an array containing the tangents of the fibers at the vertices.
+     * \return The tangents of the fibers.
      */
     TangentArray getTangents() const;
 
@@ -324,16 +330,20 @@ public:
     /**
      * returns the position in space for a vertex of a given fiber
      *
-     * \param fiber
-     * \param vertex
+     * \param fiber Index of fiber
+     * \param vertex Index of vertex in fiber.
+     *
+     * \return Position of the given vertex of the also given fiber
      */
     WPosition getPosition( size_t fiber, size_t vertex ) const;
 
     /**
      * calculates the tangent for a point on the fiber
      *
-     * \param fiber
-     * \param vertex
+     * \param fiber Index of fiber
+     * \param vertex Index of vertex in fiber
+     *
+     * \return Tangent of the given vertex of the also given fiber
      */
     WPosition getTangent( size_t fiber, size_t vertex ) const;
 
@@ -347,6 +357,7 @@ public:
 
     /**
      * Get the bounding box.
+     * \return The bounding box of all lines.
      */
     WBoundingBox getBoundingBox() const;
 
