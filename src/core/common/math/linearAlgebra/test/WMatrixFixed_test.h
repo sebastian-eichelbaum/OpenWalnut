@@ -364,6 +364,8 @@ public:
          *
          * \param row the row, staring with 0
          * \param col the column, starting with 0
+         *
+         * \return A reference to the component of an row and column.
          */
         ValueT& operator()( size_t row, size_t col ) throw()
         {
@@ -371,11 +373,14 @@ public:
         }
 
         /**
-         * Returns a reference to the component of an row and column in order to provide access to the component. It does not check for validity of
+         * Returns a const reference to the component of an row and column in order to provide access to the component.
+         * It does not check for validity of
          * the indices.
          *
          * \param row the row, staring with 0
          * \param col the column, starting with 0
+         *
+         * \return A const reference to the component of an row and column.
          */
         const ValueT& operator()( size_t row, size_t col ) const throw()
         {

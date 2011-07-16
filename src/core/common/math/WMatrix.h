@@ -81,16 +81,19 @@ public:
 
     /**
      * Makes the matrix contain the identity matrix, i.e. 1 on the diagonal.
+     * \return Reference to the current matrix which is identity matrix now.
      */
     WMatrix& makeIdentity();
 
     /**
      * Get number of rows.
+     * \return Number of rows of the matrix.
      */
     size_t getNbRows() const;
 
     /**
      * Get number of columns.
+     * \return Number of columns of the matrix.
      */
     size_t getNbCols() const;
 
@@ -99,6 +102,7 @@ public:
      * provide access to the component.
      * \param i row
      * \param j column
+     * \return A reference to the component (i,j)
      */
     T& operator()( size_t i, size_t j );
 
@@ -107,6 +111,7 @@ public:
      * provide read-only access to the component.
      * \param i row
      * \param j column
+     * \return A const reference to the component (i,j)
      */
     const T& operator()( size_t i, size_t j ) const;
 
@@ -134,41 +139,48 @@ public:
     /**
      * Compares two matrices and returns true if they are equal.
      * \param rhs The right hand side of the comparison
+     * \return Are the matrices equal?
      */
     bool operator==( const WMatrix& rhs ) const;
 
     /**
      * Compares two matrices and returns true if they are not equal.
      * \param rhs The right hand side of the comparison
+     * \return Are the matrices NOT equal?
      */
     bool operator!=( const WMatrix& rhs ) const;
 
     /**
      * Assigns the argument WMatrix to this WMatrix.
      * \param rhs The right hand side of the assignment
+     * \return A reference to the left hand side of the assignment (i.e. the current object).
      */
     WMatrix& operator=( const WMatrix& rhs );
 
     /**
-     * Multiplication of two matrices.
+     * Multiplication of the current matrix with andother matrix.
      * \param rhs The right hand side of the multiplication
+     * \return The product of the two matrices.
      */
     WMatrix operator*( const WMatrix& rhs ) const;
 
     /**
      * Multiplication with a vector.
      * \param rhs The right hand side of the multiplication
+     * \return The product of the matrix and the vector.
      */
     WValue< T > operator*( const WValue< T >& rhs ) const;
 
     /**
      * Multiplication with a vector.
      * \param rhs The right hand side of the multiplication
+     * \return The product of the matrix and the 3D vector.
      */
     WVector3d operator*( const WVector3d& rhs ) const;
 
     /**
      * Returns the transposed matrix.
+     * \return Transposed version of the current matrix.
      */
     WMatrix transposed() const;
 

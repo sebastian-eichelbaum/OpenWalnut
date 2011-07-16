@@ -72,12 +72,14 @@ public:
     T& operator()( size_t i, size_t j ) throw( WOutOfBounds );
 
     /**
-     * Returns the number of elements stored inside this matrix.
+     * Returns the number of elements stored in this matrix.
+     * \return the number of elements stored in this matrix.
      */
     size_t numElements() const;
 
     /**
-     * Returns the number of rows and cols.
+     * Returns the number of rows and cols of the matrix.
+     * \return The number of rows and cols of the matrix.
      */
     size_t size() const;
 
