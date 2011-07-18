@@ -139,6 +139,8 @@ public:
      * findProperty throws an exception.
      *
      * \param name name of searched property.
+     *
+     * \return Answer to the question whether the property exists.
      */
     bool existsProperty( std::string name );
 
@@ -190,6 +192,8 @@ public:
      * \param name the name of the group.
      * \param description the description of the group.
      * \param hide true if group should be completely hidden.
+     *
+     * \return The newly created property group.
      */
     WPropGroup addPropertyGroup( std::string name, std::string description, bool hide = false );
 
@@ -957,6 +961,8 @@ private:
      *
      * \param prop1 the first prop.
      * \param prop2 the second prop.
+     *
+     * \return Are the names of the two properties equal?
      */
     bool propNamePredicate( boost::shared_ptr< WPropertyBase > prop1, boost::shared_ptr< WPropertyBase > prop2 ) const;
 };
