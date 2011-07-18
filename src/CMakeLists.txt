@@ -179,14 +179,9 @@ INCLUDE_DIRECTORIES( ${OW_VERSION_HEADER_DIRECTORY} )
 SETUP_VERSION_HEADER( ${OW_VERSION_HEADER} )
 
 # Set the OW version string. This can be used by others for setting target versions during compilation.
-GET_VERSION_STRING( dummy OW_VERSION "1.0.0 " )
-IF( NOT DEFINED OW_VERSION )
-    # CMake does not like unset variables for target properties.
-    SET( OW_VERSION "1.0.0" )
-ENDIF()
-
+GET_VERSION_STRING( OW_VERSION OW_API_VERSION )
 # We need a SOVERSION too. This somehow describes the API compatibility. We use the major number here.
-SPLIT_VERSION_STRING( ${OW_VERSION} OW_VERSION_MAJOR OW_VERSION_MINOR OW_VERSION_PATCH )
+SPLIT_VERSION_STRING( ${OW_API_VERSION} OW_VERSION_MAJOR OW_VERSION_MINOR OW_VERSION_PATCH )
 SET( OW_SOVERSION ${OW_VERSION_MAJOR} )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
