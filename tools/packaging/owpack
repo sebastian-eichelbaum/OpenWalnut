@@ -28,9 +28,10 @@
 # User Variables
 #############################################################################################################
 
-# The version. This is used multiple times. Please set before going on.
-VERSION=1.2.1
 REVISION=default
+
+# The version. This is used multiple times. Please set before going on.
+VERSION=1.2.1+hg`hg parents --template "{rev}"`
 
 # Where to find the code
 REPOSITORY="ssh://ebaum@berkeley.informatik.uni-leipzig.de//srv/hg/OpenWalnut"

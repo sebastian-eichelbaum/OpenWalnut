@@ -434,7 +434,7 @@ FUNCTION( GET_VERSION_STRING _version _api_version )
         # Read the version file
         FILE( READ ${OW_VERSION_FILENAME} OW_VERSION_FILE_CONTENT )
         # The first regex will mathc 
-        STRING( REGEX REPLACE ".*[^#]VERSION=([0-9]+\\.[0-9]+\\.[0-9]+(\\+hg)?).*" "\\1"  OW_VERSION_FILE  ${OW_VERSION_FILE_CONTENT} ) 
+        STRING( REGEX REPLACE ".*[^#]VERSION=([0-9]+\\.[0-9]+\\.[0-9]+(\\+hgX?[0-9]*)?).*" "\\1"  OW_VERSION_FILE  ${OW_VERSION_FILE_CONTENT} ) 
         STRING( COMPARE EQUAL ${OW_VERSION_FILE} ${OW_VERSION_FILE_CONTENT}  OW_VERSION_FILE_INVALID )
         IF( OW_VERSION_FILE_INVALID )
             UNSET( OW_VERSION_FILE )
@@ -463,7 +463,7 @@ FUNCTION( GET_VERSION_STRING _version _api_version )
         STRING( REGEX REPLACE "\\+hg" "" OW_VERSION ${OW_VERSION_FILE} )
     ELSE()
         # if we have the mercurial info -> complement the version string
-        STRING( REGEX REPLACE "hg" "hg${OW_VERSION_HG}" OW_VERSION ${OW_VERSION_FILE} )
+        STRING( REGEX REPLACE "hgX" "hg${OW_VERSION_HG}" OW_VERSION ${OW_VERSION_FILE} )
     ENDIF()
   
     SET( ${_version} ${OW_VERSION} PARENT_SCOPE )

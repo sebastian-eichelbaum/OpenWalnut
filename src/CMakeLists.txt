@@ -183,6 +183,7 @@ GET_VERSION_STRING( OW_VERSION OW_API_VERSION )
 # We need a SOVERSION too. This somehow describes the API compatibility. We use the major number here.
 SPLIT_VERSION_STRING( ${OW_API_VERSION} OW_VERSION_MAJOR OW_VERSION_MINOR OW_VERSION_PATCH )
 SET( OW_SOVERSION ${OW_VERSION_MAJOR} )
+MESSAGE( FATAL_ERROR "Hall:${OW_VERSION}")
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
