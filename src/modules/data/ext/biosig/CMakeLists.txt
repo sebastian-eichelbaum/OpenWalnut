@@ -20,7 +20,7 @@ ENDIF()
 
 # Set the version of the library.
 SET_TARGET_PROPERTIES( ${OWExtBioSigName} PROPERTIES
-        VERSION ${OW_VERSION} 
+        VERSION ${OW_LIB_VERSION} 
         SOVERSION ${OW_SOVERSION}
 )
 

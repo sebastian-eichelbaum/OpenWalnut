@@ -23,7 +23,7 @@ ENDIF(MSVC_IDE)
 
 # Set the version of the library.
 SET_TARGET_PROPERTIES( ${OWExtEEPName} PROPERTIES
-        VERSION ${OW_VERSION} 
+        VERSION ${OW_LIB_VERSION} 
         SOVERSION ${OW_SOVERSION}
 )
 
