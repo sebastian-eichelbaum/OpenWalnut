@@ -25,6 +25,8 @@
 #ifndef WDATASETGP_H
 #define WDATASETGP_H
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include "core/common/WCondition.h"
@@ -121,7 +123,6 @@ private:
                boost::shared_ptr< const WDataSetDTI > tensors,
                const WBoolFlag& shutdownFlag,
                boost::shared_ptr< WProgress > progress );
-
 };
 
 inline bool WDataSetGP::isTexture() const

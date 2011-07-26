@@ -24,36 +24,20 @@
 
 #version 120
 
-#include "WGEColormapping-fragment.glsl"
-
 /**
  * The normal.
  */
 varying vec3 v_normal;
 
-/**
- * The opacity specified by the user in [0,100]
- */
-uniform float u_opacity;
-
-/**
- * The colormap ratio specified by the user in [0,1]
- */
-uniform float u_colormapRatio;
-
-#include "WGEShadingTools.glsl"
-
 void main()
 {
-    vec4 col = gl_Color;
-#ifdef COLORMAPPING_ENABLED
-    col = mix( colormapping(), col, u_colormapRatio );
-#endif
-    // calculate lighting
-    float light = blinnPhongIlluminationIntensity( normalize( -v_normal ) );
-    col*=light;
+    // parameterizes the cylinder's surface
+    gl_TexCoord[0] = gl_MultiTexCoord0;
 
-    // finally, apply opacity
-    col.a = u_opacity* 0.01;
-    gl_FragColor = col;
+    // get normal
+    v_normal = gl_NormalMatrix * gl_Normal;
+
+    // apply standard pipeline
+    gl_FrontColor = gl_Color;
+    gl_Position = ftransform();
 }

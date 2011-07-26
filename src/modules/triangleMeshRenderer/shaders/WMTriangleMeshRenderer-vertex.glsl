@@ -24,13 +24,25 @@
 
 #version 120
 
+#include "WGEColormapping-vertex.glsl"
+
 /**
  * The normal.
  */
 varying vec3 v_normal;
 
+/**
+ * This matrix transform the vertex in openwalnut space.
+ */
+uniform mat4 u_colorMapTransformation;
+
 void main()
 {
+#ifdef COLORMAPPING_ENABLED
+    // prepare colormapping
+    colormapping( u_colorMapTransformation );
+#endif
+
     // get normal
     v_normal = gl_NormalMatrix * gl_Normal;
 
