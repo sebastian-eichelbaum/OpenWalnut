@@ -53,13 +53,15 @@ public:
 
     /**
      * getter
-     * \return the bitfield for this roi
+     * \return the bitfield for this ROI
      */
     boost::shared_ptr< std::vector<bool> >getBitField();
 
     /**
      * getter
-     * access to the roi representation, mainly for delete and update functions
+     * access to the ROI representation, mainly for delete and update functions
+     *
+     * \return Pointer to the ROI representation
      */
     osg::ref_ptr< WROI > getRoi();
 

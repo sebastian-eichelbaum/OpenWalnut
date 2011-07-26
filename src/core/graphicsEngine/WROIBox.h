@@ -54,11 +54,15 @@ public:
 
     /**
      * Get the corner of the box that has minimal x, y and z values
+     *
+     * \return the corner position
      */
     WPosition getMinPos() const;
 
     /**
      * Get the corner of the box that has maximal x, y and z values
+     *
+     * \return the corner position
      */
     WPosition getMaxPos() const;
 

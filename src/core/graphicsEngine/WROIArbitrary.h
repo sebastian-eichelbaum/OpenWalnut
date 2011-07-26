@@ -110,6 +110,8 @@ public:
 
     /**
      * getter
+     *
+     * \return The threshold on the data in box which leads to the arbitrary ROI
      */
     double getThreshold();
 
@@ -130,6 +132,8 @@ public:
     /**
      * Get the i-th value of the data defining the ROI
      * \param i the index of the value
+     *
+     * \return The value at the given index.
      */
     float getValue( size_t i );
 

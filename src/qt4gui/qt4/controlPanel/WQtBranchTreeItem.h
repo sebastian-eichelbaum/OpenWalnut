@@ -59,6 +59,8 @@ public:
     /**
      * Add a roi to the tree view.
      * \param roi The new roi.
+     *
+     * \return Pointer to the new ROI tree item.
      */
     WQtRoiTreeItem* addRoiItem( osg::ref_ptr< WROI > );
 

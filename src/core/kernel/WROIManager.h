@@ -152,13 +152,10 @@ public:
 
     /**
      * getter
+     *
+     * \return Pointer to the currently (in the ROI manager) selected ROI
      */
     osg::ref_ptr< WROI > getSelectedRoi();
-
-    /**
-     * getter
-     */
-    size_t size();
 
     /**
      * getter for the properties object
