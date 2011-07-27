@@ -26,6 +26,7 @@
 
 #include <osg/Geometry>
 #include <osg/LineStipple>
+#include <osg/Depth>
 
 #include "../../../common/exceptions/WTypeMismatch.h"
 #include "../../../common/math/WPosition.h"
@@ -36,6 +37,7 @@
 #include "../../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../../graphicsEngine/WGEGroupNode.h"
 #include "../../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../../graphicsEngine/geodes/WGEGridNode.h"
 #include "WSPSliceBuilderVectors.h"
 
 WSPSliceBuilderVectors::WSPSliceBuilderVectors( ProbTractList probTracts, WPropGroup sliceGroup, std::vector< WPropGroup > colorMap,
@@ -48,6 +50,7 @@ WSPSliceBuilderVectors::WSPSliceBuilderVectors( ProbTractList probTracts, WPropG
     m_spacing = vectorGroup->findProperty( "Spacing" )->toPropDouble();
 //    m_glyphSpacing = vectorGroup->findProperty( "Glyph Spacing" )->toPropDouble();
     m_glyphThickness = vectorGroup->findProperty( "Glyph Thickness" )->toPropDouble();
+    m_showGrid = vectorGroup->findProperty( "Show Grid" )->toPropBool();
 }
 
 void WSPSliceBuilderVectors::preprocess()
@@ -57,6 +60,8 @@ void WSPSliceBuilderVectors::preprocess()
 
 osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsigned char sliceNum ) const
 {
+    wlog::debug( "Geode-construction time " ) << "start";
+
     boost::shared_ptr< WPosition > origin( new WPosition );
     boost::shared_ptr< WVector3D > a( new WVector3D );
     boost::shared_ptr< WVector3D > b( new WVector3D );
@@ -66,6 +71,38 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     numCoords.push_back( m_grid->getNbCoordsX() );
     numCoords.push_back( m_grid->getNbCoordsY() );
     numCoords.push_back( m_grid->getNbCoordsZ() );
+
+    WVector3D xDir = a->normalized();
+    WVector3D yDir = b->normalized();
+
+    WMatrix< double > mat( 4, 4 );
+    mat.makeIdentity();
+    mat( 0, 0 ) = xDir[0];
+    mat( 1, 0 ) = xDir[1];
+    mat( 2, 0 ) = xDir[2];
+    mat( 0, 1 ) = yDir[0];
+    mat( 1, 1 ) = yDir[1];
+    mat( 2, 1 ) = yDir[2];
+    // set zdirection to an orthogonal vector
+    WVector3D zDir = xDir ^ yDir;
+    mat( 0, 2 ) = zDir[0];
+    mat( 1, 2 ) = zDir[1];
+    mat( 2, 2 ) = zDir[2];
+    mat( 0, 3 ) = ( *origin )[0];
+    mat( 1, 3 ) = ( *origin )[1];
+    mat( 2, 3 ) = ( *origin )[2];
+
+    double xlength = ( getNbCoords( m_grid )[ activeDims.first ] - 1 ) *  getOffsets( m_grid )[ activeDims.first ];
+    double ylength = ( getNbCoords( m_grid )[ activeDims.second ] - 1 ) * getOffsets( m_grid )[ activeDims.second ];
+
+    boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( xlength / m_spacing->get() , ylength / m_spacing->get(), 1, mat ) );
+
+    osg::ref_ptr< WGEManagedGroupNode > gridNode( new WGEManagedGroupNode( m_showGrid ) );
+    osg::ref_ptr< WGEGridNode > grid_geode = osg::ref_ptr< WGEGridNode >( new WGEGridNode( grid ) );
+    grid_geode->setGridColor( WColor( 0.5, 0.5, 0.5, 1.0 ) );
+    grid_geode->setEnableGrid( true );
+    gridNode->insert( grid_geode );
+
 
     osg::ref_ptr< osg::Vec3Array > quadVertices( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec3Array > quadSpanning( new osg::Vec3Array );
@@ -99,10 +136,10 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
                     size_t numSamples = static_cast< size_t >( tractColor[3] * 10 ); // / m_spacing->get() );
                     for( size_t sample = 0; sample < numSamples; ++sample )
                     {
-                        double s = 0.9 * m_spacing->get(); // jitter scaling
+                        double s = 1.0 * m_spacing->get(); // jitter scaling
                         WVector3D jitter( s * ( std::rand() % 1000 ) / 1000.0, s * ( std::rand() % 1000 ) / 1000.0, s * ( std::rand() % 1000 ) / 1000.0 ); // NOLINT line length
 //                        WVector3D jitter;
-                        jitter[sliceNum] = 0.001;
+                        jitter[sliceNum] = 0.001 * ( std::rand() % 1000 ) / 1000.0;
                         WColor stippleColor = lookUpColor( realPos + jitter, i );
                         if( stippleColor[3] > m_probThreshold->get() )
                         {
@@ -139,6 +176,7 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, quadVertices->size() ) );
 
     osg::ref_ptr< WGEGroupNode > result( new WGEGroupNode );
+    result->insert( gridNode );
     osg::ref_ptr< osg::Geode > geode( new osg::Geode );
     geode->addDrawable( geometry );
     result->insert( geode );
@@ -148,13 +186,16 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
 
     geode->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_glyphSize", m_spacing ) );
     geode->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_glyphThickness", m_glyphThickness ) );
-    osg::StateSet* state = geode->getOrCreateStateSet();
-    state->setMode( GL_BLEND, osg::StateAttribute::ON );
-    state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+    osg::StateSet* stateSet = geode->getOrCreateStateSet();
+    stateSet->setMode( GL_BLEND, osg::StateAttribute::ON );
+    // Enable this if you need correct blending, will work only with one slice
+    stateSet->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
+    stateSet->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
 
     // bind vector field as texture
     wge::bindTexture( geode, m_vectors->getTexture2() );
 
+    wlog::debug( "Geode-construction time " ) << "end";
     return result;
 }
 

@@ -108,7 +108,7 @@ void WMBoundaryCurvesWMGM::properties()
     WPropColor wmColor = m_properties->addProperty( "White Matter Color", "Color for the WM border", WColor( 0.5, 0.5, 0.5, 1.0 ) );
 
     m_resolution = m_properties->addProperty( "Resolution", "Size of the quads, used for sampling the Iso-Lines", 1.0, callBack );
-    m_resolution->setMin( 0.25 ); // will take very very very long!!!
+    m_resolution->setMin( 0.1 ); // will take very very very long!!!
     m_resolution->setMax( 3.0 );
 
     // for selecting the strategy

@@ -146,6 +146,8 @@ private:
      */
     WPropDouble m_glyphThickness;
 
+    WPropBool m_showGrid;
+
     /**
      * Shading the quads and transform them to the glyphs (line stipples).
      */

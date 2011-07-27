@@ -188,6 +188,8 @@ void WMProbTractDisplaySP::properties()
     glyphThickness->setMin( 0.01 );
     glyphThickness->setMax( 2.0 );
 
+    WPropBool showGrid = m_vectorGroup->addProperty( "Show Grid", "Shows the grid", false );
+
     // call WModule's initialization
     WModule::properties();
 }
