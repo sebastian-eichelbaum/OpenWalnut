@@ -139,7 +139,7 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
                         double s = 1.0 * m_spacing->get(); // jitter scaling
                         WVector3D jitter( s * ( std::rand() % 1000 ) / 1000.0, s * ( std::rand() % 1000 ) / 1000.0, s * ( std::rand() % 1000 ) / 1000.0 ); // NOLINT line length
 //                        WVector3D jitter;
-                        jitter[sliceNum] = 0.001 * ( std::rand() % 1000 ) / 1000.0;
+                        jitter[sliceNum] = 0.001 * ( std::rand() % 1000 ) / 1000.0; // NOLINT don't need to be thread safe here via: rand_r()
                         WColor stippleColor = lookUpColor( realPos + jitter, i );
                         if( stippleColor[3] > m_probThreshold->get() )
                         {

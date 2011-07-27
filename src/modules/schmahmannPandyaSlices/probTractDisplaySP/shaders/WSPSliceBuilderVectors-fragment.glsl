@@ -150,7 +150,7 @@ void main()
     // }
 
     // // display evec end points
-    // 
+    //
     // if( ( distance( gl_TexCoord[0].xyz, gl_TexCoord[1].xyz ) < 0.01 ) )
     // {
     //     gl_FragColor = vec4( 1.0, 1.0, 0.0, 1.0 ); // yellow
@@ -162,7 +162,7 @@ void main()
     // }
 
     // // display new focal points
-    // 
+    //
     // if( ( distance( gl_TexCoord[0].xyz, focalPoint1 ) < 0.01 ) )
     // {
     //     gl_FragColor = vec4( 0.0, 1.0, 1.0, 1.0 ); // cyan

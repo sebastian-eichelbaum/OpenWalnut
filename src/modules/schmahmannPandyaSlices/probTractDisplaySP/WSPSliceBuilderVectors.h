@@ -146,6 +146,9 @@ private:
      */
     WPropDouble m_glyphThickness;
 
+    /**
+     * Flag to show or hide the slice grid of current resolution.
+     */
     WPropBool m_showGrid;
 
     /**
