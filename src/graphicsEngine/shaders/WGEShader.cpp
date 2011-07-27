@@ -28,8 +28,10 @@
 #include <string>
 
 #include <boost/algorithm/string.hpp>
-// Boost 1.46 uses boost::filesystem3 as new default API, inorder to support old boost versions we still use the old API
-#define BOOST_FILESYSTEM_VERSION 2
+// Use filesystem version 2 for compatibility with newer boost versions.
+#ifndef BOOST_FILESYSTEM_VERSION
+    #define BOOST_FILESYSTEM_VERSION 2
+#endif
 #include <boost/filesystem.hpp>
 #include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
