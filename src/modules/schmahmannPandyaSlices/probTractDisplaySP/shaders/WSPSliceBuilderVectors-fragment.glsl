@@ -28,6 +28,7 @@ uniform float u_glyphThickness;
 uniform float u_glyphSize;
 
 varying vec4 v_middlePoint;
+varying vec4 v_backColor;
 
 float minimum_distance( vec3 v, vec3 w, vec3 p )
 {
@@ -126,7 +127,12 @@ void main()
     }
     else
     {
-        // discard;
+        // if( minimum_distance( focalPoint1, focalPoint2, gl_TexCoord[0].xyz ) < u_glyphThickness * ( radius + 0.01 ) )
+        // {
+        //     gl_FragColor = vec4( 1.0, 1.0, 1.0, gl_Color.w );
+        // }
+
+        discard;
 
         // // Draw quad and inner cricle
         //
@@ -145,7 +151,7 @@ void main()
     // }
 
     // // display evec end points
-    //
+    // 
     // if( ( distance( gl_TexCoord[0].xyz, gl_TexCoord[1].xyz ) < 0.01 ) )
     // {
     //     gl_FragColor = vec4( 1.0, 1.0, 0.0, 1.0 ); // yellow
@@ -157,7 +163,7 @@ void main()
     // }
 
     // // display new focal points
-    //
+    // 
     // if( ( distance( gl_TexCoord[0].xyz, focalPoint1 ) < 0.01 ) )
     // {
     //     gl_FragColor = vec4( 0.0, 1.0, 1.0, 1.0 ); // cyan
