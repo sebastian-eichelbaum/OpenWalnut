@@ -28,7 +28,6 @@ uniform float u_glyphThickness;
 uniform float u_glyphSize;
 
 varying vec4 v_middlePoint;
-varying vec4 v_backColor;
 
 float minimum_distance( vec3 v, vec3 w, vec3 p )
 {
