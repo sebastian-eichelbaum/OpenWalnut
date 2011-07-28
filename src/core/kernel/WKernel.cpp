@@ -23,11 +23,11 @@
 //---------------------------------------------------------------------------
 
 #ifdef __linux__
-#include <unistd.h> // used for getcwd (to get current directory)
+    #include <unistd.h> // used for getcwd (to get current directory)
 #endif
 
 #if defined(__APPLE__)
-#include <mach-o/dyld.h>
+    #include <mach-o/dyld.h>
 #endif
 
 #include <iostream>

@@ -23,9 +23,9 @@
 //---------------------------------------------------------------------------
 
 #include <map>
-#include <string>
-#include <sstream>
 #include <ostream>
+#include <sstream>
+#include <string>
 
 #include <boost/algorithm/string.hpp>
 // Use filesystem version 2 for compatibility with newer boost versions.
@@ -33,23 +33,22 @@
     #define BOOST_FILESYSTEM_VERSION 2
 #endif
 #include <boost/filesystem.hpp>
+#include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/tokenizer.hpp>
 #include <boost/regex.hpp>
 #include <boost/signals2/signal.hpp>
-#include <boost/function.hpp>
+#include <boost/tokenizer.hpp>
 
-#include <osg/StateSet>
 #include <osg/Node>
+#include <osg/StateSet>
 
-#include "../WGraphicsEngine.h"
-#include "WGEShaderPreprocessor.h"
-#include "WGEShaderVersionPreprocessor.h"
 #include "../../common/WLogger.h"
 #include "../../common/WPathHelper.h"
 #include "../../common/WPredicateHelper.h"
-
+#include "../WGraphicsEngine.h"
 #include "WGEShader.h"
+#include "WGEShaderPreprocessor.h"
+#include "WGEShaderVersionPreprocessor.h"
 
 WGEShader::WGEShader( std::string name, boost::filesystem::path search ):
     osg::Program(),

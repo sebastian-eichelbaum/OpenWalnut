@@ -32,9 +32,8 @@
 #include <boost/filesystem.hpp>
 
 #include "exceptions/WPropertyNameMalformed.h"
-
-#include "WPropertyBase.h"
 #include "WProperties.h"
+#include "WPropertyBase.h"
 #include "WPropertyVariable.h"
 
 WPropertyBase::WPropertyBase( std::string name, std::string description ):

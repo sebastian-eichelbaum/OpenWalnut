@@ -180,9 +180,10 @@ void WMainWindow::setupGUI()
 
     setDockOptions( QMainWindow::AnimatedDocks |  QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks );
 
-    //network Editor
-    m_networkEditor = new WQtNetworkEditor( this );
-    m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
+    // Disabled Network Editor due to bug: #11
+    // //network Editor
+    // m_networkEditor = new WQtNetworkEditor( this );
+    // m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
 
     // the control panel instance is needed for the menu
     m_controlPanel = new WQtControlPanel( this );
@@ -191,8 +192,9 @@ void WMainWindow::setupGUI()
 
     // add all docks
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getModuleDock() );
-    addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
-    tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
+    // Diabeld Network Editor due to bug: #11
+    // addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
+    // tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getColormapperDock() );
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getRoiDock() );

@@ -120,16 +120,17 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_missingModuleAction->setIconVisibleInMenu( true );
     m_moduleTreeWidget->addAction( m_missingModuleAction );
 
-    // the network editor also needs the context menu
-    // TODO(rfrohl): context menu gets not opened if a graphicitem is clicked. This should be fixed.
-    m_mainWindow->getNetworkEditor()->setContextMenuPolicy( Qt::ActionsContextMenu );
-    m_mainWindow->getNetworkEditor()->addAction( m_connectWithPrototypeAction );
-    m_mainWindow->getNetworkEditor()->addAction( m_connectWithModuleAction );
-    m_mainWindow->getNetworkEditor()->addAction( m_disconnectAction );
-    m_mainWindow->getNetworkEditor()->addAction( separator );
-    m_mainWindow->getNetworkEditor()->addAction( m_deleteModuleAction );
-    m_mainWindow->getNetworkEditor()->addAction( separator );
-    m_mainWindow->getNetworkEditor()->addAction( m_missingModuleAction );
+    // Disabled Network Editor due to bug: #11
+    // // the network editor also needs the context menu
+    // // TODO(rfrohl): context menu gets not opened if a graphicitem is clicked. This should be fixed.
+    // m_mainWindow->getNetworkEditor()->setContextMenuPolicy( Qt::ActionsContextMenu );
+    // m_mainWindow->getNetworkEditor()->addAction( m_connectWithPrototypeAction );
+    // m_mainWindow->getNetworkEditor()->addAction( m_connectWithModuleAction );
+    // m_mainWindow->getNetworkEditor()->addAction( m_disconnectAction );
+    // m_mainWindow->getNetworkEditor()->addAction( separator );
+    // m_mainWindow->getNetworkEditor()->addAction( m_deleteModuleAction );
+    // m_mainWindow->getNetworkEditor()->addAction( separator );
+    // m_mainWindow->getNetworkEditor()->addAction( m_missingModuleAction );
 
     m_colormapper = new WQtColormapper( m_mainWindow );
     m_colormapper->setToolTip( "Reorder the textures." );
@@ -1107,10 +1108,11 @@ void WQtControlPanel::deleteModuleTreeItem()
             }
         }
     }
-    else if( m_mainWindow->getNetworkEditor()->isActiveWindow() )
-    {
-        m_mainWindow->getNetworkEditor()->deleteSelectedItems();
-    }
+// Disabled Network Editor due to bug: #11
+//    else if( m_mainWindow->getNetworkEditor()->isActiveWindow() )
+//    {
+//        m_mainWindow->getNetworkEditor()->deleteSelectedItems();
+//    }
 }
 
 void WQtControlPanel::deleteROITreeItem()

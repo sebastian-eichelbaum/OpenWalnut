@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
@@ -37,7 +36,6 @@
 #include <QtGui/QApplication>
 #include <QtGui/QFileDialog>
 #include <QtCore/QSettings>
-
 
 #include "WMainWindow.h" // this has to be included before any other includes
 #include "core/common/WConditionOneShot.h"

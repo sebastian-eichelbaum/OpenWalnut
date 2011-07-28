@@ -22,17 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WSPSLICEGEODEBUILDER_TEST_H
-#define WSPSLICEGEODEBUILDER_TEST_H
+#ifndef WBOUNDARYBUILDER_TEST_H
+#define WBOUNDARYBUILDER_TEST_H
 
 #include <cxxtest/TestSuite.h>
 
-#include "../WSPSliceGeodeBuilder.h"
+#include "../WBoundaryBuilder.h"
 
 /**
  * TODO(math): Document this!
  */
-class WSPSliceGeodeBuilderTest : public CxxTest::TestSuite
+class WBoundaryBuilderTest : public CxxTest::TestSuite
 {
 public:
     /**
@@ -43,4 +43,4 @@ public:
     }
 };
 
-#endif  // WSPSLICEGEODEBUILDER_TEST_H
+#endif  // WBOUNDARYBUILDER_TEST_H

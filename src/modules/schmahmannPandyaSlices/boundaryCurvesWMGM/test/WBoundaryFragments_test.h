@@ -22,18 +22,25 @@
 //
 //---------------------------------------------------------------------------
 
-#version 120
+#ifndef WBOUNDARYFRAGMENTS_TEST_H
+#define WBOUNDARYFRAGMENTS_TEST_H
 
-void main()
+#include <cxxtest/TestSuite.h>
+
+#include "../WBoundaryFragments.h"
+
+/**
+ * TODO(math): Document this!
+ */
+class WBoundaryFragmentsTest : public CxxTest::TestSuite
 {
-    // pass the color to the fragment shader
-    gl_FrontColor = gl_Color;
-    gl_BackColor =  gl_Color;
+public:
+    /**
+     * TODO(math): Document this!
+     */
+    void testSomething( void )
+    {
+    }
+};
 
-    // pass tex coordinates
-    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
-
-    // transform position
-    gl_Position = ftransform();
-}
-
+#endif  // WBOUNDARYFRAGMENTS_TEST_H

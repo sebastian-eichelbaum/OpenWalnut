@@ -369,12 +369,9 @@ osg::ref_ptr< osg::Geode > wge::generateLineStripGeode( const WLine& line, const
     }
 
     // line width
-    osg::StateSet* stateset = new osg::StateSet;
-    osg::LineWidth* linewidth = new osg::LineWidth();
-    linewidth->setWidth( thickness );
-    stateset->setAttributeAndModes( linewidth, osg::StateAttribute::ON );
+    osg::StateSet* stateset = geometry->getOrCreateStateSet();
+    stateset->setAttributeAndModes( new osg::LineWidth( thickness ), osg::StateAttribute::ON );
     stateset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    geometry->setStateSet( stateset );
 
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
     geode->addDrawable( geometry );
