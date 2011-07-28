@@ -102,7 +102,7 @@ void main()
     // else
     //    gl_FragColor = col;
 
-	gl_FragColor = col;
+    gl_FragColor = col;
     gl_FragDepth = depth;
 }
 
