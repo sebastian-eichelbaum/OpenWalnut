@@ -310,7 +310,11 @@ float getEdge()
             1.0 * edgel  +  -4.0 * edgec + 1.0 * edger  +
             0.0 * edgebl +  1.0 * edgeb + 0.0 * edgebr
         );
-    return 1 - edge;
+
+    // MPI Paper Hack, to make edges black and surrundings white
+    // return 1 - edge;
+
+    return edge;
 }
 
 /**
