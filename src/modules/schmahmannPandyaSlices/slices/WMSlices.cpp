@@ -108,7 +108,7 @@ void WMSlices::requirements()
 
 void WMSlices::redrawUntilSlicePosChangingAnymore( unsigned char sliceNum, const std::string &propName )
 {
-    int pos = 0;
+    double pos = 0.0;
     do
     {
         pos = m_slicePos[sliceNum]->get();
