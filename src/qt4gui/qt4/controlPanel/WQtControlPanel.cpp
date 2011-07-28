@@ -893,7 +893,7 @@ void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boos
     if( props )
     {
         tab = buildPropWidget( props );
-        if ( tab )
+        if( tab )
         {
             tab->setName( "Settings" );
         }
@@ -901,7 +901,7 @@ void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boos
     if( infoProps )
     {
         infoTab = buildPropWidget( infoProps );
-        if ( infoTab )
+        if( infoTab )
         {
             infoTab->setName( "Information" );
         }
@@ -1010,7 +1010,7 @@ int WQtControlPanel::addTabWidgetContent( WQtPropertyGroupWidget* content )
     if( !content || content->isEmpty() )
     {
         // we destroy the widget if we not use it to avoid empty widgets popping up
-        if ( content )
+        if( content )
         {
             delete content;
         }

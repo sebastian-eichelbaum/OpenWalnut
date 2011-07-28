@@ -61,10 +61,10 @@ double WSymmetricSphericalHarmonic::getValue( double theta, double phi ) const
   double result = 0.0;
   int j = 0;
   const double rootOf2 = std::sqrt( 2.0 );
-  for ( int k = 0; k <= static_cast<int>( m_order ); k+=2 )
+  for( int k = 0; k <= static_cast<int>( m_order ); k+=2 )
   {
     // m = 1 .. k
-    for ( int m = 1; m <= k; m++ )
+    for( int m = 1; m <= k; m++ )
     {
       j = ( k*k+k+2 ) / 2 + m;
       result += m_SHCoefficients[ j-1 ] * rootOf2 *
@@ -73,7 +73,7 @@ double WSymmetricSphericalHarmonic::getValue( double theta, double phi ) const
     // m = 0
     result += m_SHCoefficients[ ( k*k+k+2 ) / 2 - 1 ] * boost::math::spherical_harmonic_r( k, 0, theta, phi );
     // m = -k .. -1
-    for ( int m = -k; m < 0; m++ )
+    for( int m = -k; m < 0; m++ )
     {
       j = ( k*k+k+2 ) / 2 + m;
       result += m_SHCoefficients[ j-1 ] * rootOf2 * boost::math::spherical_harmonic_r( k, -m, theta, phi );
@@ -244,7 +244,7 @@ void WSymmetricSphericalHarmonic::applyFunkRadonTransformation( WMatrix< double 
     WAssert( frtMat.getNbCols() == m_SHCoefficients.size(), "" );
     WAssert( frtMat.getNbRows() == m_SHCoefficients.size(), "" );
     // Funk-Radon-Transformation as in Descoteaux's thesis
-    for ( size_t j = 0; j < m_SHCoefficients.size(); j++ )
+    for( size_t j = 0; j < m_SHCoefficients.size(); j++ )
     {
         m_SHCoefficients[ j ] *= frtMat( j, j );
     }
@@ -448,7 +448,7 @@ void WSymmetricSphericalHarmonic::normalize()
   double scale = 0.0;
   if( m_SHCoefficients.size() > 0 )
     scale = std::sqrt( 4.0 * piDouble ) * m_SHCoefficients[0];
-  for ( size_t i = 0; i < m_SHCoefficients.size(); i++ )
+  for( size_t i = 0; i < m_SHCoefficients.size(); i++ )
   {
     m_SHCoefficients[ i ] /= scale;
   }

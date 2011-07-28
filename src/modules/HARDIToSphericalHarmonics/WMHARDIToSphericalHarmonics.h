@@ -269,7 +269,7 @@ WMHARDIToSphericalHarmonics::HARDICalculation::operator() ( WValueSet< T > const
     typename std::vector< WSphericalHarmonicsCoefficientsThread< T >* > threads;
 
     // create Threads
-    for ( unsigned int i = 0; i < threadCount; i++ )
+    for( unsigned int i = 0; i < threadCount; i++ )
     {
         range.first = ( voxelCount / threadCount ) * i;
         range.second = ( i == ( threadCount - 1 ) ) ? voxelCount : ( voxelCount / threadCount ) * ( i + 1 );

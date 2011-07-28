@@ -263,7 +263,7 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mes
     geometry->addPrimitiveSet( surfaceElement );
 
     // add the mesh colors
-    if ( mesh->getVertexColorArray() && useMeshColor )
+    if( mesh->getVertexColorArray() && useMeshColor )
     {
         geometry->setColorArray( mesh->getVertexColorArray() );
         geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );

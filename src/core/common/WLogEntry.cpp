@@ -36,15 +36,15 @@ LogLevel logLevelFromString( const std::string& str )
     // get lower-case version
     std::string strLower = str; // NOTE: this reserves the needed space
     std::transform( str.begin(), str.end(), strLower.begin(), tolower );
-    if ( !strLower.compare( "debug" ) )
+    if( !strLower.compare( "debug" ) )
     {
         return LL_DEBUG;
     }
-    else if ( !strLower.compare( "info" ) )
+    else if( !strLower.compare( "info" ) )
     {
         return LL_INFO;
     }
-    else if ( !strLower.compare( "warning" ) )
+    else if( !strLower.compare( "warning" ) )
     {
         return LL_WARNING;
     }

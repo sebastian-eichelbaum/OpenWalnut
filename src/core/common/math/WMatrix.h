@@ -177,7 +177,7 @@ public:
      */
     void setZero()
     {
-        for ( size_t i = 0; i < this->size(); ++i )
+        for( size_t i = 0; i < this->size(); ++i )
         {
             ( *this )[ i ] = 0.0;
         }
@@ -227,9 +227,9 @@ template< typename T > WMatrix< T >::WMatrix( const Eigen::MatrixXd& newMatrix )
     : WValue< T >( newMatrix.cols() * newMatrix.rows() )
 {
     m_nbCols = static_cast< size_t >( newMatrix.cols() );
-    for ( int row = 0; row < newMatrix.rows(); ++row )
+    for( int row = 0; row < newMatrix.rows(); ++row )
     {
-        for ( int col = 0; col < newMatrix.cols(); ++col )
+        for( int col = 0; col < newMatrix.cols(); ++col )
         {
             ( *this )( row, col ) = static_cast< T >( newMatrix( row, col ) );
         }
@@ -279,9 +279,9 @@ template< typename T > WMatrix< T >::operator osg::Matrixd() const
 template< typename T > WMatrix< T >::operator Eigen::MatrixXd() const
 {
     Eigen::MatrixXd matrix( this->getNbRows(), this->getNbCols() );
-    for ( int row = 0; row < matrix.rows(); ++row )
+    for( int row = 0; row < matrix.rows(); ++row )
     {
-        for ( int col = 0; col < matrix.cols(); ++col )
+        for( int col = 0; col < matrix.cols(); ++col )
         {
             matrix( row, col ) = ( *this )( row, col );
         }
