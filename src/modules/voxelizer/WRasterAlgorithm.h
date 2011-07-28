@@ -30,9 +30,9 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../common/math/WLine.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/common/math/WLine.h"
 #include "WRasterParameterization.h"
 
 /**

@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../../common/exceptions/WPreconditionNotMet.h"
+#include "core/common/exceptions/WPreconditionNotMet.h"
 
 #include "WSegmentationAlgo.h"
 

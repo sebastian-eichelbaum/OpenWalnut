@@ -33,11 +33,10 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
-#include "../../common/math/WVector3D.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WDataSetSingle.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
 
 
 class WPickHandler;
@@ -111,17 +110,11 @@ private:
      */
     template< typename T > void applyMask( boost::shared_ptr< WValueSet< T > > valSet, dataType type );
 
-    //! Data at positions where the mask is below this threshold will be set to zero.
-    WPropDouble m_threshold;
-
-    //! A condition for property changes.
-    boost::shared_ptr< WCondition > m_propCondition;
-
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_dataInput;  //!< Input connector for getting the data.
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_dataInput;  //!< Input connector for getting the data.
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_maskInput;  //!< Input connector for getting the mask.
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output; //!< The only output of this mask module.
-    boost::shared_ptr< WDataSetSingle > m_dataSet; //!< Pointer providing access to the data set in the whole module.
-    boost::shared_ptr< WDataSetSingle > m_dataSetOut; //!< Pointer providing access to the resulting data set in the whole module.
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output; //!< The only output of this mask module.
+    boost::shared_ptr< WDataSetScalar > m_dataSet; //!< Pointer providing access to the data set in the whole module.
+    boost::shared_ptr< WDataSetScalar > m_dataSetOut; //!< Pointer providing access to the resulting data set in the whole module.
     boost::shared_ptr< WDataSetScalar > m_mask; //!< Pointer providing access to the mask in the whole module.
 };
 

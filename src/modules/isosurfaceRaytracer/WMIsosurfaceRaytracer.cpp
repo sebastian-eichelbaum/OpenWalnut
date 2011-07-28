@@ -31,25 +31,25 @@
 #include <osg/ShapeDrawable>
 #include <osg/StateAttribute>
 
-#include "../../common/WColor.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WDataSetVector.h"
-#include "../../dataHandler/WDataTexture3D_2.h"
-#include "../../graphicsEngine/WGEColormapping.h"
-#include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WGETextureUtils.h"
-#include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
-#include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
-#include "../../graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
-#include "../../graphicsEngine/shaders/WGEShaderPropertyDefine.h"
-#include "../../graphicsEngine/postprocessing/WGEPostprocessingNode.h"
-#include "../../graphicsEngine/WGERequirement.h"
-#include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/WColor.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetVector.h"
+#include "core/dataHandler/WDataTexture3D.h"
+#include "core/graphicsEngine/WGEColormapping.h"
+#include "core/graphicsEngine/WGEGeodeUtils.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/graphicsEngine/WGETextureUtils.h"
+#include "core/graphicsEngine/shaders/WGEPropertyUniform.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
+#include "core/graphicsEngine/shaders/WGEShaderDefineOptions.h"
+#include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
+#include "core/graphicsEngine/shaders/WGEShaderPropertyDefine.h"
+#include "core/graphicsEngine/postprocessing/WGEPostprocessingNode.h"
+#include "core/graphicsEngine/WGERequirement.h"
+#include "core/graphicsEngine/callbacks/WGENodeMaskCallback.h"
+#include "core/kernel/WKernel.h"
 #include "WMIsosurfaceRaytracer.xpm"
 #include "WMIsosurfaceRaytracer.h"
 
@@ -207,7 +207,7 @@ void WMIsosurfaceRaytracer::moduleMain()
     // Normally, you will have a loop which runs as long as the module should not shutdown. In this loop you can react on changing data on input
     // connectors or on changed in your properties.
     debugLog() << "Entering main loop";
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         // Now, the moduleState variable comes into play. The module can wait for the condition, which gets fired whenever the input receives data
         // or an property changes. The main loop now waits until something happens.
@@ -215,7 +215,7 @@ void WMIsosurfaceRaytracer::moduleMain()
         m_moduleState.wait();
 
         // quit if requested
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -226,31 +226,31 @@ void WMIsosurfaceRaytracer::moduleMain()
         bool dataValid   = ( dataSet );
 
         // valid data available?
-        if ( !dataValid )
+        if( !dataValid )
         {
             // remove renderings if no data is available anymore
             rootNode->clear();
         }
 
         // m_isoColor or shading changed
-        if ( m_isoColor->changed() )
+        if( m_isoColor->changed() )
         {
             // a new color requires the proxy geometry to be rebuild as we store it as color in this geometry
             dataUpdated = true;
         }
 
         // As the data has changed, we need to recreate the texture.
-        if ( dataUpdated && dataValid )
+        if( dataUpdated && dataValid )
         {
             debugLog() << "Data changed. Uploading new data as texture.";
 
-            m_isoValue->setMin( dataSet->getTexture2()->minimum()->get() );
-            m_isoValue->setMax( dataSet->getTexture2()->scale()->get() + dataSet->getTexture2()->minimum()->get() );
-            m_isoValue->set( dataSet->getTexture2()->minimum()->get() + ( 0.5 * dataSet->getTexture2()->scale()->get() ) );
+            m_isoValue->setMin( dataSet->getTexture()->minimum()->get() );
+            m_isoValue->setMax( dataSet->getTexture()->scale()->get() + dataSet->getTexture()->minimum()->get() );
+            m_isoValue->set( dataSet->getTexture()->minimum()->get() + ( 0.5 * dataSet->getTexture()->scale()->get() ) );
 
             // First, grab the grid
             boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
-            if ( !grid )
+            if( !grid )
             {
                 errorLog() << "The dataset does not provide a regular grid. Ignoring dataset.";
                 continue;
@@ -263,11 +263,11 @@ void WMIsosurfaceRaytracer::moduleMain()
             cube->asTransform()->getChild( 0 )->setName( "_DVR Proxy Cube" ); // Be aware that this name is used in the pick handler.
                                                                               // because of the underscore in front it won't be picked
             // we also set the grid's transformation here
-            rootNode->setMatrix( wge::toOSGMatrix( grid->getTransformationMatrix() ) );
+            rootNode->setMatrix( static_cast< WMatrix4d >( grid->getTransform() ) );
 
             // bind the texture to the node
             osg::StateSet* rootState = cube->getOrCreateStateSet();
-            osg::ref_ptr< WGETexture3D > texture3D = dataSet->getTexture2();
+            osg::ref_ptr< WGETexture3D > texture3D = dataSet->getTexture();
             texture3D->bind( cube );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -286,12 +286,12 @@ void WMIsosurfaceRaytracer::moduleMain()
 
             // if there is a gradient field available -> apply as texture too
             boost::shared_ptr< WDataSetVector > gradients = m_gradients->getData();
-            if ( gradients )
+            if( gradients )
             {
                 debugLog() << "Uploading specified gradient field.";
 
                 // bind the texture to the node
-                osg::ref_ptr< WDataTexture3D_2 > gradTexture3D = gradients->getTexture2();
+                osg::ref_ptr< WDataTexture3D > gradTexture3D = gradients->getTexture();
                 wge::bindTexture( cube, gradTexture3D, 2, "u_gradients" );
                 gradTexEnableDefine->setActive( true );
             }
@@ -307,7 +307,7 @@ void WMIsosurfaceRaytracer::moduleMain()
             rootNode->insert( cube );
             // insert root node if needed. This way, we ensure that the root node gets added only if the proxy cube has been added AND the bbox
             // can be calculated properly by the OSG to ensure the proxy cube is centered in the scene if no other item has been added earlier.
-            if ( !postNodeInserted )
+            if( !postNodeInserted )
             {
                 postNodeInserted = true;
                 WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( postNode );

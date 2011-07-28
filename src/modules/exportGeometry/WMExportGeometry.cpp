@@ -25,10 +25,10 @@
 #include <string>
 #include <sstream>
 
-#include "../../common/WPropertyHelper.h"
-#include "../../graphicsEngine/WTriangleMesh.h"
-#include "../../kernel/WKernel.h"
-#include "../emptyIcon.xpm" // Please put a real icon here.
+#include "core/common/WPropertyHelper.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
+#include "core/kernel/WKernel.h"
+#include "WMExportGeometry.xpm"
 
 #include "WMExportGeometry.h"
 
@@ -53,7 +53,7 @@ boost::shared_ptr< WModule > WMExportGeometry::factory() const
 
 const char** WMExportGeometry::getXPMIcon() const
 {
-    return emptyIcon_xpm;
+    return WMExportGeometry_xpm;
 }
 const std::string WMExportGeometry::getName() const
 {

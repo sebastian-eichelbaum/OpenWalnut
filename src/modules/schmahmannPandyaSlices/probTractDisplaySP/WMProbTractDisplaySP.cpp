@@ -27,16 +27,16 @@
 
 #include <osg/Geometry>
 
-#include "../../../common/exceptions/WNotImplemented.h"
-#include "../../../common/exceptions/WOutOfBounds.h"
-#include "../../../dataHandler/WDataSetFibers.h"
-#include "../../../dataHandler/WDataSetScalar.h"
-#include "../../../dataHandler/WDataSetVector.h"
-#include "../../../dataHandler/WGridRegular3D.h"
-#include "../../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../../kernel/WKernel.h"
-#include "../../../kernel/WModuleConnectorSignals.h"
-#include "../../../kernel/WModuleInputData.h"
+#include "core/common/exceptions/WNotImplemented.h"
+#include "core/common/exceptions/WOutOfBounds.h"
+#include "core/dataHandler/WDataSetFibers.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetVector.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WModuleConnectorSignals.h"
+#include "core/kernel/WModuleInputData.h"
 #include "WMProbTractDisplaySP.h"
 #include "WMProbTractDisplaySP.xpm"
 #include "WSPSliceBuilder.h"
@@ -132,9 +132,9 @@ void WMProbTractDisplaySP::properties()
     m_showSlice[ 1 ] = m_sliceGroup->addProperty( "Show Coronal", "Show instersection of deterministic tracts on coronal slice.", true );
     m_showSlice[ 2 ] = m_sliceGroup->addProperty( "Show Axial", "Show instersection of deterministic tracts on axial slice.", true );
 
-    m_slicePos[ 0 ] = m_sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 0, m_sliceChanged );
-    m_slicePos[ 1 ] = m_sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0, m_sliceChanged );
-    m_slicePos[ 2 ] = m_sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0, m_sliceChanged );
+    m_slicePos[ 0 ] = m_sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 0.0, m_sliceChanged );
+    m_slicePos[ 1 ] = m_sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0.0, m_sliceChanged );
+    m_slicePos[ 2 ] = m_sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0.0, m_sliceChanged );
 
     // since we don't know anything yet => make them unusable
     for( size_t i = 0; i < 3; ++i )

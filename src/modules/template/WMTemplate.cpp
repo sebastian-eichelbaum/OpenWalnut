@@ -58,12 +58,12 @@
 #include <osg/Material>
 #include <osg/StateAttribute>
 
-#include "../../kernel/WKernel.h"
-#include "../../common/WColor.h"
-#include "../../common/WPathHelper.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WGERequirement.h"
+#include "core/kernel/WKernel.h"
+#include "core/common/WColor.h"
+#include "core/common/WPathHelper.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/graphicsEngine/WGERequirement.h"
 
 #include "WMTemplate.xpm"
 #include "icons/bier.xpm"
@@ -163,6 +163,8 @@ void WMTemplate::connectors()
         new WModuleInputData< WDataSetSingle >( shared_from_this(),
                                                                "in", "The dataset to display" )
         );
+    // Lazy Programmer's Alternative:
+    // m_input = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "in", "The dataset to display" );
 
     // This creates an input connector which can receive WDataSetSingle. It will never be able to connect to output connectors providing just a
     // WDataSet (which is the father class of WDataSetSingle), but it will be able to be connected to an output connector with a type derived
@@ -694,8 +696,8 @@ void WMTemplate::TranslateCallback::operator()( osg::Node* node, osg::NodeVisito
         // The node to which this callback has been attached needs to be an osg::MatrixTransform:
         osg::ref_ptr< osg::MatrixTransform > transform = static_cast< osg::MatrixTransform* >( node );
 
-        // Build a translation matrix (to comfortably convert between WPosition and osg::Vec3 use the convenience methods in "wge::" namespace)
-        osg::Matrixd translate = osg::Matrixd::translate( m_module->m_aPosition->get( true  ) );
+        // Build a translation matrix (to comfortably convert between WPosition and osg::Vec3 use the WVector3XXX methods)
+        osg::Matrixd translate = osg::Matrixd::translate( m_module->m_aPosition->get( true  ).as< osg::Vec3d >() );
 
         // and set the translation matrix
         transform->setMatrix( translate );
@@ -750,7 +752,7 @@ void WMTemplate::hideButtonPressed()
     // thread for certain operations.
 
     // If the button was triggered, switch the hide-state of m_aColor and m_aHiddenInt.
-    if ( m_hideButton->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+    if( m_hideButton->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
     {
         // switch the hide flag of the color prop.
         m_aColor->setHidden( !m_aColor->isHidden() );

@@ -29,7 +29,7 @@
 #include <osg/NodeCallback>
 #include <osg/NodeVisitor>
 
-#include "../../common/WPropertyTypes.h"
+#include "core/common/WPropertyTypes.h"
 
 
 /**

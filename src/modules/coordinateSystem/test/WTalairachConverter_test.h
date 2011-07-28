@@ -46,17 +46,17 @@ public:
      */
     void setUp( void )
     {
-        WVector3D ac( 150, 122, 90 );
-        WVector3D pc( 110, 124, 97 );
-        WVector3D ihp( 140, 119, 188 );
+        WVector3d ac( 150, 122, 90 );
+        WVector3d pc( 110, 124, 97 );
+        WVector3d ihp( 140, 119, 188 );
         m_tc = boost::shared_ptr<WTalairachConverter> ( new WTalairachConverter( ac, pc, ihp ) );
 
-        m_tc->setAp( WVector3D( 80, 0, 0 ) );
-        m_tc->setPp( WVector3D( -97, 0, 0 ) );
-        m_tc->setSp( WVector3D( 0, 0, 81 ) );
-        m_tc->setIp( WVector3D( 0, 0, -41 ) );
-        m_tc->setRp( WVector3D( 0, -60, 0 ) );
-        m_tc->setLp( WVector3D( 0, 63, 0 ) );
+        m_tc->setAp( WVector3d( 80, 0, 0 ) );
+        m_tc->setPp( WVector3d( -97, 0, 0 ) );
+        m_tc->setSp( WVector3d( 0, 0, 81 ) );
+        m_tc->setIp( WVector3d( 0, 0, -41 ) );
+        m_tc->setRp( WVector3d( 0, -60, 0 ) );
+        m_tc->setLp( WVector3d( 0, 63, 0 ) );
     }
 
     /**
@@ -73,8 +73,8 @@ public:
      */
     void testCanonical2ACPC( void )
     {
-        WVector3D testPoint( 200, 60, 130 );
-        WVector3D result = m_tc->Canonical2ACPC( testPoint );
+        WVector3d testPoint( 200, 60, 130 );
+        WVector3d result = m_tc->Canonical2ACPC( testPoint );
 
         TS_ASSERT_DELTA( result[0], 45.35, 0.05 );
         TS_ASSERT_DELTA( result[1], -57.6, 0.05 );
@@ -86,8 +86,8 @@ public:
      */
     void testACPC2Canonical( void )
     {
-        WVector3D testPoint( 45.35, -57.6, 50.69 );
-        WVector3D result = m_tc->ACPC2Canonical( testPoint );
+        WVector3d testPoint( 45.35, -57.6, 50.69 );
+        WVector3d result = m_tc->ACPC2Canonical( testPoint );
 
         TS_ASSERT_DELTA( result[0], 200, 0.05 );
         TS_ASSERT_DELTA( result[1], 60, 0.05 );
@@ -99,8 +99,8 @@ public:
      */
     void testACPC2Talairach( void )
     {
-        WVector3D testPoint( 12, 43, -12 );
-        WVector3D result = m_tc->ACPC2Talairach( testPoint );
+        WVector3d testPoint( 12, 43, -12 );
+        WVector3d result = m_tc->ACPC2Talairach( testPoint );
 
         TS_ASSERT_DELTA( result[0], 12.0, 0.05 );
         TS_ASSERT_DELTA( result[1], 49.6, 0.05 );
@@ -112,8 +112,8 @@ public:
      */
     void testTalairach2ACPC( void )
     {
-        WVector3D testPoint( 10.5, 46.41, -12.29 );
-        WVector3D result = m_tc->Talairach2ACPC( testPoint );
+        WVector3d testPoint( 10.5, 46.41, -12.29 );
+        WVector3d result = m_tc->Talairach2ACPC( testPoint );
 
         TS_ASSERT_DELTA( result[0], 10.5, 0.05 );
         TS_ASSERT_DELTA( result[1], 40.25, 0.05 );

@@ -35,12 +35,12 @@
 #include "itkGradientAnisotropicDiffusionImageFilter.h"
 #include "itkCastImageFilter.h"
 
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WROIManager.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WROIManager.h"
 
-#include "../../graphicsEngine/WROIBox.h"
+#include "core/graphicsEngine/WROIBox.h"
 
-#include "../../dataHandler/WITKImageConversion.h"
+#include "core/dataHandler/WITKImageConversion.h"
 
 #include "WSegmentationAlgo.h"
 
@@ -149,7 +149,7 @@ WSegmentationAlgo::DataSetPtr WSegmentationAlgoRegionGrowingConfidenceConnected:
     if( box )
     {
         boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
-        WVector3D v = 0.5 * ( box->getMinPos() + box->getMaxPos() );
+        WVector3d v = 0.5 * ( box->getMinPos() + box->getMaxPos() );
         WValue< int > voxel = grid->getVoxelCoord( v );
 
         i[ 0 ] = static_cast< int32_t >( voxel[ 0 ] );

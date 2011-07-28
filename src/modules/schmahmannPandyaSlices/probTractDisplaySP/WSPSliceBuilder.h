@@ -31,9 +31,9 @@
 
 #include <osg/ref_ptr>
 
-#include "../../../common/WBoundingBox.h"
-#include "../../../common/WProperties.h"
-#include "../../../common/WPropertyTypes.h"
+#include "core/common/WBoundingBox.h"
+#include "core/common/WProperties.h"
+#include "core/common/WPropertyTypes.h"
 
 class WDataSetScalar;
 class WGEGroupNode;
@@ -133,7 +133,7 @@ protected:
     /**
      * Hold the current position of each slice given from the properties
      */
-    std::vector< boost::shared_ptr< const WPVInt > >  m_slicePos;
+    std::vector< boost::shared_ptr< const WPVDouble > >  m_slicePos;
 
     /**
      * List of probabilisitc tractograms.

@@ -29,12 +29,12 @@
 
 #include <osg/LightModel>
 
-#include "../../common/WAssert.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../common/WLimits.h"
-#include "../../common/WThreadedFunction.h"
-#include "../../common/WConditionOneShot.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/WAssert.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/common/WLimits.h"
+#include "core/common/WThreadedFunction.h"
+#include "core/common/WConditionOneShot.h"
+#include "core/kernel/WKernel.h"
 #include "WMTeemGlyphs.xpm"
 
 #include "WMTeemGlyphs.h"
@@ -153,6 +153,8 @@ void WMTeemGlyphs::connectors()
 
 void WMTeemGlyphs::properties()
 {
+    m_exceptionCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
     m_sliceOrientations = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_sliceOrientations->addItem( "x", "x-slice" );
     m_sliceOrientations->addItem( "y", "y-slice" );
@@ -219,15 +221,22 @@ void WMTeemGlyphs::properties()
     WModule::properties();
 }
 
+void WMTeemGlyphs::handleException( WException const& e )
+{
+    m_lastException = boost::shared_ptr< WException >( new WException( e ) );
+    m_exceptionCondition->notify();
+}
+
 void WMTeemGlyphs::moduleMain()
 {
     m_moduleState.add( m_input->getDataChangedCondition() );
     m_moduleState.add( m_recompute );
+    m_moduleState.add( m_exceptionCondition );
 
     ready();
 
     // loop until the module container requests the module to quit
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         if( !m_input->getData().get() )
         {
@@ -398,7 +407,7 @@ void WMTeemGlyphs::GlyphGeneration::minMaxNormalization( limnPolyData *glyph, co
     for( size_t vertID = 0; vertID < glyph->xyzwNum; ++vertID )
     {
         WPosition pos( glyph->xyzw[nbVertCoords*vertID], glyph->xyzw[nbVertCoords*vertID+1],  glyph->xyzw[nbVertCoords*vertID+2] );
-        double norm = pos.norm();
+        double norm = length( pos );
 
         if( norm < min )
         {
@@ -411,23 +420,23 @@ void WMTeemGlyphs::GlyphGeneration::minMaxNormalization( limnPolyData *glyph, co
     }
     double dist = max - min;
 
-    if( dist != 0 )
+    if( dist != 0.0 )
     {
-        WAssert( dist > 0, "Max has to be larger than min." );
+        WAssert( dist > 0.0, "Max has to be larger than min." );
 
          for( size_t i = 0; i < glyph->xyzwNum; ++i )
          {
              size_t coordIdBase = nbVertCoords * i;
              WPosition pos( glyph->xyzw[coordIdBase], glyph->xyzw[coordIdBase+1],  glyph->xyzw[coordIdBase+2] );
-             double norm = pos.norm();
+             double norm = length( pos );
              const double epsilon = 1e-9;
              WPosition newPos;
-//             newPos = ( ( ( norm - min ) / dist ) + epsilon ) * pos.normalized();
-             newPos = ( ( ( norm - min ) / dist ) + epsilon ) * pos / norm;
-             glyph->xyzw[coordIdBase] = newPos[0];
-             glyph->xyzw[coordIdBase+1] = newPos[1];
-             glyph->xyzw[coordIdBase+2] = newPos[2];
-         }
+//             newPos = ( ( ( norm - min ) / dist ) + epsilon ) * normalize( pos );
+            newPos = ( ( ( norm - min ) / dist ) + epsilon ) * pos / norm;
+            glyph->xyzw[coordIdBase] = newPos[0];
+            glyph->xyzw[coordIdBase+1] = newPos[1];
+            glyph->xyzw[coordIdBase+2] = newPos[2];
+        }
     }
     // else do nothing because all values are equal.
 }
@@ -530,25 +539,14 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
     size_t nbVerts = m_sphere->xyzwNum;
 
     const tijk_type *type = 0; // Initialized to quiet compiler
-    switch( m_order )
-    {
-        case 2:
-            type = tijk_2o3d_sym;
-            break;
-        case 4:
-            type = tijk_4o3d_sym;
-            break;
-        case 6:
-            type = tijk_6o3d_sym;
-            break;
-        default:
-            WAssert( false, "order above 6 not supported yet." );
-    }
+    const tijk_type *typeOrder2 = tijk_2o3d_sym;
+    const tijk_type *typeOrder4 = tijk_4o3d_sym;
+    const tijk_type *typeOrder6 = tijk_6o3d_sym;
 
     // memory for the tensor and spherical harmonics data.
-    float* ten = new float[type->num];
-    float* res = new float[type->num];
-    float* esh = new float[type->num];
+    float* ten = new float[ typeOrder6->num ];
+    float* res = new float[ typeOrder6->num ];
+    float* esh = new float[ typeOrder6->num ];
 
 
     size_t chunkSize = m_nA / ( numThreads - 1 );
@@ -608,40 +606,62 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
                 continue;
             }
 
-            WValue< double > coeffs = m_dataSet->getSphericalHarmonicAt( posId ).getCoefficients();
+            WValue<double> coeffs( m_dataSet->getSphericalHarmonicAt( posId ).getCoefficients() );
+            int countOfCoeffsToUse = 0;
             switch( m_order )
             {
                 case 2:
-                    coeffs.resize( 6 );
+                    countOfCoeffsToUse = 6;
                     break;
                 case 4:
-                    coeffs.resize( 15 );
+                    countOfCoeffsToUse = 15;
                     break;
                 case 6:
-                    coeffs.resize( 28 );
+                    countOfCoeffsToUse = 28;
+                    break;
+                default:
+                    WAssert( false, "order above 6 not supported yet." );
+            }
+            countOfCoeffsToUse = std::min( static_cast< int >( coeffs.size() ), countOfCoeffsToUse );
+
+            // determine order to use
+            int useOrder = 0;
+            switch( countOfCoeffsToUse )
+            {
+                case 6:
+                    useOrder = 2;
+                    type = typeOrder2;
+                    break;
+                case 15:
+                    useOrder = 4;
+                    type = typeOrder4;
+                    break;
+                case 28:
+                    useOrder = 6;
+                    type = typeOrder6;
                     break;
                 default:
                     WAssert( false, "order above 6 not supported yet." );
             }
 
-            for( size_t coeffId = 0; coeffId < coeffs.size(); coeffId++ )
+            for( int coeffId = 0; coeffId < countOfCoeffsToUse; ++coeffId )
             {
-                esh[coeffId] = coeffs[coeffId];
+                esh[ coeffId ] = coeffs[ coeffId ];
             }
 
             // change Descoteaux basis to Schulz/teem basis
             // Descoteaux basis: see his PhD thesis page 66
             // Schultz basis: see PDF "Real Spherical Harmonic basis" - Luke Bloy 9. December 2009
             size_t k = 0;
-            for ( int l = 0; l <= static_cast<int>( m_order ); l += 2 )
+            for( int l = 0; l <= useOrder; l += 2 )
             {
-                for ( int m = -l; m <= l; ++m )
+                for( int m = -l; m <= l; ++m )
                 {
-                    if ( m < 0 && ( ( -m ) % 2 == 1 ) )
+                    if( m < 0 && ( ( -m ) % 2 == 1 ) )
                     {
                         esh[k] *= -1.0;
                     }
-                    else if ( m > 0 && ( m % 2 == 0 ) )
+                    else if( m > 0 && ( m % 2 == 0 ) )
                     {
                         esh[k] *= -1.0;
                     }
@@ -650,7 +670,7 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
             }
 
             // convert even-order spherical harmonics to higher-order tensor
-            tijk_esh_to_3d_sym_f( ten, esh, m_order );
+            tijk_esh_to_3d_sym_f( ten, esh, useOrder );
 
             const char normalize = 0;
 

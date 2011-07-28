@@ -22,11 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../../../dataHandler/WDataSetScalar.h"
-#include "../../../dataHandler/WGridRegular3D.h"
-#include "../../../graphicsEngine/shaders/WGEPropertyUniform.h"
-#include "../../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../../graphicsEngine/WGEManagedGroupNode.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/graphicsEngine/shaders/WGEPropertyUniform.h"
+#include "core/graphicsEngine/WGEGeodeUtils.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
 #include "WBoundaryFragments.h"
 
 WBoundaryFragments::WBoundaryFragments( boost::shared_ptr< const WDataSetScalar > texture, boost::shared_ptr< const WProperties > properties,
@@ -56,14 +56,14 @@ void WBoundaryFragments::run( osg::ref_ptr< WGEManagedGroupNode > output, const 
     for( char i = 0; i < 3; ++i )
     {
         m_shader->apply( m_slices[i] );
-        wge::bindTexture( m_slices[i], m_texture->getTexture2() );
+        wge::bindTexture( m_slices[i], m_texture->getTexture() );
         osg::StateSet *ss = m_slices[i]->getOrCreateStateSet();
         ss->addUniform( u_grayMatter );
         ss->addUniform( u_whiteMatter );
         ss->addUniform( u_gmColor );
         ss->addUniform( u_wmColor );
-        ss->addUniform( new WGEPropertyUniform< WPropInt >( "u_vertexShift", m_slicePos[i] ) );
-        ss->addUniform( new osg::Uniform( "u_vertexShiftDirection", getDirections( grid )[i] ) );
+        ss->addUniform( new WGEPropertyUniform< WPropDouble >( "u_vertexShift", m_slicePos[i] ) );
+        ss->addUniform( new osg::Uniform( "u_vertexShiftDirection", static_cast< osg::Vec3f >( getDirections( grid )[i] ) ) );
         output->insert( m_slices[i] );
     }
 }

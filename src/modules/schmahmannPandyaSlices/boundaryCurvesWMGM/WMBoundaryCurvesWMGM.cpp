@@ -26,11 +26,11 @@
 
 #include <boost/array.hpp>
 
-#include "../../../dataHandler/WDataSetScalar.h"
-#include "../../../dataHandler/WGridRegular3D.h"
-#include "../../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../../kernel/WKernel.h"
-#include "../../../kernel/WModuleInputData.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WModuleInputData.h"
 #include "WBoundaryBuilder.h"
 #include "WBoundaryFragments.h"
 #include "WBoundaryLines.h"
@@ -86,9 +86,9 @@ void WMBoundaryCurvesWMGM::properties()
     // The slice positions. These get update externally.
     // TODO(all): this should somehow be connected to the nav slices.
     boost::function< void ( boost::shared_ptr< WPropertyBase > ) > callBack = boost::bind( &WMBoundaryCurvesWMGM::rerunBuilder, this, _1 ); // NOLINT extra space before (, which is not a function call
-    m_slicePos[0] = sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 0, callBack );
-    m_slicePos[1] = sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0, callBack );
-    m_slicePos[2] = sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0, callBack );
+    m_slicePos[0] = sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 0.0, callBack );
+    m_slicePos[1] = sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0.0, callBack );
+    m_slicePos[2] = sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0.0, callBack );
 
     // since we don't know anything yet => make them unusable
     for( char i = 0; i < 3; ++i )

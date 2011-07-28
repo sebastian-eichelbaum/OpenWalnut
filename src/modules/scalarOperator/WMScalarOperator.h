@@ -33,12 +33,12 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
 
-#include "../../common/math/WVector3D.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
 
-#include "../../dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetScalar.h"
 
 /**
  * Operators for processing two WDataSetScalar.
@@ -117,6 +117,16 @@ private:
      * The currently selected operation.
      */
     WPropSelection m_opSelection;
+
+    /**
+     * Lower border used for clamping.
+     */
+    WPropDouble m_lowerBorder;
+
+    /**
+     * Upper border used for clamping.
+     */
+    WPropDouble m_upperBorder;
 
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_inputA;  //!< Input connector required by this module.
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_inputB;  //!< Input connector required by this module.

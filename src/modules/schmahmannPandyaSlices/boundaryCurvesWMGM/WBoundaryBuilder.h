@@ -30,9 +30,9 @@
 
 #include <osg/ref_ptr>
 
-#include "../../../common/WProperties.h"
-#include "../../../graphicsEngine/shaders/WGEShader.h"
-#include "../../../graphicsEngine/WGEManagedGroupNode.h"
+#include "core/common/WProperties.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
 
 // forward declarations
 class WGEManagedGroupNode;
@@ -79,7 +79,7 @@ protected:
      * The three slice positions.
      * 0 : xSlice, 1 : ySlice, 2 : zSlice
      */
-    boost::array< WPropInt, 3 > m_slicePos;
+    boost::array< WPropDouble, 3 > m_slicePos;
 
     /**
      * Pointer to the three slices.

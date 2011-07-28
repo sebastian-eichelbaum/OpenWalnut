@@ -34,8 +34,8 @@
 #include <osg/Material>
 #include <osg/StateAttribute>
 
-#include "../../kernel/WKernel.h"
-#include "../../common/WColor.h"
+#include "core/kernel/WKernel.h"
+#include "core/common/WColor.h"
 
 #include "WMFiberSelection.h"
 #include "WMFiberSelection.xpm"
@@ -177,12 +177,12 @@ void WMFiberSelection::moduleMain()
     ready();
 
     // Now wait for data
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         m_moduleState.wait();
 
         // woke up since the module is requested to finish
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -196,7 +196,7 @@ void WMFiberSelection::moduleMain()
         bool propChanged = ( m_cutFibers->changed() || m_voi1Threshold->changed() || m_voi2Threshold->changed() || m_preferShortestPath->changed() );
 
         // cleanup if no valid data is available
-        if ( !dataValid )
+        if( !dataValid )
         {
             debugLog() << "Resetting output.";
 
@@ -210,7 +210,7 @@ void WMFiberSelection::moduleMain()
             m_clusterOutput->reset();
         }
 
-        if ( ( propChanged || dataChanged ) && dataValid )
+        if( ( propChanged || dataChanged ) && dataValid )
         {
             debugLog() << "Data received. Recalculating.";
 
@@ -266,7 +266,7 @@ void WMFiberSelection::moduleMain()
                 std::vector< FibTrace > hits2;
 
                 // walk along the fiber
-                for ( size_t k = 0; k < len; ++k )
+                for( size_t k = 0; k < len; ++k )
                 {
                     float x = fibVerts->at( ( 3 * k ) + sidx );
                     float y = fibVerts->at( ( 3 * k ) + sidx + 1 );
@@ -275,7 +275,7 @@ void WMFiberSelection::moduleMain()
                     // get the voxel id
                     int voxel1 = grid1->getVoxelNum( WPosition( x, y, z ) );
                     int voxel2 = grid2->getVoxelNum( WPosition( x, y, z ) );
-                    if ( ( voxel1 < 0 ) || ( voxel2 < 0 ) )
+                    if( ( voxel1 < 0 ) || ( voxel2 < 0 ) )
                     {
                         warnLog() << "Fiber vertex (" << x << "," << y << "," << z << ") not in VOI1 or VOI2 grid. Ignoring vertex.";
                         continue;
@@ -294,12 +294,12 @@ void WMFiberSelection::moduleMain()
                     current2.isInside = ( value2 >= voi2Threshold );
 
                     // VOI1 hit?
-                    if ( current1.wasInside ^ current1.isInside )
+                    if( current1.wasInside ^ current1.isInside )
                     {
                         hits1.push_back( current1 );
                     }
                     // VOI2 Hit?
-                    if ( current2.wasInside ^ current2.isInside )
+                    if( current2.wasInside ^ current2.isInside )
                     {
                         hits2.push_back( current2 );
                     }
@@ -311,7 +311,7 @@ void WMFiberSelection::moduleMain()
                 // If one VOI completely inside another, ignore the fiber since it does not really make sense. So we only need to handle the
                 // other two cases
 
-                if ( !preferShortestPath )
+                if( !preferShortestPath )
                 {
                     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                     // Strategy 1: Always use the longest path
@@ -319,7 +319,7 @@ void WMFiberSelection::moduleMain()
                     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
                     // always use the longest fiber path
-                    if ( ( hits1.size() >= 1 ) && ( hits2.size() >= 1 ) )
+                    if( ( hits1.size() >= 1 ) && ( hits2.size() >= 1 ) )
                     {
                         debugLog() << "Fiber " << fidx << " inside VOI1 and VOI2.";
                         matches.push_back( boost::make_tuple( fidx, std::min( hits1[ 0 ].idx,                hits2[ 0 ].idx ),
@@ -335,7 +335,7 @@ void WMFiberSelection::moduleMain()
                     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
                     // always use the longest fiber path
-                    if ( ( hits1.size() >= 1 ) && ( hits2.size() >= 1 ) )
+                    if( ( hits1.size() >= 1 ) && ( hits2.size() >= 1 ) )
                     {
                         debugLog() << "Fiber " << fidx << " inside VOI1 and VOI2.";
                         matches.push_back( boost::make_tuple( fidx, std::min( hits1[ 0 ].idx,                hits2[ hits2.size() - 1 ].idx ),
@@ -366,7 +366,7 @@ void WMFiberSelection::moduleMain()
             // add each match to the above arrays
             size_t curVertIdx = 0;  // the current index in the vertex array
             size_t curRealFibIdx = 0; // since some fibers get discarded, the for loop counter "i" is not the correct fiber index
-            for ( size_t i = 0; i < matches.size(); ++i )
+            for( size_t i = 0; i < matches.size(); ++i )
             {
                 ++*progress1;
 
@@ -374,7 +374,7 @@ void WMFiberSelection::moduleMain()
                 size_t sidx = fibStart->at( matches[ i ].get< 0 >() ) * 3;
                 size_t len = fibLen->at( matches[ i ].get< 0 >() );
 
-                if ( cutFibers )
+                if( cutFibers )
                 {
                     // if the fibers should be cut: add an offset to the start index and recalculate the length
                     sidx = sidx + ( matches[ i ].get< 1 >() * 3 );
@@ -382,7 +382,7 @@ void WMFiberSelection::moduleMain()
                 }
 
                 // discard fibers with less than one line segment
-                if ( len < 2 )
+                if( len < 2 )
                 {
                     continue;
                 }
@@ -398,7 +398,7 @@ void WMFiberSelection::moduleMain()
                 newFiberCluster->merge( a );
 
                 // copy the fiber vertices
-                for ( size_t vi = 0; vi < len; ++vi )
+                for( size_t vi = 0; vi < len; ++vi )
                 {
                     curVertIdx++;
 

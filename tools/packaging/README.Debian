@@ -1,0 +1,130 @@
+How I did the Debian Config
+***************************
+
+1. Set these values:
+	$ export DEBEMAIL="eichelbaum@informatik.uni-leipzig.de"
+	$ export DEBFULLNAME="Sebastian Eichelbaum"
+
+2. In Debian, the source tar needs some special name:
+	$ ln -s openwalnut-$VERSION.tar.gz openwalnut_$VERSION.orig.tar.gz
+
+3. Setup Debhelper:
+	$ cd openwalnut-$VERSION
+	$ dh_make --single --copyright gpl3
+
+4. Configure the files in the newly created debian directory.
+	edit debian/rules
+		- this basically is a Makefile
+		- modified auto_build and auto_configure as well as target %
+		- have a look at our files in debian directory
+	edit debian/control
+		- this describes our package(s)
+		- set correct section, depends, homepage, description
+			- http://www.debian.org/doc/manuals/maint-guide/dreq.en.html#control
+			-> this URL describes everything needed
+	edit debian/copyright
+		- Setup for dual licensing
+			- added LGPL3
+		- added several authors there
+        - Also added all the external code we use!
+        -> check with "licensecheck -r --copyright"
+	edit debian/changelog
+		- added our ITP: 613419
+			- http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=613419#5
+	remove debian/emacsen-*
+		- it is for byte-compiling emacs stuff
+		- removed since not needed
+	remove debian/init.d.ex
+		- for files that should be put to /etc/init.d
+		- removed since not needed
+	remove debian/docs
+		- list of files handled by the doc installer.
+		- usually automatically contains a list of files in our top-level dir
+			- README and stuff
+		- we do not need to take care about this since cmake manages docs
+	edit debian/menu(.ex)
+		- rename to "menu" (removed extension)
+		- filled according to debian menu policy
+			- "man menufile" on Debian
+			- see http://www.debian.org/doc/packaging-manuals/menu-policy
+	remove debian/postinst.ex, postrm.ex, preinst.ex and prerm.ex
+		- used for maintainer scripts executed during install and removal
+		- removed since not needed
+	remove debian/watch.ex
+		- used to automatically watch for upstream updates
+		- we are packager and upstream author -> do not need this now
+		- removed
+	remove debian/README.Debian
+		- a Debian specific readme.
+		- removed since not needed
+	remove debian/README.source
+		- Debian specific changes in the source? No.
+		- removed since not needed
+	remove debian/openwalnut.cron.d.ex
+		- used to handle periodic operations (maintenance)
+		- removed since not needed
+	remove debian/openwalnut.default.ex
+		- used to handle default configurations in /etc/default
+		- removed since not needed
+	edit debian/openwalnut.doc-base(.ex)
+		- lists documentation provided by us
+		- rename to "openwalnut.doc-base" (removed extension)
+		- added the help files
+	remove debian/manpage.*
+		- for manual pages created with nroff, SGML and XML.
+		- remove since not needed
+	edit debian/openwalnut.lintian-overrides
+		- this file can suppress certain warnings and errors thrown by lintian
+		- added all lintian tags but commented them
+
+The nice thing is: we have all the installation stuff done in CMake.
+	- there is no further need for file-copying and similar.
+For all the details:
+	List of files and their meaning:
+		http://www.debian.org/doc/manuals/maint-guide/dreq.en.html
+		http://www.debian.org/doc/manuals/maint-guide/dother.en.html
+	General manuals, policies and tutorials:
+		http://www.debian.org/doc/manuals/maint-guide/index.en.html
+		http://wiki.debian.org/IntroDebianPackaging
+		http://lists.debian.org/debian-mentors/2011/05/msg00121.html
+
+How to update the Debian package
+********************************
+
+In most of the cases, we have the ugly problem of having the same
+information distributed over multiple files. If you modify the authors list
+you also need to modify the Debian copyright file for example. Here is a
+list of files you should need to keep up-to-date:
+
+debian/copyright
+	- keep list of authors up-to-date and ensure correct years
+debian/changelog
+	- for releases or fixed bugs in the debian bug-tracker
+	- use the tool dch (debchange) for this or manually
+		- but keep correct syntax!
+debian/rules
+	- allows setting certain CMake options
+debian/control
+	- defines some short description-text and dependnecies
+		-> for new dependencies, modify this file!
+debian/openwalnut.doc-base
+	- lists additional documentation we provide
+
+How to build the Debian package
+*******************************
+
+You can use owpack for this. If not, cd to openwalnut-VERSION and ensure you
+copied our debian config directory from tools/packaging there. Ensure to remove
+the .hg files inside the directory since they somehow interfere with debuild.
+
+Call debuild -us -uc (see man dpkg-buildpackage). This will build the code
+and might print several warnings and errors (lintian - the checking utility).
+Ensure lintian does not print errors and warnings. Fix them or if they can't be
+fixed, use lintian-overrides (http://lintian.debian.org/manual/index.html).
+After this you end up with two archives: openwalnut_VERSION.orig.tar.gz and
+openwalnut_VERSION.debian.tar.gz and a description and changes file. They
+represent a Debian source package.
+
+HINT: you should definitely use some chroot jail to build the packages.
+      PBuilder is a good option. You can also use your own jail or use 
+      our build envirnoment created with owbuildchroot.

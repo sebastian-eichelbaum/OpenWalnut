@@ -34,10 +34,10 @@
 #include <osg/Vec3>
 #include <osg/Geometry>
 
-#include "../../kernel/WKernel.h"
-#include "../../common/WColor.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../graphicsEngine/WGEUtils.h"
+#include "core/kernel/WKernel.h"
+#include "core/common/WColor.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/graphicsEngine/WGEUtils.h"
 
 #include "WMCoordinateHUD.h"
 #include "WMCoordinateHUD.xpm"
@@ -68,7 +68,7 @@ const char** WMCoordinateHUD::getXPMIcon() const
 
 const std::string WMCoordinateHUD::getName() const
 {
-    return "CoordinateHUD";
+    return "Coordinate HUD";
 }
 
 const std::string WMCoordinateHUD::getDescription() const
@@ -125,15 +125,15 @@ void WMCoordinateHUD::moduleMain()
         WItemSelector s = m_aSingleSelection->get( true );
         debugLog() << "New mode selected: " << s.at( 0 )->getName();
 
-        if ( s.at( 0 )->getName() == "colored axis" )
+        if( s.at( 0 )->getName() == "colored axis" )
         {
             buildColorAxis();
         }
-        else if ( s.at( 0 )->getName() == "b/w axis" )
+        else if( s.at( 0 )->getName() == "b/w axis" )
         {
             buildBWAxis();
         }
-        else if ( s.at( 0 )->getName() == "colored cube" )
+        else if( s.at( 0 )->getName() == "colored cube" )
         {
             buildColorCube();
         }
@@ -148,7 +148,7 @@ void WMCoordinateHUD::moduleMain()
         m_moduleState.wait();
 
         // quit if requested
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }

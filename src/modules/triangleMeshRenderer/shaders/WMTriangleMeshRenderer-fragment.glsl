@@ -22,26 +22,38 @@
 //
 //---------------------------------------------------------------------------
 
-varying vec4 VaryingTexCoord0;
+#version 120
 
-uniform int opacity;
+#include "WGEColormapping-fragment.glsl"
 
-#include "WGELighting-fragment.glsl"
+/**
+ * The normal.
+ */
+varying vec3 v_normal;
+
+/**
+ * The opacity specified by the user in [0,100]
+ */
+uniform float u_opacity;
+
+/**
+ * The colormap ratio specified by the user in [0,1]
+ */
+uniform float u_colormapRatio;
+
+#include "WGEShadingTools.glsl"
 
 void main()
 {
     vec4 col = gl_Color;
+#ifdef COLORMAPPING_ENABLED
+    col = mix( colormapping(), col, u_colormapRatio );
+#endif
+    // calculate lighting
+    float light = blinnPhongIlluminationIntensity( normalize( -v_normal ) );
+    col*=light;
 
-    vec4 ambient = vec4( 0.0 );
-    vec4 diffuse = vec4( 0.0 );
-    vec4 specular = vec4( 0.0 );
-    calculateLighting( -normal, gl_FrontMaterial.shininess, ambient, diffuse, specular );
-
-    col = ( ambient * col / 2.0 ) + ( diffuse * col ) + ( specular * col / 3.0 );
-
-    col = clamp( col, 0.0, 1.0 );
-
-    col.a = float( opacity ) * 0.01; // MacOS X has old shader spec, no implicit conversion to float takes place
-
+    // finally, apply opacity
+    col.a = u_opacity* 0.01;
     gl_FragColor = col;
 }

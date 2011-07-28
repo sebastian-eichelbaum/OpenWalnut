@@ -32,14 +32,14 @@
 
 #include <osg/Geode>
 
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WDataSetFibers.h"
-#include "../../dataHandler/datastructures/WJoinContourTree.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleContainer.h"
-#include "../../kernel/WModuleInputForwardData.h"
-#include "../../kernel/WModuleOutputForwardData.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetFibers.h"
+#include "core/dataHandler/datastructures/WJoinContourTree.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleContainer.h"
+#include "core/kernel/WModuleInputForwardData.h"
+#include "core/kernel/WModuleOutputForwardData.h"
 
 /**
  * Displays certains parameters of a cluster or bundle.

@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-#include "../../../kernel/WModule.h"
+#include "core/kernel/WModule.h"
 
 // forward declarations to reduce compile dependencies
 template< class T > class WModuleInputData;
@@ -171,7 +171,7 @@ private:
      * Position of the axial, sagittal and coronal slices.
      * 0 : xSlice, 1 : ySlice, 2 : zSlice
      */
-    boost::array< WPropInt, 3 > m_slicePos;
+    boost::array< WPropDouble, 3 > m_slicePos;
 
     /**
      * Indicates if the corresponding slice is shown or not.

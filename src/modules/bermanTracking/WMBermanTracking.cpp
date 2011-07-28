@@ -29,12 +29,12 @@
 
 #include <teem/elf.h> // NOLINT: the stylechecker interprets this as c-header which is not true!
 
-#include "../../common/math/WSymmetricSphericalHarmonic.h"
-#include "../../common/WLimits.h"
-#include "../../common/exceptions/WPreconditionNotMet.h"
-#include "../../graphicsEngine/WROIBox.h"
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WROIManager.h"
+#include "core/common/math/WSymmetricSphericalHarmonic.h"
+#include "core/common/WLimits.h"
+#include "core/common/exceptions/WPreconditionNotMet.h"
+#include "core/graphicsEngine/WROIBox.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WROIManager.h"
 #include "WMBermanTracking.xpm"
 #include "WMBermanTracking.h"
 
@@ -167,13 +167,13 @@ void WMBermanTracking::moduleMain()
     m_random->seed( std::time( 0 ) );
 
     m_frtMat = WSymmetricSphericalHarmonic::calcFRTMatrix( 4 );
-    WAssert( m_frtMat.getNbCols() == m_frtMat.getNbRows(), "" );
+    WAssert( m_frtMat.cols() == m_frtMat.rows(), "" );
 
-    m_seedROI = boost::shared_ptr< WROIBox >( new WROIBox( WVector3D( 0.0, 0.0, 0.0 ), WVector3D( 200.0, 200.0, 200.0 ) ) );
+    m_seedROI = boost::shared_ptr< WROIBox >( new WROIBox( WVector3d( 0.0, 0.0, 0.0 ), WVector3d( 200.0, 200.0, 200.0 ) ) );
 
     ready();
 
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         debugLog() << "Waiting.";
         m_moduleState.wait();
@@ -210,7 +210,7 @@ void WMBermanTracking::moduleMain()
                 std::vector< WUnitSphereCoordinates > c;
                 for( std::size_t i = 0; i < m_dataSetResidual->getOrientations().size(); ++i )
                 {
-                    if( m_dataSetResidual->getOrientations().at( i ).norm() != 0.0 )
+                    if( length( m_dataSetResidual->getOrientations().at( i ) ) != 0.0 )
                     {
                         c.push_back( WUnitSphereCoordinates( m_dataSetResidual->getOrientations().at( i ) ) );
                     }
@@ -218,7 +218,7 @@ void WMBermanTracking::moduleMain()
                 m_SHFittingMat = WSymmetricSphericalHarmonic::getSHFittingMatrix( c, 4, 0.0, true );
                 m_BMat = WSymmetricSphericalHarmonic::calcBaseMatrix( c, 4 );
                 m_HMat = m_BMat * WSymmetricSphericalHarmonic::getSHFittingMatrix( c, 4, 0.0, false );
-                WAssert( m_HMat.getNbCols() == m_HMat.getNbRows(), "" );
+                WAssert( m_HMat.cols() == m_HMat.rows(), "" );
 
                 // get current properties
                 m_currentMinFA = m_minFA->get( true );
@@ -252,9 +252,9 @@ void WMBermanTracking::moduleMain()
             m_result = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, m_dataSet->getGrid() ) );
             m_result->setFileName( "Berman_prob_tracking_result" );
 
-            m_result->getTexture2()->threshold()->set( 0.05f );
-            m_result->getTexture2()->colormap()->set( m_result->getTexture2()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 2 ) ) );
-            m_result->getTexture2()->interpolation()->set( false );
+            m_result->getTexture()->threshold()->set( 0.05f );
+            m_result->getTexture()->colormap()->set( m_result->getTexture()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 2 ) ) );
+            m_result->getTexture()->interpolation()->set( false );
             m_output->updateData( m_result );
 
             m_hits = boost::shared_ptr< std::vector< float > >();
@@ -359,7 +359,7 @@ void WMBermanTracking::resetProgress( std::size_t todo )
     m_progress->addSubProgress( m_currentProgress );
 }
 
-WVector3D WMBermanTracking::getDirFunc( boost::shared_ptr< WDataSetSingle const >, wtracking::WTrackingUtility::JobType const& j )
+WVector3d WMBermanTracking::getDirFunc( boost::shared_ptr< WDataSetSingle const >, wtracking::WTrackingUtility::JobType const& j )
 {
     boost::shared_ptr< WGridRegular3D > g( boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() ) );
     // extract fiber directions from odf
@@ -370,7 +370,7 @@ WVector3D WMBermanTracking::getDirFunc( boost::shared_ptr< WDataSetSingle const 
 
     if( boost::shared_dynamic_cast< WDataSetSingle >( m_gfa )->getValueAt( v ) < m_currentMinFA )
     {
-        return WVector3D( 0.0, 0.0, 0.0 );
+        return WVector3d( 0.0, 0.0, 0.0 );
     }
 
     WSymmetricSphericalHarmonic h;
@@ -392,12 +392,12 @@ WSymmetricSphericalHarmonic WMBermanTracking::createRandomODF( std::size_t i )
 {
     WSymmetricSphericalHarmonic h = m_dataSet->getSphericalHarmonicAt( i );
     WAssert( h.getOrder() >= 4, "" );
-    WAssert( m_HMat.getNbRows() == m_dataSetResidual->getNumberOfMeasurements(), "" );
-    WAssert( m_HMat.getNbCols() == m_dataSetResidual->getNumberOfMeasurements(), "" );
-    WAssert( m_frtMat.getNbRows() == 15, "" );
-    WAssert( m_frtMat.getNbCols() == 15, "" );
+    WAssert( m_HMat.rows() == static_cast< int >( m_dataSetResidual->getNumberOfMeasurements() ), "" );
+    WAssert( m_HMat.cols() == static_cast< int >( m_dataSetResidual->getNumberOfMeasurements() ), "" );
+    WAssert( m_frtMat.rows() == 15, "" );
+    WAssert( m_frtMat.cols() == 15, "" );
 
-    WMatrix< double > m( 15, 1 );
+    WMatrix_2 m( 15, 1 );
     for( int k = 0; k < 15; ++k )
     {
         m( k, 0 ) = h.getCoefficients()[ k ] / m_frtMat( k, k );
@@ -407,19 +407,20 @@ WSymmetricSphericalHarmonic WMBermanTracking::createRandomODF( std::size_t i )
     WAssert( g.getOrder() == 4, "" );
 
     // calc hardi data from sh + residual
-    WMatrix< double > v = m_BMat * m;
+    WMatrix_2 v = m_BMat * m;
 
-    WAssert( v.getNbRows() == m_dataSetResidual->getNumberOfMeasurements(), "" );
+    WAssert( v.rows() == static_cast< int >( m_dataSetResidual->getNumberOfMeasurements() ), "" );
 
-    WMatrix< double > q( v.getNbRows(), 1 );
+    WMatrix_2 q( v.rows(), 1 );
+    q.setZero();
 
-    for( std::size_t k = 0; k < v.getNbRows(); ++k )
+    for( int k = 0; k < v.rows(); ++k )
     {
-        int z = static_cast< int >( static_cast< double >( ( *m_random )() ) / ( 1.0 + static_cast< double >( 0u - 1u ) ) * ( v.getNbRows() ) );
-        WAssert( z >= 0 && z < static_cast< int >( v.getNbRows() ), "" );
+        int z = static_cast< int >( static_cast< double >( ( *m_random )() ) / ( 1.0 + static_cast< double >( 0u - 1u ) ) * ( v.rows() ) );
+        WAssert( z >= 0 && z < static_cast< int >( v.rows() ), "" );
 
         // "-", because the residuals in the input dataset have differing sign
-        q( k, 0 ) = v( k, 0 ) - ( m_dataSetResidual->getValueAt( i * v.getNbRows() + z ) / ( sqrt( 1.0 - m_HMat( k, k ) ) ) );
+        q( k, 0 ) = v( k, 0 ) - ( m_dataSetResidual->getValueAt( i * v.rows() + z ) / ( sqrt( 1.0 - m_HMat( k, k ) ) ) );
 
         WAssert( !wlimits::isnan( q( k, 0 ) ), "" );
     }
@@ -428,10 +429,10 @@ WSymmetricSphericalHarmonic WMBermanTracking::createRandomODF( std::size_t i )
     return WSymmetricSphericalHarmonic( m_SHFittingMat * q );
 }
 
-WVector3D WMBermanTracking::getBestDirectionFromSH( WSymmetricSphericalHarmonic const& h,
-                                                           wtracking::WTrackingUtility::JobType const& j )
+WVector3d WMBermanTracking::getBestDirectionFromSH( WSymmetricSphericalHarmonic const& h,
+                                                    wtracking::WTrackingUtility::JobType const& j )
 {
-    WValue< double > w = h.getCoefficients();
+    WVector_2 w = h.getCoefficients();
     double gfa = h.calcGFA( m_BMat );
     const tijk_type *type = tijk_4o3d_sym;
     double sh[ 15 ];
@@ -494,31 +495,31 @@ WVector3D WMBermanTracking::getBestDirectionFromSH( WSymmetricSphericalHarmonic 
 //    int k = tijk_approx_heur_3d_d( s, f, res, ten, type, 3, p );
     p = tijk_approx_heur_parm_nix( p );
 
-    //std::vector< WVector3D > fb;
+    //std::vector< WVector3d > fb;
     //for( int i = 0; i < k; ++i )
     //{
-        //WVector3D v( g->getXVoxelCoord( j.first ), g->getYVoxelCoord( j.first ), g->getZVoxelCoord( j.first ) );
+        //WVector3d v( g->getXVoxelCoord( j.first ), g->getYVoxelCoord( j.first ), g->getZVoxelCoord( j.first ) );
         //if( v[ 1 ] != 110 )
             //break;
         //fb.push_back( v );
-        //v += WVector3D( f[ 3 * i + 0 ] * 0.6, f[ 3 * i + 1 ] * 0.6, f[ 3 * i + 2 ] * 0.6 );
+        //v += WVector3d( f[ 3 * i + 0 ] * 0.6, f[ 3 * i + 1 ] * 0.6, f[ 3 * i + 2 ] * 0.6 );
         //fb.push_back( v );
     //}
     //m_fiberAccu.add( fb );
-    //return WVector3D();
+    //return WVector3d();
 
-    WVector3D r;
+    WVector3d r;
 
     if( k == 0 )
     {
-        r = WVector3D( 0.0, 0.0, 0.0 );
+        r = WVector3d( 0.0, 0.0, 0.0 );
     }
-    else if( j.second.norm() == 0.0 )
+    else if( length( j.second ) == 0.0 )
     {
         int i = static_cast< int >( static_cast< double >( ( *m_random )() ) / ( 1.0 + static_cast< double >( 0u - 1u ) ) * ( 2.0 * k ) );
         WAssert( i >= 0 && i <= 2 * k, "" );
 
-        r = WVector3D( f[ 3 * ( i % k ) ], f[ 3 * ( i % k ) + 1 ], f[ 3 * ( i % k ) + 2 ] );
+        r = WVector3d( f[ 3 * ( i % k ) ], f[ 3 * ( i % k ) + 1 ], f[ 3 * ( i % k ) + 2 ] );
         if( i >= k )
         {
             r *= -1.0;
@@ -532,35 +533,35 @@ WVector3D WMBermanTracking::getBestDirectionFromSH( WSymmetricSphericalHarmonic 
 
         for( int i = 0; i < k; ++i )
         {
-            r = WVector3D( f[ 3 * i ], f[ 3 * i + 1 ], f[ 3 * i + 2 ] );
-            if( r.dotProduct( j.second ) > a )
+            r = WVector3d( f[ 3 * i ], f[ 3 * i + 1 ], f[ 3 * i + 2 ] );
+            if( dot( r, j.second ) > a )
             {
                 z = i;
-                a = r.dotProduct( j.second );
+                a = dot( r, j.second );
                 m = 1.0;
             }
-            else if( j.second.dotProduct( r * -1.0 ) > a )
+            else if( dot( j.second, r * -1.0 ) > a )
             {
                 z = i;
-                a = j.second.dotProduct( r * -1.0 );
+                a = dot( j.second, r * -1.0 );
                 m = -1.0;
             }
         }
 
         if( z == -1 )
         {
-            r = WVector3D( 0.0, 0.0, 0.0 );
+            r = WVector3d( 0.0, 0.0, 0.0 );
         }
         else
         {
-            r = WVector3D( f[ 3 * z ], f[ 3 * z + 1 ], f[ 3 * z + 2 ] );
+            r = WVector3d( f[ 3 * z ], f[ 3 * z + 1 ], f[ 3 * z + 2 ] );
             r *= m;
         }
     }
     return r;
 }
 
-void WMBermanTracking::fiberVis( std::vector< WVector3D > const& fiber )
+void WMBermanTracking::fiberVis( std::vector< WVector3d > const& fiber )
 {
     // test!
     if( fiber.size() >= m_currentMinPoints )
@@ -579,6 +580,6 @@ void WMBermanTracking::fiberVis( std::vector< WVector3D > const& fiber )
     ++*m_currentProgress;
 }
 
-void WMBermanTracking::pointVis( WVector3D const& )
+void WMBermanTracking::pointVis( WVector3d const& )
 {
 }

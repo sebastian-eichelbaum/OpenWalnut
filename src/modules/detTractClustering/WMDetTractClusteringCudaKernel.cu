@@ -189,7 +189,7 @@ bool distCuda(float *h_distmat,
     bool success = true;
     for( int i = 0; i < ntracts; i += gridsize )
     {
-        for ( int j = 0; j < ntracts; j += gridsize )
+        for( int j = 0; j < ntracts; j += gridsize )
         {
             dim3 grid(std::min(gridsize, ntracts-i), std::min(gridsize, ntracts-j));
 
@@ -233,7 +233,7 @@ bool distCuda(float *h_distmat,
             if( !checkCudaError(&success, cudaGetLastError()) )
                 break;
 
-            if ( kernels.size() > maxkernels )
+            if( kernels.size() > maxkernels )
             {
                 cudaEventSynchronize( kernels.front() );
                 if( !checkCudaError(&success, cudaGetLastError()) )

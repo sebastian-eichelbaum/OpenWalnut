@@ -30,7 +30,7 @@
 
 #include <osg/Geode>
 
-#include "../../kernel/WModule.h"
+#include "core/kernel/WModule.h"
 
 class WBresenhamDBL;
 class WDataSetScalar;

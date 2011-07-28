@@ -29,16 +29,16 @@
 
 #include <osg/Geode>
 
-#include "../../common/WItemSelection.h"
-#include "../../common/WItemSelector.h"
+#include "core/common/WItemSelection.h"
+#include "core/common/WItemSelector.h"
 
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../graphicsEngine/WGEZoomTrackballManipulator.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/graphicsEngine/WGEZoomTrackballManipulator.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 /**
  * This module shows a coordinatesystem as HUD.

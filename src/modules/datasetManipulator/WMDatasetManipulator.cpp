@@ -26,12 +26,12 @@
 #include <string>
 #include <utility>
 
-#include "../../kernel/WKernel.h"
+#include "core/kernel/WKernel.h"
 
-#include "../../common/WBoundingBox.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D_2.h"
-#include "../../dataHandler/WSubject.h"
+#include "core/common/WBoundingBox.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/WDataTexture3D.h"
+#include "core/dataHandler/WSubject.h"
 #include "WMDatasetManipulator.xpm"
 
 #include "WMDatasetManipulator.h"
@@ -63,8 +63,7 @@ const char** WMDatasetManipulator::getXPMIcon() const
 }
 const std::string WMDatasetManipulator::getName() const
 {
-    // Specify your module name here. This name must be UNIQUE!
-    return "DatasetManipulator";
+    return "Dataset Manipulator";
 }
 
 const std::string WMDatasetManipulator::getDescription() const
@@ -250,7 +249,7 @@ void WMDatasetManipulator::setManipulatorMode()
     m_knobz2->setLockY( true );
     m_knobz2->setLockX( true );
 
-    if ( m_rotationMode->get( true ) )
+    if( m_rotationMode->get( true ) )
     {
         m_knobCenter->hide();
         m_knobx1->hide();
@@ -347,7 +346,7 @@ void WMDatasetManipulator::manipulatorRotMoved()
         WPosition p2 = ( m_posRotCenter - m_posRot );
 
         osg::Matrixf rot;
-        rot.makeRotate( p2, p1 );
+        rot.makeRotate( p2.as< osg::Vec3f >(), p1.as< osg::Vec3f >() );
 
         // m_transform->rotate( rot, m_posRotCenter );
     } // write lock goes out of scope and is released
@@ -405,11 +404,11 @@ void WMDatasetManipulator::moduleMain()
 
     ready();
 
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         m_moduleState.wait();
 
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -447,9 +446,9 @@ void WMDatasetManipulator::moduleMain()
             }
         }
 
-        if ( m_active->changed() || m_showManipulators->changed() )
+        if( m_active->changed() || m_showManipulators->changed() )
         {
-            if ( m_active->get( true ) && m_showManipulators->get( true ) )
+            if( m_active->get( true ) && m_showManipulators->get( true ) )
             {
                 boost::unique_lock< boost::mutex > lock( m_updateMutex );
                 setManipulatorMode();
@@ -468,13 +467,13 @@ void WMDatasetManipulator::moduleMain()
             }
         }
 
-        if ( m_rotationMode->changed() )
+        if( m_rotationMode->changed() )
         {
             boost::unique_lock< boost::mutex > lock( m_updateMutex );
             setManipulatorMode();
         }
 
-        if ( m_translationX->changed() || m_translationY->changed() || m_translationZ->changed() )
+        if( m_translationX->changed() || m_translationY->changed() || m_translationZ->changed() )
         {
             {
                 boost::unique_lock< boost::mutex > lock( m_updateMutex );
@@ -484,7 +483,7 @@ void WMDatasetManipulator::moduleMain()
             }
             notifyChanged();
         }
-        if ( m_stretchX->changed() || m_stretchY->changed() || m_stretchZ->changed() )
+        if( m_stretchX->changed() || m_stretchY->changed() || m_stretchZ->changed() )
         {
             {
                 boost::unique_lock< boost::mutex > lock( m_updateMutex );
@@ -494,7 +493,7 @@ void WMDatasetManipulator::moduleMain()
             }
             notifyChanged();
         }
-        if ( m_rotationX->changed() || m_rotationY->changed() || m_rotationZ->changed() )
+        if( m_rotationX->changed() || m_rotationY->changed() || m_rotationZ->changed() )
         {
             //float pi = 3.14159265;
             //float rotx = static_cast<float>( m_rotationX->get( true ) ) / 180. * pi;

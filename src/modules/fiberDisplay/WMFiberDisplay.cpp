@@ -30,15 +30,14 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
-#include "../../common/WColor.h"
-#include "../../common/WLogger.h"
-#include "../../common/WPathHelper.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WSelectionManager.h"
+#include "core/common/WColor.h"
+#include "core/common/WLogger.h"
+#include "core/common/WPathHelper.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WSelectionManager.h"
 #include "fiberdisplay2.xpm"
 #include "WMFiberDisplay.h"
 
@@ -49,7 +48,6 @@ WMFiberDisplay::WMFiberDisplay()
       m_noData( new WCondition, true ),
       m_osgNode( osg::ref_ptr< osg::Group >() )
 {
-    m_textureChanged = true;
 }
 
 WMFiberDisplay::~WMFiberDisplay()
@@ -168,6 +166,7 @@ void WMFiberDisplay::properties()
 
     m_useTubesProp = m_properties->addProperty( "Use tubes", "Draw fiber tracts as fake tubes.", false, m_propCondition );
     m_useTextureProp = m_properties->addProperty( "Use texture", "Texture fibers with the texture on top of the list.", false, m_propCondition );
+    m_useTextureProp->setHidden();
     m_tubeThickness = m_properties->addProperty( "Tube thickness", "Adjusts the thickness of the tubes.", 50., m_propCondition );
     m_tubeThickness->setMin( 0 );
     m_tubeThickness->setMax( 300 );
@@ -193,32 +192,28 @@ void WMFiberDisplay::moduleMain()
     m_moduleState.add( m_propCondition );
     m_moduleState.add( m_active->getUpdateCondition() );
 
-    // now, to watch changing/new textures use WSubject's change condition
-    boost::signals2::connection con = WDataHandler::getDefaultSubject()->getChangeCondition()->subscribeSignal(
-            boost::bind( &WMFiberDisplay::notifyTextureChange, this ) );
-
     initCullBox();
 
     m_cullBox->hide();
 
     ready();
 
-    while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
+    while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
 
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
 
         // data changed?
-        if ( m_dataset != m_fiberInput->getData() )
+        if( m_dataset != m_fiberInput->getData() )
         {
             inputUpdated();
         }
 
-        if ( m_showCullBox->changed() )
+        if( m_showCullBox->changed() )
         {
             if( m_showCullBox->get() )
             {
@@ -230,14 +225,12 @@ void WMFiberDisplay::moduleMain()
             }
         }
 
-       if ( m_propUpdateOutputTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+       if( m_propUpdateOutputTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
        {
             updateOutput();
             m_propUpdateOutputTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
        }
     }
-
-    con.disconnect();
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
 }
@@ -251,7 +244,7 @@ void WMFiberDisplay::inputUpdated()
     m_dataset = m_fiberInput->getData();
 
     // ensure the data is valid (not NULL)
-    if ( !m_dataset ) // ok, the output has been reset, so we can ignore the "data change"
+    if( !m_dataset ) // ok, the output has been reset, so we can ignore the "data change"
     {
         m_noData.set( true );
         debugLog() << "Data reset on " << m_fiberInput->getCanonicalName() << ". Ignoring.";
@@ -321,7 +314,7 @@ void WMFiberDisplay::update()
 {
     if( m_osgNode && m_noData.changed() )
     {
-        if ( m_noData.get( true ) )
+        if( m_noData.get( true ) )
         {
             m_osgNode->setNodeMask( 0x0 );
         }
@@ -353,25 +346,17 @@ void WMFiberDisplay::updateRenderModes()
 {
     osg::StateSet* rootState = m_osgNode->getOrCreateStateSet();
 
-    if ( m_textureChanged )
-    {
-        m_textureChanged = false;
-        updateTexture();
-    }
-
     if( m_useTubesProp->changed() || m_useTextureProp->changed() || m_activateCullBox->changed() )
     {
-        if ( m_useTubesProp->get( true ) )
+        if( m_useTubesProp->get( true ) )
         {
-            updateTexture();
             m_fiberDrawable->setUseTubes( true );
             m_shaderTubes->apply( m_osgNode );
             m_uniformUseTexture->set( m_useTextureProp->get( true ) );
         }
-        else if ( ( m_useTextureProp->get( true ) && !m_useTubesProp->get() ) || m_activateCullBox->get( true) )
+        else if( ( m_useTextureProp->get( true ) && !m_useTubesProp->get() ) || m_activateCullBox->get( true) )
         {
             m_fiberDrawable->setUseTubes( false );
-            updateTexture();
             m_shaderTubes->deactivate( m_osgNode );
             m_shaderTexturedFibers->apply( m_osgNode );
             m_uniformUseTexture->set( m_useTextureProp->get() );
@@ -390,51 +375,6 @@ void WMFiberDisplay::updateRenderModes()
     }
 }
 
-void WMFiberDisplay::updateTexture()
-{
-    osg::StateSet* rootState = m_osgNode->getOrCreateStateSet();
-
-    // { TODO(all): this is deprecated.
-    // grab a list of data textures
-    std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures();
-
-    if ( tex.size() > 0 )
-    {
-        osg::ref_ptr<osg::Texture3D> texture3D = tex[0]->getTexture();
-
-        if ( tex[0]->isInterpolated() )
-        {
-            texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR );
-            texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::LINEAR );
-        }
-        else
-        {
-            texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
-            texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
-        }
-        rootState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
-
-
-        m_uniformType->set( tex[0]->getDataType() );
-        float minValue = tex[0]->getMinValue();
-        float maxValue = tex[0]->getMaxValue();
-        float thresh = ( tex[0]->getThreshold() - minValue ) / ( maxValue - minValue ); // rescale to [0,1]
-
-        m_uniformThreshold->set( thresh );
-        m_uniformsColorMap->set( tex[0]->getSelectedColormap() );
-
-        m_uniformDimX->set( static_cast<int>( tex[0]->getGrid()->getNbCoordsX() ) );
-        m_uniformDimY->set( static_cast<int>( tex[0]->getGrid()->getNbCoordsY() ) );
-        m_uniformDimZ->set( static_cast<int>( tex[0]->getGrid()->getNbCoordsZ() ) );
-    }
-    // }
-}
-
-void WMFiberDisplay::notifyTextureChange()
-{
-    m_textureChanged = true;
-}
-
 void WMFiberDisplay::updateCallback()
 {
     update();
@@ -444,7 +384,7 @@ void WMFiberDisplay::updateCallback()
         m_fiberDrawable->setColor( m_dataset->getColorScheme()->getColor() );
     }
 
-    if ( m_tubeThickness->changed() && m_useTubesProp->get() )
+    if( m_tubeThickness->changed() && m_useTubesProp->get() )
     {
         m_uniformTubeThickness->set( static_cast<float>( m_tubeThickness->get( true ) ) );
     }
@@ -462,16 +402,16 @@ void WMFiberDisplay::updateOutput()
 
     size_t countLines = 0;
 
-    for ( size_t l = 0; l < active->size(); ++l )
+    for( size_t l = 0; l < active->size(); ++l )
     {
-        if ( ( *active )[l] )
+        if( ( *active )[l] )
         {
             size_t pc = m_dataset->getLineStartIndexes()->at( l ) * 3;
 
             lineStartIndexes->push_back( vertices->size() / 3 );
             lineLengths->push_back( m_dataset->getLineLengths()->at( l ) );
 
-            for ( size_t j = 0; j < m_dataset->getLineLengths()->at( l ); ++j )
+            for( size_t j = 0; j < m_dataset->getLineLengths()->at( l ); ++j )
             {
                 vertices->push_back( m_dataset->getVertices()->at( pc ) );
                 ++pc;

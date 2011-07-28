@@ -112,6 +112,6 @@ void WIntegrationParameterization::newLine( const WLine& /*line*/ )
 void WIntegrationParameterization::newSegment( const WPosition& start, const WPosition& end )
 {
     // add this segments length
-    m_curLength += start.distanceSquare( end );
+    m_curLength += length2( start - end );
 }
 

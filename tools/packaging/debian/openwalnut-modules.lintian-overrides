@@ -1,0 +1,3 @@
+# The modules package does not provide shared libs in /usr/lib but an ldconfig call is added to postrm and postinst.
+openwalnut-modules: postinst-has-useless-call-to-ldconfig
+openwalnut-modules: postrm-has-useless-call-to-ldconfig

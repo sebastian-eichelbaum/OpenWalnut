@@ -65,7 +65,7 @@ void main()
 {
 #ifdef CLIPPLANE_ENABLED
     // discard fragment if too far from plane
-    if ( abs( dist ) >= u_distance )
+    if( abs( dist ) >= u_distance )
     {
         discard;
     }
@@ -118,7 +118,10 @@ void main()
 #endif
 
     // apply colormapping to the input color
-    vec4 finalColor = mix( gl_Color, colormapping(), u_colormapRatio );
+    vec4 finalColor = gl_Color;
+#ifdef COLORMAPPING_ENABLED
+    finalColor = mix( finalColor, colormapping(), u_colormapRatio );
+#endif
 
     // finally set the color and depth
     wge_FragColor = vec4( vec3( light * finalColor.xyz * colorScaler ), finalColor.a );

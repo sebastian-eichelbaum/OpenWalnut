@@ -26,9 +26,9 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/WLogger.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WGridRegular3D.h"
+#include "core/common/WLogger.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WGridRegular3D.h"
 #include "WRasterAlgorithm.h"
 
 WRasterAlgorithm::WRasterAlgorithm( boost::shared_ptr< WGridRegular3D > grid )
@@ -64,7 +64,7 @@ void WRasterAlgorithm::addParameterizationAlgorithm( boost::shared_ptr< WRasterP
 void WRasterAlgorithm::newLine( const WLine& line )
 {
     // NOTE: the list already is locked (in raster method, hopefully)
-    for ( size_t i = 0; i < m_parameterizations.size(); ++i )
+    for( size_t i = 0; i < m_parameterizations.size(); ++i )
     {
         m_parameterizations[ i ]->newLine( line );
     }
@@ -73,7 +73,7 @@ void WRasterAlgorithm::newLine( const WLine& line )
 void WRasterAlgorithm::newSegment( const WPosition& start, const WPosition& end )
 {
     // NOTE: the list already is locked (in raster method, hopefully)
-    for ( size_t i = 0; i < m_parameterizations.size(); ++i )
+    for( size_t i = 0; i < m_parameterizations.size(); ++i )
     {
         m_parameterizations[ i ]->newSegment( start, end );
     }
@@ -84,7 +84,7 @@ void WRasterAlgorithm::parameterizeVoxel( const WValue< int >& voxel, size_t vox
                                     const WPosition& end )
 {
     // NOTE: the list already is locked (in raster method, hopefully)
-    for ( size_t i = 0; i < m_parameterizations.size(); ++i )
+    for( size_t i = 0; i < m_parameterizations.size(); ++i )
     {
         m_parameterizations[ i ]->parameterizeVoxel( voxel, voxelIdx, axis, value, start, end );
     }
@@ -96,7 +96,7 @@ void WRasterAlgorithm::finished()
     boost::shared_lock< boost::shared_mutex > lock =  boost::shared_lock< boost::shared_mutex >( m_parameterizationsLock );
 
     // NOTE: the list already is locked (in raster method, hopefully)
-    for ( size_t i = 0; i < m_parameterizations.size(); ++i )
+    for( size_t i = 0; i < m_parameterizations.size(); ++i )
     {
         m_parameterizations[ i ]->finished();
     }

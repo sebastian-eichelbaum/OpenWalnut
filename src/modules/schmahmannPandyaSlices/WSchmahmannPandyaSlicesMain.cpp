@@ -22,9 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../../kernel/WModule.h"
-#include "probTractDisplaySP/WMProbTractDisplaySP.h"
 #include "boundaryCurvesWMGM/WMBoundaryCurvesWMGM.h"
+#include "core/kernel/WModule.h"
+#include "probTractDisplaySP/WMProbTractDisplaySP.h"
 #include "slices/WMSlices.h"
 #include "WSchmahmannPandyaSlicesMain.h"
 

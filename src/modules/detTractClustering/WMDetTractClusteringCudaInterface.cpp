@@ -22,10 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../../common/datastructures/WFiber.h"
-#include "../../common/math/WMatrixSym.h"
-#include "../../common/WProgressCombiner.h"
-#include "../../dataHandler/WDataSetFiberVector.h"
+#include "core/common/datastructures/WFiber.h"
+#include "core/common/math/WMatrixSym.h"
+#include "core/common/WProgressCombiner.h"
+#include "core/dataHandler/WDataSetFiberVector.h"
 #include "WMDetTractClusteringCudaInterface.h"
 #include "WMDetTractClusteringCudaKernel.h"
 #include "WProgressWrapper.h"

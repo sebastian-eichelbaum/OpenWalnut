@@ -29,17 +29,17 @@
 
 #include <osg/Geode>
 
-#include "../../dataHandler/WDataSetFibers.h"
+#include "core/dataHandler/WDataSetFibers.h"
 
-#include "../../graphicsEngine/WFiberDrawable.h"
-#include "../../graphicsEngine/WROI.h"
-#include "../../graphicsEngine/WROIBox.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
+#include "core/graphicsEngine/WFiberDrawable.h"
+#include "core/graphicsEngine/WROI.h"
+#include "core/graphicsEngine/WROIBox.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
 
-#include "../../kernel/WFiberSelector.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/kernel/WFiberSelector.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 /**
  * Module for drawing fibers
@@ -117,11 +117,6 @@ protected:
      * initial creation of the osg geometry
      */
     void create();
-
-    /**
-     * Used as callback which simply sets m_textureChanged to true. Called by WSubject whenever the datasets change.
-     */
-    void notifyTextureChange();
 
     /**
     * switches between fiber display and tube representation,
@@ -211,11 +206,6 @@ private:
     osg::ref_ptr<osg::Uniform> m_uniformTubeThickness; //!< tube thickness
 
     /**
-     * True when textures have changed.
-     */
-    bool m_textureChanged;
-
-    /**
      * boolean to notify the shader to use the texture instead of glColor
      */
     osg::ref_ptr<osg::Uniform> m_uniformUseTexture;
@@ -269,11 +259,6 @@ private:
      * \param rootState The uniforms will be applied to this state.
      */
     void initUniforms( osg::StateSet* rootState );
-
-    /**
-     *  updates textures and shader parameters
-     */
-    void updateTexture();
 
     /**
      * create a selection box to cull the fibers

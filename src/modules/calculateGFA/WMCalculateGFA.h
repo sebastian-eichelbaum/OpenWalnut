@@ -28,14 +28,14 @@
 #include <string>
 #include <vector>
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
-#include "../../common/WThreadedFunction.h"
-#include "../../common/math/WMatrix.h"
-#include "../../dataHandler/WThreadedPerVoxelOperation.h"
-#include "../../dataHandler/WDataSetSphericalHarmonics.h"
-#include "../../dataHandler/WDataSetScalar.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
+#include "core/common/WThreadedFunction.h"
+#include "core/common/math/WMatrix.h"
+#include "core/dataHandler/WThreadedPerVoxelOperation.h"
+#include "core/dataHandler/WDataSetSphericalHarmonics.h"
+#include "core/dataHandler/WDataSetScalar.h"
 
 /**
  * \class WMCalculateGFA
@@ -165,7 +165,7 @@ private:
     boost::shared_ptr< GFAPoolType > m_gfaPool;
 
     //! A matrix of SH base function values for various gradients.
-    WMatrix< double > m_BMat;
+    WMatrix<double> m_BMat;
 };
 
 #endif  // WMCALCULATEGFA_H

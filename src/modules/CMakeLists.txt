@@ -1,3 +1,17 @@
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+#
+# Some modules need third party libraries. We provide them if they are available
+#
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+include( "modules-dependencies.cmake" )
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+#
+# Toolbox Setup
+#
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Toolbox mechanism. This is a nice possibility to turn on/off several modules. This can speed up build times if unneeded modules are turned off.
 option( OW_MODULE_TOOLBOX_ALL             "Turn all toolboxes on." OFF )
 option( OW_MODULE_TOOLBOX_BASE            "All the basic functionality modules. These modules are useful and needed for common visualizatuion tasks." ON )
@@ -20,7 +34,7 @@ if( OW_MODULE_TOOLBOX_IMAGEPROCESSING OR OW_MODULE_TOOLBOX_ALL )
   include( modules-imageprocessing.toolbox )
 endif( OW_MODULE_TOOLBOX_IMAGEPROCESSING OR OW_MODULE_TOOLBOX_ALL )
 
-  if( OW_MODULE_TOOLBOX_IO OR OW_MODULE_TOOLBOX_ALL )
+if( OW_MODULE_TOOLBOX_IO OR OW_MODULE_TOOLBOX_ALL )
   include( modules-io.toolbox )
 endif( OW_MODULE_TOOLBOX_IO OR OW_MODULE_TOOLBOX_ALL )
 

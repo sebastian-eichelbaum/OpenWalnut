@@ -27,9 +27,9 @@
 
 #include <string>
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 // forward declarations
 class WDataSetFibers;
@@ -127,6 +127,11 @@ private:
      * The ratio between colormap and fiber color.
      */
     WPropDouble m_colormapRatio;
+
+    /**
+     * True if colormapping should be used.
+     */
+    WPropBool m_colormapEnabled;
 
     /**
      * A property group for all the clipping related props.

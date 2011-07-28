@@ -25,11 +25,11 @@
 #include <string>
 #include <vector>
 
-#include "../../common/math/WSymmetricSphericalHarmonic.h"
-#include "../../common/WLimits.h"
-#include "../../common/math/WVector3D.h"
-#include "../../common/math/WGeometryFunctions.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/math/WSymmetricSphericalHarmonic.h"
+#include "core/common/WLimits.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/WGeometryFunctions.h"
+#include "core/kernel/WKernel.h"
 #include "WMCalculateGFA.xpm"
 
 #include "WMCalculateGFA.h"
@@ -98,7 +98,7 @@ void WMCalculateGFA::moduleMain()
     m_moduleState.add( m_exceptionCondition );
 
     std::vector< unsigned int > temp;
-    std::vector< WVector3D > grad;
+    std::vector< WVector3d > grad;
 
     tesselateIcosahedron( &grad, &temp, 2 );
 
@@ -212,7 +212,7 @@ boost::array< double, 1 > WMCalculateGFA::perVoxelGFAFunc( WValueSet< double >::
 {
     ++*m_currentProgress;
     boost::array< double, 1 > a;
-    WValue< double > w( 15 );
+    WValue<double> w( 15 );
     for( int i = 0; i < 15; ++i )
     {
         w[ i ] = s[ i ];

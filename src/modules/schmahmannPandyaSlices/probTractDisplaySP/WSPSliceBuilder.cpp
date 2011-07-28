@@ -27,11 +27,11 @@
 
 #include <osg/ref_ptr>
 
-#include "../../../common/exceptions/WTypeMismatch.h"
-#include "../../../common/WLogger.h"
-#include "../../../graphicsEngine/WGEGroupNode.h"
-#include "../../../dataHandler/WDataSetScalar.h"
-#include "../../../dataHandler/WGridRegular3D.h"
+#include "core/common/exceptions/WTypeMismatch.h"
+#include "core/common/WLogger.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WGridRegular3D.h"
 #include "WSPSliceBuilder.h"
 
 WSPSliceBuilder::WSPSliceBuilder( ProbTractList probTracts, WPropGroup sliceGroup, std::vector< WPropGroup > colorMap )
@@ -40,9 +40,9 @@ WSPSliceBuilder::WSPSliceBuilder( ProbTractList probTracts, WPropGroup sliceGrou
       m_sliceBB( 3 ),
       m_colorMap( colorMap ) // yes this is a COPY of the vector but WPropGroup is a boost::shared_ptr so updates will propagate!
 {
-    m_slicePos[2] = sliceGroup->findProperty( "Axial Position" )->toPropInt();
-    m_slicePos[1] = sliceGroup->findProperty( "Coronal Position" )->toPropInt();
-    m_slicePos[0] = sliceGroup->findProperty( "Sagittal Position" )->toPropInt();
+    m_slicePos[2] = sliceGroup->findProperty( "Axial Position" )->toPropDouble();
+    m_slicePos[1] = sliceGroup->findProperty( "Coronal Position" )->toPropDouble();
+    m_slicePos[0] = sliceGroup->findProperty( "Sagittal Position" )->toPropDouble();
 
     checkAndExtractGrids();
     computeSliceBB(); // just to be sure those are initialized, since they may change due to m_slicePos[0], et al. anyway

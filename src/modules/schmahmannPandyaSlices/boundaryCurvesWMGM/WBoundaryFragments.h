@@ -33,8 +33,8 @@
 
 #include <osg/ref_ptr>
 
-#include "../../../graphicsEngine/shaders/WGEShader.h"
-#include "../../../graphicsEngine/WGEManagedGroupNode.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
 #include "WBoundaryBuilder.h"
 
 // forward declarations

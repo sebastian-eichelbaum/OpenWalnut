@@ -29,9 +29,9 @@
 #include <osg/Geometry>
 #include <osg/LineWidth>
 
-#include "../../../dataHandler/WDataSetScalar.h"
-#include "../../../dataHandler/WGridRegular3D.h"
-#include "../../../graphicsEngine/WGEGeodeUtils.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/graphicsEngine/WGEGeodeUtils.h"
 #include "WBoundaryLines.h"
 
 WBoundaryLines::WBoundaryLines( boost::shared_ptr< const WDataSetScalar > texture, boost::shared_ptr< const WProperties > properties,
@@ -79,7 +79,7 @@ boost::shared_ptr< WGridRegular3D > WBoundaryLines::generateSliceGrid( const uns
     size_t x = otherDims[sliceNum].first;
     size_t y = otherDims[sliceNum].second;
 
-    boost::array< WVector3D, 3 > directions = getDirections( m_grid );
+    boost::array< WVector3d, 3 > directions = getDirections( m_grid );
     boost::array< unsigned int, 3 > numCoords = getNbCoords( m_grid );
     boost::array< double, 3 > offsets = getOffsets( m_grid );
 
@@ -94,8 +94,8 @@ boost::shared_ptr< WGridRegular3D > WBoundaryLines::generateSliceGrid( const uns
     }
 
     WPosition origin = m_grid->getOrigin() + directions[ sliceNum ] * slicePos;
-    WVector3D xDir = directions[x].normalized() * resolution;
-    WVector3D yDir = directions[y].normalized() * resolution;
+    WVector3d xDir = normalize( directions[x] ) * resolution;
+    WVector3d yDir = normalize( directions[y] ) * resolution;
 
     WMatrix< double > mat( 4, 4 );
     mat.makeIdentity();
@@ -106,7 +106,7 @@ boost::shared_ptr< WGridRegular3D > WBoundaryLines::generateSliceGrid( const uns
     mat( 1, 1 ) = yDir[1];
     mat( 2, 1 ) = yDir[2];
     // set zdirection to an orthogonal vector
-    WVector3D zDir = xDir ^ yDir;
+    WVector3d zDir = cross( xDir, yDir );
     mat( 0, 2 ) = zDir[0];
     mat( 1, 2 ) = zDir[1];
     mat( 2, 2 ) = zDir[2];

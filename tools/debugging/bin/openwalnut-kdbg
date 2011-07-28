@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# get path of this script
+BINDIR=`dirname "$0"`
+
+# assume that this script is in the bin dir
+# go there to ensure walnuts working directory is set correctly
+cd "$BINDIR"
+
+
+PARAMS="$*"
+echo "Parameters: $PARAMS"
+
+# run walnut
+kdbg -a "$PARAMS" openwalnut-qt4
+

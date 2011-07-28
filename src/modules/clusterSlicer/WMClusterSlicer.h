@@ -31,17 +31,17 @@
 #include <utility>
 #include <vector>
 
-#include "../../common/datastructures/WColoredVertices.h"
-#include "../../common/math/WPlane.h"
-#include "../../common/WCondition.h"
-#include "../../dataHandler/datastructures/WFiberCluster.h"
-#include "../../dataHandler/datastructures/WJoinContourTree.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/WTriangleMesh.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/common/datastructures/WColoredVertices.h"
+#include "core/common/math/WPlane.h"
+#include "core/common/WCondition.h"
+#include "core/dataHandler/datastructures/WFiberCluster.h"
+#include "core/dataHandler/datastructures/WJoinContourTree.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 /**
  * Creates slices of a fiber cluster along its center line.

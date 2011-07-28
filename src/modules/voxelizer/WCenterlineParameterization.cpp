@@ -127,9 +127,9 @@ void WCenterlineParameterization::parameterizeVoxel( const WValue< int >& voxel,
     wcp::Neighbourhood n = wcp::neighbourhood( voxel[0], voxel[1], voxel[2], m_grid );
 
     // now update the neighbourhood
-    for ( unsigned int i = 0; i < 27; ++i )
+    for( unsigned int i = 0; i < 27; ++i )
     {
-        if ( m_paramSetValues[ n.indices[i] ] )
+        if( m_paramSetValues[ n.indices[i] ] )
         {
             m_paramValues[ n.indices[i] ] = 0.5 * ( m_paramValues[ n.indices[i] ] + m_currentStartParameter );
             //m_paramValues[ n.indices[i] ] = std::max( m_paramValues[ n.indices[i] ], m_currentStartParameter );
@@ -152,8 +152,8 @@ void WCenterlineParameterization::newLine( const WLine& line )
 void WCenterlineParameterization::newSegment( const WPosition& start, const WPosition& end )
 {
     double curLength = 0.0;                     // the accumulated length along the centerline
-    double bestDistStart = ( m_centerline->at( 0 ) - start ).norm();       // the currently best distance to the start point
-    double bestDistEnd   = ( m_centerline->at( 0 ) - end   ).norm();       // the currently best distance to the end point
+    double bestDistStart = length( m_centerline->at( 0 ) - start );       // the currently best distance to the start point
+    double bestDistEnd   = length( m_centerline->at( 0 ) - end   );       // the currently best distance to the end point
 
     // the currently best parameter of the centerline for this line segment
     m_currentStartParameter = 0.0;
@@ -162,17 +162,17 @@ void WCenterlineParameterization::newSegment( const WPosition& start, const WPos
     // for this line segment, find the best matching vertex in the centerline
     for( size_t i = 1; i < m_centerline->size(); ++i )
     {
-        curLength += ( m_centerline->at( i ) - m_centerline->at( i - 1 ) ).norm();
+        curLength += length( m_centerline->at( i ) - m_centerline->at( i - 1 ) );
 
         // compare current distance
-        double curDist = ( m_centerline->at( i ) - start ).norm();
-        if ( bestDistStart >= curDist )
+        double curDist = length( m_centerline->at( i ) - start );
+        if( bestDistStart >= curDist )
         {
             bestDistStart = curDist;
             m_currentStartParameter = curLength;
         }
-        curDist = ( m_centerline->at( i ) - end ).norm();
-        if ( bestDistEnd >= curDist )
+        curDist = length( m_centerline->at( i ) - end );
+        if( bestDistEnd >= curDist )
         {
             bestDistEnd = curDist;
             m_currentEndParameter = curLength;
@@ -188,11 +188,11 @@ void WCenterlineParameterization::finished()
 {
     // do some selective dilatation on the final grid
 
-    for ( size_t x = 0; x < m_grid->getNbCoordsX(); ++x )
+    for( size_t x = 0; x < m_grid->getNbCoordsX(); ++x )
     {
-        for ( size_t y = 0; y < m_grid->getNbCoordsY(); ++y )
+        for( size_t y = 0; y < m_grid->getNbCoordsY(); ++y )
         {
-            for ( size_t z = 0; z < m_grid->getNbCoordsZ(); ++z )
+            for( size_t z = 0; z < m_grid->getNbCoordsZ(); ++z )
             {
                 size_t idx = wcp::index( x, y, z, m_grid );
 
@@ -200,7 +200,7 @@ void WCenterlineParameterization::finished()
                 m_paramFinalValues[ idx ] = m_paramValues[ idx ];
 
                 // has been set during rasterization?
-                if ( !m_paramSetValues[ idx ] )
+                if( !m_paramSetValues[ idx ] )
                 {
                     m_paramSetValues[ idx ] = true;
 
@@ -208,7 +208,7 @@ void WCenterlineParameterization::finished()
                     wcp::Neighbourhood n = wcp::neighbourhood( x, y, z, m_grid );
 
                     double maxVal = m_paramValues[ n.indices[ 0 ] ];
-                    for ( unsigned int i = 1; i < 27; ++i )
+                    for( unsigned int i = 1; i < 27; ++i )
                     {
                         maxVal = std::max( m_paramValues[ n.indices[i] ], maxVal );
                     }

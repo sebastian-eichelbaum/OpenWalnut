@@ -25,12 +25,13 @@
 #ifndef WGAUSSPROCESS_H
 #define WGAUSSPROCESS_H
 
-#include "../../common/math/WMatrix.h"
-#include "../../common/math/WValue.h"
-#include "../../common/WBoundingBox.h"
-#include "../../dataHandler/WDataSetDTI.h"
-#include "../../dataHandler/WDataSetFibers.h"
-#include "../../ext/Eigen/Core"
+#include <Eigen/Core>
+
+#include "core/common/math/WMatrix.h"
+#include "core/common/math/WValue.h"
+#include "core/common/WBoundingBox.h"
+#include "core/dataHandler/WDataSetDTI.h"
+#include "core/dataHandler/WDataSetFibers.h"
 
 class WFiber;
 
@@ -220,7 +221,7 @@ inline double WGaussProcess::getRadius() const
 
 inline double WGaussProcess::cov_s( const WPosition& p1, const WPosition& p2 ) const
 {
-    double r = ( p1 - p2 ).norm();
+    double r = length( p1 - p2 );
     if( r >  m_R )
     {
         return 0.0;

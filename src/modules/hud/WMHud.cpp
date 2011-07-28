@@ -28,10 +28,10 @@
 #include <osg/Projection>
 #include <osgDB/WriteFile>
 
-#include "../../common/WAssert.h"
-#include "../../common/WPathHelper.h"
-#include "../../kernel/WKernel.h"
-#include "../../graphicsEngine/WGEViewer.h"
+#include "core/common/WAssert.h"
+#include "core/common/WPathHelper.h"
+#include "core/kernel/WKernel.h"
+#include "core/graphicsEngine/WGEViewer.h"
 
 #include "WMHud.h"
 #include "WMHud.xpm"
@@ -221,7 +221,7 @@ void WMHud::updatePickText( WPickInfo pickInfo )
     os << std::setprecision( 5 )
        << "Name: " << pickInfo.getName() << "\n"
        << "Position: [" << pickInfo.getPickPosition()[0] << ", " << pickInfo.getPickPosition()[1] << ", " << pickInfo.getPickPosition()[2] << "]\n"
-       << "Pixel coordinates: "  << pickInfo.getPickPixelPosition().first << " " << pickInfo.getPickPixelPosition().second << "\n"
+       << "Pixel coordinates: "  << pickInfo.getPickPixel().x() << " " << pickInfo.getPickPixel().y() << "\n"
        << "Object Normal: [" << pickInfo.getPickNormal()[0] << ", " << pickInfo.getPickNormal()[1] << ", " << pickInfo.getPickNormal()[2] << "]\n";
 
     m_pickText = os.str();

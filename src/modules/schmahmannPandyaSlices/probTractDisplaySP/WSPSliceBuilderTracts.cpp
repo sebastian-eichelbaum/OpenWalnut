@@ -27,16 +27,16 @@
 #include <osg/Geometry>
 #include <osg/LineStipple>
 
-#include "../../../common/datastructures/WFiber.h"
-#include "../../../common/exceptions/WTypeMismatch.h"
-#include "../../../common/math/WPosition.h"
-#include "../../../common/WLogger.h"
-#include "../../../dataHandler/WDataSetFibers.h"
-#include "../../../dataHandler/WDataSetScalar.h"
-#include "../../../dataHandler/WGridRegular3D.h"
-#include "../../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../../graphicsEngine/WGEGroupNode.h"
-#include "../../../graphicsEngine/WGEManagedGroupNode.h"
+#include "core/common/datastructures/WFiber.h"
+#include "core/common/exceptions/WTypeMismatch.h"
+#include "core/common/math/linearAlgebra/WPosition.h"
+#include "core/common/WLogger.h"
+#include "core/dataHandler/WDataSetFibers.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/graphicsEngine/WGEGeodeUtils.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
 #include "WSPSliceBuilderTracts.h"
 
 WSPSliceBuilderTracts::WSPSliceBuilderTracts( ProbTractList probTracts, WPropGroup sliceGroup, std::vector< WPropGroup > colorMap,

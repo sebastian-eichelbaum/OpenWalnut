@@ -24,14 +24,14 @@
 
 #include <string>
 
-#include "../../../common/WCondition.h"
-#include "../../../dataHandler/WDataSetScalar.h"
-#include "../../../dataHandler/WDataSetVector.h"
-#include "../../../kernel/WKernel.h"
-#include "../../../kernel/WModule.h"
-#include "../../../kernel/WModuleFactory.h"
-#include "../../../kernel/WModuleInputForwardData.h"
-#include "../../../kernel/WSelectionManager.h"
+#include "core/common/WCondition.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetVector.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleFactory.h"
+#include "core/kernel/WModuleInputForwardData.h"
+#include "core/kernel/WSelectionManager.h"
 #include "WMSlices.h"
 #include "WMSlices.xpm"
 
@@ -92,11 +92,11 @@ void WMSlices::properties()
     m_showSlice[2] = sliceGroup->addProperty( "Show Axial", "Show rendering on axial slice.", true );
 
     m_slicePos[0] = m_properties->addProperty( boost::shared_dynamic_cast< WPropertyBase >(
-                WKernel::getRunningKernel()->getSelectionManager()->getPropSagittalPos() ) )->toPropInt();
+                WKernel::getRunningKernel()->getSelectionManager()->getPropSagittalPos() ) )->toPropDouble();
     m_slicePos[1] = m_properties->addProperty( boost::shared_dynamic_cast< WPropertyBase >(
-                WKernel::getRunningKernel()->getSelectionManager()->getPropCoronalPos() ) )->toPropInt();
+                WKernel::getRunningKernel()->getSelectionManager()->getPropCoronalPos() ) )->toPropDouble();
     m_slicePos[2] = m_properties->addProperty( boost::shared_dynamic_cast< WPropertyBase >(
-                WKernel::getRunningKernel()->getSelectionManager()->getPropAxialPos() ) )->toPropInt();
+                WKernel::getRunningKernel()->getSelectionManager()->getPropAxialPos() ) )->toPropDouble();
 
     WModule::properties();
 }
@@ -112,8 +112,8 @@ void WMSlices::redrawUntilSlicePosChangingAnymore( unsigned char sliceNum, const
     do
     {
         pos = m_slicePos[sliceNum]->get();
-        m_boundaryCurvesWMGM->getProperties()->findProperty( propName )->toPropInt()->set( pos );
-        m_probTractDisplaySP->getProperties()->findProperty( propName )->toPropInt()->set( pos );
+        m_boundaryCurvesWMGM->getProperties()->findProperty( propName )->toPropDouble()->set( pos );
+        m_probTractDisplaySP->getProperties()->findProperty( propName )->toPropDouble()->set( pos );
     }
     while( m_slicePos[sliceNum]->get() != pos );
 }

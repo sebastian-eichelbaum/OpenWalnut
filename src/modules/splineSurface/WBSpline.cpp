@@ -26,7 +26,7 @@
 
 #include "WBSpline.h"
 
-WBSpline::WBSpline( int order, std::vector< WVector3D > deBoorPoints )
+WBSpline::WBSpline( int order, std::vector< WVector3d > deBoorPoints )
 {
     m_deBoorPoints = deBoorPoints;
     int n = m_deBoorPoints.size();
@@ -47,7 +47,7 @@ WBSpline::WBSpline( int order, std::vector< WVector3D > deBoorPoints )
     }
 }
 
-WBSpline::WBSpline( int order, std::vector< WVector3D > deBoorPoints, std::vector<double> knots )
+WBSpline::WBSpline( int order, std::vector< WVector3d > deBoorPoints, std::vector<double> knots )
 {
     m_order = order;
     m_deBoorPoints = deBoorPoints;
@@ -58,9 +58,9 @@ WBSpline::~WBSpline()
 {
 }
 
-WVector3D WBSpline::f( double _t )
+WVector3d WBSpline::f( double _t )
 {
-    WVector3D result;
+    WVector3d result;
     unsigned int r = 0, i;
 
     if( _t < m_knots[0] )
@@ -102,7 +102,7 @@ WVector3D WBSpline::f( double _t )
     return result;
 }
 
-std::vector< WVector3D > WBSpline::getDeBoorPoints()
+std::vector< WVector3d > WBSpline::getDeBoorPoints()
 {
     return m_deBoorPoints;
 }
@@ -117,7 +117,7 @@ int WBSpline::getOrder()
     return m_order;
 }
 
-void WBSpline::setDeBoorPoints( std::vector< WVector3D > deBoorPoints )
+void WBSpline::setDeBoorPoints( std::vector< WVector3d > deBoorPoints )
 {
     m_deBoorPoints = deBoorPoints;
 }
@@ -132,7 +132,7 @@ void WBSpline::setOrder( int order )
     m_order = order;
 }
 
-void WBSpline::samplePoints( std::vector< WVector3D > *points, double resolution )
+void WBSpline::samplePoints( std::vector< WVector3d > *points, double resolution )
 {
     double deltaT = resolution;
     double currentT = m_knots[0];
@@ -142,7 +142,7 @@ void WBSpline::samplePoints( std::vector< WVector3D > *points, double resolution
     for( int step = 0; step < steps; step++ )
     {
         currentT = m_knots[0] + step * deltaT;
-        WVector3D samplePoint = f( currentT );
+        WVector3d samplePoint = f( currentT );
         points->push_back( samplePoint );
     }
 }
@@ -153,9 +153,9 @@ double WBSpline::getAlpha_i_j( int _i, int _j )
     return result;
 }
 
-WVector3D WBSpline::controlPoint_i_j( int _i, int _j )
+WVector3d WBSpline::controlPoint_i_j( int _i, int _j )
 {
-    WVector3D result;
+    WVector3d result;
 
     if( _j == 0)
     {

@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# get path of this script
+BINDIR=`dirname "$0"`
+
+PARAM_FILENAME="/tmp/walnut-gdb.script."$(date +%s)
+echo $PARAM_FILENAME
+echo run $@ > $PARAM_FILENAME
+
+# assume that this script is in the bin dir
+# go there to ensure walnuts working directory is set correctly
+cd "$BINDIR"
+
+# run walnut
+gdb ./openwalnut-qt4 -command=$PARAM_FILENAME
+
+rm $PARAM_FILENAME

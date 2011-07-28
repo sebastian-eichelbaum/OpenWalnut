@@ -25,9 +25,11 @@
 #include <string>
 #include <vector>
 
-#include "../../common/math/WSymmetricSphericalHarmonic.h"
-#include "../../common/WLimits.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/math/WSymmetricSphericalHarmonic.h"
+#include "core/common/math/WMatrix.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/WLimits.h"
+#include "core/kernel/WKernel.h"
 
 #include "WMCalculateTensors.h"
 
@@ -96,12 +98,12 @@ void WMCalculateTensors::moduleMain()
 
     // calc sh->tensor conversion matrix
     std::vector< WUnitSphereCoordinates > orientations;
-    orientations.push_back( WUnitSphereCoordinates( WVector3D( 1.0, 0.0, 0.0 ).normalized() ) );
-    orientations.push_back( WUnitSphereCoordinates( WVector3D( 0.6, -0.1, 0.2 ).normalized() ) );
-    orientations.push_back( WUnitSphereCoordinates( WVector3D( 1.0, 1.0, 1.0 ).normalized() ) );
-    orientations.push_back( WUnitSphereCoordinates( WVector3D( -0.1, -0.3, 0.5 ).normalized() ) );
-    orientations.push_back( WUnitSphereCoordinates( WVector3D( -0.56347, 0.374, -0.676676 ).normalized() ) );
-    orientations.push_back( WUnitSphereCoordinates( WVector3D( 0.0, 4.0, 1.0 ).normalized() ) );
+    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( 1.0, 0.0, 0.0 ) ) ) );
+    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( 0.6, -0.1, 0.2 ) ) ) );
+    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( 1.0, 1.0, 1.0 ) ) ) );
+    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( -0.1, -0.3, 0.5 ) ) ) );
+    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( -0.56347, 0.374, -0.676676 ) ) ) );
+    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( 0.0, 4.0, 1.0 ) ) ) );
 
     m_SHToTensorMat = WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( 2, orientations );
 
@@ -211,7 +213,7 @@ boost::array< double, 6 > WMCalculateTensors::perVoxelTensorFunc( WValueSet< dou
 {
     ++*m_currentProgress;
     boost::array< double, 6 > a;
-    WValue< double > v( 6 );
+    WValue<double> v( 6 );
 
     // calculation
     for( std::size_t k = 0; k < 6; ++k )

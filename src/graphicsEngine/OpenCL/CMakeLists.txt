@@ -1,5 +1,0 @@
-
-# Unit tests
-# IF( OW_COMPILE_TESTS )
-
-# ENDIF( OW_COMPILE_TESTS )

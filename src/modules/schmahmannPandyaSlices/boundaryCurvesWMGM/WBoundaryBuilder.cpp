@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../../../common/WProperties.h"
-#include "../../../dataHandler/WDataSetScalar.h"
+#include "core/common/WProperties.h"
+#include "core/dataHandler/WDataSetScalar.h"
 #include "WBoundaryBuilder.h"
 
 WBoundaryBuilder::WBoundaryBuilder( boost::shared_ptr< const WDataSetScalar > texture, boost::shared_ptr< const WProperties > properties,
@@ -31,9 +31,9 @@ WBoundaryBuilder::WBoundaryBuilder( boost::shared_ptr< const WDataSetScalar > te
     : m_texture( texture ),
       m_slices( *slices ) // copy the pointers
 {
-    m_slicePos[0] = properties->findProperty( "Slices" )->toPropGroup()->findProperty( "Sagittal Position" )->toPropInt();
-    m_slicePos[1] = properties->findProperty( "Slices" )->toPropGroup()->findProperty( "Coronal Position" )->toPropInt();
-    m_slicePos[2] = properties->findProperty( "Slices" )->toPropGroup()->findProperty( "Axial Position" )->toPropInt();
+    m_slicePos[0] = properties->findProperty( "Slices" )->toPropGroup()->findProperty( "Sagittal Position" )->toPropDouble();
+    m_slicePos[1] = properties->findProperty( "Slices" )->toPropGroup()->findProperty( "Coronal Position" )->toPropDouble();
+    m_slicePos[2] = properties->findProperty( "Slices" )->toPropGroup()->findProperty( "Axial Position" )->toPropDouble();
 
     m_grayMatter = properties->findProperty( "Gray Matter" )->toPropDouble();
     m_whiteMatter = properties->findProperty( "White Matter" )->toPropDouble();

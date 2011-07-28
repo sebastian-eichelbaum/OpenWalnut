@@ -33,9 +33,9 @@
 
 #include <osg/Geode>
 
-#include "../../../common/WProperties.h"
-#include "../../../common/WPropertyTypes.h"
-#include "../../../graphicsEngine/shaders/WGEShader.h"
+#include "core/common/WProperties.h"
+#include "core/common/WPropertyTypes.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
 #include "WSPSliceBuilder.h"
 
 // forward declarations
@@ -95,7 +95,7 @@ private:
      *
      * \return A array of direction to add to the center point to get the new centerpoints around in clockwise manner.
      */
-    boost::shared_ptr< std::vector< WVector3D > > generateClockwiseDir( std::pair< unsigned char, unsigned char > activeDims, double distance ) const;
+    boost::shared_ptr< std::vector< WVector3d > > generateClockwiseDir( std::pair< unsigned char, unsigned char > activeDims, double distance ) const;
 
     /**
      * Compute the origin and the base vectors of each slice, and returns the other opposite indices.
@@ -107,8 +107,8 @@ private:
      *
      * \return If \c sliceNum=0 the oppsite indices are \c 1 and \c 2. For \c sliceNum=1, they are \c 0,2, and for \c sliceNum=2 they are \c 1,2.
      */
-    std::pair< unsigned char, unsigned char > computeSliceBase( const unsigned char sliceNum, boost::shared_ptr< WVector3D > origin,
-            boost::shared_ptr< WVector3D > a, boost::shared_ptr< WVector3D > b ) const;
+    std::pair< unsigned char, unsigned char > computeSliceBase( const unsigned char sliceNum, boost::shared_ptr< WVector3d > origin,
+            boost::shared_ptr< WVector3d > a, boost::shared_ptr< WVector3d > b ) const;
 
     /**
      * Compute the focal points for ellipsoid generation within the fragment shader. Basically this are just the start and end points of

@@ -27,15 +27,15 @@
 
 #include <vector>
 
-#include "../../common/WProgress.h"
-#include "../../common/WSharedObject.h"
-#include "../../common/WThreadedJobs.h"
+#include "core/common/WProgress.h"
+#include "core/common/WSharedObject.h"
+#include "core/common/WThreadedJobs.h"
 
-#include "../../dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetScalar.h"
 
-#include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
+#include "core/graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 
-#include "../../graphicsEngine/WTriangleMesh.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
 /**
  * TODO(schurade): Document this!
  */
@@ -149,7 +149,7 @@ void WCreateSurfaceJob< T >::compute( boost::shared_ptr< WDataSetScalar const > 
                                             newValueSet->rawDataVectorPointer(),
                                             0.9,
                                             m_progressCombiner );
-    if ( triMesh->vertSize() != 0 )
+    if( triMesh->vertSize() != 0 )
     {
         ( *m_regionMeshes )[job] = triMesh;
     }
@@ -166,7 +166,7 @@ template< typename T > void WCreateSurfaceJob<T>::cutArea( boost::shared_ptr< WV
 {
     for( size_t k = 0; k < m_grid->size(); ++k )
     {
-        if ( static_cast< size_t >( vals->getScalar( k ) ) == number )
+        if( static_cast< size_t >( vals->getScalar( k ) ) == number )
         {
             tempData[ k ] = 1.0;
         }

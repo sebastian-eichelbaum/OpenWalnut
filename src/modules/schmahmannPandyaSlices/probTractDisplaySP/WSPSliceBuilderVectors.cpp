@@ -28,16 +28,16 @@
 #include <osg/LineStipple>
 #include <osg/Depth>
 
-#include "../../../common/exceptions/WTypeMismatch.h"
-#include "../../../common/math/WPosition.h"
-#include "../../../common/WLogger.h"
-#include "../../../dataHandler/WDataSetScalar.h"
-#include "../../../dataHandler/WDataSetVector.h"
-#include "../../../dataHandler/WGridRegular3D.h"
-#include "../../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../../graphicsEngine/WGEGroupNode.h"
-#include "../../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../../graphicsEngine/geodes/WGEGridNode.h"
+#include "core/common/exceptions/WTypeMismatch.h"
+#include "core/common/math/linearAlgebra/WPosition.h"
+#include "core/common/WLogger.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetVector.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/graphicsEngine/geodes/WGEGridNode.h"
+#include "core/graphicsEngine/WGEGeodeUtils.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
 #include "WSPSliceBuilderVectors.h"
 
 WSPSliceBuilderVectors::WSPSliceBuilderVectors( ProbTractList probTracts, WPropGroup sliceGroup, std::vector< WPropGroup > colorMap,
@@ -63,8 +63,8 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     wlog::debug( "Geode-construction time " ) << "start";
 
     boost::shared_ptr< WPosition > origin( new WPosition );
-    boost::shared_ptr< WVector3D > a( new WVector3D );
-    boost::shared_ptr< WVector3D > b( new WVector3D );
+    boost::shared_ptr< WVector3d > a( new WVector3d );
+    boost::shared_ptr< WVector3d > b( new WVector3d );
     std::pair< unsigned char, unsigned char > activeDims = computeSliceBase( sliceNum, origin, a, b );
 
     std::vector< size_t > numCoords;
@@ -72,8 +72,8 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     numCoords.push_back( m_grid->getNbCoordsY() );
     numCoords.push_back( m_grid->getNbCoordsZ() );
 
-    WVector3D xDir = a->normalized();
-    WVector3D yDir = b->normalized();
+    WVector3d xDir = normalize( *a );
+    WVector3d yDir = normalize( *b );
 
     WMatrix< double > mat( 4, 4 );
     mat.makeIdentity();
@@ -84,7 +84,7 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     mat( 1, 1 ) = yDir[1];
     mat( 2, 1 ) = yDir[2];
     // set zdirection to an orthogonal vector
-    WVector3D zDir = xDir ^ yDir;
+    WVector3d zDir = cross( xDir, yDir );
     mat( 0, 2 ) = zDir[0];
     mat( 1, 2 ) = zDir[1];
     mat( 2, 2 ) = zDir[2];
@@ -110,13 +110,13 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     osg::ref_ptr< osg::Vec3Array > firstFocalPoint( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec3Array > secondFocalPoint( new osg::Vec3Array );
 
-    WVector3D normal( 0.0, 0.0, 0.0 );
+    WVector3d normal( 0.0, 0.0, 0.0 );
     normal[ sliceNum ] = -1.0;
     quadNormals->push_back( normal );
     osg::ref_ptr< osg::Vec4Array > quadColors( new osg::Vec4Array );
 
     osg::ref_ptr< osg::Vec3Array > texCoordsPerPrimitive = generateQuadSpanning( activeDims );
-    boost::shared_ptr< std::vector< WVector3D > > glyphDirections = generateClockwiseDir( activeDims, 0.4 ); // m_glyphSpacing->get() );
+    boost::shared_ptr< std::vector< WVector3d > > glyphDirections = generateClockwiseDir( activeDims, 0.4 ); // m_glyphSpacing->get() );
 
     std::srand( 0 ); // we just really need only pseudo random numbers
 
@@ -137,8 +137,8 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
                     for( size_t sample = 0; sample < numSamples; ++sample )
                     {
                         double s = 1.0 * m_spacing->get(); // jitter scaling
-                        WVector3D jitter( s * ( std::rand() % 1000 ) / 1000.0, s * ( std::rand() % 1000 ) / 1000.0, s * ( std::rand() % 1000 ) / 1000.0 ); // NOLINT line length
-//                        WVector3D jitter;
+                        WVector3d jitter( s * ( std::rand() % 1000 ) / 1000.0, s * ( std::rand() % 1000 ) / 1000.0, s * ( std::rand() % 1000 ) / 1000.0 ); // NOLINT line length
+//                        WVector3d jitter;
                         jitter[sliceNum] = 0.001 * ( std::rand() % 1000 ) / 1000.0; // NOLINT don't need to be thread safe here via: rand_r()
                         WColor stippleColor = lookUpColor( realPos + jitter, i );
                         if( stippleColor[3] > m_probThreshold->get() )
@@ -193,7 +193,7 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     stateSet->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
 
     // bind vector field as texture
-    wge::bindTexture( geode, m_vectors->getTexture2() );
+    wge::bindTexture( geode, m_vectors->getTexture() );
 
     wlog::debug( "Geode-construction time " ) << "end";
     return result;
@@ -204,8 +204,8 @@ std::pair< WPosition, WPosition > WSPSliceBuilderVectors::computeFocalPoints( co
     std::pair< WPosition, WPosition > result;
 
     bool success = false;
-    WVector3D vec = m_vectors->eigenVectorInterpolate( pos, &success );
-    vec.normalize();
+    WVector3d vec = m_vectors->eigenVectorInterpolate( pos, &success );
+    vec = normalize( vec );
 
     // project into plane
     vec[ sliceNum ] = 0.0;
@@ -236,9 +236,9 @@ osg::ref_ptr< osg::Vec3Array > WSPSliceBuilderVectors::generateQuadSpanning( std
 }
 
 std::pair< unsigned char, unsigned char > WSPSliceBuilderVectors::computeSliceBase( const unsigned char sliceNum,
-        boost::shared_ptr< WVector3D > origin, boost::shared_ptr< WVector3D > a, boost::shared_ptr< WVector3D > b ) const
+        boost::shared_ptr< WVector3d > origin, boost::shared_ptr< WVector3d > a, boost::shared_ptr< WVector3d > b ) const
 {
-    std::vector< WVector3D > dir;
+    std::vector< WVector3d > dir;
     dir.push_back( m_grid->getDirectionX() * m_grid->getOffsetX() );
     dir.push_back( m_grid->getDirectionY() * m_grid->getOffsetY() );
     dir.push_back( m_grid->getDirectionZ() * m_grid->getOffsetZ() );
@@ -256,10 +256,10 @@ std::pair< unsigned char, unsigned char > WSPSliceBuilderVectors::computeSliceBa
     return std::make_pair< unsigned char, unsigned char >( *( slices.begin() ), *( slices.rbegin() ) );
 }
 
-boost::shared_ptr< std::vector< WVector3D > > WSPSliceBuilderVectors::generateClockwiseDir( std::pair< unsigned char, unsigned char > activeDims,
+boost::shared_ptr< std::vector< WVector3d > > WSPSliceBuilderVectors::generateClockwiseDir( std::pair< unsigned char, unsigned char > activeDims,
         double distance ) const
 {
-    boost::shared_ptr< std::vector< WVector3D > > result( new std::vector< WVector3D >( 9, WVector3D( 0.0, 0.0, 0.0 ) ) );
+    boost::shared_ptr< std::vector< WVector3d > > result( new std::vector< WVector3d >( 9, WVector3d( 0.0, 0.0, 0.0 ) ) );
     result->at( 0 )[ activeDims.first ]  =  0.0 * distance;
     result->at( 1 )[ activeDims.first ]  =  1.0 * distance;
     result->at( 2 )[ activeDims.first ]  =  1.0 * distance;

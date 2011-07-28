@@ -29,7 +29,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "../../../common/WLogger.h"
+#include "core/common/WLogger.h"
 #include "../WBresenhamDBL.h"
 
 /**

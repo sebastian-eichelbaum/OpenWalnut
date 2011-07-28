@@ -30,11 +30,11 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/datastructures/WFiber.h"
-#include "../../common/WFlag.h"
-#include "../../dataHandler/WDataSetFiberVector.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
+#include "core/common/datastructures/WFiber.h"
+#include "core/common/WFlag.h"
+#include "core/dataHandler/WDataSetFiberVector.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
 
 /**
  * Removes deterministic tracts and therefore implements a preprocessing step

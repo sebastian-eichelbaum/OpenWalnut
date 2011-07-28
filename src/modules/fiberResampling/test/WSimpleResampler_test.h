@@ -30,7 +30,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "../../../common/WStringUtils.h"
+#include "core/common/WStringUtils.h"
 #include "../WSimpleResampler.h"
 
 /**

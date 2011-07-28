@@ -33,16 +33,16 @@
 #endif
 #include <boost/filesystem.hpp>
 
-#include "../../common/datastructures/WFiber.h"
-#include "../../common/WColor.h"
-#include "../../common/WLogger.h"
-#include "../../common/WProgress.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../dataHandler/exceptions/WDHIOFailure.h"
-#include "../../dataHandler/io/WWriterFiberVTK.h"
-#include "../../dataHandler/WDataSetFiberVector.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/datastructures/WFiber.h"
+#include "core/common/WColor.h"
+#include "core/common/WLogger.h"
+#include "core/common/WProgress.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/dataHandler/exceptions/WDHIOFailure.h"
+#include "core/dataHandler/io/WWriterFiberVTK.h"
+#include "core/dataHandler/WDataSetFiberVector.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/kernel/WKernel.h"
 #include "WMDetTractCulling.xpm"
 #include "WMDetTractCulling.h"
 
@@ -77,9 +77,9 @@ void WMDetTractCulling::moduleMain()
 
     ready();
 
-    while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
+    while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
-        if ( !m_tractInput->getData().get() ) // ok, the output has not yet sent data
+        if( !m_tractInput->getData().get() ) // ok, the output has not yet sent data
         {
             m_moduleState.wait();
             continue;
