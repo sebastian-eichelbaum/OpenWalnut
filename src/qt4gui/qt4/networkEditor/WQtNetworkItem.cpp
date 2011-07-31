@@ -69,6 +69,8 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
     activate( false );
 
     fitLook();
+
+    m_layoutNode = NULL;
 }
 
 WQtNetworkItem::~WQtNetworkItem()
@@ -233,9 +235,9 @@ QList< WQtNetworkOutputPort *> WQtNetworkItem::getOutPorts()
     return m_outPorts;
 }
 
-WNetworkLayoutItem * WQtNetworkItem::getLayoutItem()
+WNetworkLayoutNode * WQtNetworkItem::getLayoutNode()
 {
-    return m_layoutItem;
+    return m_layoutNode;
 }
 
 void WQtNetworkItem::fitLook()

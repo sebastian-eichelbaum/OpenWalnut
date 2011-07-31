@@ -32,13 +32,13 @@
 
 #include "core/kernel/WModule.h"
 
-#include "layout/WNetworkLayoutItem.h"
+#include "layout/WNetworkLayoutNode.h"
 #include "WQtNetworkInputPort.h"
 #include "WQtNetworkOutputPort.h"
 
-class WNetworkLayoutItem;
+class WNetworkLayoutNode;
 class WQtNetworkEditor;
-class QGraphicsWidget;
+//class QGraphicsWidget;
 
 /**
  * This class represents a WModule as QGraphicsRectItem and
@@ -130,7 +130,7 @@ public:
     /**
      * returns the layout item for this network item, layout item is set through the layout item (friend)
      **/
-    WNetworkLayoutItem * getLayoutItem();
+    WNetworkLayoutNode * getLayoutNode();
 
     /**
      * Here the module can be enabled when the WModule is ready.
@@ -235,6 +235,6 @@ private:
 
     WQtNetworkEditor* m_networkEditor; //!< the related WQtNetworkEditor
 
-    WNetworkLayoutItem *m_layoutItem; //!< the layout item
+    WNetworkLayoutNode *m_layoutNode; //!< the layout item
 };
 #endif  // WQTNETWORKITEM_H

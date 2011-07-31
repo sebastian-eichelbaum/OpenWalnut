@@ -22,27 +22,46 @@
 //
 //---------------------------------------------------------------------------
 
+#include "WNetworkLayoutGlobals.h"
+
 #include "WNetworkLayoutNode.h"
 
 WNetworkLayoutNode::WNetworkLayoutNode( WQtNetworkItem *item )
 {
     m_referencedItem = item;
-    m_referencedItem->m_layoutItem = this; // TODO: change friend in WQtNetworkItem
+    if( item != NULL )
+    {
+        m_referencedItem->m_layoutNode = this; // TODO: change friend in WQtNetworkItem
+    }
 }
 
-WNetworkLayoutNode::~WNetworkLayoutItem()
+WNetworkLayoutNode::~WNetworkLayoutNode()
 {
-    m_referencedItem->m_layoutItem = NULL;
+    if( m_referencedItem != NULL )
+    {
+        m_referencedItem->m_layoutNode = NULL;
+        for( std::list< WNetworkLayoutNode * >::iterator iter = m_parents.begin();
+                iter != m_parents.end(); ++iter )
+        {
+            (*iter)->remove( this );
+        }
+    }
 }
 
 void WNetworkLayoutNode::add( WNetworkLayoutNode *node )
 {
-    m_referencedItems.push_back( node );
+    m_children.push_back( node );
+    node->addParent( this );
 }
 
-std::list< WNetworkLayoutNode* > * getChildren()
+void WNetworkLayoutNode::addParent( WNetworkLayoutNode *node )
 {
-    return &m_referencedItems;
+    m_parents.push_back( node );
+}
+
+std::list< WNetworkLayoutNode* > WNetworkLayoutNode::getChildren()
+{
+    return m_children;
 }
 
 QPointF WNetworkLayoutNode::getGridPos()
@@ -50,29 +69,45 @@ QPointF WNetworkLayoutNode::getGridPos()
     return m_gridPos;
 }
 
+int WNetworkLayoutNode::nChildren()
+{
+    return m_children.size();
+}
+
+int WNetworkLayoutNode::nParents()
+{
+    return m_parents.size();
+}
+
 void WNetworkLayoutNode::remove( WNetworkLayoutNode *node )
 {
     std::list< WNetworkLayoutNode * >::iterator iter;
-    iter = std::find( m_referencedItems.begin(), m_referencedItems.end(), node );
-    if( iter != m_referencedItems.end() )
+    iter = std::find( m_children.begin(), m_children.end(), node );
+    if( iter != m_children.end() )
     {
-        m_referencedItems.erase( iter );
+        m_children.erase( iter );
     }
 }
 
-void WNetworkLayoutNode::setGridPos( QPointF pos )
+void WNetworkLayoutNode::setGridPos( QPoint pos )
 {
-    m_gridPos = pos;
-    // calc positon for m_item
-    QPointF newPos;
-    newPos.setX( ( pos.x() * WNETWORKLAYOUT_GRID_DISTANCE_X ) + 0.5 * ( WNETWORKLAYOUT_GRID_DISTANCE_X - m_item->m_width ) );
-    newPos.setY( pos.y() * WNETWORKLAYOUT_GRID_DISTANCE_Y );
-    m_referencedItem->setPos( newPos );
-
-    // dirty hack: update arrow position
-    foreach( WQtNetworkPort *port, m_referencedItem->m_inPorts )
+    if( m_referencedItem != NULL )
+        // if this is a dummy node do nothing
     {
-        port->updateArrows();
+        m_gridPos = pos;
+        // calc positon for m_item
+        QPointF newPos;
+        // TODO(rfrohl): look into this: x => y and y => x
+        newPos.setX( ( pos.y() * WNETWORKLAYOUT_GRID_DISTANCE_X ) +
+                0.5 * ( WNETWORKLAYOUT_GRID_DISTANCE_X - m_referencedItem->m_width ) );
+        newPos.setY( pos.x() * WNETWORKLAYOUT_GRID_DISTANCE_Y );
+        m_referencedItem->setPos( newPos );
+
+        // dirty hack: update arrow position
+        foreach( WQtNetworkPort *port, m_referencedItem->m_inPorts )
+        {
+            port->updateArrows();
+        }
     }
 }
 

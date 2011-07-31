@@ -38,7 +38,7 @@ class WNetworkLayoutGraph
         /**
          * constructor
          **/
-        explicit WNetworkLayoutGraph( unsigned char id, WNetworkLayoutItem *item = NULL );
+        explicit WNetworkLayoutGraph( WQtNetworkItem *item = NULL );
 
         /**
          * destructor
@@ -48,7 +48,7 @@ class WNetworkLayoutGraph
         /**
          * add a node to this subgraph, the node needs its grid position set befor adding it
          **/
-        void add( WNetworkLayoutItem *parent, WNetworkLayoutItem *child );
+        void add( WQtNetworkItem *item );
 
         /**
          * allows access to the list of layout items TODO
@@ -87,12 +87,12 @@ class WNetworkLayoutGraph
         /**
          * remove a node from the subgraph
          **/
-        void remove( WNetworkLayoutItem *item );
+        void remove( WNetworkLayoutNode *item );
 
         /**
          * returns the size of the subgraph
          **/
-        unsigned int size();
+        //unsigned int size();
 
         /**
          * traverses the graph, creates layout

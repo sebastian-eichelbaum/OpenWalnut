@@ -22,17 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
+
 #include "WNetworkLayoutGraph.h"
 
-WNetworkLayoutGraph::WNetworkLayoutGraph( unsigned char id, WNetworkLayoutItem *item )
+WNetworkLayoutGraph::WNetworkLayoutGraph( WQtNetworkItem *item )
 {
-    //m_id = id;
     m_root = new WNetworkLayoutNode();
     if( item )
     {
-        //:browse confirm wa
         //add( item );
-        m_root.add( new WNetworkLayoutNode( item ) );
+        m_root->add( new WNetworkLayoutNode( item ) );
     }
 }
 
@@ -41,19 +41,10 @@ WNetworkLayoutGraph::~WNetworkLayoutGraph()
     delete m_root;
 }
 
-void WNetworkLayoutSubgraph::add( WNetworkLayoutItem *parent, WNetworkLayoutItem *child )
+void WNetworkLayoutGraph::add( WQtNetworkItem *item )
 {
-    // TODO: _____ OLD ______
-    if( m_nodes.size() == 0 )
-    {
-        m_rightmostItem = item;
-    }
-    else if( item->getGridPos().x() > m_rightmostItem->getGridPos().x() )
-    {
-        m_rightmostItem = item;
-    }
-    m_nodes.push_back( item );
-    // TODO if m_source is used, change here
+    // TODO: add item at the right position
+    // include the item in the graph
 }
 
 //std::list< WNetworkLayoutItem * > * WNetworkLayoutSubgraph::data()
@@ -98,9 +89,9 @@ void WNetworkLayoutSubgraph::add( WNetworkLayoutItem *parent, WNetworkLayoutItem
 //}
 
 
-void WNetworkLayoutGraph::remove( WNetworkLayoutItem *item )
+void WNetworkLayoutGraph::remove( WNetworkLayoutNode *item )
 {
-    m_nodes.remove( item );
+   /* m_nodes.remove( item );
     if( m_rightmostItem == item )
     {
         m_rightmostItem = m_nodes.front();
@@ -111,13 +102,13 @@ void WNetworkLayoutGraph::remove( WNetworkLayoutItem *item )
                 m_rightmostItem = *iter;
             }
         }
-    }
+    }*/
 }
 
-unsigned int WNetworkLayoutGraph::size()
+/*unsigned int WNetworkLayoutGraph::size()
 {
     return m_nodes.size();
-}
+}*/
 
 void WNetworkLayoutGraph::traverse()
 {
@@ -137,7 +128,7 @@ void WNetworkLayoutGraph::traverse()
                     childIter != children.end(); ++childIter )
             {
                 std::list< WNetworkLayoutNode * >::iterator findIter =
-                    find( rows.back().begin(), rows.back().end(), childIter );
+                    find( rows.back().begin(), rows.back().end(), *childIter );
                 if( rows.back().end() != findIter )
                 {
                     // the node is already in the layout
@@ -176,7 +167,7 @@ void WNetworkLayoutGraph::traverse()
         unsigned int y = 0;
         for( std::list< WNetworkLayoutNode * >::iterator iter = rowsIter->begin(); iter != rowsIter->end(); ++iter )
         {
-            iter->setGridPos( QPoint( x, y ) );
+            (*iter)->setGridPos( QPoint( x, y ) ); // TODO QPointF => QPoint
             ++y;
         }
         ++x;

@@ -39,6 +39,7 @@ class WNetworkLayoutNode
     public:
         /**
          * constructor
+         * without item dummy node
          *
          * \param item the corresponding network item
          **/
@@ -55,9 +56,18 @@ class WNetworkLayoutNode
         void add( WNetworkLayoutNode *node );
 
         /**
+         *
+         **/
+        void addParent( WNetworkLayoutNode *node );
+
+        /**
          * return all children
          **/
-        std::list< WNetworkLayoutNode* > * getChildren();
+        std::list< WNetworkLayoutNode* > getChildren();
+
+        int nChildren();
+
+        int nParents();
 
         /**
          * removes one of the children if they belong to this node
@@ -69,7 +79,7 @@ class WNetworkLayoutNode
          * Sets the position within the grid, updates the position of the corresponding
          * WQtNetworkItem
          **/
-        void setGridPos( QPointF pos ); // m_matrixPos
+        void setGridPos( QPoint pos ); // m_matrixPos
 
         /**
          * returns the position within the grid
@@ -79,11 +89,13 @@ class WNetworkLayoutNode
     protected:
 
     private:
-        std::list< WNetworkLayoutNode * > m_children; //<!
+        std::list< WNetworkLayoutNode * > m_children; //<! the nodes this node links to
 
-        WQtNetworkItem *m_referencedItems; //<!
+        std::list< WNetworkLayoutNode * > m_parents; //<! nodes that link to this node
 
-        QPointF m_gridPos; //<! abstract pos, within the matrix
+        WQtNetworkItem *m_referencedItem; //<! the corresponding item in the QGraphicsScene ie. the visual representation
+
+        QPoint m_gridPos; //<! abstract pos, within the matrix
 };
 
 #endif  // WNETWORKLAYOUTNODE_H

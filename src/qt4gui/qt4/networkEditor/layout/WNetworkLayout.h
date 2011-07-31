@@ -62,7 +62,7 @@ class WNetworkLayout
         /**
          * disconnects the child from the parent item and moves the item to a new, empty lane
          **/
-        void disconnectItem( WQtNetworkItem *item );
+        void disconnectNodes( WQtNetworkItem *parent, WQtNetworkItem *child );
 
         /**
          * remove an item from the layout, should only be called when in- and out-degree of the item
@@ -85,7 +85,12 @@ class WNetworkLayout
          * \param shiftRight move the elements to the right
          * \param distance the distance the elements are moved
          **/
-        void updateGrid( unsigned int fixedGraph, unsigned int x, bool shiftRight = true, int distance = 1);
+        //void updateGrid( unsigned int fixedGraph, unsigned int x, bool shiftRight = true, int distance = 1);
+
+        /**
+         * TODO
+         **/
+        void traverse();
 
         /**
          * merges two connection components, using only one node from each component
@@ -98,7 +103,8 @@ class WNetworkLayout
 
         //std::list< WNetworkLayoutSubgraph > m_subgraphList; //<! list allows iteration over lanes
 
-        WNetworkLayoutGraph *m_layoutGraph; //<! the layout graph
+        std::list< WNetworkLayoutNode * > m_nodes;
+        //WNetworkLayoutGraph *m_layoutGraph; //<! the layout graph
 };
 
 #endif  // WNETWORKLAYOUT_H

@@ -397,7 +397,7 @@ bool WQtNetworkEditor::event( QEvent* event )
         }
         if( ar )
         {
-            m_layout->disconnectItem( inItem );
+            m_layout->disconnectNodes( outItem, inItem);
 
             op->removeArrow( ar );
             ip->removeArrow( ar );
