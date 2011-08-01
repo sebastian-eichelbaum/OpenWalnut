@@ -27,13 +27,18 @@
 #include <string>
 
 #ifdef _WIN32
-#include <iostream>
-#include <windows.h>        // NOLINT
+    #include <iostream>
+    #include <windows.h>        // NOLINT
 #endif
+
+// Use filesystem version 2 for compatibility with newer boost versions.
+#ifndef BOOST_FILESYSTEM_VERSION
+    #define BOOST_FILESYSTEM_VERSION 2
+#endif
+#include <boost/filesystem.hpp>
 
 #include "exceptions/WLibraryFetchFailed.h"
 #include "exceptions/WLibraryLoadFailed.h"
-
 #include "WSharedLib.h"
 
 #ifdef _WIN32

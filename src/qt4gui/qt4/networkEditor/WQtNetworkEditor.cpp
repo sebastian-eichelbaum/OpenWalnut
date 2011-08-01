@@ -517,7 +517,7 @@ void WQtNetworkEditor::timerEvent( QTimerEvent* /*event*/ )
     //        itemsMoved = true;
     //}
 
-    //if ( !itemsMoved )
+    //if( !itemsMoved )
     //{
     //    killTimer( timerId );
     //    timerId = 0;

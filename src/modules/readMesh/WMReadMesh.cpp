@@ -163,7 +163,7 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readMeshFnav()
 
     std::vector< std::string > tokens;
     size_t numPoints = 0;
-    while ( !ifs.eof() )
+    while( !ifs.eof() )
     {
         std::getline( ifs, line );
         tokens = su::tokenize( line );
@@ -472,11 +472,11 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readBrainVISA()
     int *triData = new int[ 3 * numTriangles ];
     ifs.read( reinterpret_cast< char* >( triData ), 3 * sizeof( int ) * numTriangles );
 
-    for ( size_t i = 0; i < numVertices; ++i )
+    for( size_t i = 0; i < numVertices; ++i )
     {
         triMesh->addVertex( pointData[i * 3], 200 - pointData[i * 3 + 1], 160 - pointData[i * 3 + 2] );
     }
-    for ( size_t i = 0; i < numTriangles; ++i )
+    for( size_t i = 0; i < numTriangles; ++i )
     {
         triMesh->addTriangle( triData[i * 3], triData[i * 3 + 2], triData[i * 3 + 1] );
     }
@@ -485,13 +485,13 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readBrainVISA()
 //     the following code would need an adjustment to the triangle mesh class, to avoid overriding
 //    the loaded normals
 //
-//    if ( numVertices == numNormals )
+//    if( numVertices == numNormals )
 //    {
 //        ifs.seekg( 37 + numVertices * 12 );
 //        float *normalData = new float[ 3 * numNormals ];
 //        ifs.read( reinterpret_cast< char* >( normalData ), 3 * sizeof( float ) * numVertices );
 //
-//        for ( size_t i = 0; i < numNormals; ++i )
+//        for( size_t i = 0; i < numNormals; ++i )
 //        {
 //            triMesh->setVertexNormal( i, WPosition( normalData[i * 3], normalData[i * 3 + 1], normalData[i * 3 + 2] ) );
 //        }
@@ -549,7 +549,7 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readDip()
     std::vector< std::string > tokens;
 
     // first pass, try to read all information that might be anywhere in the file
-    while ( !ifs.eof() )
+    while( !ifs.eof() )
     {
         std::getline( ifs, line );
         tokens = su::tokenize( line );
@@ -591,7 +591,7 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readDip()
                 progress->finish();
                 return boost::shared_ptr< WTriangleMesh >();
             }
-            if ( typeCells != 3 )
+            if( typeCells != 3 )
             {
                 WLogger::getLogger()->addLogMessage( "Invalid type of polygons: " + tokens.at( 1 ), "Read Mesh", LL_ERROR );
                 progress->finish();
@@ -605,7 +605,7 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readDip()
     ifs.close();
     ifs.open( fileName.c_str(), std::ifstream::in );
     debugLog() << "current position: " << ifs.tellg();
-    while ( !ifs.eof() )
+    while( !ifs.eof() )
     {
         std::getline( ifs, line );
         tokens = su::tokenize( line );
@@ -615,7 +615,7 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readDip()
             break;
         }
     }
-    if ( ifs.eof() )
+    if( ifs.eof() )
     {
         WLogger::getLogger()->addLogMessage( "Couldn't find vertex info in the file", "Read Mesh", LL_ERROR );
         progress->finish();
@@ -658,7 +658,7 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readDip()
     //ifs.seekg( 0, std::ios::beg );
     ifs.close();
     ifs.open( fileName.c_str(), std::ifstream::in );
-    while ( !ifs.eof() )
+    while( !ifs.eof() )
     {
         std::getline( ifs, line );
         tokens = su::tokenize( line );
@@ -668,7 +668,7 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readDip()
             break;
         }
     }
-    if ( ifs.eof() )
+    if( ifs.eof() )
     {
         WLogger::getLogger()->addLogMessage( "Couldn't find polygon info in the file", "Read Mesh", LL_ERROR );
         progress->finish();

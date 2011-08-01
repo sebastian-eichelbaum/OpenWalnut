@@ -24,16 +24,19 @@
 
 #version 120
 
+uniform int u_vertexShift;
+uniform vec3 u_vertexShiftDirection;
+
+/**
+ * Vertex Main. Simply transforms the geometry. The work is done per fragment.
+ */
 void main()
 {
-    // pass the color to the fragment shader
-    gl_FrontColor = gl_Color;
-    gl_BackColor =  gl_Color;
+    // Calculate the real vertex coordinate in openwalnut-scene-space
+    vec4 vertex = ( vec4( u_vertexShiftDirection.xyz, 0.0 ) * u_vertexShift ) + gl_Vertex;
 
-    // pass tex coordinates
-    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+    // for easy access to texture coordinates
+    gl_TexCoord[0] = gl_TextureMatrix[0] * vertex;
 
-    // transform position
-    gl_Position = ftransform();
+    gl_Position = gl_ModelViewProjectionMatrix * vertex;
 }
-

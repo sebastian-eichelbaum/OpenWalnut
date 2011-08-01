@@ -28,37 +28,33 @@
 #include <stdint.h>
 
 #include <iostream>
-#include <string>
 #include <list>
-#include <vector>
 #include <set>
+#include <string>
+#include <vector>
 
 // Use filesystem version 2 for compatibility with newer boost versions.
 #ifndef BOOST_FILESYSTEM_VERSION
     #define BOOST_FILESYSTEM_VERSION 2
 #endif
 #include <boost/filesystem.hpp>
-#include <boost/thread.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/thread.hpp>
 
-#include "WLogger.h"
-
-#include "WFlag.h"
-#include "WPropertyBase.h"
-
+#include "constraints/WPropertyConstraintIsDirectory.h"
+#include "constraints/WPropertyConstraintMax.h"
+#include "constraints/WPropertyConstraintMin.h"
+#include "constraints/WPropertyConstraintNotEmpty.h"
+#include "constraints/WPropertyConstraintPathExists.h"
+#include "constraints/WPropertyConstraintSelectOnlyOne.h"
+#include "constraints/WPropertyConstraintTypes.h"
 #include "WCondition.h"
+#include "WFlag.h"
+#include "WLogger.h"
+#include "WPropertyBase.h"
 #include "WSharedAssociativeContainer.h"
 #include "WSharedObjectTicketRead.h"
 #include "WSharedObjectTicketWrite.h"
-
-#include "constraints/WPropertyConstraintTypes.h"
-#include "constraints/WPropertyConstraintMin.h"
-#include "constraints/WPropertyConstraintMax.h"
-#include "constraints/WPropertyConstraintNotEmpty.h"
-#include "constraints/WPropertyConstraintPathExists.h"
-#include "constraints/WPropertyConstraintIsDirectory.h"
-#include "constraints/WPropertyConstraintSelectOnlyOne.h"
-
 
 /**
  * A named property class with a concrete type.

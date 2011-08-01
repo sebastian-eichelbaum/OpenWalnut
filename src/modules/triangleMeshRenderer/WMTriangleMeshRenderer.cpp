@@ -415,17 +415,17 @@ void WMTriangleMeshRenderer::moduleMain()
 
 void WMTriangleMeshRenderer::updateTransformation()
 {
-    if ( m_moduleNode )
+    if( m_moduleNode )
     {
-        if ( m_scale->changed() && m_scale->get( true ) )
+        if( m_scale->changed() && m_scale->get( true ) )
         {
             m_scaleX->set( getMedian( m_scaleX->get(), m_scaleY->get(), m_scaleZ->get() ) );
             m_scaleY->set( getMedian( m_scaleX->get(), m_scaleY->get(), m_scaleZ->get() ) );
             m_scaleZ->set( getMedian( m_scaleX->get(), m_scaleY->get(), m_scaleZ->get() ) );
         }
-        if ( m_scale->get() )
+        if( m_scale->get() )
         {
-            if ( m_scaleX->changed() && m_scaleX->get( true ) )
+            if( m_scaleX->changed() && m_scaleX->get( true ) )
             {
                 m_scaleY->set( m_scaleX->get() );
                 m_scaleZ->set( m_scaleX->get() );

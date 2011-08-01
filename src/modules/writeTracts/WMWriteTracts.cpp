@@ -178,7 +178,7 @@ bool WMWriteTracts::saveJson() const
     const char* c_file = m_savePath->get().file_string().c_str();
     std::ofstream dataFile( c_file, std::ios_base::binary );
 
-    if ( dataFile )
+    if( dataFile )
     {
         WLogger::getLogger()->addLogMessage( "opening file", "Write Tracts", LL_DEBUG );
     }
@@ -198,7 +198,7 @@ bool WMWriteTracts::saveJson() const
     dataFile << ( "    \"vertices\" : [" );
     boost::shared_ptr<std::vector<float> > verts = ds->getVertices();
     float fValue;
-    for ( size_t i = 0; i < (verts->size() - 1 )/ 3; ++i )
+    for( size_t i = 0; i < (verts->size() - 1 )/ 3; ++i )
     {
         fValue = 160 - verts->at( i * 3 );
         dataFile << fValue << ",";
@@ -216,7 +216,7 @@ bool WMWriteTracts::saveJson() const
 
     dataFile << ( "    \"normals\" : [" );
     boost::shared_ptr<std::vector<float> > tangents = ds->getTangents();
-    for ( size_t i = 0; i < tangents->size() - 1; ++i )
+    for( size_t i = 0; i < tangents->size() - 1; ++i )
     {
         fValue = tangents->at( i );
         dataFile << fValue << ",";
@@ -226,7 +226,7 @@ bool WMWriteTracts::saveJson() const
 
     dataFile << ( "    \"colors\" : [" );
     boost::shared_ptr<std::vector<float> > colors = ds->getGlobalColors();
-    for ( size_t i = 0; i < colors->size() - 3; i += 3 )
+    for( size_t i = 0; i < colors->size() - 3; i += 3 )
     {
         fValue = colors->at( i );
         dataFile << fValue << ",";
@@ -245,7 +245,7 @@ bool WMWriteTracts::saveJson() const
     int iValue;
     dataFile << ( "    \"indices\" : [" );
     boost::shared_ptr<std::vector<size_t> > lengths = ds->getLineLengths();
-    for ( size_t i = 0; i < lengths->size() - 1; ++i )
+    for( size_t i = 0; i < lengths->size() - 1; ++i )
     {
         iValue = lengths->at( i );
         dataFile << iValue << ",";
@@ -278,7 +278,7 @@ bool WMWriteTracts::saveJson2() const
     const char* c_file = m_savePath->get().file_string().c_str();
     std::ofstream dataFile( c_file, std::ios_base::binary );
 
-    if ( dataFile )
+    if( dataFile )
     {
         WLogger::getLogger()->addLogMessage( "opening file", "Write Tracts", LL_DEBUG );
     }
@@ -307,12 +307,12 @@ bool WMWriteTracts::saveJson2() const
     boost::shared_ptr<std::vector<float> > tangents = ds->getTangents();
     boost::shared_ptr<std::vector<float> > colors = ds->getGlobalColors();
 
-    for ( size_t k = 0; k < lengths->size(); ++k )
+    for( size_t k = 0; k < lengths->size(); ++k )
     {
         size_t newLength = 0;
-        for ( size_t i = starts->at( k ); i < ( starts->at( k ) + lengths->at( k ) ); ++i )
+        for( size_t i = starts->at( k ); i < ( starts->at( k ) + lengths->at( k ) ); ++i )
         {
-            if ( i % 2 == 0 )
+            if( i % 2 == 0 )
             {
                 nVertices.push_back( 160 - verts->at( i * 3 ) );
                 nVertices.push_back( 200 - verts->at( i * 3 + 1 ) );
@@ -342,7 +342,7 @@ bool WMWriteTracts::saveJson2() const
     dataFile << ( "    \"vertices\" : [" );
 
     float fValue;
-    for ( size_t i = 0; i < nVertices.size() - 1 ; ++i )
+    for( size_t i = 0; i < nVertices.size() - 1 ; ++i )
     {
         fValue = nVertices[i];
         dataFile << fValue << ",";
@@ -352,7 +352,7 @@ bool WMWriteTracts::saveJson2() const
 
     dataFile << ( "    \"normals\" : [" );
 
-    for ( size_t i = 0; i < nNormals.size() - 1; ++i )
+    for( size_t i = 0; i < nNormals.size() - 1; ++i )
     {
         fValue = nNormals[i];
         dataFile << fValue << ",";
@@ -362,7 +362,7 @@ bool WMWriteTracts::saveJson2() const
 
     dataFile << ( "    \"colors\" : [" );
 
-    for ( size_t i = 0; i < nColors.size()- 1; ++i )
+    for( size_t i = 0; i < nColors.size()- 1; ++i )
     {
         fValue = nColors[i];
         dataFile << fValue << ",";
@@ -373,7 +373,7 @@ bool WMWriteTracts::saveJson2() const
     int iValue;
     dataFile << ( "    \"indices\" : [" );
 
-    for ( size_t i = 0; i < nIndices.size() - 1; ++i )
+    for( size_t i = 0; i < nIndices.size() - 1; ++i )
     {
         iValue = nIndices[i];
         dataFile << iValue << ",";
@@ -407,7 +407,7 @@ bool WMWriteTracts::saveJsonTriangles() const
     const char* c_file = m_savePath->get().file_string().c_str();
     std::ofstream dataFile( c_file, std::ios_base::binary );
 
-    if ( dataFile )
+    if( dataFile )
     {
         WLogger::getLogger()->addLogMessage( "opening file", "Write Tracts", LL_DEBUG );
     }
@@ -428,7 +428,7 @@ bool WMWriteTracts::saveJsonTriangles() const
     float fValue0;
     float fValue1;
     float fValue2;
-    for ( size_t i = 0; i < verts->size() - 3; ++i )
+    for( size_t i = 0; i < verts->size() - 3; ++i )
     {
         fValue0 = verts->at( i );
         i += 1;
@@ -449,9 +449,9 @@ bool WMWriteTracts::saveJsonTriangles() const
     boost::shared_ptr<std::vector<size_t> > lengths = ds->getLineLengths();
 
     int counter = 0;
-    for ( size_t i = 0; i < lengths->size(); ++i )
+    for( size_t i = 0; i < lengths->size(); ++i )
     {
-        for ( size_t k = 0; k < lengths->at( i ); ++k )
+        for( size_t k = 0; k < lengths->at( i ); ++k )
         {
             dataFile << counter << "," << counter + 1 << "," << counter + 2 << ",";
             dataFile << counter + 1 << "," << counter + 3 << "," << counter + 2 << ",";
@@ -484,7 +484,7 @@ bool WMWriteTracts::savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers
 
     debugLog() << "Opening " << fnMeshAbs << " for writing the mesh data.";
     std::ofstream dataFile( fnMeshAbs.c_str(), std::ios_base::binary );
-    if ( !dataFile )
+    if( !dataFile )
     {
         errorLog() << "Opening " << fnMeshAbs << " failed.";
         return false;
@@ -589,7 +589,7 @@ bool WMWriteTracts::savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers
 
     debugLog() << "Opening " << fnSceneAbs << " for writing.";
     std::ofstream dataFileScene( fnSceneAbs.c_str(), std::ios_base::binary );
-    if ( !dataFileScene )
+    if( !dataFileScene )
     {
         errorLog() << "Opening " << fnSceneAbs << " failed.";
         return false;

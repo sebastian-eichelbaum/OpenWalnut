@@ -279,13 +279,13 @@ boost::array< double, 12 > WMEigenSystem::applyEigenSolver( const Eigen::Matrix3
     const Eigen::Matrix3d &evecs = es.eigenvectors();
     const Eigen::Vector3d &evals = es.eigenvalues();
     boost::array< double, 12 > result = { { evals( 0 ), evecs( 0, 0 ),
-                                                        evecs( 0, 1 ),
-                                                        evecs( 0, 2 ),
-                                            evals( 1 ), evecs( 1, 0 ),
+                                                        evecs( 1, 0 ),
+                                                        evecs( 2, 0 ),
+                                            evals( 1 ), evecs( 0, 1 ),
                                                         evecs( 1, 1 ),
-                                                        evecs( 1, 2 ),
-                                            evals( 2 ), evecs( 2, 0 ),
                                                         evecs( 2, 1 ),
+                                            evals( 2 ), evecs( 0, 2 ),
+                                                        evecs( 1, 2 ),
                                                         evecs( 2, 2 ) } }; // NOLINT curly braces
     return result;
 }

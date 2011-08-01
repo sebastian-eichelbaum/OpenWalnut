@@ -103,6 +103,11 @@ void WMNavigationSlices::properties()
     m_yPos           = m_sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0.0, true );
     m_zPos           = m_sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0.0, true );
 
+    // Forward position to selection manager ASAP, since other modules may want to use them
+    WKernel::getRunningKernel()->getSelectionManager()->setPropSagittalPos( m_xPos );
+    WKernel::getRunningKernel()->getSelectionManager()->setPropCoronalPos( m_yPos );
+    WKernel::getRunningKernel()->getSelectionManager()->setPropAxialPos( m_zPos );
+
     // call WModule's initialization
     WModule::properties();
 }
@@ -302,11 +307,6 @@ void WMNavigationSlices::moduleMain()
 
     // we need to be informed if the bounding box of the volume containing all the data changes.
     m_moduleState.add( WGEColormapping::instance()->getChangeCondition() );
-
-    // Forward position to selection manager.
-    WKernel::getRunningKernel()->getSelectionManager()->setPropSagittalPos( m_xPos );
-    WKernel::getRunningKernel()->getSelectionManager()->setPropCoronalPos( m_yPos );
-    WKernel::getRunningKernel()->getSelectionManager()->setPropAxialPos( m_zPos );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Main loop

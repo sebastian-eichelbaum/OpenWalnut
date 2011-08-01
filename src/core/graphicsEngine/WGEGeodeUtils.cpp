@@ -263,7 +263,7 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mes
     geometry->addPrimitiveSet( surfaceElement );
 
     // add the mesh colors
-    if ( mesh->getVertexColorArray() && useMeshColor )
+    if( mesh->getVertexColorArray() && useMeshColor )
     {
         geometry->setColorArray( mesh->getVertexColorArray() );
         geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
@@ -369,12 +369,9 @@ osg::ref_ptr< osg::Geode > wge::generateLineStripGeode( const WLine& line, const
     }
 
     // line width
-    osg::StateSet* stateset = new osg::StateSet;
-    osg::LineWidth* linewidth = new osg::LineWidth();
-    linewidth->setWidth( thickness );
-    stateset->setAttributeAndModes( linewidth, osg::StateAttribute::ON );
+    osg::StateSet* stateset = geometry->getOrCreateStateSet();
+    stateset->setAttributeAndModes( new osg::LineWidth( thickness ), osg::StateAttribute::ON );
     stateset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    geometry->setStateSet( stateset );
 
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
     geode->addDrawable( geometry );

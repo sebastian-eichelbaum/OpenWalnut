@@ -25,19 +25,18 @@
 #ifndef WMPROBTRACTDISPLAYSP_H
 #define WMPROBTRACTDISPLAYSP_H
 
-#include <list>
 #include <string>
 #include <vector>
 
-#include "core/common/WBoundingBox.h"
-#include "core/dataHandler/WDataSetFibers.h"
-#include "core/dataHandler/WDataSetScalar.h"
-#include "core/dataHandler/WSubject.h"
-#include "core/graphicsEngine/WGEManagedGroupNode.h"
 #include "core/kernel/WModule.h"
-#include "core/kernel/WModuleInputData.h"
 
-class WSPSliceGeodeBuilder;
+// forward declarations to reduce compile dependencies
+template< class T > class WModuleInputData;
+class WDataSetFibers;
+class WDataSetScalar;
+class WDataSetVector;
+class WGEManagedGroupNode;
+class WSPSliceBuilder;
 
 /**
  * This module computes for axial, coronal and sagittal views so called Schmahmann and Pandya slices in order to visualize
@@ -107,19 +106,20 @@ private:
     void initOSG();
 
     /**
-     * Whenever the grid changes we must update the slide properties, in order to represent valid maxima and minima again.
+     * Resets the max value for the slice position sliders and sets it afterwards the middle position. Whenever the grid changes
+     * we must update the slice position properties to its min max dimensions.
      *
      * \param grid The grid of the probabilistic tractogram
      */
-    void updateProperties( boost::shared_ptr< const WGridRegular3D > grid );
+    void resetSlicePos( boost::shared_ptr< const WGridRegular3D > grid );
 
     /**
-     * Updates the axial, coronal or sagittal slices.
+     * Updates all or just one slice depending on which property or situation has changed. E.g. color changes influence all slices
+     * but slice position changes just a single slice.
      *
-     * \param sliceNum 0 means xSlice or sagittal slice, 1 means ySlice and 2 means zSlice.
      * \param builder An instance of a slice builder, correctly initialized and ready to use.
      */
-    void updateSlices( const unsigned char sliceNum, boost::shared_ptr< const WSPSliceGeodeBuilder > builder );
+    void updateSlices( boost::shared_ptr< WSPSliceBuilder > builder );
 
     /**
      * If there is a change on the probTract ICs then this update callback is called and ensures that for every connected
@@ -135,12 +135,17 @@ private:
      *
      * \param probTracts All probabilistic tracts to check.
      */
-    void checkProbabilityRanges( std::list< boost::shared_ptr< const WDataSetScalar > > probTracts ) const;
+    void checkProbabilityRanges( std::vector< boost::shared_ptr< const WDataSetScalar > > probTracts ) const;
 
     /**
      * The probabilistic tractogram input connector.
      */
     std::vector< boost::shared_ptr< WModuleInputData< WDataSetScalar > > > m_probICs;
+
+    /**
+     * Input connector for the largest eigen vector dataset.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetVector > > m_vectorIC;
 
     /**
      * The tracts input connector.
@@ -153,41 +158,57 @@ private:
     osg::ref_ptr< WGEManagedGroupNode > m_output;
 
     /**
-     * The transformation node moving the X slice through the dataset space if the sliders are used
+     * Axial, coronal and sagittal slices as array.
+     * 0 : xSlice, 1 : ySlice, 2 : zSlice
      */
-    osg::ref_ptr< WGEManagedGroupNode > m_xSlice;
+    boost::array< osg::ref_ptr< WGEManagedGroupNode >, 3 > m_slices;
 
     /**
-     * The transformation node moving the Y slice through the dataset space if the sliders are used
+     * The group contains several slice properties
      */
-    osg::ref_ptr< WGEManagedGroupNode > m_ySlice;
+    WPropGroup    m_sliceGroup;
 
     /**
-     * The transformation node moving the Z slice through the dataset space if the sliders are used
+     * Position of the axial, sagittal and coronal slices.
+     * 0 : xSlice, 1 : ySlice, 2 : zSlice
      */
-    osg::ref_ptr< WGEManagedGroupNode > m_zSlice;
+    boost::array< WPropDouble, 3 > m_slicePos;
 
-    WPropGroup    m_sliceGroup; //!< the group contains several slice properties
+    /**
+     * Indicates if the corresponding slice is shown or not.
+     * 0 : xSlice, 1 : ySlice, 2 : zSlice
+     */
+    boost::array< WPropBool, 3 > m_showSlice;
 
-    WPropInt      m_xPos; //!< x position of the slice
+    /**
+     * The group contains several properties for tract based drawing
+     */
+    WPropGroup    m_tractGroup;
 
-    WPropInt      m_yPos; //!< y position of the slice
+    /**
+     * Switch on or off the intersecting line stipplings
+     */
+    WPropBool     m_showIntersection;
 
-    WPropInt      m_zPos; //!< z position of the slice
+    /**
+     * Switch on or off the projections of the intersecting line stipplings
+     */
+    WPropBool     m_showProjection;
 
-    WPropBool     m_showonX; //!< indicates whether the vector should be shown on slice X
+    /**
+     * Environment around the slices where to cut off the tracts
+     */
+    WPropDouble   m_delta;
 
-    WPropBool     m_showonY; //!< indicates whether the vector should be shown on slice Y
+    /**
+     * Probabilities a position below this threshold does not contribute to the vertex coloring
+     */
+    WPropDouble   m_probThreshold;
 
-    WPropBool     m_showonZ; //!< indicates whether the vector should be shown on slice Z
-
-    WPropBool     m_showIntersection; //!< Switch on or off the intersecting line stipplings
-
-    WPropBool     m_showProjection; //!< Switch on or off the projections of the intersecting line stipplings
-
-    WPropDouble   m_delta; //!< Environment around the slices where to cut off the tracts
-
-    WPropDouble   m_probThreshold; //!< Probabilities a position below this threshold does not contribute to the vertex coloring
+    /**
+     * The group contains several properties for eigen vector based drawing
+     */
+    WPropGroup    m_vectorGroup;
 
     /**
      * There is one group for each pobTract input connector holding a string property and a color property.
@@ -203,6 +224,12 @@ private:
      * Condition to notify about changes of the slices.
      */
     boost::shared_ptr< WCondition > m_sliceChanged;
+
+
+    /**
+     * Property accessor for the Algorithm list.
+     */
+    WPropSelection m_drawAlgorithm;
 };
 
 #endif  // WMPROBTRACTDISPLAYSP_H

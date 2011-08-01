@@ -24,40 +24,13 @@
 
 #version 120
 
-#include "WGETransformationTools.glsl"
-
-#include "WMProbTractDisplaySP-Transformation-varyings.glsl"
-
 /**
  * Vertex Main. Simply transforms the geometry. The work is done per fragment.
  */
 void main()
 {
     // for easy access to texture coordinates
-    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_Vertex;
 
-    // some light precalculations
-    v_normal = gl_Normal;
-
-    // also get the coordinates of the light
-    vec4 lpos = gl_LightSource[0].position; // this simply doesn't work well with OSG
-    lpos = vec4( 0.0, 0.0, 1000.0, 1.0 );
-    v_lightSource = worldToLocal( lpos ).xyz;
-
-    // transform the view direction to texture space, which equals object space
-    // Therefore use two points, as we transform a vector
-    vec4 camPos    = vec4( 0.0, 0.0, -1.0, 0.0 );
-    v_viewDir = worldToLocal( camPos ).xyz;
-
-    // transform position
-    gl_Position = ftransform();
-
-    // TODO(ebaum): make this nice
-    VaryingTexCoord0 = gl_TexCoord[0];
-    VaryingTexCoord1 = gl_TexCoord[0];
-    VaryingTexCoord2 = gl_TexCoord[0];
-    VaryingTexCoord3 = gl_TexCoord[0];
-    VaryingTexCoord4 = gl_TexCoord[0];
-    VaryingTexCoord5 = gl_TexCoord[0];
+    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 }
-

@@ -27,9 +27,9 @@
 
 #include <stdint.h>
 
+#include <list>
 #include <string>
 #include <vector>
-#include <list>
 #include <utility>
 
 // Use filesystem version 2 for compatibility with newer boost versions.
@@ -42,9 +42,9 @@
 #include "math/linearAlgebra/WLinearAlgebra.h"
 #include "math/linearAlgebra/WMatrixFixed.h"
 #include "math/linearAlgebra/WVectorFixed.h"
-#include "WItemSelector.h"
-#include "WColor.h"
 #include "WAssert.h"
+#include "WColor.h"
+#include "WItemSelector.h"
 
 template < typename T >
 class WPropertyVariable;
