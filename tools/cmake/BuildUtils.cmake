@@ -460,7 +460,7 @@ FUNCTION( GET_VERSION_STRING _version _api_version )
     IF( NOT ${hgParentsRetVar} STREQUAL 0 )
         UNSET( OW_VERSION_HG )
         # be more nice if we do not find mercruial version. The simply strip the +hg tag.
-        STRING( REGEX REPLACE "\\+hg" "" OW_VERSION ${OW_VERSION_FILE} )
+        STRING( REGEX REPLACE "\\+hgX" "" OW_VERSION ${OW_VERSION_FILE} )
     ELSE()
         # if we have the mercurial info -> complement the version string
         STRING( REGEX REPLACE "hgX" "hg${OW_VERSION_HG}" OW_VERSION ${OW_VERSION_FILE} )

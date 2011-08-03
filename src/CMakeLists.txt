@@ -180,6 +180,8 @@ SETUP_VERSION_HEADER( ${OW_VERSION_HEADER} )
 
 # Set the OW version string. This can be used by others for setting target versions during compilation.
 GET_VERSION_STRING( OW_VERSION OW_LIB_VERSION )
+MESSAGE( STATUS "OW Version: \"${OW_VERSION}\"; OW Lib Version: \"${OW_LIB_VERSION}\"." )
+
 # We need a SOVERSION too. This somehow describes the API compatibility. We use the major number here.
 SPLIT_VERSION_STRING( ${OW_LIB_VERSION} OW_VERSION_MAJOR OW_VERSION_MINOR OW_VERSION_PATCH )
 SET( OW_SOVERSION ${OW_VERSION_MAJOR} )

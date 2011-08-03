@@ -1,4 +1,4 @@
-openwalnut (1.2.1-1) unstable; urgency=low
+openwalnut (OWPACK_VERSION-1) unstable; urgency=low
 
   * Initial release (Closes: #613419)
 
