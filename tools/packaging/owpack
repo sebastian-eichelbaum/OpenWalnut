@@ -25,10 +25,6 @@
 #---------------------------------------------------------------------------
 
 #############################################################################################################
-# User Variables
-#############################################################################################################
-
-#############################################################################################################
 # Internal Variables
 #############################################################################################################
 
@@ -38,17 +34,32 @@ export LC_ALL=C
 # the source config file
 CONFIG_FILE=owpack.config
 
+# where to find the source tree?
+CHECKOUT_DIR="OpenWalnut-hg"
+REPO="ssh://openwalnut.com//srv/hg/ow"
+
 #############################################################################################################
 # Functions
 #############################################################################################################
 
 #########################################################################################################
-# Remove created files and directories
+# Remove created build-files and directories
 CleanUp()
 {
     echo "* Cleaning up."
     echo " * Removing working directories."
     rm -rf OpenWalnutBuild*
+}
+
+#########################################################################################################
+# Like clean, also removes config and checkout
+Purge()
+{
+    CleanUp
+    echo " * Removing source directories."
+    rm -rf $CHECKOUT_DIR
+    echo " * Removing configuration."
+    rm -rf $CONFIG_FILE
 }
 
 #########################################################################################################
@@ -87,11 +98,6 @@ CreateWorkingDir()
 
     # copy original source
     echo "* Copy original source to working directory."
-    if [ ! -d $SRC_DIR ]; then
-        echo " * Failed to find source."
-        exit 1
-    fi
-
     # as the user can have arbitrary names as source dir but we explicitely need the name to be OpenWalnut here, rename ir
     cp -r $SRC_DIR $WD_DIR/$UPSTREAM_SRC_DIR
     if [ ! -d $SRC_DIR ]; then
@@ -140,6 +146,13 @@ Builder_TGZ()
 Builder_DEB()
 {
     source $CONFIG_FILE
+
+    # set some debian specifics
+    # The directory upstream-name names. This is important as some builder need
+    # this and have special requirements on them (like debuild)
+    BUILDER_DEB_UPSTREAM_SRC_DIR=OpenWalnut-$VERSION
+    # Debuild reqires a different upstream tar name ...
+    BUILDER_DEB_UPSTREAM_SRC_TAR=openwalnut_$VERSION.orig.tar.gz
 
     # create some place to work in
     CreateWorkingDir "deb" "$BUILDER_DEB_UPSTREAM_SRC_DIR" "src/modules/data/ext/nifti src/modules/data/ext/biosig"
@@ -193,6 +206,60 @@ Builder_RPM()
 }
 
 #########################################################################################################
+# Checkout a fresh OW copy and create config file
+#
+# Param 1: base version (MAJOR.MINOR.PATCH)
+Checkout()
+{
+    echo "* Removing old checkout."
+    rm -rf "$CHECKOUT_DIR"
+    if [ $? -ne 0 ]; then
+        echo " * Remove failed."
+        exit 1
+    fi
+
+    # get code
+    echo "* Cloning OpenWalnut repository \"$REPO\"."
+    hg clone "$REPO" "$CHECKOUT_DIR"
+    if [ $? -ne 0 ]; then
+        echo " * cloning failed. Wrong repository?."
+        exit 1
+    fi
+
+    # write config file
+    echo "SRC_DIR=$CHECKOUT_DIR" > $CONFIG_FILE
+    # The version. You can use shell commands to evaluate this. The command is
+    # called inside the working dir of owpack script.
+    #TODO(ebaum): get this via command line.
+    VERSION_BASE=1.2.1
+    echo "VERSION=$VERSION_BASE+hg`cd $CHECKOUT_DIR;hg parents --template "{rev}"`" >> $CONFIG_FILE
+}
+
+#########################################################################################################
+# Checks validitiy of owpack environment: checks existence of $CONFIG_FILE and whether source exists.
+#
+# Returns 1 on error
+EnsureConfigAndSource()
+{
+    # search CONFIG_FILE
+    echo "* Search configuration file."
+    if [ ! -f $CONFIG_FILE ]; then
+        echo " * File \"$CONFIG_FILE\" not found! Try checkout command first."
+        Exit 1
+    fi
+
+    # source it to check source
+    source $CONFIG_FILE
+
+    # check existence of source
+    echo "* Search original source."
+    if [ ! -d $SRC_DIR ]; then
+        echo " * Failed to find source. Try checkout command first."
+        exit 1
+    fi
+}
+
+#########################################################################################################
 # Something went wrong. Quit.
 #
 # Param 1 the error code to return.
@@ -204,13 +271,6 @@ Exit()
 
 #########################################################################################################
 # Main
-
-# source CONFIG_FILE
-echo "* Search configuration file."
-if [ ! -f $CONFIG_FILE ]; then
-    echo " * File \"$CONFIG_FILE\" not found! Exiting."
-    Exit 1
-fi
 
 # The user specified some directory where to find the build root-dir. This can come in handy if you use this
 # script from within a chroot jail.
@@ -224,29 +284,40 @@ fi
 
 # Handle user command
 case "$1" in
+    init)
+        Checkout $3 || Exit $?
+        ;;
     clean)
         CleanUp
         ;;
+    purge)
+        Purge
+        ;;
     deb)
+        EnsureConfigAndSource || Exit $?
         Builder_DEB || Exit $?
         ;;
     rpm)
+        EnsureConfigAndSource || Exit $?
         Builder_RPM || Exit $?
         ;;
     tgz)
+        EnsureConfigAndSource || Exit $?
         Builder_TGZ || Exit $?
         ;;
-
     *)
-        echo "Usage: $0 {clean|deb|rpm|tgz} [WORKING_DIR]"
+        echo "Usage: $0 {init|clean|purge|deb|rpm|tgz} [WORKING_DIR]"
         echo "  COMMANDS:"
-        echo "    clean: removes downloaded source and the created build sub-directories."
+        echo "    init: removes downloaded source and clones a new one."
+        echo "    clean: removes created build sub-directories."
+        echo "    purge: like clean, also removes source checkout dir and config file."
         echo "    deb: build source and binary packages for debian systems."
         echo "    rpm: build binary packages using rpm."
         echo "    tgz: build binary tgz using cpack."
         echo ""
         echo "  PARAMETER:"
         echo "    WORKING_DIR: $0 changes to this directory if specified."
+        echo "    VERSION: optional parameter. Needed for init command."
         echo ""
         echo "  IMPORTANT:"
         echo "    This script needs an fresh checked-out version of OpenWalnut to be available, together with an owpack.config file."

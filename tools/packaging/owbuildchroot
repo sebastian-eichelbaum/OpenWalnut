@@ -123,6 +123,19 @@ chroot_mount()
 }
 
 #########################################################################################################
+# Checks existence of chroot jail
+chroot_check()
+{
+    echo "* Checking \"$CHROOTDIR\"."
+    if [ ! -d $CHROOTDIR ]; then
+        echo " * The chroot envirnoment does not exist."
+        exit 1
+    fi
+
+    exit 0
+}
+
+#########################################################################################################
 # Execute the specified parameters in the chroot
 chroot_do()
 {
@@ -341,14 +354,16 @@ Exit()
 # Quit and print usage info.
 UsageExit()
 {
-    echo "Usage: $0 ARCHITECTURE {create|sh|do} [PARAMETERS]"
+    echo "Usage: $0 ARCHITECTURE DISTRIBUTION {check|create|sh|run} [PARAMETERS]"
     echo "  Parameter:"
-    echo "    ARCHITECTURE: is the debian compatible architecture sting. I.e. amd64 or i386."
+    echo "    ARCHITECTURE: is the debian compatible architecture string. (like amd64 or i386)"
+    echo "    DISTRIBUTION: Distribution Name."
     echo ""
     echo "  Commands:"
+    echo "    check: check existence of chroot jail."
     echo "    create: creates a new chroot environment. If $CHROOTDIR.tar.gz exists, it uses it as chroot. If not, the chroot gets created using debootstrap."
     echo "    sh: Starts an interactive shell in the chroot environment."
-    echo "    do: Executes the specified command. I.e. $0 amd64 do /bin/ls /build"
+    echo "    run: Executes the specified command. Example: $0 amd64 run /bin/ls /build"
     Exit 2
 }
 
@@ -387,13 +402,16 @@ esac
 
 # Handle user command
 case "$3" in
+    check)
+        chroot_check || Exit $?
+        ;;
     create)
         chroot_build || Exit $?
         ;;
     sh)
         chroot_do_once /bin/bash || Exit $?
         ;;
-    do)
+    run)
         shift 3
         chroot_do_once $* || Exit $?
         ;;
