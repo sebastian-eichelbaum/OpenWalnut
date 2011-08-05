@@ -100,12 +100,21 @@ FUNCTION( SETUP_TESTS _TEST_FILES _TEST_TARGET )
         # Setup CXX test
         # -------------------------------------------------------------------------------------------------------------------------------------------
 
+        # Also create a list of paths where the tests where found
+        SET( FixturePaths )
+
         # Add each found test and create a target for it
         FOREACH( testfile ${_TEST_FILES} )
             # strip path and extension
             STRING( REGEX REPLACE "^.*/" "" StrippedTestFile "${testfile}" )
             STRING( REGEX REPLACE "\\..*$" "" PlainTestFileName "${StrippedTestFile}" )
             STRING( REGEX REPLACE "_test$" "" TestFileClass "${PlainTestFileName}" )
+
+            # also extract test path
+            STRING( REPLACE "${StrippedTestFile}" "fixtures" TestFileFixturePath "${testfile}" )
+            IF( EXISTS "${TestFileFixturePath}" AND IS_DIRECTORY "${TestFileFixturePath}" )
+                LIST( APPEND FixturePaths ${TestFileFixturePath} )
+            ENDIF()
 
             # create some name for the test
             SET( UnitTestName "unittest_${TestFileClass}" )
@@ -122,20 +131,6 @@ FUNCTION( SETUP_TESTS _TEST_FILES _TEST_TARGET )
         # -------------------------------------------------------------------------------------------------------------------------------------------
         # Search fixtures
         # -------------------------------------------------------------------------------------------------------------------------------------------
-
-        # direct globbing of files by only knowing a part of the path is not possible -> so get all files and filter later
-        FILE( GLOB_RECURSE everything "${CMAKE_CURRENT_SOURCE_DIR}/*" )
-        SET( FixturePaths )
-        FOREACH( fixture ${everything} )
-            # is this a fixture?
-            STRING( REGEX MATCH "test\\/fixtures" IsFixture "${fixture}" )
-            IF( IsFixture )             # found a fixture.
-                # strip filename from path and keep only path
-                STRING( REGEX REPLACE "fixtures/.*$" "fixtures" FixturePath "${fixture}" )
-                # add it to a list
-                LIST( APPEND FixturePaths ${FixturePath} )
-            ENDIF( IsFixture )
-        ENDFOREACH( fixture )
 
         # REMOVE_DUPLICATES throws an error if list is empty. So we check this here
         LIST( LENGTH FixturePaths ListLength )
@@ -155,7 +150,7 @@ FUNCTION( SETUP_TESTS _TEST_FILES _TEST_TARGET )
                 # finally, create the copy target
                 ADD_CUSTOM_TARGET( ${_TEST_TARGET}_CopyFixtures_${FixtureDirEscaped}
                     COMMAND ${CMAKE_COMMAND} -E copy_directory "${FixtureDir}" "${FixtureTargetDirectory}"
-                    COMMENT "Copy fixtures of ${_TEST_TARGET} from ${FixtureDir}."
+                    COMMENT "Copy fixtures of ${_TEST_TARGET} from ${FixtureDir} to ${FixtureTargetDirectory}."
                 )
                 ADD_DEPENDENCIES( ${_TEST_TARGET} ${_TEST_TARGET}_CopyFixtures_${FixtureDirEscaped} )
             ENDFOREACH( FixtureDir )
