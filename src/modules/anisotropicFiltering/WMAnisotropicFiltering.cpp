@@ -218,7 +218,7 @@ std::size_t WMAnisotropicFiltering::coordsToIndex( boost::shared_ptr< WGridRegul
 }
 
 void WMAnisotropicFiltering::copyData( boost::shared_ptr< std::vector< double > >& smoothed,  // NOLINT non-const ref
-                                       boost::shared_ptr< WGridRegular3D > const& grid )
+                                       boost::shared_ptr< WGridRegular3D > const& /* grid */ )
 {
     for( std::size_t k = 0; k < m_dataSet->getValueSet()->rawSize(); ++k )
     {
