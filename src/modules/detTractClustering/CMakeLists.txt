@@ -61,6 +61,15 @@ ELSE()
     TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${OWCoreName} )
 ENDIF()
 
+# Set the version of the library.
+SET_TARGET_PROPERTIES( ${MODULE_NAME} PROPERTIES
+    VERSION ${OW_LIB_VERSION}
+    SOVERSION ${OW_SOVERSION}
+)
+
+# Do not forget the install targets
+SETUP_LIB_INSTALL( ${MODULE_NAME} ${MODULE_TARGET_DIR_RELATIVE} "MODULES" )
+
 # TODO(all): someone needs to explain this
 IF(MSVC_IDE)
     SET_TARGET_PROPERTIES( ${MODULE_NAME} PROPERTIES PREFIX "../")
