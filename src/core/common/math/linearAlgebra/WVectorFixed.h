@@ -46,4 +46,12 @@ typedef WMatrixFixed< float, 1, 2 > WVectorRow2f;
 typedef WMatrixFixed< float, 1, 3 > WVectorRow3f;
 typedef WMatrixFixed< float, 1, 4 > WVectorRow4f;
 
+// Integer vectors
+typedef WMatrixFixed< int, 2, 1 > WVector2i;
+typedef WMatrixFixed< int, 3, 1 > WVector3i;
+typedef WMatrixFixed< int, 4, 1 > WVector4i;
+typedef WMatrixFixed< int, 1, 2 > WVectorRow2i;
+typedef WMatrixFixed< int, 1, 3 > WVectorRow3i;
+typedef WMatrixFixed< int, 1, 4 > WVectorRow4i;
+
 #endif  // WVECTORFIXED_H
