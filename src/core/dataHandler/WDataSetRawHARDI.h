@@ -139,6 +139,20 @@ public:
     std::vector< WVector3d > const& getOrientations() const;
 
     /**
+     * Get the indexes of zero gradients.
+     *
+     * \return Returns the indexes for the which gradient is zero.
+     */
+    std::vector< size_t > const& getZeroGradientIndexes() const;
+
+    /**
+     * Get the indexes of non-zero gradients.
+     *
+     * \return Returns the indexes for the which gradient is non-zero.
+     */
+    std::vector< size_t > const& getNonZeroGradientIndexes() const;
+
+    /**
      * Returns the \e b-value of the diffusion.
      *
      * \return b-value as double
@@ -153,11 +167,36 @@ protected:
     static boost::shared_ptr< WPrototyped > m_prototype;
 
 private:
+    /**
+     * Build indexes for the zero and non-zero gradients.
+     */
+    void buildGradientIndexes();
+
     boost::shared_ptr< std::vector< WVector3d > > m_gradients; //!< Gradients of measurements
     /**
      * Strength (b-value) of the so-called magnetic diffusion gradient.
      */
     double m_diffusionBValue;
+
+    /**
+     * The indexes for the which gradient is zero.
+     */
+    std::vector< size_t > m_zeroGradientIndexes;
+
+    /**
+     * The indexes for the which gradient is non-zero.
+     */
+    std::vector< size_t > m_nonZeroGradientIndexes;
 };
+
+inline std::vector< size_t > const& WDataSetRawHARDI::getZeroGradientIndexes() const
+{
+    return m_zeroGradientIndexes;
+}
+
+inline std::vector< size_t > const& WDataSetRawHARDI::getNonZeroGradientIndexes() const
+{
+    return m_nonZeroGradientIndexes;
+}
 
 #endif  // WDATASETRAWHARDI_H
