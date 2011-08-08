@@ -134,7 +134,7 @@ std::list< size_t > WBoundaryLines::extractLineStripEdges( WBoundaryLines::EdgeN
         size_t pred = result.back();
         result.push_back( right );
         int newRight = ( *l )[right].second;
-        if( newRight == pred )
+        if( newRight == static_cast< int >( pred ) )
         {
             newRight = ( *l )[right].first;
         }
@@ -150,7 +150,7 @@ std::list< size_t > WBoundaryLines::extractLineStripEdges( WBoundaryLines::EdgeN
             size_t pred = result.front();
             result.push_front( left );
             int newLeft = ( *l )[left].second;
-            if( newLeft == pred )
+            if( newLeft == static_cast< int >( pred ) )
             {
                 newLeft = ( *l )[left].first;
             }

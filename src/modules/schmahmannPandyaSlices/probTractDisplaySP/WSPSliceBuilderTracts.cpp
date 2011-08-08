@@ -98,7 +98,7 @@ void WSPSliceBuilderTracts::projectTractOnSlice( const unsigned char sliceNum, o
     }
 }
 
-osg::ref_ptr< osg::Vec4Array > WSPSliceBuilderTracts::colorVertices( osg::ref_ptr< const osg::Vec3Array > vertices, const double probThreshold ) const
+osg::ref_ptr< osg::Vec4Array > WSPSliceBuilderTracts::colorVertices( osg::ref_ptr< const osg::Vec3Array > vertices ) const
 {
     osg::ref_ptr< osg::Vec4Array > result( new osg::Vec4Array );
     result->reserve( vertices->size() );
@@ -179,7 +179,7 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderTracts::generateSlice( const unsigne
             {
                 vertices->insert( vertices->end(), candidate->begin(), candidate->end() );
                 geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, startIdx, candidate->size() ) );
-                osg::ref_ptr< osg::Vec4Array > candidateColors = colorVertices( candidate, m_probThreshold->get() );
+                osg::ref_ptr< osg::Vec4Array > candidateColors = colorVertices( candidate );
                 pc->insert( pc->end(), candidateColors->begin(), candidateColors->end() );
                 projectTractOnSlice( sliceNum, candidate, slicePos );
                 pv->insert( pv->end(), candidate->begin(), candidate->end() );
