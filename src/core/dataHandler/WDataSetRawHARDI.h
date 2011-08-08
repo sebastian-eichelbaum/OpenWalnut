@@ -155,6 +155,8 @@ public:
     /**
      * Returns only the measurements for which the gradient was non-zero.
      *
+     * \param index the index of the voxel.
+     *
      * \return non-zero gradient signals
      */
     template< typename T > WValue< T > getNonZeroGradientSignals( size_t index ) const;
