@@ -40,6 +40,32 @@ WSelectionManager::WSelectionManager() :
     m_useTexture( false )
 {
     m_crosshair = boost::shared_ptr< WCrosshair >( new WCrosshair() );
+
+    m_sliceGroup = boost::shared_ptr< WProperties >( new WProperties( "Slice Properties",
+                    "Properties relating to the Axial,Coronal and Sagittal Slices." ) );
+
+    // create dummy properties for slices. Get updated by modules.
+    m_axialPos = m_sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 0.0, true );
+    m_coronalPos = m_sliceGroup->addProperty(  "Coronal Position", "Slice Y position.", 0.0, true );
+    m_sagittalPos = m_sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0.0, true );
+
+    // until now, no bbox information is available.
+    m_axialPos->setMin( 0.0 );
+    m_coronalPos->setMin( 0.0 );
+    m_sagittalPos->setMin( 0.0 );
+    m_axialPos->setMax( 0.0 );
+    m_coronalPos->setMax( 0.0 );
+    m_sagittalPos->setMax( 0.0 );
+
+    m_axialUpdateConnection = m_axialPos->getUpdateCondition()->subscribeSignal(
+        boost::bind( &WSelectionManager::updateCrosshairPosition, this )
+    );
+    m_coronalUpdateConnection = m_coronalPos->getUpdateCondition()->subscribeSignal(
+        boost::bind( &WSelectionManager::updateCrosshairPosition, this )
+    );
+    m_sagittalUpdateConnection = m_sagittalPos->getUpdateCondition()->subscribeSignal(
+        boost::bind( &WSelectionManager::updateCrosshairPosition, this )
+    );
 }
 
 WSelectionManager::~WSelectionManager()
@@ -161,33 +187,6 @@ void WSelectionManager::setTextureOpacity( float value )
         value = 1.0;
     }
     m_textureOpacity = value;
-}
-
-void WSelectionManager::setPropAxialPos( WPropDouble prop )
-{
-    m_axialUpdateConnection.disconnect();
-    m_axialPos = prop;
-    m_axialUpdateConnection = m_axialPos->getUpdateCondition()->subscribeSignal(
-        boost::bind( &WSelectionManager::updateCrosshairPosition, this )
-    );
-}
-
-void WSelectionManager::setPropCoronalPos( WPropDouble prop )
-{
-    m_coronalUpdateConnection.disconnect();
-    m_coronalPos = prop;
-    m_coronalUpdateConnection = m_coronalPos->getUpdateCondition()->subscribeSignal(
-        boost::bind( &WSelectionManager::updateCrosshairPosition, this )
-    );
-}
-
-void WSelectionManager::setPropSagittalPos( WPropDouble prop )
-{
-    m_sagittalUpdateConnection.disconnect();
-    m_sagittalPos = prop;
-    m_sagittalUpdateConnection = m_sagittalPos->getUpdateCondition()->subscribeSignal(
-        boost::bind( &WSelectionManager::updateCrosshairPosition, this )
-    );
 }
 
 WPropDouble WSelectionManager::getPropAxialPos()

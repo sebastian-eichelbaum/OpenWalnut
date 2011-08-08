@@ -99,14 +99,9 @@ void WMNavigationSlices::properties()
     m_showonZ        = m_sliceGroup->addProperty( "Show Axial", "Show vectors on axial slice.", true );
 
     // The slice positions.
-    m_xPos           = m_sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 0.0, true );
-    m_yPos           = m_sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0.0, true );
-    m_zPos           = m_sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0.0, true );
-
-    // Forward position to selection manager ASAP, since other modules may want to use them
-    WKernel::getRunningKernel()->getSelectionManager()->setPropSagittalPos( m_xPos );
-    WKernel::getRunningKernel()->getSelectionManager()->setPropCoronalPos( m_yPos );
-    WKernel::getRunningKernel()->getSelectionManager()->setPropAxialPos( m_zPos );
+    m_xPos           = m_sliceGroup->addProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropSagittalPos() );
+    m_yPos           = m_sliceGroup->addProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropCoronalPos() );
+    m_zPos           = m_sliceGroup->addProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropAxialPos() );
 
     // call WModule's initialization
     WModule::properties();

@@ -29,6 +29,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "../common/WProperties.h"
 #include "WCrosshair.h"
 
 #include "WExportKernel.h"
@@ -176,6 +177,11 @@ private:
     void updateCrosshairPosition();
 
     boost::shared_ptr< WCrosshair >m_crosshair; //!< stores pointer to crosshair
+
+    /**
+     * Contains the slice related properties
+     */
+    WProperties::SPtr m_sliceGroup;
 
     /**
      * Axial slice position.
