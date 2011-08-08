@@ -50,8 +50,8 @@ public:
     /**
      * Constructs an instance out of a value set and a grid.
      *
-     * \param newValueSet the value set to use
-     * \param newGrid the grid which maps world space to the value set
+     * \param segmentation the value set to use
+     * \param grid the grid which maps world space to the value set
      */
     WDataSetSegmentation( boost::shared_ptr< WValueSetBase > segmentation, boost::shared_ptr< WGrid > grid );
 
@@ -61,7 +61,6 @@ public:
      * \param whiteMatter the value set to use
      * \param grayMatter the value set to use
      * \param cerebrospinalFluid the value set to use
-     * \param newGrid the grid which maps world space to the value set
      */
     WDataSetSegmentation( boost::shared_ptr< WDataSetScalar > whiteMatter,
                           boost::shared_ptr< WDataSetScalar > grayMatter,
@@ -77,26 +76,37 @@ public:
     virtual ~WDataSetSegmentation();
 
     /**
-     * Get the value stored at a certain grid position of the data set
-     * \param x index in x direction
-     * \param y index in y direction
-     * \param z index in z direction
-     */
-
-    /**
-     * Returns the 
+     * Returns the white matter probability for the given cell.
      *
-     * \param x, y, z
+     * \param x, y, z The coordinates in grid space.
+     *
+     * \return white matter probability.
      */
     float getWMProbability( int x, int y, int z ) const;
+
+    /**
+     * Returns the gray matter probability for the given cell.
+     *
+     * \param x, y, z The coordinates in grid space.
+     *
+     * \return gray matter probability.
+     */
     float getGMProbability( int x, int y, int z ) const;
+
+    /**
+     * Returns the cerebrospinal fluid probability for the given cell.
+     *
+     * \param x, y, z The coordinates in grid space.
+     *
+     * \return cerebrospinal fluid probability.
+     */
     float getCSFProbability( int x, int y, int z ) const;
 
-    template < typename T > T getWMValueAt( int x, int y, int z ) const;
+    // template < typename T > T getWMValueAt( int x, int y, int z ) const;
 
-    template < typename T > T getGMValueAt( int x, int y, int z ) const;
+    // template < typename T > T getGMValueAt( int x, int y, int z ) const;
 
-    template < typename T > T getCSFValueAt( int x, int y, int z ) const;
+    // template < typename T > T getCSFValueAt( int x, int y, int z ) const;
 
     /**
      * Gets the name of this prototype.
@@ -147,10 +157,9 @@ public:
      */
     static boost::shared_ptr< WPrototyped > getPrototype();
 
-    uint xsize() const;
-    uint ysize() const;
-    uint zsize() const;
-
+    /**
+     * Enumerator for the three different classification types.
+     */
     enum matterType
     {
       whiteMatter = 0,
@@ -169,16 +178,51 @@ protected:
     static boost::shared_ptr< WPrototyped > m_prototype;
 
 private:
+    /**
+     * This helper function converts the probabilities given by three seperate WDataSetScalars to one WValueSetBase.
+     *
+     * \param whiteMatter the probabilities for white matter.
+     * \param grayMatter the probabilities for gray matter.
+     * \param cerebrospinalFluid the probabilities for cerebrospinal fluid.
+     *
+     * \return The probabilities in one value set.
+     */
     static boost::shared_ptr< WValueSetBase > convert( boost::shared_ptr< WDataSetScalar > whiteMatter,
                                                        boost::shared_ptr< WDataSetScalar > grayMatter,
                                                        boost::shared_ptr< WDataSetScalar > cerebrospinalFluid );
 
+    /**
+     * This helper function copies the content of several WDataSetScalars to one std::vector.
+     *
+     * \param dataSets the std::vector of data WDataSetScalars.
+     *
+     * \return The WDataSetScalars merged to a std::vector.
+     */
     template< typename T > static std::vector< T > copyDataSetsToArray( const std::vector< boost::shared_ptr< WDataSetScalar > > &dataSets );
-
-    // uint m_xsize;
-    // uint m_ysize;
-    // uint m_zsize;
 };
+
+template< typename T > std::vector< T >
+WDataSetSegmentation::copyDataSetsToArray( const std::vector< boost::shared_ptr< WDataSetScalar > > &dataSets )
+{
+    const size_t voxelDim = dataSets.size();
+    size_t countVoxels = 0;
+    if ( !dataSets.empty() ) countVoxels = ( *dataSets.begin() )->getValueSet()->size();
+
+    std::vector< T > data( countVoxels * voxelDim );
+
+    // loop over images
+    size_t dimIndex = 0;
+    for ( std::vector< boost::shared_ptr< WDataSetScalar > >::const_iterator it = dataSets.begin(); it != dataSets.end(); it++ )
+    {
+      for( size_t voxelNumber = 0; voxelNumber < countVoxels; voxelNumber++ )
+      {
+        data[ voxelNumber * voxelDim + dimIndex ] =  ( boost::shared_static_cast< WDataSetSingle > ( *it ) )->getValueAt< T >( voxelNumber );
+      }
+      dimIndex++;
+    }
+    return data;
+}
+
 
 // template < typename T > T WDataSetSegmentation::getValueAt( int x, int y, int z )
 // {

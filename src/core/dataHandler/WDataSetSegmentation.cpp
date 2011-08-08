@@ -39,20 +39,12 @@ WDataSetSegmentation::WDataSetSegmentation( boost::shared_ptr< WDataSetScalar > 
     : WDataSetSingle( convert( whiteMatter, grayMatter, cerebrospinalFluid ), whiteMatter->getGrid() )
 {
     boost::shared_ptr< WGrid > grid( whiteMatter->getGrid() );
-    // m_xsize = boost::shared_dynamic_cast< WGridRegular3D >( grid )->getNbCoordsX();
-    // m_ysize = boost::shared_dynamic_cast< WGridRegular3D >( grid )->getNbCoordsY();
-    // m_zsize = boost::shared_dynamic_cast< WGridRegular3D >( grid )->getNbCoordsZ();
 }
 
 WDataSetSegmentation::WDataSetSegmentation( boost::shared_ptr< WValueSetBase > segmentation,
                                             boost::shared_ptr< WGrid > grid )
     : WDataSetSingle( segmentation, grid )
 {
-//     std::cerr << "WDataSetSegmentation::WDataSetSegmentation" << std::endl;
-    // m_xsize = boost::shared_dynamic_cast< WGridRegular3D >( grid )->getNbCoordsX();
-    // m_ysize = boost::shared_dynamic_cast< WGridRegular3D >( grid )->getNbCoordsY();
-    // m_zsize = boost::shared_dynamic_cast< WGridRegular3D >( grid )->getNbCoordsZ();
-
 //     countVoxel();
 }
 
@@ -108,7 +100,7 @@ boost::shared_ptr< WPrototyped > WDataSetSegmentation::getPrototype()
 // }
 
 // uint WDataSetSegmentation::ysize() const
-// {
+// {b
 //   return m_ysize;
 // }
 
@@ -135,32 +127,10 @@ float WDataSetSegmentation::getGMProbability( int x, int y, int z ) const
 
 float WDataSetSegmentation::getCSFProbability( int x, int y, int z ) const
 {
-  boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
-  size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
+    size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
 
-  return WDataSetSingle::getValueAt( csf + ( 3*id ) );
-}
-
-template< typename T > std::vector< T >
-WDataSetSegmentation::copyDataSetsToArray( const std::vector< boost::shared_ptr< WDataSetScalar > > &dataSets )
-{
-    const size_t voxelDim = dataSets.size();
-    size_t countVoxels = 0;
-    if ( !dataSets.empty() ) countVoxels = ( *dataSets.begin() )->getValueSet()->size();
-
-    std::vector< T > data( countVoxels * voxelDim );
-
-    // loop over images
-    size_t dimIndex = 0;
-    for ( std::vector< boost::shared_ptr< WDataSetScalar > >::const_iterator it = dataSets.begin(); it != dataSets.end(); it++ )
-    {
-      for( size_t voxelNumber = 0; voxelNumber < countVoxels; voxelNumber++ )
-      {
-        data[ voxelNumber * voxelDim + dimIndex ] =  ( boost::shared_static_cast< WDataSetSingle > ( *it ) )->getValueAt< T >( voxelNumber );
-      }
-      dimIndex++;
-    }
-    return data;
+    return WDataSetSingle::getValueAt( csf + ( 3*id ) );
 }
 
 boost::shared_ptr< WValueSetBase > WDataSetSegmentation::convert( boost::shared_ptr< WDataSetScalar > whiteMatter,
