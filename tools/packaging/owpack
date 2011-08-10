@@ -36,6 +36,8 @@ CONFIG_FILE=owpack.config
 
 # where to find the source tree?
 CHECKOUT_DIR="OpenWalnut-hg"
+WORKING_DIR_PREFIX="owpack"
+WORKING_DIR_POSTFIX=""
 REPO="ssh://openwalnut.com//srv/hg/ow"
 
 #############################################################################################################
@@ -48,7 +50,7 @@ CleanUp()
 {
     echo "* Cleaning up."
     echo " * Removing working directories."
-    rm -rf OpenWalnutBuild*
+    rm -rf $WORKING_DIR_PREFIX-*
 }
 
 #########################################################################################################
@@ -76,7 +78,7 @@ CreateWorkingDir()
 {
     source $CONFIG_FILE
 
-    WD_DIR=OpenWalnutBuild-$1
+    WD_DIR=$WORKING_DIR_PREFIX-$1-$WORKING_DIR_POSTFIX
     UPSTREAM_SRC_DIR="$2"
     EXCLUDE_LIST=$3
 
@@ -270,17 +272,41 @@ Exit()
 }
 
 #########################################################################################################
+# Quit and print usage info.
+UsageExit()
+{
+        echo "Usage: $0 {init|clean|purge|deb|rpm|tgz} BUILD_DIR_PREFIX [WORKING_DIR]"
+        echo "  COMMANDS:"
+        echo "    init: removes downloaded source and clones a new one."
+        echo "    clean: removes created build sub-directories."
+        echo "    purge: like clean, also removes source checkout dir and config file."
+        echo "    deb: build source and binary packages for debian systems."
+        echo "    rpm: build binary packages using rpm."
+        echo "    tgz: build binary tgz using cpack."
+        echo ""
+        echo "  PARAMETER:"
+        echo "    BUILD_DIR_PREFIX: $0 creates a build directory. Include this as prefix into its name."
+        echo "    WORKING_DIR: $0 changes to this directory if specified."
+        echo "    VERSION: optional parameter. Needed for init command."
+        echo ""
+        echo "  IMPORTANT:"
+        echo "    This script needs an fresh checked-out version of OpenWalnut to be available, together with an owpack.config file."
+        Exit 2
+}
+
+#########################################################################################################
 # Main
 
 # The user specified some directory where to find the build root-dir. This can come in handy if you use this
 # script from within a chroot jail.
-if [ $# -eq 2 ]; then
-    cd $2
+if [ $# -eq 3 ]; then
+    cd $3
     if [ $? -ne 0 ]; then
-        echo "* Could not change to directory \"$2\"."
+        echo "* Could not change to directory \"$3\"."
         Exit 1
     fi
 fi
+WORKING_DIR_POSTFIX=$2
 
 # Handle user command
 case "$1" in
@@ -294,33 +320,33 @@ case "$1" in
         Purge
         ;;
     deb)
+        # BUILD_DIR_PREFIX is mandatory
+        if [ $# -lt 2 ]; then
+            echo "* Need BUILD_DIR_PREFIX."
+            UsageExit
+        fi
         EnsureConfigAndSource || Exit $?
         Builder_DEB || Exit $?
         ;;
     rpm)
+        # BUILD_DIR_PREFIX is mandatory
+        if [ $# -lt 2 ]; then
+            echo "* Need BUILD_DIR_PREFIX."
+            UsageExit
+        fi
         EnsureConfigAndSource || Exit $?
         Builder_RPM || Exit $?
         ;;
     tgz)
+        # BUILD_DIR_PREFIX is mandatory
+        if [ $# -lt 2 ]; then
+            echo "* Need BUILD_DIR_PREFIX."
+            UsageExit
+        fi
         EnsureConfigAndSource || Exit $?
         Builder_TGZ || Exit $?
         ;;
     *)
-        echo "Usage: $0 {init|clean|purge|deb|rpm|tgz} [WORKING_DIR]"
-        echo "  COMMANDS:"
-        echo "    init: removes downloaded source and clones a new one."
-        echo "    clean: removes created build sub-directories."
-        echo "    purge: like clean, also removes source checkout dir and config file."
-        echo "    deb: build source and binary packages for debian systems."
-        echo "    rpm: build binary packages using rpm."
-        echo "    tgz: build binary tgz using cpack."
-        echo ""
-        echo "  PARAMETER:"
-        echo "    WORKING_DIR: $0 changes to this directory if specified."
-        echo "    VERSION: optional parameter. Needed for init command."
-        echo ""
-        echo "  IMPORTANT:"
-        echo "    This script needs an fresh checked-out version of OpenWalnut to be available, together with an owpack.config file."
-        Exit 2
+        UsageExit
         ;;
 esac
