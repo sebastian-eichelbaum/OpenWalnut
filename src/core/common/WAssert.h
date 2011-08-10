@@ -45,5 +45,11 @@ void OWCOMMON_EXPORT wAssertFailed( std::string const& expression, std::string c
 
 //! the actual assertion macro
 #define WAssert( e, msg )  ( ( e ) ? ( ( void )0 ) : ( wAssertFailed( #e, __FILE__, __LINE__, msg ) ) )
+//! the actual assertion macro, this one will be tested only in debug-mode.
+#ifdef DEBUG
+    #define WAssertDebug( e, msg ) WAssert( e, msg )
+#else
+    #define WAssertDebug( e, msg ) ( void )0
+#endif
 
 #endif  // WASSERT_H

@@ -98,11 +98,10 @@ private:
      *    prob tract contributes the same amount but with different alpha value.
      *
      * \param vertices The vertices to compute the colors for
-     * \param probThreshold probabilities below this threshold do not contribute to the coloring
      *
      * \return An array of colors for the given vertices.
      */
-    osg::ref_ptr< osg::Vec4Array > colorVertices( osg::ref_ptr< const osg::Vec3Array > vertices, const double probThreshold ) const;
+    osg::ref_ptr< osg::Vec4Array > colorVertices( osg::ref_ptr< const osg::Vec3Array > vertices ) const;
 
 
     /**

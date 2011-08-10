@@ -44,6 +44,24 @@ WDataSetRawHARDI::WDataSetRawHARDI( boost::shared_ptr< WValueSetBase > newValueS
     WAssert( newGradients, "No gradients given." );
     WAssert( newValueSet->size() == newGrid->size(), "Number of voxel entries unequal number of positions in grid." );
     WAssert( newValueSet->order() != newGradients->size(), "Number of gradients unequal number of entries in value set." );
+    buildGradientIndexes();
+}
+
+void WDataSetRawHARDI::buildGradientIndexes()
+{
+    std::vector< size_t > validIndices;
+    for( size_t i = 0; i < m_gradients->size(); ++i )
+    {
+        const WVector3d& grad = ( *m_gradients )[ i ];
+        if( ( grad[ 0 ] != 0.0 ) || ( grad[ 1 ] != 0.0 ) || ( grad[ 2 ] != 0.0 ) )
+        {
+            m_nonZeroGradientIndexes.push_back( i );
+        }
+        else
+        {
+            m_zeroGradientIndexes.push_back( i );
+        }
+    }
 }
 
 WDataSetRawHARDI::WDataSetRawHARDI()

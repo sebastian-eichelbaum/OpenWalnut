@@ -128,6 +128,8 @@ public:
      * \param x index in x direction
      * \param y index in y direction
      * \param z index in z direction
+     *
+     * \return the value at the given cell.
      */
     template< typename T > T getValueAt( int x, int y, int z ) const;
 
