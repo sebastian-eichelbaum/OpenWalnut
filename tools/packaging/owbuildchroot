@@ -216,6 +216,24 @@ Pin-Priority: 1000" > ./$CHROOTDIR/etc/apt/preferences.d/noBoostFromGaschler
 }
 
 #########################################################################################################
+# This function helps to do suite-specific setup. It is called after creating and installing everything.
+# It is very distribution specific! So you might need to make changes here if you use this script with
+# some new ubuntu-suite or debian variant.
+chroot_finalize_suite()
+{
+    # handle some special suites
+    case "$SUITE" in
+        natty | maverick)
+            # ubuntu hack: kill this xapian-index stuff. If not done, chroot_umount will fail
+            chroot_do killall -q update-apt-xapian-index | echo
+        ;;
+        *)
+            # nothing needed for debian sid
+        ;;
+    esac
+}
+
+#########################################################################################################
 # Build the chroot jail. Use existing $CHROOTDIR.tar.gz if existing.
 chroot_build()
 {
@@ -316,16 +334,22 @@ chroot_build()
 
         echo " * Installing our build-dependencies."
         # technically, it is possible to give debootstrap the list of packs it should install. But this somehow causes it to fail on my system.
-        chroot_do apt-get -y --allow-unauthenticated install cmake libgl1-mesa-dev libopenscenegraph-dev libopenthreads-dev libqt4-dev libqtwebkit-dev zlib1g-dev libboost-dev libboost-program-options-dev libboost-thread-dev libboost-filesystem-dev libboost-date-time-dev libboost-system-dev libboost-signals-dev libboost-regex-dev libeigen3-dev libbiosig-dev libnifti-dev
+        chroot_do apt-get -y --allow-unauthenticated install cmake libgl1-mesa-dev libopenscenegraph-dev libopenthreads-dev libqt4-dev libqtwebkit-dev zlib1g-dev libboost-dev libboost-program-options-dev libboost-thread-dev libboost-filesystem-dev libboost-date-time-dev libboost-system-dev libboost-signals-dev libboost-regex-dev libeigen3-dev libbiosig-dev libnifti-dev doxygen graphviz psmisc sysvinit-utils
         if [ $? -ne 0 ]; then
             echo "  * Failed to install build dependencies. Maybe you need to add further package sources."
             chroot_umount
             exit 1
         fi
 
+        echo " * $SUITE-specific finalization."
+        chroot_finalize_suite
+        if [ $? -ne 0 ]; then
+            echo "  * Failed to configure $SUITE. Maybe you need to modify the suite-specific config in $0."
+            chroot_umount
+            exit 1
+        fi
+
         # finalize before archiving
-        # ubuntu hack: kill this xapian-index stuff.
-        chroot_do killall update-apt-xapian-index
         echo " * Stopping chroot environment \"./$CHROOTDIR\""
         chroot_umount
         if [ $? -ne 0 ]; then
