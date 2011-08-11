@@ -192,13 +192,17 @@ void WMainWindow::setupGUI()
 
     // add all docks
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getModuleDock() );
-    // Diabeld Network Editor due to bug: #11
+    // Disabled Network Editor due to bug: #11
     // addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
     // tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getColormapperDock() );
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getRoiDock() );
+
+    // tabify those panels by default
+    tabifyDockWidget( m_controlPanel->getModuleDock(), m_controlPanel->getColormapperDock() );
     tabifyDockWidget( m_controlPanel->getColormapperDock(), m_controlPanel->getRoiDock() );
+    m_controlPanel->getModuleDock()->raise();
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
 
@@ -208,6 +212,7 @@ void WMainWindow::setupGUI()
     m_glDock->setDocumentMode( true );
     setCentralWidget( m_glDock );
     WQtGLDockWidget* mainGLDock = new WQtGLDockWidget( "main", "3D View", m_glDock );
+    mainGLDock->setMinimumWidth( 500 );
     mainGLDock->getGLWidget()->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
     m_mainGLWidget = mainGLDock->getGLWidget();
     m_glDock->addDockWidget( Qt::RightDockWidgetArea, mainGLDock );

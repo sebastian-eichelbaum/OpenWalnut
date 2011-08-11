@@ -71,6 +71,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     setObjectName( "Control Panel Dock" );
 
     m_mainWindow = parent;
+    setMinimumWidth( 300 );
 
     m_panel = new QWidget( this );
     m_moduleTreeWidget = new WQtTreeWidget( m_panel );

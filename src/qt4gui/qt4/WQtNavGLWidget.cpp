@@ -45,6 +45,9 @@ WQtNavGLWidget::WQtNavGLWidget( QString viewTitle, QString dockTitle, QWidget* p
     propertyWidgetMap.clear();
     m_sliderTitle = QString( sliderTitle.c_str() );
 
+    setMinimumWidth( 200 );
+    setMaximumWidth( 300 );
+
     m_scene = new WGEScene();
     m_scene->setDataVariance( osg::Object::DYNAMIC );
     getGLWidget()->getViewer()->getView()->requestContinuousUpdate( false );
