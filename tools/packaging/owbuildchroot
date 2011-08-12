@@ -192,25 +192,24 @@ chroot_setup_suite()
     # NOTE: I tested only debian sid and ubuntu natty and maverick. Maverick currently has some problem with libopenscenegraph.
     #       Please add others here if needed
     case "$SUITE" in
-        natty | maverick | lucid )
-            # this is needed for ppa adding with automatic keyring downloading stuff
-            # chroot_do apt-get -y --allow-unauthenticated install python-software-properties
-            # the eigen3 ppa
-            # chroot_do add-apt-repository ppa:gaschler/rl/eigen3
+        oneiric | natty | maverick )
             # multiverse and universe needed for several packs
             echo "deb http://de.archive.ubuntu.com/ubuntu $SUITE restricted universe multiverse" > ./$CHROOTDIR/etc/apt/sources.list.d/universeMultiverse.sources.list
-            # This is very important: the pinning prohibits an update to some new boost version which is NOT available in
-            # neurodeb or ubunut now, but at ppa:gaschler
-#echo "Package: *
-#Pin: origin ppa.launchpad.net
-#Pin-Priority: -1
-#
-#Package: libeigen3-dev
-#Pin: origin ppa.launchpad.net
-#Pin-Priority: 1000" > ./$CHROOTDIR/etc/apt/preferences.d/noBoostFromGaschler
+
+            # they provide qtwebkit
+            chroot_do apt-get install libqtwebkit-dev
+        ;;
+        lucid )
+            # lucid does not provide libqtwebkit-qt .. so, do not install. only add multi/universe
+            # multiverse and universe needed for several packs
+            echo "deb http://de.archive.ubuntu.com/ubuntu $SUITE restricted universe multiverse" > ./$CHROOTDIR/etc/apt/sources.list.d/universeMultiverse.sources.list
+        ;;
+        sid | testing )
+            # they provide qtwebkit
+            chroot_do apt-get install libqtwebkit-dev
         ;;
         *)
-            # nothing needed for debian sid
+            # debian 6 does not have libqtwebkit
         ;;
     esac
 
@@ -226,7 +225,7 @@ chroot_finalize_suite()
 {
     # handle some special suites
     case "$SUITE" in
-        natty | maverick)
+        oneiric | natty | maverick | lucid )
             # ubuntu hack: kill this xapian-index stuff. If not done, chroot_umount will fail
             chroot_do killall -q update-apt-xapian-index | echo
         ;;
