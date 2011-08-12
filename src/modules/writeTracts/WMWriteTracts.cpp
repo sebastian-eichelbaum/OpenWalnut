@@ -97,6 +97,10 @@ void WMWriteTracts::properties()
     m_povrayRadiosity = m_povrayOptions->addProperty( "Enable Radiosity",
                                   "Enable POVRay's radiosity renderer. Creates more realistic lighting but is very slow.",
                                   false );
+    m_povraySaveOnlyNth = m_povrayOptions->addProperty( "Save Every n'th", "Option allows thinning the data. This is useful in cases were fast"
+                                                        " rendering is needed.", 1 );
+    m_povraySaveOnlyNth->setMin( 1 );
+    m_povraySaveOnlyNth->setMax( 1000 );
 
     WModule::properties();
 }
@@ -501,9 +505,6 @@ bool WMWriteTracts::savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers
     debugLog() << "Color mode is " << fibColorMode << ".";
     WDataSetFibers::ColorArray  fibColors = fibers->getColorScheme()->getColor();
 
-    boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Converting fibers", fibStart->size() ) );
-    m_progress->addSubProgress( progress1 );
-
     // for each fiber:
     debugLog() << "Iterating over all fibers.";
 
@@ -516,7 +517,11 @@ bool WMWriteTracts::savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers
     double maxZ = wlimits::MIN_DOUBLE;
 
     size_t currentStart = 0;
-    for( size_t fidx = 0; fidx < fibStart->size(); fidx += 1 )
+    size_t increment = m_povraySaveOnlyNth->get();
+
+    boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Converting fibers", fibStart->size() / increment) );
+    m_progress->addSubProgress( progress1 );
+    for( size_t fidx = 0; fidx < fibStart->size(); fidx += increment )
     {
         ++*progress1;
 

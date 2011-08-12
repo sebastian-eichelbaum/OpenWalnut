@@ -161,6 +161,11 @@ private:
     WPropDouble m_povrayTubeDiameter;
 
     /**
+     * Allows thinning of the data. Often useful for testing povray settings as small scene render faster.
+     */
+    WPropInt m_povraySaveOnlyNth;
+
+    /**
      * Handles updates in filetype property. Used to hide and unhide certain property groups.
      */
     void fileTypeChanged();
