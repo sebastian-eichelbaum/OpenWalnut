@@ -617,11 +617,12 @@ bool WMWriteTracts::savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers
         "}" << std::endl << std::endl;
     }
 
+    dataFileScene << "// Enable Phong lighting for all th egeometry" << std::endl <<
     dataFileScene << "#default{" << std::endl <<
                    " finish{" << std::endl <<
                    "  ambient 0" << std::endl <<
                    "  phong 1" << std::endl <<
-                   //"  reflection 0.9yy " << std::endl <<
+                   "  // reflection 0.9 " << std::endl <<
                    " }" << std::endl <<
                    "}" << std::endl << std::endl;
 
@@ -632,14 +633,17 @@ bool WMWriteTracts::savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers
 
     dataFileScene << "#declare MoveToCenter = transform{ translate < " << -mX << ", " << -mY << ", " << -mZ << " > };" << std::endl;
     dataFileScene << "#declare CamPosition = < " << camX << ", " << camY << ", " << camZ << " >;" << std::endl << std::endl;
+    dataFileScene << "// Tube diameter" << std::endl;
     dataFileScene << "#declare Diameter = " << m_povrayTubeDiameter->get() << ";" << std::endl << std::endl;
 
     // this camera should produce a direct front view. The user surely needs to modify the camera
     dataFileScene << "camera {" << std::endl <<
+                "  orthographic angle 45" << std::endl <<
                 "  location CamPosition" << std::endl <<
                 "  right 1.33*x" << std::endl <<
+                "  // use this with 1280x1024" << std::endl <<
+                "  // right 1.25*x" << std::endl <<
                 "  up y " << std::endl <<
-                "  // angle 45 " << std::endl <<
                 "  look_at  < 0, 0, 0 >" << std::endl <<
                 "}" << std::endl << std::endl;
     // headlight
