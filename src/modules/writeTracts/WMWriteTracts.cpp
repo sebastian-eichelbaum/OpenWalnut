@@ -603,6 +603,10 @@ bool WMWriteTracts::savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers
     // write some head data
     dataFileScene << "#version 3.6;" << std::endl << std::endl;
 
+    dataFileScene << "// run with  povray -w800 -h600 -Q0 fibsLarge.scene.pov " << std::endl <<
+                     "// * this creates a fast preview of the scene with a resolution of 800x600." << std::endl <<
+                     "// * the Q parameter defines the quality Q0 means plain colors. Q11 is best, including radiosity." << std::endl << std::endl;
+
     if( m_povrayRadiosity->get() )
     {
         dataFileScene << "global_settings {" << std::endl <<
