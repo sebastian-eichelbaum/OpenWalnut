@@ -183,36 +183,39 @@ chroot_do_once()
 # some new ubuntu-suite or debian variant.
 chroot_setup_suite()
 {
+    # to be on the safe side: add NeuroDebian to all the suites
+    # add the neurodebian repository as well as the eigen3 ppa. It is needed for eigen3, nifti and biosig
+    chroot_do wget -O /etc/apt/sources.list.d/neurodebian.sources.list http://neuro.debian.net/lists/$SUITE.de
+    chroot_do apt-key adv --recv-keys --keyserver pgp.mit.edu 2649A5A9
+
     # handle some special suites
     # NOTE: I tested only debian sid and ubuntu natty and maverick. Maverick currently has some problem with libopenscenegraph.
     #       Please add others here if needed
     case "$SUITE" in
-        natty | maverick)
+        natty | maverick | lucid )
             # this is needed for ppa adding with automatic keyring downloading stuff
-            chroot_do apt-get -y --allow-unauthenticated install python-software-properties
-            # add the neurodebian repository as well as the eigen3 ppa. It is needed for eigen3, nifti and biosig
-            chroot_do wget -O /etc/apt/sources.list.d/neurodebian.sources.list http://neuro.debian.net/lists/$SUITE.de
-            chroot_do apt-key adv --recv-keys --keyserver pgp.mit.edu 2649A5A9
+            # chroot_do apt-get -y --allow-unauthenticated install python-software-properties
             # the eigen3 ppa
-            chroot_do add-apt-repository ppa:gaschler/rl/eigen3
+            # chroot_do add-apt-repository ppa:gaschler/rl/eigen3
             # multiverse and universe needed for several packs
             echo "deb http://de.archive.ubuntu.com/ubuntu $SUITE restricted universe multiverse" > ./$CHROOTDIR/etc/apt/sources.list.d/universeMultiverse.sources.list
             # This is very important: the pinning prohibits an update to some new boost version which is NOT available in
             # neurodeb or ubunut now, but at ppa:gaschler
-            echo "Package: *
-Pin: origin ppa.launchpad.net
-Pin-Priority: -1
-
-Package: libeigen3-dev
-Pin: origin ppa.launchpad.net
-Pin-Priority: 1000" > ./$CHROOTDIR/etc/apt/preferences.d/noBoostFromGaschler
-
-            chroot_do apt-get update
+#echo "Package: *
+#Pin: origin ppa.launchpad.net
+#Pin-Priority: -1
+#
+#Package: libeigen3-dev
+#Pin: origin ppa.launchpad.net
+#Pin-Priority: 1000" > ./$CHROOTDIR/etc/apt/preferences.d/noBoostFromGaschler
         ;;
         *)
             # nothing needed for debian sid
         ;;
     esac
+
+    # of some suite added repos:
+    chroot_do apt-get update
 }
 
 #########################################################################################################
@@ -334,7 +337,7 @@ chroot_build()
 
         echo " * Installing our build-dependencies."
         # technically, it is possible to give debootstrap the list of packs it should install. But this somehow causes it to fail on my system.
-        chroot_do apt-get -y --allow-unauthenticated install cmake libgl1-mesa-dev libopenscenegraph-dev libopenthreads-dev libqt4-dev libqtwebkit-dev zlib1g-dev libboost-dev libboost-program-options-dev libboost-thread-dev libboost-filesystem-dev libboost-date-time-dev libboost-system-dev libboost-signals-dev libboost-regex-dev libeigen3-dev libbiosig-dev libnifti-dev doxygen graphviz psmisc sysvinit-utils
+        chroot_do apt-get -y --allow-unauthenticated install cmake libgl1-mesa-dev libopenscenegraph-dev libopenthreads-dev libqt4-dev zlib1g-dev libboost-dev libboost-program-options-dev libboost-thread-dev libboost-filesystem-dev libboost-date-time-dev libboost-system-dev libboost-signals-dev libboost-regex-dev libeigen3-dev libbiosig-dev libnifti-dev doxygen graphviz psmisc sysvinit-utils
         if [ $? -ne 0 ]; then
             echo "  * Failed to install build dependencies. Maybe you need to add further package sources."
             chroot_umount
@@ -364,6 +367,25 @@ chroot_build()
             exit 1
         fi
     fi
+}
+
+#########################################################################################################
+# Checks whether the specified suite is suppirted.
+check_suite()
+{
+    case "$SUITE" in
+        karmic | jaunty | hardy )
+            echo "Sorry. This Ubuntu version does not provide libeigen3-dev. Use a version from Lucid upwards."
+            exit 1
+        ;;
+        lenny | etch )
+            echo "Sorry. This Debian version does not provide libeigne3-dev. Use a version from squeeze upwards."
+            exit 1
+        ;;
+        *)
+            # nothing needed for debian sid
+        ;;
+    esac
 }
 
 #########################################################################################################
@@ -411,6 +433,8 @@ fi
 # set architecture
 ARCH=$1
 SUITE=$2
+# is the suite supported?
+check_suite || Exit $?
 
 # rebuild chroot-dir
 CHROOTDIR=owbuildchroot-$SUITE-$ARCH
