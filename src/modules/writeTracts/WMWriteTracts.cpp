@@ -565,12 +565,12 @@ bool WMWriteTracts::savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers
             dataFile << "cylinder" << std::endl <<
                         "{" << std::endl <<
                         " <" << lastvert.x() << "," << lastvert.y() << "," << lastvert.z() << ">," <<
-                          "<" << vert.x() << "," << vert.y() << "," << vert.z() << ">," << m_povrayTubeDiameter->get() << std::endl <<
+                          "<" << vert.x() << "," << vert.y() << "," << vert.z() << ">,Diameter" << std::endl <<
                         " pigment{color rgb <" << color.x() << "," << color.y() << "," << color.z() << ">}" << std::endl <<
                         " transform MoveToCenter" << std::endl <<
                         "}" << std::endl;
             dataFile << "sphere {" << std::endl <<
-                        " <" << vert.x() << "," << vert.y() << "," << vert.z() << ">,"  << m_povrayTubeDiameter->get() << std::endl <<
+                        " <" << vert.x() << "," << vert.y() << "," << vert.z() << ">,Diameter" << std::endl <<
                         " pigment{ color rgb <" << color.x() << "," << color.y() << "," << color.z() << ">}" << std::endl <<
                         " transform MoveToCenter" << std::endl <<
                         "}" << std::endl;
@@ -632,6 +632,7 @@ bool WMWriteTracts::savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers
 
     dataFileScene << "#declare MoveToCenter = transform{ translate < " << -mX << ", " << -mY << ", " << -mZ << " > };" << std::endl;
     dataFileScene << "#declare CamPosition = < " << camX << ", " << camY << ", " << camZ << " >;" << std::endl << std::endl;
+    dataFileScene << "#declare Diameter = " << m_povrayTubeDiameter->get() << ";" << std::endl << std::endl;
 
     // this camera should produce a direct front view. The user surely needs to modify the camera
     dataFileScene << "camera {" << std::endl <<
