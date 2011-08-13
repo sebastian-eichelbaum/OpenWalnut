@@ -30,8 +30,8 @@
 
 # what to build
 ARCHITECTURES="amd64 i386"
-DISTRIBUTIONS="sid testing maverick natty"
-PACKAGES="deb tgz rpm"
+DISTRIBUTIONS="sid wheezy squeeze lucid maverick natty"
+PACKAGES="deb"
 
 # Where to put logs from this script not distri/arch or pack specific.
 MAINLOGFILE="$0.log"

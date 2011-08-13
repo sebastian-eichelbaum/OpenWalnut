@@ -197,16 +197,16 @@ chroot_setup_suite()
             echo "deb http://de.archive.ubuntu.com/ubuntu $SUITE restricted universe multiverse" > ./$CHROOTDIR/etc/apt/sources.list.d/universeMultiverse.sources.list
 
             # they provide qtwebkit
-            chroot_do apt-get install libqtwebkit-dev
+            chroot_do apt-get -y --allow-unauthenticated install libqtwebkit-dev
         ;;
         lucid )
             # lucid does not provide libqtwebkit-qt .. so, do not install. only add multi/universe
             # multiverse and universe needed for several packs
             echo "deb http://de.archive.ubuntu.com/ubuntu $SUITE restricted universe multiverse" > ./$CHROOTDIR/etc/apt/sources.list.d/universeMultiverse.sources.list
         ;;
-        sid | testing )
+        sid | wheezy )
             # they provide qtwebkit
-            chroot_do apt-get install libqtwebkit-dev
+            chroot_do apt-get -y --allow-unauthenticated install libqtwebkit-dev
         ;;
         *)
             # debian 6 does not have libqtwebkit
@@ -381,6 +381,10 @@ check_suite()
             echo "Sorry. This Debian version does not provide libeigne3-dev. Use a version from squeeze upwards."
             exit 1
         ;;
+        stable | testing )
+            echo "Testing and Stable - please use the correct codenames."
+            exit 1
+        ;;
         *)
             # nothing needed for debian sid
         ;;
@@ -438,7 +442,7 @@ check_suite || Exit $?
 # rebuild chroot-dir
 CHROOTDIR=owbuildchroot-$SUITE-$ARCH
 case "$SUITE" in
-    sid | testing)
+    sid | wheezy | squeeze )
         SERVER=http://ftp.de.debian.org/debian
         ;;
     *)
