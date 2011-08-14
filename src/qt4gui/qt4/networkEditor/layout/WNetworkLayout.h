@@ -28,7 +28,6 @@
 #include <list>
 
 #include "WNetworkLayoutGlobals.h"
-#include "WNetworkLayoutGraph.h"
 #include "WNetworkLayoutNode.h"
 
 /**
@@ -76,35 +75,12 @@ class WNetworkLayout
 
     private:
         /**
-         * Used to update m_array, when a lot of subgraphs are relocated. Starts with the rightmost
-         * element. When right == false make sure there is enough space.
-         *
-         * \param fixedGraph the id of the graph where the position chang is to stop
-         * \param x the position where the algorithem starts, should be the position of the
-         *              rightmost node
-         * \param shiftRight move the elements to the right
-         * \param distance the distance the elements are moved
-         **/
-        //void updateGrid( unsigned int fixedGraph, unsigned int x, bool shiftRight = true, int distance = 1);
-
-        /**
-         * TODO
+         * This function traverses the layout graph and creates the new layout through assigning
+         * positions the individual nodes.
          **/
         void traverse();
 
-        /**
-         * merges two connection components, using only one node from each component
-         * TODO: additional information
-         **/
-        //void merge( WQtNetworkItem *first, WQtNetworkItem *second );
-
-        //std::pair< WNetworkLayoutItem *, WNetworkLayoutItem * > laneList; //<! list allows iteration over lanes
-        //unsigned char m_array[ WNETWORKLAYOUT_GRID_X ][ WNETWORKLAYOUT_GRID_Y ];
-
-        //std::list< WNetworkLayoutSubgraph > m_subgraphList; //<! list allows iteration over lanes
-
-        std::list< WNetworkLayoutNode * > m_nodes;
-        //WNetworkLayoutGraph *m_layoutGraph; //<! the layout graph
+        std::list< WNetworkLayoutNode * > m_nodes; //<! all nodes within the layout
 };
 
 #endif  // WNETWORKLAYOUT_H

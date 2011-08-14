@@ -31,7 +31,7 @@ WNetworkLayoutNode::WNetworkLayoutNode( WQtNetworkItem *item )
     m_referencedItem = item;
     if( item != NULL )
     {
-        m_referencedItem->m_layoutNode = this; // TODO: change friend in WQtNetworkItem
+        m_referencedItem->m_layoutNode = this;
     }
 }
 
@@ -43,7 +43,7 @@ WNetworkLayoutNode::~WNetworkLayoutNode()
         for( std::list< WNetworkLayoutNode * >::iterator iter = m_parents.begin();
                 iter != m_parents.end(); ++iter )
         {
-            (*iter)->remove( this );
+            ( *iter )->remove( this );
         }
     }
 }

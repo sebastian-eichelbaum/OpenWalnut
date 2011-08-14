@@ -38,7 +38,6 @@
 
 class WNetworkLayoutNode;
 class WQtNetworkEditor;
-//class QGraphicsWidget;
 
 /**
  * This class represents a WModule as QGraphicsRectItem and
