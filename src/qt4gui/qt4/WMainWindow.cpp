@@ -156,7 +156,7 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "load" ), fileopen_xpm );
     m_iconManager.addIcon( std::string( "loadProject" ), projOpen_xpm );
     m_iconManager.addIcon( std::string( "saveProject" ), projSave_xpm );
-    m_iconManager.addIcon( std::string( "logo" ), logoIcon_xpm );
+    m_iconManager.addIcon( std::string( "logo" ), openwalnut_32x32_xpm );
     m_iconManager.addIcon( std::string( "help" ), question_xpm );
     m_iconManager.addIcon( std::string( "quit" ), quit_xpm );
     m_iconManager.addIcon( std::string( "moduleBusy" ), moduleBusy_xpm );
@@ -180,9 +180,10 @@ void WMainWindow::setupGUI()
 
     setDockOptions( QMainWindow::AnimatedDocks |  QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks );
 
-    //network Editor
-    m_networkEditor = new WQtNetworkEditor( this );
-    m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
+    // Disabled Network Editor due to bug: #11
+    // //network Editor
+    // m_networkEditor = new WQtNetworkEditor( this );
+    // m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
 
     // the control panel instance is needed for the menu
     m_controlPanel = new WQtControlPanel( this );
@@ -191,12 +192,17 @@ void WMainWindow::setupGUI()
 
     // add all docks
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getModuleDock() );
-    addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
-    tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
+    // Disabled Network Editor due to bug: #11
+    // addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
+    // tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getColormapperDock() );
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getRoiDock() );
+
+    // tabify those panels by default
+    tabifyDockWidget( m_controlPanel->getModuleDock(), m_controlPanel->getColormapperDock() );
     tabifyDockWidget( m_controlPanel->getColormapperDock(), m_controlPanel->getRoiDock() );
+    m_controlPanel->getModuleDock()->raise();
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
 
@@ -206,6 +212,7 @@ void WMainWindow::setupGUI()
     m_glDock->setDocumentMode( true );
     setCentralWidget( m_glDock );
     WQtGLDockWidget* mainGLDock = new WQtGLDockWidget( "main", "3D View", m_glDock );
+    mainGLDock->setMinimumWidth( 500 );
     mainGLDock->getGLWidget()->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
     m_mainGLWidget = mainGLDock->getGLWidget();
     m_glDock->addDockWidget( Qt::RightDockWidgetArea, mainGLDock );

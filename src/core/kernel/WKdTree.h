@@ -49,9 +49,10 @@ struct lessy
     }
 
     /**
-     * compare operator
+     * comparison operator less
      * \param lhs
      * \param rhs
+     * \return is lhs smaller than rhs
      */
     bool operator()( const unsigned int& lhs, const unsigned int& rhs ) const //NOLINT
     {

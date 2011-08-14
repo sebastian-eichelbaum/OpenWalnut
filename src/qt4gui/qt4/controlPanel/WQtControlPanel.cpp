@@ -71,6 +71,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     setObjectName( "Control Panel Dock" );
 
     m_mainWindow = parent;
+    setMinimumWidth( 300 );
 
     m_panel = new QWidget( this );
     m_moduleTreeWidget = new WQtTreeWidget( m_panel );
@@ -120,16 +121,17 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_missingModuleAction->setIconVisibleInMenu( true );
     m_moduleTreeWidget->addAction( m_missingModuleAction );
 
-    // the network editor also needs the context menu
-    // TODO(rfrohl): context menu gets not opened if a graphicitem is clicked. This should be fixed.
-    m_mainWindow->getNetworkEditor()->setContextMenuPolicy( Qt::ActionsContextMenu );
-    m_mainWindow->getNetworkEditor()->addAction( m_connectWithPrototypeAction );
-    m_mainWindow->getNetworkEditor()->addAction( m_connectWithModuleAction );
-    m_mainWindow->getNetworkEditor()->addAction( m_disconnectAction );
-    m_mainWindow->getNetworkEditor()->addAction( separator );
-    m_mainWindow->getNetworkEditor()->addAction( m_deleteModuleAction );
-    m_mainWindow->getNetworkEditor()->addAction( separator );
-    m_mainWindow->getNetworkEditor()->addAction( m_missingModuleAction );
+    // Disabled Network Editor due to bug: #11
+    // // the network editor also needs the context menu
+    // // TODO(rfrohl): context menu gets not opened if a graphicitem is clicked. This should be fixed.
+    // m_mainWindow->getNetworkEditor()->setContextMenuPolicy( Qt::ActionsContextMenu );
+    // m_mainWindow->getNetworkEditor()->addAction( m_connectWithPrototypeAction );
+    // m_mainWindow->getNetworkEditor()->addAction( m_connectWithModuleAction );
+    // m_mainWindow->getNetworkEditor()->addAction( m_disconnectAction );
+    // m_mainWindow->getNetworkEditor()->addAction( separator );
+    // m_mainWindow->getNetworkEditor()->addAction( m_deleteModuleAction );
+    // m_mainWindow->getNetworkEditor()->addAction( separator );
+    // m_mainWindow->getNetworkEditor()->addAction( m_missingModuleAction );
 
     m_colormapper = new WQtColormapper( m_mainWindow );
     m_colormapper->setToolTip( "Reorder the textures." );
@@ -892,7 +894,7 @@ void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boos
     if( props )
     {
         tab = buildPropWidget( props );
-        if ( tab )
+        if( tab )
         {
             tab->setName( "Settings" );
         }
@@ -900,7 +902,7 @@ void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boos
     if( infoProps )
     {
         infoTab = buildPropWidget( infoProps );
-        if ( infoTab )
+        if( infoTab )
         {
             infoTab->setName( "Information" );
         }
@@ -1009,7 +1011,7 @@ int WQtControlPanel::addTabWidgetContent( WQtPropertyGroupWidget* content )
     if( !content || content->isEmpty() )
     {
         // we destroy the widget if we not use it to avoid empty widgets popping up
-        if ( content )
+        if( content )
         {
             delete content;
         }
@@ -1107,10 +1109,11 @@ void WQtControlPanel::deleteModuleTreeItem()
             }
         }
     }
-    else if( m_mainWindow->getNetworkEditor()->isActiveWindow() )
-    {
-        m_mainWindow->getNetworkEditor()->deleteSelectedItems();
-    }
+// Disabled Network Editor due to bug: #11
+//    else if( m_mainWindow->getNetworkEditor()->isActiveWindow() )
+//    {
+//        m_mainWindow->getNetworkEditor()->deleteSelectedItems();
+//    }
 }
 
 void WQtControlPanel::deleteROITreeItem()

@@ -82,31 +82,37 @@ public:
 
     /**
      * Returns the number of samples in x direction.
+     * \return The number of samples in x direction.
      */
     unsigned int getNbCoordsX() const;
 
     /**
      * Returns the number of samples in y direction.
+     * \return The number of samples in y direction.
      */
     unsigned int getNbCoordsY() const;
 
     /**
      * Returns the number of samples in z direction.
+     * \return The number of samples in z direction.
      */
     unsigned int getNbCoordsZ() const;
 
     /**
      * Returns the distance between samples in x direction.
+     * \return The distance between samples in x direction.
      */
     double getOffsetX() const;
 
     /**
      * Returns the distance between samples in y direction.
+     * \return The distance between samples in y direction.
      */
     double getOffsetY() const;
 
     /**
      * Returns the distance between samples in z direction.
+     * \return The distance between samples in z direction.
      */
     double getOffsetZ() const;
 
@@ -114,6 +120,7 @@ public:
      * Returns the vector determining the direction of samples in x direction.
      * Adding this vector to a grid position in world coordinates yields the position of the next sample
      * along the grids (world coordinate) x-axis.
+     * \return The vector determining the direction of samples in x direction.
      */
     WVector3d getDirectionX() const;
 
@@ -121,6 +128,7 @@ public:
      * Returns the vector determining the direction of samples in y direction.
      * Adding this vector to a grid position in world coordinates yields the position of the next sample
      * along the grids (world coordinate) y-axis.
+     * \return The vector determining the direction of samples in y direction.
      */
     WVector3d getDirectionY() const;
 
@@ -128,31 +136,37 @@ public:
      * Returns the vector determining the direction of samples in z direction.
      * Adding this vector to a grid position in world coordinates yields the position of the next sample
      * along the grids (world coordinate) z-axis.
+     * \return The vector determining the direction of samples in z direction.
      */
     WVector3d getDirectionZ() const;
 
     /**
      * Returns the vector determining the unit (normalized) direction of samples in x direction.
+     * \return The vector determining the unit (normalized) direction of samples in x direction.
      */
     WVector3d getUnitDirectionX() const;
 
     /**
      * Returns the vector determining the unit (normalized) direction of samples in y direction.
+     * \return The vector determining the unit (normalized) direction of samples in y direction.
      */
     WVector3d getUnitDirectionY() const;
 
     /**
      * Returns the vector determining the unit (normalized) direction of samples in z direction.
+     * \return The vector determining the unit (normalized) direction of samples in z direction.
      */
     WVector3d getUnitDirectionZ() const;
 
     /**
      * Returns the position of the origin of the grid.
+     * \return The position of the origin of the grid.
      */
     WPosition getOrigin() const;
 
     /**
-     * Returns a 4x4 matrix that represents the grid's transformaion.
+     * Returns a 4x4 matrix that represents the grid's transformation.
+     * \return The grid's transformation.
      */
     WMatrix< double > getTransformationMatrix() const;
 
@@ -165,6 +179,7 @@ public:
     /**
      * Returns the i-th position on the grid.
      * \param i id of position to be obtained
+     * \return i-th position of the grid.
      */
     WPosition getPosition( unsigned int i ) const;
 
@@ -174,18 +189,21 @@ public:
      * \param iX id along first axis of position to be obtained
      * \param iY id along second axis of position to be obtained
      * \param iZ id along third axis of position to be obtained
+     * \return Position (iX,iY,iZ)
      */
     WPosition getPosition( unsigned int iX, unsigned int iY, unsigned int iZ ) const;
 
     /**
      * Transforms world coordinates to texture coordinates.
      * \param point The point with these coordinates will be transformed.
+     * \return point transformed into texture coordinate system
      */
     WVector3d worldCoordToTexCoord( WPosition point );
 
     /**
      * Transforms texture coordinates to world coordinates.
      * \param coords The point with these coordinates will be transformed.
+     * \return coords transformed into world coordinate system.
      */
     WPosition texCoordToWorldCoord( WVector3d coords );
 
@@ -328,6 +346,8 @@ public:
      *
      * \param pos The position selecting the cell.
      * \param success True if the position pos is inside the grid.
+     *
+     * \return id of the containing the position.
      */
     size_t getCellId( const WPosition& pos, bool* success ) const;
 
@@ -335,6 +355,8 @@ public:
      * Computes the ids of the vertices of a cell given by its id.
      *
      * \param cellId The id of the cell we want to know ther vertices of.
+     *
+     * \return Ids of vertices belonging to cell with given cellId.
 
      * \verbatim
         z-axis  y-axis
@@ -446,6 +468,7 @@ public:
 
     /**
      * Return whether the transformations of the grid are only translation and/or scaling
+     * \return Transformation does not contain rotation?
      */
     bool isNotRotated() const;
 

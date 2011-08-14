@@ -113,7 +113,7 @@ void WDendrogramGeode::layoutLevel( size_t cluster, float left, float right )
         float rightSize = static_cast<float>( m_tree->size( rightCluster ) );
 
         if( ( leftSize >= m_minClusterSize ) &&  ( rightSize < m_minClusterSize ) )
-        //if ( rightSize < 2 )
+        //if( rightSize < 2 )
         {
             // left cluster is much bigger, draw only left
             m_vertexArray->push_back( osg::Vec3( ( left + size / 2.0 ), height, 0 ) );
@@ -189,7 +189,7 @@ void WDendrogramGeode::layoutValue( size_t cluster, float left, float right )
         float rightSize = static_cast<float>( m_tree->size( rightCluster ) );
 
         if( ( leftSize >= m_minClusterSize ) &&  ( rightSize < m_minClusterSize ) )
-        //if ( rightSize < 2 )
+        //if( rightSize < 2 )
         {
             // left cluster is much bigger, draw only left
             m_vertexArray->push_back( osg::Vec3( ( left + size / 2.0 ), height, 0 ) );

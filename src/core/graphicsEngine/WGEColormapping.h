@@ -337,8 +337,7 @@ private:
     /**
      * The alias for a shared container with a set of node-nodeInfo pairs
      */
-    typedef WSharedAssociativeContainer< std::map< osg::Node*, NodeInfo*, std::less< osg::Node* >,
-                                                   Eigen::aligned_allocator< std::pair< osg::Node*, NodeInfo > > > > NodeInfoContainerType;
+    typedef WSharedAssociativeContainer< std::map< osg::Node*, NodeInfo*, std::less< osg::Node* > > > NodeInfoContainerType;
 
     /**
      * This map is needed to keep track of several node specific settings

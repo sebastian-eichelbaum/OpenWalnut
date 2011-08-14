@@ -38,6 +38,7 @@
 #include "core/dataHandler/WDataSetDTI.h"
 #include "core/dataHandler/WDataSetRawHARDI.h"
 #include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetSegmentation.h"
 #include "core/dataHandler/WDataSetSingle.h"
 #include "core/dataHandler/WDataSetSphericalHarmonics.h"
 #include "core/dataHandler/WDataSetTimeSeries.h"
@@ -187,15 +188,12 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
     boost::shared_ptr< WDataSet > newDataSet;
     // known description
     std::string description( header->descrip );
-    // TODO(philips): polish WDataSetSegmentation for check in
-    //     if( !description.compare( "WDataSetSegmentation" ) )
-    //     {
-    //         wlog::debug( "WReaderNIfTI" ) << "Load as segmentation" << std::endl;
-    //         newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSegmentation( newValueSet, newGrid ) );
-    //     }
-    //     else
-
-    if( description.compare( "WDataSetSphericalHarmonics" ) == 0 || dataSetType == W_DATASET_SPHERICALHARMONICS )
+    if( !description.compare( "WDataSetSegmentation" ) )
+    {
+        wlog::debug( "WReaderNIfTI" ) << "Load as segmentation" << std::endl;
+        newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSegmentation( newValueSet, newGrid ) );
+    }
+    else if( description.compare( "WDataSetSphericalHarmonics" ) == 0 || dataSetType == W_DATASET_SPHERICALHARMONICS )
     {
         wlog::debug( "WReaderNIfTI" ) << "Load as spherical harmonics" << std::endl;
         newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSphericalHarmonics( newValueSet, newGrid ) );

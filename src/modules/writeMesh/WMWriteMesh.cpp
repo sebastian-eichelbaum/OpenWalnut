@@ -160,7 +160,7 @@ bool WMWriteMesh::saveVTKASCII() const
     const char* c_file = m_meshFile->get().file_string().c_str();
     std::ofstream dataFile( c_file, std::ios_base::binary );
 
-    if ( dataFile )
+    if( dataFile )
     {
         WLogger::getLogger()->addLogMessage( "opening file", "Write Mesh", LL_DEBUG );
     }
@@ -180,7 +180,7 @@ bool WMWriteMesh::saveVTKASCII() const
 
     WPosition point;
     dataFile << "POINTS " << m_triMesh->vertSize() << " float\n";
-    for ( size_t i = 0; i < m_triMesh->vertSize(); ++i )
+    for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
     {
         point = m_triMesh->getVertexAsPosition( i );
         if( !( myIsfinite( point[0] ) && myIsfinite( point[1] ) && myIsfinite( point[2] ) ) )
@@ -192,21 +192,21 @@ bool WMWriteMesh::saveVTKASCII() const
     }
 
     dataFile << "CELLS " << m_triMesh->triangleSize() << " " << m_triMesh->triangleSize() * 4 << "\n";
-    for ( size_t i = 0; i < m_triMesh->triangleSize(); ++i )
+    for( size_t i = 0; i < m_triMesh->triangleSize(); ++i )
     {
         dataFile << "3 " << m_triMesh->getTriVertId0( i ) << " "
                  <<  m_triMesh->getTriVertId1( i ) << " "
                  <<  m_triMesh->getTriVertId2( i ) << "\n";
     }
     dataFile << "CELL_TYPES "<< m_triMesh->triangleSize() <<"\n";
-    for ( size_t i = 0; i < m_triMesh->triangleSize(); ++i )
+    for( size_t i = 0; i < m_triMesh->triangleSize(); ++i )
     {
         dataFile << "5\n";
     }
     dataFile << "POINT_DATA " << m_triMesh->vertSize() << "\n";
     dataFile << "SCALARS scalars float\n";
     dataFile << "LOOKUP_TABLE default\n";
-    for ( size_t i = 0; i < m_triMesh->vertSize(); ++i )
+    for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
     {
         dataFile << "0\n";
     }
@@ -237,7 +237,7 @@ bool WMWriteMesh::saveJson() const
     const char* c_file = m_meshFile->get().file_string().c_str();
     std::ofstream dataFile( c_file, std::ios_base::binary );
 
-    if ( dataFile )
+    if( dataFile )
     {
         WLogger::getLogger()->addLogMessage( "opening file", "Write Mesh", LL_DEBUG );
     }
@@ -255,7 +255,7 @@ bool WMWriteMesh::saveJson() const
     dataFile << ( "{\n" );
     dataFile << ( "    \"vertices\" : [" );
     WPosition point;
-    for ( size_t i = 0; i < m_triMesh->vertSize() - 1; ++i )
+    for( size_t i = 0; i < m_triMesh->vertSize() - 1; ++i )
     {
         point = m_triMesh->getVertexAsPosition( i );
         if( !( myIsfinite( point[0] ) && myIsfinite( point[1] ) && myIsfinite( point[2] ) ) )
@@ -270,7 +270,7 @@ bool WMWriteMesh::saveJson() const
 
     dataFile << ( "    \"normals\" : [" );
     WPosition normal;
-    for ( size_t i = 0; i < m_triMesh->vertSize() - 1; ++i )
+    for( size_t i = 0; i < m_triMesh->vertSize() - 1; ++i )
     {
         normal = m_triMesh->getNormalAsPosition( i );
         if( !( myIsfinite( normal[0] ) && myIsfinite( normal[1] ) && myIsfinite( normal[2] ) ) )
@@ -284,7 +284,7 @@ bool WMWriteMesh::saveJson() const
     dataFile << normal[0] << "," << normal[1] << "," << normal[2] << "],\n";
 
     dataFile << ( "    \"indices\" : [" );
-    for ( size_t i = 0; i < m_triMesh->triangleSize() - 1; ++i )
+    for( size_t i = 0; i < m_triMesh->triangleSize() - 1; ++i )
     {
         dataFile << m_triMesh->getTriVertId0( i ) << "," <<  m_triMesh->getTriVertId1( i ) << "," <<  m_triMesh->getTriVertId2( i ) << ",";
     }
@@ -292,11 +292,11 @@ bool WMWriteMesh::saveJson() const
     dataFile << m_triMesh->getTriVertId0( i ) << "," <<  m_triMesh->getTriVertId1( i ) << "," <<  m_triMesh->getTriVertId2( i ) << "]";
 
 
-    if ( m_writeColors->get() )
+    if( m_writeColors->get() )
     {
         dataFile << ",\n";
         dataFile << ( "    \"colors\" : [" );
-        for ( size_t k = 0; k < m_triMesh->vertSize() - 1; ++k )
+        for( size_t k = 0; k < m_triMesh->vertSize() - 1; ++k )
         {
             osg::Vec4 color = m_triMesh->getVertColor( k );
 

@@ -100,12 +100,21 @@ FUNCTION( SETUP_TESTS _TEST_FILES _TEST_TARGET )
         # Setup CXX test
         # -------------------------------------------------------------------------------------------------------------------------------------------
 
+        # Also create a list of paths where the tests where found
+        SET( FixturePaths )
+
         # Add each found test and create a target for it
         FOREACH( testfile ${_TEST_FILES} )
             # strip path and extension
             STRING( REGEX REPLACE "^.*/" "" StrippedTestFile "${testfile}" )
             STRING( REGEX REPLACE "\\..*$" "" PlainTestFileName "${StrippedTestFile}" )
             STRING( REGEX REPLACE "_test$" "" TestFileClass "${PlainTestFileName}" )
+
+            # also extract test path
+            STRING( REPLACE "${StrippedTestFile}" "fixtures" TestFileFixturePath "${testfile}" )
+            IF( EXISTS "${TestFileFixturePath}" AND IS_DIRECTORY "${TestFileFixturePath}" )
+                LIST( APPEND FixturePaths ${TestFileFixturePath} )
+            ENDIF()
 
             # create some name for the test
             SET( UnitTestName "unittest_${TestFileClass}" )
@@ -122,20 +131,6 @@ FUNCTION( SETUP_TESTS _TEST_FILES _TEST_TARGET )
         # -------------------------------------------------------------------------------------------------------------------------------------------
         # Search fixtures
         # -------------------------------------------------------------------------------------------------------------------------------------------
-
-        # direct globbing of files by only knowing a part of the path is not possible -> so get all files and filter later
-        FILE( GLOB_RECURSE everything "${CMAKE_CURRENT_SOURCE_DIR}/*" )
-        SET( FixturePaths )
-        FOREACH( fixture ${everything} )
-            # is this a fixture?
-            STRING( REGEX MATCH "test\\/fixtures" IsFixture "${fixture}" )
-            IF( IsFixture )             # found a fixture.
-                # strip filename from path and keep only path
-                STRING( REGEX REPLACE "fixtures/.*$" "fixtures" FixturePath "${fixture}" )
-                # add it to a list
-                LIST( APPEND FixturePaths ${FixturePath} )
-            ENDIF( IsFixture )
-        ENDFOREACH( fixture )
 
         # REMOVE_DUPLICATES throws an error if list is empty. So we check this here
         LIST( LENGTH FixturePaths ListLength )
@@ -155,7 +150,7 @@ FUNCTION( SETUP_TESTS _TEST_FILES _TEST_TARGET )
                 # finally, create the copy target
                 ADD_CUSTOM_TARGET( ${_TEST_TARGET}_CopyFixtures_${FixtureDirEscaped}
                     COMMAND ${CMAKE_COMMAND} -E copy_directory "${FixtureDir}" "${FixtureTargetDirectory}"
-                    COMMENT "Copy fixtures of ${_TEST_TARGET} from ${FixtureDir}."
+                    COMMENT "Copy fixtures of ${_TEST_TARGET} from ${FixtureDir} to ${FixtureTargetDirectory}."
                 )
                 ADD_DEPENDENCIES( ${_TEST_TARGET} ${_TEST_TARGET}_CopyFixtures_${FixtureDirEscaped} )
             ENDFOREACH( FixtureDir )
@@ -421,9 +416,9 @@ ENDFUNCTION( SETUP_DEV_INSTALL )
 # empty, the contents of it get combined with the mercurial results if mercurial is installed. If not, only the file content will be used. If
 # both methods fail, a default string is used.
 # _version the returned version string
-# _file_version returns only the version loaded from the version file. This is useful to set CMake version info for release compilation
+# _api_version returns only the API-version loaded from the version file. This is useful to set CMake version info for release compilation
 # _default a default string you specify if all version check methods fail
-FUNCTION( GET_VERSION_STRING _version _file_version _default )
+FUNCTION( GET_VERSION_STRING _version _api_version )
     # Undef the OW_VERSION variable
     UNSET( OW_VERSION_HG )
     UNSET( OW_VERSION_FILE )
@@ -434,7 +429,7 @@ FUNCTION( GET_VERSION_STRING _version _file_version _default )
         # Read the version file
         FILE( READ ${OW_VERSION_FILENAME} OW_VERSION_FILE_CONTENT )
         # The first regex will mathc 
-        STRING(REGEX REPLACE ".*[^#]VERSION=([0-9]+\\.[0-9]+\\.[0-9]+).*" "\\1"  OW_VERSION_FILE  ${OW_VERSION_FILE_CONTENT} ) 
+        STRING( REGEX REPLACE ".*[^#]VERSION=([0-9]+\\.[0-9]+\\.[0-9]+(\\+hgX?[0-9]*)?).*" "\\1"  OW_VERSION_FILE  ${OW_VERSION_FILE_CONTENT} ) 
         STRING( COMPARE EQUAL ${OW_VERSION_FILE} ${OW_VERSION_FILE_CONTENT}  OW_VERSION_FILE_INVALID )
         IF( OW_VERSION_FILE_INVALID )
             UNSET( OW_VERSION_FILE )
@@ -445,31 +440,33 @@ FUNCTION( GET_VERSION_STRING _version _file_version _default )
         IF( OW_VERSION_FILE STREQUAL "" )
             UNSET( OW_VERSION_FILE )
         ENDIF()
-
-        # set the return parameter too
-        SET( ${_file_version} ${OW_VERSION_FILE} PARENT_SCOPE )
+    ENDIF()
+    # if the version file could not be parsed, print error
+    IF( NOT OW_VERSION_FILE )
+        MESSAGE( FATAL_ERROR "Could not parse \"${PROJECT_SOURCE_DIR}/../VERSION\"." )
     ENDIF()
 
     # Use hg to query version information.
     # -> the nice thing is: if hg is not available, no compilation errors anymore
     # NOTE: it is run insde the project source directory
-    EXECUTE_PROCESS( COMMAND hg parents --template "{rev}:{node|short} {branches} {tags}" OUTPUT_VARIABLE OW_VERSION_HG RESULT_VARIABLE hgParentsRetVar 
+    EXECUTE_PROCESS( COMMAND hg parents --template "{rev}" OUTPUT_VARIABLE OW_VERSION_HG RESULT_VARIABLE hgParentsRetVar 
                      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                     )
     IF( NOT ${hgParentsRetVar} STREQUAL 0 )
         UNSET( OW_VERSION_HG )
-    ENDIF()
-
-    # Use the version strings and set them as #define
-    IF( DEFINED OW_VERSION_HG AND DEFINED OW_VERSION_FILE )
-        SET( ${_version} "${OW_VERSION_FILE} - ${OW_VERSION_HG}" PARENT_SCOPE )
-    ELSEIF( DEFINED OW_VERSION_FILE )
-        SET( ${_version} "${OW_VERSION_FILE}" PARENT_SCOPE )
-    ELSEIF( DEFINED OW_VERSION_HG )
-        SET( ${_version} "${OW_VERSION_HG}" PARENT_SCOPE )
+        # be more nice if we do not find mercruial version. The simply strip the +hg tag.
+        STRING( REGEX REPLACE "\\+hgX" "" OW_VERSION ${OW_VERSION_FILE} )
     ELSE()
-        SET( ${_version} ${_default} PARENT_SCOPE )
+        # if we have the mercurial info -> complement the version string
+        STRING( REGEX REPLACE "hgX" "hg${OW_VERSION_HG}" OW_VERSION ${OW_VERSION_FILE} )
     ENDIF()
+  
+    SET( ${_version} ${OW_VERSION} PARENT_SCOPE )
+
+    # we need to separate the API version too. This basically is the same as the release version, but without the HG statement
+    STRING( REGEX REPLACE "([0-9]+\\.[0-9]+\\.[0-9]).*" "\\1"  OW_API_VERSION ${OW_VERSION} ) 
+    SET( ${_api_version} ${OW_API_VERSION} PARENT_SCOPE )
+
 ENDFUNCTION( GET_VERSION_STRING )
 
 # This functions adds a custom target for generating the specified version header. This is very useful if you want to include build-time version

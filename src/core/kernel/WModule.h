@@ -25,9 +25,9 @@
 #ifndef WMODULE_H
 #define WMODULE_H
 
-#include <vector>
 #include <string>
 #include <typeinfo>
+#include <vector>
 
 #include <boost/enable_shared_from_this.hpp>
 // Use filesystem version 2 for compatibility with newer boost versions.
@@ -40,15 +40,6 @@
 #include <boost/signals2/signal.hpp>
 #include <boost/thread.hpp>
 
-#include "WModuleCombinerTypes.h"
-#include "WModuleConnectorSignals.h"
-#include "WModuleSignals.h"
-#include "WModuleTypes.h"
-
-#include "../dataHandler/WDataSet.h"
-#include "../dataHandler/WDataSetSingle.h"
-#include "../dataHandler/WValueSet.h"
-
 #include "../common/WConditionSet.h"
 #include "../common/WLogger.h"
 #include "../common/WProgress.h"
@@ -57,8 +48,14 @@
 #include "../common/WPrototyped.h"
 #include "../common/WRequirement.h"
 #include "../common/WThreadedRunner.h"
-
+#include "../dataHandler/WDataSet.h"
+#include "../dataHandler/WDataSetSingle.h"
+#include "../dataHandler/WValueSet.h"
 #include "WExportKernel.h"
+#include "WModuleCombinerTypes.h"
+#include "WModuleConnectorSignals.h"
+#include "WModuleSignals.h"
+#include "WModuleTypes.h"
 
 class WModuleConnector;
 class WModuleContainer;
@@ -303,6 +300,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 

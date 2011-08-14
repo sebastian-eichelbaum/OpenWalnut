@@ -54,6 +54,8 @@ public:
      * Add new branch to the tree view.
      *
      * \param branch
+     *
+     * \return Pointer to the new branch.
      */
     WQtBranchTreeItem* addBranch( boost::shared_ptr< WRMBranch> branch );
 

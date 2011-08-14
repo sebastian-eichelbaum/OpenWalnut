@@ -76,11 +76,12 @@ class ValueStore
 
 public:
     /**
-     * Returns a reference to the component of an row and column in order to provide access to the component. It does not check for validity of
+     * Returns a reference to the component of a row and column in order to provide access to the component. It does not check for validity of
      * the indices.
      *
      * \param row the row, staring with 0
      * \param col the column, starting with 0
+     * \return A reference to the component of a row and column
      */
     ValueT& operator()( size_t row, size_t col ) throw()
     {
@@ -88,11 +89,13 @@ public:
     }
 
     /**
-     * Returns a reference to the component of an row and column in order to provide access to the component. It does not check for validity of
+     * Returns a const reference to the component of an row and column in order to provide access to the component.
+     * It does not check for validity of
      * the indices.
      *
      * \param row the row, staring with 0
      * \param col the column, starting with 0
+     * \return A const reference to the component of an row and column
      */
     const ValueT& operator()( size_t row, size_t col ) const throw()
     {
@@ -304,6 +307,8 @@ public:
      * \param src the matrix to copy
      * \param rowOffset row offset, defaults to 0
      * \param colOffset col offset, defaults to 0
+     *
+     * \return The newly created matrix.
      */
     template< typename RHSValueT, size_t RHSRows, size_t RHSCols, ValueStoreTemplate RHSValueStoreT >
     static MatrixType fromMatrix( const WMatrixFixed< RHSValueT, RHSRows, RHSCols, RHSValueStoreT >& src, size_t rowOffset = 0,
@@ -326,6 +331,8 @@ public:
      * \param src the matrix to copy
      * \param rowOffset row offset, defaults to 0
      * \param colOffset col offset, defaults to 0
+     *
+     * \return The newly created matrix.
      */
     template< typename RHSValueT, size_t RHSRows, size_t RHSCols, ValueStoreTemplate RHSValueStoreT >
     static MatrixType fromMatrices( const MatrixType& m,
@@ -709,6 +716,8 @@ public:
      * \tparam RHSValueT the integral type of the given matrix
      * \tparam RHSCols the number of columns of the given matrix. The number if rows must match the number of columns in this matrix
      * \param rhs the matrix
+     *
+     * \return The product of the matrices
      */
     template< typename RHSValueT, size_t RHSCols, ValueStoreTemplate RHSValueStoreT >
     WMatrixFixed< typename WTypeTraits::TypePromotion< ValueT, RHSValueT >::Result, Rows, RHSCols, ValueStoreT >
@@ -750,6 +759,8 @@ public:
      *
      * \tparam RHSValueT the integral type of the given scalar
      * \param rhs the scalar
+     *
+     * \return The product of this matrix with the given scalar value.
      */
     template< typename RHSValueT >
     WMatrixFixed< typename WTypeTraits::TypePromotion< ValueT, RHSValueT >::Result, Rows, Cols, ValueStoreT >
@@ -783,6 +794,8 @@ public:
      *
      * \tparam RHSValueT the integral type of the given scalar
      * \param rhs the scalar
+     *
+     * \return The matrix having all components divided by the scalar.
      */
     template< typename RHSValueT >
     WMatrixFixed< typename WTypeTraits::TypePromotion< ValueT, RHSValueT >::Result, Rows, Cols, ValueStoreT >
@@ -809,6 +822,8 @@ public:
      *
      * \tparam RHSValueT the integral type of the given matrix
      * \param rhs the matrix
+     *
+     * \return The sum of the current and the given matrix
      */
     template< typename RHSValueT, ValueStoreTemplate RHSValueStoreT >
     WMatrixFixed< typename WTypeTraits::TypePromotion< ValueT, RHSValueT >::Result, Rows, Cols, ValueStoreT >
@@ -842,6 +857,8 @@ public:
      *
      * \tparam RHSValueT the integral type of the given matrix
      * \param rhs the matrix
+     *
+     * \return The difference of the current and the given matrix.
      */
     template< typename RHSValueT, ValueStoreTemplate RHSValueStoreT >
     WMatrixFixed< typename WTypeTraits::TypePromotion< ValueT, RHSValueT >::Result, Rows, Cols, ValueStoreT >
@@ -880,6 +897,8 @@ public:
      *
      * \param row the row, staring with 0
      * \param col the column, starting with 0
+     *
+     * \return A reference to the component of an row and column
      */
     ValueT& operator()( size_t row, size_t col ) throw()
     {
@@ -892,6 +911,8 @@ public:
      *
      * \param row the row, staring with 0
      * \param col the column, starting with 0
+     *
+     * \return A const reference to the component of an row and column
      */
     const ValueT& operator()( size_t row, size_t col ) const throw()
     {
@@ -903,6 +924,8 @@ public:
      * the indices. Use this for single-column matrices (i.e. vectors). For matrices with cols!=0, this will not compile.
      *
      * \param row the row, staring with 0
+     *
+     * \return A reference to the component of the first column
      */
     ValueT& operator[]( size_t row ) throw()
     {
@@ -915,6 +938,8 @@ public:
      * the indices. Use this for single-column matrices (i.e. vectors). For matrices with cols!=0, this will not compile.
      *
      * \param row the row, staring with 0
+     *
+     * \return A const reference to the component of the first column
      */
     const ValueT& operator[]( size_t row ) const throw()
     {
@@ -928,6 +953,8 @@ public:
      *
      * \param row the row, staring with 0
      * \param col the column, starting with 0
+     *
+     * \return A reference to the component of an row and column
      *
      * \throw WOutOfBounds if the specified index is invalid
      */
@@ -943,11 +970,14 @@ public:
     }
 
     /**
-     * Returns a reference to the component of an row and column in order to provide access to the component. It does check for validity of
+     * Returns a const reference to the component of an row and column in order to provide access to the component.
+     * It does check for validity of
      * the indices. Use operator() for avoiding this check.
      *
      * \param row the row, staring with 0
      * \param col the column, starting with 0
+     *
+     * \return A const reference to the component of an row and column.
      *
      * \throw WOutOfBounds if the specified index is invalid
      */

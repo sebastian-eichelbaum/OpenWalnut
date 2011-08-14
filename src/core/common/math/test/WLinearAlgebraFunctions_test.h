@@ -208,9 +208,9 @@ public:
 
             WMatrix<double> A2( U*S*V.transposed() );
 
-            for ( size_t row = 0; row < A.getNbRows(); ++row )
+            for( size_t row = 0; row < A.getNbRows(); ++row )
             {
-                for ( size_t col = 0; col < A.getNbCols(); ++col )
+                for( size_t col = 0; col < A.getNbCols(); ++col )
                 {
                     TS_ASSERT_DELTA( A( row, col ), A2( row, col ), 0.0001 );
                 }

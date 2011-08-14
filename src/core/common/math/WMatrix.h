@@ -81,16 +81,19 @@ public:
 
     /**
      * Makes the matrix contain the identity matrix, i.e. 1 on the diagonal.
+     * \return Reference to the current matrix which is identity matrix now.
      */
     WMatrix& makeIdentity();
 
     /**
      * Get number of rows.
+     * \return Number of rows of the matrix.
      */
     size_t getNbRows() const;
 
     /**
      * Get number of columns.
+     * \return Number of columns of the matrix.
      */
     size_t getNbCols() const;
 
@@ -99,6 +102,7 @@ public:
      * provide access to the component.
      * \param i row
      * \param j column
+     * \return A reference to the component (i,j)
      */
     T& operator()( size_t i, size_t j );
 
@@ -107,6 +111,7 @@ public:
      * provide read-only access to the component.
      * \param i row
      * \param j column
+     * \return A const reference to the component (i,j)
      */
     const T& operator()( size_t i, size_t j ) const;
 
@@ -134,41 +139,48 @@ public:
     /**
      * Compares two matrices and returns true if they are equal.
      * \param rhs The right hand side of the comparison
+     * \return Are the matrices equal?
      */
     bool operator==( const WMatrix& rhs ) const;
 
     /**
      * Compares two matrices and returns true if they are not equal.
      * \param rhs The right hand side of the comparison
+     * \return Are the matrices NOT equal?
      */
     bool operator!=( const WMatrix& rhs ) const;
 
     /**
      * Assigns the argument WMatrix to this WMatrix.
      * \param rhs The right hand side of the assignment
+     * \return A reference to the left hand side of the assignment (i.e. the current object).
      */
     WMatrix& operator=( const WMatrix& rhs );
 
     /**
-     * Multiplication of two matrices.
+     * Multiplication of the current matrix with andother matrix.
      * \param rhs The right hand side of the multiplication
+     * \return The product of the two matrices.
      */
     WMatrix operator*( const WMatrix& rhs ) const;
 
     /**
      * Multiplication with a vector.
      * \param rhs The right hand side of the multiplication
+     * \return The product of the matrix and the vector.
      */
     WValue< T > operator*( const WValue< T >& rhs ) const;
 
     /**
      * Multiplication with a vector.
      * \param rhs The right hand side of the multiplication
+     * \return The product of the matrix and the 3D vector.
      */
     WVector3d operator*( const WVector3d& rhs ) const;
 
     /**
      * Returns the transposed matrix.
+     * \return Transposed version of the current matrix.
      */
     WMatrix transposed() const;
 
@@ -177,7 +189,7 @@ public:
      */
     void setZero()
     {
-        for ( size_t i = 0; i < this->size(); ++i )
+        for( size_t i = 0; i < this->size(); ++i )
         {
             ( *this )[ i ] = 0.0;
         }
@@ -227,9 +239,9 @@ template< typename T > WMatrix< T >::WMatrix( const Eigen::MatrixXd& newMatrix )
     : WValue< T >( newMatrix.cols() * newMatrix.rows() )
 {
     m_nbCols = static_cast< size_t >( newMatrix.cols() );
-    for ( int row = 0; row < newMatrix.rows(); ++row )
+    for( int row = 0; row < newMatrix.rows(); ++row )
     {
-        for ( int col = 0; col < newMatrix.cols(); ++col )
+        for( int col = 0; col < newMatrix.cols(); ++col )
         {
             ( *this )( row, col ) = static_cast< T >( newMatrix( row, col ) );
         }
@@ -279,9 +291,9 @@ template< typename T > WMatrix< T >::operator osg::Matrixd() const
 template< typename T > WMatrix< T >::operator Eigen::MatrixXd() const
 {
     Eigen::MatrixXd matrix( this->getNbRows(), this->getNbCols() );
-    for ( int row = 0; row < matrix.rows(); ++row )
+    for( int row = 0; row < matrix.rows(); ++row )
     {
-        for ( int col = 0; col < matrix.cols(); ++col )
+        for( int col = 0; col < matrix.cols(); ++col )
         {
             matrix( row, col ) = ( *this )( row, col );
         }

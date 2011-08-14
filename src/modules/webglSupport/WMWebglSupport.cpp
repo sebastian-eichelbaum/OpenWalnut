@@ -190,7 +190,7 @@ void WMWebglSupport::colorTriMeshGray()
     //boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ( *m_datasetScalar ).getGrid() );
     //bool success;
 
-    for ( size_t i = 0; i < m_triMesh->vertSize(); ++i )
+    for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
     {
         // get vertex position
         WPosition pos = m_triMesh->getVertexAsPosition( i );
@@ -198,7 +198,7 @@ void WMWebglSupport::colorTriMeshGray()
         // get color value for that vertex from texture
         //double value = m_datasetScalar->interpolate( pos, &success );
         double value = m_datasetScalar->getValueAt( pos.x(), pos.y(), pos.z() );
-        //if ( !success )
+        //if( !success )
         //{
         //    debugLog() << "error at getting value from datatset";
         //}
@@ -215,7 +215,7 @@ void WMWebglSupport::colorTriMeshRGB()
     //boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ( *m_datasetScalar ).getGrid() );
     bool success;
 
-    for ( size_t i = 0; i < m_triMesh->vertSize(); ++i )
+    for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
     {
         // get vertex position
         WPosition pos = m_triMesh->getVertexAsPosition( i );
@@ -223,7 +223,7 @@ void WMWebglSupport::colorTriMeshRGB()
         // get color value for that vertex from texture
         WVector3d value = m_datasetVector->interpolate( pos, &success );
         //double value = m_datasetScalar->getValueAt( pos.x(), pos.y(), pos.z() );
-        if ( !success)
+        if( !success)
         {
             debugLog() << "error at getting value from datatset";
         }
@@ -247,19 +247,19 @@ void WMWebglSupport::saveSlicesGray()
     ima->allocateImage( 256, 256, 1, GL_LUMINANCE, GL_UNSIGNED_BYTE );
     unsigned char* data = ima->data();
 
-    for ( size_t y = 0; y < 200; ++y )
+    for( size_t y = 0; y < 200; ++y )
     {
-        for ( size_t i = 0; i < 256; ++i )
+        for( size_t i = 0; i < 256; ++i )
         {
-            for ( size_t j = 0; j < 256; ++j )
+            for( size_t j = 0; j < 256; ++j )
             {
                 data[256 * i + j] = 0;
             }
         }
 
-        for ( size_t x = 0; x < 160; ++x )
+        for( size_t x = 0; x < 160; ++x )
         {
-            for ( size_t z = 0; z < 160; ++z )
+            for( size_t z = 0; z < 160; ++z )
             {
                 uint8_t value = static_cast<uint8_t>( m_datasetScalar->getValueAt( x, y, z ) );
                 data[ 256 * ( 48 + z ) + x + 48 ] = value;
@@ -275,18 +275,18 @@ void WMWebglSupport::saveSlicesGray()
     ima1->allocateImage( 256, 256, 1, GL_LUMINANCE, GL_UNSIGNED_BYTE );
     data = ima1->data();
 
-    for ( size_t x = 0; x < 160; ++x )
+    for( size_t x = 0; x < 160; ++x )
     {
-        for ( size_t i = 0; i < 256; ++i )
+        for( size_t i = 0; i < 256; ++i )
         {
-            for ( size_t j = 0; j < 256; ++j )
+            for( size_t j = 0; j < 256; ++j )
             {
                 data[256 * i + j] = 0;
             }
         }
-        for ( size_t y = 0; y < 200; ++y )
+        for( size_t y = 0; y < 200; ++y )
         {
-            for ( size_t z = 0; z < 160; ++z )
+            for( size_t z = 0; z < 160; ++z )
             {
                 uint8_t value = static_cast<uint8_t>( m_datasetScalar->getValueAt( x, y, z ) );
                 data[ 256 * ( 48 + z ) + y + 28 ] = value;
@@ -302,18 +302,18 @@ void WMWebglSupport::saveSlicesGray()
     ima2->allocateImage( 256, 256, 1, GL_LUMINANCE, GL_UNSIGNED_BYTE );
     data = ima2->data();
 
-    for ( size_t z = 0; z < 160; ++z )
+    for( size_t z = 0; z < 160; ++z )
     {
-        for ( size_t i = 0; i < 256; ++i )
+        for( size_t i = 0; i < 256; ++i )
         {
-            for ( size_t j = 0; j < 256; ++j )
+            for( size_t j = 0; j < 256; ++j )
             {
                 data[256 * i + j] = 0;
             }
         }
-        for ( size_t x = 0; x < 160; ++x )
+        for( size_t x = 0; x < 160; ++x )
         {
-            for ( size_t y = 0; y < 200; ++y )
+            for( size_t y = 0; y < 200; ++y )
             {
                 uint8_t value = static_cast<uint8_t>( m_datasetScalar->getValueAt( x, y, z ) );
                 data[ 256 * ( y + 28 ) + x + 48 ] = value;
@@ -337,11 +337,11 @@ void WMWebglSupport::saveSlicesRGB()
     ima->allocateImage( 256, 256, 1, GL_RGB, GL_UNSIGNED_BYTE );
     unsigned char* data = ima->data();
     bool success = false;
-    for ( size_t y = 0; y < 200; ++y )
+    for( size_t y = 0; y < 200; ++y )
     {
-        for ( size_t i = 0; i < 256; ++i )
+        for( size_t i = 0; i < 256; ++i )
         {
-            for ( size_t j = 0; j < 256; ++j )
+            for( size_t j = 0; j < 256; ++j )
             {
                 data[256 * i * 3 + j * 3     ] = 0;
                 data[256 * i * 3 + j * 3 + 1 ] = 0;
@@ -349,9 +349,9 @@ void WMWebglSupport::saveSlicesRGB()
             }
         }
 
-        for ( size_t x = 0; x < 160; ++x )
+        for( size_t x = 0; x < 160; ++x )
         {
-            for ( size_t z = 0; z < 160; ++z )
+            for( size_t z = 0; z < 160; ++z )
             {
                 WPosition pos( x, y, z );
                 WVector3d value = m_datasetVector->interpolate( pos, &success );
@@ -370,11 +370,11 @@ void WMWebglSupport::saveSlicesRGB()
     ima1->allocateImage( 256, 256, 1, GL_RGB, GL_UNSIGNED_BYTE );
     data = ima1->data();
 
-    for ( size_t x = 0; x < 160; ++x )
+    for( size_t x = 0; x < 160; ++x )
     {
-        for ( size_t i = 0; i < 256; ++i )
+        for( size_t i = 0; i < 256; ++i )
         {
-            for ( size_t j = 0; j < 256; ++j )
+            for( size_t j = 0; j < 256; ++j )
             {
                 data[256 * i * 3 + j * 3     ] = 0;
                 data[256 * i * 3 + j * 3 + 1 ] = 0;
@@ -382,9 +382,9 @@ void WMWebglSupport::saveSlicesRGB()
             }
         }
 
-        for ( size_t y = 0; y < 200; ++y )
+        for( size_t y = 0; y < 200; ++y )
         {
-            for ( size_t z = 0; z < 160; ++z )
+            for( size_t z = 0; z < 160; ++z )
             {
                 WPosition pos( x, y, z );
                 WVector3d value = m_datasetVector->interpolate( pos, &success );
@@ -403,11 +403,11 @@ void WMWebglSupport::saveSlicesRGB()
     ima2->allocateImage( 256, 256, 1, GL_RGB, GL_UNSIGNED_BYTE );
     data = ima2->data();
 
-    for ( size_t z = 0; z < 160; ++z )
+    for( size_t z = 0; z < 160; ++z )
     {
-        for ( size_t i = 0; i < 256; ++i )
+        for( size_t i = 0; i < 256; ++i )
         {
-            for ( size_t j = 0; j < 256; ++j )
+            for( size_t j = 0; j < 256; ++j )
             {
                 data[256 * i * 3 + j * 3     ] = 0;
                 data[256 * i * 3 + j * 3 + 1 ] = 0;
@@ -415,9 +415,9 @@ void WMWebglSupport::saveSlicesRGB()
             }
         }
 
-        for ( size_t x = 0; x < 160; ++x )
+        for( size_t x = 0; x < 160; ++x )
         {
-            for ( size_t y = 0; y < 200; ++y )
+            for( size_t y = 0; y < 200; ++y )
             {
                 WPosition pos( x, y, z );
                 WVector3d value = m_datasetVector->interpolate( pos, &success );

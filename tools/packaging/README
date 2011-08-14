@@ -5,35 +5,27 @@ This directory contains several helpers and configurations for building
 OpenWalnut source and binary pckages. These scripts/configs ease the release-
 management and reduce the manual overhead.
 
-owpack:
-*******
+Basicall, there are three important scripts for _automatically_ building and
+packaging OpenWalnut. Here is an overview:
 
-General:
-********
+1. owpack - wrapping the build and packaging process. This script does 
+   everything needed for building and packaging. It allows building DEB, RPM 
+   and TGZ packages directly. It utilized the correct tools for each
+   different package and system.
 
-This is an über-script for managing creation of source packages and binary
-packages. Each operation with this script checks out a fresh copy to ensure
-an absolutely clean source directory. This is very important, especially for
-the debian packages.
+2. owbuildchroot - provides the build environment. This script prepares a
+   build-chroot environment for a given distribution and architecture. This way,
+   we can build packages for different distributions by utilizing a chroot
+   environment containing the target distribution (and architecture). We can
+   ensure that OpenWalnut builds on these distributions properly and are able to
+   ensure, that our listed reqirements are sufficient, since the build-chroot is
+   a minimal system which only contains the needed packages.
 
-To use it follow these steps:
+3. owuberbuild - automates building and packaging for multiple distributions and
+   architectures using owpack and owbuildchroot. This basically calls
+   owbuildchroot for each defined architecture, distribution and supported
+   package-type. It creates complete logs of the build/package process and
+   allows them to be mailed to the package maintainer(s) afterwards. This can be
+   run as cronjob to automatically have daily/weekly or release builds.
 
-$ mkdir ReleaseOpenWalnut
-$ cd ReleaseOpenWalnut
-$ cp somewhere/owpack .
 
-You then need to edit the script. The top lines are self-explaining. Fill in
-certain information, like package maintainer and so on, as well as version 
-and revision. Then you have several options:
-
-$ owpack src_archive    <- creates an tar.gz and zip archive with the source
-$ owpack cpack          <- builds OW and uses our CPack Setup to create binary
-                           archives (like a binary tar.gz or a  self-extracting
-                           archive)
-$ owpack deb            <- uses our debian configuration to build an debian
-                           source package and builds it
-
-Cross Compilation:
-******************
-
-TODO: write

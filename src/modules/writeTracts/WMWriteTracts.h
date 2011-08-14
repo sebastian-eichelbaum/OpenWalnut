@@ -76,6 +76,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 
@@ -143,6 +144,31 @@ private:
      * Selection property for file types
      */
     WPropSelection m_fileTypeSelection;
+
+    /**
+     * Groups all the options for the povray exporter.
+     */
+    WPropGroup m_povrayOptions;
+
+    /**
+     * Enables radiosity renderer in povray
+     */
+    WPropBool m_povrayRadiosity;
+
+    /**
+     * The tube diameter in povray export
+     */
+    WPropDouble m_povrayTubeDiameter;
+
+    /**
+     * Allows thinning of the data. Often useful for testing povray settings as small scene render faster.
+     */
+    WPropInt m_povraySaveOnlyNth;
+
+    /**
+     * Handles updates in filetype property. Used to hide and unhide certain property groups.
+     */
+    void fileTypeChanged();
 };
 
 #endif  // WMWRITETRACTS_H

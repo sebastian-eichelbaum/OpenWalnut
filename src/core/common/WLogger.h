@@ -236,6 +236,7 @@ namespace wlog
          * Forbid assignment
          *
          * \param rhs The instance which SHOULD be copied over
+         * \return A reference to the variable for which assignment was INTENDED.
          */
         WStreamedLogger& operator=( const WStreamedLogger& rhs );
 
@@ -273,6 +274,7 @@ namespace wlog
      *
      * \param source Indicate the source where this log message origins.
      * \param level The LogLevel of this message
+     * \return The logger created using the functions parameters
      */
     inline WStreamedLogger _wlog( const std::string& source, LogLevel level )
     {
@@ -283,6 +285,7 @@ namespace wlog
      * Logging an error message.
      *
      * \param source Indicate the source where this log message origins.
+     * \return The logger with the error message.
      */
     inline WStreamedLogger error( const std::string& source )
     {
@@ -293,6 +296,7 @@ namespace wlog
      * Logging a warning message.
      *
      * \param source Indicate the source where this log message origins.
+     * \return The logger with the warning message.
      */
     inline WStreamedLogger warn( const std::string& source )
     {
@@ -303,6 +307,7 @@ namespace wlog
      * Logging an information message.
      *
      * \param source Indicate the source where this log message origins.
+     * \return The logger with the warning message.
      */
     inline WStreamedLogger info( const std::string& source )
     {
@@ -313,6 +318,7 @@ namespace wlog
      * Logging a debug message.
      *
      * \param source Indicate the source where this log message origins.
+     * \return The logger with the debug message.
      */
     inline WStreamedLogger debug( const std::string& source )
     {

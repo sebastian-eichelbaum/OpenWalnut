@@ -25,8 +25,8 @@
 #ifndef WGESHADER_H
 #define WGESHADER_H
 
-#include <map>
 #include <list>
+#include <map>
 #include <string>
 
 // Use filesystem version 2 for compatibility with newer boost versions.
@@ -36,14 +36,15 @@
 #include <boost/filesystem.hpp>
 #include <boost/signals2/signal.hpp>
 
-#include <osg/Shader>
+#include <osg/NodeCallback>
 #include <osg/Program>
+#include <osg/Shader>
 
 #include "../../common/WPathHelper.h"
 #include "../../common/WSharedAssociativeContainer.h"
-#include "WGEShaderPreprocessor.h"
-#include "WGEShaderDefine.h"
 #include "../WExportWGE.h"
+#include "WGEShaderDefine.h"
+#include "WGEShaderPreprocessor.h"
 
 /**
  * Class encapsulating the OSG Program class for a more convenient way of adding and modifying shader.

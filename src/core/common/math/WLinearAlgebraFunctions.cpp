@@ -316,7 +316,7 @@ WMatrix<double> pseudoInverse( const WMatrix<double>& input )
     // create diagonal matrix S
     WMatrix<double> S( input.getNbCols(), input.getNbCols() );
     S.setZero();
-    for ( size_t i = 0; i < Svec.size() && i < S.getNbRows() && i < S.getNbCols(); i++ )
+    for( size_t i = 0; i < Svec.size() && i < S.getNbRows() && i < S.getNbCols(); i++ )
     {
         S( i, i ) = ( Svec[ i ] == 0.0 ) ? 0.0 : 1.0 / Svec[ i ];
     }

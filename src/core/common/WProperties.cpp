@@ -33,7 +33,6 @@
 
 #include "WLogger.h"
 #include "exceptions/WPropertyUnknown.h"
-#include "exceptions/WPropertyNotUnique.h"
 
 #include "WPropertyHelper.h"
 
@@ -204,45 +203,6 @@ bool WProperties::propNamePredicate( boost::shared_ptr< WPropertyBase > prop1, b
 {
     return ( prop1->getName() == prop2->getName() );
 }
-
-void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
-{
-    // lock, unlocked if l looses focus
-    PropertySharedContainerType::WriteTicket l = m_properties.getWriteTicket();
-
-    // NOTE: WPropertyBase already prohibits invalid property names -> no check needed here
-
-    // check uniqueness:
-    if( std::count_if( l->get().begin(), l->get().end(),
-            boost::bind( boost::mem_fn( &WProperties::propNamePredicate ), this, prop, _1 ) ) )
-    {
-        // unlock explicitly
-        l.reset();
-
-        // oh oh, this property name is not unique in this group
-        if( !getName().empty() )
-        {
-            throw WPropertyNotUnique( std::string( "Property \"" + prop->getName() + "\" is not unique in this group (\"" + getName() + "\")." ) );
-        }
-        else
-        {
-            throw WPropertyNotUnique( std::string( "Property \"" + prop->getName() + "\" is not unique in this group (unnamed root)." ) );
-        }
-    }
-
-    // PV_PURPOSE_INFORMATION groups do not allow PV_PURPOSE_PARAMETER properties but vice versa.
-    if( getPurpose() == PV_PURPOSE_INFORMATION )
-    {
-        prop->setPurpose( PV_PURPOSE_INFORMATION );
-    }
-    // INFORMATION properties are allowed inside PARAMETER groups -> do not set the properties purpose.
-
-    l->get().push_back( prop );
-
-    // add the child's update condition to the list
-    m_childUpdateCondition->add( prop->getUpdateCondition() );
-}
-
 void WProperties::removeProperty( boost::shared_ptr< WPropertyBase > prop )
 {
     if( !prop )

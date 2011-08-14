@@ -45,7 +45,7 @@
 class WDataSetScalar;
 
 /**
- * A box representing a region of interest.
+ * A box containing information on an arbitrarily shaped a region of interest.
  */
 class WGE_EXPORT WROIArbitrary : public WROI
 {
@@ -110,27 +110,30 @@ public:
 
     /**
      * getter
+     *
+     * \return The threshold on the data in box which leads to the arbitrary ROI
      */
     double getThreshold();
 
     /**
-     * getter
-     */
-    double getMaxThreshold();
-
-    /**
      * Get the number of vertices in the three coordinate directions
+     *
+     * \return A vector containing the numbers of vertices
      */
     std::vector< size_t > getCoordDimensions();
 
     /**
      * Get the vertex offsets in the three coordinate directions
+     *
+     * \return The offsets between point in each of the three coordinate directions
      */
     std::vector< double > getCoordOffsets();
 
     /**
      * Get the i-th value of the data defining the ROI
      * \param i the index of the value
+     *
+     * \return The value at the given index.
      */
     float getValue( size_t i );
 

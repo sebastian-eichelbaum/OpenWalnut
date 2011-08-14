@@ -89,6 +89,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 
@@ -138,8 +139,10 @@ private:
     /**
      * copies the data from the input dataset which is marked by the selection box, otherwise data is zero
      *
-     * \param inGrid
-     * \param vals
+     * \param inGrid The grid from which the area will be cut
+     * \param vals The values on the original grid
+     *
+     * \return Data in the selected box
      */
     template< typename T > boost::shared_ptr< std::vector< float > > cutArea( boost::shared_ptr< WGrid > inGrid,
                                                                               boost::shared_ptr< WValueSet< T > > vals );

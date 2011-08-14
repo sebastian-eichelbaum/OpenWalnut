@@ -229,7 +229,7 @@ void WSphericalHarmonicsCoefficientsThread< T >::threadMain()
 
         double minVal = 1e99;
         double maxVal = -1e99;
-        for ( std::vector< size_t >::const_iterator it = m_parameter.m_validIndices.begin(); it != m_parameter.m_validIndices.end(); it++, idx++ )
+        for( std::vector< size_t >::const_iterator it = m_parameter.m_validIndices.begin(); it != m_parameter.m_validIndices.end(); it++, idx++ )
         {
             measures[ idx ] = S0avg <= 0.0 ? 0.0 : static_cast< double >( allMeasures[ *it ] ) / S0avg;
             if( measures[ idx ] < minVal )
@@ -287,7 +287,7 @@ void WSphericalHarmonicsCoefficientsThread< T >::threadMain()
 template< typename T >
 double WSphericalHarmonicsCoefficientsThread< T >::getError() const
 {
-    if ( m_errorCount == 0 ) return 0.0;
+    if( m_errorCount == 0 ) return 0.0;
     return m_overallError / static_cast< double >( m_errorCount );
 }
 

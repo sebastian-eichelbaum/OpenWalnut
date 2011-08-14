@@ -254,7 +254,7 @@ boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shar
         {
             for( c = 0; c < ncols; ++c)
             {
-                //if (VPixel(src,b,r,c,VBit) == 1)
+                //if(VPixel(src,b,r,c,VBit) == 1)
                 if( bitmask[b * nrows * ncols + r * ncols + c] )
                 {
                     floatDataset[b * nrows * ncols + r * ncols + c] = 0;

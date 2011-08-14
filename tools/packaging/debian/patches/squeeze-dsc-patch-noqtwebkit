@@ -1,0 +1,10 @@
+--- a/debian/control	2011-08-12 21:14:01.000000000 +0200
++++ b/debian/control	2011-08-12 21:14:08.000000000 +0200
+@@ -8,7 +8,6 @@
+                libgl1-mesa-dev | libgl-dev,
+                libopenscenegraph-dev (>= 2.8.1), libopenthreads-dev (>= 2.8.1),
+                libqt4-dev (>= 4:4.6.0), libqt4-opengl-dev (>= 4:4.6.0),
+-               libqtwebkit-dev (>= 2.0.0),
+                libboost-dev (>= 1.42.0), libboost-program-options-dev (>= 1.42.0), libboost-thread-dev (>= 1.42.0),
+                libboost-filesystem-dev (>= 1.42.0), libboost-date-time-dev (>= 1.42.0), libboost-system-dev (>= 1.42.0),
+                libboost-signals-dev (>= 1.42.0), libboost-regex-dev (>= 1.42.0),

@@ -25,18 +25,17 @@
 #ifndef WPROJECTFILE_H
 #define WPROJECTFILE_H
 
-#include <vector>
 #include <string>
+#include <vector>
 
-#include <boost/shared_ptr.hpp>
 // Use filesystem version 2 for compatibility with newer boost versions.
 #ifndef BOOST_FILESYSTEM_VERSION
     #define BOOST_FILESYSTEM_VERSION 2
 #endif
 #include <boost/filesystem.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "../common/WProjectFileIO.h"
-
 #include "WExportKernel.h"
 
 /**

@@ -123,6 +123,19 @@ chroot_mount()
 }
 
 #########################################################################################################
+# Checks existence of chroot jail
+chroot_check()
+{
+    echo "* Checking \"$CHROOTDIR\"."
+    if [ ! -d $CHROOTDIR ]; then
+        echo " * The chroot envirnoment does not exist."
+        exit 1
+    fi
+
+    exit 0
+}
+
+#########################################################################################################
 # Execute the specified parameters in the chroot
 chroot_do()
 {
@@ -170,31 +183,51 @@ chroot_do_once()
 # some new ubuntu-suite or debian variant.
 chroot_setup_suite()
 {
+    # to be on the safe side: add NeuroDebian to all the suites
+    # add the neurodebian repository as well as the eigen3 ppa. It is needed for eigen3, nifti and biosig
+    chroot_do wget -O /etc/apt/sources.list.d/neurodebian.sources.list http://neuro.debian.net/lists/$SUITE.de
+    chroot_do apt-key adv --recv-keys --keyserver pgp.mit.edu 2649A5A9
+
     # handle some special suites
     # NOTE: I tested only debian sid and ubuntu natty and maverick. Maverick currently has some problem with libopenscenegraph.
     #       Please add others here if needed
     case "$SUITE" in
-        natty | maverick)
-            # this is needed for ppa adding with automatic keyring downloading stuff
-            chroot_do apt-get -y --allow-unauthenticated install python-software-properties
-            # add the neurodebian repository as well as the eigen3 ppa. It is needed for eigen3, nifti and biosig
-            chroot_do wget -O /etc/apt/sources.list.d/neurodebian.sources.list http://neuro.debian.net/lists/$SUITE.de
-            chroot_do apt-key adv --recv-keys --keyserver pgp.mit.edu 2649A5A9
-            # the eigen3 ppa
-            chroot_do add-apt-repository ppa:gaschler/rl/eigen3
+        oneiric | natty | maverick )
             # multiverse and universe needed for several packs
             echo "deb http://de.archive.ubuntu.com/ubuntu $SUITE restricted universe multiverse" > ./$CHROOTDIR/etc/apt/sources.list.d/universeMultiverse.sources.list
-            # This is very important: the pinning prohibits an update to some new boost version which is NOT available in
-            # neurodeb or ubunut now, but at ppa:gaschler
-            echo "Package: *
-Pin: origin ppa.launchpad.net
-Pin-Priority: -1
 
-Package: libeigen3-dev
-Pin: origin ppa.launchpad.net
-Pin-Priority: 1000" > ./$CHROOTDIR/etc/apt/preferences.d/noBoostFromGaschler
+            # they provide qtwebkit
+            chroot_do apt-get -y --allow-unauthenticated install libqtwebkit-dev
+        ;;
+        lucid )
+            # lucid does not provide libqtwebkit-qt .. so, do not install. only add multi/universe
+            # multiverse and universe needed for several packs
+            echo "deb http://de.archive.ubuntu.com/ubuntu $SUITE restricted universe multiverse" > ./$CHROOTDIR/etc/apt/sources.list.d/universeMultiverse.sources.list
+        ;;
+        sid | wheezy )
+            # they provide qtwebkit
+            chroot_do apt-get -y --allow-unauthenticated install libqtwebkit-dev
+        ;;
+        *)
+            # debian 6 does not have libqtwebkit
+        ;;
+    esac
 
-            chroot_do apt-get update
+    # of some suite added repos:
+    chroot_do apt-get update
+}
+
+#########################################################################################################
+# This function helps to do suite-specific setup. It is called after creating and installing everything.
+# It is very distribution specific! So you might need to make changes here if you use this script with
+# some new ubuntu-suite or debian variant.
+chroot_finalize_suite()
+{
+    # handle some special suites
+    case "$SUITE" in
+        oneiric | natty | maverick | lucid )
+            # ubuntu hack: kill this xapian-index stuff. If not done, chroot_umount will fail
+            chroot_do killall -q update-apt-xapian-index | echo
         ;;
         *)
             # nothing needed for debian sid
@@ -303,16 +336,22 @@ chroot_build()
 
         echo " * Installing our build-dependencies."
         # technically, it is possible to give debootstrap the list of packs it should install. But this somehow causes it to fail on my system.
-        chroot_do apt-get -y --allow-unauthenticated install cmake libgl1-mesa-dev libopenscenegraph-dev libopenthreads-dev libqt4-dev libqtwebkit-dev zlib1g-dev libboost-dev libboost-program-options-dev libboost-thread-dev libboost-filesystem-dev libboost-date-time-dev libboost-system-dev libboost-signals-dev libboost-regex-dev libeigen3-dev libbiosig-dev libnifti-dev
+        chroot_do apt-get -y --allow-unauthenticated install cmake libgl1-mesa-dev libopenscenegraph-dev libopenthreads-dev libqt4-dev zlib1g-dev libboost-dev libboost-program-options-dev libboost-thread-dev libboost-filesystem-dev libboost-date-time-dev libboost-system-dev libboost-signals-dev libboost-regex-dev libeigen3-dev libbiosig-dev libnifti-dev doxygen graphviz psmisc sysvinit-utils
         if [ $? -ne 0 ]; then
             echo "  * Failed to install build dependencies. Maybe you need to add further package sources."
             chroot_umount
             exit 1
         fi
 
+        echo " * $SUITE-specific finalization."
+        chroot_finalize_suite
+        if [ $? -ne 0 ]; then
+            echo "  * Failed to configure $SUITE. Maybe you need to modify the suite-specific config in $0."
+            chroot_umount
+            exit 1
+        fi
+
         # finalize before archiving
-        # ubuntu hack: kill this xapian-index stuff.
-        chroot_do killall update-apt-xapian-index
         echo " * Stopping chroot environment \"./$CHROOTDIR\""
         chroot_umount
         if [ $? -ne 0 ]; then
@@ -330,6 +369,29 @@ chroot_build()
 }
 
 #########################################################################################################
+# Checks whether the specified suite is suppirted.
+check_suite()
+{
+    case "$SUITE" in
+        karmic | jaunty | hardy )
+            echo "Sorry. This Ubuntu version does not provide libeigen3-dev. Use a version from Lucid upwards."
+            exit 1
+        ;;
+        lenny | etch )
+            echo "Sorry. This Debian version does not provide libeigne3-dev. Use a version from squeeze upwards."
+            exit 1
+        ;;
+        stable | testing )
+            echo "Testing and Stable - please use the correct codenames."
+            exit 1
+        ;;
+        *)
+            # nothing needed for debian sid
+        ;;
+    esac
+}
+
+#########################################################################################################
 # Something went wrong. Quit.
 Exit()
 {
@@ -341,14 +403,16 @@ Exit()
 # Quit and print usage info.
 UsageExit()
 {
-    echo "Usage: $0 ARCHITECTURE {create|sh|do} [PARAMETERS]"
+    echo "Usage: $0 ARCHITECTURE DISTRIBUTION {check|create|sh|run} [PARAMETERS]"
     echo "  Parameter:"
-    echo "    ARCHITECTURE: is the debian compatible architecture sting. I.e. amd64 or i386."
+    echo "    ARCHITECTURE: is the debian compatible architecture string. (like amd64 or i386)"
+    echo "    DISTRIBUTION: Distribution Name."
     echo ""
     echo "  Commands:"
+    echo "    check: check existence of chroot jail."
     echo "    create: creates a new chroot environment. If $CHROOTDIR.tar.gz exists, it uses it as chroot. If not, the chroot gets created using debootstrap."
     echo "    sh: Starts an interactive shell in the chroot environment."
-    echo "    do: Executes the specified command. I.e. $0 amd64 do /bin/ls /build"
+    echo "    run: Executes the specified command. Example: $0 amd64 run /bin/ls /build"
     Exit 2
 }
 
@@ -372,11 +436,13 @@ fi
 # set architecture
 ARCH=$1
 SUITE=$2
+# is the suite supported?
+check_suite || Exit $?
 
 # rebuild chroot-dir
 CHROOTDIR=owbuildchroot-$SUITE-$ARCH
 case "$SUITE" in
-    sid | testing)
+    sid | wheezy | squeeze )
         SERVER=http://ftp.de.debian.org/debian
         ;;
     *)
@@ -387,13 +453,16 @@ esac
 
 # Handle user command
 case "$3" in
+    check)
+        chroot_check || Exit $?
+        ;;
     create)
         chroot_build || Exit $?
         ;;
     sh)
         chroot_do_once /bin/bash || Exit $?
         ;;
-    do)
+    run)
         shift 3
         chroot_do_once $* || Exit $?
         ;;

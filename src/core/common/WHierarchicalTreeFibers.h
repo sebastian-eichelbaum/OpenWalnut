@@ -89,9 +89,11 @@ public:
     /**
      * finds clusters that match a given ROI up to a certain percentage
      *
-     * \param ratio value of [0,1] of how many leafes have to be in the roi to activate the cluster
-     * \param number number of cluster to select, if more than give number matches the ratio criteria only the
+     * \param ratio value of [0,1] of how many leafs have to be in the ROI to activate the cluster
+     * \param number number of clusters to select, if more than given number matches the ratio criterion only the
      * biggest clusters are returned
+     *
+     * \return The indices of the chosen clusters.
      */
     std::vector<size_t> getBestClustersFittingRoi( float ratio = 0.9, size_t number = 1 );
 

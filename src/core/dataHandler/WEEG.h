@@ -52,6 +52,7 @@ public:
 
     /**
      * Returns the position of the electrode.
+     * \return The position of the electrode.
      */
     WPosition getPosition() const;
 protected:
@@ -108,37 +109,43 @@ public:
 
     /**
      * Access operator for single samples.
-     * \param segment id of segement to access
+     * \param segment id of segment to access
      * \param signal id of signal to access
      * \param sample id of sample to access
+     * \return The data sample at the given location
      */
     const double& operator()( size_t segment, size_t signal, size_t sample ) const;
 
     /**
      * Returns number of samples of a given segment.
      * \param segmentId id of segment beeing inspected.
+     * \return Number of samples of segment with segmentId.
      */
     size_t getNumberOfSamples( size_t segmentId ) const;
 
     /**
      * Return the number of channels this EEG has.
+     * \return Number of channels.
      */
     size_t getNumberOfChannels() const;
 
     /**
      * Return the number of segments this EEG consists of.
+     * \return Number of segments.
      */
     size_t getNumberOfSegments() const;
 
     /**
      * Return the label of a certain channel.
      * \param channelId id of channel beeing inspected.
+     * \return Name of channel with channelId
      */
     std::string getChannelLabel( size_t channelId ) const;
 
     /**
      * Return the position of the sensor for a certain channel.
      * \param channelId id of channel beeing inspected.
+     * \return Position of sensor of channel channelId
      */
     WPosition getChannelPosition( size_t channelId ) const;
 

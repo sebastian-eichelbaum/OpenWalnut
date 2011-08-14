@@ -93,16 +93,19 @@ public:
 
     /**
      * Returns the distance between samples in x direction.
+     * \return The distance between samples in x direction.
      */
     double getOffsetX() const;
 
     /**
      * Returns the distance between samples in y direction.
+     * \return The distance between samples in y direction.
      */
     double getOffsetY() const;
 
     /**
      * Returns the distance between samples in z direction.
+     * \return The distance between samples in z direction.
      */
     double getOffsetZ() const;
 
@@ -110,6 +113,7 @@ public:
      * Returns the vector determining the direction of samples in x direction.
      * Adding this vector to a grid position in world coordinates yields the position of the next sample
      * along the grids (world coordinate) x-axis.
+     * \return The vector determining the direction of samples in x direction.
      */
     WVector3d getDirectionX() const;
 
@@ -117,6 +121,7 @@ public:
      * Returns the vector determining the direction of samples in y direction.
      * Adding this vector to a grid position in world coordinates yields the position of the next sample
      * along the grids (world coordinate) y-axis.
+     * \return The vector determining the direction of samples in y direction.
      */
     WVector3d getDirectionY() const;
 
@@ -124,31 +129,37 @@ public:
      * Returns the vector determining the direction of samples in z direction.
      * Adding this vector to a grid position in world coordinates yields the position of the next sample
      * along the grids (world coordinate) z-axis.
+     * \return The vector determining the direction of samples in z direction.
      */
     WVector3d getDirectionZ() const;
 
     /**
      * Returns the vector determining the unit (normalized) direction of samples in x direction.
+     * \return The vector determining the unit (normalized) direction of samples in x direction.
      */
     WVector3d getUnitDirectionX() const;
 
     /**
      * Returns the vector determining the unit (normalized) direction of samples in y direction.
+     * \return The vector determining the unit (normalized) direction of samples in y direction.
      */
     WVector3d getUnitDirectionY() const;
 
     /**
      * Returns the vector determining the unit (normalized) direction of samples in z direction.
+     * \return The vector determining the unit (normalized) direction of samples in z direction.
      */
     WVector3d getUnitDirectionZ() const;
 
     /**
      * Returns the position of the origin of the grid.
+     * \return The position of the origin of the grid.
      */
     WPosition getOrigin() const;
 
     /**
      * Returns a 4x4 matrix that represents the grid's transformaion.
+     * \return The grid's transformation.
      */
     // NOTE: this is temporary and should be removed as soon as all modules are
     // adapted to the grid transform object

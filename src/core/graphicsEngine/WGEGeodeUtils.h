@@ -176,6 +176,24 @@ namespace wge
                                                           bool border = false );
 
     /**
+     * Create a coordinate system. The coordinate system is build from cylinders and cones and includes a positive-to-negative
+     * color gradient.
+     *
+     * \param middle osg::Vec3( middleX, middleY, middleZ ) middle points of X, Y, Z
+     * \param sizeX whole lenght of X
+     * \param sizeY whole lenght of Y
+     * \param sizeZ whole lenght of Z
+     *
+     * \return Group Node
+     */
+    osg::ref_ptr< osg::Group > creatCoordinateSystem(
+        osg::Vec3 middle,
+        double sizeX,
+        double sizeY,
+        double sizeZ
+    );
+
+    /**
      * Generates a geode out of two vectors and an origin position.
      *
      * \param base the origin position. NOT the center.

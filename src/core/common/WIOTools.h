@@ -28,7 +28,6 @@
 #include <stdint.h>
 
 #include <algorithm>
-// #include <cstdio>
 #include <string>
 
 // Use filesystem version 2 for compatibility with newer boost versions.

@@ -36,11 +36,14 @@
 
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../common/WPathHelper.h"
+#include "../common/math/WMath.h"
 #include "WGESubdividedPlane.h"
 #include "WGEGeodeUtils.h"
 #include "WGEGeometryUtils.h"
 #include "WGEUtils.h"
-
+#include "WGEGroupNode.h"
+#include "shaders/WGEShader.h"
+#include "widgets/labeling/WGELabel.h"
 
 osg::ref_ptr< osg::Geode > wge::generateBoundingBoxGeode( const WBoundingBox& bb, const WColor& color )
 {
@@ -260,7 +263,7 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mes
     geometry->addPrimitiveSet( surfaceElement );
 
     // add the mesh colors
-    if ( mesh->getVertexColorArray() && useMeshColor )
+    if( mesh->getVertexColorArray() && useMeshColor )
     {
         geometry->setColorArray( mesh->getVertexColorArray() );
         geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
@@ -307,8 +310,8 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mes
     return geometry;
 }
 
-osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mesh, const WColoredVertices& colorMap,
-                                                         const WColor& defaultColor, bool includeNormals, bool lighting )
+osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mesh, const WColoredVertices& colorMap, const WColor& defaultColor,
+                                                         bool includeNormals, bool lighting )
 {
     osg::Geometry* geometry = convertToOsgGeometry( mesh, defaultColor, includeNormals, lighting, false );
 
@@ -366,12 +369,9 @@ osg::ref_ptr< osg::Geode > wge::generateLineStripGeode( const WLine& line, const
     }
 
     // line width
-    osg::StateSet* stateset = new osg::StateSet;
-    osg::LineWidth* linewidth = new osg::LineWidth();
-    linewidth->setWidth( thickness );
-    stateset->setAttributeAndModes( linewidth, osg::StateAttribute::ON );
+    osg::StateSet* stateset = geometry->getOrCreateStateSet();
+    stateset->setAttributeAndModes( new osg::LineWidth( thickness ), osg::StateAttribute::ON );
     stateset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    geometry->setStateSet( stateset );
 
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
     geode->addDrawable( geometry );
@@ -551,3 +551,138 @@ osg::ref_ptr< WGESubdividedPlane > wge::genUnitSubdividedPlane( size_t resX, siz
     return geode;
 }
 
+osg::ref_ptr< osg::Group > wge::creatCoordinateSystem(
+    osg::Vec3 middle,
+    double sizeX,
+    double sizeY,
+    double sizeZ
+)
+{
+    osg::ref_ptr< WGEGroupNode >groupNode = new WGEGroupNode();
+    osg::ref_ptr< WGEShader > shaderCoordinateSystem( new WGEShader( "WGECoordinateSystem" ) );
+
+    osg::ref_ptr< osg::Geode > graphX( new osg::Geode );
+    osg::ref_ptr< osg::Geode > graphY( new osg::Geode );
+    osg::ref_ptr< osg::Geode > graphZ( new osg::Geode );
+
+    osg::ref_ptr< osg::Geode > graphXCylinder( new osg::Geode );
+    osg::ref_ptr< osg::Geode > graphYCylinder( new osg::Geode );
+    osg::ref_ptr< osg::Geode > graphZCylinder( new osg::Geode );
+
+    // X
+    osg::ref_ptr< osg::ShapeDrawable > cylinderX = new osg::ShapeDrawable( new osg::Cylinder(
+        middle, 1, sizeX + ( sizeX * 0.5 )
+    ) );
+    osg::ref_ptr< osg::ShapeDrawable > cylinderXEnd = new osg::ShapeDrawable( new osg::Cylinder(
+        osg::Vec3( middle.x(), middle.y(), middle.z() - ( sizeX + ( sizeX * 0.5 ) ) / 2.0 ), 1.0, 1.0
+    ) );
+    osg::ref_ptr< osg::ShapeDrawable > coneX = new osg::ShapeDrawable( new osg::Cone(
+        osg::Vec3( middle.x(), middle.y(), middle.z() + ( sizeX + ( sizeX * 0.5 ) ) / 2.0 ), 2.0, 5.0
+    ) );
+    cylinderXEnd->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    graphXCylinder->addDrawable( cylinderX );
+    graphX->addDrawable( coneX );
+    graphX->addDrawable( cylinderXEnd );
+
+    osg::ref_ptr< osg::Material > matX = new osg::Material();
+    matX->setDiffuse( osg::Material::FRONT, WColor( 1.0, 0.0, 0.0, 1.0 ) );
+    cylinderX->getOrCreateStateSet()->setAttribute( matX, osg::StateAttribute::ON );
+    coneX->getOrCreateStateSet()->setAttribute( matX, osg::StateAttribute::ON );
+
+    // Y
+    osg::ref_ptr< osg::ShapeDrawable > cylinderY = new osg::ShapeDrawable( new osg::Cylinder(
+        middle, 1, sizeY + ( sizeY * 0.5 )
+    ) );
+    osg::ref_ptr< osg::ShapeDrawable > cylinderYEnd = new osg::ShapeDrawable( new osg::Cylinder(
+        osg::Vec3( middle.x(), middle.y(), middle.z() - ( sizeY + ( sizeY * 0.5 ) ) / 2.0 ), 1.0, 1.0
+    ) );
+    osg::ref_ptr< osg::ShapeDrawable > coneY = new osg::ShapeDrawable( new osg::Cone(
+        osg::Vec3( middle.x(), middle.y(), middle.z() + ( sizeY + ( sizeY * 0.5 ) ) / 2.0 ), 2.0, 5.0
+    ) );
+    cylinderYEnd->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+
+    graphYCylinder->addDrawable( cylinderY );
+    graphY->addDrawable( coneY );
+    graphY->addDrawable( cylinderYEnd );
+
+    osg::ref_ptr< osg::Material > matY = new osg::Material();
+    matY->setDiffuse( osg::Material::FRONT, WColor( 0.0, 1.0, 0.0, 1.0 ) );
+    cylinderY->getOrCreateStateSet()->setAttribute( matY, osg::StateAttribute::ON );
+    coneY->getOrCreateStateSet()->setAttribute( matY, osg::StateAttribute::ON );
+
+
+    // Z
+    osg::ref_ptr< osg::ShapeDrawable > cylinderZ = new osg::ShapeDrawable( new osg::Cylinder(
+        middle, 1, sizeZ + ( sizeZ * 0.5 )
+    ) );
+    osg::ref_ptr< osg::ShapeDrawable > cylinderZEnd = new osg::ShapeDrawable( new osg::Cylinder(
+        osg::Vec3( middle.x(), middle.y(), middle.z() - ( sizeZ + ( sizeZ * 0.5 ) ) / 2.0 ), 1.0, 1.0
+    ) );
+    osg::ref_ptr< osg::ShapeDrawable > coneZ = new osg::ShapeDrawable( new osg::Cone(
+        osg::Vec3( middle.x(), middle.y(), middle.z() + ( sizeZ + ( sizeZ * 0.5 ) ) / 2.0 ), 2.0, 5.0
+    ) );
+    cylinderZEnd->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+
+    graphZCylinder->addDrawable( cylinderZ );
+    graphZ->addDrawable( coneZ );
+    graphZ->addDrawable( cylinderZEnd );
+
+    osg::ref_ptr< osg::Material > matZ = new osg::Material();
+    matZ->setDiffuse( osg::Material::FRONT, WColor( 0.0, 0.0, 1.0, 1.0 ) );
+    cylinderZ->getOrCreateStateSet()->setAttribute( matZ, osg::StateAttribute::ON );
+    coneZ->getOrCreateStateSet()->setAttribute( matZ, osg::StateAttribute::ON );
+
+    shaderCoordinateSystem->apply( graphXCylinder );
+    shaderCoordinateSystem->apply( graphYCylinder );
+    shaderCoordinateSystem->apply( graphZCylinder );
+
+    osg::ref_ptr< WGELabel > graphXLabel = new WGELabel();
+    graphXLabel->setText( "X" );
+    graphXLabel->setCharacterSize( 10 );
+    graphXLabel->setPosition( osg::Vec3( middle.x(), middle.y(), middle.z() + ( sizeX + ( sizeX * 0.5 ) ) / 2.0 + 5.0 ) );
+    graphXLabel->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    graphX->addDrawable( graphXLabel );
+
+    osg::ref_ptr< WGELabel > graphYLabel = new WGELabel();
+    graphYLabel->setText( "Y" );
+    graphYLabel->setCharacterSize( 10 );
+    graphYLabel->setPosition( osg::Vec3( middle.x(), middle.y(), middle.z() + ( sizeY + ( sizeY * 0.5 ) ) / 2.0 + 5.0 ) );
+    graphYLabel->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    graphY->addDrawable( graphYLabel );
+
+    osg::ref_ptr< WGELabel > graphZLabel = new WGELabel();
+    graphZLabel->setText( "Z" );
+    graphZLabel->setCharacterSize( 10 );
+    graphZLabel->setPosition( osg::Vec3( middle.x(), middle.y(), middle.z() + ( sizeZ + ( sizeZ * 0.5 ) ) / 2.0 + 5.0 ) );
+    graphZLabel->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    graphZ->addDrawable( graphZLabel );
+
+
+    osg::ref_ptr< osg::MatrixTransform > graphXTransform = new osg::MatrixTransform();
+    graphXTransform->addChild( graphX );
+    graphXTransform->addChild( graphXCylinder );
+    osg::ref_ptr< osg::MatrixTransform > graphYTransform = new osg::MatrixTransform();
+    graphYTransform->addChild( graphY );
+    graphYTransform->addChild( graphYCylinder );
+    osg::ref_ptr< osg::MatrixTransform > graphZTransform = new osg::MatrixTransform();
+    graphZTransform->addChild( graphZ );
+    graphZTransform->addChild( graphZCylinder );
+
+    osg::Matrixd matrixTranslateTo0 = osg::Matrixd::translate( -middle.x(), -middle.y(), -middle.z() );
+    osg::Matrixd matrixTranslateFrom0 = osg::Matrixd::translate( middle.x(), middle.y(), middle.z() );
+
+    graphXTransform->setMatrix( matrixTranslateTo0 * osg::Matrixd::rotate(
+        90.0 * piDouble / 180.0,
+        osg::Vec3f( 0.0, 1.0, 0.0 ) ) * matrixTranslateFrom0
+    );
+    graphYTransform->setMatrix( matrixTranslateTo0 * osg::Matrixd::rotate(
+        -90.0 * piDouble / 180.0,
+        osg::Vec3f( 1.0, 0.0, 0.0 ) ) * matrixTranslateFrom0
+    );
+
+    groupNode->insert( graphXTransform );
+    groupNode->insert( graphYTransform );
+    groupNode->insert( graphZTransform );
+
+    return groupNode;
+}

@@ -24,6 +24,8 @@
 
 #version 120
 
+#include "WGEColormapping-fragment.glsl"
+
 /**
  * The normal.
  */
@@ -34,17 +36,24 @@ varying vec3 v_normal;
  */
 uniform float u_opacity;
 
+/**
+ * The colormap ratio specified by the user in [0,1]
+ */
+uniform float u_colormapRatio;
+
 #include "WGEShadingTools.glsl"
 
 void main()
 {
     vec4 col = gl_Color;
-
+#ifdef COLORMAPPING_ENABLED
+    col = mix( colormapping(), col, u_colormapRatio );
+#endif
     // calculate lighting
     float light = blinnPhongIlluminationIntensity( normalize( -v_normal ) );
     col*=light;
 
     // finally, apply opacity
-    col.a = u_opacity * 0.01;
+    col.a = u_opacity* 0.01;
     gl_FragColor = col;
 }

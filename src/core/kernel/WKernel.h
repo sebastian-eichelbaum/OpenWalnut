@@ -146,13 +146,17 @@ public:
 
     /**
      * get for roi manager
+     *
+     * \return Pointer to the ROI manager.
      */
     boost::shared_ptr< WROIManager> getRoiManager();
 
     /**
      * get for selection manager
+     *
+     * \return Pointer to the selection manager.
      */
-    boost::shared_ptr< WSelectionManager>getSelectionManager();
+    boost::shared_ptr< WSelectionManager> getSelectionManager();
 
 protected:
     /**
