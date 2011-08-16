@@ -108,15 +108,24 @@ boost::shared_ptr< WGEColormapping > WGEColormapping::instance()
 
 void WGEColormapping::apply( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGEShader > shader, size_t startTexUnit )
 {
-    instance()->applyInst( node, WMatrix4d( WMatrix4d::identity() ), shader, startTexUnit );
+    instance()->applyInst( NodeList( 1, node ), WMatrix4d( WMatrix4d::identity() ), shader, startTexUnit );
 }
 
 void WGEColormapping::apply( osg::ref_ptr< osg::Node > node, WMatrix4d preTransform, osg::ref_ptr< WGEShader > shader,
                              size_t startTexUnit )
 {
-    instance()->applyInst( node, preTransform, shader, startTexUnit );
+    instance()->applyInst( NodeList( 1, node ), preTransform, shader, startTexUnit );
 }
 
+void WGEColormapping::apply( NodeList nodes, WMatrix4d preTransform, osg::ref_ptr< WGEShader > shader, size_t startTexUnit )
+{
+    instance()->applyInst( nodes, preTransform, shader, startTexUnit );
+}
+
+void WGEColormapping::apply( NodeList nodes, osg::ref_ptr< WGEShader > shader, size_t startTexUnit )
+{
+    instance()->applyInst( nodes, WMatrix4d( WMatrix4d::identity() ), shader, startTexUnit );
+}
 
 void WGEColormapping::registerTexture( osg::ref_ptr< WGETexture3D > texture, std::string name )
 {
@@ -133,32 +142,33 @@ void WGEColormapping::replaceTexture( osg::ref_ptr< WGETexture3D > old, osg::ref
     instance()->replaceTextureInst( old, newTex, name );
 }
 
-void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, WMatrix4d preTransform, osg::ref_ptr< WGEShader > shader,
+void WGEColormapping::applyInst( NodeList nodes, WMatrix4d preTransform, osg::ref_ptr< WGEShader > shader,
                                  size_t startTexUnit )
 {
-    // applying to a node simply means adding a callback :-)
-    NodeInfo* info = new NodeInfo;
-    info->m_rebind = true;
-    info->m_texUnitStart = startTexUnit;
-    info->m_preTransform = preTransform;
-    m_nodeInfo.insert( std::make_pair( node, info ) );
-
-    node->addUpdateCallback( m_callback );
-
-    // add the default shader if no other shader has been specified.
-    if( !shader )
+    // init shader
+    osg::ref_ptr< WGEShader > s = shader;
+    if( !s )
     {
         // we use a new instance of the default shader here because the preTransform is varying between several nodes.
-        osg::ref_ptr< WGEShader > s = new WGEShader( "WGEDefaultColormapper" );
-        setDefines( s, 0 );
-        setPreTransform( s, preTransform );
-        s->apply( node );
+        s = new WGEShader( "WGEDefaultColormapper" );
     }
-    else
+    setDefines( s, startTexUnit );
+    setPreTransform( s, preTransform );
+
+    // do this for each node
+    for( NodeList::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
-        setDefines( shader, startTexUnit );
-        setPreTransform( shader, preTransform );
-        shader->apply( node );
+        // applying to a node simply means adding a callback :-)
+        NodeInfo* info = new NodeInfo;
+        info->m_rebind = true;
+        info->m_texUnitStart = startTexUnit;
+        info->m_preTransform = preTransform;
+        m_nodeInfo.insert( std::make_pair( *i, info ) );
+
+        ( *i )->addUpdateCallback( m_callback );
+
+        // add the default shader if no other shader has been specified.
+        s->apply( *i );
     }
 }
 

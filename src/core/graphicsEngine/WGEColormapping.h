@@ -103,6 +103,11 @@ public:
     static boost::shared_ptr< WGEColormapping > instance();
 
     /**
+     * a bunch of nodes.
+     */
+    typedef std::vector< osg::ref_ptr< osg::Node > > NodeList;
+
+    /**
      * Apply the colormapping to the specified node.
      *
      * \param node the node.
@@ -116,6 +121,19 @@ public:
                        osg::ref_ptr< WGEShader > shader = osg::ref_ptr< WGEShader >(), size_t startTexUnit = 0 );
 
     /**
+     * Apply the colormapping to a list of nodes using the same shader.
+     *
+     * \param nodes the node-list.
+     * \param shader the shader to use for colormapping. Provide your own shader here to let WGEColormap set some defines needed. If not
+     * specified, a default shader is used.
+     * \param preTransform Transformation matrix getting applied to your texture coordinates before applying texture matrices. This allows you to
+     * specify any kind of texture coordinates as long as you use this matrix to transform them to the right space.
+     * \param startTexUnit the first texture unit allowed to be used
+     */
+    static void apply( NodeList nodes, WMatrix4d preTransform = WMatrix4d::identity(),
+                       osg::ref_ptr< WGEShader > shader = osg::ref_ptr< WGEShader >(), size_t startTexUnit = 0 );
+
+    /**
      * Apply the colormapping to the specified node.
      *
      * \param node the node.
@@ -124,6 +142,17 @@ public:
      * \param startTexUnit the first texture unit allowed to be used
      */
     static void apply( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGEShader > shader = osg::ref_ptr< WGEShader >(), size_t startTexUnit = 0 );
+
+    /**
+     * Apply the colormapping to a list of nodes which all use the same shader.
+     *
+     * \param nodes the node list.
+     * \param shader the shader to use for colormapping. Provide your own shader here to let WGEColormap set some defines needed. If not
+     * specified, a default shader is used.
+     * \param startTexUnit the first texture unit allowed to be used
+     */
+    static void apply( NodeList nodes,
+                       osg::ref_ptr< WGEShader > shader = osg::ref_ptr< WGEShader >(), size_t startTexUnit = 0 );
 
     /**
      * Register the specified texture to the colormapper. The registered texture is the automatically applied to all users of WGEColormapping.
@@ -257,16 +286,16 @@ protected:
     WGEColormapping();
 
     /**
-     * Apply the colormapping to the specified node.
+     * Apply the colormapping to the specified nodes.
      *
-     * \param node the node.
+     * \param nodes the nodes.
      * \param preTransform Transformation matrix getting applied to your texture coordinates before applying texture matrices. This allows you to
      * specify any kind of texture coordinates as long as you use this matrix to transform them to the right space.
      * \param shader the shader to use for colormapping. Provide your own shader here to let WGEColormap set some defines needed. If not
      * specified, a default shader is used.
      * \param startTexUnit the first texture unit allowed to be used
      */
-    void applyInst( osg::ref_ptr< osg::Node > node, WMatrix4d preTransform = WMatrix4d::identity(),
+    void applyInst( NodeList nodes, WMatrix4d preTransform = WMatrix4d::identity(),
                     osg::ref_ptr< WGEShader > shader = osg::ref_ptr< WGEShader >(), size_t startTexUnit = 0 );
 
     /**

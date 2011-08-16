@@ -247,7 +247,6 @@ void WMNavigationSlices::initOSG()
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     osg::ref_ptr< osg::StateSet > state = m_output->getOrCreateStateSet();
-    state->setMode( GL_BLEND, osg::StateAttribute::ON );
     state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
 
     // we want some nice animations: add timer
@@ -266,9 +265,9 @@ void WMNavigationSlices::initOSG()
     m_output->insert( mZ );
     m_output->dirtyBound();
 
-    m_axialOutput->insert( m_output );
-    m_sagittalOutput->insert( m_output );
-    m_coronalOutput->insert( m_output );
+    m_axialOutput->insert( mZ );
+    m_sagittalOutput->insert( mX );
+    m_coronalOutput->insert( mY );
 }
 
 WMNavigationSlices::PickCallback::PickCallback( osg::ref_ptr< osg::Node > node, WPropDouble property, bool negateDirection ):
@@ -326,10 +325,6 @@ void WMNavigationSlices::moduleMain()
 
     // create the root node for all the geometry
     m_output = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
-    m_output->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    // apply colormapping to transformation
-    osg::ref_ptr< WGEShader > shader = new WGEShader( "WMNavigationSlices", m_localPath );
-    WGEColormapping::apply( m_output, shader ); // this automatically applies the shader
 
     // create the roots for the nav-views
     m_sagittalOutput = osg::ref_ptr< WGEGroupNode > ( new WGEGroupNode() );
@@ -340,6 +335,20 @@ void WMNavigationSlices::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" )->getScene()->insert( m_axialOutput );
     WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" )->getScene()->insert( m_coronalOutput );
     WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" )->getScene()->insert( m_sagittalOutput );
+
+    m_output->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
+    m_axialOutput->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
+    m_sagittalOutput->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
+    m_coronalOutput->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
+
+    // apply colormapping to all the nodes
+    osg::ref_ptr< WGEShader > shader = new WGEShader( "WMNavigationSlices", m_localPath );
+    WGEColormapping::NodeList nodes;
+    nodes.push_back( m_output );
+    nodes.push_back( m_axialOutput );
+    nodes.push_back( m_sagittalOutput );
+    nodes.push_back( m_coronalOutput );
+    WGEColormapping::apply( nodes, shader ); // this automatically applies the shader
 
     // we need to be informed if the bounding box of the volume containing all the data changes.
     m_moduleState.add( WGEColormapping::instance()->getChangeCondition() );
