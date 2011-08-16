@@ -32,6 +32,9 @@ const vec4 pickColor = vec4( 0.25, 0.0, 0.75, 1.0 );
 // if this is 1, the slice is currently in pick mode
 uniform float u_picked;
 
+// if allows disabling pick coloring if 0
+uniform float u_pickColorEnabled;
+
 // animation time. Used for pick-animation
 uniform int u_timer;
 
@@ -52,13 +55,16 @@ void main()
     // as we use this for blending, we want it to swing in [0.5-0.75]
     pickColorIntensity = ( pickColorIntensity * 0.25 ) + 0.5;
 
+    // pick-coloring?
+    float picked = u_pickColorEnabled * u_picked;
+
     // remove transparency?
-    float removeTransparency = clamp( u_picked + float( u_noTransparency ), 0.0, 1.0 );
+    float removeTransparency = clamp( picked + float( u_noTransparency ), 0.0, 1.0 );
     cmap.a = ( ( 1.0 - removeTransparency ) * cmap.a ) + removeTransparency;
 
     // mix colormapping and pick color
     vec4 finalColor = mix( pickColor, cmap,
-                           ( 1.0 - u_picked ) + ( u_picked * pickColorIntensity ) // mix intensity. This is influenced by the pick-state.
+                           ( 1.0 - picked ) + ( picked * pickColorIntensity ) // mix intensity. This is influenced by the pick-state.
                          );
 
     // set as fragColor and remove transparency if needed.

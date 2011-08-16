@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <osg/Vec3>
+#include <osg/LineWidth>
 #include <osg/MatrixTransform>
 
 #include "core/common/WPropertyHelper.h"
@@ -111,6 +112,9 @@ void WMNavigationSlices::initOSG()
 {
     // remove the old slices
     m_output->clear();
+    m_axialOutput->clear();
+    m_sagittalOutput->clear();
+    m_coronalOutput->clear();
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Property Setup
@@ -242,6 +246,10 @@ void WMNavigationSlices::initOSG()
     m_ySlicePicker = PickCallback::SPtr( new PickCallback( ySlice, m_yPos, true ) );
     m_zSlicePicker = PickCallback::SPtr( new PickCallback( zSlice, m_zPos ) );
 
+    // transparency property
+    osg::ref_ptr< osg::Uniform > transparencyUniform = new osg::Uniform( "u_noTransparency", false );
+    transparencyUniform->setUpdateCallback( new WGEPropertyUniformCallback< WPropBool >( m_noTransparency ) );
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Done
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -255,9 +263,10 @@ void WMNavigationSlices::initOSG()
     animationUniform->setUpdateCallback( new WGEShaderAnimationCallback() );
 
     // transparency property
-    osg::ref_ptr< osg::Uniform > transparencyUniform = new osg::Uniform( "u_noTransparency", false );
     state->addUniform( transparencyUniform );
-    transparencyUniform->setUpdateCallback( new WGEPropertyUniformCallback< WPropBool >( m_noTransparency ) );
+    m_axialOutput->getOrCreateStateSet()->addUniform( transparencyUniform );
+    m_sagittalOutput->getOrCreateStateSet()->addUniform( transparencyUniform );
+    m_coronalOutput->getOrCreateStateSet()->addUniform( transparencyUniform );
 
     // add the transformation nodes to the output group
     m_output->insert( mX );
@@ -323,6 +332,10 @@ void WMNavigationSlices::moduleMain()
     // done.
     ready();
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Slices Setup
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     // create the root node for all the geometry
     m_output = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
 
@@ -335,6 +348,12 @@ void WMNavigationSlices::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" )->getScene()->insert( m_axialOutput );
     WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" )->getScene()->insert( m_coronalOutput );
     WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" )->getScene()->insert( m_sagittalOutput );
+
+    // disable the pick-coloring for the side views
+    m_axialOutput->getOrCreateStateSet()->addUniform( new osg::Uniform( "u_pickColorEnabled", 0.0f ) );
+    m_sagittalOutput->getOrCreateStateSet()->addUniform( new osg::Uniform( "u_pickColorEnabled", 0.0f ) );
+    m_coronalOutput->getOrCreateStateSet()->addUniform( new osg::Uniform( "u_pickColorEnabled", 0.0f ) );
+    m_output->getOrCreateStateSet()->addUniform( new osg::Uniform( "u_pickColorEnabled", 1.0f ) );
 
     m_output->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
     m_axialOutput->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
@@ -350,12 +369,12 @@ void WMNavigationSlices::moduleMain()
     nodes.push_back( m_coronalOutput );
     WGEColormapping::apply( nodes, shader ); // this automatically applies the shader
 
-    // we need to be informed if the bounding box of the volume containing all the data changes.
-    m_moduleState.add( WGEColormapping::instance()->getChangeCondition() );
-
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Main loop
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // we need to be informed if the bounding box of the volume containing all the data changes.
+    m_moduleState.add( WGEColormapping::instance()->getChangeCondition() );
 
     // main loop
     while( !m_shutdownFlag() )
@@ -380,8 +399,9 @@ void WMNavigationSlices::moduleMain()
     m_zSlicePicker.reset();
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_output );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_axialOutput );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_coronalOutput );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_sagittalOutput );
+
+    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" )->getScene()->remove( m_axialOutput );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" )->getScene()->remove( m_coronalOutput );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" )->getScene()->remove( m_sagittalOutput );
 }
 
