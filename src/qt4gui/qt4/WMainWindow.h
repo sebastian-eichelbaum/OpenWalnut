@@ -344,6 +344,12 @@ private:
      * The action controlling the auto-display feature.
      */
     WSettingAction* m_autoDisplaySetting;
+
+private slots:
+    /**
+     * Handles some special GL vendors and shows the user a dialog.
+     */
+    void handleGLVendor();
 };
 
 #endif  // WMAINWINDOW_H

@@ -52,6 +52,7 @@
 #endif
 
 #include "../common/WColor.h"
+#include "../common/WFlag.h"
 #include "../common/WThreadedRunner.h"
 #include "WExportWGE.h"
 #include "WGECamera.h"
@@ -183,6 +184,20 @@ public:
      */
     osg::ref_ptr< WPickHandler > getPickHandler();
 
+    /**
+     * Queries the OpenGL vendor info.
+     *
+     * \return Vendor string.
+     */
+    std::string getOpenGLVendor() const;
+
+    /**
+     * Returns the flag which denotes whether a frame was rendered.
+     *
+     * \return the flag.
+     */
+    WBoolFlag::SPtr isFrameRendered() const;
+
 protected:
     /**
      * The OpenSceneGraph view used in this (Composite)Viewer.
@@ -208,6 +223,65 @@ protected:
      */
     osg::ref_ptr< WGEGroupNode > m_scene;
 
+    /**
+     * This flag is true and notifies after the first rendered frame.
+     */
+    WBoolFlag::SPtr m_rendered;
+
+    /**
+     * Small class used for querying glGet info during rendering.
+     */
+    class QueryCallback: public osg::Camera::DrawCallback
+    {
+    public:
+        /**
+         * Constructor. Automatically de-registers from camera after one run.
+         *
+         * \param camera the cam to which this was registered
+         * \param run notifies the flag when run.
+         */
+        QueryCallback( osg::ref_ptr<osg::Camera> camera, WBoolFlag::SPtr run );
+
+        /**
+         * Destructor.
+         */
+        virtual ~QueryCallback();
+
+        /**
+         * Query operator.
+         *
+         * \param renderInfo render info object
+         */
+        virtual void operator()( osg::RenderInfo& renderInfo ) const;
+
+        /**
+         * Returns the queried vendor string.
+         *
+         * \return the vendor
+         */
+        std::string getVendor() const;
+
+    protected:
+        /**
+         * The vendor string.
+         */
+        mutable std::string m_vendor;
+
+        /**
+         * True if callback was run once.
+         */
+        WBoolFlag::SPtr m_run;
+
+        /**
+         * The camera to which this was connected.
+         */
+        osg::ref_ptr<osg::Camera> m_camera;
+    };
+
+    /**
+     * The callback used for querying OpenGL features
+     */
+    osg::ref_ptr< QueryCallback > m_queryCallback;
 private:
 };
 

@@ -25,6 +25,7 @@
 #include <string>
 #include <iostream>
 
+#include <QtGui/QApplication>
 #include <QtGui/QColorDialog>
 #include <QtGui/QFileDialog>
 #include <QtGui/QKeyEvent>
@@ -44,6 +45,8 @@
 #include "core/graphicsEngine/WGraphicsEngine.h"
 #include "core/kernel/WKernel.h"
 
+#include "events/WRenderedFrameEvent.h"
+#include "events/WEventTypes.h"
 #include "WSettingAction.h"
 #include "WMainWindow.h"
 
@@ -95,6 +98,8 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
     connect( &m_Timer, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
     m_Timer.start( 10 );
 #endif
+
+    m_Viewer->isFrameRendered()->getCondition()->subscribeSignal( boost::bind( &WQtGLWidget::notifyFirstRenderedFrame, this ) );
 
     // set bg color
     updateViewerBackground();
@@ -315,6 +320,17 @@ void WQtGLWidget::wheelEvent( QWheelEvent* event )
     m_Viewer->mouseEvent( WGEViewer::MOUSESCROLL, x, y, 0 );
 }
 
+bool WQtGLWidget::event( QEvent* event )
+{
+    if( event->type() == WQT_RENDERED_FRAME_EVENT )
+    {
+        emit renderedFirstFrame();
+        return true;
+    }
+
+    return WQtGLWidgetParent::event( event );
+}
+
 void WQtGLWidget::reset()
 {
     m_Viewer->reset();
@@ -378,4 +394,9 @@ void WQtGLWidget::makeScreenshot()
         q.save( fileName, tr( "png" ).toAscii() );
         WLogger::getLogger()->addLogMessage( std::string( "Screenshot saved to " ) + fileName.toStdString(), "QtGLWidgetAll", LL_INFO );
     }
+}
+
+void WQtGLWidget::notifyFirstRenderedFrame()
+{
+    QCoreApplication::postEvent( this, new WRenderedFrameEvent() );
 }

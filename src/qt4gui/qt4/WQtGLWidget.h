@@ -41,18 +41,19 @@
 
 class WSettingAction;
 
+#ifndef _WIN32
+    typedef QGLWidget WQtGLWidgetParent;
+#else
+    typedef QWidget WQtGLWidgetParent;
+#endif
+
 /**
  * A widget containing an open gl display area. This initializes OpenGL context and adds a view to the
  * engine.
  * \ingroup gui
  */
 // NOTE: to make this work with MOC, the defines must be set before MOC runs (ensured in Build system)
-class WQtGLWidget: public
-#ifndef _WIN32
-    QGLWidget
-#else
-    QWidget
-#endif
+class WQtGLWidget: public WQtGLWidgetParent
 {
     Q_OBJECT
 
@@ -130,6 +131,13 @@ public:
      * \return the action.
      */
     QAction* getBackgroundColorAction() const;
+
+signals:
+
+    /**
+     * Signals that the first frame was rendered.
+     */
+    void renderedFirstFrame();
 
 public slots:
     /**
@@ -249,6 +257,18 @@ protected:
      */
     void makeScreenshot();
 
+    /**
+     * Custom event dispatcher. Gets called by QT's Event system every time an event got sent to this widget. This event handler
+     * processes the notifyrender events. Others get forwarded.
+     *
+     * \note QT Doc says: use event() for custom events.
+     *
+     * \param event the event that got transmitted.
+     *
+     * \return true if the event got handled properly.
+     */
+    virtual bool event( QEvent* event );
+
 private:
     /**
      * Timer for periodic repaints.
@@ -274,6 +294,11 @@ private:
      * Action to trigger some colordialog for background-color-selection.
      */
     QAction* m_changeBGColorAction;
+
+    /**
+     * Called by the WGEViewer to notify about the first frame rendered
+     */
+    void notifyFirstRenderedFrame();
 
 private slots:
     /**

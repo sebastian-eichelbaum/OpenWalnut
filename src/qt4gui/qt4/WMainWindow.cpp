@@ -222,6 +222,7 @@ void WMainWindow::setupGUI()
     mainGLDock->getGLWidget()->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
     m_mainGLWidget = mainGLDock->getGLWidget();
     m_glDock->addDockWidget( Qt::RightDockWidgetArea, mainGLDock );
+    connect( m_mainGLWidget.get(), SIGNAL( renderedFirstFrame() ), this, SLOT( handleGLVendor() ) );
 
     m_permanentToolBar = new WQtToolBar( "Standard Toolbar", this );
     addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
@@ -1005,3 +1006,10 @@ void WMainWindow::handleLogLevelUpdate( unsigned int logLevel )
     WLogger::getLogger()->setDefaultLogLevel( static_cast< LogLevel >( logLevel ) );
 }
 
+void WMainWindow::handleGLVendor()
+{
+    // WARNING: never put blocking code here, as it might freeze the mainGLWidget.
+    std::string vendor = m_mainGLWidget->getViewer()->getOpenGLVendor();
+
+    // TODO(ebaum): warning
+}

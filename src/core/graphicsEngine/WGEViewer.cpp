@@ -27,6 +27,7 @@
 
 #include <osg/ShapeDrawable>
 #include <osg/Geode>
+#include <osg/Camera>
 
 #include <osgGA/FlightManipulator>
 #include <osgGA/DriveManipulator>
@@ -45,6 +46,7 @@
 #include "WGENoOpManipulator.h"
 #include "WGEZoomTrackballManipulator.h"
 #include "WPickHandler.h"
+#include "../common/WConditionOneShot.h"
 
 #include "WGEViewer.h"
 
@@ -52,7 +54,8 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
     int width, int height, WGECamera::ProjectionMode projectionMode )
     : WGEGraphicsWindow( wdata, x, y, width, height ),
       boost::enable_shared_from_this< WGEViewer >(),
-      m_name( name )
+      m_name( name ),
+      m_rendered( WBoolFlag::SPtr( new WBoolFlag( new WConditionOneShot(), false) ) )
 {
     try
     {
@@ -64,6 +67,9 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
 #endif
 
         m_View->setCamera( new WGECamera( width, height, projectionMode ) );
+        m_queryCallback = new QueryCallback( m_View->getCamera(), m_rendered );
+        m_View->getCamera()->setInitialDrawCallback( m_queryCallback );
+
 #ifndef __APPLE__
         m_View->getCamera()->setGraphicsContext( m_GraphicsContext.get() );
 #else
@@ -199,5 +205,43 @@ osg::ref_ptr< WPickHandler > WGEViewer::getPickHandler()
 void WGEViewer::reset()
 {
     m_View->home();
+}
+
+std::string WGEViewer::getOpenGLVendor() const
+{
+    return m_queryCallback->getVendor();
+}
+
+WBoolFlag::SPtr WGEViewer::isFrameRendered() const
+{
+    return m_rendered;
+}
+
+WGEViewer::QueryCallback::QueryCallback( osg::ref_ptr<osg::Camera> camera, WBoolFlag::SPtr run ):
+    m_vendor( "" ),
+    m_run( run ),
+    m_camera( camera )
+{
+    // init
+}
+
+WGEViewer::QueryCallback::~QueryCallback()
+{
+    // cleanup
+}
+
+void WGEViewer::QueryCallback::operator()( osg::RenderInfo& /* renderInfo */ ) const
+{
+    const GLubyte* vendor = glGetString( GL_VENDOR );
+    m_vendor = reinterpret_cast< const char* >( vendor );
+
+    // job done. De-register.
+    m_camera->setInitialDrawCallback( NULL );
+    m_run->set( true );
+}
+
+std::string WGEViewer::QueryCallback::getVendor() const
+{
+    return m_vendor;
 }
 
