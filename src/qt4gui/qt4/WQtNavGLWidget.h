@@ -33,7 +33,7 @@
 
 #include "core/common/WPropertyVariable.h"
 #include "core/graphicsEngine/WGEGroupNode.h"
-#include "controlPanel/WPropertyIntWidget.h"
+#include "controlPanel/WPropertyDoubleWidget.h"
 
 #include "WQtGLDockWidget.h"
 
@@ -105,7 +105,7 @@ private:
      * Map holding the widgets for module properties added automatically. So they can be removed again automatically
      * if the module is removed.
      */
-    std::map< boost::shared_ptr< WPropertyBase >, WPropertyIntWidget* > propertyWidgetMap;
+    std::map< boost::shared_ptr< WPropertyBase >, WPropertyDoubleWidget* > propertyWidgetMap;
 };
 
 #endif  // WQTNAVGLWIDGET_H

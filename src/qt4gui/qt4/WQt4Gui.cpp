@@ -162,7 +162,6 @@ int WQt4Gui::run()
             new boost::function< void( osg::ref_ptr< WROI > ) > ( boost::bind( &WQt4Gui::slotAddRoiToTree, this, _1 ) ) );
     m_kernel->getRoiManager()->addAddNotifier( assocRoiSignal );
 
-
     boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > removeRoiSignal;
     removeRoiSignal =
         boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > >(

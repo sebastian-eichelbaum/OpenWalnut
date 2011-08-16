@@ -371,17 +371,23 @@ void WMainWindow::setupGUI()
             m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Axial View", "Axial View", this, "Axial Slice",
                                                                                   m_mainGLWidget.get() ) );
             m_navAxial->setFeatures( QDockWidget::AllDockWidgetFeatures );
+            m_navAxial->setSliderProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropAxialPos() );
+
             m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
 
             m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Coronal View", "Coronal View", this, "Coronal Slice",
                                                                                     m_mainGLWidget.get() ) );
             m_navCoronal->setFeatures( QDockWidget::AllDockWidgetFeatures );
+            m_navCoronal->setSliderProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropCoronalPos() );
+
             m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
 
             m_navSagittal =
                 boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Sagittal View", "Sagittal View", this, "Sagittal Slice",
                                                                          m_mainGLWidget.get() ) );
             m_navSagittal->setFeatures( QDockWidget::AllDockWidgetFeatures );
+            m_navSagittal->setSliderProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropSagittalPos() );
+
             m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
 
             bgColorMenu->addAction( m_navAxial->getGLWidget()->getBackgroundColorAction() );
@@ -438,25 +444,6 @@ void WMainWindow::moduleSpecificCleanup( boost::shared_ptr< WModule > module )
         prop = module->getProperties()->findProperty( "showSagittal" );
         m_permanentToolBar->removeAction( propertyActionMap[prop] );
         propertyActionMap.erase( prop );
-
-
-        prop = module->getProperties()->findProperty( "Axial Slice" );
-        if( m_navAxial )
-        {
-            m_navAxial->removeSliderProperty( prop );
-        }
-
-        prop = module->getProperties()->findProperty( "Coronal Slice" );
-        if( m_navCoronal )
-        {
-            m_navCoronal->removeSliderProperty( prop );
-        }
-
-        prop = module->getProperties()->findProperty( "Sagittal Slice" );
-        if( m_navSagittal )
-        {
-            m_navSagittal->removeSliderProperty( prop );
-        }
     }
 }
 
@@ -551,52 +538,6 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             a->setIcon( m_iconManager.getIcon( "sagittal icon" ) );
             m_permanentToolBar->addAction( a );
             propertyActionMap[prop] = a;
-        }
-
-        // now setup the nav widget sliders
-        prop = module->getProperties()->findProperty( "Slices/Axial Position" );
-        if( !prop )
-        {
-               WLogger::getLogger()->
-               addLogMessage( "Navigation Slices module does not provide the property \"Axial Position\", which is required by the GUI.", "GUI",
-                                  LL_ERROR );
-        }
-        else
-        {
-            if( m_navAxial )
-            {
-                //m_navAxial->setSliderProperty( prop );
-            }
-        }
-
-        prop = module->getProperties()->findProperty( "Slices/Coronal Position" );
-        if( !prop )
-        {
-               WLogger::getLogger()->
-               addLogMessage( "Navigation Slices module does not provide the property \"Coronal Position\", which is required by the GUI.", "GUI",
-                                  LL_ERROR );
-        }
-        else
-        {
-            if( m_navCoronal )
-            {
-                //m_navCoronal->setSliderProperty( prop );
-            }
-        }
-
-        prop = module->getProperties()->findProperty( "Slices/Sagittal Position" );
-        if( !prop )
-        {
-               WLogger::getLogger()->
-               addLogMessage( "Navigation Slices module does not provide the property \"Sagittal Position\", which is required by the GUI.", "GUI",
-                                  LL_ERROR );
-        }
-        else
-        {
-            if( m_navSagittal )
-            {
-               //m_navSagittal->setSliderProperty( prop );
-            }
         }
     }
 }
