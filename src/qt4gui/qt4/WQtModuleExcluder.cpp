@@ -288,7 +288,7 @@ void WQtModuleExcluder::loadListsFromSettings( bool recommendsOnly )
     // only if wanted:
     if( !ignoreRecommendsList )
     {
-        std::copy( m_recommendedModules.begin(), m_recommendedModules.end(), std::back_inserter( m_allowedModules ));
+        std::copy( m_recommendedModules.begin(), m_recommendedModules.end(), std::back_inserter( m_allowedModules ) );
     }
 }
 
