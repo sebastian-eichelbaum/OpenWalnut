@@ -180,10 +180,11 @@ void WMainWindow::setupGUI()
 
     setDockOptions( QMainWindow::AnimatedDocks |  QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks );
 
-    // Disabled Network Editor due to bug: #11
-    // //network Editor
-    // m_networkEditor = new WQtNetworkEditor( this );
-    // m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
+#ifdef OW_QT4GUI_NETWORKEDITOR
+    //network Editor
+    m_networkEditor = new WQtNetworkEditor( this );
+    m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
+#endif
 
     // the control panel instance is needed for the menu
     m_controlPanel = new WQtControlPanel( this );
@@ -192,16 +193,21 @@ void WMainWindow::setupGUI()
 
     // add all docks
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getModuleDock() );
-    // Disabled Network Editor due to bug: #11
-    // addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
-    // tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
+#ifdef OW_QT4GUI_NETWORKEDITOR
+    addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
+#endif
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getColormapperDock() );
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getRoiDock() );
 
     // tabify those panels by default
+#ifdef OW_QT4GUI_NETWORKEDITOR
+    tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
+#endif
     tabifyDockWidget( m_controlPanel->getModuleDock(), m_controlPanel->getColormapperDock() );
     tabifyDockWidget( m_controlPanel->getColormapperDock(), m_controlPanel->getRoiDock() );
+
+    // by default, the module editor should be in front
     m_controlPanel->getModuleDock()->raise();
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
