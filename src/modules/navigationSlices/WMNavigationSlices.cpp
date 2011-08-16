@@ -131,6 +131,8 @@ void WMNavigationSlices::initOSG()
     WBoundingBox bb = WGEColormapping::instance()->getBoundingBox();
     WVector3d minV = bb.getMin();
     WVector3d maxV = bb.getMax();
+    WVector3d sizes = ( maxV - minV );
+    WVector3d midBB = minV + ( sizes * 0.5 );
 
     // update the properties
     m_xPos->setMin( minV[0] );
@@ -148,10 +150,36 @@ void WMNavigationSlices::initOSG()
     if( m_first )
     {
         m_first = false;
-        m_xPos->set( ( maxV[0] - minV[0] ) / 2.0 );
-        m_yPos->set( ( maxV[1] - minV[1] ) / 2.0 );
-        m_zPos->set( ( maxV[2] - minV[2] ) / 2.0 );
+        m_xPos->set( midBB[0] );
+        m_yPos->set( midBB[1] );
+        m_zPos->set( midBB[2] );
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Navigation View Setup
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    double maxSizeInv = 1.0 / std::max( sizes[0], std::max( sizes[1], sizes[2] ) );
+    m_axialOutput->setMatrix(
+        osg::Matrixd::translate( -midBB[0], -midBB[1], -midBB[2] ) *
+        osg::Matrixd::scale( maxSizeInv, maxSizeInv, maxSizeInv ) *
+        osg::Matrixd::translate( 0.0, 0.0, -0.5 )
+    );
+
+    m_coronalOutput->setMatrix(
+        osg::Matrixd::translate( -midBB[0], -midBB[1], -midBB[2] ) *
+        osg::Matrixd::scale( maxSizeInv, maxSizeInv, maxSizeInv ) *
+        osg::Matrixd::rotate( -0.5 * piDouble, 1.0, 0.0 , 0.0 ) *
+        osg::Matrixd::translate( 0.0, 0.0, -0.5 )
+    );
+
+    m_sagittalOutput->setMatrix(
+        osg::Matrixd::translate( -midBB[0], -midBB[1], -midBB[2] ) *
+        osg::Matrixd::scale( maxSizeInv, maxSizeInv, maxSizeInv ) *
+        osg::Matrixd::rotate( -0.5 * piDouble, 1.0, 0.0 , 0.0 ) *
+        osg::Matrixd::rotate( 0.5 * piDouble, 0.0, 1.0 , 0.0 ) *
+        osg::Matrixd::translate( 0.0, 0.0, -0.5 )
+    );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Slice Setup
@@ -237,6 +265,10 @@ void WMNavigationSlices::initOSG()
     m_output->insert( mY );
     m_output->insert( mZ );
     m_output->dirtyBound();
+
+    m_axialOutput->insert( m_output );
+    m_sagittalOutput->insert( m_output );
+    m_coronalOutput->insert( m_output );
 }
 
 WMNavigationSlices::PickCallback::PickCallback( osg::ref_ptr< osg::Node > node, WPropDouble property, bool negateDirection ):
@@ -298,7 +330,16 @@ void WMNavigationSlices::moduleMain()
     // apply colormapping to transformation
     osg::ref_ptr< WGEShader > shader = new WGEShader( "WMNavigationSlices", m_localPath );
     WGEColormapping::apply( m_output, shader ); // this automatically applies the shader
+
+    // create the roots for the nav-views
+    m_sagittalOutput = osg::ref_ptr< WGEGroupNode > ( new WGEGroupNode() );
+    m_coronalOutput = osg::ref_ptr< WGEGroupNode > ( new WGEGroupNode() );
+    m_axialOutput = osg::ref_ptr< WGEGroupNode > ( new WGEGroupNode() );
+
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" )->getScene()->insert( m_axialOutput );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" )->getScene()->insert( m_coronalOutput );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" )->getScene()->insert( m_sagittalOutput );
 
     // we need to be informed if the bounding box of the volume containing all the data changes.
     m_moduleState.add( WGEColormapping::instance()->getChangeCondition() );
@@ -330,5 +371,8 @@ void WMNavigationSlices::moduleMain()
     m_zSlicePicker.reset();
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_output );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_axialOutput );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_coronalOutput );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_sagittalOutput );
 }
 

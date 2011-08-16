@@ -372,6 +372,7 @@ void WMainWindow::setupGUI()
                                                                                   m_mainGLWidget.get() ) );
             m_navAxial->setFeatures( QDockWidget::AllDockWidgetFeatures );
             m_navAxial->setSliderProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropAxialPos() );
+            m_navAxial->getGLWidget()->setCameraManipulator( WQtGLWidget::NO_OP );
 
             m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
 
@@ -379,6 +380,7 @@ void WMainWindow::setupGUI()
                                                                                     m_mainGLWidget.get() ) );
             m_navCoronal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             m_navCoronal->setSliderProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropCoronalPos() );
+            m_navCoronal->getGLWidget()->setCameraManipulator( WQtGLWidget::NO_OP );
 
             m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
 
@@ -387,6 +389,7 @@ void WMainWindow::setupGUI()
                                                                          m_mainGLWidget.get() ) );
             m_navSagittal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             m_navSagittal->setSliderProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropSagittalPos() );
+            m_navSagittal->getGLWidget()->setCameraManipulator( WQtGLWidget::NO_OP );
 
             m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
 

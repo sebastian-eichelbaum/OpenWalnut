@@ -42,6 +42,7 @@
 
 #include "exceptions/WGEInitFailed.h"
 #include "WGE2DManipulator.h"
+#include "WGENoOpManipulator.h"
 #include "WGEZoomTrackballManipulator.h"
 #include "WPickHandler.h"
 
@@ -85,6 +86,10 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
                 break;
             case( WGECamera::TWO_D ):
                 // no manipulators nor gui handlers
+                break;
+            case( WGECamera::TWO_D_UNIT ):
+                // use no-op handler by default
+                m_View->setCameraManipulator( new WGENoOpManipulator() );
                 break;
             default:
                 throw WGEInitFailed( std::string( "Unknown projection mode" ) );

@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <iostream>
 #include <string>
 
 #include "exceptions/WGEInitFailed.h"
@@ -55,21 +56,25 @@ void WGECamera::reset()
 {
     switch( m_DefProjMode )
     {
-        case( ORTHOGRAPHIC ):
+        case ORTHOGRAPHIC:
             setProjectionMatrixAsOrtho( -120.0 * getViewport()->aspectRatio(), 120.0 * getViewport()->aspectRatio(),
                 -120.0, 120.0, -1000.0, +1000.0 );
             setProjectionResizePolicy( HORIZONTAL );
             break;
-        case( PERSPECTIVE ):
+        case PERSPECTIVE:
             setProjectionMatrixAsPerspective( 30.0, getViewport()->aspectRatio(), 1.0, 1000.0 );
             setProjectionResizePolicy( osg::Camera::HORIZONTAL );
             break;
-        case( TWO_D ):
-            setProjectionMatrixAsOrtho2D( 0.0, getViewport()->width(), 0.0, getViewport()->height() );
+        case TWO_D:
+            resize();
+            setProjectionResizePolicy( osg::Camera::FIXED );
+            break;
+        case TWO_D_UNIT:
+            resize();
             setProjectionResizePolicy( osg::Camera::FIXED );
             break;
         default:
-            throw WGEInitFailed( std::string( "Unknown projection mode" ) );
+            throw WGEInitFailed( std::string( "Unknown projection mode." ) );
     }
 }
 
@@ -78,5 +83,17 @@ void WGECamera::resize()
     if( m_DefProjMode == TWO_D )
     {
         setProjectionMatrixAsOrtho2D( 0.0, getViewport()->width(), 0.0, getViewport()->height() );
+    }
+    else if( m_DefProjMode == TWO_D_UNIT )
+    {
+        double aspectWH = static_cast< double >( getViewport()->width() ) / static_cast< double >( getViewport()->height() );
+        double aspectHW = 1.0 / aspectWH;
+
+        double w = aspectWH > aspectHW ? aspectWH : 1.0;
+        double h = aspectWH > aspectHW ? 1.0 : aspectHW;
+
+        w *= 0.5;
+        h *= 0.5;
+        setProjectionMatrixAsOrtho( -w, w, -h, h, 0.0, 1.0 );
     }
 }

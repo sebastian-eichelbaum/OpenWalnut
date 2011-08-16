@@ -33,6 +33,7 @@
 #include <boost/signals2.hpp>
 
 #include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
 #include "core/common/math/linearAlgebra/WLinearAlgebra.h"
 #include "core/common/WPropertyTypes.h"
 #include "core/graphicsEngine/WPickInfo.h"
@@ -196,6 +197,21 @@ private:
      * The Geode containing all the slices and the mesh
      */
     osg::ref_ptr< WGEManagedGroupNode > m_output;
+
+    /**
+     * The geode with the slice only for the nav widgets
+     */
+    osg::ref_ptr< WGEGroupNode > m_axialOutput;
+
+    /**
+     * The geode with the slice only for the nav widgets
+     */
+    osg::ref_ptr< WGEGroupNode > m_coronalOutput;
+
+    /**
+     * The geode with the slice only for the nav widgets
+     */
+    osg::ref_ptr< WGEGroupNode > m_sagittalOutput;
 
     WPropBool    m_noTransparency;  //!< if true, the whole slices are shown.
 

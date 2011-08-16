@@ -40,7 +40,7 @@
 #include "WQtNavGLWidget.moc"
 
 WQtNavGLWidget::WQtNavGLWidget( QString viewTitle, QString dockTitle, QWidget* parent, std::string sliderTitle, const QWidget * shareWidget )
-    : WQtGLDockWidget( viewTitle, dockTitle, parent, WGECamera::ORTHOGRAPHIC, shareWidget )
+    : WQtGLDockWidget( viewTitle, dockTitle, parent, WGECamera::TWO_D_UNIT, shareWidget )
 {
     propertyWidgetMap.clear();
     m_sliderTitle = QString( sliderTitle.c_str() );

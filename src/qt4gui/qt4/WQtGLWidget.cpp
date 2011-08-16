@@ -38,6 +38,7 @@
 #include "core/common/WLogger.h"
 #include "core/common/WColor.h"
 #include "core/graphicsEngine/WGE2DManipulator.h"
+#include "core/graphicsEngine/WGENoOpManipulator.h"
 #include "core/graphicsEngine/WGEViewer.h"
 #include "core/graphicsEngine/WGEZoomTrackballManipulator.h"
 #include "core/graphicsEngine/WGraphicsEngine.h"
@@ -133,6 +134,13 @@ void WQtGLWidget::setCameraManipulator( WQtGLWidget::CameraManipulators manipula
                                                  LL_DEBUG );
 
             m_Viewer->setCameraManipulator( new( WGE2DManipulator ) );
+            break;
+        case NO_OP:
+            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"WGENoOp\".",
+                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                                 LL_DEBUG );
+
+            m_Viewer->setCameraManipulator( new( WGENoOpManipulator ) );
             break;
         case TRACKBALL:
         default:

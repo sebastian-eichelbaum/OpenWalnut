@@ -38,11 +38,17 @@ class WGE_EXPORT WGECamera: public osg::Camera
 {
 public:
     /**
-     * List of possible camera modes.
+     * List of possible camera modes. The TWO_D modes use a standard two dimensional orthogonal projection. TWO_D_UNOT is somewhat special. It
+     * creates a view-cube with an edge-length of 1, centered at 0 for X and Y. For Z, it is from 0 to 1. This relates to the standard glOrtho
+     * command.
      */
     enum ProjectionMode
     {
-        ORTHOGRAPHIC, PERSPECTIVE, TWO_D
+        ORTHOGRAPHIC,
+        PERSPECTIVE,
+        TWO_D,  // two dimensional ortographic projection, dimension is viewport
+        TWO_D_UNIT // like TWO_D but size is unit-cube with proper scaling and aspect ratio. This is useful for widgets where viewport size is
+                   // unimportant.
     };
 
     /**
