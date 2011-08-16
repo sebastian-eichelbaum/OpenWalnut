@@ -45,9 +45,14 @@ WSelectionManager::WSelectionManager() :
                     "Properties relating to the Axial,Coronal and Sagittal Slices." ) );
 
     // create dummy properties for slices. Get updated by modules.
-    m_axialPos = m_sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 0.0, true );
-    m_coronalPos = m_sliceGroup->addProperty(  "Coronal Position", "Slice Y position.", 0.0, true );
-    m_sagittalPos = m_sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0.0, true );
+    m_axialPos = m_sliceGroup->addProperty( "Axial Position", "Slice X position.", 0.0, true );
+    m_coronalPos = m_sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0.0, true );
+    m_sagittalPos = m_sliceGroup->addProperty( "Sagittal Position", "Slice Z position.", 0.0, true );
+
+    // visibility flags
+    m_axialShow = m_sliceGroup->addProperty( "Show Axial Slice", "Slice visible?", true, true );
+    m_coronalShow = m_sliceGroup->addProperty( "Show Coronal Slice", "Slice visible?", true, true );
+    m_sagittalShow = m_sliceGroup->addProperty( "Show Sagittal Slice", "Slice visible?", true, true );
 
     // until now, no bbox information is available.
     m_axialPos->setMin( 0.0 );
@@ -202,6 +207,21 @@ WPropDouble WSelectionManager::getPropCoronalPos()
 WPropDouble WSelectionManager::getPropSagittalPos()
 {
     return m_sagittalPos;
+}
+
+WPropBool WSelectionManager::getPropAxialShow()
+{
+    return m_axialShow;
+}
+
+WPropBool WSelectionManager::getPropCoronalShow()
+{
+    return m_coronalShow;
+}
+
+WPropBool WSelectionManager::getPropSagittalShow()
+{
+    return m_sagittalShow;
 }
 
 void WSelectionManager::setShader( int shader )

@@ -122,40 +122,47 @@ public:
     void setTextureOpacity( float value );
 
     /**
-     * setter. These props automatically update the crosshair position
-     * \param prop
-     */
-    void setPropAxialPos( WPropDouble prop );
-
-    /**
-     * setter. These props automatically update the crosshair position
-     * \param prop
-     */
-    void setPropCoronalPos( WPropDouble prop );
-
-    /**
-     * setter. These props automatically update the crosshair position
-     * \param prop
-     */
-    void setPropSagittalPos( WPropDouble prop );
-
-    /**
-     * getter
-     * \return property
+     * The property controlling the current axial position of slices.
+     *
+     * \return property as double
      */
     WPropDouble getPropAxialPos();
 
     /**
-     * getter
-     * \return property
+     * The property controlling the current coronal position of slices.
+     *
+     * \return property as double
      */
     WPropDouble getPropCoronalPos();
 
     /**
-     * getter
-     * \return property
+     * The property controlling the current sagittal position of slices.
+     *
+     * \return property as double
      */
     WPropDouble getPropSagittalPos();
+
+
+    /**
+     * The property controlling the current axial visible-flag.
+     *
+     * \return property as bool
+     */
+    WPropBool getPropAxialShow();
+
+    /**
+     * The property controlling the current coronal visible-flag.
+     *
+     * \return property as bool
+     */
+    WPropBool getPropCoronalShow();
+
+    /**
+     * The property controlling the current sagittal visible-flag.
+     *
+     * \return property as bool
+     */
+    WPropBool getPropSagittalShow();
 
     /**
      * setter for the shader index to be used with the custom texture
@@ -197,6 +204,21 @@ private:
      * Sagittal slice position.
      */
     WPropDouble m_sagittalPos;
+
+    /**
+     * Axial visible-flag.
+     */
+    WPropBool m_axialShow;
+
+    /**
+     * Coronal visible-flag.
+     */
+    WPropBool m_coronalShow;
+
+    /**
+     * Sagittal visible-flag.
+     */
+    WPropBool m_sagittalShow;
 
     /**
      * The connection for the axial property

@@ -396,6 +396,25 @@ void WMainWindow::setupGUI()
         }
     }
 
+    // create the show/hide actions using the selection manager's props
+    WQtPropertyBoolAction* showAxial = new WQtPropertyBoolAction( WKernel::getRunningKernel()->getSelectionManager()->getPropAxialShow(),
+                                                                  m_permanentToolBar );
+    showAxial->setToolTip( "Toggle Axial Slice" );
+    showAxial->setText( "Toggle Axial Slice" );
+    showAxial->setIcon( m_iconManager.getIcon( "axial icon" ) );
+
+    WQtPropertyBoolAction* showCoronal = new WQtPropertyBoolAction( WKernel::getRunningKernel()->getSelectionManager()->getPropCoronalShow(),
+                                                                    m_permanentToolBar );
+    showCoronal->setToolTip( "Toggle Coronal Slice" );
+    showCoronal->setText( "Toggle Coronal Slice" );
+    showCoronal->setIcon( m_iconManager.getIcon( "coronal icon" ) );
+
+    WQtPropertyBoolAction* showSagittal = new WQtPropertyBoolAction( WKernel::getRunningKernel()->getSelectionManager()->getPropSagittalShow(),
+                                                                     m_permanentToolBar );
+    showSagittal->setToolTip( "Toggle Sagittal Slice" );
+    showSagittal->setText( "Toggle Sagittal Slice" );
+    showSagittal->setIcon( m_iconManager.getIcon( "sagittal icon" ) );
+
     // Temporarily disabled. We need a proper command prompt implementation first.
     // create command prompt toolbar
     // m_commandPrompt = new WQtCommandPromptToolbar( "Command Prompt", this );
@@ -410,6 +429,10 @@ void WMainWindow::setupGUI()
     m_permanentToolBar->addSeparator();
     m_permanentToolBar->addAction( resetButton );
     m_permanentToolBar->addAction( roiButton );
+    m_permanentToolBar->addSeparator();
+    m_permanentToolBar->addAction( showAxial );
+    m_permanentToolBar->addAction( showCoronal );
+    m_permanentToolBar->addAction( showSagittal );
     m_permanentToolBar->addSeparator();
 
     // after creating the GUI, restore its saved state
@@ -426,25 +449,9 @@ void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string prot
     }
 }
 
-void WMainWindow::moduleSpecificCleanup( boost::shared_ptr< WModule > module )
+void WMainWindow::moduleSpecificCleanup( boost::shared_ptr< WModule > /* module */ )
 {
-    // nav slices use separate buttons for slice on/off switching
-    if( module->getName() == "Navigation Slices" )
-    {
-        boost::shared_ptr< WPropertyBase > prop;
-
-        prop = module->getProperties()->findProperty( "showAxial" );
-        m_permanentToolBar->removeAction( propertyActionMap[prop] );
-        propertyActionMap.erase( prop );
-
-        prop = module->getProperties()->findProperty( "showCoronal" );
-        m_permanentToolBar->removeAction( propertyActionMap[prop] );
-        propertyActionMap.erase( prop );
-
-        prop = module->getProperties()->findProperty( "showSagittal" );
-        m_permanentToolBar->removeAction( propertyActionMap[prop] );
-        propertyActionMap.erase( prop );
-    }
+    // called for each removed module. Use this to undo modifications done due to added modules (moduleSpecificSetup)
 }
 
 void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
@@ -483,61 +490,6 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             // it is a eeg dataset -> add the eegView module
             autoAdd( module, "EEG View" );
-        }
-    }
-
-    // nav slices use separate buttons for slice on/off switching
-    if( module->getName() == "Navigation Slices" )
-    {
-        boost::shared_ptr< WPropertyBase > prop = module->getProperties()->findProperty( "Slices/Show Axial" );
-        if( !prop )
-        {
-               WLogger::getLogger()->
-                   addLogMessage( "Navigation Slices module does not provide the property \"Show Axial\", which is required by the GUI.", "GUI",
-                                  LL_ERROR );
-        }
-        else
-        {
-            WQtPropertyBoolAction* a = new WQtPropertyBoolAction( prop->toPropBool(), m_permanentToolBar );
-            a->setToolTip( "Toggle Axial Slice" );
-            a->setText( "Toggle Axial Slice" );
-            a->setIcon( m_iconManager.getIcon( "axial icon" ) );
-            m_permanentToolBar->addAction( a );
-            propertyActionMap[prop] = a;
-        }
-
-        prop = module->getProperties()->findProperty( "Slices/Show Coronal" );
-        if( !prop )
-        {
-               WLogger::getLogger()->
-                   addLogMessage( "Navigation Slices module does not provide the property \"Show Coronal\", which is required by the GUI.", "GUI",
-                                  LL_ERROR );
-        }
-        else
-        {
-            WQtPropertyBoolAction* a = new WQtPropertyBoolAction( prop->toPropBool(), m_permanentToolBar );
-            a->setToolTip( "Toggle Coronal Slice" );
-            a->setText( "Toggle Coronal Slice" );
-            a->setIcon( m_iconManager.getIcon( "coronal icon" ) );
-            m_permanentToolBar->addAction( a );
-            propertyActionMap[prop] = a;
-        }
-
-        prop = module->getProperties()->findProperty( "Slices/Show Sagittal" );
-        if( !prop )
-        {
-               WLogger::getLogger()->
-                   addLogMessage( "Navigation Slices module does not provide the property \"Show Sagittal\", which is required by the GUI.", "GUI",
-                                  LL_ERROR );
-        }
-        else
-        {
-            WQtPropertyBoolAction* a = new WQtPropertyBoolAction( prop->toPropBool(), m_permanentToolBar );
-            a->setToolTip( "Toggle Saggital Slice" );
-            a->setText( "Toggle Saggital Slice" );
-            a->setIcon( m_iconManager.getIcon( "sagittal icon" ) );
-            m_permanentToolBar->addAction( a );
-            propertyActionMap[prop] = a;
         }
     }
 }

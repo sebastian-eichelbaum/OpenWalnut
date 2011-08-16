@@ -331,12 +331,6 @@ private:
     bool m_navSlicesAlreadyLoaded; //!< if true, the navslices have been loaded already
 
     /**
-     * Map holding the actions for module properties added automatically. So they can be removed again automatically
-     * if the module is removed.
-     */
-    std::map< boost::shared_ptr< WPropertyBase >, WQtPropertyBoolAction* > propertyActionMap;
-
-    /**
      * Loads the window states and geometries from a file.
      */
     void restoreSavedState();
