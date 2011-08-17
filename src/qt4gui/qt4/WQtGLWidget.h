@@ -77,8 +77,10 @@ public:
     virtual ~WQtGLWidget();
 
     /**
-     * returns the recommended size for the widget to allow
+     * Returns the recommended size for the widget to allow
      * parent widgets to give it a proper initial layout
+     *
+     * \return size hint of widget
      */
     QSize sizeHint() const;
 

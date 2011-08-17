@@ -73,6 +73,8 @@ public:
     /**
      * helper function to add a generic button
      * \param label Text on the push button
+     *
+     * \return the push button instance
      */
     QPushButton* addPushButton( QString label );
 
@@ -180,7 +182,9 @@ public:
     void addSpacer();
 
     /**
-     * getter for m_name
+     * The property group name.
+     *
+     * \return the group name
      */
     QString getName();
 

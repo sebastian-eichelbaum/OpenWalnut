@@ -55,7 +55,7 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
     : WGEGraphicsWindow( wdata, x, y, width, height ),
       boost::enable_shared_from_this< WGEViewer >(),
       m_name( name ),
-      m_rendered( WBoolFlag::SPtr( new WBoolFlag( new WConditionOneShot(), false) ) )
+      m_rendered( WBoolFlag::SPtr( new WBoolFlag( new WConditionOneShot(), false ) ) )
 {
     try
     {

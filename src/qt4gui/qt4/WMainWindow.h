@@ -82,17 +82,23 @@ public:
     void setupGUI();
 
     /**
-     * returns a pointer to the network editor object
+     * Returns a pointer to the network editor object.
+     *
+     * \return the network editor instance
      */
     WQtNetworkEditor* getNetworkEditor();
 
     /**
-     * returns a pointer to the control panel object
+     * Returns a pointer to the control panel object.
+     *
+     * \return the control panel instance
      */
     WQtControlPanel* getControlPanel();
 
     /**
      * Return icon manager
+     *
+     * \return the icon manager instance
      */
     WIconManager* getIconManager();
 

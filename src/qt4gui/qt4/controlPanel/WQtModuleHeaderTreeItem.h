@@ -32,25 +32,28 @@
 #include "WQtModuleTreeItem.h"
 
 /**
- * TODO(schurade): Document this!
+ * This tree item represents a group of module items.
  */
 class WQtModuleHeaderTreeItem : public QTreeWidgetItem
 {
 public:
     /**
-     * TODO(schurade): Document this!
+     * Constructor. Creates module header.
+     *
      * \param parent The widget managing this widget.
      */
     explicit WQtModuleHeaderTreeItem( QTreeWidget * parent );
 
     /**
-     * TODO(schurade): Document this!
+     * Destructor.
      */
     virtual ~WQtModuleHeaderTreeItem();
 
     /**
      * Add an module to the tree view.
      * \param module The new module.
+     *
+     * \return the treeitem of the added module
      */
     WQtModuleTreeItem* addModuleItem( boost::shared_ptr< WModule > module );
 

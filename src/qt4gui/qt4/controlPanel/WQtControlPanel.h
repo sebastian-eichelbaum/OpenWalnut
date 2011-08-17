@@ -226,6 +226,8 @@ protected:
 
     /**
      * Helper function to return the first subject id in the tree widget
+     *
+     * \return index of first subject in tree
      */
     int getFirstSubject();
 

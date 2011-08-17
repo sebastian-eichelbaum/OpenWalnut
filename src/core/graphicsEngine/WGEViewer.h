@@ -252,7 +252,7 @@ protected:
          *
          * \param renderInfo render info object
          */
-        virtual void operator()( osg::RenderInfo& renderInfo ) const;
+        virtual void operator()( osg::RenderInfo& renderInfo ) const;   // NOLINT - this is OSG API
 
         /**
          * Returns the queried vendor string.

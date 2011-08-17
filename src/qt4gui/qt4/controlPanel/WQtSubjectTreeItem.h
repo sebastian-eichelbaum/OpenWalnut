@@ -51,6 +51,8 @@ public:
     /**
      * add a dataset item below this subject in the tree
      * \param module the module that has the dataset as output
+     *
+     * \return the tree item representing the module
      */
     WQtDatasetTreeItem* addDatasetItem( boost::shared_ptr< WModule > module );
 
