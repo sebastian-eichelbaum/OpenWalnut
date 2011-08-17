@@ -122,13 +122,18 @@ private:
      * Take from FiberNavigator.
      * \param dataSet the data set that is used to compute the distance field.
      * The distance is computed to the boundary between foreground an background
+     *
+     * \return the distance map values
      */
     boost::shared_ptr< WValueSet< float > > createOffset( boost::shared_ptr< const WDataSetScalar > dataSet );
 
     /**
      * Gauss function.
+     *
      * \param x position of evaluation
      * \param sigma standard deviation
+     *
+     * \return Gauss value for given parameters
      */
     double xxgauss( double x, double sigma );
 };

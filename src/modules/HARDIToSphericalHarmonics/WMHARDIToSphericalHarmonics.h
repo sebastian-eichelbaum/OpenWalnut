@@ -223,6 +223,8 @@ public:
      * Allocate shared memory and construct and run threads, construct output datasets.
      *
      * \tparam T The integral type of values in the valueset.
+     *
+     * \return result value
      */
     template< typename T >
     result_type operator() ( WValueSet< T > const* /* vs */ ) const;

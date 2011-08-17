@@ -173,6 +173,8 @@ private:
 
     /**
      * handles mouse clicks into the dendrogram
+     *
+     * \return true if handled
      */
     bool widgetClicked();
 

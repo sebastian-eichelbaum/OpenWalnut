@@ -74,6 +74,8 @@ public:
     /**
      * Transforms world coordinates.
      * \param point The point which will be transformed.
+     *
+     * \return the transformed world coordinate
      */
     WVector3d worldCoordTransformed( WPosition point );
 

@@ -126,6 +126,8 @@ private:
 
     /**
      * Initial creation function for the slice geometry
+     *
+     * \return the geometry
      */
     osg::ref_ptr< osg::Geometry > createGeometry();
 

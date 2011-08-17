@@ -99,17 +99,23 @@ protected:
 private:
     /**
      * Store the mesh in a json (javascript object notation) file
+     *
+     * \return true if successful
      */
     bool saveJson() const;
 
     /**
      * Store the mesh in a json (javascript object notation) file
      * using only every other vertex
+     *
+     * \return true if successful
      */
     bool saveJson2() const;
 
     /**
      * Store the mesh in a json (javascript object notation) file
+     *
+     * \return true if successful
      */
     bool saveJsonTriangles() const;
 

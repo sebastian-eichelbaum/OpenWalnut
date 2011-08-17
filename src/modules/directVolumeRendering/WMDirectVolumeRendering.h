@@ -124,12 +124,11 @@ private:
     /**
      * Types of local illumination supported.
      */
-    enum
+    enum LOCALILLUMINATION_ALGORITHMS
     {
         None = 0,
         Phong
-    }
-    LOCALILLUMINATION_ALGORITHMS;
+    };
 
     /**
      * The available shading algorithms.

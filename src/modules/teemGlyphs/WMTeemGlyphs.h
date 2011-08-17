@@ -221,6 +221,8 @@ private:
 
         /**
          * Get the geode of the computed glyphs.
+         *
+         * \return geode
          */
         osg::ref_ptr< osg::Geode > getGraphics();
     private:

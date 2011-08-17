@@ -81,6 +81,8 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     *
+     * \return icon pointer
      */
     virtual const char** getXPMIcon() const;
 

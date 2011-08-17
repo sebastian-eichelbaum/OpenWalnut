@@ -131,7 +131,7 @@ private:
      * \param grid The grid, which is not used in this function.
      */
     void copyData( boost::shared_ptr< std::vector< double > >& smoothed,  // NOLINT non-const ref
-                   boost::shared_ptr< WGridRegular3D > const& /* grid */ );
+                   boost::shared_ptr< WGridRegular3D > const& grid );
 
     /**
      * Calculates an array containing the derivations in x, y and z directions of the image

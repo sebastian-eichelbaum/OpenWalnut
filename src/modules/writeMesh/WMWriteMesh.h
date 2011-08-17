@@ -110,14 +110,17 @@ protected:
 private:
     /**
      * Store the mesh in legacy vtk file format.
+     *
+     * \return true if successful.
      */
     bool saveVTKASCII() const;
 
     /**
-     * Store the mesh in a json (javascript object notation) file
+     * Store the mesh in a json (javascript object notation) file.
+     *
+     * \return true if successful.
      */
     bool saveJson() const;
-
 
     boost::shared_ptr< WModuleInputData< WTriangleMesh > > m_meshInput; //!< Input connector for a mesh
     boost::shared_ptr< WTriangleMesh > m_triMesh; //!< A pointer to the currently processed tri mesh
@@ -137,6 +140,9 @@ private:
      */
     WPropSelection m_fileTypeSelection;
 
+    /**
+     * If true, colors get exported too.
+     */
     WPropBool m_writeColors;
 };
 

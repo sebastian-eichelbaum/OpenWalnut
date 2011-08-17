@@ -113,6 +113,8 @@ protected:
 private:
     /**
      * creates a vector plot on the currently selected slices
+     *
+     * \return geometry containing the slices
      */
     osg::ref_ptr<osg::Geometry> buildPlotSlices();
 

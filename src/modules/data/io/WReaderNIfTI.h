@@ -93,6 +93,8 @@ private:
      * \param dataArray data to copy
      * \param countVoxels number of voxels stored in dataArray
      * \param vDim number of values per voxel
+     *
+     * \return the copy
      */
     template < typename T > boost::shared_ptr< std::vector< T > > copyArray( const T* dataArray, const size_t countVoxels, const size_t vDim );
 
@@ -100,6 +102,8 @@ private:
      * This function converts a 4x4 matrix from the NIfTI libs into the format
      * used by OpenWalnut.
      * \param in this matrix will be converted.
+     *
+     * \return the new matrix
      */
     WMatrix< double > convertMatrix( const mat44& in );
 

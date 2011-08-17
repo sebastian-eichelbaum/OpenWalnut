@@ -118,11 +118,15 @@ class WMCoordinateHUD: public WModule, public osg::Referenced
 
         /**
          * build the geometry of the cube
+         *
+         * \return the cube vertices
          */
         virtual osg::Vec3Array* buildCubeVertices();
 
         /**
          * build the geometry of the axis
+         *
+         * \return the axis vertices
          */
         virtual osg::Vec3Array* buildAxisVertices();
 

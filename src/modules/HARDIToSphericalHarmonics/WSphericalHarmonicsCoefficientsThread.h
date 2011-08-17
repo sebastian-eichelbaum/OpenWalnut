@@ -174,6 +174,8 @@ public:
 
     /**
      * Returns the average error of the thread.
+     *
+     * \return error measure
      */
     double getError() const;
 

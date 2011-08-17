@@ -118,6 +118,8 @@ private:
     /**
      * helper function to load and parse a tree file, the tree is stored in the member variable m_tree
      * \param fileName
+     *
+     * \return true if successful.
      */
     bool loadTreeAscii( std::string fileName );
 
