@@ -150,6 +150,8 @@ public:
      * finds the X biggest clusters for a given cluster
      * \param cluster
      * \param number of sub clusters
+     *
+     * \return the biggest clusters
      */
     std::vector< size_t >findXBiggestClusters( size_t cluster, size_t number = 10 );
 

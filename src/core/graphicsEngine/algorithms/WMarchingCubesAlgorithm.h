@@ -99,6 +99,7 @@ public:
      * Generate the triangles for the surface on the given dataSet (inGrid, vals). The texture coordinates in the resulting mesh are relative to
      * the grid. This means they are NOT transformed. This ensure faster grid matrix updates in texture space.
      * This might be useful where texture transformation matrices are used.
+     *
      * \param nbCoordsX number of vertices in X direction
      * \param nbCoordsY number of vertices in Y direction
      * \param nbCoordsZ number of vertices in Z direction
@@ -106,6 +107,8 @@ public:
      * \param vals the values at the vertices
      * \param isoValue The surface will run through all positions with this value.
      * \param mainProgress progress combiner used to report our progress to
+     *
+     * \return the genereated surface
      */
     template< typename T >
     boost::shared_ptr< WTriangleMesh > generateSurface(  size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
@@ -119,11 +122,14 @@ private:
     /**
      * Calculates the intersection point id of the isosurface with an
      * edge.
+     *
      * \param vals the values at the vertices
      * \param nX id of cell in x direction
      * \param nY id of cell in y direction
      * \param nZ id of cell in z direction
      * \param nEdgeNo id of the edge the point that will be interpolates lies on
+     *
+     * \return intersection point id
      */
     template< typename T > WPointXYZId calculateIntersection( const std::vector< T >* vals,
                                                               unsigned int nX, unsigned int nY, unsigned int nZ, unsigned int nEdgeNo );
@@ -131,6 +137,7 @@ private:
     /**
      * Interpolates between two grid points to produce the point at which
      * the isosurface intersects an edge.
+     *
      * \param fX1 x coordinate of first position
      * \param fY1 y coordinate of first position
      * \param fZ1 z coordinate of first position
@@ -139,15 +146,19 @@ private:
      * \param fZ2 z coordinate of first position
      * \param tVal1 scalar value at first position
      * \param tVal2 scalar value at second position
+     *
+     * \return interpolated point
      */
     WPointXYZId interpolate( double fX1, double fY1, double fZ1, double fX2, double fY2, double fZ2, double tVal1, double tVal2 );
 
     /**
      * Returns the edge ID.
+     *
      * \param nX ID of desired cell along x axis
      * \param nY ID of desired cell along y axis
      * \param nZ ID of desired cell along z axis
      * \param nEdgeNo id of edge inside cell
+     *
      * \return The id of the edge in the large array.
      */
     int getEdgeID( unsigned int nX, unsigned int nY, unsigned int nZ, unsigned int nEdgeNo );
@@ -157,6 +168,8 @@ private:
      * \param nX ID of desired vertex along x axis
      * \param nY ID of desired vertex along y axis
      * \param nZ ID of desired vertex along z axis
+     *
+     * \return ID of vertex with the given coordinates
      */
     unsigned int getVertexID( unsigned int nX, unsigned int nY, unsigned int nZ );
 

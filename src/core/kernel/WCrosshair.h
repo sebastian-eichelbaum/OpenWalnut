@@ -40,7 +40,9 @@ class OWKERNEL_EXPORT WCrosshair
 {
 public:
     /**
-     * Get the position of the corsshair.
+     * Get the position of the crosshair.
+     *
+     * \return the position
      */
     WPosition getPosition();
 

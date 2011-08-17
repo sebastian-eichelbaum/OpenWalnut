@@ -58,7 +58,9 @@ public:
     virtual ~WSelectionManager();
 
     /**
-     * getter
+     * Return the current position of the point selection
+     *
+     * \return the crosshair
      */
     boost::shared_ptr< WCrosshair >getCrosshair();
 

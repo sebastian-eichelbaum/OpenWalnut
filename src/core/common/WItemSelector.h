@@ -85,7 +85,7 @@ public:
      * selection is known.
      *
      * \note Please be aware that, in the moment this method returns, another thread can make all selectors invalid again causing the returned
-     * one to be invalid too. To avoid this, use the newSelector method only if the old has locked the selection using ::lock and ::unlock.
+     * one to be invalid too. To avoid this, use the newSelector method only if the old has locked the selection using \ref lock and \ref unlock.
      *
      * \param selected the selected items (their index in WItemSelection).
      *
@@ -99,7 +99,7 @@ public:
      * the IndexList.
      *
      * \note Please be aware that, in the moment this method returns, another thread can make all selectors invalid again causing the returned
-     * one to be invalid too. To avoid this, use the newSelector method only if the old has locked the selection using ::lock and ::unlock.
+     * one to be invalid too. To avoid this, use the newSelector method only if the old has locked the selection using \ref lock and \ref unlock.
      *
      * \param selected the selected item (the index in WItemSelection).
      *
@@ -112,7 +112,7 @@ public:
      * string representing it is known. This somehow correlates to the << operator.
      *
      * \note Please be aware that, in the moment this method returns, another thread can make all selectors invalid again causing the returned
-     * one to be invalid too. To avoid this, use the newSelector method only if the old has locked the selection using ::lock and ::unlock.
+     * one to be invalid too. To avoid this, use the newSelector method only if the old has locked the selection using \ref lock and \ref unlock.
      *
      * \param asString the selected items
      *
@@ -125,7 +125,7 @@ public:
      * selection list valid with the current underlying selection.
      *
      * \note Please be aware that, in the moment this method returns, another thread can make all selectors invalid again causing the returned
-     * one to be invalid too. To avoid this, use the newSelector method only if the old has locked the selection using ::lock and ::unlock.
+     * one to be invalid too. To avoid this, use the newSelector method only if the old has locked the selection using \ref lock and \ref unlock.
      *
      * \return the new (valid) selector.
      */

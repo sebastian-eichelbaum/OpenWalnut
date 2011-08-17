@@ -475,6 +475,8 @@ private:
      * \param angle The rotation angle (in radians).
      *
      * \note i must not have the same values as j
+     *
+     * \return The new tensor
      */
     template< std::size_t dim, typename Data_T >
     WTensorSym< 2, dim, Data_T > similarity_rotate_givens( WTensorSym< 2, dim, Data_T > const& m,
@@ -713,6 +715,8 @@ private:
      *
      * \param t The tensor.
      * \param v The gradient.
+     *
+     * \return value
      */
     double calcTens( WTensorSym< 4, 3, double > const& t, WVector3d const& v )
     {

@@ -74,6 +74,8 @@ public:
      * Deals with the events found by the osg.
      * \param ea Event class for storing Keyboard, mouse and window events.
      * \param aa Interface by which GUIEventHandlers may request actions of the GUI system
+     *
+     * \return true if the event was handled.
      */
     bool handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa );
 
@@ -91,6 +93,8 @@ public:
 
     /**
      * Gives information about the picked object.
+     *
+     * \return info object for this hit
      */
     WPickInfo getHitResult();
 

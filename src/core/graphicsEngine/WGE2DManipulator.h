@@ -164,6 +164,8 @@ private:
      * Handles events related to zooming.
      *
      * \param ea event class for storing keyboard, mouse and window events
+     *
+     * \return true if event was handled
      */
     bool zoom( const osgGA::GUIEventAdapter& ea );
 

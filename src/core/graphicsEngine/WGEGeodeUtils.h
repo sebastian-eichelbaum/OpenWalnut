@@ -209,7 +209,7 @@ namespace wge
      *
      * \param resX How many quads in x-direction
      * \param resY How many quads in y-direction
-     * \param spacing \todo(math): Not implement yet
+     * \param spacing Not implement yet
      *
      * \return The new uncolored plane geode
      */

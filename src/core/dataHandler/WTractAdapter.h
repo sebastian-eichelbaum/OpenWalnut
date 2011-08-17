@@ -49,6 +49,8 @@ public:
 
     /**
      * How many positions this tract incorporates.
+     *
+     * \return number of points
      */
     size_t numPoints() const;
 

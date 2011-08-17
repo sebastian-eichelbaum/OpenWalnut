@@ -198,6 +198,8 @@ public:
      *
      * \param fileNames list of filenames to load. The registered notification handler for the root container will get notified on
      * error and success.
+     *
+     * \return the loader handling the load operation
      */
     boost::shared_ptr< WBatchLoader > loadDataSets( std::vector< std::string > fileNames );
 

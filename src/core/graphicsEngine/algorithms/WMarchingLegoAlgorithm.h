@@ -76,12 +76,15 @@ public:
      * Generate the triangles for the surface on the given dataSet (inGrid, vals). The texture coordinates in the resulting mesh are relative to
      * the grid. This means they are NOT transformed. This ensure faster grid matrix updates in texture space.
      * This might be useful where texture transformation matrices are used.
+     *
      * \param nbCoordsX number of vertices in X direction
      * \param nbCoordsY number of vertices in Y direction
      * \param nbCoordsZ number of vertices in Z direction
      * \param mat the matrix transforming the vertices from canonical space
      * \param vals the values at the vertices
      * \param isoValue The surface will run through all positions with this value.
+     *
+     * \return the created triangle mesh
      */
     template< typename T >
     boost::shared_ptr< WTriangleMesh > generateSurface(  size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
@@ -93,12 +96,15 @@ public:
      * Generate the triangles for the surface on the given dataSet (inGrid, vals). The texture coordinates in the resulting mesh are relative to
      * the grid. This means they are NOT transformed. This ensure faster grid matrix updates in texture space.
      * This might be useful where texture transformation matrices are used.
+     *
      * \param nbCoordsX number of vertices in X direction
      * \param nbCoordsY number of vertices in Y direction
      * \param nbCoordsZ number of vertices in Z direction
      * \param mat the matrix transforming the vertices from canonical space
      * \param vals the values at the vertices
      * \param isoValue The surface will run through all positions with this value.
+     *
+     * \return the created triangle mesh
      */
     boost::shared_ptr< WTriangleMesh > genSurfaceOneValue(  size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
                                                               const WMatrix< double >& mat,

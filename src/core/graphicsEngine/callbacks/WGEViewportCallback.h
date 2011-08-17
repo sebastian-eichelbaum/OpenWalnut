@@ -35,7 +35,7 @@
  * This is especially useful to keep offscreen render cameras in sync with the scene cam or to update HUD viewport information. Note that the
  * order of execution of callbacks for a node can cause problems as the new viewport might get set after it is needed.
  *
- * \tparam T the type supporting ::setViewport( osg::Viewport* vp ).
+ * \tparam T the type supporting setViewport
  * \tparam Source the type from who the viewport should be acquired by using osg::Viewport* getViewport()
  */
 template < typename T, typename Source = osg::Camera >

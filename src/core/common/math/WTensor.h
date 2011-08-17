@@ -94,6 +94,8 @@ public:
      * Copy from a symmetric tensor.
      *
      * \param t A symmetric tensor.
+     *
+     * \return new tensor
      */
     WTensor const& operator = ( WTensorSym< order, dim, Data_T > const& t );
 };

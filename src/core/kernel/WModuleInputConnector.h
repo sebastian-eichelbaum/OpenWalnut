@@ -81,6 +81,8 @@ public:
      *
      * \param signal the signal to connect to.
      * \param notifier the notifier function to bind.
+     *
+     * \return the connection. Disconnect it manually if not needed anymore!
      */
     boost::signals2::connection subscribeSignal( MODULE_CONNECTOR_SIGNAL signal, t_GenericSignalHandlerType notifier );
 

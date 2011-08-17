@@ -429,15 +429,19 @@ private:
      * calculates a normal from the 3 points in space defining a triangle
      *
      * \param triangle
+     *
+     * \return the normal of the triangle
      */
     osg::Vec3 calcTriangleNormal( size_t triangle );
 
     /**
      * calculates a normal from the 3 points in space
      *
-     * \param vert0
-     * \param vert1
-     * \param vert2
+     * \param vert0 vertex 1
+     * \param vert1 vertex 2
+     * \param vert2 vertex 3
+     *
+     * \return the normal of the plane defined by these three points
      */
     osg::Vec3 calcNormal( osg::Vec3 vert0, osg::Vec3 vert1, osg::Vec3 vert2 );
 

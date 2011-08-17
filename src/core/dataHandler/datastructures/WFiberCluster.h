@@ -71,6 +71,8 @@ public:
 
     /**
      * Returns true if there are no fibers in that cluster, false otherwise.
+     *
+     * \return true if empty
      */
     bool empty() const;
 
@@ -84,6 +86,8 @@ public:
 
     /**
      * Returns a const reference of all indices inside this cluster
+     *
+     * \return the index list
      */
     const std::list< size_t >& getIndices() const;
 
@@ -122,6 +126,8 @@ public:
     /**
      * Gets the color of which all fibers of this clusters should be painted
      * with.
+     *
+     * \return cluster color.
      */
     WColor getColor() const;
 

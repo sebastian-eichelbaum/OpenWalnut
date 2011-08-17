@@ -92,11 +92,15 @@ public:
 
     /**
      * Returns the largest of the scalars stored in the data set
+     *
+     * \return maximum value in dataset
      */
     double getMax() const;
 
     /**
      * Returns the smallest of the scalars stored in the data set
+     *
+     * \return minimum value in dataset
      */
     double getMin() const;
 

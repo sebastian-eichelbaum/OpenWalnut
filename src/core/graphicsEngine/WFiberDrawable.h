@@ -63,20 +63,23 @@ public:
     WFiberDrawable( const WFiberDrawable& pg, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY );
 
     /**
-     * no clue why it's here and wehat it does
+     * See osg documentation for this.
+     *
+     * \return the cloned object
      */
     virtual osg::Object* cloneType() const;
 
     /**
      * clones it
      *
-     * \param copyop
+     * \param copyop copy operation. See osg doc for details
+     * \return the cloned object
      */
     virtual osg::Object* clone( const osg::CopyOp& copyop ) const;
 
     /**
     * Real work is done here. THERE IS A VERY IMPORTANT THING TO NOTE HERE:
-    * the 'drawImplementation()' method receives an 'osg::State' as
+    * the \ref drawImplementation method receives an state as
     * parameter. This can be used to change the OpenGL state, but changing
     * the OpenGL state here is something to be avoided as much as possible.
     * Do this *only* if it is *absolutely* necessary to make your rendering
@@ -87,7 +90,7 @@ public:
     * these rare cases in which it is necessary. But always keep in mind:
     * *Change the OpenGL state only if strictly necessary*.
     *
-    * \param renderInfo
+    * \param renderInfo the render info object. See osg doc for details
     */
     virtual void drawImplementation( osg::RenderInfo& renderInfo ) const; //NOLINT
 

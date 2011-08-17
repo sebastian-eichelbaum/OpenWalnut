@@ -48,6 +48,8 @@ namespace wge
      *
      * \param pos1 First point
      * \param pos2 Second point
+     *
+     * \return converts a vector to a color
      */
     WColor getRGBAColorFromDirection( const WPosition &pos1, const WPosition &pos2 );
 
@@ -65,6 +67,8 @@ namespace wge
      *
      * \param screen the screen coordinates
      * \param camera The matrices of this camera will used for unprojecting.
+     *
+     * \return un-projects a screen coordinate back to world space
      */
     osg::Vec3 WGE_EXPORT unprojectFromScreen( const osg::Vec3 screen, osg::ref_ptr< osg::Camera > camera  );
 

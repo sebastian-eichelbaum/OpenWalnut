@@ -107,6 +107,8 @@ public:
      * Calculates and returns the squared length of the bounding box radius.
      *
      * \note This is a wrapper call to osg::BoundingBoxImpl< VT >::radius2()
+     *
+     * \return squared bbox radius
      */
     value_type radiusSquare() const;
 

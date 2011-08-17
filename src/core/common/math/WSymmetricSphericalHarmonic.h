@@ -62,27 +62,37 @@ public:
      * Return the value on the sphere.
      * \param theta angle for the position on the unit sphere
      * \param phi angle for the position on the unit sphere
+     *
+     * \return value on sphere
      */
     double getValue( double theta, double phi ) const;
 
     /**
      * Return the value on the sphere.
      * \param coordinates for the position on the unit sphere
+     *
+     * \return value on sphere
      */
     double getValue( const WUnitSphereCoordinates& coordinates ) const;
 
     /**
      * Returns the used coefficients (stored like in the mentioned 2007 Descoteaux paper).
+     *
+     * \return coefficient list
      */
     const WValue<double>& getCoefficients() const;
 
     /**
      * Returns the coefficients for Schultz' SH base.
+     *
+     * \return coefficient list
      */
     WValue< double > getCoefficientsSchultz() const;
 
     /**
      * Returns the coefficients for the complex base.
+     *
+     * \return coefficiend list
      */
     WValue< std::complex< double > > getCoefficientsComplex() const;
 
@@ -96,6 +106,8 @@ public:
 
     /**
      * Return the order of the spherical harmonic.
+     *
+     * \return order of SH
      */
     size_t getOrder() const;
 
@@ -190,6 +202,8 @@ public:
      *
      * \param order The order of the symmetric tensor.
      * \param orientations A vector of at least (orderTensor+1) * (orderTensor+2) / 2 orientations.
+     *
+     * \return the conversion matrix
      */
     static WMatrix< double > calcSHToTensorSymMatrix( std::size_t order, const std::vector< WUnitSphereCoordinates >& orientations );
 

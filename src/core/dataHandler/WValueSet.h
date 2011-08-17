@@ -77,6 +77,8 @@ public:
          * \param i The relative position of the element in the subarray's range.
          *
          * \note If i is not in ( 0, size - 1 ), the first element will be returned.
+         *
+         * \return the value
          */
         T const& operator[] ( std::size_t i ) const
         {
@@ -216,6 +218,8 @@ public:
 
     /**
      * Sometimes we need raw access to the data array, for e.g. OpenGL.
+     *
+     * \return the raw data pointer
      */
     const T * rawData() const
     {
@@ -224,6 +228,8 @@ public:
 
     /**
      * Sometimes we need raw access to the data vector.
+     *
+     * \return the data vector
      */
     const std::vector< T >* rawDataVectorPointer() const
     {

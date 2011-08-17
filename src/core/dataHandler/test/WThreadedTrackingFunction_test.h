@@ -205,6 +205,8 @@ private:
      * Build a test dataset.
      *
      * \param data The vector for every voxel.
+     *
+     * \return the test dataset
      */
     boost::shared_ptr< WDataSetSingle > buildTestData( WVector3d data )
     {

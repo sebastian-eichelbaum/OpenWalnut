@@ -124,6 +124,8 @@ public:
      *
      * \param event the kind of signal the callback should be used for.
      * \param callback the callback.
+     *
+     * \return the connection object. Disconnect it explicitly!
      */
     boost::signals2::connection subscribeSignal( LogEvent event, LogEntryCallback callback );
 

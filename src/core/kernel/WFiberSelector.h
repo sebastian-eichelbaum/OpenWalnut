@@ -55,8 +55,9 @@ public:
     ~WFiberSelector();
 
     /**
-     * getter
-     * return the number of fibers in the dataset
+     * Return the number of fibers in the dataset.
+     *
+     * \return number of fibers
      */
     size_t size();
 

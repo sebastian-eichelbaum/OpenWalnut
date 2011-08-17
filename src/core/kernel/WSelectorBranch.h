@@ -69,30 +69,35 @@ public:
 
 
     /**
+     * Queries the ROIs.
+     *
      * \return A copy of the list of WSelectorRois
      */
     std::list< boost::shared_ptr< WSelectorRoi > > getROIs();
 
     /**
-     * removes a roi fromt he branch
+     * Removes a roi fromt he branch.
+     *
      * \param roi
      */
     void removeRoi( osg::ref_ptr< WROI > roi );
 
     /**
-     * getter
+     * Checks if empty.
+     *
      * \return true when this branch contains no rois
      */
     bool empty();
 
     /**
-     * setter
-     * sets the dirty flag
+     * Sets the dirty flag.
      */
     void setDirty();
 
     /**
-     * getter
+     * Checks if branch is dirty.
+     *
+     * \return true if dirty
      */
     bool dirty();
 

@@ -90,11 +90,15 @@ public:
 
     /**
      * Get the modifier key associated with the pick
+     *
+     * \return the mod key
      */
     inline modifierKey getModifierKey() const;
 
     /**
      * Get the mouse button associated with the pick
+     *
+     * \return the mouse button
      */
     inline WMouseButton getMouseButton() const;
 
@@ -112,22 +116,30 @@ public:
 
 
     /**
-    * Get name of picked object.
-    */
+     * Get name of picked object.
+     *
+     * \return object name
+     */
     inline std::string getName() const;
 
     /**
-    * Get name of the viewer.
-    */
+     * Get name of the viewer.
+     *
+     * \return viewer name
+     */
     inline std::string getViewerName() const;
 
     /**
      * Get position where object was hit.
+     *
+     * \return the pick position
      */
     inline WPosition getPickPosition() const;
 
     /**
      * Get normal at position where object was hit.
+     *
+     * \return pick normal
      */
     inline WVector3d getPickNormal() const;
 
@@ -141,12 +153,17 @@ public:
     /**
      * Tests two pick infos for equality
      * \param rhs right hand side of comparison
+     *
+     * \return true if equal
      */
     inline bool operator==( WPickInfo rhs ) const;
 
     /**
      * Tests two pick infos for inequality
+     *
      * \param rhs right hand side of comparison
+     *
+     * \return true if not equal
      */
     inline bool operator!=( WPickInfo rhs ) const;
 

@@ -93,6 +93,8 @@ public:
      *
      * \param module1 the first module
      * \param module2 the second module
+     *
+     * \return the list of combiner for one-to-one connections
      */
     template < typename T >
     static WCombinerTypes::WOneToOneCombiners createCombinerList( boost::shared_ptr< WModule > module1, boost::shared_ptr< WModule > module2 )

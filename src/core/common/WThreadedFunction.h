@@ -129,6 +129,8 @@ protected:
 
     /**
      * WThreadedFunctionBase is non-copyable, so the copy operator is not implemented.
+     *
+     * \return this function
      */
     WThreadedFunctionBase& operator = ( WThreadedFunctionBase const& );
 
@@ -222,6 +224,8 @@ private:
 
     /**
      * WThreadedFunction is non-copyable, so the copy operator is not implemented.
+     *
+     * \return this function
      */
     WThreadedFunction& operator = ( WThreadedFunction const& );
 

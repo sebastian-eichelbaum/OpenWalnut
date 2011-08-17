@@ -151,6 +151,8 @@ public:
 
     /**
      * Is coloring enabled?
+     *
+     * \return true if enabled
      */
     bool isEnabled() const;
 

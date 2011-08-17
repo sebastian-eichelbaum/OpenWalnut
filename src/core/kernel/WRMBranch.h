@@ -90,7 +90,9 @@ public:
     void setDirty();
 
     /**
-     * returns whether the branch is empty
+     * returns whether the branch is empty.
+     *
+     * \return true if empty.
      */
     bool empty();
 
@@ -116,7 +118,9 @@ public:
     boost::shared_ptr< WROIManager > getRoiManager();
 
     /**
-     * returns the properties object
+     * returns the properties object.
+     *
+     * \return the properties of this branch
      */
     boost::shared_ptr< WProperties > getProperties();
 

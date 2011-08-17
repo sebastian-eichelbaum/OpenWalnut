@@ -47,6 +47,8 @@ public:
 
     /**
      * Get the position of the manipulator as 4x4 matrix.
+     *
+     * \return the matrix representing the transformation
      */
     virtual osg::Matrixd getMatrix() const;
 
@@ -60,6 +62,8 @@ public:
     /**
      * Get the position of the manipulator as a inverse matrix of the
      * manipulator, typically used as a model view matrix.
+     *
+     * \return the inverse matrix
      */
     virtual osg::Matrixd getInverseMatrix() const;
 
@@ -74,11 +78,15 @@ public:
      * Handle events, return true if handled, false otherwise.
      * \param ea Event class for storing Keyboard, mouse and window events.
      * \param us Interface by which GUIEventHandlers may request actions of the GUI system
+     *
+     * \return true if event was handled
      */
     virtual bool handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us );
 
     /**
      * Get zoom factor.
+     *
+     * \return the current zoom factor
      */
     double getZoom() const;
 
@@ -117,6 +125,8 @@ private:
      * Handles events related to zooming.
      * \param ea Event class for storing Keyboard, mouse and window events.
      * \param us Interface by which GUIEventHandlers may request actions of the GUI system
+     *
+     * \return true if event was handled
      */
     bool zoom( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us );
 

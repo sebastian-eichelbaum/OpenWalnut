@@ -45,6 +45,8 @@ public:
      * Indicates whether we want the widget showing the scene to be
      * tranferred to its home position. This is the case if we have the
      * <b>first</b> child added to the scene.
+     *
+     * \return true if reset to bbox is requested
      */
     bool isHomePositionRequested();
 

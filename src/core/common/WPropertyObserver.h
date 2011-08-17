@@ -70,7 +70,7 @@ public:
     void observe( boost::shared_ptr< WProperties > properties, std::set< std::string > names = std::set< std::string >() );
 
     /**
-     * Is true if one observed property fired. This is reset by the ::handled method.
+     * Is true if one observed property fired. This is reset by the \ref handled method.
      *
      * \return true if one property fired.
      */
@@ -79,7 +79,7 @@ public:
     /**
      * Resets the update flag and the list of fired properties.
      *
-     * \return the set of properties fired until the last call of handled().
+     * \return the set of properties fired until the last call of \ref handled.
      */
     PropertyNameMap handled();
 
@@ -110,12 +110,12 @@ private:
     WPropertyObserver& operator=( const WPropertyObserver& rhs );
 
     /**
-     * Cancels all current subscriptions and cleans ::m_subscriptions.
+     * Cancels all current subscriptions and cleans m_subscriptions.
      */
     void cancelSubscriptions();
 
     /**
-     * Subscribes each property update condition which matches an entry in ::m_propNames.
+     * Subscribes each property update condition which matches an entry in m_propNames.
      */
     void updateSubscriptions();
 

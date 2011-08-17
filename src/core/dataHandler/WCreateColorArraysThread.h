@@ -67,6 +67,8 @@ public:
 
     /**
      * Return the value of the finished flag.
+     *
+     * \return true if finished
      */
     inline bool isFinished();
 

@@ -54,11 +54,15 @@ public:
 
     /**
      * Returns an empty dummy WPersonalInformation object.
+     *
+     * \return the dummy object
      */
     static WPersonalInformation createDummyInformation();
 
     /**
      * Returns the subjectID of the person. This is zero for dummy information.
+     *
+     * \return subject id number
      */
     uint64_t getSubjectID() const;
 
@@ -70,6 +74,8 @@ public:
 
     /**
      * Returns the last or family name of the person.
+     *
+     * \return family name
      */
     std::string getLastName() const;
 
@@ -81,23 +87,31 @@ public:
 
     /**
      * Returns the middle name of the person.
+     *
+     * \return middle name
      */
     std::string getMiddleName() const;
 
     /**
      * Returns the first or given name of the person.
+     *
+     * \return first name
      */
     std::string getFirstName() const;
 
     /**
      * Returns if all members of the current WPersonalInformation are equal to those of info.
      * \param info the WPersonalInformation to compare with
+     *
+     * \return true if the information are equal
      */
     bool operator==( WPersonalInformation info ) const;
 
     /**
      * Returns if not all members of the current WPersonalInformation are equal to those of info.
      * \param info the WPersonalInformation to compare with
+     *
+     * \return true if the personal informations differ
      */
     bool operator!=( WPersonalInformation info ) const;
 

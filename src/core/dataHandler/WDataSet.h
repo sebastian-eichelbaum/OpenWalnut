@@ -73,6 +73,8 @@ public:
 
     /**
      * Get the name of the file that this data set stems from.
+     *
+     * \return the filename.
      */
     std::string getFileName() const;
 

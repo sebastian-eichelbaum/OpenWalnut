@@ -51,6 +51,8 @@ public:
 
     /**
      * Returns dummy bounding box.
+     *
+     * \return bbox
      */
     virtual WBoundingBox getBoundingBox() const
     {

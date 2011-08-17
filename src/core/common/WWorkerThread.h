@@ -98,6 +98,8 @@ private:
 
     /**
      * WWorkerThread is non-copyable, so the copy operator is not implemented.
+     *
+     * \return this worker-thread.
      */
     WWorkerThread& operator = ( WWorkerThread const& );
 

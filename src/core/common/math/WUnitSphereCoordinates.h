@@ -64,11 +64,15 @@ public:
 
     /**
      * Return the theta angle.
+     *
+     * \return theta angle
      */
     double getTheta() const;
 
     /**
      * Return the phi angle.
+     *
+     * \return phi angle
      */
     double getPhi() const;
 
@@ -86,6 +90,8 @@ public:
 
     /**
      * Returns the stored sphere coordinates as Euclidean coordinates.
+     *
+     * \return sphere coordinates in euclidean space
      */
     WVector3d getEuclidean() const;
 
