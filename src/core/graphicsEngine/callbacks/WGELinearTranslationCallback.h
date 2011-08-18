@@ -162,13 +162,17 @@ void WGELinearTranslationCallback< T >::operator()( osg::Node* node, osg::NodeVi
         osg::MatrixTransform* m = static_cast< osg::MatrixTransform* >( node );
         if( m )
         {
-            osg::Vec3 translation = m_axe * static_cast< float >( m_oldPos );
+            float max = m_pos->getMax()->getMax();
+            float min = m_pos->getMin()->getMin();
+            float size = max - min;
             float axeLen = m_axe.length();
+
+            osg::Vec3 translation = m_axe * static_cast< float >( m_oldPos - min );
 
             // set both matrices
             if( m_texMat )
             {
-                m_texMat->setMatrix( osg::Matrix::translate( translation / static_cast< float >( m_pos->getMax()->getMax() ) / axeLen ) );
+                m_texMat->setMatrix( osg::Matrix::translate( translation / size / axeLen ) );
             }
             if( m_uniform )
             {
