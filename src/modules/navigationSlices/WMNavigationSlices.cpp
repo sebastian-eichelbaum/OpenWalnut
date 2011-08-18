@@ -345,9 +345,23 @@ void WMNavigationSlices::moduleMain()
     m_axialOutput = osg::ref_ptr< WGEGroupNode > ( new WGEGroupNode() );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" )->getScene()->insert( m_axialOutput );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" )->getScene()->insert( m_coronalOutput );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" )->getScene()->insert( m_sagittalOutput );
+
+    // add for side-views
+    boost::shared_ptr< WGEViewer > v = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" );
+    if( v )
+    {
+        v->getScene()->insert( m_axialOutput );
+    }
+    v = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" );
+    if( v )
+    {
+        v->getScene()->insert( m_coronalOutput );
+    }
+    v = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" );
+    if( v )
+    {
+        v->getScene()->insert( m_sagittalOutput );
+    }
 
     // disable the pick-coloring for the side views
     m_axialOutput->getOrCreateStateSet()->addUniform( new osg::Uniform( "u_pickColorEnabled", 0.0f ) );
@@ -400,8 +414,20 @@ void WMNavigationSlices::moduleMain()
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_output );
 
-    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" )->getScene()->remove( m_axialOutput );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" )->getScene()->remove( m_coronalOutput );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" )->getScene()->remove( m_sagittalOutput );
+    v = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" );
+    if( v )
+    {
+        v->getScene()->remove( m_axialOutput );
+    }
+    v = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" );
+    if( v )
+    {
+        v->getScene()->remove( m_coronalOutput );
+    }
+    v = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" );
+    if( v )
+    {
+        v->getScene()->remove( m_sagittalOutput );
+    }
 }
 
