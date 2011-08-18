@@ -183,12 +183,9 @@ void WMColormapper::moduleMain()
 
             boost::shared_ptr< WDataSetSingle > dataSet = m_input->getData();
 
-            // add a colorbar (HACK!)
+            // add a colorbar
             if( dataSet && dataSet->isTexture() )
             {
-                // TODO(ebaum): this is not the best possible solution. Actually, its a hack.
-                //              A nice solution would be some more abstract "widget" system
-
                 // create camera oriented 2d projection
                 m_barProjection = new osg::Projection();
                 m_barProjection->addUpdateCallback( new WGENodeMaskCallback( m_showColorbar ) );

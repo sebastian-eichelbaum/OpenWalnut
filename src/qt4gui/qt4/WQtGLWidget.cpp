@@ -264,7 +264,6 @@ void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
         case Qt::Key_2:
             setCameraManipulator( TWO_D );
             break;
-        // TODO( ebaum ): replace this
         case Qt::Key_F12:
             makeScreenshot();
             break;
@@ -381,7 +380,7 @@ void WQtGLWidget::changeBGColor()
 
 void WQtGLWidget::makeScreenshot()
 {
-    // TODO( ebaum ): replace this
+    // TODO(ebaum): replace this with the better screenshotter which resides in my branch
 
     // grab content first to avoid making a screenshot of the file dialog :)
     QPixmap q = QPixmap::grabWindow( this->winId() );
