@@ -216,33 +216,36 @@ void WMData::moduleMain()
         if( dss )
         {
             m_dataType->set( getDataTypeString( dss ) );
-            switch( (*dss).getValueSet()->getDataType() )
+            if( dss->isTexture() )
             {
-                case W_DT_UNSIGNED_CHAR:
-                case W_DT_INT16:
-                case W_DT_SIGNED_INT:
-                    m_dataSet->getTexture()->colormap()->set(
-                        m_dataSet->getTexture()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 0 ) )
-                    );
-                    break;
-                case W_DT_FLOAT:
-                case W_DT_DOUBLE:
-                    if( boost::shared_dynamic_cast< WDataSetVector >( m_dataSet ) )
-                    {
+                switch( (*dss).getValueSet()->getDataType() )
+                {
+                    case W_DT_UNSIGNED_CHAR:
+                    case W_DT_INT16:
+                    case W_DT_SIGNED_INT:
                         m_dataSet->getTexture()->colormap()->set(
-                            m_dataSet->getTexture()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 6 ) )
+                            m_dataSet->getTexture()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 0 ) )
                         );
-                        m_dataSet->getTexture()->interpolation()->set( false );
-                    }
-                    else
-                    {
-                        m_dataSet->getTexture()->colormap()->set(
-                            m_dataSet->getTexture()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 5 ) )
-                        );
-                    }
-                    break;
-                default:
-                    WAssert( false, "Unknow data type in Data module" );
+                        break;
+                    case W_DT_FLOAT:
+                    case W_DT_DOUBLE:
+                        if( boost::shared_dynamic_cast< WDataSetVector >( m_dataSet ) )
+                        {
+                            m_dataSet->getTexture()->colormap()->set(
+                                m_dataSet->getTexture()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 6 ) )
+                            );
+                            m_dataSet->getTexture()->interpolation()->set( false );
+                        }
+                        else
+                        {
+                            m_dataSet->getTexture()->colormap()->set(
+                                m_dataSet->getTexture()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 5 ) )
+                            );
+                        }
+                        break;
+                    default:
+                        WAssert( false, "Unknow data type in Data module" );
+                }
             }
         }
     }

@@ -55,7 +55,7 @@ WDataSetSingle::WDataSetSingle( boost::shared_ptr< WValueSetBase > newValueSet,
 
     // technically this should be placed into the WDataSetScalar, WDataSetVector and so on
     boost::shared_ptr< WGridRegular3D > regGrid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
-    if( regGrid )
+    if( regGrid && ( m_valueSet->dimension() < 5 ) && ( m_valueSet->dimension() != 0 ) )
     {
         m_texture = osg::ref_ptr< WDataTexture3D >( new WDataTexture3D( m_valueSet, regGrid ) );
     }
