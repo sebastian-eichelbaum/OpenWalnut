@@ -6,10 +6,10 @@ Files: *
 Copyright: 2009-2011 The OpenWalnut Community
            2009-2011 Abteilung für Bild- und Signalverarbeitung, Universität Leipzig
            2009-2011 Max-Planck Institute of Cognitive Neuroscience, Leipzig, Germany
-License: GPL-3.0+ or LGPL-3.0+
+License: LGPL-3.0+
 
 Files: debian/*
-Copyright: 2011 Abteilung für Bild- und Signalverarbeitung, Universität Leipzig
+Copyright: 2011 Sebastian Eichelbaum <eichelbaum@informatik.uni-leipzig.de>
 License: GPL-3.0+
 
 Files: tools/style/brainlint/*
