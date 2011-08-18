@@ -145,29 +145,29 @@ void WMDatasetManipulator::init()
 
     WPosition center = bb.center();
 
-    m_knobCenter = boost::shared_ptr<WROISphere>( new WROISphere( center, 2.5 ) );
-    m_knobx1 = boost::shared_ptr<WROISphere>( new WROISphere( center, 2.5 ) );
-    m_knobx2 = boost::shared_ptr<WROISphere>( new WROISphere( center, 2.5 ) );
-    m_knoby1 = boost::shared_ptr<WROISphere>( new WROISphere( center, 2.5 ) );
-    m_knoby2 = boost::shared_ptr<WROISphere>( new WROISphere( center, 2.5 ) );
-    m_knobz1 = boost::shared_ptr<WROISphere>( new WROISphere( center, 2.5 ) );
-    m_knobz2 = boost::shared_ptr<WROISphere>( new WROISphere( center, 2.5 ) );
+    m_knobCenter = new WROISphere( center, 2.5 );
+    m_knobx1 = new WROISphere( center, 2.5 );
+    m_knobx2 = new WROISphere( center, 2.5 );
+    m_knoby1 = new WROISphere( center, 2.5 );
+    m_knoby2 = new WROISphere( center, 2.5 );
+    m_knobz1 = new WROISphere( center, 2.5 );
+    m_knobz2 = new WROISphere( center, 2.5 );
 
-    m_knobRotCenter = boost::shared_ptr<WROISphere>( new WROISphere( center, 2.5 ) );
-    m_knobRot = boost::shared_ptr<WROISphere>( new WROISphere( center, 2.5 ) );
+    m_knobRotCenter = new WROISphere( center, 2.5 );
+    m_knobRot = new WROISphere( center, 2.5 );
 
     setManipulatorsFromBoundingBox();
 
-    WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_knobCenter ) );
-    WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_knobx1 ) );
-    WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_knobx2 ) );
-    WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_knoby1 ) );
-    WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_knoby2 ) );
-    WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_knobz1 ) );
-    WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_knobz2 ) );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->insert( m_knobCenter );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->insert( m_knobx1 );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->insert( m_knobx2 );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->insert( m_knoby1 );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->insert( m_knoby2 );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->insert( m_knobz1 );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->insert( m_knobz2 );
 
-    WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_knobRotCenter ) );
-    WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_knobRot ) );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->insert( m_knobRotCenter );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->insert( m_knobRot );
 
     using boost::function;
     m_changeRoiSignal
@@ -186,6 +186,33 @@ void WMDatasetManipulator::init()
     m_knobRot->addROIChangeNotifier( m_changeRotRoiSignal );
 
     setManipulatorMode();
+}
+
+void WMDatasetManipulator::shutdown()
+{
+    // remove the notifier
+    m_knobCenter->removeROIChangeNotifier( m_changeRoiSignal );
+    m_knobx1->removeROIChangeNotifier( m_changeRoiSignal );
+    m_knobx2->removeROIChangeNotifier( m_changeRoiSignal );
+    m_knoby1->removeROIChangeNotifier( m_changeRoiSignal );
+    m_knoby2->removeROIChangeNotifier( m_changeRoiSignal );
+    m_knobz1->removeROIChangeNotifier( m_changeRoiSignal );
+    m_knobz2->removeROIChangeNotifier( m_changeRoiSignal );
+
+    m_knobRotCenter->removeROIChangeNotifier( m_changeRotRoiSignal );
+    m_knobRot->removeROIChangeNotifier( m_changeRotRoiSignal );
+
+    // remove knobs from OSG
+    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_knobCenter );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_knobx1 );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_knobx2 );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_knoby1 );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_knoby2 );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_knobz1 );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_knobz2 );
+
+    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_knobRotCenter );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_knobRot );
 }
 
 void WMDatasetManipulator::setManipulatorsFromBoundingBox()
@@ -510,15 +537,7 @@ void WMDatasetManipulator::moduleMain()
         }
     }
 
-    m_knobCenter->removeROIChangeNotifier( m_changeRoiSignal );
-    m_knobx1->removeROIChangeNotifier( m_changeRoiSignal );
-    m_knobx2->removeROIChangeNotifier( m_changeRoiSignal );
-    m_knoby1->removeROIChangeNotifier( m_changeRoiSignal );
-    m_knoby2->removeROIChangeNotifier( m_changeRoiSignal );
-    m_knobz1->removeROIChangeNotifier( m_changeRoiSignal );
-    m_knobz2->removeROIChangeNotifier( m_changeRoiSignal );
-
-    m_knobRotCenter->removeROIChangeNotifier( m_changeRotRoiSignal );
-    m_knobRot->removeROIChangeNotifier( m_changeRotRoiSignal );
+    // cleanup
+    shutdown();
 }
 
