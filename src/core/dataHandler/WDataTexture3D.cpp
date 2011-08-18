@@ -61,7 +61,7 @@ WDataTexture3D::WDataTexture3D( boost::shared_ptr< WValueSetBase > valueSet, boo
     offset( 1, 3 ) = 0.5 / grid->getNbCoordsY();
     offset( 2, 3 ) = 0.5 / grid->getNbCoordsZ();
 
-    transformation()->set( offset * scale * invert( static_cast< WMatrix4d >( grid->getTransform() ) ) );
+    transformation()->set( invert( static_cast< WMatrix4d >( grid->getTransform() ) ) * scale * offset );
 
     // set the size
     WGETexture3D::initTextureSize( this, grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ() );
