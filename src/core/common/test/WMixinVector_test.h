@@ -33,7 +33,7 @@
 #include "../WMixinVector.h"
 #include "WMixinVectorTraits.h"
 
-// \cond
+// \cond Supress_Doxygen
 // This is just a dummy class to test if the default constructor is called when
 // not specified by WMixinVector instanziation.
 class A {public: A(){m_x = 3.1415;} bool operator==(double x){return m_x == x;} double m_x; }; // NOLINT
@@ -41,7 +41,7 @@ class A {public: A(){m_x = 3.1415;} bool operator==(double x){return m_x == x;} 
 
 /**
  * Unit tests the WMixinVector copy from OSG
- * \warning THIS IS FAR AWAY FROM BEEING A COMPLETE UNIT TEST SUIT FOR WMIXINVECTOR!!!
+ * \warning THIS IS FAR AWAY FROM BEING A COMPLETE UNIT TEST SUIT FOR WMIXINVECTOR!!!
  */
 class WMixinVectorTest : public CxxTest::TestSuite
 {
