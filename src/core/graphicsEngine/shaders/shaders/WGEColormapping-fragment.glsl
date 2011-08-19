@@ -107,7 +107,7 @@ vec4 colormapping( vec4 texcoord )
 #ifdef Colormap2Enabled
     colormap( finalColor, u_colormap2Sampler, ( gl_TextureMatrix[ Colormap2Unit ] * t ).xyz,
               u_colormap2Min, u_colormap2Scale, u_colormap2Threshold, u_colormap2ThresholdEnabled,
-              u_colormap3Alpha, u_colormap2Colormap, u_colormap2Active );
+              u_colormap2Alpha, u_colormap2Colormap, u_colormap2Active );
 #endif
 #ifdef Colormap1Enabled
     colormap( finalColor, u_colormap1Sampler, ( gl_TextureMatrix[ Colormap1Unit ] * t ).xyz,
@@ -158,7 +158,7 @@ vec4 colormapping()
 #endif
 #ifdef Colormap2Enabled
     colormap( finalColor, u_colormap2Sampler, v_colormap2TexCoord.xyz, u_colormap2Min, u_colormap2Scale, u_colormap2Threshold,
-              u_colormap2ThresholdEnabled, u_colormap3Alpha, u_colormap2Colormap, u_colormap2Active );
+              u_colormap2ThresholdEnabled, u_colormap2Alpha, u_colormap2Colormap, u_colormap2Active );
 #endif
 #ifdef Colormap1Enabled
     colormap( finalColor, u_colormap1Sampler, v_colormap1TexCoord.xyz, u_colormap1Min, u_colormap1Scale, u_colormap1Threshold,
