@@ -7,6 +7,8 @@ IF( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )
 ENDIF()
 
 
+ADD_DEFINITIONS( -DBOOST_FILESYSTEM_VERSION=2 )
+
 
 # append search path for FindModules:
 #------------------------------------

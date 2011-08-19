@@ -25,7 +25,20 @@
 #ifndef WGEANIMATIONMANIPULATOR_H
 #define WGEANIMATIONMANIPULATOR_H
 
-#include <osgGA/MatrixManipulator>
+#include <osg/Version>
+
+// OSG interface changed in 2.9.7, to make it compile also with those versions we do this:
+// OSG_MIN_VERSION_REQUIRED(2, 9, 8) macro is not available in e.g. OSG 2.8.1, hence we use the old way
+#if ( ( OPENSCENEGRAPH_MAJOR_VERSION > 2 ) || ( OPENSCENEGRAPH_MAJOR_VERSION == 2 && ( OPENSCENEGRAPH_MINOR_VERSION > 9 || \
+                            ( OPENSCENEGRAPH_MINOR_VERSION == 9 && OPENSCENEGRAPH_PATCH_VERSION >= 8 ) ) ) )
+    #include <osgGA/CameraManipulator>
+    namespace osgGA
+    {
+        typedef CameraManipulator MatrixManipulator;
+    }
+#else
+    #include <osgGA/MatrixManipulator>
+#endif
 
 #include "../../common/WTimer.h"
 #include "../../common/WRealtimeTimer.h"
