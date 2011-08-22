@@ -2,10 +2,10 @@ OpenWalnut Packaging - README
 *****************************
 
 This directory contains several helpers and configurations for building
-OpenWalnut source and binary pckages. These scripts/configs ease the release-
+OpenWalnut source and binary packages. These scripts/configs ease the release-
 management and reduce the manual overhead.
 
-Basicall, there are three important scripts for _automatically_ building and
+Basically, there are three important scripts for _automatically_ building and
 packaging OpenWalnut. Here is an overview:
 
 1. owpack - wrapping the build and packaging process. This script does 
@@ -18,8 +18,8 @@ packaging OpenWalnut. Here is an overview:
    we can build packages for different distributions by utilizing a chroot
    environment containing the target distribution (and architecture). We can
    ensure that OpenWalnut builds on these distributions properly and are able to
-   ensure, that our listed reqirements are sufficient, since the build-chroot is
-   a minimal system which only contains the needed packages.
+   ensure, that our listed requirements are sufficient, since the build-chroot 
+   is a minimal system which only contains the needed packages.
 
 3. owuberbuild - automates building and packaging for multiple distributions and
    architectures using owpack and owbuildchroot. This basically calls
