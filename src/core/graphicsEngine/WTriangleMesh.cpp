@@ -196,27 +196,14 @@ osg::Vec3 WTriangleMesh::getVertex( size_t index ) const
 
 osg::Vec4 WTriangleMesh::getVertColor( size_t index ) const
 {
-    WAssert( index < m_countVerts, "get vertex: index out of range" );
+    WAssert( index < m_countVerts, "get vertex color: index out of range" );
     return ( *m_vertColors )[index];
 }
 
-WPosition WTriangleMesh::getVertexAsPosition( size_t index ) const
+WVector3d WTriangleMesh::getNormal( size_t index ) const
 {
-    WAssert( index < m_countVerts, "get vertex as position: index out of range" );
-    return WPosition( ( *m_verts )[index][0], ( *m_verts )[index][1], ( *m_verts )[index][2] );
-}
-
-WPosition WTriangleMesh::getNormalAsPosition( size_t index ) const
-{
-    WAssert( index < m_countVerts, "get vertex as position: index out of range" );
+    WAssert( index < m_countVerts, "get normal as position: index out of range" );
     return WPosition( ( *m_vertNormals )[index][0], ( *m_vertNormals )[index][1], ( *m_vertNormals )[index][2] );
-}
-
-WPosition WTriangleMesh::getVertexAsPosition( size_t triangleIndex, size_t vertNum )
-{
-    WAssert( triangleIndex < m_countTriangles, "get vertex as position: index out of range" );
-    osg::Vec3 v = getTriVert( triangleIndex, vertNum );
-    return WPosition( v[0], v[1], v[2] );
 }
 
 void WTriangleMesh::removeVertex( size_t index )
@@ -382,13 +369,13 @@ void WTriangleMesh::doLoopSubD()
 
     osg::Vec3* newVertexPositions = new osg::Vec3[m_numTriVerts];
 
-    //std::cout << "loop subdivision pass 1" << std::endl;
+    //std::cout << "Loop subdivision pass 1" << std::endl;
     for( size_t i = 0; i < m_numTriVerts; ++i )
     {
         newVertexPositions[i] = loopCalcNewPosition( i );
     }
 
-    //std::cout << "loop subdivision pass 2" << std::endl;
+    //std::cout << "Loop subdivision pass 2" << std::endl;
     for( size_t i = 0; i < m_numTriFaces; ++i )
     {
         loopInsertCenterTriangle( i );
@@ -397,13 +384,13 @@ void WTriangleMesh::doLoopSubD()
     std::vector< size_t >v;
     m_vertexIsInTriangle.resize( ( *m_verts ).size(), v );
 
-    //std::cout << "loop subdivision pass 3" << std::endl;
+    //std::cout << "Loop subdivision pass 3" << std::endl;
     for( size_t i = 0; i < m_numTriFaces; ++i )
     {
         loopInsertCornerTriangles( i );
     }
 
-    //std::cout << "loop subdivision pass 4" << std::endl;
+    //std::cout << "Loop subdivision pass 4" << std::endl;
     for( size_t i = 0; i < m_numTriVerts; ++i )
     {
         ( *m_verts )[i] = newVertexPositions[i];
