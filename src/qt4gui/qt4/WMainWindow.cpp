@@ -49,10 +49,13 @@
     #include <QtWebKit/QWebView>
 #endif
 
+#include "../icons/WIcons.xpm"
+#include "controlPanel/WPropertyBoolWidget.h"
+#include "controlPanel/WQtControlPanel.h"
 #include "core/common/WColor.h"
 #include "core/common/WIOTools.h"
-#include "core/common/WProjectFileIO.h"
 #include "core/common/WPathHelper.h"
+#include "core/common/WProjectFileIO.h"
 #include "core/dataHandler/WDataSetFibers.h"
 #include "core/dataHandler/WDataSetSingle.h"
 #include "core/dataHandler/WEEG2.h"
@@ -66,22 +69,20 @@
 #include "core/kernel/WProjectFile.h"
 #include "core/kernel/WROIManager.h"
 #include "core/kernel/WSelectionManager.h"
-#include "../icons/WIcons.xpm"
-#include "controlPanel/WPropertyBoolWidget.h"
-#include "controlPanel/WQtControlPanel.h"
 #include "events/WEventTypes.h"
 #include "events/WModuleCrashEvent.h"
 #include "events/WModuleReadyEvent.h"
 #include "events/WModuleRemovedEvent.h"
 #include "events/WOpenCustomDockWidgetEvent.h"
 #include "guiElements/WQtPropertyBoolAction.h"
+#include "WQt4Gui.h"
 #include "WQtCombinerToolbar.h"
 #include "WQtCustomDockWidget.h"
-#include "WQtNavGLWidget.h"
 #include "WQtGLDockWidget.h"
-#include "WQt4Gui.h"
+#include "WQtNavGLWidget.h"
 #include "WSettingAction.h"
 #include "WSettingMenu.h"
+#include "WQtMessageDialog.h"
 
 #include "WMainWindow.h"
 #include "WMainWindow.moc"
@@ -1009,7 +1010,20 @@ void WMainWindow::handleLogLevelUpdate( unsigned int logLevel )
 void WMainWindow::handleGLVendor()
 {
     // WARNING: never put blocking code here, as it might freeze the mainGLWidget.
-    std::string vendor = m_mainGLWidget->getViewer()->getOpenGLVendor();
+    std::string vendor = string_utils::toLower( m_mainGLWidget->getViewer()->getOpenGLVendor() );
 
-    // TODO(ebaum): warning
+    // is this a mesa card?
+    if( vendor.find( "mesa" ) != std::string::npos )
+    {
+        QString msg = "<b>Warning:</b> Your graphics card is powered by the Mesa OpenGL implementation. OpenWalnut does not support Mesa "
+                      "officially, since Mesa has some severe problems with GLSL shaders. You can still use OpenWalnut, but you should be "
+                      "aware that Mesa can freeze OpenWalnut. Ensure you have the latest version of Mesa installed to avoid problems.";
+        QLabel* l = new QLabel( msg );
+        l->setWordWrap( true );
+        l->setGeometry( 0, 0, 400, 200 );
+        l->setMinimumWidth( 400 );
+
+        WQtMessageDialog* msgDia = new WQtMessageDialog( "MesaWarning", "Mesa Warning", l, getSettings(), this );
+        msgDia->show();
+    }
 }
