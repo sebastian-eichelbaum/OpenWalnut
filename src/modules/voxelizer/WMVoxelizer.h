@@ -36,6 +36,7 @@ class WBresenhamDBL;
 class WDataSetScalar;
 class WFiberCluster;
 class WRasterAlgorithm;
+class WGEManagedGroupNode;
 template< class T > class WModuleInputData;
 
 /**
@@ -164,11 +165,6 @@ protected:
      */
     boost::shared_ptr< WGridRegular3D > constructGrid( const WBoundingBox& bb ) const;
 
-    /**
-     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
-     */
-    virtual void activate();
-
 private:
     boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input; //!< Input connector for a fiber cluster
     boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output; //!< Output connector for a voxelized cluster
@@ -182,7 +178,7 @@ private:
 
     boost::shared_ptr< const WFiberCluster > m_clusters; //!< Reference to the fiber cluster
 
-    osg::ref_ptr< WGEGroupNode > m_osgNode; //!< OSG root node for this module
+    osg::ref_ptr< WGEManagedGroupNode > m_rootNode; //!< OSG root node for this module
     osg::ref_ptr< osg::Geode > m_fiberGeode; //!< OSG fiber geode
     osg::ref_ptr< osg::Geode > m_centerLineGeode; //!< OSG center line of the current cluster geode
     osg::ref_ptr< osg::Geode > m_boundingBoxGeode; //!< OSG bounding box geode

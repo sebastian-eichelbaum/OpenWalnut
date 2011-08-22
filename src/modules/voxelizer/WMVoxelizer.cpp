@@ -45,6 +45,7 @@
 #include "core/dataHandler/WGridTransformOrtho.h"
 #include "core/graphicsEngine/WGEGeodeUtils.h"
 #include "core/graphicsEngine/WGEGeometryUtils.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
 #include "core/graphicsEngine/WGEUtils.h"
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WModuleInputData.h"
@@ -61,7 +62,6 @@ W_LOADABLE_MODULE( WMVoxelizer )
 
 WMVoxelizer::WMVoxelizer()
     : WModule(),
-      m_osgNode( new WGEGroupNode ),
       m_fiberGeode( new osg::Geode ),
       m_centerLineGeode( new osg::Geode ),
       m_boundingBoxGeode( new osg::Geode ),
@@ -89,6 +89,8 @@ void WMVoxelizer::moduleMain()
     m_moduleState.add( m_input->getDataChangedCondition() );  // additional fire-condition: "data changed" flag
     m_moduleState.add( m_fullUpdate );
     m_moduleState.add( m_drawCenterLine->getCondition() );
+
+    m_rootNode = new WGEManagedGroupNode( m_active );
 
     ready();
 
@@ -176,23 +178,6 @@ void WMVoxelizer::properties()
     WModule::properties();
 }
 
-void WMVoxelizer::activate()
-{
-    if( m_osgNode )
-    {
-        if( m_active->get() )
-        {
-            m_osgNode->setNodeMask( 0xFFFFFFFF );
-        }
-        else
-        {
-            m_osgNode->setNodeMask( 0x0 );
-        }
-    }
-
-    WModule::activate();
-}
-
 osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode() const
 {
     using osg::ref_ptr;
@@ -267,22 +252,22 @@ boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const WBoundingB
 void WMVoxelizer::updateFibers()
 {
     debugLog() << "Fiber Update";
-    assert( m_osgNode );
+    assert( m_rootNode );
     if( m_drawfibers->get( true ) )
     {
-        m_osgNode->remove( m_fiberGeode );
+        m_rootNode->remove( m_fiberGeode );
         m_fiberGeode = genFiberGeode();
-        m_osgNode->insert( m_fiberGeode );
+        m_rootNode->insert( m_fiberGeode );
     }
     else
     {
-        m_osgNode->remove( m_fiberGeode );
+        m_rootNode->remove( m_fiberGeode );
     }
 }
 
 void WMVoxelizer::updateCenterLine()
 {
-    assert( m_osgNode );
+    assert( m_rootNode );
     if( m_drawCenterLine->get( true ) )
     {
         boost::shared_ptr< WFiber > centerLine = m_clusters->getCenterLine();
@@ -295,20 +280,20 @@ void WMVoxelizer::updateCenterLine()
             warnLog() << "CenterLine update on non existing CenterLine (null)";
             m_centerLineGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() );
         }
-        m_osgNode->insert( m_centerLineGeode );
+        m_rootNode->insert( m_centerLineGeode );
     }
     else
     {
-        m_osgNode->remove( m_centerLineGeode );
+        m_rootNode->remove( m_centerLineGeode );
     }
 }
 
 void WMVoxelizer::update()
 {
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
-    m_osgNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode );
-    m_osgNode->addUpdateCallback( new OSGCB_HideUnhideBB( this ) );
-    m_osgNode->addUpdateCallback( new OSGCB_ChangeLighting( this ) );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+    m_rootNode = new WGEManagedGroupNode( m_active );
+    m_rootNode->addUpdateCallback( new OSGCB_HideUnhideBB( this ) );
+    m_rootNode->addUpdateCallback( new OSGCB_ChangeLighting( this ) );
 
     updateFibers();
 
@@ -317,7 +302,7 @@ void WMVoxelizer::update()
     WBoundingBox bb = createBoundingBox( *m_clusters );
 
     m_boundingBoxGeode = wge::generateBoundingBoxGeode( bb, WColor( 0.3, 0.3, 0.3, 1 ) );
-    m_osgNode->insert( m_boundingBoxGeode );
+    m_rootNode->insert( m_boundingBoxGeode );
 
     boost::shared_ptr< WGridRegular3D > grid = constructGrid( bb );
 
@@ -387,12 +372,12 @@ void WMVoxelizer::update()
     if( m_drawVoxels->get() )
     {
         m_voxelGeode = genDataSetGeode( outputDataSet );
-        m_osgNode->insert( m_voxelGeode );
+        m_rootNode->insert( m_voxelGeode );
     }
 
-    m_osgNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
-    m_osgNode->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_osgNode );
+    m_rootNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
+    m_rootNode->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 }
 
 void WMVoxelizer::raster( boost::shared_ptr< WRasterAlgorithm > algo ) const
@@ -539,11 +524,11 @@ void WMVoxelizer::OSGCB_ChangeLighting::operator()( osg::Node* node, osg::NodeVi
 {
     if( m_module->m_lighting->get() )
     {
-        m_module->m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
+        m_module->m_rootNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
     }
     else
     {
-        m_module->m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+        m_module->m_rootNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
     }
     traverse( node, nv );
 }
