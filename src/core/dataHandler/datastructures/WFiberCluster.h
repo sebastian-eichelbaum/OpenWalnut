@@ -192,7 +192,7 @@ public:
     // dataset is, we need it in the WMVoxelizer module as well as the clustering
     // information. Since we don't have the possibility of multiple
     // InputConnectors we must agglomerate those into one object. Please remove this.
-    // \cond Supress_Doxygen
+    // \cond Suppress_Doxygen
     void setDataSetReference( boost::shared_ptr< const WDataSetFiberVector > fibs );
     boost::shared_ptr< const WDataSetFiberVector > getDataSetReference() const;
     static boost::shared_ptr< WPrototyped > getPrototype();
@@ -227,7 +227,7 @@ protected:
     // dataset is, we need it in the WMVoxelizer module as well as the clustering
     // information. Since we don't have the possibility of multiple
     // InputConnectors we must agglomerate those into one object. Please remove this.
-    // \cond Supress_Doxygen
+    // \cond Suppress_Doxygen
     static boost::shared_ptr< WPrototyped > m_prototype;
     // \endcond
 

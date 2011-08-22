@@ -128,7 +128,7 @@ chroot_check()
 {
     echo "* Checking \"$CHROOTDIR\"."
     if [ ! -d $CHROOTDIR ]; then
-        echo " * The chroot envirnoment does not exist."
+        echo " * The chroot environment does not exist."
         exit 1
     fi
 

@@ -150,10 +150,10 @@ Builder_DEB()
     source $CONFIG_FILE
 
     # set some debian specifics
-    # The directory upstream-name names. This is important as some builder need
+    # The directory upstream-name names. This is important as some builders need
     # this and have special requirements on them (like debuild)
     BUILDER_DEB_UPSTREAM_SRC_DIR=OpenWalnut-$VERSION
-    # Debuild reqires a different upstream tar name ...
+    # Debuild requires a different upstream tar name ...
     BUILDER_DEB_UPSTREAM_SRC_TAR=openwalnut_$VERSION.orig.tar.gz
 
     # create some place to work in

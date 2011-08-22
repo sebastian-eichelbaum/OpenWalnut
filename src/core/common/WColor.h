@@ -64,7 +64,7 @@ WColor OWCOMMON_EXPORT inverseColor( const WColor& other );
  */
 namespace defaultColor
 {
-    // \cond Supress_Doxygen
+    // \cond Suppress_Doxygen
     static const WColor GREEN( 0.0, 1.0, 0.0, 1.0 ); //!< Default for green
     static const WColor RED( 1.0, 0.0, 0.0, 1.0 ); //!< Default for red
     static const WColor BLUE( 0.0, 0.0, 1.0, 1.0 ); //!< Default for blue

@@ -41,7 +41,7 @@ template< typename T > class WValue
 template< typename S > friend class WValue; //!< All WValues are friends of each other.
 
 // We exclude this from doxygen since they are documented already as functions and I don't want to duplicate that documentation
-// \cond Supress_Doxygen
+// \cond Suppress_Doxygen
 template< typename U > friend std::ostream& operator<<( std::ostream& os, const WValue< U > &rhs );
 template< typename U > friend std::istream& operator>>( std::istream& in, WValue< U >& rhs );
 // \endcond
