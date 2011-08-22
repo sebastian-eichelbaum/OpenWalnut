@@ -621,7 +621,7 @@ bool WMWriteTracts::savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers
         "}" << std::endl << std::endl;
     }
 
-    dataFileScene << "// Enable Phong lighting for all th egeometry" << std::endl <<
+    dataFileScene << "// Enable Phong lighting for all the geometry" << std::endl <<
     dataFileScene << "#default{" << std::endl <<
                    " finish{" << std::endl <<
                    "  ambient 0" << std::endl <<
