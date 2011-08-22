@@ -406,6 +406,17 @@ public:
      */
     virtual bool set( T value, bool suppressNotification = false );
 
+    /**
+     * Sets the specified value as recommended value. The difference to \ref set is simple. If some value was set using the method \ref set
+     * earlier, the \ref setRecommendedValue call is ignored. This is very useful in modules, where incoming data yields some useful default values
+     * but you do not want to overwrite a user-value which might have been set.
+     *
+     * \param value the new value to set if the user did not yet set the value
+     *
+     * \return true if value has been set successfully.
+     */
+    virtual bool setRecommendedValue( T value );
+
 protected:
 
     /**
@@ -439,13 +450,19 @@ protected:
     boost::shared_ptr< ConstraintContainerType > m_constraints;
 
 private:
+
+    /**
+     * This is true, if the user did not set a value until now using \ref set.
+     */
+    bool m_notYetSet;
 };
 
 template < typename T >
 WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial ):
         WFlag< T >( new WCondition(), initial ),
         WPropertyBase( name, description ),
-        m_constraints( new ConstraintContainerType() )
+        m_constraints( new ConstraintContainerType() ),
+        m_notYetSet( true )
 {
     updateType();
 
@@ -458,7 +475,8 @@ template < typename T >
 WPropertyVariable< T >::WPropertyVariable( std::string name, std::string description, const T& initial, boost::shared_ptr< WCondition > condition ):
         WFlag< T >( condition, initial ),
         WPropertyBase( name, description ),
-        m_constraints( new ConstraintContainerType() )
+        m_constraints( new ConstraintContainerType() ),
+        m_notYetSet( true )
 {
     updateType();
 
@@ -472,7 +490,8 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
                                            PropertyChangeNotifierType notifier ):
         WFlag< T >( new WCondition(), initial ),
         WPropertyBase( name, description ),
-        m_constraints( new ConstraintContainerType() )
+        m_constraints( new ConstraintContainerType() ),
+        m_notYetSet( true )
 {
     updateType();
 
@@ -492,7 +511,8 @@ WPropertyVariable< T >::WPropertyVariable( std::string name, std::string descrip
                                            PropertyChangeNotifierType notifier ):
         WFlag< T >( condition, initial ),
         WPropertyBase( name, description ),
-        m_constraints( new ConstraintContainerType() )
+        m_constraints( new ConstraintContainerType() ),
+        m_notYetSet( true )
 {
     updateType();
 
@@ -511,7 +531,8 @@ template < typename T >
 WPropertyVariable< T >::WPropertyVariable( const WPropertyVariable< T >& from ):
     WFlag< T >( from ),
     WPropertyBase( from ),
-    m_constraints( new ConstraintContainerType() )
+    m_constraints( new ConstraintContainerType() ),
+    m_notYetSet( from.m_notYetSet )
 {
     // copy the constraints
 
@@ -584,7 +605,7 @@ bool WPropertyVariable< T >::setAsString( std::string value )
     {
         // use the helper class which can handle different kinds of properties for us
         PROPERTY_TYPE_HELPER::WStringConversion< T > h = PROPERTY_TYPE_HELPER::WStringConversion< T >();
-        return WFlag< T >::set( h.create( WFlag< T >::get(), value ) );
+        return set( h.create( WFlag< T >::get(), value ) );
     }
     catch( const boost::bad_lexical_cast &e )
     {
@@ -610,7 +631,7 @@ bool WPropertyVariable< T >::set( boost::shared_ptr< WPropertyBase > value )
     boost::shared_ptr< WPropertyVariable< T > > v = boost::shared_dynamic_cast< WPropertyVariable< T > >( value );
     if( v )
     {
-        return WFlag< T >::set( v->get() );
+        return set( v->get() );
     }
     else
     {
@@ -621,7 +642,24 @@ bool WPropertyVariable< T >::set( boost::shared_ptr< WPropertyBase > value )
 template < typename T >
 bool WPropertyVariable< T >::set( T value, bool suppressNotification )
 {
+    m_notYetSet = false;
     return WFlag< T >::set( value, suppressNotification );
+}
+
+template < typename T >
+bool WPropertyVariable< T >::setRecommendedValue( T value )
+{
+    // NOTE: well this is quite problematic when used multi-threaded ...
+    if( m_notYetSet )
+    {
+        bool ret = set( value );
+        m_notYetSet = true;
+        return ret;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 template < typename T >
