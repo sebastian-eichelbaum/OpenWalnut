@@ -182,7 +182,7 @@ bool WMWriteMesh::saveVTKASCII() const
     dataFile << "POINTS " << m_triMesh->vertSize() << " float\n";
     for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
     {
-        point = m_triMesh->getVertexAsPosition( i );
+        point = m_triMesh->getVertex( i );
         if( !( myIsfinite( point[0] ) && myIsfinite( point[1] ) && myIsfinite( point[2] ) ) )
         {
             WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Write Mesh", LL_ERROR );
@@ -257,7 +257,7 @@ bool WMWriteMesh::saveJson() const
     WPosition point;
     for( size_t i = 0; i < m_triMesh->vertSize() - 1; ++i )
     {
-        point = m_triMesh->getVertexAsPosition( i );
+        point = m_triMesh->getVertex( i );
         if( !( myIsfinite( point[0] ) && myIsfinite( point[1] ) && myIsfinite( point[2] ) ) )
         {
             WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Write Mesh", LL_ERROR );
@@ -265,14 +265,14 @@ bool WMWriteMesh::saveJson() const
         }
         dataFile << point[0] << "," << point[1] << "," << point[2] << ",";
     }
-    point = m_triMesh->getVertexAsPosition( m_triMesh->vertSize() - 1 );
+    point = m_triMesh->getVertex( m_triMesh->vertSize() - 1 );
     dataFile << point[0] << "," << point[1] << "," << point[2] << "],\n";
 
     dataFile << ( "    \"normals\" : [" );
     WPosition normal;
     for( size_t i = 0; i < m_triMesh->vertSize() - 1; ++i )
     {
-        normal = m_triMesh->getNormalAsPosition( i );
+        normal = m_triMesh->getNormal( i );
         if( !( myIsfinite( normal[0] ) && myIsfinite( normal[1] ) && myIsfinite( normal[2] ) ) )
         {
             WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Write Mesh", LL_ERROR );
@@ -280,7 +280,7 @@ bool WMWriteMesh::saveJson() const
         }
         dataFile << normal[0] << "," << normal[1] << "," << normal[2] << ",";
     }
-    normal = m_triMesh->getNormalAsPosition( m_triMesh->vertSize() - 1 );
+    normal = m_triMesh->getNormal( m_triMesh->vertSize() - 1 );
     dataFile << normal[0] << "," << normal[1] << "," << normal[2] << "],\n";
 
     dataFile << ( "    \"indices\" : [" );

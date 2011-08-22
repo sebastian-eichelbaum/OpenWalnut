@@ -193,7 +193,7 @@ void WMWebglSupport::colorTriMeshGray()
     for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
     {
         // get vertex position
-        WPosition pos = m_triMesh->getVertexAsPosition( i );
+        WPosition pos = m_triMesh->getVertex( i );
 
         // get color value for that vertex from texture
         //double value = m_datasetScalar->interpolate( pos, &success );
@@ -218,7 +218,7 @@ void WMWebglSupport::colorTriMeshRGB()
     for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
     {
         // get vertex position
-        WPosition pos = m_triMesh->getVertexAsPosition( i );
+        WPosition pos = m_triMesh->getVertex( i );
 
         // get color value for that vertex from texture
         WVector3d value = m_datasetVector->interpolate( pos, &success );

@@ -213,7 +213,7 @@ public:
      *
      * \return vertex array
      */
-    osg::ref_ptr< const osg::Vec3Array >getVertexArray() const;
+    osg::ref_ptr< const osg::Vec3Array > getVertexArray() const;
 
     /**
      * Returns a reference pointer to the texture coordinate array.
@@ -235,14 +235,14 @@ public:
      * \param forceRecalc
      * \return pointer to the vertex normal array
      */
-    osg::ref_ptr< osg::Vec3Array >getVertexNormalArray( bool forceRecalc = false );
+    osg::ref_ptr< osg::Vec3Array > getVertexNormalArray( bool forceRecalc = false );
 
     /**
      * getter
      *
      * \return pointer to the vertex color array
      */
-    osg::ref_ptr< osg::Vec4Array >getVertexColorArray();
+    osg::ref_ptr< osg::Vec4Array > getVertexColorArray();
 
     /**
      * Returns a const reference to the vertex ids of the triangles.
@@ -257,7 +257,7 @@ public:
      * \param forceRecalc
      * \return pointer to the triangle normal array
      */
-    osg::ref_ptr< osg::Vec3Array >getTriangleNormalArray( bool forceRecalc = false );
+    osg::ref_ptr< osg::Vec3Array > getTriangleNormalArray( bool forceRecalc = false );
 
 
     /**
@@ -289,26 +289,9 @@ public:
      * getter
      *
      * \param index
-     * \return vertex
-     */
-    WPosition getVertexAsPosition( size_t index ) const;
-
-    /**
-     * getter
-     *
-     * \param index
      * \return normal
      */
-    WPosition getNormalAsPosition( size_t index ) const;
-
-    /**
-     * getter
-     *
-     * \param triangleIndex
-     * \param vertNum
-     * \return vertex
-     */
-    WPosition getVertexAsPosition( size_t triangleIndex, size_t vertNum );
+    WVector3d getNormal( size_t index ) const;
 
     /**
      * getter
