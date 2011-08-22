@@ -39,7 +39,7 @@
 // information. Since we don't have the possibility of multiple
 // InputConnectors we must agglomerate those into one object. Please remove this.
 // initializes the variable and provides a linker reference
-// \cond Supress_Doxygen
+// \cond Suppress_Doxygen
 boost::shared_ptr< WPrototyped > WFiberCluster::m_prototype = boost::shared_ptr< WPrototyped >();
 // \endcond
 
@@ -100,7 +100,7 @@ void WFiberCluster::merge( WFiberCluster& other ) // NOLINT
 }
 
 // NODOXYGEN
-// \cond Supress_Doxygen
+// \cond Suppress_Doxygen
 void WFiberCluster::setDataSetReference( boost::shared_ptr< const WDataSetFiberVector > fibs )
 {
     m_fibs = fibs;

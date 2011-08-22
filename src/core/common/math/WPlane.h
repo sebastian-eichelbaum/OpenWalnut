@@ -146,7 +146,7 @@ public:
         m_second = normalize( m_second );
     }
 
-//    \cond Supress_Doxygen
+//    \cond Suppress_Doxygen
 //    /**
 //     * Computes sample points on that plane.
 //     *
