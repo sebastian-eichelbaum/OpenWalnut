@@ -183,6 +183,13 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
     boost::shared_ptr< WValueSet< float > > vals = boost::shared_dynamic_cast< WValueSet<float> >( m_dataSet->getValueSet() );
 
+    int maxX = grid->getNbCoordsX() - 1;
+    int maxY = grid->getNbCoordsY() - 1;
+    int maxZ = grid->getNbCoordsZ() - 1;
+    int nbX = maxX + 1;
+    int nbY = maxY + 1;
+    int nbZ = maxZ + 1;
+
     m_xSlice->setMax( grid->getNbCoordsX() - 1 );
     m_ySlice->setMax( grid->getNbCoordsY() - 1 );
     m_zSlice->setMax( grid->getNbCoordsZ() - 1 );
@@ -195,8 +202,6 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
     m_xSlice->set( xSlice );
     m_ySlice->set( ySlice );
     m_zSlice->set( zSlice );
-
-
 
     // When working with the OpenSceneGraph, always use ref_ptr to store pointers to OSG objects. This allows OpenSceneGraph to manage
     // its resources automatically.
@@ -211,22 +216,15 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
     if( ( ( *m_dataSet ).getValueSet()->order() == 1 ) && ( ( *m_dataSet ).getValueSet()->dimension() == 3 )
             && ( ( *m_dataSet ).getValueSet()->getDataType() == 16 ) )
     {
-        int maxX = m_xSlice->getMax()->getMax();
-        int maxY = m_ySlice->getMax()->getMax();
-        int maxZ = m_zSlice->getMax()->getMax();
-        int nbX = maxX + 1;
-        int nbY = maxY + 1;
-        int nbZ = maxZ + 1;
-
         if( m_showOnAxial->get( true ) )
         {
             for( int x = 0; x < nbX; ++x )
             {
                 for( int y = 0; y < nbY; ++y )
                 {
-                    float vecCompX = vals->getScalar( ( x + y * nbX + zSlice * nbX * nbY ) * 3 ) / 2.;
-                    float vecCompY = vals->getScalar( ( x + y * nbX + zSlice * nbX * nbY ) * 3 + 1 ) / 2.;
-                    float vecCompZ = vals->getScalar( ( x + y * nbX + zSlice * nbX * nbY ) * 3 + 2 ) / 2.;
+                    float vecCompX = vals->getScalar( ( x + y * nbX + static_cast< int >( zSlice ) * nbX * nbY ) * 3 ) / 2.;
+                    float vecCompY = vals->getScalar( ( x + y * nbX + static_cast< int >( zSlice ) * nbX * nbY ) * 3 + 1 ) / 2.;
+                    float vecCompZ = vals->getScalar( ( x + y * nbX + static_cast< int >( zSlice ) * nbX * nbY ) * 3 + 2 ) / 2.;
 
                     if( !m_projectOnSlice->get( true ) )
                     {
@@ -276,9 +274,9 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
             {
                 for( int z = 0; z < nbZ; ++z )
                 {
-                    float vecCompX = vals->getScalar( ( x + ySlice * nbX + z * nbX * nbY ) * 3 ) / 2.;
-                    float vecCompY = vals->getScalar( ( x + ySlice * nbX + z * nbX * nbY ) * 3 + 1 ) / 2.;
-                    float vecCompZ = vals->getScalar( ( x + ySlice * nbX + z * nbX * nbY ) * 3 + 2 ) / 2.;
+                    float vecCompX = vals->getScalar( ( x + static_cast< int >( ySlice ) * nbX + z * nbX * nbY ) * 3 ) / 2.;
+                    float vecCompY = vals->getScalar( ( x + static_cast< int >( ySlice ) * nbX + z * nbX * nbY ) * 3 + 1 ) / 2.;
+                    float vecCompZ = vals->getScalar( ( x + static_cast< int >( ySlice ) * nbX + z * nbX * nbY ) * 3 + 2 ) / 2.;
 
                     if( !m_projectOnSlice->get( true ) )
                     {
@@ -328,9 +326,9 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
             {
                 for( int z = 0; z < nbZ; ++z )
                 {
-                    float vecCompX = vals->getScalar( ( xSlice + y * nbX + z * nbX * nbY ) * 3 ) / 2.;
-                    float vecCompY = vals->getScalar( ( xSlice + y * nbX + z * nbX * nbY ) * 3 + 1 ) / 2.;
-                    float vecCompZ = vals->getScalar( ( xSlice + y * nbX + z * nbX * nbY ) * 3 + 2 ) / 2.;
+                    float vecCompX = vals->getScalar( ( static_cast< int >( xSlice ) + y * nbX + z * nbX * nbY ) * 3 ) / 2.;
+                    float vecCompY = vals->getScalar( ( static_cast< int >( xSlice ) + y * nbX + z * nbX * nbY ) * 3 + 1 ) / 2.;
+                    float vecCompZ = vals->getScalar( ( static_cast< int >( xSlice ) + y * nbX + z * nbX * nbY ) * 3 + 2 ) / 2.;
 
                     if( !m_projectOnSlice->get( true ) )
                     {
