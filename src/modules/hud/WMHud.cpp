@@ -90,6 +90,12 @@ void WMHud::moduleMain()
     // clean up stuff
     // NOTE: ALWAYS remove your osg nodes!
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+    // disconnect from picking
+    boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    if( viewer->getPickHandler() )
+    {
+        viewer->getPickHandler()->getPickSignal()->disconnect( boost::bind( &WMHud::updatePickText, this, _1 ) );
+    }
 }
 
 void WMHud::init()
@@ -176,7 +182,6 @@ void WMHud::init()
 
     m_osgPickText = osg::ref_ptr< osgText::Text >( new osgText::Text() );
 
-
     m_osgPickText->setCharacterSize( 14 );
     m_osgPickText->setFont( WPathHelper::getAllFonts().Default.file_string() );
     m_osgPickText->setText( "nothing picked" );
@@ -204,7 +209,9 @@ void WMHud::init()
     boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
     WAssert( viewer, "Requested viewer (main) not found." );
     if(viewer->getPickHandler() )
+    {
         viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMHud::updatePickText, this, _1 ) );
+    }
 
     {
         // Set first text
