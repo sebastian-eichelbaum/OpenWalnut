@@ -136,10 +136,7 @@ void WMClusterParamDisplay::initSubModules()
     // preset properties
     debugLog() << "Start step submodule properties";
     m_detTractClustering->getProperties()->getProperty( "active" )->toPropBool()->set( false, true );
-    m_voxelizer->getProperties()->getProperty( "Fiber Tracts" )->toPropBool()->set( false, true );
-    m_voxelizer->getProperties()->getProperty( "Display Voxels" )->toPropBool()->set( false, true );
-    m_voxelizer->getProperties()->getProperty( "Bounding Box Enable Feature" )->toPropBool()->set( false, true );
-    m_voxelizer->getProperties()->getProperty( "Lighting" )->toPropBool()->set( false, true );
+    m_voxelizer->getProperties()->getProperty( "active" )->toPropBool()->set( false, true );
     m_gaussFiltering->getProperties()->getProperty( "Iterations" )->toPropInt()->set( 3, true );
     m_clusterSlicer->getProperties()->getProperty( "Show|Hide Iso Voxels" )->toPropBool()->set( false );
     m_clusterSlicer->getProperties()->getProperty( "Biggest Component Only" )->toPropBool()->set( false );
@@ -168,13 +165,8 @@ void WMClusterParamDisplay::initSubModules()
     m_properties->addProperty( m_detTractClustering->getProperties()->getProperty( "Output cluster ID" ) );
     m_properties->addProperty( m_detTractClustering->getProperties()->getProperty( "Max cluster distance" ) );
     m_properties->addProperty( m_detTractClustering->getProperties()->getProperty( "Min point distance" ) );
-    m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Fiber Tracts" ) );
-    m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Center Line" ) );
-    m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Lighting" ) );
-    m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Fiber Transparency" ) );
     m_properties->addProperty( m_gaussFiltering->getProperties()->getProperty( "Iterations" ) );
-    m_properties->addProperty( m_meshRenderer->getProperties()->getProperty( "Opacity %" ) );
-    m_properties->addProperty( m_meshRenderer->getProperties()->getProperty( "Mesh Color" ) );
+    m_properties->addProperty( m_meshRenderer->getProperties()->getProperty( "Coloring" ) );
     m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Show|Hide Iso Voxels" ) );
     m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Mean Type" ) );
     m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Show|Hide Slices" ) );

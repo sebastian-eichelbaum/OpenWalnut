@@ -36,6 +36,7 @@ class WBresenhamDBL;
 class WDataSetScalar;
 class WFiberCluster;
 class WRasterAlgorithm;
+class WGEManagedGroupNode;
 template< class T > class WModuleInputData;
 
 /**
@@ -102,27 +103,13 @@ protected:
     virtual void properties();
 
     /**
-     * Generates an OSG geode for the fibers in the given cluster to display
-     * only this cluster.
-     *
-     * \return OSG geode containing the fibers of the cluster.
-     */
-    osg::ref_ptr< osg::Geode > genFiberGeode() const;
-
-    /**
      * Every parameter change this function is doing:
-     *  - redraw fibers
      *  - bounding box and grid generation
      *  - executing a rasterization algo for the fibers
      *  - generate dataset out of the grid and a value set
      *  - display the rastered voxels
      */
     void update();
-
-    /**
-     * Removes or inserts new fiber Geode into this modules group node.
-     */
-    void updateFibers();
 
     /**
      * Removes or inserts geode for the center line of the current cluster into this modules group node.
@@ -164,15 +151,21 @@ protected:
      */
     boost::shared_ptr< WGridRegular3D > constructGrid( const WBoundingBox& bb ) const;
 
-    /**
-     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
-     */
-    virtual void activate();
-
 private:
-    boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input; //!< Input connector for a fiber cluster
-    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output; //!< Output connector for a voxelized cluster
-    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_dirOutput; //!< Output connector for a voxelized cluster (the fiber directions)
+    /**
+     * Input connector for a fiber cluster
+     */
+    boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input;
+
+    /**
+     * Output connector for a voxelized cluster
+     */
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output;
+
+    /**
+     * Output connector for a voxelized cluster (the fiber directions)
+     */
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_dirOutput;
 
     /**
      * Output providing parameterization to other algorithms. It provides a scalar field which gets filled with the parameterization of the
@@ -180,27 +173,35 @@ private:
      */
     boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_parameterizationOutput;
 
-    boost::shared_ptr< const WFiberCluster > m_clusters; //!< Reference to the fiber cluster
+    /**
+     * Reference to the fiber cluster
+     */
+    boost::shared_ptr< const WFiberCluster > m_clusters;
 
-    osg::ref_ptr< WGEGroupNode > m_osgNode; //!< OSG root node for this module
-    osg::ref_ptr< osg::Geode > m_fiberGeode; //!< OSG fiber geode
-    osg::ref_ptr< osg::Geode > m_centerLineGeode; //!< OSG center line of the current cluster geode
-    osg::ref_ptr< osg::Geode > m_boundingBoxGeode; //!< OSG bounding box geode
-    osg::ref_ptr< osg::Geode > m_voxelGeode; //!< OSG voxel geode
+    /**
+     * OSG root node for this module
+     */
+    osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
 
-    boost::shared_ptr< WCondition > m_fullUpdate; //!< module is performing an expensive update
+    /**
+     * module is performing an expensive update
+     */
+    boost::shared_ptr< WCondition > m_fullUpdate;
 
-    WPropBool m_antialiased; //!< Enable/Disable anti-aliased drawing of voxels
-    WPropBool m_drawfibers; //!< Enable/Disable drawing of the fibers of a cluster
-    WPropBool m_drawBoundingBox; //!< Enable/Disable drawing of a clusters BoundingBox
-    WPropBool m_drawCenterLine; //!< Enable/Disable drawing of the current clusters CenterLine
-    WPropBool m_lighting; //!< Enable/Disable lighting
-    WPropBool m_drawVoxels; //!< Enable/Disable drawing of marked voxels (this is not hide/unhide since its expensive computation time too!)
-    WPropString m_rasterAlgo; //!< Specifies the algorithm you may want to use for voxelization
-    WPropInt  m_voxelsPerUnit;  //!< The number of voxels per unit in the coordinate system
+    /**
+     * Enable/Disable anti-aliased drawing of voxels
+     */
+    WPropBool m_antialiased;
 
-    WPropDouble m_fiberTransparency; //!< Transparency of the fibers
-    WPropColor m_explicitFiberColor; //!< If set not to 0.2 0.2 0.2 all fiber having this color
+    /**
+     * Specifies the algorithm you may want to use for voxelization
+     */
+    WPropString m_rasterAlgo;
+
+    /**
+     * The number of voxels per unit in the coordinate system
+     */
+    WPropInt  m_voxelsPerUnit;
 
     /**
      * The available parameterization algorithms.
@@ -211,69 +212,6 @@ private:
      * The actually selected parameterization algorithm.
      */
     WPropSelection m_parameterAlgo;
-
-    /**
-     * Node callback to hide unhide bounding box
-     */
-    class OSGCB_HideUnhideBB : public osg::NodeCallback
-    {
-    public: // NOLINT
-        /**
-         * Constructor.
-         *
-         * \param module just set the creating module as pointer for later reference.
-         */
-        explicit OSGCB_HideUnhideBB( WMVoxelizer* module )
-            : m_module( module )
-        {
-        }
-
-        /**
-         * operator () - called during the update traversal.
-         *
-         * \param node the osg node
-         * \param nv the node visitor
-         */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-    private: // NOLINT
-
-        /**
-         * Pointer used to access members of the module to modify the node.
-         */
-        WMVoxelizer* m_module;
-    };
-
-    /**
-     * Node callback to change lighting of the voxels
-     */
-    class OSGCB_ChangeLighting : public osg::NodeCallback
-    {
-    public: // NOLINT
-
-        /**
-         * Constructor.
-         *
-         * \param module just set the creating module as pointer for later reference.
-         */
-        explicit OSGCB_ChangeLighting( WMVoxelizer* module )
-            : m_module( module )
-        {
-        }
-
-        /**
-         * operator () - called during the update traversal.
-         *
-         * \param node the osg node
-         * \param nv the node visitor
-         */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-    private: // NOLINT
-
-        /**
-         * Pointer used to access members of the module to modify the node.
-         */
-        WMVoxelizer* m_module;
-    };
 };
 
 inline const std::string WMVoxelizer::getName() const
@@ -283,7 +221,7 @@ inline const std::string WMVoxelizer::getName() const
 
 inline const std::string WMVoxelizer::getDescription() const
 {
-    return std::string( "Detects voxel of a given grid via a WGeometry." );
+    return std::string( "Rasterize or voxelize a dataset with the given tracts." );
 }
 
 #endif  // WMVOXELIZER_H
