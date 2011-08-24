@@ -33,11 +33,6 @@
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WExportDataHandler.h"
 
-
-///======================================
-// TODO(wiebel): use this stuff or remove it
-typedef double WDummyType;
-
 /**
  * An incomplete implementation to store information about electrodes of EEG data
  */
@@ -58,24 +53,7 @@ public:
 protected:
 private:
     WPosition m_position; //!< Position of the electrode in space
-    // TODO(wiebel): The following is suggested in the
-    // eemagine design document
-    // WColor color;
 };
-
-/**
- * An incomplete dummy implementation to store information about segments of EEG data
- */
-class WEEGSegementInfo
-{
-public:
-protected:
-private:
-    WDummyType m_startSample; //!< Dummy variable of not yet completely implemented class
-    WDummyType m_endSample; //!< Dummy variable of not yet completely implemented class
-    WDummyType m_segmentStartDate; //!< Dummy variable of not yet completely implemented class
-};
-//================================================
 
 typedef std::vector< double > WEEGElectrode;
 typedef std::vector< WEEGElectrode > WEEGSegment;
@@ -189,10 +167,6 @@ private:
      * We have only on sampling rate for all channels.
      */
     double m_samplingRate;
-    /**
-     * Information about segments. An array of WEEGSegmentInfo objects.
-     */
-    std::vector< WEEGSegementInfo > m_segmentInfo;
     /**
      * Description of electrodes
      */
