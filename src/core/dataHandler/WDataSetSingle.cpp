@@ -117,7 +117,9 @@ const std::string WDataSetSingle::getName() const
 
 const std::string WDataSetSingle::getDescription() const
 {
-    return "A single dataset containing a number of WValues on a structured grid. Single, in this case, means not time-dependent and not one type of data for several subjects.";
+    return "A single dataset containing a number of WValues on a structured"
+        "grid. Single, in this case, means not time-dependent and not one type of"
+        "data for several subjects.";
 }
 
 boost::shared_ptr< WPrototyped > WDataSetSingle::getPrototype()
