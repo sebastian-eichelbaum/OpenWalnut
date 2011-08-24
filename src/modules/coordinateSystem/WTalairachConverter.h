@@ -31,7 +31,7 @@
 #include "core/common/math/WMatrix.h"
 
 /**
- * class to provide conversions between world or voxel space coordinates und talairach coordinates
+ * class to provide conversions between world or voxel space coordinates und Talairach coordinates
  */
 class WTalairachConverter
 {

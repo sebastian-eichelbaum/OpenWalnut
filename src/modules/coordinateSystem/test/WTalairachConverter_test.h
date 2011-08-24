@@ -34,7 +34,7 @@
 #include "../WTalairachConverter.h"
 
 /**
- * Tests the talailrach converter class
+ * Tests the Talailrach converter class
  */
 class WTalairachConverterTest : public CxxTest::TestSuite
 {
