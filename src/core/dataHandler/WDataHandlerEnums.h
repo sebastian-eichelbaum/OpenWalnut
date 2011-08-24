@@ -67,6 +67,16 @@ struct DataType
 };
 
 /**
+ * Convert a runtime type to a C++ type
+ *
+ * \tparam rtType the runtime type
+ */
+template< int rtType >
+struct DataTypeRT
+{
+};
+
+/**
  * Specialization for a specific datatype.
  */
 template<>
@@ -74,6 +84,15 @@ struct DataType< int8_t >
 {
     //! the dataType flag
     static dataType const type = W_DT_INT8;
+};
+
+/**
+ * Specialization for a specific type
+ */
+template<>
+struct DataTypeRT< W_DT_INT8 >
+{
+    typedef int8_t type;
 };
 
 /**
@@ -87,6 +106,15 @@ struct DataType< uint8_t >
 };
 
 /**
+ * Specialization for a specific type
+ */
+template<>
+struct DataTypeRT< W_DT_UINT8 >
+{
+    typedef uint8_t type;
+};
+
+/**
  * Specialization for a specific datatype.
  */
 template<>
@@ -94,6 +122,15 @@ struct DataType< int16_t >
 {
     //! the dataType flag
     static dataType const type = W_DT_INT16;
+};
+
+/**
+ * Specialization for a specific type
+ */
+template<>
+struct DataTypeRT< W_DT_INT16 >
+{
+    typedef int16_t type;
 };
 
 /**
@@ -107,6 +144,15 @@ struct DataType< uint16_t >
 };
 
 /**
+ * Specialization for a specific type
+ */
+template<>
+struct DataTypeRT< W_DT_UINT16 >
+{
+    typedef uint16_t type;
+};
+
+/**
  * Specialization for a specific datatype.
  */
 template<>
@@ -114,6 +160,15 @@ struct DataType< int32_t >
 {
     //! the dataType flag
     static dataType const type = W_DT_SIGNED_INT;
+};
+
+/**
+ * Specialization for a specific type
+ */
+template<>
+struct DataTypeRT< W_DT_SIGNED_INT >
+{
+    typedef int32_t type;
 };
 
 /**
@@ -127,6 +182,15 @@ struct DataType< uint32_t >
 };
 
 /**
+ * Specialization for a specific type
+ */
+template<>
+struct DataTypeRT< W_DT_UINT32 >
+{
+    typedef uint32_t type;
+};
+
+/**
  * Specialization for a specific datatype.
  */
 template<>
@@ -134,6 +198,15 @@ struct DataType< int64_t >
 {
     //! the dataType flag
     static dataType const type = W_DT_INT64;
+};
+
+/**
+ * Specialization for a specific type
+ */
+template<>
+struct DataTypeRT< W_DT_INT64 >
+{
+    typedef int64_t type;
 };
 
 /**
@@ -147,6 +220,15 @@ struct DataType< uint64_t >
 };
 
 /**
+ * Specialization for a specific type
+ */
+template<>
+struct DataTypeRT< W_DT_UINT64 >
+{
+    typedef uint64_t type;
+};
+
+/**
  * Specialization for a specific datatype.
  */
 template<>
@@ -157,6 +239,15 @@ struct DataType< float >
 };
 
 /**
+ * Specialization for a specific type
+ */
+template<>
+struct DataTypeRT< W_DT_FLOAT >
+{
+    typedef float type;
+};
+
+/**
  * Specialization for a specific datatype.
  */
 template<>
@@ -164,6 +255,15 @@ struct DataType< double >
 {
     //! the dataType flag
     static dataType const type = W_DT_DOUBLE;
+};
+
+/**
+ * Specialization for a specific type
+ */
+template<>
+struct DataTypeRT< W_DT_DOUBLE >
+{
+    typedef double type;
 };
 
 enum qformOrientation
