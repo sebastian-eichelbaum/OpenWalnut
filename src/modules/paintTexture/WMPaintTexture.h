@@ -41,13 +41,8 @@
 #include "core/graphicsEngine/WGETexture.h"
 
 /**
- * Someone should add some documentation here.
- * Probably the best person would be the module's
- * creator, i.e. "schurade".
- *
- * This is only an empty template for a new module. For
- * an example module containing many interesting concepts
- * and extensive documentation have a look at "src/modules/template"
+ * This module allows mark areas in a 3D texture by "painting"
+ * on pickable surfaces.
  *
  * \ingroup modules
  */

@@ -75,7 +75,7 @@ const std::string WMArbitraryPlane::getName() const
 
 const std::string WMArbitraryPlane::getDescription() const
 {
-    return "Modul draws an arbitrarily moveable plane through the brain. That rhymes.";
+    return "Module draws an arbitrarily moveable plane through the data.";
 }
 
 void WMArbitraryPlane::connectors()
