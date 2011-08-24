@@ -127,7 +127,9 @@ public:
     boost::shared_ptr< WModule > getModule();
 
     /**
-     * returns the layout item for this network item, layout item is set through the layout item (friend)
+     * Returns the layout item for this network item, layout item is set through the layout item (friend).
+     *
+     * \return the associated node
      **/
     WNetworkLayoutNode * getLayoutNode();
 

@@ -51,51 +51,72 @@ class WNetworkLayoutNode
         ~WNetworkLayoutNode();
 
         /**
-         * add a new child to this node
+         * Add a new child to this node.
+         *
+         * \param node the new child-node
          **/
         void add( WNetworkLayoutNode *node );
 
         /**
+         * Set the parent to this node.
          *
+         * \param node the parent node
          **/
         void addParent( WNetworkLayoutNode *node );
 
         /**
-         * return all children
+         * Returns all children of this node.
+         *
+         * \return a list of all child-nodes
          **/
         std::list< WNetworkLayoutNode* > getChildren();
 
+        /**
+         * The number of children this item has.
+         *
+         * \return the number of children
+         **/
         int nChildren();
 
+        /**
+         * The number of parents this item has.
+         *
+         * \return the parents of children
+         **/
         int nParents();
 
         /**
-         * removes one of the children if they belong to this node
+         * Removes one of the children if it is a child of this node.
+         *
+         * \param node the child-node which is to be removed
          **/
         void remove( WNetworkLayoutNode *node );
 
-        // DEVELOPMENT
         /**
          * Sets the position within the grid, updates the position of the corresponding
-         * WQtNetworkItem
+         * WQtNetworkItem.
+         *
+         * \param pos the (new) position within the layout
          **/
-        void setGridPos( QPoint pos ); // m_matrixPos
+        void setGridPos( QPoint pos );
 
         /**
-         * returns the position within the grid
+         * Returns the current position within the grid.
+         *
+         * \return the position within the grid
          **/
         QPointF getGridPos();
 
     protected:
 
     private:
-        std::list< WNetworkLayoutNode * > m_children; //<! the nodes this node links to
+        std::list< WNetworkLayoutNode * > m_children; //!< the nodes this node links to ie. children of this node
 
-        std::list< WNetworkLayoutNode * > m_parents; //<! nodes that link to this node
+        std::list< WNetworkLayoutNode * > m_parents; //!< the nodes that link to this node ie. parents of this node
 
-        WQtNetworkItem *m_referencedItem; //<! the corresponding item in the QGraphicsScene ie. the visual representation
+        WQtNetworkItem *m_referencedItem; //!< the corresponding item in the QGraphicsScene ie. the visual representation
 
-        QPoint m_gridPos; //<! abstract pos, within the matrix
+        QPoint m_gridPos; //!< abstract pos, the position within the matrix
 };
 
 #endif  // WNETWORKLAYOUTNODE_H

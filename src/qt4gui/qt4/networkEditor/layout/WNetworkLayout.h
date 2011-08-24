@@ -47,19 +47,26 @@ class WNetworkLayout
         ~WNetworkLayout();
 
         /**
-         * add an item to the layout, creates new network layout item
+         * Add an item to the layout, creates new network layout item.
          *
-         * /param item the new network item
+         * \param item the new network item
          **/
         void addItem( WQtNetworkItem *item );
 
         /**
-         * connect the two items, moves the 'end' item to the lane of 'start'
+         * Connect the two items, moves the 'end' item to the lane of 'start'.
+         *
+         * \param start The item thats at a 'higher' position in the layout, ie. the parent of the end
+         * item
+         * \param end the item at the lower position, ie. the child
          **/
         void connectItems( WQtNetworkItem *start, WQtNetworkItem *end );
 
         /**
-         * disconnects the child from the parent item and moves the item to a new, empty lane
+         * Disconnects the child from the parent item and moves the item to a new, empty lane.
+         *
+         * \param parent the parent item, item at the higher position
+         * \param child the child item, item at the lower position
          **/
         void disconnectNodes( WQtNetworkItem *parent, WQtNetworkItem *child );
 
@@ -80,7 +87,8 @@ class WNetworkLayout
          **/
         void traverse();
 
-        std::list< WNetworkLayoutNode * > m_nodes; //<! all nodes within the layout
+
+        std::list< WNetworkLayoutNode * > m_nodes; //!< all nodes within the layout
 };
 
 #endif  // WNETWORKLAYOUT_H
