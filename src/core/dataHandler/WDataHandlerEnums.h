@@ -92,6 +92,7 @@ struct DataType< int8_t >
 template<>
 struct DataTypeRT< W_DT_INT8 >
 {
+    //! correct C++ type for this runtime type
     typedef int8_t type;
 };
 
@@ -111,6 +112,7 @@ struct DataType< uint8_t >
 template<>
 struct DataTypeRT< W_DT_UINT8 >
 {
+    //! correct C++ type for this runtime type
     typedef uint8_t type;
 };
 
@@ -130,6 +132,7 @@ struct DataType< int16_t >
 template<>
 struct DataTypeRT< W_DT_INT16 >
 {
+    //! correct C++ type for this runtime type
     typedef int16_t type;
 };
 
@@ -149,6 +152,7 @@ struct DataType< uint16_t >
 template<>
 struct DataTypeRT< W_DT_UINT16 >
 {
+    //! correct C++ type for this runtime type
     typedef uint16_t type;
 };
 
@@ -168,6 +172,7 @@ struct DataType< int32_t >
 template<>
 struct DataTypeRT< W_DT_SIGNED_INT >
 {
+    //! correct C++ type for this runtime type
     typedef int32_t type;
 };
 
@@ -187,6 +192,7 @@ struct DataType< uint32_t >
 template<>
 struct DataTypeRT< W_DT_UINT32 >
 {
+    //! correct C++ type for this runtime type
     typedef uint32_t type;
 };
 
@@ -206,6 +212,7 @@ struct DataType< int64_t >
 template<>
 struct DataTypeRT< W_DT_INT64 >
 {
+    //! correct C++ type for this runtime type
     typedef int64_t type;
 };
 
@@ -225,6 +232,7 @@ struct DataType< uint64_t >
 template<>
 struct DataTypeRT< W_DT_UINT64 >
 {
+    //! correct C++ type for this runtime type
     typedef uint64_t type;
 };
 
@@ -244,6 +252,7 @@ struct DataType< float >
 template<>
 struct DataTypeRT< W_DT_FLOAT >
 {
+    //! correct C++ type for this runtime type
     typedef float type;
 };
 
@@ -263,6 +272,7 @@ struct DataType< double >
 template<>
 struct DataTypeRT< W_DT_DOUBLE >
 {
+    //! correct C++ type for this runtime type
     typedef double type;
 };
 
