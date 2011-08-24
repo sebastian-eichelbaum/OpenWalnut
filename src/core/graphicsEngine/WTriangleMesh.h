@@ -399,11 +399,6 @@ private:
     void removeTriangle( size_t index );
 
     /**
-     * removes any vertex that isn't indexed by a triangle
-     */
-    void cleanUpMesh();
-
-    /**
      * recalculates the vertex normals
      */
     void recalcVertNormals();

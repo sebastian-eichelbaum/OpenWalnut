@@ -232,11 +232,6 @@ void WTriangleMesh::removeTriangle( size_t index )
     m_meshDirty = true;
 }
 
-void WTriangleMesh::cleanUpMesh()
-{
-    //TODO(schurade): implement this
-}
-
 void WTriangleMesh::recalcVertNormals()
 {
     updateVertsInTriangles();
