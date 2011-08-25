@@ -81,9 +81,9 @@ const std::string WMArbitraryRois::getName() const
 
 const std::string WMArbitraryRois::getDescription() const
 {
-    // Specify your module description here. Be detailed. This text is read by the user.
-    // See "src/modules/template/" for an extensively documented example.
-    return "Someone should add some documentation here. ";
+    return "Create non uniformly shaped ROIs for fiber selection. The ROI "
+        "is what is enclosed by a surface created as isosurface from "
+        "the data within a ROI box.";
 }
 
 void WMArbitraryRois::connectors()

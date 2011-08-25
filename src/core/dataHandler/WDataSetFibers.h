@@ -348,14 +348,6 @@ public:
     WPosition getTangent( size_t fiber, size_t vertex ) const;
 
     /**
-     * saves the selected fiber bundles to a file
-     *
-     *\param filename
-     * \param active bitfield of the fiber selection
-     */
-    void saveSelected( std::string filename, boost::shared_ptr< std::vector< bool > > active ) const;
-
-    /**
      * Get the bounding box.
      * \return The bounding box of all lines.
      */

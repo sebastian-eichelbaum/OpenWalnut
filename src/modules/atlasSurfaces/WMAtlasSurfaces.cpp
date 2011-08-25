@@ -88,10 +88,10 @@ const std::string WMAtlasSurfaces::getName() const
 
 const std::string WMAtlasSurfaces::getDescription() const
 {
-    // Specify your module description here. Be detailed. This text is read by the user.
-    // See "src/modules/template/" for an extensively documented example.
-    return "Someone should add some documentation here. "
-    "Probably the best person would be the modules's creator, i.e. \"schurade\"";
+    return "Use a scalar data set that stores numbers for atlas regions and a "
+        "correspoding text file with labels for the numbers to create "
+        "surfaces bounding the atlas regions. The surfaces can be picked to reveal "
+        "their name in the HUD (module). Regions can be used as ROIs for fiber selection.";
 }
 
 void WMAtlasSurfaces::connectors()

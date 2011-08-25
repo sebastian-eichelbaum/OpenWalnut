@@ -134,7 +134,7 @@ void WMExportGeometry::writeFile()
     std::stringstream points;
     for( size_t i = 0; i < mesh->vertSize(); ++i )
     {
-        WPosition pos = mesh->getVertexAsPosition( i );
+        WPosition pos = mesh->getVertex( i );
         points << "" << pos[0] << " " << pos[1] << " " << pos[2];
         if( i < mesh->vertSize() - 1 )
         {

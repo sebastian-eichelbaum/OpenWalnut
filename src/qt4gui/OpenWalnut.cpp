@@ -40,10 +40,6 @@
  * \par
  * http://www.openwalnut.org
  * \par
- * There exist two versions of this API.
- * A simple one at http://berkeley.informatik.uni-leipzig.de/api/
- * and one with callgraphs at http://berkeley.informatik.uni-leipzig.de/apiFull/
- * \par
  * Copyright 2009-2010 OpenWalnut Community, BSV\@Uni-Leipzig and CNCF\@MPI-CBS.
  * For more information see http://www.openwalnut.org/copying
  */

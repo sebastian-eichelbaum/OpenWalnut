@@ -166,7 +166,7 @@ protected:
      *
      * \param e the close event.
      */
-    void closeEvent( QCloseEvent* e );
+    virtual void closeEvent( QCloseEvent* e );
 
     /**
      * Handle custom events.
@@ -356,6 +356,11 @@ private slots:
      * Handles some special GL vendors and shows the user a dialog.
      */
     void handleGLVendor();
+
+    /**
+     * Shows startup info messages
+     */
+    void handleStartMessages();
 };
 
 #endif  // WMAINWINDOW_H

@@ -130,7 +130,7 @@ private:
     double getMedian( double x, double y, double z ) const;
 
     /**
-     * Calculates the center point of an given interval. This simply is \f$x_{min} + \frac{x_{max} - x_{min}}{2}\f$.
+     * Calculates the center point of a given interval. This simply is \f$x_{min} + \frac{x_{max} - x_{min}}{2}\f$.
      *
      * \param min interval min
      * \param max interval max

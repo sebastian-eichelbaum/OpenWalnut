@@ -34,7 +34,7 @@
 #include "../WTalairachConverter.h"
 
 /**
- * tests the talailrach converter class
+ * Tests the Talailrach converter class
  */
 class WTalairachConverterTest : public CxxTest::TestSuite
 {
@@ -42,7 +42,8 @@ friend class WTalairachConverter;
 
 public:
     /**
-     * TODO(schurade): Document this!
+     * Set up the special points of the Talairach coordinate system
+     * for testing the converter.
      */
     void setUp( void )
     {
@@ -60,7 +61,7 @@ public:
     }
 
     /**
-     * TODO(schurade): Document this!
+     * Release all data need for testing the converter
      */
     void tearDown( void )
     {
@@ -69,7 +70,7 @@ public:
 
 
     /**
-     * TODO(schurade): Document this!
+     * Test the conversion "to" ACPC coords.
      */
     void testCanonical2ACPC( void )
     {
@@ -82,7 +83,7 @@ public:
     }
 
     /**
-     * TODO(schurade): Document this!
+     * Test the conversion "from" ACPC coords.
      */
     void testACPC2Canonical( void )
     {
@@ -95,7 +96,7 @@ public:
     }
 
     /**
-     * TODO(schurade): Document this!
+     * Test conversion from ACPC to Talairach coords.
      */
     void testACPC2Talairach( void )
     {
@@ -108,7 +109,7 @@ public:
     }
 
     /**
-     * TODO(schurade): Document this!
+     * Test conversion from Talairach to ACPC coords.
      */
     void testTalairach2ACPC( void )
     {
@@ -123,7 +124,7 @@ public:
 
 private:
     /**
-     * TODO(schurade): Document this!
+     * The Talairach converter object that is tested in the testing functions.
      */
     boost::shared_ptr<WTalairachConverter> m_tc;
 };

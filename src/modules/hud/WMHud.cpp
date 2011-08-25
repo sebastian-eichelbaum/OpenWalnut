@@ -90,6 +90,12 @@ void WMHud::moduleMain()
     // clean up stuff
     // NOTE: ALWAYS remove your osg nodes!
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+    // disconnect from picking
+    boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    if( viewer->getPickHandler() )
+    {
+        viewer->getPickHandler()->getPickSignal()->disconnect( boost::bind( &WMHud::updatePickText, this, _1 ) );
+    }
 }
 
 void WMHud::init()
@@ -176,13 +182,6 @@ void WMHud::init()
 
     m_osgPickText = osg::ref_ptr< osgText::Text >( new osgText::Text() );
 
-    //HUDGeode->addDrawable( m_osgPickText );
-    // this obviously caused a crash
-    // reason:
-    // the font is added to the scene, altough we got no costum updatecallback
-    // osg already starts drawing the node
-    // when setting the font, a variable is cleared which osg is already using -> crash
-
     m_osgPickText->setCharacterSize( 14 );
     m_osgPickText->setFont( WPathHelper::getAllFonts().Default.file_string() );
     m_osgPickText->setText( "nothing picked" );
@@ -192,6 +191,7 @@ void WMHud::init()
 
     m_rootNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMHud::updateCallback, this ) ) );
 
+    // Add the text here because we get a crash if we do it eralier
     HUDGeode->addDrawable( m_osgPickText );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
@@ -209,7 +209,19 @@ void WMHud::init()
     boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
     WAssert( viewer, "Requested viewer (main) not found." );
     if(viewer->getPickHandler() )
+    {
         viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMHud::updatePickText, this, _1 ) );
+    }
+
+    {
+        // Set first text
+        WPickInfo initialInfo( std::string( "No information yet." ),
+                               std::string(),
+                               WPosition(),
+                               std::make_pair( 0.0, 0.0 ),
+                               WPickInfo::NONE );
+        updatePickText( initialInfo );
+    }
 }
 
 void WMHud::updatePickText( WPickInfo pickInfo )
@@ -219,6 +231,7 @@ void WMHud::updatePickText( WPickInfo pickInfo )
 
     std::ostringstream os;
     os << std::setprecision( 5 )
+       << "Picking Information\n"
        << "Name: " << pickInfo.getName() << "\n"
        << "Position: [" << pickInfo.getPickPosition()[0] << ", " << pickInfo.getPickPosition()[1] << ", " << pickInfo.getPickPosition()[2] << "]\n"
        << "Pixel coordinates: "  << pickInfo.getPickPixel().x() << " " << pickInfo.getPickPixel().y() << "\n"

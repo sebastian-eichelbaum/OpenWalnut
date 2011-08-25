@@ -77,7 +77,7 @@ SET( CPACK_PACKAGE_CONTACT "André Reichenbach <reichenbach@informatik.uni-leipz
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Who is the maintainer?
-SET( CPACK_PACKAGE_CONTACT "Mathias Goldau <goldau@informatik.uni-leipzig.de>" )
+SET( CPACK_PACKAGE_CONTACT "Mathias Goldau <math@informatik.uni-leipzig.de>" )
 
 # TODO: do it, test it.
 
@@ -88,7 +88,7 @@ SET( CPACK_PACKAGE_CONTACT "Mathias Goldau <goldau@informatik.uni-leipzig.de>" )
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Who is the maintainer?
-SET( CPACK_PACKAGE_CONTACT "Mathias Goldau <goldau@informatik.uni-leipzig.de>" )
+SET( CPACK_PACKAGE_CONTACT "Mathias Goldau <math@informatik.uni-leipzig.de>" )
 
 # TODO: do it, test it.
 

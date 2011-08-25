@@ -44,13 +44,8 @@ class WDataSetScalar;
 
 
 /**
- * Someone should add some documentation here.
- * Probably the best person would be the module's
- * creator, i.e. "schurade".
- *
- * This is only an empty template for a new module. For
- * an example module containing many interesting concepts
- * and extensive documentation have a look at "src/modules/template"
+ * Create surface representation of atlas from volumetric atlas file
+ * and text file with labels for atlas regions.
  *
  * \ingroup modules
  */
