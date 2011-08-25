@@ -72,22 +72,22 @@ const char** WMDetTractCulling::getXPMIcon() const
 void WMDetTractCulling::moduleMain()
 {
     m_moduleState.setResetable( true, true ); // remember actions when actually not waiting for actions
-    m_moduleState.add( m_tractInput->getDataChangedCondition() );
+    m_moduleState.add( m_tractIC->getDataChangedCondition() );
     m_moduleState.add( m_recompute );
 
     ready();
 
     while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
-        if( !m_tractInput->getData().get() ) // ok, the output has not yet sent data
+        if( !m_tractIC->getData().get() ) // ok, the output has not yet sent data
         {
             m_moduleState.wait();
             continue;
         }
 
-        if( m_rawDataset != m_tractInput->getData() ) // in case data has changed
+        if( m_rawDataset != m_tractIC->getData() ) // in case data has changed
         {
-            m_rawDataset = m_tractInput->getData();
+            m_rawDataset = m_tractIC->getData();
             boost::shared_ptr< WProgress > convertProgress( new WProgress( "Converting tracts", 1 ) );
             m_progress->addSubProgress( convertProgress );
             m_dataset = boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector( m_rawDataset ) );
@@ -114,8 +114,8 @@ void WMDetTractCulling::moduleMain()
 
 void WMDetTractCulling::connectors()
 {
-    m_tractInput = WModuleInputData< WDataSetFibers >::createAndAdd( shared_from_this(), "tractInput", "A loaded tract dataset." );
-    m_output = WModuleOutputData< WDataSetFibers >::createAndAdd( shared_from_this(),  "tractOutput", "The tracts that survied culling." );
+    m_tractIC = WModuleInputData< WDataSetFibers >::createAndAdd( shared_from_this(), "tractInput", "A loaded tract dataset." );
+    m_tractOC = WModuleOutputData< WDataSetFibers >::createAndAdd( shared_from_this(),  "tractOutput", "The tracts that survied culling." );
 
     WModule::connectors();  // call WModules initialization
 }
@@ -202,10 +202,10 @@ void WMDetTractCulling::saveGainedTracts( const std::vector< bool >& unusedTract
     boost::shared_ptr< WProgress > eraseProgress( new WProgress( "Erasing tracts", unusedTracts.size() ) );
     m_progress->addSubProgress( eraseProgress );
     boost::shared_ptr< const WDataSetFiberVector > result =  m_dataset->generateDataSetOutOfUsedFibers( unusedTracts );
-    m_output->updateData( result->toWDataSetFibers() );
+    m_tractOC->updateData( result->toWDataSetFibers() );
     eraseProgress->finish();
 
-    m_numRemovedTracts->set( unusedTracts.size() - m_output->getData()->size() );
+    m_numRemovedTracts->set( unusedTracts.size() - m_tractOC->getData()->size() );
 
     boost::shared_ptr< WProgress > saveProgress( new WProgress( "Saving tracts", unusedTracts.size() ) );
     m_progress->addSubProgress( saveProgress );

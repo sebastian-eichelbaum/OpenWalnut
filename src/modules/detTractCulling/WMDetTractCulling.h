@@ -126,20 +126,66 @@ protected:
      */
     boost::filesystem::path saveFileName( std::string dataFileName ) const;
 
-    boost::shared_ptr< WModuleInputData< WDataSetFibers > >  m_tractInput; //!< Input connector for a tract dataset.
-    boost::shared_ptr< WDataSetFiberVector >                 m_dataset; //!< Pointer to the tract data set in WDataSetFiberVector format
-    boost::shared_ptr< WDataSetFibers >                      m_rawDataset; //!< Pointer to the tract data set in WDataSetFibers format
-    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_output; //!< Output connector for the culled tracts
+    /**
+     * Input connector for a tract dataset.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetFibers > >  m_tractIC;
 
-    boost::shared_ptr< WCondition > m_recompute; //!< A condition which indicates complete recomputation
+    /**
+     * Output connector for the culled tracts
+     */
+    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_tractOC;
 
-    WPropDouble   m_dSt_culling_t; //!< Minimum distance of two different tracts. If below, the shorter tract is culled out
-    WPropDouble   m_proximity_t; //!< Minimum distance of points of two tracts which should be considered
-    WPropBool     m_saveCulledCurves; //!<  If true, remaining tracts are saved to a file
-    WPropFilename m_savePath; //!< Path where remaining tracts should be stored
-    WPropTrigger  m_run; //!< Trigger button for starting the long time consuming culling operation
-    WPropInt      m_numTracts; //!< Displays the number of tracts which are processed
-    WPropInt      m_numRemovedTracts; //!< Displays the number of tracts which were removed
+    /**
+     * Pointer to the tract data set in WDataSetFiberVector format
+     */
+    boost::shared_ptr< WDataSetFiberVector > m_dataset;
+
+    /**
+     * Pointer to the tract data set in WDataSetFibers format
+     */
+    boost::shared_ptr< WDataSetFibers > m_rawDataset;
+
+    /**
+     * A condition which indicates complete recomputation
+     */
+    boost::shared_ptr< WCondition > m_recompute;
+
+    /**
+     * Minimum distance of two different tracts. If below, the shorter tract is culled out
+     */
+    WPropDouble m_dSt_culling_t;
+
+    /**
+     * Minimum distance of points of two tracts which should be considered
+     */
+    WPropDouble m_proximity_t;
+
+    /**
+     *  If true, remaining tracts are saved to a file
+     */
+    WPropBool  m_saveCulledCurves;
+
+    /**
+     * Path where remaining tracts should be stored
+     */
+    WPropFilename m_savePath;
+
+    /**
+     * Trigger button for starting the long time consuming culling operation
+     */
+    WPropTrigger m_run;
+
+    /**
+     * Displays the number of tracts which are processed
+     */
+    WPropInt m_numTracts;
+
+    /**
+     * Displays the number of tracts which were removed
+     */
+    WPropInt m_numRemovedTracts;
+
 
 private:
 };
