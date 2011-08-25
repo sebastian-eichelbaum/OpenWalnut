@@ -269,9 +269,9 @@ void WGEGridNode::callback( osg::Node* /*node*/ )
                 {
                     size_t id = vertIdX + vertIdY * sx + vertIdZ * sx * sy;
 
-                    ( *vertArray )[id][0] = static_cast< float >( vertIdX ) / static_cast< float >( sx );
-                    ( *vertArray )[id][1] = static_cast< float >( vertIdY ) / static_cast< float >( sy );
-                    ( *vertArray )[id][2] = static_cast< float >( vertIdZ ) / static_cast< float >( sz );
+                    ( *vertArray )[id][0] = static_cast< float >( vertIdX ) / static_cast< float >( sx - 1 );
+                    ( *vertArray )[id][1] = static_cast< float >( vertIdY ) / static_cast< float >( sy - 1 );
+                    ( *vertArray )[id][2] = static_cast< float >( vertIdZ ) / static_cast< float >( sz - 1 );
 
                     if( vertIdX < sx - 1 )
                     {

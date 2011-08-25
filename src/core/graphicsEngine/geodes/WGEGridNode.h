@@ -79,8 +79,6 @@ public:
      */
     WGridRegular3D::ConstSPtr getGrid() const;
 
-    // TODO(all): add setter and getter for boundary colors and so on.
-
     /**
      * Returns whether labels on the corners are enabled or not.
      *
@@ -150,7 +148,6 @@ public:
      * \param color the color
      */
     void setGridColor( const WColor& color );
-
 
 protected:
 
