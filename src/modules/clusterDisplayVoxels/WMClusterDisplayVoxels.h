@@ -60,14 +60,7 @@ typedef enum
 CDV_DISPLAYMODE;
 
 /**
- * Someone should add some documentation here.
- * Probably the best person would be the module's
- * creator, i.e. "schurade".
- *
- * This is only an empty template for a new module. For
- * an example module containing many interesting concepts
- * and extensive documentation have a look at "src/modules/template"
- *
+ * Allows to display and interact with clustered voxel data.
  * \ingroup modules
  */
 class WMClusterDisplayVoxels: public WModule

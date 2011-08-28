@@ -88,12 +88,12 @@ const std::string WMClusterSlicer::getDescription() const
 
 void WMClusterSlicer::connectors()
 {
-    m_fiberClusterInput = WModuleInputData< WFiberCluster >::createAndAdd( shared_from_this(), "clusterInput", "A cluster of fibers" );
-    m_clusterDataSetInput = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "clusterDSInput", "DataSet from cluster" );
-    m_paramDataSetInput = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "paramInput", "DataSet of the parameters" );
-    m_triangleMeshInput = WModuleInputData< WTriangleMesh >::createAndAdd( shared_from_this(), "meshInput", "TrianglMesh" );
-    m_colorMapOutput = WModuleOutputData< WColoredVertices >::createAndAdd( shared_from_this(), "colorMapOutput", "VertexID and colors" );
-    m_meshOutput = WModuleOutputData< WTriangleMesh >::createAndAdd( shared_from_this(), "meshOutput", "The Mesh to forward it for rendering" );
+    m_fiberClusterIC = WModuleInputData< WFiberCluster >::createAndAdd( shared_from_this(), "clusterInput", "A cluster of fibers" );
+    m_voxelizedClusterIC = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "clusterDSInput", "DataSet from cluster" );
+    m_paramIC = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "paramInput", "DataSet of the parameters" );
+    m_triangleMeshIC = WModuleInputData< WTriangleMesh >::createAndAdd( shared_from_this(), "meshInput", "TrianglMesh" );
+    m_colorMapOC = WModuleOutputData< WColoredVertices >::createAndAdd( shared_from_this(), "colorMapOutput", "VertexID and colors" );
+    m_triangleMeshOC = WModuleOutputData< WTriangleMesh >::createAndAdd( shared_from_this(), "meshOutput", "The Mesh to forward it for rendering" );
 
     WModule::connectors();
 }
@@ -138,8 +138,8 @@ void WMClusterSlicer::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
     m_moduleState.setResetable( true, true );
-    m_moduleState.add( m_paramDataSetInput->getDataChangedCondition() );
-    m_moduleState.add( m_triangleMeshInput->getDataChangedCondition() );
+    m_moduleState.add( m_paramIC->getDataChangedCondition() );
+    m_moduleState.add( m_triangleMeshIC->getDataChangedCondition() );
     m_moduleState.add( m_drawSlices->getCondition() );
     m_moduleState.add( m_drawIsoVoxels->getCondition() );
     m_moduleState.add( m_fullUpdate );
@@ -157,10 +157,10 @@ void WMClusterSlicer::moduleMain()
             break;
         }
 
-        boost::shared_ptr< WDataSetScalar > newClusterDS = m_clusterDataSetInput->getData();
-        boost::shared_ptr< WFiberCluster >  newCluster   = m_fiberClusterInput->getData();
-        boost::shared_ptr< WDataSetScalar > newParamDS   = m_paramDataSetInput->getData();
-        boost::shared_ptr< WTriangleMesh > newMesh      = m_triangleMeshInput->getData();
+        boost::shared_ptr< WDataSetScalar > newClusterDS = m_voxelizedClusterIC->getData();
+        boost::shared_ptr< WFiberCluster >  newCluster   = m_fiberClusterIC->getData();
+        boost::shared_ptr< WDataSetScalar > newParamDS   = m_paramIC->getData();
+        boost::shared_ptr< WTriangleMesh > newMesh      = m_triangleMeshIC->getData();
         bool meshChanged = ( m_mesh != newMesh );
         bool paramDSChanged = ( m_paramDS != newParamDS );
         bool clusterChanged = ( m_cluster != newCluster );
@@ -381,9 +381,9 @@ void WMClusterSlicer::sliceAndColorMesh( boost::shared_ptr< WTriangleMesh > mesh
 
     debugLog() << "Mesh selected";
 
-    if( renderMesh != m_meshOutput->getData() )
+    if( renderMesh != m_triangleMeshOC->getData() )
     {
-        m_meshOutput->updateData( renderMesh );
+        m_triangleMeshOC->updateData( renderMesh );
     }
 
     debugLog() << "Building mesh color map...";
@@ -439,7 +439,7 @@ void WMClusterSlicer::sliceAndColorMesh( boost::shared_ptr< WTriangleMesh > mesh
 
     m_colorMap->setData( cmData );
     debugLog() << "Done with color map building";
-    m_colorMapOutput->updateData( m_colorMap );
+    m_colorMapOC->updateData( m_colorMap );
 }
 
 double WMClusterSlicer::mapMeanOntoScale( double meanValue ) const

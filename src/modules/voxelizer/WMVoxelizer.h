@@ -155,23 +155,18 @@ private:
     /**
      * Input connector for a fiber cluster
      */
-    boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input;
+    boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_clusterIC;
 
     /**
      * Output connector for a voxelized cluster
      */
-    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output;
-
-    /**
-     * Output connector for a voxelized cluster (the fiber directions)
-     */
-    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_dirOutput;
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_voxelizedOC;
 
     /**
      * Output providing parameterization to other algorithms. It provides a scalar field which gets filled with the parameterization of the
      * fibers, i.e. current integrated length.
      */
-    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_parameterizationOutput;
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_paramOC;
 
     /**
      * Reference to the fiber cluster

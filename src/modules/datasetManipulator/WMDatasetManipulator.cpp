@@ -70,7 +70,7 @@ const std::string WMDatasetManipulator::getDescription() const
 {
     // Specify your module description here. Be detailed. This text is read by the user.
     // See "src/modules/template/" for an extensively documented example.
-    return "This module allows manipulation of the dataset properties via manipulators in the 3D scene";
+    return "This module allows manipulation of the dataset properties via manipulators in the 3D scene.";
 }
 
 void WMDatasetManipulator::connectors()

@@ -165,54 +165,191 @@ protected:
      */
     double computeOptimalIsoValue( double coverage = 0.95 ) const;
 
-    osg::ref_ptr< WGEGroupNode > m_rootNode; //!< The root node used for this modules graphics.
-    osg::ref_ptr< osg::Geode >   m_isoVoxelGeode; //!< Separate geode for voxels of the cluster volume
-    osg::ref_ptr< WGEGroupNode > m_sliceGeode; //!< Separate geode for slices
-    osg::ref_ptr< WGEGroupNode > m_samplePointsGeode; //!< Separate geode for the sample Points
+    /**
+     * The root node used for this modules graphics.
+     */
+    osg::ref_ptr< WGEGroupNode > m_rootNode;
 
-    typedef WModuleInputData< WFiberCluster >  InputClusterType; //!< Internal alias for m_cluster type
-    boost::shared_ptr< InputClusterType >   m_fiberClusterInput; //!< InputConnector for a fiber cluster with its CenterLine
-    typedef WModuleInputData< WDataSetScalar > InputDataSetType; //!< Internal alias for m_*DataSets types
-    boost::shared_ptr< InputDataSetType >   m_clusterDataSetInput; //!< InputConnector for the dataset derived from a voxelized cluster
-    boost::shared_ptr< InputDataSetType >   m_paramDataSetInput; //!< InputConnector for the dataset of parameters like FA etc.
-    typedef WModuleInputData< WTriangleMesh > InputMeshType; //!< Internal alias for the m_triangleMesh type
-    boost::shared_ptr< InputMeshType >      m_triangleMeshInput; //!< InputConnector for the triangle mesh
-    typedef WModuleOutputData< WColoredVertices > OutputColorMapType; //!< Interal alias for the ColorMap Type
-    boost::shared_ptr< OutputColorMapType > m_colorMapOutput; //!< OutputConnector to forward the color Map to TriangleMeshRenderer
-    typedef WModuleOutputData< WTriangleMesh > OutputMeshType; //!< Internal alias for the Mesh Type
-    boost::shared_ptr< OutputMeshType > m_meshOutput; //!< OutputConnector to forwarde the selected Mesh (e.g. if component selection is enabled )
+    /**
+     * Separate geode for voxels of the cluster volume
+     */
+    osg::ref_ptr< osg::Geode >   m_isoVoxelGeode;
 
-    boost::shared_ptr< WFiberCluster >  m_cluster; //!< A cluster with its CenterLine
-    boost::shared_ptr< WDataSetScalar > m_clusterDS; //!< Dataset derived from a voxelized cluster
-    boost::shared_ptr< WDataSetScalar > m_paramDS; //!< Dataset derived from a voxelized cluster
-    boost::shared_ptr< std::vector< std::pair< double, WPlane > > > m_slices; //!< stores all planes and their average parameters along centerLine
-    boost::shared_ptr< WTriangleMesh > m_mesh; //!< Reference to the TriangleMesh to make intersections
-    boost::shared_ptr< WColoredVertices > m_colorMap; //!< Stores the color for vertices belonging to the intersection with the mesh and the planes
+    /**
+     * Separate geode for slices
+     */
+    osg::ref_ptr< WGEGroupNode > m_sliceGeode;
 
-    boost::shared_ptr< WJoinContourTree >   m_joinTree; //!< Stores the JoinTree
-    boost::shared_ptr< std::set< size_t > > m_isoVoxels; //!< Stores the voxels belonging to the cluster volume of a certain iso value
-    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > m_components; //!< Mesh decomposed into connected components
+    /**
+     * Separate geode for the sample Points
+     */
+    osg::ref_ptr< WGEGroupNode > m_samplePointsGeode;
 
-    boost::shared_ptr< WCondition > m_fullUpdate; //!< Indicates a complete update of display and computed data (time consuming)
+    /**
+     * InputConnector for a fiber cluster with its CenterLine
+     */
+    boost::shared_ptr< WModuleInputData< WFiberCluster > > m_fiberClusterIC;
 
-    WPropBool   m_drawIsoVoxels; //!< En/Disable the display of cluster volume voxels
-    WPropBool   m_drawSlices; //!< En/Disable the display of slices along center line
-    WPropDouble m_isoValue; //!< The isovalue selecting the size of the cluster volume
-    WPropInt    m_meanSelector; //!< Selects the mean: 0 == arithmeticMean, 1 == geometricMean, 2 == median (default)
-    WPropInt    m_planeNumX; //!< how many sample points in first direction of the slice
-    WPropInt    m_planeNumY; //!< how many sample points in the second direction of the slice
-    WPropDouble m_planeStepWidth; //!< distance of the sample points on the slices
-    WPropDouble m_centerLineScale; //!< rescales the centerline for using more or less slices.
-    WPropBool   m_selectBiggestComponentOnly; //!< If true, first the mesh is decomposed into its components (expensive!) & the biggest will be drawn
-    WPropBool   m_alternateColoring; //!< En/Disables alternative mesh coloring strategy
-    WPropBool   m_customScale; //!< En/Disables custom color scaling
-    WPropDouble m_minScale; //!< A synthetic minMean value. All mean values below are mapped to 0
-    WPropColor  m_minScaleColor; //!< color used for minMean
-    WPropDouble m_maxScale; //!< A synthetic maxMean value. All mean value above are mapped to 1
-    WPropColor  m_maxScaleColor; //!< color used for maxMean
+    /**
+     * InputConnector for the dataset derived from a voxelized cluster
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_voxelizedClusterIC;
 
-    double m_maxMean; //!< maximum average (of sample points of a plane) parameter value over all planes
-    double m_minMean; //!< minimum average (of sample points of a plane) parameter value over all planes
+    /**
+     * InputConnector for the dataset of parameters like FA etc.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_paramIC;
+
+    /**
+     * InputConnector for the triangle mesh
+     */
+    boost::shared_ptr< WModuleInputData< WTriangleMesh > > m_triangleMeshIC;
+
+    /**
+     * OutputConnector to forward the color Map to TriangleMeshRenderer
+     */
+    boost::shared_ptr< WModuleOutputData< WColoredVertices > > m_colorMapOC;
+
+    /**
+     * OutputConnector to forwarde the selected Mesh (e.g. if component selection is enabled )
+     */
+    boost::shared_ptr< WModuleOutputData< WTriangleMesh > > m_triangleMeshOC;
+
+    /**
+     * A cluster with its CenterLine
+     */
+    boost::shared_ptr< WFiberCluster >  m_cluster;
+
+    /**
+     * Dataset derived from a voxelized cluster
+     */
+    boost::shared_ptr< WDataSetScalar > m_clusterDS;
+
+    /**
+     * Dataset derived from a voxelized cluster
+     */
+    boost::shared_ptr< WDataSetScalar > m_paramDS;
+
+    /**
+     * stores all planes and their average parameters along centerLine
+     */
+    boost::shared_ptr< std::vector< std::pair< double, WPlane > > > m_slices;
+
+    /**
+     * Reference to the TriangleMesh to make intersections
+     */
+    boost::shared_ptr< WTriangleMesh > m_mesh;
+
+    /**
+     * Stores the color for vertices belonging to the intersection with the mesh and the planes
+     */
+    boost::shared_ptr< WColoredVertices > m_colorMap;
+
+    /**
+     * Stores the JoinTree
+     */
+    boost::shared_ptr< WJoinContourTree >   m_joinTree;
+
+    /**
+     * Stores the voxels belonging to the cluster volume of a certain iso value
+     */
+    boost::shared_ptr< std::set< size_t > > m_isoVoxels;
+
+    /**
+     * Mesh decomposed into connected components
+     */
+    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > m_components;
+
+    /**
+     * Indicates a complete update of display and computed data (time consuming)
+     */
+    boost::shared_ptr< WCondition > m_fullUpdate;
+
+    /**
+     * En/Disable the display of cluster volume voxels
+     */
+    WPropBool   m_drawIsoVoxels;
+
+    /**
+     * En/Disable the display of slices along center line
+     */
+    WPropBool   m_drawSlices;
+
+    /**
+     * The isovalue selecting the size of the cluster volume
+     */
+    WPropDouble m_isoValue;
+
+    /**
+     * Selects the mean: 0 == arithmeticMean, 1 == geometricMean, 2 == median (default)
+     */
+    WPropInt    m_meanSelector;
+
+    /**
+     * how many sample points in first direction of the slice
+     */
+    WPropInt    m_planeNumX;
+
+    /**
+     * how many sample points in the second direction of the slice
+     */
+    WPropInt    m_planeNumY;
+
+    /**
+     * distance of the sample points on the slices
+     */
+    WPropDouble m_planeStepWidth;
+
+    /**
+     * rescales the centerline for using more or less slices.
+     */
+    WPropDouble m_centerLineScale;
+
+    /**
+     * If true, first the mesh is decomposed into its components (expensive!) & the biggest will be drawn
+     */
+    WPropBool   m_selectBiggestComponentOnly;
+
+    /**
+     * En/Disables alternative mesh coloring strategy
+     */
+    WPropBool   m_alternateColoring;
+
+    /**
+     * En/Disables custom color scaling
+     */
+    WPropBool   m_customScale;
+
+    /**
+     * A synthetic minMean value. All mean values below are mapped to 0
+     */
+    WPropDouble m_minScale;
+
+    /**
+     * color used for minMean
+     */
+    WPropColor  m_minScaleColor;
+
+    /**
+     * A synthetic maxMean value. All mean value above are mapped to 1
+     */
+    WPropDouble m_maxScale;
+
+    /**
+     * color used for maxMean
+     */
+    WPropColor  m_maxScaleColor;
+
+    /**
+     * maximum average (of sample points of a plane) parameter value over all planes
+     */
+    double m_maxMean;
+
+    /**
+     * minimum average (of sample points of a plane) parameter value over all planes
+     */
+    double m_minMean;
+
 private:
     /**
      * A pair of plane indices. Just for convinience.

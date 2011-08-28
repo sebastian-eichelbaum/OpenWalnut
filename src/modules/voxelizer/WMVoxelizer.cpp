@@ -83,7 +83,7 @@ const char** WMVoxelizer::getXPMIcon() const
 void WMVoxelizer::moduleMain()
 {
     m_moduleState.setResetable();
-    m_moduleState.add( m_input->getDataChangedCondition() );  // additional fire-condition: "data changed" flag
+    m_moduleState.add( m_clusterIC->getDataChangedCondition() );  // additional fire-condition: "data changed" flag
     m_moduleState.add( m_fullUpdate );
 
     m_rootNode = new WGEManagedGroupNode( m_active );
@@ -94,14 +94,14 @@ void WMVoxelizer::moduleMain()
 
     while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
-        if( !m_input->getData() ) // ok, the output has not yet sent data
+        if( !m_clusterIC->getData() ) // ok, the output has not yet sent data
         {
             // since there is no data yet we will eat property changes
             m_rasterAlgo->get( true );
             m_antialiased->get( true );
             continue;
         }
-        if( m_input->getData()->size() == 0 )
+        if( m_clusterIC->getData()->size() == 0 )
         {
             infoLog() << "Got empty fiber dataset. Ignoring.";
             m_moduleState.wait();
@@ -114,11 +114,11 @@ void WMVoxelizer::moduleMain()
         ++*progress;
         // full update
         if( m_antialiased->changed() || m_rasterAlgo->changed() || m_voxelsPerUnit->changed() ||
-                m_clusters != m_input->getData() || m_parameterAlgo->changed() )
+                m_clusters != m_clusterIC->getData() || m_parameterAlgo->changed() )
         {
             m_rasterAlgo->get( true );
             m_antialiased->get( true );
-            m_clusters = m_input->getData();
+            m_clusters = m_clusterIC->getData();
             update();
         }
 
@@ -242,11 +242,11 @@ void WMVoxelizer::update()
 
     // update both outputs
     boost::shared_ptr< WDataSetScalar > outputDataSet = rasterAlgo->generateDataSet();
-    m_output->updateData( outputDataSet );
+    m_voxelizedOC->updateData( outputDataSet );
     if( paramAlgo )
     {
         boost::shared_ptr< WDataSetScalar > outputDataSetIntegration = paramAlgo->getDataSet();
-        m_parameterizationOutput->updateData( outputDataSetIntegration );
+        m_paramOC->updateData( outputDataSetIntegration );
     }
 
     m_rootNode->clear();
@@ -275,10 +275,9 @@ void WMVoxelizer::raster( boost::shared_ptr< WRasterAlgorithm > algo ) const
 
 void WMVoxelizer::connectors()
 {
-    m_input = WModuleInputData< const WFiberCluster >::createAndAdd( shared_from_this(), "tractInput", "A cluster of tracts" );
-    m_output = WModuleOutputData< WDataSetScalar >::createAndAdd( shared_from_this(), "voxelOutput", "The voxelized data set" );
-    m_parameterizationOutput = WModuleOutputData< WDataSetScalar >::createAndAdd( shared_from_this(),
-                                                                                  "parameterizationOutput",
+    m_clusterIC = WModuleInputData< const WFiberCluster >::createAndAdd( shared_from_this(), "tractInput", "A cluster of tracts" );
+    m_voxelizedOC = WModuleOutputData< WDataSetScalar >::createAndAdd( shared_from_this(), "voxelOutput", "The voxelized data set" );
+    m_paramOC = WModuleOutputData< WDataSetScalar >::createAndAdd( shared_from_this(), "parameterizationOutput",
                                                                                   "The parameter field for the voxelized fibers." );
     WModule::connectors();  // call WModules initialization
 }

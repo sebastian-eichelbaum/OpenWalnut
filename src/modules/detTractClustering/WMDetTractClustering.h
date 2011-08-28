@@ -165,34 +165,122 @@ private:
      */
     void updateOutput();
 
-    size_t                       m_lastTractsSize; //!< Last known number of tracts
-    bool                         m_dLtTableExists; //!< Flag whether there is already a dLt look up table or not.
-    std::vector< size_t >        m_clusterIDs; //!< Stores the cluster id of every tract so it is fast to get the cluster of a given tract.
-    std::vector< WFiberCluster > m_clusters; //!< Stores all WFiberClusters
+    /**
+     * Last known number of tracts
+     */
+    size_t m_lastTractsSize;
 
-    WPropDouble  m_proximity_t; //!< Minimum distance of points of two tracts which should be considered
-    WPropDouble  m_maxDistance_t; //!< Maximum distance of two tracts in one cluster.
-    WPropInt     m_minClusterSize; //!< All clusters up to this size will be discarded
-    WPropInt     m_clusterOutputID; //!< Specifies which cluster should be connected to the Output
-    WPropTrigger m_run; //!< Button to initiate clustering with the given properties
+    /**
+     * Flag whether there is already a dLt look up table or not.
+     */
+    bool m_dLtTableExists;
+
+    /**
+     * Stores the cluster id of every tract so it is fast to get the cluster of a given tract.
+     */
+    std::vector< size_t > m_clusterIDs;
+
+    /**
+     * Stores all WFiberClusters
+     */
+    std::vector< WFiberCluster > m_clusters;
+
+
+    /**
+     * Minimum distance of points of two tracts which should be considered
+     */
+    WPropDouble m_proximity_t;
+
+    /**
+     * Maximum distance of two tracts in one cluster.
+     */
+    WPropDouble m_maxDistance_t;
+
+    /**
+     * All clusters up to this size will be discarded
+     */
+    WPropInt m_minClusterSize;
+
+    /**
+     * Specifies which cluster should be connected to the Output
+     */
+    WPropInt m_clusterOutputID;
+
+    /**
+     * Button to initiate clustering with the given properties
+     */
+    WPropTrigger m_run;
+
 
     // information properties
-    WPropInt     m_numTracts; //!< Number of tracts given from input
-    WPropInt     m_numUsedTracts; //!< Number of tracts used for rendering
-    WPropInt     m_numClusters; //!< Number of clusters computed
-    WPropInt     m_numValidClusters; //!< Number of clusters used for rendering
-    WPropString  m_clusterSizes; //!< Sizes of the clusters
-    WPropBool    m_useCuda; //!< If compiled with cuda choose whether to use cuda or cpu implementation
+    /**
+     * Number of tracts given from input
+     */
+    WPropInt m_numTracts;
 
-    boost::shared_ptr< WDataSetFiberVector >                m_tracts; //!< Reference to the WDataSetFiberVector object
-    boost::shared_ptr< WDataSetFibers >                     m_rawTracts; //!< Reference to the WDataSetFibers object
-    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_tractInput; //!< Input connector for a tract dataset.
-    boost::shared_ptr< WModuleOutputData< WFiberCluster > > m_output; //!< Output connector for the first cluster.
-    boost::shared_ptr< WMatrixSymDBL >                    m_dLtTable; //!< Distance matrix lookUpTable
+    /**
+     * Number of tracts used for rendering
+     */
+    WPropInt m_numUsedTracts;
 
-    boost::shared_ptr< WCondition > m_update; //!< Used for register properties indicating a rerun of the moduleMain loop
+    /**
+     * Number of clusters computed
+     */
+    WPropInt m_numClusters;
 
-    osg::ref_ptr< WGEManagedGroupNode > m_osgNode; //!< OSG node for this module.
+    /**
+     * Number of clusters used for rendering
+     */
+    WPropInt m_numValidClusters;
+
+    /**
+     * Sizes of the clusters
+     */
+    WPropString m_clusterSizes;
+
+    /**
+     * If compiled with cuda choose whether to use cuda or cpu implementation
+     */
+    WPropBool m_useCuda;
+
+
+    /**
+     * Reference to the WDataSetFiberVector object
+     */
+    boost::shared_ptr< WDataSetFiberVector > m_tracts;
+
+    /**
+     * Reference to the WDataSetFibers object
+     */
+    boost::shared_ptr< WDataSetFibers > m_rawTracts;
+
+    /**
+     * Input connector for a tract dataset.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_tractIC;
+
+    /**
+     * Output connector for the first cluster.
+     */
+    boost::shared_ptr< WModuleOutputData< WFiberCluster > > m_cluserOC;
+
+    /**
+     * Distance matrix lookUpTable
+     */
+    boost::shared_ptr< WMatrixSymDBL > m_dLtTable;
+
+
+    /**
+     * Used for register properties indicating a rerun of the moduleMain loop
+     */
+    boost::shared_ptr< WCondition > m_update;
+
+
+    /**
+     * OSG node for this module.
+     */
+    osg::ref_ptr< WGEManagedGroupNode > m_osgNode;
+
 
     /**
      * Validates the output cluster ID!
@@ -216,7 +304,10 @@ private:
          */
         virtual bool accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_INT > >  property, WPVBaseTypes::PV_INT value );
     private:
-        const std::vector< WFiberCluster >& m_clusters; //!< accept() need to look into the cluster array for max size constraint
+        /**
+         * accept() need to look into the cluster array for max size constraint
+         */
+        const std::vector< WFiberCluster >& m_clusters;
     };
 
     /**
