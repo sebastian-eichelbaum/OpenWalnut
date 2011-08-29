@@ -62,7 +62,7 @@ void WTerminalColor::generateControlStrings()
     m_colorString = "";
     m_colorResetString = "";
 
-#ifdef __linux__
+#if defined( __linux__ ) || defined( __APPLE__ )
     if( m_enabled && ( m_attrib != Default ) )
     {
         std::ostringstream ss;
