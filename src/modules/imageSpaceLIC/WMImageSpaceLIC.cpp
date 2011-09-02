@@ -35,7 +35,6 @@
 
 #include "core/common/WPropertyHelper.h"
 #include "core/common/math/WMath.h"
-#include "core/common/math/WPlane.h"
 #include "core/dataHandler/WDataHandler.h"
 #include "core/dataHandler/WDataTexture3D.h"
 #include "core/dataHandler/WGridRegular3D.h"
