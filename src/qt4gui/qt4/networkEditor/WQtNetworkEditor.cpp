@@ -85,6 +85,7 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     // this fakeitem is added to the scene to get a better behavior of the forced
     // based layout. ALL WQtNetworkItems in the scene are "connected" to this
     // object to avoid that conneceted groups push away each other.
+    // TODO clean
     QGraphicsRectItem *fake = new QGraphicsRectItem();
     fake->setRect( 0, 0, 10, 10 );
     fake->setPos( 0, 0 );
@@ -114,7 +115,7 @@ void WQtNetworkEditor::selectItem()
         }
 
         // crashed modules should not provide any props
-        if( module->isCrashed()() )
+        if( module->isCrashed() )
         {
              return;
         }
@@ -174,6 +175,7 @@ void WQtNetworkEditor::deleteSelectedItems()
 
 void WQtNetworkEditor::addModule( boost::shared_ptr< WModule > module )
 {
+    // TODO clean
     WQtNetworkItem *netItem = new WQtNetworkItem( this, module );
     m_items.push_back( netItem );
 
@@ -444,6 +446,7 @@ bool WQtNetworkEditor::event( QEvent* event )
     // a module tree item should be deleted
     if( event->type() == WQT_MODULE_DELETE_EVENT )
     {
+        std::cout << "delete event in the editor!";
         WModuleDeleteEvent* e = dynamic_cast< WModuleDeleteEvent* >( event );
         if( !e )
         {

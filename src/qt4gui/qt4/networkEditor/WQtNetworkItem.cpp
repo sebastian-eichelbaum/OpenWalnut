@@ -93,7 +93,7 @@ int WQtNetworkItem::type() const
     return Type;
 }
 
-void WQtNetworkItem::hoverEnterEvent( QGraphicsSceneHoverEvent  *event )
+void WQtNetworkItem::hoverEnterEvent( QGraphicsSceneHoverEvent *event )
 {
     Q_UNUSED( event );
 
