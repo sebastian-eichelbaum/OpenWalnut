@@ -375,3 +375,13 @@ boost::shared_ptr< WFiber > WFiberCluster::getLongestLine() const
     }
     return m_longestLine;
 }
+
+WBoundingBox WFiberCluster::getBoundingBox() const
+{
+    WBoundingBox result;
+    for( std::list< size_t >::const_iterator cit = m_memberIndices.begin(); cit != m_memberIndices.end(); ++cit )
+    {
+        result.expandBy( computeBoundingBox( m_fibs->at( *cit ) ) );
+    }
+    return result;
+}

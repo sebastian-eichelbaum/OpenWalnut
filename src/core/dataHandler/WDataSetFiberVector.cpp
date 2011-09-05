@@ -169,3 +169,73 @@ boost::shared_ptr< WDataSetFibers > WDataSetFiberVector::toWDataSetFibers() cons
 
     return boost::shared_ptr< WDataSetFibers >( new WDataSetFibers( points, fiberStartIndices, fiberLengths, pointFiberMapping ) );
 }
+
+boost::shared_ptr< WFiber > centerLine( boost::shared_ptr< const WDataSetFiberVector > tracts )
+{
+    if( !tracts || tracts->empty() ) // invalid data produces invalid center lines
+    {
+        return boost::shared_ptr< WFiber >( new WFiber() );
+    }
+
+    size_t avgTractSize = 0;
+    for( WDataSetFiberVector::const_iterator cit = tracts->begin(); cit != tracts->end(); ++cit )
+    {
+        avgTractSize += cit->size();
+    }
+    avgTractSize /= tracts->size();
+
+    WFiber firstTract( tracts->front() );
+    firstTract.resampleByNumberOfPoints( avgTractSize );
+    boost::shared_ptr< WFiber > result( new WFiber( firstTract ) ); // copy the first tract into result centerline
+
+    for( size_t tractIndex = 1; tractIndex < tracts->size(); ++tractIndex )
+    {
+        WFiber other( tracts->at( tractIndex ) );
+        other.resampleByNumberOfPoints( avgTractSize );
+        other.unifyDirectionBy( firstTract );
+
+        for( size_t pointIndex = 0; pointIndex < avgTractSize; ++pointIndex )
+        {
+            result->at( pointIndex ) += other[ pointIndex ];
+        }
+    }
+
+    for( size_t pointIndex = 0; pointIndex < avgTractSize; ++pointIndex )
+    {
+        result->at( pointIndex ) /= static_cast< double >( tracts->size() );
+    }
+
+    return result;
+}
+
+boost::shared_ptr< WFiber > longestLine( boost::shared_ptr< const WDataSetFiberVector > tracts )
+{
+    if( !tracts || tracts->empty() ) // invalid data produces invalid longest lines
+    {
+        return boost::shared_ptr< WFiber >( new WFiber() );
+    }
+
+    size_t maxSize = 0;
+    size_t maxIndex = 0;
+
+    for( size_t tractIndex = 0; tractIndex < tracts->size(); ++tractIndex )
+    {
+        if( maxSize < tracts->at( tractIndex ).size() )
+        {
+            maxSize = tracts->at( tractIndex ).size();
+            maxIndex = tractIndex;
+        }
+    }
+
+    return boost::shared_ptr< WFiber >( new WFiber( tracts->at( maxIndex ) ) );
+}
+
+boost::shared_ptr< WFiber > centerLine( boost::shared_ptr< const WDataSetFibers > tracts )
+{
+    return centerLine( boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector( tracts ) ) );
+}
+
+boost::shared_ptr< WFiber > longestLine( boost::shared_ptr< const WDataSetFibers > tracts )
+{
+    return longestLine( boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector( tracts ) ) );
+}
