@@ -367,23 +367,35 @@ void WMAtlasSurfaces::loadLabels( std::string fileName )
 
     std::vector<std::string>svec;
 
-    for( size_t i = 0; i < lines.size(); ++i )
+    try
     {
-        svec.clear();
-        boost::regex reg( "," );
-        boost::sregex_token_iterator it( lines[i].begin(), lines[i].end(), reg, -1 );
-        boost::sregex_token_iterator end;
-        while( it != end )
+        for( size_t i = 0; i < lines.size(); ++i )
         {
-            svec.push_back( *it++ );
+            svec.clear();
+            boost::regex reg( "," );
+            boost::sregex_token_iterator it( lines[i].begin(), lines[i].end(), reg, -1 );
+            boost::sregex_token_iterator end;
+            while( it != end )
+            {
+                svec.push_back( *it++ );
+            }
+            if( svec.size() == 3 )
+            {
+                std::pair< std::string, std::string >newLabel( svec[1], svec[2] );
+                m_labels[boost::lexical_cast<size_t>( svec[0] )] = newLabel;
+            }
         }
-        if( svec.size() == 3 )
-        {
-            std::pair< std::string, std::string >newLabel( svec[1], svec[2] );
-            m_labels[boost::lexical_cast<size_t>( svec[0] )] = newLabel;
-        }
+        m_labelsLoaded = true;
     }
-    m_labelsLoaded = true;
+    catch( const std::exception& e )
+    {
+        // print this message AFTER creation of WException to have the backtrace before the message
+        WLogger::getLogger()->addLogMessage(
+            std::string( "Problem while loading label file. Probably not suitable content.  Message: " ) + e.what(),
+            "Module (" + getName() + ")", LL_ERROR );
+        m_labels.clear();
+        m_labelsLoaded = false;
+    }
 }
 
 void WMAtlasSurfaces::createRoi()
