@@ -179,6 +179,7 @@ private:
      * A property allowing the user to select multiple elements of a list.
      */
     WPropSelection m_aMultiSelection;
+    WPropFilename m_labelFile; //!< The labels will be read from this file.
 
     /**
      * A list of items that can be selected using m_aSingleSelection or m_aMultiSelection.
