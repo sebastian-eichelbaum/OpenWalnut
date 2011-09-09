@@ -201,8 +201,6 @@ SET( OW_SOVERSION ${OW_VERSION_MAJOR} )
 # To see, which boost libs we currently use, you may run the following command # in the src directory on a linux box to make some investigations:
 # grep -i include `find . -type f` | grep boost | awk '{print $2}' | sort | uniq
 
-# find the boost packages
-FIND_PACKAGE( Boost 1.39.0 REQUIRED program_options thread filesystem date_time system signals regex )
 
 # Setup boost options
 SET( Boost_USE_MULTITHREAD ON )
@@ -210,6 +208,9 @@ SET( Boost_USE_MULTITHREAD ON )
 IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
   SET( Boost_USE_STATIC_LIBS ON )
 ENDIF()
+
+# find the boost packages
+FIND_PACKAGE( Boost 1.39.0 REQUIRED program_options thread filesystem date_time system signals regex )
 
 # include the boost headers
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
