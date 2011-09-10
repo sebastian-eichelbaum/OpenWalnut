@@ -371,6 +371,8 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
         WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
 
         lock.unlock();
+
+        activate(); // sets active state of moduleNode correctly
     }
 
     progress->finish();
