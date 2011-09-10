@@ -36,7 +36,7 @@ const int nthreads = 192;       // number of cuda threads
 const int gridsize = 32;        // don't schedule too large tasks - watchdog timer will kill long-running ones
 const int maxkernels = 4;       // maximum number of concurrent kernels,
                                 // avoids possible problems because of too many pending kernels
-const int allowedlength = 1024; // maximum allowable length of a fibre in __shared__ memory
+const int allowedlength = 1024; // maximum allowable length of a fiber in __shared__ memory
 const int warpsize = 32;        // you should not need to change this
 
 const float LARGE_VALUE = 3.402823466e+38f; // FLT_MAX
@@ -55,7 +55,7 @@ static inline __device__ void reducesum(volatile float *s, unsigned int n)
 }
 
 
-/* compute asymmetric metric from one fibre to another,
+/* compute asymmetric metric from one fiber to another,
  * threshold2 is the square of the proximity threshold */
 static __device__ float distasym( const int qsize, const float3 *q,
         const int rsize, const float3 *r,
@@ -67,10 +67,10 @@ static __device__ float distasym( const int qsize, const float3 *q,
     extern float __shared__ minaccum[];
     minaccum[threadIdx.x] = 0.;
 
-    // for every point in the first fibre q...
+    // for every point in the first fiber q...
     for( unsigned int i = threadIdx.x; i < qsize; i += blockDim.x )
     {
-        // ...find the squared distance to closest point on fibre q
+        // ...find the squared distance to closest point on fiber q
         float mind2 = LARGE_VALUE;
         for( unsigned int j = 0; j < rsize; ++j )
         {
@@ -94,9 +94,9 @@ static __device__ float distasym( const int qsize, const float3 *q,
 }
 
 /**
- * copy a fibre from global to __shared__ memory
+ * copy a fiber from global to __shared__ memory
  */
-static __device__ void loadFibre( float3 *x, const float *coords, const int start, const int length )
+static __device__ void loadFiber( float3 *x, const float *coords, const int start, const int length )
 {
     for( unsigned int i = threadIdx.x; i < length; i += blockDim.x )
     {
@@ -107,17 +107,17 @@ static __device__ void loadFibre( float3 *x, const float *coords, const int star
 }
 
 /**
- * compute asymmetric Zhang metric for fibres with numbers corresponding to thread block grid coordinate 
+ * compute asymmetric Zhang metric for fibers with numbers corresponding to thread block grid coordinate 
  *
- * nshmfibs:     number of fibres to copy to __shared__ memory (have to be short enough)
- * maxlength:    maximum length of a fibre to be loaded into __shared__ memory
+ * nshmfibs:     number of fibers to copy to __shared__ memory (have to be short enough)
+ * maxlength:    maximum length of a fiber to be loaded into __shared__ memory
  * distmat:      output distance matrix (ntracts x ntracts)
- * tilex, tiley: ntracts x ntracts fibre array has been split into tiles,
- *               starting coordinates of fibre tile to be processed by this kernel call
+ * tilex, tiley: ntracts x ntracts fiber array has been split into tiles,
+ *               starting coordinates of fiber tile to be processed by this kernel call
  * coords:       interleaved (x[0], y[0], z[0], x[0], ...) coordinate array
- * ntracts:      total no. of fibres
- * offsets:      start indices of fibres
- * lengths:      fibre lengths
+ * ntracts:      total no. of fibers
+ * offsets:      start indices of fibers
+ * lengths:      fiber lengths
  * threshold2:   ignore points closer than the square root of this distance
  */
 template< int nshmfibs, int maxlength >
@@ -128,20 +128,20 @@ static __global__ void distKernel( float *distmat,
         const float threshold2 )
 {
     float3 __shared__ q[nshmfibs > 1 ? maxlength : 0];
-    float3 __shared__ r[nshmfibs > 0 ? maxlength : 0]; // store fibre coordinates
+    float3 __shared__ r[nshmfibs > 0 ? maxlength : 0]; // store fiber coordinates
 
-    // compute fibre index for this thread block
+    // compute fiber index for this thread block
     const int qidx = tilex + blockIdx.x;
     const int ridx = tiley + blockIdx.y;
     const int qsize = lengths[qidx];
     const int rsize = lengths[ridx];
 
-    // copy fibres to shared memory
+    // copy fibers to shared memory
     if( nshmfibs > 1 )
-        loadFibre( q, coords, offsets[qidx], qsize );
+        loadFiber( q, coords, offsets[qidx], qsize );
     if( nshmfibs > 0 )
     {
-        loadFibre( r, coords, offsets[ridx], rsize );
+        loadFiber( r, coords, offsets[ridx], rsize );
         __syncthreads();
     }
 

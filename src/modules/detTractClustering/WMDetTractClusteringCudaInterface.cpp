@@ -56,7 +56,7 @@ bool initDLtTableCuda( boost::shared_ptr< WMatrixSym > dLtTable,
         }
     }
 
-    // copy fibre coordinates into plain array
+    // copy fiber coordinates into plain array
     const unsigned int ncoords = nextoffset;
     float* coords = new float[ncoords*3];
     for( size_t i = 0; i < ntracts; ++i )
