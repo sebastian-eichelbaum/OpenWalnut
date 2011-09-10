@@ -36,8 +36,10 @@
 #include "core/graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 
 #include "core/graphicsEngine/WTriangleMesh.h"
+
 /**
- * TODO(schurade): Document this!
+ * Manager for parallel jobs that create parts of the surfaces enclosing the atlas regions.
+ * Each job performs a Marching Cubes part.
  */
 template< typename T >
 class WCreateSurfaceJob : public WThreadedJobs< WDataSetScalar, size_t >
@@ -86,15 +88,15 @@ private:
      */
     void cutArea( boost::shared_ptr< WValueSet< T > > vals, std::vector<float>& tempData, unsigned int number ); // NOLINT
 
-    WSharedObject< size_t>m_counter; //!< job number
+    WSharedObject< size_t> m_counter; //!< job number
 
-    boost::shared_ptr< WGridRegular3D>m_grid; //!< stores pointer to grid
+    boost::shared_ptr< WGridRegular3D> m_grid; //!< stores pointer to grid
 
-    boost::shared_ptr< std::vector< boost::shared_ptr< WTriangleMesh > > >m_regionMeshes; //!< stores pointer
+    boost::shared_ptr< std::vector< boost::shared_ptr< WTriangleMesh > > > m_regionMeshes; //!< stores pointer
 
-    boost::shared_ptr<WProgressCombiner> m_progressCombiner; //!< stores pointer
+    boost::shared_ptr<WProgressCombiner> m_progressCombiner; //!< stores pointer to combiner for different progress parts
 
-    boost::shared_ptr<WProgress>m_progress; //!< stores pointer to
+    boost::shared_ptr<WProgress> m_progress; //!< stores pointer to progress indicator
 };
 
 template< typename T >
