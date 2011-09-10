@@ -36,8 +36,8 @@
 class WFiber;
 
 /**
- * Represents a basic gaussian process with its mean- and covariance function. Basically this aims
- * to implement a part of the gaussian process framework as presented by Wasserman et. al:
+ * Represents a basic Gaussian process with its mean- and covariance function. Basically this aims
+ * to implement a part of the Gaussian process framework as presented by Wasserman et. al:
  * http://dx.doi.org/10.1016/j.neuroimage.2010.01.004
  */
 class WGaussProcess
@@ -45,7 +45,7 @@ class WGaussProcess
 friend class WGaussProcessTest;
 public:
     /**
-     * Constructs a gaussian process out of a fiber with the help of underlying diffusion tensor
+     * Constructs a Gaussian process out of a fiber with the help of underlying diffusion tensor
      * information.
      *
      * \param tractID One deterministic tractogram ID
@@ -69,7 +69,7 @@ public:
      *
      * \param p The point where to evaluate the Gauss process.
      *
-     * \return The mean value of this gaussian process at the point \e p.
+     * \return The mean value of this Gaussian process at the point \e p.
      */
     double mean( const WPosition& p ) const;
 
@@ -91,8 +91,8 @@ public:
     WFiber generateTract() const;
 
     /**
-     * As each gaussian process is associated with a WFiber it also hat the maximal segment length,
-     * used as width for the gaussian kernels around the base points.
+     * As each Gaussian process is associated with a WFiber it also hat the maximal segment length,
+     * used as width for the Gaussian kernels around the base points.
      *
      * \return Copy of the maximal segment length this Gauss process is associated with.
      */
@@ -150,7 +150,7 @@ private:
     double cov_d( const WPosition& p1, const WPosition& p2 ) const;
 
     /**
-     * Covariance function of this gaussian process.
+     * Covariance function of this Gaussian process.
      *
      * \note The reason why this isn't realized as member is just simplicity. Maybe we have time to
      * change this!
@@ -163,7 +163,7 @@ private:
     double cov( const WPosition& p1, const WPosition& p2 ) const;
 
     /**
-     * The id of the tract inside the \ref WDataSetFibers this gaussian process is representing.
+     * The id of the tract inside the \ref WDataSetFibers this Gaussian process is representing.
      * This is needed since the sample points of a tract will be needed for mean computation. (\f$
      * S_f(p) \f$ will need all \f$ f_i \f$i)
      *
@@ -242,10 +242,10 @@ inline const Eigen::VectorXd& WGaussProcess::getCff1lProduct() const
 namespace gauss
 {
     /**
-     * The inner product of two gaussian processes. See appendix A.3 of the Demian Wassermann paper.
+     * The inner product of two Gaussian processes. See appendix A.3 of the Demian Wassermann paper.
      *
-     * \param p1 First gaussian process
-     * \param p2 Second gaussian process
+     * \param p1 First Gaussian process
+     * \param p2 Second Gaussian process
      *
      * \return The similarity of those two processes, aka inner product.
      */

@@ -64,7 +64,7 @@ const std::string WMDetTractClusteringGP::getDescription() const
 
 void WMDetTractClusteringGP::connectors()
 {
-    m_gpIC = WModuleInputData< WDataSetGP >::createAndAdd( shared_from_this(), "gpInput", "WDataSetGP providing the gaussian processes" );
+    m_gpIC = WModuleInputData< WDataSetGP >::createAndAdd( shared_from_this(), "gpInput", "WDataSetGP providing the Gaussian processes" );
     m_dendOC = WModuleOutputData< WDendrogram >::createAndAdd( shared_from_this(), "dendrogramOutput", "WDendrogram as a result of this clustering" );
 
     WModule::connectors();

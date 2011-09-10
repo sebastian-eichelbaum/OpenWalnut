@@ -36,7 +36,7 @@
 #include "../WDataSetGP.h"
 
 /**
- * Converts each deterministic tract to a gaussian process using the DTI information.
+ * Converts each deterministic tract to a Gaussian process using the DTI information.
  * \ingroup modules
  */
 class WMDetTract2GPConvert: public WModule
@@ -99,7 +99,7 @@ protected:
 private:
     /**
      * Input connector for the deterministic tract dataset which is going to be converted into
-     * gaussian processes.
+     * Gaussian processes.
      */
     boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_tractIC;
 

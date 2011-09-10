@@ -132,7 +132,7 @@ protected:
 
 private:
     /**
-     * Input connector for the gaussian proccesses.
+     * Input connector for the Gaussian proccesses.
      */
     boost::shared_ptr< WModuleInputData< WDataSetGP > > m_gpIC;
 

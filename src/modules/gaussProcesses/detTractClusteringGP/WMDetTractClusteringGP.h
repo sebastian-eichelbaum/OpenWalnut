@@ -40,7 +40,7 @@
 class WDendrogram;
 
 /**
- * Module for clustering gaussian processes which representing deterministic tracts.
+ * Module for clustering Gaussian processes which representing deterministic tracts.
  *
  * \ingroup modules
  */
@@ -101,11 +101,11 @@ protected:
     virtual void properties();
 
     /**
-     * Computes the distant matrix for all pairs of gaussian processes.
+     * Computes the distant matrix for all pairs of Gaussian processes.
      *
      * \warning This function may leave an invalid matrix when the \ref m_shutdownFlag becomes true!
      *
-     * \param dataSet The dataset of gaussian processes.
+     * \param dataSet The dataset of Gaussian processes.
      *
      * \return The similarity or also called distant matrix.
      */
@@ -124,7 +124,7 @@ protected:
     boost::shared_ptr< WDendrogram > computeDendrogram( size_t n );
 
     /**
-     * Input Connector for the gaussian processes which are about to be clustered.
+     * Input Connector for the Gaussian processes which are about to be clustered.
      */
     boost::shared_ptr< WModuleInputData< WDataSetGP > > m_gpIC;
 
@@ -134,7 +134,7 @@ protected:
     boost::shared_ptr< WModuleOutputData< WDendrogram > > m_dendOC;
 
     /**
-     * Distant matrix of all pairs of gaussian processes. This is float to save more space!
+     * Distant matrix of all pairs of Gaussian processes. This is float to save more space!
      */
     WMatrixSymFLT m_similarities;
 
