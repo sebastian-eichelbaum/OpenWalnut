@@ -131,21 +131,21 @@ void WMIsosurfaceRaytracer::properties()
     m_alpha->setMin( 0.0 );
     m_alpha->setMax( 1.0 );
 
-    m_colormapRatio = m_properties->addProperty( "Colormap Ratio",   "The intensity of the colormap in contrast to surface shading.", 0.5 );
+    m_colormapRatio = m_properties->addProperty( "Colormap ratio",   "The intensity of the colormap in contrast to surface shading.", 0.5 );
     m_colormapRatio->setMin( 0.0 );
     m_colormapRatio->setMax( 1.0 );
 
-    m_phongShading  = m_properties->addProperty( "Phong Shading", "If enabled, Phong shading gets applied on a per-pixel basis.", true );
+    m_phongShading  = m_properties->addProperty( "Phong shading", "If enabled, Phong shading gets applied on a per-pixel basis.", true );
 
-    m_cortexMode    = m_properties->addProperty( "Emphasize Cortex", "Emphasize the Cortex while inner parts ar not that well lighten.", false );
+    m_cortexMode    = m_properties->addProperty( "Emphasize cortex", "Emphasize the cortex while inner parts ar not that well lighten.", false );
 
-    m_stochasticJitter = m_properties->addProperty( "Stochastic Jitter", "Improves image quality at low sampling rates but introduces slight "
+    m_stochasticJitter = m_properties->addProperty( "Stochastic jitter", "Improves image quality at low sampling rates but introduces slight "
                                                                          "noise effect.", true );
 
-    m_borderClip = m_properties->addProperty( "Border Clip", "If enabled, a certain area on the volume boundary can be clipped. This is useful "
+    m_borderClip = m_properties->addProperty( "Border clip", "If enabled, a certain area on the volume boundary can be clipped. This is useful "
                                                              "for noise and non-peeled data but will consume a lot of GPU power.", false );
 
-    m_borderClipDistance = m_properties->addProperty( "Border Clip Distance", "The distance that should be ignored.", 0.05 );
+    m_borderClipDistance = m_properties->addProperty( "Border clip distance", "The distance that should be ignored.", 0.05 );
     m_borderClipDistance->setMin( 0.0 );
     m_borderClipDistance->setMax( 0.1 );
 

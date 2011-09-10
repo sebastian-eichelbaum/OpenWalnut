@@ -93,9 +93,9 @@ void WMFiberDisplaySimple::properties()
 
     m_illuminationEnable = m_properties->addProperty( "Illumination", "Enable line illumination.", true );
 
-    m_colormapEnabled = m_properties->addProperty( "Enable Colormapping", "Check this to enable colormapping. On large data, this can cause "
+    m_colormapEnabled = m_properties->addProperty( "Enable colormapping", "Check this to enable colormapping. On large data, this can cause "
                                                                               "massive FPS drop.", false );
-    m_colormapRatio = m_properties->addProperty( "Colormap Ratio", "Defines the ratio between colormap and fiber color.", 0.0 );
+    m_colormapRatio = m_properties->addProperty( "Colormap ratio", "Defines the ratio between colormap and fiber color.", 0.0 );
     m_colormapRatio->setMin( 0.0 );
     m_colormapRatio->setMax( 1.0 );
 

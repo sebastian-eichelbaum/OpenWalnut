@@ -123,26 +123,26 @@ void WMBermanTracking::properties()
     m_exceptionCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     m_minFA = m_properties->addProperty( "Min. FA", "The fractional anisotropy threshold value needed by "
-                                                    "bermans fiber tracking algorithm.", 0.02, m_propCondition );
+                                                    "Berman's fiber tracking algorithm.", 0.02, m_propCondition );
     m_minFA->setMax( 1.0 );
     m_minFA->setMin( 0.0 );
 
-    m_minPoints = m_properties->addProperty( "Min. Points", "The minimum number of points per fiber.", 30, m_propCondition );
+    m_minPoints = m_properties->addProperty( "Min. points", "The minimum number of points per fiber.", 30, m_propCondition );
     m_minPoints->setMax( 100 );
     m_minPoints->setMin( 1 );
 
-    m_minCos = m_properties->addProperty( "Min. Cosine", "Minimum cosine of the angle between two"
+    m_minCos = m_properties->addProperty( "Min. cosine", "Minimum cosine of the angle between two"
                                            " adjacent fiber segments.", 0.30, m_propCondition );
     m_minCos->setMax( 1.0 );
     m_minCos->setMin( 0.0 );
 
     m_probabilistic = m_properties->addProperty( "Probabilistic tracking?", "Use bootstrapping for SH generation per voxel.", true, m_propCondition );
 
-    m_seedsPerDirection = m_properties->addProperty( "Seeds per Dir", "The number of seeds in a voxel per direction.", 1, m_propCondition );
+    m_seedsPerDirection = m_properties->addProperty( "Seeds per dir", "The number of seeds in a voxel per direction.", 1, m_propCondition );
     m_seedsPerDirection->setMin( 1 );
     m_seedsPerDirection->setMax( 16 );
 
-    m_seedsPerPosition = m_properties->addProperty( "Seeds per Pos", "The number of seeds in a voxel per position.", 1, m_propCondition );
+    m_seedsPerPosition = m_properties->addProperty( "Seeds per pos", "The number of seeds in a voxel per position.", 1, m_propCondition );
     m_seedsPerPosition->setMax( 1000 );
     m_seedsPerPosition->setMin( 1 );
 
@@ -355,7 +355,7 @@ void WMBermanTracking::resetProgress( std::size_t todo )
     {
         m_currentProgress->finish();
     }
-    m_currentProgress = boost::shared_ptr< WProgress >( new WProgress( "berman tracking", todo ) );
+    m_currentProgress = boost::shared_ptr< WProgress >( new WProgress( "Berman tracking", todo ) );
     m_progress->addSubProgress( m_currentProgress );
 }
 
