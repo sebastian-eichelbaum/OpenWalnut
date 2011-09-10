@@ -210,7 +210,7 @@ boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram( size
         {
             if( *it != newCE )
             {
-                // we have two gauss processes p and q. We have merged p and q into pq. Hence for all valid indexes we must
+                // we have two Gauss processes p and q. We have merged p and q into pq. Hence for all valid indexes we must
                 // recompute < pq, k > where k is a GP identified through an valid index, where:
                 // < pq, k > = |p| / ( |p| + |q| ) < p, k > + |q| / (|p| + |q|) < q, k >
                 double firstFactor = static_cast< double >( clusterSize[ p ] ) / ( clusterSize[ p ] + clusterSize[ q ] );

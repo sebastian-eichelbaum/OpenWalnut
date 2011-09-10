@@ -67,7 +67,7 @@ public:
      * Computes the mean function describing this gausprocess as described in the Wassermann paper,
      * see equation (16) on page 12.
      *
-     * \param p The point where to evaluate the gauss process.
+     * \param p The point where to evaluate the Gauss process.
      *
      * \return The mean value of this gaussian process at the point \e p.
      */
@@ -94,7 +94,7 @@ public:
      * As each gaussian process is associated with a WFiber it also hat the maximal segment length,
      * used as width for the gaussian kernels around the base points.
      *
-     * \return Copy of the maximal segment length this gauss process is associated with.
+     * \return Copy of the maximal segment length this Gauss process is associated with.
      */
     double getRadius() const;
 

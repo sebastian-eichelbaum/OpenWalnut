@@ -151,7 +151,7 @@ private:
 
     boost::shared_ptr< WModule > m_fiberSelection;       //!< The fiber selection module.
     boost::shared_ptr< WModule > m_voxelizer;            //!< The voxelizer module.
-    boost::shared_ptr< WModule > m_gauss;                //!< The gauss filter which filters the voxelized fibers.
+    boost::shared_ptr< WModule > m_gauss;                //!< The Gauss filter which filters the voxelized fibers.
     boost::shared_ptr< WModule > m_animation;            //!< The final animation.
 
     /**
