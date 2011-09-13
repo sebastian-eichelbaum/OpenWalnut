@@ -186,6 +186,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     }
     connect( m_deleteRoiAction, SIGNAL( triggered() ), this, SLOT( deleteROITreeItem() ) );
     m_roiTreeWidget->addAction( m_deleteModuleAction );
+    m_roiTreeWidget->addAction( m_deleteRoiAction );
 }
 
 WQtControlPanel::~WQtControlPanel()
