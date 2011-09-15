@@ -69,4 +69,7 @@
 // a frame got rendered
 #define WQT_RENDERED_FRAME_EVENT QEvent::User + 12
 
+// a connector of a module changed state or value
+#define WQT_MODULE_CONNECTOR_EVENT QEvent::User + 13
+
 #endif  // WEVENTTYPES_H
