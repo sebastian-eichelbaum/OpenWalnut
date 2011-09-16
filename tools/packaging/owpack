@@ -233,7 +233,7 @@ Checkout()
     # The version. You can use shell commands to evaluate this. The command is
     # called inside the working dir of owpack script.
     #TODO(ebaum): get this via command line.
-    VERSION_BASE=1.2.1
+    VERSION_BASE=1.2.5
     echo "VERSION=$VERSION_BASE+hg`cd $CHECKOUT_DIR;hg parents --template "{rev}"`" >> $CONFIG_FILE
 }
 
