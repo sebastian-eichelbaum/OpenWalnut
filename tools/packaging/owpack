@@ -39,6 +39,8 @@ CHECKOUT_DIR="OpenWalnut-hg"
 WORKING_DIR_PREFIX="owpack"
 WORKING_DIR_POSTFIX=""
 REPO="ssh://openwalnut.com//srv/hg/ow"
+VERSION_BASE=1.2.5
+REPO_BRANCH="OpenWalnut_$VERSION_BASE"
 
 #############################################################################################################
 # Functions
@@ -222,7 +224,7 @@ Checkout()
 
     # get code
     echo "* Cloning OpenWalnut repository \"$REPO\"."
-    hg clone "$REPO" "$CHECKOUT_DIR"
+    hg clone --branch $REPO_BRANCH "$REPO" "$CHECKOUT_DIR"
     if [ $? -ne 0 ]; then
         echo " * cloning failed. Wrong repository?."
         exit 1
@@ -232,8 +234,6 @@ Checkout()
     echo "SRC_DIR=$CHECKOUT_DIR" > $CONFIG_FILE
     # The version. You can use shell commands to evaluate this. The command is
     # called inside the working dir of owpack script.
-    #TODO(ebaum): get this via command line.
-    VERSION_BASE=1.2.5
     echo "VERSION=$VERSION_BASE+hg`cd $CHECKOUT_DIR;hg parents --template "{rev}"`" >> $CONFIG_FILE
 }
 
