@@ -49,7 +49,7 @@ void colormap( inout vec4 color, in sampler3D sampler, in vec3 coord, float minV
                int cmap, bool active )
 {
     // get the value and descale it
-    vec3 value = texture3D( sampler, coord ).rgb;
+    vec4 value = texture3D( sampler, coord ).rgba;
 
     // let someone else apply the colormap
     vec4 src = colormap( value, minV, scaleV, thresholdV, thresholdEnabled, alpha, cmap, active );
