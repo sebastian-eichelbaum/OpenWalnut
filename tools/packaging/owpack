@@ -32,15 +32,11 @@
 export LC_ALL=C
 
 # the source config file
-CONFIG_FILE=owpack.config
+CONFIG_FILE=owrelease.config
 
 # where to find the source tree?
-CHECKOUT_DIR="OpenWalnut-hg"
 WORKING_DIR_PREFIX="owpack"
 WORKING_DIR_POSTFIX=""
-REPO="ssh://openwalnut.com//srv/hg/ow"
-VERSION_BASE=1.2.5
-REPO_BRANCH="OpenWalnut_$VERSION_BASE"
 
 #############################################################################################################
 # Functions
@@ -53,17 +49,6 @@ CleanUp()
     echo "* Cleaning up."
     echo " * Removing working directories."
     rm -rf $WORKING_DIR_PREFIX-*
-}
-
-#########################################################################################################
-# Like clean, also removes config and checkout
-Purge()
-{
-    CleanUp
-    echo " * Removing source directories."
-    rm -rf $CHECKOUT_DIR
-    echo " * Removing configuration."
-    rm -rf $CONFIG_FILE
 }
 
 #########################################################################################################
@@ -210,34 +195,6 @@ Builder_RPM()
 }
 
 #########################################################################################################
-# Checkout a fresh OW copy and create config file
-#
-# Param 1: base version (MAJOR.MINOR.PATCH)
-Checkout()
-{
-    echo "* Removing old checkout."
-    rm -rf "$CHECKOUT_DIR"
-    if [ $? -ne 0 ]; then
-        echo " * Remove failed."
-        exit 1
-    fi
-
-    # get code
-    echo "* Cloning OpenWalnut repository \"$REPO\"."
-    hg clone --branch $REPO_BRANCH "$REPO" "$CHECKOUT_DIR"
-    if [ $? -ne 0 ]; then
-        echo " * cloning failed. Wrong repository?."
-        exit 1
-    fi
-
-    # write config file
-    echo "SRC_DIR=$CHECKOUT_DIR" > $CONFIG_FILE
-    # The version. You can use shell commands to evaluate this. The command is
-    # called inside the working dir of owpack script.
-    echo "VERSION=$VERSION_BASE+hg`cd $CHECKOUT_DIR;hg parents --template "{rev}"`" >> $CONFIG_FILE
-}
-
-#########################################################################################################
 # Checks validitiy of owpack environment: checks existence of $CONFIG_FILE and whether source exists.
 #
 # Returns 1 on error
@@ -246,7 +203,7 @@ EnsureConfigAndSource()
     # search CONFIG_FILE
     echo "* Search configuration file."
     if [ ! -f $CONFIG_FILE ]; then
-        echo " * File \"$CONFIG_FILE\" not found! Try checkout command first."
+        echo " * File \"$CONFIG_FILE\" not found!"
         Exit 1
     fi
 
@@ -256,7 +213,7 @@ EnsureConfigAndSource()
     # check existence of source
     echo "* Search original source."
     if [ ! -d $SRC_DIR ]; then
-        echo " * Failed to find source. Try checkout command first."
+        echo " * Failed to find source."
         exit 1
     fi
 }
@@ -277,9 +234,7 @@ UsageExit()
 {
         echo "Usage: $0 {init|clean|purge|deb|rpm|tgz} BUILD_DIR_PREFIX [WORKING_DIR]"
         echo "  COMMANDS:"
-        echo "    init: removes downloaded source and clones a new one."
         echo "    clean: removes created build sub-directories."
-        echo "    purge: like clean, also removes source checkout dir and config file."
         echo "    deb: build source and binary packages for debian systems."
         echo "    rpm: build binary packages using rpm."
         echo "    tgz: build binary tgz using cpack."
@@ -290,7 +245,7 @@ UsageExit()
         echo "    VERSION: optional parameter. Needed for init command."
         echo ""
         echo "  IMPORTANT:"
-        echo "    This script needs an fresh checked-out version of OpenWalnut to be available, together with an owpack.config file."
+        echo "    This script needs an fresh checked-out version of OpenWalnut to be available, together with a $CONFIG_FILE file. Create this using owrelease script."
         Exit 2
 }
 
@@ -310,14 +265,8 @@ WORKING_DIR_POSTFIX=$2
 
 # Handle user command
 case "$1" in
-    init)
-        Checkout $3 || Exit $?
-        ;;
     clean)
         CleanUp
-        ;;
-    purge)
-        Purge
         ;;
     deb)
         # BUILD_DIR_PREFIX is mandatory

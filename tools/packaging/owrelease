@@ -1,0 +1,132 @@
+#!/bin/sh
+
+#---------------------------------------------------------------------------
+#
+# Project: OpenWalnut ( http://www.openwalnut.org )
+#
+# Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+# For more information see http://www.openwalnut.org/copying
+#
+# This file is part of OpenWalnut.
+#
+# OpenWalnut is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# OpenWalnut is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+#
+#---------------------------------------------------------------------------
+
+#############################################################################################################
+# Internal Variables
+#############################################################################################################
+
+# Ensure english warning/error text (easier googling)
+export LC_ALL=C
+
+# Where to grab the sources?
+REPO="ssh://openwalnut.com//srv/hg/ow"
+VERSION_BASE=1.2.5
+REPO_BRANCH="OpenWalnut_$VERSION_BASE"
+
+# Where to put the files
+CHECKOUT_DIR="OpenWalnut-hg"
+
+# the source config file
+CONFIG_FILE=owrelease.config
+
+#############################################################################################################
+# Functions
+#############################################################################################################
+
+#########################################################################################################
+# Checkout a fresh OW copy and create config file. Copy newest script versions.
+Bootstrap()
+{
+    echo "* Removing old checkout."
+    rm -rf "$CHECKOUT_DIR"
+    if [ $? -ne 0 ]; then
+        echo " * Remove failed."
+        exit 1
+    fi
+
+    # get code
+    echo "* Cloning OpenWalnut repository \"$REPO\"."
+    hg clone --branch $REPO_BRANCH "$REPO" "$CHECKOUT_DIR"
+    if [ $? -ne 0 ]; then
+        echo " * cloning failed. Wrong repository?."
+        exit 1
+    fi
+
+    # write config file
+    echo "SRC_DIR=$CHECKOUT_DIR" > $CONFIG_FILE
+    # The version. You can use shell commands to evaluate this. The command is
+    # called inside the working dir of owpack script.
+    echo "VERSION=$VERSION_BASE+hg`cd $CHECKOUT_DIR;hg parents --template "{rev}"`" >> $CONFIG_FILE
+
+    # get the latest scripts
+    cp $CHECKOUT_DIR/tools/packaging/owpack .
+    cp $CHECKOUT_DIR/tools/packaging/owbuildchroot .
+    cp $CHECKOUT_DIR/tools/packaging/owrelease .
+}
+
+#########################################################################################################
+# Cleanup any mess. Remove checkout dir and config file.
+CleanUp()
+{
+    echo "* Removing checkout."
+    rm -rf $CHECKOUT_DIR
+
+    echo "* Removing scripts."
+    rm -f owpack
+    rm -f owbuildchroot
+    rm -f owrelease
+
+    echo "* Removing config."
+    rm -f $CONFIG_FILE
+}
+
+#########################################################################################################
+# Something went wrong. Quit.
+#
+# Param 1 the error code to return.
+Exit()
+{
+    echo "*** Failed. Exiting."
+    exit $1
+}
+
+#########################################################################################################
+# Quit and print usage info.
+UsageExit()
+{
+        echo "Usage: $0 {bootstrap|clean}"
+        echo "  COMMANDS:"
+        echo "    clean: removes created build sub-directories."
+        echo "    bootstrap: gets a fresh copy of OpenWalnut."
+        echo ""
+        Exit 2
+}
+
+#########################################################################################################
+# Main
+
+# Handle user command
+case "$1" in
+    clean)
+        CleanUp
+        ;;
+    bootstrap)
+        Bootstrap || Exit $?
+        ;;
+    *)
+        UsageExit
+        ;;
+esac
