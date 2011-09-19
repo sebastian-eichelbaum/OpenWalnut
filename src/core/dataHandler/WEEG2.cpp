@@ -30,7 +30,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../common/WLimits.h"
 #include "../common/exceptions/WOutOfBounds.h"
 #include "exceptions/WDHException.h"
 #include "io/WPagerEEG.h"
@@ -55,19 +54,19 @@ WEEG2::WEEG2( boost::shared_ptr< WPagerEEG > pager, boost::shared_ptr< WEEGPosit
     }
 
     std::size_t nbSegments = pager->getNumberOfSegments();
-    if( nbSegments <= 0 || wlimits::MAX_RECORDING_SEGMENTS < nbSegments )
+    if( nbSegments <= 0 || WRecording::MAX_RECORDING_SEGMENTS < nbSegments )
     {
         throw WDHException( std::string( "Couldn't construct new EEG: invalid number of segments" ) );
     }
 
     std::size_t nbChannels = pager->getNumberOfChannels();
-    if( nbChannels <= 0 || wlimits::MAX_RECORDING_CHANNELS < nbChannels )
+    if( nbChannels <= 0 || WRecording::MAX_RECORDING_CHANNELS < nbChannels )
     {
         throw WDHException( std::string( "Couldn't construct new EEG: invalid number of channels" ) );
     }
 
     m_samplingRate = pager->getSamplingRate();
-    if( m_samplingRate <= 0.0 || wlimits::MAX_RECORDING_SAMPLING_FREQUENCY < m_samplingRate )
+    if( m_samplingRate <= 0.0 || WRecording::MAX_RECORDING_SAMPLING_FREQUENCY < m_samplingRate )
     {
         throw WDHException( std::string( "Couldn't construct new EEG: invalid sampling rate" ) );
     }

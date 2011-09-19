@@ -37,7 +37,6 @@
 #include <QtGui/QListWidgetItem>
 #include <QtGui/QApplication>
 
-#include "core/common/WLimits.h"
 #include "core/dataHandler/WDataSet.h"
 #include "core/dataHandler/WDataHandler.h"
 #include "core/dataHandler/exceptions/WDHNoSuchSubject.h"
@@ -56,7 +55,7 @@ WQtColormapper::WQtColormapper( QWidget* parent )
 
     m_textureListWidget = new QListWidget( this );
     m_textureListWidget->setToolTip( "List of available colormaps. Only the upper <b>"
-                                     + QString().setNum( wlimits::MAX_NUMBER_OF_TEXTURES )
+                                     + QString().setNum( WGETexture3D::MAX_NUMBER_OF_TEXTURES )
                                      + "</b> textures will be applied." );
     this->setAllowedAreas( Qt::AllDockWidgetAreas );
     this->setFeatures( QDockWidget::AllDockWidgetFeatures );

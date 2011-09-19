@@ -37,33 +37,6 @@
  */
 namespace wlimits
 {
-    /**
-     * Maximum sample size per axis for image
-     * data like MRI, CT, funcMRI and dwMRI.
-     */
-    static const unsigned int MAX_IMAGE_DIMENSION = 256;
-
-    /**
-     * Maximum number of channels for a certain modality.
-     */
-    static const unsigned int MAX_RECORDING_CHANNELS = 1024;
-
-    /**
-     * Maximum number of samples of a recording.
-     * (2^32)-1 this is often equal to UINT_MAX
-     */
-    static const unsigned int MAX_RECORDING_SAMPLES = 4294967295U;
-
-    /**
-     * Maximum number of segments of a recording.
-     */
-    static const unsigned int MAX_RECORDING_SEGMENTS = 128;
-
-    /**
-     * Maximum samplimg frequency of a recording.
-     */
-    static const unsigned int MAX_RECORDING_SAMPLING_FREQUENCY = 20000;
-
     static const double MAX_DOUBLE = std::numeric_limits< double >::max(); //!< Maximum double value
 
     static const float MAX_FLOAT = std::numeric_limits< float >::max(); //!< Maximum float value
@@ -105,12 +78,6 @@ namespace wlimits
      * \return True if the value is infinity, false otherwise.
      */
     template< typename T > bool isinf( T value );
-
-    //! The maximum texture dimension.
-    static std::size_t const MAX_TEXTURE_DIMENSION = 2048;
-
-    //! We support only 8 textures because some known hardware does not support more texture coordinates.
-    static std::size_t const MAX_NUMBER_OF_TEXTURES = 8;
 }
 
 template< typename T > bool wlimits::isnan( T value )
