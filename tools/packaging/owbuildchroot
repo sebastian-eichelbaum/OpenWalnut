@@ -369,7 +369,7 @@ chroot_build()
 }
 
 #########################################################################################################
-# Checks whether the specified suite is suppirted.
+# Checks whether the specified suite is supported.
 check_suite()
 {
     case "$SUITE" in

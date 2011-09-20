@@ -149,7 +149,7 @@ int main( int argc, char** argv )
     }
 
     // the kernel, and the gui should print their version info. This helps processing crashlogs from users.
-    wlog::debug( "Walnut" ) << "Version: " << W_VERSION;
+    wlog::info( "Walnut" ) << "Version: " << W_VERSION;
 
     // initialize GUI
     // NOTE: we need a shared_ptr here since WGUI uses enable_shared_from_this.
