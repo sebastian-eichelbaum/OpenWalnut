@@ -145,7 +145,13 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
                     newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int16_t >( order, vDim, data, W_DT_INT16 ) );
                     break;
                 }
-
+            case DT_UINT16:
+                {
+                    boost::shared_ptr< std::vector< uint16_t > > data
+                        = copyArray( reinterpret_cast< uint16_t* >( filedata->data ), countVoxels, vDim );
+                    newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< uint16_t >( order, vDim, data, W_DT_UINT16 ) );
+                    break;
+                }
             case DT_INT32:
                 {
                     boost::shared_ptr< std::vector< int32_t > > data = copyArray( reinterpret_cast< int32_t* >( filedata->data ), countVoxels, vDim );
@@ -167,7 +173,6 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
                     newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< double >( order, vDim, data, W_DT_DOUBLE ) );
                     break;
                 }
-
             default:
                 wlog::error( "WReaderNIfTI" ) << "unknown data type " << header->datatype << std::endl;
                 newValueSet = boost::shared_ptr< WValueSetBase >();

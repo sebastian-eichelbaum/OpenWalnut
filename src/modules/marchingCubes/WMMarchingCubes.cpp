@@ -283,6 +283,28 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             }
             break;
         }
+        case W_DT_UINT16:
+        {
+            boost::shared_ptr< WValueSet< uint16_t > > vals;
+            vals =  boost::shared_dynamic_cast< WValueSet< uint16_t > >( ( *m_dataSet ).getValueSet() );
+            WAssert( vals, "Data type and data type indicator must fit." );
+            if( m_useMarchingLego->get( true ) )
+            {
+                m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
+                                                    m_grid->getTransformationMatrix(),
+                                                    vals->rawDataVectorPointer(),
+                                                    isoValue );
+            }
+            else
+            {
+                m_triMesh = mcAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
+                                                    m_grid->getTransformationMatrix(),
+                                                    vals->rawDataVectorPointer(),
+                                                    isoValue,
+                                                    m_progress );
+            }
+            break;
+        }
         case W_DT_SIGNED_INT:
         {
             boost::shared_ptr< WValueSet< int32_t > > vals;
