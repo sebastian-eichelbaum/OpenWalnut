@@ -152,7 +152,7 @@ Builder_DEB()
 
     # debuild requires the debian config dir to be present in OpenWalnut src dir
     echo "* Setup debian package config."
-    cp -r "$BUILDER_DEB_UPSTREAM_SRC_DIR/tools/packaging/debian" "$BUILDER_DEB_UPSTREAM_SRC_DIR"
+    cp -r "$BUILDER_DEB_UPSTREAM_SRC_DIR/tools/release/packaging/debian" "$BUILDER_DEB_UPSTREAM_SRC_DIR"
     if [ $? -ne 0 ]; then
         echo " * Failed to copy debian package config."
         exit 1
@@ -232,10 +232,11 @@ Exit()
 # Quit and print usage info.
 UsageExit()
 {
-        echo "Usage: $0 {init|clean|purge|deb|rpm|tgz} BUILD_DIR_PREFIX [WORKING_DIR]"
+        echo "Usage: $0 {init|clean|deb|src|rpm|tgz} BUILD_DIR_PREFIX [WORKING_DIR]"
         echo "  COMMANDS:"
         echo "    clean: removes created build sub-directories."
         echo "    deb: build source and binary packages for debian systems."
+        echo "    src: create simple src archive."
         echo "    rpm: build binary packages using rpm."
         echo "    tgz: build binary tgz using cpack."
         echo ""
@@ -276,6 +277,15 @@ case "$1" in
         fi
         EnsureConfigAndSource || Exit $?
         Builder_DEB || Exit $?
+        ;;
+    src)
+        # BUILD_DIR_PREFIX is mandatory
+        if [ $# -lt 2 ]; then
+            echo "* Need BUILD_DIR_PREFIX."
+            UsageExit
+        fi
+        EnsureConfigAndSource || Exit $?
+        Builder_SRC || Exit $?
         ;;
     rpm)
         # BUILD_DIR_PREFIX is mandatory
