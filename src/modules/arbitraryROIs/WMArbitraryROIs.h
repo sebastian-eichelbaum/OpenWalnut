@@ -47,19 +47,19 @@ class WDataSetScalar;
  *
  * \ingroup modules
  */
-class WMArbitraryRois: public WModule
+class WMArbitraryROIs: public WModule
 {
 public:
 
     /**
      *
      */
-    WMArbitraryRois();
+    WMArbitraryROIs();
 
     /**
      *
      */
-    virtual ~WMArbitraryRois();
+    virtual ~WMArbitraryROIs();
 
     /**
      * Gives back the name of this module.
@@ -111,9 +111,9 @@ protected:
 
 private:
     /**
-     * create a selection box to mark the area in a dataset which will provide the data for a new roi
+     * create a selection box to mark the area in a dataset which will provide the data for a new ROI
      */
-    void initSelectionRoi();
+    void initSelectionROI();
 
     /**
      * creates a new dataset
@@ -121,14 +121,14 @@ private:
     void createCutDataset();
 
     /**
-     * renders the temporary roi
+     * renders the temporary ROI
      */
     void renderMesh();
 
     /**
-     * creates a roi and adds it to the roi manager
+     * creates a ROI and adds it to the ROI manager
      */
-    void finalizeRoi();
+    void finalizeROI();
 
     /**
      * copies the data from the input dataset which is marked by the selection box, otherwise data is zero
@@ -157,7 +157,7 @@ private:
 
     boost::shared_ptr< WValueSet< float > > m_newValueSet; //!< pointer to the created cut valueSet
 
-    osg::ref_ptr< WROIBox > m_selectionRoi; //!< stores a pointer to the cutting tool roi
+    osg::ref_ptr< WROIBox > m_selectionROI; //!< stores a pointer to the cutting tool ROI
 
     /**
      * A condition used to notify about changes in several properties.
@@ -169,7 +169,7 @@ private:
      */
     WPropTrigger  m_finalizeTrigger;
 
-    WPropDouble   m_threshold; //!< the threshold for the roi
+    WPropDouble   m_threshold; //!< the threshold for the ROI
 
     WPropColor m_surfaceColor; //!< Property determining the color for the surface
 
@@ -179,7 +179,7 @@ private:
 
     boost::shared_ptr< WTriangleMesh > m_triMesh; //!< This triangle mesh is provided as output through the connector.
 
-    bool m_showSelector; //!< flag indication if the temporary roi should be shown;
+    bool m_showSelector; //!< flag indication if the temporary ROI should be shown;
 };
 
 #endif  // WMARBITRARYROIS_H
