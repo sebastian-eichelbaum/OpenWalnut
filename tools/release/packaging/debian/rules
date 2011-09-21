@@ -32,7 +32,7 @@ override_dh_auto_configure:
 							-DOW_MODULE_TOOLBOX_EEG=ON\
 							-DOW_MODULE_TOOLBOX_IO=ON\
 							-DOW_MODULE_TOOLBOX_IMAGEPROCESSING=ON\
-							-DOW_MODULE_TOOLBOX_OTHERS=OFF
+							-DOW_MODULE_TOOLBOX_OTHERS=ON
 
 override_dh_auto_install:
 	# libopenwalnut1
