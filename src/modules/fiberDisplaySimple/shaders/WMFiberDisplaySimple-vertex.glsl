@@ -73,7 +73,9 @@ void main()
 
     // The same accounds for the vertex. Transfer it to world-space.
     v_vertex = gl_ModelViewMatrix * gl_Vertex;
-    v_normal
+
+    // fill this varying with a dummy. Not always needed.
+    v_normal = vec3( 1.0, 0.0, 0.0 );
 
     // Grab the tangent. We have uploaded it normalized in gl_Normal per vertex
     // We need to transfer it to the world-space ass all further operations are done there.
