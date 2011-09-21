@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #---------------------------------------------------------------------------
 #
@@ -28,28 +28,39 @@
 # Release Configuration Variables
 #############################################################################################################
 
+# Which version?
+VERSION_BASE=1.2.5
+
+# Should the package number contain the HG revision?
+VERSION_INCLUDE_HG=0
+
 # Where to grab the sources?
 REPO="ssh://openwalnut.com//srv/hg/ow"
-VERSION_BASE=1.2.5
 REPO_BRANCH="OpenWalnut_$VERSION_BASE"
 
 # Which packages to build
 PACKAGES="deb src tgz"
 
 # Define which chroot/distribution to use for build the packages
+# NOTE: supported are "sid wheezy squeeze lucid maverick natty"
 
 # As we only need a source DEB, we do not build the deb for all supported distributions. The NeuroDebian project is doing this.
 # DISTRIBUTIONS_DEB="sid wheezy squeeze lucid maverick natty"
 DISTRIBUTIONS_DEB="sid"
 
 # use these distributions to build binary tgz
-DISTRIBUTIONS_TGZ="sid wheezy squeeze lucid maverick natty"
+#DISTRIBUTIONS_TGZ="sid wheezy squeeze lucid maverick natty"
+# I am not sure whether this is useful? The binary would depend on a very specific boost version ... maybe we fix this by providing the boost libs too?
+DISTRIBUTIONS_TGZ=""
 
 # Architectures to build for
 # NOTE: we need the debsrc package.
 ARCHITECTURES_DEB="amd64"
 # Build binary tgz for 386 and amd64
-ARCHITECTURES_TGZ="i368 amd64"
+ARCHITECTURES_TGZ="amd64 i386"
+
+# where to put the created stuff?
+RELEASE_DIR="OpenWalnut-Release"
 
 #############################################################################################################
 # Internal Variables
@@ -86,16 +97,28 @@ Bootstrap()
     echo "* Cloning OpenWalnut repository \"$REPO\"."
     hg clone --branch $REPO_BRANCH "$REPO" "$CHECKOUT_DIR"
     if [ $? -ne 0 ]; then
-        echo " * cloning failed. Wrong repository?."
+        echo " * Cloning failed. Wrong repository?"
+        exit 1
+    fi
+
+    echo "* Creating release directory \"$RELEASE_DIR\"."
+    mkdir -p $RELEASE_DIR
+    if [ $? -ne 0 ]; then
+        echo " * Creating release directory failed."
         exit 1
     fi
 
     # write config file
     echo "SRC_DIR=$CHECKOUT_DIR" > $CONFIG_FILE
+    echo "RELEASE_DIR=$RELEASE_DIR" >> $CONFIG_FILE
     # The version. You can use shell commands to evaluate this. The command is
     # called inside the working dir of owpack script.
-    echo "VERSION=$VERSION_BASE+hg`cd $CHECKOUT_DIR;hg parents --template "{rev}"`" >> $CONFIG_FILE
     echo "VERSION_BASE=$VERSION_BASE" >> $CONFIG_FILE
+    if [ $VERSION_INCLUDE_HG -ne 0 ]; then
+        echo "VERSION=$VERSION_BASE+hg`cd $CHECKOUT_DIR;hg parents --template "{rev}"`" >> $CONFIG_FILE
+    else
+        echo "VERSION=$VERSION_BASE" >> $CONFIG_FILE
+    fi
 
     # get the latest scripts
     cp $CHECKOUT_DIR/tools/release/owpack .
@@ -104,7 +127,7 @@ Bootstrap()
 }
 
 #########################################################################################################
-# Cleanup any mess. Remove checkout dir and config file.
+# Cleanup any mess. Remove build stuff but keeps config and checkout (and scripts), like after bootstrap.
 CleanUp()
 {
     echo "* Removing logs."
@@ -116,6 +139,16 @@ CleanUp()
     echo "* Removing buildfiles."
     sudo ./owpack clean || exit $?
 
+    echo "* Removing packages."
+    rm -rf $RELEASE_DIR/*
+}
+
+#########################################################################################################
+# Complete cleanup. Removes everything created.
+Purge()
+{
+    CleanUp
+
     echo "* Removing checkout."
     rm -rf $CHECKOUT_DIR
 
@@ -126,6 +159,9 @@ CleanUp()
 
     echo "* Removing config."
     rm -f $CONFIG_FILE
+
+    echo "* Removing releases."
+    rm -rf $RELEASE_DIR
 }
 
 #########################################################################################################
@@ -164,7 +200,7 @@ BuildAll()
                 ;;
         esac
 
-        # as this cannot be paralellized, we need to do a first run to check and create the chroots if needed
+        # build package for each of its distributions and architectures
         for distri in $PkgDistributions
         do
             for arch in $PkgArchitectures
@@ -172,29 +208,22 @@ BuildAll()
                 LOGFILE=$0-$pack-$distri-$arch.log
                 echo "LOG created by $0 on `date`" > $LOGFILE
 
-                echo "* Building $pack for \"$distri-$arch\". Log: $LOGFILE" | tee -a $MAINLOGFILE
-
                 # check for chroot existence
-                sudo ./owbuildchroot $arch $distri check >> $MAINLOGFILE
+                echo "* Check build chroot for $pack-$distri-$arch." | tee -a $MAINLOGFILE
+                sudo ./owbuildchroot $arch $distri check &>> $MAINLOGFILE
                 if [ $? -ne 0 ]; then
                     echo " * Build chroot not found. Creating." | tee -a $MAINLOGFILE
-#                    sudo ./owbuildchroot $arch $distri create >> $MAINLOGFILE
+                    sudo ./owbuildchroot $arch $distri create &>> $MAINLOGFILE
                     if [ $? -ne 0 ]; then
                         echo " * Error. Build chroot not found." | tee -a $MAINLOGFILE
                         # do not be very tolerant. A missing chroot is a fatal error
                         exit 1
                     fi
                 fi
-            done
-        done
 
-        # this can be done in parallel
-        for distri in $PkgDistributions
-        do
-            for arch in $PkgArchitectures
-            do
                 # do
-#                sudo ./owbuildchroot $arch $distri run /build/owpack $pack $distri-$arch /build >> $LOGFILE
+                echo "* Building $pack for \"$distri-$arch\". Log: $LOGFILE" | tee -a $MAINLOGFILE
+                sudo ./owbuildchroot $arch $distri run /build/owpack $pack $distri-$arch /build &>> $LOGFILE
 
                 # for later error reporting
                 if [ $? -ne 0 ]; then
@@ -224,7 +253,8 @@ UsageExit()
         echo ""
         echo "Usage: $0 {bootstrap|clean}"
         echo "  COMMANDS:"
-        echo "    clean: removes created build sub-directories."
+        echo "    clean: removes created build sub-directories and logs but keeps bootstrap status."
+        echo "    purge: like clean but also removes checkouts and scripts."
         echo "    bootstrap: gets a fresh copy of OpenWalnut."
         echo "    bootstrap: gets a fresh copy of OpenWalnut."
         echo "    do: does the actual building."
@@ -239,6 +269,9 @@ UsageExit()
 case "$1" in
     clean)
         CleanUp
+        ;;
+    purge)
+        Purge
         ;;
     bootstrap)
         Bootstrap || Exit $?

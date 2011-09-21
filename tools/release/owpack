@@ -124,7 +124,44 @@ Builder_TGZ()
 {
     # apply builder
     echo "Not yet implemented!"
-    exit 1
+    exit 0
+}
+
+#########################################################################################################
+# Create a simple source tgz
+#
+# Precondition: the same as CreateWorkingDir
+# Postcondition: working directory is PWD
+Builder_SRC()
+{
+    source $CONFIG_FILE
+
+    # some paths
+    BUILDER_SRC_UPSTREAM_SRC_DIR=OpenWalnut-$VERSION
+    BUILDER_SRC_UPSTREAM_SRC_TAR=openwalnut_$VERSION.tar.gz
+
+    # create some place to work in
+    CreateWorkingDir "src" "$BUILDER_SRC_UPSTREAM_SRC_DIR" ""
+    if [ $? -ne 0 ]; then
+        echo " * Failed to create working diretory."
+        exit 1
+    fi
+
+    # simply tar the stuff
+    echo "* Create source tar \"$BUILDER_SRC_UPSTREAM_SRC_TAR\"."
+    tar cfz $BUILDER_SRC_UPSTREAM_SRC_TAR $BUILDER_SRC_UPSTREAM_SRC_DIR
+    if [ $? -ne 0 ]; then
+        echo " * Failed to create tar archive."
+        exit 1
+    fi
+
+    # copy archive to release dir
+    echo "* Copy files to release dir \"$RELEASE_DIR\"."
+    cp $BUILDER_SRC_UPSTREAM_SRC_TAR ../$RELEASE_DIR
+    if [ $? -ne 0 ]; then
+        echo " * Failed to copy to release dir."
+        exit 1
+    fi
 }
 
 #########################################################################################################
@@ -141,7 +178,8 @@ Builder_DEB()
     # this and have special requirements on them (like debuild)
     BUILDER_DEB_UPSTREAM_SRC_DIR=OpenWalnut-$VERSION
     # Debuild requires a different upstream tar name ...
-    BUILDER_DEB_UPSTREAM_SRC_TAR=openwalnut_$VERSION.orig.tar.gz
+    BUILDER_DEB_UPSTREAM_SRC_BASENAME=openwalnut_$VERSION
+    BUILDER_DEB_UPSTREAM_SRC_TAR=$BUILDER_DEB_UPSTREAM_SRC_BASENAME.orig.tar.gz
 
     # create some place to work in
     CreateWorkingDir "deb" "$BUILDER_DEB_UPSTREAM_SRC_DIR" "src/modules/data/ext/nifti src/modules/data/ext/biosig"
@@ -182,7 +220,16 @@ Builder_DEB()
     # get back to working dir
     cd ..
 
-    echo "* Created source and binary package in \"`pwd`\"."
+    # copy archive to release dir
+    echo "* Copy files to release dir \"$RELEASE_DIR\"."
+    cp $BUILDER_DEB_UPSTREAM_SRC_TAR *.changes *.dsc *.debian.tar.gz ../$RELEASE_DIR
+    if [ $? -ne 0 ]; then
+        echo " * Failed to copy to release dir."
+        exit 1
+    fi
+
+    # hint
+    echo "* Please do not forget to sign the package."
 }
 
 #########################################################################################################
