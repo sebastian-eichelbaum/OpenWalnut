@@ -138,7 +138,7 @@ Builder_SRC()
 
     # some paths
     BUILDER_SRC_UPSTREAM_SRC_DIR=OpenWalnut-$VERSION
-    BUILDER_SRC_UPSTREAM_SRC_TAR=openwalnut_$VERSION.tar.gz
+    BUILDER_SRC_UPSTREAM_SRC_TAR=OpenWalnut_$VERSION.tar.gz
 
     # create some place to work in
     CreateWorkingDir "src" "$BUILDER_SRC_UPSTREAM_SRC_DIR" ""
