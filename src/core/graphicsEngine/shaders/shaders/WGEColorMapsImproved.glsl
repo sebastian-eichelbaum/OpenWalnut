@@ -427,7 +427,7 @@ vec4 atlas( in float value )
  * This method applies a colormap to the specified value an mixes it with the specified color. It uses the proper colormap and works on scaled
  * values.
  *
- * \param color this color gets mixed using alpha value with the new colormap color
+ * \return this color gets mixed using alpha value with the new colormap color
  * \param value the value to map, <b>scaled</b>
  * \param minV the minimum of the original value
  * \param scaleV the scaler used to downscale the original value to [0-1]
@@ -436,13 +436,14 @@ vec4 atlas( in float value )
  * \param alpha the alpha blending value
  * \param colormap the colormap index to use
  */
-vec4 colormap( in vec3 value, float minV, float scaleV, float thresholdV, bool thresholdEnabled, float alpha, int colormap, bool active )
+vec4 colormap( in vec4 value, float minV, float scaleV, float thresholdV, bool thresholdEnabled, float alpha, int colormap, bool active )
 {
     // descale value
-    vec3 valueDescaled = vec3( minV ) + ( value * scaleV );
+    vec3 valueDescaled = vec3( minV ) + ( value.rgb * scaleV );
+    float isNotBorder = float( value.a >= 0.75 );
 
     // this is the final color returned by the colormapping algorithm. This is the correct value for the gray colormap
-    vec4 cmapped = grayscale( value );
+    vec4 cmapped = grayscale( value.rgb );
     float clip = clipZero( valueDescaled.r, minV );
 
     // negative to positive shading in red-blue
@@ -474,6 +475,7 @@ vec4 colormap( in vec3 value, float minV, float scaleV, float thresholdV, bool t
 
     // build final color
     return vec4( cmapped.rgb, cmapped.a *           // did the colormap use a alpha value?
+                              isNotBorder *         // is this a border pixel?
                               alpha *               // did the user specified an alpha?
                               clip *                // value clip?
                               clipThreshold( valueDescaled, colormap, thresholdV, thresholdEnabled ) * // clip due to threshold?

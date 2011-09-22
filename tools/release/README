@@ -21,7 +21,7 @@ packaging OpenWalnut. Here is an overview:
    ensure, that our listed requirements are sufficient, since the build-chroot 
    is a minimal system which only contains the needed packages.
 
-3. owuberbuild - automates building and packaging for multiple distributions and
+3. release - automates building and packaging for multiple distributions and
    architectures using owpack and owbuildchroot. This basically calls
    owbuildchroot for each defined architecture, distribution and supported
    package-type. It creates complete logs of the build/package process and

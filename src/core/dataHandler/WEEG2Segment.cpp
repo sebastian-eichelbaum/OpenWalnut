@@ -29,13 +29,12 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../common/WLimits.h"
 #include "../common/exceptions/WOutOfBounds.h"
+#include "WEEG2Segment.h"
+#include "WEEGValueMatrix.h"
+#include "WRecording.h"
 #include "exceptions/WDHException.h"
 #include "io/WPagerEEG.h"
-#include "WEEGValueMatrix.h"
-#include "WEEG2Segment.h"
-
 
 WEEG2Segment::WEEG2Segment( std::size_t segmentID, boost::shared_ptr< WPagerEEG > pager )
     : m_segmentID( segmentID ),
@@ -54,7 +53,7 @@ WEEG2Segment::WEEG2Segment( std::size_t segmentID, boost::shared_ptr< WPagerEEG 
     }
 
     m_nbSamples = m_pager->getNumberOfSamples( m_segmentID );
-    if( m_nbSamples <= 0 || wlimits::MAX_RECORDING_SAMPLES < m_nbSamples )
+    if( m_nbSamples <= 0 || WRecording::MAX_RECORDING_SAMPLES < m_nbSamples )
     {
         throw WDHException( std::string( "Couldn't construct new EEG segment: invalid number of samples" ) );
     }

@@ -67,6 +67,27 @@ public:
      */
     static boost::shared_ptr< WPrototyped > getPrototype();
 
+    /**
+     * Maximum number of channels for a certain modality.
+     */
+    static const unsigned int MAX_RECORDING_CHANNELS = 1024;
+
+    /**
+     * Maximum number of samples of a recording.
+     * (2^32)-1 this is often equal to UINT_MAX
+     */
+    static const unsigned int MAX_RECORDING_SAMPLES = 4294967295U;
+
+    /**
+     * Maximum number of segments of a recording.
+     */
+    static const unsigned int MAX_RECORDING_SEGMENTS = 128;
+
+    /**
+     * Maximum samplimg frequency of a recording.
+     */
+    static const unsigned int MAX_RECORDING_SAMPLING_FREQUENCY = 20000;
+
 protected:
 
     /**

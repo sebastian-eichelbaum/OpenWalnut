@@ -67,6 +67,13 @@ namespace wge
          * The enum type of OpenGL
          */
         static const GLenum TypeEnum = GL_FLOAT;
+
+        /**
+         * The value for full intensity.
+         *
+         * \return the full intensity value
+         */
+        static Type FullIntensity(){ return 1.0; }  // NOLINT
     };
 
     /**
@@ -85,6 +92,13 @@ namespace wge
          * The enum type of OpenGL
          */
         static const GLenum TypeEnum = GL_FLOAT;
+
+        /**
+         * The value for full intensity.
+         *
+         * \return the full intensity value
+         */
+        static Type FullIntensity(){ return 1.0; }  // NOLINT
     };
 
     /**
@@ -103,6 +117,13 @@ namespace wge
          * The enum type of OpenGL
          */
         static const GLenum TypeEnum = GL_BYTE;
+
+        /**
+         * The value for full intensity.
+         *
+         * \return the full intensity value
+         */
+        static Type FullIntensity(){ return 127; }  // NOLINT
     };
 
     /**
@@ -121,6 +142,13 @@ namespace wge
          * The enum type of OpenGL
          */
         static const GLenum TypeEnum = GL_UNSIGNED_BYTE;
+
+        /**
+         * The value for full intensity.
+         *
+         * \return the full intensity value
+         */
+        static Type FullIntensity(){ return 255; }  // NOLINT
     };
 
     /**
@@ -141,6 +169,13 @@ namespace wge
          * The enum type of OpenGL
          */
         static const GLenum TypeEnum = GL_FLOAT;
+
+        /**
+         * The value for full intensity.
+         *
+         * \return the full intensity value
+         */
+        static Type FullIntensity(){ return 1.0; }  // NOLINT
     };
 
     /**
@@ -161,6 +196,13 @@ namespace wge
          * The enum type of OpenGL
          */
         static const GLenum TypeEnum = GL_FLOAT;
+
+        /**
+         * The value for full intensity.
+         *
+         * \return the full intensity value
+         */
+        static Type FullIntensity(){ return 1.0; }  // NOLINT
     };
 
     /**
@@ -181,6 +223,13 @@ namespace wge
          * The enum type of OpenGL
          */
         static const GLenum TypeEnum = GL_FLOAT;
+
+        /**
+         * The value for full intensity.
+         *
+         * \return the full intensity value
+         */
+        static Type FullIntensity(){ return 1.0; }  // NOLINT
     };
 
     /**
@@ -201,6 +250,13 @@ namespace wge
          * The enum type of OpenGL
          */
         static const GLenum TypeEnum = GL_FLOAT;
+
+        /**
+         * The value for full intensity.
+         *
+         * \return the full intensity value
+         */
+        static Type FullIntensity(){ return 1.0; }  // NOLINT
     };
 }
 
