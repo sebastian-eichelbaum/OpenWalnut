@@ -182,7 +182,7 @@ Builder_DEB()
     BUILDER_DEB_UPSTREAM_SRC_TAR=$BUILDER_DEB_UPSTREAM_SRC_BASENAME.orig.tar.gz
 
     # create some place to work in
-    CreateWorkingDir "deb" "$BUILDER_DEB_UPSTREAM_SRC_DIR" "src/modules/data/ext/nifti src/modules/data/ext/biosig"
+    CreateWorkingDir "deb" "$BUILDER_DEB_UPSTREAM_SRC_DIR" "src/modules/data/ext/nifti src/modules/data/ext/biosig resources/core/share/openwalnut/fonts"
     if [ $? -ne 0 ]; then
         echo " * Failed to create working diretory."
         exit 1
