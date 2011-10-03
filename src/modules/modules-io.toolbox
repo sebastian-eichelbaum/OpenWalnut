@@ -1,7 +1,7 @@
 ADD_MODULE( data )
-ADD_MODULE( exportGeometry )
 ADD_MODULE( readMesh )
 ADD_MODULE( readRawData )
 ADD_MODULE( writeDendrogram )
+ADD_MODULE( writeGeometry )
 ADD_MODULE( writeMesh )
 ADD_MODULE( writeTracts )

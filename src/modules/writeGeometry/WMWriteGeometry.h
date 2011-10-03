@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMEXPORTGEOMETRY_H
-#define WMEXPORTGEOMETRY_H
+#ifndef WMWRITEGEOMETRY_H
+#define WMWRITEGEOMETRY_H
 
 #include <string>
 
@@ -36,29 +36,24 @@
 class WTriangleMesh;
 
 /**
- * Someone should add some documentation here.
- * Probably the best person would be the module's
- * creator, i.e. "wiebel".
- *
- * This is only an empty template for a new module. For
- * an example module containing many interesting concepts
- * and extensive documentation have a look at "src/modules/template"
+ * This module writes out geomtry, e.g. surfaces to various
+ * geomtry file formats. At the moment only VRML.
  *
  * \ingroup modules
  */
-class WMExportGeometry: public WModule
+class WMWriteGeometry: public WModule
 {
 public:
 
     /**
      *
      */
-    WMExportGeometry();
+    WMWriteGeometry();
 
     /**
      *
      */
-    virtual ~WMExportGeometry();
+    virtual ~WMWriteGeometry();
 
     /**
      * Gives back the name of this module.
@@ -118,4 +113,4 @@ private:
     WPropFilename m_savePath; //!< Path where geometry should be stored
 };
 
-#endif  // WMEXPORTGEOMETRY_H
+#endif  // WMWRITEGEOMETRY_H

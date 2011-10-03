@@ -1,5 +1,5 @@
 /* XPM */
-static const char * WMExportGeometry_xpm[] = {
+static const char * WMWriteGeometry_xpm[] = {
 "32 32 27 1",
 " 	c None",
 ".	c #CDCDCD",
