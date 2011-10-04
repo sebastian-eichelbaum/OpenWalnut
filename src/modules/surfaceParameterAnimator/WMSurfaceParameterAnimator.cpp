@@ -67,7 +67,7 @@ boost::shared_ptr< WModule > WMSurfaceParameterAnimator::factory() const
 
 const char** WMSurfaceParameterAnimator::getXPMIcon() const
 {
-    return surfaceBars_xpm;
+    return WMSurfaceParameterAnimator_xpm;
 }
 
 const std::string WMSurfaceParameterAnimator::getName() const
