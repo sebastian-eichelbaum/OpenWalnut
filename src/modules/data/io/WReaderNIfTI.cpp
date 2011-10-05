@@ -195,6 +195,12 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
                     newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< double >( order, vDim, data, W_DT_DOUBLE ) );
                     break;
                 }
+            case DT_FLOAT128:
+                {
+                    boost::shared_ptr< std::vector< long double > > data = copyArray( reinterpret_cast< long double* >( filedata->data ), countVoxels, vDim );
+                    newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< long double >( order, vDim, data, W_DT_FLOAT128 ) );
+                    break;
+                }
             default:
                 wlog::error( "WReaderNIfTI" ) << "unknown data type " << header->datatype << std::endl;
                 newValueSet = boost::shared_ptr< WValueSetBase >();
