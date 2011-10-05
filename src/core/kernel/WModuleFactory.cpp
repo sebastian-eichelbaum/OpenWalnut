@@ -58,33 +58,34 @@ void WModuleFactory::load()
     WLogger::getLogger()->addLogMessage( "Loading Modules", "ModuleFactory", LL_INFO );
 
     // operation must be exclusive
-    PrototypeSharedContainerType::WriteTicket m_prototypeAccess = m_prototypes.getWriteTicket();
+    PrototypeSharedContainerType::WriteTicket l = m_prototypes.getWriteTicket();
 
     // Load the dynamic modules here:
-    m_moduleLoader.load( m_prototypeAccess );
-
-    // unlock as read lock is sufficient for the further steps
-    m_prototypeAccess.reset();
-
-    // for this a read lock is sufficient, gets unlocked if it looses scope
-    PrototypeSharedContainerType::ReadTicket l = m_prototypes.getReadTicket();
+    m_moduleLoader.load( l );
 
     // initialize every module in the set
     std::set< std::string > names;  // helper to find duplicates
-    for( PrototypeContainerConstIteratorType listIter = l->get().begin(); listIter != l->get().end();
-            ++listIter )
+    PrototypeContainerIteratorType listIter = l->get().begin();
+    while( listIter != l->get().end() )
     {
         WLogger::getLogger()->addLogMessage( "Initializing module prototype: \"" + ( *listIter )->getName() + "\"", "ModuleFactory", LL_DEBUG );
 
         // that should not happen. Names should not occur multiple times since they are unique
         if( names.count( ( *listIter )->getName() ) )
         {
-            throw WPrototypeNotUnique( std::string( "Module \"" + ( *listIter )->getName()
-                                                    + "\" is not unique. Modules have to have a unique name." ) );
+            WLogger::getLogger()->addLogMessage( std::string( "Module \"" + ( *listIter )->getName() +
+                                                               "\" is not unique. Modules have to have a unique name. Ignoring this module." ),
+                                                 "ModuleFactory", LL_ERROR );
+            // we remove the module from the prototype list
+            l->get().erase( listIter++ );
+            continue;
         }
-        names.insert( ( *listIter )->getName() );
-
-        initializeModule( ( *listIter ) );
+        else
+        {
+            names.insert( ( *listIter )->getName() );
+            initializeModule( ( *listIter ) );
+            ++listIter;
+        }
     }
 }
 
