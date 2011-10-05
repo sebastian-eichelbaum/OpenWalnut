@@ -22,18 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMEXPORTGEOMETRY_H
-#define WMEXPORTGEOMETRY_H
+#ifndef WMREADRAWDATA_H
+#define WMREADRAWDATA_H
 
 #include <string>
 
 #include <osg/Geode>
 
+#include "core/dataHandler/WDataSetScalar.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
 #include "core/kernel/WModuleOutputData.h"
-
-class WTriangleMesh;
 
 /**
  * Someone should add some documentation here.
@@ -46,19 +45,19 @@ class WTriangleMesh;
  *
  * \ingroup modules
  */
-class WMExportGeometry: public WModule
+class WMReadRawData: public WModule
 {
 public:
 
     /**
      *
      */
-    WMExportGeometry();
+    WMReadRawData();
 
     /**
      *
      */
-    virtual ~WMExportGeometry();
+    virtual ~WMReadRawData();
 
     /**
      * Gives back the name of this module.
@@ -82,6 +81,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     *
      * \return The icon.
      */
     virtual const char** getXPMIcon() const;
@@ -103,19 +103,30 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * Initialize requirements for this module.
+     */
+    virtual void requirements();
+
 
 private:
     /**
-     * Routine that acutally writes the file.
+     * Perform the reading from file an interpretation
+     *
+     * \param fileName Location of the data file.
+     *
+     * \return The read data as scalar data set.
      */
-    void writeFile();
+    boost::shared_ptr< WDataSetScalar > readData( std::string fileName );
 
-    /**
-     * An input connector used to get mehses from other modules.
-     */
-    boost::shared_ptr< WModuleInputData< WTriangleMesh > > m_input;
+    boost::shared_ptr< WCondition > m_propCondition;  //!< A condition used to notify about changes in several properties.
+    WPropFilename m_dataFile; //!< The data will be read from this file.
+    WPropInt m_X; //!< Samples in X direction
+    WPropInt m_Y; //!< Samples in Y direction
+    WPropInt m_Z; //!< Samples in Z direction
 
-    WPropFilename m_savePath; //!< Path where geometry should be stored
+    boost::shared_ptr< WDataSetScalar > m_dataSet; //!< This data set is provided as output through the connector.
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output;  //!< Output connector provided by this module.
 };
 
-#endif  // WMEXPORTGEOMETRY_H
+#endif  // WMREADRAWDATA_H

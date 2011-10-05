@@ -28,47 +28,47 @@
 #include "core/common/WPropertyHelper.h"
 #include "core/graphicsEngine/WTriangleMesh.h"
 #include "core/kernel/WKernel.h"
-#include "WMExportGeometry.xpm"
+#include "WMWriteGeometry.xpm"
 
-#include "WMExportGeometry.h"
+#include "WMWriteGeometry.h"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
-W_LOADABLE_MODULE( WMExportGeometry )
+W_LOADABLE_MODULE( WMWriteGeometry )
 
-WMExportGeometry::WMExportGeometry():
+WMWriteGeometry::WMWriteGeometry():
     WModule()
 {
 }
 
-WMExportGeometry::~WMExportGeometry()
+WMWriteGeometry::~WMWriteGeometry()
 {
     // Cleanup!
 }
 
-boost::shared_ptr< WModule > WMExportGeometry::factory() const
+boost::shared_ptr< WModule > WMWriteGeometry::factory() const
 {
     // See "src/modules/template/" for an extensively documented example.
-    return boost::shared_ptr< WModule >( new WMExportGeometry() );
+    return boost::shared_ptr< WModule >( new WMWriteGeometry() );
 }
 
-const char** WMExportGeometry::getXPMIcon() const
+const char** WMWriteGeometry::getXPMIcon() const
 {
-    return WMExportGeometry_xpm;
+    return WMWriteGeometry_xpm;
 }
-const std::string WMExportGeometry::getName() const
+const std::string WMWriteGeometry::getName() const
 {
     // Specify your module name here. This name must be UNIQUE!
-    return "Export Geometry";
+    return "Write Geometry";
 }
 
-const std::string WMExportGeometry::getDescription() const
+const std::string WMWriteGeometry::getDescription() const
 {
     // Specify your module description here. Be detailed. This text is read by the user.
     // See "src/modules/template/" for an extensively documented example.
     return "Exports triangle meshes to certain file formats. VRML implemented so far.";
 }
 
-void WMExportGeometry::connectors()
+void WMWriteGeometry::connectors()
 {
     m_input = boost::shared_ptr< WModuleInputData < WTriangleMesh  > >(
         new WModuleInputData< WTriangleMesh >( shared_from_this(), "Triangle Mesh", "The mesh that will be stored." )
@@ -80,7 +80,7 @@ void WMExportGeometry::connectors()
     WModule::connectors();
 }
 
-void WMExportGeometry::properties()
+void WMWriteGeometry::properties()
 {
     m_savePath         = m_properties->addProperty( "Save Path", "Where to save the result", boost::filesystem::path( "/tmp/test.wrl" ) );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_savePath );
@@ -88,7 +88,7 @@ void WMExportGeometry::properties()
     WModule::properties();
 }
 
-void WMExportGeometry::moduleMain()
+void WMWriteGeometry::moduleMain()
 {
     m_moduleState.add( m_input->getDataChangedCondition() );
 
@@ -114,7 +114,7 @@ void WMExportGeometry::moduleMain()
     }
 }
 
-void WMExportGeometry::writeFile()
+void WMWriteGeometry::writeFile()
 {
     boost::shared_ptr< WTriangleMesh > mesh = m_input->getData();
     using std::fstream;

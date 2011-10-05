@@ -178,7 +178,8 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
                 }
             case DT_UINT64:
                 {
-                    boost::shared_ptr< std::vector< uint64_t > > data = copyArray( reinterpret_cast< uint64_t* >( filedata->data ), countVoxels, vDim );
+                    boost::shared_ptr< std::vector< uint64_t > > data =
+                        copyArray( reinterpret_cast< uint64_t* >( filedata->data ), countVoxels, vDim );
                     newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< uint64_t >( order, vDim, data, W_DT_UINT64 ) );
                     break;
                 }
