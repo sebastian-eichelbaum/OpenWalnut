@@ -111,8 +111,12 @@ void WMReadRawData::moduleMain()
         {
             break;
         }
+        boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Read Raw Data", 2 ) );
+        ++*progress;
         m_dataSet = readData( m_dataFile->get().file_string() );
+        ++*progress;
         m_output->updateData( m_dataSet );
+        progress->finish();
     }
 }
 
@@ -135,9 +139,6 @@ boost::shared_ptr< WDataSetScalar > WMReadRawData::readData( std::string fileNam
         throw std::runtime_error( "Problem during reading file. Probably file not found." );
     }
 
-    unsigned char max = 0;
-    unsigned char min = 255;
-    size_t count = 0;
     unsigned char *pointData = new unsigned char[ numVoxels ];
     ifs.read( reinterpret_cast< char* >( pointData ), 3 * sizeof( unsigned char ) * numVoxels );
 
