@@ -198,7 +198,8 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
                 }
             case DT_FLOAT128:
                 {
-                    boost::shared_ptr< std::vector< long double > > data = copyArray( reinterpret_cast< long double* >( filedata->data ), countVoxels, vDim );
+                    boost::shared_ptr< std::vector< long double > > data =
+                        copyArray( reinterpret_cast< long double* >( filedata->data ), countVoxels, vDim );
                     newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< long double >( order, vDim, data, W_DT_FLOAT128 ) );
                     break;
                 }
