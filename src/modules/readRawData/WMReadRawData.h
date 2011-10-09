@@ -168,6 +168,8 @@ boost::shared_ptr< std::vector< T > > WMReadRawData::readDataTyped( std::string 
     }
     ifs.close();
 
+    delete pointData;
+
     return values;
 }
 
