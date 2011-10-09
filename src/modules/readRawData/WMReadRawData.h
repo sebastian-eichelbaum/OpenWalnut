@@ -157,18 +157,16 @@ boost::shared_ptr< std::vector< T > > WMReadRawData::readDataTyped( std::string 
         throw std::runtime_error( "Problem during reading file. Probably file not found." );
     }
 
-    T *pointData = new T[ numVoxels ];
-    ifs.read( reinterpret_cast< char* >( pointData ), sizeof( T ) * numVoxels );
-
-    //T *pointDataAsT = reinterpret_cast< T* >( pointData );
+    T *data = new T[ numVoxels ];
+    ifs.read( reinterpret_cast< char* >( data ), sizeof( T ) * numVoxels );
 
     for( size_t voxelId = 0; voxelId < numVoxels; ++voxelId )
     {
-        (*values)[voxelId] = pointData[voxelId];
+        (*values)[voxelId] = data[voxelId];
     }
     ifs.close();
 
-    delete pointData;
+    delete data;
 
     return values;
 }
