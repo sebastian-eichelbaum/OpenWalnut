@@ -125,7 +125,7 @@ private:
     /**
      * loads and parses the clustering text file
      * \param clusterFile to the clustering file
-     * \return true if a meta file was succesfully loaded, false otherwise
+     * \return true if a meta file was successfully loaded, false otherwise
      */
     bool loadClustering( boost::filesystem::path clusterFile );
 

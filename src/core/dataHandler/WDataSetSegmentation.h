@@ -179,7 +179,7 @@ protected:
 
 private:
     /**
-     * This helper function converts the probabilities given by three seperate WDataSetScalars to one WValueSetBase.
+     * This helper function converts the probabilities given by three separate WDataSetScalars to one WValueSetBase.
      *
      * \param whiteMatter the probabilities for white matter.
      * \param grayMatter the probabilities for gray matter.

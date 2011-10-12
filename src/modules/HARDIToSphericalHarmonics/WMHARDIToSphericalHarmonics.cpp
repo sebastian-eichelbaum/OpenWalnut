@@ -256,7 +256,7 @@ void WMHARDIToSphericalHarmonics::properties()
                                                       m_propCondition );
 
     m_doResidualCalculation = m_properties->addProperty( "Residual Calculation",
-                                                         "Indicating whether the reprojection errors is stored into a seperate dataset.",
+                                                         "Indicating whether the reprojection errors is stored into a separate dataset.",
                                                          false,
                                                          m_propCondition );
 

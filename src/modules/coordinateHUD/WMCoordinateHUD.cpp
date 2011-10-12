@@ -86,9 +86,9 @@ void WMCoordinateHUD::properties()
 
     // list of alternatives:
     m_possibleSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_possibleSelections->addItem( "colored axis", "colorfull coordinate axis", option_1_xpm );
+    m_possibleSelections->addItem( "colored axis", "colorful coordinate axis", option_1_xpm );
     m_possibleSelections->addItem( "b/w axis", "black & white coordinate axis", option_2_xpm );
-    m_possibleSelections->addItem( "colored cube", "colorfull coordinate cube", option_3_xpm );
+    m_possibleSelections->addItem( "colored cube", "colorful coordinate cube", option_3_xpm );
 
     m_aSingleSelection = m_properties->addProperty( "HUD structure",
             "Which look should the coordinateHUD have?", m_possibleSelections->getSelector( 2 ),

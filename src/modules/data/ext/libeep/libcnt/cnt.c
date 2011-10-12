@@ -2330,7 +2330,7 @@ int eep_has_recording_info(eeg_t *cnt)
 
 void eep_set_recording_info(eeg_t *cnt, record_info_t* info)
 {
-/* previous: 
+/* previous:
   if (NULL != cnt->recording_info)
   v_free(cnt->recording_info);
   cnt->recording_info = (record_info_t*) v_malloc(sizeof(record_info_t) , "recording_info");
@@ -2603,7 +2603,7 @@ void eep_get_dataformat(eeg_t *cnt, char *format)
       strcpy(format, "EEP 2.0 (16 bit channel multiplexed)"); break;
     case CNT_RIFF:
       if( eep_get_fileversion_major(cnt) )
-        sprintf(format, "EEP %d.%d", eep_get_fileversion_major(cnt), eep_get_fileversion_minor(cnt));  
+        sprintf(format, "EEP %d.%d", eep_get_fileversion_major(cnt), eep_get_fileversion_minor(cnt));
       else
         sprintf(format, "EEP 3.x");
       if( eep_has_data_of_type(cnt, DATATYPE_EEG) )
@@ -2614,8 +2614,8 @@ void eep_get_dataformat(eeg_t *cnt, char *format)
         strcat(format, " average");
       if( eep_has_data_of_type(cnt, DATATYPE_STDDEV) )
         strcat(format, " stddev");
-      if( eep_has_data_of_type(cnt, DATATYPE_TIMEFREQ) || 
-          eep_has_data_of_type(cnt, DATATYPE_AVERAGE)  || 
+      if( eep_has_data_of_type(cnt, DATATYPE_TIMEFREQ) ||
+          eep_has_data_of_type(cnt, DATATYPE_AVERAGE)  ||
           eep_has_data_of_type(cnt, DATATYPE_STDDEV) )
         strcat(format, " (float vectors)");
       break;
@@ -2662,14 +2662,14 @@ int eep_read_float(eeg_t *cnt, eep_datatype_e type, float *muxbuf, slen_t n)
 
   if (CNT_RIFF != cnt->mode && CNT_AVR != cnt->mode)
     return CNTERR_BADREQ;
-  
+
   if (!store->initialized)
     return CNTERR_DATA; /* No such data in this file */
- 
+
   if (store->data.readpos + store->data.bufepoch * store->epochs.epochl +
       n > (DATATYPE_TIMEFREQ == type ? eep_get_tf_samplec(cnt) : eep_get_samplec(cnt)))
     return CNTERR_RANGE;
-  
+
   switch (type)
   {
     case DATATYPE_TIMEFREQ:
@@ -2800,10 +2800,10 @@ void eep_set_pre_stimulus_interval(eeg_t *cnt, double pre_stimulus)
 
 /*****************************************************************************/
 /*********************** Recording time/date routines ************************/
-/* 
+/*
  some info:
  please visit http://www.minelinks.com/calendar_converter.html for more information
- the offset(diff between 1jan1970 and 30dec1899) is 2209161600( 70 years in seconds) 
+ the offset(diff between 1jan1970 and 30dec1899) is 2209161600( 70 years in seconds)
  *****************************************************************************/
 
 void
@@ -2824,7 +2824,7 @@ eep_unixdate_to_exceldate(time_t epoch, double *excel, double *fraction) {
   double return_value=0;
 
   return_value=(double)(epoch + 2209161600) / (3600.0*24.0);
-  
+
   (*excel) = return_value;
   (*fraction) = 0;
 }
@@ -3237,7 +3237,7 @@ int trg_read_NS30(eeg_t *EEG)
             rsshift = (slen_t) (0.08 / EEG->eep_header.period + 0.5);
       break;
 
-    default: eeperror("unknonw NS cnt type (%d)\n", EEG->ns_cnttype);
+    default: eeperror("unknown NS cnt type (%d)\n", EEG->ns_cnttype);
   }
 
 

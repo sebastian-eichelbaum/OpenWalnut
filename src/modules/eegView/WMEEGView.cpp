@@ -363,7 +363,7 @@ bool WMEEGView::openCustomWidget()
     bool success = m_widget.get();
     if( success )
     {
-        debugLog() << "Succesfully opened EEG View widget.";
+        debugLog() << "Successfully opened EEG View widget.";
 
         if( m_handler )
         {

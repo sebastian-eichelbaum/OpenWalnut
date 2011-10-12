@@ -102,7 +102,7 @@ class WMCoordinateHUD: public WModule, public osg::Referenced
         virtual void properties();
 
         /**
-         * Build the geode for colorfull coordinate axis
+         * Build the geode for colorful coordinate axis
          */
         virtual void buildColorAxis();
 

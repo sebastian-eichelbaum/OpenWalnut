@@ -147,7 +147,7 @@ void WMainWindow::setupGUI()
     logOptions.push_back( "Error" );
     WSettingMenu* logLevels = new WSettingMenu( this, "qt4gui/logLevel",
                                                       "Log-Level",
-                                                      "Allows to set the log verbosity.",
+                                                      "Allows one to set the log verbosity.",
                                                       1,    // info is the default
                                                       logOptions
                                               );
