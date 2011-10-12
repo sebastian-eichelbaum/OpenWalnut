@@ -85,7 +85,7 @@ public:
     WSubject();
 
     /**
-     * Allows to give the subject information the person during construction.
+     * Allows one to give the subject information the person during construction.
      *
      * \param personInfo personal information object
      */

@@ -123,7 +123,7 @@ public:
     virtual const std::string getDescription() const;
 
     /**
-     * Creates a copy (clone) of this instance but allows to change the valueset. Unlike copy construction, this is a very useful function if you
+     * Creates a copy (clone) of this instance but allows one to change the valueset. Unlike copy construction, this is a very useful function if you
      * want to keep the dynamic type of your dataset even if you just have a WDataSetSingle.
      *
      * \param newValueSet the new valueset.
@@ -133,7 +133,7 @@ public:
     virtual WDataSetSingle::SPtr clone( boost::shared_ptr< WValueSetBase > newValueSet ) const;
 
     /**
-     * Creates a copy (clone) of this instance but allows to change the grid. Unlike copy construction, this is a very useful function if you
+     * Creates a copy (clone) of this instance but allows one to change the grid. Unlike copy construction, this is a very useful function if you
      * want to keep the dynamic type of your dataset even if you just have a WDataSetSingle.
      *
      * \param newGrid the new grid.

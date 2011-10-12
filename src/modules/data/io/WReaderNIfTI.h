@@ -88,7 +88,7 @@ public:
 protected:
 private:
     /**
-     * This function allows to copy the data given as a T*
+     * This function allows one to copy the data given as a T*
      * by niftilibio into a std::vector< T >
      * \param dataArray data to copy
      * \param countVoxels number of voxels stored in dataArray

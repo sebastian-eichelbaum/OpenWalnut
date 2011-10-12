@@ -231,7 +231,7 @@ private:
     boost::shared_ptr< WCondition > m_propCondition;
 
     /**
-     * copies the input dataset into the paint texture, this allows to continue work
+     * copies the input dataset into the paint texture, this allows one to continue work
      */
     WPropTrigger m_buttonCopyFromInput;
 
