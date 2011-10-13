@@ -6,6 +6,6 @@ libdir=${exec_prefix}/lib
 Name: openwalnut
 Description: The OpenWalnut core library -- OpenWalnut is a tool for multi-modal medical and brain data visualization.
 Version: 1.2.5
-Cflags: -I${includedir}/openwalnut
+Cflags: -I${includedir}/openwalnut @EIGEN3_DEFINES@
 Libs: -L${libdir} -lopenwalnut
 Requires: openscenegraph eigen3
