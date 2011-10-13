@@ -1,0 +1,11 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+includedir=${prefix}/include
+libdir=${exec_prefix}/lib
+
+Name: openwalnut
+Description: The OpenWalnut core library -- OpenWalnut is a tool for multi-modal medical and brain data visualization.
+Version: 1.2.5
+Cflags: -I${includedir}/openwalnut
+Libs: -L${libdir} -lopenwalnut
+Requires: openscenegraph eigen3

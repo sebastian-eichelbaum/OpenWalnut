@@ -292,6 +292,20 @@ FUNCTION( SETUP_COMMON_DOC _target _component )
     ENDIF()
 ENDFUNCTION( SETUP_COMMON_DOC )
 
+# This function configures the soecified file in the given resource. This is especially useful for scripts where to replace certain
+# CMake variables (like pkg-config files).
+# _resource the name of the resource in the resources directory
+# _file the file in the the resource to configure
+# _component the install component to which the file belongs
+FUNCTION( SETUP_CONFIGURED_FILE _resource _file _component )
+    SET( ResourcesPath "${PROJECT_SOURCE_DIR}/../resources/${_resource}/" )
+    CONFIGURE_FILE( "${ResourcesPath}/${_file}" "${PROJECT_BINARY_DIR}/${_file}" @ONLY )
+    # Install the file
+    INSTALL( FILES "${PROJECT_BINARY_DIR}/${_file}" DESTINATION "."
+                                                      COMPONENT ${_component}
+           )
+ENDFUNCTION( SETUP_CONFIGURED_FILE )
+
 # This function eases the process of copying and installing additional files which not reside in the resource path.
 # It creates a target (ALL is depending on it) AND the INSTALL operation.
 # _destination where to put them. This MUST be relative to the build dir and install dir.
