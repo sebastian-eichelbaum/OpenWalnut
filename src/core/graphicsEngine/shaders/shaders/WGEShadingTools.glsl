@@ -192,6 +192,41 @@ float blinnPhongIlluminationIntensity( in vec3 normal )
 }
 
 /**
+ * This illumination technique is from "Jens Krüger and Rüdiger Westermann - EFFICIENT STIPPLE RENDERING". It is a non-linear illumination model
+ * which only handles ambient and diffuse components. The parameter alpha determines how much the diffuse light should depend on the orientation
+ * of the surface towards the light source (the camera in OpenWalnut's default case ). It is acutally quite similar to the Phong specular term.
+ *
+ * \param parameter the light parameter
+ * \param normal the normal. Must be normalized beforehand.
+ * \param alpha the non-linear influence of surface orientation
+ *
+ * \return light intensity
+ */
+float kruegerNonLinearIllumination( in wge_LightIntensityParameter parameter, in vec3 normal, in float alpha )
+{
+    float diffuseIntensity = pow( ( dot( parameter.lightPosition.xyz, normal ) + 1.0 ) / 2.0, alpha );
+    float diffuse = parameter.lightDiffuse *  parameter.materialDiffuse * diffuseIntensity;
+    float ambient = parameter.materialAmbient * parameter.lightAmbient;
+    return ambient + diffuse;
+}
+
+/**
+ * This illumination technique is from "Jens Krüger and Rüdiger Westermann - EFFICIENT STIPPLE RENDERING". It is a non-linear illumination model
+ * which only handles ambient and diffuse components. The parameter alpha determines how much the diffuse light should depend on the orientation
+ * of the surface towards the light source (the camera in OpenWalnut's default case ). This version uses wge_DefaultLightIntensityFullDiffuse as
+ * parameter. It is acutally quite similar to the Phong specular term.
+ *
+ * \param normal the normal. Must be normalized beforehand.
+ * \param alpha the non-linear influence of surface orientation
+ *
+ * \return light intensity
+ */
+float kruegerNonLinearIllumination( in vec3 normal, in float alpha )
+{
+    return kruegerNonLinearIllumination( wge_DefaultLightIntensityFullDiffuse, normal, alpha );
+}
+
+/**
  * Calculates the gradient inside a luminance 3D texture at the specified position.
  *
  * \param sampler the texture sampler to use
