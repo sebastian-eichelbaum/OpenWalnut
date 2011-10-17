@@ -265,11 +265,6 @@ protected:
     WGECamera::ProjectionMode m_initialProjectionMode;
 
     /**
-     * Saves a screenshot of the widget's current content, opens a file dialog to get the filename.
-     */
-    void makeScreenshot();
-
-    /**
      * Custom event dispatcher. Gets called by QT's Event system every time an event got sent to this widget. This event handler
      * processes the notifyrender events. Others get forwarded.
      *

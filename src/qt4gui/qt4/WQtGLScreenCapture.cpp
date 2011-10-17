@@ -131,6 +131,12 @@ WQtGLScreenCapture::WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* par
     m_screenshotWidget->setLayout( screenshotLayout );
 
     m_screenshotButton = new QPushButton( "Screenshot" );
+    m_screenshotButton->setToolTip( "Take a screenshot of the 3D view." );
+    m_screenshotAction = new QAction( parent->getIconManager()->getIcon( "image" ), "Screenshot", this );
+    m_screenshotAction->setToolTip( "Take a screenshot of the 3D view." );
+    m_screenshotAction->setShortcut( QKeySequence(  Qt::Key_F12 ) );
+    m_screenshotAction->setShortcutContext( Qt::ApplicationShortcut );
+    connect( m_screenshotAction, SIGNAL(  triggered( bool ) ), this, SLOT( screenShot() ) );
     connect( m_screenshotButton, SIGNAL(  clicked( bool ) ), this, SLOT( screenShot() ) );
 
     QLabel* screenshotLabel = new QLabel();
@@ -236,6 +242,11 @@ WQtGLScreenCapture::~WQtGLScreenCapture()
     // cleanup
     m_recordConnection.disconnect();
     m_imageConnection.disconnect();
+}
+
+QAction* WQtGLScreenCapture::getScreenshotTrigger() const
+{
+    return m_screenshotAction;
 }
 
 void WQtGLScreenCapture::handleImage( size_t /* framesLeft */, size_t totalFrames, osg::ref_ptr< osg::Image > image ) const

@@ -446,6 +446,8 @@ void WMainWindow::setupGUI()
     m_permanentToolBar->addAction( projectLoadButton );
     m_permanentToolBar->addAction( projectSaveButton );
     m_permanentToolBar->addSeparator();
+    m_permanentToolBar->addAction( m_mainGLWidgetScreenCapture->getScreenshotTrigger() );
+    m_permanentToolBar->addSeparator();
     m_permanentToolBar->addAction( resetButton );
     m_permanentToolBar->addAction( roiButton );
     m_permanentToolBar->addSeparator();
