@@ -42,13 +42,13 @@
 #include "WQtGLScreenCapture.moc"
 
 WQtGLScreenCapture::WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* parent ):
-    QDockWidget( "Animation", parent ),
+    QDockWidget( "Recorder", parent ),
     m_mainWindow( parent ),
     m_viewer( viewer ),
     m_iconManager( parent->getIconManager() )
 {
     // initialize
-    setObjectName( "Animation Dock" );
+    setObjectName( "Recorder Dock" );
 
     setAllowedAreas( Qt::AllDockWidgetAreas );
     setFeatures( QDockWidget::AllDockWidgetFeatures );
@@ -186,6 +186,11 @@ WQtGLScreenCapture::WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* par
     QVBoxLayout* animationLayout = new QVBoxLayout();
     m_animationWidget->setLayout( animationLayout );
 
+    QLabel* nyiLabel = new QLabel();
+    nyiLabel->setWordWrap( true );
+    nyiLabel->setText( "<font color=\"#f00\">NOT YET IMPLEMENTED!</font><br/>"
+                       "We currently have one hard-coded animation sequence for testing. We are currently working on a script based animation system. Stay tuned."
+    );
 
     QGroupBox* animationControlGroup = new QGroupBox( "Animation Control" );
     QGridLayout* animationControlGroupLayout = new QGridLayout();
@@ -216,6 +221,7 @@ WQtGLScreenCapture::WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* par
     animationFileGroupLayout->addWidget( m_animationFileEdit );
 
     // plug it into the layout
+    animationLayout->addWidget( nyiLabel );
     animationLayout->addWidget( animationFileGroup );
     animationLayout->addWidget( animationControlGroup );
 
