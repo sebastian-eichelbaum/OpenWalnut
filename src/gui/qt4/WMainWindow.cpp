@@ -137,7 +137,6 @@ void WMainWindow::setupGUI()
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getColormapperDock() );
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getRoiDock() );
-    addDockWidget( Qt::RightDockWidgetArea, m_mainGLWidgetScreenCapture );
     tabifyDockWidget( m_controlPanel->getColormapperDock(), m_controlPanel->getRoiDock() );
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
@@ -151,6 +150,7 @@ void WMainWindow::setupGUI()
     m_mainGLWidget = mainGLDock->getGLWidget();
     m_mainGLWidgetScreenCapture = m_mainGLWidget->getScreenCapture( this );
     m_glDock->addDockWidget( Qt::RightDockWidgetArea, mainGLDock );
+    addDockWidget( Qt::RightDockWidgetArea, m_mainGLWidgetScreenCapture );
 
     m_permanentToolBar = new WQtToolBar( "Permanent Toolbar", this );
 
