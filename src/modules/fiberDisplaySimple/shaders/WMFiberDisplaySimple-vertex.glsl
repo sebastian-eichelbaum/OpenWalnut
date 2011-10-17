@@ -26,6 +26,8 @@
 
 #include "WGEColormapping-vertex.glsl"
 
+#include "WGETransformationTools.glsl"
+
 #include "WMFiberDisplaySimple-varyings.glsl"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -68,16 +70,21 @@ void main()
     // define the plane
     vec3 n = normalize( u_planeVector );
     float d = dot( u_planePoint, n );
-    dist = dot( gl_Vertex.xyz, n ) - d;
+    v_dist = dot( gl_Vertex.xyz, n ) - d;
 #endif  // CLIPPLANE_ENABLED
 
     // The same accounds for the vertex. Transfer it to world-space.
     v_vertex  = gl_ModelViewMatrix * gl_Vertex;
 
-#if ( defined ILLUMINATION_ENABLED || defined TUBE_ENABLED )
+#if ( defined ILLUMINATION_ENABLED || defined TUBE_ENABLED || defined WGE_POSTPROCESSING_ENABLED )
+    // To avoid that the quad strip gets thinner and thinner when zooming in (or the other way around: to avoid the quad strip always occupies
+    // the same screen space), we need to calculate the zoom factor involved in OpenWalnut's current camera.
+    v_worldScale = getModelViewScale();
+
     // Grab the tangent. We have uploaded it normalized in gl_Normal per vertex
     // We need to transfer it to the world-space ass all further operations are done there.
     vec3 tangent = normalize( ( gl_ModelViewMatrix * vec4( gl_Normal, 0.0 ) ).xyz );
+    v_tangent = tangent;
 
     // The view direction in world-space. In OpenGL this is always defined by this vector
     vec3 view = vec3( 0.0, 0.0, -1.0 );
@@ -96,15 +103,12 @@ void main()
 
 #ifdef TUBE_ENABLED
 #ifdef ZOOMABLE_ENABLED
-    // To avoid that the quad strip gets thinner and thinner when zooming in (or the other way around: to avoid the quad strip always occupies
-    // the same screen space), we need to calculate the zoom factor involved in OpenWalnut's current camera.
-    float worldScale = length( ( gl_ModelViewMatrix * vec4( 1.0, 1.0, 1.0, 0.0 ) ).xyz );
 
     // worldScale now contains the scaling which is done by ModelView transformation (including the camera).
     // With this, we can ensure that our offset, which is of unit-length, is scaled acccording to the camera zoom. The
     // additional uniform u_tubeSize allows the user to scale the tubes.
     // We clamp the value to ensure a minimum width of the quadstrip of 1px on screen:
-    worldScale = clamp( u_tubeSize * worldScale, 1.0, 1000000.0 );
+    float worldScale = clamp( u_tubeSize * v_worldScale, 1.0, 1000000.0 );
 #else  // ZOOMABLE_ENABLED
     // In this mode, the tubes should not be zoomed. Just use the user defined size here.
     float worldScale = clamp( u_tubeSize, 1.0, 1000000.0 );

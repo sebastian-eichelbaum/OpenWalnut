@@ -76,6 +76,7 @@
 #include "WQtCustomDockWidget.h"
 #include "WQtNavGLWidget.h"
 #include "WQtGLDockWidget.h"
+#include "WQtGLScreenCapture.h"
 
 #include "WMainWindow.h"
 
@@ -105,6 +106,9 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "remove" ), remove_xpm );
     m_iconManager.addIcon( std::string( "config" ), preferences_system_xpm );
     m_iconManager.addIcon( std::string( "view" ), camera_xpm );
+    m_iconManager.addIcon( std::string( "video" ), video_xpm );
+    m_iconManager.addIcon( std::string( "image" ), image_xpm );
+    m_iconManager.addIcon( std::string( "preferences" ), preferences_xpm );
 
     if( objectName().isEmpty() )
     {
@@ -133,6 +137,7 @@ void WMainWindow::setupGUI()
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getColormapperDock() );
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getRoiDock() );
+    addDockWidget( Qt::RightDockWidgetArea, m_mainGLWidgetScreenCapture );
     tabifyDockWidget( m_controlPanel->getColormapperDock(), m_controlPanel->getRoiDock() );
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
@@ -144,6 +149,7 @@ void WMainWindow::setupGUI()
     WQtGLDockWidget* mainGLDock = new WQtGLDockWidget( "main", "3D View", m_glDock );
     mainGLDock->getGLWidget()->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
     m_mainGLWidget = mainGLDock->getGLWidget();
+    m_mainGLWidgetScreenCapture = m_mainGLWidget->getScreenCapture( this );
     m_glDock->addDockWidget( Qt::RightDockWidgetArea, mainGLDock );
 
     m_permanentToolBar = new WQtToolBar( "Permanent Toolbar", this );
@@ -1085,5 +1091,18 @@ void WMainWindow::saveWindowState()
     // NOTE: Qt Doc says that saveState also saves geometry. But this somehow is wrong (at least for 4.6.3)
     setting.setValue( "MainWindowGeometry", saveGeometry() );
     setting.setValue( "GLDockWindowGeometry", m_glDock->saveGeometry() );
+}
+
+void WMainWindow::forceMainGLWidgetSize( size_t w, size_t h )
+{
+    m_mainGLWidget->setFixedSize( w, h );
+}
+
+void WMainWindow::restoreMainGLWidgetSize()
+{
+    m_mainGLWidget->setMinimumHeight( 250 );
+    m_mainGLWidget->setMaximumHeight( QWIDGETSIZE_MAX );
+    m_mainGLWidget->setMinimumWidth( 250 );
+    m_mainGLWidget->setMaximumWidth( QWIDGETSIZE_MAX );
 }
 

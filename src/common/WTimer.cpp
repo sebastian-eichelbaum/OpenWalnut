@@ -22,49 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
-// Varyings
-/////////////////////////////////////////////////////////////////////////////
+#include "WTimer.h"
 
-#ifdef CLIPPLANE_ENABLED
-/**
- * The distance to the plane
- */
-varying float v_dist;
-#endif
+WTimer::WTimer()
+{
+    // initialize
+}
 
-/**
- * The surface normal. Needed for nice lighting.
- */
-varying vec3 v_normal;
+WTimer::~WTimer()
+{
+    // cleanup
+}
 
-/**
- * The line tangent.
- */
-varying vec3 v_tangent;
-
-/**
- * The normal parameterizing the surface in orthogonal tangent direction.
- */
-varying vec3 v_biNormal;
-
-/**
- * The actual, corrected vertex.
- */
-varying vec4 v_vertex;
-
-/**
- * The diameter of the tube in world-space.
- */
-varying float v_diameter;
-
-/**
- * This is the interpolated surface parameter describing the surface orthogonal to the tangent. 0 is the center of the strip and -1 and 1 the
- * borders.
- */
-varying float v_surfaceParam;
-
-/**
- * The scaling component of the modelview matrix.
- */
-varying float v_worldScale;

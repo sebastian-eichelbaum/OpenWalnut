@@ -45,6 +45,8 @@ namespace osg
 }
 
 typedef osg::Vec4 WColor;
+class WQtGLScreenCapture;
+class WMainWindow;
 
 /**
  * A widget containing an open gl display area. This initializes OpenGL context and adds a view to the
@@ -122,6 +124,14 @@ public:
      * \return the format descriptor
      */
     static const QGLFormat getDefaultFormat();
+
+    /**
+     * Adds a screen capture dock using this view's screen capture callback.
+     *
+     * \param parent the main window parent
+     * \return the capture dock instance.
+     */
+    WQtGLScreenCapture* getScreenCapture( WMainWindow* parent );
 
 public slots:
     /**

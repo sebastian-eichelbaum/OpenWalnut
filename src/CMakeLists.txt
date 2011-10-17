@@ -6,6 +6,7 @@ IF( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )
   MESSAGE( FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. (you may need to remove CMakeCache.txt" )
 ENDIF()
 
+ADD_DEFINITIONS( -DBOOST_FILESYSTEM_VERSION=2 )
 
 IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
     ADD_DEFINITIONS( -DEIGEN_DONT_VECTORIZE -DEIGEN_DONT_ALIGN -DEIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT )

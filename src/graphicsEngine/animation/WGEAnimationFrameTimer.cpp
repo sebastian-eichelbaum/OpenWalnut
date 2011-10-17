@@ -22,49 +22,33 @@
 //
 //---------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
-// Varyings
-/////////////////////////////////////////////////////////////////////////////
+#include "WGEAnimationFrameTimer.h"
 
-#ifdef CLIPPLANE_ENABLED
-/**
- * The distance to the plane
- */
-varying float v_dist;
-#endif
+WGEAnimationFrameTimer::WGEAnimationFrameTimer( float framesPerSecond ):
+    WTimer(),
+    m_tick( 0 ),
+    m_framesPerSecond( framesPerSecond )
+{
+    // initialize
+}
 
-/**
- * The surface normal. Needed for nice lighting.
- */
-varying vec3 v_normal;
+WGEAnimationFrameTimer::~WGEAnimationFrameTimer()
+{
+    // cleanup
+}
 
-/**
- * The line tangent.
- */
-varying vec3 v_tangent;
+void WGEAnimationFrameTimer::reset()
+{
+    m_tick = 0;
+}
 
-/**
- * The normal parameterizing the surface in orthogonal tangent direction.
- */
-varying vec3 v_biNormal;
+double WGEAnimationFrameTimer::elapsed() const
+{
+    return static_cast< double >( m_tick ) / m_framesPerSecond;
+}
 
-/**
- * The actual, corrected vertex.
- */
-varying vec4 v_vertex;
+void WGEAnimationFrameTimer::tick()
+{
+    m_tick++;
+}
 
-/**
- * The diameter of the tube in world-space.
- */
-varying float v_diameter;
-
-/**
- * This is the interpolated surface parameter describing the surface orthogonal to the tangent. 0 is the center of the strip and -1 and 1 the
- * borders.
- */
-varying float v_surfaceParam;
-
-/**
- * The scaling component of the modelview matrix.
- */
-varying float v_worldScale;

@@ -22,49 +22,43 @@
 //
 //---------------------------------------------------------------------------
 
+#version 120
+
+#extension GL_EXT_geometry_shader4 : enable
+
+/////////////////////////////////////////////////////////////////////////////
+// Uniforms
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+// Attributes
+/////////////////////////////////////////////////////////////////////////////
+
 /////////////////////////////////////////////////////////////////////////////
 // Varyings
 /////////////////////////////////////////////////////////////////////////////
 
-#ifdef CLIPPLANE_ENABLED
 /**
- * The distance to the plane
- */
-varying float v_dist;
-#endif
-
-/**
- * The surface normal. Needed for nice lighting.
+ * The normal in scene-space
  */
 varying vec3 v_normal;
 
-/**
- * The line tangent.
- */
-varying vec3 v_tangent;
+/////////////////////////////////////////////////////////////////////////////
+// Variables
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+// Functions
+/////////////////////////////////////////////////////////////////////////////
 
 /**
- * The normal parameterizing the surface in orthogonal tangent direction.
+ * Main entry point of the vertex shader.
  */
-varying vec3 v_biNormal;
+void main()
+{
+    // forward to geometry shader
+    v_normal = gl_Normal;
+    gl_FrontColor = gl_Color;
+    gl_Position = gl_Vertex;
+}
 
-/**
- * The actual, corrected vertex.
- */
-varying vec4 v_vertex;
-
-/**
- * The diameter of the tube in world-space.
- */
-varying float v_diameter;
-
-/**
- * This is the interpolated surface parameter describing the surface orthogonal to the tangent. 0 is the center of the strip and -1 and 1 the
- * borders.
- */
-varying float v_surfaceParam;
-
-/**
- * The scaling component of the modelview matrix.
- */
-varying float v_worldScale;

@@ -36,6 +36,7 @@ SET(GUI_QT4_MOC_HDRS
     controlPanel/WQtTreeWidget.h
     controlPanel/WQtTreeItem.h
     controlPanel/WQtColormapper.h
+    WQtGLScreenCapture.h
     networkEditor/WQtNetworkEditor.h
     networkEditor/WQtNetworkScene.h
     commandPrompt/WQtCommandPromptToolbar.h

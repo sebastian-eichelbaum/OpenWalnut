@@ -42,6 +42,7 @@ class WModuleFactory;
 class WROIManager;
 class WSelectionManager;
 class WThreadedRunner;
+class WTimer;
 
 /**
  * \defgroup kernel Kernel
@@ -154,6 +155,14 @@ public:
      */
     boost::shared_ptr< WSelectionManager>getSelectionManager();
 
+    /**
+     * Returns the system timer. If you need timing for animations and similar, use this one. This timer can change to frame based timing if the
+     * user plays back some animation.
+     *
+     * \return the timer
+     */
+    WTimer::ConstSPtr getTimer() const;
+
 protected:
     /**
      * Constructor is protected because this class is a singleton. Awaits an INITIALIZED graphics engine an gui.
@@ -214,6 +223,11 @@ private:
      * Pointer to the unique instance of this singleton class.
      */
     static WKernel* m_kernel;
+
+    /**
+     * The ow system timer.
+     */
+    WTimer::SPtr m_timer;
 };
 
 #endif  // WKERNEL_H

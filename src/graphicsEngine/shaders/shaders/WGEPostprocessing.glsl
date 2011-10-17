@@ -38,14 +38,22 @@
 //    * Sometimes, the normal might not be needed in your own code. In this case, use #ifdef WGE_POSTPROCESSING_ENABLED to only calculate it in
 //      the case post-processing is enabled
 //    * You can use getGradient amd getGradientViewAligned in WGEShadingTools.glsl to calculate the normal in a 3D texture
+//  * Set a fragment zoom factor. This represents the zoom of your modelview matrix. It is needed by some post-processors to provide
+//    zoom-invariant effects.
+//    * Needs to be scaled by 0.1
+//    * Can be calculated this way: wge_FragZoom = 0.1 * length( ( gl_ModelViewMatrix * normalize( vec4( 1.0, 1.0, 1.0, 0.0 ) ) ).xyz );
+//    * Simpler: call wge_FragZoom = 0.1 * getModelViewScale();
 
 #ifdef WGE_POSTPROCESSING_ENABLED
     #define wge_FragNormal gl_FragData[1].rgb
     #define wge_FragColor  gl_FragData[0]
+    #define wge_FragZoom   gl_FragData[2].r
 #else
     vec3 WGE_POSTPROCESSING_ENABLED_dummyVec3;
+    float WGE_POSTPROCESSING_ENABLED_dummyFloat;
     #define wge_FragNormal WGE_POSTPROCESSING_ENABLED_dummyVec3
     #define wge_FragColor  gl_FragData[0]
+    #define wge_FragZoom   WGE_POSTPROCESSING_ENABLED_dummyFloat
 #endif
 
 #endif // WGEPOSTPROCESSING_GLSL

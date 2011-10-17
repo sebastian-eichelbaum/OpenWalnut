@@ -45,6 +45,8 @@
 #include "../common/WPreferences.h"
 #include "../common/WStringUtils.h"
 #include "../common/WThreadedRunner.h"
+#include "../common/WTimer.h"
+#include "../common/WRealtimeTimer.h"
 #include "../dataHandler/WDataHandler.h"
 #include "../gui/WGUI.h"
 #include "WKernel.h"
@@ -60,7 +62,8 @@
 WKernel* WKernel::m_kernel = NULL;
 
 WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui ):
-    WThreadedRunner()
+    WThreadedRunner(),
+    m_timer( WTimer::SPtr( new WRealtimeTimer() ) )
 {
     WLogger::getLogger()->addLogMessage( "Initializing Kernel", "Kernel", LL_INFO );
 
@@ -215,3 +218,9 @@ boost::shared_ptr< WSelectionManager>WKernel::getSelectionManager()
 {
     return m_selectionManager;
 }
+
+WTimer::ConstSPtr WKernel::getTimer() const
+{
+    return m_timer;
+}
+

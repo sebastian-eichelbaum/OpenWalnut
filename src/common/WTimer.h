@@ -22,49 +22,53 @@
 //
 //---------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
-// Varyings
-/////////////////////////////////////////////////////////////////////////////
+#ifndef WTIMER_H
+#define WTIMER_H
 
-#ifdef CLIPPLANE_ENABLED
-/**
- * The distance to the plane
- */
-varying float v_dist;
-#endif
+#include <boost/shared_ptr.hpp>
+
+#include "WExportCommon.h"
 
 /**
- * The surface normal. Needed for nice lighting.
+ * Base class for timing. Derive from it to write several timers like a frame-timer or realtime-timer.
  */
-varying vec3 v_normal;
+class OWCOMMON_EXPORT WTimer      // NOLINT - no OWCOMMON_EXPORT does not need an virtual destructor.
+{
+public:
 
-/**
- * The line tangent.
- */
-varying vec3 v_tangent;
+    /**
+     * Convenience typedef for a shared_ptr
+     */
+    typedef boost::shared_ptr< WTimer > SPtr;
 
-/**
- * The normal parameterizing the surface in orthogonal tangent direction.
- */
-varying vec3 v_biNormal;
+    /**
+     * Convenience typedef for a const shared_ptr.
+     */
+    typedef boost::shared_ptr< const WTimer > ConstSPtr;
 
-/**
- * The actual, corrected vertex.
- */
-varying vec4 v_vertex;
+    /**
+     * Constructs a animation timer.
+     */
+    WTimer();
 
-/**
- * The diameter of the tube in world-space.
- */
-varying float v_diameter;
+    /**
+     * Destructor.
+     */
+    virtual ~WTimer();
 
-/**
- * This is the interpolated surface parameter describing the surface orthogonal to the tangent. 0 is the center of the strip and -1 and 1 the
- * borders.
- */
-varying float v_surfaceParam;
+    /**
+     * Resets the start-tick.
+     */
+    virtual void reset() = 0;
 
-/**
- * The scaling component of the modelview matrix.
- */
-varying float v_worldScale;
+    /**
+     * Returns the elapsed time since the last reset in seconds with milliseconds precision.
+     *
+     * \return elapsed time in seconds with millisecond precision.
+     */
+    virtual double elapsed() const = 0;
+
+private:
+};
+
+#endif  // WTIMER_H

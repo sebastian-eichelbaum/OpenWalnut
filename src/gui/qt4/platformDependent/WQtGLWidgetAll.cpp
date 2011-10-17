@@ -27,6 +27,8 @@
 
 #include <QtGui/QKeyEvent>
 
+#include <osgDB/WriteFile>
+
 #include "WQtGLWidgetAll.h"
 
 #include "../../../common/WConditionOneShot.h"
@@ -35,6 +37,8 @@
 #include "../../../graphicsEngine/WGE2DManipulator.h"
 #include "../../../graphicsEngine/WGEViewer.h"
 #include "../../../graphicsEngine/WGEZoomTrackballManipulator.h"
+#include "../WQtGLScreenCapture.h"
+#include "../WMainWindow.h"
 #include "../../../kernel/WKernel.h"
 
 #ifndef _MSC_VER
@@ -242,5 +246,11 @@ const QGLFormat WQtGLWidgetAll::getDefaultFormat()
     QGLFormat format;
     format.setSwapInterval( 1 );    // according to Qt Doc, this should enable VSync. But it doesn't.
     return format;
+}
+
+WQtGLScreenCapture* WQtGLWidgetAll::getScreenCapture( WMainWindow* parent )
+{
+    WQtGLScreenCapture* sc = new WQtGLScreenCapture( getViewer(), parent );
+    return sc;
 }
 
