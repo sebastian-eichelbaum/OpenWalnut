@@ -26,7 +26,7 @@
 #include <iostream>
 
 #include "../../common/math/WMath.h"
-#include "../../common/math/WVector3D.h"
+#include "../../common/math/linearAlgebra/WVectorFixed.h"
 
 #include "../../common/WTimer.h"
 
@@ -195,17 +195,17 @@ public:
     /**
      * Vector representing the X axe
      */
-    static WVector3D axeX;
+    static WVector3d axeX;
 
     /**
      * Vector representing the Y axe
      */
-    static WVector3D axeY;
+    static WVector3d axeY;
 
     /**
      * Vector representing the Z axe
      */
-    static WVector3D axeZ;
+    static WVector3d axeZ;
 
 protected:
     /**
@@ -220,9 +220,9 @@ protected:
 };
 
 // Initialize the statics
-WVector3D Transformation::axeX = WVector3D( 1.0, 0.0, 0.0 );
-WVector3D Transformation::axeY = WVector3D( 0.0, 1.0, 0.0 );
-WVector3D Transformation::axeZ = WVector3D( 0.0, 0.0, 1.0 );
+WVector3d Transformation::axeX = WVector3d( 1.0, 0.0, 0.0 );
+WVector3d Transformation::axeY = WVector3d( 0.0, 1.0, 0.0 );
+WVector3d Transformation::axeZ = WVector3d( 0.0, 0.0, 1.0 );
 
 /**
  * Provides a time dependent rotation around a specified axis.
@@ -242,7 +242,7 @@ public:
      *
      * \return the rotation matrix at the current time.
      */
-    Rotator( double time, double startTime, WVector3D axes, double degree, double speed ):
+    Rotator( double time, double startTime, WVector3d axes, double degree, double speed ):
         Transformation()
     {
         m_duration = degree / speed;
@@ -311,7 +311,7 @@ public:
      * \param direction the direction. Length is important here.
      * \param speed speed in direction-vector per second
      */
-    Translator( double time, double startTime, WVector3D direction, double speed ):
+    Translator( double time, double startTime, WVector3d direction, double speed ):
         Transformation()
     {
         m_duration = 1.0 / speed;
@@ -319,7 +319,7 @@ public:
 
         double rtime = time - startTime;
         double scaler = smooth( speed * rtime, 0.0, 1.0 );
-        makeTranslate( direction * scaler );
+        makeTranslate( ( direction * scaler ).operator osg::Vec3d() );
     }
 };
 

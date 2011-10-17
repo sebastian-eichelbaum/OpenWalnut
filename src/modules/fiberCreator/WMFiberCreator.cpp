@@ -31,7 +31,6 @@
 #include "../../common/WPropertyHelper.h"
 #include "../../common/math/WMath.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D.h"
 
 #include "WMFiberCreator.h"
 #include "WMFiberCreator.xpm"
