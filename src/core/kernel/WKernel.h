@@ -30,6 +30,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "../common/WTimer.h"
 #include "../common/WLogger.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
 #include "WExportKernel.h"
@@ -42,7 +43,6 @@ class WModuleFactory;
 class WROIManager;
 class WSelectionManager;
 class WThreadedRunner;
-class WTimer;
 
 /**
  * \defgroup kernel Kernel
@@ -161,7 +161,8 @@ public:
 
     /**
      * Returns the system timer. If you need timing for animations and similar, use this one. This timer can change to frame based timing if the
-     * user plays back some animation.
+     * user plays back some animation. So, everything which uses this timer can always do accurate per-frame animations even if frame time and
+     * real-time differ.
      *
      * \return the timer
      */

@@ -51,8 +51,6 @@
     #include <osgGA/MatrixManipulator>
 #endif
 
-#include "WGEScreenCapture.h"
-#include "animation/WGEAnimationManipulator.h"
 #include "../common/WColor.h"
 #include "../common/WFlag.h"
 #include "../common/WThreadedRunner.h"
@@ -60,7 +58,9 @@
 #include "WGECamera.h"
 #include "WGEGraphicsWindow.h"
 #include "WGEGroupNode.h"
+#include "WGEScreenCapture.h"
 #include "WPickHandler.h"
+#include "animation/WGEAnimationManipulator.h"
 
 /**
  * Class for managing one view to the scene. This includes viewport, camera and graphics context.

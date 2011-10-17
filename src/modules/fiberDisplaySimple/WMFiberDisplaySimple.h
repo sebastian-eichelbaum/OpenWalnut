@@ -249,7 +249,7 @@ private:
      *
      * \param state the state
      */
- 	void lineGeodeStateCallback( osg::StateSet* state );
+    void lineGeodeStateCallback( osg::StateSet* state );
 
     /**
      * If true, the fibs are RGBA colored.

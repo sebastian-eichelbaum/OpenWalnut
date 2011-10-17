@@ -169,6 +169,9 @@ double smooth( double value, double min, double max )
 // Transformators
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Base class for all further transformations.
+ */
 class Transformation: public osg::Matrixd       // NOTE: yes this is a bad idea since osg::Matrixd does not provide a virtual destructor.
 {
 public:
@@ -325,7 +328,6 @@ public:
 
 void WGEAnimationManipulator::handleFrame()
 {
-
     // calculate the proper sec:frame coordinate:
 
     // time in seconds, it always relates to a 24 frames per second system
@@ -371,8 +373,6 @@ void WGEAnimationManipulator::handleFrame()
     m_matrix = mBBTranslate * mBBScale * mBBRotate * rotateToBack
                                                    * translateABitUp
                                                    * zoomNei
-                                                   * rotateABit
-                                                 ;
-
+                                                   * rotateABit;
 }
 
