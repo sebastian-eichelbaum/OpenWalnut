@@ -86,6 +86,7 @@
 #include "WSettingAction.h"
 #include "WSettingMenu.h"
 #include "WQtMessageDialog.h"
+#include "WQtGLScreenCapture.h"
 
 #include "WMainWindow.h"
 #include "WMainWindow.moc"
@@ -171,6 +172,9 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "missingModule" ), QuestionMarks_xpm );
     m_iconManager.addIcon( std::string( "none" ), empty_xpm );
     m_iconManager.addIcon( std::string( "DefaultModuleIcon" ), moduleDefault_xpm );
+    m_iconManager.addIcon( std::string( "video" ), video_xpm );
+    m_iconManager.addIcon( std::string( "image" ), image_xpm );
+    m_iconManager.addIcon( std::string( "preferences" ), preferences_xpm );
 
     if( objectName().isEmpty() )
     {
@@ -226,7 +230,9 @@ void WMainWindow::setupGUI()
     mainGLDock->setMinimumWidth( 500 );
     mainGLDock->getGLWidget()->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
     m_mainGLWidget = mainGLDock->getGLWidget();
+    m_mainGLWidgetScreenCapture = m_mainGLWidget->getScreenCapture( this );
     m_glDock->addDockWidget( Qt::RightDockWidgetArea, mainGLDock );
+    addDockWidget( Qt::RightDockWidgetArea, m_mainGLWidgetScreenCapture );
     connect( m_mainGLWidget.get(), SIGNAL( renderedFirstFrame() ), this, SLOT( handleGLVendor() ) );
 
     // NOTE: we abuse the gl widgets first frame event to handle startup news.
@@ -1055,5 +1061,18 @@ void WMainWindow::handleStartMessages()
     l->setMinimumWidth( 640 );
     WQtMessageDialog* msgDia = new WQtMessageDialog( msgID, "Welcome to OpenWalnut", l, getSettings(), this );
     msgDia->show();
+}
+
+void WMainWindow::forceMainGLWidgetSize( size_t w, size_t h )
+{
+    m_mainGLWidget->setFixedSize( w, h );
+}
+
+void WMainWindow::restoreMainGLWidgetSize()
+{
+    m_mainGLWidget->setMinimumHeight( 250 );
+    m_mainGLWidget->setMaximumHeight( QWIDGETSIZE_MAX );
+    m_mainGLWidget->setMinimumWidth( 250 );
+    m_mainGLWidget->setMaximumWidth( QWIDGETSIZE_MAX );
 }
 

@@ -45,6 +45,7 @@
 #include "core/graphicsEngine/WGraphicsEngine.h"
 #include "core/kernel/WKernel.h"
 
+#include "WQtGLScreenCapture.h"
 #include "events/WRenderedFrameEvent.h"
 #include "events/WEventTypes.h"
 #include "WSettingAction.h"
@@ -391,7 +392,7 @@ void WQtGLWidget::makeScreenshot()
     if( !fileName.isEmpty() )
     {
         q.save( fileName, tr( "png" ).toAscii() );
-        WLogger::getLogger()->addLogMessage( std::string( "Screenshot saved to " ) + fileName.toStdString(), "QtGLWidgetAll", LL_INFO );
+        WLogger::getLogger()->addLogMessage( std::string( "Screenshot saved to " ) + fileName.toStdString(), "QtGLWidget", LL_INFO );
     }
 }
 
@@ -399,3 +400,10 @@ void WQtGLWidget::notifyFirstRenderedFrame()
 {
     QCoreApplication::postEvent( this, new WRenderedFrameEvent() );
 }
+
+WQtGLScreenCapture* WQtGLWidget::getScreenCapture( WMainWindow* parent ) const
+{
+    WQtGLScreenCapture* sc = new WQtGLScreenCapture( getViewer(), parent );
+    return sc;
+}
+

@@ -22,43 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WICONS_H
-#define WICONS_H
+#include "WTimer.h"
 
-/**
- * This file is provided to allow to get access to all used icons by one include.
- */
-#include "logoIcon.xpm"
-#include "disc.xpm"
-#include "fileopen.xpm"
-#include "projOpen.xpm"
-#include "projSave.xpm"
-#include "quit.xpm"
-#include "remove.xpm"
+WTimer::WTimer()
+{
+    // initialize
+}
 
-#include "axial.xpm"
-#include "cor.xpm"
-#include "sag.xpm"
-#include "camera.xpm"
+WTimer::~WTimer()
+{
+    // cleanup
+}
 
-#include "box.xpm"
-#include "o.xpm"
-#include "question.xpm"
-
-#include "moduleBusy.xpm"
-#include "moduleCrashed.xpm"
-
-#include "tango/preferences-system.xpm"
-
-#include "video.xpm"
-#include "image.xpm"
-
-#include "preferences.xpm"
-
-#include "QuestionMarks.xpm"
-
-#include "empty.xpm"
-
-#include "moduleDefault.xpm"
-
-#endif  // WICONS_H

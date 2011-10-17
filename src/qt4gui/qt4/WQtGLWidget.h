@@ -39,6 +39,8 @@
 #include "core/graphicsEngine/WGECamera.h"
 #include "core/graphicsEngine/WGEViewer.h"
 
+#include "WQtGLScreenCapture.h"
+
 class WSettingAction;
 
 #ifndef _WIN32
@@ -133,6 +135,14 @@ public:
      * \return the action.
      */
     QAction* getBackgroundColorAction() const;
+
+    /**
+     * Adds a screen capture dock using this view's screen capture callback.
+     *
+     * \param parent the main window parent
+     * \return the capture dock instance.
+     */
+    WQtGLScreenCapture* getScreenCapture( WMainWindow* parent ) const;
 
 signals:
 

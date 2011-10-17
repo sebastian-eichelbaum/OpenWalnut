@@ -22,43 +22,33 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WICONS_H
-#define WICONS_H
+#include "WGEAnimationFrameTimer.h"
 
-/**
- * This file is provided to allow to get access to all used icons by one include.
- */
-#include "logoIcon.xpm"
-#include "disc.xpm"
-#include "fileopen.xpm"
-#include "projOpen.xpm"
-#include "projSave.xpm"
-#include "quit.xpm"
-#include "remove.xpm"
+WGEAnimationFrameTimer::WGEAnimationFrameTimer( float framesPerSecond ):
+    WTimer(),
+    m_tick( 0 ),
+    m_framesPerSecond( framesPerSecond )
+{
+    // initialize
+}
 
-#include "axial.xpm"
-#include "cor.xpm"
-#include "sag.xpm"
-#include "camera.xpm"
+WGEAnimationFrameTimer::~WGEAnimationFrameTimer()
+{
+    // cleanup
+}
 
-#include "box.xpm"
-#include "o.xpm"
-#include "question.xpm"
+void WGEAnimationFrameTimer::reset()
+{
+    m_tick = 0;
+}
 
-#include "moduleBusy.xpm"
-#include "moduleCrashed.xpm"
+double WGEAnimationFrameTimer::elapsed() const
+{
+    return static_cast< double >( m_tick ) / m_framesPerSecond;
+}
 
-#include "tango/preferences-system.xpm"
+void WGEAnimationFrameTimer::tick()
+{
+    m_tick++;
+}
 
-#include "video.xpm"
-#include "image.xpm"
-
-#include "preferences.xpm"
-
-#include "QuestionMarks.xpm"
-
-#include "empty.xpm"
-
-#include "moduleDefault.xpm"
-
-#endif  // WICONS_H

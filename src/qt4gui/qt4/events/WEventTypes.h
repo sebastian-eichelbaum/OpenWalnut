@@ -72,4 +72,7 @@
 // a connector of a module changed state or value
 #define WQT_MODULE_CONNECTOR_EVENT QEvent::User + 13
 
+// when the screencapture update.
+#define WQT_SCREENCAPTURE_EVENT QEvent::User + 14
+
 #endif  // WEVENTTYPES_H

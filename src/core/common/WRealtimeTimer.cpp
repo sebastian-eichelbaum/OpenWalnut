@@ -22,43 +22,27 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WICONS_H
-#define WICONS_H
+#include "WRealtimeTimer.h"
 
-/**
- * This file is provided to allow to get access to all used icons by one include.
- */
-#include "logoIcon.xpm"
-#include "disc.xpm"
-#include "fileopen.xpm"
-#include "projOpen.xpm"
-#include "projSave.xpm"
-#include "quit.xpm"
-#include "remove.xpm"
+WRealtimeTimer::WRealtimeTimer():
+    WTimer(),
+    m_timer( osg::Timer() )
+{
+    // initialize
+}
 
-#include "axial.xpm"
-#include "cor.xpm"
-#include "sag.xpm"
-#include "camera.xpm"
+WRealtimeTimer::~WRealtimeTimer()
+{
+    // cleanup
+}
 
-#include "box.xpm"
-#include "o.xpm"
-#include "question.xpm"
+void WRealtimeTimer::reset()
+{
+    m_timer.setStartTick();
+}
 
-#include "moduleBusy.xpm"
-#include "moduleCrashed.xpm"
+double WRealtimeTimer::elapsed() const
+{
+    return m_timer.time_m() / 1000.0;
+}
 
-#include "tango/preferences-system.xpm"
-
-#include "video.xpm"
-#include "image.xpm"
-
-#include "preferences.xpm"
-
-#include "QuestionMarks.xpm"
-
-#include "empty.xpm"
-
-#include "moduleDefault.xpm"
-
-#endif  // WICONS_H

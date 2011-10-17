@@ -22,43 +22,53 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WICONS_H
-#define WICONS_H
+#ifndef WTIMER_H
+#define WTIMER_H
+
+#include <boost/shared_ptr.hpp>
+
+#include "WExportCommon.h"
 
 /**
- * This file is provided to allow to get access to all used icons by one include.
+ * Base class for timing. Derive from it to write several timers like a frame-timer or realtime-timer.
  */
-#include "logoIcon.xpm"
-#include "disc.xpm"
-#include "fileopen.xpm"
-#include "projOpen.xpm"
-#include "projSave.xpm"
-#include "quit.xpm"
-#include "remove.xpm"
+class OWCOMMON_EXPORT WTimer      // NOLINT - no OWCOMMON_EXPORT does not need an virtual destructor.
+{
+public:
 
-#include "axial.xpm"
-#include "cor.xpm"
-#include "sag.xpm"
-#include "camera.xpm"
+    /**
+     * Convenience typedef for a shared_ptr
+     */
+    typedef boost::shared_ptr< WTimer > SPtr;
 
-#include "box.xpm"
-#include "o.xpm"
-#include "question.xpm"
+    /**
+     * Convenience typedef for a const shared_ptr.
+     */
+    typedef boost::shared_ptr< const WTimer > ConstSPtr;
 
-#include "moduleBusy.xpm"
-#include "moduleCrashed.xpm"
+    /**
+     * Constructs a animation timer.
+     */
+    WTimer();
 
-#include "tango/preferences-system.xpm"
+    /**
+     * Destructor.
+     */
+    virtual ~WTimer();
 
-#include "video.xpm"
-#include "image.xpm"
+    /**
+     * Resets the start-tick.
+     */
+    virtual void reset() = 0;
 
-#include "preferences.xpm"
+    /**
+     * Returns the elapsed time since the last reset in seconds with milliseconds precision.
+     *
+     * \return elapsed time in seconds with millisecond precision.
+     */
+    virtual double elapsed() const = 0;
 
-#include "QuestionMarks.xpm"
+private:
+};
 
-#include "empty.xpm"
-
-#include "moduleDefault.xpm"
-
-#endif  // WICONS_H
+#endif  // WTIMER_H
