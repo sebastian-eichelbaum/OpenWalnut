@@ -35,9 +35,9 @@ $header = <<EOF
 
 #include <osg/Geode>
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 /** 
  * Someone should add some documentation here.
@@ -86,6 +86,8 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     *
+     * \\return The icon.
      */
     virtual const char** getXPMIcon() const;
 
@@ -146,8 +148,8 @@ $impl = <<EOF
 
 #include <string>
 
-#include "../../kernel/WKernel.h"
-#include "../emptyIcon.xpm" // Please put a real icon here.
+#include "core/kernel/WKernel.h"
+#include "modules/emptyIcon.xpm" // Please put a real icon here.
 
 #include "WM#name#.h"
 
@@ -242,4 +244,4 @@ close( FILE );
 
 print "Generating completed.\n";
 print "\n";
-print "Please make sure to copy an appropriate CMakeLists.txt file to the module directory.\n";
+print "Have look at the template module for an introduction to module programming.\n";

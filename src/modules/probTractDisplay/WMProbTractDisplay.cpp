@@ -27,9 +27,9 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../kernel/WModuleFactory.h"
-#include "../../kernel/WModuleInputForwardData.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/kernel/WModuleFactory.h"
+#include "core/kernel/WModuleInputForwardData.h"
 #include "WMProbTractDisplay.h"
 #include "WMProbTractDisplay.xpm"
 

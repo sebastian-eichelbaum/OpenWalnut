@@ -24,8 +24,8 @@
 
 #include <utility>
 
-#include "../../common/WBoundingBox.h"
-#include "../../common/math/WLinearAlgebraFunctions.h"
+#include "core/common/WBoundingBox.h"
+#include "core/common/math/WLinearAlgebraFunctions.h"
 
 #include "WCoordConverter.h"
 

@@ -25,19 +25,19 @@
 #include <string>
 #include <vector>
 
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataSet.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WDataSetSingle.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../dataHandler/WValueSet.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WGEColormapping.h"
-#include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WSelectionManager.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/WDataSet.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetSingle.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/dataHandler/WValueSet.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/graphicsEngine/WGEColormapping.h"
+#include "core/graphicsEngine/shaders/WGEPropertyUniform.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WSelectionManager.h"
 #include "WMArbitraryPlane.h"
 #include "WMArbitraryPlane.xpm"
 
@@ -75,7 +75,7 @@ const std::string WMArbitraryPlane::getName() const
 
 const std::string WMArbitraryPlane::getDescription() const
 {
-    return "Modul draws an arbitrarily moveable plane through the brain. That rhymes.";
+    return "Module draws an arbitrarily moveable plane through the data.";
 }
 
 void WMArbitraryPlane::connectors()
@@ -116,24 +116,24 @@ void WMArbitraryPlane::moduleMain()
     m_moduleState.add( m_propCondition );
     m_moduleState.add( m_active->getUpdateCondition() );
 
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         m_moduleState.wait();
 
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
 
-        if ( m_showComplete->changed() )
+        if( m_showComplete->changed() )
         {
             m_showComplete->get( true );
             m_dirty = true;
         }
 
-        if ( m_active->changed() )
+        if( m_active->changed() )
         {
-            if ( m_active->get( true ) && m_showManipulators->get() )
+            if( m_active->get( true ) && m_showManipulators->get() )
             {
                 m_s0->unhide();
                 m_s1->unhide();
@@ -147,11 +147,11 @@ void WMArbitraryPlane::moduleMain()
             }
         }
 
-        if ( m_showManipulators->changed() )
+        if( m_showManipulators->changed() )
         {
-            if ( m_showManipulators->get( true ) )
+            if( m_showManipulators->get( true ) )
             {
-                if ( m_active->get() )
+                if( m_active->get() )
                 {
                     m_s0->unhide();
                     m_s1->unhide();
@@ -166,7 +166,7 @@ void WMArbitraryPlane::moduleMain()
             }
         }
 
-        if ( m_buttonReset2Axial->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        if( m_buttonReset2Axial->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
             WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
             m_s0->setPosition( center );
@@ -176,7 +176,7 @@ void WMArbitraryPlane::moduleMain()
             m_dirty = true;
         }
 
-        if ( m_buttonReset2Coronal->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        if( m_buttonReset2Coronal->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
             WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
             m_s0->setPosition( center );
@@ -186,7 +186,7 @@ void WMArbitraryPlane::moduleMain()
             m_dirty = true;
         }
 
-        if ( m_buttonReset2Sagittal->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        if( m_buttonReset2Sagittal->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
             WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
             m_s0->setPosition( center );
@@ -257,14 +257,14 @@ void WMArbitraryPlane::updatePlane()
 {
     m_geode->removeDrawables( 0, 1 );
 
-    if ( m_attach2Crosshair->get() )
+    if( m_attach2Crosshair->get() )
     {
         m_s0->setPosition( WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition() );
     }
 
     WPosition p0 = m_s0->getPosition();
 
-    if ( p0 != m_p0 )
+    if( p0 != m_p0 )
     {
         WVector3d offset = p0 - m_p0;
         m_p0 = p0;
@@ -304,12 +304,12 @@ void WMArbitraryPlane::updateCallback()
 {
     WPosition ch = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
     WPosition cho = getCenterPosition();
-    if ( ch[0] != cho[0] || ch[1] != cho[1] || ch[2] != cho[2] )
+    if( ch[0] != cho[0] || ch[1] != cho[1] || ch[2] != cho[2] )
     {
         setDirty();
     }
 
-    if ( isDirty() )
+    if( isDirty() )
     {
         updatePlane();
     }

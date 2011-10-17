@@ -32,15 +32,15 @@
 
 #include <osg/Geode>
 
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WDataSetSingle.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetSingle.h"
 
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../graphicsEngine/WROISphere.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/graphicsEngine/WROISphere.h"
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 const unsigned int MASK_2D = 0xF0000000; //!< used for osgWidget stuff
 const unsigned int MASK_3D = 0x0F000000; //!< used for osgWidget stuff
@@ -92,6 +92,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 

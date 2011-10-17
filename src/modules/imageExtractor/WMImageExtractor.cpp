@@ -27,11 +27,11 @@
 #include <sstream>
 #include <vector>
 
-#include "../../kernel/WKernel.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D_2.h"
-#include "../../graphicsEngine/WGEColormapping.h"
-#include "../../common/WPropertyHelper.h"
+#include "core/kernel/WKernel.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/WDataTexture3D.h"
+#include "core/graphicsEngine/WGEColormapping.h"
+#include "core/common/WPropertyHelper.h"
 
 #include "WMImageExtractor.xpm"
 #include "WMImageExtractor.h"
@@ -104,7 +104,7 @@ void WMImageExtractor::activate()
 {
     if( m_outData )
     {
-        m_outData->getTexture2()->active()->set( m_active->get() );
+        m_outData->getTexture()->active()->set( m_active->get() );
     }
     WModule::activate();
 }
@@ -146,9 +146,9 @@ void WMImageExtractor::moduleMain()
 
                 if( m_outData )
                 {
-                    m_properties->removeProperty( m_outData->getTexture2()->getProperties() );
-                    m_infoProperties->removeProperty( m_outData->getTexture2()->getInformationProperties() );
-                    WGEColormapping::deregisterTexture( m_outData->getTexture2() );
+                    m_properties->removeProperty( m_outData->getTexture()->getProperties() );
+                    m_infoProperties->removeProperty( m_outData->getTexture()->getInformationProperties() );
+                    WGEColormapping::deregisterTexture( m_outData->getTexture() );
                 }
 
                 std::size_t i = static_cast< std::size_t >( m_selectedImage->get( true ) );
@@ -161,9 +161,9 @@ void WMImageExtractor::moduleMain()
                     setOutputProps();
                     m_outData->setFileName( makeImageName( i ) );
                     // provide the texture's properties as own properties
-                    m_properties->addProperty( m_outData->getTexture2()->getProperties() );
-                    m_infoProperties->addProperty( m_outData->getTexture2()->getInformationProperties() );
-                    WGEColormapping::registerTexture( m_outData->getTexture2() );
+                    m_properties->addProperty( m_outData->getTexture()->getProperties() );
+                    m_infoProperties->addProperty( m_outData->getTexture()->getInformationProperties() );
+                    WGEColormapping::registerTexture( m_outData->getTexture() );
                 }
 
                 m_output->updateData( m_outData );
@@ -180,9 +180,9 @@ void WMImageExtractor::moduleMain()
         {
             if( m_outData )
             {
-                m_properties->removeProperty( m_outData->getTexture2()->getProperties() );
-                m_infoProperties->removeProperty( m_outData->getTexture2()->getInformationProperties() );
-                WGEColormapping::deregisterTexture( m_outData->getTexture2() );
+                m_properties->removeProperty( m_outData->getTexture()->getProperties() );
+                m_infoProperties->removeProperty( m_outData->getTexture()->getInformationProperties() );
+                WGEColormapping::deregisterTexture( m_outData->getTexture() );
             }
             m_outData = boost::shared_ptr< WDataSetScalar >();
             m_output->updateData( m_outData );
@@ -193,9 +193,9 @@ void WMImageExtractor::moduleMain()
 
     if( m_outData )
     {
-        m_properties->removeProperty( m_outData->getTexture2()->getProperties() );
-        m_infoProperties->removeProperty( m_outData->getTexture2()->getInformationProperties() );
-        WGEColormapping::deregisterTexture( m_outData->getTexture2() );
+        m_properties->removeProperty( m_outData->getTexture()->getProperties() );
+        m_infoProperties->removeProperty( m_outData->getTexture()->getInformationProperties() );
+        WGEColormapping::deregisterTexture( m_outData->getTexture() );
     }
 
     debugLog() << "Finished! Good Bye!";
@@ -373,7 +373,7 @@ void WMImageExtractor::setOutputProps()
         float fmin = static_cast< float >( min + ( max - min ) * m_minValuePct->get( true ) * 0.01 );
         float fmax = static_cast< float >( min + ( max - min ) * m_maxValuePct->get( true ) * 0.01 );
 
-        m_outData->getTexture2()->minimum()->set( fmin );
-        m_outData->getTexture2()->scale()->set( std::max( fmax, fmin + 1.0f ) - fmin );
+        m_outData->getTexture()->minimum()->set( fmin );
+        m_outData->getTexture()->scale()->set( std::max( fmax, fmin + 1.0f ) - fmin );
     }
 }

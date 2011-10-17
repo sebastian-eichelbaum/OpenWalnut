@@ -30,11 +30,11 @@
 #include "WMDistanceMapIsosurface.h"
 #include "WMDistanceMapIsosurface.xpm"
 
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WModuleFactory.h"
-#include "../../kernel/WPrototypeRequirement.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../dataHandler/WGridRegular3D.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WModuleFactory.h"
+#include "core/kernel/WPrototypeRequirement.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/dataHandler/WGridRegular3D.h"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMDistanceMapIsosurface )

@@ -26,9 +26,9 @@
 
 #include <boost/bind.hpp>
 
-#include "../../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../../graphicsEngine/callbacks/WGEFunctorCallback.h"
-#include "../../../kernel/WKernel.h"
+#include "core/graphicsEngine/WGEGeodeUtils.h"
+#include "core/graphicsEngine/callbacks/WGEFunctorCallback.h"
+#include "core/kernel/WKernel.h"
 #include "../../emptyIcon.xpm" // Please put a real icon here.
 
 #include "WMGpView.h"
@@ -59,7 +59,7 @@ const std::string WMGpView::getName() const
 
 const std::string WMGpView::getDescription() const
 {
-    return "Displays gaussian processes. It is intended to display espically GP representing deterministic tracts.";
+    return "Displays Gaussian processes. It is intended to display espically GP representing deterministic tracts.";
 }
 
 void WMGpView::connectors()
@@ -94,11 +94,11 @@ void WMGpView::moduleMain()
     m_planeNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMGpView::updatePlaneColors, this, _1 ) ) );
     m_rootNode->insert( m_planeNode );
 
-    while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
+    while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
         debugLog() << "Waiting..";
         m_moduleState.wait();
-        if ( !m_gpIC->getData().get() ) // ok, the output has not yet sent data
+        if( !m_gpIC->getData().get() ) // ok, the output has not yet sent data
         {
             continue;
         }

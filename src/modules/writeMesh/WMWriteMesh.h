@@ -29,10 +29,10 @@
 
 #include <osg/Geode>
 
-#include "../../graphicsEngine/WTriangleMesh.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 /**
  * Someone should add some documentation here.
@@ -86,6 +86,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 
@@ -109,15 +110,40 @@ protected:
 private:
     /**
      * Store the mesh in legacy vtk file format.
+     *
+     * \return true if successful.
      */
-    bool save() const;
+    bool saveVTKASCII() const;
+
+    /**
+     * Store the mesh in a json (javascript object notation) file.
+     *
+     * \return true if successful.
+     */
+    bool saveJson() const;
 
     boost::shared_ptr< WModuleInputData< WTriangleMesh > > m_meshInput; //!< Input connector for a mesh
     boost::shared_ptr< WTriangleMesh > m_triMesh; //!< A pointer to the currently processed tri mesh
 
+    boost::shared_ptr< WCondition > m_propCondition;  //!< A condition used to notify about changes in several properties.
     WPropGroup    m_savePropGroup; //!< Property group containing properties needed for saving the mesh.
     WPropTrigger  m_saveTriggerProp; //!< This property triggers the actual writing,
     WPropFilename m_meshFile; //!< The mesh will be written to this file.
+
+    /**
+     * A list of file type selection types
+     */
+    boost::shared_ptr< WItemSelection > m_fileTypeSelectionsList;
+
+    /**
+     * Selection property for file types
+     */
+    WPropSelection m_fileTypeSelection;
+
+    /**
+     * If true, colors get exported too.
+     */
+    WPropBool m_writeColors;
 };
 
 #endif  // WMWRITEMESH_H

@@ -29,10 +29,10 @@
 
 #include <osg/Geode>
 
-#include "../../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../../graphicsEngine/WGESubdividedPlane.h"
-#include "../../../kernel/WModule.h"
-#include "../../../kernel/WModuleInputData.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/graphicsEngine/WGESubdividedPlane.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
 #include "../WDataSetGP.h"
 
 /**
@@ -76,6 +76,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 
@@ -131,7 +132,7 @@ protected:
 
 private:
     /**
-     * Input connector for the gaussian proccesses.
+     * Input connector for the Gaussian proccesses.
      */
     boost::shared_ptr< WModuleInputData< WDataSetGP > > m_gpIC;
 

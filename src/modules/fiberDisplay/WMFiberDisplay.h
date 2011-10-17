@@ -29,17 +29,17 @@
 
 #include <osg/Geode>
 
-#include "../../dataHandler/WDataSetFibers.h"
+#include "core/dataHandler/WDataSetFibers.h"
 
-#include "../../graphicsEngine/WFiberDrawable.h"
-#include "../../graphicsEngine/WROI.h"
-#include "../../graphicsEngine/WROIBox.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
+#include "core/graphicsEngine/WFiberDrawable.h"
+#include "core/graphicsEngine/WROI.h"
+#include "core/graphicsEngine/WROIBox.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
 
-#include "../../kernel/WFiberSelector.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/kernel/WFiberSelector.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 /**
  * Module for drawing fibers
@@ -83,6 +83,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 

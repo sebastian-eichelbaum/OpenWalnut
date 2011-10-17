@@ -22,17 +22,31 @@
 //
 //---------------------------------------------------------------------------
 
-varying vec4 VaryingTexCoord0;
+#version 120
 
-#include "WGELighting-vertex.glsl"
+#include "WGEColormapping-vertex.glsl"
+
+/**
+ * The normal.
+ */
+varying vec3 v_normal;
+
+/**
+ * This matrix transform the vertex in openwalnut space.
+ */
+uniform mat4 u_colorMapTransformation;
 
 void main()
 {
-    VaryingTexCoord0 = gl_MultiTexCoord0;
+#ifdef COLORMAPPING_ENABLED
+    // prepare colormapping
+    colormapping( u_colorMapTransformation );
+#endif
 
-    prepareLight();
+    // get normal
+    v_normal = gl_NormalMatrix * gl_Normal;
 
+    // apply standard pipeline
     gl_FrontColor = gl_Color;
-
     gl_Position = ftransform();
 }

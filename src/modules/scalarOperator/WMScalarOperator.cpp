@@ -32,17 +32,17 @@
 
 #include <boost/variant.hpp>
 
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/WAssert.h"
-#include "../../common/WProgress.h"
-#include "../../common/WStringUtils.h"
-#include "../../common/WTypeTraits.h"
-#include "../../common/exceptions/WTypeMismatch.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../dataHandler/WDataHandlerEnums.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/exceptions/WDHValueSetMismatch.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/WAssert.h"
+#include "core/common/WProgress.h"
+#include "core/common/WStringUtils.h"
+#include "core/common/WTypeTraits.h"
+#include "core/common/exceptions/WTypeMismatch.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/dataHandler/WDataHandlerEnums.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/exceptions/WDHValueSetMismatch.h"
+#include "core/kernel/WKernel.h"
 #include "WMScalarOperator.xpm"
 #include "WMScalarOperator.h"
 
@@ -105,6 +105,7 @@ void WMScalarOperator::properties()
     m_operations->addItem( "abs( A - B )", "Absolute value of A - B." );
     m_operations->addItem( "abs( A )", "Absolute value of A." );
     m_operations->addItem( "clamp( lower, upper, A )", "Clamp A between lower and upper so that l <= A <= u." );
+    m_operations->addItem( "A * upper", "Scale data by factor." );
 
     m_opSelection = m_properties->addProperty( "Operation", "The operation to apply on A and B.", m_operations->getSelectorFirst(),
                                                m_propCondition );
@@ -308,6 +309,22 @@ inline T opClamp( T a, T l, T u )
 }
 
 /**
+ * Operator applying some op to argument.
+ *
+ * \tparam T Type of each parameter and the result
+ * \param v the first operant
+ * \param l ignored
+ * \param u scaler
+ *
+ * \return result
+ */
+template< typename T >
+inline T opScaleByA( T v, T /* l */, T u )
+{
+    return v * u;
+}
+
+/**
  * The second visitor which got applied to the second value set. It discriminates the integral type and applies the operator in a per value
  * style.
  *
@@ -378,7 +395,7 @@ public:
         // apply op to each value
         const VSetAType* a = m_vsetA->rawData();
         const VSetBType* b =   vsetB->rawData();
-        for ( size_t i = 0; i < m_vsetA->rawSize(); ++i )
+        for( size_t i = 0; i < m_vsetA->rawSize(); ++i )
         {
             data[ i ] = op( static_cast< ResultT >( a[ i ] ), static_cast< ResultT >( b[ i ] ) );
         }
@@ -500,6 +517,9 @@ public:
             case 6:
                 op = &opClamp< ResultT >;
                 break;
+            case 7:
+                op = &opScaleByA< ResultT >;
+                break;
             default:
                 op = &opAbs< ResultT >;
                 break;
@@ -507,7 +527,7 @@ public:
 
         // apply op to each value
         const T* a = vsetA->rawData();
-        for ( size_t i = 0; i < vsetA->rawSize(); ++i )
+        for( size_t i = 0; i < vsetA->rawSize(); ++i )
         {
             data[ i ] = op( a[ i ], m_lowerBorder, m_upperBorder );
         }
@@ -582,7 +602,7 @@ void WMScalarOperator::moduleMain()
         {
             boost::shared_ptr< WDataSetScalar > dataSetA = m_inputA->getData();
             boost::shared_ptr< WDataSetScalar > dataSetB = m_inputB->getData();
-            if ( !dataSetA )
+            if( !dataSetA )
             {
                 // reset output if input was reset/disconnected
                 debugLog() << "Resetting output.";
@@ -608,7 +628,7 @@ void WMScalarOperator::moduleMain()
             boost::shared_ptr< WValueSetBase > newValueSet;
 
             // single operator operation?
-            if ( ( s == 5 ) || ( s == 6 ) )
+            if( ( s == 5 ) || ( s == 6 ) || ( s == 7 ) )
             {
                 VisitorVSetSingleArgument visitor( s );    // the visitor cascades to the second value set
                 visitor.setBorder( m_lowerBorder->get( true ), m_upperBorder->get( true ) );
@@ -625,7 +645,7 @@ void WMScalarOperator::moduleMain()
                     bool match = ( valueSetA->dimension() == valueSetB->dimension() ) &&
                                  ( valueSetA->order() == valueSetB->order() ) &&
                                  ( valueSetA->rawSize() == valueSetB->rawSize() );
-                    if ( !match )
+                    if( !match )
                     {
                         throw WDHValueSetMismatch( std::string( "The both value sets are not of equal size, dimension and order." ) );
                     }
@@ -651,7 +671,7 @@ void WMScalarOperator::moduleMain()
             }
 
             // Create the new dataset and export it
-            if ( newValueSet )
+            if( newValueSet )
             {
                 m_output->updateData( boost::shared_ptr<WDataSetScalar>( new WDataSetScalar( newValueSet, dataSetA->getGrid() ) ) );
             }

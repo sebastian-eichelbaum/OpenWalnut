@@ -56,7 +56,7 @@ float lookupTex()
     vec3 col1;
     col1.r = clamp( texture3D( tex, v ).r, 0.0, 1.0 );
 
-    if ( col1.r < threshold )
+    if( col1.r < threshold )
     {
         discard;
     }
@@ -68,18 +68,18 @@ void checkCullBox()
 {
     vec3 pos = VaryingTexCoord0.xyz;
 
-    if ( insideCullBox )
+    if( insideCullBox )
     {
-        if ( pos.x < cullBoxLBX || pos.x > cullBoxUBX )
+        if( pos.x < cullBoxLBX || pos.x > cullBoxUBX )
             discard;
-        if ( pos.y < cullBoxLBY || pos.y > cullBoxUBY )
+        if( pos.y < cullBoxLBY || pos.y > cullBoxUBY )
             discard;
-        if ( pos.z < cullBoxLBZ || pos.z > cullBoxUBZ )
+        if( pos.z < cullBoxLBZ || pos.z > cullBoxUBZ )
             discard;
     }
     else
     {
-        if ( ( pos.x > cullBoxLBX && pos.x < cullBoxUBX )
+        if( ( pos.x > cullBoxLBX && pos.x < cullBoxUBX )
              && ( pos.y > cullBoxLBY && pos.y < cullBoxUBY )
              && ( pos.z > cullBoxLBZ && pos.z < cullBoxUBZ ) )
             discard;
@@ -91,12 +91,12 @@ void checkCullBox()
  */
 void main()
 {
-    if ( useCullBox )
+    if( useCullBox )
         checkCullBox();
 
     vec4 color = myColor;
 
-    if ( useTexture )
+    if( useTexture )
     {
         float value = lookupTex();
         colorMap( color.rgb, value, cMap );

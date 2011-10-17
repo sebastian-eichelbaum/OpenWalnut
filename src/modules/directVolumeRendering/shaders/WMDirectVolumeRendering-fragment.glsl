@@ -131,10 +131,10 @@ vec4 transferFunction( float value )
     return texture1D( u_transferFunctionSampler, value );
 #else
     // Example TF
-    if ( isZero( value - 0.5, 0.00005  ) )
+    if( isZero( value - 0.5, 0.00005  ) )
         return vec4( 0.0 );
     vec4 c = vec4( 0.0 );
-    if ( value <= 0.5 )
+    if( value <= 0.5 )
     {
         c = vec4( 0.0, 0.37, 1.0, 2.0 * ( 0.5 - value ) );
     }
@@ -166,7 +166,7 @@ vec4 localIllumination( in vec3 position, in vec4 color )
     // get a gradient and get it to world-space
     vec3 g = getGradient( position );
     vec3 worldNormal = ( gl_ModelViewMatrix * vec4( g, 0.0 ) ).xyz;
-    if ( length( g ) < 0.01 )
+    if( length( g ) < 0.01 )
     {
         return vec4( 0.0, 0.0, 0.0, 0.0 );
     }
@@ -232,10 +232,10 @@ void main()
 
     // walk along the ray
     vec4 dst = vec4( 0.0 );
-    while ( currentDistance <= ( totalDistance - 0.05 )  )
+    while( currentDistance <= ( totalDistance - 0.05 )  )
     {
         // do not dynamically branch every cycle for early-ray termination, so do n steps before checking alpha value
-        for ( int i = 0; i < 4; ++i )
+        for( int i = 0; i < 4; ++i )
         {
             // get current value, classify and illuminate
             vec3 rayPoint = rayStart + ( currentDistance * v_ray );
@@ -259,13 +259,13 @@ void main()
         }
 
         // early ray-termination
-        if ( dst.a >= 0.95 )
+        if( dst.a >= 0.95 )
             break;
     }
 
     // have we hit something which was classified not to be transparent?
     // This is, visually, not needed but useful if volume renderer is used in conjunction with other geometry.
-    // if ( isZero( dst.a ) )
+    // if( isZero( dst.a ) )
     // {
     //    discard;
     // }

@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include "../../../kernel/WKernel.h"
+#include "core/kernel/WKernel.h"
 #include "WMDetTract2GPConvert.xpm"
 #include "WMDetTract2GPConvert.h"
 
@@ -53,7 +53,7 @@ const std::string WMDetTract2GPConvert::getName() const
 
 const std::string WMDetTract2GPConvert::getDescription() const
 {
-    return "Converts deterministic tracts to gaussian processes as described in the paper of Wassermann: "
+    return "Converts deterministic tracts to Gaussian processes as described in the paper of Wassermann: "
            "http://dx.doi.org/10.1016/j.neuroimage.2010.01.004";
 }
 
@@ -79,11 +79,11 @@ void WMDetTract2GPConvert::moduleMain()
 
     ready();
 
-    while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
+    while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
         debugLog() << "Waiting..";
         m_moduleState.wait();
-        if ( !m_tractIC->getData().get() || !m_tensorIC->getData().get() ) // ok, the output has not yet sent data
+        if( !m_tractIC->getData().get() || !m_tensorIC->getData().get() ) // ok, the output has not yet sent data
         {
             continue;
         }
@@ -96,7 +96,7 @@ void WMDetTract2GPConvert::moduleMain()
         {
             continue;
         }
-        boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Converting tracts into gaussian processes.", tracts->size() ) ); // NOLINT line length
+        boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Converting tracts into Gaussian processes.", tracts->size() ) ); // NOLINT line length
         m_progress->addSubProgress( progress1 );
         m_gpOC->updateData( boost::shared_ptr< WDataSetGP >( new WDataSetGP( tracts, tensors, m_shutdownFlag, progress1 ) ) );
         progress1->finish();

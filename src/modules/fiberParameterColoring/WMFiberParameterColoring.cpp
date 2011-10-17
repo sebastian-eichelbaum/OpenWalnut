@@ -27,10 +27,10 @@
 #include <vector>
 #include <string>
 
-#include "../../kernel/WKernel.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../common/math/WMath.h"
-#include "../../dataHandler/WDataHandler.h"
+#include "core/kernel/WKernel.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/common/math/WMath.h"
+#include "core/dataHandler/WDataHandler.h"
 
 #include "WMFiberParameterColoring.h"
 #include "WMFiberParameterColoring.xpm"
@@ -136,13 +136,13 @@ void WMFiberParameterColoring::moduleMain()
     m_fibLengthColors = WDataSetFibers::ColorArray();
 
     // main loop
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
         // woke up since the module is requested to finish?
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -154,14 +154,14 @@ void WMFiberParameterColoring::moduleMain()
         bool propUpdated = m_baseColor->changed() || m_scaleColor->changed();
 
         // reset everything if input was disconnected/invalid
-        if ( !dataValid )
+        if( !dataValid )
         {
             debugLog() << "Resetting output.";
             m_fiberOutput->reset();
             continue;
         }
 
-        if ( dataValid && !( dataUpdated || propUpdated ) )
+        if( dataValid && !( dataUpdated || propUpdated ) )
         {
             continue;
         }
@@ -214,7 +214,7 @@ void WMFiberParameterColoring::moduleMain()
 
             // the length of the fiber, if a fiber is smaller than two segments, skip it ( it already is colored white by default )
             size_t len = fibLen->at( fidx );
-            if ( len < 3 )
+            if( len < 3 )
             {
                 continue;
             }
@@ -222,7 +222,7 @@ void WMFiberParameterColoring::moduleMain()
             // get the first vector and second vertex
             double prev[3];
             // we do not need zero length segments
-            if ( getSegmentVector( 0, sidx, fibVerts, &prev[0] ) == 0.0 )
+            if( getSegmentVector( 0, sidx, fibVerts, &prev[0] ) == 0.0 )
             {
                 continue;
             }
@@ -230,13 +230,13 @@ void WMFiberParameterColoring::moduleMain()
             // walk along the fiber
             double lenLast = 0.0;
             double lenMax = 0.0;
-            for ( size_t k = 1; k < len - 1; ++k )  // len -1 because we interpret it as segments
+            for( size_t k = 1; k < len - 1; ++k )  // len -1 because we interpret it as segments
             {
                 // get the vector of this segment
                 double current[3];
                 // we do not need zero length segments
                 double segLen = getSegmentVector( k, sidx, fibVerts, &current[0] );
-                if ( segLen == 0.0 )
+                if( segLen == 0.0 )
                 {
                     continue;
                 }
@@ -290,13 +290,13 @@ void WMFiberParameterColoring::moduleMain()
             // the start vertex index
             size_t cidx = fibStart->at( fidx ) * colorMode;
             size_t len = fibLen->at( fidx );
-            if ( len < 3 )
+            if( len < 3 )
             {
                 continue;
             }
 
             // walk along the fiber
-            for ( size_t k = 1; k < len - 1; ++k )  // len -1 because we interpret it as segments
+            for( size_t k = 1; k < len - 1; ++k )  // len -1 because we interpret it as segments
             {
                 double relSegLen = ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 0 ] / maxSegLengths[ fidx ];
                 ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 0 ] = baseColorR + ( scaleColorR * relSegLen );

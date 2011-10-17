@@ -33,23 +33,23 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
-#include "../../common/datastructures/WFiber.h"
-#include "../../common/math/WMatrixSym.h"
-#include "../../common/WAssert.h"
-#include "../../common/WColor.h"
-#include "../../common/WIOTools.h"
-#include "../../common/WLogger.h"
-#include "../../common/WProgress.h"
-#include "../../common/WStringUtils.h"
-#include "../../common/WThreadedFunction.h"
-#include "../../dataHandler/datastructures/WFiberCluster.h"
-#include "../../dataHandler/exceptions/WDHIOFailure.h"
-#include "../../dataHandler/io/WReaderMatrixSymVTK.h"
-#include "../../dataHandler/io/WWriterMatrixSymVTK.h"
-#include "../../dataHandler/WDataSetFiberVector.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/datastructures/WFiber.h"
+#include "core/common/math/WMatrixSym.h"
+#include "core/common/WAssert.h"
+#include "core/common/WColor.h"
+#include "core/common/WIOTools.h"
+#include "core/common/WLogger.h"
+#include "core/common/WProgress.h"
+#include "core/common/WStringUtils.h"
+#include "core/common/WThreadedFunction.h"
+#include "core/dataHandler/datastructures/WFiberCluster.h"
+#include "core/dataHandler/exceptions/WDHIOFailure.h"
+#include "core/dataHandler/io/WReaderMatrixSymVTK.h"
+#include "core/dataHandler/io/WWriterMatrixSymVTK.h"
+#include "core/dataHandler/WDataSetFiberVector.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/kernel/WKernel.h"
 #include "WMDetTractClustering.h"
 #include "WMDetTractClustering.xpm"
 
@@ -86,28 +86,28 @@ const char** WMDetTractClustering::getXPMIcon() const
 void WMDetTractClustering::moduleMain()
 {
     m_moduleState.setResetable( true, true ); // modules state remembers fired events while not waiting
-    m_moduleState.add( m_tractInput->getDataChangedCondition() );
+    m_moduleState.add( m_tractIC->getDataChangedCondition() );
     m_moduleState.add( m_update );
 
     ready();
 
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         m_moduleState.wait();
 
-        if ( m_shutdownFlag() ) // in case of shutdown => abort
+        if( m_shutdownFlag() ) // in case of shutdown => abort
         {
             break;
         }
 
-        if ( !m_tractInput->getData().get() ) // ok, the output has not yet sent data
+        if( !m_tractIC->getData().get() ) // ok, the output has not yet sent data
         {
             continue;
         }
 
-        if( m_rawTracts != m_tractInput->getData() ) // in case data has changed
+        if( m_rawTracts != m_tractIC->getData() ) // in case data has changed
         {
-            m_rawTracts = m_tractInput->getData();
+            m_rawTracts = m_tractIC->getData();
             boost::shared_ptr< WProgress > convertProgress( new WProgress( "Converting tracts", 1 ) );
             m_progress->addSubProgress( convertProgress );
             m_tracts = boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector( m_rawTracts ) );
@@ -174,7 +174,7 @@ void WMDetTractClustering::updateOutput()
         warnLog() << "Invalid cluster ID for output selected: " << m_clusterOutputID->get() << " using default ID 0";
         m_clusterOutputID->set( 0, true );
     }
-    m_output->updateData( boost::shared_ptr< WFiberCluster >( new WFiberCluster( m_clusters[ m_clusterOutputID->get() ] ) ) );
+    m_cluserOC->updateData( boost::shared_ptr< WFiberCluster >( new WFiberCluster( m_clusters[ m_clusterOutputID->get() ] ) ) );
 }
 
 void WMDetTractClustering::update()
@@ -424,8 +424,8 @@ void WMDetTractClustering::meld( size_t qClusterID, size_t rClusterID )
 
 void WMDetTractClustering::connectors()
 {
-    m_tractInput = WModuleInputData< WDataSetFibers >::createAndAdd( shared_from_this(), "tractInput", "A deterministic tract dataset." );
-    m_output = WModuleOutputData< WFiberCluster >::createAndAdd( shared_from_this(), "clusterOutput", "A set of tract indices aka cluster" );
+    m_tractIC = WModuleInputData< WDataSetFibers >::createAndAdd( shared_from_this(), "tractInput", "A deterministic tract dataset." );
+    m_cluserOC = WModuleOutputData< WFiberCluster >::createAndAdd( shared_from_this(), "clusterOutput", "A set of tract indices aka cluster" );
 
     WModule::connectors();  // call WModules initialization
 }

@@ -30,11 +30,12 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/datastructures/WFiber.h"
-#include "../../common/WFlag.h"
-#include "../../dataHandler/WDataSetFiberVector.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
+#include "core/kernel/WModule.h"
+
+class WDataSetFiberVector;
+class WDataSetFibers;
+template<class T> class WModuleInputData;
+template<class T> class WModuleOutputData;
 
 /**
  * Removes deterministic tracts and therefore implements a preprocessing step
@@ -79,6 +80,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 
@@ -108,37 +110,50 @@ protected:
     virtual void cullOutTracts();
 
     /**
-     * Generates new data set out of the tracts which are not marked "unused"
-     * and saves it in the file as given via the savePath property.
-     *
-     * \param unusedTracts Vector of bool marking tracts not to use with true.
+     * Input connector for a tract dataset.
      */
-    virtual void saveGainedTracts( const std::vector< bool >& unusedTracts );
+    boost::shared_ptr< WModuleInputData< WDataSetFibers > >  m_tractIC;
 
     /**
-     * Generates the file name for saving the culled tracts out of some
-     * culling parameters: the proximity threshold and the dSt distance.
-     *
-     * \param dataFileName The file name from which the data is loaded so only the extension will change
-     *
-     * \return Path in which to store the culled tracts.
+     * Output connector for the culled tracts
      */
-    boost::filesystem::path saveFileName( std::string dataFileName ) const;
+    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_tractOC;
 
-    boost::shared_ptr< WModuleInputData< WDataSetFibers > >  m_tractInput; //!< Input connector for a tract dataset.
-    boost::shared_ptr< WDataSetFiberVector >                 m_dataset; //!< Pointer to the tract data set in WDataSetFiberVector format
-    boost::shared_ptr< WDataSetFibers >                      m_rawDataset; //!< Pointer to the tract data set in WDataSetFibers format
-    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_output; //!< Output connector for the culled tracts
+    /**
+     * Pointer to the tract data set in WDataSetFiberVector format
+     */
+    boost::shared_ptr< WDataSetFiberVector > m_dataset;
 
-    boost::shared_ptr< WCondition > m_recompute; //!< A condition which indicates complete recomputation
+    /**
+     * Pointer to the tract data set in WDataSetFibers format
+     */
+    boost::shared_ptr< WDataSetFibers > m_rawDataset;
 
-    WPropDouble   m_dSt_culling_t; //!< Minimum distance of two different tracts. If below, the shorter tract is culled out
-    WPropDouble   m_proximity_t; //!< Minimum distance of points of two tracts which should be considered
-    WPropBool     m_saveCulledCurves; //!<  If true, remaining tracts are saved to a file
-    WPropFilename m_savePath; //!< Path where remaining tracts should be stored
-    WPropTrigger  m_run; //!< Trigger button for starting the long time consuming culling operation
-    WPropInt      m_numTracts; //!< Displays the number of tracts which are processed
-    WPropInt      m_numRemovedTracts; //!< Displays the number of tracts which were removed
+    /**
+     * A condition which indicates complete recomputation
+     */
+    boost::shared_ptr< WCondition > m_recompute;
+
+    /**
+     * Minimum distance of two different tracts. If below, the shorter tract is culled out
+     */
+    WPropDouble m_dSt_culling_t;
+
+    /**
+     * Minimum distance of points of two tracts which should be considered
+     */
+    WPropDouble m_proximity_t;
+
+    /**
+     * Displays the number of tracts which are processed
+     */
+    WPropInt m_numTracts;
+
+    /**
+     * Displays the number of tracts which were removed
+     */
+    WPropInt m_numRemovedTracts;
+
 
 private:
 };
@@ -150,7 +165,7 @@ inline const std::string WMDetTractCulling::getName() const
 
 inline const std::string WMDetTractCulling::getDescription() const
 {
-    return std::string( "Removes deterministic tracts from a WDataSetFiberVector" );
+    return std::string( "Removes deterministic tracts from a dataset." );
 }
 
 #endif  // WMDETTRACTCULLING_H

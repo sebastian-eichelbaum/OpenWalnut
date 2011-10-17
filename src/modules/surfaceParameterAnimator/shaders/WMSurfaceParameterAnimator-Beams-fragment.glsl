@@ -224,13 +224,13 @@ void main()
     // the step counter
     int i = 0;
     float stepDistance = totalDistance / float( u_steps );
-    while ( i < u_steps ) // we do not need to ch
+    while( i < u_steps ) // we do not need to ch
     {
         // get current value
         value = texture3D( u_texture0Sampler, curPoint ).r;
 
         // is it the isovalue?
-        if ( abs( value - u_isovalue ) < 0.1 )
+        if( abs( value - u_isovalue ) < 0.1 )
         {
             // we need to know the depth value of the current point inside the cube
             // Therefore, the complete standard pipeline is reproduced here:
@@ -311,7 +311,7 @@ void main()
 
             // check four cases:
             // 1. fragment belongs only to beam 1
-            if ( belongsToBeam1 )
+            if( belongsToBeam1 )
             {
                 ocol.r = light + 0.4;
                 ocol.g = 0.0;
@@ -319,7 +319,7 @@ void main()
             }
 
             // 2. fragment belongs only to beam 2
-            if ( ( belongsToBeam2 && !belongsToBeam1 ) || ( belongsToBeam2 && ( u_size1 > u_size2 ) ) )
+            if( ( belongsToBeam2 && !belongsToBeam1 ) || ( belongsToBeam2 && ( u_size1 > u_size2 ) ) )
             {
                 ocol.r = 0.0;
                 ocol.g = light + 0.4;
@@ -329,7 +329,7 @@ void main()
             // 4. fragment belongs to a border
             bool doWhite   = ( epsilonEquals( abs( anim2 - traceInv ), halfSize2 + 0.5, 5.0 ) ||
                                epsilonEquals( abs( anim1 - trace ),    halfSize1 + 0.5, 5.0 ) );
-            if ( doWhite )
+            if( doWhite )
             {
                 ocol.r = 1.0;
                 ocol.g = 1.0;
@@ -354,7 +354,7 @@ void main()
     }
 
     // the ray did never hit the surface --> discard the pixel
-    if ( i == u_steps )
+    if( i == u_steps )
     {
         discard;
     }

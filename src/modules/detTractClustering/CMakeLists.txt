@@ -1,95 +1,100 @@
-FILE( GLOB_RECURSE MODULES_SRC "*.cpp" "*.h" )
+#---------------------------------------------------------------------------
+#
+# Project: OpenWalnut ( http://www.openwalnut.org )
+#
+# Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+# For more information see http:#www.openwalnut.org/copying
+#
+# This file is part of OpenWalnut.
+#
+# OpenWalnut is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# OpenWalnut is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with OpenWalnut. If not, see <http:#www.gnu.org/licenses/>.
+#
+#---------------------------------------------------------------------------
 
-IF( CUDA_FOUND )
-    FILE( GLOB_RECURSE CUDA_SRC "*.cu" )
-    LIST( APPEND MODULES_SRC ${CUDA_SRC} )
-ELSE()
-    # Remove files that do including cuda stuff
-    LIST( REMOVE_ITEM MODULES_SRC ${CMAKE_CURRENT_SOURCE_DIR}/WCheckCudaError.h )
-    LIST( REMOVE_ITEM MODULES_SRC ${CMAKE_CURRENT_SOURCE_DIR}/WCheckCudaError.cpp )
-    LIST( REMOVE_ITEM MODULES_SRC ${CMAKE_CURRENT_SOURCE_DIR}/WMDetTractClusteringCudaKernel.h )
-    LIST( REMOVE_ITEM MODULES_SRC ${CMAKE_CURRENT_SOURCE_DIR}/WMDetTractClusteringCudaInterface.cpp )
-    LIST( REMOVE_ITEM MODULES_SRC ${CMAKE_CURRENT_SOURCE_DIR}/WMDetTractClusteringCudaInterface.h )
-ENDIF()
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# Some common setup
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-IF( CUDA_FOUND )
-    ADD_DEFINITIONS( -DCUDA_FOUND )
-    set( CUDA_ATTACH_VS_BUILD_RULE_TO_CUDA_FILE ON )
-    set( BUILD_SHARED_LIBS ON )
-    set( CUDA_NVCC_FLAGS --compiler-options -fno-inline --ptxas-options=-v -arch=sm_12 )
-    set( CUDA_PROPAGATE_HOST_FLAGS OFF )
-    INCLUDE_DIRECTORIES( ${CUDA_TOOLKIT_INCLUDE} )
-    INCLUDE_DIRECTORIES( "${CUDA_SDK_ROOT_DIR}/common/inc" )
-ENDIF( CUDA_FOUND )
-
-# Grab module name and setup target directories
+# we use the directory name as module name
 GET_FILENAME_COMPONENT( MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
-SET( MODULE_TARGET_DIR ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/modules/${MODULE_NAME} )
+
+# setup the target directories and names
+SET( MODULE_TARGET_DIR_RELATIVE ${OW_MODULE_DIR_RELATIVE}/${MODULE_NAME} )
+SET( MODULE_TARGET_DIR ${PROJECT_BINARY_DIR}/${MODULE_TARGET_DIR_RELATIVE} )
 SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${MODULE_TARGET_DIR} )
 SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${MODULE_TARGET_DIR} )
-SET( MODULE_DIRNAME ${MODULE_NAME} )
-SET( MODULE_NAME    "${OWmodulesPrefix}_${MODULE_NAME}" )      # prefix all module names with "OWmodule_" to separate them from other libs
+SET( MODULE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
 
-SET( ${MODULE_NAME}_COMBINER_SRC ${MODULES_SRC} )
-SET( ${MODULE_NAME}_ALL_CPP ${MODULES_SRC} )
-FILE( GLOB_RECURSE ${MODULE_NAME}_REMOVE_H "*.h"  )
-FILE( GLOB_RECURSE ${MODULE_NAME}_REMOVE_PCH "*${MODULE_NAME}_PCH.*" )
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# Add sources as target
+# -----------------------------------------------------------------------------------------------------------------------------------------------
 
-LIST( REMOVE_ITEM ${MODULE_NAME}_ALL_CPP ${${MODULE_NAME}_REMOVE_H} )
+# Collect the compile-files for this target
+COLLECT_COMPILE_FILES( "${MODULE_SOURCE_DIR}" TARGET_CPP_FILES TARGET_H_FILES TARGET_TEST_FILES )
 
-IF( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/" )
-    FILE( GLOB_RECURSE ${MODULE_NAME}_REMOVE_TEST "test/*.cpp" "test/*.h" )
-    LIST( REMOVE_ITEM ${MODULE_NAME}_ALL_CPP ${${MODULE_NAME}_REMOVE_TEST} )
-    LIST( REMOVE_ITEM ${MODULE_NAME}_COMBINER_SRC ${${MODULE_NAME}_REMOVE_TEST} )
-ENDIF( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/" )
+# for cuda, we need to do some special stuff first
+IF( CUDA_FOUND AND OW_USE_CUDA )
+    FILE( GLOB_RECURSE CUDA_SRC "*.cu" )
+    CUDA_ADD_LIBRARY( ${MODULE_NAME} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${CUDA_SRC} )
+    TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${OWCoreName} ${CUDA_LIBRARIES} )
+ELSE()
+    # Remove files that do including cuda stuff
+    LIST( REMOVE_ITEM TARGET_H_FILES ${CMAKE_CURRENT_SOURCE_DIR}/WCheckCudaError.h )
+    LIST( REMOVE_ITEM TARGET_H_FILES ${CMAKE_CURRENT_SOURCE_DIR}/WMDetTractClusteringCudaKernel.h )
+    LIST( REMOVE_ITEM TARGET_H_FILES ${CMAKE_CURRENT_SOURCE_DIR}/WMDetTractClusteringCudaInterface.h )
+    LIST( REMOVE_ITEM TARGET_CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/WCheckCudaError.cpp )
+    LIST( REMOVE_ITEM TARGET_CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/WMDetTractClusteringCudaInterface.cpp )
 
-LIST( LENGTH ${MODULE_NAME}_ALL_CPP cpp_count )
+    # Build the module without the cuda codes
+    ADD_LIBRARY( ${MODULE_NAME} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} )
+    TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${OWCoreName} )
+ENDIF()
 
-IF( CUDA_FOUND )
-    CUDA_ADD_LIBRARY( ${MODULE_NAME} SHARED ${MODULES_SRC} )
-ELSE( CUDA_FOUND )
-    ADD_LIBRARY( ${MODULE_NAME} SHARED ${MODULES_SRC} )
-ENDIF( CUDA_FOUND )
+# Set the version of the library.
+SET_TARGET_PROPERTIES( ${MODULE_NAME} PROPERTIES
+    VERSION ${OW_LIB_VERSION}
+    SOVERSION ${OW_SOVERSION}
+)
 
+# Do not forget the install targets
+SETUP_LIB_INSTALL( ${MODULE_NAME} ${MODULE_TARGET_DIR_RELATIVE} "MODULES" )
 
-# Build module lib
-#ADD_LIBRARY( ${MODULE_NAME} SHARED ${MODULES_SRC} )
-
-TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${OWKernelName} )
-
-IF( CUDA_FOUND )
-    TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${CUDA_LIBRARIES} )
-ENDIF( CUDA_FOUND )
-
+# TODO(all): someone needs to explain this
 IF(MSVC_IDE)
     SET_TARGET_PROPERTIES( ${MODULE_NAME} PROPERTIES PREFIX "../")
 ENDIF(MSVC_IDE)
 
-# Copy local shaders to module target directory
-IF( OW_COPY_SHADERS AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/shaders )    # copy shaders only if the user wants it
-    ADD_CUSTOM_TARGET( ${MODULE_NAME}_CopyShaders
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/shaders ${MODULE_TARGET_DIR}/shaders/
-        COMMENT "Copy shaders of ${MODULE_NAME}"
-    )
-    ADD_DEPENDENCIES( ${MODULE_NAME} ${MODULE_NAME}_CopyShaders )
-ENDIF()
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# Test Setup
+# -----------------------------------------------------------------------------------------------------------------------------------------------
 
-# Build unit tests
-IF( OW_COMPILE_TESTS )
-    # This ensures that the test is copied to the module directory
-    SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${MODULE_TARGET_DIR} )
-    CXXTEST_ADD_TESTS_FROM_LIST( "${MODULES_SRC}"
-                                 "${OWKernelName};${MODULE_NAME}"
-                               )
+# Setup tests of this target
+SETUP_TESTS( "${TARGET_TEST_FILES}" "${MODULE_NAME}" "${_MODULE_DEPENDENCIES}" )
 
-    # Copy fixtures if they exist
-    IF( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures )
-        ADD_CUSTOM_TARGET( ${MODULE_NAME}_CopyFixtures
-            # as the "test" target runs in CMakes temporary build dir, the fixtures need to be placed there too.
-            COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures ${CMAKE_BINARY_DIR}/modules/${MODULE_DIRNAME}/fixtures/
-            COMMENT "Copy fixtures of ${MODULE_NAME}"
-        )
-        ADD_DEPENDENCIES( ${MODULE_NAME} ${MODULE_NAME}_CopyFixtures )
-    ENDIF( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures )
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# Copy Shaders
+# -----------------------------------------------------------------------------------------------------------------------------------------------
 
-ENDIF( OW_COMPILE_TESTS )
+COLLECT_SHADER_FILES( ${MODULE_SOURCE_DIR} TARGET_GLSL_FILES )
+SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${MODULE_TARGET_DIR_RELATIVE}/shaders" "MODULES" )
+
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# Style Checker
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+
+# setup the stylechecker. Ignore the platform specific stuff.
+SETUP_STYLECHECKER( "${MODULE_NAME}"
+                    "${TARGET_CPP_FILES};${TARGET_H_FILES};${TARGET_TEST_FILES};${TARGET_GLSL_FILES}"  # add all these files to the stylechecker
+                    "${_MODULE_STYLE_EXCLUDES}" )                                                      # exlude some ugly files
+

@@ -1,0 +1,110 @@
+#---------------------------------------------------------------------------
+#
+# Project: OpenWalnut ( http://www.openwalnut.org )
+#
+# Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+# For more information see http:#www.openwalnut.org/copying
+#
+# This file is part of OpenWalnut.
+#
+# OpenWalnut is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# OpenWalnut is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with OpenWalnut. If not, see <http:#www.gnu.org/licenses/>.
+#
+#---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# Some common setup
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# we use the directory name as module name
+GET_FILENAME_COMPONENT( MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# Search own dependencies
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# 1: FindPackage( LibYouNeed )
+# 2: INCLUDE_DIRECTORIES( ${LIBYOUNEED_INCLUDE_DIR} )
+# 3: LINK_DIRECTORIES( ${LIBYOUNEED_LIBRARY_DIRS} )
+# 4: Add ${LIBYOUNEED_LIBRARY} as _MODULE_DEPENDENCIES parameter to SETUP_MODULE
+
+
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# NiftiLib, at least 2.0.0
+# See  http://niftilib.sourceforge.net
+
+# we provide the niftilib in ext. If it is found on the system, the system version is used
+SET( OWExtNiftiIOName  "openwalnut_niftiio" )
+SET( OWExtNiftiZNZName  "openwalnut_niftiznz" )
+
+FIND_PACKAGE( niftilib QUIET )
+IF( NIFTILIB_FOUND )
+   MESSAGE( STATUS "Using system installed nifitlib." )
+   INCLUDE_DIRECTORIES( ${NIFTILIB_INCLUDE_DIR} )
+   SET( OWExtNiftiIOName  ${NIFTILIB_LIBRARY} )
+ELSE()
+    IF( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ext/nifti/CMakeLists.txt" )
+        MESSAGE( STATUS "Found niftilib in \"${CMAKE_CURRENT_SOURCE_DIR}/ext/nifti\"" )
+        INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/ext/nifti )
+        ADD_SUBDIRECTORY( ext/nifti )
+    ELSE()
+        MESSAGE( FATAL_ERROR "Could not find niftilib." )
+    ENDIF()
+ENDIF()
+
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# BioSig, at least 0.84
+# See http://biosig.sourceforge.net
+
+# we provide the biosig in ext. If it is found on the system, the system version is used
+SET( OWExtBioSigName "openwalnut_biosig" )
+
+FIND_PACKAGE( biosig QUIET )
+IF( BIOSIG_FOUND )
+   MESSAGE( STATUS "Using system installed biosig." )
+   INCLUDE_DIRECTORIES( ${BIOSIG_INCLUDE_DIR} )
+   SET( OWExtBioSigName  ${BIOSIG_LIBRARY} )
+ELSE()
+    IF( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ext/biosig/CMakeLists.txt" )
+        MESSAGE( STATUS "Found biosig in \"${CMAKE_CURRENT_SOURCE_DIR}/ext/biosig\"" )
+        INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/ext/biosig )
+        ADD_SUBDIRECTORY( ext/biosig )
+    ELSE()
+        MESSAGE( FATAL_ERROR "Could not find biosig." )
+    ENDIF()
+ENDIF()
+
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# other external libs
+
+SET( OWExtEEPName    "openwalnut_eep" )
+
+# libcnt needs absolute inclusion somewhere
+INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/ext/libeep )
+INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/ext )
+
+# build external libs in ext/
+ADD_SUBDIRECTORY( ext/libeep) # The needed external libraries
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# Setup for compilation
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Let this function do the job. It sets up tests and copies shaders automatically. It additionally configures the stylecheck mechanism for this
+# module.
+SETUP_MODULE( ${MODULE_NAME}                # name of the module
+             "${CMAKE_CURRENT_SOURCE_DIR}"  # where to find the source ${CMAKE_CURRENT_SOURCE_DIR} is a good idea here mostly
+             "${OWExtBioSigName};${OWExtEEPName};${OWExtNiftiIOName}" # does your module need additional libs to compile?
+             "ext"                             # do you want to exclude files from stylechecking? (externals for example)
+)
+

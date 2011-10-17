@@ -28,14 +28,14 @@
 #include <string>
 #include <vector>
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
-#include "../../common/WThreadedFunction.h"
-#include "../../common/math/WMatrix.h"
-#include "../../dataHandler/WThreadedPerVoxelOperation.h"
-#include "../../dataHandler/WDataSetSphericalHarmonics.h"
-#include "../../dataHandler/WDataSetDTI.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
+#include "core/common/WThreadedFunction.h"
+#include "core/common/math/WMatrix.h"
+#include "core/dataHandler/WThreadedPerVoxelOperation.h"
+#include "core/dataHandler/WDataSetSphericalHarmonics.h"
+#include "core/dataHandler/WDataSetDTI.h"
 
 /**
  * \class WMCalculateTensors
@@ -82,6 +82,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 
@@ -165,7 +166,7 @@ private:
     boost::shared_ptr< TensorPoolType > m_tensorPool;
 
     //! The sh->tensor conversion.
-    WMatrix_2 m_SHToTensorMat;
+    WMatrix<double> m_SHToTensorMat;
 };
 
 #endif  // WMCALCULATETENSORS_H

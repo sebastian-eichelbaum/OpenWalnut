@@ -29,19 +29,18 @@
 #include <osg/LineWidth>
 #include <osg/Hint>
 
-#include "../../common/WPropertyHelper.h"
-#include "../../common/WPropertyObserver.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataSetFibers.h"
-#include "../../graphicsEngine/callbacks/WGEFunctorCallback.h"
-#include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
-#include "../../graphicsEngine/WGEColormapping.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
-#include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
-#include "../../graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/postprocessing/WGEPostprocessingNode.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/common/WPropertyObserver.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/WDataSetFibers.h"
+#include "core/graphicsEngine/WGEColormapping.h"
+#include "core/graphicsEngine/callbacks/WGEFunctorCallback.h"
+#include "core/graphicsEngine/callbacks/WGENodeMaskCallback.h"
+#include "core/graphicsEngine/postprocessing/WGEPostprocessingNode.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
+#include "core/graphicsEngine/shaders/WGEShaderDefineOptions.h"
+#include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
+#include "core/kernel/WKernel.h"
 #include "WMFiberDisplaySimple.h"
 #include "WMFiberDisplaySimple.xpm"
 
@@ -98,6 +97,8 @@ void WMFiberDisplaySimple::properties()
 
     m_illuminationEnable = m_properties->addProperty( "Illumination", "Enable line illumination.", true );
 
+    m_colormapEnabled = m_properties->addProperty( "Enable colormapping", "Check this to enable colormapping. On large data, this can cause "
+                                                                              "massive FPS drop.", false );
     m_colormapRatio = m_properties->addProperty( "Colormap Ratio", "Defines the ratio between colormap and fiber color.", 0.0 );
     m_colormapRatio->setMin( 0.0 );
     m_colormapRatio->setMax( 1.0 );
@@ -225,6 +226,9 @@ void WMFiberDisplaySimple::moduleMain()
     osg::ref_ptr< WGEPropertyUniform< WPropDouble > > tubeSizeUniform = new WGEPropertyUniform< WPropDouble >( "u_tubeSize", m_tubeSize );
     osg::ref_ptr< WGEPropertyUniform< WPropDouble > > colormapRationUniform =
         new WGEPropertyUniform< WPropDouble >( "u_colormapRatio", m_colormapRatio );
+    m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_colormapEnabled, "COLORMAPPING_DISABLED", "COLORMAPPING_ENABLED" ) )
+    );
 
     // get notified about data changes
     m_moduleState.setResetable( true, true );

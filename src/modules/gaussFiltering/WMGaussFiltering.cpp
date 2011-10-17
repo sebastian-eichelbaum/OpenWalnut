@@ -30,12 +30,12 @@
 #include <string>
 #include <vector>
 
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/WAssert.h"
-#include "../../common/WProgress.h"
-#include "../../common/WStringUtils.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/WAssert.h"
+#include "core/common/WProgress.h"
+#include "core/common/WStringUtils.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/kernel/WKernel.h"
 #include "WMGaussFiltering.xpm"
 #include "WMGaussFiltering.h"
 

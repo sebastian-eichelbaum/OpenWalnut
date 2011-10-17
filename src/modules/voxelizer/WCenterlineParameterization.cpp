@@ -127,9 +127,9 @@ void WCenterlineParameterization::parameterizeVoxel( const WValue< int >& voxel,
     wcp::Neighbourhood n = wcp::neighbourhood( voxel[0], voxel[1], voxel[2], m_grid );
 
     // now update the neighbourhood
-    for ( unsigned int i = 0; i < 27; ++i )
+    for( unsigned int i = 0; i < 27; ++i )
     {
-        if ( m_paramSetValues[ n.indices[i] ] )
+        if( m_paramSetValues[ n.indices[i] ] )
         {
             m_paramValues[ n.indices[i] ] = 0.5 * ( m_paramValues[ n.indices[i] ] + m_currentStartParameter );
             //m_paramValues[ n.indices[i] ] = std::max( m_paramValues[ n.indices[i] ], m_currentStartParameter );
@@ -166,13 +166,13 @@ void WCenterlineParameterization::newSegment( const WPosition& start, const WPos
 
         // compare current distance
         double curDist = length( m_centerline->at( i ) - start );
-        if ( bestDistStart >= curDist )
+        if( bestDistStart >= curDist )
         {
             bestDistStart = curDist;
             m_currentStartParameter = curLength;
         }
         curDist = length( m_centerline->at( i ) - end );
-        if ( bestDistEnd >= curDist )
+        if( bestDistEnd >= curDist )
         {
             bestDistEnd = curDist;
             m_currentEndParameter = curLength;
@@ -188,11 +188,11 @@ void WCenterlineParameterization::finished()
 {
     // do some selective dilatation on the final grid
 
-    for ( size_t x = 0; x < m_grid->getNbCoordsX(); ++x )
+    for( size_t x = 0; x < m_grid->getNbCoordsX(); ++x )
     {
-        for ( size_t y = 0; y < m_grid->getNbCoordsY(); ++y )
+        for( size_t y = 0; y < m_grid->getNbCoordsY(); ++y )
         {
-            for ( size_t z = 0; z < m_grid->getNbCoordsZ(); ++z )
+            for( size_t z = 0; z < m_grid->getNbCoordsZ(); ++z )
             {
                 size_t idx = wcp::index( x, y, z, m_grid );
 
@@ -200,7 +200,7 @@ void WCenterlineParameterization::finished()
                 m_paramFinalValues[ idx ] = m_paramValues[ idx ];
 
                 // has been set during rasterization?
-                if ( !m_paramSetValues[ idx ] )
+                if( !m_paramSetValues[ idx ] )
                 {
                     m_paramSetValues[ idx ] = true;
 
@@ -208,7 +208,7 @@ void WCenterlineParameterization::finished()
                     wcp::Neighbourhood n = wcp::neighbourhood( x, y, z, m_grid );
 
                     double maxVal = m_paramValues[ n.indices[ 0 ] ];
-                    for ( unsigned int i = 1; i < 27; ++i )
+                    for( unsigned int i = 1; i < 27; ++i )
                     {
                         maxVal = std::max( m_paramValues[ n.indices[i] ], maxVal );
                     }

@@ -27,7 +27,7 @@
 
 #include <vector>
 
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
 
 /**
  * A B-spline surface.
@@ -99,45 +99,54 @@ public:
 
     /**
      * Returns the stored de Boor points.
+     * \return All de Boor points of the B-spline
      */
     std::vector< WVector3d > getDeBoorPoints();
 
     /**
      * Returns the number of de Boor points in the first direction.
+     * \return Number of de Boor points in first direction
      */
     int getNumDeBoorPoints1();
     /**
      * Returns the number of de Boor points in the second direction.
+     * \return Number of de Boor points in second direction
      */
     int getNumDeBoorPoints2();
 
     /**
      * Returns the stored knots in the first direction.
+     * \return Number of knots in the first direction
      */
     std::vector<double> getKnots1();
 
     /**
      * Returns the stored knots in the second direction.
+     * \return Number of knots in the second direction
      */
     std::vector<double> getKnots2();
 
     /**
      * Returns the order of the spline in the first direction.
+     * \return The order of the spline in the first direction.
      */
     int getOrder1();
 
     /**
      * Returns the order of the spline in the second direction.
+     * \return The order of the spline in the second direction.
      */
     int getOrder2();
 
     /**
      * Returns the number of sample points in the first direction that were used for the last call to samplePoints().
+     * \return the number of sample points in the first direction that were used for the last call to samplePoints().
      */
     int getNumSamplePointsT();
 
     /**
      * Returns the number of sample points in the second direction that were used for the last call to samplePoints().
+     * \return the number of sample points in the second direction that were used for the last call to samplePoints().
      */
     int getNumSamplePointsU();
 
@@ -187,6 +196,7 @@ private:
      * Compute a single sample point on the surface for the given parameters.
      * \param t parameter for first direction.
      * \param u parameter for second direction.
+     * \return Sample point at (t,u).
      */
     WVector3d f( double t, double u );
 

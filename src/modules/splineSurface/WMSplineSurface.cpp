@@ -30,8 +30,8 @@
 #include <cmath>
 
 #include "WMSplineSurface.xpm"
-#include "../../common/WLimits.h"
-#include "../../common/WAssert.h"
+#include "core/common/WLimits.h"
+#include "core/common/WAssert.h"
 
 #include <osg/Geode>
 #include <osg/Geometry>
@@ -42,19 +42,18 @@
 #include <osg/LightModel>
 #include <osgDB/WriteFile>
 
-#include "../../common/WPathHelper.h"
-#include "../../common/WProgress.h"
-#include "../../common/WPreferences.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/math/WLinearAlgebraFunctions.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../graphicsEngine/WGEColormapping.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/WPathHelper.h"
+#include "core/common/WProgress.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/WLinearAlgebraFunctions.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/graphicsEngine/WGEColormapping.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
+#include "core/kernel/WKernel.h"
 
-#include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
+#include "core/graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 #include "WSurface.h"
 #include "WMSplineSurface.h"
 
@@ -108,7 +107,7 @@ void WMSplineSurface::moduleMain()
     ready();
 
     // loop until the module container requests the module to quit
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         // update isosurface
         debugLog() << "Computing surface ...";
@@ -208,7 +207,7 @@ void WMSplineSurface::renderMesh()
     std::vector< size_t > tris = m_triMesh->getTriangles();
     surfaceElement->reserve( tris.size() );
 
-    for ( unsigned int vertId = 0; vertId < tris.size(); ++vertId )
+    for( unsigned int vertId = 0; vertId < tris.size(); ++vertId )
     {
         surfaceElement->push_back( tris[vertId] );
     }
@@ -269,7 +268,7 @@ bool WMSplineSurface::save() const
     //    const char* c_file = m_meshFile->get().file_string().c_str();
     //    std::ofstream dataFile( c_file );
     //
-    //    if ( dataFile )
+    //    if( dataFile )
     //    {
     //        WLogger::getLogger()->addLogMessage( "opening file", "Marching Cubes", LL_DEBUG );
     //    }
@@ -289,9 +288,9 @@ bool WMSplineSurface::save() const
     //
     //    WPosition point;
     //    dataFile << "POINTS " << m_triMesh->vertSize() << " float\n";
-    //    for ( size_t i = 0; i < m_triMesh->vertSize(); ++i )
+    //    for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
     //    {
-    //        point = m_triMesh->getVertexAsPosition( i );
+    //        point = m_triMesh->getVertex( i );
     //        if( !( myIsfinite( point[0] ) && myIsfinite( point[1] ) && myIsfinite( point[2] ) ) )
     //        {
     //            WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Marching Cubes", LL_ERROR );
@@ -301,21 +300,21 @@ bool WMSplineSurface::save() const
     //    }
     //
     //    dataFile << "CELLS " << m_triMesh->triangleSize() << " " << m_triMesh->triangleSize() * 4 << "\n";
-    //    for ( size_t i = 0; i < m_triMesh->triangleSize(); ++i )
+    //    for( size_t i = 0; i < m_triMesh->triangleSize(); ++i )
     //    {
     //        dataFile << "3 " << m_triMesh->getTriVertId0( i ) << " "
     //                 <<  m_triMesh->getTriVertId1( i ) << " "
     //                 <<  m_triMesh->getTriVertId2( i ) << "\n";
     //    }
     //    dataFile << "CELL_TYPES "<< m_triMesh->triangleSize() <<"\n";
-    //    for ( size_t i = 0; i < m_triMesh->triangleSize(); ++i )
+    //    for( size_t i = 0; i < m_triMesh->triangleSize(); ++i )
     //    {
     //        dataFile << "5\n";
     //    }
     //    dataFile << "POINT_DATA " << m_triMesh->vertSize() << "\n";
     //    dataFile << "SCALARS scalars float\n";
     //    dataFile << "LOOKUP_TABLE default\n";
-    //    for ( size_t i = 0; i < m_triMesh->vertSize(); ++i )
+    //    for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
     //    {
     //        dataFile << "0\n";
     //    }
@@ -326,7 +325,7 @@ bool WMSplineSurface::save() const
 
 void WMSplineSurface::updateGraphics()
 {
-    if ( m_active->get() )
+    if( m_active->get() )
     {
         m_surfaceGeode->setNodeMask( 0xFFFFFFFF );
     }
@@ -335,7 +334,7 @@ void WMSplineSurface::updateGraphics()
         m_surfaceGeode->setNodeMask( 0x0 );
     }
 
-    if ( m_surfaceColor->changed() )
+    if( m_surfaceColor->changed() )
     {
         osg::Vec4Array* colors = new osg::Vec4Array;
         colors->push_back( m_surfaceColor->get( true ) );

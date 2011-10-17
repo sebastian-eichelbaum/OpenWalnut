@@ -30,12 +30,12 @@
 #include <osg/Node>
 #include <osg/Uniform>
 
-#include "../../graphicsEngine/shaders/WGEShader.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WDataSetVector.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetVector.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 /**
  * This module is a basic volume renderer.
@@ -78,6 +78,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return the icon.
      */
     virtual const char** getXPMIcon() const;
 
@@ -123,12 +124,11 @@ private:
     /**
      * Types of local illumination supported.
      */
-    enum
+    enum LOCALILLUMINATION_ALGORITHMS
     {
         None = 0,
         Phong
-    }
-    LOCALILLUMINATION_ALGORITHMS;
+    };
 
     /**
      * The available shading algorithms.

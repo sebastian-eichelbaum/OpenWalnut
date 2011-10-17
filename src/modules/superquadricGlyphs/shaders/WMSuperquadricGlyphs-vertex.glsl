@@ -79,11 +79,11 @@ void main()
 
     // throw away glyphs whose FA is below threshold and whose eigenvalues are below threshold
     v_alphaBeta.w = 0.0;
-    if ( FA <= u_faThreshold )
+    if( FA <= u_faThreshold )
     {
         v_alphaBeta.w = 1.0;
     }
-    if ( evals.z <= 0.0 )
+    if( evals.z <= 0.0 )
     {
         v_alphaBeta.w = 1.0;
     }
@@ -103,7 +103,7 @@ void main()
     float kmBeta = 1.0;
 
     // the above values define the shape of the glyph
-    if ( cl >= cp )
+    if( cl >= cp )
     {
         kmAlpha = pow( 1.0 - cp, u_gamma );
         kmBeta  = pow( 1.0 - cl, u_gamma );
@@ -127,7 +127,7 @@ void main()
     evals.z = ( evals.z / evals.x );
     evals.y = ( evals.y / evals.x );
     evals.x = 1.0;
-    if ( evals.z <= u_evThreshold )
+    if( evals.z <= u_evThreshold )
     {
         v_alphaBeta.w = 1.0;
     }

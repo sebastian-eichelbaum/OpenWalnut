@@ -33,12 +33,12 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
 
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
 
-#include "../../dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetScalar.h"
 
 /**
  * Gauss filtering for WDataSetScalar
@@ -83,6 +83,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 
@@ -129,6 +130,8 @@ private:
      * \param y index for x direction
      * \param z index for x direction
      * \param offset the offset to add to the index (useful for addressing vector/tensor elements)
+     *
+     * \return the filtered value for a given position
      */
     template< typename T > double filterAtPosition(  boost::shared_ptr< WValueSet< T > > vals,
                                                      size_t nX, size_t nY, size_t nZ, size_t x, size_t y, size_t z, size_t offset );

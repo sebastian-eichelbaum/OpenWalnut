@@ -25,10 +25,10 @@
 #include <string>
 #include <vector>
 
-#include "../../common/WPathHelper.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../kernel/WKernel.h"
-#include "../../graphicsEngine/WTriangleMesh.h"
+#include "core/common/WPathHelper.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/kernel/WKernel.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
 
 #include "WMReadMesh.h"
 #include "WMReadMesh.xpm"
@@ -92,7 +92,9 @@ void WMReadMesh::properties()
 
     m_fileTypeSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_fileTypeSelectionsList->addItem( "Mesh", "" );
+    m_fileTypeSelectionsList->addItem( "Mesh fibernavigator", "" );
     m_fileTypeSelectionsList->addItem( "DIP", "" );
+    m_fileTypeSelectionsList->addItem( "BrainVISA", "" );
 
     m_fileTypeSelection = m_properties->addProperty( "File type",  "file type.", m_fileTypeSelectionsList->getSelectorFirst() );
        WPropertyHelper::PC_SELECTONLYONE::addTo( m_fileTypeSelection );
@@ -119,12 +121,16 @@ void WMReadMesh::moduleMain()
         switch ( m_fileTypeSelection->get( true ).getItemIndexOfSelected( 0 ) )
         {
             case 0:
-                debugLog() << "type mesh file selected";
                 m_triMesh = readMesh();
                 break;
             case 1:
-                debugLog() << "type dip file selected";
+                m_triMesh = readMeshFnav();
+                break;
+            case 2:
                 m_triMesh = readDip();
+                break;
+            case 3:
+                m_triMesh = readBrainVISA();
                 break;
             default:
                 debugLog() << "this shouldn't be reached";
@@ -135,6 +141,133 @@ void WMReadMesh::moduleMain()
         m_readTriggerProp->set( WPVBaseTypes::PV_TRIGGER_READY, true );
     }
 }
+
+boost::shared_ptr< WTriangleMesh > WMReadMesh::readMeshFnav()
+{
+    namespace su = string_utils;
+
+    std::string fileName = m_meshFile->get().file_string().c_str();
+    WAssert( !fileName.empty(), "No filename specified." );
+
+    boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Read Mesh", 3 ) );
+    m_progress->addSubProgress( progress );
+
+    std::ifstream ifs;
+    ifs.open( fileName.c_str(), std::ifstream::in );
+    if( !ifs || ifs.bad() )
+    {
+        WLogger::getLogger()->addLogMessage( "Try load broken file '" + fileName + "'", "Read Mesh", LL_ERROR );
+        throw std::runtime_error( "Problem during reading file. Probably file not found." );
+    }
+    std::string line;
+
+    std::vector< std::string > tokens;
+    size_t numPoints = 0;
+    while( !ifs.eof() )
+    {
+        std::getline( ifs, line );
+        tokens = su::tokenize( line );
+        if( tokens.size() > 1 && su::toLower( tokens.at( 0 ) ) == "point_data" )
+        {
+            try
+            {
+                numPoints = boost::lexical_cast< size_t >( tokens.at( 1 ) );
+                debugLog() << numPoints << " points";
+                break;
+            }
+            catch( const boost::bad_lexical_cast &e )
+            {
+                WLogger::getLogger()->addLogMessage( "Invalid number of points: " + tokens.at( 1 ), "Read Mesh", LL_ERROR );
+                progress->finish();
+                return boost::shared_ptr< WTriangleMesh >();
+            }
+        }
+    }
+    // ------ POINTS -------
+    std::vector< osg::Vec3 > points;
+    points.reserve( numPoints );
+
+    debugLog() << "Start reading vertex info";
+    for( unsigned int i = 0; i < numPoints; ++i )
+    {
+        std::getline( ifs, line );
+        tokens = su::tokenize( line );
+
+        try
+        {
+            points.push_back( osg::Vec3( boost::lexical_cast< float >( tokens.at( 0 ) ),
+                                         boost::lexical_cast< float >( tokens.at( 1 ) ),
+                                         boost::lexical_cast< float >( tokens.at( 2 ) ) ) );
+        }
+        catch( const boost::bad_lexical_cast &e )
+        {
+            WLogger::getLogger()->addLogMessage( "Invalid vertex position", "Read Mesh", LL_ERROR );
+            progress->finish();
+            return boost::shared_ptr< WTriangleMesh >();
+        }
+    }
+    debugLog() << "Finished reading vertex info";
+    // ----- Vertex Ids For Cells---------
+
+    size_t numCells = 0;
+
+    std::getline( ifs, line );
+    tokens = su::tokenize( line );
+    if( tokens.size() > 1 && su::toLower( tokens.at( 0 ) ) == "cells" )
+    {
+        try
+        {
+            numCells = boost::lexical_cast< size_t >( tokens.at( 1 ) );
+            debugLog() << numCells << " cells";
+        }
+        catch( const boost::bad_lexical_cast &e )
+        {
+            WLogger::getLogger()->addLogMessage( "Invalid number of cells: " + tokens.at( 1 ), "Read Mesh", LL_ERROR );
+            progress->finish();
+            return boost::shared_ptr< WTriangleMesh >();
+        }
+    }
+
+
+    boost::shared_ptr< WTriangleMesh > triMesh( new WTriangleMesh( numPoints, numCells ) );
+    for( unsigned int i = 0; i < numPoints; ++i )
+    {
+        triMesh->addVertex( points[i] );
+    }
+
+
+    ++*progress;
+
+
+    debugLog() << "Start reading polygon info";
+    for( unsigned int i = 0; i < numCells; ++i )
+    {
+        std::getline( ifs, line );
+        tokens = su::tokenize( line );
+
+        try
+        {
+            triMesh->addTriangle( boost::lexical_cast< size_t >( tokens.at( 1 ) ),
+                                  boost::lexical_cast< size_t >( tokens.at( 2 ) ),
+                                  boost::lexical_cast< size_t >( tokens.at( 3 ) ) );
+        }
+        catch( const boost::bad_lexical_cast &e )
+        {
+            WLogger::getLogger()->addLogMessage( "Invalid triangle ID", "Read Mesh", LL_ERROR );
+            progress->finish();
+            return boost::shared_ptr< WTriangleMesh >();
+        }
+    }
+    debugLog() << "Finished reading polygon info";
+    ++*progress;
+
+    ifs.close();
+
+    progress->finish();
+
+    return triMesh;
+}
+
 
 boost::shared_ptr< WTriangleMesh > WMReadMesh::readMesh()
 {
@@ -273,8 +406,10 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readMesh()
     return triMesh;
 }
 
-boost::shared_ptr< WTriangleMesh > WMReadMesh::readDip()
+
+boost::shared_ptr< WTriangleMesh > WMReadMesh::readBrainVISA()
 {
+    debugLog() << "brainVISA reader (don't forget to fix switch statement)";
     namespace su = string_utils;
 
     std::string fileName = m_meshFile->get().file_string().c_str();
@@ -293,172 +428,77 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readDip()
     std::string line;
 
     // ------ HEADER -------
-    std::getline( ifs, line );
-    std::vector< std::string > tokens = su::tokenize( line );
-    if( tokens.size() != 2 || su::toLower( tokens.at( 0 ) ) != "unitposition" )
+    char * buffer = new char[10];
+    ifs.read( buffer, 10 );
+    buffer[9] = 0;
+
+    std::string fileType( buffer );
+
+    if( fileType != "binarDCBA" )
     {
-        WLogger::getLogger()->addLogMessage( "Unexpected line: " + line, "Read Mesh", LL_ERROR );
-        WLogger::getLogger()->addLogMessage( "Expected unitposition", "Read Mesh", LL_ERROR );
+        WLogger::getLogger()->addLogMessage( "Unsupported file type", "Read Mesh", LL_ERROR );
         progress->finish();
         return boost::shared_ptr< WTriangleMesh >();
     }
-    std::string scaleUnit = tokens.at( 1 ); // scale unit not supported yet, but storing it for later use
+    size_t numVertices = 0;
+    size_t numNormals = 0;
+    size_t numTriangles = 0;
 
-    std::getline( ifs, line );
-    tokens = su::tokenize( line );
-    if( tokens.size() != 2 || su::toLower( tokens.at( 0 ) ) != "numberpositions=" )
+    ifs.seekg( 29 );
+    int* count = new int[1];
+    ifs.read( reinterpret_cast< char* >( count ), 4 );
+    numVertices = count[0];
+    debugLog() << count[0] << " vertices";
+
+    ifs.seekg( 33 + count[0] * 12 );
+    ifs.read( reinterpret_cast< char* >( count ), 4 );
+    numNormals = count[0];
+    debugLog() << count[0] << " normals";
+
+    ifs.seekg( 41 + numVertices * 12 + numNormals * 12 );
+    ifs.read( reinterpret_cast< char* >( count ), 4 );
+    debugLog() << count[0] << " triangles";
+    numTriangles = count[0];
+
+    boost::shared_ptr< WTriangleMesh > triMesh( new WTriangleMesh( numVertices, numTriangles ) );
+
+    ifs.seekg( 33 );
+    float *pointData = new float[ 3 * numVertices ];
+    ifs.read( reinterpret_cast< char* >( pointData ), 3 * sizeof( float ) * numVertices );
+
+    // skipping normals, as they are calculated by the triangle mesh class
+
+    ifs.seekg( 45 + numVertices * 12 + numNormals * 12 );
+    int *triData = new int[ 3 * numTriangles ];
+    ifs.read( reinterpret_cast< char* >( triData ), 3 * sizeof( int ) * numTriangles );
+
+    for( size_t i = 0; i < numVertices; ++i )
     {
-        WLogger::getLogger()->addLogMessage( "Unexpected line: " + line, "Read Mesh", LL_ERROR );
-        WLogger::getLogger()->addLogMessage( "Expected numberpositions", "Read Mesh", LL_ERROR );
-        progress->finish();
-        return boost::shared_ptr< WTriangleMesh >();
+        triMesh->addVertex( pointData[i * 3], 200 - pointData[i * 3 + 1], 160 - pointData[i * 3 + 2] );
     }
-    size_t numPoints = 0;
-    try
+    for( size_t i = 0; i < numTriangles; ++i )
     {
-        numPoints = boost::lexical_cast< size_t >( tokens.at( 1 ) );
-    }
-    catch( const boost::bad_lexical_cast &e )
-    {
-        WLogger::getLogger()->addLogMessage( "Invalid number of points: " + tokens.at( 1 ), "Read Mesh", LL_ERROR );
-        progress->finish();
-        return boost::shared_ptr< WTriangleMesh >();
-    }
-
-    std::getline( ifs, line );
-    tokens = su::tokenize( line );
-    if( tokens.size() != 1 || su::toLower( tokens.at( 0 ) ) != "positionsfixed" )
-    {
-        WLogger::getLogger()->addLogMessage( "Unexpected line: " + line, "Read Mesh", LL_ERROR );
-        WLogger::getLogger()->addLogMessage( "Expected positionsfixed", "Read Mesh", LL_ERROR );
-        progress->finish();
-        return boost::shared_ptr< WTriangleMesh >();
-    }
-
-    std::vector< osg::Vec3 > points;
-    points.reserve( numPoints );
-
-    for( unsigned int i = 0; i < numPoints; ++i )
-    {
-        std::getline( ifs, line );
-        tokens = su::tokenize( line );
-
-        try
-        {
-            points.push_back( osg::Vec3( boost::lexical_cast< float >( tokens.at( 0 ) ),
-                                     boost::lexical_cast< float >( tokens.at( 1 ) ),
-                                     boost::lexical_cast< float >( tokens.at( 2 ) ) ) );
-        }
-        catch( const boost::bad_lexical_cast &e )
-        {
-            WLogger::getLogger()->addLogMessage( "Invalid vertex position", "Read Mesh", LL_ERROR );
-            progress->finish();
-            return boost::shared_ptr< WTriangleMesh >();
-        }
+        triMesh->addTriangle( triData[i * 3], triData[i * 3 + 2], triData[i * 3 + 1] );
     }
 
-    std::getline( ifs, line );
-    tokens = su::tokenize( line );
-    if( tokens.size() != 2 || su::toLower( tokens.at( 0 ) ) != "numberpolygons=" )
-    {
-        WLogger::getLogger()->addLogMessage( "Unexpected line: " + line, "Read Mesh", LL_ERROR );
-        WLogger::getLogger()->addLogMessage( "Expected numberpolygons", "Read Mesh", LL_ERROR );
-        progress->finish();
-        return boost::shared_ptr< WTriangleMesh >();
-    }
-    size_t nbCells = 0;
-    try
-    {
-        nbCells = boost::lexical_cast< size_t >( tokens.at( 1 ) );
-    }
-    catch( const boost::bad_lexical_cast &e )
-    {
-        WLogger::getLogger()->addLogMessage( "Invalid number of polygons: " + tokens.at( 1 ), "Read Mesh", LL_ERROR );
-        progress->finish();
-        return boost::shared_ptr< WTriangleMesh >();
-    }
+//     skipping normals, as they are calculated by the triangle mesh class
+//     the following code would need an adjustment to the triangle mesh class, to avoid overriding
+//    the loaded normals
+//
+//    if( numVertices == numNormals )
+//    {
+//        ifs.seekg( 37 + numVertices * 12 );
+//        float *normalData = new float[ 3 * numNormals ];
+//        ifs.read( reinterpret_cast< char* >( normalData ), 3 * sizeof( float ) * numVertices );
+//
+//        for( size_t i = 0; i < numNormals; ++i )
+//        {
+//            triMesh->setVertexNormal( i, WPosition( normalData[i * 3], normalData[i * 3 + 1], normalData[i * 3 + 2] ) );
+//        }
+//        triMesh->setUseExternalVertexNormals( true );
+//    }
 
-    boost::shared_ptr< WTriangleMesh > triMesh( new WTriangleMesh( numPoints, nbCells ) );
-
-    for( unsigned int i = 0; i < numPoints; ++i )
-    {
-        triMesh->addVertex( points[i] );
-    }
-    ++*progress;
-
-    std::getline( ifs, line );
-    tokens = su::tokenize( line );
-    if( tokens.size() != 2 || su::toLower( tokens.at( 0 ) ) != "typepolygons=" )
-    {
-        WLogger::getLogger()->addLogMessage( "Unexpected line: " + line, "Read Mesh", LL_ERROR );
-        WLogger::getLogger()->addLogMessage( "Expected typepolygons", "Read Mesh", LL_ERROR );
-        progress->finish();
-        return boost::shared_ptr< WTriangleMesh >();
-    }
-    if ( boost::lexical_cast< size_t >( tokens.at( 1 ) ) != 3 )
-    {
-        WLogger::getLogger()->addLogMessage( "Invalid polygon type, only supporting triangles for now.", "Read Mesh", LL_ERROR );
-        progress->finish();
-        return boost::shared_ptr< WTriangleMesh >();
-    }
-    std::getline( ifs, line );
-    tokens = su::tokenize( line );
-    if( tokens.size() != 1 || su::toLower( tokens.at( 0 ) ) != "polygons" )
-    {
-        WLogger::getLogger()->addLogMessage( "Unexpected line: " + line, "Read Mesh", LL_ERROR );
-        WLogger::getLogger()->addLogMessage( "Expected polygons", "Read Mesh", LL_ERROR );
-        progress->finish();
-        return boost::shared_ptr< WTriangleMesh >();
-    }
-
-    for( unsigned int i = 0; i < nbCells; ++i )
-    {
-        std::getline( ifs, line );
-        tokens = su::tokenize( line );
-
-        try
-        {
-            triMesh->addTriangle( boost::lexical_cast< size_t >( tokens.at( 0 ) ),
-                                  boost::lexical_cast< size_t >( tokens.at( 2 ) ),
-                                  boost::lexical_cast< size_t >( tokens.at( 1 ) ) );
-        }
-        catch( const boost::bad_lexical_cast &e )
-        {
-            WLogger::getLogger()->addLogMessage( "Invalid triangle ID", "Read Mesh", LL_ERROR );
-            progress->finish();
-            return boost::shared_ptr< WTriangleMesh >();
-        }
-    }
-    ++*progress;
-
-    std::getline( ifs, line );
-    tokens = su::tokenize( line );
-    if( tokens.size() != 1 || su::toLower( tokens.at( 0 ) ) != "magnitudes" )
-    {
-        WLogger::getLogger()->addLogMessage( "Unexpected line: " + line, "Read Mesh", LL_ERROR );
-        WLogger::getLogger()->addLogMessage( "Expected magnitudes", "Read Mesh", LL_ERROR );
-        progress->finish();
-        return boost::shared_ptr< WTriangleMesh >();
-    }
-
-    for( unsigned int i = 0; i < numPoints; ++i )
-    {
-        std::getline( ifs, line );
-        tokens = su::tokenize( line );
-
-        try
-        {
-            triMesh->setVertexColor( i, blueGreenPurpleColorMap( boost::lexical_cast< float >( tokens.at( 0 ) ) ) );
-        }
-        catch( const boost::bad_lexical_cast &e )
-        {
-            WLogger::getLogger()->addLogMessage( "Invalid vertex position", "Read Mesh", LL_ERROR );
-            progress->finish();
-            return boost::shared_ptr< WTriangleMesh >();
-        }
-    }
-
-
+    ifs.close();
     progress->finish();
 
     return triMesh;
@@ -483,4 +523,181 @@ osg::Vec4 WMReadMesh::blueGreenPurpleColorMap( float value )
     else
         color =  osg::Vec4( 1.0, 0.0, 1.0, 1.0 );
     return color;
+}
+
+boost::shared_ptr< WTriangleMesh > WMReadMesh::readDip()
+{
+    namespace su = string_utils;
+
+    std::string fileName = m_meshFile->get().file_string().c_str();
+    WAssert( !fileName.empty(), "No filename specified." );
+
+    boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Read Mesh", 3 ) );
+    m_progress->addSubProgress( progress );
+
+    std::ifstream ifs;
+    ifs.open( fileName.c_str(), std::ifstream::in );
+    if( !ifs || ifs.bad() )
+    {
+        WLogger::getLogger()->addLogMessage( "Trying to load a broken file '" + fileName + "'", "Read Mesh", LL_ERROR );
+        throw std::runtime_error( "Problem during reading file. Probably file not found." );
+    }
+    std::string line;
+    size_t numPoints = 0;
+    size_t numCells = 0;
+    size_t typeCells = 0;
+    std::vector< std::string > tokens;
+
+    // first pass, try to read all information that might be anywhere in the file
+    while( !ifs.eof() )
+    {
+        std::getline( ifs, line );
+        tokens = su::tokenize( line );
+        if( tokens.size() == 2 && su::toLower( tokens.at( 0 ) ) == "numberpositions=" )
+        {
+            try
+            {
+                numPoints = boost::lexical_cast< size_t >( tokens.at( 1 ) );
+            }
+            catch( const boost::bad_lexical_cast &e )
+            {
+                WLogger::getLogger()->addLogMessage( "Invalid number of points: " + tokens.at( 1 ), "Read Mesh", LL_ERROR );
+                progress->finish();
+                return boost::shared_ptr< WTriangleMesh >();
+            }
+        }
+        if( tokens.size() == 2 && su::toLower( tokens.at( 0 ) ) == "numberpolygons=" )
+        {
+            try
+            {
+                numCells = boost::lexical_cast< size_t >( tokens.at( 1 ) );
+            }
+            catch( const boost::bad_lexical_cast &e )
+            {
+                WLogger::getLogger()->addLogMessage( "Invalid number of polygons: " + tokens.at( 1 ), "Read Mesh", LL_ERROR );
+                progress->finish();
+                return boost::shared_ptr< WTriangleMesh >();
+            }
+        }
+        if( tokens.size() == 2 && su::toLower( tokens.at( 0 ) ) == "typepolygons=" )
+        {
+            try
+            {
+                typeCells = boost::lexical_cast< size_t >( tokens.at( 1 ) );
+            }
+            catch( const boost::bad_lexical_cast &e )
+            {
+                WLogger::getLogger()->addLogMessage( "Invalid type of polygons: " + tokens.at( 1 ), "Read Mesh", LL_ERROR );
+                progress->finish();
+                return boost::shared_ptr< WTriangleMesh >();
+            }
+            if( typeCells != 3 )
+            {
+                WLogger::getLogger()->addLogMessage( "Invalid type of polygons: " + tokens.at( 1 ), "Read Mesh", LL_ERROR );
+                progress->finish();
+                return boost::shared_ptr< WTriangleMesh >();
+            }
+        }
+    }
+    debugLog() << "Positions: " << numPoints << " Cells: " << numCells;
+
+    //ifs.seekg( 0, std::ios::beg );
+    ifs.close();
+    ifs.open( fileName.c_str(), std::ifstream::in );
+    debugLog() << "current position: " << ifs.tellg();
+    while( !ifs.eof() )
+    {
+        std::getline( ifs, line );
+        tokens = su::tokenize( line );
+        if( tokens.size() == 1 && su::toLower( tokens.at( 0 ) ) == "positionsfixed" )
+        {
+            debugLog() << "found vertex info at file position: " << ifs.tellg();
+            break;
+        }
+    }
+    if( ifs.eof() )
+    {
+        WLogger::getLogger()->addLogMessage( "Couldn't find vertex info in the file", "Read Mesh", LL_ERROR );
+        progress->finish();
+        return boost::shared_ptr< WTriangleMesh >();
+    }
+
+    std::vector< osg::Vec3 > points;
+    points.reserve( numPoints );
+
+    debugLog() << "Start reading vertex info";
+    for( unsigned int i = 0; i < numPoints; ++i )
+    {
+        std::getline( ifs, line );
+        tokens = su::tokenize( line );
+
+        try
+        {
+            points.push_back( osg::Vec3( boost::lexical_cast< float >( tokens.at( 1 ) ) + 80.0,
+                                         boost::lexical_cast< float >( tokens.at( 0 ) ) + 100.0,
+                                         boost::lexical_cast< float >( tokens.at( 2 ) ) + 80.0 ) );
+        }
+        catch( const boost::bad_lexical_cast &e )
+        {
+            WLogger::getLogger()->addLogMessage( "Invalid vertex position", "Read Mesh", LL_ERROR );
+            progress->finish();
+            return boost::shared_ptr< WTriangleMesh >();
+        }
+    }
+    debugLog() << "Finished reading vertex info";
+
+    boost::shared_ptr< WTriangleMesh > triMesh( new WTriangleMesh( numPoints, numCells ) );
+
+    for( unsigned int i = 0; i < numPoints; ++i )
+    {
+        triMesh->addVertex( points[i] );
+    }
+    ++*progress;
+
+
+    //ifs.seekg( 0, std::ios::beg );
+    ifs.close();
+    ifs.open( fileName.c_str(), std::ifstream::in );
+    while( !ifs.eof() )
+    {
+        std::getline( ifs, line );
+        tokens = su::tokenize( line );
+        if( tokens.size() == 1 && su::toLower( tokens.at( 0 ) ) == "polygons" )
+        {
+            debugLog() << "found polygon info at file postion: " << ifs.tellg();
+            break;
+        }
+    }
+    if( ifs.eof() )
+    {
+        WLogger::getLogger()->addLogMessage( "Couldn't find polygon info in the file", "Read Mesh", LL_ERROR );
+        progress->finish();
+        return boost::shared_ptr< WTriangleMesh >();
+    }
+
+
+    debugLog() << "Start reading polygon info";
+    for( unsigned int i = 0; i < numCells; ++i )
+    {
+        std::getline( ifs, line );
+        tokens = su::tokenize( line );
+
+        try
+        {
+            triMesh->addTriangle( boost::lexical_cast< size_t >( tokens.at( 0 ) ),
+                                  boost::lexical_cast< size_t >( tokens.at( 1 ) ),
+                                  boost::lexical_cast< size_t >( tokens.at( 2 ) ) );
+        }
+        catch( const boost::bad_lexical_cast &e )
+        {
+            WLogger::getLogger()->addLogMessage( "Invalid triangle ID", "Read Mesh", LL_ERROR );
+            progress->finish();
+            return boost::shared_ptr< WTriangleMesh >();
+        }
+    }
+    debugLog() << "Finished reading polygon info";
+    ++*progress;
+    progress->finish();
+
+    return triMesh;
 }

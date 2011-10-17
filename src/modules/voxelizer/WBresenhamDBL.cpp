@@ -24,9 +24,9 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../common/math/WLine.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/common/math/WLine.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WBresenhamDBL.h"
 
 WBresenhamDBL::WBresenhamDBL( boost::shared_ptr< WGridRegular3D > grid, bool antialiased )

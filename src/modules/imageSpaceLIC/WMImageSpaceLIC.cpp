@@ -33,24 +33,23 @@
 #include <osg/Geometry>
 #include <osg/Drawable>
 
-#include "../../common/WPropertyHelper.h"
-#include "../../common/math/WMath.h"
-#include "../../common/math/WPlane.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D_2.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../graphicsEngine/WGEColormapping.h"
-#include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../graphicsEngine/WGETextureUtils.h"
-#include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
-#include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
-#include "../../graphicsEngine/offscreen/WGEOffscreenRenderNode.h"
-#include "../../graphicsEngine/offscreen/WGEOffscreenRenderPass.h"
-#include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
-#include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
-#include "../../graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/common/math/WMath.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/WDataTexture3D.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/graphicsEngine/WGEColormapping.h"
+#include "core/graphicsEngine/WGEGeodeUtils.h"
+#include "core/graphicsEngine/WGETextureUtils.h"
+#include "core/graphicsEngine/callbacks/WGELinearTranslationCallback.h"
+#include "core/graphicsEngine/callbacks/WGENodeMaskCallback.h"
+#include "core/graphicsEngine/offscreen/WGEOffscreenRenderNode.h"
+#include "core/graphicsEngine/offscreen/WGEOffscreenRenderPass.h"
+#include "core/graphicsEngine/shaders/WGEPropertyUniform.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
+#include "core/graphicsEngine/shaders/WGEShaderDefineOptions.h"
+#include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
+#include "core/kernel/WKernel.h"
 
 #include "WMImageSpaceLIC.h"
 #include "WMImageSpaceLIC.xpm"
@@ -174,7 +173,7 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
     // remove the old slices
     m_output->clear();
 
-    if ( mesh && !m_useSlices->get( true ) )
+    if( mesh && !m_useSlices->get( true ) )
     {
         // we have a mesh and want to use it
         // create geometry and geode
@@ -203,7 +202,7 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
         surfaceGeode->addDrawable( surfaceGeometry );
         m_output->insert( surfaceGeode );
     }
-    else if ( !mesh && !m_useSlices->get( true ) )
+    else if( !mesh && !m_useSlices->get( true ) )
     {
         warnLog() << "No surface connected to input but surface render mode enabled. Nothing rendered.";
     }
@@ -379,13 +378,13 @@ void WMImageSpaceLIC::moduleMain()
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // main loop
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
         // woke up since the module is requested to finish?
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -400,7 +399,7 @@ void WMImageSpaceLIC::moduleMain()
         bool dataValid = ( dataSetVec || dataSetScal );
 
         // is data valid? If not, remove graphics
-        if ( !dataValid )
+        if( !dataValid )
         {
             debugLog() << "Resetting.";
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( offscreen );
@@ -408,7 +407,7 @@ void WMImageSpaceLIC::moduleMain()
         }
 
         // something interesting for us?
-        if ( dataValid && !dataUpdated && !propertyUpdated )
+        if( dataValid && !dataUpdated && !propertyUpdated )
         {
             continue;
         }
@@ -418,7 +417,7 @@ void WMImageSpaceLIC::moduleMain()
         WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( offscreen );
 
         // prefer vector dataset if existing
-        if ( dataSetVec )
+        if( dataSetVec )
         {
             debugLog() << "Using vector data";
 
@@ -431,9 +430,9 @@ void WMImageSpaceLIC::moduleMain()
 
             // prepare offscreen render chain
             availableDataDefines->activateOption( 1 );  // vector input
-            transformation->bind( dataSetVec->getTexture2(), 0 );
+            transformation->bind( dataSetVec->getTexture(), 0 );
         }
-        else if ( dataSetScal )
+        else if( dataSetScal )
         {
             debugLog() << "Using scalar data";
 
@@ -446,7 +445,7 @@ void WMImageSpaceLIC::moduleMain()
 
             // prepare offscreen render chain
             availableDataDefines->activateOption( 0 );  // scalar input
-            transformation->bind( dataSetScal->getTexture2(), 0 );
+            transformation->bind( dataSetScal->getTexture(), 0 );
         }
 
         debugLog() << "Done";

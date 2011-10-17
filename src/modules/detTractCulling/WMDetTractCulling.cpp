@@ -22,29 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iomanip>
-#include <iostream>
 #include <string>
 #include <vector>
 
-// Use filesystem version 2 for compatibility with newer boost versions.
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
-#include <boost/filesystem.hpp>
-
-#include "../../common/datastructures/WFiber.h"
-#include "../../common/WColor.h"
-#include "../../common/WLogger.h"
-#include "../../common/WProgress.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../dataHandler/exceptions/WDHIOFailure.h"
-#include "../../dataHandler/io/WWriterFiberVTK.h"
-#include "../../dataHandler/WDataSetFiberVector.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../kernel/WKernel.h"
-#include "WMDetTractCulling.xpm"
+#include "core/common/datastructures/WFiber.h"
+#include "core/common/WProgress.h"
+#include "core/dataHandler/WDataSetFibers.h"
+#include "core/dataHandler/WDataSetFiberVector.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 #include "WMDetTractCulling.h"
+#include "WMDetTractCulling.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMDetTractCulling )
@@ -72,22 +60,23 @@ const char** WMDetTractCulling::getXPMIcon() const
 void WMDetTractCulling::moduleMain()
 {
     m_moduleState.setResetable( true, true ); // remember actions when actually not waiting for actions
-    m_moduleState.add( m_tractInput->getDataChangedCondition() );
+    m_moduleState.add( m_tractIC->getDataChangedCondition() );
     m_moduleState.add( m_recompute );
 
     ready();
 
-    while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
+    while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
-        if ( !m_tractInput->getData().get() ) // ok, the output has not yet sent data
+        if( !m_tractIC->getData().get() ) // ok, there is no valid data yet
         {
             m_moduleState.wait();
             continue;
         }
 
-        if( m_rawDataset != m_tractInput->getData() ) // in case data has changed
+        bool dataChanged = ( m_rawDataset != m_tractIC->getData() );
+        if( dataChanged ) // only convert if dataset has changed not, if just parameters have changed
         {
-            m_rawDataset = m_tractInput->getData();
+            m_rawDataset = m_tractIC->getData();
             boost::shared_ptr< WProgress > convertProgress( new WProgress( "Converting tracts", 1 ) );
             m_progress->addSubProgress( convertProgress );
             m_dataset = boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector( m_rawDataset ) );
@@ -95,18 +84,9 @@ void WMDetTractCulling::moduleMain()
             convertProgress->finish();
         }
 
-        if( m_savePath->get().string() == "/no/such/file" )
-        {
-            m_savePath->set( saveFileName( m_dataset->getFileName() ) );
-        }
-
-        if( m_run->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
-        {
-            infoLog() << "Start processing tracts";
-            cullOutTracts();
-            infoLog() << "Processing finished";
-            m_run->set( WPVBaseTypes::PV_TRIGGER_READY, false );
-        }
+        infoLog() << "Start processing " << m_numTracts << " tracts";
+        cullOutTracts();
+        infoLog() << "Processing finished with " << m_tractOC->getData()->size() << " tracts left";
 
         m_moduleState.wait();
     }
@@ -114,20 +94,16 @@ void WMDetTractCulling::moduleMain()
 
 void WMDetTractCulling::connectors()
 {
-    m_tractInput = WModuleInputData< WDataSetFibers >::createAndAdd( shared_from_this(), "tractInput", "A loaded tract dataset." );
-    m_output = WModuleOutputData< WDataSetFibers >::createAndAdd( shared_from_this(),  "tractOutput", "The tracts that survied culling." );
+    m_tractIC = WModuleInputData< WDataSetFibers >::createAndAdd( shared_from_this(), "tractInput", "A loaded tract dataset." );
+    m_tractOC = WModuleOutputData< WDataSetFibers >::createAndAdd( shared_from_this(),  "tractOutput", "The tracts that survied culling." );
 
     WModule::connectors();  // call WModules initialization
 }
 
 void WMDetTractCulling::properties()
 {
-    m_dSt_culling_t    = m_properties->addProperty( "Min tract distance", "If below, the shorter tract is culled out", 6.5 );
-    m_proximity_t      = m_properties->addProperty( "Min point distance", "Min distance of points of two tracts which should be considered", 1.0 );
-    m_saveCulledCurves = m_properties->addProperty( "Save result", "If true the remaining tracts are save to a file", false );
-    m_savePath         = m_properties->addProperty( "Save path", "Where to save the result", boost::filesystem::path( "/no/such/file" ) );
-    m_run              = m_properties->addProperty( "Start culling", "Start", WPVBaseTypes::PV_TRIGGER_READY, m_recompute );
-    WPropertyHelper::PC_NOTEMPTY::addTo( m_savePath );
+    m_dSt_culling_t    = m_properties->addProperty( "Min tract distance", "If below, the shorter tract is culled out", 6.5, m_recompute );
+    m_proximity_t      = m_properties->addProperty( "Min point distance", "If below, point distance not considered for tract", 1.0, m_recompute );
     m_numRemovedTracts = m_infoProperties->addProperty( "#Tracts removed", "Number of tracts beeing culled out", 0 );
     m_numRemovedTracts->setMin( 0 );
     m_numRemovedTracts->setMax( wlimits::MAX_INT32_T );
@@ -160,7 +136,9 @@ void WMDetTractCulling::cullOutTracts()
     boost::shared_ptr< WProgress > progress( new WProgress( "Tract culling", numTracts ) );
     m_progress->addSubProgress( progress );
 
-    for( size_t q = 0; q < numTracts && !m_shutdownFlag(); ++q )  // loop over all tracts
+    // loop over all tracts abort when shutdown, parameters changed. ATM changes on the input dataset are not considered!
+    // TODO(math): consider changes on input dataset
+    for( size_t q = 0; q < numTracts && !( m_shutdownFlag() || m_proximity_t->changed() || m_dSt_culling_t->changed() ); ++q )
     {
         if( unusedTracts[q] )
         {
@@ -189,46 +167,18 @@ void WMDetTractCulling::cullOutTracts()
         }
         ++*progress;
     }
-    if( m_shutdownFlag() )
+    if( m_shutdownFlag() || m_proximity_t->changed() || m_dSt_culling_t->changed() ) // if parameters changed we have to start all over again
     {
         return; // abort requested
     }
-    progress->finish();
-    saveGainedTracts( unusedTracts );
-}
 
-void WMDetTractCulling::saveGainedTracts( const std::vector< bool >& unusedTracts )
-{
+    progress->finish();
+
     boost::shared_ptr< WProgress > eraseProgress( new WProgress( "Erasing tracts", unusedTracts.size() ) );
     m_progress->addSubProgress( eraseProgress );
     boost::shared_ptr< const WDataSetFiberVector > result =  m_dataset->generateDataSetOutOfUsedFibers( unusedTracts );
-    m_output->updateData( result->toWDataSetFibers() );
+    m_tractOC->updateData( result->toWDataSetFibers() );
     eraseProgress->finish();
 
-    m_numRemovedTracts->set( unusedTracts.size() - m_output->getData()->size() );
-
-    boost::shared_ptr< WProgress > saveProgress( new WProgress( "Saving tracts", unusedTracts.size() ) );
-    m_progress->addSubProgress( saveProgress );
-    if( m_saveCulledCurves->get() )
-    {
-        try
-        {
-            WWriterFiberVTK w( m_savePath->get(), true );
-            w.writeFibs( result );
-        }
-        catch( const WDHIOFailure& e )
-        {
-            errorLog() << "While writing tracts to file: " << e.what();
-        }
-    }
-    saveProgress->finish();
-}
-
-boost::filesystem::path WMDetTractCulling::saveFileName( std::string dataFileName ) const
-{
-    std::stringstream newExtension;
-    newExtension << std::fixed << std::setprecision( 2 );
-    newExtension << ".pt-" << m_proximity_t->get() << ".dst-" << m_dSt_culling_t->get() << ".fib";
-    boost::filesystem::path tractFileName( dataFileName );
-    return tractFileName.replace_extension( newExtension.str() );
+    m_numRemovedTracts->set( m_dataset->size() - result->size() );
 }

@@ -32,8 +32,8 @@
 #include <osgWidget/WindowManager> //NOLINT
 #include <osg/LightModel>
 
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WSelectionManager.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WSelectionManager.h"
 
 #include "WMDatasetProfile.xpm" // Please put a real icon here.
 
@@ -65,8 +65,7 @@ const char** WMDatasetProfile::getXPMIcon() const
 }
 const std::string WMDatasetProfile::getName() const
 {
-    // Specify your module name here. This name must be UNIQUE!
-    return "DatasetProfile";
+    return "Dataset Profile";
 }
 
 const std::string WMDatasetProfile::getDescription() const
@@ -138,11 +137,11 @@ void WMDatasetProfile::moduleMain()
     m_dirty = true;
 
     // wait for a dataset to be connected, most likely an anatomy dataset
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         m_moduleState.wait();
 
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -153,19 +152,19 @@ void WMDatasetProfile::moduleMain()
 
         if( dataValid )
         {
-            if ( dataChanged )
+            if( dataChanged )
             {
                 m_dataSet = newDataSet;
                 m_grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
             }
         }
 
-        if ( m_snapSelection->changed( true ) )
+        if( m_snapSelection->changed( true ) )
         {
             m_dirty = true;
         }
 
-        if ( m_propAddKnobTrigger->changed( true ) )
+        if( m_propAddKnobTrigger->changed( true ) )
         {
             WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
             addKnob( center );
@@ -174,13 +173,13 @@ void WMDatasetProfile::moduleMain()
         }
 
 
-        if ( m_propUseLength->changed() || m_propLength->changed() || m_propInterpolate->changed( true ) || m_propNumSamples->changed( true ) )
+        if( m_propUseLength->changed() || m_propLength->changed() || m_propInterpolate->changed( true ) || m_propNumSamples->changed( true ) )
         {
             m_dirty = true;
         }
     }
 
-    for ( size_t i = 0; i < knobs.size(); ++i )
+    for( size_t i = 0; i < knobs.size(); ++i )
     {
         WGraphicsEngine::getGraphicsEngine()->getScene()->remove( &( *knobs[i] ) );
         knobs[i]->removeROIChangeNotifier( m_changeRoiSignal );
@@ -193,7 +192,7 @@ void WMDatasetProfile::updateCallback()
 {
     WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
 
-    for ( size_t i = 0; i < knobs.size(); ++i )
+    for( size_t i = 0; i < knobs.size(); ++i )
     {
         knobs[i]->setLockX( false );
         knobs[i]->setLockY( false );
@@ -204,21 +203,21 @@ void WMDatasetProfile::updateCallback()
         case 0:
             break;
         case 1:
-            for ( size_t i = 0; i < knobs.size(); ++i )
+            for( size_t i = 0; i < knobs.size(); ++i )
             {
                 knobs[i]->setZ( center[2] );
                 knobs[i]->setLockZ( true );
             }
             break;
         case 2:
-            for ( size_t i = 0; i < knobs.size(); ++i )
+            for( size_t i = 0; i < knobs.size(); ++i )
             {
                 knobs[i]->setY( center[1] );
                 knobs[i]->setLockY( true );
             }
             break;
         case 3:
-            for ( size_t i = 0; i < knobs.size(); ++i )
+            for( size_t i = 0; i < knobs.size(); ++i )
             {
                 knobs[i]->setX( center[0] );
                 knobs[i]->setLockX( true );
@@ -228,9 +227,9 @@ void WMDatasetProfile::updateCallback()
             break;
     }
 
-        if ( m_propUseLength->get( true ) )
+        if( m_propUseLength->get( true ) )
         {
-            for ( size_t i = 0; i < knobs.size() - 1; ++i )
+            for( size_t i = 0; i < knobs.size() - 1; ++i )
             {
                 WPosition p1 = knobs[i]->getPosition();
                 WPosition p2 = knobs[i+1]->getPosition();
@@ -243,7 +242,7 @@ void WMDatasetProfile::updateCallback()
 
                 WPosition vec = p2 - p1;
 
-                if ( ( fabs( l - static_cast<float>( m_propLength->get( true ) ) ) ) > 0.001 )
+                if( ( fabs( l - static_cast<float>( m_propLength->get( true ) ) ) ) > 0.001 )
                 {
                     knobs[i+1]->setPosition( p1 + vec * mult );
                 }
@@ -321,7 +320,7 @@ void WMDatasetProfile::addKnob( WPosition pos )
     knobs.push_back( s );
     s->addROIChangeNotifier( m_changeRoiSignal );
 
-    for ( size_t i = 0; i < knobs.size(); ++i )
+    for( size_t i = 0; i < knobs.size(); ++i )
     {
         knobs[i]->setColor( osg::Vec4( 0.0, 1.0, 1.0, 1.0 ) );
     }
@@ -333,13 +332,13 @@ void WMDatasetProfile::update()
 {
     m_lineGeode->removeDrawables( 0, 1 );
 
-    if ( m_active->get() )
+    if( m_active->get() )
     {
         osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
         osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
         osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
 
-        for ( size_t i = 0; i < knobs.size(); ++i )
+        for( size_t i = 0; i < knobs.size(); ++i )
         {
             vertices->push_back( osg::Vec3( knobs[i]->getPosition() ) );
         }
@@ -362,7 +361,7 @@ void WMDatasetProfile::update()
         int height = viewer->getCamera()->getViewport()->height();
         int width = viewer->getCamera()->getViewport()->width();
 
-        if ( ( height != m_oldViewHeight ) || width != m_oldViewWidth || m_active->changed( true ) )
+        if( ( height != m_oldViewHeight ) || width != m_oldViewWidth || m_active->changed( true ) )
         {
             m_oldViewHeight = height;
             m_oldViewWidth = width;
@@ -376,7 +375,7 @@ void WMDatasetProfile::update()
         m_graphGeode = createGraphGeode();
         m_camera->addChild( m_graphGeode );
 
-        for ( size_t i = 0; i < knobs.size(); ++i )
+        for( size_t i = 0; i < knobs.size(); ++i )
         {
             knobs[i]->unhide();
         }
@@ -385,7 +384,7 @@ void WMDatasetProfile::update()
     }
     else
     {
-        for ( size_t i = 0; i < knobs.size(); ++i )
+        for( size_t i = 0; i < knobs.size(); ++i )
         {
             knobs[i]->hide();
         }
@@ -463,7 +462,7 @@ osg::ref_ptr< osg::Geode > WMDatasetProfile::createGraphGeode()
 
     float overallLength = 0;
     std::vector<float>segmentLengths;
-    for ( size_t k = 0; k < knobs.size() - 1 ; ++k )
+    for( size_t k = 0; k < knobs.size() - 1 ; ++k )
     {
         WPosition p = ( knobs[k+1]->getPosition() - knobs[k]->getPosition() );
         segmentLengths.push_back( length( p ) );
@@ -472,7 +471,7 @@ osg::ref_ptr< osg::Geode > WMDatasetProfile::createGraphGeode()
 
     float x = 12;
     float y;
-    for ( size_t k = 0; k < knobs.size() - 1 ; ++k )
+    for( size_t k = 0; k < knobs.size() - 1 ; ++k )
     {
         float l1 = segmentLengths[k] / overallLength;
         int steps = 100 * l1;
@@ -480,9 +479,9 @@ osg::ref_ptr< osg::Geode > WMDatasetProfile::createGraphGeode()
         knobPositions.push_back( x );
         WPosition p1 = ( knobs[k+1]->getPosition() - knobs[k]->getPosition() ) / static_cast<float>( steps );
 
-        for ( int i = 0; i < steps; ++i )
+        for( int i = 0; i < steps; ++i )
         {
-            if ( m_propInterpolate->get() )
+            if( m_propInterpolate->get() )
             {
                 bool success;
                 value = m_dataSet->interpolate( knobs[k]->getPosition() + p1 * i, &success );
@@ -500,7 +499,7 @@ osg::ref_ptr< osg::Geode > WMDatasetProfile::createGraphGeode()
     }
     knobPositions.push_back( x );
 
-    for ( size_t j = 0; j < knobPositions.size(); ++j )
+    for( size_t j = 0; j < knobPositions.size(); ++j )
     {
         vertices->push_back( osg::Vec3( knobPositions[j], m_oldViewHeight / 2, 0 ) );
         vertices->push_back( osg::Vec3( knobPositions[j], 10, 0 ) );

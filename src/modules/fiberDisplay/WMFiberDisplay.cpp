@@ -30,14 +30,14 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
-#include "../../common/WColor.h"
-#include "../../common/WLogger.h"
-#include "../../common/WPathHelper.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WSelectionManager.h"
+#include "core/common/WColor.h"
+#include "core/common/WLogger.h"
+#include "core/common/WPathHelper.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WSelectionManager.h"
 #include "fiberdisplay2.xpm"
 #include "WMFiberDisplay.h"
 
@@ -198,22 +198,22 @@ void WMFiberDisplay::moduleMain()
 
     ready();
 
-    while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
+    while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
 
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
 
         // data changed?
-        if ( m_dataset != m_fiberInput->getData() )
+        if( m_dataset != m_fiberInput->getData() )
         {
             inputUpdated();
         }
 
-        if ( m_showCullBox->changed() )
+        if( m_showCullBox->changed() )
         {
             if( m_showCullBox->get() )
             {
@@ -225,7 +225,7 @@ void WMFiberDisplay::moduleMain()
             }
         }
 
-       if ( m_propUpdateOutputTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+       if( m_propUpdateOutputTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
        {
             updateOutput();
             m_propUpdateOutputTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
@@ -244,7 +244,7 @@ void WMFiberDisplay::inputUpdated()
     m_dataset = m_fiberInput->getData();
 
     // ensure the data is valid (not NULL)
-    if ( !m_dataset ) // ok, the output has been reset, so we can ignore the "data change"
+    if( !m_dataset ) // ok, the output has been reset, so we can ignore the "data change"
     {
         m_noData.set( true );
         debugLog() << "Data reset on " << m_fiberInput->getCanonicalName() << ". Ignoring.";
@@ -314,7 +314,7 @@ void WMFiberDisplay::update()
 {
     if( m_osgNode && m_noData.changed() )
     {
-        if ( m_noData.get( true ) )
+        if( m_noData.get( true ) )
         {
             m_osgNode->setNodeMask( 0x0 );
         }
@@ -348,13 +348,13 @@ void WMFiberDisplay::updateRenderModes()
 
     if( m_useTubesProp->changed() || m_useTextureProp->changed() || m_activateCullBox->changed() )
     {
-        if ( m_useTubesProp->get( true ) )
+        if( m_useTubesProp->get( true ) )
         {
             m_fiberDrawable->setUseTubes( true );
             m_shaderTubes->apply( m_osgNode );
             m_uniformUseTexture->set( m_useTextureProp->get( true ) );
         }
-        else if ( ( m_useTextureProp->get( true ) && !m_useTubesProp->get() ) || m_activateCullBox->get( true) )
+        else if( ( m_useTextureProp->get( true ) && !m_useTubesProp->get() ) || m_activateCullBox->get( true) )
         {
             m_fiberDrawable->setUseTubes( false );
             m_shaderTubes->deactivate( m_osgNode );
@@ -384,7 +384,7 @@ void WMFiberDisplay::updateCallback()
         m_fiberDrawable->setColor( m_dataset->getColorScheme()->getColor() );
     }
 
-    if ( m_tubeThickness->changed() && m_useTubesProp->get() )
+    if( m_tubeThickness->changed() && m_useTubesProp->get() )
     {
         m_uniformTubeThickness->set( static_cast<float>( m_tubeThickness->get( true ) ) );
     }
@@ -402,16 +402,16 @@ void WMFiberDisplay::updateOutput()
 
     size_t countLines = 0;
 
-    for ( size_t l = 0; l < active->size(); ++l )
+    for( size_t l = 0; l < active->size(); ++l )
     {
-        if ( ( *active )[l] )
+        if( ( *active )[l] )
         {
             size_t pc = m_dataset->getLineStartIndexes()->at( l ) * 3;
 
             lineStartIndexes->push_back( vertices->size() / 3 );
             lineLengths->push_back( m_dataset->getLineLengths()->at( l ) );
 
-            for ( size_t j = 0; j < m_dataset->getLineLengths()->at( l ); ++j )
+            for( size_t j = 0; j < m_dataset->getLineLengths()->at( l ); ++j )
             {
                 vertices->push_back( m_dataset->getVertices()->at( pc ) );
                 ++pc;

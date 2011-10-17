@@ -29,14 +29,14 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "../../../common/datastructures/WFiber.h"
-#include "../../../common/WLogger.h"
-#include "../../../dataHandler/WDataSetDTI.h"
-#include "../../../dataHandler/WDataSetFiberVector.h"
+#include "core/common/datastructures/WFiber.h"
+#include "core/common/WLogger.h"
+#include "core/dataHandler/WDataSetDTI.h"
+#include "core/dataHandler/WDataSetFiberVector.h"
 #include "../WGaussProcess.h"
 
 /**
- * Testsuite for the gaussian process class.
+ * Testsuite for the Gaussian process class.
  */
 class WGaussProcessTest : public CxxTest::TestSuite
 {
@@ -160,7 +160,7 @@ public:
         TS_ASSERT_DELTA( overlap, 0.5065, 0.003 );
     }
 
-// TODO(math): This is just about to understand what the outcome of small tracts along long tracts in terms of gaussian process similarity is, and
+// TODO(math): This is just about to understand what the outcome of small tracts along long tracts in terms of Gaussian process similarity is, and
 // can be removed when I understood this to full extent.
 //
 //    void testSmallTractAlongLongTract( void )
@@ -235,7 +235,7 @@ private:
     boost::shared_ptr< WDataSetDTI > m_emptyDTIDataSet;
 
     /**
-     * Dummy tract dataset for gaussian process generation.
+     * Dummy tract dataset for Gaussian process generation.
      */
     boost::shared_ptr< WDataSetFibers > m_tracts;
 

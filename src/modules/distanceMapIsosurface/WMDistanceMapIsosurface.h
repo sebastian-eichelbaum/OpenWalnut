@@ -27,11 +27,11 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleContainer.h"
-#include "../../kernel/WModuleInputForwardData.h"
-#include "../../kernel/WModuleOutputForwardData.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleContainer.h"
+#include "core/kernel/WModuleInputForwardData.h"
+#include "core/kernel/WModuleOutputForwardData.h"
 
 /**
  * Computes a distance map from an anatomy dataset and renders it as isosurface. It is a composition of marching cubes and the
@@ -66,6 +66,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 

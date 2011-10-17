@@ -33,14 +33,14 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../graphicsEngine/WTriangleMesh.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
 
 /**
  * Module implementing the marching cubes algorithm with consistent triangulation for data
@@ -87,6 +87,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return the icon.
      */
     virtual const char** getXPMIcon() const;
 

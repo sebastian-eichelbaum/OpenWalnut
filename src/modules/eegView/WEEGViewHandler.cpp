@@ -30,13 +30,13 @@
 #include <osgGA/GUIActionAdapter>
 #include <osgGA/GUIEventAdapter>
 
-#include "../../common/exceptions/WOutOfBounds.h"
-#include "../../common/WAssert.h"
-#include "../../common/WFlag.h"
-#include "../../common/WPropertyTypes.h"
-#include "../../common/WPropertyVariable.h"
-#include "../../dataHandler/WEEG2.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
+#include "core/common/exceptions/WOutOfBounds.h"
+#include "core/common/WAssert.h"
+#include "core/common/WFlag.h"
+#include "core/common/WPropertyTypes.h"
+#include "core/common/WPropertyVariable.h"
+#include "core/dataHandler/WEEG2.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
 #include "WEEGEvent.h"
 #include "WEEGViewHandler.h"
 

@@ -26,7 +26,7 @@
 #define WBSPLINE_H
 
 #include <vector>
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
 
 
 /**
@@ -58,16 +58,19 @@ public:
 
     /**
      * Returns the stored de Boor points.
+     * \return The stored de Boor points
      */
     std::vector< WVector3d > getDeBoorPoints();
 
     /**
      * Returns the stored knots.
+     * \return The stored knots
      */
     std::vector<double> getKnots();
 
     /**
-     * Returns the order of the spline
+     * Returns the order of the spline.
+     * \return The order of the spline
      */
     int getOrder();
 
@@ -100,6 +103,7 @@ public:
     /**
      * Compute a single sample point on the spline for the given parameter.
      * \param t parameter on spline curve.
+     * \return Sample point on the curve at t.
      */
     WVector3d f( double t );
 
@@ -113,6 +117,7 @@ private:
      * Compute the alpha of the de Boor algorithm for the given parameters
      * \param _i First recursion parameter.
      * \param _j Second recursion parameter.
+     * \return De Boor alpha for (_i,_j)
      */
     double getAlpha_i_j( int _i, int _j );
 
@@ -120,6 +125,7 @@ private:
      * Compute a control point of the de Boor algorithm for the given parameters
      * \param _i First recursion parameter.
      * \param _j Second recursion parameter.
+     * \return De Boor control point at (_i,_j).
      */
     WVector3d controlPoint_i_j( int _i, int _j );
 };

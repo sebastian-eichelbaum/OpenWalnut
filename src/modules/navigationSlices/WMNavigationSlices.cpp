@@ -23,23 +23,24 @@
 //---------------------------------------------------------------------------
 
 #include <osg/Vec3>
+#include <osg/LineWidth>
 #include <osg/MatrixTransform>
 
-#include "../../common/WPropertyHelper.h"
-#include "../../common/math/WMath.h"
-#include "../../graphicsEngine/WGEColormapping.h"
-#include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
-#include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
-#include "../../graphicsEngine/callbacks/WGEPropertyUniformCallback.h"
-#include "../../graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
-#include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
-#include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
-#include "../../graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
-#include "../../kernel/WSelectionManager.h"
-#include "../../graphicsEngine/WGraphicsEngine.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/common/math/WMath.h"
+#include "core/graphicsEngine/WGEColormapping.h"
+#include "core/graphicsEngine/WGEGeodeUtils.h"
+#include "core/graphicsEngine/callbacks/WGELinearTranslationCallback.h"
+#include "core/graphicsEngine/callbacks/WGENodeMaskCallback.h"
+#include "core/graphicsEngine/callbacks/WGEPropertyUniformCallback.h"
+#include "core/graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
+#include "core/graphicsEngine/shaders/WGEPropertyUniform.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
+#include "core/graphicsEngine/shaders/WGEShaderDefineOptions.h"
+#include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
+#include "core/kernel/WSelectionManager.h"
+#include "core/graphicsEngine/WGraphicsEngine.h"
+#include "core/kernel/WKernel.h"
 
 #include "WMNavigationSlices.h"
 #include "WMNavigationSlices.xpm"
@@ -87,21 +88,21 @@ void WMNavigationSlices::connectors()
 
 void WMNavigationSlices::properties()
 {
-    m_noTransparency  = m_properties->addProperty( "No Transparency", "If checked, transparency is not used. This will show the complete slices.",
+    m_noTransparency  = m_properties->addProperty( "No transparency", "If checked, transparency is not used. This will show the complete slices.",
                                                    false );
 
     m_sliceGroup      = m_properties->addPropertyGroup( "Slices",  "Slice Options." );
 
     // enable slices
     // Flags denoting whether the glyphs should be shown on the specific slice
-    m_showonX        = m_sliceGroup->addProperty( "Show Sagittal", "Show vectors on sagittal slice.", true );
-    m_showonY        = m_sliceGroup->addProperty( "Show Coronal", "Show vectors on coronal slice.", true );
-    m_showonZ        = m_sliceGroup->addProperty( "Show Axial", "Show vectors on axial slice.", true );
+    m_showonX = m_sliceGroup->addProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropSagittalShow() );
+    m_showonY = m_sliceGroup->addProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropCoronalShow() );
+    m_showonZ = m_sliceGroup->addProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropAxialShow() );
 
     // The slice positions.
-    m_xPos           = m_sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 0.0, true );
-    m_yPos           = m_sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0.0, true );
-    m_zPos           = m_sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0.0, true );
+    m_xPos    = m_sliceGroup->addProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropSagittalPos() );
+    m_yPos    = m_sliceGroup->addProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropCoronalPos() );
+    m_zPos    = m_sliceGroup->addProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropAxialPos() );
 
     // call WModule's initialization
     WModule::properties();
@@ -111,6 +112,9 @@ void WMNavigationSlices::initOSG()
 {
     // remove the old slices
     m_output->clear();
+    m_axialOutput->clear();
+    m_sagittalOutput->clear();
+    m_coronalOutput->clear();
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Property Setup
@@ -118,7 +122,7 @@ void WMNavigationSlices::initOSG()
 
     // no colormaps -> no slices
     bool empty = !WGEColormapping::instance()->size();
-    if ( empty )
+    if( empty )
     {
         // hide the slider properties.
         m_xPos->setHidden();
@@ -131,6 +135,8 @@ void WMNavigationSlices::initOSG()
     WBoundingBox bb = WGEColormapping::instance()->getBoundingBox();
     WVector3d minV = bb.getMin();
     WVector3d maxV = bb.getMax();
+    WVector3d sizes = ( maxV - minV );
+    WVector3d midBB = minV + ( sizes * 0.5 );
 
     // update the properties
     m_xPos->setMin( minV[0] );
@@ -145,13 +151,39 @@ void WMNavigationSlices::initOSG()
     m_zPos->setHidden( false );
 
     // if this is done the first time, set the slices to the center of the dataset
-    if ( m_first )
+    if( m_first )
     {
         m_first = false;
-        m_xPos->set( ( maxV[0] - minV[0] ) / 2.0 );
-        m_yPos->set( ( maxV[1] - minV[1] ) / 2.0 );
-        m_zPos->set( ( maxV[2] - minV[2] ) / 2.0 );
+        m_xPos->set( midBB[0] );
+        m_yPos->set( midBB[1] );
+        m_zPos->set( midBB[2] );
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Navigation View Setup
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    double maxSizeInv = 1.0 / std::max( sizes[0], std::max( sizes[1], sizes[2] ) );
+    m_axialOutput->setMatrix(
+        osg::Matrixd::translate( -midBB[0], -midBB[1], -midBB[2] ) *
+        osg::Matrixd::scale( maxSizeInv, maxSizeInv, maxSizeInv ) *
+        osg::Matrixd::translate( 0.0, 0.0, -0.5 )
+    );
+
+    m_coronalOutput->setMatrix(
+        osg::Matrixd::translate( -midBB[0], -midBB[1], -midBB[2] ) *
+        osg::Matrixd::scale( maxSizeInv, maxSizeInv, maxSizeInv ) *
+        osg::Matrixd::rotate( -0.5 * piDouble, 1.0, 0.0 , 0.0 ) *
+        osg::Matrixd::translate( 0.0, 0.0, -0.5 )
+    );
+
+    m_sagittalOutput->setMatrix(
+        osg::Matrixd::translate( -midBB[0], -midBB[1], -midBB[2] ) *
+        osg::Matrixd::scale( maxSizeInv, maxSizeInv, maxSizeInv ) *
+        osg::Matrixd::rotate( -0.5 * piDouble, 1.0, 0.0 , 0.0 ) *
+        osg::Matrixd::rotate( 0.5 * piDouble, 0.0, 1.0 , 0.0 ) *
+        osg::Matrixd::translate( 0.0, 0.0, -0.5 )
+    );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Slice Setup
@@ -160,22 +192,22 @@ void WMNavigationSlices::initOSG()
     // create a new geode containing the slices
 
     // X Slice
-    osg::ref_ptr< osg::Node > xSlice = wge::genFinitePlane( minV, osg::Vec3( 0.0, maxV[1], 0.0 ),
-                                                                  osg::Vec3( 0.0, 0.0, maxV[2] ) );
+    osg::ref_ptr< osg::Node > xSlice = wge::genFinitePlane( minV, osg::Vec3( 0.0, sizes[1], 0.0 ),
+                                                                  osg::Vec3( 0.0, 0.0, sizes[2] ) );
     xSlice->setName( "Sagittal Slice" );
     osg::Uniform* xSliceUniform = new osg::Uniform( "u_WorldTransform", osg::Matrix::identity() );
     xSlice->getOrCreateStateSet()->addUniform( xSliceUniform );
 
     // Y Slice
-    osg::ref_ptr< osg::Node > ySlice = wge::genFinitePlane( minV, osg::Vec3( maxV[0], 0.0, 0.0 ),
-                                                                  osg::Vec3( 0.0, 0.0, maxV[2] ) );
+    osg::ref_ptr< osg::Node > ySlice = wge::genFinitePlane( minV, osg::Vec3( sizes[0], 0.0, 0.0 ),
+                                                                  osg::Vec3( 0.0, 0.0, sizes[2] ) );
     ySlice->setName( "Coronal Slice" );
     osg::Uniform* ySliceUniform = new osg::Uniform( "u_WorldTransform", osg::Matrix::identity() );
     ySlice->getOrCreateStateSet()->addUniform( ySliceUniform );
 
     // Z Slice
-    osg::ref_ptr< osg::Node > zSlice = wge::genFinitePlane( minV, osg::Vec3( maxV[0], 0.0, 0.0 ),
-                                                                  osg::Vec3( 0.0, maxV[1], 0.0 ) );
+    osg::ref_ptr< osg::Node > zSlice = wge::genFinitePlane( minV, osg::Vec3( sizes[0], 0.0, 0.0 ),
+                                                                  osg::Vec3( 0.0, sizes[1], 0.0 ) );
     zSlice->setName( "Axial Slice" );
     osg::Uniform* zSliceUniform = new osg::Uniform( "u_WorldTransform", osg::Matrix::identity() );
     zSlice->getOrCreateStateSet()->addUniform( zSliceUniform );
@@ -214,12 +246,15 @@ void WMNavigationSlices::initOSG()
     m_ySlicePicker = PickCallback::SPtr( new PickCallback( ySlice, m_yPos, true ) );
     m_zSlicePicker = PickCallback::SPtr( new PickCallback( zSlice, m_zPos ) );
 
+    // transparency property
+    osg::ref_ptr< osg::Uniform > transparencyUniform = new osg::Uniform( "u_noTransparency", false );
+    transparencyUniform->setUpdateCallback( new WGEPropertyUniformCallback< WPropBool >( m_noTransparency ) );
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Done
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     osg::ref_ptr< osg::StateSet > state = m_output->getOrCreateStateSet();
-    state->setMode( GL_BLEND, osg::StateAttribute::ON );
     state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
 
     // we want some nice animations: add timer
@@ -228,15 +263,20 @@ void WMNavigationSlices::initOSG()
     animationUniform->setUpdateCallback( new WGEShaderAnimationCallback() );
 
     // transparency property
-    osg::ref_ptr< osg::Uniform > transparencyUniform = new osg::Uniform( "u_noTransparency", false );
     state->addUniform( transparencyUniform );
-    transparencyUniform->setUpdateCallback( new WGEPropertyUniformCallback< WPropBool >( m_noTransparency ) );
+    m_axialOutput->getOrCreateStateSet()->addUniform( transparencyUniform );
+    m_sagittalOutput->getOrCreateStateSet()->addUniform( transparencyUniform );
+    m_coronalOutput->getOrCreateStateSet()->addUniform( transparencyUniform );
 
     // add the transformation nodes to the output group
     m_output->insert( mX );
     m_output->insert( mY );
     m_output->insert( mZ );
     m_output->dirtyBound();
+
+    m_axialOutput->insert( mZ );
+    m_sagittalOutput->insert( mX );
+    m_coronalOutput->insert( mY );
 }
 
 WMNavigationSlices::PickCallback::PickCallback( osg::ref_ptr< osg::Node > node, WPropDouble property, bool negateDirection ):
@@ -254,12 +294,12 @@ WMNavigationSlices::PickCallback::PickCallback( osg::ref_ptr< osg::Node > node, 
 
 void WMNavigationSlices::PickCallback::pick( WPickInfo pickInfo )
 {
-    if ( pickInfo.getName() == m_node->getName() )
+    if( pickInfo.getName() == m_node->getName() )
     {
         WVector3d normal = pickInfo.getPickNormal();
         WVector2d newPixelPos = pickInfo.getPickPixel();
         // dragging was initialized earlier
-        if ( m_isPicked )
+        if( m_isPicked )
         {
             osg::Vec3 startPosScreen( m_oldPixelPosition[ 0 ], m_oldPixelPosition[ 1 ], 0.0 );
             osg::Vec3 endPosScreen( newPixelPos[ 0 ], newPixelPos[ 1 ], 0.0 );
@@ -292,31 +332,69 @@ void WMNavigationSlices::moduleMain()
     // done.
     ready();
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Slices Setup
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     // create the root node for all the geometry
     m_output = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
-    m_output->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    // apply colormapping to transformation
-    osg::ref_ptr< WGEShader > shader = new WGEShader( "WMNavigationSlices", m_localPath );
-    WGEColormapping::apply( m_output, shader ); // this automatically applies the shader
+
+    // create the roots for the nav-views
+    m_sagittalOutput = osg::ref_ptr< WGEGroupNode > ( new WGEGroupNode() );
+    m_coronalOutput = osg::ref_ptr< WGEGroupNode > ( new WGEGroupNode() );
+    m_axialOutput = osg::ref_ptr< WGEGroupNode > ( new WGEGroupNode() );
+
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
 
-    // we need to be informed if the bounding box of the volume containing all the data changes.
-    m_moduleState.add( WGEColormapping::instance()->getChangeCondition() );
+    // add for side-views
+    boost::shared_ptr< WGEViewer > v = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" );
+    if( v )
+    {
+        v->getScene()->insert( m_axialOutput );
+    }
+    v = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" );
+    if( v )
+    {
+        v->getScene()->insert( m_coronalOutput );
+    }
+    v = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" );
+    if( v )
+    {
+        v->getScene()->insert( m_sagittalOutput );
+    }
 
-    // Forward position to selection manager.
-    WKernel::getRunningKernel()->getSelectionManager()->setPropSagittalPos( m_xPos );
-    WKernel::getRunningKernel()->getSelectionManager()->setPropCoronalPos( m_yPos );
-    WKernel::getRunningKernel()->getSelectionManager()->setPropAxialPos( m_zPos );
+    // disable the pick-coloring for the side views
+    m_axialOutput->getOrCreateStateSet()->addUniform( new osg::Uniform( "u_pickColorEnabled", 0.0f ) );
+    m_sagittalOutput->getOrCreateStateSet()->addUniform( new osg::Uniform( "u_pickColorEnabled", 0.0f ) );
+    m_coronalOutput->getOrCreateStateSet()->addUniform( new osg::Uniform( "u_pickColorEnabled", 0.0f ) );
+    m_output->getOrCreateStateSet()->addUniform( new osg::Uniform( "u_pickColorEnabled", 1.0f ) );
+
+    m_output->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
+    m_axialOutput->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
+    m_sagittalOutput->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
+    m_coronalOutput->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
+
+    // apply colormapping to all the nodes
+    osg::ref_ptr< WGEShader > shader = new WGEShader( "WMNavigationSlices", m_localPath );
+    WGEColormapping::NodeList nodes;
+    nodes.push_back( m_output );
+    nodes.push_back( m_axialOutput );
+    nodes.push_back( m_sagittalOutput );
+    nodes.push_back( m_coronalOutput );
+    WGEColormapping::apply( nodes, shader ); // this automatically applies the shader
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Main loop
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    // we need to be informed if the bounding box of the volume containing all the data changes.
+    m_moduleState.add( WGEColormapping::instance()->getChangeCondition() );
+
     // main loop
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         // woke up since the module is requested to finish?
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -335,5 +413,21 @@ void WMNavigationSlices::moduleMain()
     m_zSlicePicker.reset();
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_output );
+
+    v = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" );
+    if( v )
+    {
+        v->getScene()->remove( m_axialOutput );
+    }
+    v = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" );
+    if( v )
+    {
+        v->getScene()->remove( m_coronalOutput );
+    }
+    v = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" );
+    if( v )
+    {
+        v->getScene()->remove( m_sagittalOutput );
+    }
 }
 

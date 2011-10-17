@@ -29,14 +29,14 @@
 
 #include <osg/Geode>
 
-#include "../../common/WItemSelection.h"
-#include "../../common/WItemSelector.h"
+#include "core/common/WItemSelection.h"
+#include "core/common/WItemSelector.h"
 
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 /**
  * This module is intended to be a simple template and example module. It can be used for fast creation of new modules by copying and refactoring
@@ -80,6 +80,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 

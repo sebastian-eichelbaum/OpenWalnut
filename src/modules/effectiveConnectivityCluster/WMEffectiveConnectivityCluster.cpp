@@ -43,19 +43,18 @@
 #include <osg/LightModel>
 #include <osgDB/WriteFile>
 
-#include "../../common/WProgress.h"
-#include "../../common/WPreferences.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../dataHandler/datastructures/WFiberCluster.h"
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WModuleFactory.h"
-#include "../../kernel/WModuleOutputData.h"
-#include "../../graphicsEngine/widgets/labeling/WGEBorderLayout.h"
-#include "../../graphicsEngine/widgets/labeling/WGELabel.h"
-#include "../../graphicsEngine/WGraphicsEngine.h"
-#include "../../graphicsEngine/WGEUtils.h"
+#include "core/common/WProgress.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/dataHandler/datastructures/WFiberCluster.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WModuleFactory.h"
+#include "core/kernel/WModuleOutputData.h"
+#include "core/graphicsEngine/widgets/labeling/WGEBorderLayout.h"
+#include "core/graphicsEngine/widgets/labeling/WGELabel.h"
+#include "core/graphicsEngine/WGraphicsEngine.h"
+#include "core/graphicsEngine/WGEUtils.h"
 
 #include "WMEffectiveConnectivityCluster.xpm"
 
@@ -102,7 +101,7 @@ const std::string WMEffectiveConnectivityCluster::getDescription() const
 void WMEffectiveConnectivityCluster::fiberDataChange( boost::shared_ptr< WModuleConnector > /*input*/,
                                                       boost::shared_ptr< WModuleConnector > output )
 {
-    if ( !output )
+    if( !output )
     {
         m_labelActive = false;
         m_propCondition->notify();
@@ -113,7 +112,7 @@ void WMEffectiveConnectivityCluster::fiberDataChange( boost::shared_ptr< WModule
 
     // cast it to the target type
     boost::shared_ptr< WModuleOutputData < WFiberCluster > > o = boost::shared_static_cast< WModuleOutputData< WFiberCluster > >( output );
-    if ( !o )
+    if( !o )
     {
         errorLog() << "New data is not a WFiberCluster? That should not happen!";
     }
@@ -247,7 +246,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
     // Connect voxelizer input with the selected fibers
     m_voxelizer->getInputConnector( "tractInput" )->connect( m_fiberSelection->getOutputConnector( "cluster" ) );
 
-    // Connect voxelizer output with the gauss filter
+    // Connect voxelizer output with the Gauss filter
     m_gauss->getInputConnector( "in" )->connect( m_voxelizer->getOutputConnector( "voxelOutput" ) );
 
     // Connect voxelizer output with the animation
@@ -284,17 +283,17 @@ void WMEffectiveConnectivityCluster::moduleMain()
 
     // Now wait for data
     bool lastLabelActiveState = m_labelActive;
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         m_moduleState.wait();
 
         // woke up since the module is requested to finish
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
         // has one of the properties changed?
-        if ( m_labelActive && (
+        if( m_labelActive && (
                     ( lastLabelActiveState != m_labelActive ) || m_voi1Name->changed() || m_voi2Name->changed() || m_labelCharacterSize->changed() )
            )
         {
@@ -303,7 +302,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
 
             std::string voi1 = m_voi1Name->get( true );
             std::string voi2 = m_voi2Name->get( true );
-            if ( !voi1.empty() )
+            if( !voi1.empty() )
             {
                 osg::ref_ptr< WGELabel > label1 = new WGELabel();
                 label1->setText( voi1 );
@@ -312,7 +311,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
                 layouter->addLayoutable( label1 );
             }
 
-            if ( !voi2.empty() )
+            if( !voi2.empty() )
             {
                 osg::ref_ptr< WGELabel > label2 = new WGELabel();
                 label2->setText( voi2 );
@@ -326,7 +325,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
         }
 
         // remove labels if no dataset is connected anymore
-        if ( !m_labelActive )
+        if( !m_labelActive )
         {
             m_rootNode->clear();
         }

@@ -33,12 +33,13 @@
 #include <osg/Node>
 #include <osgText/Text>
 
-#include "../../kernel/WModule.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/WPickInfo.h"
+#include "core/kernel/WModule.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
+#include "core/graphicsEngine/WPickInfo.h"
 
 /**
- * This module implements several onscreen status displays
+ * This module implements several onscreen status displays. At the moment the main purpose
+ * is the display of information from picking, i.e. what is picked.
  * \ingroup modules
  */
 class WMHud : public WModule
@@ -55,21 +56,19 @@ public:
     virtual ~WMHud();
 
     /**
-     * \par Description
-     * Gives back the name of this module.
+     * Returns the name of this module.
      * \return the module's name.
      */
     virtual const std::string getName() const;
 
     /**
-     * \par Description
-     * Gives back a description of this module.
-     * \return description to module.
+     * Returns a description of this module.
+     * \return description of module.
      */
     virtual const std::string getDescription() const;
 
     /**
-     * Sets pick text member vairable
+     * Sets pick text member variable
      *
      * \param pickInfo information about the pick
      */
@@ -78,7 +77,6 @@ public:
 protected:
 
     /**
-     * \par Description
      * Entry point after loading the module. Runs in separate thread.
      */
     virtual void moduleMain();
@@ -103,6 +101,7 @@ protected:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 
@@ -117,7 +116,7 @@ private:
     osg::ref_ptr<osg::Projection> m_rootNode;
 
     /**
-     * Geometry group for all hud related things
+     * Geometry group for all HUD related things
      */
     osg::ref_ptr< WGEGroupNode > m_HUDs;
 
@@ -126,7 +125,7 @@ private:
      */
     osg::ref_ptr< osgText::Text > m_osgPickText;
 
-    bool m_updatedPickText; //!< Tells us whether the picktext was updated an has to be rendered.
+    bool m_updatedPickText; //!< Tells us whether the picktext has been updated an has to be rendered.
 
     /**
      * string to store the pick result from the picking method
@@ -134,12 +133,12 @@ private:
     std::string m_pickText;
 
     /**
-     * init method
+     * Set up of the HUD
      */
     void init();
 
     /**
-     * update method
+     * Updating HUD text
      */
     void update();
 

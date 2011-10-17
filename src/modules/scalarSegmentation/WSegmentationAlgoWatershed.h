@@ -35,7 +35,7 @@
 #include "itkCastImageFilter.h"
 #include "itkGradientMagnitudeImageFilter.h"
 
-#include "../../dataHandler/WITKImageConversion.h"
+#include "core/dataHandler/WITKImageConversion.h"
 
 #include "WSegmentationAlgo.h"
 

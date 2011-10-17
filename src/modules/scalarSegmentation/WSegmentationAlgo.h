@@ -30,10 +30,10 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/variant.hpp>
 
-#include "../../common/WPropertyTypes.h"
-#include "../../common/WCondition.h"
+#include "core/common/WPropertyTypes.h"
+#include "core/common/WCondition.h"
 
-#include "../../dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetScalar.h"
 
 /**
  * A base class for segmentation alorithms.

@@ -27,11 +27,11 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/math/WMatrix.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/WMatrix.h"
 
 /**
- * class to provide conversions between world or voxel space coordinates und talairach coordinates
+ * class to provide conversions between world or voxel space coordinates und Talairach coordinates
  */
 class WTalairachConverter
 {

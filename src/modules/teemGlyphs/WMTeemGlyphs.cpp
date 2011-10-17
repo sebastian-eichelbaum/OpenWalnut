@@ -29,12 +29,12 @@
 
 #include <osg/LightModel>
 
-#include "../../common/WAssert.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../common/WLimits.h"
-#include "../../common/WThreadedFunction.h"
-#include "../../common/WConditionOneShot.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/WAssert.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/common/WLimits.h"
+#include "core/common/WThreadedFunction.h"
+#include "core/common/WConditionOneShot.h"
+#include "core/kernel/WKernel.h"
 #include "WMTeemGlyphs.xpm"
 
 #include "WMTeemGlyphs.h"
@@ -236,7 +236,7 @@ void WMTeemGlyphs::moduleMain()
     ready();
 
     // loop until the module container requests the module to quit
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         if( !m_input->getData().get() )
         {
@@ -371,6 +371,8 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
         WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
 
         lock.unlock();
+
+        activate(); // sets active state of moduleNode correctly
     }
 
     progress->finish();
@@ -606,7 +608,7 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
                 continue;
             }
 
-            WVector_2 coeffs = m_dataSet->getSphericalHarmonicAt( posId ).getCoefficients();
+            WValue<double> coeffs( m_dataSet->getSphericalHarmonicAt( posId ).getCoefficients() );
             int countOfCoeffsToUse = 0;
             switch( m_order )
             {
@@ -646,22 +648,22 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
 
             for( int coeffId = 0; coeffId < countOfCoeffsToUse; ++coeffId )
             {
-                esh[ coeffId ] = coeffs( coeffId );
+                esh[ coeffId ] = coeffs[ coeffId ];
             }
 
             // change Descoteaux basis to Schulz/teem basis
             // Descoteaux basis: see his PhD thesis page 66
             // Schultz basis: see PDF "Real Spherical Harmonic basis" - Luke Bloy 9. December 2009
             size_t k = 0;
-            for ( int l = 0; l <= useOrder; l += 2 )
+            for( int l = 0; l <= useOrder; l += 2 )
             {
-                for ( int m = -l; m <= l; ++m )
+                for( int m = -l; m <= l; ++m )
                 {
-                    if ( m < 0 && ( ( -m ) % 2 == 1 ) )
+                    if( m < 0 && ( ( -m ) % 2 == 1 ) )
                     {
                         esh[k] *= -1.0;
                     }
-                    else if ( m > 0 && ( m % 2 == 0 ) )
+                    else if( m > 0 && ( m % 2 == 0 ) )
                     {
                         esh[k] *= -1.0;
                     }

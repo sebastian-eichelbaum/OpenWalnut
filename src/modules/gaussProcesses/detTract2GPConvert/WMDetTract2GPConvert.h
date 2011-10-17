@@ -29,14 +29,14 @@
 
 #include <osg/Geode>
 
-#include "../../../dataHandler/WDataSetDTI.h"
-#include "../../../kernel/WModule.h"
-#include "../../../kernel/WModuleInputData.h"
-#include "../../../kernel/WModuleOutputData.h"
+#include "core/dataHandler/WDataSetDTI.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 #include "../WDataSetGP.h"
 
 /**
- * Converts each deterministic tract to a gaussian process using the DTI information.
+ * Converts each deterministic tract to a Gaussian process using the DTI information.
  * \ingroup modules
  */
 class WMDetTract2GPConvert: public WModule
@@ -76,6 +76,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 
@@ -98,7 +99,7 @@ protected:
 private:
     /**
      * Input connector for the deterministic tract dataset which is going to be converted into
-     * gaussian processes.
+     * Gaussian processes.
      */
     boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_tractIC;
 

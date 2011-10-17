@@ -33,12 +33,12 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
 
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
 
-#include "../../dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetScalar.h"
 
 /**
  * Operators for processing two WDataSetScalar.
@@ -81,6 +81,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 

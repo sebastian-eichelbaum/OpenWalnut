@@ -25,9 +25,9 @@
 #include <vector>
 #include <string>
 
-#include "../../kernel/WKernel.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../dataHandler/WDataHandler.h"
+#include "core/kernel/WKernel.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/dataHandler/WDataHandler.h"
 
 #include "WMSpatialDerivation.h"
 #include "WMSpatialDerivation.xpm"
@@ -101,13 +101,13 @@ void WMSpatialDerivation::moduleMain()
     ready();
 
     // main loop
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
         // woke up since the module is requested to finish?
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -119,13 +119,13 @@ void WMSpatialDerivation::moduleMain()
         bool dataValid = ( dataSet );
 
         // reset output if input was reset/disconnected
-        if ( !dataValid )
+        if( !dataValid )
         {
             debugLog() << "Resetting output.";
             m_vectorOut->reset();
             continue;
         }
-        if ( dataValid && !dataUpdated )
+        if( dataValid && !dataUpdated )
         {
             continue;
         }
@@ -136,7 +136,7 @@ void WMSpatialDerivation::moduleMain()
 
         // loop through each voxel
         boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
-        if ( !grid )
+        if( !grid )
         {
             errorLog() << "Only regular 3D grids allowed.";
             continue;
@@ -234,7 +234,7 @@ void WMSpatialDerivation::derive( boost::shared_ptr< WGridRegular3D > grid, boos
                 float sqsum = vx * vx + vy * vy + vz * vz;
                 float len = sqrt( sqsum );
                 float scal = m_normalize->get( true ) ? 1.0 / len : 1.0;
-                if ( len == 0.0 )
+                if( len == 0.0 )
                     scal = 0.0;
 
                 ( *vectors )[ getId( nX, nY, nZ, x, y, z, 0, 3 ) ] = scal * vx;

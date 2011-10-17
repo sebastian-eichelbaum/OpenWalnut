@@ -27,8 +27,8 @@
 #include <osg/Node>
 #include <osg/NodeVisitor>
 
-#include "../../common/WPropertyTypes.h"
-#include "../../common/WPropertyVariable.h"
+#include "core/common/WPropertyTypes.h"
+#include "core/common/WPropertyVariable.h"
 #include "WLabelsTransformCallback.h"
 
 

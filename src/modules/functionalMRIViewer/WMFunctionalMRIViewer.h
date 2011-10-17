@@ -27,11 +27,11 @@
 
 #include <string>
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
-#include "../../dataHandler/WDataSetTimeSeries.h"
+#include "core/dataHandler/WDataSetTimeSeries.h"
 
 /**
  * Views a time series at different points in time.
@@ -75,6 +75,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 

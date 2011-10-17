@@ -25,12 +25,12 @@
 #include <string>
 #include <vector>
 
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataSetFibers.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../dataHandler/exceptions/WDHNoSuchSubject.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../kernel/WKernel.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/WDataSetFibers.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/dataHandler/exceptions/WDHNoSuchSubject.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/kernel/WKernel.h"
 #include "WMSliceContext.h"
 #include "WTransparentLinesDrawable.h"
 #include "slicecontext.xpm"
@@ -115,13 +115,13 @@ void WMSliceContext::moduleMain()
     m_shaderFibers = osg::ref_ptr< WGEShader > ( new WGEShader( "WMSliceContext", m_localPath ) );
 
     // main loop
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
         // woke up since the module is requested to finish?
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -131,7 +131,7 @@ void WMSliceContext::moduleMain()
         boost::shared_ptr< const WDataSetFibers > fibers( m_fiberInput->getData() );
         bool dataValid = fibers;
 
-        if ( !( dataValid && dataUpdated ) )
+        if( !( dataValid && dataUpdated ) )
         {
             continue;
         }

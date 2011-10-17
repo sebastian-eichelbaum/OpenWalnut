@@ -29,11 +29,11 @@
 
 #include <osg/Geode>
 
-#include "../../dataHandler/datastructures/WFiberCluster.h"
-#include "../../dataHandler/WDataSetFibers.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/dataHandler/datastructures/WFiberCluster.h"
+#include "core/dataHandler/WDataSetFibers.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 /**
  * This module writes the tracts of either a fiber cluster or directly out of a
@@ -76,6 +76,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 
@@ -97,6 +98,37 @@ protected:
 
 private:
     /**
+     * Store the mesh in a json (javascript object notation) file
+     *
+     * \return true if successful
+     */
+    bool saveJson() const;
+
+    /**
+     * Store the mesh in a json (javascript object notation) file
+     * using only every other vertex
+     *
+     * \return true if successful
+     */
+    bool saveJson2() const;
+
+    /**
+     * Store the mesh in a json (javascript object notation) file
+     *
+     * \return true if successful
+     */
+    bool saveJsonTriangles() const;
+
+    /**
+     * Saves the fiber tracts as POVRAY SDL.
+     *
+     * \param fibers the fibers to write
+     *
+     * \return true if successful.
+     */
+    bool savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers ) const;
+
+    /**
      * Input connector for writing the tracts out of a WFiberCluster to a file.
      */
     boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_clusterIC;
@@ -108,6 +140,41 @@ private:
 
     WPropTrigger m_run; //!< Button to start saving
     WPropFilename m_savePath; //!< Path where tracts should be stored
+
+    /**
+     * A list of file type selection types
+     */
+    boost::shared_ptr< WItemSelection > m_fileTypeSelectionsList;
+
+    /**
+     * Selection property for file types
+     */
+    WPropSelection m_fileTypeSelection;
+
+    /**
+     * Groups all the options for the povray exporter.
+     */
+    WPropGroup m_povrayOptions;
+
+    /**
+     * Enables radiosity renderer in povray
+     */
+    WPropBool m_povrayRadiosity;
+
+    /**
+     * The tube diameter in povray export
+     */
+    WPropDouble m_povrayTubeDiameter;
+
+    /**
+     * Allows thinning of the data. Often useful for testing povray settings as small scenes render faster.
+     */
+    WPropInt m_povraySaveOnlyNth;
+
+    /**
+     * Handles updates in filetype property. Used to hide and unhide certain property groups.
+     */
+    void fileTypeChanged();
 };
 
 #endif  // WMWRITETRACTS_H

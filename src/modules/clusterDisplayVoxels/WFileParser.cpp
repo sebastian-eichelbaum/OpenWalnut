@@ -33,7 +33,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 
-#include "../../common/WLogger.h"
+#include "core/common/WLogger.h"
 
 #include "WFileParser.h"
 
@@ -53,7 +53,7 @@ bool WFileParser::readFile()
 {
     using namespace boost::filesystem; //NOLINT
 
-    if ( !exists( m_fileName ) )
+    if( !exists( m_fileName ) )
     {
         //debugLog() << "file doesn't exist";
         return false;
@@ -63,14 +63,14 @@ bool WFileParser::readFile()
 
     std::string line;
 
-    if ( !ifs.is_open() )
+    if( !ifs.is_open() )
     {
         //debugLog() << "file open failed";
         ifs.close();
         return false;
     }
 
-    while ( !ifs.eof() )
+    while( !ifs.eof() )
     {
         getline( ifs, line );
 
@@ -90,9 +90,9 @@ std::vector<std::string>WFileParser::getLinesForTag( std::string tag )
     std::vector<std::string>returnVector;
 
     size_t i = 0;
-    while ( i < m_rawLines.size() )
+    while( i < m_rawLines.size() )
     {
-        if ( m_rawLines[i] == startTag )
+        if( m_rawLines[i] == startTag )
         {
             //debugLog() << "coordinates tag at line " << i;
             ++i;
@@ -103,9 +103,9 @@ std::vector<std::string>WFileParser::getLinesForTag( std::string tag )
             ++i;
         }
     }
-    while ( i < m_rawLines.size() )
+    while( i < m_rawLines.size() )
     {
-        if ( m_rawLines[i] == endTag )
+        if( m_rawLines[i] == endTag )
         {
             //debugLog() << "endcoordinates tag at line " << i;
             ++i;
@@ -128,9 +128,9 @@ std::vector< std::vector<std::string> >WFileParser::getLinesForTagSeparated( std
     std::vector<std::vector<std::string > >returnVector;
 
     size_t i = 0;
-    while ( i < m_rawLines.size() )
+    while( i < m_rawLines.size() )
     {
-        if ( m_rawLines[i] == startTag )
+        if( m_rawLines[i] == startTag )
         {
             //debugLog() << "coordinates tag at line " << i;
             ++i;
@@ -141,9 +141,9 @@ std::vector< std::vector<std::string> >WFileParser::getLinesForTagSeparated( std
             ++i;
         }
     }
-    while ( i < m_rawLines.size() )
+    while( i < m_rawLines.size() )
     {
-        if ( m_rawLines[i] == endTag )
+        if( m_rawLines[i] == endTag )
         {
             //debugLog() << "endcoordinates tag at line " << i;
             ++i;
@@ -155,7 +155,7 @@ std::vector< std::vector<std::string> >WFileParser::getLinesForTagSeparated( std
             boost::regex reg( m_delimiter );
             boost::sregex_token_iterator it( m_rawLines[i].begin(), m_rawLines[i].end(), reg, -1 );
             boost::sregex_token_iterator end;
-            while ( it != end )
+            while( it != end )
             {
                 svec.push_back( *it++ );
             }

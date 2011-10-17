@@ -24,8 +24,8 @@
 
 #include <string>
 
-#include "../../common/WPropertyHelper.h"
-#include "../../dataHandler/io/WWriterFiberVTK.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/dataHandler/io/WWriterFiberVTK.h"
 #include "WMFiberTransform.h"
 #include "WMFiberTransform.xpm"
 
@@ -112,9 +112,9 @@ void WMFiberTransform::moduleMain()
 
     ready();
 
-    while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
+    while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
-        if ( !m_fiberInput->getData().get() ) // ok, the output has not yet sent data
+        if( !m_fiberInput->getData().get() ) // ok, the output has not yet sent data
         {
             m_moduleState.wait();
             continue;

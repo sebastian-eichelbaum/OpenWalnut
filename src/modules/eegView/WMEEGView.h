@@ -30,7 +30,7 @@
 #include <osg/Texture1D>
 #include <osgSim/ScalarsToColors>
 
-#include "../../kernel/WModule.h"
+#include "core/kernel/WModule.h"
 
 // forward declarations
 class WCustomWidget;
@@ -82,6 +82,11 @@ public:
      */
     virtual const std::string getDescription() const;
 
+    /**
+     * Get the icon for this module in XPM format.
+     *
+     * \return the icon.
+     */
     virtual const char** getXPMIcon() const;
 
 protected:

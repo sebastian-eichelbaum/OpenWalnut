@@ -25,11 +25,11 @@
 #include <string>
 #include <vector>
 
-#include "../../common/math/WSymmetricSphericalHarmonic.h"
-#include "../../common/math/WMatrix.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/WLimits.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/math/WSymmetricSphericalHarmonic.h"
+#include "core/common/math/WMatrix.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/WLimits.h"
+#include "core/kernel/WKernel.h"
 
 #include "WMCalculateTensors.h"
 
@@ -213,7 +213,7 @@ boost::array< double, 6 > WMCalculateTensors::perVoxelTensorFunc( WValueSet< dou
 {
     ++*m_currentProgress;
     boost::array< double, 6 > a;
-    WVector_2 v( 6 );
+    WValue<double> v( 6 );
 
     // calculation
     for( std::size_t k = 0; k < 6; ++k )

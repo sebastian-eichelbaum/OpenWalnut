@@ -85,16 +85,24 @@ void main()
     // MPI Paper Hack: {
     // plainColor = u_cmapRatio * cmap;
     // plainColor += 1.5*( 1.0 - u_cmapRatio ) * vec3( u_contrastingS * pow( advected, u_contrastingP ), 0.0, 0.0 );
-    // if ( isZero( cmap.r, 0.1 ) )
+    // if( isZero( cmap.r, 0.1 ) )
     //     discard;
     // }
 
-    gl_FragColor = vec4(
+    vec4 col = vec4(
         ( vec3( edge ) + plainColor ) // plain color mapped advection texture with edges
          * clamp( 1.0 - ( float( u_useDepthCueing ) * depth * depth ), 0.4, 1.0 ) // scaled by depth if enabled
          * ( u_useLight ? light * 1.3: 1.0 ),
         1.0
     );
+
+    // math: BioVis Paper Hack
+    // if( cmap.g < 0.1 )
+    //    discard;
+    // else
+    //    gl_FragColor = col;
+
+    gl_FragColor = col;
     gl_FragDepth = depth;
 }
 

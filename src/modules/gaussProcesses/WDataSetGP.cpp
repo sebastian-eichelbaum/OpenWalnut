@@ -23,6 +23,13 @@
 //---------------------------------------------------------------------------
 
 #include "WDataSetGP.h"
+boost::shared_ptr< WPrototyped > WDataSetGP::m_prototype = boost::shared_ptr< WPrototyped >();
+
+WDataSetGP::WDataSetGP()
+    : WMixinVector< WGaussProcess >(),
+      WDataSet()
+{
+}
 
 WDataSetGP::WDataSetGP( boost::shared_ptr< const WDataSetFibers > tracts,
                         boost::shared_ptr< const WDataSetDTI > tensors,
@@ -30,6 +37,14 @@ WDataSetGP::WDataSetGP( boost::shared_ptr< const WDataSetFibers > tracts,
                         boost::shared_ptr< WProgress > progress )
     : WMixinVector< WGaussProcess >(),
       WDataSet()
+{
+    init( tracts, tensors, shutdownFlag, progress );
+}
+
+void WDataSetGP::init( boost::shared_ptr< const WDataSetFibers > tracts,
+                       boost::shared_ptr< const WDataSetDTI > tensors,
+                       const WBoolFlag& shutdownFlag,
+                       boost::shared_ptr< WProgress > progress )
 {
     reserve( tracts->size() );
     for( size_t i = 0; i < tracts->size(); ++i )
@@ -56,4 +71,24 @@ double WDataSetGP::mean( const WPosition& p ) const
         avg += cit->mean( p );
     }
     return ( avg < 1.0 ? avg : 1.0 ); // real averaging would be bad when to many processes comes into account
+}
+
+const std::string WDataSetGP::getName() const
+{
+    return "WDataSetGP";
+}
+
+const std::string WDataSetGP::getDescription() const
+{
+    return "Contains Gaussian processes representing deterministic tracks.";
+}
+
+boost::shared_ptr< WPrototyped > WDataSetGP::getPrototype()
+{
+    if( !m_prototype )
+    {
+        m_prototype = boost::shared_ptr< WPrototyped >( new WDataSetGP() );
+    }
+
+    return m_prototype;
 }

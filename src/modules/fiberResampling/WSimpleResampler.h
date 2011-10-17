@@ -29,7 +29,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/datastructures/WFiber.h"
+#include "core/common/datastructures/WFiber.h"
 
 /**
  * Algorithm to resample a single tract into almost equidistant segments.

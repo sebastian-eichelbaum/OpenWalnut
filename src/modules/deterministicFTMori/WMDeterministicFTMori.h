@@ -31,12 +31,12 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "../../kernel/WModule.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/WThreadedFunction.h"
-#include "../../dataHandler/WThreadedPerVoxelOperation.h"
-#include "../../dataHandler/WThreadedTrackingFunction.h"
-#include "../../dataHandler/WFiberAccumulator.h"
+#include "core/kernel/WModule.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/WThreadedFunction.h"
+#include "core/dataHandler/WThreadedPerVoxelOperation.h"
+#include "core/dataHandler/WThreadedTrackingFunction.h"
+#include "core/dataHandler/WFiberAccumulator.h"
 
 // forward delcarations
 class WDataSetFiberVector;
@@ -82,6 +82,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 

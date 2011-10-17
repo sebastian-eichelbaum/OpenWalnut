@@ -26,9 +26,9 @@
 #include <fstream>
 #include <string>
 
-#include "../../kernel/WKernel.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../dataHandler/WDataHandler.h"
+#include "core/kernel/WKernel.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/dataHandler/WDataHandler.h"
 
 #include "WMHistogramEqualization.h"
 #include "WMHistogramEqualization.xpm"
@@ -133,13 +133,13 @@ void WMHistogramEqualization::moduleMain()
     ready();
 
     // main loop
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
         // woke up since the module is requested to finish?
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -149,7 +149,7 @@ void WMHistogramEqualization::moduleMain()
 
         // Remember the above criteria. We now need to check if the data is valid. After a connect-update, it might be NULL.
         boost::shared_ptr< WDataSetScalar > dataSet = m_input->getData();
-        if ( !dataSet )
+        if( !dataSet )
         {
             debugLog() << "Resetting output.";
             m_output->reset();
@@ -179,7 +179,7 @@ void WMHistogramEqualization::moduleMain()
 
         // should the histogram be clamped before processing?
         ++*progress;
-        if ( m_clamp->get( true ) )
+        if( m_clamp->get( true ) )
         {
             debugLog() << "Clamping histogram";
 
@@ -192,18 +192,18 @@ void WMHistogramEqualization::moduleMain()
             size_t maxI = hist->size() - 1; // the largest index in hist
 
             // search the histogram until the bucket with needed accumulative value is found
-            while ( curI <= maxI )
+            while( curI <= maxI )
             {
                 accumL += ( *hist )[ curI ];
                 accumU += ( *hist )[ maxI - curI ];
 
                 // lower border found?
-                if ( !foundL && ( accumL >= accumMax ) )
+                if( !foundL && ( accumL >= accumMax ) )
                 {
                     foundL = true;
                     lower = hist->getIntervalForIndex( curI ).first;
                 }
-                if ( !foundU && ( accumU >= accumMax ) )
+                if( !foundU && ( accumU >= accumMax ) )
                 {
                     foundU = true;
                     upper = hist->getIntervalForIndex( maxI - curI ).second;
@@ -229,7 +229,7 @@ void WMHistogramEqualization::moduleMain()
 
         // equalize?
         ++*progress;
-        if ( m_equalize->get( true ) )
+        if( m_equalize->get( true ) )
         {
             // calculate the cumulative distribution function
             debugLog() << "Calculating cumulative distribution function";
@@ -250,7 +250,7 @@ void WMHistogramEqualization::moduleMain()
 
             // finally, build the new dataset
             debugLog() << "Calculating equalized value-set";
-            for ( size_t vi = 0; vi < valueSet->rawSize(); ++vi )
+            for( size_t vi = 0; vi < valueSet->rawSize(); ++vi )
             {
                 size_t idx = hist->getIndexForValue( valueSet->getScalarDouble( vi ) );
                 double cdfVI = cdf[ idx ];
@@ -262,7 +262,7 @@ void WMHistogramEqualization::moduleMain()
             // finally, build the new dataset
             debugLog() << "Calculating value-set";
             size_t maxI = hist->size() - 1;
-            for ( size_t vi = 0; vi < valueSet->rawSize(); ++vi )
+            for( size_t vi = 0; vi < valueSet->rawSize(); ++vi )
             {
                 size_t idx = hist->getIndexForValue( valueSet->getScalarDouble( vi ) );
                 double idxScaled = ( static_cast< double >( idx )/ static_cast< double >( maxI ) );

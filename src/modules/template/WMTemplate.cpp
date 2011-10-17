@@ -58,12 +58,12 @@
 #include <osg/Material>
 #include <osg/StateAttribute>
 
-#include "../../kernel/WKernel.h"
-#include "../../common/WColor.h"
-#include "../../common/WPathHelper.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WGERequirement.h"
+#include "core/kernel/WKernel.h"
+#include "core/common/WColor.h"
+#include "core/common/WPathHelper.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/graphicsEngine/WGERequirement.h"
 
 #include "WMTemplate.xpm"
 #include "icons/bier.xpm"
@@ -163,7 +163,7 @@ void WMTemplate::connectors()
         new WModuleInputData< WDataSetSingle >( shared_from_this(),
                                                                "in", "The dataset to display" )
         );
-    // Alternative for lazy ones
+    // Lazy Programmer's Alternative:
     // m_input = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "in", "The dataset to display" );
 
     // This creates an input connector which can receive WDataSetSingle. It will never be able to connect to output connectors providing just a
@@ -752,7 +752,7 @@ void WMTemplate::hideButtonPressed()
     // thread for certain operations.
 
     // If the button was triggered, switch the hide-state of m_aColor and m_aHiddenInt.
-    if ( m_hideButton->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+    if( m_hideButton->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
     {
         // switch the hide flag of the color prop.
         m_aColor->setHidden( !m_aColor->isHidden() );

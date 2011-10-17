@@ -32,25 +32,20 @@
 
 #include <osg/Geode>
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
-#include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/WTriangleMesh.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
 
 class WDataSetScalar;
 
 
 
 /**
- * Someone should add some documentation here.
- * Probably the best person would be the module's
- * creator, i.e. "schurade".
- *
- * This is only an empty template for a new module. For
- * an example module containing many interesting concepts
- * and extensive documentation have a look at "src/modules/template"
+ * Create surface representation of atlas from volumetric atlas file
+ * and text file with labels for atlas regions.
  *
  * \ingroup modules
  */
@@ -95,6 +90,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 
@@ -183,6 +179,7 @@ private:
      * A property allowing the user to select multiple elements of a list.
      */
     WPropSelection m_aMultiSelection;
+    WPropFilename m_labelFile; //!< The labels will be read from this file.
 
     /**
      * A list of items that can be selected using m_aSingleSelection or m_aMultiSelection.

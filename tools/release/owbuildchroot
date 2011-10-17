@@ -1,0 +1,473 @@
+#!/bin/bash
+
+#---------------------------------------------------------------------------
+#
+# Project: OpenWalnut ( http://www.openwalnut.org )
+#
+# Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+# For more information see http://www.openwalnut.org/copying
+#
+# This file is part of OpenWalnut.
+#
+# OpenWalnut is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# OpenWalnut is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+#
+#---------------------------------------------------------------------------
+
+#############################################################################################################
+# Internal Variables
+#############################################################################################################
+
+# the architecture to use for the commands
+ARCH=amd64
+
+# which kind of debian do we want?
+SUITE=sid
+
+# where to grab the stuff. Specify some local server here
+SERVER=http://ftp.de.debian.org/debian
+
+# the prefix-name of each build chroot dir
+CHROOTDIR=owbuildchroot-$SUITE-$ARCH
+
+#############################################################################################################
+# Functions
+#############################################################################################################
+
+#########################################################################################################
+# Tries to unmount everything. Use this if you encounter an error.
+chroot_umount()
+{
+    FAILED=0
+
+    # unmount proc if mounted
+    mountpoint -q $CHROOTDIR/proc
+    if [ $? -eq 0 ]; then
+        echo " * Unounting \"./$CHROOTDIR/proc\""
+        umount -f $CHROOTDIR/proc
+        if [ $? -ne 0 ]; then
+            echo "  * Unmount failed. You need to umount $CHROOTDIR/proc manually."
+            FAILED=1
+        fi
+    fi
+
+    # unmount proc if mounted
+    # NOTE: mountpoint -q $CHROOTDIR/build does not work ... why?
+    if grep -q "$CHROOTDIR/build" /proc/mounts; then
+        echo " * Unounting \"./$CHROOTDIR/build\""
+        umount -f $CHROOTDIR/build
+        if [ $? -ne 0 ]; then
+            echo "  * Unmount failed. You need to umount $CHROOTDIR/build manually."
+            FAILED=1
+        fi
+    fi
+
+    # we failed ... hopefully the user unmounts the stuff before he deletes the chroot dir
+    if [ $FAILED -ne 0 ]; then
+        echo "  * Failed to unmount properly. Ensure you unmount manually."
+        exit 1
+    fi
+}
+
+#########################################################################################################
+# Tries to mount everything.
+chroot_mount()
+{
+    FAILED=0
+
+    # check existence
+    if [ ! -d $CHROOTDIR ]; then
+        echo "  * Chroot environment \"$CHROOTDIR\" does not exist. Use \"$0 $ARCH create\" to build it."
+        exit 1
+    fi
+
+    # enforce that everything is un-mounted before continuing
+    chroot_umount
+    if [ $? -ne 0 ]; then
+        echo "  * Cleanup: umount failed."
+        exit 1
+    fi
+
+    # mount
+    echo " * Mounting \"./$CHROOTDIR/build\""
+    mount -o bind . ./$CHROOTDIR/build
+    if [ $? -ne 0 ]; then
+        echo "  * Mount failed."
+        chroot_umount
+        exit 1
+    fi
+
+    echo " * Mounting \"./$CHROOTDIR/proc\""
+    mount -t proc none ./$CHROOTDIR/proc
+    if [ $? -ne 0 ]; then
+        echo "  * Mount failed."
+        chroot_umount
+        exit 1
+    fi
+
+    # we failed ...
+    if [ $FAILED -ne 0 ]; then
+        echo "  * Failed to mount properly."
+        exit 1
+    fi
+}
+
+#########################################################################################################
+# Checks existence of chroot jail
+chroot_check()
+{
+    echo "* Checking \"$CHROOTDIR\"."
+    if [ ! -d $CHROOTDIR ]; then
+        echo " * The chroot environment does not exist."
+        exit 1
+    fi
+
+    exit 0
+}
+
+#########################################################################################################
+# Execute the specified parameters in the chroot
+chroot_do()
+{
+    echo "* Executing \"$*\"."
+    chroot $CHROOTDIR $*
+    if [ $? -ne 0 ]; then
+        echo " * Error occured in chroot. Does the chroot envirnoment exist? Problem with the executed command?"
+        chroot_umount
+        exit 1
+    fi
+}
+
+#########################################################################################################
+# Execute the specified parameters in the chroot, but unlike chroot_do, this starts and stops the
+# environment properly
+chroot_do_once()
+{
+    echo "* Starting chroot environment \"./$CHROOTDIR\""
+    chroot_mount
+    if [ $? -ne 0 ]; then
+        echo " * Failed to start chroot."
+        chroot_umount
+        exit 1
+    fi
+
+    echo "* Executing \"$*\"."
+    chroot $CHROOTDIR $*
+    if [ $? -ne 0 ]; then
+        echo " * Failed to chroot. Does the chroot envirnoment exist?"
+        chroot_umount
+        exit 1
+    fi
+
+    echo "* Stopping chroot environment \"./$CHROOTDIR\""
+    chroot_umount
+    if [ $? -ne 0 ]; then
+        # lets hope the user knows what to do
+        exit 1
+    fi
+}
+
+#########################################################################################################
+# This function helps to do suite-specific setup. It is called after chroot creation and bootstrapping.
+# It is very distribution specific! So you might need to make changes here if you use this script with
+# some new ubuntu-suite or debian variant.
+chroot_setup_suite()
+{
+    # to be on the safe side: add NeuroDebian to all the suites
+    # add the neurodebian repository as well as the eigen3 ppa. It is needed for eigen3, nifti and biosig
+    chroot_do wget -O /etc/apt/sources.list.d/neurodebian.sources.list http://neuro.debian.net/lists/$SUITE.de
+    chroot_do apt-key adv --recv-keys --keyserver pgp.mit.edu 2649A5A9
+
+    # handle some special suites
+    # NOTE: I tested only debian sid and ubuntu natty and maverick. Maverick currently has some problem with libopenscenegraph.
+    #       Please add others here if needed
+    case "$SUITE" in
+        oneiric | natty | maverick )
+            # multiverse and universe needed for several packs
+            echo "deb http://de.archive.ubuntu.com/ubuntu $SUITE restricted universe multiverse" > ./$CHROOTDIR/etc/apt/sources.list.d/universeMultiverse.sources.list
+
+            # they provide qtwebkit
+            chroot_do apt-get -y --allow-unauthenticated install libqtwebkit-dev
+        ;;
+        lucid )
+            # lucid does not provide libqtwebkit-qt .. so, do not install. only add multi/universe
+            # multiverse and universe needed for several packs
+            echo "deb http://de.archive.ubuntu.com/ubuntu $SUITE restricted universe multiverse" > ./$CHROOTDIR/etc/apt/sources.list.d/universeMultiverse.sources.list
+        ;;
+        sid | wheezy )
+            # they provide qtwebkit
+            chroot_do apt-get -y --allow-unauthenticated install libqtwebkit-dev
+        ;;
+        *)
+            # debian 6 does not have libqtwebkit
+        ;;
+    esac
+
+    # of some suite added repos:
+    chroot_do apt-get update
+}
+
+#########################################################################################################
+# This function helps to do suite-specific setup. It is called after creating and installing everything.
+# It is very distribution specific! So you might need to make changes here if you use this script with
+# some new ubuntu-suite or debian variant.
+chroot_finalize_suite()
+{
+    # handle some special suites
+    case "$SUITE" in
+        oneiric | natty | maverick | lucid )
+            # ubuntu hack: kill this xapian-index stuff. If not done, chroot_umount will fail
+            chroot_do killall -q update-apt-xapian-index | echo
+        ;;
+        *)
+            # nothing needed for debian sid
+        ;;
+    esac
+}
+
+#########################################################################################################
+# Build the chroot jail. Use existing $CHROOTDIR.tar.gz if existing.
+chroot_build()
+{
+    echo "* Creating chroot environment \"./$CHROOTDIR\""
+
+    # ensure clean state
+    chroot_umount
+    if [ $? -ne 0 ]; then
+        echo " * Failed to shutdown \"$CHROOTDIR\". In use?"
+        exit 1
+    fi
+    if [ -d $CHROOTDIR ]; then
+        echo " * Removing old chroot in \"$CHROOTDIR\"."
+        rm -rf $CHROOTDIR
+    fi
+
+    # is there already some chroot available?
+    if [ -f $CHROOTDIR.tar.gz ]; then
+        echo " * Using archived chroot: \"$CHROOTDIR.tar.gz\"."
+        tar xzf $CHROOTDIR.tar.gz
+    else
+        echo " * No archived chroot found: \"$CHROOTDIR.tar.gz\". Building one."
+
+        echo " * Running debootstrap."
+        mkdir -p $CHROOTDIR
+        debootstrap --include=vim,debhelper,devscripts,fakeroot,lintian,wget,aptitude --variant=buildd --arch=$ARCH $SUITE ./$CHROOTDIR/ $SERVER
+        if [ $? -ne 0 ]; then
+            echo "  * Failed to debootstrap."
+            exit 1
+        fi
+
+        # we use the dir /build as mountpoint:
+        echo " * Configure build mountpoint."
+        mkdir -p ./$CHROOTDIR/build
+        if [ $? -ne 0 ]; then
+            echo "  * Failed to create build mountpoint."
+            exit 1
+        fi
+
+        # we are ready to go here
+        echo " * Starting chroot environment \"./$CHROOTDIR\""
+        chroot_mount
+        if [ $? -ne 0 ]; then
+            echo "  * Failed to start chroot."
+            chroot_umount
+            exit 1
+        fi
+
+        # some commands might interfere with the system. We re-link them (the debian way of course)
+        echo " * Re-linking /sbin/insserv."
+        chroot_do dpkg-divert --local --rename --add /sbin/insserv
+        if [ $? -ne 0 ]; then
+            echo "  * Failed. Could not use chroot."
+            chroot_umount
+            exit 1
+        fi
+        chroot_do ln -s /bin/true /sbin/insserv
+        if [ $? -ne 0 ]; then
+            echo "  * Failed. Could not use chroot."
+            chroot_umount
+            exit 1
+        fi
+        echo " * Re-linking /usr/bin/mkfifo."
+        chroot_do dpkg-divert --local --rename --add /usr/bin/mkfifo
+        if [ $? -ne 0 ]; then
+            echo "  * Failed. Could not use chroot."
+            chroot_umount
+            exit 1
+        fi
+        chroot_do ln -s /bin/true /usr/bin/mkfifo
+        if [ $? -ne 0 ]; then
+            echo "  * Failed. Could not use chroot."
+            chroot_umount
+            exit 1
+        fi
+
+        echo " * Configure proper locale settings."
+        # do locale configuration
+        echo "en_US.UTF-8 UTF-8"    >  ./$CHROOTDIR/etc/locale.gen
+        echo "de_DE.UTF-8 UTF-8"    >> ./$CHROOTDIR/etc/locale.gen
+        echo "LANG=en_US.UTF-8"     >  ./$CHROOTDIR/etc/default/locale
+        echo "LC_ALL=en_US.UTF-8"   >> ./$CHROOTDIR/etc/default/locale
+        echo "LANGUAGE=en_US.UTF-8" >> ./$CHROOTDIR/etc/default/locale
+        chroot_do apt-get --allow-unauthenticated install locales
+        if [ $? -ne 0 ]; then
+            echo "  * Failed to install locales."
+            chroot_umount
+            exit 1
+        fi
+
+        echo " * $SUITE-specific setup."
+        chroot_setup_suite
+        if [ $? -ne 0 ]; then
+            echo "  * Failed to configure $SUITE. Maybe you need to modify the suite-specific config in $0."
+            chroot_umount
+            exit 1
+        fi
+
+        echo " * Installing our build-dependencies."
+        # technically, it is possible to give debootstrap the list of packs it should install. But this somehow causes it to fail on my system.
+        chroot_do apt-get -y --allow-unauthenticated install cmake libgl1-mesa-dev libopenscenegraph-dev libopenthreads-dev libqt4-dev zlib1g-dev libboost-dev libboost-program-options-dev libboost-thread-dev libboost-filesystem-dev libboost-date-time-dev libboost-system-dev libboost-signals-dev libboost-regex-dev libeigen3-dev libbiosig-dev libnifti-dev doxygen graphviz psmisc sysvinit-utils
+        if [ $? -ne 0 ]; then
+            echo "  * Failed to install build dependencies. Maybe you need to add further package sources."
+            chroot_umount
+            exit 1
+        fi
+
+        echo " * $SUITE-specific finalization."
+        chroot_finalize_suite
+        if [ $? -ne 0 ]; then
+            echo "  * Failed to configure $SUITE. Maybe you need to modify the suite-specific config in $0."
+            chroot_umount
+            exit 1
+        fi
+
+        # finalize before archiving
+        echo " * Stopping chroot environment \"./$CHROOTDIR\""
+        chroot_umount
+        if [ $? -ne 0 ]; then
+            # lets hope the user knows what to do
+            exit 1
+        fi
+
+        echo " * Archiving chroot."
+        tar czf $CHROOTDIR.tar.gz ./$CHROOTDIR
+        if [ $? -ne 0 ]; then
+            echo "  * Failed archving. Not enough space?"
+            exit 1
+        fi
+    fi
+}
+
+#########################################################################################################
+# Checks whether the specified suite is supported.
+check_suite()
+{
+    case "$SUITE" in
+        karmic | jaunty | hardy )
+            echo "Sorry. This Ubuntu version does not provide libeigen3-dev. Use a version from Lucid upwards."
+            exit 1
+        ;;
+        lenny | etch )
+            echo "Sorry. This Debian version does not provide libeigne3-dev. Use a version from squeeze upwards."
+            exit 1
+        ;;
+        stable | testing )
+            echo "Testing and Stable - please use the correct codenames."
+            exit 1
+        ;;
+        *)
+            # nothing needed for debian sid
+        ;;
+    esac
+}
+
+#########################################################################################################
+# Something went wrong. Quit.
+Exit()
+{
+    echo "*** Failed. Exiting."
+    exit $1
+}
+
+#########################################################################################################
+# Quit and print usage info.
+UsageExit()
+{
+    echo "Usage: $0 ARCHITECTURE DISTRIBUTION {check|create|sh|run} [PARAMETERS]"
+    echo "  Parameter:"
+    echo "    ARCHITECTURE: is the debian compatible architecture string. (like amd64 or i386)"
+    echo "    DISTRIBUTION: Distribution Name."
+    echo ""
+    echo "  Commands:"
+    echo "    check: check existence of chroot jail."
+    echo "    create: creates a new chroot environment. If $CHROOTDIR.tar.gz exists, it uses it as chroot. If not, the chroot gets created using debootstrap."
+    echo "    sh: Starts an interactive shell in the chroot environment."
+    echo "    run: Executes the specified command. Example: $0 amd64 run /bin/ls /build"
+    Exit 2
+}
+
+#########################################################################################################
+# Main
+
+# for error-reports, english messages are the better choice
+export LC_ALL=C
+
+# chroot works only for root user. fakechroot is an alternative but it currently does not work on my system,
+# so I can't test it now.
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root" 1>&2
+   Exit 1
+fi
+
+if [ $# -lt 3 ]; then
+    UsageExit
+fi
+
+# set architecture
+ARCH=$1
+SUITE=$2
+# is the suite supported?
+check_suite || Exit $?
+
+# rebuild chroot-dir
+CHROOTDIR=owbuildchroot-$SUITE-$ARCH
+case "$SUITE" in
+    sid | wheezy | squeeze )
+        SERVER=http://ftp.de.debian.org/debian
+        ;;
+    *)
+        # use default server
+        SERVER=""
+        ;;
+esac
+
+# Handle user command
+case "$3" in
+    check)
+        chroot_check || Exit $?
+        ;;
+    create)
+        chroot_build || Exit $?
+        ;;
+    sh)
+        chroot_do_once /bin/bash || Exit $?
+        ;;
+    run)
+        shift 3
+        chroot_do_once $* || Exit $?
+        ;;
+    *)
+        UsageExit
+        ;;
+esac
+

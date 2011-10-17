@@ -1,0 +1,5 @@
+openwalnut (OWPACK_VERSION-1) unstable; urgency=low
+
+  * Initial release (Closes: #613419)
+
+ -- Sebastian Eichelbaum <eichelbaum@informatik.uni-leipzig.de>  Tue, 21 Jun 2011 10:26:54 +0200

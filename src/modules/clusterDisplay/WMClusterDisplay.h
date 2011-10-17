@@ -31,15 +31,15 @@
 
 #include <osg/Geode>
 
-#include "../../common/WHierarchicalTreeFibers.h"
-#include "../../graphicsEngine/geodes/WDendrogramGeode.h"
-#include "../../graphicsEngine/WFiberDrawable.h"
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../graphicsEngine/widgets/WOSGButton.h"
-#include "../../kernel/WFiberSelector.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/common/WHierarchicalTreeFibers.h"
+#include "core/graphicsEngine/geodes/WDendrogramGeode.h"
+#include "core/graphicsEngine/WFiberDrawable.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/graphicsEngine/widgets/WOSGButton.h"
+#include "core/kernel/WFiberSelector.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 const unsigned int MASK_2D = 0xF0000000; //!< used for osgWidget stuff
 const unsigned int MASK_3D = 0x0F000000; //!< used for osgWidget stuff
@@ -85,6 +85,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 
@@ -117,6 +118,8 @@ private:
     /**
      * helper function to load and parse a tree file, the tree is stored in the member variable m_tree
      * \param fileName
+     *
+     * \return true if successful.
      */
     bool loadTreeAscii( std::string fileName );
 

@@ -29,20 +29,14 @@
 
 #include <osg/Geode>
 
-#include "../../graphicsEngine/WROISphere.h"
+#include "core/graphicsEngine/WROISphere.h"
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 /**
- * Someone should add some documentation here.
- * Probably the best person would be the module's
- * creator, i.e. "schurade".
- *
- * This is only an empty template for a new module. For
- * an example module containing many interesting concepts
- * and extensive documentation have a look at "src/modules/template"
+ * Module allowing manipulation of the dataset properties via manipulators in the 3D scene.
  *
  * \ingroup modules
  */
@@ -82,6 +76,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return the icon.
      */
     virtual const char** getXPMIcon() const;
 
@@ -108,6 +103,11 @@ private:
      * initializes the manipulator and other settings
      */
     void init();
+
+    /**
+     * Removes the knobs and cleans up.
+     */
+    void shutdown();
 
     /**
      * reacts to movements of the manipulator knobs
@@ -158,13 +158,13 @@ private:
     boost::shared_ptr< boost::function< void() > > m_changeRotRoiSignal; //!< Signal that can be used to update the rotation manipulator
     boost::shared_ptr< boost::function< void() > > m_changeRoiSignal; //!< Signal that can be used to update the translation manipulator
 
-    boost::shared_ptr<WROISphere> m_knobCenter; //!< stores pointer to the center manipulator
-    boost::shared_ptr<WROISphere> m_knobx1; //!< stores pointer to manipulator 1
-    boost::shared_ptr<WROISphere> m_knobx2; //!< stores pointer to manipulator 2
-    boost::shared_ptr<WROISphere> m_knoby1; //!< stores pointer to manipulator 1
-    boost::shared_ptr<WROISphere> m_knoby2; //!< stores pointer to manipulator 2
-    boost::shared_ptr<WROISphere> m_knobz1; //!< stores pointer to manipulator 1
-    boost::shared_ptr<WROISphere> m_knobz2; //!< stores pointer to manipulator 2
+    osg::ref_ptr<WROISphere> m_knobCenter; //!< stores pointer to the center manipulator
+    osg::ref_ptr<WROISphere> m_knobx1; //!< stores pointer to manipulator 1
+    osg::ref_ptr<WROISphere> m_knobx2; //!< stores pointer to manipulator 2
+    osg::ref_ptr<WROISphere> m_knoby1; //!< stores pointer to manipulator 1
+    osg::ref_ptr<WROISphere> m_knoby2; //!< stores pointer to manipulator 2
+    osg::ref_ptr<WROISphere> m_knobz1; //!< stores pointer to manipulator 1
+    osg::ref_ptr<WROISphere> m_knobz2; //!< stores pointer to manipulator 2
 
     WPosition m_posCenter; //!< stores the old position of the manipulator
     WPosition m_posx1; //!< stores the old position of the manipulator
@@ -182,8 +182,8 @@ private:
     WPosition m_posz1Orig; //!< stores the old position of the manipulator
     WPosition m_posz2Orig; //!< stores the old position of the manipulator
 
-    boost::shared_ptr<WROISphere> m_knobRotCenter; //!< stores pointer to the center manipulator
-    boost::shared_ptr<WROISphere> m_knobRot; //!< stores pointer to manipulator 1
+    osg::ref_ptr<WROISphere> m_knobRotCenter; //!< stores pointer to the center manipulator
+    osg::ref_ptr<WROISphere> m_knobRot; //!< stores pointer to manipulator 1
 
     WPosition m_posRotCenter; //!< stores the old position of the manipulator
     WPosition m_posRot; //!< stores the old position of the manipulator

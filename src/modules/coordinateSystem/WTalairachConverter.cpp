@@ -23,7 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include "WTalairachConverter.h"
-#include "../../common/math/WLinearAlgebraFunctions.h"
+#include "core/common/math/WLinearAlgebraFunctions.h"
 
 WTalairachConverter::WTalairachConverter( WVector3d ac, WVector3d pc, WVector3d ihp ) :
     m_rotMat( 3, 3 ),
@@ -109,11 +109,11 @@ WVector3d WTalairachConverter::ACPC2Talairach( const WVector3d point )
     double yt = 0;
     double zt = 0;
 
-    if ( x < -X2 ) // posterior to PC
+    if( x < -X2 ) // posterior to PC
     {
         xt = ( X1T / X1 ) * ( x + X2 ) - X2T;
     }
-    else if ( x >= 0 ) // anterior to AC
+    else if( x >= 0 ) // anterior to AC
     {
         xt = ( X3T / X3 ) * x;
     }
@@ -122,7 +122,7 @@ WVector3d WTalairachConverter::ACPC2Talairach( const WVector3d point )
         xt = ( X2T / X2 ) * x;
     }
 
-    if ( y < 0 ) // right hemisphere
+    if( y < 0 ) // right hemisphere
     {
         yt = ( Y1T / Y1 ) * y;
     }
@@ -131,7 +131,7 @@ WVector3d WTalairachConverter::ACPC2Talairach( const WVector3d point )
         yt = ( Y2T / Y2 ) * y;
     }
 
-    if ( z < 0 ) // inferior to AC-PC
+    if( z < 0 ) // inferior to AC-PC
     {
         zt = ( Z1T / Z1 ) * z;
     }
@@ -179,11 +179,11 @@ WVector3d WTalairachConverter::Talairach2ACPC( const WVector3d point )
     double y = 0;
     double z = 0;
 
-    if ( xt < -X2T ) // posterior to PC
+    if( xt < -X2T ) // posterior to PC
     {
         x = ( X1 / X1T ) * ( xt + X2T ) - X2;
     }
-    else if ( xt >= 0 ) // anterior to AC
+    else if( xt >= 0 ) // anterior to AC
     {
         x = ( X3 / X3T ) * xt;
     }
@@ -192,7 +192,7 @@ WVector3d WTalairachConverter::Talairach2ACPC( const WVector3d point )
         x = ( X2 / X2T ) * xt;
     }
 
-    if ( yt < 0 ) // right hemisphere
+    if( yt < 0 ) // right hemisphere
     {
         y = ( Y1 / Y1T ) * yt;
     }
@@ -201,7 +201,7 @@ WVector3d WTalairachConverter::Talairach2ACPC( const WVector3d point )
         y = ( Y2 / Y2T ) * yt;
     }
 
-    if ( zt < 0 ) // inferior to AC-PC
+    if( zt < 0 ) // inferior to AC-PC
     {
         z = ( Z1 / Z1T ) * zt;
     }

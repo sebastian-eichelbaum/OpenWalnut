@@ -25,9 +25,9 @@
 #include <utility>
 #include <vector>
 
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WGEViewer.h"
-#include "../../graphicsEngine/WGraphicsEngine.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/graphicsEngine/WGEViewer.h"
+#include "core/graphicsEngine/WGraphicsEngine.h"
 #include "WTransparentLinesDrawable.h"
 
 namespace

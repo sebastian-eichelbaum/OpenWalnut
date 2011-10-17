@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-#include "../../kernel/WModuleContainer.h"
+#include "core/kernel/WModuleContainer.h"
 
 // forward declarations
 class WModule;
@@ -75,6 +75,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 

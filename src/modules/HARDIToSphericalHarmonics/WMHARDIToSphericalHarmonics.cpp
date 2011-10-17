@@ -32,40 +32,35 @@
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 #include <boost/thread/thread.hpp>
 
-#include "HARDIToSphericalHarmonics.xpm"
-#include "../../common/WLimits.h"
-#include "../../common/WAssert.h"
+#include "core/common/WLimits.h"
+#include "core/common/WAssert.h"
 
-#include "../../common/WProgress.h"
-#include "../../common/WPreferences.h"
-#include "../../common/math/WUnitSphereCoordinates.h"
-#include "../../common/math/WMatrix.h"
-#include "../../common/math/WSymmetricSphericalHarmonic.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/math/WLinearAlgebraFunctions.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/WProgress.h"
+#include "core/common/math/WUnitSphereCoordinates.h"
+#include "core/common/math/WMatrix.h"
+#include "core/common/math/WSymmetricSphericalHarmonic.h"
+#include "core/common/math/linearAlgebra/WVectorFixed.h"
+#include "core/common/math/WLinearAlgebraFunctions.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/kernel/WKernel.h"
 
-#include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
+#include "core/graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 
 #include "WSphericalHarmonicsCoefficientsThread.h"
 
 #include "WMHARDIToSphericalHarmonics.h"
+#include "WMHARDIToSphericalHarmonics.xpm"
 
-// This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMHARDIToSphericalHarmonics )
 
 WMHARDIToSphericalHarmonics::WMHARDIToSphericalHarmonics():
     WModule()
 {
-    // WARNING: initializing connectors inside the constructor will lead to an exception.
-    // Implement WModule::initializeConnectors instead.
 }
 
 WMHARDIToSphericalHarmonics::~WMHARDIToSphericalHarmonics()
 {
-    // cleanup
     removeConnectors();
 }
 
@@ -76,7 +71,7 @@ boost::shared_ptr< WModule > WMHARDIToSphericalHarmonics::factory() const
 
 const char** WMHARDIToSphericalHarmonics::getXPMIcon() const
 {
-    return HARDIToSphericalHarmonics_xpm;
+    return WMHARDIToSphericalHarmonics_xpm;
 }
 
 const std::string WMHARDIToSphericalHarmonics::getName() const
@@ -93,19 +88,18 @@ void WMHARDIToSphericalHarmonics::moduleMain()
 {
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
-
     m_moduleState.add( m_propCondition );
 
     ready();
     debugLog() << "Module is now ready.";
 
     debugLog() << "Entering main loop";
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -114,11 +108,8 @@ void WMHARDIToSphericalHarmonics::moduleMain()
         bool dataChanged = ( m_dataSet != newDataSet );
         bool dataValid   = ( newDataSet );
 
-        if ( dataChanged && dataValid )
-        // this condition will become true whenever the new data is different from the current one or our actual data is NULL. This handles all
-        // cases.
+        if( dataChanged && dataValid )
         {
-            // The data is different. Copy it to our internal data variable:
             debugLog() << "Received Data.";
             m_dataSet = newDataSet;
 
@@ -126,13 +117,13 @@ void WMHARDIToSphericalHarmonics::moduleMain()
             // - this is done by reversing the R=(l+1)*(l+2)/2 formula from the Descoteaux paper
             double q = std::sqrt( 0.25 + 2.0 * static_cast<double>( m_dataSet->getNumberOfMeasurements() ) ) - 1.5;
             m_order->setMax( static_cast<unsigned int>( q ) % 2 == 1 ? static_cast<unsigned int>( q ) - 3 : static_cast<unsigned int>( q ) - 2 );
-            m_order->set( m_order->getMax()->getMax() );
-            // TODO(philips): check max order calculation
-            m_order->set( 2 );
+
+            // reset to order 2 if the input hardi data does not allow for higher orders
+            m_order->ensureValidity( 2 );
         }
 
-//         if ( dataChanged && dataValid )
-        if ( dataValid )
+//         if( dataChanged && dataValid )
+        if( dataValid )
         {
             debugLog() << "Data changed. Recalculating output.";
 
@@ -142,133 +133,84 @@ void WMHARDIToSphericalHarmonics::moduleMain()
             // **********************************************
             // * Determine usable gradients and its indices *
             // **********************************************
-            // store indexes for S0 signal
+            // store indices for S0 signal
             std::vector< size_t > S0Indexes;
             // determine a set of indices of which the gradient is not zero
             debugLog() << "Determine usable gradients." << std::endl;
             std::vector< size_t > validIndices;
-            for ( size_t i = 0; i < m_dataSet->getNumberOfMeasurements(); i++ )
+            for( size_t i = 0; i < m_dataSet->getNumberOfMeasurements(); i++ )
             {
-              const WVector3d& grad = m_dataSet->getGradient( i );
-              if ( (grad[0] != 0.0) || (grad[1] != 0.0) || (grad[2] != 0.0) )
-                validIndices.push_back( i );
-              else
-                S0Indexes.push_back( i );
+                const WVector3d& grad = m_dataSet->getGradient( i );
+                if( ( grad[ 0 ] != 0.0 ) || ( grad[ 1 ] != 0.0 ) || ( grad[ 2 ] != 0.0 ) )
+                {
+                    validIndices.push_back( i );
+                }
+                else
+                {
+                    S0Indexes.push_back( i );
+                }
             }
             debugLog() << "Found " << validIndices.size() << " usable gradients." << std::endl;
             debugLog() << "Found " << S0Indexes.size() << " zero gradients." << std::endl;
-// TODO(philips): check if the follow assert is necessary
-//             WAssert( S0Index != -1, "No entry with zero gradient. Can't get S0 (basis) signal." );
+
+            if( S0Indexes.size() == 0 )
+            {
+                errorLog() << "No entry with zero gradient. Can't get S0 (basis) signal.";
+                continue;
+            }
 
             // build vector with gradients != 0
             std::vector< WVector3d > gradients;
-            for ( std::vector< size_t >::const_iterator it = validIndices.begin(); it != validIndices.end(); it++ )
-              gradients.push_back( m_dataSet->getGradient( *it ) );
+            for( std::vector< size_t >::const_iterator it = validIndices.begin(); it != validIndices.end(); it++ )
+            {
+                gradients.push_back( m_dataSet->getGradient( *it ) );
+            }
+            int order = m_order->get( true );
 
-            int order  = m_order->get( true );
+            WMatrix< double > transformMatrix(
+                      WSymmetricSphericalHarmonic::getSHFittingMatrix( gradients,
+                                                                       order,
+                                                                       m_regularisationFactorLambda->get( true ),
+                                                                       m_doFunkRadonTransformation->get( true ) ) );
 
-            WMatrix_2 TransformMatrix(
-                WSymmetricSphericalHarmonic::getSHFittingMatrix( gradients,
-                                                                 order,
-                                                                 m_regularisationFactorLambda->get( true ),
-                                                                 m_doFunkRadonTransformation->get( true ) ) );
-
-            double overallError = 0.0;
-            boost::shared_ptr< WValueSet< int16_t > > valueSet = boost::shared_dynamic_cast< WValueSet< int16_t > >( m_dataSet->getValueSet() );
-            WAssert( valueSet, "WValueSetBase of the HARDI data is not of type WValueSet< int16_t >" );
-            // to store the spherical harmonics
-            int dimension = ( order+1 ) * ( order + 2 ) / 2;
-            size_t voxelCount = valueSet->size();
-
-            // data vector stores spherical harmonics coefficients
-            boost::shared_ptr< std::vector<double> > data
-                = boost::shared_ptr< std::vector<double> >( new std::vector<double>( voxelCount * dimension ) );
-
-            //to show progess
-            boost::shared_ptr< WProgress > progress
-                = boost::shared_ptr< WProgress >( new WProgress( "Creating Spherical Harmonics", valueSet->size() ) );
-
-            m_progress->addSubProgress( progress );
-
-            debugLog() << "Creating Spherical Harmonics ... ";
-            const unsigned int threadCount = m_multiThreaded->get( true ) ?
-                                     ( boost::thread::hardware_concurrency() == 0 ? 1 : boost::thread::hardware_concurrency() ) : 1;
-//             const unsigned int threadCount = 1;
-
-            // set thread parameter
-            WSphericalHarmonicsCoefficientsThread::WThreadParameter parameter;
-            parameter.m_valueSet = valueSet;
+            WSphericalHarmonicsCoefficientsThread<>::ThreadParameter parameter( m_shutdownFlag );
+            parameter.m_valueSet = m_dataSet->getValueSet();
             parameter.m_validIndices = validIndices;
             parameter.m_S0Indexes = S0Indexes;
-            parameter.m_data = data;
             parameter.m_order = order;
-            parameter.m_TransformMatrix = boost::shared_ptr< WMatrix_2 >( new WMatrix_2( TransformMatrix ) );
+            parameter.m_TransformMatrix = boost::shared_ptr< WMatrix< double > >( new WMatrix< double >( transformMatrix ) );
             parameter.m_gradients = gradients;
-            parameter.m_progress = progress;
             parameter.m_doFunkRadonTransformation = m_doFunkRadonTransformation->get( true );
             parameter.m_doResidualCalculation = m_doResidualCalculation->get( true );
             parameter.m_doErrorCalculation = m_doErrorCalculation->get( true ) || parameter.m_doResidualCalculation;
-//             parameter.m_regularisationFactorLambda = m_regularisationFactorLambda->get( true );
+            // parameter.m_regularisationFactorLambda = m_regularisationFactorLambda->get( true );
             parameter.m_bDiffusionWeightingFactor = m_dataSet->getDiffusionBValue();
             parameter.m_normalize = m_doNormalisation->get( true );
 
-            // data vector to store reprojection residuals
-            if ( parameter.m_doResidualCalculation )
-            {
-              parameter.m_dataResiduals = boost::shared_ptr< std::vector<double> >(
-                                new std::vector<double>( m_dataSet->getValueSet()->size() * parameter.m_validIndices.size() ) );
-            }
+            //to show progess
+            parameter.m_progress = boost::shared_ptr< WProgress >( new WProgress( "Creating Spherical Harmonics",
+                                                                   m_dataSet->getValueSet()->size() ) );
+            m_progress->addSubProgress( parameter.m_progress );
 
-//             const unsigned int threadCount = 1;
-            std::pair< size_t, size_t > range;
-            // create Threads
-            for ( unsigned int i = 0; i < threadCount; i++ )
-            {
-              range.first = ( voxelCount / threadCount ) * i;
-              range.second = ( i == ( threadCount-1 ) ) ? voxelCount : ( voxelCount / threadCount ) * ( i+1 );
-              m_threads.push_back( new WSphericalHarmonicsCoefficientsThread( parameter, range ) );
-              m_threads.back()->run();
-            }
+            debugLog() << "Starting calculation.";
 
-            debugLog() << "Calculation started ... waiting for finish";
-            for ( unsigned int i = 0; i < m_threads.size(); i++ )
-            {
-              m_threads[ i ]->wait();
-              overallError += m_threads[ i ]->getError();
-              debugLog() << "Delete Thread";
-              delete m_threads[ i ];
-            }
+            HARDICalculation hc( parameter, m_multiThreaded->get( true ), m_dataSet->getGrid(), gradients );
+            HARDICalculation::result_type res = m_dataSet->getValueSet()->applyFunction( hc );
 
-            overallError /= static_cast<double>( m_threads.size() );
-            m_threads.clear();
-            progress->finish();
-            debugLog() << "Done" << std::endl;
-            debugLog() << "Gesamtfehler: " << overallError;
-
-            // create final output data
-            boost::shared_ptr< WValueSet<double> > sphericalHarmonicsData
-                    = boost::shared_ptr< WValueSet<double> >( new WValueSet<double>( 1, dimension, data, W_DT_DOUBLE ) );
-
-            newData = boost::shared_ptr< WDataSetSphericalHarmonics >(
-                        new WDataSetSphericalHarmonics( sphericalHarmonicsData, m_dataSet->getGrid() ) );
+            debugLog() << "Got results.";
 
             // notify output about new data
-            m_output->updateData( newData );
+            m_output->updateData( res.first );
 
             // create final output data
-            if ( parameter.m_doResidualCalculation )
+            if( parameter.m_doResidualCalculation )
             {
-                boost::shared_ptr< WValueSet<double> > residualsData = boost::shared_ptr< WValueSet<double> >(
-                        new WValueSet<double>( 1, parameter.m_validIndices.size(), parameter.m_dataResiduals, W_DT_DOUBLE ) );
-
-                boost::shared_ptr< WDataSetRawHARDI > newResidualData =
-                          boost::shared_ptr< WDataSetRawHARDI >( new WDataSetRawHARDI( residualsData, m_dataSet->getGrid(),
-                                                                                       boost::shared_ptr< std::vector< WVector3d > >(
-                                                                                           new std::vector< WVector3d >( gradients ) ) ) );
-                m_outputResiduals->updateData( newResidualData );
+                m_outputResiduals->updateData( res.second );
             }
         }
     }
+
+    debugLog() << "Finished.";
 }
 
 void WMHARDIToSphericalHarmonics::connectors()
@@ -353,19 +295,8 @@ void WMHARDIToSphericalHarmonics::properties()
     // 8        3,3%
 
     m_order->setMin( 0 );
-    m_order->setMax( 0 );
+    m_order->setMax( 4 );
     m_order->addConstraint( boost::shared_ptr< evenInt >( new evenInt ) );
-
-    m_propCondition->subscribeSignal( boost::bind( &WMHARDIToSphericalHarmonics::stopThreads, this ) );
-}
-
-
-void WMHARDIToSphericalHarmonics::stopThreads()
-{
-  for ( std::vector< WSphericalHarmonicsCoefficientsThread* >::iterator it = m_threads.begin(); it != m_threads.end(); it++ )
-  {
-    ( *it )->requestStop();
-  }
 }
 
 bool WMHARDIToSphericalHarmonics::evenInt::accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_INT > >,
@@ -376,7 +307,19 @@ bool WMHARDIToSphericalHarmonics::evenInt::accept( boost::shared_ptr< WPropertyV
 
 boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_INT >::PropertyConstraint > WMHARDIToSphericalHarmonics::evenInt::clone()
 {
-    // If you write your own constraints, you NEED to provide a clone function. It creates a new copied instance of the constraints with the
-    // correct runtime type.
     return boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_INT >::PropertyConstraint >( new WMHARDIToSphericalHarmonics::evenInt( *this ) );
+}
+
+WMHARDIToSphericalHarmonics::HARDICalculation::HARDICalculation( WSphericalHarmonicsCoefficientsThread<>::ThreadParameter threadParams,
+                                                                 bool multiThreaded, boost::shared_ptr< WGrid > grid,
+                                                                 std::vector< WVector3d > const& gradients )
+    : m_parameter( threadParams ),
+      m_multiThreaded( multiThreaded ),
+      m_grid( grid ),
+      m_gradients( gradients )
+{
+}
+
+WMHARDIToSphericalHarmonics::HARDICalculation::~HARDICalculation()
+{
 }

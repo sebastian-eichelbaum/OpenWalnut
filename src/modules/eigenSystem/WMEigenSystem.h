@@ -31,13 +31,13 @@
 
 #include <osg/Geode>
 
-#include "../../ext/Eigen/Eigen"
+#include <Eigen/Eigen>
 
-#include "../../common/math/WTensorFunctions.h"
-#include "../../common/WThreadedFunction.h"
-#include "../../dataHandler/WThreadedPerVoxelOperation.h"
-#include "../../dataHandler/WThreadedTrackingFunction.h"
-#include "../../kernel/WModule.h"
+#include "core/common/math/WTensorFunctions.h"
+#include "core/common/WThreadedFunction.h"
+#include "core/dataHandler/WThreadedPerVoxelOperation.h"
+#include "core/dataHandler/WThreadedTrackingFunction.h"
+#include "core/kernel/WModule.h"
 
 // forward declaration
 class WDataSetDTI;
@@ -86,6 +86,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 

@@ -28,20 +28,20 @@
 #include <osg/LightModel>
 #include <osgSim/ColorRange>
 
-#include "../../dataHandler/WEEG2.h"
-#include "../../dataHandler/WEEG2Segment.h"
-#include "../../dataHandler/WEEGChannelInfo.h"
-#include "../../dataHandler/WEEGValueMatrix.h"
-#include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../graphicsEngine/WGEGeometryUtils.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WROIBox.h"
-#include "../../gui/WCustomWidget.h"
-#include "../../gui/WGUI.h"
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WROIManager.h"
+#include "core/dataHandler/WEEG2.h"
+#include "core/dataHandler/WEEG2Segment.h"
+#include "core/dataHandler/WEEGChannelInfo.h"
+#include "core/dataHandler/WEEGValueMatrix.h"
+#include "core/graphicsEngine/WGEGeodeUtils.h"
+#include "core/graphicsEngine/WGEGeometryUtils.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/graphicsEngine/WROIBox.h"
+#include "core/gui/WCustomWidget.h"
+#include "core/gui/WGUI.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WROIManager.h"
 #include "WEEGEvent.h"
 #include "WEEGSourceCalculator.h"
 #include "WEEGViewHandler.h"
@@ -650,8 +650,7 @@ osg::ref_ptr< osg::Node > WMEEGView::drawHeadSurface()
 
     const std::size_t nbPositions = positions.size();
 
-    WTriangleMesh mesh = wge::triangulate( positions, -0.005 );
-    osg::ref_ptr< osg::Geometry > geometry = wge::convertToOsgGeometry( &mesh, true );
+    osg::ref_ptr< osg::Geometry > geometry = wge::convertToOsgGeometry( wge::triangulate( positions, -0.005 ), WColor( 1.0, 1.0, 1.0, 1.0 ), true );
 
     osg::Vec4Array* colors = new osg::Vec4Array;
     colors->push_back( osg::Vec4( 1.0f, 1.0f, 1.0f, 1.0f ) );

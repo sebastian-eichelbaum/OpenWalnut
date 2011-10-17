@@ -26,17 +26,17 @@
 #include <vector>
 #include <utility>
 
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/WAssert.h"
-#include "../../common/WLogger.h"
-#include "../../dataHandler/datastructures/WFiberCluster.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../graphicsEngine/WGEColormapping.h"
-#include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/WAssert.h"
+#include "core/common/WLogger.h"
+#include "core/dataHandler/datastructures/WFiberCluster.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/graphicsEngine/WGEColormapping.h"
+#include "core/graphicsEngine/WGEGeodeUtils.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
+#include "core/kernel/WKernel.h"
 #include "WMLineGuidedSlice.h"
 #include "WMLineGuidedSlice.xpm"
 
@@ -87,7 +87,7 @@ void WMLineGuidedSlice::connectors()
 
 void WMLineGuidedSlice::properties()
 {
-    m_pos = m_properties->addProperty( "Slice Position", "Position of ths slice along the line.", 0., true );
+    m_pos = m_properties->addProperty( "Slice position", "Position of ths slice along the line.", 0., true );
     m_pos->setMin( 0. );
     m_pos->setMax( 1. );
 

@@ -27,11 +27,11 @@
 
 #include <string>
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
-#include "../../dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetScalar.h"
 
 /**
  * Computes a distance map from an anatomy dataset.
@@ -77,6 +77,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 
@@ -121,13 +122,18 @@ private:
      * Take from FiberNavigator.
      * \param dataSet the data set that is used to compute the distance field.
      * The distance is computed to the boundary between foreground an background
+     *
+     * \return the distance map values
      */
     boost::shared_ptr< WValueSet< float > > createOffset( boost::shared_ptr< const WDataSetScalar > dataSet );
 
     /**
      * Gauss function.
+     *
      * \param x position of evaluation
      * \param sigma standard deviation
+     *
+     * \return Gauss value for given parameters
      */
     double xxgauss( double x, double sigma );
 };

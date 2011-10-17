@@ -29,10 +29,10 @@
 
 #include <osg/Geode>
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
-#include "../../dataHandler/datastructures/WJoinContourTree.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
+#include "core/dataHandler/datastructures/WJoinContourTree.h"
 
 /**
  * Computes the contour tree of a scalar field. Unless your not knowing what you do
@@ -79,6 +79,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 

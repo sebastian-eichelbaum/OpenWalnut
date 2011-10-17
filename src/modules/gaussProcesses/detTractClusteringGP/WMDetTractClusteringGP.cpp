@@ -26,10 +26,10 @@
 #include <utility>
 #include <vector>
 
-#include "../../../common/WLimits.h"
-#include "../../../common/datastructures/WDendrogram.h"
-#include "../../../common/datastructures/WUnionFind.h"
-#include "../../../kernel/WKernel.h"
+#include "core/common/WLimits.h"
+#include "core/common/datastructures/WDendrogram.h"
+#include "core/common/datastructures/WUnionFind.h"
+#include "core/kernel/WKernel.h"
 #include "../../emptyIcon.xpm" // Please put a real icon here.
 #include "WMDetTractClusteringGP.h"
 
@@ -64,7 +64,7 @@ const std::string WMDetTractClusteringGP::getDescription() const
 
 void WMDetTractClusteringGP::connectors()
 {
-    m_gpIC = WModuleInputData< WDataSetGP >::createAndAdd( shared_from_this(), "gpInput", "WDataSetGP providing the gaussian processes" );
+    m_gpIC = WModuleInputData< WDataSetGP >::createAndAdd( shared_from_this(), "gpInput", "WDataSetGP providing the Gaussian processes" );
     m_dendOC = WModuleOutputData< WDendrogram >::createAndAdd( shared_from_this(), "dendrogramOutput", "WDendrogram as a result of this clustering" );
 
     WModule::connectors();
@@ -82,11 +82,11 @@ void WMDetTractClusteringGP::moduleMain()
 
     ready();
 
-    while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
+    while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
         debugLog() << "Waiting..";
         m_moduleState.wait();
-        if ( !m_gpIC->getData().get() ) // ok, the output has not yet sent data
+        if( !m_gpIC->getData().get() ) // ok, the output has not yet sent data
         {
             continue;
         }
@@ -210,7 +210,7 @@ boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram( size
         {
             if( *it != newCE )
             {
-                // we have two gauss processes p and q. We have merged p and q into pq. Hence for all valid indexes we must
+                // we have two Gauss processes p and q. We have merged p and q into pq. Hence for all valid indexes we must
                 // recompute < pq, k > where k is a GP identified through an valid index, where:
                 // < pq, k > = |p| / ( |p| + |q| ) < p, k > + |q| / (|p| + |q|) < q, k >
                 double firstFactor = static_cast< double >( clusterSize[ p ] ) / ( clusterSize[ p ] + clusterSize[ q ] );

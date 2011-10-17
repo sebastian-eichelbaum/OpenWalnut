@@ -34,20 +34,21 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
-#include "../../common/datastructures/WFiber.h"
-#include "../../common/WColor.h"
-#include "../../common/WLogger.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../dataHandler/datastructures/WFiberCluster.h"
-#include "../../dataHandler/WDataSetFiberVector.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../dataHandler/WGridTransformOrtho.h"
-#include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../graphicsEngine/WGEGeometryUtils.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WModuleInputData.h"
+#include "core/common/datastructures/WFiber.h"
+#include "core/common/WColor.h"
+#include "core/common/WLogger.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/dataHandler/datastructures/WFiberCluster.h"
+#include "core/dataHandler/WDataSetFiberVector.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/dataHandler/WGridTransformOrtho.h"
+#include "core/graphicsEngine/WGEGeodeUtils.h"
+#include "core/graphicsEngine/WGEGeometryUtils.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WModuleInputData.h"
 #include "WBresenham.h"
 #include "WBresenhamDBL.h"
 #include "WCenterlineParameterization.h"
@@ -61,10 +62,6 @@ W_LOADABLE_MODULE( WMVoxelizer )
 
 WMVoxelizer::WMVoxelizer()
     : WModule(),
-      m_osgNode( new WGEGroupNode ),
-      m_fiberGeode( new osg::Geode ),
-      m_centerLineGeode( new osg::Geode ),
-      m_boundingBoxGeode( new osg::Geode ),
       m_fullUpdate( new WCondition() )
 {
 }
@@ -83,166 +80,110 @@ const char** WMVoxelizer::getXPMIcon() const
     return voxelizer_xpm;
 }
 
-void WMVoxelizer::moduleMain()
-{
-    m_moduleState.setResetable();
-    m_moduleState.add( m_input->getDataChangedCondition() );  // additional fire-condition: "data changed" flag
-    m_moduleState.add( m_fullUpdate );
-    m_moduleState.add( m_drawCenterLine->getCondition() );
-
-    ready();
-
-    while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
-    {
-        if ( !m_input->getData() ) // ok, the output has not yet sent data
-        {
-            // since there is no data yet we will eat property changes
-            m_drawVoxels->get( true );
-            m_rasterAlgo->get( true );
-            m_antialiased->get( true );
-            m_drawfibers->get( true );
-            continue;
-        }
-        if ( m_input->getData()->size() == 0 )
-        {
-            infoLog() << "Got empty fiber dataset. Ignoring.";
-            m_moduleState.wait();
-            continue;
-        }
-
-        boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Marching Cubes", 4 ) );
-        m_progress->addSubProgress( progress );
-
-        ++*progress;
-        // full update
-        if( m_antialiased->changed() || m_drawVoxels->changed() || m_rasterAlgo->changed() || m_voxelsPerUnit->changed() ||
-                m_clusters != m_input->getData() || m_parameterAlgo->changed() )
-        {
-            m_drawVoxels->get( true );
-            m_rasterAlgo->get( true );
-            m_antialiased->get( true );
-            m_clusters = m_input->getData();
-            update();
-        }
-
-        ++*progress;
-
-        if( m_drawfibers->changed() || m_explicitFiberColor->changed() || m_fiberTransparency->changed() )
-        {
-            updateFibers();
-        }
-
-        ++*progress;
-
-        if( m_drawCenterLine->changed() )
-        {
-            updateCenterLine();
-        }
-
-        ++*progress;
-        progress->finish();
-
-        m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
-    }
-}
-
 void WMVoxelizer::properties()
 {
+    m_antialiased     = m_properties->addProperty( "Antialiasing", "Enable/Disable antialiased drawing of voxels.", true, m_fullUpdate );
+    m_voxelsPerUnit   = m_properties->addProperty( "Voxels per Unit", "Specified the number of voxels per unit in the coordinate system. This "
+                                                                       "is useful to increase the resolution of the grid", 1, m_fullUpdate );
+    // for selecting the parameterization method
     m_paramAlgoSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_paramAlgoSelections->addItem( "No Parameterization", "Disable parameterization." );          // NOTE: you can add XPM images here.
     m_paramAlgoSelections->addItem( "By Longest Line", "Use the longest line and parameterize the bundle along it." );
     m_paramAlgoSelections->addItem( "By Centerline", "Use the centerline and parameterize the bundle along it." );
     m_paramAlgoSelections->addItem( "By Integration", "Integrate along the voxelized line." );
-
-    m_antialiased     = m_properties->addProperty( "Antialiasing", "Enable/Disable antialiased drawing of voxels.", true, m_fullUpdate );
-    m_drawfibers      = m_properties->addProperty( "Fiber Tracts", "Enable/Disable drawing of the fibers of a cluster.", true, m_fullUpdate );
-    m_drawBoundingBox = m_properties->addProperty( "Bounding Box Enable Feature", "Enable/Disable drawing of a clusters BoundingBox.", true );
-    m_drawCenterLine  = m_properties->addProperty( "Center Line", "Enable/Disable display of the center line", true );
-    m_lighting        = m_properties->addProperty( "Lighting", "Enable/Disable lighting.", true );
-    m_drawVoxels      = m_properties->addProperty( "Display Voxels", "Enable/Disable drawing of marked voxels.", true, m_fullUpdate );
-    m_rasterAlgo      = m_properties->addProperty( "Raster Algo", "Specifies the algorithm you may want to use for voxelization.",
-                                                    std::string( "WBresenham" ), m_fullUpdate );
-    m_voxelsPerUnit   = m_properties->addProperty( "Voxels per Unit", "Specified the number of voxels per unit in the coordinate system. This "
-                                                                       "is useful to increase the resolution of the grid", 1, m_fullUpdate );
     m_parameterAlgo   = m_properties->addProperty( "Parameterization", "Select the parameterization algorithm.",
                                                    m_paramAlgoSelections->getSelectorFirst(), m_fullUpdate );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_parameterAlgo );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_parameterAlgo );
-    m_fiberTransparency = m_properties->addProperty( "Fiber Transparency", "", 1.0, m_fullUpdate );
-    m_fiberTransparency->setMin( 0.0 );
-    m_fiberTransparency->setMax( 1.0 );
-    m_explicitFiberColor = m_properties->addProperty( "Explicit Fiber Color", "", WColor( 0.2, 0.2, 0.2, 1.0 ), m_fullUpdate );
+
+    // for selecting the rasterization method
+    boost::shared_ptr< WItemSelection > rasterAlgos( new WItemSelection() );
+    rasterAlgos->addItem( "Bresenham", "Voxelization with 3D Bresenham" );
+    m_rasterAlgo = m_properties->addProperty( "Rasterization", "Which method for rasterizing the tracts", rasterAlgos->getSelectorFirst(),
+            m_fullUpdate );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_rasterAlgo );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_rasterAlgo );
 
     WModule::properties();
 }
 
-void WMVoxelizer::activate()
+void WMVoxelizer::connectors()
 {
-    if( m_osgNode )
-    {
-        if( m_active->get() )
-        {
-            m_osgNode->setNodeMask( 0xFFFFFFFF );
-        }
-        else
-        {
-            m_osgNode->setNodeMask( 0x0 );
-        }
-    }
-
-    WModule::activate();
+    m_tractIC = WModuleInputData< const WDataSetFibers >::createAndAdd( shared_from_this(), "tractInput", "Deterministic tracts" );
+    m_clusterIC = WModuleInputData< const WFiberCluster >::createAndAdd( shared_from_this(), "clusterInput", "A subset (e.g. a cluster) of tracts" );
+    m_voxelizedOC = WModuleOutputData< WDataSetScalar >::createAndAdd( shared_from_this(), "voxelOutput", "The voxelized data set" );
+    m_paramOC = WModuleOutputData< WDataSetScalar >::createAndAdd( shared_from_this(), "parameterizationOutput",
+                                                                                  "The parameter field for the voxelized fibers." );
+    WModule::connectors();  // call WModules initialization
 }
 
-osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode() const
+void WMVoxelizer::moduleMain()
 {
-    using osg::ref_ptr;
-    ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-    ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    ref_ptr< osg::Geometry > geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
+    m_moduleState.setResetable();
+    m_moduleState.add( m_tractIC->getDataChangedCondition() );
+    m_moduleState.add( m_clusterIC->getDataChangedCondition() );
+    m_moduleState.add( m_fullUpdate );
 
-    const WDataSetFiberVector& fibs = *m_clusters->getDataSetReference();
+    m_rootNode = new WGEManagedGroupNode( m_active );
+    m_rootNode->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
-    const std::list< size_t >& fiberIDs = m_clusters->getIndices();
-    std::list< size_t >::const_iterator cit = fiberIDs.begin();
+    ready();
 
-    assert( fibs.size() > 0 && "no empty fiber dataset for clusters allowed in WMVoxelizer::createBoundingBox" );
-    assert( fibs[0].size() > 0 && "no empty fibers in a cluster allowed in WMVoxelizer::createBoundingBox" );
-    assert( fiberIDs.size() > 0 && "no empty clusters allowed in WMVoxelizer::createBoundingBox" );
-
-    for( cit = fiberIDs.begin(); cit != fiberIDs.end(); ++cit )
+    while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
-        const WFiber& fib = fibs[*cit];
-        vertices->push_back( osg::Vec3( fib[0][0], fib[0][1], fib[0][2] ) );
-        for( size_t i = 1; i < fib.size(); ++i )
+        bool selectionPresent = m_clusterIC->getData();
+
+        if( !m_tractIC->getData() )
         {
-            vertices->push_back( osg::Vec3( fib[i][0], fib[i][1], fib[i][2] ) );
-            WColor col = m_explicitFiberColor->get( true );
-            if( m_explicitFiberColor->get() == WColor( 0.2, 0.2, 0.2, 1.0 ) )
+            continue;
+        }
+
+        size_t numTracts = ( selectionPresent ? m_clusterIC->getData()->size() : m_tractIC->getData()->size() );
+
+        infoLog() << "Start voxelization with: " << numTracts << " tracts";
+
+        boost::array< boost::shared_ptr< WDataSetScalar >, 2 > result = generateDatasets( m_tractIC->getData(), m_clusterIC->getData() );
+
+        if( !result.empty() )
+        {
+            m_voxelizedOC->updateData( result[0] );
+            if( result.size() == 2 ) // parameterized dataset available
             {
-                col = wge::getRGBAColorFromDirection( fib[i], fib[i-1] );
+                m_paramOC->updateData( result[1] );
             }
-            col[3] = m_fiberTransparency->get( true );
-            colors->push_back( col );
+
+            m_rootNode->clear();
+            m_rootNode->insert( genDataSetGeode( result[0] ) );
         }
-        colors->push_back( colors->back() );
-        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - fib.size(), fib.size() ) );
+
+        infoLog() << "Finished.";
+
+        m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
     }
 
-    geometry->setVertexArray( vertices );
-    geometry->setColorArray( colors );
-    geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
-    osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
-    geode->addDrawable( geometry.get() );
-    return geode;
+    m_rootNode->clear();
+
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
-boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const WBoundingBox& bb ) const
+boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( boost::shared_ptr< const WDataSetFibers > tracts,
+        boost::shared_ptr< const WFiberCluster > cluster ) const
 {
+    WBoundingBox bb;
+    if( cluster )
+    {
+        bb = cluster->getBoundingBox();
+    }
+    else
+    {
+        bb = tracts->getBoundingBox();
+    }
+
     int32_t nbVoxelsPerUnit = m_voxelsPerUnit->get( true );
 
-    // TODO(math): implement the snap-to-grid (of the T1 image) feature for fll and bur.
     // TODO(math): remove hardcoded meta grid here.
-    // the "+1" in the following three statements is because there are may be some more voxels
+    // the "+1" in the following three statements is because there may be some more voxels
     // The first and last voxel are only half sized! hence one more position is needed
     size_t nbPosX = std::ceil( bb.xMax() - bb.xMin() ) + 1;
     size_t nbPosY = std::ceil( bb.yMax() - bb.yMin() ) + 1;
@@ -261,199 +202,114 @@ boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const WBoundingB
                                                                   nbVoxelsPerUnit * nbPosY,
                                                                   nbVoxelsPerUnit * nbPosZ,
                                                                   transform ) );
+    debugLog() << "Created grid of size: " << grid->size();
     return grid;
 }
 
-void WMVoxelizer::updateFibers()
+boost::array< boost::shared_ptr< WDataSetScalar >, 2 > WMVoxelizer::generateDatasets(
+        boost::shared_ptr< const WDataSetFibers > tracts,
+        boost::shared_ptr< const WFiberCluster > cluster ) const
 {
-    debugLog() << "Fiber Update";
-    assert( m_osgNode );
-    if( m_drawfibers->get( true ) )
+    boost::array< boost::shared_ptr< WDataSetScalar >, 2 > result; // unusable instances
+
+    if( !tracts ) // mean while input connector has changed => abort
     {
-        m_osgNode->remove( m_fiberGeode );
-        m_fiberGeode = genFiberGeode();
-        m_osgNode->insert( m_fiberGeode );
+        return result;
     }
-    else
-    {
-        m_osgNode->remove( m_fiberGeode );
-    }
-}
 
-void WMVoxelizer::updateCenterLine()
-{
-    assert( m_osgNode );
-    if( m_drawCenterLine->get( true ) )
-    {
-        boost::shared_ptr< WFiber > centerLine = m_clusters->getCenterLine();
-        if( centerLine )
-        {
-            m_centerLineGeode = wge::generateLineStripGeode( *centerLine, 3.f );
-        }
-        else
-        {
-            warnLog() << "CenterLine update on non existing CenterLine (null)";
-            m_centerLineGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() );
-        }
-        m_osgNode->insert( m_centerLineGeode );
-    }
-    else
-    {
-        m_osgNode->remove( m_centerLineGeode );
-    }
-}
-
-void WMVoxelizer::update()
-{
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
-    m_osgNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode );
-    m_osgNode->addUpdateCallback( new OSGCB_HideUnhideBB( this ) );
-    m_osgNode->addUpdateCallback( new OSGCB_ChangeLighting( this ) );
-
-    updateFibers();
-
-    updateCenterLine();
-
-    WBoundingBox bb = createBoundingBox( *m_clusters );
-
-    m_boundingBoxGeode = wge::generateBoundingBoxGeode( bb, WColor( 0.3, 0.3, 0.3, 1 ) );
-    m_osgNode->insert( m_boundingBoxGeode );
-
-    boost::shared_ptr< WGridRegular3D > grid = constructGrid( bb );
-
-    debugLog() << "Created grid of size: " << grid->size();
+    boost::shared_ptr< WGridRegular3D > grid = constructGrid( tracts, cluster );
 
     boost::shared_ptr< WRasterAlgorithm > rasterAlgo;
-    if( m_rasterAlgo->get() == std::string( "WBresenham" ) )
+    std::string rasterName = m_rasterAlgo->get().at( 0 )->getName();
+    if( rasterName == "Bresenham" )
     {
         rasterAlgo = boost::shared_ptr< WBresenham >( new WBresenham( grid, m_antialiased->get() ) );
-    }
-    else if( m_rasterAlgo->get() == std::string( "WBresenhamDBL" ) )
-    {
-        rasterAlgo =  boost::shared_ptr< WBresenhamDBL >( new WBresenhamDBL( grid, m_antialiased->get() ) );
     }
     else
     {
-        errorLog() << "Invalid rasterization algorithm: " << m_rasterAlgo->get();
-        m_rasterAlgo->set( std::string( "WBresenham" ) );
-        rasterAlgo = boost::shared_ptr< WBresenham >( new WBresenham( grid, m_antialiased->get() ) );
+        errorLog() << "Invalid rasterization algorithm selected: " << rasterName << " aborting.";
+        return result;
     }
-    debugLog() << "Using: " << m_rasterAlgo->get() << " as rasterization Algo.";
 
     // decide which param algo to use:
-    size_t algo = m_parameterAlgo->get( true ).getItemIndexOfSelected( 0 );
     boost::shared_ptr< WRasterParameterization > paramAlgo;
-    if ( algo == 0 )
+    std::string paramName = m_parameterAlgo->get( true ).at( 0 )->getName();
+    if( paramName == "By Longest Line" )
     {
-        debugLog() << "No parameterization algorithm selected.";
+        paramAlgo = boost::shared_ptr< WRasterParameterization >( new WCenterlineParameterization( grid, longestLine( tracts, cluster ) ) );
     }
-    else if ( algo == 1 )
+    else if( paramName == "By Centerline" )
     {
-        debugLog() << "Parameterization algorithm: by longest line.";
-        paramAlgo = boost::shared_ptr< WRasterParameterization >(
-            new WCenterlineParameterization( grid, m_clusters->getLongestLine() )
-        );
+        paramAlgo = boost::shared_ptr< WRasterParameterization >( new WCenterlineParameterization( grid, centerLine( tracts, cluster ) ) );
     }
-    else if ( algo == 2 )
+    else if( paramName == "By Integration" )
     {
-        debugLog() << "Parameterization algorithm: by centerline.";
-        paramAlgo = boost::shared_ptr< WRasterParameterization >(
-            new WCenterlineParameterization( grid, m_clusters->getCenterLine() )
-        );
+        paramAlgo = boost::shared_ptr< WRasterParameterization >( new WIntegrationParameterization( grid ) );
     }
-    else if ( algo == 3 )
-    {
-        debugLog() << "Parameterization algorithm: by integration.";
-        paramAlgo = boost::shared_ptr< WRasterParameterization >(
-            new WIntegrationParameterization( grid )
-        );
-    }
-    if ( paramAlgo )
+    debugLog() << paramName << " as parameterization method selected.";
+
+    if( paramAlgo )
     {
         rasterAlgo->addParameterizationAlgorithm( paramAlgo );
     }
 
-    raster( rasterAlgo );
+    raster( rasterAlgo, tracts, cluster );
 
-    // update both outputs
-    boost::shared_ptr< WDataSetScalar > outputDataSet = rasterAlgo->generateDataSet();
-    m_output->updateData( outputDataSet );
-    if ( paramAlgo )
+    result[0] = rasterAlgo->generateDataSet();
+
+    if( paramAlgo )
     {
-        boost::shared_ptr< WDataSetScalar > outputDataSetIntegration = paramAlgo->getDataSet();
-        m_parameterizationOutput->updateData( outputDataSetIntegration );
-    }
-
-    if( m_drawVoxels->get() )
-    {
-        m_voxelGeode = genDataSetGeode( outputDataSet );
-        m_osgNode->insert( m_voxelGeode );
-    }
-
-    m_osgNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
-    m_osgNode->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_osgNode );
-}
-
-void WMVoxelizer::raster( boost::shared_ptr< WRasterAlgorithm > algo ) const
-{
-    const WDataSetFiberVector& fibs = *m_clusters->getDataSetReference();
-    const std::list< size_t >& fiberIDs = m_clusters->getIndices();
-    std::list< size_t >::const_iterator cit = fiberIDs.begin();
-
-    debugLog() << "Cluster indices to voxelize: " << fiberIDs;
-    debugLog() << "Using: " << m_clusters->getDataSetReference() << " as fiber dataset";
-
-    assert( fibs.size() > 0 && "no empty fiber dataset for clusters allowed in WMVoxelizer::createBoundingBox" );
-    assert( fibs[0].size() > 0 && "no empty fibers in a cluster allowed in WMVoxelizer::createBoundingBox" );
-    assert( fiberIDs.size() > 0 && "no empty clusters allowed in WMVoxelizer::createBoundingBox" );
-
-    for( cit = fiberIDs.begin(); cit != fiberIDs.end(); ++cit )
-    {
-        algo->raster( fibs.at( *cit ) );
-    }
-    algo->finished();
-
-    // TODO(math): This is just a line for testing purposes
-//    WLine l;
-//    l.push_back( WPosition( 73, 38, 29 ) );
-//    l.push_back( WPosition( 120, 150, 130 ) );
-//    algo->raster( l );
-}
-
-void WMVoxelizer::connectors()
-{
-    m_input = WModuleInputData< const WFiberCluster >::createAndAdd( shared_from_this(), "tractInput", "A cluster of tracts" );
-    m_output = WModuleOutputData< WDataSetScalar >::createAndAdd( shared_from_this(), "voxelOutput", "The voxelized data set" );
-    m_parameterizationOutput = WModuleOutputData< WDataSetScalar >::createAndAdd( shared_from_this(),
-                                                                                  "parameterizationOutput",
-                                                                                  "The parameter field for the voxelized fibers." );
-    WModule::connectors();  // call WModules initialization
-}
-
-WBoundingBox WMVoxelizer::createBoundingBox( const WFiberCluster& cluster ) const
-{
-    const WDataSetFiberVector& fibs = *cluster.getDataSetReference();
-
-    const std::list< size_t >& fiberIDs = cluster.getIndices();
-    std::list< size_t >::const_iterator cit = fiberIDs.begin();
-
-    WAssert( fibs.size() > 0, "no empty fiber dataset for clusters allowed in WMVoxelizer::createBoundingBox" );
-    WAssert( fibs[0].size() > 0, "no empty fibers in a cluster allowed in WMVoxelizer::createBoundingBox" );
-    WAssert( fiberIDs.size() > 0, "no empty clusters allowed in WMVoxelizer::createBoundingBox" );
-
-    WBoundingBox result;
-
-    for( cit = fiberIDs.begin(); cit != fiberIDs.end(); ++cit )
-    {
-        const WFiber& fiber = fibs[ *cit ];
-        for( size_t i = 0; i < fiber.size(); ++i )
-        {
-            result.expandBy( fiber[i] );
-        }
+        result[1] = paramAlgo->getDataSet();
     }
 
     return result;
+}
+
+boost::shared_ptr< WFiber > WMVoxelizer::longestLine( boost::shared_ptr< const WDataSetFibers > tracts,
+        boost::shared_ptr< const WFiberCluster > cluster ) const
+{
+    if( cluster )
+    {
+        return cluster->getLongestLine();
+    }
+    return longestLine( tracts );
+}
+
+boost::shared_ptr< WFiber > WMVoxelizer::centerLine( boost::shared_ptr< const WDataSetFibers > tracts,
+        boost::shared_ptr< const WFiberCluster > cluster ) const
+{
+    if( cluster )
+    {
+        return cluster->getCenterLine();
+    }
+    return centerLine( tracts );
+}
+
+void WMVoxelizer::raster( boost::shared_ptr< WRasterAlgorithm > algo, boost::shared_ptr< const WDataSetFibers > tracts,
+        boost::shared_ptr< const WFiberCluster > cluster ) const
+{
+    // for each tract apply a call to algo->raster( tract );
+
+    if( cluster )
+    {
+        boost::shared_ptr< const WDataSetFiberVector > clusterTracts = cluster->getDataSetReference();
+        const std::list< size_t >& tractIDs = cluster->getIndices();
+        std::list< size_t >::const_iterator cit = tractIDs.begin();
+        for( cit = tractIDs.begin(); cit != tractIDs.end(); ++cit )
+        {
+            algo->raster( clusterTracts->at( *cit ) );
+        }
+    }
+    else
+    {
+        boost::shared_ptr< WDataSetFiberVector > allTracts( new WDataSetFiberVector( tracts ) );
+        for( WDataSetFiberVector::const_iterator cit = allTracts->begin(); cit != allTracts->end(); ++cit )
+        {
+            algo->raster( *cit );
+        }
+    }
+
+    algo->finished();
 }
 
 osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDataSetScalar > dataset ) const
@@ -513,37 +369,5 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
     depth->setWriteMask( false );
     state->setAttributeAndModes( depth, osg::StateAttribute::ON );
 
-    // disable light for this geode as lines can't be lit properly
-    state->setMode( GL_LIGHTING, osg::StateAttribute::ON | osg::StateAttribute::PROTECTED );
-
     return geode;
-}
-
-void WMVoxelizer::OSGCB_HideUnhideBB::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    if( m_module->m_boundingBoxGeode )
-    {
-        if ( m_module->m_drawBoundingBox->get() )
-        {
-            m_module->m_boundingBoxGeode->setNodeMask( 0xFFFFFFFF );
-        }
-        else
-        {
-            m_module->m_boundingBoxGeode->setNodeMask( 0x0 );
-        }
-    }
-    traverse( node, nv );
-}
-
-void WMVoxelizer::OSGCB_ChangeLighting::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    if ( m_module->m_lighting->get() )
-    {
-        m_module->m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
-    }
-    else
-    {
-        m_module->m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    }
-    traverse( node, nv );
 }

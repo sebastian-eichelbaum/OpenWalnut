@@ -24,9 +24,9 @@
 
 #include <string>
 
-#include "../../common/WPropertyHelper.h"
-#include "../../dataHandler/io/WWriterDendrogram.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/dataHandler/io/WWriterDendrogram.h"
+#include "core/kernel/WKernel.h"
 #include "WMWriteDendrogram.h"
 #include "WMWriteDendrogram.xpm"
 

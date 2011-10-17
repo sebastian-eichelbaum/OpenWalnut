@@ -1,0 +1,13 @@
+When compiling in Debug or RelWithDebInfo mode, the utilities in here
+can ease your life. They startup your favorite debugger for you and
+pass OpenWalnut parameter. These files are not copied in Release mode.
+Additionally, there is NO (and won't be ever) install target for these
+files, as you do not debug an installed version.
+
+HOWTO Extend:
+=============
+
+The complete directory-structure in here is copied to the
+build/install- directory. Just add your scripts to bin and additional
+debugging files in share for example.
+

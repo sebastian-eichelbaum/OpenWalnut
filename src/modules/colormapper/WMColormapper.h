@@ -29,11 +29,11 @@
 
 #include <osg/Projection>
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../common/WPropertyVariable.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/common/WPropertyVariable.h"
 
-#include "../../dataHandler/WDataSetSingle.h"
+#include "core/dataHandler/WDataSetSingle.h"
 
 /**
  * This module simply registers the given dataset to the texture handling mechanism. This allows all outputs to be shown as a texture.
@@ -76,6 +76,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 

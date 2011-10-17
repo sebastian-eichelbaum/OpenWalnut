@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../../common/WProgress.h"
-#include "../../common/WProgressCombiner.h"
+#include "core/common/WProgress.h"
+#include "core/common/WProgressCombiner.h"
 #include "WProgressWrapper.h"
 #include "WProgressWrapperData.h"
 

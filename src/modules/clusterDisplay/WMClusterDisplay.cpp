@@ -35,11 +35,11 @@
 #include <osgWidget/ViewerEventHandlers> //NOLINT
 #include <osgWidget/WindowManager> //NOLINT
 
-#include "../../common/WPathHelper.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WROIManager.h"
+#include "core/common/WPathHelper.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WROIManager.h"
 #include "WMClusterDisplay.h"
 #include "WMClusterDisplay.xpm" // Please put a real icon here.
 
@@ -72,8 +72,7 @@ const char** WMClusterDisplay::getXPMIcon() const
 }
 const std::string WMClusterDisplay::getName() const
 {
-    // Specify your module name here. This name must be UNIQUE!
-    return "ClusterDisplay";
+    return "Cluster Display";
 }
 
 const std::string WMClusterDisplay::getDescription() const
@@ -104,7 +103,7 @@ std::vector< std::string > WMClusterDisplay::readFile( const std::string fileNam
 
     std::string line;
 
-    if ( ifs.is_open() )
+    if( ifs.is_open() )
     {
         debugLog() << "trying to load " << fileName;
         debugLog() << "file exists";
@@ -117,7 +116,7 @@ std::vector< std::string > WMClusterDisplay::readFile( const std::string fileNam
         return lines;
     }
 
-    while ( !ifs.eof() )
+    while( !ifs.eof() )
     {
         getline( ifs, line );
 
@@ -137,12 +136,12 @@ bool WMClusterDisplay::loadTreeAscii( std::string fileName )
 
     lines = readFile( fileName );
 
-    if ( lines.size() == 0 )
+    if( lines.size() == 0 )
     {
         return false;
     }
 
-    for ( size_t i = 0; i < lines.size() - 1; ++i )
+    for( size_t i = 0; i < lines.size() - 1; ++i )
     {
         std::string &ls = lines[i];
 
@@ -158,19 +157,19 @@ bool WMClusterDisplay::loadTreeAscii( std::string fileName )
 
     std::vector<std::string>svec;
 
-    for ( size_t i = 0; i < lines.size()-1; ++i )
+    for( size_t i = 0; i < lines.size()-1; ++i )
     {
         svec.clear();
         boost::regex reg( "," );
         boost::sregex_token_iterator it( lines[i].begin(), lines[i].end(), reg, -1 );
         boost::sregex_token_iterator end;
-        while ( it != end )
+        while( it != end )
         {
             svec.push_back( *it++ );
         }
 
         size_t level = boost::lexical_cast<size_t>( svec[1] );
-        if ( level == 0 )
+        if( level == 0 )
         {
             m_tree.addLeaf();
         }
@@ -179,7 +178,7 @@ bool WMClusterDisplay::loadTreeAscii( std::string fileName )
             // start after ( level (
             size_t k = 3;
             std::vector<size_t>leafes;
-            while ( svec[k] != ")" )
+            while( svec[k] != ")" )
             {
                 leafes.push_back( boost::lexical_cast<size_t>( svec[k] ) );
                 ++k;
@@ -195,7 +194,7 @@ bool WMClusterDisplay::loadTreeAscii( std::string fileName )
             m_tree.addCluster( cluster1, cluster2, level, leafes, data );
             //m_tree.addCluster( cluster1, cluster2, data );
 
-            if ( svec[k] != ")" )
+            if( svec[k] != ")" )
             {
                 std::cout << "parse error" << std::endl;
                 return false;
@@ -206,7 +205,7 @@ bool WMClusterDisplay::loadTreeAscii( std::string fileName )
 
     debugLog() << "finished parsing tree file...";
 
-    if ( m_tree.getLeafCount() == m_fiberInput->getData()->size() )
+    if( m_tree.getLeafCount() == m_fiberInput->getData()->size() )
     {
         return true;
     }
@@ -380,16 +379,16 @@ void WMClusterDisplay::moduleMain()
     bool treeLoaded = false;
 
     // no text file was found, wait for the user to manually load on
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
 
         m_moduleState.wait();
 
-        if ( m_dataSet != m_fiberInput->getData() )
+        if( m_dataSet != m_fiberInput->getData() )
         {
             m_dataSet = m_fiberInput->getData();
             std::string fn = m_dataSet->getFileName();
@@ -397,19 +396,19 @@ void WMClusterDisplay::moduleMain()
             std::string csvExt( "_hie.txt" );
             fn.replace( fn.find( ext ), ext.size(), csvExt );
             treeLoaded = loadTreeAscii( fn );
-            if ( treeLoaded )
+            if( treeLoaded )
             {
                 break;
             }
         }
 
 
-        if ( m_readTriggerProp->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        if( m_readTriggerProp->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
             std::string fileName = m_propTreeFile->get().file_string().c_str();
             treeLoaded = loadTreeAscii( fileName );
             m_readTriggerProp->set( WPVBaseTypes::PV_TRIGGER_READY, true );
-            if ( treeLoaded )
+            if( treeLoaded )
             {
                 break;
             }
@@ -450,11 +449,11 @@ void WMClusterDisplay::moduleMain()
     m_propMinSizeToColor->get( true );
 
     // main loop
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         m_moduleState.wait();
 
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
            break;
         }
@@ -464,7 +463,7 @@ void WMClusterDisplay::moduleMain()
             handleSelectedClusterChanged();
         }
 
-        if ( m_propSelectedClusterOffset->changed() )
+        if( m_propSelectedClusterOffset->changed() )
         {
             handleOffsetChanged();
         }
@@ -474,33 +473,33 @@ void WMClusterDisplay::moduleMain()
             handleBiggestClustersChanged();
         }
 
-        if ( m_propSubLevelsToColor->changed() )
+        if( m_propSubLevelsToColor->changed() )
         {
             handleColoringChanged();
         }
 
-        if ( m_propMinSizeToColor->changed() )
+        if( m_propMinSizeToColor->changed() )
         {
             handleMinSizeChanged();
         }
 
-        if ( m_propBoxClusterRatio->changed() || m_propMaxSubClusters->changed() )
+        if( m_propBoxClusterRatio->changed() || m_propMaxSubClusters->changed() )
         {
             handleRoiChanged();
         }
 
-        if ( m_propShowTree->changed() )
+        if( m_propShowTree->changed() )
         {
             m_widgetDirty = true;
         }
 
-        if ( m_propShowDendrogram->changed() || m_propResizeWithWindow->changed() || m_propDendrogramSizeX->changed() ||
+        if( m_propShowDendrogram->changed() || m_propResizeWithWindow->changed() || m_propDendrogramSizeX->changed() ||
                 m_propDendrogramSizeY->changed() || m_propDendrogramOffsetX->changed() || m_propDendrogramOffsetY->changed() )
         {
             m_dendrogramDirty = true;
         }
 
-        if ( m_active->changed() )
+        if( m_active->changed() )
         {
             //WKernel::getRunningKernel()->getRoiManager()->setUseExternalBitfield( m_active->get( true ) );
         }
@@ -529,15 +528,15 @@ void WMClusterDisplay::handleSelectedClusterChanged()
 
 void WMClusterDisplay::handleOffsetChanged()
 {
-    if ( m_propSelectedClusterOffset->get( true ) == 0 )
+    if( m_propSelectedClusterOffset->get( true ) == 0 )
     {
         m_rootCluster = m_propSelectedCluster->get( true );
     }
-    else if ( m_propSelectedClusterOffset->get( true ) > 0 )
+    else if( m_propSelectedClusterOffset->get( true ) > 0 )
     {
         int plus = m_propSelectedClusterOffset->get( true );
         m_rootCluster = m_propSelectedCluster->get( true );
-        while ( plus > 0 )
+        while( plus > 0 )
         {
             m_rootCluster = m_tree.getParent( m_rootCluster );
             --plus;
@@ -548,9 +547,9 @@ void WMClusterDisplay::handleOffsetChanged()
         int minusOff = m_propSelectedClusterOffset->get( true );
         m_rootCluster = m_propSelectedCluster->get( true );
 
-        while ( minusOff < 0 )
+        while( minusOff < 0 )
         {
-            if ( m_tree.getLevel( m_rootCluster ) > 0 )
+            if( m_tree.getLevel( m_rootCluster ) > 0 )
             {
                 size_t left =  m_tree.getChildren( m_rootCluster ).first;
                 size_t right = m_tree.getChildren( m_rootCluster ).second;
@@ -558,7 +557,7 @@ void WMClusterDisplay::handleOffsetChanged()
                 size_t leftSize =  m_tree.size( left );
                 size_t rightSize = m_tree.size( right );
 
-                if ( leftSize >= rightSize )
+                if( leftSize >= rightSize )
                 {
                     m_rootCluster = left;
                 }
@@ -584,7 +583,7 @@ void WMClusterDisplay::handleBiggestClustersChanged()
     m_tree.colorCluster( m_tree.getClusterCount() - 1, WColor( 0.3, 0.3, 0.3, 1.0 ) );
     setColor( m_tree.getLeafesForCluster( m_rootCluster ), WColor( 0.3, 0.3, 0.3, 1.0 ) );
 
-    for ( size_t k = 0; k < m_biggestClusters.size(); ++k )
+    for( size_t k = 0; k < m_biggestClusters.size(); ++k )
     {
         size_t current = m_biggestClusters[k];
         setColor( m_tree.getLeafesForCluster( current ), wge::getNthHSVColor( k ) );
@@ -615,14 +614,14 @@ void WMClusterDisplay::handleRoiChanged()
 {
     WKernel::getRunningKernel()->getRunningKernel()->getRoiManager()->dirty( true );
 
-    if ( m_active->get() )
+    if( m_active->get() )
     {
         m_biggestClusters = m_tree.getBestClustersFittingRoi( m_propBoxClusterRatio->get( true ), m_propMaxSubClusters->get( true ) );
 
         m_tree.colorCluster( m_tree.getClusterCount() - 1, WColor( 0.3, 0.3, 0.3, 1.0 ) );
         setColor( m_tree.getLeafesForCluster( m_rootCluster ), WColor( 0.3, 0.3, 0.3, 1.0 ) );
 
-        for ( size_t k = 0; k < m_biggestClusters.size(); ++k )
+        for( size_t k = 0; k < m_biggestClusters.size(); ++k )
         {
             size_t current = m_biggestClusters[k];
             setColor( m_tree.getLeafesForCluster( current ), wge::getNthHSVColor( k ) );
@@ -644,7 +643,7 @@ void WMClusterDisplay::updateWidgets()
     int height = viewer->getCamera()->getViewport()->height();
     int width = viewer->getCamera()->getViewport()->width();
 
-    if ( ( height != m_oldViewHeight ) || width != m_oldViewWidth )
+    if( ( height != m_oldViewHeight ) || width != m_oldViewWidth )
     {
         m_oldViewHeight = height;
         m_oldViewWidth = width;
@@ -653,7 +652,7 @@ void WMClusterDisplay::updateWidgets()
     }
 
 
-    if ( !widgetClicked() && !m_widgetDirty && !m_dendrogramDirty )
+    if( !widgetClicked() && !m_widgetDirty && !m_dendrogramDirty )
     {
         return;
     }
@@ -664,17 +663,17 @@ void WMClusterDisplay::updateWidgets()
     m_treeButtonList[0]->setId( current );
     m_treeButtonList[0]->setLabel( createLabel( current ) );
 
-    for ( size_t i = 0; i < m_treeButtonList.size(); ++i )
+    for( size_t i = 0; i < m_treeButtonList.size(); ++i )
     {
         m_treeButtonList[i]->hide();
     }
 
-    if ( m_propShowTree->get( true ) )
+    if( m_propShowTree->get( true ) )
     {
         m_treeButtonList[0]->show();
 
         // are we on top?
-        if ( m_tree.getLevel( current ) < m_tree.getMaxLevel() )
+        if( m_tree.getLevel( current ) < m_tree.getMaxLevel() )
         {
             // not yet
             up1 = m_tree.getParent( current );
@@ -683,7 +682,7 @@ void WMClusterDisplay::updateWidgets()
             m_treeButtonList[1]->show();
         }
         // are we all the way down
-        if ( m_tree.getLevel( current ) > 0 )
+        if( m_tree.getLevel( current ) > 0 )
         {
             down11 = m_tree.getChildren( current ).first;
             down12 = m_tree.getChildren( current ).second;
@@ -702,15 +701,15 @@ void WMClusterDisplay::updateWidgets()
         m_treeButtonList[6]->show();
     }
 
-    if ( m_biggestClusterButtonsChanged )
+    if( m_biggestClusterButtonsChanged )
     {
-        for ( size_t i = 0; i < m_biggestClustersButtonList.size(); ++i )
+        for( size_t i = 0; i < m_biggestClustersButtonList.size(); ++i )
         {
             m_wm->removeChild( m_biggestClustersButtonList[i] );
         }
 
         m_biggestClustersButtonList.clear();
-        for ( size_t i = 0; i < m_biggestClusters.size(); ++i )
+        for( size_t i = 0; i < m_biggestClusters.size(); ++i )
         {
             osg::ref_ptr<WOSGButton> newButton1 = osg::ref_ptr<WOSGButton>( new WOSGButton( std::string( "" ),
                     osgWidget::Box::VERTICAL, true, false ) );
@@ -756,7 +755,7 @@ void WMClusterDisplay::updateWidgets()
     }
     m_wm->resizeAllWindows();
 
-    if ( m_dendrogramDirty )
+    if( m_dendrogramDirty )
     {
         //m_camera->removeChild( m_dendrogramGeode );
         m_camera->removeChild( 1, 1 );
@@ -766,9 +765,9 @@ void WMClusterDisplay::updateWidgets()
         int dxOff = m_propDendrogramOffsetX->get( true );
         int dyOff = m_propDendrogramOffsetY->get( true );
 
-        if ( m_propShowDendrogram->get( true ) )
+        if( m_propShowDendrogram->get( true ) )
         {
-            if ( m_propResizeWithWindow->get( true ) )
+            if( m_propResizeWithWindow->get( true ) )
             {
                 m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_tree.getClusterCount() - 1, true,
                         m_propMinSizeToColor->get(), width - 120, height / 2 , 100 );
@@ -803,7 +802,7 @@ bool WMClusterDisplay::widgetClicked()
 {
     bool clicked = false;
 
-    if ( m_treeButtonList[0]->clicked() )
+    if( m_treeButtonList[0]->clicked() )
     {
         clicked = true;
         m_propSelectedCluster->set( m_rootCluster );
@@ -812,18 +811,18 @@ bool WMClusterDisplay::widgetClicked()
         m_propSelectedClusterOffset->setMin( 0 - m_tree.getLevel( m_propSelectedCluster->get() ) );
     }
 
-    for ( size_t i = 1; i < m_treeButtonList.size() - 3; ++i )
+    for( size_t i = 1; i < m_treeButtonList.size() - 3; ++i )
     {
-        if ( m_treeButtonList[i]->clicked() )
+        if( m_treeButtonList[i]->clicked() )
         {
             clicked = true;
             m_propSelectedCluster->set( m_treeButtonList[i]->getId() );
         }
     }
 
-    for ( size_t i = 0; i < 3; ++i )
+    for( size_t i = 0; i < 3; ++i )
     {
-        if ( m_treeButtonList[4 + i]->clicked() )
+        if( m_treeButtonList[4 + i]->clicked() )
         {
             clicked = true;
             m_labelMode = i;
@@ -831,11 +830,11 @@ bool WMClusterDisplay::widgetClicked()
     }
 
     bool biggestClusterSelectionChanged = false;
-    for ( size_t i = 0; i < m_biggestClustersButtonList.size(); ++i )
+    for( size_t i = 0; i < m_biggestClustersButtonList.size(); ++i )
     {
-        if ( m_biggestClustersButtonList[i]->clicked() )
+        if( m_biggestClustersButtonList[i]->clicked() )
         {
-            if ( m_biggestClustersButtonList[i]->getId() < 10000000 )
+            if( m_biggestClustersButtonList[i]->getId() < 10000000 )
             {
                 biggestClusterSelectionChanged = true;
                 clicked = true;
@@ -848,12 +847,12 @@ bool WMClusterDisplay::widgetClicked()
         }
     }
 
-    if ( biggestClusterSelectionChanged )
+    if( biggestClusterSelectionChanged )
     {
         std::vector<size_t>activeClusters;
-        for ( size_t i = 0; i < m_biggestClustersButtonList.size(); ++i )
+        for( size_t i = 0; i < m_biggestClustersButtonList.size(); ++i )
         {
-            if ( m_biggestClustersButtonList[i]->pushed() )
+            if( m_biggestClustersButtonList[i]->pushed() )
             {
                 activeClusters.push_back( m_biggestClustersButtonList[i]->getId() );
             }
@@ -878,19 +877,19 @@ void WMClusterDisplay::colorClusters( size_t current )
     currentLevelList.push( current );
 
     std::queue<size_t>nextLevelList;
-    while ( num > 0 )
+    while( num > 0 )
     {
-        while ( !currentLevelList.empty() )
+        while( !currentLevelList.empty() )
         {
             size_t cluster = currentLevelList.front();
             currentLevelList.pop();
 
-            if ( m_tree.getLevel( cluster ) > 0 )
+            if( m_tree.getLevel( cluster ) > 0 )
             {
                 size_t left = m_tree.getChildren( cluster ).first;
                 size_t right = m_tree.getChildren( cluster ).second;
 
-                if (  m_tree.size( left ) >= size )
+                if(  m_tree.size( left ) >= size )
                 {
                     nextLevelList.push( left );
                 }
@@ -898,7 +897,7 @@ void WMClusterDisplay::colorClusters( size_t current )
                 {
                     //finalList.push( left );
                 }
-                if ( m_tree.size( right ) >= size )
+                if( m_tree.size( right ) >= size )
                 {
                     nextLevelList.push( right );
                 }
@@ -913,7 +912,7 @@ void WMClusterDisplay::colorClusters( size_t current )
             }
         }
 
-        while ( !nextLevelList.empty() )
+        while( !nextLevelList.empty() )
         {
             size_t cluster = nextLevelList.front();
             nextLevelList.pop();
@@ -923,7 +922,7 @@ void WMClusterDisplay::colorClusters( size_t current )
     }
 
 
-    while ( !currentLevelList.empty() )
+    while( !currentLevelList.empty() )
     {
         size_t cluster = currentLevelList.front();
         currentLevelList.pop();
@@ -932,7 +931,7 @@ void WMClusterDisplay::colorClusters( size_t current )
 
     int n = 0;
 
-    for ( size_t i = 0; i < finalList.size(); ++i )
+    for( size_t i = 0; i < finalList.size(); ++i )
     {
         size_t cluster = finalList[i];
         m_tree.colorCluster( cluster, wge::getNthHSVColor( n ) );
@@ -952,11 +951,11 @@ void WMClusterDisplay::setColor( std::vector<size_t> clusters, WColor color )
     boost::shared_ptr< std::vector< size_t > > starts   = m_fiberSelector->getStarts();
     boost::shared_ptr< std::vector< size_t > > lengths  = m_fiberSelector->getLengths();
 
-    for ( size_t i = 0; i < clusters.size(); ++i )
+    for( size_t i = 0; i < clusters.size(); ++i )
     {
         size_t current = clusters[i];
 
-        for ( size_t k = (*starts)[current]; k < (*starts)[current] + (*lengths)[current]; ++k)
+        for( size_t k = (*starts)[current]; k < (*starts)[current] + (*lengths)[current]; ++k)
         {
             (*colorField)[k*3] =   color[0];
             (*colorField)[k*3+1] = color[1];
@@ -967,7 +966,7 @@ void WMClusterDisplay::setColor( std::vector<size_t> clusters, WColor color )
 
 void WMClusterDisplay::dendrogramClick( WPickInfo pickInfo )
 {
-    if ( !m_propShowDendrogram->get() || !( pickInfo.getName() == "nothing" ) )
+    if( !m_propShowDendrogram->get() || !( pickInfo.getName() == "nothing" ) )
     {
         return;
     }

@@ -31,15 +31,15 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
-#include "../../dataHandler/WDataSetDTI.h"
+#include "core/dataHandler/WDataSetDTI.h"
 
-#include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
+#include "core/graphicsEngine/callbacks/WGELinearTranslationCallback.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
 
 /**
  * Rendering of GPU bases Superquadric Glyphs. These glyphs are completely ray-traced on the GPU.
@@ -84,6 +84,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 

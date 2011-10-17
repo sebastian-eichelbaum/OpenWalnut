@@ -28,14 +28,14 @@
 #include <string>
 #include <vector>
 
-#include "../../dataHandler/WDataSetVector.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../graphicsEngine/WTriangleMesh.h"
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
+#include "core/dataHandler/WDataSetVector.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
 
 /**
  * This module takes an vector dataset and used it to apply an image space based (fast) LIC to an arbitrary surface. The surface can be specified
@@ -79,6 +79,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return the icon.
      */
     virtual const char** getXPMIcon() const;
 

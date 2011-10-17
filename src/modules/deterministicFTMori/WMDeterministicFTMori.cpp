@@ -26,17 +26,17 @@
 #include <string>
 #include <vector>
 
-#include "../../common/math/WLinearAlgebraFunctions.h"
-#include "../../common/math/WTensorFunctions.h"
-#include "../../common/math/WTensorSym.h"
-#include "../../common/WAssert.h"
-#include "../../dataHandler/io/WWriterFiberVTK.h"
-#include "../../dataHandler/WDataSetFiberVector.h"
-#include "../../dataHandler/WDataSetSingle.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../dataHandler/WValueSet.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/common/math/WLinearAlgebraFunctions.h"
+#include "core/common/math/WTensorFunctions.h"
+#include "core/common/math/WTensorSym.h"
+#include "core/common/WAssert.h"
+#include "core/dataHandler/io/WWriterFiberVTK.h"
+#include "core/dataHandler/WDataSetFiberVector.h"
+#include "core/dataHandler/WDataSetSingle.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/dataHandler/WValueSet.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 #include "WMDeterministicFTMori.h"
 #include "WMDeterministicFTMori.xpm"
@@ -87,7 +87,7 @@ void WMDeterministicFTMori::moduleMain()
 
     ready();
 
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         debugLog() << "Waiting.";
         m_moduleState.wait();
@@ -221,11 +221,11 @@ void WMDeterministicFTMori::properties()
     m_minFA->setMax( 1.0 );
     m_minFA->setMin( 0.0 );
 
-    m_minPoints = m_properties->addProperty( "Min. Points", "The minimum number of points per fiber.", 30, m_propCondition );
+    m_minPoints = m_properties->addProperty( "Min. points", "The minimum number of points per fiber.", 30, m_propCondition );
     m_minPoints->setMax( 100 );
     m_minPoints->setMin( 1 );
 
-    m_minCos = m_properties->addProperty( "Min. Cosine", "Minimum cosine of the angle between two"
+    m_minCos = m_properties->addProperty( "Min. cosine", "Minimum cosine of the angle between two"
                                            " adjacent fiber segments.", 0.80, m_propCondition );
     m_minCos->setMax( 1.0 );
     m_minCos->setMin( 0.0 );

@@ -31,23 +31,18 @@
 
 #include <osg/Geode>
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WValueSet.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WValueSet.h"
 
-#include "../../graphicsEngine/WGETexture.h"
+#include "core/graphicsEngine/WGETexture.h"
 
 /**
- * Someone should add some documentation here.
- * Probably the best person would be the module's
- * creator, i.e. "schurade".
- *
- * This is only an empty template for a new module. For
- * an example module containing many interesting concepts
- * and extensive documentation have a look at "src/modules/template"
+ * This module allows mark areas in a 3D texture by "painting"
+ * on pickable surfaces.
  *
  * \ingroup modules
  */
@@ -87,6 +82,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 

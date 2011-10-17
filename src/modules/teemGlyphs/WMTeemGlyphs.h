@@ -29,14 +29,14 @@
 
 #include <osg/Geode>
 
-#include "../../common/WItemSelection.h"
-#include "../../common/WItemSelector.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WDataSetSphericalHarmonics.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/common/WItemSelection.h"
+#include "core/common/WItemSelector.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetSphericalHarmonics.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 /**
  * Spherical harmonics glyphs using teem (http://teem.sourceforge.net/).
@@ -82,6 +82,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 
@@ -220,6 +221,8 @@ private:
 
         /**
          * Get the geode of the computed glyphs.
+         *
+         * \return geode
          */
         osg::ref_ptr< osg::Geode > getGraphics();
     private:

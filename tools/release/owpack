@@ -1,0 +1,358 @@
+#!/bin/bash
+
+#---------------------------------------------------------------------------
+#
+# Project: OpenWalnut ( http://www.openwalnut.org )
+#
+# Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+# For more information see http://www.openwalnut.org/copying
+#
+# This file is part of OpenWalnut.
+#
+# OpenWalnut is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# OpenWalnut is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+#
+#---------------------------------------------------------------------------
+
+#############################################################################################################
+# Internal Variables
+#############################################################################################################
+
+# Ensure english warning/error text (easier googling)
+export LC_ALL=C
+
+# the source config file
+CONFIG_FILE=owrelease.config
+
+# where to find the source tree?
+WORKING_DIR_PREFIX="owpack"
+WORKING_DIR_POSTFIX=""
+
+#############################################################################################################
+# Functions
+#############################################################################################################
+
+#########################################################################################################
+# Remove created build-files and directories
+CleanUp()
+{
+    echo "* Cleaning up."
+    echo " * Removing working directories."
+    rm -rf $WORKING_DIR_PREFIX-*
+}
+
+#########################################################################################################
+# Creates a proper working directory with filtered source, prepared for src-tar and build-system
+#
+# Param 1 - working directory name
+# Param 2 - source directory name inside the working dir
+# Param 3 - exclusion filter list
+#
+# Hint: removes the old working directory
+# Precondition: PWD musst be a path where SRC_DIR is accesible (if it is a relative path)
+# Postcondition: on success, the PWD is the new working dir. On Failure it is the original.
+CreateWorkingDir()
+{
+    source $CONFIG_FILE
+
+    WD_DIR=$WORKING_DIR_PREFIX-$1-$WORKING_DIR_POSTFIX
+    UPSTREAM_SRC_DIR="$2"
+    EXCLUDE_LIST=$3
+
+    ##############################################################################################
+    # Step 1: prepare working directory
+    echo "* Removing old working dir."
+    rm -rf $WD_DIR
+    if [ $? -ne 0 ]; then
+        echo " * Failed to remove old working dir \"$WD_DIR\"."
+        exit 1
+    fi
+
+    echo "* Creating working dir."
+    mkdir $WD_DIR
+    if [ $? -ne 0 ]; then
+        echo " * Failed to create working dir \"$WD_DIR\"."
+        exit 1
+    fi
+
+    # copy original source
+    echo "* Copy original source to working directory."
+    # as the user can have arbitrary names as source dir but we explicitely need the name to be OpenWalnut here, rename ir
+    cp -r $SRC_DIR $WD_DIR/$UPSTREAM_SRC_DIR
+    if [ ! -d $SRC_DIR ]; then
+        echo " * Failed to copy source."
+        exit 1
+    fi
+
+    cd $WD_DIR
+
+    ##############################################################################################
+    # Step 2: filter stuff
+
+    # normally, not everything is needed. For example: hg files. Some packages also do not need
+    # exterrnal code
+    find $UPSTREAM_SRC_DIR -name ".hg" -and -type d | xargs rm -rf
+    find $UPSTREAM_SRC_DIR -name ".hg*" -and -type f | xargs rm -f
+
+    # re-package with exclusion list
+    for ex in $EXCLUDE_LIST
+    do
+        rm -rf "$UPSTREAM_SRC_DIR/$ex"
+    done
+
+    ##############################################################################################
+    # Step 3: setup correct build version
+    # Let our build-system know the version
+    echo "* Setting version information to \"$UPSTREAM_SRC_DIR/VERSION\"."
+    echo "# this was set by OWPACK. Do not modify." > $UPSTREAM_SRC_DIR/VERSION
+    echo "VERSION=$VERSION" >> $UPSTREAM_SRC_DIR/VERSION
+}
+
+#########################################################################################################
+# Create a binary package using CPack (binary tgz builder)
+Builder_TGZ()
+{
+    # apply builder
+    echo "Not yet implemented!"
+    exit 0
+}
+
+#########################################################################################################
+# Create a simple source tgz
+#
+# Precondition: the same as CreateWorkingDir
+# Postcondition: working directory is PWD
+Builder_SRC()
+{
+    source $CONFIG_FILE
+
+    # some paths
+    BUILDER_SRC_UPSTREAM_SRC_DIR=OpenWalnut-$VERSION
+    BUILDER_SRC_UPSTREAM_SRC_TAR=OpenWalnut_$VERSION.tar.gz
+
+    # create some place to work in
+    CreateWorkingDir "src" "$BUILDER_SRC_UPSTREAM_SRC_DIR" ""
+    if [ $? -ne 0 ]; then
+        echo " * Failed to create working diretory."
+        exit 1
+    fi
+
+    # simply tar the stuff
+    echo "* Create source tar \"$BUILDER_SRC_UPSTREAM_SRC_TAR\"."
+    tar cfz $BUILDER_SRC_UPSTREAM_SRC_TAR $BUILDER_SRC_UPSTREAM_SRC_DIR
+    if [ $? -ne 0 ]; then
+        echo " * Failed to create tar archive."
+        exit 1
+    fi
+
+    # copy archive to release dir
+    echo "* Copy files to release dir \"$RELEASE_DIR\"."
+    cp $BUILDER_SRC_UPSTREAM_SRC_TAR ../$RELEASE_DIR
+    if [ $? -ne 0 ]; then
+        echo " * Failed to copy to release dir."
+        exit 1
+    fi
+}
+
+#########################################################################################################
+# Create a binary package using debuild.
+#
+# Precondition: the same as CreateWorkingDir
+# Postcondition: working directory is PWD
+Builder_DEB()
+{
+    source $CONFIG_FILE
+
+    # set some debian specifics
+    # The directory upstream-name names. This is important as some builders need
+    # this and have special requirements on them (like debuild)
+    BUILDER_DEB_UPSTREAM_SRC_DIR=OpenWalnut-$VERSION
+    # Debuild requires a different upstream tar name ...
+    BUILDER_DEB_UPSTREAM_SRC_BASENAME=openwalnut_$VERSION
+    BUILDER_DEB_UPSTREAM_SRC_TAR=$BUILDER_DEB_UPSTREAM_SRC_BASENAME.orig.tar.gz
+
+    # create some place to work in
+    CreateWorkingDir "deb" "$BUILDER_DEB_UPSTREAM_SRC_DIR" "src/modules/data/ext/nifti src/modules/data/ext/biosig resources/core/share/openwalnut/fonts"
+    if [ $? -ne 0 ]; then
+        echo " * Failed to create working diretory."
+        exit 1
+    fi
+
+    # debuild requires the debian config dir to be present in OpenWalnut src dir
+    echo "* Setup debian package config."
+    cp -r "$BUILDER_DEB_UPSTREAM_SRC_DIR/tools/release/packaging/debian" "$BUILDER_DEB_UPSTREAM_SRC_DIR"
+    if [ $? -ne 0 ]; then
+        echo " * Failed to copy debian package config."
+        exit 1
+    fi
+
+    # modify changelog file. This is needed to allow debuild find the correct upstream source tar
+    sed -i "s/OWPACK_VERSION/$VERSION/g" $BUILDER_DEB_UPSTREAM_SRC_DIR/debian/changelog
+
+    # create source archive
+    echo "* Create upstream source tar \"$BUILDER_DEB_UPSTREAM_SRC_TAR\"."
+    tar czf $BUILDER_DEB_UPSTREAM_SRC_TAR $BUILDER_DEB_UPSTREAM_SRC_DIR
+    if [ $? -ne 0 ]; then
+      echo " * Upstream source tar could not be created."
+      exit 1
+    fi
+
+    # go to src dir and build
+    cd $BUILDER_DEB_UPSTREAM_SRC_DIR
+    echo "* Starting debuild in \"`pwd`\"."
+    #pdebuild --debbuildopts "-uc -us" --architecture $arch --buildresult ..
+    debuild -uc -us
+    if [ $? -ne 0 ]; then
+        echo " * debuild failed. You probably missed dependencies or have errors in the package config files."
+        cd ..
+        exit 1
+    fi
+    # get back to working dir
+    cd ..
+
+    # copy archive to release dir
+    echo "* Copy files to release dir \"$RELEASE_DIR\"."
+    cp $BUILDER_DEB_UPSTREAM_SRC_TAR *.changes *.dsc *.debian.tar.gz ../$RELEASE_DIR
+    if [ $? -ne 0 ]; then
+        echo " * Failed to copy to release dir."
+        exit 1
+    fi
+
+    # hint
+    echo "* Please do not forget to sign the package."
+}
+
+#########################################################################################################
+# Create a binary package using rpm
+Builder_RPM()
+{
+    # apply builder
+    echo "Not yet implemented!"
+    exit 1
+}
+
+#########################################################################################################
+# Checks validitiy of owpack environment: checks existence of $CONFIG_FILE and whether source exists.
+#
+# Returns 1 on error
+EnsureConfigAndSource()
+{
+    # search CONFIG_FILE
+    echo "* Search configuration file."
+    if [ ! -f $CONFIG_FILE ]; then
+        echo " * File \"$CONFIG_FILE\" not found!"
+        Exit 1
+    fi
+
+    # source it to check source
+    source $CONFIG_FILE
+
+    # check existence of source
+    echo "* Search original source."
+    if [ ! -d $SRC_DIR ]; then
+        echo " * Failed to find source."
+        exit 1
+    fi
+}
+
+#########################################################################################################
+# Something went wrong. Quit.
+#
+# Param 1 the error code to return.
+Exit()
+{
+    echo "*** Failed. Exiting."
+    exit $1
+}
+
+#########################################################################################################
+# Quit and print usage info.
+UsageExit()
+{
+        echo "Usage: $0 {init|clean|deb|src|rpm|tgz} BUILD_DIR_PREFIX [WORKING_DIR]"
+        echo "  COMMANDS:"
+        echo "    clean: removes created build sub-directories."
+        echo "    deb: build source and binary packages for debian systems."
+        echo "    src: create simple src archive."
+        echo "    rpm: build binary packages using rpm."
+        echo "    tgz: build binary tgz using cpack."
+        echo ""
+        echo "  PARAMETER:"
+        echo "    BUILD_DIR_PREFIX: $0 creates a build directory. Include this as prefix into its name."
+        echo "    WORKING_DIR: $0 changes to this directory if specified."
+        echo "    VERSION: optional parameter. Needed for init command."
+        echo ""
+        echo "  IMPORTANT:"
+        echo "    This script needs an fresh checked-out version of OpenWalnut to be available, together with a $CONFIG_FILE file. Create this using owrelease script."
+        Exit 2
+}
+
+#########################################################################################################
+# Main
+
+# The user specified some directory where to find the build root-dir. This can come in handy if you use this
+# script from within a chroot jail.
+if [ $# -eq 3 ]; then
+    cd $3
+    if [ $? -ne 0 ]; then
+        echo "* Could not change to directory \"$3\"."
+        Exit 1
+    fi
+fi
+WORKING_DIR_POSTFIX=$2
+
+# Handle user command
+case "$1" in
+    clean)
+        CleanUp
+        ;;
+    deb)
+        # BUILD_DIR_PREFIX is mandatory
+        if [ $# -lt 2 ]; then
+            echo "* Need BUILD_DIR_PREFIX."
+            UsageExit
+        fi
+        EnsureConfigAndSource || Exit $?
+        Builder_DEB || Exit $?
+        ;;
+    src)
+        # BUILD_DIR_PREFIX is mandatory
+        if [ $# -lt 2 ]; then
+            echo "* Need BUILD_DIR_PREFIX."
+            UsageExit
+        fi
+        EnsureConfigAndSource || Exit $?
+        Builder_SRC || Exit $?
+        ;;
+    rpm)
+        # BUILD_DIR_PREFIX is mandatory
+        if [ $# -lt 2 ]; then
+            echo "* Need BUILD_DIR_PREFIX."
+            UsageExit
+        fi
+        EnsureConfigAndSource || Exit $?
+        Builder_RPM || Exit $?
+        ;;
+    tgz)
+        # BUILD_DIR_PREFIX is mandatory
+        if [ $# -lt 2 ]; then
+            echo "* Need BUILD_DIR_PREFIX."
+            UsageExit
+        fi
+        EnsureConfigAndSource || Exit $?
+        Builder_TGZ || Exit $?
+        ;;
+    *)
+        UsageExit
+        ;;
+esac

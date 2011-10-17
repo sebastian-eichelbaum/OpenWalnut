@@ -29,10 +29,10 @@
 
 #include <osg/Geode>
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
-#include "../../graphicsEngine/WTriangleMesh.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
 
 /**
  * Someone should add some documentation here.
@@ -81,6 +81,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 
@@ -111,11 +112,26 @@ private:
     virtual boost::shared_ptr< WTriangleMesh > readMesh();
 
     /**
+     * Reads a mesh file and creates a WTriangleMesh out of it.
+     *
+     * \return Reference to the dataset.
+     */
+    virtual boost::shared_ptr< WTriangleMesh > readMeshFnav();
+
+
+    /**
      * Reads a dip file and creates a WTriangleMesh out of it.
      *
      * \return Reference to the dataset.
      */
     virtual boost::shared_ptr< WTriangleMesh > readDip();
+
+    /**
+     * Reads a BrainVISA (.mesh) file and creates a WTriangleMesh out of it.
+     *
+     * \return Reference to the dataset.
+     */
+    virtual boost::shared_ptr< WTriangleMesh > readBrainVISA();
 
     /**
      * creates a color map for loaded dip file

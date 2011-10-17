@@ -34,9 +34,8 @@
 #include <osg/Texture3D>
 #include <osgDB/ReadFile>
 
-#include "../../kernel/WKernel.h"
+#include "core/kernel/WKernel.h"
 #include "WMAtlasCreator.xpm"
-
 #include "WMAtlasCreator.h"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
@@ -64,8 +63,7 @@ const char** WMAtlasCreator::getXPMIcon() const
 }
 const std::string WMAtlasCreator::getName() const
 {
-    // Specify your module name here. This name must be UNIQUE!
-    return "AtlasCreator";
+    return "Atlas Creator";
 }
 
 const std::string WMAtlasCreator::getDescription() const
@@ -106,16 +104,16 @@ void WMAtlasCreator::moduleMain()
 
     debugLog() << m_volume.size();
 
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         m_moduleState.wait();
 
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
 
-        if ( m_propReadTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        if( m_propReadTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
             boost::filesystem::path fileName = m_propDirectory->get();
             m_propReadTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
@@ -131,7 +129,7 @@ bool WMAtlasCreator::loadPngs( boost::filesystem::path sliceFile )
 {
     using namespace boost::filesystem; //NOLINT
 
-    if ( !exists( sliceFile ) )
+    if( !exists( sliceFile ) )
     {
         return false;
     }
@@ -152,18 +150,18 @@ bool WMAtlasCreator::loadPngs( boost::filesystem::path sliceFile )
     m_volume.resize( m_xDim * m_yDim * m_zDim, 0 );
 
     directory_iterator end_itr; // default construction yields past-the-end
-    for ( directory_iterator itr( dirPath ); itr != end_itr; ++itr )
+    for( directory_iterator itr( dirPath ); itr != end_itr; ++itr )
     {
         //debugLog() << itr->path().file_string().c_str();
         path p( itr->path() );
 
-        if ( p.extension() == ".png" )
+        if( p.extension() == ".png" )
         {
             addPngToVolume( p );
         }
     }
 
-    for ( size_t i = 0; i < m_regions.size(); ++i )
+    for( size_t i = 0; i < m_regions.size(); ++i )
     {
         debugLog() << i << ": " << m_regions[i];
     }
@@ -182,7 +180,7 @@ void WMAtlasCreator::addPngToVolume( boost::filesystem::path image )
 
     size_t pos = boost::lexical_cast<size_t>( number );
 
-    if ( pos > 119 )
+    if( pos > 119 )
     {
         return;
     }
@@ -190,15 +188,15 @@ void WMAtlasCreator::addPngToVolume( boost::filesystem::path image )
 
     uint8_t id = 0;
     bool found = false;
-    for ( size_t i = 0; i < m_regions.size(); ++i )
+    for( size_t i = 0; i < m_regions.size(); ++i )
     {
-        if ( m_regions[i] == fn )
+        if( m_regions[i] == fn )
         {
             id = static_cast<uint8_t>( i );
             found = true;
         }
     }
-    if ( !found )
+    if( !found )
     {
         m_regions.push_back( fn );
         id = static_cast<uint8_t>( m_regions.size() - 1 );
@@ -211,11 +209,11 @@ void WMAtlasCreator::addPngToVolume( boost::filesystem::path image )
     pos /= 2;
     ++id;
 
-    for ( int i = 0; i < m_zDim; ++i )
+    for( int i = 0; i < m_zDim; ++i )
     {
-        for ( int k = 0; k < m_xDim; ++k )
+        for( int k = 0; k < m_xDim; ++k )
         {
-            if ( data[k * 3 + ( i * m_xDim * 3 )] != 0 )
+            if( data[k * 3 + ( i * m_xDim * 3 )] != 0 )
             {
                 m_volume[ pos * m_xDim + ( i * m_xDim * m_yDim ) + k ] = id;
             }

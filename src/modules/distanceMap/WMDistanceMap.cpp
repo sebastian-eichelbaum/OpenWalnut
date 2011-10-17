@@ -30,12 +30,12 @@
 #include "WMDistanceMap.h"
 #include "WMDistanceMap.xpm"
 
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WModuleFactory.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../common/WProgress.h"
-#include "../../common/WAssert.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WModuleFactory.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/common/WProgress.h"
+#include "core/common/WAssert.h"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMDistanceMap )
@@ -85,20 +85,20 @@ void WMDistanceMap::moduleMain()
     ready();
 
     // loop until the module container requests the module to quit
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
         // woke up since the module is requested to finish?
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
 
         // acquire data from the input connector
         m_dataSet = m_input->getData();
-        if ( !m_dataSet )
+        if( !m_dataSet )
         {
             debugLog() << "Resetting output.";
             m_output->reset();
@@ -254,7 +254,7 @@ boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shar
         {
             for( c = 0; c < ncols; ++c)
             {
-                //if (VPixel(src,b,r,c,VBit) == 1)
+                //if(VPixel(src,b,r,c,VBit) == 1)
                 if( bitmask[b * nrows * ncols + r * ncols + c] )
                 {
                     floatDataset[b * nrows * ncols + r * ncols + c] = 0;
@@ -263,7 +263,7 @@ boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shar
 
                 srcpix = bitmask + b * nrows * ncols + r * ncols + c;
                 cc1 = c;
-                while (cc1 < ncols && *srcpix++ == 0)
+                while(cc1 < ncols && *srcpix++ == 0)
                     cc1++;
                 d1 = ( cc1 >= ncols ? ncols : ( cc1 - c ) );
 
@@ -337,7 +337,7 @@ boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shar
 
             for( b = 0; b < nbands; b++ )
             {
-                if (bitmask[b * nrows * ncols + r * ncols + c] == 1)
+                if(bitmask[b * nrows * ncols + r * ncols + c] == 1)
                     continue;
 
                 dmin = dmax;
@@ -371,7 +371,7 @@ boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shar
     for( i = 0; i < npixels; ++i)
     {
         floatDataset[i] = sqrt( static_cast< double >( floatDataset[i] ) );
-        if (floatDataset[i] > max)
+        if(floatDataset[i] > max)
             max = floatDataset[i];
     }
     for( i = 0; i < npixels; ++i)

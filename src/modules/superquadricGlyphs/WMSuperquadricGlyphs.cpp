@@ -32,10 +32,10 @@
 #include <osg/PolygonMode>
 #include <osg/LightModel>
 
-#include "../../kernel/WKernel.h"
+#include "core/kernel/WKernel.h"
 
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/graphicsEngine/shaders/WGEPropertyUniform.h"
 
 #include "WMSuperquadricGlyphs.h"
 #include "WMSuperquadricGlyphs.xpm"
@@ -202,7 +202,7 @@ void WMSuperquadricGlyphs::addTensor( size_t idx, osg::Vec3Array* diag, osg::Vec
                              m_dataSetValueSet->getScalarDouble( idx * 6 + 4 ) );
 
     // we need to add it for every vertex per glyph!
-    for ( size_t c = 0; c < 6 * 4; ++c )
+    for( size_t c = 0; c < 6 * 4; ++c )
     {
         diag->push_back( d );
         offdiag->push_back( o );
@@ -261,9 +261,9 @@ void WMSuperquadricGlyphs::initOSG()
     geode->addDrawable( geometry );
 
     // add a glyph at every position
-    for ( size_t z = 0; z < m_maxZ; ++z )
+    for( size_t z = 0; z < m_maxZ; ++z )
     {
-        for ( size_t y = 0; y < m_maxY; ++y )
+        for( size_t y = 0; y < m_maxY; ++y )
         {
             addGlyph( osg::Vec3d( 0.0, y, z ), vertices, texcoords0 );
         }
@@ -295,9 +295,9 @@ void WMSuperquadricGlyphs::initOSG()
     geode = new osg::Geode();
     geode->addDrawable( geometry );
     // add a glyph at every position
-    for ( size_t z = 0; z < m_maxZ; ++z )
+    for( size_t z = 0; z < m_maxZ; ++z )
     {
-        for ( size_t x = 0; x < m_maxX; ++x )
+        for( size_t x = 0; x < m_maxX; ++x )
         {
             addGlyph( osg::Vec3d( x, 0.0, z ), vertices, texcoords0 );
         }
@@ -329,9 +329,9 @@ void WMSuperquadricGlyphs::initOSG()
     geode = new osg::Geode();
     geode->addDrawable( geometry );
     // add a glyph at every position
-    for ( size_t y = 0; y < m_maxY; ++y )
+    for( size_t y = 0; y < m_maxY; ++y )
     {
-        for ( size_t x = 0; x < m_maxX; ++x )
+        for( size_t x = 0; x < m_maxX; ++x )
         {
             addGlyph( osg::Vec3d( x, y, 0.0 ), vertices, texcoords0 );
         }
@@ -351,7 +351,7 @@ void WMSuperquadricGlyphs::initOSG()
 
 void WMSuperquadricGlyphs::GlyphGeometryNodeCallback::update( osg::NodeVisitor* /*nv*/, osg::Drawable* /*d*/ )
 {
-    if ( m_dirty )
+    if( m_dirty )
     {
         m_dirty = false;
 
@@ -404,7 +404,7 @@ void WMSuperquadricGlyphs::moduleMain()
     bool initialTensorUpload = true;
 
     // loop until the module container requests the module to quit
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         m_moduleState.wait();
 
@@ -412,7 +412,7 @@ void WMSuperquadricGlyphs::moduleMain()
         // After waking up, the module has to check whether the shutdownFlag fired. If yes, simply quit the module.
 
         // woke up since the module is requested to finish
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -426,7 +426,7 @@ void WMSuperquadricGlyphs::moduleMain()
         bool dataValid   = ( newDataSet );
 
         // if data is invalid, remove rendering
-        if ( !dataValid )
+        if( !dataValid )
         {
             debugLog() << "Resetting.";
             m_output->clear();
@@ -437,7 +437,7 @@ void WMSuperquadricGlyphs::moduleMain()
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Handle changes
 
-        if ( dataChanged && dataValid )
+        if( dataChanged && dataValid )
         {
             // The data is different. Copy it to our internal data variable:
             debugLog() << "Received Data.";
@@ -474,7 +474,7 @@ void WMSuperquadricGlyphs::moduleMain()
             progress1->finish();
         }
 
-        if ( dataValid && ( m_xPos->changed() || initialTensorUpload ) )
+        if( dataValid && ( m_xPos->changed() || initialTensorUpload ) )
         {
             // also provide progress information
             boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Building Glyph Geometry" ) );
@@ -489,12 +489,12 @@ void WMSuperquadricGlyphs::moduleMain()
             // this updates the diag/offdiag texture coordinate arrays of the xSlice
             // x = const -> handle xPos property
             size_t fixedX = m_xPos->get( true );
-            for ( size_t z = 0; z < m_maxZ; ++z )
+            for( size_t z = 0; z < m_maxZ; ++z )
             {
                 // Calculate the current position along the z direction
                 size_t zPre = fixedX + z * m_maxX * m_maxY;
 
-                for ( size_t y = 0; y < m_maxY; ++y )
+                for( size_t y = 0; y < m_maxY; ++y )
                 {
                     // add glyph
                     addTensor( zPre + y * m_maxX, diag, offdiag );
@@ -505,7 +505,7 @@ void WMSuperquadricGlyphs::moduleMain()
             progress1->finish();
         }
 
-        if ( dataValid && ( m_yPos->changed() || initialTensorUpload ) )
+        if( dataValid && ( m_yPos->changed() || initialTensorUpload ) )
         {
             // also provide progress information
             boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Building Glyph Geometry" ) );
@@ -520,12 +520,12 @@ void WMSuperquadricGlyphs::moduleMain()
             // y = const -> handle yPos property
             size_t fixedY = m_yPos->get( true );
             size_t fixedYOffset = fixedY * m_maxX;
-            for ( size_t z = 0; z < m_maxZ; ++z )
+            for( size_t z = 0; z < m_maxZ; ++z )
             {
                 // Calculate current offset for value index
                 size_t zPre = fixedYOffset + ( z * m_maxX * m_maxY );
 
-                for ( size_t x = 0; x < m_maxX; ++x )
+                for( size_t x = 0; x < m_maxX; ++x )
                 {
                     // add glyph
                     addTensor( zPre + x, diag, offdiag );
@@ -536,7 +536,7 @@ void WMSuperquadricGlyphs::moduleMain()
             progress1->finish();
         }
 
-        if ( dataValid && ( m_zPos->changed() || initialTensorUpload ) )
+        if( dataValid && ( m_zPos->changed() || initialTensorUpload ) )
         {
             // also provide progress information
             boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Building Glyph Geometry" ) );
@@ -551,12 +551,12 @@ void WMSuperquadricGlyphs::moduleMain()
             // z = const -> handle zPos property
             size_t fixedZ = static_cast< size_t >( m_zPos->get( true ) );
             size_t fixedZOffset = fixedZ * m_maxX * m_maxY;
-            for ( size_t y = 0; y < m_maxY; ++y )
+            for( size_t y = 0; y < m_maxY; ++y )
             {
                 // Calculate current offset for value index
                 size_t yPre = fixedZOffset + ( y * m_maxX );
 
-                for ( size_t x = 0; x < m_maxX; ++x )
+                for( size_t x = 0; x < m_maxX; ++x )
                 {
                     // add glyph
                     addTensor( yPre + x, diag, offdiag );

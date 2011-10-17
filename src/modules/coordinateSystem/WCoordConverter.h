@@ -27,9 +27,9 @@
 
 #include <utility>
 
-#include "../../common/WBoundingBox.h"
-#include "../../common/math/WMatrix.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/WBoundingBox.h"
+#include "core/common/math/WMatrix.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "WTalairachConverter.h"
 
@@ -74,6 +74,8 @@ public:
     /**
      * Transforms world coordinates.
      * \param point The point which will be transformed.
+     *
+     * \return the transformed world coordinate
      */
     WVector3d worldCoordTransformed( WPosition point );
 

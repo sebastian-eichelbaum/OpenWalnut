@@ -76,7 +76,9 @@ void main()
     // The same accounds for the vertex. Transfer it to world-space.
     v_vertex  = gl_ModelViewMatrix * gl_Vertex;
 
-#if ( defined ILLUMINATION_ENABLED || defined TUBE_ENABLED || defined WGE_POSTPROCESSING_ENABLED )
+    // fill this varying with a dummy. Not always needed.
+    v_normal = vec3( 1.0, 0.0, 0.0 );
+
     // To avoid that the quad strip gets thinner and thinner when zooming in (or the other way around: to avoid the quad strip always occupies
     // the same screen space), we need to calculate the zoom factor involved in OpenWalnut's current camera.
     v_worldScale = getModelViewScale();
@@ -122,12 +124,13 @@ void main()
     // with the tangent and the view vector we got the offset vector. We can noch get the normal using the tangent and the offset.
     v_normal = cross( offset, tangent );
     v_normal *= sign( dot( v_normal, vec3( 0.0, 0.0, 1.0 ) ) );
-#endif  // ( defined ILLUMINATION_ENABLED || defined TUBE_ENABLED )
 
+#ifdef COLORMAPPING_ENABLED
     // Allow the colormapper to do some precalculations with the real vertex coordinate in ow-scene-space
     // NOTE: v_vertex is in world-space. We need to get it back to scene space. Directly using gl_Vertex would be possible too but this would
     // ignore the actual width of the tube.
     colormapping( gl_ModelViewMatrixInverse * v_vertex );
+#endif
 
     // Simply project the vertex afterwards
     gl_Position = gl_ProjectionMatrix * v_vertex;

@@ -33,15 +33,15 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
-#include "../../dataHandler/datastructures/WFiberCluster.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
-#include "../../graphicsEngine/WTriangleMesh.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/dataHandler/datastructures/WFiberCluster.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 /**
  * Module implementing the marching cubes algorithm with consistent triangulation for data
@@ -83,6 +83,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon
      */
     virtual const char** getXPMIcon() const;
 
@@ -115,6 +116,7 @@ private:
 
     /**
      * Store the mesh in legacy vtk file format.
+     * \return Did the save succeed?
      */
     bool save() const;
 
@@ -171,7 +173,7 @@ inline SplineSurfaceNodeCallback::SplineSurfaceNodeCallback( WMSplineSurface* mo
 
 inline void SplineSurfaceNodeCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
-    if ( m_module )
+    if( m_module )
     {
         m_module->updateGraphics();
     }

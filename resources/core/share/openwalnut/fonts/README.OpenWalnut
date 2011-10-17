@@ -1,0 +1,16 @@
+Bold.ttf, Italic.ttf and Regular.ttf:
+=====================================
+
+All the fonts in here are taken from the liberation-fonts project.
+The complete credit,copyright and ownership belongs to the
+liberation-fonts project. See license.txt and COPYING as well as
+AUTHORS for details.
+
+arial.ttf:
+==========
+
+Due to a bug in OpenSceneGraph, we had to add some fonts here.
+Especially arial.ttf. It is needed by the OSG Stat Display, where
+the font filename cannot be changed. The file arial.ttf is a copy
+of liberationSans-Bold.ttf. Sorry for that. Maybe this is fixed
+some day.

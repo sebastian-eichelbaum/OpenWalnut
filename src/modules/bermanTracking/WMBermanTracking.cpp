@@ -29,12 +29,12 @@
 
 #include <teem/elf.h> // NOLINT: the stylechecker interprets this as c-header which is not true!
 
-#include "../../common/math/WSymmetricSphericalHarmonic.h"
-#include "../../common/WLimits.h"
-#include "../../common/exceptions/WPreconditionNotMet.h"
-#include "../../graphicsEngine/WROIBox.h"
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WROIManager.h"
+#include "core/common/math/WSymmetricSphericalHarmonic.h"
+#include "core/common/WLimits.h"
+#include "core/common/exceptions/WPreconditionNotMet.h"
+#include "core/graphicsEngine/WROIBox.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WROIManager.h"
 #include "WMBermanTracking.xpm"
 #include "WMBermanTracking.h"
 
@@ -123,26 +123,26 @@ void WMBermanTracking::properties()
     m_exceptionCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     m_minFA = m_properties->addProperty( "Min. FA", "The fractional anisotropy threshold value needed by "
-                                                    "bermans fiber tracking algorithm.", 0.02, m_propCondition );
+                                                    "Berman's fiber tracking algorithm.", 0.02, m_propCondition );
     m_minFA->setMax( 1.0 );
     m_minFA->setMin( 0.0 );
 
-    m_minPoints = m_properties->addProperty( "Min. Points", "The minimum number of points per fiber.", 30, m_propCondition );
+    m_minPoints = m_properties->addProperty( "Min. points", "The minimum number of points per fiber.", 30, m_propCondition );
     m_minPoints->setMax( 100 );
     m_minPoints->setMin( 1 );
 
-    m_minCos = m_properties->addProperty( "Min. Cosine", "Minimum cosine of the angle between two"
+    m_minCos = m_properties->addProperty( "Min. cosine", "Minimum cosine of the angle between two"
                                            " adjacent fiber segments.", 0.30, m_propCondition );
     m_minCos->setMax( 1.0 );
     m_minCos->setMin( 0.0 );
 
     m_probabilistic = m_properties->addProperty( "Probabilistic tracking?", "Use bootstrapping for SH generation per voxel.", true, m_propCondition );
 
-    m_seedsPerDirection = m_properties->addProperty( "Seeds per Dir", "The number of seeds in a voxel per direction.", 1, m_propCondition );
+    m_seedsPerDirection = m_properties->addProperty( "Seeds per dir", "The number of seeds in a voxel per direction.", 1, m_propCondition );
     m_seedsPerDirection->setMin( 1 );
     m_seedsPerDirection->setMax( 16 );
 
-    m_seedsPerPosition = m_properties->addProperty( "Seeds per Pos", "The number of seeds in a voxel per position.", 1, m_propCondition );
+    m_seedsPerPosition = m_properties->addProperty( "Seeds per pos", "The number of seeds in a voxel per position.", 1, m_propCondition );
     m_seedsPerPosition->setMax( 1000 );
     m_seedsPerPosition->setMin( 1 );
 
@@ -173,7 +173,7 @@ void WMBermanTracking::moduleMain()
 
     ready();
 
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         debugLog() << "Waiting.";
         m_moduleState.wait();
@@ -252,9 +252,9 @@ void WMBermanTracking::moduleMain()
             m_result = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, m_dataSet->getGrid() ) );
             m_result->setFileName( "Berman_prob_tracking_result" );
 
-            m_result->getTexture2()->threshold()->set( 0.05f );
-            m_result->getTexture2()->colormap()->set( m_result->getTexture2()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 2 ) ) );
-            m_result->getTexture2()->interpolation()->set( false );
+            m_result->getTexture()->threshold()->set( 0.05f );
+            m_result->getTexture()->colormap()->set( m_result->getTexture()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 2 ) ) );
+            m_result->getTexture()->interpolation()->set( false );
             m_output->updateData( m_result );
 
             m_hits = boost::shared_ptr< std::vector< float > >();
@@ -355,7 +355,7 @@ void WMBermanTracking::resetProgress( std::size_t todo )
     {
         m_currentProgress->finish();
     }
-    m_currentProgress = boost::shared_ptr< WProgress >( new WProgress( "berman tracking", todo ) );
+    m_currentProgress = boost::shared_ptr< WProgress >( new WProgress( "Berman tracking", todo ) );
     m_progress->addSubProgress( m_currentProgress );
 }
 

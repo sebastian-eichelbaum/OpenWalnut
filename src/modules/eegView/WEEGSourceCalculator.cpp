@@ -29,11 +29,11 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/WAssert.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../dataHandler/WEEG2.h"
-#include "../../dataHandler/WEEGChannelInfo.h"
-#include "../../dataHandler/exceptions/WDHException.h"
+#include "core/common/WAssert.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/dataHandler/WEEG2.h"
+#include "core/dataHandler/WEEGChannelInfo.h"
+#include "core/dataHandler/exceptions/WDHException.h"
 #include "WEEGEvent.h"
 #include "WEEGSourceCalculator.h"
 

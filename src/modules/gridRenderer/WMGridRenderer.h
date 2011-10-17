@@ -33,11 +33,11 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/geodes/WGEGridNode.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
+#include "core/graphicsEngine/geodes/WGEGridNode.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
 
 /**
  * Show the bounding box and grid of a WDataSetSingle
@@ -84,6 +84,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 

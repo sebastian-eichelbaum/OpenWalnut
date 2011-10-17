@@ -30,10 +30,10 @@
 
 #include <osg/Geode>
 
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 /**
  * Someone should add some documentation here.
@@ -82,6 +82,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return the icon.
      */
     virtual const char** getXPMIcon() const;
 

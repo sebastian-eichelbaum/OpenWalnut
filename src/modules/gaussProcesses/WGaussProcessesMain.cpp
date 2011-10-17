@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../../kernel/WModule.h"
+#include "core/kernel/WModule.h"
 #include "detTract2GPConvert/WMDetTract2GPConvert.h"
 #include "detTractClusteringGP/WMDetTractClusteringGP.h"
 #include "gpView/WMGpView.h"

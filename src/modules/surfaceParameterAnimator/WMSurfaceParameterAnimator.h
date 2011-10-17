@@ -32,11 +32,11 @@
 #include <osg/Uniform>
 #include <osgDB/WriteFile>
 
-#include "../../common/WBoundingBox.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/common/WBoundingBox.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 /**
  * This module is a ray-tracing based isosurface using special methods for animating particle flow on its surface. The modules needs a scalar
@@ -80,6 +80,7 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
+     * \return the icon.
      */
     virtual const char** getXPMIcon() const;
 

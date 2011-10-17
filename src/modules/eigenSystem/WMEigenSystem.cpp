@@ -24,11 +24,11 @@
 
 #include <string>
 
-#include "../../dataHandler/WDataSetDTI.h"
-#include "../../dataHandler/WDataSetVector.h"
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/dataHandler/WDataSetDTI.h"
+#include "core/dataHandler/WDataSetVector.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 #include "WMEigenSystem.xpm"
 #include "WMEigenSystem.h"
 
@@ -57,8 +57,7 @@ const char** WMEigenSystem::getXPMIcon() const
 }
 const std::string WMEigenSystem::getName() const
 {
-    // Specify your module name here. This name must be UNIQUE!
-    return "EigenSystem";
+    return "Eigen System";
 }
 
 const std::string WMEigenSystem::getDescription() const
@@ -114,7 +113,7 @@ void WMEigenSystem::moduleMain()
 
     ready();
 
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         infoLog() << "Waiting.";
         m_moduleState.wait();
@@ -280,13 +279,13 @@ boost::array< double, 12 > WMEigenSystem::applyEigenSolver( const Eigen::Matrix3
     const Eigen::Matrix3d &evecs = es.eigenvectors();
     const Eigen::Vector3d &evals = es.eigenvalues();
     boost::array< double, 12 > result = { { evals( 0 ), evecs( 0, 0 ),
-                                                        evecs( 0, 1 ),
-                                                        evecs( 0, 2 ),
-                                            evals( 1 ), evecs( 1, 0 ),
+                                                        evecs( 1, 0 ),
+                                                        evecs( 2, 0 ),
+                                            evals( 1 ), evecs( 0, 1 ),
                                                         evecs( 1, 1 ),
-                                                        evecs( 1, 2 ),
-                                            evals( 2 ), evecs( 2, 0 ),
                                                         evecs( 2, 1 ),
+                                            evals( 2 ), evecs( 0, 2 ),
+                                                        evecs( 1, 2 ),
                                                         evecs( 2, 2 ) } }; // NOLINT curly braces
     return result;
 }
