@@ -321,7 +321,7 @@ void WQtGLScreenCapture::stopRec()
 
 void WQtGLScreenCapture::resetFrames()
 {
-    wlog::info( "WQtGLScreenCapture" ) << "Resetting frame-counter.";
+    wlog::debug( "WQtGLScreenCapture" ) << "Resetting frame-counter.";
     m_viewer->getScreenCapture()->resetFrameCounter();
 }
 
@@ -332,12 +332,12 @@ void WQtGLScreenCapture::recCallback()
 
 void WQtGLScreenCapture::playAnim()
 {
-    wlog::info( "WQtGLScreenCapture" ) << "Starting animation playback.";
+    wlog::debug( "WQtGLScreenCapture" ) << "Starting animation playback.";
 }
 
 void WQtGLScreenCapture::stopAnim()
 {
-    wlog::info( "WQtGLScreenCapture" ) << "Stoping animation playback.";
+    wlog::debug( "WQtGLScreenCapture" ) << "Stoping animation playback.";
     m_viewer->getScreenCapture()->recordStop();
     WGEAnimationManipulator::RefPtr anim = m_viewer->animationMode();
     anim->home( 0 );
@@ -358,12 +358,12 @@ void WQtGLScreenCapture::toolBoxChanged( int index )
 {
     if ( index != 3 )
     {
-        wlog::info( "WQtGLScreenCapture" ) << "Deactivating animation mode.";
+        wlog::debug( "WQtGLScreenCapture" ) << "Deactivating animation mode.";
         m_viewer->animationMode( false );
         return;
     }
 
-    wlog::info( "WQtGLScreenCapture" ) << "Activating animation mode.";
+    wlog::debug( "WQtGLScreenCapture" ) << "Activating animation mode.";
     m_viewer->animationMode();
 }
 
