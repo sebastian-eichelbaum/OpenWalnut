@@ -42,13 +42,13 @@
 #include "WQtGLScreenCapture.moc"
 
 WQtGLScreenCapture::WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* parent ):
-    QDockWidget( "Animation", parent ),
+    QDockWidget( "Recorder", parent ),
     m_mainWindow( parent ),
     m_viewer( viewer ),
     m_iconManager( parent->getIconManager() )
 {
     // initialize
-    setObjectName( "Animation Dock" );
+    setObjectName( "Recorder Dock" );
 
     setAllowedAreas( Qt::AllDockWidgetAreas );
     setFeatures( QDockWidget::AllDockWidgetFeatures );
@@ -131,6 +131,12 @@ WQtGLScreenCapture::WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* par
     m_screenshotWidget->setLayout( screenshotLayout );
 
     m_screenshotButton = new QPushButton( "Screenshot" );
+    m_screenshotButton->setToolTip( "Take a screenshot of the 3D view." );
+    m_screenshotAction = new QAction( parent->getIconManager()->getIcon( "image" ), "Screenshot", this );
+    m_screenshotAction->setToolTip( "Take a screenshot of the 3D view." );
+    m_screenshotAction->setShortcut( QKeySequence(  Qt::Key_F12 ) );
+    m_screenshotAction->setShortcutContext( Qt::ApplicationShortcut );
+    connect( m_screenshotAction, SIGNAL(  triggered( bool ) ), this, SLOT( screenShot() ) );
     connect( m_screenshotButton, SIGNAL(  clicked( bool ) ), this, SLOT( screenShot() ) );
 
     QLabel* screenshotLabel = new QLabel();
@@ -180,6 +186,12 @@ WQtGLScreenCapture::WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* par
     QVBoxLayout* animationLayout = new QVBoxLayout();
     m_animationWidget->setLayout( animationLayout );
 
+    QLabel* nyiLabel = new QLabel();
+    nyiLabel->setWordWrap( true );
+    nyiLabel->setText( "<font color=\"#f00\">NOT YET IMPLEMENTED!</font><br/>"
+                       "We currently have one hard-coded animation sequence for testing. We are currently working on a script based animation "
+                       "system. Stay tuned."
+    );
 
     QGroupBox* animationControlGroup = new QGroupBox( "Animation Control" );
     QGridLayout* animationControlGroupLayout = new QGridLayout();
@@ -210,6 +222,7 @@ WQtGLScreenCapture::WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* par
     animationFileGroupLayout->addWidget( m_animationFileEdit );
 
     // plug it into the layout
+    animationLayout->addWidget( nyiLabel );
     animationLayout->addWidget( animationFileGroup );
     animationLayout->addWidget( animationControlGroup );
 
@@ -236,6 +249,11 @@ WQtGLScreenCapture::~WQtGLScreenCapture()
     // cleanup
     m_recordConnection.disconnect();
     m_imageConnection.disconnect();
+}
+
+QAction* WQtGLScreenCapture::getScreenshotTrigger() const
+{
+    return m_screenshotAction;
 }
 
 void WQtGLScreenCapture::handleImage( size_t /* framesLeft */, size_t totalFrames, osg::ref_ptr< osg::Image > image ) const
@@ -321,7 +339,7 @@ void WQtGLScreenCapture::stopRec()
 
 void WQtGLScreenCapture::resetFrames()
 {
-    wlog::info( "WQtGLScreenCapture" ) << "Resetting frame-counter.";
+    wlog::debug( "WQtGLScreenCapture" ) << "Resetting frame-counter.";
     m_viewer->getScreenCapture()->resetFrameCounter();
 }
 
@@ -332,12 +350,12 @@ void WQtGLScreenCapture::recCallback()
 
 void WQtGLScreenCapture::playAnim()
 {
-    wlog::info( "WQtGLScreenCapture" ) << "Starting animation playback.";
+    wlog::debug( "WQtGLScreenCapture" ) << "Starting animation playback.";
 }
 
 void WQtGLScreenCapture::stopAnim()
 {
-    wlog::info( "WQtGLScreenCapture" ) << "Stoping animation playback.";
+    wlog::debug( "WQtGLScreenCapture" ) << "Stoping animation playback.";
     m_viewer->getScreenCapture()->recordStop();
     WGEAnimationManipulator::RefPtr anim = m_viewer->animationMode();
     anim->home( 0 );
@@ -358,12 +376,12 @@ void WQtGLScreenCapture::toolBoxChanged( int index )
 {
     if ( index != 3 )
     {
-        wlog::info( "WQtGLScreenCapture" ) << "Deactivating animation mode.";
+        wlog::debug( "WQtGLScreenCapture" ) << "Deactivating animation mode.";
         m_viewer->animationMode( false );
         return;
     }
 
-    wlog::info( "WQtGLScreenCapture" ) << "Activating animation mode.";
+    wlog::debug( "WQtGLScreenCapture" ) << "Activating animation mode.";
     m_viewer->animationMode();
 }
 

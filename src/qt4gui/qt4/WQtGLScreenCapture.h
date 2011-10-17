@@ -67,6 +67,12 @@ public:
      */
     virtual ~WQtGLScreenCapture();
 
+    /**
+     * Returns the trigger used for screenshotting.
+     *
+     * \return the action.
+     */
+    QAction* getScreenshotTrigger() const;
 protected:
     /**
      * Custom event dispatcher. Gets called by QT's Event system every time an event got sent to this widget. This event handler
@@ -204,6 +210,11 @@ private:
      * The trigger which triggers the screenshot.
      */
     QPushButton* m_screenshotButton;
+
+    /**
+     * This action triggers a screenshot.
+     */
+    QAction* m_screenshotAction;
 
     /**
      * Shows recorded time in movie-time.

@@ -216,11 +216,6 @@ void WMainWindow::setupGUI()
     tabifyDockWidget( m_controlPanel->getModuleDock(), m_controlPanel->getColormapperDock() );
     tabifyDockWidget( m_controlPanel->getColormapperDock(), m_controlPanel->getRoiDock() );
 
-    // by default, the module editor should be in front
-    m_controlPanel->getModuleDock()->raise();
-
-    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
-
     m_glDock = new QMainWindow();
     m_glDock->setObjectName( "GLDock" );
     m_glDock->setDockOptions( QMainWindow::AnimatedDocks |  QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks );
@@ -233,7 +228,13 @@ void WMainWindow::setupGUI()
     m_mainGLWidgetScreenCapture = m_mainGLWidget->getScreenCapture( this );
     m_glDock->addDockWidget( Qt::RightDockWidgetArea, mainGLDock );
     addDockWidget( Qt::RightDockWidgetArea, m_mainGLWidgetScreenCapture );
+    tabifyDockWidget( m_controlPanel->getRoiDock(), m_mainGLWidgetScreenCapture );
     connect( m_mainGLWidget.get(), SIGNAL( renderedFirstFrame() ), this, SLOT( handleGLVendor() ) );
+
+    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
+
+    // by default, the module editor should be in front
+    m_controlPanel->getModuleDock()->raise();
 
     // NOTE: we abuse the gl widgets first frame event to handle startup news.
     connect( m_mainGLWidget.get(), SIGNAL( renderedFirstFrame() ), this, SLOT( handleStartMessages() ) );
@@ -444,6 +445,8 @@ void WMainWindow::setupGUI()
     m_permanentToolBar->addSeparator();
     m_permanentToolBar->addAction( projectLoadButton );
     m_permanentToolBar->addAction( projectSaveButton );
+    m_permanentToolBar->addSeparator();
+    m_permanentToolBar->addAction( m_mainGLWidgetScreenCapture->getScreenshotTrigger() );
     m_permanentToolBar->addSeparator();
     m_permanentToolBar->addAction( resetButton );
     m_permanentToolBar->addAction( roiButton );
