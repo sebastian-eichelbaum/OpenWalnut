@@ -189,7 +189,8 @@ WQtGLScreenCapture::WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* par
     QLabel* nyiLabel = new QLabel();
     nyiLabel->setWordWrap( true );
     nyiLabel->setText( "<font color=\"#f00\">NOT YET IMPLEMENTED!</font><br/>"
-                       "We currently have one hard-coded animation sequence for testing. We are currently working on a script based animation system. Stay tuned."
+                       "We currently have one hard-coded animation sequence for testing. We are currently working on a script based animation "
+                       "system. Stay tuned."
     );
 
     QGroupBox* animationControlGroup = new QGroupBox( "Animation Control" );
