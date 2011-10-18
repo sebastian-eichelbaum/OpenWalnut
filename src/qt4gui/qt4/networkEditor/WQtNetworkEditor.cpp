@@ -66,7 +66,6 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     view->setMinimumSize( 20, 20 );
 
     m_scene = new WQtNetworkScene();
-//    m_scene->setSceneRect( -200.0, -200.0, 400.0, 400.0 );
     m_scene->setSceneRect( m_scene->itemsBoundingRect() );
 
     view->setScene( m_scene );
@@ -84,7 +83,7 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     // this fakeitem is added to the scene to get a better behavior of the forced
     // based layout. ALL WQtNetworkItems in the scene are "connected" to this
     // object to avoid that conneceted groups push away each other.
-    // TODO clean
+    // TODO(rfrohl): clean and remove the fake item
     QGraphicsRectItem *fake = new QGraphicsRectItem();
     fake->setRect( 0, 0, 10, 10 );
     fake->setPos( 0, 0 );
@@ -464,13 +463,10 @@ bool WQtNetworkEditor::event( QEvent* event )
 
 WQtNetworkItem* WQtNetworkEditor::findItemByModule( boost::shared_ptr< WModule > module )
 {
-    // TODO(rfrohl): fuck this shit(, and correct it)
     for( QList< WQtNetworkItem* >::const_iterator iter = m_items.begin(); iter != m_items.end(); ++iter )
     {
        WQtNetworkItem *itemModule = dynamic_cast< WQtNetworkItem* >( *iter );
-       // we compare pointers here, that is supposed to fuck us over
-       // TODO: look at every ptr and check why if there is a identical ptr, if not think about
-       // another way to compare the objects
+       // pointers are compared, not realy a good idea but atm. there is no better way to do this
        if( itemModule && itemModule->getModule().get() == module.get() )
        {
            return itemModule;

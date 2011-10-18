@@ -166,8 +166,6 @@ void WQtNetworkItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* o
     o->state &= ~QStyle::State_Selected;
     QGraphicsRectItem::paint( painter, o, w );
 
-    //glass highlight
-    //snippet from "voreen-2.5" source
     painter->setBrush( QBrush( Qt::white ) );
     painter->setPen( QPen( QBrush( Qt::white ), 0.01 ) );
     painter->setOpacity( 0.30 );
@@ -187,8 +185,6 @@ void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
     {
         port->updateArrows();
     }
-    // TODO check the comment
-    //m_networkEditor->itemMoved();
 }
 
 void WQtNetworkItem::mousePressEvent( QGraphicsSceneMouseEvent *event )
@@ -212,8 +208,6 @@ QVariant WQtNetworkItem::itemChange( GraphicsItemChange change, const QVariant &
             {
                 port->updateArrows();
             }
-            // TODO check the comment
-            //m_networkEditor->itemMoved();
         default:
             break;
     }
