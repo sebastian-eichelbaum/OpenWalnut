@@ -48,6 +48,10 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
     m_text->setParentItem( this );
     m_text->setDefaultTextColor( Qt::white );
 
+
+    m_inPorts = QList< WQtNetworkInputPort* > ();
+    m_outPorts = QList< WQtNetworkOutputPort* > ();
+
     //add input ports
     WModule::InputConnectorList cons = module->getInputConnectors();
     for( WModule::InputConnectorList::const_iterator iter = cons.begin(); iter != cons.end(); ++iter )
@@ -103,7 +107,7 @@ void WQtNetworkItem::hoverEnterEvent( QGraphicsSceneHoverEvent *event )
     }
 
     std::string tooltip = "";
-    if( m_module->isCrashed()() )
+    /*if( m_module->isCrashed()() )
     {
         tooltip += "<b>A problem occured. The module has been stopped. </b><br/><br/>";
     }
@@ -138,6 +142,7 @@ void WQtNetworkItem::hoverEnterEvent( QGraphicsSceneHoverEvent *event )
     tooltip += conCount ? "Yes" + conList + "<br/><br/>" : "None<br/>";
     tooltip += "<b>Module Description: </b><br/>" + m_module->getDescription();
 
+    */
     setToolTip( tooltip.c_str() );
 }
 
@@ -182,7 +187,8 @@ void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
     {
         port->updateArrows();
     }
-    m_networkEditor->itemMoved();
+    // TODO check the comment
+    //m_networkEditor->itemMoved();
 }
 
 void WQtNetworkItem::mousePressEvent( QGraphicsSceneMouseEvent *event )
@@ -191,8 +197,7 @@ void WQtNetworkItem::mousePressEvent( QGraphicsSceneMouseEvent *event )
     setSelected( true );
 }
 
-QVariant WQtNetworkItem::itemChange( GraphicsItemChange change,
-        const QVariant &value )
+QVariant WQtNetworkItem::itemChange( GraphicsItemChange change, const QVariant &value )
 {
     switch( change )
     {
@@ -207,7 +212,8 @@ QVariant WQtNetworkItem::itemChange( GraphicsItemChange change,
             {
                 port->updateArrows();
             }
-            m_networkEditor->itemMoved();
+            // TODO check the comment
+            //m_networkEditor->itemMoved();
         default:
             break;
     }
@@ -329,7 +335,7 @@ void WQtNetworkItem::activate( bool active )
     }
 }
 
-void WQtNetworkItem::calculateForces()
+/*void WQtNetworkItem::calculateForces()
 {
     if( !scene() || scene()->mouseGrabberItem() == this )
     {
@@ -410,7 +416,7 @@ void WQtNetworkItem::calculateForces()
     m_newPos = this->pos() + QPoint( xvel, yvel );
     m_newPos.setX( qMin( qMax( m_newPos.x(), sceneRect.left() + m_rect.x() ), sceneRect.right() - m_rect.x() ) );
     m_newPos.setY( qMin( qMax( m_newPos.y(), sceneRect.top() + m_rect.y() ), sceneRect.bottom() - m_rect.y() ) );
-}
+}*/
 
 bool WQtNetworkItem::advance()
 {

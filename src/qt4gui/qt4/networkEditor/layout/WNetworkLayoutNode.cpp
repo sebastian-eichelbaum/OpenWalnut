@@ -32,6 +32,7 @@ WNetworkLayoutNode::WNetworkLayoutNode( WQtNetworkItem *item )
     if( item != NULL )
     {
         m_referencedItem->m_layoutNode = this;
+        m_referencedItem->setPos( QPointF( 0, 0 ) );
     }
 }
 
@@ -87,6 +88,14 @@ void WNetworkLayoutNode::remove( WNetworkLayoutNode *node )
     {
         m_children.erase( iter );
     }
+    else
+    {
+        iter = std::find( m_parents.begin(), m_parents.end(), node );
+        if( iter != m_children.end() )
+        {
+            m_parents.erase( iter );
+        }
+    }
 }
 
 void WNetworkLayoutNode::setGridPos( QPoint pos )
@@ -98,9 +107,12 @@ void WNetworkLayoutNode::setGridPos( QPoint pos )
         // calc positon for m_item
         QPointF newPos;
         // TODO(rfrohl): look into this: x => y and y => x
-        newPos.setX( ( pos.y() * WNETWORKLAYOUT_GRID_DISTANCE_X ) +
+        //newPos.setX( ( pos.y() * WNETWORKLAYOUT_GRID_DISTANCE_X ) +
+        //        0.5 * ( WNETWORKLAYOUT_GRID_DISTANCE_X - m_referencedItem->m_width ) );
+        //newPos.setY( pos.x() * WNETWORKLAYOUT_GRID_DISTANCE_Y );
+        newPos.setX( ( pos.x() * WNETWORKLAYOUT_GRID_DISTANCE_X ) +
                 0.5 * ( WNETWORKLAYOUT_GRID_DISTANCE_X - m_referencedItem->m_width ) );
-        newPos.setY( pos.x() * WNETWORKLAYOUT_GRID_DISTANCE_Y );
+        newPos.setY( pos.y() * WNETWORKLAYOUT_GRID_DISTANCE_Y );
         m_referencedItem->setPos( newPos );
 
         // dirty hack: update arrow position

@@ -65,12 +65,6 @@ public:
     virtual ~WQtNetworkEditor();
 
     /**
-     * Create a new WQtNetworkItem for a given WModule
-     * \param module a new WModule
-     */
-    void addModule(  boost::shared_ptr< WModule > module );
-
-    /**
      * Simple search the WQtNetworkItem that belongs to the WModule
      *
      * \param module a WModule
@@ -88,7 +82,7 @@ public:
      * WQtNetworkItem is moved manually. A Timer is set for calculating the new
      * forces.
      */
-    void itemMoved();
+    //void itemMoved();
 
     /**
      * Deletes all items in the scene who are selected.
@@ -117,7 +111,7 @@ protected:
      *
      * \param event the timer event
      */
-    void timerEvent( QTimerEvent* event );
+    //void timerEvent( QTimerEvent* event );
 
 private:
 
@@ -146,11 +140,6 @@ private:
      * Is needed for random position of the WQtNetworkItems.
      */
     time_t m_time;
-
-    /**
-     * Certain time span in ms in which timerEvent gets called.
-     */
-    int timerId;
 
 private slots:
 

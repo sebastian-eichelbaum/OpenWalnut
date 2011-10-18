@@ -53,8 +53,7 @@
 #include "WQtNetworkEditor.moc"
 
 WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
-    : QDockWidget( "Module Graph", parent ),
-    timerId( 0 )
+    : QDockWidget( "Module Graph", parent )
 {
     setObjectName( "Module Graph Dock" );
     m_mainWindow = parent;
@@ -173,21 +172,6 @@ void WQtNetworkEditor::deleteSelectedItems()
     arrowList.clear();
 }
 
-void WQtNetworkEditor::addModule( boost::shared_ptr< WModule > module )
-{
-    // TODO clean
-    WQtNetworkItem *netItem = new WQtNetworkItem( this, module );
-    m_items.push_back( netItem );
-
-    // set the object at a random start position
-    time( &m_time );
-    netItem->setPos( ( std::rand() + m_time ) % 200, ( std::rand() + m_time ) % 200 );  // NOLINT - no we want std::rand instead of rand_r
-
-    m_scene->addItem( netItem );
-
-    //itemMoved();
-}
-
 bool WQtNetworkEditor::event( QEvent* event )
 {
     // a module got associated with the root container -> add it to the list
@@ -199,7 +183,6 @@ bool WQtNetworkEditor::event( QEvent* event )
         {
             WLogger::getLogger()->addLogMessage( "Inserting \"" + e1->getModule()->getName() + "\".",
                                                 "NetworkEditor", LL_DEBUG );
-            //addModule( e1->getModule() );
             WQtNetworkItem *item = new WQtNetworkItem( this, e1->getModule() );
             m_items.push_back( item );
             m_layout->addItem( item );
@@ -446,7 +429,6 @@ bool WQtNetworkEditor::event( QEvent* event )
     // a module tree item should be deleted
     if( event->type() == WQT_MODULE_DELETE_EVENT )
     {
-        std::cout << "delete event in the editor!";
         WModuleDeleteEvent* e = dynamic_cast< WModuleDeleteEvent* >( event );
         if( !e )
         {
@@ -482,25 +464,29 @@ bool WQtNetworkEditor::event( QEvent* event )
 
 WQtNetworkItem* WQtNetworkEditor::findItemByModule( boost::shared_ptr< WModule > module )
 {
+    // TODO(rfrohl): fuck this shit(, and correct it)
     for( QList< WQtNetworkItem* >::const_iterator iter = m_items.begin(); iter != m_items.end(); ++iter )
     {
        WQtNetworkItem *itemModule = dynamic_cast< WQtNetworkItem* >( *iter );
-       if( itemModule && itemModule->getModule() == module )
+       // we compare pointers here, that is supposed to fuck us over
+       // TODO: look at every ptr and check why if there is a identical ptr, if not think about
+       // another way to compare the objects
+       if( itemModule && itemModule->getModule().get() == module.get() )
        {
            return itemModule;
        }
     }
-    return 0;
+    return NULL;
 }
 
-void WQtNetworkEditor::itemMoved()
-{
-    if( !timerId )
-        timerId = startTimer( 1000 / 25 );
-}
+//void WQtNetworkEditor::itemMoved()
+//{
+//    if( !timerId )
+//        timerId = startTimer( 1000 / 25 );
+//}
 
-void WQtNetworkEditor::timerEvent( QTimerEvent* /*event*/ )
-{
+//void WQtNetworkEditor::timerEvent( QTimerEvent* /*event*/ )
+//{
     //Q_UNUSED( event );
 
     //QList< WQtNetworkItem *> items;
@@ -525,5 +511,5 @@ void WQtNetworkEditor::timerEvent( QTimerEvent* /*event*/ )
     //    killTimer( timerId );
     //    timerId = 0;
     //}
-}
+//}
 

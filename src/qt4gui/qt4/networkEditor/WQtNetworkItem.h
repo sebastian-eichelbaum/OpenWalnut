@@ -143,7 +143,7 @@ public:
      * calculate new forces to layout the WQtNetworkItems in the
      * WQtNetworkScene.
      */
-    void calculateForces();
+    //void calculateForces();
 
     /**
      * Check if new calculated position is different from current. If yes
