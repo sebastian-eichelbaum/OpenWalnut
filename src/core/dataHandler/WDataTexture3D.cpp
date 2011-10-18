@@ -155,7 +155,7 @@ void WDataTexture3D::create()
     }
     else
     {
-        wlog::debug( "WDataTexture3D" ) << "Creating Texture of type" << m_valueSet->getDataType();
+        wlog::debug( "WDataTexture3D" ) << "Creating Texture of type " << m_valueSet->getDataType();
         wlog::error( "WDataTexture3D" ) << "Conversion of this data type to texture not supported yet.";
     }
 

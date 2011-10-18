@@ -50,6 +50,11 @@
 
 #include "tango/preferences-system.xpm"
 
+#include "video.xpm"
+#include "image.xpm"
+
+#include "preferences.xpm"
+
 #include "QuestionMarks.xpm"
 
 #include "empty.xpm"

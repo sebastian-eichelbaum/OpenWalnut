@@ -22,31 +22,33 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WCondition.h"
+#include "WGEAnimationFrameTimer.h"
 
-WCondition::WCondition()
+WGEAnimationFrameTimer::WGEAnimationFrameTimer( float framesPerSecond ):
+    WTimer(),
+    m_tick( 0 ),
+    m_framesPerSecond( framesPerSecond )
 {
-    // initialize members
+    // initialize
 }
 
-WCondition::~WCondition()
+WGEAnimationFrameTimer::~WGEAnimationFrameTimer()
 {
     // cleanup
 }
 
-void WCondition::wait() const
+void WGEAnimationFrameTimer::reset()
 {
-    m_condition.wait( m_mutex );
+    m_tick = 0;
 }
 
-void WCondition::notify()
+double WGEAnimationFrameTimer::elapsed() const
 {
-    signal_ConditionFired();
-    m_condition.notify_all();
+    return static_cast< double >( m_tick ) / m_framesPerSecond;
 }
 
-boost::signals2::connection WCondition::subscribeSignal( t_ConditionNotifierType notifier ) const
+void WGEAnimationFrameTimer::tick()
 {
-    return signal_ConditionFired.connect( notifier );
+    m_tick++;
 }
 

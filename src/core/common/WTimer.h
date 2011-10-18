@@ -22,31 +22,53 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WCondition.h"
+#ifndef WTIMER_H
+#define WTIMER_H
 
-WCondition::WCondition()
+#include <boost/shared_ptr.hpp>
+
+#include "WExportCommon.h"
+
+/**
+ * Base class for timing. Derive from it to write several timers like a frame-timer or realtime-timer.
+ */
+class OWCOMMON_EXPORT WTimer      // NOLINT - no OWCOMMON_EXPORT does not need an virtual destructor.
 {
-    // initialize members
-}
+public:
 
-WCondition::~WCondition()
-{
-    // cleanup
-}
+    /**
+     * Convenience typedef for a shared_ptr
+     */
+    typedef boost::shared_ptr< WTimer > SPtr;
 
-void WCondition::wait() const
-{
-    m_condition.wait( m_mutex );
-}
+    /**
+     * Convenience typedef for a const shared_ptr.
+     */
+    typedef boost::shared_ptr< const WTimer > ConstSPtr;
 
-void WCondition::notify()
-{
-    signal_ConditionFired();
-    m_condition.notify_all();
-}
+    /**
+     * Constructs a animation timer.
+     */
+    WTimer();
 
-boost::signals2::connection WCondition::subscribeSignal( t_ConditionNotifierType notifier ) const
-{
-    return signal_ConditionFired.connect( notifier );
-}
+    /**
+     * Destructor.
+     */
+    virtual ~WTimer();
 
+    /**
+     * Resets the start-tick.
+     */
+    virtual void reset() = 0;
+
+    /**
+     * Returns the elapsed time since the last reset in seconds with milliseconds precision.
+     *
+     * \return elapsed time in seconds with millisecond precision.
+     */
+    virtual double elapsed() const = 0;
+
+private:
+};
+
+#endif  // WTIMER_H

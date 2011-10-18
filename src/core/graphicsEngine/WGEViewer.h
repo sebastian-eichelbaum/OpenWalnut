@@ -58,7 +58,9 @@
 #include "WGECamera.h"
 #include "WGEGraphicsWindow.h"
 #include "WGEGroupNode.h"
+#include "WGEScreenCapture.h"
 #include "WPickHandler.h"
+#include "animation/WGEAnimationManipulator.h"
 
 /**
  * Class for managing one view to the scene. This includes viewport, camera and graphics context.
@@ -69,6 +71,16 @@ class WGE_EXPORT WGEViewer: public WGEGraphicsWindow,
                             public boost::enable_shared_from_this< WGEViewer >
 {
 public:
+    /**
+     * Convenience typedef
+     */
+    typedef boost::shared_ptr< WGEViewer > SPtr;
+
+    /**
+     * Convenience typedef
+     */
+    typedef boost::shared_ptr< const WGEViewer > ConstSPtr;
+
     /**
      * Default constructor.
      *
@@ -88,6 +100,7 @@ public:
      * Destructor.
      */
     virtual ~WGEViewer();
+
     /**
      * Repaints the contents. Mac only.
      */
@@ -198,6 +211,35 @@ public:
      */
     WBoolFlag::SPtr isFrameRendered() const;
 
+    /**
+     * Returns the main cameras screen capture callback.
+     *
+     * \return the screen capture callback.
+     */
+    WGEScreenCapture::RefPtr getScreenCapture() const;
+
+    /**
+     * The (de-)activates the animation mode. In animation mode, a special camera manipulator is used instead of the currently set. This
+     * manipulator can then play some animation path in realtime, frame-rate independent or in frame-per-frame mode which is useful if combined
+     * with the getScreenCapture() record function.
+     *
+     * If animation mode is turned off again, the previously set manipulator / camera setting is restored.
+     *
+     * \note do not modify camera or camera manipulator manually while in animation mode.
+     *
+     * \param on true to turn on.
+     *
+     * \return the animation manipulator. This, and only this should be used to provide the animation.
+     */
+    WGEAnimationManipulator::RefPtr animationMode( bool on = true );
+
+    /**
+     * Checks if the viewer is in animation mode.
+     *
+     * \return true if in animation mode
+     */
+    bool isAnimationMode() const;
+
 protected:
     /**
      * The OpenSceneGraph view used in this (Composite)Viewer.
@@ -282,6 +324,23 @@ protected:
      * The callback used for querying OpenGL features
      */
     osg::ref_ptr< QueryCallback > m_queryCallback;
+
+
+    /**
+     * The screen capture callback.
+     */
+    WGEScreenCapture::RefPtr m_screenCapture;
+
+    /**
+     * True -> animation mode on.
+     */
+    bool m_inAnimationMode;
+
+    /**
+     * The manipulator that was set before entering animation mode. Null if not in animation mode.
+     */
+    osg::ref_ptr<osgGA::MatrixManipulator> m_animationModeManipulatorBackup;
+
 private:
 };
 

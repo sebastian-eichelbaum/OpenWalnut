@@ -240,6 +240,7 @@ template< typename PropType, typename PropIndexAdapter >
 WGEShaderPropertyDefineOptions< PropType, PropIndexAdapter >::~WGEShaderPropertyDefineOptions()
 {
     // cleanup
+    m_connection.disconnect();
 }
 
 template< typename PropType, typename PropIndexAdapter >

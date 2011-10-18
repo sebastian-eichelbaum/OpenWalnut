@@ -22,31 +22,27 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WCondition.h"
+#include "WRealtimeTimer.h"
 
-WCondition::WCondition()
+WRealtimeTimer::WRealtimeTimer():
+    WTimer(),
+    m_timer( osg::Timer() )
 {
-    // initialize members
+    // initialize
 }
 
-WCondition::~WCondition()
+WRealtimeTimer::~WRealtimeTimer()
 {
     // cleanup
 }
 
-void WCondition::wait() const
+void WRealtimeTimer::reset()
 {
-    m_condition.wait( m_mutex );
+    m_timer.setStartTick();
 }
 
-void WCondition::notify()
+double WRealtimeTimer::elapsed() const
 {
-    signal_ConditionFired();
-    m_condition.notify_all();
-}
-
-boost::signals2::connection WCondition::subscribeSignal( t_ConditionNotifierType notifier ) const
-{
-    return signal_ConditionFired.connect( notifier );
+    return m_timer.time_m() / 1000.0;
 }
 

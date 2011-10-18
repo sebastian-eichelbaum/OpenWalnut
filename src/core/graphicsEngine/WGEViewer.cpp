@@ -55,7 +55,9 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
     : WGEGraphicsWindow( wdata, x, y, width, height ),
       boost::enable_shared_from_this< WGEViewer >(),
       m_name( name ),
-      m_rendered( WBoolFlag::SPtr( new WBoolFlag( new WConditionOneShot(), false ) ) )
+      m_rendered( WBoolFlag::SPtr( new WBoolFlag( new WConditionOneShot(), false ) ) ),
+      m_screenCapture( new WGEScreenCapture() ),
+      m_inAnimationMode( false )
 {
     try
     {
@@ -69,6 +71,7 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
         m_View->setCamera( new WGECamera( width, height, projectionMode ) );
         m_queryCallback = new QueryCallback( m_View->getCamera(), m_rendered );
         m_View->getCamera()->setInitialDrawCallback( m_queryCallback );
+        m_View->getCamera()->setFinalDrawCallback( m_screenCapture );
 
 #ifndef __APPLE__
         m_View->getCamera()->setGraphicsContext( m_GraphicsContext.get() );
@@ -128,8 +131,10 @@ WGEViewer::getView()
 
 void WGEViewer::setCameraManipulator( osg::ref_ptr<osgGA::MatrixManipulator> manipulator )
 {
-    m_View->setCameraManipulator( manipulator );
-    // redraw request?? no since it redraws permanently and uses the new settings
+    if ( !m_inAnimationMode )
+    {
+        m_View->setCameraManipulator( manipulator );
+    }
 }
 
 osg::ref_ptr<osgGA::MatrixManipulator> WGEViewer::getCameraManipulator()
@@ -207,6 +212,11 @@ void WGEViewer::reset()
     m_View->home();
 }
 
+WGEScreenCapture::RefPtr WGEViewer::getScreenCapture() const
+{
+    return m_screenCapture;
+}
+
 std::string WGEViewer::getOpenGLVendor() const
 {
     return m_queryCallback->getVendor();
@@ -243,5 +253,41 @@ void WGEViewer::QueryCallback::operator()( osg::RenderInfo& /* renderInfo */ ) c
 std::string WGEViewer::QueryCallback::getVendor() const
 {
     return m_vendor;
+}
+
+WGEAnimationManipulator::RefPtr WGEViewer::animationMode( bool on )
+{
+    if ( m_inAnimationMode && !on ) // turn off mode
+    {
+        m_inAnimationMode = false;
+
+        // restore old manipulator
+        m_View->setCameraManipulator( m_animationModeManipulatorBackup );
+        return NULL;
+    }
+    else if ( !m_inAnimationMode && on ) // turn on
+    {
+        m_inAnimationMode = true;
+
+        // backup
+        m_animationModeManipulatorBackup = getCameraManipulator();
+
+        // create animation manipulator
+        WGEAnimationManipulator::RefPtr anim = new WGEAnimationManipulator();
+        m_View->setCameraManipulator( anim );
+        return anim;
+    }
+    else if ( m_inAnimationMode ) // already on
+    {
+        return dynamic_cast< WGEAnimationManipulator* >( getCameraManipulator().get() );
+    }
+
+    // else: do nothing
+    return NULL;
+}
+
+bool WGEViewer::isAnimationMode() const
+{
+    return m_inAnimationMode;
 }
 

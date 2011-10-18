@@ -22,31 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WCondition.h"
+#include "WTimer.h"
 
-WCondition::WCondition()
+WTimer::WTimer()
 {
-    // initialize members
+    // initialize
 }
 
-WCondition::~WCondition()
+WTimer::~WTimer()
 {
     // cleanup
-}
-
-void WCondition::wait() const
-{
-    m_condition.wait( m_mutex );
-}
-
-void WCondition::notify()
-{
-    signal_ConditionFired();
-    m_condition.notify_all();
-}
-
-boost::signals2::connection WCondition::subscribeSignal( t_ConditionNotifierType notifier ) const
-{
-    return signal_ConditionFired.connect( notifier );
 }
 
