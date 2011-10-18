@@ -80,7 +80,7 @@ const std::string WDataSetGP::getName() const
 
 const std::string WDataSetGP::getDescription() const
 {
-    return "Contains gaussian processes representing deterministic tracks.";
+    return "Contains Gaussian processes representing deterministic tracks.";
 }
 
 boost::shared_ptr< WPrototyped > WDataSetGP::getPrototype()

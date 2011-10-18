@@ -339,7 +339,7 @@ vec4 getGaussedColor( vec2 where )
     vec4 gaussedColorbr = getColor( where + vec2(  offsetX,  offsetY ) );
     vec4 gaussedColorb  = getColor( where + vec2(     0.0,  -offsetY ) );
 
-    // apply gauss filter
+    // apply Gauss filter
     vec4 gaussed = ( 1.0 / 16.0 ) * (
             1.0 * gaussedColortl +  2.0 * gaussedColort + 1.0 * gaussedColortr +
             2.0 * gaussedColorl  +  4.0 * gaussedColorc + 2.0 * gaussedColorr  +
@@ -379,7 +379,7 @@ float getGaussedDepth( vec2 where )
     float gaussedDepthbr = getDepth( where + vec2(  offsetX,  offsetY ) );
     float gaussedDepthb  = getDepth( where + vec2(     0.0,  -offsetY ) );
 
-    // apply gauss filter
+    // apply Gauss filter
     float gaussed = ( 1.0 / 16.0 ) * (
             1.0 * gaussedDepthtl +  2.0 * gaussedDeptht + 1.0 * gaussedDepthtr +
             2.0 * gaussedDepthl  +  4.0 * gaussedDepthc + 2.0 * gaussedDepthr  +

@@ -142,7 +142,7 @@ chroot_do()
     echo "* Executing \"$*\"."
     chroot $CHROOTDIR $*
     if [ $? -ne 0 ]; then
-        echo " * Failed to chroot. Does the chroot envirnoment exist?"
+        echo " * Error occured in chroot. Does the chroot envirnoment exist? Problem with the executed command?"
         chroot_umount
         exit 1
     fi
@@ -369,7 +369,7 @@ chroot_build()
 }
 
 #########################################################################################################
-# Checks whether the specified suite is suppirted.
+# Checks whether the specified suite is supported.
 check_suite()
 {
     case "$SUITE" in

@@ -64,9 +64,9 @@ and get the URL to our mercurial repository.
 Required Dependencies:
 ----------------------
 
-* Qt4 (>= 4.3)
+* Qt4 (>= 4.6)
 * OpenSceneGraph (>= 2.8.0)
-* Boost (>= 1.39.0)
+* Boost (>= 1.42.0)
 
 Compilation on Unix-like systems:
 ---------------------------------

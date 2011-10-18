@@ -221,11 +221,11 @@ void WMDeterministicFTMori::properties()
     m_minFA->setMax( 1.0 );
     m_minFA->setMin( 0.0 );
 
-    m_minPoints = m_properties->addProperty( "Min. Points", "The minimum number of points per fiber.", 30, m_propCondition );
+    m_minPoints = m_properties->addProperty( "Min. points", "The minimum number of points per fiber.", 30, m_propCondition );
     m_minPoints->setMax( 100 );
     m_minPoints->setMin( 1 );
 
-    m_minCos = m_properties->addProperty( "Min. Cosine", "Minimum cosine of the angle between two"
+    m_minCos = m_properties->addProperty( "Min. cosine", "Minimum cosine of the angle between two"
                                            " adjacent fiber segments.", 0.80, m_propCondition );
     m_minCos->setMax( 1.0 );
     m_minCos->setMin( 0.0 );

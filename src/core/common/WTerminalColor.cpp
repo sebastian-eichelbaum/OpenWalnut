@@ -62,7 +62,8 @@ void WTerminalColor::generateControlStrings()
     m_colorString = "";
     m_colorResetString = "";
 
-#ifdef __linux__
+// When changing this platform specific ifdefs, please adapt unittest too!
+#if defined( __linux__ ) || defined( __APPLE__ )
     if( m_enabled && ( m_attrib != Default ) )
     {
         std::ostringstream ss;

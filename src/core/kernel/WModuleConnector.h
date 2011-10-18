@@ -55,6 +55,16 @@ friend class WModuleProjectFileCombiner;
 public:
 
     /**
+     * Shared pointer to this class.
+     */
+    typedef boost::shared_ptr< WModuleConnector > SPtr;
+
+    /**
+     * Const shared pointer to this class.
+     */
+    typedef boost::shared_ptr< const WModuleConnector > ConstSPtr;
+
+    /**
      * Constructor.
      *
      * \param module the module which is owner of this connector.

@@ -138,4 +138,12 @@ protected:
     static boost::shared_ptr< WPrototyped > m_prototype;
 };
 
+boost::shared_ptr< WFiber > centerLine( boost::shared_ptr< const WDataSetFibers > tracts );
+
+boost::shared_ptr< WFiber > longestLine( boost::shared_ptr< const WDataSetFibers > tracts );
+
+boost::shared_ptr< WFiber > centerLine( boost::shared_ptr< const WDataSetFiberVector > tracts );
+
+boost::shared_ptr< WFiber > longestLine( boost::shared_ptr< const WDataSetFiberVector > tracts );
+
 #endif  // WDATASETFIBERVECTOR_H

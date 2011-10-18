@@ -222,6 +222,8 @@ void WMData::moduleMain()
                 {
                     case W_DT_UNSIGNED_CHAR:
                     case W_DT_INT16:
+                    case W_DT_UINT16:
+                    case W_DT_UINT32:
                     case W_DT_SIGNED_INT:
                         m_dataSet->getTexture()->colormap()->set(
                             m_dataSet->getTexture()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 0 ) )
@@ -244,7 +246,7 @@ void WMData::moduleMain()
                         }
                         break;
                     default:
-                        WAssert( false, "Unknow data type in Data module" );
+                        WAssert( false, "Unknown data type in Data module" );
                 }
             }
         }

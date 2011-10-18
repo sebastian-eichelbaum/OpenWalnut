@@ -58,12 +58,12 @@ public:
 
         // generate an own control string
         std::ostringstream ss;
-#ifdef __linux__
-        char cStart = 0x1B;
+#if defined( __linux__ ) || defined( __APPLE__ )
+        char cStart = 0x1B; // this is an indirect cast to char, otherwise 0x1B whould be interpreted as number 27
         ss << cStart << "[" << 1 << ";" << 31 << ";" << 42 << "m";
 #endif
         // compare them
-        TS_ASSERT( ss.str() == c.m_colorString );
+        TS_ASSERT_EQUALS( ss.str(), c.m_colorString );
     }
 
     /**
@@ -76,7 +76,7 @@ public:
 
         // generate an own control string
         std::ostringstream ss;
-#ifdef __linux__
+#if defined( __linux__ ) || defined( __APPLE__ )
         char cStart = 0x1B;
         ss << cStart << "[0m";
 #endif

@@ -41,13 +41,13 @@
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WROIManager.h"
 #include "core/kernel/WSelectionManager.h"
-#include "WMArbitraryRois.h"
-#include "WMArbitraryRois.xpm"
+#include "WMArbitraryROIs.h"
+#include "WMArbitraryROIs.xpm"
 
 // This line is needed by the module loader to actually find your module.
-W_LOADABLE_MODULE( WMArbitraryRois )
+W_LOADABLE_MODULE( WMArbitraryROIs )
 
-WMArbitraryRois::WMArbitraryRois():
+WMArbitraryROIs::WMArbitraryROIs():
     WModule(),
     m_textureChanged( true ),
     m_recompute( boost::shared_ptr< WCondition >( new WCondition() ) ),
@@ -57,40 +57,40 @@ WMArbitraryRois::WMArbitraryRois():
 {
 }
 
-WMArbitraryRois::~WMArbitraryRois()
+WMArbitraryROIs::~WMArbitraryROIs()
 {
     // Cleanup!
 }
 
-boost::shared_ptr< WModule > WMArbitraryRois::factory() const
+boost::shared_ptr< WModule > WMArbitraryROIs::factory() const
 {
     // See "src/modules/template/" for an extensively documented example.
-    return boost::shared_ptr< WModule >( new WMArbitraryRois() );
+    return boost::shared_ptr< WModule >( new WMArbitraryROIs() );
 }
 
-const char** WMArbitraryRois::getXPMIcon() const
+const char** WMArbitraryROIs::getXPMIcon() const
 {
     return arbitraryROI_xpm;
 }
 
-const std::string WMArbitraryRois::getName() const
+const std::string WMArbitraryROIs::getName() const
 {
     // Specify your module name here. This name must be UNIQUE!
-    return "Arbitrary Rois";
+    return "Arbitrary ROIs";
 }
 
-const std::string WMArbitraryRois::getDescription() const
+const std::string WMArbitraryROIs::getDescription() const
 {
     return "Create non uniformly shaped ROIs for fiber selection. The ROI "
         "is what is enclosed by a surface created as isosurface from "
         "the data within a ROI box.";
 }
 
-void WMArbitraryRois::connectors()
+void WMArbitraryROIs::connectors()
 {
     // initialize connectors
     m_input = boost::shared_ptr< WModuleInputData < WDataSetScalar > >(
-        new WModuleInputData< WDataSetScalar >( shared_from_this(), "in", "Dataset to cut roi from." ) );
+        new WModuleInputData< WDataSetScalar >( shared_from_this(), "in", "Dataset to cut ROI from." ) );
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
     addConnector( m_input );
 
@@ -98,7 +98,7 @@ void WMArbitraryRois::connectors()
     WModule::connectors();
 }
 
-void WMArbitraryRois::properties()
+void WMArbitraryROIs::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
@@ -109,7 +109,7 @@ void WMArbitraryRois::properties()
     WModule::properties();
 }
 
-void WMArbitraryRois::moduleMain()
+void WMArbitraryROIs::moduleMain()
 {
     // use the m_input "data changed" flag
     m_moduleState.setResetable( true, true );
@@ -139,7 +139,7 @@ void WMArbitraryRois::moduleMain()
             m_threshold->setMax( m_dataSet->getMax() );
             m_threshold->set( ( m_dataSet->getMax() - m_dataSet->getMin() ) / 2.0 );
 
-            initSelectionRoi();
+            initSelectionROI();
         }
 
         if( m_threshold->changed() )
@@ -155,7 +155,7 @@ void WMArbitraryRois::moduleMain()
             m_showSelector = false;
             createCutDataset();
             renderMesh();
-            finalizeRoi();
+            finalizeROI();
             m_finalizeTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
         }
 
@@ -164,18 +164,18 @@ void WMArbitraryRois::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
 }
 
-void WMArbitraryRois::initSelectionRoi()
+void WMArbitraryROIs::initSelectionROI()
 {
     WPosition crossHairPos = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
     WPosition minROIPos = crossHairPos - WPosition( 10., 10., 10. );
     WPosition maxROIPos = crossHairPos + WPosition( 10., 10., 10. );
 
-    m_selectionRoi = osg::ref_ptr< WROIBox >( new WROIBox( minROIPos, maxROIPos ) );
-    m_selectionRoi->setColor( osg::Vec4( 0., 0., 1.0, 0.4 ) );
+    m_selectionROI = osg::ref_ptr< WROIBox >( new WROIBox( minROIPos, maxROIPos ) );
+    m_selectionROI->setColor( osg::Vec4( 0., 0., 1.0, 0.4 ) );
     createCutDataset();
 }
 
-void WMArbitraryRois::createCutDataset()
+void WMArbitraryROIs::createCutDataset()
 {
     if( !m_active->get() )
     {
@@ -247,7 +247,7 @@ void WMArbitraryRois::createCutDataset()
 }
 
 template< typename T >
-boost::shared_ptr< std::vector< float > > WMArbitraryRois::cutArea( boost::shared_ptr< WGrid > inGrid, boost::shared_ptr< WValueSet< T > > vals )
+boost::shared_ptr< std::vector< float > > WMArbitraryROIs::cutArea( boost::shared_ptr< WGrid > inGrid, boost::shared_ptr< WValueSet< T > > vals )
 {
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( inGrid );
 
@@ -259,12 +259,12 @@ boost::shared_ptr< std::vector< float > > WMArbitraryRois::cutArea( boost::share
     double dy = grid->getOffsetY();
     double dz = grid->getOffsetZ();
 
-    size_t xMin = static_cast<size_t>( m_selectionRoi->getMinPos()[0] / dx );
-    size_t yMin = static_cast<size_t>( m_selectionRoi->getMinPos()[1] / dy );
-    size_t zMin = static_cast<size_t>( m_selectionRoi->getMinPos()[2] / dz );
-    size_t xMax = static_cast<size_t>( m_selectionRoi->getMaxPos()[0] / dx );
-    size_t yMax = static_cast<size_t>( m_selectionRoi->getMaxPos()[1] / dy );
-    size_t zMax = static_cast<size_t>( m_selectionRoi->getMaxPos()[2] / dz );
+    size_t xMin = static_cast<size_t>( m_selectionROI->getMinPos()[0] / dx );
+    size_t yMin = static_cast<size_t>( m_selectionROI->getMinPos()[1] / dy );
+    size_t zMin = static_cast<size_t>( m_selectionROI->getMinPos()[2] / dz );
+    size_t xMax = static_cast<size_t>( m_selectionROI->getMaxPos()[0] / dx );
+    size_t yMax = static_cast<size_t>( m_selectionROI->getMaxPos()[1] / dy );
+    size_t zMax = static_cast<size_t>( m_selectionROI->getMaxPos()[2] / dz );
 
     boost::shared_ptr< std::vector< float > > newVals = boost::shared_ptr< std::vector< float > >( new std::vector< float >( nx * ny * nz, 0 ) );
 
@@ -285,7 +285,7 @@ boost::shared_ptr< std::vector< float > > WMArbitraryRois::cutArea( boost::share
     return newVals;
 }
 
-void WMArbitraryRois::renderMesh()
+void WMArbitraryROIs::renderMesh()
 {
     m_moduleNode->remove( m_outputGeode );
 
@@ -294,7 +294,7 @@ void WMArbitraryRois::renderMesh()
         osg::Geometry* surfaceGeometry = new osg::Geometry();
         m_outputGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
-        m_outputGeode->setName( "roi" );
+        m_outputGeode->setName( "ROI" );
 
         surfaceGeometry->setVertexArray( m_triMesh->getVertexArray() );
 
@@ -343,7 +343,7 @@ void WMArbitraryRois::renderMesh()
     }
 }
 
-void WMArbitraryRois::finalizeRoi()
+void WMArbitraryROIs::finalizeROI()
 {
     if( !m_active->get() )
     {
@@ -351,7 +351,7 @@ void WMArbitraryRois::finalizeRoi()
     }
 
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
-    osg::ref_ptr< WROI > newRoi = osg::ref_ptr< WROI >( new WROIArbitrary(  grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ(),
+    osg::ref_ptr< WROI > newROI = osg::ref_ptr< WROI >( new WROIArbitrary(  grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ(),
                                                                             grid->getTransformationMatrix(),
                                                                             *m_newValueSet->rawDataVectorPointer(),
                                                                             m_triMesh,
@@ -360,25 +360,25 @@ void WMArbitraryRois::finalizeRoi()
 
     if( WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() == NULL )
     {
-        WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
+        WKernel::getRunningKernel()->getRoiManager()->addRoi( newROI );
     }
     else
     {
-        WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() );
+        WKernel::getRunningKernel()->getRoiManager()->addRoi( newROI, WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() );
     }
 }
 
-void WMArbitraryRois::activate()
+void WMArbitraryROIs::activate()
 {
-    if( m_selectionRoi )
+    if( m_selectionROI )
     {
         if( m_active->get() )
         {
-            m_selectionRoi->setNodeMask( 0xFFFFFFFF );
+            m_selectionROI->setNodeMask( 0xFFFFFFFF );
         }
         else
         {
-            m_selectionRoi->setNodeMask( 0x0 );
+            m_selectionROI->setNodeMask( 0x0 );
         }
     }
 

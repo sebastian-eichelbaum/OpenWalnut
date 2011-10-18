@@ -112,14 +112,14 @@ void WMDirectVolumeRendering::properties()
     m_localIlluminationSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_localIlluminationSelections->addItem( "No Local Illumination", "Volume Renderer only uses the classified voxel color." );
     m_localIlluminationSelections->addItem( "Blinn-Phong", "Blinn-Phong lighting is used for shading each classified voxel." );
-    m_localIlluminationAlgo = m_properties->addProperty( "Local Illumination Model", "The illumination algorithm to use.",
+    m_localIlluminationAlgo = m_properties->addProperty( "Local illumination model", "The illumination algorithm to use.",
                                                          m_localIlluminationSelections->getSelectorFirst(), m_propCondition );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_localIlluminationAlgo );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_localIlluminationAlgo );
 
     // transfer functions
-    m_tfLoaderGroup = m_properties->addPropertyGroup( "Transfer Function", "Transfer Function loading." );
+    m_tfLoaderGroup = m_properties->addPropertyGroup( "Transfer function", "Transfer function loading." );
     m_tfLoaderEnabled = m_tfLoaderGroup->addProperty( "Enable", "Enable TF loading from file.", false, m_propCondition );
     m_tfLoaderFile = m_tfLoaderGroup->addProperty( "File", "The 1D image containing the transfer function.",
                                                     WPathHelper::getAppPath(), m_propCondition );
@@ -129,11 +129,11 @@ void WMDirectVolumeRendering::properties()
     // additional artifact removal methods
     m_improvementGroup = m_properties->addPropertyGroup( "Improvements", "Methods for improving image quality. Most of these methods imply "
                                                          "additional calculation/texture overhead and therefore slow down rendering." );
-    m_stochasticJitterEnabled = m_improvementGroup->addProperty( "Stochastic Jitter", "With stochastic jitter, wood-grain artifacts can be "
+    m_stochasticJitterEnabled = m_improvementGroup->addProperty( "Stochastic jitter", "With stochastic jitter, wood-grain artifacts can be "
                                                                                       "removed with the cost of possible noise artifacts.", true,
                                                                                       m_propCondition );
 
-    m_opacityCorrectionEnabled = m_improvementGroup->addProperty( "Opacity Correction", "If enabled, opacities are assumed to be relative to the "
+    m_opacityCorrectionEnabled = m_improvementGroup->addProperty( "Opacity correction", "If enabled, opacities are assumed to be relative to the "
                                                                                         "sample count. If disabled, changing the sample count "
                                                                                         "varies brightness of the image.", true,
                                                                                       m_propCondition );

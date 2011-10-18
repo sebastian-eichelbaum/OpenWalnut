@@ -59,7 +59,7 @@ const std::string WMGpView::getName() const
 
 const std::string WMGpView::getDescription() const
 {
-    return "Displays gaussian processes. It is intended to display espically GP representing deterministic tracts.";
+    return "Displays Gaussian processes. It is intended to display espically GP representing deterministic tracts.";
 }
 
 void WMGpView::connectors()

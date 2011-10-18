@@ -50,7 +50,7 @@ public:
     WDataSetGP();
 
     /**
-     * Assembles a dataset of gaussian processes out of the deterministic tracts as well the
+     * Assembles a dataset of Gaussian processes out of the deterministic tracts as well the
      * underlying tensor field.
      *
      * \param tracts The dataset containing the deterministic tracts
@@ -71,7 +71,7 @@ public:
     virtual ~WDataSetGP();
 
     /**
-     * Defines a new mean function over the mean functions of all gaussian processes.
+     * Defines a new mean function over the mean functions of all Gaussian processes.
      *
      * \param p The position where to evaluate all mean functions
      *

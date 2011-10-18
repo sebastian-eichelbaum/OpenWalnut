@@ -36,14 +36,17 @@ IF( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )
   MESSAGE( FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. (you may need to remove CMakeCache.txt" )
 ENDIF()
 
+# where to find our utils and cmake modules?
+SET( OW_TOOLS_DIR ${PROJECT_SOURCE_DIR}/../tools )
+
 # append search path for FindModules:
-LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../tools/cmake )
+LIST( APPEND CMAKE_MODULE_PATH ${OW_TOOLS_DIR}/cmake )
 # here, we have certain utilities. For example ASSERT_GE_VERSION which ensures a specific minimum version
-INCLUDE( ${CMAKE_MODULE_PATH}/Utils.cmake )
+INCLUDE( Utils )
 
 # These scripts contains all the needed tools to setup the build
-INCLUDE( ${CMAKE_MODULE_PATH}/BuildUtils.cmake )
-INCLUDE( ${CMAKE_MODULE_PATH}/BuildModuleUtils.cmake )
+INCLUDE( BuildUtils )
+INCLUDE( BuildModuleUtils )
 
 # CMAKE automatism to select static vs. shared building:
 IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
@@ -201,8 +204,6 @@ SET( OW_SOVERSION ${OW_VERSION_MAJOR} )
 # To see, which boost libs we currently use, you may run the following command # in the src directory on a linux box to make some investigations:
 # grep -i include `find . -type f` | grep boost | awk '{print $2}' | sort | uniq
 
-# find the boost packages
-FIND_PACKAGE( Boost 1.39.0 REQUIRED program_options thread filesystem date_time system signals regex )
 
 # Setup boost options
 SET( Boost_USE_MULTITHREAD ON )
@@ -210,6 +211,9 @@ SET( Boost_USE_MULTITHREAD ON )
 IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
   SET( Boost_USE_STATIC_LIBS ON )
 ENDIF()
+
+# find the boost packages
+FIND_PACKAGE( Boost 1.39.0 REQUIRED program_options thread filesystem date_time system signals regex )
 
 # include the boost headers
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
@@ -318,7 +322,7 @@ ENDIF()
 # TODO(ebaum): use try_run for this
 # Determines the number of cores available on this machine
 IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
-    SET( NUM_CORES_SOURCE_DIR ${CMAKE_MODULE_PATH}/numCores )
+    SET( NUM_CORES_SOURCE_DIR ${OW_TOOLS_DIR}/cmake/numCores )
     SET( NUM_CORES_BINARY_DIR ${PROJECT_BINARY_DIR}/numCores )
     SET( NUM_CORES_BINARY ${NUM_CORES_BINARY_DIR}/numCores )
     ADD_CUSTOM_TARGET( numCores
@@ -512,5 +516,5 @@ MARK_AS_ADVANCED( FORCE OPENTHREADS_LIBRARY_DEBUG )
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # for package setup:
-INCLUDE( ${CMAKE_MODULE_PATH}/Packaging.cmake )
+INCLUDE( Packaging )
 

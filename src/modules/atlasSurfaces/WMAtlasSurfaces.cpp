@@ -37,6 +37,7 @@
 #include <osg/StateSet>
 
 #include "core/common/WAssert.h"
+#include "core/common/WPathHelper.h"
 #include "core/common/WThreadedFunction.h"
 #include "core/dataHandler/WDataSetScalar.h"
 #include "core/graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
@@ -111,6 +112,9 @@ void WMAtlasSurfaces::properties()
     WPropertyBase::PropertyChangeNotifierType propertyCallback = boost::bind( &WMAtlasSurfaces::propertyChanged, this );
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
+    m_labelFile = m_properties->addProperty( "Label file", "", boost::filesystem::path( "" ), m_propCondition );
+    WPropertyHelper::PC_PATHEXISTS::addTo( m_labelFile );
+
     m_propCreateRoiTrigger = m_properties->addProperty( "Create Roi",  "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
 
     WModule::properties();
@@ -137,10 +141,27 @@ void WMAtlasSurfaces::moduleMain()
             break;
         }
 
-        if( m_dataSet != m_input->getData() )
+        if( m_dataSet != m_input->getData() || m_labelFile->changed() )
         {
             // acquire data from the input connector
             m_dataSet = m_input->getData();
+
+            if( m_labelFile->get( true ) == boost::filesystem::path( "" ) )
+            {
+                std::string fn = m_dataSet->getFileName();
+                std::string ext( ".nii.gz" );
+                std::string csvExt( ".csv" );
+                fn.replace( fn.find( ext ), ext.size(), csvExt );
+                m_labelFile->set( fn );
+            }
+            if( !boost::filesystem::exists( m_labelFile->get() ) )
+            {
+                wlog::warn( "Atlas Surfaces" ) << "Expected label file does not exist! (" <<  m_labelFile->get().string() << ")";
+                continue;
+            }
+
+            loadLabels( m_labelFile->get( true ).string() );
+
             switch( ( *m_dataSet ).getValueSet()->getDataType() )
             {
                 case W_DT_UNSIGNED_CHAR:
@@ -186,12 +207,6 @@ void WMAtlasSurfaces::createSurfaces()
 {
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
 
-    std::string fn = m_dataSet->getFileName();
-    std::string ext( ".nii.gz" );
-    std::string csvExt( ".csv" );
-    fn.replace( fn.find( ext ), ext.size(), csvExt );
-    loadLabels( fn );
-
     boost::shared_ptr<WProgressCombiner> newProgress = boost::shared_ptr<WProgressCombiner>( new WProgressCombiner() );
     boost::shared_ptr<WProgress>pro = boost::shared_ptr<WProgress>( new WProgress( "dummy", m_dataSet->getMax() ) );
     m_progress->addSubProgress( pro );
@@ -231,6 +246,7 @@ void WMAtlasSurfaces::createSurfaces()
         m_possibleSelections->addItem( label, "" );
     }
 
+    m_properties->removeProperty( m_aMultiSelection ); // clear before re-adding
     m_aMultiSelection  = m_properties->addProperty( "Regions", "Regions", m_possibleSelections->getSelectorAll(),
                                                                         m_propCondition );
 }
@@ -351,23 +367,35 @@ void WMAtlasSurfaces::loadLabels( std::string fileName )
 
     std::vector<std::string>svec;
 
-    for( size_t i = 0; i < lines.size(); ++i )
+    try
     {
-        svec.clear();
-        boost::regex reg( "," );
-        boost::sregex_token_iterator it( lines[i].begin(), lines[i].end(), reg, -1 );
-        boost::sregex_token_iterator end;
-        while( it != end )
+        for( size_t i = 0; i < lines.size(); ++i )
         {
-            svec.push_back( *it++ );
+            svec.clear();
+            boost::regex reg( "," );
+            boost::sregex_token_iterator it( lines[i].begin(), lines[i].end(), reg, -1 );
+            boost::sregex_token_iterator end;
+            while( it != end )
+            {
+                svec.push_back( *it++ );
+            }
+            if( svec.size() == 3 )
+            {
+                std::pair< std::string, std::string >newLabel( svec[1], svec[2] );
+                m_labels[boost::lexical_cast<size_t>( svec[0] )] = newLabel;
+            }
         }
-        if( svec.size() == 3 )
-        {
-            std::pair< std::string, std::string >newLabel( svec[1], svec[2] );
-            m_labels[boost::lexical_cast<size_t>( svec[0] )] = newLabel;
-        }
+        m_labelsLoaded = true;
     }
-    m_labelsLoaded = true;
+    catch( const std::exception& e )
+    {
+        // print this message AFTER creation of WException to have the backtrace before the message
+        WLogger::getLogger()->addLogMessage(
+            std::string( "Problem while loading label file. Probably not suitable content.  Message: " ) + e.what(),
+            "Module (" + getName() + ")", LL_ERROR );
+        m_labels.clear();
+        m_labelsLoaded = false;
+    }
 }
 
 void WMAtlasSurfaces::createRoi()

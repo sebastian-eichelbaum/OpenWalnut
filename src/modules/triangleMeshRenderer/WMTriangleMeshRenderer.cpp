@@ -155,8 +155,8 @@ void WMTriangleMeshRenderer::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     // setup all the properties. See header file for their meaning and purpose.
-    m_mainComponentOnly = m_properties->addProperty( "Main Component", "Main component only", false, m_propCondition );
-    m_showCoordinateSystem = m_properties->addProperty( "Coordinate System", "If enabled, the coordinate system of the mesh will be shown.",
+    m_mainComponentOnly = m_properties->addProperty( "Main component", "Main component only", false, m_propCondition );
+    m_showCoordinateSystem = m_properties->addProperty( "Coordinate system", "If enabled, the coordinate system of the mesh will be shown.",
                                                         false, m_propCondition );
 
     m_coloringGroup = m_properties->addPropertyGroup( "Coloring", "Coloring options and colormap options." );
@@ -170,16 +170,16 @@ void WMTriangleMeshRenderer::properties()
     colorModes->addItem( "Single Color", "The whole surface is colored using the default color." );
     colorModes->addItem( "From Mesh", "The surface is colored according to the mesh." );
     colorModes->addItem( "From colormap connector", "The surface is colored using the colormap on colorMap connector." );
-    m_colorMode = m_coloringGroup->addProperty( "Color-Mode", "Choose one of the available colorings.", colorModes->getSelectorFirst(),
+    m_colorMode = m_coloringGroup->addProperty( "Color mode", "Choose one of the available colorings.", colorModes->getSelectorFirst(),
                                              m_propCondition );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMode );
 
     // this is the color used if single color is selected
-    m_color = m_coloringGroup->addProperty( "Default Color", "The color of of the surface.",
+    m_color = m_coloringGroup->addProperty( "Default color", "The color of of the surface.",
                                          WColor( .9f, .9f, 0.9f, 1.0f ), m_propCondition );
 
-    m_colormap = m_coloringGroup->addProperty( "Enable Colormapping", "Turn Colormapping on", false );
-    m_colormapRatio = m_coloringGroup->addProperty( "Colormap Ratio", "Set the Colormap Ratio", 0.5 );
+    m_colormap = m_coloringGroup->addProperty( "Enable colormapping", "Turn colormapping on", false );
+    m_colormapRatio = m_coloringGroup->addProperty( "Colormap ratio", "Set the colormap Ratio", 0.5 );
     m_colormapRatio->setMin( 0.0 );
     m_colormapRatio->setMax( 1.0 );
 

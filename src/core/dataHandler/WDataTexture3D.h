@@ -213,7 +213,8 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture( T* source, int compone
         for( unsigned int i = 0; i < nbVoxels; ++i )
         {
             data[ 2 * i ] = WDataTexture3DScalers::scaleInterval( source[i], min, max, scaler );
-            data[ ( 2 * i ) + 1] = source[i] != min;
+            // NOTE: this is done to avoid ugly black borders when interpolation is active.
+            data[ ( 2 * i ) + 1] = wge::GLType< T >::FullIntensity() * ( source[i] != min );
         }
     }
     else if( components == 2)
@@ -228,8 +229,8 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture( T* source, int compone
         {
             data[ ( 4 * i ) ]     = WDataTexture3DScalers::scaleInterval( source[ ( 2 * i ) ], min, max, scaler );
             data[ ( 4 * i ) + 1 ] = WDataTexture3DScalers::scaleInterval( source[ ( 2 * i ) + 1 ], min, max, scaler );
-            data[ ( 4 * i ) + 2 ] = 0.0;
-            data[ ( 4 * i ) + 3 ] = 1.0;
+            data[ ( 4 * i ) + 2 ] = 0;
+            data[ ( 4 * i ) + 3 ] = wge::GLType< T >::FullIntensity();
         }
     }
     else if( components == 3)
@@ -245,7 +246,7 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture( T* source, int compone
             data[ ( 4 * i ) ]     = WDataTexture3DScalers::scaleInterval( source[ ( 3 * i ) ], min, max, scaler );
             data[ ( 4 * i ) + 1 ] = WDataTexture3DScalers::scaleInterval( source[ ( 3 * i ) + 1 ], min, max, scaler );
             data[ ( 4 * i ) + 2 ] = WDataTexture3DScalers::scaleInterval( source[ ( 3 * i ) + 2 ], min, max, scaler );
-            data[ ( 4 * i ) + 3 ] = 1.0;
+            data[ ( 4 * i ) + 3 ] = wge::GLType< T >::FullIntensity();
         }
     }
     else if( components == 4)

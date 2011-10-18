@@ -81,8 +81,8 @@ void WMWriteMesh::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
     m_savePropGroup = m_properties->addPropertyGroup( "Save Surface",  "" );
-    m_saveTriggerProp = m_savePropGroup->addProperty( "Do Save",  "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
-    m_meshFile = m_savePropGroup->addProperty( "Mesh File", "", WPathHelper::getAppPath() );
+    m_saveTriggerProp = m_savePropGroup->addProperty( "Do save",  "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
+    m_meshFile = m_savePropGroup->addProperty( "Mesh file", "", WPathHelper::getAppPath() );
 
     m_fileTypeSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_fileTypeSelectionsList->addItem( "VTK ASCII", "" );

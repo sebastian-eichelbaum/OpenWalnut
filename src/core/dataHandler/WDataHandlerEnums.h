@@ -276,6 +276,26 @@ struct DataTypeRT< W_DT_DOUBLE >
     typedef double type;
 };
 
+/**
+ * Specialization for a specific datatype.
+ */
+template<>
+struct DataType< long double >
+{
+    //! the dataType flag
+    static dataType const type = W_DT_FLOAT128;
+};
+
+/**
+ * Specialization for a specific type
+ */
+template<>
+struct DataTypeRT< W_DT_FLOAT128 >
+{
+    //! correct C++ type for this runtime type
+    typedef long double type;
+};
+
 enum qformOrientation
 {
     Left_to_Right,

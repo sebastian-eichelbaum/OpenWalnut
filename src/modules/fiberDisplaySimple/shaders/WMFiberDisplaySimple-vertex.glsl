@@ -72,9 +72,11 @@ void main()
 #endif  // CLIPPLANE_ENABLED
 
     // The same accounds for the vertex. Transfer it to world-space.
-    v_vertex  = gl_ModelViewMatrix * gl_Vertex;
+    v_vertex = gl_ModelViewMatrix * gl_Vertex;
 
-#if ( defined ILLUMINATION_ENABLED || defined TUBE_ENABLED )
+    // fill this varying with a dummy. Not always needed.
+    v_normal = vec3( 1.0, 0.0, 0.0 );
+
     // Grab the tangent. We have uploaded it normalized in gl_Normal per vertex
     // We need to transfer it to the world-space ass all further operations are done there.
     vec3 tangent = normalize( ( gl_ModelViewMatrix * vec4( gl_Normal, 0.0 ) ).xyz );
@@ -118,7 +120,6 @@ void main()
     // with the tangent and the view vector we got the offset vector. We can noch get the normal using the tangent and the offset.
     v_normal = cross( offset, tangent );
     v_normal *= sign( dot( v_normal, vec3( 0.0, 0.0, 1.0 ) ) );
-#endif  // ( defined ILLUMINATION_ENABLED || defined TUBE_ENABLED )
 
 #ifdef COLORMAPPING_ENABLED
     // Allow the colormapper to do some precalculations with the real vertex coordinate in ow-scene-space

@@ -79,6 +79,18 @@ namespace WTypeTraits
     // Exclusion of this macro stuff from doxygen:
     // \cond HIDDEN_SYMBOLS
 
+    // long double is the better choice for these
+    CREATEPROMOTION( long double, double,   long double )
+    CREATEPROMOTION( long double, float,    long double )
+    CREATEPROMOTION( long double, int64_t,  long double )
+    CREATEPROMOTION( long double, int32_t,  long double )
+    CREATEPROMOTION( long double, int16_t,  long double )
+    CREATEPROMOTION( long double, int8_t,   long double )
+    CREATEPROMOTION( long double, uint64_t, long double )
+    CREATEPROMOTION( long double, uint32_t, long double )
+    CREATEPROMOTION( long double, uint16_t, long double )
+    CREATEPROMOTION( long double, uint8_t,  long double )
+
     // double is the better choice for these
     CREATEPROMOTION( double, float,    double )
     CREATEPROMOTION( double, int64_t,  double )

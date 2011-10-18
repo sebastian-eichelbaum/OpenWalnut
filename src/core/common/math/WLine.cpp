@@ -29,6 +29,8 @@
 #include <utility>
 #include <vector>
 
+#include <boost/array.hpp>
+
 #include "../exceptions/WOutOfBounds.h"
 #include "../WAssert.h"
 #include "../WLimits.h"
@@ -242,6 +244,30 @@ double maxSegmentLength( const WLine& line )
         result = std::max( result, static_cast< double >( length( line[i] - line[i+1] ) ) );
     }
     return result;
+}
+
+void WLine::unifyDirectionBy( const WLine& other )
+{
+    const size_t numBasePoints = 4;
+    boost::array< WPosition, numBasePoints > m;
+    boost::array< WPosition, numBasePoints > n;
+
+    double distance = 0.0;
+    double inverseDistance = 0.0;
+    for( size_t i = 0; i < numBasePoints; ++i )
+    {
+        m[i] = other.at( ( other.size() - 1 ) * static_cast< double >( i ) / ( numBasePoints - 1 ) );
+        n[i] = at( ( size() - 1 ) * static_cast< double >( i ) / ( numBasePoints - 1 ) );
+        distance += length2( m[i] - n[i] );
+        inverseDistance += length2( m[i] - at( ( size() - 1 ) * static_cast< double >( numBasePoints - 1 - i ) / ( numBasePoints - 1 ) ) );
+    }
+    distance /= static_cast< double >( numBasePoints );
+    inverseDistance /= static_cast< double >( numBasePoints );
+
+    if( inverseDistance < distance )
+    {
+        this->reverseOrder();
+    }
 }
 
 WBoundingBox computeBoundingBox( const WLine& line )

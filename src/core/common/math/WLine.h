@@ -81,6 +81,17 @@ public:
      * Collapse samplepoints which are equal and neighboured.
      */
     void removeAdjacentDuplicates();
+
+    /**
+     * Put the line into reverse ordering if the reverse ordering would have a
+     * similar direction to the given line. That means if the start point (or
+     * multiple selected sample points) of the given line will better match to
+     * end point (or multiple selected sample points) of this line (in term of
+     * direction) the line is reordered.
+     *
+     * \param other The line giving the direction to align this line to.
+     */
+    void unifyDirectionBy( const WLine& other );
 };
 
 // Some convinience functions as non-member non-friend functions

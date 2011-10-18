@@ -40,8 +40,9 @@ class WGEManagedGroupNode;
 template< class T > class WModuleInputData;
 
 /**
- * Traces a given set of deterministic tracts as given by a WFiberCluster in a voxel-wise manner.
- * Every voxel which is hit by one or more tracts or tract-segments is marked with a scalar.
+ * Traces a given set of deterministic tracts as given by a dataset of deterministic tracts (optionally only a subset may be
+ * processed) in a voxel-wise manner.
+ * Every voxel which is hit by one or more tracts or tract-segments is marked with a scalar and stored in a dataset scalar.
  * \ingroup modules
  */
 class WMVoxelizer : public WModule
@@ -103,13 +104,20 @@ protected:
     virtual void properties();
 
     /**
-     * Every parameter change this function is doing:
-     *  - bounding box and grid generation
-     *  - executing a rasterization algo for the fibers
-     *  - generate dataset out of the grid and a value set
-     *  - display the rastered voxels
+     * Generates a intensity dataset where each tract is rasterized into. If additionally the (optional) cluster is given as
+     * subselection only tracts with IDs inside this dataset are considered. If additionally a parameterization was selected
+     * also a corresponding dataset will be generated and returned.
+     *
+     * \param tracts Dataset of deterministic tracts.
+     * \param cluster Optional selection of a subset of tracts.
+     *
+     * \return Two references to datasets where the intensity field is always the first and should be always present, but not when
+     * an error has occured. Since parameterization is optional, the second dataset will only be generated when a parameterization
+     * algo has been selected first.
      */
-    void update();
+    boost::array< boost::shared_ptr< WDataSetScalar >, 2 > generateDatasets(
+            boost::shared_ptr< const WDataSetFibers > tracts,
+            boost::shared_ptr< const WFiberCluster > cluster ) const;
 
     /**
      * Removes or inserts geode for the center line of the current cluster into this modules group node.
@@ -127,11 +135,14 @@ protected:
     osg::ref_ptr< osg::Geode > genDataSetGeode( boost::shared_ptr< WDataSetScalar > dataset ) const;
 
     /**
-     * Performs rasterization with the given algorithm.
+     * Performs rasterization with the given algorithm on either all tracts or only a subset if given.
      *
      * \param algo The algorithm which actually rasters every fiber.
+     * \param tracts Dataset of tracts.
+     * \param cluster A subset of tracts.
      */
-    void raster( boost::shared_ptr< WRasterAlgorithm > algo ) const;
+    void raster( boost::shared_ptr< WRasterAlgorithm > algo, boost::shared_ptr< const WDataSetFibers > tracts,
+        boost::shared_ptr< const WFiberCluster > cluster ) const;
 
     /**
      * Creates two vertices describing the bounding box of a cluster.
@@ -143,22 +154,59 @@ protected:
     WBoundingBox createBoundingBox( const WFiberCluster& cluster ) const;
 
     /**
-     * Constructs a grid out of the given bounding box.
+     * Constructs a grid out of the current tract dataset or out of a subset (selection) of this dataset.
      *
-     * \param bb The bounding box
+     * \param tracts Dataset of deterministic tracts.
+     * \param cluster Optional subselection of tracts.
      *
      * \return A WGridRegular3D reference wherein the voxels may be marked.
      */
-    boost::shared_ptr< WGridRegular3D > constructGrid( const WBoundingBox& bb ) const;
+    boost::shared_ptr< WGridRegular3D > constructGrid( boost::shared_ptr< const WDataSetFibers > tracts,
+            boost::shared_ptr< const WFiberCluster > cluster ) const;
+
+    /**
+     * Finds and returns a copy of the longest line (in term of \#points) in the dataset, or in a subset of it specified by the
+     * given cluster. If the cluster is empty all tracts are considered.
+     *
+     * \param tracts The dataset of tracts.
+     * \param cluster A subset of tracts.
+     *
+     * \note This involves heavy computational time, including dataset convertion to WDataSetFiberVector, since I didn't had the
+     * time to use the crappy index lists of the original WDataSetFibers.
+     *
+     * \return A reference of a copy of the longest line.
+     */
+    boost::shared_ptr< WFiber > longestLine( boost::shared_ptr< const WDataSetFibers > tracts,
+            boost::shared_ptr< const WFiberCluster > cluster = boost::shared_ptr< const WFiberCluster >() ) const;
+
+    /**
+     * Finds and returns a copy of the center line in the dataset, or in a subset of it specified by the given cluster. If the
+     * cluster is empty all tracts are considered.
+     *
+     * \param tracts The dataset of tracts.
+     * \param cluster A subset of tracts.
+     *
+     * \note This involves heavy computational time, including dataset convertion to WDataSetFiberVector, since I didn't had the
+     * time to use the crappy index lists of the original WDataSetFibers.
+     *
+     * \return A reference of a copy of the center line.
+     */
+    boost::shared_ptr< WFiber > centerLine( boost::shared_ptr< const WDataSetFibers > tracts,
+            boost::shared_ptr< const WFiberCluster > cluster = boost::shared_ptr< const WFiberCluster >() ) const;
 
 private:
     /**
-     * Input connector for a fiber cluster
+     * Input connector for a fiber dataset.
+     */
+    boost::shared_ptr< WModuleInputData< const WDataSetFibers > > m_tractIC;
+
+    /**
+     * Input connector for an optional selection of some fibers in the fiber dataset via a cluster.
      */
     boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_clusterIC;
 
     /**
-     * Output connector for a voxelized cluster
+     * Output connector for a voxelized cluster.
      */
     boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_voxelizedOC;
 
@@ -169,9 +217,9 @@ private:
     boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_paramOC;
 
     /**
-     * Reference to the fiber cluster
+     * Reference to the fiber dataset.
      */
-    boost::shared_ptr< const WFiberCluster > m_clusters;
+    boost::shared_ptr< const WDataSetFibers > m_tracts;
 
     /**
      * OSG root node for this module
@@ -189,9 +237,11 @@ private:
     WPropBool m_antialiased;
 
     /**
-     * Specifies the algorithm you may want to use for voxelization
+     * List for selecting the rasterization method.
+     *
+     * \note At the moment there is only Bresenham, but this might change.
      */
-    WPropString m_rasterAlgo;
+    WPropSelection m_rasterAlgo;
 
     /**
      * The number of voxels per unit in the coordinate system

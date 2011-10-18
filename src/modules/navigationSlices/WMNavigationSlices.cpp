@@ -88,7 +88,7 @@ void WMNavigationSlices::connectors()
 
 void WMNavigationSlices::properties()
 {
-    m_noTransparency  = m_properties->addProperty( "No Transparency", "If checked, transparency is not used. This will show the complete slices.",
+    m_noTransparency  = m_properties->addProperty( "No transparency", "If checked, transparency is not used. This will show the complete slices.",
                                                    false );
 
     m_sliceGroup      = m_properties->addPropertyGroup( "Slices",  "Slice Options." );

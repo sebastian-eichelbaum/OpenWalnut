@@ -31,6 +31,7 @@
 
 #include "core/common/WProgressCombiner.h"
 #include "core/common/WProgress.h"
+#include "core/common/WLogger.h"
 
 #include "core/kernel/WModuleInputConnector.h"
 #include "core/kernel/WModuleOutputConnector.h"
@@ -38,6 +39,8 @@
 #include "../events/WModuleDeleteEvent.h"
 #include "../events/WEventTypes.h"
 #include "../events/WPropertyChangedEvent.h"
+#include "../events/WModuleConnectorEvent.h"
+
 #include "../WQt4Gui.h"
 #include "../WMainWindow.h"
 
@@ -87,10 +90,25 @@ WQtTreeItem::WQtTreeItem( QTreeWidgetItem * parent, WTreeItemType type, boost::s
     m_updateTimer = boost::shared_ptr< QTimer >( new QTimer() );
     connect( m_updateTimer.get(), SIGNAL( timeout() ), this, SLOT( update() ) );
     m_updateTimer->start( 500 );
+
+    // we need to get informed about updated outputs.
+    const WModule::OutputConnectorList& outs = module->getOutputConnectors();
+    t_GenericSignalHandlerType changeSignal = boost::bind( &WQtTreeItem::slotDataChanged, this, _2 );
+    for( WModule::OutputConnectorList::const_iterator iter = outs.begin(); iter != outs.end(); ++iter )
+    {
+        // subscribe each connectors update signal
+        m_outputUpdateConnections.push_back( ( *iter )->subscribeSignal( DATA_CHANGED, changeSignal ) );
+    }
 }
 
 WQtTreeItem::~WQtTreeItem()
 {
+    // disconnect each subscription
+    for( std::vector< boost::signals2::connection >::iterator iter = m_outputUpdateConnections.begin();
+         iter != m_outputUpdateConnections.end(); ++iter )
+    {
+        ( *iter ).disconnect();
+    }
 }
 
 boost::shared_ptr< WModule > WQtTreeItem::getModule()
@@ -142,6 +160,12 @@ void WQtTreeItem::updateTooltip( std::string progress )
     tooltip += "<b>Module Description: </b><br/>" + m_module->getDescription();
 
     setToolTip( 0, tooltip.c_str() );
+}
+
+void WQtTreeItem::slotDataChanged( boost::shared_ptr<WModuleConnector> connector )
+{
+    // post event
+    QCoreApplication::postEvent( WQt4Gui::getMainWindow()->getControlPanel(), new WModuleConnectorEvent( m_module, connector ) );
 }
 
 void WQtTreeItem::update()

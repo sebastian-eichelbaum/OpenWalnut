@@ -222,6 +222,13 @@ public:
      */
     void generateLongestLine() const;
 
+    /**
+     * Recomputes on every call the axis aligned bounding box incorporating all tracts in this cluster.
+     *
+     * \return AABB as WBoundingBox.
+     */
+    WBoundingBox getBoundingBox() const;
+
 protected:
     // TODO(math): The only reason why we store here a Reference to the fiber
     // dataset is, we need it in the WMVoxelizer module as well as the clustering

@@ -26,6 +26,9 @@
 #define WQTTREEITEM_H
 
 #include <string>
+#include <vector>
+
+#include <boost/signals2/connection.hpp>
 
 #include <QtGui/QTreeWidgetItem>
 #include <QtGui/QProgressBar>
@@ -62,7 +65,7 @@ public:
      *
      * \return the pointer to the module associated with this item.
      */
-    boost::shared_ptr< WModule > getModule();
+    WModule::SPtr getModule();
 
     /**
      * Returns the name used for this tree item.
@@ -176,6 +179,18 @@ private:
      * Called when the name property changes.
      */
     void nameChanged();
+
+    /**
+     * The output connector update connections. The NEED to be disconnected on destruction manually!
+     */
+    std::vector< boost::signals2::connection > m_outputUpdateConnections;
+
+    /**
+     * Called on output-connector update.
+     *
+     * \param connector the connector that was updated.
+     */
+    void slotDataChanged( boost::shared_ptr< WModuleConnector > connector );
 };
 
 #endif  // WQTTREEITEM_H
