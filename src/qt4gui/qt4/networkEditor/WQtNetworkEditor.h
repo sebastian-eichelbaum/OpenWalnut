@@ -78,13 +78,6 @@ public:
     void connectSlots();
 
     /**
-     * This Method is everytime called when a new Module is inserted or an
-     * WQtNetworkItem is moved manually. A Timer is set for calculating the new
-     * forces.
-     */
-    //void itemMoved();
-
-    /**
      * Deletes all items in the scene who are selected.
      **/
     void deleteSelectedItems();
@@ -104,14 +97,6 @@ protected:
      * \return if event was accepted or not
      */
     virtual bool event( QEvent* event );
-
-    /**
-     * This event is called every 'timerID' in ms. If the WQtNetworkItems don't
-     * move as result of the calculated forces the timer won't be reseted.
-     *
-     * \param event the timer event
-     */
-    //void timerEvent( QTimerEvent* event );
 
 private:
 

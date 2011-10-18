@@ -479,37 +479,3 @@ WQtNetworkItem* WQtNetworkEditor::findItemByModule( boost::shared_ptr< WModule >
     return NULL;
 }
 
-//void WQtNetworkEditor::itemMoved()
-//{
-//    if( !timerId )
-//        timerId = startTimer( 1000 / 25 );
-//}
-
-//void WQtNetworkEditor::timerEvent( QTimerEvent* /*event*/ )
-//{
-    //Q_UNUSED( event );
-
-    //QList< WQtNetworkItem *> items;
-    //foreach( QGraphicsItem *item, m_scene->items() )
-    //{
-    //    if( WQtNetworkItem *netItem = dynamic_cast< WQtNetworkItem  *>( item ) )
-    //        items << netItem;
-    //}
-
-    //foreach( WQtNetworkItem *netItem, items )
-    //    netItem->calculateForces();
-
-    //bool itemsMoved = false;
-    //foreach( WQtNetworkItem *netItem, items )
-    //{
-    //    if( netItem->advance() )
-    //        itemsMoved = true;
-    //}
-
-    //if( !itemsMoved )
-    //{
-    //    killTimer( timerId );
-    //    timerId = 0;
-    //}
-//}
-

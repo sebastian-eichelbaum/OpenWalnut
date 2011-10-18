@@ -106,10 +106,6 @@ void WNetworkLayoutNode::setGridPos( QPoint pos )
         m_gridPos = pos;
         // calc positon for m_item
         QPointF newPos;
-        // TODO(rfrohl): look into this: x => y and y => x
-        //newPos.setX( ( pos.y() * WNETWORKLAYOUT_GRID_DISTANCE_X ) +
-        //        0.5 * ( WNETWORKLAYOUT_GRID_DISTANCE_X - m_referencedItem->m_width ) );
-        //newPos.setY( pos.x() * WNETWORKLAYOUT_GRID_DISTANCE_Y );
         newPos.setX( ( pos.x() * WNETWORKLAYOUT_GRID_DISTANCE_X ) +
                 0.5 * ( WNETWORKLAYOUT_GRID_DISTANCE_X - m_referencedItem->m_width ) );
         newPos.setY( pos.y() * WNETWORKLAYOUT_GRID_DISTANCE_Y );

@@ -83,7 +83,7 @@ class WNetworkLayout
     private:
         /**
          * This function traverses the layout graph and creates the new layout through assigning
-         * positions the individual nodes.
+         * positions to the individual nodes in a grid layout.
          **/
         void traverse();
 

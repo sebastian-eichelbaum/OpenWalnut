@@ -140,12 +140,6 @@ public:
     void activate( bool active );
 
     /**
-     * calculate new forces to layout the WQtNetworkItems in the
-     * WQtNetworkScene.
-     */
-    //void calculateForces();
-
-    /**
      * Check if new calculated position is different from current. If yes
      * the ne position is set and all connected WQtNetworkArrow are updated.
      *
