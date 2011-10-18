@@ -57,6 +57,8 @@ void WNetworkLayout::disconnectNodes( WQtNetworkItem *parent, WQtNetworkItem *ch
 
 void WNetworkLayout::removeItem( WQtNetworkItem *item )
 {
+
+    m_nodes.remove( item->getLayoutNode() );
     delete item->getLayoutNode();
 }
 
