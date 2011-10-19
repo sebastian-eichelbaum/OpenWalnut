@@ -55,11 +55,18 @@ void WNetworkLayout::disconnectNodes( WQtNetworkItem *parent, WQtNetworkItem *ch
     traverse();
 }
 
-void WNetworkLayout::removeItem( WQtNetworkItem *item )
+bool WNetworkLayout::removeItem( WQtNetworkItem *item )
 {
-
-    m_nodes.remove( item->getLayoutNode() );
-    delete item->getLayoutNode();
+    if( item->getLayoutNode()->nChildren() == 0 && item->getLayoutNode()->nParents() == 0 )
+    {
+        m_nodes.remove( item->getLayoutNode() );
+        delete item->getLayoutNode();
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 // private
@@ -69,6 +76,7 @@ void WNetworkLayout::traverse()
     std::list< WNetworkLayoutNode * > rootNodes, leafNodes;
     // dummy - used to create empty positions in the grid
     WNetworkLayoutNode dummyNode;
+    std::cout << m_nodes.size() << std::endl;
     for( std::list< WNetworkLayoutNode * >::iterator iter = m_nodes.begin(); iter != m_nodes.end();
             ++iter )
     {

@@ -32,7 +32,8 @@
 class WQtNetworkItem;
 
 /**
- * TODO
+ * This class warps the WQtNetworkItem and serves as the implementation of a node in the layout
+ * graph, which has no other classes. The class is mainly used by WNetworkLayout.
  **/
 class WNetworkLayoutNode
 {
@@ -69,7 +70,7 @@ class WNetworkLayoutNode
          *
          * \return a list of all child-nodes
          **/
-        std::list< WNetworkLayoutNode* > getChildren();
+        std::list< WNetworkLayoutNode * > getChildren();
 
         /**
          * The number of children this item has.

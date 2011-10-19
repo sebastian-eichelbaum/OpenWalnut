@@ -25,7 +25,6 @@
 #ifndef WQTNETWORKEDITOR_H
 #define WQTNETWORKEDITOR_H
 
-#include <time.h>
 #include <string>
 #include <list>
 
@@ -53,7 +52,7 @@ class WQtNetworkEditor : public QDockWidget
 public:
 
     /**
-     * default constructor
+     * constructor
      *
      * \param parent The widget that manages this widget
      */
@@ -120,11 +119,6 @@ private:
      * Action which disconnects a connector from the module.
      */
     QAction* m_disconnectAction;
-
-    /**
-     * Is needed for random position of the WQtNetworkItems.
-     */
-    time_t m_time;
 
 private slots:
 
