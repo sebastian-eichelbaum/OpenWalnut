@@ -76,7 +76,6 @@ void WNetworkLayout::traverse()
     std::list< WNetworkLayoutNode * > rootNodes, leafNodes;
     // dummy - used to create empty positions in the grid
     WNetworkLayoutNode dummyNode;
-    std::cout << m_nodes.size() << std::endl;
     for( std::list< WNetworkLayoutNode * >::iterator iter = m_nodes.begin(); iter != m_nodes.end();
             ++iter )
     {
