@@ -82,7 +82,7 @@ class WNetworkLayoutNode
         /**
          * The number of parents this item has.
          *
-         * \return the parents of children
+         * \return the number of parents
          **/
         int nParents();
 
@@ -111,11 +111,11 @@ class WNetworkLayoutNode
     protected:
 
     private:
-        std::list< WNetworkLayoutNode * > m_children; //!< the nodes this node links to ie. children of this node
+        std::list< WNetworkLayoutNode * > m_children; //!< the nodes this node links to i.e. children of this node
 
-        std::list< WNetworkLayoutNode * > m_parents; //!< the nodes that link to this node ie. parents of this node
+        std::list< WNetworkLayoutNode * > m_parents; //!< the nodes that link to this node i.e. parents of this node
 
-        WQtNetworkItem *m_referencedItem; //!< the corresponding item in the QGraphicsScene ie. the visual representation
+        WQtNetworkItem *m_referencedItem; //!< the corresponding item in the QGraphicsScene i.e. the visual representation
 
         QPoint m_gridPos; //!< abstract pos, the position within the matrix
 };
