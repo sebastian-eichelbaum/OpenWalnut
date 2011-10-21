@@ -28,6 +28,7 @@
 #include <QtGui/QPalette>
 #include <QtGui/QListWidgetItem>
 #include <QtGui/QPushButton>
+#include <QtGui/QScrollBar>
 
 #include <boost/lexical_cast.hpp>
 
@@ -187,6 +188,8 @@ void WPropertySelectionWidget::update()
     {
         disconnect( m_list, SIGNAL( itemSelectionChanged() ), this, SLOT( listSelectionChanged() ) );
 
+        int scrollPosition = m_list->verticalScrollBar()->sliderPosition();
+
         m_list->clearSelection();
         m_list->clear();
 
@@ -234,6 +237,8 @@ void WPropertySelectionWidget::update()
         {
             m_list->item( sValid.getItemIndexOfSelected( i ) )->setSelected( true );
         }
+
+        m_list->verticalScrollBar()->setSliderPosition( scrollPosition );
 
         connect( m_list, SIGNAL( itemSelectionChanged() ), this, SLOT( listSelectionChanged() ) );
     }
