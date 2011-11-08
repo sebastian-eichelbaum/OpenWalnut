@@ -465,6 +465,30 @@ public:
         TS_ASSERT_DELTA( d[ 2 ], 2.0, 1e-6 );
     }
 
+    /**
+     * Test if tensor log and exp functions behave correctly.
+     */
+    void testLogAndExp()
+    {
+        // init some tensor
+        WTensorSym< 2, 3, double > tens;
+        tens( 0, 0 ) = 8.0;
+        tens( 0, 1 ) = 10.0;
+        tens( 0, 2 ) = 4.0;
+        tens( 1, 1 ) = 17.0;
+        tens( 1, 2 ) = 14.0;
+        tens( 2, 2 ) = 20.0;
+
+        WTensorSym< 2, 3, double > s = tensorExp( tensorLog( tens ) );
+
+        TS_ASSERT_DELTA( s( 0, 0 ), tens( 0, 0 ), 1e-4 );
+        TS_ASSERT_DELTA( s( 0, 1 ), tens( 0, 1 ), 1e-4 );
+        TS_ASSERT_DELTA( s( 0, 2 ), tens( 0, 2 ), 1e-4 );
+        TS_ASSERT_DELTA( s( 1, 1 ), tens( 1, 1 ), 1e-4 );
+        TS_ASSERT_DELTA( s( 1, 2 ), tens( 1, 2 ), 1e-4 );
+        TS_ASSERT_DELTA( s( 2, 2 ), tens( 2, 2 ), 1e-4 );
+    }
+
 private:
     /**
      * A helper function performing a similarity transform using a givens rotation.
