@@ -28,6 +28,30 @@
 #include <string>
 
 /**
+ * Implements compile-time evaluation of factorials.
+ */
+template< std::size_t n >
+struct WFactorial
+{
+    enum
+    {
+        value = n * WFactorial< n - 1 >::value
+    };
+};
+
+/**
+ * Specialization for n = 0.
+ */
+template<>
+struct WFactorial< 0 >
+{
+    enum
+    {
+        value = 1
+    };
+};
+
+/**
  * Implements compile-time calculation of binomial coefficients.
  *
  *

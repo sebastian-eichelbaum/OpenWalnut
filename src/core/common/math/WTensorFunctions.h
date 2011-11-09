@@ -39,7 +39,7 @@
 #include "WCompileTimeFunctions.h"
 #include "WTensor.h"
 #include "WTensorSym.h"
-#include "linearAlgebra/WLinearAlgebra.h"
+#include "WMatrix.h"
 
 /**
  * An eigensystem has all eigenvalues as well as its corresponding eigenvectors. A RealEigenSystem is an EigenSystem where all
@@ -52,13 +52,7 @@ typedef boost::array< std::pair< double, WVector3d >, 3 > RealEigenSystem;
  */
 typedef boost::array< std::pair< std::complex< double >, WVector3d >, 3 > EigenSystem;
 
-std::ostream& operator<<( std::ostream& os, const RealEigenSystem& sys )
-{
-    os << sys[0].first << ", " << sys[0].second << std::endl;
-    os << sys[1].first << ", " << sys[1].second << std::endl;
-    os << sys[2].first << ", " << sys[2].second << std::endl;
-    return os;
-}
+std::ostream& operator<<( std::ostream& os, const RealEigenSystem& sys );
 
 namespace
 {
@@ -292,6 +286,235 @@ double evaluateSphericalFunction( WTensorSym< 2, 3, Data_T > const& tens, WVecto
          ( gradient[ 0 ] * gradient[ 1 ] * tens( 0, 1 )
          + gradient[ 0 ] * gradient[ 2 ] * tens( 0, 2 )
          + gradient[ 1 ] * gradient[ 2 ] * tens( 1, 2 ) );
+}
+
+/**
+ * Calculate the logarithm of the given real symmetric tensor.
+ *
+ * \param tens The tensor.
+ * \return The logarithm of the tensor.
+ */
+template< typename T >
+WTensorSym< 2, 3, T > tensorLog( WTensorSym< 2, 3, T > const& tens )
+{
+    WTensorSym< 2, 3, T > res;
+
+    // calculate eigenvalues and eigenvectors
+    RealEigenSystem sys;
+    jacobiEigenvector3D( tens, &sys );
+
+    // first, we check for negative or zero eigenvalues
+    if( sys[ 0 ].first <= 0.0 || sys[ 1 ].first <= 0.0 || sys[ 2 ].first <= 0.0 )
+    {
+        res( 0, 0 ) = res( 1, 1 ) = res( 2, 2 ) = 1.0;
+        return res;
+    }
+
+    // this implements the matrix product U * log( E ) * U.transposed()
+    // note that u( i, j ) = jth value of the ith eigenvector
+    res( 0, 0 ) = sys[ 0 ].second[ 0 ] * sys[ 0 ].second[ 0 ] * log( sys[ 0 ].first )
+                + sys[ 1 ].second[ 0 ] * sys[ 1 ].second[ 0 ] * log( sys[ 1 ].first )
+                + sys[ 2 ].second[ 0 ] * sys[ 2 ].second[ 0 ] * log( sys[ 2 ].first );
+    res( 0, 1 ) = sys[ 0 ].second[ 0 ] * sys[ 0 ].second[ 1 ] * log( sys[ 0 ].first )
+                + sys[ 1 ].second[ 0 ] * sys[ 1 ].second[ 1 ] * log( sys[ 1 ].first )
+                + sys[ 2 ].second[ 0 ] * sys[ 2 ].second[ 1 ] * log( sys[ 2 ].first );
+    res( 0, 2 ) = sys[ 0 ].second[ 0 ] * sys[ 0 ].second[ 2 ] * log( sys[ 0 ].first )
+                + sys[ 1 ].second[ 0 ] * sys[ 1 ].second[ 2 ] * log( sys[ 1 ].first )
+                + sys[ 2 ].second[ 0 ] * sys[ 2 ].second[ 2 ] * log( sys[ 2 ].first );
+    res( 1, 1 ) = sys[ 0 ].second[ 1 ] * sys[ 0 ].second[ 1 ] * log( sys[ 0 ].first )
+                + sys[ 1 ].second[ 1 ] * sys[ 1 ].second[ 1 ] * log( sys[ 1 ].first )
+                + sys[ 2 ].second[ 1 ] * sys[ 2 ].second[ 1 ] * log( sys[ 2 ].first );
+    res( 1, 2 ) = sys[ 0 ].second[ 1 ] * sys[ 0 ].second[ 2 ] * log( sys[ 0 ].first )
+                + sys[ 1 ].second[ 1 ] * sys[ 1 ].second[ 2 ] * log( sys[ 1 ].first )
+                + sys[ 2 ].second[ 1 ] * sys[ 2 ].second[ 2 ] * log( sys[ 2 ].first );
+    res( 2, 2 ) = sys[ 0 ].second[ 2 ] * sys[ 0 ].second[ 2 ] * log( sys[ 0 ].first )
+                + sys[ 1 ].second[ 2 ] * sys[ 1 ].second[ 2 ] * log( sys[ 1 ].first )
+                + sys[ 2 ].second[ 2 ] * sys[ 2 ].second[ 2 ] * log( sys[ 2 ].first );
+    return res;
+}
+
+/**
+ * Calculate the exponential of the given real symmetric tensor.
+ *
+ * \param tens The tensor.
+ * \return The exponential of the tensor.
+ */
+template< typename T >
+WTensorSym< 2, 3, T > tensorExp( WTensorSym< 2, 3, T > const& tens )
+{
+    WTensorSym< 2, 3, T > res;
+
+    // calculate eigenvalues and eigenvectors
+    RealEigenSystem sys;
+    jacobiEigenvector3D( tens, &sys );
+
+    // this implements the matrix product U * exp( E ) * U.transposed()
+    // note that u( i, j ) = jth value of the ith eigenvector
+    res( 0, 0 ) = sys[ 0 ].second[ 0 ] * sys[ 0 ].second[ 0 ] * exp( sys[ 0 ].first )
+                + sys[ 1 ].second[ 0 ] * sys[ 1 ].second[ 0 ] * exp( sys[ 1 ].first )
+                + sys[ 2 ].second[ 0 ] * sys[ 2 ].second[ 0 ] * exp( sys[ 2 ].first );
+    res( 0, 1 ) = sys[ 0 ].second[ 0 ] * sys[ 0 ].second[ 1 ] * exp( sys[ 0 ].first )
+                + sys[ 1 ].second[ 0 ] * sys[ 1 ].second[ 1 ] * exp( sys[ 1 ].first )
+                + sys[ 2 ].second[ 0 ] * sys[ 2 ].second[ 1 ] * exp( sys[ 2 ].first );
+    res( 0, 2 ) = sys[ 0 ].second[ 0 ] * sys[ 0 ].second[ 2 ] * exp( sys[ 0 ].first )
+                + sys[ 1 ].second[ 0 ] * sys[ 1 ].second[ 2 ] * exp( sys[ 1 ].first )
+                + sys[ 2 ].second[ 0 ] * sys[ 2 ].second[ 2 ] * exp( sys[ 2 ].first );
+    res( 1, 1 ) = sys[ 0 ].second[ 1 ] * sys[ 0 ].second[ 1 ] * exp( sys[ 0 ].first )
+                + sys[ 1 ].second[ 1 ] * sys[ 1 ].second[ 1 ] * exp( sys[ 1 ].first )
+                + sys[ 2 ].second[ 1 ] * sys[ 2 ].second[ 1 ] * exp( sys[ 2 ].first );
+    res( 1, 2 ) = sys[ 0 ].second[ 1 ] * sys[ 0 ].second[ 2 ] * exp( sys[ 0 ].first )
+                + sys[ 1 ].second[ 1 ] * sys[ 1 ].second[ 2 ] * exp( sys[ 1 ].first )
+                + sys[ 2 ].second[ 1 ] * sys[ 2 ].second[ 2 ] * exp( sys[ 2 ].first );
+    res( 2, 2 ) = sys[ 0 ].second[ 2 ] * sys[ 0 ].second[ 2 ] * exp( sys[ 0 ].first )
+                + sys[ 1 ].second[ 2 ] * sys[ 1 ].second[ 2 ] * exp( sys[ 1 ].first )
+                + sys[ 2 ].second[ 2 ] * sys[ 2 ].second[ 2 ] * exp( sys[ 2 ].first );
+    return res;
+}
+
+/**
+ * Find the maxima of a spherical function represented by a symmetric tensor.
+ *
+ *
+ *
+ */
+template< std::size_t order, typename Data_T >
+void findSymmetricSphericalFunctionMaxima( WTensorSym< order, 3, Data_T > const& tensor,
+                                           double threshold, double minAngularSeparationCosine, double stepSize,
+                                           std::vector< WVector3d > const& startingPoints,
+                                           std::vector< WVector3d >& maxima ) //  NOLINT
+{
+    std::vector< double > values;
+
+    std::vector< WVector3d >::const_iterator it;
+    for( it = startingPoints.begin(); it != startingPoints.end(); ++it )
+    {
+        WVector3d position = *it;
+        WVector3d gradient = approximateGradient( tensor, position );
+        int iter;
+
+        for( iter = 0; iter < 100; ++iter )
+        {
+            WVector3d newPosition = position + stepSize * gradient;
+            normalize( newPosition );
+            WVector3d newGradient = approximateGradient( tensor, newPosition );
+
+            double cos = dot( newGradient, gradient );
+            if( cos > 0.985 ) // less then 10 degree
+            {
+                stepSize *= 2.0;
+            }
+            else if( cos < 0.866 ) // more than 30 degree
+            {
+                stepSize *= 0.5;
+                if( stepSize < 0.000001 )
+                {
+                    break;
+                }
+            }
+            if( cos > 0.886 ) // less than 30 degree
+            {
+                gradient = newGradient;
+                position = newPosition;
+            }
+        }
+        if( iter != 100 )
+        {
+            double newFuncValue = tensor.evaluateSphericalFunction( position );
+
+            bool add = true;
+
+            std::vector< int > m;
+            m.reserve( maxima.size() );
+
+            for( std::size_t k = 0; k != maxima.size(); ++k )
+            {
+                // find all maxima that are to close to this one
+                if( dot( position, maxima[ k ] ) > minAngularSeparationCosine
+                 || dot( maxima[ k ], -1.0 * position ) > minAngularSeparationCosine )
+                {
+                    m.push_back( k );
+                    if( values[ k ] >= newFuncValue )
+                    {
+                        add = false;
+                    }
+                }
+            }
+            if( add )
+            {
+                maxima.push_back( position );
+                values.push_back( newFuncValue );
+
+                for( int k = static_cast< int >( m.size() - 1 ); k > 0; --k )
+                {
+                    maxima.erase( maxima.begin() + m[ k ] );
+                    values.erase( values.begin() + m[ k ] );
+                }
+            }
+        }
+    }
+
+    // remove maxima that are too small
+    double max = 0;
+    for( std::size_t k = 0; k != maxima.size(); ++k )
+    {
+        if( values[ k ] > max )
+        {
+            max = values[ k ];
+        }
+    }
+
+    std::size_t k = 0;
+    while( k < maxima.size() )
+    {
+        if( values[ k ] < threshold * max )
+        {
+            maxima.erase( maxima.begin() + k );
+            values.erase( values.begin() + k );
+        }
+        else
+        {
+            ++k;
+        }
+    }
+}
+
+template< std::size_t order, typename Data_T >
+WVector3d approximateGradient( WTensorSym< order, 3, Data_T > const& tensor, WVector3d const& pos )
+{
+    WVector3d eXY;
+    WVector3d eZ;
+
+    if( fabs( fabs( pos[ 2 ] ) - 1.0 ) < 0.001 )
+    {
+        eXY = WVector3d( 1.0, 0.0, 0.0 );
+        eZ = WVector3d( 0.0, 1.0, 0.0 );
+    }
+    else
+    {
+        // this is vectorProduct( z, pos )
+        eXY = WVector3d( -pos[ 1 ], pos[ 0 ], 0.0 );
+        normalize( eXY );
+        // this is vectorProduct( eXY, pos )
+        eZ = WVector3d( eXY[ 1 ] * pos[ 2 ], -eXY[ 0 ] * pos[ 2 ], eXY[ 0 ] * pos[ 1 ] - eXY[ 1 ] * pos[ 0 ] );
+        normalize( eZ );
+    }
+
+    double dXY = ( tensor.evaluateSphericalFunction( normalize( pos + eXY * 0.0001 ) )
+                 - tensor.evaluateSphericalFunction( normalize( pos - eXY * 0.0001 ) ) )
+                 / 0.0002;
+    double dZ = ( tensor.evaluateSphericalFunction( normalize( pos + eZ * 0.0001 ) )
+                - tensor.evaluateSphericalFunction( normalize( pos - eZ * 0.0001 ) ) )
+                / 0.0002;
+
+    // std::sqrt( 1.0 - z² ) = sin( acos( z ) ) = sin( theta ) in spherical coordinates
+    double d = 1.0 - pos[ 2 ] * pos[ 2 ];
+    if( d < 0.0 ) // avoid possible numerical problems
+    {
+        d = 0.0;
+    }
+    WVector3d res = eZ * dZ + eXY * ( dXY / std::sqrt( d ) );
+    normalize( res );
+    return res;
 }
 
 #endif  // WTENSORFUNCTIONS_H
