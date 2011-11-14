@@ -320,7 +320,7 @@ void WMainWindow::setupGUI()
 
     QMenu* settingsMenu = m_menuBar->addMenu( "Settings" );
     settingsMenu->addAction( m_autoDisplaySetting );
-    settingsMenu->addAction( m_controlPanel->getModuleExcluder().getConfigureAction() );
+    settingsMenu->addAction( m_controlPanel->getModuleConfig().getConfigureAction() );
     settingsMenu->addSeparator();
     settingsMenu->addAction( mtViews );
     settingsMenu->addSeparator();

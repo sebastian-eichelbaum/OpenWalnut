@@ -58,7 +58,7 @@
 #include "../WMainWindow.h"
 #include "../WQt4Gui.h"
 #include "../WQtCombinerActionList.h"
-#include "../WQtModuleExcluder.h"
+#include "../WQtModuleConfig.h"
 #include "WQtBranchTreeItem.h"
 #include "WQtColormapper.h"
 
@@ -157,7 +157,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_roiTreeWidget->setDragDropMode( QAbstractItemView::InternalMove );
     m_roiDock->setWidget( m_roiTreeWidget );
 
-    m_moduleExcluder = new WQtModuleExcluder( parent );
+    m_moduleExcluder = new WQtModuleConfig( parent );
     connect( m_missingModuleAction, SIGNAL( triggered( bool ) ), m_moduleExcluder, SLOT( configure() ) );
 
     m_layout = new QVBoxLayout();
@@ -1192,7 +1192,7 @@ QDockWidget* WQtControlPanel::getColormapperDock() const
     return m_colormapper;
 }
 
-WQtModuleExcluder& WQtControlPanel::getModuleExcluder() const
+WQtModuleConfig& WQtControlPanel::getModuleConfig() const
 {
     return *m_moduleExcluder;
 }

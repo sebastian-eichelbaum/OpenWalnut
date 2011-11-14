@@ -36,6 +36,7 @@
 
 #include <QtGui/QApplication>
 #include <QtGui/QFileDialog>
+#include <QtCore/QDir>
 #include <QtCore/QSettings>
 
 #include "WMainWindow.h" // this has to be included before any other includes
@@ -60,6 +61,8 @@
 #include "events/WRoiAssocEvent.h"
 #include "events/WRoiRemoveEvent.h"
 #include "events/WUpdateTextureSorterEvent.h"
+#include "WQtModuleConfig.h"
+
 #include "WQt4Gui.h"
 
 WMainWindow* WQt4Gui::m_mainWindow = NULL;
@@ -70,7 +73,6 @@ WQt4Gui::WQt4Gui( const boost::program_options::variables_map& options, int argc
     : WGUI( argc, argv ),
     m_optionsMap( options )
 {
-    m_settings = new QSettings( "OpenWalnut.org", "OpenWalnut" );
 }
 
 WQt4Gui::~WQt4Gui()
@@ -98,9 +100,12 @@ int WQt4Gui::run()
 
     // the call path of the application, this uses QApplication which needs to be instantiated.
     boost::filesystem::path walnutBin = boost::filesystem::path( QApplication::applicationDirPath().toStdString() );
-
     // setup path helper which provides several paths to others^
-    WPathHelper::getPathHelper()->setAppPath( walnutBin );
+    WPathHelper::getPathHelper()->setBasePaths( walnutBin, boost::filesystem::path( QDir::homePath().toStdString() ) / ".OpenWalnut" );
+    // with the correct paths, we can load the settings
+    m_settings = new QSettings( QString::fromStdString( ( WPathHelper::getHomePath() / "config.qt4gui" ).string() ), QSettings::IniFormat );
+
+    WQtModuleConfig::initPathHelper();
 
     // get the minimum log level from preferences
     LogLevel logLevel = static_cast< LogLevel >( WQt4Gui::getSettings().value( "qt4gui/logLevel", LL_INFO ).toInt() );
