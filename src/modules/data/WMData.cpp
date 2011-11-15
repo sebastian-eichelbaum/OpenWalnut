@@ -246,7 +246,7 @@ void WMData::moduleMain()
                         }
                         break;
                     default:
-                        WAssert( false, "Unknown data type in Data module" );
+                        WAssert( false, "Could not load \"" + fileName + "\". Reason: unknown data type in Data module" );
                 }
             }
         }
@@ -280,7 +280,7 @@ void WMData::moduleMain()
     }
     else
     {
-        throw WDHException( std::string( "Unknown file type: '" + suffix + "'" ) );
+        throw WDHException( std::string( "Could not load \"" + fileName + "\". Reason: unknown file type: \"" + suffix + "\"" ) );
     }
 
     debugLog() << "Loading data done.";
