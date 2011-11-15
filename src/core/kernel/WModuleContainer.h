@@ -62,6 +62,11 @@ public:
     // the following typedefs are for convenience; to help accessing the container in a thread safe way.
 
     /**
+     * A vector of modules
+     */
+    typedef std::vector< boost::shared_ptr< WModule > > ModuleVectorType;
+
+    /**
      * For shortening: a type defining a shared vector of WModule pointers.
      */
     typedef std::set< boost::shared_ptr< WModule > > ModuleContainerType;
@@ -257,12 +262,22 @@ public:
     DataModuleListType getDataModules();
 
     /**
-     * Method returns a read ticket allowing read-access to the list of modules.
+     * Method returns a read ticket allowing read-access to the list of modules inside the container.
      * \note If done, ensure the ticket gets destroyed.
      *
      * \return the read ticket.
      */
     ModuleSharedContainerType::ReadTicket getModules() const;
+
+    /**
+     * Queries the container to find all modules with a given name. This can be useful to check for existence of certain modules inside the
+     * container.
+     *
+     * \param name name of the modules to find
+     *
+     * \return the vector of modules. Empty if nothing was found.
+     */
+    ModuleVectorType getModules( std::string name ) const;
 
     /**
      * This method creates a list of combiner instances, for each possible connection that can be made between the specified module and the

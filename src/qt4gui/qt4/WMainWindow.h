@@ -347,10 +347,9 @@ private:
      *
      * \param module the module to be combined.
      * \param proto the prototype to combine with the module.
+     * \param onlyOnce if true, it is ensured that only one module is in the container.
      */
-    void autoAdd( boost::shared_ptr< WModule > module, std::string proto );
-
-    bool m_navSlicesAlreadyLoaded; //!< if true, the navslices have been loaded already
+    void autoAdd( boost::shared_ptr< WModule > module, std::string proto, bool onlyOnce = false );
 
     /**
      * Loads the window states and geometries from a file.

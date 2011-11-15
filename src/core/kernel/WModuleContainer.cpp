@@ -492,6 +492,27 @@ WModuleContainer::ModuleSharedContainerType::ReadTicket WModuleContainer::getMod
     return m_modules.getReadTicket();
 }
 
+WModuleContainer::ModuleVectorType WModuleContainer::getModules( std::string name ) const
+{
+    // get the list of all first.
+    WModuleContainer::ModuleSharedContainerType::ReadTicket lock = getModules();
+
+    // put results in here
+    WModuleContainer::ModuleVectorType result;
+
+    // handle each module
+    for( ModuleConstIterator listIter = lock->get().begin(); listIter != lock->get().end(); ++listIter )
+    {
+        // check name
+        if( name == ( *listIter )->getName() )
+        {
+            result.push_back( ( *listIter ) );
+        }
+    }
+
+    return result;
+}
+
 WCombinerTypes::WCompatiblesList WModuleContainer::getPossibleConnections( boost::shared_ptr< WModule > module )
 {
     WCombinerTypes::WCompatiblesList complist;

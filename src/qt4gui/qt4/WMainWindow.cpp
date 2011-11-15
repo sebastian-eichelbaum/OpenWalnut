@@ -94,8 +94,7 @@
 WMainWindow::WMainWindow():
     QMainWindow(),
     m_currentCompatiblesToolbar( NULL ),
-    m_iconManager(),
-    m_navSlicesAlreadyLoaded( false )
+    m_iconManager()
 {
 }
 
@@ -460,8 +459,14 @@ void WMainWindow::setupGUI()
     restoreSavedState();
 }
 
-void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string proto )
+void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string proto, bool onlyOnce )
 {
+    // if only one module should be added, and there already is one --- skip.
+    if( onlyOnce && !WKernel::getRunningKernel()->getRootContainer()->getModules( proto ).empty() )
+    {
+        return;
+    }
+
     // get the prototype.
     if( !WKernel::getRunningKernel()->getRootContainer()->applyModule( module, proto, true ) )
     {
@@ -496,11 +501,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             // it is a dataset single
             // load a nav slice module if a WDataSetSingle is available!?
-            if( !m_navSlicesAlreadyLoaded )
-            {
-                autoAdd( module, "Navigation Slices" );
-                m_navSlicesAlreadyLoaded = true;
-            }
+            autoAdd( module, "Navigation Slices", true );
         }
         else if( dataModule->getDataSet()->isA< WDataSetFibers >() )
         {
