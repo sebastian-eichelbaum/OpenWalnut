@@ -56,15 +56,6 @@ WGraphicsEngine::WGraphicsEngine():
 {
     WLogger::getLogger()->addLogMessage( "Initializing Graphics Engine", "GE", LL_INFO );
 
-    // NOTE: the osgViewer::StatsHandler uses a hard coded font filename. :-(. Fortunately OSG allows us to modify the search path using
-    // environment variables:
-#ifndef _WIN32
-    setenv( "OSGFILEPATH", WPathHelper::getFontPath().file_string().c_str(), 1 );
-#else
-    std::string envStr = std::string( "OSGFILEPATH=" ) + WPathHelper::getFontPath().file_string();
-    putenv( envStr.c_str() );
-#endif
-
 #ifndef __APPLE__
     // initialize OSG render window
     m_viewer = osg::ref_ptr<osgViewer::CompositeViewer>( new osgViewer::CompositeViewer() );
