@@ -30,6 +30,8 @@
 #include <osg/MatrixTransform>
 #include <osg/Material>
 #include <osg/StateAttribute>
+#include <osg/Texture2D>
+#include <osgDB/ReadFile>
 
 #include <osg/Vec3>
 #include <osg/Geometry>
@@ -89,9 +91,10 @@ void WMCoordinateHUD::properties()
     m_possibleSelections->addItem( "colored axis", "colorfull coordinate axis", option_1_xpm );
     m_possibleSelections->addItem( "b/w axis", "black & white coordinate axis", option_2_xpm );
     m_possibleSelections->addItem( "colored cube", "colorfull coordinate cube", option_3_xpm );
+    m_possibleSelections->addItem( "colored, labeled cube", "colorfull coordinate cube with labels", option_3_xpm );
 
     m_aSingleSelection = m_properties->addProperty( "HUD structure",
-            "Which look should the coordinateHUD have?", m_possibleSelections->getSelector( 2 ),
+            "Which look should the coordinateHUD have?", m_possibleSelections->getSelector( 3 ),
             m_propCondition );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_aSingleSelection );
@@ -109,6 +112,8 @@ void WMCoordinateHUD::moduleMain()
     m_rootNode = new WGEManagedGroupNode( m_active );
     m_rootNode->setName( "coordHUDNode" );
     m_shader->apply( m_rootNode );
+    m_enableFaceTexture = WGEShaderDefineOptions::SPtr( new WGEShaderDefineOptions( "DISABLE_FACETEXTURE", "USE_FACETEXTURE" ) );
+    m_shader->addPreprocessor( m_enableFaceTexture );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
     // let the main loop awake if the properties changed.
@@ -125,6 +130,7 @@ void WMCoordinateHUD::moduleMain()
         WItemSelector s = m_aSingleSelection->get( true );
         debugLog() << "New mode selected: " << s.at( 0 )->getName();
 
+        m_enableFaceTexture->activateOption( 0, true );
         if( s.at( 0 )->getName() == "colored axis" )
         {
             buildColorAxis();
@@ -134,6 +140,10 @@ void WMCoordinateHUD::moduleMain()
             buildBWAxis();
         }
         else if( s.at( 0 )->getName() == "colored cube" )
+        {
+            buildColorCube( false );
+        }
+        else if( s.at( 0 )->getName() == "colored, labeled cube" )
         {
             buildColorCube();
         }
@@ -251,7 +261,7 @@ void WMCoordinateHUD::buildBWAxis()
     m_geode = coordGeode;
 }
 
-void WMCoordinateHUD::buildColorCube()
+void WMCoordinateHUD::buildColorCube( bool withFaceLabels )
 {
     // build the geometry & geode for the coordinate axis
     osg::ref_ptr< osg::Geode > coordGeode = new osg::Geode();
@@ -259,7 +269,8 @@ void WMCoordinateHUD::buildColorCube()
 
     // Vertices
     osg::Vec3Array* vertices = new osg::Vec3Array( 36 );
-    vertices = buildCubeVertices();
+    osg::Vec2Array* texCoord = new osg::Vec2Array( 36 );
+    vertices = buildCubeVertices( texCoord );
 
     // Colors
     osg::Vec4 x_color( 0.9f, 0.0f, 0.0f, 1.0f );        // red
@@ -291,9 +302,28 @@ void WMCoordinateHUD::buildColorCube()
 
     // add geometry to geode
     coordGeom->setVertexArray( vertices );
+    coordGeom->setTexCoordArray( 0, texCoord );
     coordGeom->addPrimitiveSet( da );
     coordGeode->addDrawable( coordGeom );
     coordGeode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+
+    if( withFaceLabels )
+    {
+        // we just created and enable the texture.
+        osg::Image* faceLabelsImg = osgDB::readImageFile( ( m_localPath / "labels" / "tiled.png" ).string() );
+        if( !faceLabelsImg )
+        {
+            errorLog() << "Loading face labels from \"" << ( m_localPath / "labels" / "tiled.png" ).string() << "\" failed. Disabled face labels.";
+        }
+        else
+        {
+            // gen texture and bind it
+            osg::Texture2D* faceLabels = new osg::Texture2D();
+            faceLabels->setImage( faceLabelsImg );
+            coordGeode->getOrCreateStateSet()->setTextureAttributeAndModes( 0, faceLabels, osg::StateAttribute::ON );
+            m_enableFaceTexture->activateOption( 1, true );
+        }
+    }
 
     m_geode = coordGeode;
 }
@@ -320,7 +350,7 @@ osg::Vec3Array* WMCoordinateHUD::buildAxisVertices()
     return vertices;
 }
 
-osg::Vec3Array* WMCoordinateHUD::buildCubeVertices()
+osg::Vec3Array* WMCoordinateHUD::buildCubeVertices( osg::Vec2Array* texcoords )
 {
     // Vertices
     float s = 0.4;
@@ -351,27 +381,70 @@ osg::Vec3Array* WMCoordinateHUD::buildCubeVertices()
     (*vertices)[31] = (*vertices)[28] = (*vertices)[22] =
         (*vertices)[35] = osg::Vec3( -s, -s, -s );                      //8
 
+    // do the same for the texture coordinates
+    if( !texcoords )
+    {
+        return vertices;
+    }
+
+    // how wide is a face label in tex coords?
+    float d = 1.0 / 6.0;
+    // which label? the order is mX,mY,mZ,pX,pY,pZ
+    float o = 3.0 / 6.0;
+
+    // the positive X face
+    ( *texcoords )[0] = osg::Vec2( o + d, 1 );
+    ( *texcoords )[1] = osg::Vec2( o + 0, 1 );
+    ( *texcoords )[2] = osg::Vec2( o + d, 0 );
+    ( *texcoords )[3] = osg::Vec2( o + 0, 1 );
+    ( *texcoords )[4] = osg::Vec2( o + 0, 0 );
+    ( *texcoords )[5] = osg::Vec2( o + d, 0 );
+
+    // the positive Z face
+    o = 5.0 / 6.0;
+    ( *texcoords )[6 ] = osg::Vec2( o + d, 0 );
+    ( *texcoords )[7 ] = osg::Vec2( o + 0, 1 );
+    ( *texcoords )[8]  = osg::Vec2( o + 0, 0 );
+    ( *texcoords )[9]  = osg::Vec2( o + d, 0 );
+    ( *texcoords )[10] = osg::Vec2( o + d, 1 );
+    ( *texcoords )[11] = osg::Vec2( o + 0, 1 );
+
+    // the positive Y face
+    o = 4.0 / 6.0;
+    ( *texcoords )[12] = osg::Vec2( o + 0, 1 );
+    ( *texcoords )[13] = osg::Vec2( o + d, 1 );
+    ( *texcoords )[14] = osg::Vec2( o + d, 0 );
+    ( *texcoords )[15] = osg::Vec2( o + 0, 1 );
+    ( *texcoords )[16] = osg::Vec2( o + d, 0 );
+    ( *texcoords )[17] = osg::Vec2( o + 0, 0 );
+
+    // the negative X face
+    o = 0.0 / 6.0;
+    ( *texcoords )[18] = osg::Vec2( o + 0, 1 );
+    ( *texcoords )[19] = osg::Vec2( o + d, 1 );
+    ( *texcoords )[20] = osg::Vec2( o + 0, 0 );
+    ( *texcoords )[21] = osg::Vec2( o + d, 1 );
+    ( *texcoords )[22] = osg::Vec2( o + d, 0 );
+    ( *texcoords )[23] = osg::Vec2( o + 0, 0 );
+
+    // the negative Z face
+    o = 2.0 / 6.0;
+    ( *texcoords )[24] = osg::Vec2( o + d, 0 );
+    ( *texcoords )[25] = osg::Vec2( o + 0, 1 );
+    ( *texcoords )[26] = osg::Vec2( o + d, 1 );
+    ( *texcoords )[27] = osg::Vec2( o + d, 0 );
+    ( *texcoords )[28] = osg::Vec2( o + 0, 0 );
+    ( *texcoords )[29] = osg::Vec2( o + 0, 1 );
+
+    // the negative Y face
+    o = 1.0 / 6.0;
+    ( *texcoords )[30] = osg::Vec2( o + d, 1 );
+    ( *texcoords )[31] = osg::Vec2( o + 0, 0 );
+    ( *texcoords )[32] = osg::Vec2( o + d, 0 );
+    ( *texcoords )[33] = osg::Vec2( o + d, 1 );
+    ( *texcoords )[34] = osg::Vec2( o + 0, 1 );
+    ( *texcoords )[35] = osg::Vec2( o + 0, 0 );
+
     return vertices;
 }
 
-// TODO(ebaum): text only shown as huge rectangle with the WMCoordinateHUD shader
-// up: kranial, bottom: kaudal, front: anterior, back: posterior,
-// left: sinistra, right: dexter
-void WMCoordinateHUD::buildCaption()
-{
-    osgText::Text* textOne = new osgText::Text();
-    osg::ref_ptr< osg::Geode > txtGeode = new osg::Geode();
-
-    txtGeode->addDrawable( textOne );
-
-    // Set up the parameters for the text we'll add to the HUD:
-    textOne->setCharacterSize( 25 );
-    // textOne->setFont("C:/WINDOWS/Fonts/impact.ttf");
-    textOne->setText( "D" );
-    textOne->setAxisAlignment( osgText::Text::USER_DEFINED_ROTATION );
-    textOne->setAutoRotateToScreen( false );
-    textOne->setCharacterSizeMode( osgText::Text::OBJECT_COORDS );
-    textOne->setPosition( osg::Vec3( 0, 0.5, 0.5 ) );
-    textOne->setColor( osg::Vec4( 255, 0, 0, 1 ) );
-    m_txtGeode = txtGeode;
-}

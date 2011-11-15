@@ -29,6 +29,9 @@ void main()
     // keep color
     gl_FrontColor = gl_Color;
 
+    // texture
+    gl_TexCoord[0] = gl_MultiTexCoord0;
+
     // get the scaling applied during transformation from model space to camera space
     vec4 vertexScale = gl_ModelViewMatrix * vec4( 1.0, 0.0, 0.0, 0.0 ); // <- needs to be of length 1
     float s = 1.0 / length( vertexScale );
