@@ -123,6 +123,12 @@ void WMainWindow::setupGUI()
                                                                true,
                                                                true    // this requires a restart
                                                        );
+    WSettingAction* showNetworkEditor = new WSettingAction( this, "qt4gui/showNetworkEditor",
+                                                               "Show Network Editor",
+                                                               "Show the network editor allowing you to manipulate the module graph graphically?",
+                                                               false,
+                                                               true    // this requires a restart
+                                                       );
     m_autoDisplaySetting = new WSettingAction( this, "qt4gui/useAutoDisplay",
                                                      "Auto-Display",
                                                      "If enabled, the best matching module is automatically added if some data was loaded.",
@@ -188,11 +194,13 @@ void WMainWindow::setupGUI()
 
     setDockOptions( QMainWindow::AnimatedDocks |  QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks );
 
-#ifdef OW_QT4GUI_NETWORKEDITOR
     //network Editor
-    m_networkEditor = new WQtNetworkEditor( this );
-    m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
-#endif
+    m_networkEditor = NULL;
+    if( showNetworkEditor->get() )
+    {
+        m_networkEditor = new WQtNetworkEditor( this );
+        m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
+    }
 
     // the control panel instance is needed for the menu
     m_controlPanel = new WQtControlPanel( this );
@@ -201,17 +209,19 @@ void WMainWindow::setupGUI()
 
     // add all docks
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getModuleDock() );
-#ifdef OW_QT4GUI_NETWORKEDITOR
-    addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
-#endif
+    if( m_networkEditor )
+    {
+        addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
+    }
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getColormapperDock() );
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getRoiDock() );
 
     // tabify those panels by default
-#ifdef OW_QT4GUI_NETWORKEDITOR
-    tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
-#endif
+    if( m_networkEditor )
+    {
+        tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
+    }
     tabifyDockWidget( m_controlPanel->getModuleDock(), m_controlPanel->getColormapperDock() );
     tabifyDockWidget( m_controlPanel->getColormapperDock(), m_controlPanel->getRoiDock() );
 
@@ -305,6 +315,7 @@ void WMainWindow::setupGUI()
     viewMenu->addAction( hideMenuAction );
     viewMenu->addSeparator();
     viewMenu->addAction( showNavWidgets );
+    viewMenu->addAction( showNetworkEditor );
     viewMenu->addSeparator();
     viewMenu->addMenu( m_permanentToolBar->getStyleMenu() );
 

@@ -242,9 +242,10 @@ void WQt4Gui::slotAddDatasetOrModuleToTree( boost::shared_ptr< WModule > module 
 {
     // create a new event for this and insert it into event queue
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleAssocEvent( module ) );
-#ifdef OW_QT4GUI_NETWORKEDITOR
-    QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleAssocEvent( module ) );
-#endif
+    if( m_mainWindow->getNetworkEditor() )
+    {
+        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleAssocEvent( module ) );
+    }
 }
 
 void WQt4Gui::slotAddRoiToTree( osg::ref_ptr< WROI > roi )
@@ -262,17 +263,19 @@ void WQt4Gui::slotActivateDatasetOrModuleInTree( boost::shared_ptr< WModule > mo
     // create a new event for this and insert it into event queue
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleReadyEvent( module ) );
     QCoreApplication::postEvent( m_mainWindow, new WModuleReadyEvent( module ) );
-#ifdef OW_QT4GUI_NETWORKEDITOR
-    QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleReadyEvent( module ) );
-#endif
+    if( m_mainWindow->getNetworkEditor() )
+    {
+        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleReadyEvent( module ) );
+    }
 }
 
 void WQt4Gui::slotRemoveDatasetOrModuleInTree( boost::shared_ptr< WModule > module )
 {
     // create a new event for this and insert it into event queue
-#ifdef OW_QT4GUI_NETWORKEDITOR
-    QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleRemovedEvent( module ) );
-#endif
+    if( m_mainWindow->getNetworkEditor() )
+    {
+        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleRemovedEvent( module ) );
+    }
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleRemovedEvent( module ) );
     QCoreApplication::postEvent( m_mainWindow, new WModuleRemovedEvent( module ) );
 }
@@ -283,16 +286,18 @@ void WQt4Gui::slotConnectionEstablished( boost::shared_ptr<WModuleConnector> in,
     if( in->isInputConnector() )
     {
         QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleConnectEvent( in, out ) );
-#ifdef OW_QT4GUI_NETWORKEDITOR
-        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleConnectEvent( in, out ) );
-#endif
+        if( m_mainWindow->getNetworkEditor() )
+        {
+            QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleConnectEvent( in, out ) );
+        }
     }
     else
     {
         QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleConnectEvent( out, in ) );
-#ifdef OW_QT4GUI_NETWORKEDITOR
-        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleConnectEvent( out, in ) );
-#endif
+        if( m_mainWindow->getNetworkEditor() )
+        {
+            QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleConnectEvent( out, in ) );
+        }
     }
 }
 
@@ -301,16 +306,18 @@ void WQt4Gui::slotConnectionClosed( boost::shared_ptr<WModuleConnector> in, boos
     // create a new event for this and insert it into event queue
     if( in->isInputConnector() )
     {
-#ifdef OW_QT4GUI_NETWORKEDITOR
-        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleDisconnectEvent( in, out ) );
-#endif
+        if( m_mainWindow->getNetworkEditor() )
+        {
+            QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleDisconnectEvent( in, out ) );
+        }
         QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleDisconnectEvent( in, out ) );
     }
     else
     {
-#ifdef OW_QT4GUI_NETWORKEDITOR
-        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleDisconnectEvent( out, in ) );
-#endif
+        if( m_mainWindow->getNetworkEditor() )
+        {
+            QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleDisconnectEvent( out, in ) );
+        }
         QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleDisconnectEvent( out, in ) );
     }
 }
