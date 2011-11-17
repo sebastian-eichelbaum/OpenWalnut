@@ -319,7 +319,8 @@ void WMCoordinateHUD::buildColorCube( bool withFaceLabels, std::string labelPref
         osg::Image* faceLabelsImg = osgDB::readImageFile( ( m_localPath / "labels" / labelPrefix / "tiled.png" ).string() );
         if( !faceLabelsImg )
         {
-            errorLog() << "Loading face labels from \"" << ( m_localPath / "labels" / labelPrefix / "tiled.png" ).string() << "\" failed. Disabled face labels.";
+            errorLog() << "Loading face labels from \"" << ( m_localPath / "labels" / labelPrefix / "tiled.png" ).string() <<
+                          "\" failed. Disabled face labels.";
         }
         else
         {
