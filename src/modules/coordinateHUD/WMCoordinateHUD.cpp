@@ -88,10 +88,11 @@ void WMCoordinateHUD::properties()
 
     // list of alternatives:
     m_possibleSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_possibleSelections->addItem( "colored axis", "colorfull coordinate axis", option_1_xpm );
+    m_possibleSelections->addItem( "colored axis", "colorful coordinate axis", option_1_xpm );
     m_possibleSelections->addItem( "b/w axis", "black & white coordinate axis", option_2_xpm );
-    m_possibleSelections->addItem( "colored cube", "colorfull coordinate cube", option_3_xpm );
-    m_possibleSelections->addItem( "colored, labeled cube", "colorfull coordinate cube with labels", option_3_xpm );
+    m_possibleSelections->addItem( "colored cube", "colorful coordinate cube", option_3_xpm );
+    m_possibleSelections->addItem( "colored cube, medical labeling", "colorful coordinate cube with medical labeling", option_3_xpm );
+    m_possibleSelections->addItem( "colored cube, technical labeling", "colorful coordinate cube with technical labeling", option_3_xpm );
 
     m_aSingleSelection = m_properties->addProperty( "HUD structure",
             "Which look should the coordinateHUD have?", m_possibleSelections->getSelector( 3 ),
@@ -131,21 +132,26 @@ void WMCoordinateHUD::moduleMain()
         debugLog() << "New mode selected: " << s.at( 0 )->getName();
 
         m_enableFaceTexture->activateOption( 0, true );
-        if( s.at( 0 )->getName() == "colored axis" )
+        if( s.getItemIndexOfSelected( 0 ) == 0 )
         {
             buildColorAxis();
         }
-        else if( s.at( 0 )->getName() == "b/w axis" )
+        else if( s.getItemIndexOfSelected( 0 ) == 1 )
+
         {
             buildBWAxis();
         }
-        else if( s.at( 0 )->getName() == "colored cube" )
+        else if( s.getItemIndexOfSelected( 0 ) == 2 )
         {
             buildColorCube( false );
         }
-        else if( s.at( 0 )->getName() == "colored, labeled cube" )
+        else if( s.getItemIndexOfSelected( 0 ) == 3 )
         {
-            buildColorCube();
+            buildColorCube( true, "medical" );
+        }
+        else if( s.getItemIndexOfSelected( 0 ) == 4 )
+        {
+            buildColorCube( true, "technical" );
         }
 
         //update node
@@ -261,7 +267,7 @@ void WMCoordinateHUD::buildBWAxis()
     m_geode = coordGeode;
 }
 
-void WMCoordinateHUD::buildColorCube( bool withFaceLabels )
+void WMCoordinateHUD::buildColorCube( bool withFaceLabels, std::string labelPrefix )
 {
     // build the geometry & geode for the coordinate axis
     osg::ref_ptr< osg::Geode > coordGeode = new osg::Geode();
@@ -310,10 +316,10 @@ void WMCoordinateHUD::buildColorCube( bool withFaceLabels )
     if( withFaceLabels )
     {
         // we just created and enable the texture.
-        osg::Image* faceLabelsImg = osgDB::readImageFile( ( m_localPath / "labels" / "tiled.png" ).string() );
+        osg::Image* faceLabelsImg = osgDB::readImageFile( ( m_localPath / "labels" / labelPrefix / "tiled.png" ).string() );
         if( !faceLabelsImg )
         {
-            errorLog() << "Loading face labels from \"" << ( m_localPath / "labels" / "tiled.png" ).string() << "\" failed. Disabled face labels.";
+            errorLog() << "Loading face labels from \"" << ( m_localPath / "labels" / labelPrefix / "tiled.png" ).string() << "\" failed. Disabled face labels.";
         }
         else
         {

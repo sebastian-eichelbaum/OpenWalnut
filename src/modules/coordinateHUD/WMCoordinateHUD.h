@@ -116,8 +116,9 @@ protected:
      * build the geode for black & white coordinate cube
      *
      * \param withFaceLabels if true, a face texture is used
+     * \param labelPrefix label files prefix
      */
-    virtual void buildColorCube( bool withFaceLabels = true );
+    virtual void buildColorCube( bool withFaceLabels = true, std::string labelPrefix = "medical" );
 
     /**
      * build the geometry of the cube
