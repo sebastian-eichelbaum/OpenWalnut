@@ -229,6 +229,8 @@ boost::signals2::connection WGraphicsEngine::subscribeSignal( GE_SIGNAL signal, 
     {
         case GE_RELOADSHADERS:
             return m_reloadShadersSignal.connect( notifier );
+        case GE_STARTUPCOMPLETE:
+            return m_startThreadingCondition.subscribeSignal( notifier );
         default:
             std::ostringstream s;
             s << "Could not subscribe to unknown signal.";

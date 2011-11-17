@@ -71,7 +71,8 @@ QSettings* WQt4Gui::m_settings = NULL;
 
 WQt4Gui::WQt4Gui( const boost::program_options::variables_map& options, int argc, char** argv )
     : WGUI( argc, argv ),
-    m_optionsMap( options )
+    m_optionsMap( options ),
+    m_loadDeferredOnce( true )
 {
 }
 
@@ -88,6 +89,42 @@ void WQt4Gui::moduleError( boost::shared_ptr< WModule > module, const WException
 WMainWindow* WQt4Gui::getMainWindow()
 {
     return m_mainWindow;
+}
+
+void WQt4Gui::deferredLoad()
+{
+    m_deferredLoadMutex.lock();
+    if( m_loadDeferredOnce )
+    {
+        m_loadDeferredOnce = false;
+        wlog::debug( "OpenWalnut" ) << "Deferred loading of data and project files.";
+
+       // check if we want to load data due to command line and call the respective function
+        if( m_optionsMap.count( "input" ) )
+        {
+            m_kernel->loadDataSets( m_optionsMap["input"].as< std::vector< std::string > >() );
+        }
+
+        // Load project file
+        if( m_optionsMap.count( "project" ) )
+        {
+            try
+            {
+                boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
+                        new WProjectFile( m_optionsMap["project"].as< std::string >() )
+                );
+
+                // This call is asynchronous. It parses the file and the starts a thread to actually do all the stuff
+                proj->load();
+            }
+            catch( const WException& e )
+            {
+                wlog::error( "GUI" ) << "Project file \"" << m_optionsMap["project"].as< std::string >() << "\" could not be loaded. Message: " <<
+                    e.what();
+            }
+        }
+    }
+    m_deferredLoadMutex.unlock();
 }
 
 int WQt4Gui::run()
@@ -117,6 +154,7 @@ int WQt4Gui::run()
 
     // startup graphics engine
     m_ge = WGraphicsEngine::getGraphicsEngine();
+    m_ge->subscribeSignal( GE_STARTUPCOMPLETE, boost::bind( &WQt4Gui::deferredLoad, this ) );
 
     // and startup kernel
     m_kernel = boost::shared_ptr< WKernel >( WKernel::instance( m_ge, shared_from_this() ) );
@@ -124,22 +162,9 @@ int WQt4Gui::run()
     t_ModuleErrorSignalHandlerType func = boost::bind( &WQt4Gui::moduleError, this, _1, _2 );
     m_kernel->getRootContainer()->addDefaultNotifier( WM_ERROR, func );
 
-    // create the window
-    m_mainWindow = new WMainWindow();
-    m_mainWindow->setupGUI();
-    m_mainWindow->show();
-
-    // connect out loader signal with kernel
-#ifdef _WIN32
-    getLoadButtonSignal()->connect( boost::bind( &WKernel::loadDataSetsSynchronously, m_kernel, _1 ) );
-#else
-    getLoadButtonSignal()->connect( boost::bind( &WKernel::loadDataSets, m_kernel, _1 ) );
-#endif
-
+    // bind the GUI's slot with the signals provided by the kernel
     WCondition::t_ConditionNotifierType newDatasetSignal = boost::bind( &WQt4Gui::slotUpdateTextureSorter, this );
     WDataHandler::getDefaultSubject()->getListChangeCondition()->subscribeSignal( newDatasetSignal );
-
-    // bind the GUI's slot with the ready signal
 
     // Assoc Event
     t_ModuleGenericSignalHandlerType assocSignal = boost::bind( &WQt4Gui::slotAddDatasetOrModuleToTree, this, _1 );
@@ -173,35 +198,22 @@ int WQt4Gui::run()
             new boost::function< void( osg::ref_ptr< WROI > ) > ( boost::bind( &WQt4Gui::slotRemoveRoiFromTree, this, _1 ) ) );
     m_kernel->getRoiManager()->addRemoveNotifier( removeRoiSignal );
 
+    // create the window
+    m_mainWindow = new WMainWindow();
+    m_mainWindow->setupGUI();
+    m_mainWindow->show();
+
+    // connect out loader signal with kernel
+#ifdef _WIN32
+    getLoadButtonSignal()->connect( boost::bind( &WKernel::loadDataSetsSynchronously, m_kernel, _1 ) );
+#else
+    getLoadButtonSignal()->connect( boost::bind( &WKernel::loadDataSets, m_kernel, _1 ) );
+#endif
+
     // now we are initialized
     m_isInitialized( true );
 
-    // check if we want to load data due to command line and call the respective function
-    if( m_optionsMap.count("input") )
-    {
-        m_kernel->loadDataSets( m_optionsMap["input"].as< std::vector< std::string > >() );
-    }
-
-    // Load project file
-    if( m_optionsMap.count("project") )
-    {
-        try
-        {
-            boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
-                    new WProjectFile( m_optionsMap["project"].as< std::string >() )
-            );
-
-            // This call is asynchronous. It parses the file and the starts a thread to actually do all the stuff
-            proj->load();
-        }
-        catch( const WException& e )
-        {
-            wlog::error( "GUI" ) << "Project file \"" << m_optionsMap["project"].as< std::string >() << "\" could not be loaded. Message: " <<
-                e.what();
-        }
-    }
-
-    // run
+     // run
     int qtRetCode = appl.exec();
 
     delete m_mainWindow;
@@ -340,3 +352,7 @@ QSettings& WQt4Gui::getSettings()
     return *m_settings;
 }
 
+const boost::program_options::variables_map& WQt4Gui::getOptionMap() const
+{
+    return m_optionsMap;
+}
