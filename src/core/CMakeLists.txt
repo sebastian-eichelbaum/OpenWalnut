@@ -96,7 +96,7 @@ ADD_CUSTOM_TARGET( core_devdoc
 
 # copy our own resources
 IF( NOT OW_PACKAGE_NOCOPY_COREFONTS )
-    SETUP_RESOURCES( "core" "CORE" )
+    SETUP_GLOBAL_RESOURCES( "core" "CORE" )
 ELSE()
     # This is a hack which is quite debian specific. We do this here to avoid font duplicates since the ttf-liberation fonts are already
     # available on Debian. If you need to modify this for another packaging thingy, please let me know (ebaum@informatik.uni-leipzig.d). We then

@@ -109,7 +109,7 @@ SETUP_TESTS( "${TARGET_TEST_FILES}" "${BinName}" "" )
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # copy our own resources
-SETUP_RESOURCES( ${LibName} "QT4GUI" )
+SETUP_GLOBAL_RESOURCES( ${LibName} "QT4GUI" )
 
 # where to put doc files?
 SET( OW_DOC_DIR_RELATIVE "share/doc/openwalnut-qt4" )

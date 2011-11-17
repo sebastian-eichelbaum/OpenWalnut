@@ -245,30 +245,47 @@ FUNCTION( SETUP_STYLECHECKER _TargetName _CheckFiles _Excludes )
    ADD_DEPENDENCIES( stylecheck "stylecheck_${_TargetName}" )
 ENDFUNCTION( SETUP_STYLECHECKER )
 
-# This function handles local resources needed for program execution. Place your resources in "${CMAKE_CURRENT_SOURCE_DIR}/../resources/". They
-# get copied to the build directory and a proper install target is provided too
-# _component the component to which the resources belong
-# _resource the exact resource under resources-directory
-FUNCTION( SETUP_RESOURCES _resource _component )
+# This function handles local and global resources needed for program execution. This is a generic function which allows any resource in a source directory
+# to be copied  to a target directory in build and install directory. Use this for module resources or the OpenWalnut resources.
+# _source_path path to a directory whose CONTENTS get copied/installed
+# _destination_path where to put the resources. This MUST be relative to the install/build dir (${PROJECT_BINARY_DIR})
+# _component the component to which this is related. This must be unique for every call.
+# _installcomponent to which installation component does this resource belong? (i.e. MODULES ...)
+FUNCTION( SETUP_RESOURCES_GENERIC _source_path _destination_path _component _installcomponent )
     # as all the resources with the correct directory structure reside in ../resources, this target is very easy to handle
-    SET( ResourcesPath "${PROJECT_SOURCE_DIR}/../resources/${_resource}/" )
-    ADD_CUSTOM_TARGET( ResourceConfiguration_${_component}
-        ALL
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${ResourcesPath}" "${PROJECT_BINARY_DIR}/"
-        COMMENT "Copying resources to build directory"
+    SET( ResourcesPath "${_source_path}/" )
+
+    IF( IS_DIRECTORY "${_source_path}/" )
+        ADD_CUSTOM_TARGET( ResourceConfiguration_${_component}
+            ALL
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${ResourcesPath}" "${PROJECT_BINARY_DIR}/${_destination_path}/"
+            COMMENT "Copying resources for ${_component} to build directory"
+        )
+
+        # Also specify install target
+        INSTALL( DIRECTORY ${ResourcesPath}
+                 DESTINATION "${_destination_path}"
+                 COMPONENT ${_installcomponent}
+                 PATTERN "bin/*"            # binaries need to be executable
+                     PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                                 GROUP_READ GROUP_EXECUTE
+                                 WORLD_READ WORLD_EXECUTE
+                 )
+    ENDIF()
+ENDFUNCTION( SETUP_RESOURCES_GENERIC )
+
+# This function handles global resources needed for program execution. Place your resources in "${CMAKE_CURRENT_SOURCE_DIR}/../resources/". They
+# get copied to the build directory and a proper install target is provided too. 
+# _component the component to which the resources belong, must be unique
+# _resource the exact resource under resources-directory
+FUNCTION( SETUP_GLOBAL_RESOURCES _resource _component )
+    # just forward the call with the proper parameter
+    SETUP_RESOURCES_GENERIC( "${PROJECT_SOURCE_DIR}/../resources/${_resource}/"  # source dir
+                             "."                            # target dir - global resources always put into the build/install dir directly
+                             ${_component}                  # component
+                             ${_component}                  # install component is same as component as it is unique
     )
-
-    # Also specify install target
-    INSTALL( DIRECTORY ${ResourcesPath}
-             DESTINATION "."
-             COMPONENT ${_component}
-             PATTERN "bin/*"            # binaries need to be executable
-                 PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
-                             GROUP_READ GROUP_EXECUTE
-                             WORLD_READ WORLD_EXECUTE
-             )
-
-ENDFUNCTION( SETUP_RESOURCES )
+ENDFUNCTION( SETUP_GLOBAL_RESOURCES )
 
 # This function copies the typical source docs (README, AUTHORS, CONTRIBUTORS and Licence files to the specified directory.
 # _component the component to which the resources belong
