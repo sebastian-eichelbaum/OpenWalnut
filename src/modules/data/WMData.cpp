@@ -222,6 +222,8 @@ void WMData::moduleMain()
                 {
                     case W_DT_UNSIGNED_CHAR:
                     case W_DT_INT16:
+                    case W_DT_UINT16:
+                    case W_DT_UINT32:
                     case W_DT_SIGNED_INT:
                         m_dataSet->getTexture()->colormap()->set(
                             m_dataSet->getTexture()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 0 ) )
@@ -244,7 +246,7 @@ void WMData::moduleMain()
                         }
                         break;
                     default:
-                        WAssert( false, "Unknow data type in Data module" );
+                        WAssert( false, "Could not load \"" + fileName + "\". Reason: unknown data type in Data module" );
                 }
             }
         }
@@ -278,7 +280,7 @@ void WMData::moduleMain()
     }
     else
     {
-        throw WDHException( std::string( "Unknown file type: '" + suffix + "'" ) );
+        throw WDHException( std::string( "Could not load \"" + fileName + "\". Reason: unknown file type: \"" + suffix + "\"" ) );
     }
 
     debugLog() << "Loading data done.";

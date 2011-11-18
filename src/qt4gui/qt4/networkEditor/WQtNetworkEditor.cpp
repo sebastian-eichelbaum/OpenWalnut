@@ -53,8 +53,7 @@
 #include "WQtNetworkEditor.moc"
 
 WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
-    : QDockWidget( "Module Graph", parent ),
-    timerId( 0 )
+    : QDockWidget( "Module Graph", parent )
 {
     setObjectName( "Module Graph Dock" );
     m_mainWindow = parent;
@@ -67,7 +66,6 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     view->setMinimumSize( 20, 20 );
 
     m_scene = new WQtNetworkScene();
-//    m_scene->setSceneRect( -200.0, -200.0, 400.0, 400.0 );
     m_scene->setSceneRect( m_scene->itemsBoundingRect() );
 
     view->setScene( m_scene );
@@ -85,6 +83,7 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     // this fakeitem is added to the scene to get a better behavior of the forced
     // based layout. ALL WQtNetworkItems in the scene are "connected" to this
     // object to avoid that conneceted groups push away each other.
+    // TODO(rfrohl): clean and remove the fake item
     QGraphicsRectItem *fake = new QGraphicsRectItem();
     fake->setRect( 0, 0, 10, 10 );
     fake->setPos( 0, 0 );
@@ -114,7 +113,7 @@ void WQtNetworkEditor::selectItem()
         }
 
         // crashed modules should not provide any props
-        if( module->isCrashed()() )
+        if( module->isCrashed() )
         {
              return;
         }
@@ -172,20 +171,6 @@ void WQtNetworkEditor::deleteSelectedItems()
     arrowList.clear();
 }
 
-void WQtNetworkEditor::addModule( boost::shared_ptr< WModule > module )
-{
-    WQtNetworkItem *netItem = new WQtNetworkItem( this, module );
-    m_items.push_back( netItem );
-
-    // set the object at a random start position
-    time( &m_time );
-    netItem->setPos( ( std::rand() + m_time ) % 200, ( std::rand() + m_time ) % 200 );  // NOLINT - no we want std::rand instead of rand_r
-
-    m_scene->addItem( netItem );
-
-    //itemMoved();
-}
-
 bool WQtNetworkEditor::event( QEvent* event )
 {
     // a module got associated with the root container -> add it to the list
@@ -197,7 +182,6 @@ bool WQtNetworkEditor::event( QEvent* event )
         {
             WLogger::getLogger()->addLogMessage( "Inserting \"" + e1->getModule()->getName() + "\".",
                                                 "NetworkEditor", LL_DEBUG );
-            //addModule( e1->getModule() );
             WQtNetworkItem *item = new WQtNetworkItem( this, e1->getModule() );
             m_items.push_back( item );
             m_layout->addItem( item );
@@ -482,45 +466,12 @@ WQtNetworkItem* WQtNetworkEditor::findItemByModule( boost::shared_ptr< WModule >
     for( QList< WQtNetworkItem* >::const_iterator iter = m_items.begin(); iter != m_items.end(); ++iter )
     {
        WQtNetworkItem *itemModule = dynamic_cast< WQtNetworkItem* >( *iter );
-       if( itemModule && itemModule->getModule() == module )
+       // pointers are compared, not realy a good idea but atm. there is no better way to do this
+       if( itemModule && itemModule->getModule().get() == module.get() )
        {
            return itemModule;
        }
     }
-    return 0;
-}
-
-void WQtNetworkEditor::itemMoved()
-{
-    if( !timerId )
-        timerId = startTimer( 1000 / 25 );
-}
-
-void WQtNetworkEditor::timerEvent( QTimerEvent* /*event*/ )
-{
-    //Q_UNUSED( event );
-
-    //QList< WQtNetworkItem *> items;
-    //foreach( QGraphicsItem *item, m_scene->items() )
-    //{
-    //    if( WQtNetworkItem *netItem = dynamic_cast< WQtNetworkItem  *>( item ) )
-    //        items << netItem;
-    //}
-
-    //foreach( WQtNetworkItem *netItem, items )
-    //    netItem->calculateForces();
-
-    //bool itemsMoved = false;
-    //foreach( WQtNetworkItem *netItem, items )
-    //{
-    //    if( netItem->advance() )
-    //        itemsMoved = true;
-    //}
-
-    //if( !itemsMoved )
-    //{
-    //    killTimer( timerId );
-    //    timerId = 0;
-    //}
+    return NULL;
 }
 

@@ -56,6 +56,7 @@ class WQtGLDockWidget;
 class WQtPropertyBoolAction;
 class WPropertyBase;
 class WQtControlPanel;
+class WQtGLScreenCapture;
 
 /**
  * This class contains the main window and the layout of the widgets within the window.
@@ -145,6 +146,19 @@ public:
      * \return settings object.
      */
     static QSettings& getSettings();
+
+    /**
+     * Forces the main gl widget to have the desired size. This is mainly useful for screenshots and similar.
+     *
+     * \param w width
+     * \param h height
+     */
+    void forceMainGLWidgetSize( size_t w, size_t h );
+
+    /**
+     * Restores the main GL widget size if it was fixed with forceMainGLWidgetSize() previously.
+     */
+    void restoreMainGLWidgetSize();
 
 protected:
 
@@ -308,6 +322,8 @@ private:
     WQtCommandPromptToolbar* m_commandPrompt; //!< command prompt
 
     boost::shared_ptr< WQtGLWidget > m_mainGLWidget; //!< the main GL widget of the GUI
+    WQtGLScreenCapture* m_mainGLWidgetScreenCapture; //!< screen recorder in m_mainGLWidget
+
     boost::shared_ptr< WQtNavGLWidget > m_navAxial; //!< the axial view widget GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navCoronal; //!< the coronal view widget GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navSagittal; //!< the sgittal view widget GL widget of the GUI
@@ -331,10 +347,9 @@ private:
      *
      * \param module the module to be combined.
      * \param proto the prototype to combine with the module.
+     * \param onlyOnce if true, it is ensured that only one module is in the container.
      */
-    void autoAdd( boost::shared_ptr< WModule > module, std::string proto );
-
-    bool m_navSlicesAlreadyLoaded; //!< if true, the navslices have been loaded already
+    void autoAdd( boost::shared_ptr< WModule > module, std::string proto, bool onlyOnce = false );
 
     /**
      * Loads the window states and geometries from a file.

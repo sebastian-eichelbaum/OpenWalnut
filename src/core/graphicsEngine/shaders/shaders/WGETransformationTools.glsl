@@ -156,5 +156,17 @@ vec4 worldToLocal( vec3 point1, vec3 point2 )
     return worldToLocal( vec4( point1 - point2, 0.0 ) );
 }
 
+/**
+ * This calculates the scaling factor of the modelview matrix. It transforms a vec4( 1.0, 1.0, 1.0, 0.0 ) vector and returns its length,
+ * representing the scaling. This is mostly useful for screen-space based approaches which need some hint about zooming to provide consistent
+ * look for all zoom levels.
+ *
+ * \return ModelView zoom
+ */
+float getModelViewScale()
+{
+    return length( ( gl_ModelViewMatrix * normalize( vec4( 1.0, 1.0, 1.0, 0.0 ) ) ).xyz );
+}
+
 #endif // WGETRANSFORMATIONTOOLS_GLSL
 

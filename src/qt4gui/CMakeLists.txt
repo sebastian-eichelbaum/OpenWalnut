@@ -54,12 +54,6 @@ ENDIF()
 # GUI compilation options
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-# compile network manager?
-OPTION( OW_QT4GUI_NETWORKEDITOR "Enable this to get the experimental network manager compiled." OFF )
-IF( OW_QT4GUI_NETWORKEDITOR )
-    ADD_DEFINITIONS( -DOW_QT4GUI_NETWORKEDITOR )
-ENDIF()
-
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Add sources as target
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -109,7 +103,7 @@ SETUP_TESTS( "${TARGET_TEST_FILES}" "${BinName}" "" )
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # copy our own resources
-SETUP_RESOURCES( ${LibName} "QT4GUI" )
+SETUP_GLOBAL_RESOURCES( ${LibName} "QT4GUI" )
 
 # where to put doc files?
 SET( OW_DOC_DIR_RELATIVE "share/doc/openwalnut-qt4" )

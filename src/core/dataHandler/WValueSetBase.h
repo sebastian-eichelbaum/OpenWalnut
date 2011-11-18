@@ -48,7 +48,8 @@ typedef boost::variant< WValueSet< uint8_t > const*,
                         WValueSet< uint64_t > const*,
                         WValueSet< int64_t > const*,
                         WValueSet< float > const*,
-                        WValueSet< double > const* > WValueSetVariant;
+                        WValueSet< double > const*,
+                        WValueSet< long double > const* > WValueSetVariant;
 
 /**
  * Abstract base class to all WValueSets. This class doesn't provide any genericness.

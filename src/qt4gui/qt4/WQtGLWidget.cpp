@@ -45,6 +45,7 @@
 #include "core/graphicsEngine/WGraphicsEngine.h"
 #include "core/kernel/WKernel.h"
 
+#include "WQtGLScreenCapture.h"
 #include "events/WRenderedFrameEvent.h"
 #include "events/WEventTypes.h"
 #include "WSettingAction.h"
@@ -264,9 +265,6 @@ void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
         case Qt::Key_2:
             setCameraManipulator( TWO_D );
             break;
-        case Qt::Key_F12:
-            makeScreenshot();
-            break;
     }
 
     switch( event->modifiers() )
@@ -378,24 +376,14 @@ void WQtGLWidget::changeBGColor()
     updateViewerBackground();
 }
 
-void WQtGLWidget::makeScreenshot()
-{
-    // TODO(ebaum): replace this with the better screenshotter which resides in my branch
-
-    // grab content first to avoid making a screenshot of the file dialog :)
-    QPixmap q = QPixmap::grabWindow( this->winId() );
-
-    QString path = QDir::currentPath() + tr( "/screenshot.png" );
-    QString fileName = QFileDialog::getSaveFileName( this, tr( "Save As" ), path, tr( "PNG Files (*.png);;All Files (*)" ) );
-
-    if( !fileName.isEmpty() )
-    {
-        q.save( fileName, tr( "png" ).toAscii() );
-        WLogger::getLogger()->addLogMessage( std::string( "Screenshot saved to " ) + fileName.toStdString(), "QtGLWidgetAll", LL_INFO );
-    }
-}
-
 void WQtGLWidget::notifyFirstRenderedFrame()
 {
     QCoreApplication::postEvent( this, new WRenderedFrameEvent() );
 }
+
+WQtGLScreenCapture* WQtGLWidget::getScreenCapture( WMainWindow* parent ) const
+{
+    WQtGLScreenCapture* sc = new WQtGLScreenCapture( getViewer(), parent );
+    return sc;
+}
+

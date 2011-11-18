@@ -67,6 +67,39 @@ namespace wge
          * The enum type of OpenGL
          */
         static const GLenum TypeEnum = GL_FLOAT;
+
+        /**
+         * The value for full intensity.
+         *
+         * \return the full intensity value
+         */
+        static Type FullIntensity(){ return 1.0; }  // NOLINT
+    };
+
+
+    /**
+     * Class helping to adapt types specified as template parameter into the best matching OpenGL type.
+     */
+    template <>
+    class WGE_EXPORT GLType< long double >
+    {
+    public:
+        /**
+         * The best matching OpenGL type for the specified template parameter.
+         */
+        typedef float Type;
+
+        /**
+         * The enum type of OpenGL
+         */
+        static const GLenum TypeEnum = GL_FLOAT;
+
+        /**
+         * The value for full intensity.
+         *
+         * \return the full intensity value
+         */
+        static Type FullIntensity(){ return 1.0; }  // NOLINT
     };
 
     /**
@@ -85,6 +118,13 @@ namespace wge
          * The enum type of OpenGL
          */
         static const GLenum TypeEnum = GL_FLOAT;
+
+        /**
+         * The value for full intensity.
+         *
+         * \return the full intensity value
+         */
+        static Type FullIntensity(){ return 1.0; }  // NOLINT
     };
 
     /**
@@ -103,6 +143,13 @@ namespace wge
          * The enum type of OpenGL
          */
         static const GLenum TypeEnum = GL_BYTE;
+
+        /**
+         * The value for full intensity.
+         *
+         * \return the full intensity value
+         */
+        static Type FullIntensity(){ return 127; }  // NOLINT
     };
 
     /**
@@ -121,6 +168,13 @@ namespace wge
          * The enum type of OpenGL
          */
         static const GLenum TypeEnum = GL_UNSIGNED_BYTE;
+
+        /**
+         * The value for full intensity.
+         *
+         * \return the full intensity value
+         */
+        static Type FullIntensity(){ return 255; }  // NOLINT
     };
 
     /**
@@ -141,6 +195,13 @@ namespace wge
          * The enum type of OpenGL
          */
         static const GLenum TypeEnum = GL_FLOAT;
+
+        /**
+         * The value for full intensity.
+         *
+         * \return the full intensity value
+         */
+        static Type FullIntensity(){ return 1.0; }  // NOLINT
     };
 
     /**
@@ -161,6 +222,13 @@ namespace wge
          * The enum type of OpenGL
          */
         static const GLenum TypeEnum = GL_FLOAT;
+
+        /**
+         * The value for full intensity.
+         *
+         * \return the full intensity value
+         */
+        static Type FullIntensity(){ return 1.0; }  // NOLINT
     };
 
     /**
@@ -181,6 +249,13 @@ namespace wge
          * The enum type of OpenGL
          */
         static const GLenum TypeEnum = GL_FLOAT;
+
+        /**
+         * The value for full intensity.
+         *
+         * \return the full intensity value
+         */
+        static Type FullIntensity(){ return 1.0; }  // NOLINT
     };
 
     /**
@@ -201,6 +276,67 @@ namespace wge
          * The enum type of OpenGL
          */
         static const GLenum TypeEnum = GL_FLOAT;
+
+        /**
+         * The value for full intensity.
+         *
+         * \return the full intensity value
+         */
+        static Type FullIntensity(){ return 1.0; }  // NOLINT
+    };
+
+    /**
+     * Class helping to adapt types specified as template parameter into the best matching OpenGL type.
+     *
+     * \note integral types get downscaled to float. This is done for easiness but might be better if the real type is used instead.
+     */
+    template <>
+    class WGE_EXPORT GLType< int64_t >
+    {
+    public:
+        /**
+         * The best matching OpenGL type for the specified template parameter.
+         */
+        typedef float Type;
+
+        /**
+         * The enum type of OpenGL
+         */
+        static const GLenum TypeEnum = GL_FLOAT;
+
+        /**
+         * The value for full intensity.
+         *
+         * \return the full intensity value
+         */
+        static Type FullIntensity(){ return 1.0; }  // NOLINT
+    };
+
+    /**
+     * Class helping to adapt types specified as template parameter into the best matching OpenGL type.
+     *
+     * \note integral types get downscaled to float. This is done for easiness but might be better if the real type is used instead.
+     */
+    template <>
+    class WGE_EXPORT GLType< uint64_t >
+    {
+    public:
+        /**
+         * The best matching OpenGL type for the specified template parameter.
+         */
+        typedef float Type;
+
+        /**
+         * The enum type of OpenGL
+         */
+        static const GLenum TypeEnum = GL_FLOAT;
+
+        /**
+         * The value for full intensity.
+         *
+         * \return the full intensity value
+         */
+        static Type FullIntensity(){ return 1.0; }  // NOLINT
     };
 }
 

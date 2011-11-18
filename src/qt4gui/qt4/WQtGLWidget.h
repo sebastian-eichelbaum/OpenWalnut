@@ -39,6 +39,8 @@
 #include "core/graphicsEngine/WGECamera.h"
 #include "core/graphicsEngine/WGEViewer.h"
 
+#include "WQtGLScreenCapture.h"
+
 class WSettingAction;
 
 #ifndef _WIN32
@@ -133,6 +135,14 @@ public:
      * \return the action.
      */
     QAction* getBackgroundColorAction() const;
+
+    /**
+     * Adds a screen capture dock using this view's screen capture callback.
+     *
+     * \param parent the main window parent
+     * \return the capture dock instance.
+     */
+    WQtGLScreenCapture* getScreenCapture( WMainWindow* parent ) const;
 
 signals:
 
@@ -253,11 +263,6 @@ protected:
      * Camera projection mode used to initialize widget. May not be the actual one!
      */
     WGECamera::ProjectionMode m_initialProjectionMode;
-
-    /**
-     * Saves a screenshot of the widget's current content, opens a file dialog to get the filename.
-     */
-    void makeScreenshot();
 
     /**
      * Custom event dispatcher. Gets called by QT's Event system every time an event got sent to this widget. This event handler

@@ -86,6 +86,7 @@
 #include "WSettingAction.h"
 #include "WSettingMenu.h"
 #include "WQtMessageDialog.h"
+#include "WQtGLScreenCapture.h"
 
 #include "WMainWindow.h"
 #include "WMainWindow.moc"
@@ -93,8 +94,7 @@
 WMainWindow::WMainWindow():
     QMainWindow(),
     m_currentCompatiblesToolbar( NULL ),
-    m_iconManager(),
-    m_navSlicesAlreadyLoaded( false )
+    m_iconManager()
 {
 }
 
@@ -121,6 +121,12 @@ void WMainWindow::setupGUI()
                                                                "Disables the navigation views completely. This can lead to a speed-up and is "
                                                                "recommended for those who do not need them.",
                                                                true,
+                                                               true    // this requires a restart
+                                                       );
+    WSettingAction* showNetworkEditor = new WSettingAction( this, "qt4gui/showNetworkEditor",
+                                                               "Show Network Editor",
+                                                               "Show the network editor allowing you to manipulate the module graph graphically?",
+                                                               false,
                                                                true    // this requires a restart
                                                        );
     m_autoDisplaySetting = new WSettingAction( this, "qt4gui/useAutoDisplay",
@@ -171,6 +177,9 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "missingModule" ), QuestionMarks_xpm );
     m_iconManager.addIcon( std::string( "none" ), empty_xpm );
     m_iconManager.addIcon( std::string( "DefaultModuleIcon" ), moduleDefault_xpm );
+    m_iconManager.addIcon( std::string( "video" ), video_xpm );
+    m_iconManager.addIcon( std::string( "image" ), image_xpm );
+    m_iconManager.addIcon( std::string( "preferences" ), preferences_xpm );
 
     if( objectName().isEmpty() )
     {
@@ -180,15 +189,18 @@ void WMainWindow::setupGUI()
     // NOTE: this only is an initial size. The state reloaded from QSettings will set it to the value the user had last session.
     resize( 800, 600 );
     setWindowIcon( m_iconManager.getIcon( "logo" ) );
-    setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut (development version)", 0, QApplication::UnicodeUTF8 ) );
+    std::string windowHeading =  std::string( "OpenWalnut " ) + std::string( W_VERSION );
+    setWindowTitle( QApplication::translate( "MainWindow", windowHeading.c_str(), 0, QApplication::UnicodeUTF8 ) );
 
     setDockOptions( QMainWindow::AnimatedDocks |  QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks );
 
-#ifdef OW_QT4GUI_NETWORKEDITOR
     //network Editor
-    m_networkEditor = new WQtNetworkEditor( this );
-    m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
-#endif
+    m_networkEditor = NULL;
+    if( showNetworkEditor->get() )
+    {
+        m_networkEditor = new WQtNetworkEditor( this );
+        m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
+    }
 
     // the control panel instance is needed for the menu
     m_controlPanel = new WQtControlPanel( this );
@@ -197,24 +209,21 @@ void WMainWindow::setupGUI()
 
     // add all docks
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getModuleDock() );
-#ifdef OW_QT4GUI_NETWORKEDITOR
-    addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
-#endif
+    if( m_networkEditor )
+    {
+        addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
+    }
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getColormapperDock() );
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getRoiDock() );
 
     // tabify those panels by default
-#ifdef OW_QT4GUI_NETWORKEDITOR
-    tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
-#endif
+    if( m_networkEditor )
+    {
+        tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
+    }
     tabifyDockWidget( m_controlPanel->getModuleDock(), m_controlPanel->getColormapperDock() );
     tabifyDockWidget( m_controlPanel->getColormapperDock(), m_controlPanel->getRoiDock() );
-
-    // by default, the module editor should be in front
-    m_controlPanel->getModuleDock()->raise();
-
-    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
 
     m_glDock = new QMainWindow();
     m_glDock->setObjectName( "GLDock" );
@@ -225,8 +234,16 @@ void WMainWindow::setupGUI()
     mainGLDock->setMinimumWidth( 500 );
     mainGLDock->getGLWidget()->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
     m_mainGLWidget = mainGLDock->getGLWidget();
+    m_mainGLWidgetScreenCapture = m_mainGLWidget->getScreenCapture( this );
     m_glDock->addDockWidget( Qt::RightDockWidgetArea, mainGLDock );
+    addDockWidget( Qt::RightDockWidgetArea, m_mainGLWidgetScreenCapture );
+    tabifyDockWidget( m_controlPanel->getRoiDock(), m_mainGLWidgetScreenCapture );
     connect( m_mainGLWidget.get(), SIGNAL( renderedFirstFrame() ), this, SLOT( handleGLVendor() ) );
+
+    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
+
+    // by default, the module editor should be in front
+    m_controlPanel->getModuleDock()->raise();
 
     // NOTE: we abuse the gl widgets first frame event to handle startup news.
     connect( m_mainGLWidget.get(), SIGNAL( renderedFirstFrame() ), this, SLOT( handleStartMessages() ) );
@@ -298,6 +315,7 @@ void WMainWindow::setupGUI()
     viewMenu->addAction( hideMenuAction );
     viewMenu->addSeparator();
     viewMenu->addAction( showNavWidgets );
+    viewMenu->addAction( showNetworkEditor );
     viewMenu->addSeparator();
     viewMenu->addMenu( m_permanentToolBar->getStyleMenu() );
 
@@ -312,7 +330,7 @@ void WMainWindow::setupGUI()
 
     QMenu* settingsMenu = m_menuBar->addMenu( "Settings" );
     settingsMenu->addAction( m_autoDisplaySetting );
-    settingsMenu->addAction( m_controlPanel->getModuleExcluder().getConfigureAction() );
+    settingsMenu->addAction( m_controlPanel->getModuleConfig().getConfigureAction() );
     settingsMenu->addSeparator();
     settingsMenu->addAction( mtViews );
     settingsMenu->addSeparator();
@@ -438,6 +456,8 @@ void WMainWindow::setupGUI()
     m_permanentToolBar->addAction( projectLoadButton );
     m_permanentToolBar->addAction( projectSaveButton );
     m_permanentToolBar->addSeparator();
+    m_permanentToolBar->addAction( m_mainGLWidgetScreenCapture->getScreenshotTrigger() );
+    m_permanentToolBar->addSeparator();
     m_permanentToolBar->addAction( resetButton );
     m_permanentToolBar->addAction( roiButton );
     m_permanentToolBar->addSeparator();
@@ -450,8 +470,14 @@ void WMainWindow::setupGUI()
     restoreSavedState();
 }
 
-void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string proto )
+void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string proto, bool onlyOnce )
 {
+    // if only one module should be added, and there already is one --- skip.
+    if( onlyOnce && !WKernel::getRunningKernel()->getRootContainer()->getModules( proto ).empty() )
+    {
+        return;
+    }
+
     // get the prototype.
     if( !WKernel::getRunningKernel()->getRootContainer()->applyModule( module, proto, true ) )
     {
@@ -486,11 +512,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             // it is a dataset single
             // load a nav slice module if a WDataSetSingle is available!?
-            if( !m_navSlicesAlreadyLoaded )
-            {
-                autoAdd( module, "Navigation Slices" );
-                m_navSlicesAlreadyLoaded = true;
-            }
+            autoAdd( module, "Navigation Slices", true );
         }
         else if( dataModule->getDataSet()->isA< WDataSetFibers >() )
         {
@@ -704,7 +726,8 @@ void WMainWindow::openAboutDialog()
 {
     std::string filename( WPathHelper::getDocPath().file_string() + "/openwalnut-qt4/OpenWalnutAbout.html" );
     std::string content = readFileIntoString( filename );
-    QMessageBox::about( this, "About OpenWalnut", content.c_str() );
+    std::string windowHeading =  std::string( "About OpenWalnut " ) + std::string( W_VERSION );
+    QMessageBox::about( this, windowHeading.c_str(), content.c_str() );
 }
 
 void WMainWindow::openOpenWalnutHelpDialog()
@@ -1053,5 +1076,18 @@ void WMainWindow::handleStartMessages()
     l->setMinimumWidth( 640 );
     WQtMessageDialog* msgDia = new WQtMessageDialog( msgID, "Welcome to OpenWalnut", l, getSettings(), this );
     msgDia->show();
+}
+
+void WMainWindow::forceMainGLWidgetSize( size_t w, size_t h )
+{
+    m_mainGLWidget->setFixedSize( w, h );
+}
+
+void WMainWindow::restoreMainGLWidgetSize()
+{
+    m_mainGLWidget->setMinimumHeight( 250 );
+    m_mainGLWidget->setMaximumHeight( QWIDGETSIZE_MAX );
+    m_mainGLWidget->setMinimumWidth( 250 );
+    m_mainGLWidget->setMaximumWidth( QWIDGETSIZE_MAX );
 }
 

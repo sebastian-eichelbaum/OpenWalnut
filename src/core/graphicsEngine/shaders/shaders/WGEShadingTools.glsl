@@ -53,12 +53,27 @@ struct wge_LightIntensityParameter
  * rendered images.
  */
 wge_LightIntensityParameter wge_DefaultLightIntensity = wge_LightIntensityParameter(
-    0.2,                             // material ambient
+    0.04,                            // material ambient
     0.75,                            // material diffuse
     1.0,                             // material specular
-    100.0,                           // material shininess
+    250.0,                           // material shininess
     1.0,                             // light diffuse
-    0.2,                             // light ambient
+    1.0,                             // light ambient
+    gl_LightSource[0].position.xyz,  // light position
+    vec3( 0.0, 0.0, 1.0 )            // view direction
+);
+
+/**
+ * This variable contains the OpenWalnut default light. You should definitely use this for your lighting to obtain an identical look for all
+ * rendered images. This version looks has no ambient factor and provides full diffuse colors.
+ */
+wge_LightIntensityParameter wge_DefaultLightIntensityFullDiffuse = wge_LightIntensityParameter(
+    0.0,                             // material ambient
+    1.0,                             // material diffuse
+    1.0,                             // material specular
+    250.0,                           // material shininess
+    1.0,                             // light diffuse
+    1.0,                             // light ambient
     gl_LightSource[0].position.xyz,  // light position
     vec3( 0.0, 0.0, 1.0 )            // view direction
 );
@@ -68,12 +83,12 @@ wge_LightIntensityParameter wge_DefaultLightIntensity = wge_LightIntensityParame
  * rendered images. This version looks a little bit more metallic.
  */
 wge_LightIntensityParameter wge_DefaultLightIntensityLessDiffuse = wge_LightIntensityParameter(
-    0.2,                             // material ambient
+    0.0,                             // material ambient
     0.35,                            // material diffuse
     1.0,                             // material specular
-    100.0,                           // material shininess
+    250.0,                           // material shininess
     1.0,                             // light diffuse
-    0.2,                             // light ambient
+    1.0,                             // light ambient
     gl_LightSource[0].position.xyz,  // light position
     vec3( 0.0, 0.0, 1.0 )            // view direction
 );
@@ -189,6 +204,41 @@ float blinnPhongIlluminationIntensity( in wge_LightIntensityParameter parameter,
 float blinnPhongIlluminationIntensity( in vec3 normal )
 {
     return blinnPhongIlluminationIntensity( wge_DefaultLightIntensity, normal );
+}
+
+/**
+ * This illumination technique is from "Jens Krüger and Rüdiger Westermann - EFFICIENT STIPPLE RENDERING". It is a non-linear illumination model
+ * which only handles ambient and diffuse components. The parameter alpha determines how much the diffuse light should depend on the orientation
+ * of the surface towards the light source (the camera in OpenWalnut's default case ). It is acutally quite similar to the Phong specular term.
+ *
+ * \param parameter the light parameter
+ * \param normal the normal. Must be normalized beforehand.
+ * \param alpha the non-linear influence of surface orientation
+ *
+ * \return light intensity
+ */
+float kruegerNonLinearIllumination( in wge_LightIntensityParameter parameter, in vec3 normal, in float alpha )
+{
+    float diffuseIntensity = pow( ( dot( parameter.lightPosition.xyz, normal ) + 1.0 ) / 2.0, alpha );
+    float diffuse = parameter.lightDiffuse *  parameter.materialDiffuse * diffuseIntensity;
+    float ambient = parameter.materialAmbient * parameter.lightAmbient;
+    return ambient + diffuse;
+}
+
+/**
+ * This illumination technique is from "Jens Krüger and Rüdiger Westermann - EFFICIENT STIPPLE RENDERING". It is a non-linear illumination model
+ * which only handles ambient and diffuse components. The parameter alpha determines how much the diffuse light should depend on the orientation
+ * of the surface towards the light source (the camera in OpenWalnut's default case ). This version uses wge_DefaultLightIntensityFullDiffuse as
+ * parameter. It is acutally quite similar to the Phong specular term.
+ *
+ * \param normal the normal. Must be normalized beforehand.
+ * \param alpha the non-linear influence of surface orientation
+ *
+ * \return light intensity
+ */
+float kruegerNonLinearIllumination( in vec3 normal, in float alpha )
+{
+    return kruegerNonLinearIllumination( wge_DefaultLightIntensityFullDiffuse, normal, alpha );
 }
 
 /**

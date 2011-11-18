@@ -31,6 +31,7 @@
 #include <boost/program_options.hpp>
 
 #include <QtCore/QSettings>
+#include <QtCore/QMutex>
 
 #include "core/graphicsEngine/WROI.h"
 #include "core/graphicsEngine/WGraphicsEngine.h"
@@ -172,6 +173,13 @@ public:
      */
     static QSettings& getSettings();
 
+    /**
+     * Returns the option map for the current instance of this GUI. This can be useful to parse further commandline parameters
+     *
+     * \return the option map
+     */
+    const boost::program_options::variables_map& getOptionMap() const;
+
 protected:
 
     /**
@@ -211,11 +219,29 @@ private:
     const boost::program_options::variables_map& m_optionsMap; //!< Map storing the program options.
 
     /**
+     * If true, the next trigger of deferredLoad will actually do loading. This variable and the deferredLoad function are protected
+     * with m_deferredLoadMutex.
+     */
+    bool m_loadDeferredOnce;
+
+    /**
+     * This mutex protects the deferredLoad method from being called in parallel or twice.
+     */
+    QMutex m_deferredLoadMutex;
+
+    /**
      * New log item added. Pushing event to QT's event queue.
      *
      * \param entry the entry added.
      */
     void slotAddLog( const WLogEntry& entry );
+
+    /**
+     * This is called by the GE when the osg was set-up correctly. This triggers project and data file loading.
+     *
+     * \note can be called from an arbitrary thread. Protected by m_deferredLoadMutex.
+     */
+    void deferredLoad();
 };
 
 #endif  // WQT4GUI_H

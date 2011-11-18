@@ -57,6 +57,8 @@ public:
     /**
      * Return the fakeitem in the scene to calculate forces in a more
      * beautiful way.
+     *
+     * \return the fake item
      */
     QGraphicsItem* getFakeItem();
 

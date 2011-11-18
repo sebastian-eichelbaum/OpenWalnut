@@ -48,6 +48,10 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
     m_text->setParentItem( this );
     m_text->setDefaultTextColor( Qt::white );
 
+
+    m_inPorts = QList< WQtNetworkInputPort* > ();
+    m_outPorts = QList< WQtNetworkOutputPort* > ();
+
     //add input ports
     WModule::InputConnectorList cons = module->getInputConnectors();
     for( WModule::InputConnectorList::const_iterator iter = cons.begin(); iter != cons.end(); ++iter )
@@ -93,7 +97,7 @@ int WQtNetworkItem::type() const
     return Type;
 }
 
-void WQtNetworkItem::hoverEnterEvent( QGraphicsSceneHoverEvent  *event )
+void WQtNetworkItem::hoverEnterEvent( QGraphicsSceneHoverEvent *event )
 {
     Q_UNUSED( event );
 
@@ -103,40 +107,41 @@ void WQtNetworkItem::hoverEnterEvent( QGraphicsSceneHoverEvent  *event )
     }
 
     std::string tooltip = "";
-    if( m_module->isCrashed()() )
-    {
-        tooltip += "<b>A problem occured. The module has been stopped. </b><br/><br/>";
-    }
-    tooltip += "<b>Module: </b>" + m_module->getName() + "<br/>";
-    //tooltip += "<b>Progress: </b>" + progress + "<br/>";
-    tooltip += "<b>Connectors: </b>";
+//    if( m_module->isCrashed()() )
+//    {
+//        tooltip += "<b>A problem occured. The module has been stopped. </b><br/><br/>";
+//    }
+//    tooltip += "<b>Module: </b>" + m_module->getName() + "<br/>";
+//    //tooltip += "<b>Progress: </b>" + progress + "<br/>";
+//    tooltip += "<b>Connectors: </b>";
+//
+//    // also list the connectors
+//    std::string conList = "";
+//    WModule::InputConnectorList consIn = m_module->getInputConnectors();
+//    WModule::OutputConnectorList consOut = m_module->getOutputConnectors();
+//    conList += "<table><tr><th>Name</th><th>Description</th><th>Type (I/O)</th><th>Connected</th></tr>";
+//    int conCount = 0;
+//    for( WModule::InputConnectorList::const_iterator it = consIn.begin(); it != consIn.end(); ++it )
+//    {
+//        ++conCount;
+//        conList += "<tr><td><b>" + ( *it )->getName() + "&nbsp;</b></td><td>" + ( *it )->getDescription() + "&nbsp;</td>";
+//        conList += "<td><center>In</center></td>";
+//        conList += ( *it )->isConnected() ? "<td><center>Yes</center></td>" : "<td><center>No</center></td>";
+//        conList += "</tr>";
+//    }
+//    for( WModule::OutputConnectorList::const_iterator it = consOut.begin(); it != consOut.end(); ++it )
+//    {
+//        ++conCount;
+//        conList += "<tr><td><b>" + ( *it )->getName() + "&nbsp;</b></td><td>" + ( *it )->getDescription() + "&nbsp;</td>";
+//        conList += "<td><center>Out</center></td>";
+//        conList += ( *it )->isConnected() ? "<td></center>Yes</center></td>" : "<td><center>No</center></td>";
+//        conList += "</tr>";
+//    }
+//    conList += "</table>";
+//
+//    tooltip += conCount ? "Yes" + conList + "<br/><br/>" : "None<br/>";
+//    tooltip += "<b>Module Description: </b><br/>" + m_module->getDescription();
 
-    // also list the connectors
-    std::string conList = "";
-    WModule::InputConnectorList consIn = m_module->getInputConnectors();
-    WModule::OutputConnectorList consOut = m_module->getOutputConnectors();
-    conList += "<table><tr><th>Name</th><th>Description</th><th>Type (I/O)</th><th>Connected</th></tr>";
-    int conCount = 0;
-    for( WModule::InputConnectorList::const_iterator it = consIn.begin(); it != consIn.end(); ++it )
-    {
-        ++conCount;
-        conList += "<tr><td><b>" + ( *it )->getName() + "&nbsp;</b></td><td>" + ( *it )->getDescription() + "&nbsp;</td>";
-        conList += "<td><center>In</center></td>";
-        conList += ( *it )->isConnected() ? "<td><center>Yes</center></td>" : "<td><center>No</center></td>";
-        conList += "</tr>";
-    }
-    for( WModule::OutputConnectorList::const_iterator it = consOut.begin(); it != consOut.end(); ++it )
-    {
-        ++conCount;
-        conList += "<tr><td><b>" + ( *it )->getName() + "&nbsp;</b></td><td>" + ( *it )->getDescription() + "&nbsp;</td>";
-        conList += "<td><center>Out</center></td>";
-        conList += ( *it )->isConnected() ? "<td></center>Yes</center></td>" : "<td><center>No</center></td>";
-        conList += "</tr>";
-    }
-    conList += "</table>";
-
-    tooltip += conCount ? "Yes" + conList + "<br/><br/>" : "None<br/>";
-    tooltip += "<b>Module Description: </b><br/>" + m_module->getDescription();
 
     setToolTip( tooltip.c_str() );
 }
@@ -161,8 +166,6 @@ void WQtNetworkItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* o
     o->state &= ~QStyle::State_Selected;
     QGraphicsRectItem::paint( painter, o, w );
 
-    //glass highlight
-    //snippet from "voreen-2.5" source
     painter->setBrush( QBrush( Qt::white ) );
     painter->setPen( QPen( QBrush( Qt::white ), 0.01 ) );
     painter->setOpacity( 0.30 );
@@ -182,7 +185,6 @@ void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
     {
         port->updateArrows();
     }
-    m_networkEditor->itemMoved();
 }
 
 void WQtNetworkItem::mousePressEvent( QGraphicsSceneMouseEvent *event )
@@ -191,8 +193,7 @@ void WQtNetworkItem::mousePressEvent( QGraphicsSceneMouseEvent *event )
     setSelected( true );
 }
 
-QVariant WQtNetworkItem::itemChange( GraphicsItemChange change,
-        const QVariant &value )
+QVariant WQtNetworkItem::itemChange( GraphicsItemChange change, const QVariant &value )
 {
     switch( change )
     {
@@ -207,7 +208,6 @@ QVariant WQtNetworkItem::itemChange( GraphicsItemChange change,
             {
                 port->updateArrows();
             }
-            m_networkEditor->itemMoved();
         default:
             break;
     }
@@ -327,89 +327,6 @@ void WQtNetworkItem::activate( bool active )
         setFlag( QGraphicsItem::ItemIsMovable, false );
         changeColor( Qt::white );
     }
-}
-
-void WQtNetworkItem::calculateForces()
-{
-    if( !scene() || scene()->mouseGrabberItem() == this )
-    {
-        m_newPos = pos();
-    }
-
-    // Sum up all forces pushing this item away
-    qreal xvel = 0;
-    qreal yvel = 0;
-    foreach( QGraphicsItem *item, scene()->items() )
-    {
-        WQtNetworkItem *networkItem = qgraphicsitem_cast<WQtNetworkItem *>( item );
-        if( !networkItem )
-            continue;
-
-        QLineF line( mapFromItem( networkItem, 0, 0 ), QPointF( 0, 0 ) );
-        qreal dx = line.dx();
-        qreal dy = line.dy();
-        double l = 2.0 * ( dx * dx + dy * dy );
-        if( l > 0 )
-        {
-            xvel += ( dx * 250.0 ) / l;
-            yvel += ( dy * 250.0 ) / l;
-        }
-    }
-
-    // Now subtract all forces pulling items together
-    double weight = 1;
-    QPointF pos;
-
-    foreach( WQtNetworkPort *port, m_inPorts )
-    {
-        weight += port->getNumberOfArrows();
-    }
-    foreach( WQtNetworkPort *port, m_outPorts )
-    {
-        weight += port->getNumberOfArrows();
-    }
-    weight *= 50;
-
-
-    foreach( WQtNetworkPort *port, m_inPorts )
-    {
-       QList< WQtNetworkArrow *> arrowlist = port->getArrowList();
-       foreach( WQtNetworkArrow *arrow, arrowlist )
-       {
-            pos = mapFromItem( arrow->getStartPort()->parentItem(), 0, 0 );
-            xvel += pos.x() / weight;
-            yvel += pos.y() / weight;
-       }
-    }
-
-    foreach( WQtNetworkPort *port, m_outPorts )
-    {
-       QList< WQtNetworkArrow *> arrowlist = port->getArrowList();
-       foreach( WQtNetworkArrow *arrow, arrowlist )
-       {
-            pos = mapFromItem( arrow->getEndPort()->parentItem(), 0, 0 );
-            xvel += pos.x() / weight;
-            yvel += pos.y() / weight;
-       }
-    }
-
-    WQtNetworkScene *scn = dynamic_cast< WQtNetworkScene *>( this->scene() );
-    if( scn != NULL )
-    {
-        pos = mapFromItem( scn->getFakeItem(), 0, 0 );
-        xvel += pos.x() / weight;
-        yvel += pos.y() / weight;
-    }
-
-    if( qAbs( xvel ) < 0.1 && qAbs( yvel ) < 0.1 )
-    {
-        xvel = yvel = 0;
-    }
-
-    QRectF sceneRect = this->scene()->sceneRect();
-    m_newPos = this->pos() + QPoint( xvel, yvel );
-    m_newPos.setX( qMin( qMax( m_newPos.x(), sceneRect.left() + m_rect.x() ), sceneRect.right() - m_rect.x() ) );
-    m_newPos.setY( qMin( qMax( m_newPos.y(), sceneRect.top() + m_rect.y() ), sceneRect.bottom() - m_rect.y() ) );
 }
 
 bool WQtNetworkItem::advance()

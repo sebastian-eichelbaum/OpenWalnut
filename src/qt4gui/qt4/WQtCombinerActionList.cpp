@@ -25,7 +25,7 @@
 #include "WQtCombinerActionList.h"
 
 WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* icons, WCombinerTypes::WCompatiblesList compatibles,
-                                                              const WQtModuleExcluder* exclusionPredicate, bool advancedText ):
+                                                              const WQtModuleConfig* exclusionPredicate, bool advancedText ):
     QList< QAction* >()
 {
     // create an action for each group:

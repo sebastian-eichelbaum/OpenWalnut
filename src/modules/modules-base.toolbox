@@ -1,7 +1,7 @@
 # mostly modules from our default whitelist
 
 ADD_MODULE( arbitraryPlane )
-ADD_MODULE( arbitraryRois )
+ADD_MODULE( arbitraryROIs )
 ADD_MODULE( colormapper )
 ADD_MODULE( coordinateHUD )
 ADD_MODULE( coordinateSystem )

@@ -26,6 +26,14 @@
 
 #include "WTensorFunctions.h"
 
+std::ostream& operator<<( std::ostream& os, const RealEigenSystem& sys )
+{
+    os << sys[0].first << ", " << sys[0].second << std::endl;
+    os << sys[1].first << ", " << sys[1].second << std::endl;
+    os << sys[2].first << ", " << sys[2].second << std::endl;
+    return os;
+}
+
 std::vector< double > getEigenvaluesCardano( WTensorSym< 2, 3 > const& m )
 {
     // this is copied from the gpu glyph shader
