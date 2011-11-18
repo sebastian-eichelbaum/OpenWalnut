@@ -28,6 +28,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include <QtGui/QColorDialog>
+#include <QtGui/QDropEvent>
 
 #include "core/common/WLogger.h"
 #include "core/common/WPropertyVariable.h"
@@ -62,7 +63,10 @@ WPropertyColorWidget::WPropertyColorWidget( WPropColor property, QGridLayout* pr
     update();
 
     // connect the modification signal of the edit and slider with our callback
-    connect( &m_button, SIGNAL( released() ), this, SLOT( buttonReleased() ) );
+    connect( &m_button, SIGNAL( clicked() ), this, SLOT( buttonClicked() ) );
+
+    // accept drag and drop
+    setAcceptDrops( true );
 }
 
 WPropertyColorWidget::~WPropertyColorWidget()
@@ -72,9 +76,14 @@ WPropertyColorWidget::~WPropertyColorWidget()
 
 void WPropertyColorWidget::update()
 {
-    std::stringstream buttonColorStr;
     QColor bgColor = toQColor( m_colorProperty->get() );
 
+    setColor( bgColor );
+}
+
+void WPropertyColorWidget::setColor( const QColor& bgColor )
+{
+    std::stringstream buttonColorStr;
     buttonColorStr << "* { background-color: rgb("
                    << bgColor.red() << ","
                    << bgColor.green() << ","
@@ -106,7 +115,7 @@ WColor WPropertyColorWidget::toWColor( QColor color )
     return WColor( color.redF(), color.greenF(), color.blueF(), color.alphaF() );
 }
 
-void WPropertyColorWidget::buttonReleased()
+void WPropertyColorWidget::buttonClicked()
 {
     QColor current = toQColor( m_colorProperty->get() );
 
@@ -115,10 +124,37 @@ void WPropertyColorWidget::buttonReleased()
 #else
     current = QColorDialog::getColor( current, this );
 #endif
-    // convert it back to a WColor
-    invalidate( !m_colorProperty->set( toWColor( current ) ) ); // NOTE: set automatically checks the validity of the value
+    if ( current.isValid() )
+    {
+        // set the button background to the appropriate color
+        //m_button.setPalette( QPalette( current ) );
+        setColor( current );
 
-    // set the button background to the appropriate color
-    m_button.setPalette( QPalette( current ) );
+        // convert it back to a WColor
+        invalidate( !m_colorProperty->set( toWColor( current ) ) ); // NOTE: set automatically checks the validity of the value
+    }
+}
+
+void WPropertyColorWidget::dragEnterEvent( QDragEnterEvent* event )
+{
+    if ( event->mimeData()->hasColor() )
+    {
+        event->setAccepted( true );
+    }
+}
+
+void WPropertyColorWidget::dropEvent( QDropEvent* event )
+{
+    if ( event->mimeData()->hasColor() )
+    {
+        QColor color = qvariant_cast<QColor>( event->mimeData()->colorData() );
+        if ( color.isValid() )
+        {
+            setColor( color );
+
+            // now we have to trigger an update
+            invalidate( !m_colorProperty->set( toWColor( color ) ) ); // NOTE: set automatically checks the validity of the value
+        }
+    }
 }
 
