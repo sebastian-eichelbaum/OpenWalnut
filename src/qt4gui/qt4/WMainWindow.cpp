@@ -77,6 +77,7 @@
 #include "events/WModuleReadyEvent.h"
 #include "events/WModuleRemovedEvent.h"
 #include "events/WOpenCustomDockWidgetEvent.h"
+#include "events/WCloseCustomDockWidgetEvent.h"
 #include "guiElements/WQtPropertyBoolAction.h"
 #include "WQt4Gui.h"
 #include "WQtCombinerToolbar.h"
@@ -907,6 +908,20 @@ void WMainWindow::customEvent( QEvent* event )
 
         ocdwEvent->getFlag()->set( widget );
     }
+    if( event->type() == WCloseCustomDockWidgetEvent::CUSTOM_TYPE )
+    {
+
+        WCloseCustomDockWidgetEvent* closeEvent = static_cast< WCloseCustomDockWidgetEvent* >( event );
+        boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
+        if( m_customDockWidgets.count( closeEvent->getTitle() ) > 0 )
+        {
+            if( m_customDockWidgets[closeEvent->getTitle()]->decreaseUseCount() )
+            {
+                // custom dock widget should be deleted
+                m_customDockWidgets.erase( closeEvent->getTitle() );
+            }
+        }
+    }
     else
     {
         // other event
@@ -964,23 +979,13 @@ boost::shared_ptr< WQtCustomDockWidget > WMainWindow::getCustomDockWidget( std::
     boost::shared_ptr< WQtCustomDockWidget > out = m_customDockWidgets.count( title ) > 0 ?
         m_customDockWidgets[title] :
         boost::shared_ptr< WQtCustomDockWidget >();
-    //m_customDockWidgetsLock.unlock();
     return out;
 }
 
 
 void WMainWindow::closeCustomDockWidget( std::string title )
 {
-    boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
-    if( m_customDockWidgets.count( title ) > 0 )
-    {
-        if( m_customDockWidgets[title]->decreaseUseCount() )
-        {
-            // custom dock widget should be deleted
-            m_customDockWidgets.erase( title );
-        }
-    }
-    //m_customDockWidgetsLock.unlock();
+    QCoreApplication::postEvent( this, new WCloseCustomDockWidgetEvent( title ) );
 }
 
 void WMainWindow::newRoi()

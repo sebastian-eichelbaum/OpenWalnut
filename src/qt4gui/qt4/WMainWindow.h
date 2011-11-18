@@ -120,7 +120,10 @@ public:
     boost::shared_ptr< WQtCustomDockWidget > getCustomDockWidget( std::string name );
 
     /**
-     * Close one of the custom dock widget saved in the map of customDockWidgets
+     * Close one of the custom dock widget saved in the map of customDockWidgets. This method is thread-safe and ensures that the widget is
+     * closed in the GUI thread. NEVER call this in the GUI thread. It will block the GUI.
+     *
+     * \note the widget might not be closed after this call. The widget is usage counted.
      *
      * \param title the title of the widget to close
      */

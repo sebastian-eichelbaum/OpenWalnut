@@ -22,34 +22,30 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WOPENCUSTOMDOCKWIDGETEVENT_H
-#define WOPENCUSTOMDOCKWIDGETEVENT_H
+#ifndef WCLOSECUSTOMDOCKWIDGETEVENT_H
+#define WCLOSECUSTOMDOCKWIDGETEVENT_H
 
 #include <string>
 
 #include <QtCore/QEvent>
 
-#include "core/graphicsEngine/WGECamera.h"
-#include "core/common/WFlag.h"
-#include "core/gui/WCustomWidget.h"
+#include "core/common/WCondition.h"
 
 #include "WEventTypes.h"
 
 /**
- * A Qt event to open a new custom dock widget if posted to the WMainWindow.
+ * A Qt event to close an existing custom dock widget if posted to the WMainWindow.
  */
-class WOpenCustomDockWidgetEvent : public QEvent
+class WCloseCustomDockWidgetEvent : public QEvent
 {
 public:
     /**
-     * Constructor
+     * Constructor. Use the doneCondition to wait for the event to be processed.
      *
      * \param title the title of the widget to open
-     * \param projectionMode the kind of projection which should be used
-     * \param flag The WFlag which contains the widget after its creation.
+     * \param doneCondition This condition is fired whenever the widget is really closed.
      */
-    explicit WOpenCustomDockWidgetEvent( std::string title, WGECamera::ProjectionMode projectionMode,
-        boost::shared_ptr< WFlag< boost::shared_ptr< WCustomWidget > > > flag );
+    explicit WCloseCustomDockWidgetEvent( std::string title );
 
     /**
      * Get the title of the widget to open.
@@ -59,24 +55,10 @@ public:
     std::string getTitle() const;
 
     /**
-     * Get the kind of projection which should be used.
-     *
-     * \return the kind of projection which should be used
-     */
-    WGECamera::ProjectionMode getProjectionMode() const;
-
-    /**
-     * Get the WFlag which contains the widget after its creation.
-     *
-     * \return a shared pointer to the WFlag
-     */
-    boost::shared_ptr< WFlag< boost::shared_ptr< WCustomWidget > > > getFlag() const;
-
-    /**
      * Constant which saves the number used to distinguish this event from other
      * custom events.
      */
-    static const QEvent::Type CUSTOM_TYPE = static_cast< QEvent::Type >( WQT_OPENCUSTOMDOCKWIDGET );
+    static const QEvent::Type CUSTOM_TYPE = static_cast< QEvent::Type >( WQT_CLOSECUSTOMDOCKWIDGET );
 
 protected:
 private:
@@ -84,16 +66,6 @@ private:
      * the title of the widget to create
      */
     std::string m_title;
-
-    /**
-     * the kind of projection which should be used
-     */
-    WGECamera::ProjectionMode m_projectionMode;
-
-    /**
-     * WFlag which contains the widget after its creation.
-     */
-    boost::shared_ptr< WFlag< boost::shared_ptr< WCustomWidget > > > m_flag;
 };
 
-#endif  // WOPENCUSTOMDOCKWIDGETEVENT_H
+#endif  // WCLOSECUSTOMDOCKWIDGETEVENT_H

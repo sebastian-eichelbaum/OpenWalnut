@@ -65,6 +65,11 @@
 
 #include "WQt4Gui.h"
 
+#ifdef Q_WS_X11
+    #include <X11/Xlib.h>   // NOLINT - this needs to be done AFTER Qt has set some defines in their headers and after several other
+                            //          headers which are included indirectly, although it is a system header.
+#endif
+
 WMainWindow* WQt4Gui::m_mainWindow = NULL;
 
 QSettings* WQt4Gui::m_settings = NULL;
@@ -129,6 +134,10 @@ void WQt4Gui::deferredLoad()
 
 int WQt4Gui::run()
 {
+#ifdef Q_WS_X11
+    XInitThreads();
+#endif
+
     // init logger
     m_loggerConnection = WLogger::getLogger()->subscribeSignal( WLogger::AddLog, boost::bind( &WQt4Gui::slotAddLog, this, _1 ) );
 

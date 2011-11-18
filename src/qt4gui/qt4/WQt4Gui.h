@@ -158,14 +158,14 @@ public:
         boost::shared_ptr< WCondition > shutdownCondition );
 
     /**
-     * Instruct the WMainWindow to close a custom widget.
+     * Instruct the WMainWindow to close a custom widget. NEVER call this in the GUI thread. It will block the GUI.
      *
      * \param title The title of the widget
      */
     virtual void closeCustomWidget( std::string title );
 
     /**
-     * Instruct the WMainWindow to close a custom widget.
+     * Instruct the WMainWindow to close a custom widget. NEVER call this in the GUI thread. It will block the GUI.
      *
      * \param widget the widget to close
      */

@@ -75,4 +75,10 @@
 // when the screencapture update.
 #define WQT_SCREENCAPTURE_EVENT QEvent::User + 14
 
+// open a new custom dock widget
+#define WQT_OPENCUSTOMDOCKWIDGET QEvent::User + 15
+
+// close an existing custom dock widget
+#define WQT_CLOSECUSTOMDOCKWIDGET QEvent::User + 16
+
 #endif  // WEVENTTYPES_H
