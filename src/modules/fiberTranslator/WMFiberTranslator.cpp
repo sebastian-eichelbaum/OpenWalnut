@@ -109,7 +109,7 @@ void WMFiberTranslator::moduleMain()
     {
         m_moduleState.wait();
 
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
