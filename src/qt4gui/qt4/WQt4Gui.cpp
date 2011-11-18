@@ -354,6 +354,11 @@ void WQt4Gui::closeCustomWidget( std::string title )
     m_mainWindow->closeCustomDockWidget( title );
 }
 
+void WQt4Gui::closeCustomWidget( WCustomWidget::SPtr widget )
+{
+    m_mainWindow->closeCustomDockWidget( widget->getTitle() );
+}
+
 QSettings& WQt4Gui::getSettings()
 {
     return *m_settings;
