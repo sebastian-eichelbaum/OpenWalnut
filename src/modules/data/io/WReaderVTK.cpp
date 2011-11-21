@@ -158,7 +158,8 @@ void WReaderVTK::readStructuredPoints()
             new WGridRegular3D( dimensions[ 0 ], dimensions[ 1 ], dimensions[ 2 ], transform ) );
 }
 
-void WReaderVTK::readScalars( size_t nbPoints, const std::string& name  )
+// we currently do not handle the name flag but should set the name of the data set somewhere
+void WReaderVTK::readScalars( size_t nbPoints, const std::string& /*name*/ )
 {
     int pos = m_ifs->tellg(); // remember where we are for binary files
 
@@ -211,7 +212,7 @@ void WReaderVTK::readScalars( size_t nbPoints, const std::string& name  )
     // WAssert( std::string( "" ) == line, "Found characters in file where nothing was expected." );
 }
 
-void WReaderVTK::readVectors( size_t nbPoints, const std::string& name )
+void WReaderVTK::readVectors( size_t nbPoints, const std::string& /*name*/ )
 {
     int pos = m_ifs->tellg(); // remember where we are for binary files
 
@@ -269,7 +270,7 @@ void WReaderVTK::readVectors( size_t nbPoints, const std::string& name )
     // WAssert( std::string( "" ) == line, "Found characters in file where nothing was expected." );
 }
 
-void WReaderVTK::readTensors( size_t nbPoints, const std::string& name )
+void WReaderVTK::readTensors( size_t nbPoints, const std::string& /*name*/ )
 {
     int pos = m_ifs->tellg(); // remember where we are for binary files
 
