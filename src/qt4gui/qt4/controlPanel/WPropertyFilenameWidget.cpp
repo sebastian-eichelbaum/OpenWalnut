@@ -106,7 +106,7 @@ void WPropertyFilenameWidget::buttonReleased()
                 QFileDialog::DontConfirmOverwrite );
     }
 
-    // convert it back to a WColor
+    // convert it back to a filename property
     invalidate( !m_fnProperty->set( boost::filesystem::path( path.toStdString() ) ) ); // NOTE: set automatically checks the validity of the value
 
     // set button
