@@ -264,6 +264,12 @@ protected:
      */
     std::list< WQtTreeItem* > findItemsByModule( boost::shared_ptr< WModule > module );
 
+    /**
+     * As QTabWidget::clear() does not delete tabs, we have to manage that ourselves.
+     * So this function clears all tabs and deletes the data as well.
+     */
+    void clearAndDeleteTabs();
+
 private:
     WQtTreeWidget* m_moduleTreeWidget; //!< pointer to the tree widget
 

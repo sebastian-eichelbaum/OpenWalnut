@@ -668,8 +668,7 @@ void WQtControlPanel::selectTreeItem()
 
     if( m_moduleTreeWidget->selectedItems().size() != 0  )
     {
-        // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
-        m_tabWidget->clear();
+        clearAndDeleteTabs();
 
         // disable delete action for tree items that have children.
         if( m_moduleTreeWidget->selectedItems().at( 0 )->childCount() != 0 )
@@ -755,8 +754,7 @@ void WQtControlPanel::selectTreeItem()
 
 void WQtControlPanel::selectRoiTreeItem()
 {
-    // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
-    m_tabWidget->clear();
+    clearAndDeleteTabs();
 
     // Make compatibles toolbar empty
     {
@@ -833,13 +831,13 @@ void WQtControlPanel::selectDataModule( boost::shared_ptr< WDataSet > dataSet )
 
 void WQtControlPanel::selectDataModule( osg::ref_ptr< WGETexture3D > texture )
 {
-    m_tabWidget->clear();
+    clearAndDeleteTabs();
     buildPropTab( texture->getProperties(), texture->getInformationProperties() );
 }
 
 void WQtControlPanel::setNewActiveModule( boost::shared_ptr< WModule > module )
 {
-    m_tabWidget->clear();
+    clearAndDeleteTabs();
 
     // NOTE: this handles null pointers properly.
     createCompatibleButtons( module );
@@ -1201,3 +1199,16 @@ QAction* WQtControlPanel::getMissingModuleAction() const
 {
     return m_missingModuleAction;
 }
+
+void WQtControlPanel::clearAndDeleteTabs()
+{
+    m_tabWidget->setDisabled( true );
+    QWidget *widget;
+    while ((  widget = m_tabWidget->widget( 0 ) ))
+    {
+        m_tabWidget->removeTab( 0 );
+        delete widget;
+    }
+    m_tabWidget->setEnabled( true );
+}
+
