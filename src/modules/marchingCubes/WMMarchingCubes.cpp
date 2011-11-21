@@ -225,6 +225,104 @@ void WMMarchingCubes::properties()
     WModule::properties();
 }
 
+namespace
+{
+    /**
+     * A template-less base class to combine both Marching-Cube-like algorithms using one interface
+     */
+    struct MCBase
+    {
+        virtual ~MCBase()
+        {
+        }
+
+        virtual boost::shared_ptr< WTriangleMesh > execute( size_t x, size_t y, size_t z,
+                                                            const WMatrix<double>& matrix,
+                                                            boost::shared_ptr<WValueSetBase> valueSet,
+                                                            double isoValue,
+                                                            boost::shared_ptr<WProgressCombiner> ) = 0;
+    };
+
+    /**
+     * Base class templetized by the algorithm used, i.e., real marching cubes or lego bricks
+     * This class enhances the interface of the MC algorithm by the new execute function.
+     */
+    template<class AlgoBase>
+    struct MCAlgoMapperBase : public AlgoBase, public MCBase
+    {
+        virtual ~MCAlgoMapperBase()
+        {
+        }
+    };
+
+    /**
+     * this class matches a data type and an algorithm type
+     *
+     * It is a helper class that converts the type to call the appropriate function in the MC code
+     * in the original algorithm.
+     *
+     * \param AlgoBase
+     * AlgoBase is the algorithm that will be called and must implement
+     * AlgoBase::generateSurface( x,y,z, matrix, vals_raw_ptr, isoValue, progress )
+     */
+    template<class AlgoBase, typename T>
+    struct MCAlgoMapper : public MCAlgoMapperBase<AlgoBase>
+    {
+        virtual ~MCAlgoMapper()
+        {
+        }
+
+        virtual boost::shared_ptr< WTriangleMesh > execute( size_t x, size_t y, size_t z,
+                                                            const WMatrix<double>& matrix,
+                                                            boost::shared_ptr<WValueSetBase> valueSet,
+                                                            double isoValue,
+                                                            boost::shared_ptr<WProgressCombiner> progress )
+        {
+            boost::shared_ptr< WValueSet< T > > vals(
+                    boost::shared_dynamic_cast< WValueSet< T > >( valueSet ) );
+            WAssert( vals, "Data type and data type indicator must fit." );
+            return AlgoBase::generateSurface( x, y, z, matrix, vals->rawDataVectorPointer(), isoValue, progress );
+        }
+    };
+
+    /**
+     * Function to create the appropriate algorithm code for the data type.
+     * The selection is done based on a list of valid types.
+     * New data types for this module have to be added here ( and only here ).
+     *
+     * \param AlgoBase
+     * AlgoBase is the algorithm that will be called and must implement
+     * AlgoBase::generateSurface( x,y,z, matrix, vals_raw_ptr, isoValue, progress )
+     *
+     * \param enum_type the OpenWalnut type enum of the data on which the isosurface should be computed.
+      */
+    template<typename AlgoBase>
+    boost::shared_ptr<MCAlgoMapperBase<AlgoBase> > createAlgo( int enum_type )
+    {
+#define CASE( enum_type ) case enum_type: return boost::shared_ptr<MCAlgoMapperBase<AlgoBase> >( new MCAlgoMapper<AlgoBase, DataTypeRT< enum_type >::type >() )
+        switch ( enum_type )
+        {
+            //CASE( W_DT_BINARY ); // the cast operation DataTypeRT is not implemented for binaries, so far
+            CASE( W_DT_UNSIGNED_CHAR );
+            CASE( W_DT_INT8 );
+            CASE( W_DT_SIGNED_SHORT ); // INT16
+            CASE( W_DT_SIGNED_INT ); // INT32
+            CASE( W_DT_FLOAT );
+            CASE( W_DT_DOUBLE );
+            CASE( W_DT_UINT16 );
+            CASE( W_DT_UINT32 );
+            CASE( W_DT_INT64 );
+            CASE( W_DT_UINT64 );
+            CASE( W_DT_FLOAT128 );
+            // no complex 128 or complex 256, no rgba
+            default:
+            WAssert( false, "Data type not implemented because it is not a scalar or just not implemented, yet" );
+        }
+        return boost::shared_ptr<MCAlgoMapperBase<AlgoBase> >(); // something went wrong, we got an unreasonable type
+#undef CASE
+    }
+}  // namespace
+
 void WMMarchingCubes::generateSurfacePre( double isoValue )
 {
     debugLog() << "Isovalue: " << isoValue;
@@ -236,258 +334,29 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
     WAssert( gridRegular3D, "Grid is not of type WGridRegular3D." );
     m_grid = gridRegular3D;
 
-    switch( (*m_dataSet).getValueSet()->getDataType() )
-    {
-        case W_DT_UNSIGNED_CHAR: // W_DT_UINT8
-        {
-            boost::shared_ptr< WValueSet< unsigned char > > vals;
-            vals =  boost::shared_dynamic_cast< WValueSet< unsigned char > >( ( *m_dataSet ).getValueSet() );
-            WAssert( vals, "Data type and data type indicator must fit." );
+    boost::shared_ptr< WValueSetBase > valueSet( m_dataSet->getValueSet() );
 
-            if( m_useMarchingLego->get( true ) )
-            {
-                m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue );
-            }
-            else
-            {
-                m_triMesh = mcAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue,
-                                                    m_progress );
-            }
-            break;
-        }
-        case W_DT_INT8:
-        {
-            boost::shared_ptr< WValueSet< int8_t > > vals;
-            vals =  boost::shared_dynamic_cast< WValueSet< int8_t > >( ( *m_dataSet ).getValueSet() );
-            WAssert( vals, "Data type and data type indicator must fit." );
-            if( m_useMarchingLego->get( true ) )
-            {
-                m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue );
-            }
-            else
-            {
-                m_triMesh = mcAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue,
-                                                    m_progress );
-            }
-            break;
-        }
-        case W_DT_INT16: // W_DT_SIGNED_SHORT
-        {
-            boost::shared_ptr< WValueSet< int16_t > > vals;
-            vals =  boost::shared_dynamic_cast< WValueSet< int16_t > >( ( *m_dataSet ).getValueSet() );
-            WAssert( vals, "Data type and data type indicator must fit." );
-            if( m_useMarchingLego->get( true ) )
-            {
-                m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue );
-            }
-            else
-            {
-                m_triMesh = mcAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue,
-                                                    m_progress );
-            }
-            break;
-        }
-        case W_DT_INT64:
-        {
-            boost::shared_ptr< WValueSet< int64_t > > vals;
-            vals =  boost::shared_dynamic_cast< WValueSet< int64_t > >( ( *m_dataSet ).getValueSet() );
-            WAssert( vals, "Data type and data type indicator must fit." );
-            if( m_useMarchingLego->get( true ) )
-            {
-                m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue );
-            }
-            else
-            {
-                m_triMesh = mcAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue,
-                                                    m_progress );
-            }
-            break;
-        }
-        case W_DT_UINT16:
-        {
-            boost::shared_ptr< WValueSet< uint16_t > > vals;
-            vals =  boost::shared_dynamic_cast< WValueSet< uint16_t > >( ( *m_dataSet ).getValueSet() );
-            WAssert( vals, "Data type and data type indicator must fit." );
-            if( m_useMarchingLego->get( true ) )
-            {
-                m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue );
-            }
-            else
-            {
-                m_triMesh = mcAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue,
-                                                    m_progress );
-            }
-            break;
-        }
-        case W_DT_UINT32:
-        {
-            boost::shared_ptr< WValueSet< uint32_t > > vals;
-            vals =  boost::shared_dynamic_cast< WValueSet< uint32_t > >( ( *m_dataSet ).getValueSet() );
-            WAssert( vals, "Data type and data type indicator must fit." );
-            if( m_useMarchingLego->get( true ) )
-            {
-                m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue );
-            }
-            else
-            {
-                m_triMesh = mcAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue,
-                                                    m_progress );
-            }
-            break;
-        }
-        case W_DT_UINT64:
-        {
-            boost::shared_ptr< WValueSet< uint64_t > > vals;
-            vals =  boost::shared_dynamic_cast< WValueSet< uint64_t > >( ( *m_dataSet ).getValueSet() );
-            WAssert( vals, "Data type and data type indicator must fit." );
-            if( m_useMarchingLego->get( true ) )
-            {
-                m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue );
-            }
-            else
-            {
-                m_triMesh = mcAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue,
-                                                    m_progress );
-            }
-            break;
-        }
-        case W_DT_SIGNED_INT:
-        {
-            boost::shared_ptr< WValueSet< int32_t > > vals;
-            vals =  boost::shared_dynamic_cast< WValueSet< int32_t > >( ( *m_dataSet ).getValueSet() );
-            WAssert( vals, "Data type and data type indicator must fit." );
-            if( m_useMarchingLego->get( true ) )
-            {
-                m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue );
-            }
-            else
-            {
-                m_triMesh = mcAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue,
-                                                    m_progress );
-            }
-            break;
-        }
-        case W_DT_FLOAT:
-        {
-            boost::shared_ptr< WValueSet< float > > vals;
-            vals =  boost::shared_dynamic_cast< WValueSet< float > >( ( *m_dataSet ).getValueSet() );
-            WAssert( vals, "Data type and data type indicator must fit." );
-            if( m_useMarchingLego->get( true ) )
-            {
-                m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue );
-            }
-            else
-            {
-                m_triMesh = mcAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue,
-                                                    m_progress );
-            }
-            break;
-        }
-        case W_DT_DOUBLE:
-        {
-            boost::shared_ptr< WValueSet< double > > vals;
-            vals =  boost::shared_dynamic_cast< WValueSet< double > >( ( *m_dataSet ).getValueSet() );
-            WAssert( vals, "Data type and data type indicator must fit." );
-            if( m_useMarchingLego->get( true ) )
-            {
-                m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue );
-            }
-            else
-            {
-                m_triMesh = mcAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue,
-                                                    m_progress );
-            }
-            break;
-        }
-        case W_DT_FLOAT128:
-        {
-            boost::shared_ptr< WValueSet< long double > > vals;
-            vals =  boost::shared_dynamic_cast< WValueSet< long double > >( ( *m_dataSet ).getValueSet() );
-            WAssert( vals, "Data type and data type indicator must fit." );
-            if( m_useMarchingLego->get( true ) )
-            {
-                m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue );
-            }
-            else
-            {
-                m_triMesh = mcAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
-                                                    m_grid->getTransformationMatrix(),
-                                                    vals->rawDataVectorPointer(),
-                                                    isoValue,
-                                                    m_progress );
-            }
-            break;
-        }
-        default:
-            WAssert( false, "Unknow data type in MarchingCubes module" );
+    boost::shared_ptr<MCBase> algo;
+    if ( m_useMarchingLego->get( true ) )
+    {
+        algo = createAlgo<WMarchingLegoAlgorithm>( valueSet->getDataType() );
+    }
+    else
+    {
+        algo = createAlgo<WMarchingCubesAlgorithm>( valueSet->getDataType() );
     }
 
-    // Set the info properties
-    m_nbTriangles->set( m_triMesh->triangleSize() );
-    m_nbVertices->set( m_triMesh->vertSize() );
+    if ( algo )
+    {
+        m_triMesh = algo->execute( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
+                                          m_grid->getTransformationMatrix(),
+                                          valueSet,
+                                          isoValue, m_progress );
+
+        // Set the info properties
+        m_nbTriangles->set( m_triMesh->triangleSize() );
+        m_nbVertices->set( m_triMesh->vertSize() );
+    }
 }
 
 void WMMarchingCubes::renderMesh()
