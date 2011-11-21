@@ -36,6 +36,8 @@
 #include "WPropertyBase.h"
 #include "WPropertyVariable.h"
 
+#include "WTransferFunction.h"
+
 WPropertyBase::WPropertyBase( std::string name, std::string description ):
     boost::enable_shared_from_this< WPropertyBase >(),
     m_name( name ),
@@ -167,6 +169,11 @@ WPropMatrix4X4 WPropertyBase::toPropMatrix4X4()
 WPropTrigger WPropertyBase::toPropTrigger()
 {
     return boost::shared_static_cast< WPVTrigger >( shared_from_this() );
+}
+
+WPropTransferFunction WPropertyBase::toPropTransferFunction()
+{
+    return boost::shared_static_cast< WPVTransferFunction >( shared_from_this() );
 }
 
 boost::shared_ptr< WCondition > WPropertyBase::getUpdateCondition() const

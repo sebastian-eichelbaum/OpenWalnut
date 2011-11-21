@@ -264,6 +264,14 @@ public:
     /**
      * Helper converts this instance to its native type.
      *
+     * \return the property as matrix4x4 property
+     */
+    WPropTransferFunction toPropTransferFunction();
+
+
+    /**
+     * Helper converts this instance to its native type.
+     *
      * \return the property as group
      */
     WPropGroup toPropGroup();
