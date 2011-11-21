@@ -207,6 +207,109 @@ float blinnPhongIlluminationIntensity( in vec3 normal )
 }
 
 /**
+ * Function to calculate lighting intensity for a matte (non-specular) Phong illumination.
+ *
+ * \param ambient   materials ambient color
+ * \param diffuse   materials diffuse color
+ * \param lightColor  the light color
+ * \param ambientLight the ambient light color
+ * \param normalDir the normal
+ * \param viewDir   viewing direction
+ * \param lightDir  light direction
+ *
+ * \return the color.
+ */
+vec4 mattePhongIllumination( vec3 ambient, vec3 diffuse,
+                             vec3 lightColor, vec3 ambientLight,
+                             vec3 normalDir, vec3 viewDir, vec3 lightDir )
+{
+    vec3 H =  normalize( lightDir + viewDir );
+
+    // compute ambient term
+    vec3 ambientV = ambient * ambientLight;
+
+    // compute diffuse term
+    float diffuseLight = max( dot( lightDir, normalDir ), 0.0 );
+    vec3 diffuseV = diffuse * diffuseLight;
+
+    return vec4( ambientV + diffuseV * lightColor, 1.0 );
+}
+
+/**
+ * Function to calculate lighting intensity for a matte (non-specular) Phong illumination.
+ * It is basically the same as blinnPhongIllumination function above. But it is faster if you just need
+ * the intensity.
+ *
+ * \param ambient   materials ambient intensity
+ * \param diffuse   materials diffuse intensity
+ * \param specular  materials specular intensity
+ * \param shininess material shininess
+ * \param lightIntensity  the light intensity
+ * \param ambientIntensity the ambient light intensity
+ * \param normalDir the normal
+ * \param viewDir   viewing direction
+ * \param lightDir  light direction
+ *
+ * \return the light intensity.
+ */
+float mattePhongIlluminationIntensity( float ambient, float diffuse,
+                                       float lightIntensity, float ambientIntensity,
+                                       vec3 normalDir, vec3 viewDir, vec3 lightDir )
+{
+    vec3 H =  normalize( lightDir + viewDir );
+
+    // compute ambient term
+    float ambientV = ambient * ambientIntensity;
+
+    // compute diffuse term
+    float diffuseLight = max( dot( lightDir, normalDir ), 0.0 );
+    float diffuseV = diffuse * diffuseLight;
+
+    return ambientV + diffuseV * lightIntensity;
+}
+
+/**
+ * Function to calculate lighting intensity for a matte (non-specular) Phong illumination.
+ * Any specular or shininess given with the parameters will be ignored.
+ * It is basically the same as blinnPhongIllumination function above. But it is faster if you just need
+ * the intensity.
+ *
+ * \param parameter the wge_LightIntensityParameter defining material and light
+ * \param normal the normal. Needs to be normalized.
+ *
+ * \return lighting intensity.
+ */
+float mattePhongIlluminationIntensity( in wge_LightIntensityParameter parameter, in vec3 normal )
+{
+    return mattePhongIlluminationIntensity(
+        parameter.materialAmbient,
+        parameter.materialDiffuse,
+        parameter.lightDiffuse,
+        parameter.lightAmbient,
+        normal,
+        parameter.viewDirection,
+        parameter.lightPosition
+        );
+}
+
+/**
+ * Function to calculate lighting intensity for a matte (non-specular) Phong illumination.
+ * It is basically the same as blinnPhongIllumination function above. But it is faster if you just need
+ * the intensity. This uses the wge_DefaultLightIntensity without the specular and shininess.
+ *
+ * \param normal the normal. Must be normalized beforehand
+ *
+ * \return the light intensity
+ */
+float mattePhongIlluminationIntensity( in vec3 normal )
+{
+    wge_LightIntensityParameter noSpecular = wge_DefaultLightIntensity;
+    noSpecular.materialShinines = 0.0;
+    noSpecular.materialSpecular = 0.0;
+    return mattePhongIlluminationIntensity( noSpecular, normal );
+}
+
+/**
  * This illumination technique is from "Jens Krüger and Rüdiger Westermann - EFFICIENT STIPPLE RENDERING". It is a non-linear illumination model
  * which only handles ambient and diffuse components. The parameter alpha determines how much the diffuse light should depend on the orientation
  * of the surface towards the light source (the camera in OpenWalnut's default case ). It is acutally quite similar to the Phong specular term.

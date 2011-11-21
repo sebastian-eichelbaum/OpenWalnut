@@ -58,7 +58,7 @@
 #include "../WMainWindow.h"
 #include "../WQt4Gui.h"
 #include "../WQtCombinerActionList.h"
-#include "../WQtModuleExcluder.h"
+#include "../WQtModuleConfig.h"
 #include "WQtBranchTreeItem.h"
 #include "WQtColormapper.h"
 
@@ -125,14 +125,17 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     // Disabled Network Editor due to bug: #11
     // // the network editor also needs the context menu
     // // TODO(rfrohl): context menu gets not opened if a graphicitem is clicked. This should be fixed.
-    // m_mainWindow->getNetworkEditor()->setContextMenuPolicy( Qt::ActionsContextMenu );
-    // m_mainWindow->getNetworkEditor()->addAction( m_connectWithPrototypeAction );
-    // m_mainWindow->getNetworkEditor()->addAction( m_connectWithModuleAction );
-    // m_mainWindow->getNetworkEditor()->addAction( m_disconnectAction );
-    // m_mainWindow->getNetworkEditor()->addAction( separator );
-    // m_mainWindow->getNetworkEditor()->addAction( m_deleteModuleAction );
-    // m_mainWindow->getNetworkEditor()->addAction( separator );
-    // m_mainWindow->getNetworkEditor()->addAction( m_missingModuleAction );
+    // if( m_mainWindow->getNetworkEditor() )
+    // {
+    //     m_mainWindow->getNetworkEditor()->setContextMenuPolicy( Qt::ActionsContextMenu );
+    //     m_mainWindow->getNetworkEditor()->addAction( m_connectWithPrototypeAction );
+    //     m_mainWindow->getNetworkEditor()->addAction( m_connectWithModuleAction );
+    //     m_mainWindow->getNetworkEditor()->addAction( m_disconnectAction );
+    //     m_mainWindow->getNetworkEditor()->addAction( separator );
+    //     m_mainWindow->getNetworkEditor()->addAction( m_deleteModuleAction );
+    //     m_mainWindow->getNetworkEditor()->addAction( separator );
+    //     m_mainWindow->getNetworkEditor()->addAction( m_missingModuleAction );
+    // }
 
     m_colormapper = new WQtColormapper( m_mainWindow );
     m_colormapper->setToolTip( "Reorder the textures." );
@@ -157,7 +160,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_roiTreeWidget->setDragDropMode( QAbstractItemView::InternalMove );
     m_roiDock->setWidget( m_roiTreeWidget );
 
-    m_moduleExcluder = new WQtModuleExcluder( parent );
+    m_moduleExcluder = new WQtModuleConfig( parent );
     connect( m_missingModuleAction, SIGNAL( triggered( bool ) ), m_moduleExcluder, SLOT( configure() ) );
 
     m_layout = new QVBoxLayout();
@@ -1133,11 +1136,6 @@ void WQtControlPanel::deleteModuleTreeItem()
             }
         }
     }
-// Disabled Network Editor due to bug: #11
-//    else if( m_mainWindow->getNetworkEditor()->isActiveWindow() )
-//    {
-//        m_mainWindow->getNetworkEditor()->deleteSelectedItems();
-//    }
 }
 
 void WQtControlPanel::deleteROITreeItem()
@@ -1193,7 +1191,7 @@ QDockWidget* WQtControlPanel::getColormapperDock() const
     return m_colormapper;
 }
 
-WQtModuleExcluder& WQtControlPanel::getModuleExcluder() const
+WQtModuleConfig& WQtControlPanel::getModuleConfig() const
 {
     return *m_moduleExcluder;
 }

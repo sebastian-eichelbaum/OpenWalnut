@@ -33,6 +33,8 @@
 #include "core/common/WFlag.h"
 #include "core/gui/WCustomWidget.h"
 
+#include "WEventTypes.h"
+
 /**
  * A Qt event to open a new custom dock widget if posted to the WMainWindow.
  */
@@ -74,7 +76,7 @@ public:
      * Constant which saves the number used to distinguish this event from other
      * custom events.
      */
-    static const QEvent::Type CUSTOM_TYPE = static_cast< QEvent::Type >( 51051 );
+    static const QEvent::Type CUSTOM_TYPE = static_cast< QEvent::Type >( WQT_OPENCUSTOMDOCKWIDGET );
 
 protected:
 private:

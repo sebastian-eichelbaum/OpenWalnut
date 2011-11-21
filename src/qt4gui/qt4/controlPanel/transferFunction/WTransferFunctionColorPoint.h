@@ -39,13 +39,13 @@ class WTransferFunctionWidget;
  */
 class WTransferFunctionColorPoint : public QObject, public QGraphicsItem
 {
-   Q_OBJECT
-   Q_INTERFACES( QGraphicsItem )
+   Q_OBJECT // NOLINT
+   Q_INTERFACES( QGraphicsItem ) // NOLINT
 
   public:
     typedef QGraphicsItem BaseClass;
 
-    WTransferFunctionColorPoint( WTransferFunctionWidget* parent = 0x0 );
+    explicit WTransferFunctionColorPoint( WTransferFunctionWidget* parent = 0x0 );
     virtual ~WTransferFunctionColorPoint();
 
     WTransferFunctionColorPoint *getLeft() const;
@@ -54,7 +54,7 @@ class WTransferFunctionColorPoint : public QObject, public QGraphicsItem
     void setRight( WTransferFunctionColorPoint* );
 
     QRectF boundingRect() const;
-    virtual void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget* widget=0 );
+    virtual void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget* widget = 0x0 );
 
     QColor getColor() const;
 
@@ -92,5 +92,5 @@ class WTransferFunctionColorPoint : public QObject, public QGraphicsItem
     QColor color;
 };
 
-#endif
+#endif  // WTRANSFERFUNCTIONCOLORPOINT_H
 

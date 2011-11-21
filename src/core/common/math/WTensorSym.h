@@ -95,6 +95,8 @@ public:
      * \note If the gradient is not normalized, the result is undefined.
      *
      * Thanks to CHeine for the idea for this algorithm.
+     *
+     * \return The function value on the sphere for this tensor and the given gradient. 
      */
     Data_T evaluateSphericalFunction( WValue< Data_T > const& gradient ) const;
 
@@ -108,6 +110,8 @@ public:
      * \note If the gradient is not normalized, the result is undefined.
      *
      * Thanks to CHeine for the idea for this algorithm.
+     *
+     * \return The function value on the sphere for this tensor and the given gradient. 
      */
     Data_T evaluateSphericalFunction( WVector3d const& gradient ) const;
 

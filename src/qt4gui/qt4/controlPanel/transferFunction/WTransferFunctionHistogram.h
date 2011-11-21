@@ -25,6 +25,7 @@
 #ifndef WTRANSFERFUNCTIONHISTOGRAM_H
 #define WTRANSFERFUNCTIONHISTOGRAM_H
 
+#include <vector>
 #include "QtGui/QGraphicsItem"
 
 class WTransferFunctionWidget;
@@ -37,7 +38,7 @@ class WTransferFunctionHistogram : public QGraphicsItem
     public:
         typedef QGraphicsItem BaseClass;
 
-        WTransferFunctionHistogram( WTransferFunctionWidget* parent = 0x0 );
+        explicit WTransferFunctionHistogram( WTransferFunctionWidget* parent = 0x0 );
         virtual ~WTransferFunctionHistogram();
 
         QRectF boundingRect() const;
@@ -52,5 +53,5 @@ class WTransferFunctionHistogram : public QGraphicsItem
         std::vector< double > data;
 };
 
-#endif
+#endif  // WTRANSFERFUNCTIONHISTOGRAM_H
 

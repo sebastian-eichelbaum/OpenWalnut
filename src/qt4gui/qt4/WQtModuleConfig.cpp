@@ -22,18 +22,25 @@
 //
 //---------------------------------------------------------------------------
 
+#include <iostream>
 #include <string>
 #include <vector>
 
+#ifndef BOOST_FILESYSTEM_VERSION
+    #define BOOST_FILESYSTEM_VERSION 2
+#endif
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
+#include <QtCore/QDir>
+#include <QtGui/QFileDialog>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QGridLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QCheckBox>
 #include <QtGui/QPushButton>
 #include <QtGui/QDialogButtonBox>
+#include <QtGui/QTabWidget>
 
 #include "core/kernel/WModuleFactory.h"
 #include "core/common/WPathHelper.h"
@@ -41,8 +48,8 @@
 #include "WQt4Gui.h"
 #include "WMainWindow.h"
 
-#include "WQtModuleExcluder.h"
-#include "WQtModuleExcluder.moc"
+#include "WQtModuleConfig.h"
+#include "WQtModuleConfig.moc"
 
 /**
  * Simple modified checkbox which is two-state by using an additional flag but tristate under the hood. See nextCheckState.
@@ -116,7 +123,7 @@ private:
     bool m_isRecommended;
 };
 
-WQtModuleExcluder::WQtModuleExcluder( QWidget* parent, Qt::WindowFlags f ):
+WQtModuleConfig::WQtModuleConfig( QWidget* parent, Qt::WindowFlags f ):
     QDialog( parent, f )
 {
     // configure the dialog
@@ -137,16 +144,40 @@ WQtModuleExcluder::WQtModuleExcluder( QWidget* parent, Qt::WindowFlags f ):
     }
 
     // initialize members
-    QVBoxLayout* layout = new QVBoxLayout;
+    QVBoxLayout* layoutAllowedModules = new QVBoxLayout;
+    QWidget* p1 = new QWidget();
+    p1->setLayout( layoutAllowedModules );
+
+    QVBoxLayout* layoutModulePaths = new QVBoxLayout;
+    QWidget* p2 = new QWidget();
+    p2->setLayout( layoutModulePaths );
+
+    // setup tab widget.
+    QTabWidget* tab = new QTabWidget( this );
+    tab->addTab( p1, "Allowed Modules" );
+    tab->addTab( p2, "Module Paths" );
+    QVBoxLayout* masterLayout = new QVBoxLayout();
+    masterLayout->addWidget( tab );
+    setLayout( masterLayout );
 
     QString helpText = "This dialog allows you to modify the list of modules used everywhere in OpenWalnut. The list contains all loaded modules."
                        " Select the modules you want "
                        "to use and disable those you won't use. This way, the module toolbar and the context menu stay clean. The "
                        "OpenWalnut-Team provides a list of recommended modules. This list is always active, unless you turn it off. Recommended "
                        "modules are visually marked by being partially checked.";
-    QLabel* hint = new QLabel( helpText, this );
+    QLabel* hint = new QLabel( helpText );
     hint->setWordWrap( true );
-    layout->addWidget( hint );
+    layoutAllowedModules->addWidget( hint );
+
+    QString helpTextPaths = "You can add more search paths here, where OpenWalnut searches modules during startup. Each path is searched "
+                            "recursively. Use this list to help OpenWalnut find your downloaded or self-made modules. An alternative option is to "
+                            "set the environment variable \"OW_MODULE_PATH\", which is a semicolon-separated list of search paths. After "
+                            "restarting OpenWalnut, the modules in the added paths appear in the list of allowed modules.";
+    QLabel* hintPaths = new QLabel( helpTextPaths );
+    hintPaths->setWordWrap( true );
+    layoutModulePaths->addWidget( hintPaths );
+
+
 
     // always show all modules?
     m_showThemAll = new QCheckBox( "Always show all modules.", this );
@@ -154,19 +185,37 @@ WQtModuleExcluder::WQtModuleExcluder( QWidget* parent, Qt::WindowFlags f ):
         "Recommended option for developer. This ensures that all modules get shown all them time, regardless of the list below."
     );
     connect( m_showThemAll, SIGNAL( stateChanged( int ) ), this, SLOT( showThemAllUpdated() ) );
-    layout->addWidget( m_showThemAll );
+    layoutAllowedModules->addWidget( m_showThemAll );
 
     m_ignoreRecommends = new QCheckBox( "Ignore official recommendation.", this );
     m_ignoreRecommends->setToolTip(
         "By default, OpenWalnut provides a list of recommended modules. This list overrides your custom selection. To disable this, activate this "
         "option."
     );
-    layout->addWidget( m_ignoreRecommends );
+    layoutAllowedModules->addWidget( m_ignoreRecommends );
 
     // create the module list
-    m_list = new QListWidget( this );
-    layout->addWidget( m_list );
-    setLayout( layout );
+    m_list = new QListWidget();
+    layoutAllowedModules->addWidget( m_list );
+
+    // the path list
+    m_pathList = new QListWidget();
+    layoutModulePaths->addWidget( m_pathList );
+
+    // the path list also needs some add/remove buttons
+    QHBoxLayout* addRemLayout = new QHBoxLayout();
+    QWidget* addRemWidget = new QWidget();
+    addRemWidget->setLayout( addRemLayout );
+    layoutModulePaths->addWidget( addRemWidget );
+    QPushButton* addButton = new QPushButton( "Add Path" );
+    m_removePathButton = new QPushButton( "Remove Path" );
+    m_removePathButton->setEnabled( false );
+    addRemLayout->addWidget( addButton );
+    addRemLayout->addWidget( m_removePathButton );
+
+    connect( addButton, SIGNAL( clicked( bool ) ), this, SLOT( addModulePath() ) );
+    connect( m_removePathButton, SIGNAL( clicked( bool ) ), this, SLOT( removeModulePath() ) );
+    connect( m_pathList, SIGNAL( itemSelectionChanged() ), this, SLOT( pathListSelectionChanged() ) );
 
     // for modules without icon, use this
     QIcon noIcon = WQt4Gui::getMainWindow()->getIconManager()->getIcon( "DefaultModuleIcon" );
@@ -241,18 +290,30 @@ WQtModuleExcluder::WQtModuleExcluder( QWidget* parent, Qt::WindowFlags f ):
     connect( defButtons, SIGNAL( accepted() ), this, SLOT( accept() ) );
     connect( defButtons, SIGNAL( rejected() ), this, SLOT( reject() ) );
     connect( defButtons->button( QDialogButtonBox::RestoreDefaults ), SIGNAL( clicked() ), this, SLOT( reset() ) );
-    layout->addWidget( defButtons );
+    masterLayout->addWidget( defButtons );
 
     // initialize the widgets
     loadListsFromSettings();
 }
 
-WQtModuleExcluder::~WQtModuleExcluder()
+WQtModuleConfig::~WQtModuleConfig()
 {
     // cleanup
 }
 
-void WQtModuleExcluder::loadListsFromSettings( bool recommendsOnly )
+void WQtModuleConfig::initPathHelper()
+{
+    // we allow the user to specify additional module paths. They need to be loaded before the WModuleFactory initiates the module-load stuff.
+    // Therefore, we grab the setting here and add it to WPathHelper
+    QList< QVariant > paths = WQt4Gui::getSettings().value( "qt4gui/additionalModulePaths" ).toList();
+    for( QList< QVariant >::const_iterator it = paths.begin(); it != paths.end(); ++it )
+    {
+        std::string p = ( *it ).toString().toStdString();
+        WPathHelper::getPathHelper()->addAdditionalModulePath( p );
+    }
+}
+
+void WQtModuleConfig::loadListsFromSettings( bool recommendsOnly, bool defaultModulePaths )
 {
     // update checkbox too
     bool ignoreAllowedList = WQt4Gui::getSettings().value( "qt4gui/modules/IgnoreAllowedList", false ).toBool();
@@ -290,9 +351,22 @@ void WQtModuleExcluder::loadListsFromSettings( bool recommendsOnly )
     {
         std::copy( m_recommendedModules.begin(), m_recommendedModules.end(), std::back_inserter( m_allowedModules ) );
     }
+
+    if( !defaultModulePaths )
+    {
+        // now, also fill the list
+        // NOTE: we do not use the list in WPathHelper. This list will NOT be updated directly to ensure consistency between the path list in
+        // WPathHelper and the loaded modules in WModuleFactory. WPathHelper is set correctly on next restart.
+        QList< QVariant > paths = WQt4Gui::getSettings().value( "qt4gui/additionalModulePaths" ).toList();
+        for( QList< QVariant >::const_iterator it = paths.begin(); it != paths.end(); ++it )
+        {
+            std::string p = ( *it ).toString().toStdString();
+            m_pathList->addItem( QString::fromStdString( p ) );
+        }
+    }
 }
 
-void WQtModuleExcluder::saveListToSettings()
+void WQtModuleConfig::saveListToSettings()
 {
     // rebuild list of allowed modules
     m_allowedModules.clear();
@@ -313,14 +387,22 @@ void WQtModuleExcluder::saveListToSettings()
     WQt4Gui::getSettings().setValue( "qt4gui/modules/allowedList", QString::fromStdString( allowedAsString ) );
     WQt4Gui::getSettings().setValue( "qt4gui/modules/IgnoreAllowedList", ( m_showThemAll->checkState() == Qt::Checked ) );
     WQt4Gui::getSettings().setValue( "qt4gui/modules/IgnoreRecommendedList", ( m_ignoreRecommends->checkState() == Qt::Checked ) );
+
+    // also write the path list
+    QList< QVariant > paths;
+    for( int i = 0; i < m_pathList->count(); ++i )
+    {
+        paths.push_back( m_pathList->item( i )->text() );
+    }
+    WQt4Gui::getSettings().setValue( "qt4gui/additionalModulePaths", paths );
 }
 
-void WQtModuleExcluder::enforceAllModules()
+void WQtModuleConfig::enforceAllModules()
 {
     WQt4Gui::getSettings().setValue( "qt4gui/modules/IgnoreAllowedList", true  );
 }
 
-void WQtModuleExcluder::loadRecommends()
+void WQtModuleConfig::loadRecommends()
 {
     m_recommendedModules.clear();
 
@@ -355,57 +437,57 @@ void WQtModuleExcluder::loadRecommends()
             }
             else
             {
-                wlog::error( "WQtModuleExcluder" ) << "No recommended modules specified in \"" << confFile.string() <<
+                wlog::error( "WQtModuleConfig" ) << "No recommended modules specified in \"" << confFile.string() <<
                                                       "\". Enabling all modules as fall-back.";
                 enforceAllModules();
             }
         }
         catch( const po::error &e )
         {
-            wlog::error( "WQtModuleExcluder" ) << "Invalid configuration file \"" << confFile.string() <<
+            wlog::error( "WQtModuleConfig" ) << "Invalid configuration file \"" << confFile.string() <<
                                                    "\". Enabling all modules as fall-back. Error was: " << e.what();
             enforceAllModules();
         }
     }
     else
     {
-        wlog::error( "WQtModuleExcluder" ) << "No \"" << confFile.string() << "\" found. Enabling all modules as fall-back.";
+        wlog::error( "WQtModuleConfig" ) << "No \"" << confFile.string() << "\" found. Enabling all modules as fall-back.";
         enforceAllModules();
     }
 }
 
-bool WQtModuleExcluder::operator()( std::string const& name ) const
+bool WQtModuleConfig::operator()( std::string const& name ) const
 {
     return ( m_showThemAll->checkState() != Qt::Checked ) &&
            ( std::find( m_allowedModules.begin(), m_allowedModules.end(), name ) == m_allowedModules.end() );
 }
 
-bool WQtModuleExcluder::operator()( WModule::ConstSPtr module ) const
+bool WQtModuleConfig::operator()( WModule::ConstSPtr module ) const
 {
     return operator()( module->getName() );
 }
 
-void WQtModuleExcluder::configure()
+void WQtModuleConfig::configure()
 {
     show();
 }
 
-QAction* WQtModuleExcluder::getConfigureAction() const
+QAction* WQtModuleConfig::getConfigureAction() const
 {
-    QAction* a = new QAction( "Configure Allowed Modules", parent() );
+    QAction* a = new QAction( "Configure Modules", parent() );
     a->setToolTip( "Allows you to configure the list of modules, which is used for selecting modules in OpenWalnut (i.e. in the toolbar)." );
     connect( a, SIGNAL( triggered( bool ) ), this, SLOT( configure() ) );
     return a;
 }
 
-void WQtModuleExcluder::accept()
+void WQtModuleConfig::accept()
 {
     saveListToSettings();
     emit updated();
     QDialog::accept();
 }
 
-void WQtModuleExcluder::reject()
+void WQtModuleConfig::reject()
 {
     // reset everything to the current state in the settings:
     loadListsFromSettings();
@@ -413,7 +495,7 @@ void WQtModuleExcluder::reject()
     QDialog::reject();
 }
 
-void WQtModuleExcluder::showThemAllUpdated()
+void WQtModuleConfig::showThemAllUpdated()
 {
     if( m_showThemAll->checkState() == Qt::Checked )
     {
@@ -425,17 +507,44 @@ void WQtModuleExcluder::showThemAllUpdated()
     }
 }
 
-void WQtModuleExcluder::reset()
+void WQtModuleConfig::reset()
 {
+    m_pathList->clear();
+
     // reset all checkboxes
     for( std::vector< WModule::ConstSPtr >::const_iterator iter = m_moduleList.begin(); iter != m_moduleList.end(); ++iter )
     {
         // we later need to find the checkbox for one module easily:
         m_moduleItemMap[ ( *iter )->getName() ]->setCheckState( Qt::Unchecked );
     }
-    loadListsFromSettings( true );
+    loadListsFromSettings( true, true );
 
     m_showThemAll->setCheckState( Qt::Unchecked );
     m_ignoreRecommends->setCheckState( Qt::Unchecked );
     m_list->setDisabled( false );
+}
+
+void WQtModuleConfig::addModulePath()
+{
+    QString dir = QFileDialog::getExistingDirectory( this, "Select Directory",
+                                                           QString::fromStdString( WPathHelper::getHomePath().string() ),
+                                                           QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks );
+    m_pathList->addItem( dir );
+}
+
+void WQtModuleConfig::removeModulePath()
+{
+    qDeleteAll( m_pathList->selectedItems() );
+}
+
+void WQtModuleConfig::pathListSelectionChanged()
+{
+    if( m_pathList->selectedItems().size() )
+    {
+        m_removePathButton->setEnabled( true );
+    }
+    else
+    {
+        m_removePathButton->setEnabled( false );
+    }
 }

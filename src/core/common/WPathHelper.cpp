@@ -25,6 +25,7 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
+#include <algorithm>
 
 #include <boost/tokenizer.hpp>
 
@@ -53,9 +54,10 @@ boost::shared_ptr< WPathHelper > WPathHelper::getPathHelper()
     return m_instance;
 }
 
-void WPathHelper::setAppPath( boost::filesystem::path appPath )
+void WPathHelper::setBasePaths( boost::filesystem::path appPath, boost::filesystem::path homePath )
 {
     m_appPath    = appPath;
+    m_homePath   = homePath;
     m_sharePath  = m_appPath / "../share/openwalnut";
     m_docPath    = m_appPath / "../share/doc";
     m_configPath = m_appPath / "../share/openwalnut";
@@ -94,6 +96,11 @@ boost::filesystem::path WPathHelper::getModulePath()
     return getPathHelper()->m_modulePath;
 }
 
+boost::filesystem::path WPathHelper::getHomePath()
+{
+    return getPathHelper()->m_homePath;
+}
+
 boost::filesystem::path WPathHelper::getLibPath()
 {
     return getPathHelper()->m_libPath;
@@ -120,6 +127,7 @@ std::vector< boost::filesystem::path > WPathHelper::getAllModulePaths()
     std::vector< boost::filesystem::path > paths;
     // the first element always is the global search path
     paths.push_back( getModulePath() );
+    paths.push_back( getHomePath() / "modules" );
 
     // the environment variable stores the additional paths
     std::string additionalPaths( getenv( "OW_MODULE_PATH" ) ? getenv( "OW_MODULE_PATH" ) : "" );
@@ -133,6 +141,29 @@ std::vector< boost::filesystem::path > WPathHelper::getAllModulePaths()
         paths.push_back( boost::filesystem::path( *it ) );
     }
 
+    // add the additional paths
+    for( std::vector< boost::filesystem::path >::const_iterator it = getPathHelper()->m_additionalModulePaths.begin();
+                                                                it != getPathHelper()->m_additionalModulePaths.end();
+                                                                ++it )
+    {
+        if( !std::count( paths.begin(), paths.end(), *it ) )
+        {
+            paths.push_back( *it );
+        }
+    }
+
     return paths;
 }
 
+void WPathHelper::addAdditionalModulePath( const boost::filesystem::path& path )
+{
+    if( !std::count( m_additionalModulePaths.begin(), m_additionalModulePaths.end(), path ) )
+    {
+        m_additionalModulePaths.push_back( path );
+    }
+}
+
+const std::vector< boost::filesystem::path >& WPathHelper::getAdditionalModulePaths() const
+{
+    return m_additionalModulePaths;
+}

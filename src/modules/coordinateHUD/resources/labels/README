@@ -1,0 +1,8 @@
+We currently have these types of labels. Each set is its own subdirectory, containing the 6 face labels. Each face label must have the same
+resolution. The resolution you choose is arbitrary. 64x64 has proven to be a good choice. Each set of labels needs to be tiled into one image. The resulting image needs to be scaled to a resolution which is a power of two.
+
+You can do this by using ImageMagick:
+
+montage label*.png -tile x1 -geometry 64x64+0+0 tiled.png
+convert tiled.png -resize 512x64\! tiled.png
+

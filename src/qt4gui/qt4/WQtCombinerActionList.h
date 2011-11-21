@@ -40,7 +40,7 @@
 #include "core/kernel/WModuleCombiner.h"
 #include "guiElements/WQtModuleOneToOneCombinerAction.h"
 #include "WQt4Gui.h"
-#include "WQtModuleExcluder.h"
+#include "WQtModuleConfig.h"
 
 #include "WIconManager.h"
 
@@ -63,7 +63,7 @@ public:
      * \tparam PredicateT the predicate used for excluding modules
      */
     WQtCombinerActionList( QWidget* parent, WIconManager* icons, WCombinerTypes::WCompatiblesList compatibles,
-                           const WQtModuleExcluder* exclusionPredicate = 0, bool advancedText = false );
+                           const WQtModuleConfig* exclusionPredicate = 0, bool advancedText = false );
     /**
      * This constructor creates a list of actions recursively from the specified disconnects list.
      * \param parent the parent widget of this widget, i.e. the widget that manages it.

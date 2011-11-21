@@ -88,11 +88,12 @@ public:
      * \return the created triangle mesh
      */
     template< typename T >
-    boost::shared_ptr< WTriangleMesh > generateSurface(  size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
-                                                          const WMatrix< double >& mat,
-                                                          const std::vector< T >* vals,
-                                                          double isoValue,
-                                                          boost::shared_ptr<WProgressCombiner> mainProgress = boost::shared_ptr < WProgressCombiner >() );
+    boost::shared_ptr< WTriangleMesh > generateSurface( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
+                                                        const WMatrix< double >& mat,
+                                                        const std::vector< T >* vals,
+                                                        double isoValue,
+                                                        boost::shared_ptr<WProgressCombiner> mainProgress
+                                                            = boost::shared_ptr < WProgressCombiner >() );
 
     /**
      * Generate the triangles for the surface on the given dataSet (inGrid, vals). The texture coordinates in the resulting mesh are relative to
@@ -108,11 +109,12 @@ public:
      *
      * \return the created triangle mesh
      */
-    boost::shared_ptr< WTriangleMesh > genSurfaceOneValue(  size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
-                                                              const WMatrix< double >& mat,
-                                                              const std::vector< size_t >* vals,
-                                                              size_t isoValue,
-                                                              boost::shared_ptr<WProgressCombiner> progress = boost::shared_ptr < WProgressCombiner >() );
+    boost::shared_ptr< WTriangleMesh > genSurfaceOneValue( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
+                                                           const WMatrix< double >& mat,
+                                                           const std::vector< size_t >* vals,
+                                                           size_t isoValue,
+                                                           boost::shared_ptr<WProgressCombiner> progress
+                                                                = boost::shared_ptr < WProgressCombiner >() );
 
 protected:
 private:

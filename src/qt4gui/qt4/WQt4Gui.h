@@ -31,6 +31,7 @@
 #include <boost/program_options.hpp>
 
 #include <QtCore/QSettings>
+#include <QtCore/QMutex>
 
 #include "core/graphicsEngine/WROI.h"
 #include "core/graphicsEngine/WGraphicsEngine.h"
@@ -140,23 +141,35 @@ public:
      */
     boost::signals2::signal1< void, std::vector< std::string > >* getLoadButtonSignal();
 
-    /**
-     * Instruct the WMainWindow to open a new custom widget.
+/**
+     * Instruct to open a new custom widget. The specified condition should be the shutdown condition of the module, as the function returns only
+     * if the widget was created. To ensure that the creation is aborted properly if the module shuts down in the meantime, this condition is
+     * used.
+     *
+     * \note this function blocks until the widget was created. Check the resulting pointer for NULL.
      *
      * \param title the title of the widget
      * \param projectionMode the kind of projection which should be used
-     * \param shutdownCondition condition to wait for the shutdown of a module
+     * \param shutdownCondition a condition enforcing abort of widget creation.
+     *
      * \return the created widget
      */
-    virtual boost::shared_ptr< WCustomWidget > openCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode,
+    virtual WCustomWidget::SPtr openCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode,
         boost::shared_ptr< WCondition > shutdownCondition );
 
     /**
-     * Instruct the WMainWindow to close a custom widget.
+     * Instruct the WMainWindow to close a custom widget. NEVER call this in the GUI thread. It will block the GUI.
      *
      * \param title The title of the widget
      */
     virtual void closeCustomWidget( std::string title );
+
+    /**
+     * Instruct the WMainWindow to close a custom widget. NEVER call this in the GUI thread. It will block the GUI.
+     *
+     * \param widget the widget to close
+     */
+    virtual void closeCustomWidget( WCustomWidget::SPtr widget );
 
     /**
      * Returns the current main window instance or NULL if not existent.
@@ -171,6 +184,13 @@ public:
      * \return settings object.
      */
     static QSettings& getSettings();
+
+    /**
+     * Returns the option map for the current instance of this GUI. This can be useful to parse further commandline parameters
+     *
+     * \return the option map
+     */
+    const boost::program_options::variables_map& getOptionMap() const;
 
 protected:
 
@@ -211,11 +231,29 @@ private:
     const boost::program_options::variables_map& m_optionsMap; //!< Map storing the program options.
 
     /**
+     * If true, the next trigger of deferredLoad will actually do loading. This variable and the deferredLoad function are protected
+     * with m_deferredLoadMutex.
+     */
+    bool m_loadDeferredOnce;
+
+    /**
+     * This mutex protects the deferredLoad method from being called in parallel or twice.
+     */
+    QMutex m_deferredLoadMutex;
+
+    /**
      * New log item added. Pushing event to QT's event queue.
      *
      * \param entry the entry added.
      */
     void slotAddLog( const WLogEntry& entry );
+
+    /**
+     * This is called by the GE when the osg was set-up correctly. This triggers project and data file loading.
+     *
+     * \note can be called from an arbitrary thread. Protected by m_deferredLoadMutex.
+     */
+    void deferredLoad();
 };
 
 #endif  // WQT4GUI_H

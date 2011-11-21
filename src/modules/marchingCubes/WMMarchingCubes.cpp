@@ -299,7 +299,10 @@ namespace
     template<typename AlgoBase>
     boost::shared_ptr<MCAlgoMapperBase<AlgoBase> > createAlgo( int enum_type )
     {
-#define CASE( enum_type ) case enum_type: return boost::shared_ptr<MCAlgoMapperBase<AlgoBase> >( new MCAlgoMapper<AlgoBase, DataTypeRT< enum_type >::type >() )
+#define CASE( enum_type ) \
+        case enum_type:\
+            return boost::shared_ptr<MCAlgoMapperBase<AlgoBase> >( new MCAlgoMapper<AlgoBase, DataTypeRT< enum_type >::type >() )
+
         switch ( enum_type )
         {
             //CASE( W_DT_BINARY ); // the cast operation DataTypeRT is not implemented for binaries, so far

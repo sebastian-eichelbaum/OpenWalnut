@@ -33,7 +33,8 @@
  */
 typedef enum
 {
-    GE_RELOADSHADERS   // when a shader reload is requested
+    GE_RELOADSHADERS,   // when a shader reload is requested
+    GE_STARTUPCOMPLETE  // when the first view was correctly initialized
 }
 GE_SIGNAL;
 

@@ -42,7 +42,7 @@ class WTransferFunctionPoint : public QGraphicsItem
     public:
         typedef QGraphicsItem BaseClass;
 
-        WTransferFunctionPoint( WTransferFunctionWidget* parent = 0x0 );
+        explicit WTransferFunctionPoint( WTransferFunctionWidget* parent = 0x0 );
         virtual ~WTransferFunctionPoint();
 
         void setLeft( WTransferFunctionPoint* );
@@ -62,8 +62,8 @@ class WTransferFunctionPoint : public QGraphicsItem
         virtual void setPos( QPointF point );
     protected:
 
-        void clampToRectangle( QPointF& pos, const QRectF& rectangle ) const;
-        void clampToLeftAndRight( QPointF& pos ) const;
+        void clampToRectangle( QPointF* const pos, const QRectF& rectangle ) const;
+        void clampToLeftAndRight( QPointF* const pos ) const;
 
         QVariant itemChange( GraphicsItemChange change, const QVariant &value );
 
@@ -80,5 +80,5 @@ class WTransferFunctionPoint : public QGraphicsItem
         WTransferFunctionWidget* _parent;
 };
 
-#endif
+#endif  // WTRANSFERFUNCTIONPOINT_H
 

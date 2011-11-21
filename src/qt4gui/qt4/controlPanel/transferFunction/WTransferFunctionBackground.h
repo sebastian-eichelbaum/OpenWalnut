@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WTransferFunctionBackground_hpp
-#define WTransferFunctionBackground_hpp
+#ifndef WTRANSFERFUNCTIONBACKGROUND_H
+#define WTRANSFERFUNCTIONBACKGROUND_H
 
 #include "QtGui/QGraphicsPixmapItem"
 
@@ -41,7 +41,7 @@ class WTransferFunctionBackground : public QGraphicsPixmapItem
     public:
         typedef QGraphicsPixmapItem BaseClass;
 
-        WTransferFunctionBackground( WTransferFunctionWidget* parent = 0x0 );
+        explicit WTransferFunctionBackground( WTransferFunctionWidget* parent = 0x0 );
         virtual ~WTransferFunctionBackground();
 
         QRectF boundingRect() const;
@@ -49,5 +49,5 @@ class WTransferFunctionBackground : public QGraphicsPixmapItem
         void setMyPixmap( const QPixmap& pixmap );
 };
 
-#endif  // WTransferFunctionBackground_hpp
+#endif  // WTRANSFERFUNCTIONBACKGROUND_H
 

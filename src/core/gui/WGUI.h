@@ -82,22 +82,36 @@ public:
     virtual int run() = 0;
 
     /**
-     * Instruct the MainWindow to open a new custom widget.
+     * Instruct to open a new custom widget. The specified condition should be the shutdown condition of the module, as the function returns only
+     * if the widget was created. To ensure that the creation is aborted properly if the module shuts down in the meantime, this condition is
+     * used.
+     *
+     * \note this function blocks until the widget was created. Check the resulting pointer for NULL.
      *
      * \param title the title of the widget
      * \param projectionMode the kind of projection which should be used
-     * \param shutdownCondition condition to wait for the shutdown of a module
+     * \param shutdownCondition a condition enforcing abort of widget creation.
+     *
      * \return the created widget
      */
-    virtual boost::shared_ptr< WCustomWidget > openCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode,
-        boost::shared_ptr< WCondition > shutdownCondition ) = 0;
+    virtual WCustomWidget::SPtr openCustomWidget(
+            std::string title,
+            WGECamera::ProjectionMode projectionMode,
+            boost::shared_ptr< WCondition > shutdownCondition ) = 0;
 
     /**
-     * Instruct the MainWindow to close a custom widget.
+     * Instruct to close a custom widget.
      *
      * \param title The title of the widget
      */
     virtual void closeCustomWidget( std::string title ) = 0;
+
+    /**
+     * Instruct to close the custom widget.
+     *
+     * \param widget the widget to close again.
+     */
+    virtual void closeCustomWidget( WCustomWidget::SPtr widget ) = 0;
 
 protected:
     /**

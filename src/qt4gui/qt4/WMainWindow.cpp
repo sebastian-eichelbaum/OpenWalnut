@@ -77,6 +77,7 @@
 #include "events/WModuleReadyEvent.h"
 #include "events/WModuleRemovedEvent.h"
 #include "events/WOpenCustomDockWidgetEvent.h"
+#include "events/WCloseCustomDockWidgetEvent.h"
 #include "guiElements/WQtPropertyBoolAction.h"
 #include "WQt4Gui.h"
 #include "WQtCombinerToolbar.h"
@@ -94,8 +95,7 @@
 WMainWindow::WMainWindow():
     QMainWindow(),
     m_currentCompatiblesToolbar( NULL ),
-    m_iconManager(),
-    m_navSlicesAlreadyLoaded( false )
+    m_iconManager()
 {
 }
 
@@ -122,6 +122,12 @@ void WMainWindow::setupGUI()
                                                                "Disables the navigation views completely. This can lead to a speed-up and is "
                                                                "recommended for those who do not need them.",
                                                                true,
+                                                               true    // this requires a restart
+                                                       );
+    WSettingAction* showNetworkEditor = new WSettingAction( this, "qt4gui/showNetworkEditor",
+                                                               "Show Network Editor",
+                                                               "Show the network editor allowing you to manipulate the module graph graphically?",
+                                                               false,
                                                                true    // this requires a restart
                                                        );
     m_autoDisplaySetting = new WSettingAction( this, "qt4gui/useAutoDisplay",
@@ -189,11 +195,13 @@ void WMainWindow::setupGUI()
 
     setDockOptions( QMainWindow::AnimatedDocks |  QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks );
 
-#ifdef OW_QT4GUI_NETWORKEDITOR
     //network Editor
-    m_networkEditor = new WQtNetworkEditor( this );
-    m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
-#endif
+    m_networkEditor = NULL;
+    if( showNetworkEditor->get() )
+    {
+        m_networkEditor = new WQtNetworkEditor( this );
+        m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
+    }
 
     // the control panel instance is needed for the menu
     m_controlPanel = new WQtControlPanel( this );
@@ -202,17 +210,19 @@ void WMainWindow::setupGUI()
 
     // add all docks
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getModuleDock() );
-#ifdef OW_QT4GUI_NETWORKEDITOR
-    addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
-#endif
+    if( m_networkEditor )
+    {
+        addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
+    }
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getColormapperDock() );
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getRoiDock() );
 
     // tabify those panels by default
-#ifdef OW_QT4GUI_NETWORKEDITOR
-    tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
-#endif
+    if( m_networkEditor )
+    {
+        tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
+    }
     tabifyDockWidget( m_controlPanel->getModuleDock(), m_controlPanel->getColormapperDock() );
     tabifyDockWidget( m_controlPanel->getColormapperDock(), m_controlPanel->getRoiDock() );
 
@@ -306,6 +316,7 @@ void WMainWindow::setupGUI()
     viewMenu->addAction( hideMenuAction );
     viewMenu->addSeparator();
     viewMenu->addAction( showNavWidgets );
+    viewMenu->addAction( showNetworkEditor );
     viewMenu->addSeparator();
     viewMenu->addMenu( m_permanentToolBar->getStyleMenu() );
 
@@ -320,7 +331,7 @@ void WMainWindow::setupGUI()
 
     QMenu* settingsMenu = m_menuBar->addMenu( "Settings" );
     settingsMenu->addAction( m_autoDisplaySetting );
-    settingsMenu->addAction( m_controlPanel->getModuleExcluder().getConfigureAction() );
+    settingsMenu->addAction( m_controlPanel->getModuleConfig().getConfigureAction() );
     settingsMenu->addSeparator();
     settingsMenu->addAction( mtViews );
     settingsMenu->addSeparator();
@@ -460,8 +471,14 @@ void WMainWindow::setupGUI()
     restoreSavedState();
 }
 
-void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string proto )
+void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string proto, bool onlyOnce )
 {
+    // if only one module should be added, and there already is one --- skip.
+    if( onlyOnce && !WKernel::getRunningKernel()->getRootContainer()->getModules( proto ).empty() )
+    {
+        return;
+    }
+
     // get the prototype.
     if( !WKernel::getRunningKernel()->getRootContainer()->applyModule( module, proto, true ) )
     {
@@ -496,11 +513,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             // it is a dataset single
             // load a nav slice module if a WDataSetSingle is available!?
-            if( !m_navSlicesAlreadyLoaded )
-            {
-                autoAdd( module, "Navigation Slices" );
-                m_navSlicesAlreadyLoaded = true;
-            }
+            autoAdd( module, "Navigation Slices", true );
         }
         else if( dataModule->getDataSet()->isA< WDataSetFibers >() )
         {
@@ -895,6 +908,19 @@ void WMainWindow::customEvent( QEvent* event )
 
         ocdwEvent->getFlag()->set( widget );
     }
+    if( event->type() == WCloseCustomDockWidgetEvent::CUSTOM_TYPE )
+    {
+        WCloseCustomDockWidgetEvent* closeEvent = static_cast< WCloseCustomDockWidgetEvent* >( event );
+        boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
+        if( m_customDockWidgets.count( closeEvent->getTitle() ) > 0 )
+        {
+            if( m_customDockWidgets[closeEvent->getTitle()]->decreaseUseCount() )
+            {
+                // custom dock widget should be deleted
+                m_customDockWidgets.erase( closeEvent->getTitle() );
+            }
+        }
+    }
     else
     {
         // other event
@@ -952,23 +978,13 @@ boost::shared_ptr< WQtCustomDockWidget > WMainWindow::getCustomDockWidget( std::
     boost::shared_ptr< WQtCustomDockWidget > out = m_customDockWidgets.count( title ) > 0 ?
         m_customDockWidgets[title] :
         boost::shared_ptr< WQtCustomDockWidget >();
-    //m_customDockWidgetsLock.unlock();
     return out;
 }
 
 
 void WMainWindow::closeCustomDockWidget( std::string title )
 {
-    boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
-    if( m_customDockWidgets.count( title ) > 0 )
-    {
-        if( m_customDockWidgets[title]->decreaseUseCount() )
-        {
-            // custom dock widget should be deleted
-            m_customDockWidgets.erase( title );
-        }
-    }
-    //m_customDockWidgetsLock.unlock();
+    QCoreApplication::postEvent( this, new WCloseCustomDockWidgetEvent( title ) );
 }
 
 void WMainWindow::newRoi()

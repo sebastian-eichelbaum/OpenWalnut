@@ -37,7 +37,7 @@ WTransferFunctionPoint::WTransferFunctionPoint( WTransferFunctionWidget *parent 
 {
     this->setFlag( ItemIsMovable );
     this->setFlag( ItemSendsGeometryChanges );
-    //this->setFlag( ItemIsSelectable );
+    //this->setFlag( ItemIsSelectable ); //< we should be able to use this framework, but we do not make use of it right now
 
     setZValue( 4 );
 }
@@ -139,8 +139,8 @@ QVariant WTransferFunctionPoint::itemChange( GraphicsItemChange change, const QV
             newPos = ( QPointF( boundingBox.x() + boundingBox.width(), newPos.y() ) );
         }
 
-        this->clampToRectangle( newPos, boundingBox );
-        this->clampToLeftAndRight( newPos );
+        this->clampToRectangle( &newPos, boundingBox );
+        this->clampToLeftAndRight( &newPos );
 
         // if ( _parent )
         //    _parent->dataChanged();
@@ -159,28 +159,30 @@ void WTransferFunctionPoint::mousePressEvent( QGraphicsSceneMouseEvent *event )
         _parent->setCurrent( this );
 }
 
-void WTransferFunctionPoint::clampToLeftAndRight( QPointF& pos ) const
+void WTransferFunctionPoint::clampToLeftAndRight( QPointF* const pos ) const
 {
+    Q_ASSERT( pos );
     if ( left )
     {
-        if ( pos.x() <= left->pos().x() )
+        if ( pos->x() <= left->pos().x() )
         {
-            pos= QPointF( left->pos().x() + 1, pos.y() );
+            ( *pos ) = QPointF( left->pos().x() + 1, pos->y() );
         }
     }
     if ( right )
     {
-        if ( pos.x() >= right->pos().x() )
+        if ( pos->x() >= right->pos().x() )
         {
-            pos = QPointF( right->pos().x() - 1, pos.y() );
+            ( *pos ) = QPointF( right->pos().x() - 1, pos->y() );
         }
     }
 }
 
-void WTransferFunctionPoint::clampToRectangle( QPointF& pos, const QRectF& rectangle ) const
+void WTransferFunctionPoint::clampToRectangle( QPointF* const pos, const QRectF& rectangle ) const
 {
-    qreal x( pos.x() );
-    qreal y( pos.y() );
+    Q_ASSERT( pos );
+    qreal x( pos->x() );
+    qreal y( pos->y() );
 
     const qreal xMin( rectangle.x() );
     const qreal xMax( xMin + rectangle.width() );
@@ -193,12 +195,11 @@ void WTransferFunctionPoint::clampToRectangle( QPointF& pos, const QRectF& recta
     y = qMax( y, yMin );
     y = qMin( y, yMax );
 
-    pos = QPointF( x, y );
+    ( *pos ) = QPointF( x, y );
 }
 
 void WTransferFunctionPoint::setPos( QPointF point )
 {
-    // std::cout << "setPoint( " << point.x() << ", " << point.y() << ")";
     BaseClass::setPos( point );
 }
 

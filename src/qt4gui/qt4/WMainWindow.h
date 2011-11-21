@@ -120,7 +120,10 @@ public:
     boost::shared_ptr< WQtCustomDockWidget > getCustomDockWidget( std::string name );
 
     /**
-     * Close one of the custom dock widget saved in the map of customDockWidgets
+     * Close one of the custom dock widget saved in the map of customDockWidgets. This method is thread-safe and ensures that the widget is
+     * closed in the GUI thread. NEVER call this in the GUI thread. It will block the GUI.
+     *
+     * \note the widget might not be closed after this call. The widget is usage counted.
      *
      * \param title the title of the widget to close
      */
@@ -347,10 +350,9 @@ private:
      *
      * \param module the module to be combined.
      * \param proto the prototype to combine with the module.
+     * \param onlyOnce if true, it is ensured that only one module is in the container.
      */
-    void autoAdd( boost::shared_ptr< WModule > module, std::string proto );
-
-    bool m_navSlicesAlreadyLoaded; //!< if true, the navslices have been loaded already
+    void autoAdd( boost::shared_ptr< WModule > module, std::string proto, bool onlyOnce = false );
 
     /**
      * Loads the window states and geometries from a file.

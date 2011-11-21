@@ -27,6 +27,7 @@
 
 //#include "WTransferFunctionPoint.hpp"
 //#include "WTransferFunctionPointColor.hpp"
+#include <vector>
 
 #include "QtGui/QGraphicsView"
 
@@ -47,6 +48,10 @@ class WTransferFunction; // I want to remove this if possible to keep the code c
  */
 struct WTransferFunctionGuiNotificationClass
 {
+    virtual ~WTransferFunctionGuiNotificationClass()
+    {
+    }
+
     virtual void guiUpdate( const WTransferFunction& ) = 0;
 };
 
@@ -64,7 +69,7 @@ class WTransferFunctionWidget :public QGraphicsView
     public:
         typedef QGraphicsView BaseClass;
 
-        WTransferFunctionWidget( QWidget* qparent = 0x0, WTransferFunctionGuiNotificationClass* parent=0x0 );
+        WTransferFunctionWidget( QWidget* qparent = 0x0, WTransferFunctionGuiNotificationClass* parent = 0x0 );
 
         virtual ~WTransferFunctionWidget();
 
@@ -88,11 +93,17 @@ class WTransferFunctionWidget :public QGraphicsView
         /** set the current active point => this should be changed to QGraphicsScene
          * object selection */
         void setCurrent( WTransferFunctionPoint* current )
-        { this->current = current; this->ccurrent = 0x0; }
+        {
+            this->current = current;
+            this->ccurrent = 0x0;
+        }
 
         /** similart to setCurrent but for Color control points */
         void setCurrentColor( WTransferFunctionColorPoint* ccurrent )
-        { this->ccurrent = ccurrent; this->current = 0x0; }
+        {
+            this->ccurrent = ccurrent;
+            this->current = 0x0;
+        }
 
         /** sample the transfer function into a 1D RGBA texture */
         void sample1DWTransferFunction( unsigned char*array, int width );
@@ -123,12 +134,12 @@ class WTransferFunctionWidget :public QGraphicsView
          * If a color is provided, it is used. Otherwise, a new color is used interpolating the
          * current color map.
          */
-        void insertColor( const QPointF& pos, QColor const *const color = 0);
+        void insertColor( const QPointF& pos, QColor const* const color = 0 );
 
         /**
          * Same as insertColor but in normalized coordinates, i.e., [ 0...1 ] along x
          */
-        void insertColorNormalized( const QPointF& pos, QColor const *const color = 0);
+        void insertColorNormalized( const QPointF& pos, QColor const *const color = 0 );
 
         /**
          * Remove all points from the transfer function widget to be able to insert new points
@@ -200,4 +211,4 @@ class WTransferFunctionWidget :public QGraphicsView
         bool initialized;
 };
 
-#endif
+#endif  // WTRANSFERFUNCTIONWIDGET_H

@@ -38,7 +38,7 @@ class WTransferFunctionLine : public QGraphicsLineItem
     public:
         typedef QGraphicsLineItem BaseClass;
 
-        WTransferFunctionLine( WTransferFunctionWidget* parent = 0x0 );
+        explicit WTransferFunctionLine( WTransferFunctionWidget* parent = 0x0 );
         virtual ~WTransferFunctionLine();
 
         WTransferFunctionPoint *getLeft() const;
@@ -49,14 +49,13 @@ class WTransferFunctionLine : public QGraphicsLineItem
         virtual void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget* );
 
     protected:
-        /*
         // to be implemented: how do we want to handle moves of lines?
         // I think a vertical move may be nice, but may even be implemented using
         // itemChange(...)
-        void mouseMoveEvent( QGraphicsSceneMouseEvent *event );
-        void mousePressEvent( QGraphicsSceneMouseEvent *event );
-        void mouseReleaseEvent( QGraphicsSceneMouseEvent *event );
-        */
+        //void mouseMoveEvent( QGraphicsSceneMouseEvent *event );
+        //void mousePressEvent( QGraphicsSceneMouseEvent *event );
+        //void mouseReleaseEvent( QGraphicsSceneMouseEvent *event );
+
     private:
         double lineWidth;
 
@@ -66,5 +65,5 @@ class WTransferFunctionLine : public QGraphicsLineItem
         WTransferFunctionWidget* _parent;
 };
 
-#endif  // WTransferFunctionLine_hpp
+#endif  // WTRANSFERFUNCTIONLINE_H
 

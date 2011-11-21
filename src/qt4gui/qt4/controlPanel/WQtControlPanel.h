@@ -39,7 +39,7 @@
 #include "core/dataHandler/WDataSet.h"
 #include "core/graphicsEngine/WROI.h"
 
-#include "../WQtModuleExcluder.h"
+#include "../WQtModuleConfig.h"
 
 #include "../WQtCombinerToolbar.h"
 #include "WQtPropertyGroupWidget.h"
@@ -203,7 +203,7 @@ public:
      *
      * \return the module excluder.
      */
-    WQtModuleExcluder& getModuleExcluder() const;
+    WQtModuleConfig& getModuleConfig() const;
 
     /**
      * Returns an action which can be triggered by the user if some module are missing.
@@ -355,7 +355,7 @@ private:
      * The WQtCombinerActionList needs some predicate which decides whether to exclude a certain module from the list or not. We use this
      * predicate here. It is configured internally using a white and blacklist.
      */
-    WQtModuleExcluder* m_moduleExcluder;
+    WQtModuleConfig* m_moduleExcluder;
 
     /**
      * Action giving the user fast access to the module config dialog.

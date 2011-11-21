@@ -31,6 +31,7 @@
 
 WQtCustomDockWidget::WQtCustomDockWidget( std::string title, QWidget* parent, WGECamera::ProjectionMode projectionMode )
     : WQtGLDockWidget( QString::fromStdString( title ), QString::fromStdString( title ), parent, projectionMode ),
+      WCustomWidget( title ),
       m_useCount( 1 )
 {
     setObjectName( QString( "Custom Dock Window " ) + QString::fromStdString( title ) );

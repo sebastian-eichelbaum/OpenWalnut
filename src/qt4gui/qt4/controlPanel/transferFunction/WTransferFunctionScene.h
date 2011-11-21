@@ -44,7 +44,7 @@ class WTransferFunctionScene : public QGraphicsScene
     public:
         typedef QGraphicsScene BaseClass;
 
-        WTransferFunctionScene( QObject*parent =0 );
+        explicit WTransferFunctionScene( QObject*parent =0 );
 
         virtual ~WTransferFunctionScene();
 
@@ -65,5 +65,5 @@ class WTransferFunctionScene : public QGraphicsScene
         WTransferFunctionWidget *myparent; //< storage of the widget as this currently manages the data
 };
 
-#endif
+#endif  // WTRANSFERFUNCTIONSCENE_H
 

@@ -96,7 +96,7 @@ ADD_CUSTOM_TARGET( core_devdoc
 
 # copy our own resources
 IF( NOT OW_PACKAGE_NOCOPY_COREFONTS )
-    SETUP_RESOURCES( "core" "CORE" )
+    SETUP_GLOBAL_RESOURCES( "core" "CORE" )
 ELSE()
     # This is a hack which is quite debian specific. We do this here to avoid font duplicates since the ttf-liberation fonts are already
     # available on Debian. If you need to modify this for another packaging thingy, please let me know (ebaum@informatik.uni-leipzig.d). We then
@@ -106,8 +106,6 @@ ELSE()
                 COMPONENT "CORE" )
         INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E make_directory \${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts )"
                 COMPONENT "CORE" ) 
-        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Bold.ttf \${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/arial.ttf )"
-                COMPONENT "CORE" )
         INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Bold.ttf \${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/Bold.ttf )"
                 COMPONENT "CORE" )
         INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Italic.ttf \${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/Italic.ttf )"

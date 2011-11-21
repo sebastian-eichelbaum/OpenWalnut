@@ -93,6 +93,9 @@ void WRulerOrtho::create()
     state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
     rulerGeode->addDrawable( geometry );
     this->addChild( rulerGeode );
+
+    osg::StateSet* stateGroup = this->getOrCreateStateSet();
+    stateGroup->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
 }
 
 void WRulerOrtho::addLabel( osg::Vec3 position, std::string text )

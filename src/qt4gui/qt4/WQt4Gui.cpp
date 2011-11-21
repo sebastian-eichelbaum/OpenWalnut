@@ -36,6 +36,7 @@
 
 #include <QtGui/QApplication>
 #include <QtGui/QFileDialog>
+#include <QtCore/QDir>
 #include <QtCore/QSettings>
 
 #include "WMainWindow.h" // this has to be included before any other includes
@@ -60,7 +61,14 @@
 #include "events/WRoiAssocEvent.h"
 #include "events/WRoiRemoveEvent.h"
 #include "events/WUpdateTextureSorterEvent.h"
+#include "WQtModuleConfig.h"
+
 #include "WQt4Gui.h"
+
+#ifdef Q_WS_X11
+    #include <X11/Xlib.h>   // NOLINT - this needs to be done AFTER Qt has set some defines in their headers and after several other
+                            //          headers which are included indirectly, although it is a system header.
+#endif
 
 WMainWindow* WQt4Gui::m_mainWindow = NULL;
 
@@ -68,9 +76,9 @@ QSettings* WQt4Gui::m_settings = NULL;
 
 WQt4Gui::WQt4Gui( const boost::program_options::variables_map& options, int argc, char** argv )
     : WGUI( argc, argv ),
-    m_optionsMap( options )
+    m_optionsMap( options ),
+    m_loadDeferredOnce( true )
 {
-    m_settings = new QSettings( "OpenWalnut.org", "OpenWalnut" );
 }
 
 WQt4Gui::~WQt4Gui()
@@ -88,8 +96,48 @@ WMainWindow* WQt4Gui::getMainWindow()
     return m_mainWindow;
 }
 
+void WQt4Gui::deferredLoad()
+{
+    m_deferredLoadMutex.lock();
+    if( m_loadDeferredOnce )
+    {
+        m_loadDeferredOnce = false;
+        wlog::debug( "OpenWalnut" ) << "Deferred loading of data and project files.";
+
+       // check if we want to load data due to command line and call the respective function
+        if( m_optionsMap.count( "input" ) )
+        {
+            m_kernel->loadDataSets( m_optionsMap["input"].as< std::vector< std::string > >() );
+        }
+
+        // Load project file
+        if( m_optionsMap.count( "project" ) )
+        {
+            try
+            {
+                boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
+                        new WProjectFile( m_optionsMap["project"].as< std::string >() )
+                );
+
+                // This call is asynchronous. It parses the file and the starts a thread to actually do all the stuff
+                proj->load();
+            }
+            catch( const WException& e )
+            {
+                wlog::error( "GUI" ) << "Project file \"" << m_optionsMap["project"].as< std::string >() << "\" could not be loaded. Message: " <<
+                    e.what();
+            }
+        }
+    }
+    m_deferredLoadMutex.unlock();
+}
+
 int WQt4Gui::run()
 {
+#ifdef Q_WS_X11
+    XInitThreads();
+#endif
+
     // init logger
     m_loggerConnection = WLogger::getLogger()->subscribeSignal( WLogger::AddLog, boost::bind( &WQt4Gui::slotAddLog, this, _1 ) );
 
@@ -98,9 +146,12 @@ int WQt4Gui::run()
 
     // the call path of the application, this uses QApplication which needs to be instantiated.
     boost::filesystem::path walnutBin = boost::filesystem::path( QApplication::applicationDirPath().toStdString() );
-
     // setup path helper which provides several paths to others^
-    WPathHelper::getPathHelper()->setAppPath( walnutBin );
+    WPathHelper::getPathHelper()->setBasePaths( walnutBin, boost::filesystem::path( QDir::homePath().toStdString() ) / ".OpenWalnut" );
+    // with the correct paths, we can load the settings
+    m_settings = new QSettings( QString::fromStdString( ( WPathHelper::getHomePath() / "config.qt4gui" ).string() ), QSettings::IniFormat );
+
+    WQtModuleConfig::initPathHelper();
 
     // get the minimum log level from preferences
     LogLevel logLevel = static_cast< LogLevel >( WQt4Gui::getSettings().value( "qt4gui/logLevel", LL_INFO ).toInt() );
@@ -112,6 +163,7 @@ int WQt4Gui::run()
 
     // startup graphics engine
     m_ge = WGraphicsEngine::getGraphicsEngine();
+    m_ge->subscribeSignal( GE_STARTUPCOMPLETE, boost::bind( &WQt4Gui::deferredLoad, this ) );
 
     // and startup kernel
     m_kernel = boost::shared_ptr< WKernel >( WKernel::instance( m_ge, shared_from_this() ) );
@@ -119,22 +171,9 @@ int WQt4Gui::run()
     t_ModuleErrorSignalHandlerType func = boost::bind( &WQt4Gui::moduleError, this, _1, _2 );
     m_kernel->getRootContainer()->addDefaultNotifier( WM_ERROR, func );
 
-    // create the window
-    m_mainWindow = new WMainWindow();
-    m_mainWindow->setupGUI();
-    m_mainWindow->show();
-
-    // connect out loader signal with kernel
-#ifdef _WIN32
-    getLoadButtonSignal()->connect( boost::bind( &WKernel::loadDataSetsSynchronously, m_kernel, _1 ) );
-#else
-    getLoadButtonSignal()->connect( boost::bind( &WKernel::loadDataSets, m_kernel, _1 ) );
-#endif
-
+    // bind the GUI's slot with the signals provided by the kernel
     WCondition::t_ConditionNotifierType newDatasetSignal = boost::bind( &WQt4Gui::slotUpdateTextureSorter, this );
     WDataHandler::getDefaultSubject()->getListChangeCondition()->subscribeSignal( newDatasetSignal );
-
-    // bind the GUI's slot with the ready signal
 
     // Assoc Event
     t_ModuleGenericSignalHandlerType assocSignal = boost::bind( &WQt4Gui::slotAddDatasetOrModuleToTree, this, _1 );
@@ -168,35 +207,22 @@ int WQt4Gui::run()
             new boost::function< void( osg::ref_ptr< WROI > ) > ( boost::bind( &WQt4Gui::slotRemoveRoiFromTree, this, _1 ) ) );
     m_kernel->getRoiManager()->addRemoveNotifier( removeRoiSignal );
 
+    // create the window
+    m_mainWindow = new WMainWindow();
+    m_mainWindow->setupGUI();
+    m_mainWindow->show();
+
+    // connect out loader signal with kernel
+#ifdef _WIN32
+    getLoadButtonSignal()->connect( boost::bind( &WKernel::loadDataSetsSynchronously, m_kernel, _1 ) );
+#else
+    getLoadButtonSignal()->connect( boost::bind( &WKernel::loadDataSets, m_kernel, _1 ) );
+#endif
+
     // now we are initialized
     m_isInitialized( true );
 
-    // check if we want to load data due to command line and call the respective function
-    if( m_optionsMap.count("input") )
-    {
-        m_kernel->loadDataSets( m_optionsMap["input"].as< std::vector< std::string > >() );
-    }
-
-    // Load project file
-    if( m_optionsMap.count("project") )
-    {
-        try
-        {
-            boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
-                    new WProjectFile( m_optionsMap["project"].as< std::string >() )
-            );
-
-            // This call is asynchronous. It parses the file and the starts a thread to actually do all the stuff
-            proj->load();
-        }
-        catch( const WException& e )
-        {
-            wlog::error( "GUI" ) << "Project file \"" << m_optionsMap["project"].as< std::string >() << "\" could not be loaded. Message: " <<
-                e.what();
-        }
-    }
-
-    // run
+     // run
     int qtRetCode = appl.exec();
 
     delete m_mainWindow;
@@ -225,9 +251,10 @@ void WQt4Gui::slotAddDatasetOrModuleToTree( boost::shared_ptr< WModule > module 
 {
     // create a new event for this and insert it into event queue
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleAssocEvent( module ) );
-#ifdef OW_QT4GUI_NETWORKEDITOR
-    QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleAssocEvent( module ) );
-#endif
+    if( m_mainWindow->getNetworkEditor() )
+    {
+        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleAssocEvent( module ) );
+    }
 }
 
 void WQt4Gui::slotAddRoiToTree( osg::ref_ptr< WROI > roi )
@@ -245,17 +272,19 @@ void WQt4Gui::slotActivateDatasetOrModuleInTree( boost::shared_ptr< WModule > mo
     // create a new event for this and insert it into event queue
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleReadyEvent( module ) );
     QCoreApplication::postEvent( m_mainWindow, new WModuleReadyEvent( module ) );
-#ifdef OW_QT4GUI_NETWORKEDITOR
-    QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleReadyEvent( module ) );
-#endif
+    if( m_mainWindow->getNetworkEditor() )
+    {
+        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleReadyEvent( module ) );
+    }
 }
 
 void WQt4Gui::slotRemoveDatasetOrModuleInTree( boost::shared_ptr< WModule > module )
 {
     // create a new event for this and insert it into event queue
-#ifdef OW_QT4GUI_NETWORKEDITOR
-    QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleRemovedEvent( module ) );
-#endif
+    if( m_mainWindow->getNetworkEditor() )
+    {
+        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleRemovedEvent( module ) );
+    }
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleRemovedEvent( module ) );
     QCoreApplication::postEvent( m_mainWindow, new WModuleRemovedEvent( module ) );
 }
@@ -266,16 +295,18 @@ void WQt4Gui::slotConnectionEstablished( boost::shared_ptr<WModuleConnector> in,
     if( in->isInputConnector() )
     {
         QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleConnectEvent( in, out ) );
-#ifdef OW_QT4GUI_NETWORKEDITOR
-        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleConnectEvent( in, out ) );
-#endif
+        if( m_mainWindow->getNetworkEditor() )
+        {
+            QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleConnectEvent( in, out ) );
+        }
     }
     else
     {
         QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleConnectEvent( out, in ) );
-#ifdef OW_QT4GUI_NETWORKEDITOR
-        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleConnectEvent( out, in ) );
-#endif
+        if( m_mainWindow->getNetworkEditor() )
+        {
+            QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleConnectEvent( out, in ) );
+        }
     }
 }
 
@@ -284,16 +315,18 @@ void WQt4Gui::slotConnectionClosed( boost::shared_ptr<WModuleConnector> in, boos
     // create a new event for this and insert it into event queue
     if( in->isInputConnector() )
     {
-#ifdef OW_QT4GUI_NETWORKEDITOR
-        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleDisconnectEvent( in, out ) );
-#endif
+        if( m_mainWindow->getNetworkEditor() )
+        {
+            QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleDisconnectEvent( in, out ) );
+        }
         QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleDisconnectEvent( in, out ) );
     }
     else
     {
-#ifdef OW_QT4GUI_NETWORKEDITOR
-        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleDisconnectEvent( out, in ) );
-#endif
+        if( m_mainWindow->getNetworkEditor() )
+        {
+            QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleDisconnectEvent( out, in ) );
+        }
         QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleDisconnectEvent( out, in ) );
     }
 }
@@ -330,8 +363,17 @@ void WQt4Gui::closeCustomWidget( std::string title )
     m_mainWindow->closeCustomDockWidget( title );
 }
 
+void WQt4Gui::closeCustomWidget( WCustomWidget::SPtr widget )
+{
+    m_mainWindow->closeCustomDockWidget( widget->getTitle() );
+}
+
 QSettings& WQt4Gui::getSettings()
 {
     return *m_settings;
 }
 
+const boost::program_options::variables_map& WQt4Gui::getOptionMap() const
+{
+    return m_optionsMap;
+}

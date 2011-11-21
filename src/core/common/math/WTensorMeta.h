@@ -36,7 +36,7 @@ struct WRecursiveTensorEvaluation;
 /**
  * Multiplies gradient components and divides by multiplicities.
  *
- * This essentailly calls WRecursiveTensorEvaluation< ... >::evaluate() N times.
+ * This essentailly calls WRecursiveTensorEvaluation< ... >s evaluate function N times.
  *
  * If IterEnd equals boost::mpl::bool_< false >, iteration is aborted.
  */

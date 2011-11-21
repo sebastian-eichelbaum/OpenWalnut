@@ -100,7 +100,7 @@ void WMTransferFunction1D::properties()
     m_binSize->setMin( 2 );
     m_binSize->setMax( 512 );
 
-    m_resolution = m_properties->addProperty( "Number of Samples", 
+    m_resolution = m_properties->addProperty( "Number of Samples",
             "Number of samples in the transfer function. "
             "Some modules connected to the output may have additional restrictions. Volume rendering, e.g., requires a power of two "
             "samples at the moment."
