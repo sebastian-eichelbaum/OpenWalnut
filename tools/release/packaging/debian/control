@@ -103,7 +103,7 @@ Package: openwalnut-qt4
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: openwalnut-modules (= ${binary:Version})
-Description: User interface for OpenWalnut, allowing easy processing and visualization of medical data
+Description: Qt based user interface for OpenWalnut
  OpenWalnut is a tool for multi-modal medical and brain data visualization. Its
  universality allows it to be easily extended and used in a large variety of
  application cases. It is both, a tool for the scientific user and a powerful

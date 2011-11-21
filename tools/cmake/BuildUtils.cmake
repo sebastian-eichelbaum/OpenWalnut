@@ -301,7 +301,8 @@ FUNCTION( SETUP_CONFIGURED_FILE _resource _file _component )
     SET( ResourcesPath "${PROJECT_SOURCE_DIR}/../resources/${_resource}/" )
     CONFIGURE_FILE( "${ResourcesPath}/${_file}" "${PROJECT_BINARY_DIR}/${_file}" @ONLY )
     # Install the file
-    INSTALL( FILES "${PROJECT_BINARY_DIR}/${_file}" DESTINATION "."
+    GET_FILENAME_COMPONENT( filepath ${_file} PATH )
+    INSTALL( FILES "${PROJECT_BINARY_DIR}/${_file}" DESTINATION "${filepath}"
                                                       COMPONENT ${_component}
            )
 ENDFUNCTION( SETUP_CONFIGURED_FILE )
