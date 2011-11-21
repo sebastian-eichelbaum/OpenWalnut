@@ -370,7 +370,7 @@
             // load transfer function
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            if( m_transferFunction->updated())
+            if( ( propUpdated ||  m_transferFunction->updated() ) && dataValid )
             {
                 debugLog() << "updated transfer function";
                 boost::shared_ptr< WDataSetSingle > dataSet = m_transferFunction->getData();
