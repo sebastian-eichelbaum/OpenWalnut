@@ -288,7 +288,8 @@ size_t WMarchingLegoAlgorithm::getVertexID( size_t nX, size_t nY, size_t nZ )
 boost::shared_ptr<WTriangleMesh> WMarchingLegoAlgorithm::genSurfaceOneValue( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
                                                                                                  const WMatrix< double >& mat,
                                                                                                  const std::vector< size_t >* vals,
-                                                                                                 size_t isoValue )
+                                                                                                 size_t isoValue,
+                                                                                                 boost::shared_ptr< WProgressCombiner > mainProgress )
 {
     WAssert( vals, "No value set provided." );
 
@@ -306,9 +307,20 @@ boost::shared_ptr<WTriangleMesh> WMarchingLegoAlgorithm::genSurfaceOneValue( siz
 
     size_t nPointsInSlice = nX * nY;
 
+    boost::shared_ptr< WProgress > progress;
+    if ( mainProgress )
+    {
+        progress = boost::shared_ptr< WProgress >( new WProgress( "Marching Legos", m_nCellsZ ) );
+        mainProgress->addSubProgress( progress );
+    }
+
     // Generate isosurface.
     for( size_t z = 0; z < m_nCellsZ; z++ )
     {
+        if ( progress )
+        {
+            ++*progress;
+        }
         for( size_t y = 0; y < m_nCellsY; y++ )
         {
             for( size_t x = 0; x < m_nCellsX; x++ )
@@ -418,6 +430,11 @@ boost::shared_ptr<WTriangleMesh> WMarchingLegoAlgorithm::genSurfaceOneValue( siz
         }
         triMesh->addTriangle( ( *vecIterator ).pointID[0], ( *vecIterator ).pointID[1], ( *vecIterator ).pointID[2] );
         vecIterator++;
+    }
+
+    if ( progress )
+    {
+        progress->finish();
     }
     return triMesh;
 }

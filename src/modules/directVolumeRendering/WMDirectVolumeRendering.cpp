@@ -50,217 +50,233 @@
 #include "WMDirectVolumeRendering.xpm"
 #include "WMDirectVolumeRendering.h"
 
-// This line is needed by the module loader to actually find your module.
-W_LOADABLE_MODULE( WMDirectVolumeRendering )
+  // This line is needed by the module loader to actually find your module.
+  W_LOADABLE_MODULE( WMDirectVolumeRendering )
 
-WMDirectVolumeRendering::WMDirectVolumeRendering():
-    WModule()
-{
-    // Initialize members
-}
+  WMDirectVolumeRendering::WMDirectVolumeRendering():
+      WModule()
+  {
+      // Initialize members
+  }
 
-WMDirectVolumeRendering::~WMDirectVolumeRendering()
-{
-    // Cleanup!
-}
+  WMDirectVolumeRendering::~WMDirectVolumeRendering()
+  {
+      // Cleanup!
+  }
 
-boost::shared_ptr< WModule > WMDirectVolumeRendering::factory() const
-{
-    return boost::shared_ptr< WModule >( new WMDirectVolumeRendering() );
-}
+  boost::shared_ptr< WModule > WMDirectVolumeRendering::factory() const
+  {
+      return boost::shared_ptr< WModule >( new WMDirectVolumeRendering() );
+  }
 
-const char** WMDirectVolumeRendering::getXPMIcon() const
-{
-    return WMDirectVolumeRendering_xpm;
-}
+  const char** WMDirectVolumeRendering::getXPMIcon() const
+  {
+      return WMDirectVolumeRendering_xpm;
+  }
 
-const std::string WMDirectVolumeRendering::getName() const
-{
-    // Specify your module name here. This name must be UNIQUE!
-    return "Direct Volume Rendering";
-}
+  const std::string WMDirectVolumeRendering::getName() const
+  {
+      // Specify your module name here. This name must be UNIQUE!
+      return "Direct Volume Rendering";
+  }
 
-const std::string WMDirectVolumeRendering::getDescription() const
-{
-    // Specify your module description here. Be detailed. This text is read by the user.
-    return "Direct volume rendering of regular volumetric data.";
-}
+  const std::string WMDirectVolumeRendering::getDescription() const
+  {
+      // Specify your module description here. Be detailed. This text is read by the user.
+      return "Direct volume rendering of regular volumetric data.";
+  }
 
-void WMDirectVolumeRendering::connectors()
-{
-    // DVR needs one input: the scalar dataset
-    m_input = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "in", "The scalar dataset." );
+  void WMDirectVolumeRendering::connectors()
+  {
+      // The transfer function for our DVR
+      m_transferFunction = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "transfer function", "The 1D transfer function." );
 
-    // Optional: the gradient field
-    m_gradients = WModuleInputData< WDataSetVector >::createAndAdd( shared_from_this(), "gradients", "The gradient field of the dataset to display" );
+      // DVR needs one input: the scalar dataset
+      m_input = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "in", "The scalar dataset." );
 
-    // call WModules initialization
-    WModule::connectors();
-}
+      // Optional: the gradient field
+      m_gradients = WModuleInputData< WDataSetVector >::createAndAdd( shared_from_this(),
+              "gradients", "The gradient field of the dataset to display" );
 
-void WMDirectVolumeRendering::properties()
-{
-    // Initialize the properties
-    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+      // call WModules initialization
+      WModule::connectors();
+  }
 
-    m_samples     = m_properties->addProperty( "Sample count", "The number of samples to walk along the ray during raycasting. A low value "
-                                                                 "may cause artifacts whilst a high value slows down rendering.", 256 );
-    m_samples->setMin( 1 );
-    m_samples->setMax( 5000 );
-
-    // illumination model
-    m_localIlluminationSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_localIlluminationSelections->addItem( "No Local Illumination", "Volume Renderer only uses the classified voxel color." );
-    m_localIlluminationSelections->addItem( "Blinn-Phong", "Blinn-Phong lighting is used for shading each classified voxel." );
-    m_localIlluminationAlgo = m_properties->addProperty( "Local illumination model", "The illumination algorithm to use.",
-                                                         m_localIlluminationSelections->getSelectorFirst(), m_propCondition );
-
-    WPropertyHelper::PC_SELECTONLYONE::addTo( m_localIlluminationAlgo );
-    WPropertyHelper::PC_NOTEMPTY::addTo( m_localIlluminationAlgo );
-
-    // transfer functions
-    m_tfLoaderGroup = m_properties->addPropertyGroup( "Transfer function", "Transfer function loading." );
-    m_tfLoaderEnabled = m_tfLoaderGroup->addProperty( "Enable", "Enable TF loading from file.", false, m_propCondition );
-    m_tfLoaderFile = m_tfLoaderGroup->addProperty( "File", "The 1D image containing the transfer function.",
-                                                    WPathHelper::getAppPath(), m_propCondition );
-    WPropertyHelper::PC_PATHEXISTS::addTo( m_tfLoaderFile );
-    m_tfLoaderTrigger = m_tfLoaderGroup->addProperty( "Load", "Triggers loading.", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
-
-    // additional artifact removal methods
-    m_improvementGroup = m_properties->addPropertyGroup( "Improvements", "Methods for improving image quality. Most of these methods imply "
-                                                         "additional calculation/texture overhead and therefore slow down rendering." );
-    m_stochasticJitterEnabled = m_improvementGroup->addProperty( "Stochastic jitter", "With stochastic jitter, wood-grain artifacts can be "
-                                                                                      "removed with the cost of possible noise artifacts.", true,
-                                                                                      m_propCondition );
-
-    m_opacityCorrectionEnabled = m_improvementGroup->addProperty( "Opacity correction", "If enabled, opacities are assumed to be relative to the "
-                                                                                        "sample count. If disabled, changing the sample count "
-                                                                                        "varies brightness of the image.", true,
-                                                                                      m_propCondition );
-
-    WModule::properties();
-}
-
-void WMDirectVolumeRendering::requirements()
-{
-    m_requirements.push_back( new WGERequirement() );
-}
-
-/**
- * Generates a white noise texture with given resolution.
- *
- * \param resX the resolution
- *
- * \return a image with resX*resX resolution.
- */
-osg::ref_ptr< osg::Image > genWhiteNoise( size_t resX )
-{
-    std::srand( time( 0 ) );
-
-    osg::ref_ptr< osg::Image > randImage = new osg::Image();
-    randImage->allocateImage( resX, resX, 1, GL_LUMINANCE, GL_UNSIGNED_BYTE );
-    unsigned char *randomLuminance = randImage->data();  // should be 4 megs
-    for( unsigned int x = 0; x < resX; x++ )
-    {
-        for( unsigned int y = 0; y < resX; y++ )
-        {
-            // - stylechecker says "use rand_r" but I am not sure about portability.
-            unsigned char r = ( unsigned char )( std::rand() % 255 );  // NOLINT
-            randomLuminance[ ( y * resX ) + x ] = r;
-        }
-    }
-
-    return randImage;
-}
-
-/**
- * Example TF generator. This will be extended with some strategy-pattern later.
- *
- * \return TF as image.
- */
-osg::ref_ptr< osg::Image > genTF()
-{
-    const size_t resX = 256;
-    osg::ref_ptr< osg::Image > tfImage = new osg::Image();
-    tfImage->allocateImage( resX, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE );
-    unsigned char *tf = tfImage->data();
-    for( size_t x = 0; x < resX; ++x )
-    {
-        if( x > 127 )
-        {
-            double i = ( static_cast< double >( x - 128 ) / 128.0 ) * 2.0 * 15.0;
-            size_t imod = fmod( i, 2 );
-            std::cout << imod << std::endl;
-            if( imod == 0 )
-            {
-                tf[ 4 * x + 0 ] = 255;
-                tf[ 4 * x + 1 ] = 86;
-                tf[ 4 * x + 2 ] = 86;
-                tf[ 4 * x + 3 ] = 127;
-            }
-            else
-            {
-                tf[ 4 * x + 0 ] = 255;
-                tf[ 4 * x + 1 ] = 191;
-                tf[ 4 * x + 2 ] = 0;
-                tf[ 4 * x + 3 ] = 64;
-            }
-        }
-        if( x <= 127 )
-        {
-            tf[ 4 * x + 0 ] = 0;
-            tf[ 4 * x + 1 ] = 94;
-            tf[ 4 * x + 2 ] = 255;
-            tf[ 4 * x + 3 ] = 2 * ( 127 - x );
-        }
-    }
-    return tfImage;
-}
-
-void WMDirectVolumeRendering::moduleMain()
-{
-    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMDirectVolumeRendering", m_localPath ) );
-
-    // setup all the defines needed
-
-    // local illumination model
-    WGEShaderDefineOptions::SPtr illuminationAlgoDefines = WGEShaderDefineOptions::SPtr(
-        new WGEShaderDefineOptions( "LOCALILLUMINATION_NONE", "LOCALILLUMINATION_PHONG" )
-    );
-    m_shader->addPreprocessor( illuminationAlgoDefines );
-
-    // gradient texture settings
-    WGEShaderDefine< std::string >::SPtr gradTexSamplerDefine = m_shader->setDefine( "GRADIENTTEXTURE_SAMPLER", std::string( "tex1" ) );
-    WGEShaderDefineSwitch::SPtr gradTexEnableDefine = m_shader->setDefine( "GRADIENTTEXTURE_ENABLED" );
-
-    // transfer function texture settings
-    WGEShaderDefine< std::string >::SPtr tfTexSamplerDefine = m_shader->setDefine( "TRANSFERFUNCTION_SAMPLER", std::string( "tex2" ) );
-    WGEShaderDefineSwitch::SPtr tfTexEnableDefine = m_shader->setDefine( "TRANSFERFUNCTION_ENABLED" );
-
-    // jitter
-    WGEShaderDefine< std::string >::SPtr jitterSamplerDefine = m_shader->setDefine( "JITTERTEXTURE_SAMPLER", std::string( "tex3" ) );
-    WGEShaderDefine< int >::SPtr jitterSizeXDefine = m_shader->setDefine( "JITTERTEXTURE_SIZEX", 0 );
-    WGEShaderDefineSwitch::SPtr jitterEnableDefine = m_shader->setDefine( "JITTERTEXTURE_ENABLED" );
-
-    // opacity correction enabled?
-    WGEShaderDefineSwitch::SPtr opacityCorrectionEnableDefine = m_shader->setDefine( "OPACITYCORRECTION_ENABLED" );
+  void WMDirectVolumeRendering::properties()
+  {
+      // Initialize the properties
+      m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
 
-    // let the main loop awake if the data changes or the properties changed.
-    m_moduleState.setResetable( true, true );
-    m_moduleState.add( m_input->getDataChangedCondition() );
-    m_moduleState.add( m_gradients->getDataChangedCondition() );
-    m_moduleState.add( m_propCondition );
 
-    // Signal ready state.
-    ready();
-    debugLog() << "Module is now ready.";
+      m_samples     = m_properties->addProperty( "Sample count", "The number of samples to walk along the ray during raycasting. A low value "
+                                                                   "may cause artifacts whilst a high value slows down rendering.", 256 );
+      m_samples->setMin( 1 );
+      m_samples->setMax( 5000 );
 
-    osg::ref_ptr< WGEManagedGroupNode > rootNode = new WGEManagedGroupNode( m_active );
-    bool rootInserted = false;
+      // illumination model
+      m_localIlluminationSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+      m_localIlluminationSelections->addItem( "No Local Illumination", "Volume Renderer only uses the classified voxel color." );
+      m_localIlluminationSelections->addItem( "Blinn-Phong", "Blinn-Phong lighting is used for shading each classified voxel." );
+      m_localIlluminationAlgo = m_properties->addProperty( "Local illumination model", "The illumination algorithm to use.",
+                                                           m_localIlluminationSelections->getSelectorFirst(), m_propCondition );
 
-    // Normally, you will have a loop which runs as long as the module should not shutdown. In this loop you can react on changing data on input
-    // connectors or on changed in your properties.
+      WPropertyHelper::PC_SELECTONLYONE::addTo( m_localIlluminationAlgo );
+      WPropertyHelper::PC_NOTEMPTY::addTo( m_localIlluminationAlgo );
+
+      // transfer functions
+      m_tfLoaderGroup = m_properties->addPropertyGroup( "Transfer function", "Transfer function loading." );
+      m_tfLoaderEnabled = m_tfLoaderGroup->addProperty( "Enable", "Enable TF loading from file.", false, m_propCondition );
+      m_tfLoaderFile = m_tfLoaderGroup->addProperty( "File", "The 1D image containing the transfer function.",
+                                                      WPathHelper::getAppPath(), m_propCondition );
+      WPropertyHelper::PC_PATHEXISTS::addTo( m_tfLoaderFile );
+      m_tfLoaderTrigger = m_tfLoaderGroup->addProperty( "Load", "Triggers loading.", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
+
+      // additional artifact removal methods
+      m_improvementGroup = m_properties->addPropertyGroup( "Improvements", "Methods for improving image quality. Most of these methods imply "
+                                                           "additional calculation/texture overhead and therefore slow down rendering." );
+      m_stochasticJitterEnabled = m_improvementGroup->addProperty( "Stochastic jitter", "With stochastic jitter, wood-grain artifacts can be "
+                                                                                        "removed with the cost of possible noise artifacts.", true,
+                                                                                        m_propCondition );
+
+      m_opacityCorrectionEnabled = m_improvementGroup->addProperty( "Opacity correction", "If enabled, opacities are assumed to be relative to the "
+                                                                                          "sample count. If disabled, changing the sample count "
+                                                                                          "varies brightness of the image.", true,
+                                                                                        m_propCondition );
+      m_maximumIntensityProjectionEnabled = m_improvementGroup->addProperty( "MIP", "If enabled, MIP is used.", true,
+                                                                                        m_propCondition );
+
+      m_depthProjectionEnabled = m_improvementGroup->addProperty( "Depth Projection", "If enabled, depth projection mode is used", true,
+                                                                                        m_propCondition );
+
+
+      WModule::properties();
+  }
+
+  void WMDirectVolumeRendering::requirements()
+  {
+      m_requirements.push_back( new WGERequirement() );
+  }
+
+  /**
+   * Generates a white noise texture with given resolution.
+   *
+   * \param resX the resolution
+   *
+   * \return a image with resX*resX resolution.
+   */
+  osg::ref_ptr< osg::Image > genWhiteNoise( size_t resX )
+  {
+      std::srand( time( 0 ) );
+
+      osg::ref_ptr< osg::Image > randImage = new osg::Image();
+      randImage->allocateImage( resX, resX, 1, GL_LUMINANCE, GL_UNSIGNED_BYTE );
+      unsigned char *randomLuminance = randImage->data();  // should be 4 megs
+      for( unsigned int x = 0; x < resX; x++ )
+      {
+          for( unsigned int y = 0; y < resX; y++ )
+          {
+              // - stylechecker says "use rand_r" but I am not sure about portability.
+              unsigned char r = ( unsigned char )( std::rand() % 255 );  // NOLINT
+              randomLuminance[ ( y * resX ) + x ] = r;
+          }
+      }
+
+      return randImage;
+  }
+
+  /**
+   * Example TF generator. This will be extended with some strategy-pattern later.
+   *
+   * \return TF as image.
+   */
+  osg::ref_ptr< osg::Image > genTF()
+  {
+      const size_t resX = 256;
+      osg::ref_ptr< osg::Image > tfImage = new osg::Image();
+      tfImage->allocateImage( resX, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE );
+      unsigned char *tf = tfImage->data();
+      for( size_t x = 0; x < resX; ++x )
+      {
+          if( x > 127 )
+          {
+              double i = ( static_cast< double >( x - 128 ) / 128.0 ) * 2.0 * 15.0;
+              size_t imod = fmod( i, 2 );
+              std::cout << imod << std::endl;
+              if( imod == 0 )
+              {
+                  tf[ 4 * x + 0 ] = 255;
+                  tf[ 4 * x + 1 ] = 86;
+                  tf[ 4 * x + 2 ] = 86;
+                  tf[ 4 * x + 3 ] = 127;
+              }
+              else
+              {
+                  tf[ 4 * x + 0 ] = 255;
+                  tf[ 4 * x + 1 ] = 191;
+                  tf[ 4 * x + 2 ] = 0;
+                  tf[ 4 * x + 3 ] = 64;
+              }
+          }
+          if( x <= 127 )
+          {
+              tf[ 4 * x + 0 ] = 0;
+              tf[ 4 * x + 1 ] = 94;
+              tf[ 4 * x + 2 ] = 255;
+              tf[ 4 * x + 3 ] = 2 * ( 127 - x );
+          }
+      }
+      return tfImage;
+  }
+
+  void WMDirectVolumeRendering::moduleMain()
+  {
+      m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMDirectVolumeRendering", m_localPath ) );
+
+      // setup all the defines needed
+
+      // local illumination model
+      WGEShaderDefineOptions::SPtr illuminationAlgoDefines = WGEShaderDefineOptions::SPtr(
+          new WGEShaderDefineOptions( "LOCALILLUMINATION_NONE", "LOCALILLUMINATION_PHONG" )
+      );
+      m_shader->addPreprocessor( illuminationAlgoDefines );
+
+      // gradient texture settings
+      WGEShaderDefine< std::string >::SPtr gradTexSamplerDefine = m_shader->setDefine( "GRADIENTTEXTURE_SAMPLER", std::string( "tex1" ) );
+      WGEShaderDefineSwitch::SPtr gradTexEnableDefine = m_shader->setDefine( "GRADIENTTEXTURE_ENABLED" );
+
+      // transfer function texture settings
+      WGEShaderDefine< std::string >::SPtr tfTexSamplerDefine = m_shader->setDefine( "TRANSFERFUNCTION_SAMPLER", std::string( "tex2" ) );
+      WGEShaderDefineSwitch::SPtr tfTexEnableDefine = m_shader->setDefine( "TRANSFERFUNCTION_ENABLED" );
+
+      // jitter
+      WGEShaderDefine< std::string >::SPtr jitterSamplerDefine = m_shader->setDefine( "JITTERTEXTURE_SAMPLER", std::string( "tex3" ) );
+      WGEShaderDefine< int >::SPtr jitterSizeXDefine = m_shader->setDefine( "JITTERTEXTURE_SIZEX", 0 );
+      WGEShaderDefineSwitch::SPtr jitterEnableDefine = m_shader->setDefine( "JITTERTEXTURE_ENABLED" );
+
+      // opacity correction enabled?
+      WGEShaderDefineSwitch::SPtr opacityCorrectionEnableDefine = m_shader->setDefine( "OPACITYCORRECTION_ENABLED" );
+
+      WGEShaderDefineSwitch::SPtr maximumIntensityProjectionEnabledDefine = m_shader->setDefine( "MIP_ENABLED" );
+      WGEShaderDefineSwitch::SPtr depthProjectionEnabledDefine = m_shader->setDefine( "DEPTH_PROJECTION_ENABLED" );
+
+
+      // let the main loop awake if the data changes or the properties changed.
+      m_moduleState.setResetable( true, true );
+      m_moduleState.add( m_transferFunction->getDataChangedCondition() );
+      m_moduleState.add( m_input->getDataChangedCondition() );
+      m_moduleState.add( m_gradients->getDataChangedCondition() );
+      m_moduleState.add( m_propCondition );
+
+      // Signal ready state.
+      ready();
+      debugLog() << "Module is now ready.";
+
+      osg::ref_ptr< WGEManagedGroupNode > rootNode = new WGEManagedGroupNode( m_active );
+      bool rootInserted = false;
+
+      // Normally, you will have a loop which runs as long as the module should not shutdown. In this loop you can react on changing data on input
+      // connectors or on changed in your properties.
     debugLog() << "Entering main loop";
     while( !m_shutdownFlag() )
     {
@@ -280,7 +296,9 @@ void WMDirectVolumeRendering::moduleMain()
         boost::shared_ptr< WDataSetScalar > dataSet = m_input->getData();
         bool dataValid   = ( dataSet );
         bool propUpdated = m_localIlluminationAlgo->changed() || m_tfLoaderEnabled || m_tfLoaderFile->changed() || m_tfLoaderTrigger->changed() ||
-                           m_stochasticJitterEnabled->changed() ||  m_opacityCorrectionEnabled->changed();
+                           m_stochasticJitterEnabled->changed() ||  m_opacityCorrectionEnabled->changed() ||
+                           m_maximumIntensityProjectionEnabled->changed() || m_depthProjectionEnabled->changed();
+
 
         // reset module in case of invalid data. This accounts only for the scalar field input
         if( !dataValid )
@@ -352,27 +370,78 @@ void WMDirectVolumeRendering::moduleMain()
             // load transfer function
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            // try to load the tf from file if existent
-            tfTexEnableDefine->setActive( false );
-            if( m_tfLoaderEnabled->get( true ) )
+            if( ( propUpdated ||  m_transferFunction->updated() ) && dataValid )
             {
-                osg::ref_ptr< osg::Image > tfImg = osgDB::readImageFile( m_tfLoaderFile->get( true ).file_string() );
-                if( tfImg )
+                debugLog() << "updated transfer function";
+                boost::shared_ptr< WDataSetSingle > dataSet = m_transferFunction->getData();
+                if ( !dataSet )
                 {
-                    // bind it as a texture
-                    osg::ref_ptr< osg::Texture1D > tfTexture = new osg::Texture1D();
-                    tfTexture->setImage( tfImg );
-
-                    // apply it
-                    wge::bindTexture( cube, tfTexture, 2, "u_transferFunction" );
-                    tfTexEnableDefine->setActive( true );        // enable it
+                    debugLog() << "no data set?";
                 }
                 else
                 {
-                    warnLog() << "Transfer function texture could not be loaded from " << m_tfLoaderFile->get( true ).file_string() << ".";
+                    WAssert( dataSet, "data set" );
+                    boost::shared_ptr< WValueSetBase > valueSet = dataSet->getValueSet();
+                    WAssert( valueSet, "value set" );
+                    boost::shared_ptr< WValueSet< unsigned char > > cvalueSet( boost::shared_dynamic_cast<WValueSet< unsigned char> >( valueSet ) );
+                    if ( !cvalueSet )
+                    {
+                        debugLog() << "invalid type";
+                    }
+                    else
+                    {
+                        //debugLog() << "creating transfer function texture";
+                        size_t tfsize = cvalueSet->rawSize();
+                        //debugLog() << "Texture raw size" << tfsize;
+
+                        const unsigned char* orig = cvalueSet->rawData();
+                        unsigned char* data = new unsigned char[ tfsize ];
+                        std::copy( orig, &orig[ tfsize ], data );
+
+                        for ( int i = 0; i< 30 && i < tfsize/4; ++i )
+                        {
+                            debugLog() << i << ":" << ( int )data[ 4*i ] << ' ' << ( int )data[ 4*i+1 ] << ' '<< ( int )data[ 4*i+2 ]
+                            << ' '<< ( int ) data[ 4*i+3 ];
+                        }
+
+                        osg::ref_ptr< osg::Image > tfImg( new osg::Image() );
+                        //debugLog() << "set image";
+                        tfImg->setImage( tfsize/4, 1, 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE,
+                            data, osg::Image::USE_NEW_DELETE ); // FIXME: check allocation mode
+                        //debugLog() << "activate";
+                        tfTexEnableDefine->setActive( false );
+                        osg::ref_ptr< osg::Texture1D > tfTexture = new osg::Texture1D();
+                        tfTexture->setImage( tfImg );
+
+                        wge::bindTexture( cube, tfTexture, 2, "u_transferFunction" );
+                        tfTexEnableDefine->setActive( true );
+                        //debugLog() << "done creating transfer function texture";
+                    }
                 }
-                m_tfLoaderTrigger->get( true );
+                debugLog() << "end updated transfer function";
             }
+            // // Disabled for debugging transfer function code. (mario)
+            // // try to load the tf from file if existent
+            // tfTexEnableDefine->setActive( false );
+            // if( m_tfLoaderEnabled->get( true ) )
+            // {
+            //     osg::ref_ptr< osg::Image > tfImg = osgDB::readImageFile( m_tfLoaderFile->get( true ).file_string() );
+            //     if( tfImg )
+            //     {
+            //         // bind it as a texture
+            //         osg::ref_ptr< osg::Texture1D > tfTexture = new osg::Texture1D();
+            //         tfTexture->setImage( tfImg );
+
+            //         // apply it
+            //         wge::bindTexture( cube, tfTexture, 2, "u_transferFunction" );
+            //         tfTexEnableDefine->setActive( true );        // enable it
+            //     }
+            //     else
+            //     {
+            //         warnLog() << "Transfer function texture could not be loaded from " << m_tfLoaderFile->get( true ).file_string() << ".";
+            //     }
+            //     m_tfLoaderTrigger->get( true );
+            // }
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // stochastic jittering texture
@@ -404,6 +473,36 @@ void WMDirectVolumeRendering::moduleMain()
             {
                 opacityCorrectionEnableDefine->setActive( false );
             }
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // maximum intensity projection (MIP)
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            // create some random noise
+            if( m_maximumIntensityProjectionEnabled->get( true ) )
+            {
+                maximumIntensityProjectionEnabledDefine->setActive( true );
+            }
+            else
+            {
+                maximumIntensityProjectionEnabledDefine->setActive( false );
+            }
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // depth projection
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            // create some random noise
+            if( m_depthProjectionEnabled->get( true ) )
+            {
+                depthProjectionEnabledDefine->setActive( true );
+            }
+            else
+            {
+                depthProjectionEnabledDefine->setActive( false );
+            }
+
+
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // setup all those uniforms

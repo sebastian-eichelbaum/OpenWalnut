@@ -123,7 +123,7 @@ public:
     virtual boost::shared_ptr< WPropertyBase > clone();
 
     /**
-     * Simply insert the specified property to the list.
+     * Insert the specified property into the list.
      *
      * \param prop the property to add
      *
@@ -133,7 +133,7 @@ public:
     PropType addProperty( PropType prop );
 
     /**
-     * Simply remove the specified property from the list. If the given property is not in the list, nothing happens.
+     * Remove the specified property from the list. If the given property is not in the list, nothing happens.
      *
      * \param prop the property to remove.
      */

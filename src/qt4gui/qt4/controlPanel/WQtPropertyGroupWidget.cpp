@@ -167,6 +167,13 @@ WPropertySelectionWidget* WQtPropertyGroupWidget::addProp( WPropSelection proper
     return new WPropertySelectionWidget( property, m_controlLayout, this );
 }
 
+WPropertyTransferFunctionWidget* WQtPropertyGroupWidget::addProp( WPropTransferFunction property )
+{
+    ++m_numberOfWidgets;
+
+    return new WPropertyTransferFunctionWidget( property, m_controlLayout, this );
+}
+
 void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asScrollArea )
 {
     ++m_numberOfWidgets;

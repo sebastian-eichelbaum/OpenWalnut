@@ -106,6 +106,7 @@ protected:
 
 private:
 
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_transferFunction;
     /**
      * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
      */
@@ -175,6 +176,16 @@ private:
      * number changes (m_samples)
      */
     WPropBool m_opacityCorrectionEnabled;
+
+    /**
+     * If active, Maximum intensity projection is used based on the alpha value of the points
+     */
+    WPropBool m_maximumIntensityProjectionEnabled;
+
+    /**
+     * If active, color coding is done by depth projection mode where the intensity is taken from the alpha channel and the color from the color channel ( last part not implemented, yet )
+     */
+    WPropBool m_depthProjectionEnabled;
 
     /**
      * A condition used to notify about changes in several properties.

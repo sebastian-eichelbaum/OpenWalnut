@@ -22,20 +22,24 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPROPERTYCOLORWIDGET_H
-#define WPROPERTYCOLORWIDGET_H
+#ifndef WPROPERTYTRANSFERFUNCTIONWIDGET_H
+#define WPROPERTYTRANSFERFUNCTIONWIDGET_H
 
 #include <string>
 
-#include <QtGui/QPushButton>
+#include <QtGui/QLineEdit>
+#include <QtGui/QSlider>
 #include <QtGui/QHBoxLayout>
 
 #include "WPropertyWidget.h"
 
+#include "transferFunction/WTransferFunctionWidget.h"
+#include "core/common/WTransferFunction.h"
+
 /**
- * Implements a property widget for WPropColor.
+ * Implements a property widget for WPropDouble.
  */
-class WPropertyColorWidget: public WPropertyWidget
+class WPropertyTransferFunctionWidget: public WPropertyWidget, public WTransferFunctionGuiNotificationClass
 {
     Q_OBJECT
 public:
@@ -47,19 +51,19 @@ public:
      * \param parent the parent widget.
      * \param propertyGrid the grid used to layout the labels and property widgets
      */
-    WPropertyColorWidget( WPropColor property, QGridLayout* propertyGrid, QWidget* parent = 0 );
+    WPropertyTransferFunctionWidget( WPropTransferFunction property, QGridLayout* propertyGrid, QWidget* parent = 0 );
 
     /**
      * Destructor.
      */
-    virtual ~WPropertyColorWidget();
+    virtual ~WPropertyTransferFunctionWidget();
 
 protected:
 
     /**
-     * Internal helper, called to set the color
-     */
-    virtual void setColor( const QColor& color );
+    * called when the gui has new data
+    */
+    virtual void guiUpdate( const WTransferFunction& tf );
 
     /**
      * Called whenever the widget should update.
@@ -67,24 +71,20 @@ protected:
     virtual void update();
 
     /**
-     * Reimplemented to accept color drops
-     */
-    virtual void dragEnterEvent( QDragEnterEvent* event );
-
-    /**
-     * Reimplemented to accept color drops
-     */
-    virtual void dropEvent( QDropEvent* event );
-
-    /**
      * The integer property represented by this widget.
      */
-    WPropColor m_colorProperty;
+    //WPropDouble m_doubleProperty;
+    WPropTransferFunction m_transferFunctionProperty;
 
     /**
-     * The button field showing the value
+     * The slider allowing modification of the integer value
      */
-    QPushButton m_button;
+    //QSlider m_slider;
+
+    /**
+     * The edit field showing the value of the slider
+     */
+    //QLineEdit m_edit;
 
     /**
      * Layout used to position the label and the checkbox
@@ -92,42 +92,33 @@ protected:
     QHBoxLayout m_layout;
 
     /**
+     * The current minimum value.
+     */
+    double m_min;
+
+    /**
+     * The current maximum value.
+     */
+    double m_max;
+
+    /**
      * Used to show the property as text.
      */
-    QLabel m_asText;
+    //QLabel m_asText;
 
     /**
      * The layout used for the pure output (information properties)
      */
     QHBoxLayout m_infoLayout;
 
-private:
+    WTransferFunctionWidget m_transferFunction;
+    WTransferFunction lastTransferFunction;
 
     /**
-     * Helper to convert between QColor and WColor.
-     *
-     * \param color a color
-     *
-     * \return the corresponding QColor.
+     * internal synchronization flag
      */
-    static QColor toQColor( WColor color );
-
-    /**
-     * Helper to convert between QColor and WColor.
-     *
-     * \param color a color
-     *
-     * \return the corresponding WColor.
-     */
-     static WColor toWColor( QColor color );
-
-public slots:
-
-    /**
-     * Called when the m_button is clicked
-     */
-    void buttonClicked();
+    bool modifying;
 };
 
-#endif  // WPROPERTYCOLORWIDGET_H
+#endif  // WPROPERTYTRANSFERFUNCTIONWIDGET_H
 

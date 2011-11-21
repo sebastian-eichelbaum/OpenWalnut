@@ -910,7 +910,6 @@ void WMainWindow::customEvent( QEvent* event )
     }
     if( event->type() == WCloseCustomDockWidgetEvent::CUSTOM_TYPE )
     {
-
         WCloseCustomDockWidgetEvent* closeEvent = static_cast< WCloseCustomDockWidgetEvent* >( event );
         boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
         if( m_customDockWidgets.count( closeEvent->getTitle() ) > 0 )
