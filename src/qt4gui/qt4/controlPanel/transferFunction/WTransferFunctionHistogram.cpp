@@ -51,11 +51,9 @@ QRectF WTransferFunctionHistogram::boundingRect() const
 
 void WTransferFunctionHistogram::paint( QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget* )
 {
-    // std::cout  << "Paint Histogram" << std::endl;
     const int steps = data.size();
     if ( steps > 0 )
     {
-        std::cout  << "actually Paint Histogram" << std::endl;
         double maxval = *std::max_element( data.begin(), data.end() );
         if ( maxval > 0.0 )
         {
@@ -73,16 +71,12 @@ void WTransferFunctionHistogram::paint( QPainter *painter, const QStyleOptionGra
 
             for ( int i = 0; i < steps; ++i )
             {
+                // logarithmic mapping of histogram to values
+                // the added 1.001 is to avoid numerical problems but should work for most data sets
                 histogram << QPoint( bb.left()+ ( double )bb.width()*( double )i/( double )steps,
-                        //bb.bottom() - ( double )bb.height() * std::log( data[ i ]+1 )/std::log( maxval+1 ) );
                           bb.bottom() - ( double )bb.height() * std::log( data[ i ]+1 )/std::log( maxval+1.001 ) );
             }
             painter->drawPolygon( histogram );
         }
-
-        // FIXME: put this somewhere else
-        //QRectF bb( this->scene()->sceneRect() );
-        //painter->setPen( QPen( Qt::black, 2 ) );
-        //painter->drawRect( bb );
     }
 }
