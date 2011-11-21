@@ -173,7 +173,7 @@ void WTransferFunction::sample1DTransferFunction( unsigned char*array, int width
         }
         for ( int j = 0; j < 4; ++j )
         {
-            array[ 4*i + j ] = color[ j ];
+            array[ 4*i + j ] = color[ j ]*255.;
         }
     }
 }
