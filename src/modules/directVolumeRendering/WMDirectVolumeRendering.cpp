@@ -370,7 +370,7 @@
             // load transfer function
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            if( m_transferFunction->updated())
+            if( ( propUpdated ||  m_transferFunction->updated() ) && dataValid )
             {
                 debugLog() << "updated transfer function";
                 boost::shared_ptr< WDataSetSingle > dataSet = m_transferFunction->getData();
@@ -398,11 +398,11 @@
                         unsigned char* data = new unsigned char[ tfsize ];
                         std::copy( orig, &orig[ tfsize ], data );
 
-                        for ( int i = 0; i< 30 && i < tfsize/4; ++i )
-                        {
-                            debugLog() << i << ":" << ( int )data[ 4*i ] << ' ' << ( int )data[ 4*i+1 ] << ' '<< ( int )data[ 4*i+2 ]
-                            << ' '<< ( int ) data[ 4*i+3 ];
-                        }
+                        // for ( size_t i = 0; i< 30 && i < tfsize/4; ++i )
+                        // {
+                        //     debugLog() << i << ":" << ( int )data[ 4*i ] << ' ' << ( int )data[ 4*i+1 ] << ' '<< ( int )data[ 4*i+2 ]
+                        //     << ' '<< ( int ) data[ 4*i+3 ];
+                        // }
 
                         osg::ref_ptr< osg::Image > tfImg( new osg::Image() );
                         //debugLog() << "set image";

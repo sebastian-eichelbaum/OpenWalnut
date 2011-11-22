@@ -102,16 +102,16 @@ PROPERTY_PURPOSE;
  */
 namespace WPVBaseTypes
 {
-    typedef int32_t                                         PV_INT;           //!< base type used for every WPVInt
-    typedef double                                          PV_DOUBLE;        //!< base type used for every WPVDouble
-    typedef bool                                            PV_BOOL;          //!< base type used for every WPVBool
-    typedef std::string                                     PV_STRING;        //!< base type used for every WPVString
-    typedef boost::filesystem::path                         PV_PATH;          //!< base type used for every WPVFilename
-    typedef WItemSelector                                   PV_SELECTION;     //!< base type used for every WPVSelection
-    typedef WPosition                                     PV_POSITION;        //!< base type used for every WPVPosition
-    typedef WColor                                          PV_COLOR;         //!< base type used for every WPVColor
-    typedef WMatrix4d                                     PV_MATRIX4X4;       //!< base type used for every WPVMatrix4X4
-    typedef WTransferFunction                            PV_TRANSFERFUNCTION; //!< base type for every transfer function
+    typedef int32_t                                         PV_INT;              //!< base type used for every WPVInt
+    typedef double                                          PV_DOUBLE;           //!< base type used for every WPVDouble
+    typedef bool                                            PV_BOOL;             //!< base type used for every WPVBool
+    typedef std::string                                     PV_STRING;           //!< base type used for every WPVString
+    typedef boost::filesystem::path                         PV_PATH;             //!< base type used for every WPVFilename
+    typedef WItemSelector                                   PV_SELECTION;        //!< base type used for every WPVSelection
+    typedef WPosition                                       PV_POSITION;         //!< base type used for every WPVPosition
+    typedef WColor                                          PV_COLOR;            //!< base type used for every WPVColor
+    typedef WMatrix4d                                       PV_MATRIX4X4;        //!< base type used for every WPVMatrix4X4
+    typedef WTransferFunction                               PV_TRANSFERFUNCTION; //!< base type for every transfer function
 
     /**
      * Enum denoting the possible trigger states. It is used for trigger properties.
@@ -284,19 +284,19 @@ namespace PROPERTY_TYPE_HELPER
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template< typename T >
-        class WTypeIdentifier
+    class WTypeIdentifier
+    {
+    public:
+        /**
+         * Get type identifier of the template type T.
+         *
+         * \return type identifier-
+         */
+        PROPERTY_TYPE getType()
         {
-            public:
-                /**
-                 * Get type identifier of the template type T.
-                 *
-                 * \return type identifier-
-                 */
-                PROPERTY_TYPE getType()
-                {
-                    return PV_UNKNOWN;
-                }
-        };
+            return PV_UNKNOWN;
+        }
+    };
 
     /**
      * Class helping to create a new instance of the property content from an old one. This might be needed by some types (some need to have a
@@ -304,398 +304,397 @@ namespace PROPERTY_TYPE_HELPER
      * You only need to specialize this class for types not allowing the direct use of boost::lexical_cast.
      */
     template< typename T >
-        class WStringConversion
+    class WStringConversion
+    {
+    public:
+        /**
+         * Creates a new instance of the type from a given string. Some classes need a predecessor which is also specified here.
+         *
+         * \param str the new value as string
+         *
+         * \return the new instance
+         */
+        T create( const T& /*old*/, const std::string str )
         {
-            public:
-                /**
-                 * Creates a new instance of the type from a given string. Some classes need a predecessor which is also specified here.
-                 *
-                 * \param str the new value as string
-                 *
-                 * \return the new instance
-                 */
-                T create( const T& /*old*/, const std::string str )
-                {
-                    return boost::lexical_cast< T >( str );
-                }
+            return boost::lexical_cast< T >( str );
+        }
 
-                /**
-                 * Creates a string from the specified value.
-                 *
-                 * \param v the value to convert
-                 *
-                 * \return the string representation
-                 */
-                std::string asString( const T& v )
-                {
-                    return boost::lexical_cast< std::string >( v );
-                }
-        };
-
-    /**
-     * Class helping to adapt types specified as template parameter into an enum.
-     */
-    template<>
-        class WTypeIdentifier< WPVBaseTypes::PV_BOOL >
+        /**
+         * Creates a string from the specified value.
+         *
+         * \param v the value to convert
+         *
+         * \return the string representation
+         */
+        std::string asString( const T& v )
         {
-            public:
-                /**
-                 * Get type identifier of the template type T.
-                 *
-                 * \return type identifier-
-                 */
-                PROPERTY_TYPE getType()
-                {
-                    return PV_BOOL;
-                }
-        };
+            return boost::lexical_cast< std::string >( v );
+        }
+    };
 
     /**
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-        class WTypeIdentifier< WPVBaseTypes::PV_INT >
+    class WTypeIdentifier< WPVBaseTypes::PV_BOOL >
+    {
+    public:
+        /**
+         * Get type identifier of the template type T.
+         *
+         * \return type identifier-
+         */
+        PROPERTY_TYPE getType()
         {
-            public:
-                /**
-                 * Get type identifier of the template type T.
-                 *
-                 * \return type identifier-
-                 */
-                PROPERTY_TYPE getType()
-                {
-                    return PV_INT;
-                }
-        };
+            return PV_BOOL;
+        }
+    };
 
     /**
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-        class WTypeIdentifier< WPVBaseTypes::PV_DOUBLE >
+    class WTypeIdentifier< WPVBaseTypes::PV_INT >
+    {
+    public:
+        /**
+         * Get type identifier of the template type T.
+         *
+         * \return type identifier-
+         */
+        PROPERTY_TYPE getType()
         {
-            public:
-                /**
-                 * Get type identifier of the template type T.
-                 *
-                 * \return type identifier-
-                 */
-                PROPERTY_TYPE getType()
-                {
-                    return PV_DOUBLE;
-                }
-        };
+            return PV_INT;
+        }
+    };
 
     /**
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-        class WTypeIdentifier< WPVBaseTypes::PV_STRING >
+    class WTypeIdentifier< WPVBaseTypes::PV_DOUBLE >
+    {
+    public:
+        /**
+         * Get type identifier of the template type T.
+         *
+         * \return type identifier-
+         */
+        PROPERTY_TYPE getType()
         {
-            public:
-                /**
-                 * Get type identifier of the template type T.
-                 *
-                 * \return type identifier-
-                 */
-                PROPERTY_TYPE getType()
-                {
-                    return PV_STRING;
-                }
-        };
+            return PV_DOUBLE;
+        }
+    };
 
     /**
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-        class WTypeIdentifier< WPVBaseTypes::PV_PATH >
+    class WTypeIdentifier< WPVBaseTypes::PV_STRING >
+    {
+    public:
+        /**
+         * Get type identifier of the template type T.
+         *
+         * \return type identifier-
+         */
+        PROPERTY_TYPE getType()
         {
-            public:
-                /**
-                 * Get type identifier of the template type T.
-                 *
-                 * \return type identifier-
-                 */
-                PROPERTY_TYPE getType()
-                {
-                    return PV_PATH;
-                }
-        };
+            return PV_STRING;
+        }
+    };
 
     /**
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-        class WTypeIdentifier< WPVBaseTypes::PV_SELECTION >
+    class WTypeIdentifier< WPVBaseTypes::PV_PATH >
+    {
+    public:
+        /**
+         * Get type identifier of the template type T.
+         *
+         * \return type identifier-
+         */
+        PROPERTY_TYPE getType()
         {
-            public:
-                /**
-                 * Get type identifier of the template type T.
-                 *
-                 * \return type identifier-
-                 */
-                PROPERTY_TYPE getType()
-                {
-                    return PV_SELECTION;
-                }
-        };
+            return PV_PATH;
+        }
+    };
+
+    /**
+     * Class helping to adapt types specified as template parameter into an enum.
+     */
+    template<>
+    class WTypeIdentifier< WPVBaseTypes::PV_SELECTION >
+    {
+    public:
+        /**
+         * Get type identifier of the template type T.
+         *
+         * \return type identifier-
+         */
+        PROPERTY_TYPE getType()
+        {
+            return PV_SELECTION;
+        }
+    };
 
     /**
      * Class helping to create a new instance of the property content from an old one. Selections need this special care since they contain not
      * serializable content which needs to be acquired from its predecessor instance.
      */
     template<>
-        class WStringConversion< WPVBaseTypes::PV_SELECTION >
+    class WStringConversion< WPVBaseTypes::PV_SELECTION >
+    {
+    public:
+        /**
+         * Creates a new instance of the type from a given string. Some classes need a predecessor which is also specified here.
+         *
+         * \param old the old value
+         * \param str the new value as string
+         *
+         * \return the new instance
+         */
+        WPVBaseTypes::PV_SELECTION  create( const WPVBaseTypes::PV_SELECTION& old, const std::string str )
         {
-            public:
-                /**
-                 * Creates a new instance of the type from a given string. Some classes need a predecessor which is also specified here.
-                 *
-                 * \param old the old value
-                 * \param str the new value as string
-                 *
-                 * \return the new instance
-                 */
-                WPVBaseTypes::PV_SELECTION  create( const WPVBaseTypes::PV_SELECTION& old, const std::string str )
-                {
-                    return old.newSelector( str );
-                }
+            return old.newSelector( str );
+        }
 
-                /**
-                 * Creates a string from the specified value.
-                 *
-                 * \param v the value to convert
-                 *
-                 * \return the string representation
-                 */
-                std::string asString( const WPVBaseTypes::PV_SELECTION& v )
-                {
-                    return boost::lexical_cast< std::string >( v );
-                }
-        };
-
-    /**
-     * Class helping to adapt types specified as template parameter into an enum.
-     */
-    template<>
-        class WTypeIdentifier< WPVBaseTypes::PV_POSITION >
+        /**
+         * Creates a string from the specified value.
+         *
+         * \param v the value to convert
+         *
+         * \return the string representation
+         */
+        std::string asString( const WPVBaseTypes::PV_SELECTION& v )
         {
-            public:
-                /**
-                 * Get type identifier of the template type T.
-                 *
-                 * \return type identifier-
-                 */
-                PROPERTY_TYPE getType()
-                {
-                    return PV_POSITION;
-                }
-        };
+            return boost::lexical_cast< std::string >( v );
+        }
+    };
 
     /**
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-        class WTypeIdentifier< WPVBaseTypes::PV_COLOR >
+    class WTypeIdentifier< WPVBaseTypes::PV_POSITION >
+    {
+    public:
+        /**
+         * Get type identifier of the template type T.
+         *
+         * \return type identifier-
+         */
+        PROPERTY_TYPE getType()
         {
-            public:
-                /**
-                 * Get type identifier of the template type T.
-                 *
-                 * \return type identifier-
-                 */
-                PROPERTY_TYPE getType()
-                {
-                    return PV_COLOR;
-                }
-        };
+            return PV_POSITION;
+        }
+    };
 
     /**
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-        class WTypeIdentifier< WPVBaseTypes::PV_TRIGGER >
+    class WTypeIdentifier< WPVBaseTypes::PV_COLOR >
+    {
+    public:
+        /**
+         * Get type identifier of the template type T.
+         *
+         * \return type identifier-
+         */
+        PROPERTY_TYPE getType()
         {
-            public:
-                /**
-                 * Get type identifier of the template type T.
-                 *
-                 * \return type identifier-
-                 */
-                PROPERTY_TYPE getType()
-                {
-                    return PV_TRIGGER;
-                }
-        };
+            return PV_COLOR;
+        }
+    };
 
     /**
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-        class WTypeIdentifier< WPVBaseTypes::PV_MATRIX4X4 >
+    class WTypeIdentifier< WPVBaseTypes::PV_TRIGGER >
+    {
+    public:
+        /**
+         * Get type identifier of the template type T.
+         *
+         * \return type identifier-
+         */
+        PROPERTY_TYPE getType()
         {
-            public:
-                /**
-                 * Get type identifier of the template type T.
-                 *
-                 * \return type identifier-
-                 */
-                PROPERTY_TYPE getType()
-                {
-                    return PV_MATRIX4X4;
-                }
-        };
+            return PV_TRIGGER;
+        }
+    };
+
+    /**
+     * Class helping to adapt types specified as template parameter into an enum.
+     */
+    template<>
+    class WTypeIdentifier< WPVBaseTypes::PV_MATRIX4X4 >
+    {
+    public:
+        /**
+         * Get type identifier of the template type T.
+         *
+         * \return type identifier-
+         */
+        PROPERTY_TYPE getType()
+        {
+            return PV_MATRIX4X4;
+        }
+    };
 
     /**
      * Class helping to create a new instance of the property content from an old one. Selections need this special care since they contain not
      * serializable content which needs to be acquired from its predecessor instance.
      */
     template<>
-        class WStringConversion< WPVBaseTypes::PV_MATRIX4X4 >
+    class WStringConversion< WPVBaseTypes::PV_MATRIX4X4 >
+    {
+    public:
+        /**
+         * Creates a new instance of the type from a given string. Some classes need a predecessor which is also specified here.
+         *
+         * \param str the new value as string
+         *
+         * \return the new instance
+         */
+        WPVBaseTypes::PV_MATRIX4X4 create( const WPVBaseTypes::PV_MATRIX4X4& /*old*/, const std::string str )
         {
-            public:
-                /**
-                 * Creates a new instance of the type from a given string. Some classes need a predecessor which is also specified here.
-                 *
-                 * \param str the new value as string
-                 *
-                 * \return the new instance
-                 */
-                WPVBaseTypes::PV_MATRIX4X4 create( const WPVBaseTypes::PV_MATRIX4X4& /*old*/, const std::string str )
+            WMatrix4d c;
+            std::vector< std::string > tokens;
+            tokens = string_utils::tokenize( str, ";" );
+            WAssert( tokens.size() >= 16, "There weren't 16 values for a 4x4 Matrix" );
+
+            size_t idx = 0;
+            for( size_t row = 0; row < 4; ++row )
+            {
+                for( size_t col = 0; col < 4; ++col )
                 {
-                    WMatrix4d c;
-                    std::vector< std::string > tokens;
-                    tokens = string_utils::tokenize( str, ";" );
-                    WAssert( tokens.size() >= 16, "There weren't 16 values for a 4x4 Matrix" );
-
-                    size_t idx = 0;
-                    for( size_t row = 0; row < 4; ++row )
-                    {
-                        for( size_t col = 0; col < 4; ++col )
-                        {
-                            c( row, col ) = boost::lexical_cast< double >( tokens[ idx ] );
-                            idx++;
-                        }
-                    }
-
-                    return c;
+                    c( row, col ) = boost::lexical_cast< double >( tokens[ idx ] );
+                    idx++;
                 }
+            }
 
-                /**
-                 * Creates a string from the specified value.
-                 *
-                 * \param v the value to convert
-                 *
-                 * \return the string representation
-                 */
-                std::string asString( const WPVBaseTypes::PV_MATRIX4X4& v )
+            return c;
+        }
+
+        /**
+         * Creates a string from the specified value.
+         *
+         * \param v the value to convert
+         *
+         * \return the string representation
+         */
+        std::string asString( const WPVBaseTypes::PV_MATRIX4X4& v )
+        {
+            std::ostringstream out;
+            for( size_t row = 0; row < 4; ++row )
+            {
+                for( size_t col = 0; col < 4; ++col )
                 {
-                    std::ostringstream out;
-                    for( size_t row = 0; row < 4; ++row )
-                    {
-                        for( size_t col = 0; col < 4; ++col )
-                        {
-                            out << v( row, col ) << ";";
-                        }
-                    }
-                    return out.str();
+                    out << v( row, col ) << ";";
                 }
-        };
+            }
+            return out.str();
+        }
+    };
 
     /**
      * Class helping to adapt types specified as template parameter into an enum.
      */
     template<>
-        class WTypeIdentifier< WPVBaseTypes::PV_TRANSFERFUNCTION >
+    class WTypeIdentifier< WPVBaseTypes::PV_TRANSFERFUNCTION >
+    {
+    public:
+        /**
+         * Get type identifier of the template type T.
+         *
+         * \return type identifier-
+         */
+        PROPERTY_TYPE getType()
         {
-            public:
-                /**
-                 * Get type identifier of the template type T.
-                 *
-                 * \return type identifier-
-                 */
-                PROPERTY_TYPE getType()
-                {
-                    return PV_TRANSFERFUNCTION;
-                }
-        };
+            return PV_TRANSFERFUNCTION;
+        }
+    };
 
     /**
      * Class helping to create a new instance of the property content from an old one. Selections need this special care since they contain not
      * serializable content which needs to be acquired from its predecessor instance.
      */
     template<>
-        class WStringConversion< WPVBaseTypes::PV_TRANSFERFUNCTION >
-        {
-            public:
-                /**
-                 * Creates a new instance of the type from a given string. Some classes need a predecessor which is also specified here.
-                 *
-                 * \param str the new value as string
-                 *
-                 * \return the new instance
-                 */
-                WPVBaseTypes::PV_TRANSFERFUNCTION create( const WPVBaseTypes::PV_TRANSFERFUNCTION& /*old*/, const std::string str );
+    class WStringConversion< WPVBaseTypes::PV_TRANSFERFUNCTION >
+    {
+    public:
+        /**
+         * Creates a new instance of the type from a given string. Some classes need a predecessor which is also specified here.
+         *
+         * \param str the new value as string
+         *
+         * \return the new instance
+         */
+        WPVBaseTypes::PV_TRANSFERFUNCTION create( const WPVBaseTypes::PV_TRANSFERFUNCTION& /*old*/, const std::string str );
 
-                /**
-                 * Creates a string from the specified value.
-                 *
-                 * \param v the value to convert
-                 *
-                 * \return the string representation
-                 */
-                std::string asString( const WPVBaseTypes::PV_TRANSFERFUNCTION& tf );
-        };
-
+        /**
+         * Creates a string from the specified value.
+         *
+         * \param v the value to convert
+         *
+         * \return the string representation
+         */
+        std::string asString( const WPVBaseTypes::PV_TRANSFERFUNCTION& tf );
+    };
 
     /**
      * Class helping to create a new instance of the property content from an old one. Selections need this special care since they contain not
      * serializable content which needs to be acquired from its predecessor instance.
      */
     template<>
-        class WStringConversion< WPVBaseTypes::PV_POSITION >
+    class WStringConversion< WPVBaseTypes::PV_POSITION >
+    {
+    public:
+        /**
+         * Creates a new instance of the type from a given string. Some classes need a predecessor which is also specified here.
+         *
+         * \param str the new value as string
+         *
+         * \return the new instance
+         */
+        WPVBaseTypes::PV_POSITION create( const WPVBaseTypes::PV_POSITION& /*old*/, const std::string str )
         {
-            public:
-                /**
-                 * Creates a new instance of the type from a given string. Some classes need a predecessor which is also specified here.
-                 *
-                 * \param str the new value as string
-                 *
-                 * \return the new instance
-                 */
-                WPVBaseTypes::PV_POSITION create( const WPVBaseTypes::PV_POSITION& /*old*/, const std::string str )
-                {
-                    WPVBaseTypes::PV_POSITION c;
-                    std::vector< std::string > tokens;
-                    tokens = string_utils::tokenize( str, ";" );
-                    WAssert( tokens.size() >= 3, "There weren't 3 values for a 3D vector" );
+            WPVBaseTypes::PV_POSITION c;
+            std::vector< std::string > tokens;
+            tokens = string_utils::tokenize( str, ";" );
+            WAssert( tokens.size() >= 3, "There weren't 3 values for a 3D vector" );
 
-                    size_t idx = 0;
-                    for( size_t col = 0; col < 3; ++col )
-                    {
-                        c[ col ] = boost::lexical_cast< double >( tokens[ idx ] );
-                        idx++;
-                    }
-                    return c;
-                }
+            size_t idx = 0;
+            for( size_t col = 0; col < 3; ++col )
+            {
+                c[ col ] = boost::lexical_cast< double >( tokens[ idx ] );
+                idx++;
+            }
+            return c;
+        }
 
-                /**
-                 * Creates a string from the specified value.
-                 *
-                 * \param v the value to convert
-                 *
-                 * \return the string representation
-                 */
-                std::string asString( const WPVBaseTypes::PV_POSITION& v )
-                {
-                    std::ostringstream out;
-                    for( size_t col = 0; col < 3; ++col )
-                    {
-                        out << v[ col ] << ";";
-                    }
-                    return out.str();
-                }
-        };
+        /**
+         * Creates a string from the specified value.
+         *
+         * \param v the value to convert
+         *
+         * \return the string representation
+         */
+        std::string asString( const WPVBaseTypes::PV_POSITION& v )
+        {
+            std::ostringstream out;
+            for( size_t col = 0; col < 3; ++col )
+            {
+                out << v[ col ] << ";";
+            }
+            return out.str();
+        }
+    };
 }
 
 #endif  // WPROPERTYTYPES_H

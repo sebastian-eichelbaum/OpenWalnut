@@ -31,7 +31,7 @@
 #include "WTransferFunctionBackground.h"
 #include "WTransferFunctionWidget.h"
 
-WTransferFunctionBackground::WTransferFunctionBackground( WTransferFunctionWidget *parent ) : BaseClass()
+WTransferFunctionBackground::WTransferFunctionBackground( WTransferFunctionWidget * /*parent*/ ) : BaseClass()
 {
     //this->setFlag( ItemIsMovable );
     setOpacity( 1.0 );
