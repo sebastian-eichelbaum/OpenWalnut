@@ -242,7 +242,7 @@ WTransferFunctionWidget::~WTransferFunctionWidget()
 
 void WTransferFunctionWidget::setMyBackground()
 {
-    const int transferFunctionSize = 32;
+    const int transferFunctionSize = 100;
     static unsigned char texturearray[ 4*transferFunctionSize ];
 
     if ( background )
