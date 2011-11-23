@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# get the current directory
+PWD=`pwd`
+
 # get path of this script
 BINDIR=`dirname "$0"`
 
@@ -12,6 +15,7 @@ echo run $@ > $PARAM_FILENAME
 cd "$BINDIR"
 
 # run walnut
-gdb ./openwalnut-qt4 -command=$PARAM_FILENAME
+gdb ./openwalnut-qt4 -cd=$PWD -command=$PARAM_FILENAME
 
 rm $PARAM_FILENAME
+cd $PWD
