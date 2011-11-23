@@ -180,7 +180,8 @@ void WMainWindow::setupGUI()
     // NOTE: this only is an initial size. The state reloaded from QSettings will set it to the value the user had last session.
     resize( 800, 600 );
     setWindowIcon( m_iconManager.getIcon( "logo" ) );
-    setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut (development version)", 0, QApplication::UnicodeUTF8 ) );
+    std::string windowHeading =  std::string( "OpenWalnut " ) + std::string( W_VERSION );
+    setWindowTitle( QApplication::translate( "MainWindow", windowHeading.c_str(), 0, QApplication::UnicodeUTF8 ) );
 
     setDockOptions( QMainWindow::AnimatedDocks |  QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks );
 
@@ -703,7 +704,8 @@ void WMainWindow::openAboutDialog()
 {
     std::string filename( WPathHelper::getDocPath().file_string() + "/openwalnut-qt4/OpenWalnutAbout.html" );
     std::string content = readFileIntoString( filename );
-    QMessageBox::about( this, "About OpenWalnut", content.c_str() );
+    std::string windowHeading =  std::string( "About OpenWalnut " ) + std::string( W_VERSION );
+    QMessageBox::about( this, windowHeading.c_str(), content.c_str() );
 }
 
 void WMainWindow::openOpenWalnutHelpDialog()
