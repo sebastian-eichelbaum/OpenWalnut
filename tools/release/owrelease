@@ -32,14 +32,14 @@
 VERSION_BASE=1.2.5
 
 # Should the package number contain the HG revision?
-VERSION_INCLUDE_HG=0
+VERSION_INCLUDE_HG=1
 
 # Where to grab the sources?
 REPO="ssh://openwalnut.com//srv/hg/ow"
 REPO_BRANCH="OpenWalnut_$VERSION_BASE"
 
 # Which packages to build
-PACKAGES="deb src tgz"
+PACKAGES="deb src"
 
 # Define which chroot/distribution to use for build the packages
 # NOTE: supported are "sid wheezy squeeze lucid maverick natty"

@@ -68,6 +68,9 @@ SETUP_LIB_INSTALL( ${LibName} ${OW_LIBRARY_DIR_RELATIVE} "CORE" )
 # NOTE: do not use ${TARGET_H_FILES}. The command requires a list
 SETUP_DEV_INSTALL( ${LibName} ${OW_LIBRARY_DIR_RELATIVE} TARGET_H_FILES "include/openwalnut/core" "CORE_DEV" )
 
+# The core does also provide some nice pkg-config file. Set this up and configure it to contain the correct install prefix
+SETUP_CONFIGURED_FILE( "core-dev" "lib/pkgconfig/openwalnut.pc" "CORE_DEV" )
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Test Setup
 # ---------------------------------------------------------------------------------------------------------------------------------------------------

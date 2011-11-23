@@ -126,7 +126,7 @@ private:
     WPropBool m_doErrorCalculation; //!< Property indicating whether a reprojection error of the spherical harmonics is calculated.
 
     /**
-     * Property indicating whether the reprojection error (measurement relative to spherical harmonic calculation) is stored into a seperate dataset.
+     * Property indicating whether the reprojection error (measurement relative to spherical harmonic calculation) is stored into a separate dataset.
      */
     WPropBool m_doResidualCalculation;
 

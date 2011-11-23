@@ -142,7 +142,8 @@ SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
 # Eigen3 specifics
 
 # NOTE: this is included in ext. But we need to set several definitions to make this work on 32 Bit machines due to alignment problems
-ADD_DEFINITIONS( -DEIGEN_DONT_VECTORIZE -DEIGEN_DONT_ALIGN -DEIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT )
+SET( EIGEN3_DEFINES -DEIGEN_DONT_VECTORIZE -DEIGEN_DONT_ALIGN -DEIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT )
+ADD_DEFINITIONS( ${EIGEN3_DEFINES} )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #

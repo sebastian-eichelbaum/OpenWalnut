@@ -90,7 +90,7 @@ const std::string WMAtlasSurfaces::getName() const
 const std::string WMAtlasSurfaces::getDescription() const
 {
     return "Use a scalar data set that stores numbers for atlas regions and a "
-        "correspoding text file with labels for the numbers to create "
+        "corresponding text file with labels for the numbers to create "
         "surfaces bounding the atlas regions. The surfaces can be picked to reveal "
         "their name in the HUD (module). Regions can be used as ROIs for fiber selection.";
 }
