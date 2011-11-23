@@ -222,7 +222,6 @@ void WMainWindow::setupGUI()
     m_glDock->setDocumentMode( true );
     setCentralWidget( m_glDock );
     WQtGLDockWidget* mainGLDock = new WQtGLDockWidget( "main", "3D View", m_glDock );
-    mainGLDock->setMinimumWidth( 500 );
     mainGLDock->getGLWidget()->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
     m_mainGLWidget = mainGLDock->getGLWidget();
     m_glDock->addDockWidget( Qt::RightDockWidgetArea, mainGLDock );

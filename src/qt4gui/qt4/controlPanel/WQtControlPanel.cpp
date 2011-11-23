@@ -72,7 +72,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     setObjectName( "Control Panel Dock" );
 
     m_mainWindow = parent;
-    setMinimumWidth( 300 );
+    setMinimumWidth( 200 );
 
     m_panel = new QWidget( this );
     m_moduleTreeWidget = new WQtTreeWidget( m_panel );
@@ -138,7 +138,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_colormapper->setToolTip( "Reorder the textures." );
 
     m_tabWidget = new QTabWidget( m_panel );
-    m_tabWidget->setMinimumHeight( 250 );
+    m_tabWidget->setMinimumHeight( 100 );
 
     m_moduleDock = new QDockWidget( "Module Tree", m_mainWindow );
     m_moduleDock->setObjectName( "Module Dock" );
