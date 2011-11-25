@@ -214,6 +214,20 @@ public:
     }
 
     /**
+     * Constructor easing the initialization of vectors. This won't compile if Cols != 1 and Rows != 2.
+     *
+     * \param x x coefficient
+     * \param y y coefficient
+     */
+    WMatrixFixed( const ValueT& x, const ValueT& y )
+    {
+        BOOST_STATIC_ASSERT( Rows == 2 );
+        // NOTE: The static Cols == 1 check is done by operator []
+        operator[]( 0 ) = x;
+        operator[]( 1 ) = y;
+    }
+
+    /**
      * Constructor easing the initialization of vectors. This won't compile if Cols != 1 and Rows != 3.
      *
      * \param x x coefficient
