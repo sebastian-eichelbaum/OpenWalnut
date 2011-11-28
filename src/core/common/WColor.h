@@ -83,8 +83,8 @@ namespace defaultColor
 
     static const WColor ORANGE( 1.0, 0.5, 0.0, 1.0 ); //!< Default for orange
 
-    static const WColor VIOLET( 0.5, 0.5, 0.0, 1.0 ); //!< Default for violet (darker pink)
-    static const WColor PINK( 1.0, 1.0, 0.0, 1.0 ); //!< Default for pink
+    static const WColor VIOLET( 0.5, 0.0, 0.5, 1.0 ); //!< Default for violet (darker pink)
+    static const WColor PINK( 1.0, 0.0, 1.0, 1.0 ); //!< Default for pink
 
     static const WColor TEAL( 0.0, 0.5, 0.5, 1.0 ); //!< Default for darker cyan (teal)
     static const WColor CYAN( 0.0, 1.0, 1.0, 1.0 ); //!< Default for cyan
