@@ -24,6 +24,7 @@
 
 #include <list>
 #include <vector>
+#include <algorithm>
 
 #include <boost/shared_ptr.hpp>
 
@@ -34,14 +35,8 @@
 #include "../WDataSetFiberVector.h"
 #include "WFiberCluster.h"
 
-// TODO(math): The only reason why we store here a Reference to the fiber
-// dataset is, we need it in the WMVoxelizer module as well as the clustering
-// information. Since we don't have the possibility of multiple
-// InputConnectors we must agglomerate those into one object. Please remove this.
-// initializes the variable and provides a linker reference
-// \cond Suppress_Doxygen
+// The prototype as singleton. Created during first getPrototype() call
 boost::shared_ptr< WPrototyped > WFiberCluster::m_prototype = boost::shared_ptr< WPrototyped >();
-// \endcond
 
 WFiberCluster::WFiberCluster()
     : WTransferable(),
@@ -56,6 +51,27 @@ WFiberCluster::WFiberCluster( size_t index )
     m_longestLineCreationLock( new boost::shared_mutex() )
 {
     m_memberIndices.push_back( index );
+}
+
+WFiberCluster::WFiberCluster( const WFiberCluster::IndexList& indices, const WColor& color )
+    : WTransferable(),
+    m_memberIndices( indices ),
+    m_color( color ),
+    m_centerLineCreationLock( new boost::shared_mutex() ),
+    m_longestLineCreationLock( new boost::shared_mutex() )
+{
+    // init
+}
+
+WFiberCluster::WFiberCluster( WFiberCluster::IndexList::const_iterator indicesBegin,
+                              WFiberCluster::IndexList::const_iterator indicesEnd, const WColor& color )
+    : WTransferable(),
+    m_color( color ),
+    m_centerLineCreationLock( new boost::shared_mutex() ),
+    m_longestLineCreationLock( new boost::shared_mutex() )
+{
+    // now copy the index list
+    std::copy( indicesBegin, indicesEnd, m_memberIndices.begin() );
 }
 
 WFiberCluster::WFiberCluster( const WFiberCluster& other )
@@ -88,7 +104,7 @@ WFiberCluster::~WFiberCluster()
 
 void WFiberCluster::merge( WFiberCluster& other ) // NOLINT
 {
-    std::list< size_t >::const_iterator cit = other.m_memberIndices.begin();
+    WFiberCluster::IndexList::const_iterator cit = other.m_memberIndices.begin();
     for( ; cit != other.m_memberIndices.end(); ++cit)
     {
         m_memberIndices.push_back( *cit );
@@ -97,6 +113,13 @@ void WFiberCluster::merge( WFiberCluster& other ) // NOLINT
     other.m_centerLine.reset();     // they are not valid anymore
     other.m_longestLine.reset();
     other.clear();
+}
+
+void WFiberCluster::merge( WFiberCluster::IndexList::const_iterator indicesBegin,
+                           WFiberCluster::IndexList::const_iterator indicesEnd )
+{
+    // now copy the index list
+    m_memberIndices.insert( m_memberIndices.end(), indicesBegin, indicesEnd );
 }
 
 // NODOXYGEN
@@ -110,11 +133,12 @@ boost::shared_ptr< const WDataSetFiberVector > WFiberCluster::getDataSetReferenc
 {
     return m_fibs;
 }
-
 // TODO(math): The only reason why we store here a Reference to the fiber
 // dataset is, we need it in the WMVoxelizer module as well as the clustering
 // information. Since we don't have the possibility of multiple
 // InputConnectors we must agglomerate those into one object. Please remove this.
+// \endcond
+
 boost::shared_ptr< WPrototyped > WFiberCluster::getPrototype()
 {
     if( !m_prototype )
@@ -123,7 +147,6 @@ boost::shared_ptr< WPrototyped > WFiberCluster::getPrototype()
     }
     return m_prototype;
 }
-// \endcond
 
 void WFiberCluster::generateCenterLine() const
 {
@@ -139,7 +162,7 @@ void WFiberCluster::generateCenterLine() const
     // make copies of the fibers
     boost::shared_ptr< WDataSetFiberVector > fibs( new WDataSetFiberVector() );
     size_t avgFiberSize = 0;
-    for( std::list< size_t >::const_iterator cit = m_memberIndices.begin(); cit != m_memberIndices.end(); ++cit )
+    for( WFiberCluster::IndexList::const_iterator cit = m_memberIndices.begin(); cit != m_memberIndices.end(); ++cit )
     {
         fibs->push_back( m_fibs->at( *cit ) );
         avgFiberSize += fibs->back().size();
@@ -219,7 +242,7 @@ void WFiberCluster::elongateCenterLine() const
 
     // in the beginning all fibers participate
     boost::shared_ptr< WDataSetFiberVector > fibs( new WDataSetFiberVector() );
-    for( std::list< size_t >::const_iterator cit = m_memberIndices.begin(); cit != m_memberIndices.end(); ++cit )
+    for( WFiberCluster::IndexList::const_iterator cit = m_memberIndices.begin(); cit != m_memberIndices.end(); ++cit )
     {
         fibs->push_back( m_fibs->at( *cit ) );
     }
@@ -268,7 +291,7 @@ void WFiberCluster::elongateCenterLine() const
     }
     // second ending of the centerline
     boost::shared_ptr< WDataSetFiberVector > fobs( new WDataSetFiberVector() );
-    for( std::list< size_t >::const_iterator cit = m_memberIndices.begin(); cit != m_memberIndices.end(); ++cit )
+    for( WFiberCluster::IndexList::const_iterator cit = m_memberIndices.begin(); cit != m_memberIndices.end(); ++cit )
     {
         fobs->push_back( m_fibs->at( *cit ) );
     }
@@ -379,7 +402,7 @@ boost::shared_ptr< WFiber > WFiberCluster::getLongestLine() const
 WBoundingBox WFiberCluster::getBoundingBox() const
 {
     WBoundingBox result;
-    for( std::list< size_t >::const_iterator cit = m_memberIndices.begin(); cit != m_memberIndices.end(); ++cit )
+    for( WFiberCluster::IndexList::const_iterator cit = m_memberIndices.begin(); cit != m_memberIndices.end(); ++cit )
     {
         result.expandBy( computeBoundingBox( m_fibs->at( *cit ) ) );
     }

@@ -22,46 +22,33 @@
 //
 //---------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
-// Varyings
-/////////////////////////////////////////////////////////////////////////////
+#ifndef WINVALIDID_H
+#define WINVALIDID_H
 
-#ifdef CLIPPLANE_ENABLED
-/**
- * The distance to the plane
- */
-varying float dist;
-#endif
+#include <string>
+
+#include "../WException.h"
+#include "../WExportCommon.h"
 
 /**
- * The surface normal. Needed for nice lighting.
+ * Indicates invalid element access of a container.
  */
-varying vec3 v_normal;
+class OWCOMMON_EXPORT WInvalidID : public WException
+{
+public:
+    /**
+     * Default constructor.
+     * \param msg the exception message.
+     */
+    explicit WInvalidID( const std::string& msg = "Invalid ID specified." );
 
-/**
- * The normal parameterizing the surface in orthogonal tangent direction.
- */
-varying vec3 v_biNormal;
+    /**
+     * Destructor.
+     */
+    virtual ~WInvalidID() throw();
 
-/**
- * The actual, corrected vertex.
- */
-varying vec4 v_vertex;
+protected:
+private:
+};
 
-/**
- * The diameter of the tube in world-space.
- */
-varying float v_diameter;
-
-/**
- * This is the interpolated surface parameter describing the surface orthogonal to the tangent. 0 is the center of the strip and -1 and 1 the
- * borders.
- */
-varying float v_surfaceParam;
-
-#ifdef CLUSTER_FILTER_ENABLED
-/**
- * This varying carries the current cluster color.
- */
-varying vec3 v_clusterColor;
-#endif
+#endif  // WINVALIDID_H

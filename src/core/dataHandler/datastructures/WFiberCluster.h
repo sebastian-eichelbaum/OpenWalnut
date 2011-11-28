@@ -40,10 +40,25 @@
 /**
  * Represents a cluster of indices of a WDataSetFiberVector.
  */
-class OWDATAHANDLER_EXPORT WFiberCluster : public WTransferable // NOLINT
+class OWDATAHANDLER_EXPORT WFiberCluster: public WTransferable // NOLINT
 {
 friend class WFiberClusterTest;
 public:
+    /**
+     * Shared pointer abbreviation.
+     */
+    typedef boost::shared_ptr< WFiberCluster > SPtr;
+
+    /**
+     * Const shared pointer abbreviation.
+     */
+    typedef boost::shared_ptr< const WFiberCluster > ConstSPtr;
+
+    /**
+     * This is the list of indices of fibers.
+     */
+    typedef std::list< size_t > IndexList;
+
     /**
      * Constructs an cluster with one fiber and a reference to the fiber dataset
      * to compute the intercluster distance.
@@ -51,6 +66,24 @@ public:
      * \param index The index of the first fiber belonging to this cluster
      */
     explicit WFiberCluster( size_t index );
+
+    /**
+     * Constructs a cluster with the specified set of indices and the given color.
+     *
+     * \param indices the indices initially used for this clustering
+     * \param color the color of this cluster
+     */
+    WFiberCluster( const IndexList& indices, const WColor& color = WColor() );
+
+    /**
+     * Constructs a clustering with the given set of indices. The indexlist is generated using the given iterators. It copies the elements in
+     * [indicesBegin,indicesEnd).
+     *
+     * \param indicesBegin begin iterator in the predefined index set
+     * \param indicesEnd end iterator in the predefined index set
+     * \param color the color of this cluster
+     */
+    WFiberCluster( IndexList::const_iterator indicesBegin, IndexList::const_iterator indicesEnd, const WColor& color = WColor() );
 
     /**
      * Copies the specified \ref WFiberCluster Instance. The copy does not contain a valid centerline or longest line.
@@ -85,18 +118,27 @@ public:
     void merge( WFiberCluster &other ); // NOLINT
 
     /**
+     * Copy the elements denoted by the two iterators to this cluster. In contrast to the other merge() methods, this will not clean the source
+     * list.
+     *
+     * \param indicesBegin begin iterator in the predefined index set
+     * \param indicesEnd end iterator in the predefined index set
+     */
+    void merge( IndexList::const_iterator indicesBegin, IndexList::const_iterator indicesEnd );
+
+    /**
      * Returns a const reference of all indices inside this cluster
      *
      * \return the index list
      */
-    const std::list< size_t >& getIndices() const;
+    const IndexList& getIndices() const;
 
     /**
      * Reset the indices belonging to that cluster
      *
      * \param indices list of indices
      */
-    void setIndices( const std::list< size_t >& indices );
+    void setIndices( const IndexList& indices );
 
     /**
      * Sort the indices of fibers associated with this cluster in ascending
@@ -132,18 +174,17 @@ public:
     WColor getColor() const;
 
     /**
-     * The only reason for implementing is here, to prevent this class from
-     * beeing abstract.
+     * The name of this transferable. This is useful information for the users.
      *
-     * \return A name.
+     * \return the name.
      */
     virtual const std::string getName() const;
 
     /**
-     * The only reason for implementing is here, to prevent this class from
-     * beeing abstract.
      *
-     * \return A name.
+     * The description of this transferable. This is useful information for the users.
+     *
+     * \return A description
      */
     virtual const std::string getDescription() const;
 
@@ -197,7 +238,7 @@ public:
     boost::shared_ptr< const WDataSetFiberVector > getDataSetReference() const;
     // \endcond
 
-    /*
+    /**
      * Returns a prototype instantiated with the true type of the deriving class.
      *
      * \return the prototype.
@@ -236,13 +277,11 @@ public:
     WBoundingBox getBoundingBox() const;
 
 protected:
-    // TODO(math): The only reason why we store here a Reference to the fiber
-    // dataset is, we need it in the WMVoxelizer module as well as the clustering
-    // information. Since we don't have the possibility of multiple
-    // InputConnectors we must agglomerate those into one object. Please remove this.
-    // \cond Suppress_Doxygen
+
+    /**
+     * Prototype for this dataset
+     */
     static boost::shared_ptr< WPrototyped > m_prototype;
-    // \endcond
 
     /**
      * Alings all fibers within the given dataset to be in one main direction. But Alignment only may swap the ordering of the fibers
@@ -266,7 +305,7 @@ private:
     /**
      * All indices in this set are members of this cluster
      */
-    std::list< size_t > m_memberIndices;
+    IndexList m_memberIndices;
 
     // TODO(math): The only reason why we store here a Reference to the fiber
     // dataset is, we need it in the WMVoxelizer module as well as the clustering
@@ -357,12 +396,12 @@ inline bool WFiberCluster::operator!=( const WFiberCluster& other ) const
     return m_memberIndices != other.m_memberIndices;
 }
 
-inline const std::list< size_t >& WFiberCluster::getIndices() const
+inline const WFiberCluster::IndexList& WFiberCluster::getIndices() const
 {
     return m_memberIndices;
 }
 
-inline void WFiberCluster::setIndices( const std::list< size_t >& indices )
+inline void WFiberCluster::setIndices( const WFiberCluster::IndexList& indices )
 {
     m_memberIndices = indices;
 }

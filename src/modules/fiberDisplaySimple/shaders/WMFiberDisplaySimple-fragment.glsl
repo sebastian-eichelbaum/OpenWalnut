@@ -71,6 +71,14 @@ void main()
     }
 #endif
 
+#ifdef CLUSTER_FILTER_ENABLED
+    // is this a cluster color?
+    if( v_clusterColor.r + v_clusterColor.g + v_clusterColor.b < 0.0001 )
+    {
+        discard;
+    }
+#endif
+
     // the depth of the fragment. For lines and flattubes this is the fragments z value. Tubes need to recalculate this
     float depth = gl_FragCoord.z;
 
@@ -119,6 +127,9 @@ void main()
 
     // apply colormapping to the input color
     vec4 finalColor = gl_Color;
+#ifdef CLUSTER_FILTER_ENABLED
+    finalColor = vec4( v_clusterColor, 1.0 );
+#endif
 #ifdef COLORMAPPING_ENABLED
     finalColor = mix( finalColor, colormapping(), u_colormapRatio );
 #endif

@@ -22,46 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
-// Varyings
-/////////////////////////////////////////////////////////////////////////////
+#include <string>
 
-#ifdef CLIPPLANE_ENABLED
-/**
- * The distance to the plane
- */
-varying float dist;
-#endif
+#include "WInvalidID.h"
 
-/**
- * The surface normal. Needed for nice lighting.
- */
-varying vec3 v_normal;
+WInvalidID::WInvalidID( const std::string& msg )
+    : WException( msg )
+{
+    // init members
+}
 
-/**
- * The normal parameterizing the surface in orthogonal tangent direction.
- */
-varying vec3 v_biNormal;
-
-/**
- * The actual, corrected vertex.
- */
-varying vec4 v_vertex;
-
-/**
- * The diameter of the tube in world-space.
- */
-varying float v_diameter;
-
-/**
- * This is the interpolated surface parameter describing the surface orthogonal to the tangent. 0 is the center of the strip and -1 and 1 the
- * borders.
- */
-varying float v_surfaceParam;
-
-#ifdef CLUSTER_FILTER_ENABLED
-/**
- * This varying carries the current cluster color.
- */
-varying vec3 v_clusterColor;
-#endif
+WInvalidID::~WInvalidID() throw()
+{
+    // clean up
+}
