@@ -195,8 +195,14 @@ public:
     // \cond Suppress_Doxygen
     void setDataSetReference( boost::shared_ptr< const WDataSetFiberVector > fibs );
     boost::shared_ptr< const WDataSetFiberVector > getDataSetReference() const;
-    static boost::shared_ptr< WPrototyped > getPrototype();
     // \endcond
+
+    /*
+     * Returns a prototype instantiated with the true type of the deriving class.
+     *
+     * \return the prototype.
+     */
+    static boost::shared_ptr< WPrototyped > getPrototype();
 
     /**
      * Returns the center line of this cluster. The centerline gets calculated during the first call of this method.
