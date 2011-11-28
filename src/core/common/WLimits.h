@@ -33,7 +33,7 @@
 #include <boost/math/special_functions/fpclassify.hpp> // isnan, isinf
 
 /**
- * Project wide limits for different quantitities.
+ * Project wide limits for different quantities.
  */
 namespace wlimits
 {
