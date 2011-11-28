@@ -358,7 +358,7 @@ ADD_CUSTOM_TARGET( doc
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # SETUP_STYLECHECKER adds targets for each lib which then add theirself to this target
-ADD_CUSTOM_TARGET( stylecheck DEPENDS numCores )
+ADD_CUSTOM_TARGET( stylecheck )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
