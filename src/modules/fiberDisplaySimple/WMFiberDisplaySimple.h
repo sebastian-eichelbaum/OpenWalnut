@@ -244,7 +244,6 @@ private:
      * The plane node.
      */
     osg::ref_ptr< osg::Node > m_plane;
-
 };
 
 #endif  // WMFIBERDISPLAYSIMPLE_H

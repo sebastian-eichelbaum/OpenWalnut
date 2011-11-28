@@ -63,8 +63,8 @@ WFiberCluster::WFiberCluster( const WFiberCluster::IndexList& indices, const WCo
     // init
 }
 
-WFiberCluster::WFiberCluster( WFiberCluster::IndexList::const_iterator indicesBegin,
-                              WFiberCluster::IndexList::const_iterator indicesEnd, const WColor& color )
+WFiberCluster::WFiberCluster( WFiberCluster::IndexListConstIterator indicesBegin,
+                              WFiberCluster::IndexListConstIterator indicesEnd, const WColor& color )
     : WTransferable(),
     m_color( color ),
     m_centerLineCreationLock( new boost::shared_mutex() ),
@@ -115,8 +115,8 @@ void WFiberCluster::merge( WFiberCluster& other ) // NOLINT
     other.clear();
 }
 
-void WFiberCluster::merge( WFiberCluster::IndexList::const_iterator indicesBegin,
-                           WFiberCluster::IndexList::const_iterator indicesEnd )
+void WFiberCluster::merge( WFiberCluster::IndexListConstIterator indicesBegin,
+                           WFiberCluster::IndexListConstIterator indicesEnd )
 {
     // now copy the index list
     m_memberIndices.insert( m_memberIndices.end(), indicesBegin, indicesEnd );

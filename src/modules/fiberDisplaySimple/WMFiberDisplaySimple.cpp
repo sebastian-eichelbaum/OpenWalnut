@@ -82,7 +82,9 @@ void WMFiberDisplaySimple::connectors()
     );
 
     m_fiberClusteringInput = boost::shared_ptr< WModuleInputData < WDataSetFiberClustering > >(
-        new WModuleInputData< WDataSetFiberClustering >( shared_from_this(), "fiberClustering", "Optional input to filter the fibers using a clustering." )
+        new WModuleInputData< WDataSetFiberClustering >( shared_from_this(), "fiberClustering",
+            "Optional input to filter the fibers using a clustering."
+        )
     );
 
     // As properties, every connector needs to be added to the list of connectors.
@@ -545,7 +547,8 @@ void WMFiberDisplaySimple::geometryUpdate( osg::Drawable* geometry )
     if( m_fiberClusteringUpdate && m_fiberClustering )
     {
         m_fiberClusteringUpdate = false;
-        osg::ref_ptr< osg::Vec3Array > attribs = new osg::Vec3Array( m_fibers->getLineStartIndexes()->size() );
+        size_t maxFibIdx = m_fibers->getLineStartIndexes()->size() - 1;
+        osg::ref_ptr< osg::Vec3Array > attribs = new osg::Vec3Array( maxFibIdx + 1 );
         // now initialize attrib array
         for( size_t fidx = 0; fidx < m_fibers->getLineStartIndexes()->size() ; ++fidx )
         {
@@ -559,6 +562,12 @@ void WMFiberDisplaySimple::geometryUpdate( osg::Drawable* geometry )
             const WFiberCluster::IndexList& ids = ( *iter ).second->getIndices();
             for( WFiberCluster::IndexList::const_iterator fibIter = ids.begin(); fibIter != ids.end(); ++fibIter )
             {
+                // be nice here. If the clustering contains some invalid IDs, ignore it.
+                if( *fibIter > maxFibIdx )
+                {
+                    continue;
+                }
+                // set the color
                 ( *attribs)[ *fibIter ] = osg::Vec3(
                         ( *iter ).second->getColor().r(),
                         ( *iter ).second->getColor().g(),

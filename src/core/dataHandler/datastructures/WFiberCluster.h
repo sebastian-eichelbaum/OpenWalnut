@@ -60,6 +60,11 @@ public:
     typedef std::list< size_t > IndexList;
 
     /**
+     * Const iterator on the index list.
+     */
+    typedef IndexList::const_iterator IndexListConstIterator;
+
+    /**
      * Constructs an cluster with one fiber and a reference to the fiber dataset
      * to compute the intercluster distance.
      *
@@ -83,7 +88,8 @@ public:
      * \param indicesEnd end iterator in the predefined index set
      * \param color the color of this cluster
      */
-    WFiberCluster( IndexList::const_iterator indicesBegin, IndexList::const_iterator indicesEnd, const WColor& color = WColor() );
+    WFiberCluster( IndexListConstIterator indicesBegin,
+                   IndexListConstIterator indicesEnd, const WColor& color = WColor() );
 
     /**
      * Copies the specified \ref WFiberCluster Instance. The copy does not contain a valid centerline or longest line.
@@ -124,7 +130,7 @@ public:
      * \param indicesBegin begin iterator in the predefined index set
      * \param indicesEnd end iterator in the predefined index set
      */
-    void merge( IndexList::const_iterator indicesBegin, IndexList::const_iterator indicesEnd );
+    void merge( IndexListConstIterator indicesBegin, IndexListConstIterator indicesEnd );
 
     /**
      * Returns a const reference of all indices inside this cluster
