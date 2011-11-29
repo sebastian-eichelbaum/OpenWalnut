@@ -300,7 +300,7 @@ void WMHARDIToSphericalHarmonics::properties()
 }
 
 bool WMHARDIToSphericalHarmonics::evenInt::accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_INT > >,
-                                       WPVBaseTypes::PV_INT value )
+                                       const WPVBaseTypes::PV_INT& value )
 {
     return ( value % 2 == 0 );
 }

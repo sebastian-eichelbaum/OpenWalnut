@@ -54,7 +54,7 @@ public:
      *
      * \return true if value >= m_min
      */
-    virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, T value );
+    virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, const T& value );
 
     /**
      * Allows simple identification of the real constraint type.
@@ -84,7 +84,7 @@ WPropertyConstraintNotEmpty< T >::~WPropertyConstraintNotEmpty()
 }
 
 template < typename T >
-bool WPropertyConstraintNotEmpty< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, T value )
+bool WPropertyConstraintNotEmpty< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, const T& value )
 {
     return !value.empty();
 }

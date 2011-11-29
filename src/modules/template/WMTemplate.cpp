@@ -710,7 +710,7 @@ void WMTemplate::TranslateCallback::operator()( osg::Node* node, osg::NodeVisito
 }
 
 bool WMTemplate::StringLength::accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING > > /* property */,
-                                       WPVBaseTypes::PV_STRING value )
+                                       const WPVBaseTypes::PV_STRING& value )
 {
     // This method gets called every time the m_aString property is going to be changed. It can decide whether the new value is valid or not. If
     // the method returns true, the new value is set. If it returns false, the value is rejected.
