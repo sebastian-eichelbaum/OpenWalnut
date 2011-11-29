@@ -33,13 +33,8 @@
 #include <string>
 #include <vector>
 
-// Use filesystem version 2 for compatibility with newer boost versions.
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
-#include <boost/filesystem.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/thread.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/signals2.hpp>
 
 #include "constraints/WPropertyConstraintIsDirectory.h"
 #include "constraints/WPropertyConstraintMax.h"
@@ -50,7 +45,6 @@
 #include "constraints/WPropertyConstraintTypes.h"
 #include "WCondition.h"
 #include "WFlag.h"
-#include "WLogger.h"
 #include "WPropertyBase.h"
 #include "WSharedAssociativeContainer.h"
 #include "WSharedObjectTicketRead.h"
