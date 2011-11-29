@@ -105,7 +105,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     {
         // Set the key for removing modules
         m_deleteModuleAction->setShortcutContext( Qt::WidgetShortcut );
-        m_deleteModuleAction->setShortcut( QKeySequence( "Delete" ) );
+        m_deleteModuleAction->setShortcut( QKeySequence::Delete );
         m_deleteModuleAction->setIconVisibleInMenu( true );
     }
     connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModuleTreeItem() ) );
@@ -185,7 +185,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     {
         // Set the key for removing modules
         m_deleteRoiAction->setShortcutContext( Qt::WidgetShortcut );
-        m_deleteRoiAction->setShortcut( QKeySequence( "Delete" ) );
+        m_deleteRoiAction->setShortcut( QKeySequence::Delete );
         m_deleteRoiAction->setIconVisibleInMenu( true );
     }
     connect( m_deleteRoiAction, SIGNAL( triggered() ), this, SLOT( deleteROITreeItem() ) );
