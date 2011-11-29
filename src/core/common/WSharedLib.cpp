@@ -208,6 +208,12 @@ struct WSharedLib::data
      */
     func_ptr_type findFunction( const std::string& name )
     {
+        // This cast is supposed to throw a warning because the cast
+        // of void* to function pointers is not defined or required
+        // in ISO C. Nevertheless, it works on most current compilers.
+        //
+        // man dlsym talks about introducing a new function to circumvent
+        // this problem.
         return reinterpret_cast< func_ptr_type >( findVariable( name ) );
     }
 
