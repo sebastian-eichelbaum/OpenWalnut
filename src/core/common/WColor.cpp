@@ -36,7 +36,7 @@
 namespace defaultColor
 {
     /** the default palette colors */
-    static const WColor defaultPalette[ 22 ]= {
+    const WColor DefaultPalette[ 22 ]= {
             // The standard colors
             RED, GREEN, BLUE, YELLOW, ORANGE, PINK, CYAN,
             // the slightly lighter standard colors
