@@ -123,6 +123,9 @@ namespace WPropertyStructHelper
     >
     struct AsVector
     {
+        /**
+         * The template types as mpl vector
+         */
         typedef boost::mpl::vector< BOOST_PP_ENUM_PARAMS( 10, T ) > type;
     };
 }
