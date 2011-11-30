@@ -72,13 +72,11 @@ const std::string WMTransferFunction1D::getDescription() const
 void WMTransferFunction1D::connectors()
 {
     // the data set we use for displaying the histogram
-    m_input = WModuleInputData < WDataSetSingle >::createAndAdd(
-            shared_from_this(),
+    m_input = WModuleInputData < WDataSetSingle >::createAndAdd( shared_from_this(),
             "histogram input", "The data set used to display a histogram." );
 
     // an output connector for the transfer function created
-    m_output = WModuleOutputData < WDataSetSingle >::createAndAdd(
-            shared_from_this(),
+    m_output = WModuleOutputData < WDataSetSingle >::createAndAdd( shared_from_this(),
             "transferFunction1D", "The selected transfer function" );
 
     WModule::connectors();
