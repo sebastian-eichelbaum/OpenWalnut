@@ -65,19 +65,20 @@ class WTransferFunction;
  */
 typedef enum
 {
-    PV_UNKNOWN,         //!< type not known
-    PV_GROUP,           //!< the group property
-    PV_INT,             //!< integer value
-    PV_DOUBLE,          //!< floating point value
-    PV_BOOL,            //!< boolean
-    PV_STRING,          //!< a string
-    PV_PATH,            //!< a Boost Path object denoting a filename/path
-    PV_SELECTION,       //!< a list of strings, selectable
-    PV_POSITION,        //!< a position property
-    PV_COLOR,           //!< a color property
-    PV_TRIGGER,         //!< for triggering an event
-    PV_MATRIX4X4,       //!< for 4x4 matrices
-    PV_TRANSFERFUNCTION //!< for transfer function textures
+    PV_UNKNOWN,          //!< type not known
+    PV_GROUP,            //!< the group property
+    PV_INT,              //!< integer value
+    PV_DOUBLE,           //!< floating point value
+    PV_BOOL,             //!< boolean
+    PV_STRING,           //!< a string
+    PV_PATH,             //!< a Boost Path object denoting a filename/path
+    PV_SELECTION,        //!< a list of strings, selectable
+    PV_POSITION,         //!< a position property
+    PV_COLOR,            //!< a color property
+    PV_TRIGGER,          //!< for triggering an event
+    PV_MATRIX4X4,        //!< for 4x4 matrices
+    PV_TRANSFERFUNCTION, //!< for transfer function textures
+    PV_STRUCT            //!< for complex, structured properties (used by \ref WPropertyStruct)
 }
 PROPERTY_TYPE;
 

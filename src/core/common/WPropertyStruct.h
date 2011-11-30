@@ -1,0 +1,386 @@
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
+
+#ifndef WPROPERTYSTRUCT_H
+#define WPROPERTYSTRUCT_H
+
+#include <vector>
+
+#include <boost/shared_ptr.hpp>
+
+#include <boost/tuple/tuple.hpp>
+#include <boost/mpl/vector.hpp>
+#include <boost/mpl/copy.hpp>
+#include <boost/preprocessor/repetition/enum_params.hpp>
+
+#include "WCondition.h"
+#include "WPropertyBase.h"
+#include "exceptions/WPropertyUnknown.h"
+
+/**
+ * This contains some helping classes for compile time type conversion and similar.
+ */
+namespace WPropertyStructHelper
+{
+    /**
+     * Class to push a type from a sequence to the front of a tuple type
+     *
+     * \tparam T the sequence to convert.
+     * \tparam Tuple the tuple type, getting extended with the sequence types.
+     */
+    template< typename T, typename Tuple>
+    struct PushTypeToTupleFront;
+
+    /**
+     * Class to push a type from a sequence to the front of a tuple type. This is a specialization allowing to create a tuple from a list of
+     * types.
+     *
+     * \tparam T the sequence to convert.
+     * \tparam list of types to add to the tuple.
+     */
+    template< typename T, BOOST_PP_ENUM_PARAMS( 10, typename T )>
+    struct PushTypeToTupleFront< T, boost::tuple< BOOST_PP_ENUM_PARAMS( 10, T ) > >
+    {
+        /**
+         * The resulting tuple type
+         */
+        typedef boost::tuple< T, BOOST_PP_ENUM_PARAMS( 9, T ) > type;
+    };
+
+    /**
+     * Converts a boost mpl sequence to a boost tuple
+     *
+     * \tparam Sequence the sequence to convert
+     */
+    template< typename Sequence >
+    struct SequenceToTuple
+    {
+        /**
+         * This is the tuple type for the sequence
+         */
+        typedef typename boost::mpl::reverse_copy<
+            Sequence,
+            boost::mpl::inserter<
+                boost::tuple<>,
+                PushTypeToTupleFront< boost::mpl::_2, boost::mpl::_1 >
+            >
+        >::type type;
+    };
+
+    /**
+     * Alias for default type to emulate variadic templates
+     */
+    typedef  boost::mpl::na NOTYPE;
+
+    /**
+     * Convert a list of template parameters to a boost::mpl::vector. This is currently done using the boost::mpl no-type type. This might get a
+     * problem some day?!
+     *
+     * \tparam T0 first type. Mandatory.
+     * \tparam T1 additional type. Optional.
+     * \tparam T2 additional type. Optional.
+     * \tparam T3 additional type. Optional.
+     * \tparam T4 additional type. Optional.
+     * \tparam T5 additional type. Optional.
+     * \tparam T6 additional type. Optional.
+     * \tparam T7 additional type. Optional.
+     * \tparam T8 additional type. Optional.
+     * \tparam T9 additional type. Optional.
+     */
+    template<
+        typename T0,
+        typename T1 = NOTYPE,
+        typename T2 = NOTYPE,
+        typename T3 = NOTYPE,
+        typename T4 = NOTYPE,
+        typename T5 = NOTYPE,
+        typename T6 = NOTYPE,
+        typename T7 = NOTYPE,
+        typename T8 = NOTYPE,
+        typename T9 = NOTYPE
+    >
+    struct AsVector
+    {
+        typedef boost::mpl::vector< BOOST_PP_ENUM_PARAMS( 10, T ) > type;
+    };
+}
+
+/**
+ *  This is a property which encapsulates a given, fixed number of other properties. You can specify up to 10 properties. This can be seen
+ *  similar to the "struct" in the C++ language. A WPropertyStruct can basically seen as \ref WPropGroup, but is different in a certain way:
+ *  it is fixed size (defined on compile time), it allows getting each property with their correct type and provides the appearance as if this
+ *  property is only ONE object and not a group of multiple objects.
+ *
+ *  \note the limitation to 10 types is due to the boost::tuple. If you need more, you need to replace the tuple type as storage-backend.
+ *
+ * \tparam T0 first type. Mandatory.
+ * \tparam T1 additional type. Optional.
+ * \tparam T2 additional type. Optional.
+ * \tparam T3 additional type. Optional.
+ * \tparam T4 additional type. Optional.
+ * \tparam T5 additional type. Optional.
+ * \tparam T6 additional type. Optional.
+ * \tparam T7 additional type. Optional.
+ * \tparam T8 additional type. Optional.
+ * \tparam T9 additional type. Optional.
+ */
+template<
+    typename T0,
+    typename T1 = WPropertyStructHelper::NOTYPE,
+    typename T2 = WPropertyStructHelper::NOTYPE,
+    typename T3 = WPropertyStructHelper::NOTYPE,
+    typename T4 = WPropertyStructHelper::NOTYPE,
+    typename T5 = WPropertyStructHelper::NOTYPE,
+    typename T6 = WPropertyStructHelper::NOTYPE,
+    typename T7 = WPropertyStructHelper::NOTYPE,
+    typename T8 = WPropertyStructHelper::NOTYPE,
+    typename T9 = WPropertyStructHelper::NOTYPE
+>
+class WPropertyStruct: public WPropertyBase
+{
+public:
+
+    typedef WPropertyStruct< BOOST_PP_ENUM_PARAMS( 10, T ) > WPropertyStructType;
+
+    /**
+     * Convenience typedef for a boost::shared_ptr< WPropertyBase >
+     */
+    typedef boost::shared_ptr< WPropertyStructType > SPtr;
+
+    /**
+     * Convenience typedef for a  boost::shared_ptr< const WPropertyBase >
+     */
+    typedef boost::shared_ptr< const WPropertyStructType > ConstSPtr;
+
+    /**
+     * The boost mpl vector for all the types specified.
+     */
+    typedef typename WPropertyStructHelper::AsVector< BOOST_PP_ENUM_PARAMS( 10, T ) >::type TypeVector;
+
+    /**
+     * The type vector as a boost tuple.
+     */
+    typedef typename WPropertyStructHelper::SequenceToTuple< TypeVector >::type TupleType;
+
+    /**
+     * Create an empty named property.
+     *
+     * \param name  the name of the property
+     * \param description the description of the property
+     */
+    WPropertyStruct( std::string name, std::string description ):
+        WPropertyBase( name, description )
+    {
+    }
+
+    /**
+     * Copy constructor. Creates a deep copy of this property. As boost::signals2 and condition variables are non-copyable, new instances get
+     * created. The subscriptions to a signal are LOST as well as all listeners to a condition.
+     *
+     * \param from the instance to copy.
+     */
+    explicit WPropertyStruct( const WPropertyStructType& from ):
+        WPropertyBase( from )
+    {
+        // this created a NEW update condition and NEW property instances (clones)
+    }
+
+    /**
+     * Destructor.
+     */
+    virtual ~WPropertyStruct()
+    {
+    }
+
+    /**
+     * Get the N'th property in the struct.
+     *
+     * \tparam N the number of the property to get.
+     *
+     * \return the property.
+     */
+    template< int N >
+    typename boost::mpl::at< TypeVector, boost::mpl::size_t< N > >::type& getProperty()
+    {
+        return m_properties.template get< N >();
+    }
+
+    /**
+     * Get the N'th property in the struct.
+     *
+     * \tparam N the number of the property to get.
+     *
+     * \return the property.
+     */
+    template< int N >
+    const typename boost::mpl::at< TypeVector, boost::mpl::size_t< N > >::type& getProperty() const
+    {
+        return m_properties.template get< N >();
+    }
+
+    /**
+     * Returns the property with the given number, but only as base type. The advantage is that the property number can be specified during
+     * runtime.
+     *
+     * \param n the number of the property
+     *
+     * \return the property
+     */
+    const WPropertyBase::SPtr& getProperty( size_t n ) const
+    {
+        WPropertyStruct* nonconst = const_cast< WPropertyStruct* >( this );
+        return nonconst->getProperty( n );
+    }
+
+    /**
+     * Returns the property with the given number, but only as base type. The advantage is that the property number can be specified during
+     * runtime.
+     *
+     * \param n the number of the property
+     *
+     * \return the property
+     */
+    WPropertyBase::SPtr getProperty( size_t n )
+    {
+        switch( n )
+        {
+        case 0:
+            return getProperty< 0 >();
+        case 1:
+            return getProperty< 1 >();
+        case 2:
+            return getProperty< 2 >();
+        case 3:
+            return getProperty< 3 >();
+        case 4:
+            return getProperty< 4 >();
+        case 5:
+            return getProperty< 5 >();
+        case 6:
+            return getProperty< 6 >();
+        case 7:
+            return getProperty< 7 >();
+        case 8:
+            return getProperty< 8 >();
+        case 9:
+            return getProperty< 9 >();
+        default:
+            throw WPropertyUnknown( "The property with this ID is not known" );
+        };
+    }
+
+    /**
+     * The size of the WPropertyStruct. This returns the number of properties encapsulated.
+     *
+     * \return number of properties in struct
+     */
+    size_t size() const
+    {
+        return m_size;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // The WPropertyBase specific stuff
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * This method clones a property and returns the clone. It does a deep copy and, in contrast to a copy constructor, creates property with the
+     * correct type without explicitly requiring the user to specify it. It creates a NEW change condition and change signal. This means, alls
+     * subscribed signal handlers are NOT copied.
+     *
+     * \note this simply ensures the copy constructor of the runtime type is issued.
+     *
+     * \return the deep clone of this property.
+     */
+    virtual WPropertyBase::SPtr clone()
+    {
+        return WPropertyBase::SPtr();
+    }
+
+    /**
+     * Gets the real WPropertyVariable type of this instance.
+     *
+     * \return the real type.
+     */
+    virtual PROPERTY_TYPE getType() const
+    {
+        return PV_STRUCT;
+    }
+
+    /**
+     * This methods allows properties to be set by a string value. This is especially useful when a property is only available as string and the
+     * real type of the property is unknown. This is a shortcut for casting the property and then setting the lexically casted value.
+     *
+     * \param value the new value to set.
+     *
+     * \return true if value could be set.
+     */
+    virtual bool setAsString( std::string value )
+    {
+        return true;
+    }
+
+    /**
+     * Returns the current value as a string. This is useful for debugging or project files. It is not implemented as << operator, since the <<
+     * should also print min/max constraints and so on. This simply is the value.
+     *
+     * \return the value as a string.
+     */
+    virtual std::string getAsString()
+    {
+        return "";
+    }
+
+    /**
+     * Sets the value from the specified property to this one. This is especially useful to copy a value without explicitly casting/knowing the
+     * dynamic type of the property.
+     *
+     * \param value the new value.
+     *
+     * \return true if the value has been accepted.
+     */
+    virtual bool set( boost::shared_ptr< WPropertyBase > value )
+    {
+        return true;
+    }
+
+protected:
+
+private:
+
+    /**
+     * How many elements are in this WPropertyStruct?
+     */
+    static const size_t m_size = boost::mpl::size< TypeVector >::value;
+
+    /**
+     * This is the tuple with the actual property instances.
+     *
+     * \note the tuple is only used for storage. It might be replaced some day.
+     */
+    TupleType m_properties;
+};
+
+#endif  // WPROPERTYSTRUCT_H
+
