@@ -1112,8 +1112,9 @@ void WMainWindow::dropEvent( QDropEvent *event )
 {
     if ( event->mimeData()->hasUrls() )
     {
+        std::vector < std::string > projects;
         std::vector < std::string > filenames;
-        std::vector < std::string > notfilenames;
+        std::vector < std::string > unsupported;
         foreach( QUrl url, event->mimeData()->urls() )
         {
             QString path =  url.toLocalFile();
@@ -1130,21 +1131,42 @@ void WMainWindow::dropEvent( QDropEvent *event )
             }
             else
             {
-                notfilenames.push_back( path.toStdString() );
+                if ( suffix == "owp"
+                    || suffix == "owproj" )
+                {
+                    projects.push_back( path.toStdString() );
+                }
+                else
+                {
+                    unsupported.push_back( path.toStdString() );
+                }
             }
+        }
+        if ( projects.size() > 0 )
+        {
+            for ( size_t i = 0; i < projects.size(); ++i )
+            {
+                boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
+                        new WProjectFile( projects[ i ] )
+                );
+
+                // This call is asynchronous. It parses the file and the starts a thread to actually do all the stuff
+                proj->load();
+            }
+            event->accept();
         }
         if ( filenames.size() > 0 )
         {
             m_loaderSignal( filenames );
             event->accept();
         }
-        if ( notfilenames.size() > 0 )
+        if ( unsupported.size() > 0 )
         {
             QString message = QString() +
                 "The following files are not supported as standard data types by OpenWalnut at the moment:<br>";
-            for ( size_t i = 0; i < notfilenames.size(); ++i )
+            for ( size_t i = 0; i < unsupported.size(); ++i )
             {
-                message += QString::fromStdString( notfilenames[ i ] ) + QString("<br>" );
+                message += QString::fromStdString( unsupported[ i ] ) + QString("<br>" );
             }
             message += "There may be additional modules supporting them.<br>All other files have been loaded and should be visible in the module browser and network editor.";
             QMessageBox::information( this, "Not yet implemented!",
@@ -1170,7 +1192,9 @@ void WMainWindow::dragMoveEvent( QDragMoveEvent *event )
               || suffix == "asc"
               || suffix == "nii"
               || suffix == "nii.gz"
-              || suffix == "fib" )
+              || suffix == "fib"
+              || suffix == "owp"
+              || suffix == "owproj" )
             {
                 event->acceptProposedAction();
                 return;
@@ -1194,7 +1218,9 @@ void WMainWindow::dragEnterEvent( QDragEnterEvent *event )
               || suffix == "asc"
               || suffix == "nii"
               || suffix == "nii.gz"
-              || suffix == "fib" )
+              || suffix == "fib"
+              || suffix == "owp"
+              || suffix == "owproj" )
             {
                 event->acceptProposedAction();
                 return;
