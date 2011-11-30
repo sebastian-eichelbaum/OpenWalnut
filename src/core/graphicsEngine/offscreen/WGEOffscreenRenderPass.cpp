@@ -29,6 +29,7 @@
 #include <osg/Texture>
 #include <osg/Texture2D>
 
+#include "core/common/WLogger.h"
 #include "../WGETextureHud.h"
 
 #include "WGEOffscreenRenderPass.h"
