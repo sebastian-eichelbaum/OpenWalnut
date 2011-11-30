@@ -53,10 +53,8 @@
 #include "WExportWGE.h"
 #include "WGECamera.h"
 #include "WGEGraphicsWindow.h"
-//#include "WGEGroupNode.h"
 class WGEGroupNode;
 #include "WGEScreenCapture.h"
-//#include "WPickHandler.h"
 class WPickHandler;
 #include "animation/WGEAnimationManipulator.h"
 

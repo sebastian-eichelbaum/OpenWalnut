@@ -22,12 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-//#include <iostream>
 #include <string>
 
-//#include <osg/Vec3>
 
-//#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "WPickHandler.h"
 

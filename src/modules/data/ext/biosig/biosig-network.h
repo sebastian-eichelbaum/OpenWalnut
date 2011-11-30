@@ -32,7 +32,6 @@
 
 #ifdef __WIN32__
 #include <winsock2.h>
-//#include <ws2tcpip.h>
 
 #ifndef socklen_t
 #define socklen_t int

@@ -25,7 +25,6 @@
 #ifndef WMCLUSTERDISPLAY_H
 #define WMCLUSTERDISPLAY_H
 
-//#include <queue>
 #include <string>
 #include <vector>
 

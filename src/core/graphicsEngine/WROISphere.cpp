@@ -26,7 +26,6 @@
 #include <sstream>
 #include <utility>
 
-//#include <osg/LightModel>
 #include <osg/ShapeDrawable>
 
 #include "callbacks/WGEFunctorCallback.h"

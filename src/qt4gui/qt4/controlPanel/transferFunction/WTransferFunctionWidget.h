@@ -25,8 +25,6 @@
 #ifndef WTRANSFERFUNCTIONWIDGET_H
 #define WTRANSFERFUNCTIONWIDGET_H
 
-//#include "WTransferFunctionPoint.hpp"
-//#include "WTransferFunctionPointColor.hpp"
 #include <vector>
 
 #include "QtGui/QGraphicsView"
@@ -38,7 +36,6 @@ class WTransferFunctionColorPoint;
 class WTransferFunctionHistogram;
 class WTransferFunctionBackground;
 
-//#include "core/common/WTransferFunction.h"
 class WTransferFunction; // I want to remove this if possible to keep the code clean from OW datatypes
 
 /**

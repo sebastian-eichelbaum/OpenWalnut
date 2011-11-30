@@ -31,7 +31,6 @@
 
 #include "../graphicsEngine/WROI.h"
 
-//#include "WKdTree.h"
 class WKdTree;
 
 /**

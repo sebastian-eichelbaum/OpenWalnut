@@ -26,14 +26,12 @@
 #define WGEGROUPNODE_H
 
 #include <queue>
-//#include <utility>
 
 #include <boost/thread.hpp>
 
 #include <osg/MatrixTransform>
 #include <osg/NodeCallback>
 
-//#include "../common/WCondition.h"
 #include "../common/WPredicateHelper.h"
 #include "WExportWGE.h"
 
