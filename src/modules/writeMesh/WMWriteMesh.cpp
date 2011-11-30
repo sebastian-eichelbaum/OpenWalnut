@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <fstream>
 
 #include "core/common/math/WMath.h"
 #include "core/common/WPathHelper.h"

@@ -31,7 +31,9 @@
 
 #include "../graphicsEngine/WROI.h"
 
-#include "WKdTree.h"
+//#include "WKdTree.h"
+class WKdTree;
+
 /**
  * class implements the updating of a bitfield for a roi
  */

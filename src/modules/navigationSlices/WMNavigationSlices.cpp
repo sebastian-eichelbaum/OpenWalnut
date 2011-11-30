@@ -40,6 +40,7 @@
 #include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
 #include "core/kernel/WSelectionManager.h"
 #include "core/graphicsEngine/WGraphicsEngine.h"
+#include "core/graphicsEngine/WPickHandler.h"
 #include "core/kernel/WKernel.h"
 
 #include "WMNavigationSlices.h"

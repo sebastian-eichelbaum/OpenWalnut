@@ -23,7 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <iostream>
-#include <set>
+//#include <set>
 
 #include <osg/ShapeDrawable>
 #include <osg/MatrixTransform>

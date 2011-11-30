@@ -25,7 +25,7 @@
 #ifndef WMCLUSTERDISPLAY_H
 #define WMCLUSTERDISPLAY_H
 
-#include <queue>
+//#include <queue>
 #include <string>
 #include <vector>
 
@@ -36,6 +36,8 @@
 #include "core/graphicsEngine/WFiberDrawable.h"
 #include "core/graphicsEngine/WGEManagedGroupNode.h"
 #include "core/graphicsEngine/widgets/WOSGButton.h"
+#include "core/graphicsEngine/WPickHandler.h"
+#include "core/graphicsEngine/WPickInfo.h"
 #include "core/kernel/WFiberSelector.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"

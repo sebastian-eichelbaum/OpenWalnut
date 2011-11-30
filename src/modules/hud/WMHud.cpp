@@ -32,6 +32,7 @@
 #include "core/common/WPathHelper.h"
 #include "core/kernel/WKernel.h"
 #include "core/graphicsEngine/WGEViewer.h"
+#include "core/graphicsEngine/WPickHandler.h"
 
 #include "WMHud.h"
 #include "WMHud.xpm"

@@ -30,9 +30,10 @@
 
 #include <boost/thread.hpp>
 
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
+//#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WPickHandler.h"
-#include "WGEViewer.h"
+//#include "WGEViewer.h"
+class WGEViewer;
 
 #include "WROI.h"
 #include "WExportWGE.h"

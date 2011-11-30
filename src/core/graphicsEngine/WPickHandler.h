@@ -25,26 +25,26 @@
 #ifndef WPICKHANDLER_H
 #define WPICKHANDLER_H
 
-#include <sstream>
+//#include <sstream>
 #include <string>
 
 #include <boost/signals2/signal.hpp>
 
-#include <osgUtil/Optimizer>
-#include <osgDB/ReadFile>
-#include <osgViewer/Viewer>
-#include <osgViewer/CompositeViewer>
+//#include <osgUtil/Optimizer>
+//#include <osgDB/ReadFile>
+#include <osgViewer/View>
+//#include <osgViewer/CompositeViewer>
 
-#include <osg/Material>
-#include <osg/Geode>
-#include <osg/BlendFunc>
-#include <osg/Depth>
-#include <osg/Projection>
-#include <osg/MatrixTransform>
-#include <osg/Camera>
-#include <osg/io_utils>
-#include <osg/ShapeDrawable>
-#include <osgText/Text>
+//#include <osg/Material>
+//#include <osg/Geode>
+//#include <osg/BlendFunc>
+//#include <osg/Depth>
+//#include <osg/Projection>
+//#include <osg/MatrixTransform>
+//#include <osg/Camera>
+//#include <osg/io_utils>
+//#include <osg/ShapeDrawable>
+//#include <osgText/Text>
 
 #include "WPickInfo.h"
 #include "WExportWGE.h"
