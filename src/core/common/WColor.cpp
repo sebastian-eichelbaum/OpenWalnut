@@ -32,7 +32,7 @@
 #include "../common/WStringUtils.h"
 #include "WColor.h"
 
-// initialize static palette 
+// initialize static palette
 namespace defaultColor
 {
     /** the default palette colors */

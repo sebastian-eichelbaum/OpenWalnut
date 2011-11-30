@@ -29,7 +29,6 @@
 #include "QtGui/QPaintEngine"
 #include "QtGui/QGraphicsSceneMouseEvent"
 
-
 #include "core/common/WTransferFunction.h"
 
 #include "WTransferFunctionPoint.h"
@@ -136,7 +135,7 @@ namespace
     }
 }
 
-void WTransferFunctionWidget::sample1DWTransferFunction( unsigned char*array, int width )
+void WTransferFunctionWidget::sample1DTransferFunction( unsigned char*array, int width )
 {
     if ( !first || !cfirst)
         return;
@@ -184,7 +183,7 @@ void WTransferFunctionWidget::sample1DWTransferFunction( unsigned char*array, in
 
 
 //! inaternal representation needs ARGB, but we do not display alpha component, so set it to 255
-void WTransferFunctionWidget::sample1DWTransferFunctionForDisplay( unsigned char*array, int width )
+void WTransferFunctionWidget::sample1DTransferFunctionForDisplay( unsigned char*array, int width )
 {
     double scenewidth = scene->width();
     //WTransferFunctionPoint *acurrent( first );
@@ -207,18 +206,10 @@ void WTransferFunctionWidget::sample1DWTransferFunctionForDisplay( unsigned char
 
             QColor rgb = blend( ccurrent->getRight()->getColor(), ct, ccurrent->getColor(), ( 1.-ct ) );
 
-            // FIXME: this encoding differs from platform to platform. Even though I asked for ARGB, it is RGBA on Linux
-#ifdef Q_WS_MAC
-            array[ i*4 + 0 ] = 255; //alpha;
-            array[ i*4 + 1 ] = rgb.red();
-            array[ i*4 + 2 ] = rgb.green();
-            array[ i*4 + 3 ] = rgb.blue();
-#else
             array[ i*4 + 2 ] = rgb.red();
             array[ i*4 + 1 ] = rgb.green();
             array[ i*4 + 0 ] = rgb.blue();
-            array[ i*4 + 3 ] = 255; //alpha;
-#endif
+            array[ i*4 + 3 ] = 255; //alpha; //< displaying alpha in the gui does not make sense for me
         }
     }
 }
@@ -227,16 +218,12 @@ void WTransferFunctionWidget::sample1DWTransferFunctionForDisplay( unsigned char
 
 WTransferFunctionWidget::~WTransferFunctionWidget()
 {
-    // debug loop
-    // std::cout << "~WTransferFunctionWidget()" << std::endl;
-    WTransferFunctionPoint *current( first );
-    while ( current )
-    {
-        // std::cout << "item: " << current->pos().x() << ", " << current->pos().y() << std::endl;
-        current = current->getRight();
-    }
-    // std::cout << "done." << std::endl;
-
+    // // loop for debuging only
+    // WTransferFunctionPoint *current( first );
+    // while ( current )
+    // {
+    //     current = current->getRight();
+    // }
     // hopefully, the QScene will delete all its items.
 }
 
@@ -247,7 +234,7 @@ void WTransferFunctionWidget::setMyBackground()
 
     if ( background )
     {
-        sample1DWTransferFunctionForDisplay( texturearray, transferFunctionSize );
+        sample1DTransferFunctionForDisplay( texturearray, transferFunctionSize );
 
         QImage image( texturearray, transferFunctionSize, 1, QImage::Format_ARGB32 );
         QPixmap pixmap( transferFunctionSize, 1 );
@@ -275,17 +262,17 @@ void WTransferFunctionWidget::drawBackground( QPainter *painter, const QRectF &r
 
 void WTransferFunctionWidget::setHistogram( const std::vector< double > &newHistogram )
 {
-    // std::cout << "Histogram updated." << std::endl;
     histogram->data = newHistogram;
-    // std::cout << "Histogram size" << histogram->data.size() << std::endl;
     histogram->update();
     forceRedraw();
 }
 
 void WTransferFunctionWidget::dataChanged()
 {
-    if ( !initialized ) return;
-    // std::cout << "dataChanged()" << std::endl;
+    if ( !initialized )
+    {
+        return;
+    }
     this->updateTransferFunction();
     this->setMyBackground();
     forceRedraw();
@@ -293,7 +280,10 @@ void WTransferFunctionWidget::dataChanged()
 
 void WTransferFunctionWidget::forceRedraw()
 {
-    if ( !initialized ) return;
+    if ( !initialized )
+    {
+        return;
+    }
     QRectF viewport( scene->sceneRect() );
     scene->invalidate( viewport );
     this->update();
@@ -441,7 +431,6 @@ void WTransferFunctionWidget::insertPoint( const QPointF& position )
     scene->addItem( point );
     scene->addItem( line );
 
-
     // insert into list
     WTransferFunctionPoint* left( this->findPointOnLeft( position ) );
     if ( left )
@@ -577,26 +566,29 @@ namespace
 void WTransferFunctionWidget::updateTransferFunction()
 {
     WTransferFunction tf;
-    std::vector < double > hist( histogram->data ); //< copy data, this will be deleted
-    tf.setHistogram( hist ); // get the data back because we need this for comparison
-
-    QRectF bb = scene->sceneRect();
-
-    WTransferFunctionColorPoint *cp( cfirst );
-    while ( cp )
     {
-        double iso = ( cp->pos().x() - bb.x() )/bb.width();
-        tf.addColor( iso, toWColor( cp->getColor() ) );
-        cp = cp->getRight();
-    }
+        // this part does not trigger qt rendering updates
+        std::vector < double > hist( histogram->data ); //< copy data, this will be deleted
+        tf.setHistogram( hist ); // get the data back because we need this for comparison
 
-    WTransferFunctionPoint *p( first );
-    while ( p )
-    {
-        double iso = ( p->pos().x() - bb.x() )/bb.width();
-        double alpha = 1.-( ( p->pos().y() - bb.y() )/bb.height() );
-        tf.addAlpha( iso, alpha );
-        p = p->getRight();
+        QRectF bb = scene->sceneRect();
+
+        WTransferFunctionColorPoint *cp( cfirst );
+        while ( cp )
+        {
+            double iso = ( cp->pos().x() - bb.x() )/bb.width();
+            tf.addColor( iso, toWColor( cp->getColor() ) );
+            cp = cp->getRight();
+        }
+
+        WTransferFunctionPoint *p( first );
+        while ( p )
+        {
+            double iso = ( p->pos().x() - bb.x() )/bb.width();
+            double alpha = 1.-( ( p->pos().y() - bb.y() )/bb.height() );
+            tf.addAlpha( iso, alpha );
+            p = p->getRight();
+        }
     }
 
     // std::cout << "updating gui" << parent << std::endl;
