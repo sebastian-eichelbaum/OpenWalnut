@@ -573,6 +573,8 @@ bool WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
     fd.setFileMode( QFileDialog::AnyFile );
     fd.setAcceptMode( QFileDialog::AcceptSave );
 
+    // My Mac OSX Lion automatically appends .owproj to the file name
+    // if no extension is given.
     QStringList filters;
     filters << "Project File (*.owproj *.owp)";
     fd.setNameFilters( filters );
@@ -592,8 +594,10 @@ bool WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
     for( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
     {
         std::string filename = ( *constIterator ).toStdString();
+
         // append owp if suffix is not present, yet
-        if( filename.rfind( ".owp" ) != filename.size() - 4 )
+        if( filename.rfind( ".owp" ) != filename.size() - 4
+         && filename.rfind( ".owproj" ) != filename.size() - 7 )
         {
             filename += ".owp";
         }
