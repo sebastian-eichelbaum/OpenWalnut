@@ -30,7 +30,9 @@
 #include "../graphicsEngine/WGEViewer.h"
 #include "../graphicsEngine/WGEZoomTrackballManipulator.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
+#include "../graphicsEngine/WPickHandler.h"
 #include "WKernel.h"
+
 #include "WSelectionManager.h"
 
 

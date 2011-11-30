@@ -24,6 +24,7 @@
 
 #include <string>
 #include <sstream>
+#include <fstream>
 
 #include "core/common/WPropertyHelper.h"
 #include "core/graphicsEngine/WTriangleMesh.h"

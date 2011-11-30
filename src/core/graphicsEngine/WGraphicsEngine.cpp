@@ -73,7 +73,12 @@ WGraphicsEngine::~WGraphicsEngine()
 
 void WGraphicsEngine::setMultiThreadedViews( bool enable )
 {
-#ifndef __APPLE__
+#ifdef __APPLE__
+    if ( enable )
+    {
+        WLogger::getLogger()->addLogMessage( "WGraphicsEngine::setMultiThreadedViews not implemented for OSX, yet", "GE", LL_INFO );
+    }
+#else
     // ThreadingModel: enum with the following possibilities
     //
     //  SingleThreaded

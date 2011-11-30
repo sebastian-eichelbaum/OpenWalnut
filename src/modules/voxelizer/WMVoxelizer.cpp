@@ -33,6 +33,7 @@
 
 #include <osg/Geode>
 #include <osg/Geometry>
+#include <osg/Depth>
 
 #include "core/common/datastructures/WFiber.h"
 #include "core/common/WColor.h"

@@ -25,6 +25,11 @@
 #include <vector>
 #include <string>
 
+#include <osg/Depth>
+#include <osg/Drawable>
+#include <osg/Geometry>
+#include <osg/Geode>
+
 #include "core/common/WPropertyHelper.h"
 #include "core/common/WPropertyObserver.h"
 #include "core/dataHandler/WDataHandler.h"

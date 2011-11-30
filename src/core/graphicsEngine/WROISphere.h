@@ -25,7 +25,7 @@
 #ifndef WROISPHERE_H
 #define WROISPHERE_H
 
-#include <string>
+//#include <string>
 #include <utility>
 
 #include <boost/thread.hpp>

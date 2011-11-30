@@ -25,7 +25,7 @@
 #ifndef WGESHADER_H
 #define WGESHADER_H
 
-#include <list>
+//#include <list>
 #include <map>
 #include <string>
 

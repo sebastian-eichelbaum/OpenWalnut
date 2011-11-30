@@ -25,8 +25,6 @@
 #ifndef WCOLOR_H
 #define WCOLOR_H
 
-#include <iostream>
-
 #include <osg/Vec4>
 #include <osg/io_utils> // for the operator<< and operator>> for Vec4
 
@@ -105,16 +103,7 @@ namespace defaultColor
      * This array is a simple palette definition containing the above colors. This palette is probably not very usable for all your special
      * needs. DO NOT add thousand other palettes here. Define them for yourself, in your module.
      */
-    static const WColor DefaultPalette[22] = {
-        // The standard colors
-        RED, GREEN, BLUE, YELLOW, ORANGE, PINK, CYAN,
-        // the slightly lighter standard colors
-        LIGHTRED, LIGHTGREEN, LIGHTBLUE, LIGHTYELLOW,
-        // the slighly darker standard colors
-        DARKRED, DARKGREEN, DARKBLUE, DARKYELLOW, VIOLET, TEAL,
-        // black-white
-        BLACK, GRAY25, GRAY50, GRAY75, WHITE
-    };
+    extern const WColor DefaultPalette[22];
 }
 
 #endif  // WCOLOR_H

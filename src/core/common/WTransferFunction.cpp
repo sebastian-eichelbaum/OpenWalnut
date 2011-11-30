@@ -24,6 +24,12 @@
 
 #include <cassert>
 
+#include <iostream>
+#include <algorithm>
+
+//#include <osg/Vec4>
+//#include <osg/io_utils> // for the operator<< and operator>> for Vec4
+
 #include "WTransferFunction.h"
 
 bool WTransferFunction::operator==( const WTransferFunction &rhs ) const

@@ -22,15 +22,14 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
+//#include <iostream>
 #include <string>
 
-#include <osg/Vec3>
+//#include <osg/Vec3>
 
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
+//#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "WPickHandler.h"
-#include "WPickInfo.h"
 
 WPickHandler::WPickHandler()
     : m_hitResult( WPickInfo() ),

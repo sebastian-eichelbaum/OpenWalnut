@@ -92,6 +92,11 @@ osg::ref_ptr< osg::Texture2D > WGEOffscreenRenderPass::attach( BufferComponent b
     else
     {
 #if defined(__APPLE__)
+        if ( internalFormat != GL_RGBA )
+        {
+            wlog::warn( "WGEOffscreenRenderPass::attach:" ) <<
+                "Changing internal format to GL_RGBA because the original format is not supported on Mac OSX.";
+        }
         tex = createTexture( GL_RGBA );           // on MacOS X, only RGBA textures work as attachment for FBO's
 #else
         tex = createTexture( internalFormat );
