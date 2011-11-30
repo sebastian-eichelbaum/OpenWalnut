@@ -640,7 +640,7 @@ namespace PROPERTY_TYPE_HELPER
         /**
          * Creates a string from the specified value.
          *
-         * \param v the value to convert
+         * \param tf the value to convert
          *
          * \return the string representation
          */
