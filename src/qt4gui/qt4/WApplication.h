@@ -44,8 +44,10 @@ public:
 
 
     /** manage save dialogs when the session manager asks us to
-     * take care of our data */
-    virtual void commitData( QSessionManager& manager );
+     * take care of our data.
+     * This is an overloaded function from QT.
+     */
+    virtual void commitData( QSessionManager& manager ); // NOLINT
 
 protected:
     WMainWindow* mainWindow;
