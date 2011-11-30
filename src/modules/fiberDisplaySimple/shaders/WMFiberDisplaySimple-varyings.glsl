@@ -59,3 +59,9 @@ varying float v_diameter;
  */
 varying float v_surfaceParam;
 
+#ifdef CLUSTER_FILTER_ENABLED
+/**
+ * This varying carries the current cluster color.
+ */
+varying vec3 v_clusterColor;
+#endif

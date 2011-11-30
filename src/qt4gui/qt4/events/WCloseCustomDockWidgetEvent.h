@@ -43,7 +43,6 @@ public:
      * Constructor. Use the doneCondition to wait for the event to be processed.
      *
      * \param title the title of the widget to open
-     * \param doneCondition This condition is fired whenever the widget is really closed.
      */
     explicit WCloseCustomDockWidgetEvent( std::string title );
 

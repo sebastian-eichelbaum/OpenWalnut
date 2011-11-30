@@ -24,6 +24,10 @@
 
 #include <cassert>
 
+#include <iostream>
+#include <algorithm>
+
+
 #include "WTransferFunction.h"
 
 bool WTransferFunction::operator==( const WTransferFunction &rhs ) const

@@ -26,6 +26,7 @@
 #include <vector>
 
 #include <osg/LightModel>
+#include <osg/ShapeDrawable>
 #include <osgSim/ColorRange>
 
 #include "core/dataHandler/WEEG2.h"

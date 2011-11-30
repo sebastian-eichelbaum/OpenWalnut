@@ -26,6 +26,7 @@
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <fstream>
 
 #include <boost/algorithm/string.hpp>
 // Use filesystem version 2 for compatibility with newer boost versions.

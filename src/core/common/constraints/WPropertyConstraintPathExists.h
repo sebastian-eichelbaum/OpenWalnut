@@ -53,7 +53,7 @@ public:
      *
      * \return true if the file/path exists
      */
-    virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, T value );
+    virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, const T& value );
 
     /**
      * Allows simple identification of the real constraint type.
@@ -83,7 +83,7 @@ WPropertyConstraintPathExists< T >::~WPropertyConstraintPathExists()
 }
 
 template < typename T >
-bool WPropertyConstraintPathExists< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, T value )
+bool WPropertyConstraintPathExists< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, const T& value )
 {
     return boost::filesystem::exists( value );
 }

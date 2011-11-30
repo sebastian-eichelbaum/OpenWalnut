@@ -26,7 +26,6 @@
 #include <fstream>
 
 #include "core/common/WPathHelper.h"
-//#include "core/common/WPropertyHelper.h"
 #include "core/kernel/WKernel.h"
 #include "WMReadRawData.xpm"
 

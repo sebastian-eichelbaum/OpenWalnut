@@ -40,6 +40,7 @@
 #include "core/graphicsEngine/geodes/WDendrogramGeode.h"
 #include "core/graphicsEngine/WGEManagedGroupNode.h"
 #include "core/graphicsEngine/widgets/WOSGButton.h"
+#include "core/graphicsEngine/WPickHandler.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
 #include "core/kernel/WModuleOutputData.h"

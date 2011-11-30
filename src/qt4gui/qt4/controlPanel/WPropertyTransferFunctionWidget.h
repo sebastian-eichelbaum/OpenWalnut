@@ -111,8 +111,8 @@ protected:
      */
     QHBoxLayout m_infoLayout;
 
-    WTransferFunctionWidget m_transferFunction;
-    WTransferFunction lastTransferFunction;
+    WTransferFunctionWidget m_transferFunction; //< the current transfer function
+    WTransferFunction lastTransferFunction;     //< the previous transfer function used for comparison when updated
 
     /**
      * internal synchronization flag

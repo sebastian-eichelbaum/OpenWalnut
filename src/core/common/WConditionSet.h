@@ -45,6 +45,16 @@ friend class WConditionSetTest;
 public:
 
     /**
+     * Shared pointer to instance of this class.
+     */
+    typedef boost::shared_ptr< WConditionSet > SPtr;
+
+    /**
+     * Shared pointer to const instance of this class.
+     */
+    typedef boost::shared_ptr< const WConditionSet > ConstSPtr;
+
+    /**
      * Default constructor.
      */
     WConditionSet();

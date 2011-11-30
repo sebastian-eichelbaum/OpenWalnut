@@ -84,6 +84,7 @@ public:
      * \param mat the matrix transforming the vertices from canonical space
      * \param vals the values at the vertices
      * \param isoValue The surface will run through all positions with this value.
+     * \param mainProgress Pointer to the parent's progress reporter. Leave empty if no progress should be shown
      *
      * \return the created triangle mesh
      */

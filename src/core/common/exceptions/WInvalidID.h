@@ -22,18 +22,33 @@
 //
 //---------------------------------------------------------------------------
 
-#include <limits>
+#ifndef WINVALIDID_H
+#define WINVALIDID_H
 
-#include "WLimits.h"
+#include <string>
 
-namespace wlimits
+#include "../WException.h"
+#include "../WExportCommon.h"
+
+/**
+ * Indicates invalid element access of a container.
+ */
+class OWCOMMON_EXPORT WInvalidID : public WException
 {
-    const double MAX_DOUBLE = std::numeric_limits< double >::max();
-    const float MAX_FLOAT = std::numeric_limits< float >::max();
-    const size_t MAX_SIZE_T = std::numeric_limits< size_t >::max();
-    const int32_t MAX_INT32_T = std::numeric_limits< int32_t >::max();
-    const double MIN_DOUBLE = std::numeric_limits< double >::min();
-    const double DBL_EPS = std::numeric_limits< double >::epsilon();
-    const float FLT_EPS = std::numeric_limits< float >::epsilon();
-}
+public:
+    /**
+     * Default constructor.
+     * \param msg the exception message.
+     */
+    explicit WInvalidID( const std::string& msg = "Invalid ID specified." );
 
+    /**
+     * Destructor.
+     */
+    virtual ~WInvalidID() throw();
+
+protected:
+private:
+};
+
+#endif  // WINVALIDID_H

@@ -32,8 +32,6 @@
 #include <boost/thread/thread.hpp>
 
 #include <osg/Drawable>
-#include <osg/ShapeDrawable>
-#include <osg/Group>
 
 #include "WExportWGE.h"
 

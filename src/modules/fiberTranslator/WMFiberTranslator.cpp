@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <fstream>
 
 #include "core/dataHandler/WFiberAccumulator.h"
 

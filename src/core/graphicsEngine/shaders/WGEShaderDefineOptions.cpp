@@ -124,6 +124,12 @@ void WGEShaderDefineOptions::activateOption( size_t idx, bool exclusive )
 {
     WPrecond( idx < m_options.size(), "Index invalid." );
 
+    // if this option is already active, avoid an update even if exclusive is true
+    if( ( m_idx.size() == 1 ) && ( m_idx[ 0 ] == idx ) )
+    {
+        return;
+    }
+
     if( exclusive )
     {
         m_idx.clear();
@@ -137,7 +143,7 @@ void WGEShaderDefineOptions::activateOption( size_t idx, bool exclusive )
     }
 }
 
-void WGEShaderDefineOptions::dactivateOption( size_t idx )
+void WGEShaderDefineOptions::deactivateOption( size_t idx )
 {
     IdxList::iterator iter = std::find( m_idx.begin(), m_idx.end(), idx );
     if( iter != m_idx.end() )

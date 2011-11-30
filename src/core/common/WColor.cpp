@@ -32,6 +32,22 @@
 #include "../common/WStringUtils.h"
 #include "WColor.h"
 
+// initialize static palette
+namespace defaultColor
+{
+    /** the default palette colors */
+    const WColor DefaultPalette[ 22 ]= {
+            // The standard colors
+            RED, GREEN, BLUE, YELLOW, ORANGE, PINK, CYAN,
+            // the slightly lighter standard colors
+            LIGHTRED, LIGHTGREEN, LIGHTBLUE, LIGHTYELLOW,
+            // the slighly darker standard colors
+            DARKRED, DARKGREEN, DARKBLUE, DARKYELLOW, VIOLET, TEAL,
+            // black-white
+            BLACK, GRAY25, GRAY50, GRAY75, WHITE
+    };
+}
+
 // This function is taken from VTK 5.4.2. Since its BSD licensed the license
 // notice follows below. It is not taken from FAnToM since it seems more self
 // documenting.

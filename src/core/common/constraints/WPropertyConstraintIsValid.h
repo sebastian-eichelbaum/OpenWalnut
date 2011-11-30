@@ -54,7 +54,7 @@ public:
      *
      * \return true if value.isValid()
      */
-    virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, T value );
+    virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, const T& value );
 
     /**
      * Allows simple identification of the real constraint type.
@@ -84,7 +84,7 @@ WPropertyConstraintIsValid< T >::~WPropertyConstraintIsValid()
 }
 
 template < typename T >
-bool WPropertyConstraintIsValid< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, T value )
+bool WPropertyConstraintIsValid< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, const T& value )
 {
     return value.isValid();
 }
