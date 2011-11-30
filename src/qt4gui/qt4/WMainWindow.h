@@ -209,7 +209,7 @@ protected:
      *
      * \param writer the list of writers to use.
      */
-    virtual void projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer );
+    virtual bool projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer );
 
 public slots:
     /**
@@ -280,22 +280,22 @@ public slots:
     /**
      * Gets called whenever the user presses the project save button.
      */
-    void projectSaveAll();
+    bool projectSaveAll();
 
     /**
      * Gets called by the save menu to only save the camera settings
      */
-    void projectSaveCameraOnly();
+    bool projectSaveCameraOnly();
 
     /**
      * Gets called by the save menu to only save the ROI settings
      */
-    void projectSaveROIOnly();
+    bool projectSaveROIOnly();
 
     /**
      * Gets called by the save menu to only save the Module settings
      */
-    void projectSaveModuleOnly();
+    bool projectSaveModuleOnly();
 
     /**
      * Is able to handle updates in the log-level setting.

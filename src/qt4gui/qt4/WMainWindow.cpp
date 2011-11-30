@@ -566,7 +566,7 @@ WQtNetworkEditor* WMainWindow::getNetworkEditor()
     return m_networkEditor;
 }
 
-void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer )
+bool WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer )
 {
     QFileDialog fd;
     fd.setWindowTitle( "Save Project as" );
@@ -582,13 +582,18 @@ void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
     {
         fileNames = fd.selectedFiles();
     }
+    else
+    {
+        return false; // the user canceled, no files, so nothing saved
+    }
 
+    bool success = true;
     QStringList::const_iterator constIterator;
     for( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
     {
         std::string filename = ( *constIterator ).toStdString();
-        // append owp if not existent
-        if( filename.rfind( ".owp" ) == std::string::npos )
+        // append owp if suffix is not present, yet
+        if( filename.rfind( ".owp" ) != filename.size() - 4 )
         {
             filename += ".owp";
         }
@@ -615,36 +620,38 @@ void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
             QString message = "<b>Problem while saving project file.</b><br/><br/><b>File:  </b>" + ( *constIterator ) +
                               "<br/><b>Message:  </b>" + QString::fromStdString( e.what() );
             QMessageBox::critical( this, title, message );
+            success = false;
         }
     }
+    return success;
 }
 
-void WMainWindow::projectSaveAll()
+bool WMainWindow::projectSaveAll()
 {
     std::vector< boost::shared_ptr< WProjectFileIO > > w;
     // an empty list equals "all"
-    projectSave( w );
+    return projectSave( w );
 }
 
-void WMainWindow::projectSaveCameraOnly()
+bool WMainWindow::projectSaveCameraOnly()
 {
     std::vector< boost::shared_ptr< WProjectFileIO > > w;
     w.push_back( WProjectFile::getCameraWriter() );
-    projectSave( w );
+    return projectSave( w );
 }
 
-void WMainWindow::projectSaveROIOnly()
+bool WMainWindow::projectSaveROIOnly()
 {
     std::vector< boost::shared_ptr< WProjectFileIO > > w;
     w.push_back( WProjectFile::getROIWriter() );
-    projectSave( w );
+    return projectSave( w );
 }
 
-void WMainWindow::projectSaveModuleOnly()
+bool WMainWindow::projectSaveModuleOnly()
 {
     std::vector< boost::shared_ptr< WProjectFileIO > > w;
     w.push_back( WProjectFile::getModuleWriter() );
-    projectSave( w );
+    return projectSave( w );
 }
 
 void WMainWindow::projectLoad()
