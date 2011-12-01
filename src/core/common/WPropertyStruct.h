@@ -35,7 +35,9 @@
 #include <boost/mpl/copy.hpp>
 #include <boost/preprocessor/repetition/enum_params.hpp>
 
+#include "WStringUtils.h"
 #include "WCondition.h"
+#include "WPropertyGroupBase.h"
 #include "WPropertyBase.h"
 #include "exceptions/WPropertyUnknown.h"
 
@@ -161,19 +163,19 @@ template<
     typename T8 = WPropertyStructHelper::NOTYPE,
     typename T9 = WPropertyStructHelper::NOTYPE
 >
-class WPropertyStruct: public WPropertyBase
+class WPropertyStruct: public WPropertyGroupBase
 {
 public:
 
     typedef WPropertyStruct< BOOST_PP_ENUM_PARAMS( 10, T ) > WPropertyStructType;
 
     /**
-     * Convenience typedef for a boost::shared_ptr< WPropertyBase >
+     * Convenience typedef for a boost::shared_ptr< WPropertyStructType >
      */
     typedef boost::shared_ptr< WPropertyStructType > SPtr;
 
     /**
-     * Convenience typedef for a  boost::shared_ptr< const WPropertyBase >
+     * Convenience typedef for a  boost::shared_ptr< const WPropertyStructType >
      */
     typedef boost::shared_ptr< const WPropertyStructType > ConstSPtr;
 
@@ -194,7 +196,7 @@ public:
      * \param description the description of the property
      */
     WPropertyStruct( std::string name, std::string description ):
-        WPropertyBase( name, description )
+        WPropertyGroupBase( name, description )
     {
     }
 
@@ -205,7 +207,7 @@ public:
      * \param from the instance to copy.
      */
     explicit WPropertyStruct( const WPropertyStructType& from ):
-        WPropertyBase( from )
+        WPropertyGroupBase( from )
     {
         // this created a NEW update condition and NEW property instances (clones)
     }
@@ -215,6 +217,7 @@ public:
      */
     virtual ~WPropertyStruct()
     {
+        // the storing tuple is destroyed automatically and the properties if not used anymore
     }
 
     /**
@@ -225,9 +228,10 @@ public:
      * \return the property.
      */
     template< int N >
-    typename boost::mpl::at< TypeVector, boost::mpl::size_t< N > >::type& getProperty()
+    typename boost::mpl::at< TypeVector, boost::mpl::size_t< N > >::type getProperty()
     {
-        return m_properties.template get< N >();
+        typedef typename boost::mpl::at< TypeVector, boost::mpl::size_t< N > >::type::element_type TargetType;
+        return boost::shared_dynamic_cast< TargetType >( getProperty( N ) );
     }
 
     /**
@@ -238,9 +242,10 @@ public:
      * \return the property.
      */
     template< int N >
-    const typename boost::mpl::at< TypeVector, boost::mpl::size_t< N > >::type& getProperty() const
+    typename boost::mpl::at< TypeVector, boost::mpl::size_t< N > >::type::element_type::ConstSPtr getProperty() const
     {
-        return m_properties.template get< N >();
+        typedef typename boost::mpl::at< TypeVector, boost::mpl::size_t< N > >::type::element_type TargetType;
+        return boost::shared_dynamic_cast< const TargetType >( getProperty( N ) );
     }
 
     /**
@@ -267,31 +272,9 @@ public:
      */
     WPropertyBase::SPtr getProperty( size_t n )
     {
-        switch( n )
-        {
-        case 0:
-            return getProperty< 0 >();
-        case 1:
-            return getProperty< 1 >();
-        case 2:
-            return getProperty< 2 >();
-        case 3:
-            return getProperty< 3 >();
-        case 4:
-            return getProperty< 4 >();
-        case 5:
-            return getProperty< 5 >();
-        case 6:
-            return getProperty< 6 >();
-        case 7:
-            return getProperty< 7 >();
-        case 8:
-            return getProperty< 8 >();
-        case 9:
-            return getProperty< 9 >();
-        default:
-            throw WPropertyUnknown( "The property with this ID is not known" );
-        };
+       // lock, unlocked if l looses focus
+        PropertySharedContainerType::ReadTicket l = m_properties.getReadTicket();
+        return l->get()[ n ];
     }
 
     /**
@@ -319,7 +302,8 @@ public:
      */
     virtual WPropertyBase::SPtr clone()
     {
-        return WPropertyBase::SPtr();
+        // just use the copy constructor
+        return WPropertyStructType::SPtr( new WPropertyStructType( *this ) );
     }
 
     /**
@@ -342,7 +326,24 @@ public:
      */
     virtual bool setAsString( std::string value )
     {
-        return true;
+        // this method splits the given string and simply forwards the call to the other properties
+        std::vector< std::string > propsAsString = string_utils::tokenize( value, "|" );
+        if( size() != propsAsString.size() )
+        {
+            return false;
+        }
+
+        // lock, unlocked if l looses focus
+        PropertySharedContainerType::ReadTicket l = m_properties.getReadTicket();
+        // give the string to each property
+        size_t curPropNb = 0;
+        bool success = true;
+        for( std::vector< std::string >::const_iterator iter = propsAsString.begin(); iter != propsAsString.end(); ++iter )
+        {
+            success = success && l->get()[ curPropNb ]->setAsString( *iter );
+            curPropNb++;
+        }
+        return success;
     }
 
     /**
@@ -353,7 +354,18 @@ public:
      */
     virtual std::string getAsString()
     {
-        return "";
+        // lock, unlocked if l looses focus
+        PropertySharedContainerType::ReadTicket l = m_properties.getReadTicket();
+
+        // go through and append each prop
+        std::string result = "";
+        for( size_t i = 0; i < size(); ++i )
+        {
+            result += l->get()[ 0 ]->getAsString() + "|";
+        }
+        // strip last "|"
+        result.erase( result.length() - 1, 1 );
+        return result;
     }
 
     /**
@@ -366,7 +378,25 @@ public:
      */
     virtual bool set( boost::shared_ptr< WPropertyBase > value )
     {
-        return true;
+        // is this the same type as we are?
+        WPropertyStructType::SPtr v = boost::shared_dynamic_cast< WPropertyStructType >( value );
+        if( !v )
+        {
+            // it is not a WPropertyStruct with the same type
+            return false;
+        }
+
+        // lock, unlocked if l looses focus
+        PropertySharedContainerType::ReadTicket l = m_properties.getReadTicket();
+        PropertySharedContainerType::ReadTicket lother = v->m_properties.getReadTicket();
+        bool success = true;
+        // set each property
+        for( size_t curPropNb = 0; curPropNb < size(); ++curPropNb )
+        {
+            success = success && l->get()[ curPropNb ]->set( lother->get()[ curPropNb ] );
+        }
+
+        return success;
     }
 
 protected:
@@ -377,13 +407,6 @@ private:
      * How many elements are in this WPropertyStruct?
      */
     static const size_t m_size = boost::mpl::size< TypeVector >::value;
-
-    /**
-     * This is the tuple with the actual property instances.
-     *
-     * \note the tuple is only used for storage. It might be replaced some day.
-     */
-    TupleType m_properties;
 };
 
 #endif  // WPROPERTYSTRUCT_H

@@ -48,12 +48,12 @@
 
 template < typename T >
 class WPropertyVariable;
-class WProperties;
+class WPropertyGroup;
 
 class WTransferFunction;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NOTE: If you add new types here, please also add corresponding addProperty methods to WProperties
+// NOTE: If you add new types here, please also add corresponding addProperty methods to WPropertyGroup
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -125,6 +125,15 @@ namespace WPVBaseTypes
     PV_TRIGGER;     //!< base type used for every WPVTrigger
 
     /**
+     * Checks which property types are derived from \ref WPropertyGroupBase. This, for example, is true for PV_GROUP and PV_STRUCT.
+     *
+     * \param type the type to check.
+     *
+     * \return true if cast-able \ref WPropertyGroupBase.
+     */
+    bool isPropertyGroup( PROPERTY_TYPE  type );
+
+    /**
      * Write a PV_TRIGGER in string representation to the given output stream.
      *
      * \param out the output stream to print the value to
@@ -154,7 +163,7 @@ namespace WPVBaseTypes
 /**
  * Group properties.
  */
-typedef WProperties WPVGroup;
+typedef WPropertyGroup WPVGroup;
 
 /**
  * Int properties.

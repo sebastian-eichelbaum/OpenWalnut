@@ -34,6 +34,7 @@
 #include "exceptions/WPropertyNameMalformed.h"
 #include "WProperties.h"
 #include "WPropertyBase.h"
+#include "WPropertyGroupBase.h"
 #include "WPropertyVariable.h"
 
 #include "WTransferFunction.h"
@@ -159,6 +160,11 @@ WPropPosition WPropertyBase::toPropPosition()
 WPropGroup WPropertyBase::toPropGroup()
 {
     return boost::shared_static_cast< WPVGroup >( shared_from_this() );
+}
+
+WPropertyGroupBase::SPtr WPropertyBase::toPropGroupBase()
+{
+    return boost::shared_static_cast< WPropertyGroupBase >( shared_from_this() );
 }
 
 WPropMatrix4X4 WPropertyBase::toPropMatrix4X4()

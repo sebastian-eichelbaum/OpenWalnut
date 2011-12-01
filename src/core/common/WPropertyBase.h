@@ -268,13 +268,19 @@ public:
      */
     WPropTransferFunction toPropTransferFunction();
 
-
     /**
      * Helper converts this instance to its native type.
      *
      * \return the property as group
      */
     WPropGroup toPropGroup();
+
+    /**
+     * Convert the property to a WPropertyGroupBase. This can be done with property structs and groups-
+     *
+     * \return the property as base group.
+     */
+    boost::shared_ptr< WPropertyGroupBase > toPropGroupBase();
 
     /**
      * Helper converts this instance to an arbitrary type.

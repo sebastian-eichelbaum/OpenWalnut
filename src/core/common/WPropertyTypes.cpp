@@ -60,6 +60,18 @@ std::istream& WPVBaseTypes::operator>>( std::istream& in, WPVBaseTypes::PV_TRIGG
     return in;
 }
 
+bool WPVBaseTypes::isPropertyGroup( PROPERTY_TYPE  type )
+{
+    switch( type )
+    {
+    case PV_GROUP:
+    case PV_STRUCT:
+        return true;
+    default:
+        return false;
+    }
+}
+
 namespace PROPERTY_TYPE_HELPER
 {
     WPVBaseTypes::PV_TRANSFERFUNCTION WStringConversion< WPVBaseTypes::PV_TRANSFERFUNCTION >::create(
