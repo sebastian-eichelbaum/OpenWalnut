@@ -116,6 +116,13 @@ protected:
      */
     std::vector< boost::shared_ptr< WProjectFileIO > > m_parsers;
 
+    /**
+     * Do custom exception handling.
+     *
+     * \param e the exception
+     */
+    virtual void onThreadException( const WException& e );
+
 private:
 };
 

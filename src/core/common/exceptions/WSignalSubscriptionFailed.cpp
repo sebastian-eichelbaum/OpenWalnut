@@ -24,14 +24,14 @@
 
 #include <string>
 
-#include "WModuleSignalSubscriptionFailed.h"
+#include "WSignalSubscriptionFailed.h"
 
-WModuleSignalSubscriptionFailed::WModuleSignalSubscriptionFailed( const std::string& msg ): WModuleException( msg )
+WSignalSubscriptionFailed::WSignalSubscriptionFailed( const std::string& msg ): WException( msg )
 {
     // initialize members
 }
 
-WModuleSignalSubscriptionFailed::~WModuleSignalSubscriptionFailed() throw()
+WSignalSubscriptionFailed::~WSignalSubscriptionFailed() throw()
 {
     // cleanup
 }

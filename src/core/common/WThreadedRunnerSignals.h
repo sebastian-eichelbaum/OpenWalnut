@@ -22,60 +22,36 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMODULESIGNALS_H
-#define WMODULESIGNALS_H
+#ifndef WTHREADEDRUNNERSIGNALS_H
+#define WTHREADEDRUNNERSIGNALS_H
 
 #include <boost/signals2/signal.hpp>
 #include <boost/function.hpp>
 
-class WModule;
 class WException;
 
 /**
- * Enum of all possible signals WModule instances can emit.
+ * Enum of all possible signals WThreadedRunner instances can emit.
  */
 typedef enum
 {
-    WM_ASSOCIATED,  // module got associated to a container
-    WM_READY,       // module ready
-    WM_ERROR,       // error during execution
-    WM_REMOVED      // removed from the container
+    WTHREAD_ERROR   // error during execution
 }
-MODULE_SIGNAL;
+THREAD_SIGNAL;
 
 // **************************************************************************************************************************
 // Types
 // **************************************************************************************************************************
 
 /**
- * Signal for generic events like "WM_READY".
- *
- * \param module The module emitting the signal.
- *
+ * Signal for error events like thrown and un-catched exceptions.
  */
-typedef boost::function< void ( boost::shared_ptr< WModule > ) > t_ModuleGenericSignalHandlerType;
-
-/**
- * Generic signal type used in the most signals involving just the emitting signal.
- *
- * \param module The module emitting the signal.
- */
-typedef boost::signals2::signal< void ( boost::shared_ptr< WModule > ) >  t_ModuleGenericSignalType;
-
-/**
- * Signal for error events like "WM_ERROR".
- *
- * \param module The module emitting the signal.
- *
- */
-typedef boost::function< void ( boost::shared_ptr< WModule >, const WException& ) > t_ModuleErrorSignalHandlerType;
+typedef boost::function< void ( const WException& ) > t_ThreadErrorSignalHandlerType;
 
 /**
  * Signal type used in the most signals involving exceptions.
- *
- * \param module The module emitting the signal.
  */
-typedef boost::signals2::signal< void ( boost::shared_ptr< WModule >, const WException& ) >  t_ModuleErrorSignalType;
+typedef boost::signals2::signal< void ( const WException& ) > t_ThreadErrorSignalType;
 
-#endif  // WMODULESIGNALS_H
+#endif  // WTHREADEDRUNNERSIGNALS_H
 

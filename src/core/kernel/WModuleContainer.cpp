@@ -32,6 +32,7 @@
 
 #include "../common/WLogger.h"
 #include "../common/WThreadedRunner.h"
+#include "../common/exceptions/WSignalSubscriptionFailed.h"
 #include "WBatchLoader.h"
 #include "WKernel.h"
 #include "WModule.h"
@@ -42,7 +43,6 @@
 #include "WModuleTypes.h"
 #include "combiner/WApplyCombiner.h"
 #include "exceptions/WModuleAlreadyAssociated.h"
-#include "exceptions/WModuleSignalSubscriptionFailed.h"
 #include "exceptions/WModuleUninitialized.h"
 #include "WDataModule.h"
 
@@ -332,7 +332,7 @@ void WModuleContainer::addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleGeneric
         default:
             std::ostringstream s;
             s << "Could not subscribe to unknown signal.";
-            throw WModuleSignalSubscriptionFailed( s.str() );
+            throw WSignalSubscriptionFailed( s.str() );
             break;
     }
 }
@@ -350,7 +350,7 @@ void WModuleContainer::addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleErrorSi
         default:
             std::ostringstream s;
             s << "Could not subscribe to unknown signal.";
-            throw WModuleSignalSubscriptionFailed( s.str() );
+            throw WSignalSubscriptionFailed( s.str() );
             break;
     }
 }
@@ -373,7 +373,7 @@ void WModuleContainer::addDefaultNotifier( MODULE_CONNECTOR_SIGNAL signal, t_Gen
         default:
             std::ostringstream s;
             s << "Could not subscribe to unknown signal.";
-            throw WModuleSignalSubscriptionFailed( s.str() );
+            throw WSignalSubscriptionFailed( s.str() );
             break;
     }
 }

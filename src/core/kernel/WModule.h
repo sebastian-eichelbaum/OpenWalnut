@@ -231,13 +231,6 @@ public:
     const WBoolFlag&  isReady() const;
 
     /**
-     * Checks whether this module has been crashed. This will be true whenever the module throws an unhandled exception.
-     *
-     * \return true if there has been an exception during moduleMain().
-     */
-    const WBoolFlag& isCrashed() const;
-
-    /**
      * This is the logical or of isReady and isCrashed. You should use this condition if you need to wait for a module to get ready. If it
      * crashed before ready() got called, you most probably would wait endlessly.
      *
@@ -280,7 +273,9 @@ public:
     virtual boost::signals2::connection subscribeSignal( MODULE_SIGNAL signal, t_ModuleGenericSignalHandlerType notifier );
 
     /**
-     * Connects a specified notify function with a signal this module instance is offering.
+     * Connects a specified notify function with a signal this module instance is offering. Please note that there also is a
+     * WThreadedRunner::subscribeSignal which allows error callbacks. The difference to this one is that the WThreadedRunner's version does not
+     * provide the sender information (shared_ptr).
      *
      * \exception WModuleSignalSubscriptionFailed thrown if the signal can't be connected.
      *
@@ -363,6 +358,15 @@ protected:
      * Thread entry point. Calls moduleMain and sends error notification if needed.
      */
     void threadMain();
+
+    /**
+     * This method is called if an exception was caught, which came from the custom thread code. This method is virtual and allows you to
+     * overwrite the default behaviour. If you overwrite this method, you should call \ref WThreadedRunner::handleDeadlyException or
+     * WThreadedRunner::onThreadException if you are finished with your customized code.
+     *
+     * \param e the exception that was caught.
+     */
+    virtual void onThreadException( const WException& e );
 
      /**
       * Sets the container this module is associated with.
@@ -563,12 +567,8 @@ protected:
     WBoolFlag m_isReady;
 
     /**
-     * True whenever an exception is thrown during moduleMain.
-     */
-    WBoolFlag m_isCrashed;
-
-    /**
-     * It is true whenever m_isReady or m_isCrashed is true. This is mostly useful for functions which need to wait for a module to get ready.
+     * It is true whenever m_isReady or WThreadedRunner::m_isCrashed is true. This is mostly useful for functions
+     * which need to wait for a module to get ready.
      */
     WBoolFlag m_isReadyOrCrashed;
 

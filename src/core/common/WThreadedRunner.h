@@ -28,11 +28,14 @@
 #include <stdint.h>
 
 #include <boost/function.hpp>
+#include <boost/signals2.hpp>
 
 #include <boost/thread.hpp>
 #include <boost/thread/thread.hpp>
 
 #include "WFlag.h"
+#include "WThreadedRunnerSignals.h"
+
 #include "WExportCommon.h"
 
 /**
@@ -81,6 +84,26 @@ public:
      */
     virtual void requestStop();
 
+    /**
+     * Connects a specified notify function with a signal this thread instance is offering.
+     *
+     * \exception WSignalSubscriptionFailed thrown if the signal can't be connected.
+     *
+     * \param signal the signal to connect to.
+     * \param notifier the notifier function to bind.
+     *
+     * \return connection descriptor.
+     */
+    virtual boost::signals2::connection subscribeSignal( THREAD_SIGNAL signal, t_ThreadErrorSignalHandlerType notifier );
+
+    /**
+     * Checks whether this thread has been crashed. This will be true whenever the code in the thread throws an unhandled
+     * exception.
+     *
+     * \return true if there has been an exception during threadMain().
+     */
+    const WBoolFlag& isCrashed() const;
+
 protected:
 
     /**
@@ -128,6 +151,33 @@ protected:
      */
     WBoolFlag m_shutdownFlag;
 
+    /**
+     * This method is called if an exception was caught, which came from the custom thread code. This method is virtual and allows you to
+     * overwrite the default behaviour. If you overwrite this method, you should call \ref handleDeadlyException or
+     * WThreadedRunner::onThreadException if you are finished with your customized code.
+     *
+     * \param e the exception that was caught.
+     */
+    virtual void onThreadException( const WException& e );
+
+    /**
+     * Handle the specified exception which was not caught in the thread, which basically means the thread has crashed. This triggers the error
+     * notification and marks the thread as crashed. If you write your own exception/error mechanism (like \ref WModule), you should take care
+     * that these method gets called.
+     *
+     * \note this method does not re-throw the exception
+     * \note you should specify a custom  sender string if you overwrite \ref onThreadException.
+     *
+     * \param e the exception
+     * \param sender allows to customize the sender information in the log entry created by this method.
+     */
+    void handleDeadlyException( const WException& e, std::string sender = "WThreadedRunner" );
+
+    /**
+     * True whenever an exception is thrown during threadMain.
+     */
+    WBoolFlag m_isCrashed;
+
 private:
 
     /**
@@ -144,6 +194,16 @@ private:
      * \return this.
      */
     WThreadedRunner& operator=( const WThreadedRunner & rhs );
+
+    /**
+     * Signal fired whenever a thread throws an exception/error.
+     */
+    t_ThreadErrorSignalType signal_thread_error;
+
+    /**
+     * The is the thread entry point. It does exception handling and calls threadMain.
+     */
+    void threadMainSave();
 };
 
 #endif  // WTHREADEDRUNNER_H

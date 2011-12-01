@@ -40,14 +40,14 @@
 #include "WModuleConnectorSignals.h"
 #include "WModuleContainer.h"
 #include "WModuleFactory.h"
-#include "exceptions/WModuleSignalUnknown.h"
-#include "exceptions/WModuleSignalSubscriptionFailed.h"
 #include "exceptions/WModuleConnectorInitFailed.h"
 #include "exceptions/WModuleConnectorNotFound.h"
 #include "exceptions/WModuleUninitialized.h"
 #include "exceptions/WModuleRequirementNotMet.h"
 #include "../common/WException.h"
 #include "../common/exceptions/WNameNotUnique.h"
+#include "../common/exceptions/WSignalUnknown.h"
+#include "../common/exceptions/WSignalSubscriptionFailed.h"
 #include "../common/WLogger.h"
 #include "../common/WCondition.h"
 #include "../common/WConditionOneShot.h"
@@ -65,7 +65,6 @@ WModule::WModule():
     m_isAssociated( new WCondition(), false ),
     m_isUsable( new WCondition(), false ),
     m_isReady( new WConditionOneShot(), false ),
-    m_isCrashed( new WConditionOneShot(), false ),
     m_isReadyOrCrashed( new WConditionSet(), false ),
     m_isRunning( new WCondition(), false ),
     m_readyProgress( boost::shared_ptr< WProgress >( new WProgress( "Initializing Module" ) ) ),
@@ -378,7 +377,7 @@ boost::signals2::connection WModule::subscribeSignal( MODULE_SIGNAL signal, t_Mo
         default:
             std::ostringstream s;
             s << "Could not subscribe to unknown signal.";
-            throw WModuleSignalSubscriptionFailed( s.str() );
+            throw WSignalSubscriptionFailed( s.str() );
             break;
     }
 }
@@ -392,7 +391,7 @@ boost::signals2::connection WModule::subscribeSignal( MODULE_SIGNAL signal, t_Mo
         default:
             std::ostringstream s;
             s << "Could not subscribe to unknown signal.";
-            throw WModuleSignalSubscriptionFailed( s.str() );
+            throw WSignalSubscriptionFailed( s.str() );
             break;
     }
 }
@@ -410,7 +409,7 @@ const t_GenericSignalHandlerType WModule::getSignalHandler( MODULE_CONNECTOR_SIG
         default:
             std::ostringstream s;
             s << "Could not subscribe to unknown signal. You need to implement this signal type explicitly in your module.";
-            throw WModuleSignalUnknown( s.str() );
+            throw WSignalUnknown( s.str() );
             break;
     }
 }
@@ -434,11 +433,6 @@ const WBoolFlag& WModule::isUseable() const
 const WBoolFlag& WModule::isReady() const
 {
     return m_isReady;
-}
-
-const WBoolFlag& WModule::isCrashed() const
-{
-    return m_isCrashed;
 }
 
 const WBoolFlag& WModule::isReadyOrCrashed() const
@@ -524,50 +518,41 @@ void WModule::threadMain()
     prctl( PR_SET_NAME, ( "openwalnut (" + getName() + ")" ).c_str() );
 #endif
 
-    try
+    WLogger::getLogger()->addLogMessage( "Starting module main method.", "Module (" + getName() + ")", LL_INFO );
+
+    // check requirements
+    const WRequirement* failedReq = checkRequirements();
+    if( failedReq )
     {
-        WLogger::getLogger()->addLogMessage( "Starting module main method.", "Module (" + getName() + ")", LL_INFO );
-
-        // check requirements
-        const WRequirement* failedReq = checkRequirements();
-        if( failedReq )
-        {
-            throw WModuleRequirementNotMet( failedReq );
-        }
-
-        // call main thread function
-        m_isRunning( true );
-        moduleMain();
+        throw WModuleRequirementNotMet( failedReq );
     }
-    catch( const WException& e )
-    {
-        wlog::error( "Module (" + getName() +")" ) << "WException. Notifying. Message: " << e.what();
 
-        // ensure proper exception propagation
-        signal_error( shared_from_this(), e );
+    // call main thread function
+    m_isRunning( true );
+    moduleMain();
 
-        // hopefully, all waiting threads use isReadyOrCrashed to wait.
-        m_isCrashed( true );
-    }
-    catch( const std::exception& e )
-    {
-        // convert these exceptions to WException
-        WException ce = WException( e );
-
-        // print this message AFTER creation of WException to have the backtrace before the message
-        WLogger::getLogger()->addLogMessage( std::string( "Exception. Notifying.  Message: " ) + e.what(), "Module (" + getName() + ")", LL_ERROR );
-
-        // communicate error
-        signal_error( shared_from_this(), ce );
-
-        // hopefully, all waiting threads use isReadyOrCrashed to wait.
-        m_isCrashed( true );
-    }
+    // NOTE: if there is any exception in the module thread, WThreadedRunner calls onThreadException for us. We can then disconnect the
+    // module and call our own error notification mechanism.
 
     // remove all pending connections. This is important as connections that still exists after module deletion can cause segfaults when they get
     // disconnected in the connector destructor.
     disconnect();
     m_isRunning( false );
+}
+
+void WModule::onThreadException( const WException& e )
+{
+    // use our own error callback which includes the exact module pointer which caused the problem
+    signal_error( shared_from_this(), e );
+
+    // ensure the module is properly disconnected
+    disconnect();
+
+    // module is not running anymore.
+    m_isRunning( false );
+
+    // let WThreadedRunner do the remaining tasks.
+    handleDeadlyException( e, "Module (" + getName() +")" );
 }
 
 wlog::WStreamedLogger WModule::infoLog() const
