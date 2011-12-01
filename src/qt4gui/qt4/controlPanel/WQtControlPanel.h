@@ -396,11 +396,11 @@ private slots:
     void buildPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps );
 
     /**
-     * Method builds a widgets containing all properties in props. It recursively calls itself to build group widgets for WPropGroup properties.
+     * Method builds a widgets containing all properties in props. It recursively calls itself to build group widgets for WPropertyGroupBase properties.
      *
      * \param props the properties.
      */
-    WQtPropertyGroupWidget* buildPropWidget( boost::shared_ptr< WProperties > props );
+    WQtPropertyGroupWidget* buildPropWidget( WPropertyGroupBase::SPtr props );
 
     /**
      * function gets called when a change to a tree item, eg. check box status, occurs

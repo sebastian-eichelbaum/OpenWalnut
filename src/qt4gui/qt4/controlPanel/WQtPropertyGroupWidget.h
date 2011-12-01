@@ -57,7 +57,7 @@ public:
      * \param group The group
      * \param parent The widget managing this widget
      */
-    WQtPropertyGroupWidget( WPropGroup group, QWidget* parent = 0 );
+    WQtPropertyGroupWidget( WPropertyGroupBase::SPtr group, QWidget* parent = 0 );
 
     /**
      * destructor
@@ -258,7 +258,7 @@ private:
     /**
      * The property group handled here.
      */
-    WPropGroup m_group;
+    WPropertyGroupBase::SPtr m_group;
 
     /**
      * The connection for propertyChangeNotifier().

@@ -852,18 +852,18 @@ void WQtControlPanel::setNewActiveModule( boost::shared_ptr< WModule > module )
     }
 }
 
-WQtPropertyGroupWidget*  WQtControlPanel::buildPropWidget( boost::shared_ptr< WProperties > props )
+WQtPropertyGroupWidget*  WQtControlPanel::buildPropWidget( WPropertyGroupBase::SPtr props )
 {
     WQtPropertyGroupWidget* tab = new WQtPropertyGroupWidget( props );
     if( props.get() )
     {
         // read lock, gets unlocked upon destruction (out of scope)
-        WProperties::PropertySharedContainerType::ReadTicket propAccess = props->getProperties();
+        WPropertyGroupBase::PropertySharedContainerType::ReadTicket propAccess = props->getProperties();
 
         tab->setName( QString::fromStdString( props->getName() ) );
 
         // iterate all properties.
-        for( WProperties::PropertyConstIterator iter = propAccess->get().begin(); iter != propAccess->get().end(); ++iter )
+        for( WPropertyGroupBase::PropertyConstIterator iter = propAccess->get().begin(); iter != propAccess->get().end(); ++iter )
         {
             switch ( ( *iter )->getType() )
             {
@@ -895,7 +895,10 @@ WQtPropertyGroupWidget*  WQtControlPanel::buildPropWidget( boost::shared_ptr< WP
                     tab->addProp( ( *iter )->toPropTrigger() );
                     break;
                 case PV_GROUP:
-                    tab->addGroup( buildPropWidget( ( *iter )->toPropGroup() ) );
+                    tab->addGroup( buildPropWidget( ( *iter )->toPropGroupBase() ) );
+                    break;
+                case PV_STRUCT:
+                    tab->addGroup( buildPropWidget( ( *iter )->toPropGroupBase() ) );
                     break;
                 case PV_MATRIX4X4:
                     tab->addProp( ( *iter )->toPropMatrix4X4() );
