@@ -97,6 +97,7 @@ WMainWindow::WMainWindow():
     m_currentCompatiblesToolbar( NULL ),
     m_iconManager()
 {
+    setAcceptDrops( true ); // enable drag and drop events
 }
 
 WMainWindow::~WMainWindow()
@@ -573,6 +574,8 @@ bool WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
     fd.setFileMode( QFileDialog::AnyFile );
     fd.setAcceptMode( QFileDialog::AcceptSave );
 
+    // My Mac OSX Lion automatically appends .owproj to the file name
+    // if no extension is given.
     QStringList filters;
     filters << "Project File (*.owproj *.owp)";
     fd.setNameFilters( filters );
@@ -592,8 +595,10 @@ bool WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
     for( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
     {
         std::string filename = ( *constIterator ).toStdString();
+
         // append owp if suffix is not present, yet
-        if( filename.rfind( ".owp" ) != filename.size() - 4 )
+        if( filename.rfind( ".owp" ) != filename.size() - 4
+         && filename.rfind( ".owproj" ) != filename.size() - 7 )
         {
             filename += ".owp";
         }
@@ -1099,5 +1104,129 @@ void WMainWindow::restoreMainGLWidgetSize()
     m_mainGLWidget->setMaximumHeight( QWIDGETSIZE_MAX );
     m_mainGLWidget->setMinimumWidth( 250 );
     m_mainGLWidget->setMaximumWidth( QWIDGETSIZE_MAX );
+}
+
+// Drag and drop functionality
+
+void WMainWindow::dropEvent( QDropEvent *event )
+{
+    if ( event->mimeData()->hasUrls() )
+    {
+        std::vector < std::string > projects;
+        std::vector < std::string > filenames;
+        std::vector < std::string > unsupported;
+        foreach( QUrl url, event->mimeData()->urls() )
+        {
+            QString path =  url.toLocalFile();
+            QFileInfo info( path );
+            QString suffix =  info.completeSuffix();
+            if ( suffix == "cnt"
+              || suffix == "edf"
+              || suffix == "asc"
+              || suffix == "nii"
+              || suffix == "nii.gz"
+              || suffix == "fib" )
+            {
+                filenames.push_back( path.toStdString() );
+            }
+            else
+            {
+                if ( suffix == "owp"
+                    || suffix == "owproj" )
+                {
+                    projects.push_back( path.toStdString() );
+                }
+                else
+                {
+                    unsupported.push_back( path.toStdString() );
+                }
+            }
+        }
+        if ( projects.size() > 0 )
+        {
+            for ( size_t i = 0; i < projects.size(); ++i )
+            {
+                boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
+                        new WProjectFile( projects[ i ] )
+                );
+
+                // This call is asynchronous. It parses the file and the starts a thread to actually do all the stuff
+                proj->load();
+            }
+            event->accept();
+        }
+        if ( filenames.size() > 0 )
+        {
+            m_loaderSignal( filenames );
+            event->accept();
+        }
+        if ( unsupported.size() > 0 )
+        {
+            QString message = QString() +
+                "The following files are not supported as standard data types by OpenWalnut at the moment:<br>";
+            for ( size_t i = 0; i < unsupported.size(); ++i )
+            {
+                message += QString::fromStdString( unsupported[ i ] ) + QString("<br>" );
+            }
+            message += "There may be additional modules supporting them.<br>All other files have been loaded and should be visible in the module browser and network editor.";
+            QMessageBox::information( this, "Not yet implemented!",
+                    message
+                    );
+        }
+    }
+    QMainWindow::dropEvent( event );
+}
+
+void WMainWindow::dragMoveEvent( QDragMoveEvent *event )
+{
+    if ( event->mimeData()->hasUrls() )
+    {
+        foreach( QUrl url, event->mimeData()->urls() )
+        {
+            QString path =  url.toLocalFile();
+            QFileInfo info( path );
+            // TODO( mario ) check when this fails, I assume we have problems with files with multiple dots such as session.1.nii
+            QString suffix =  info.completeSuffix();
+            if ( suffix == "cnt"
+              || suffix == "edf"
+              || suffix == "asc"
+              || suffix == "nii"
+              || suffix == "nii.gz"
+              || suffix == "fib"
+              || suffix == "owp"
+              || suffix == "owproj" )
+            {
+                event->acceptProposedAction();
+                return;
+            }
+        }
+    }
+    QMainWindow::dragMoveEvent( event );
+}
+
+void WMainWindow::dragEnterEvent( QDragEnterEvent *event )
+{
+    if ( event->mimeData()->hasUrls() )
+    {
+        foreach( QUrl url, event->mimeData()->urls() )
+        {
+            QString path =  url.toLocalFile();
+            QFileInfo info( path );
+            QString suffix =  info.completeSuffix();
+            if ( suffix == "cnt"
+              || suffix == "edf"
+              || suffix == "asc"
+              || suffix == "nii"
+              || suffix == "nii.gz"
+              || suffix == "fib"
+              || suffix == "owp"
+              || suffix == "owproj" )
+            {
+                event->acceptProposedAction();
+                return;
+            }
+        }
+    }
+    QMainWindow::dragEnterEvent( event );
 }
 

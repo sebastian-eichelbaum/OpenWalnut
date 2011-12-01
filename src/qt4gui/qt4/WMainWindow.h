@@ -209,6 +209,21 @@ protected:
      */
     virtual bool projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer );
 
+    /**
+     * drag and drop implementation
+     */
+    void dropEvent( QDropEvent* event );
+
+    /**
+     * drag and drop implementation
+     */
+     void dragMoveEvent( QDragMoveEvent* event );
+
+    /**
+     * drag and drop implementation
+     */
+     void dragEnterEvent( QDragEnterEvent* event );
+
 public slots:
     /**
      * gets called when menu option or toolbar button load is activated

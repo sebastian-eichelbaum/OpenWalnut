@@ -142,26 +142,6 @@ private:
     WPropSelection m_localIlluminationAlgo;
 
     /**
-     * The group containing the tf loader path and trigger.
-     */
-    WPropGroup m_tfLoaderGroup;
-
-    /**
-     * If true, the texture is used for transfer functions.
-     */
-    WPropBool m_tfLoaderEnabled;
-
-    /**
-     * The path to the file to load.
-     */
-    WPropFilename m_tfLoaderFile;
-
-    /**
-     * Triggered to actually do loading
-     */
-    WPropTrigger m_tfLoaderTrigger;
-
-    /**
      * All properties for those nice improvement methods.
      */
     WPropGroup m_improvementGroup;
