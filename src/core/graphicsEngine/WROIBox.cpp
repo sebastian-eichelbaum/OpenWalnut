@@ -27,6 +27,7 @@
 
 #include <osg/LineWidth>
 #include <osg/LightModel>
+#include <osg/Geometry>
 
 #include "WROIBox.h"
 #include "WGraphicsEngine.h"
