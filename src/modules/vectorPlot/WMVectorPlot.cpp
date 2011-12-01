@@ -27,6 +27,7 @@
 #include <vector>
 
 #include <osg/Geode>
+#include <osg/Geometry>
 #include <osg/Group>
 #include <osg/Material>
 #include <osg/ShapeDrawable>

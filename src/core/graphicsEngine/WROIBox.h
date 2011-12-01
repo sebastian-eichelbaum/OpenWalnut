@@ -30,6 +30,8 @@
 
 #include <boost/thread.hpp>
 
+#include <osg/Geometry>
+
 #include "WPickHandler.h"
 class WGEViewer;
 

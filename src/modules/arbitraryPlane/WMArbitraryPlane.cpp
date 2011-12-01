@@ -25,6 +25,8 @@
 #include <string>
 #include <vector>
 
+#include <osg/Geometry>
+
 #include "core/dataHandler/WDataHandler.h"
 #include "core/dataHandler/WDataSet.h"
 #include "core/dataHandler/WDataSetScalar.h"

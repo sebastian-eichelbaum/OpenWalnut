@@ -29,6 +29,7 @@
 #include <vector>
 
 #include <osg/Geode>
+#include <osg/Geometry>
 
 #include "core/dataHandler/WDataSetVector.h"
 #include "core/graphicsEngine/shaders/WGEShader.h"
