@@ -35,13 +35,13 @@ class WMainWindow;
  */
 class WApplication : public QApplication
 {
+    Q_OBJECT
 public:
     /** default constructor, see QApplication */
     WApplication( int argc, char** argv, bool GUIenabled = true );
 
     /** stores the main window used as parent for dialogs */
-    void setMainWindow( WMainWindow* window );
-
+    void setMyMainWindow( WMainWindow* window );
 
     /** manage save dialogs when the session manager asks us to
      * take care of our data.
@@ -50,7 +50,7 @@ public:
     virtual void commitData( QSessionManager& manager ); // NOLINT
 
 protected:
-    WMainWindow* mainWindow;
+    WMainWindow* myMainWindow;
 };
 
 #endif  // WAPPLICATION_H
