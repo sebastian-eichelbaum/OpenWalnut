@@ -238,7 +238,7 @@ void WTransferFunctionWidget::setMyBackground()
 
         QImage image( texturearray, transferFunctionSize, 1, QImage::Format_ARGB32 );
         QPixmap pixmap( transferFunctionSize, 1 );
-#if ( QT_VERSION >= 040700 )
+#if ( QT_VERSION >= 0x040700 )
         pixmap.convertFromImage( image );
 #else
         // older versions have convertFromImage in Qt3Support
