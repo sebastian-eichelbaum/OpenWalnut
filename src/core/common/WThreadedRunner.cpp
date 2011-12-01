@@ -142,7 +142,7 @@ void WThreadedRunner::msleep( const int32_t t ) const
 
 boost::signals2::connection WThreadedRunner::subscribeSignal( THREAD_SIGNAL signal, t_ThreadErrorSignalHandlerType notifier )
 {
-   switch (signal)
+    switch (signal)
     {
         case WTHREAD_ERROR:
             return signal_thread_error.connect( notifier );

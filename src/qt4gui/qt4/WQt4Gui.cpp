@@ -143,7 +143,7 @@ int WQt4Gui::run()
     m_loggerConnection = WLogger::getLogger()->subscribeSignal( WLogger::AddLog, boost::bind( &WQt4Gui::slotAddLog, this, _1 ) );
 
     // make qapp instance before using the applicationDirPath() function
-    QApplication appl( m_argc, m_argv, true );
+    WApplication appl( m_argc, m_argv, true );
 
     // the call path of the application, this uses QApplication which needs to be instantiated.
     boost::filesystem::path walnutBin = boost::filesystem::path( QApplication::applicationDirPath().toStdString() );
@@ -212,7 +212,7 @@ int WQt4Gui::run()
     m_mainWindow = new WMainWindow();
     m_mainWindow->setupGUI();
     m_mainWindow->show();
-    //appl.setMainWindow( m_mainWindow );
+    appl.setMainWindow( m_mainWindow );
 
     // connect out loader signal with kernel
 #ifdef _WIN32

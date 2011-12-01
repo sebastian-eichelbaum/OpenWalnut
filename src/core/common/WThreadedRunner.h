@@ -27,6 +27,8 @@
 
 #include <stdint.h>
 
+#include <string>
+
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
 
