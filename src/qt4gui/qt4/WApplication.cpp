@@ -27,20 +27,22 @@
 #include "WMainWindow.h"
 
 #include "WApplication.h"
+#include "WApplication.moc"
 
 WApplication::WApplication( int argc, char** argv, bool GUIenabled )
     : QApplication( argc, argv, GUIenabled ),
-    mainWindow( 0 )
+    myMainWindow( 0 )
 {
 }
 
-void WApplication::setMainWindow( WMainWindow* window )
+void WApplication::setMyMainWindow( WMainWindow* window )
 {
-    mainWindow =  window;
+    myMainWindow =  window;
 }
 
 void WApplication::commitData( QSessionManager& manager ) // NOLINT
 {
+    QApplication::commitData( manager );
     if ( manager.allowsInteraction() )
     {
         int ret =  QMessageBox::warning(
