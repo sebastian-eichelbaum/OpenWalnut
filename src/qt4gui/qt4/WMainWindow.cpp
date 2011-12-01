@@ -1166,9 +1166,10 @@ void WMainWindow::dropEvent( QDropEvent *event )
                 "The following files are not supported as standard data types by OpenWalnut at the moment:<br>";
             for ( size_t i = 0; i < unsupported.size(); ++i )
             {
-                message += QString::fromStdString( unsupported[ i ] ) + QString("<br>" );
+                message += QString::fromStdString( unsupported[ i ] ) + QString( "<br>" );
             }
-            message += "There may be additional modules supporting them.<br>All other files have been loaded and should be visible in the module browser and network editor.";
+            message += "There may be additional modules supporting them.<br>All other files have been loaded and should be visible in the module "
+                       "browser and network editor.";
             QMessageBox::information( this, "Not yet implemented!",
                     message
                     );
@@ -1185,7 +1186,7 @@ void WMainWindow::dragMoveEvent( QDragMoveEvent *event )
         {
             QString path =  url.toLocalFile();
             QFileInfo info( path );
-            // TODO( mario ) check when this fails, I assume we have problems with files with multiple dots such as session.1.nii
+            // TODO(mario): check when this fails, I assume we have problems with files with multiple dots such as session.1.nii
             QString suffix =  info.completeSuffix();
             if ( suffix == "cnt"
               || suffix == "edf"
