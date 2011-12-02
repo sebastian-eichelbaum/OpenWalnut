@@ -249,6 +249,7 @@ void WMDirectVolumeRendering::moduleMain()
         // reset module in case of invalid data. This accounts only for the scalar field input
         if( !dataValid )
         {
+            cube.release();
             debugLog() << "Resetting.";
             rootNode->clear();
             continue;
@@ -273,7 +274,7 @@ void WMDirectVolumeRendering::moduleMain()
             // use the OSG Shapes, create unit cube
             WBoundingBox bb( WPosition( 0.0, 0.0, 0.0 ),
                     WPosition( grid->getNbCoordsX() - 1, grid->getNbCoordsY() - 1, grid->getNbCoordsZ() - 1 ) );
-            osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bb, WColor( 1.0, 1.0, 1.0, 1.0 ) );
+            cube = wge::generateSolidBoundingBoxNode( bb, WColor( 1.0, 1.0, 1.0, 1.0 ) );
             cube->asTransform()->getChild( 0 )->setName( "_DVR Proxy Cube" ); // Be aware that this name is used in the pick handler.
             // because of the underscore in front it won't be picked
             // we also set the grid's transformation here
@@ -310,61 +311,6 @@ void WMDirectVolumeRendering::moduleMain()
             else
             {
                 gradTexEnableDefine->setActive( false ); // disable gradient texture
-            }
-
-            ////////////////////////////////////////////////////////////////////////////////////////////////////
-            // load transfer function
-            ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-            if( ( propUpdated ||  m_transferFunction->updated() ) && dataValid )
-            {
-                debugLog() << "updated transfer function";
-                boost::shared_ptr< WDataSetSingle > dataSet = m_transferFunction->getData();
-                if ( !dataSet )
-                {
-                    debugLog() << "no data set?";
-                }
-                else
-                {
-                    WAssert( dataSet, "data set" );
-                    boost::shared_ptr< WValueSetBase > valueSet = dataSet->getValueSet();
-                    WAssert( valueSet, "value set" );
-                    boost::shared_ptr< WValueSet< unsigned char > > cvalueSet( boost::shared_dynamic_cast<WValueSet< unsigned char> >( valueSet ) );
-                    if ( !cvalueSet )
-                    {
-                        debugLog() << "invalid type";
-                    }
-                    else
-                    {
-                        //debugLog() << "creating transfer function texture";
-                        size_t tfsize = cvalueSet->rawSize();
-                        //debugLog() << "Texture raw size" << tfsize;
-
-                        const unsigned char* orig = cvalueSet->rawData();
-                        unsigned char* data = new unsigned char[ tfsize ];
-                        std::copy( orig, &orig[ tfsize ], data );
-
-                        // for ( size_t i = 0; i< 30 && i < tfsize/4; ++i )
-                        // {
-                        //     debugLog() << i << ":" << ( int )data[ 4*i ] << ' ' << ( int )data[ 4*i+1 ] << ' '<< ( int )data[ 4*i+2 ]
-                        //     << ' '<< ( int ) data[ 4*i+3 ];
-                        // }
-
-                        osg::ref_ptr< osg::Image > tfImg( new osg::Image() );
-                        //debugLog() << "set image";
-                        tfImg->setImage( tfsize/4, 1, 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE,
-                                data, osg::Image::USE_NEW_DELETE ); // FIXME: check allocation mode
-                        //debugLog() << "activate";
-                        tfTexEnableDefine->setActive( false );
-                        osg::ref_ptr< osg::Texture1D > tfTexture = new osg::Texture1D();
-                        tfTexture->setImage( tfImg );
-
-                        wge::bindTexture( cube, tfTexture, 2, "u_transferFunction" );
-                        tfTexEnableDefine->setActive( true );
-                        //debugLog() << "done creating transfer function texture";
-                    }
-                }
-                debugLog() << "end updated transfer function";
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -446,6 +392,61 @@ void WMDirectVolumeRendering::moduleMain()
                 rootInserted = true;
                 WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( rootNode );
             }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        // load transfer function
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        if( ( propUpdated || m_transferFunction->updated() ) && dataValid && cube )
+        {
+            debugLog() << "updated transfer function";
+            boost::shared_ptr< WDataSetSingle > dataSet = m_transferFunction->getData();
+            if ( !dataSet )
+            {
+                debugLog() << "no data set?";
+            }
+            else
+            {
+                WAssert( dataSet, "data set" );
+                boost::shared_ptr< WValueSetBase > valueSet = dataSet->getValueSet();
+                WAssert( valueSet, "value set" );
+                boost::shared_ptr< WValueSet< unsigned char > > cvalueSet( boost::shared_dynamic_cast<WValueSet< unsigned char> >( valueSet ) );
+                if ( !cvalueSet )
+                {
+                    debugLog() << "invalid type";
+                }
+                else
+                {
+                    //debugLog() << "creating transfer function texture";
+                    size_t tfsize = cvalueSet->rawSize();
+                    //debugLog() << "Texture raw size" << tfsize;
+
+                    const unsigned char* orig = cvalueSet->rawData();
+                    unsigned char* data = new unsigned char[ tfsize ];
+                    std::copy( orig, &orig[ tfsize ], data );
+
+                    // for ( size_t i = 0; i< 30 && i < tfsize/4; ++i )
+                    // {
+                    //     debugLog() << i << ":" << ( int )data[ 4*i ] << ' ' << ( int )data[ 4*i+1 ] << ' '<< ( int )data[ 4*i+2 ]
+                    //     << ' '<< ( int ) data[ 4*i+3 ];
+                    // }
+
+                    osg::ref_ptr< osg::Image > tfImg( new osg::Image() );
+                    //debugLog() << "set image";
+                    tfImg->setImage( tfsize/4, 1, 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE,
+                            data, osg::Image::USE_NEW_DELETE ); // FIXME: check allocation mode
+                    //debugLog() << "activate";
+                    tfTexEnableDefine->setActive( false );
+                    osg::ref_ptr< osg::Texture1D > tfTexture = new osg::Texture1D();
+                    tfTexture->setImage( tfImg );
+
+                    wge::bindTexture( cube, tfTexture, 2, "u_transferFunction" );
+                    tfTexEnableDefine->setActive( true );
+                    //debugLog() << "done creating transfer function texture";
+                }
+            }
+            debugLog() << "end updated transfer function";
         }
     }
 
