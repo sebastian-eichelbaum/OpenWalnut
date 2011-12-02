@@ -1168,8 +1168,9 @@ void WMainWindow::dropEvent( QDropEvent *event )
             {
                 message += QString::fromStdString( unsupported[ i ] ) + QString( "<br>" );
             }
-            message += "There may be additional modules supporting them.<br>All other files have been loaded and should be visible in the module "
-                       "browser and network editor.";
+            message += "There may be additional modules supporting them.<br>"
+                "All other files have been loaded and should be visible in the module "
+                "browser and network editor.";
             QMessageBox::information( this, "Not yet implemented!",
                     message
                     );
