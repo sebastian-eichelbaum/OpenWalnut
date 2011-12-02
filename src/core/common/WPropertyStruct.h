@@ -379,7 +379,7 @@ public:
     virtual bool set( boost::shared_ptr< WPropertyBase > value )
     {
         // is this the same type as we are?
-        WPropertyStructType::SPtr v = boost::shared_dynamic_cast< WPropertyStructType >( value );
+        typename WPropertyStructType::SPtr v = boost::shared_dynamic_cast< WPropertyStructType >( value );
         if( !v )
         {
             // it is not a WPropertyStruct with the same type
