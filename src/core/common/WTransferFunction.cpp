@@ -231,4 +231,144 @@ void WTransferFunction::addAlpha( double iso, double alpha )
     }
 }
 
+WTransferFunction WTransferFunction::createFromRGBA( unsigned char const * const rgba, size_t size )
+{
+    // we create a linear match to the transfer funciton given by rgba by scanning the
+    // alpha and color values in two passes.
+    // each pass starts at the left of the picture and moves right looking for a good match of
+    // the line between start point and end point to the given function in between. The error is
+    // normalized to a per-sample basis. If the maximum error is below MIN_ERROR_THRESHOLD, the
+    // line is accepted and the next segment is analyzed.
+    const double MIN_ERROR_THRESHOLD = 5.0;
+    WTransferFunction rgbatf;
+    std::vector < float > values( size );
 
+    // copy channel
+    for ( size_t i = 0; i < size; ++i )
+    {
+        values[ i ] =  static_cast<double>( rgba[ i*4+3 ] );
+    }
+
+    // add first and last alpha
+    rgbatf.addAlpha( 0.0, values[ 0 ]/255. );
+    rgbatf.addAlpha( 1.0, values[ size-1 ]/255. );
+
+    std::vector < float > errors( size );
+
+    size_t seed = 0;
+    while ( seed < size-1 )
+    {
+        // start at first pixel and fit a line to the data
+        size_t to = seed+1;
+        while ( to < size )
+        {
+            double error = 0.0;
+            double incline =  ( values[ to ] - values[ seed ] )/( to-seed );
+            for ( size_t j = seed+1; j < to; ++j )
+            {
+                error +=  std::sqrt( std::pow( values[ j ] - values[ seed ] - incline * ( j-seed ), 2 ) );
+            }
+            errors[ to ] =  error/( to-seed ); // compute square error per pixel length of line
+            ++to;
+        }
+        int minElement = size-1;
+        double minerror = errors[ minElement ];
+        for ( to = size-1; to > seed; --to )
+        {
+            if ( errors[ to ] <  minerror )
+            {
+                minElement = to;
+                minerror = errors[ to ];
+                if ( minerror < MIN_ERROR_THRESHOLD )
+                {
+                    break;
+                }
+            }
+        }
+        if ( minElement < size-1 )
+        {
+            rgbatf.addAlpha( ( double )minElement/( double )( size-1 ), values[ minElement ]/255. );
+        }
+        seed = minElement;
+    }
+
+
+    // same for color
+    // add first and last color
+    rgbatf.addColor( 0.0, WColor( rgba[ 0*4+0 ]/255.f, rgba[ 0*4+1 ]/255.f, rgba[ 0*4+2 ]/255.f, 0.f ) );
+    rgbatf.addColor( 1.0, WColor( rgba[ ( size-1 )*4+0 ]/255.f, rgba[ ( size-1 )*4+1 ]/255.f, rgba[ ( size-1 )*4+2 ]/255.f, 0.f ) );
+
+    // first try of code: use combined RGB errors
+
+    seed = 0;
+    while ( seed < size-1 )
+    {
+        // start at first pixel and fit a line to the data
+        size_t to = seed+1;
+        while ( to < size )
+        {
+            double error = 0.0;
+            double inclineR =  ( rgba[ to*4+0 ] - rgba[ seed*4+0 ] )/( to-seed );
+            double inclineG =  ( rgba[ to*4+1 ] - rgba[ seed*4+1 ] )/( to-seed );
+            double inclineB =  ( rgba[ to*4+2 ] - rgba[ seed*4+2 ] )/( to-seed );
+
+            for ( size_t j = seed; j < to; ++j )
+            {
+                error +=  std::sqrt(
+                        std::pow( rgba[ 4*j+0 ] - rgba[ 4*seed+0 ] - inclineR * ( j-seed ), 2 ) +
+                        std::pow( rgba[ 4*j+1 ] - rgba[ 4*seed+1 ] - inclineG * ( j-seed ), 2 ) +
+                        std::pow( rgba[ 4*j+2 ] - rgba[ 4*seed+2 ] - inclineB * ( j-seed ), 2 )
+                        );
+            }
+            errors[ to ] =  error/( to-seed ); // compute square error per pixel length of line
+            ++to;
+        }
+        int minElement = size-1;
+        double minerror = errors[ size-1 ];
+        // traverse from back
+        for ( to = size-2; to > seed; --to )
+        {
+            if ( errors[ to ] <  minerror )
+            {
+                minElement = to;
+                minerror = errors[ to ];
+            }
+            if ( minerror < MIN_ERROR_THRESHOLD*2.0 ) //! the threshold here is larger than for alpha, becuase we compare all colors at once
+            {
+                break;
+            }
+        }
+        if ( minElement < size-1 )
+        {
+            rgbatf.addColor( ( double )minElement/( double )( size-1 ),
+                WColor( rgba[ minElement*4+0 ]/255.f, rgba[ minElement*4+1 ]/255.f, rgba[ minElement*4+2 ]/255.f, 0.f ) );
+        }
+        seed = minElement;
+    }
+
+    std::cout <<  "New Transfer Function: " << rgbatf << "." <<  std::endl;
+    return rgbatf;
+}
+
+std::ostream& operator << ( std::ostream& out, const WTransferFunction& tf )
+{
+    size_t numColors = tf.numColors();
+    for ( size_t i = 0; i < numColors; ++i )
+    {
+        double iso = tf.getColorIsovalue( i );
+        WColor c = tf.getColor( i );
+        out << "c:" << iso << ":" << c[ 0 ] << ":" << c[ 1 ] << ":" << c[ 2 ] << ";";
+    }
+    size_t numAlphas = tf.numAlphas();
+    for ( size_t i = 0; i < numAlphas; ++i )
+    {
+        double iso = tf.getAlphaIsovalue( i );
+        double alpha = tf.getAlpha( i );
+        out << "a:" << iso << ":" << alpha;
+        if ( i != numAlphas-1 )
+        {
+            out << ";";
+        }
+    }
+    return out;
+}
