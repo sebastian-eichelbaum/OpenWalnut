@@ -48,7 +48,7 @@
  */
 class OWCOMMON_EXPORT WPropertyGroup: public WPropertyGroupBase
 {
-friend class WPropertyGroupTest;
+friend class WPropertiesTest;
 public:
 
     // the following typedefs are for convenience.

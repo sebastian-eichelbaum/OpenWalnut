@@ -33,6 +33,7 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/copy.hpp>
+#include <boost/mpl/size.hpp>
 #include <boost/preprocessor/repetition/enum_params.hpp>
 
 #include "WStringUtils.h"
@@ -165,6 +166,7 @@ template<
 >
 class WPropertyStruct: public WPropertyGroupBase
 {
+friend class WPropertyStructTest;
 public:
 
     typedef WPropertyStruct< BOOST_PP_ENUM_PARAMS( 10, T ) > WPropertyStructType;
