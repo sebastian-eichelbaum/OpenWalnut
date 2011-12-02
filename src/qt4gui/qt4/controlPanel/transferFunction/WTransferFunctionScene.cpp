@@ -100,9 +100,9 @@ void do_update( const WTransferFunction& tf, WTransferFunctionWidget* m_transfer
 {
     // check whether the values changed. If they did, propagate to the GUI
     {
-        m_transferFunction.clearTransferFunction();
-        //m_transferFunction.externalDataChange( tf );
-        m_transferFunction.setHistogram( tf.getHistogram() );
+        m_transferFunction->clearTransferFunction();
+        //m_transferFunction->externalDataChange( tf );
+        m_transferFunction->setHistogram( tf.getHistogram() );
 
         // initialize the widget with the new transfer function
         size_t nbColors = tf.numColors();
@@ -112,21 +112,21 @@ void do_update( const WTransferFunction& tf, WTransferFunctionWidget* m_transfer
           WColor cc = tf.getColor( 0 );
           c = toQColor( cc );
           double iso = tf.getColorIsovalue( 0 );
-          m_transferFunction.insertColorNormalized( QPointF( iso, 0 ), &c );
+          m_transferFunction->insertColorNormalized( QPointF( iso, 0 ), &c );
         }
         if ( nbColors > 1 )
         {
             WColor cc = tf.getColor( nbColors-1 );
             c = toQColor( cc );
             double iso = tf.getColorIsovalue( nbColors-1 );
-            m_transferFunction.insertColorNormalized( QPointF( iso, 0 ), &c );
+            m_transferFunction->insertColorNormalized( QPointF( iso, 0 ), &c );
         }
         for ( size_t i = 1; i< nbColors-1; ++i )
         {
           WColor cc = tf.getColor( i );
           c = toQColor( cc );
           double iso = tf.getColorIsovalue( i );
-          m_transferFunction.insertColorNormalized( QPointF( iso, 0 ), &c );
+          m_transferFunction->insertColorNormalized( QPointF( iso, 0 ), &c );
         }
         size_t nbAlphas = tf.numAlphas();
 
@@ -135,7 +135,7 @@ void do_update( const WTransferFunction& tf, WTransferFunctionWidget* m_transfer
         {
             double alpha = tf.getAlpha( 0 );
             double iso = tf.getAlphaIsovalue( 0 );
-            m_transferFunction.insertPointNormalized( QPointF( iso,  alpha ) );
+            m_transferFunction->insertPointNormalized( QPointF( iso,  alpha ) );
         }
 
         // add last alpha second to prevent the widget moving mid points to the right
@@ -143,14 +143,14 @@ void do_update( const WTransferFunction& tf, WTransferFunctionWidget* m_transfer
         {
             double alpha = tf.getAlpha( nbAlphas-1 );
             double iso = tf.getAlphaIsovalue( nbAlphas-1 );
-            m_transferFunction.insertPointNormalized( QPointF( iso,  alpha ) );
+            m_transferFunction->insertPointNormalized( QPointF( iso,  alpha ) );
         }
 
         for ( size_t i = 1; i< nbAlphas-1; ++i )
         {
           double alpha = tf.getAlpha( i );
           double iso = tf.getAlphaIsovalue( i );
-          m_transferFunction.insertPointNormalized( QPointF( iso,  alpha ) );
+          m_transferFunction->insertPointNormalized( QPointF( iso,  alpha ) );
         }
     }
 }
