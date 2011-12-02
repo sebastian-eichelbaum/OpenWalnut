@@ -34,6 +34,7 @@
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/copy.hpp>
 #include <boost/mpl/size.hpp>
+#include <boost/mpl/at.hpp>
 #include <boost/preprocessor/repetition/enum_params.hpp>
 
 #include "WStringUtils.h"
@@ -99,76 +100,6 @@ namespace WPropertyStructHelper
     typedef  boost::mpl::na NOTYPE;
 
     /**
-     * Comfortable template to create a property instance and add it to the group. This is needed in \ref WPropertyStruct to create instances for each
-     * of WPropertyStruct's types while automatically handling the NOTYPE defaults.
-     *
-     * \tparam PropertyType the property type to create. It is assumed that this is a shared_ptr< WPropertyXYZ >.
-     */
-    template< typename PropertyType >
-    struct InstanceCreator
-    {
-        /**
-         * The type of the initial value.
-         */
-        typedef typename PropertyType::element_type::ValueType ValueType;
-
-        /**
-         * Actually does the work and adds a new property with the given name, description and other parameters to the specified group.
-         *
-         * \param group the group to add the new property to
-         * \param name the name of the new property
-         * \param description the description of the new property
-         * \param initial initial value
-         */
-        static void createAndAdd( WPropertyGroupBase* group, std::string name, std::string description, const ValueType& initial = ValueType() )
-        {
-            group->addArbitraryProperty(
-                PropertyType(
-                    new typename PropertyType::element_type( name, description, initial )
-                )
-            );
-       }
-    };
-
-    /**
-     * Specialization which does nothing for the NOTYPE default template parameters of \ref WPropertyStruct.
-     */
-    template<>
-    struct InstanceCreator< NOTYPE >
-    {
-        /**
-         * The type of the initial value.
-         */
-        typedef NOTYPE ValueType;
-
-        /**
-         * Dummy method which does nothing for NOTYPE types.
-         *
-         * \param WPropertyGroupBase not used
-         * \param std::string not used
-         * \param std::string not used
-         * \param ValueType not used.
-         */
-        static void createAndAdd( WPropertyGroupBase*, std::string, std::string, const ValueType& )
-        {
-            // NOTYPE will not cause any property creation.
-        }
-
-        /**
-         * Dummy method which does nothing for NOTYPE types.
-         *
-         * \param WPropertyGroupBase not used
-         * \param std::string not used
-         * \param std::string not used
-         */
-        static void createAndAdd( WPropertyGroupBase*, std::string, std::string )
-        {
-            // NOTYPE will not cause any property creation.
-        }
-    };
-
-
-    /**
      * Convert a list of template parameters to a boost::mpl::vector. This is currently done using the boost::mpl no-type type. This might get a
      * problem some day?!
      *
@@ -205,8 +136,37 @@ namespace WPropertyStructHelper
 }
 
 /**
+ * Specialization which does nothing for the NOTYPE default template parameters of \ref WPropertyStruct.
+ */
+template<>
+struct WPropertyGroupBase::PropertyCreatorAndGroupAdder< WPropertyStructHelper::NOTYPE >
+{
+    /**
+     * The type of the initial value.
+     */
+    typedef WPropertyStructHelper::NOTYPE ValueType;
+
+    /**
+     * Dummy method which does nothing for NOTYPE types.
+     */
+    static void createAndAdd( WPropertyGroupBase*, std::string, std::string, const ValueType& )
+    {
+        // NOTYPE will not cause any property creation.
+    }
+
+    /**
+     * Dummy method which does nothing for NOTYPE types.
+     */
+    static void createAndAdd( WPropertyGroupBase*, std::string, std::string )
+    {
+        // NOTYPE will not cause any property creation.
+    }
+};
+
+
+/**
  *  This is a property which encapsulates a given, fixed number of other properties. You can specify up to 10 properties. This can be seen
- *  similar to the "struct" in the C++ language. A WPropertyStruct can basically seen as \ref WPropGroup, but is different in a certain way:
+ *  similar to the "struct" in the C++ language. A WPropertyStruct can basically seen as \ref WPropertyGroup, but is different in a certain way:
  *  it is fixed size (defined on compile time), it allows getting each property with their correct type and provides the appearance as if this
  *  property is only ONE object and not a group of multiple objects.
  *
@@ -239,9 +199,11 @@ template<
 class WPropertyStruct: public WPropertyGroupBase
 {
 friend class WPropertyStructTest;
-template< typename T > friend class WPropertyStructHelper::InstanceCreator;
 public:
 
+   /**
+    * The type of this template instantiation.
+    */
     typedef WPropertyStruct< BOOST_PP_ENUM_PARAMS( 10, T ) > WPropertyStructType;
 
     /**
@@ -274,16 +236,16 @@ public:
         WPropertyGroupBase( name, description )
     {
         // now create the property instances
-        WPropertyStructHelper::InstanceCreator< T0 >::createAndAdd( this, "0", "0" );
-        WPropertyStructHelper::InstanceCreator< T1 >::createAndAdd( this, "1", "1" );
-        WPropertyStructHelper::InstanceCreator< T2 >::createAndAdd( this, "2", "2" );
-        WPropertyStructHelper::InstanceCreator< T3 >::createAndAdd( this, "3", "3" );
-        WPropertyStructHelper::InstanceCreator< T4 >::createAndAdd( this, "4", "4" );
-        WPropertyStructHelper::InstanceCreator< T5 >::createAndAdd( this, "5", "5" );
-        WPropertyStructHelper::InstanceCreator< T6 >::createAndAdd( this, "6", "6" );
-        WPropertyStructHelper::InstanceCreator< T7 >::createAndAdd( this, "7", "7" );
-        WPropertyStructHelper::InstanceCreator< T8 >::createAndAdd( this, "8", "8" );
-        WPropertyStructHelper::InstanceCreator< T9 >::createAndAdd( this, "9", "9" );
+        PropertyCreatorAndGroupAdder< T0 >::createAndAdd( this, name + "_Prop0", "No description for Property 0 in struct \"" + name + "\"." );
+        PropertyCreatorAndGroupAdder< T1 >::createAndAdd( this, name + "_Prop1", "No description for Property 1 in struct \"" + name + "\"." );
+        PropertyCreatorAndGroupAdder< T2 >::createAndAdd( this, name + "_Prop2", "No description for Property 2 in struct \"" + name + "\"." );
+        PropertyCreatorAndGroupAdder< T3 >::createAndAdd( this, name + "_Prop3", "No description for Property 3 in struct \"" + name + "\"." );
+        PropertyCreatorAndGroupAdder< T4 >::createAndAdd( this, name + "_Prop4", "No description for Property 4 in struct \"" + name + "\"." );
+        PropertyCreatorAndGroupAdder< T5 >::createAndAdd( this, name + "_Prop5", "No description for Property 5 in struct \"" + name + "\"." );
+        PropertyCreatorAndGroupAdder< T6 >::createAndAdd( this, name + "_Prop6", "No description for Property 6 in struct \"" + name + "\"." );
+        PropertyCreatorAndGroupAdder< T7 >::createAndAdd( this, name + "_Prop7", "No description for Property 7 in struct \"" + name + "\"." );
+        PropertyCreatorAndGroupAdder< T8 >::createAndAdd( this, name + "_Prop8", "No description for Property 8 in struct \"" + name + "\"." );
+        PropertyCreatorAndGroupAdder< T9 >::createAndAdd( this, name + "_Prop9", "No description for Property 9 in struct \"" + name + "\"." );
     }
 
     /**
@@ -447,7 +409,7 @@ public:
         std::string result = "";
         for( size_t i = 0; i < size(); ++i )
         {
-            result += l->get()[ 0 ]->getAsString() + "|";
+            result += l->get()[ i ]->getAsString() + "|";
         }
         // strip last "|"
         result.erase( result.length() - 1, 1 );

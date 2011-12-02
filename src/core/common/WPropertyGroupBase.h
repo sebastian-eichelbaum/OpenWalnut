@@ -211,6 +211,43 @@ protected:
      */
     void addArbitraryProperty( WPropertyBase::SPtr prop );
 
+    /**
+     * Comfortable template to create a property instance and add it to the group. This is a utility for deriving classes which need to handle
+     * certain property types and other types during compile time.
+     *
+     * At the first glance, this might not look very useful. But this
+     * is practical to change the add-behaviour for certain property types by specializing this class. For example, the template \ref
+     * WPropertyStruct uses this to modify the behaviour for the non-property type \ref WPropertyStructHelper::NOTYPE, which is used as
+     * template list default (to emulate variadic template parameters lists).
+     *
+     * \tparam PropertyType the property type to create. It is assumed that this is a shared_ptr< WPropertyXYZ >.
+     */
+    template< typename PropertyType >
+    struct PropertyCreatorAndGroupAdder
+    {
+        /**
+         * The type of the initial value.
+         */
+        typedef typename PropertyType::element_type::ValueType ValueType;
+
+        /**
+         * Actually does the work and adds a new property with the given name, description and other parameters to the specified group.
+         *
+         * \param group the group to add the new property to
+         * \param name the name of the new property
+         * \param description the description of the new property
+         * \param initial initial value
+         */
+        static void createAndAdd( WPropertyGroupBase* group, std::string name, std::string description, const ValueType& initial = ValueType() )
+        {
+            group->addArbitraryProperty(
+                PropertyType(
+                    new typename PropertyType::element_type( name, description, initial )
+                )
+            );
+       }
+    };
+
 private:
 };
 
