@@ -176,6 +176,11 @@ private:
      * the DVR shader.
      */
     osg::ref_ptr< WGEShader > m_shader;
+
+    /**
+     * the main geometry node
+     */
+    osg::ref_ptr< osg::Node > cube;
 };
 
 #endif  // WMDIRECTVOLUMERENDERING_H
