@@ -28,6 +28,7 @@
 #include <string>
 
 #include <osg/LightModel>
+#include <osg/Geometry>
 
 #include "core/common/WAssert.h"
 #include "core/common/WPropertyHelper.h"

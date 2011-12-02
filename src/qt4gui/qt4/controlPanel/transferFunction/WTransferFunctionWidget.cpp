@@ -369,8 +369,6 @@ void WTransferFunctionWidget::insertColor( const QPointF& pos, QColor const *con
     WTransferFunctionColorPoint *point( new WTransferFunctionColorPoint( this ) );
     scene->addItem( point );
 
-    point->setPos( QPointF( pos.x(), 0 ) );
-
     WTransferFunctionColorPoint* left( this->findCPointOnLeft( pos ) );
     if ( left )
     {
@@ -414,8 +412,21 @@ void WTransferFunctionWidget::insertColor( const QPointF& pos, QColor const *con
         {
             clast = cfirst;
         }
+        if ( color )
+        {
+            point->colorSelected( *color );
+        }
+        else
+        {
+            // this is not part of our logic, maybe find the point to the right and look there?
+            if ( point->getRight() )
+            {
+                point->colorSelected( point->getRight()->getColor() );
+            }
+        }
     }
 
+    point->setPos( QPointF( pos.x(), 0 ) );
     point->update();
 }
 

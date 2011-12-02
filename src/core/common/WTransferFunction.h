@@ -25,6 +25,7 @@
 #ifndef WTRANSFERFUNCTION_H
 #define WTRANSFERFUNCTION_H
 
+#include <iosfwd>
 #include <vector>
 
 #include "WColor.h"
@@ -249,6 +250,14 @@ public:
      * \post array contains the sampled data
      */
     void sample1DTransferFunction( unsigned char*array, int width, double min, double max ) const;
+
+    /**
+     * Try to estimate a transfer function from an RGBA image.
+     * \param rgba: values between 0 and 255 representing the red, green, and blue channel
+     * \param size: number of color entries in rgba
+     * \returns approximated transfer function
+     */
+    static WTransferFunction createFromRGBA( unsigned char const * const rgba, size_t size );
 private:
 
     std::vector<ColorEntry> colors; //< sorted list of colors
@@ -259,6 +268,17 @@ private:
 
     std::vector< double > histogram; //< store a histogram. This is used for property-handling only
                                      // and does not change the transfer function at all.
+
+    friend std::ostream& operator << ( std::ostream& out, const WTransferFunction& tf );
 };
+
+/**
+ * Default output operator. Currently stores values the same way as it is done in the properties.
+ * This code should only be used for debugging and you should not realy on the interface.
+ * \param tf The transfer function to output
+ * \param out The stream to which we write
+ * \returns reference to \param out
+ */
+std::ostream& operator << ( std::ostream& out, const WTransferFunction& tf );
 
 #endif  // WTRANSFERFUNCTION_H
