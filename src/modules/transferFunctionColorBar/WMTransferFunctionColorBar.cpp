@@ -192,7 +192,7 @@ void WMTransferFunctionColorBar::moduleMain()
                 // create camera oriented 2d projection
                 m_barProjection = new osg::Projection();
                 // m_barProjection->addUpdateCallback( new WGENodeMaskCallback( m_showColorbar ) );
-                // m_barProjection->addUpdateCallback( new WGENodeMaskCallback( m_active ) );
+                m_barProjection->addUpdateCallback( new WGENodeMaskCallback( m_active ) );
                 m_barProjection->setMatrix( osg::Matrix::ortho2D( 0, 1.0, 0, 1.0 ) );
                 m_barProjection->getOrCreateStateSet()->setRenderBinDetails( 15, "RenderBin" );
                 m_barProjection->getOrCreateStateSet()->setDataVariance( osg::Object::DYNAMIC );
