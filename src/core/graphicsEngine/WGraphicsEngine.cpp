@@ -185,12 +185,15 @@ bool WGraphicsEngine::waitForStartupComplete()
 {
     if( !m_instance )
     {
+        WLogger::getLogger()->addLogMessage( "Not Graphics Engine running", "GE", LL_INFO );
         return false;
     }
 
+    WLogger::getLogger()->addLogMessage( "Blocking for graphics engine startup", "GE", LL_INFO );
     // this ensures that the startup is completed if returning.
     m_instance->m_startThreadingCondition.wait();
 
+    WLogger::getLogger()->addLogMessage( "Done blocking for graphics engine startup, maybe running now", "GE", LL_INFO );
     // did something went wrong? Ensure by checking if really running.
     return isRunning();
 }
@@ -207,6 +210,9 @@ void WGraphicsEngine::threadMain()
     m_viewer->run();
     m_viewer->stopThreading();
     m_running = false;
+#else
+    //m_startThreadingCondition.wait();
+    m_running = true; // we have to make sure, that we are "running"
 #endif
 }
 
