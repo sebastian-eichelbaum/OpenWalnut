@@ -25,6 +25,7 @@
 #ifndef WTRANSFERFUNCTION_H
 #define WTRANSFERFUNCTION_H
 
+#include <iosfwd>
 #include <vector>
 
 #include "WColor.h"

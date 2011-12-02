@@ -22,11 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
-#include <cassert>
-
+#include <cmath>
 #include <iostream>
 #include <algorithm>
 
+#include "WAssert.h"
 
 #include "WTransferFunction.h"
 
@@ -142,18 +142,18 @@ void WTransferFunction::sample1DTransferFunction( unsigned char*array, int width
         {
             while ( c2 != colors.end() && iso > c2->iso )
             {
-                assert( c2 != colors.end() );
+                WAssert( c2 != colors.end(), "Corruption of internal data structure." );
                 c1++;
                 c2++;
-                assert( c1 != colors.end() );
+                WAssert( c1 != colors.end(), "Corruption of internal data structure." );
             }
 
             while ( a2 != alphas.end() && iso > a2->iso )
             {
-                assert( a2 != alphas.end() );
+                WAssert( a2 != alphas.end(), "Corruption of internal data structure." );
                 a1++;
                 a2++;
-                assert( a1 != alphas.end() );
+                WAssert( a1 != alphas.end(), "Corruption of internal data structure." );
             }
 
             if ( c2 == colors.end() )
@@ -271,7 +271,7 @@ WTransferFunction WTransferFunction::createFromRGBA( unsigned char const * const
             errors[ to ] =  error/( to-seed ); // compute square error per pixel length of line
             ++to;
         }
-        int minElement = size-1;
+        size_t minElement = size-1;
         double minerror = errors[ minElement ];
         for ( to = size-1; to > seed; --to )
         {
@@ -323,7 +323,8 @@ WTransferFunction WTransferFunction::createFromRGBA( unsigned char const * const
             errors[ to ] =  error/( to-seed ); // compute square error per pixel length of line
             ++to;
         }
-        int minElement = size-1;
+
+        size_t minElement = size-1;
         double minerror = errors[ size-1 ];
         // traverse from back
         for ( to = size-2; to > seed; --to )
