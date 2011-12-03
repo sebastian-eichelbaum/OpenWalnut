@@ -36,7 +36,7 @@
  * A cass that stores a 1D transfer function which consits
  * of a linear interpolation of alpha and color values
  */
-class WTransferFunction
+class OWCOMMON_EXPORT WTransferFunction // NOLINT problem with OWCOMMON_EXPORT macro
 {
 private:
 
