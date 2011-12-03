@@ -164,7 +164,7 @@ private:
     void* findVariable( const std::string& name ) const;
 
     //! internal data
-    class data;
+    struct data;
 
     //! internal data
     data* m_data;
