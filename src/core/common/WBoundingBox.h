@@ -26,11 +26,12 @@
 #define WBOUNDINGBOX_H
 
 #include <ostream>
+#include <iomanip> // for setprecision
 
 #include <osg/BoundingBox>
 
 #include "exceptions/WInvalidBoundingBox.h"
-#include "math/linearAlgebra/WLinearAlgebra.h"
+//#include "math/linearAlgebra/WLinearAlgebra.h"
 
 /**
  * Represents a \e axis \e parallel bounding box and provides some useful operations with them.
