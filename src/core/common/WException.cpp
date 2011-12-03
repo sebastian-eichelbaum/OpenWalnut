@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#if ( defined( __linux__ ) && defined( __GNUC__ ) )
+#if (( defined( __linux__ ) && defined( __GNUC__ )) || defined ( __APPLE__ ))
 // This is highly platform dependent. Used for backtrace functionality.
 #include <execinfo.h>
 #include <cxxabi.h>
@@ -105,7 +105,7 @@ std::string WException::getBacktrace() const
     // print trace here
     std::ostringstream o;
 
-#if ( defined( __linux__ ) && defined( __GNUC__ ) )
+#if (( defined( __linux__ ) && defined( __GNUC__ )) || defined( __APPLE__))
     // This is highly platform dependent. It MIGHT also work on BSD and other unix.
 
     // Automatic callstack backtrace
