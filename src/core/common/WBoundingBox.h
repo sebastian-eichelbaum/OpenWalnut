@@ -27,6 +27,7 @@
 
 #include <ostream>
 #include <iomanip> // for setprecision
+#include <cmath>   // std::sqrt
 
 #include <osg/BoundingBox>
 
