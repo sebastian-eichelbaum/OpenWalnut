@@ -31,7 +31,7 @@ class WMainWindow;
 
 /**
  * Overloaded base class for our application that has initial handling of
- * session data
+ * session data and catches uncaught exceptions.
  */
 class WApplication : public QApplication
 {
@@ -40,17 +40,24 @@ public:
     /** default constructor, see QApplication */
     WApplication( int argc, char** argv, bool GUIenabled = true );
 
-    /** stores the main window used as parent for dialogs */
-    void setMyMainWindow( WMainWindow* window );
-
     /** manage save dialogs when the session manager asks us to
      * take care of our data.
      * This is an overloaded function from QT.
      */
     virtual void commitData( QSessionManager& manager ); // NOLINT
+    
+    /**
+     * store the main widget for error reporting and session management
+     */
+    void setMyMainWidget( QWidget* widget );
 
+    /**
+     * Overloaded to catch uncaught exceptions in event handlers and displays a bug-warning.
+     */
+    virtual bool notify( QObject* receiver, QEvent* e );
+    
 protected:
-    WMainWindow* myMainWindow;
+    QWidget* myMainWidget;
 };
 
 #endif  // WAPPLICATION_H

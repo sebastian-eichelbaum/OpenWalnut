@@ -143,8 +143,13 @@ int WQt4Gui::run()
     m_loggerConnection = WLogger::getLogger()->subscribeSignal( WLogger::AddLog, boost::bind( &WQt4Gui::slotAddLog, this, _1 ) );
 
     // make qapp instance before using the applicationDirPath() function
+#ifdef Q_WS_MAC
+    //TODO(mario): this should run on all platforms but crashes at least on Linux right now. Therefore, I only use it on OSX
+    WApplication appl( m_argc, m_argv, true );
+#else
     QApplication appl( m_argc, m_argv, true ); // TODO( mario ): I want a WApplication here for session handling but that code crashes
-
+#endif
+    
     // the call path of the application, this uses QApplication which needs to be instantiated.
     boost::filesystem::path walnutBin = boost::filesystem::path( QApplication::applicationDirPath().toStdString() );
     // setup path helper which provides several paths to others^
@@ -210,9 +215,12 @@ int WQt4Gui::run()
 
     // create the window
     m_mainWindow = new WMainWindow();
+#ifdef Q_WS_MAC
+    //TODO(mario): this should run on all platforms but crashes at least on Linux right now. Therefore, I only use it on OSX
+    appl.setMyMainWidget( m_mainWindow );
+#endif
     m_mainWindow->setupGUI();
     m_mainWindow->show();
-    //appl.setMyMainWindow( m_mainWindow ); // TODO( mario ) removed due to crash
 
     // connect out loader signal with kernel
 #ifdef _WIN32

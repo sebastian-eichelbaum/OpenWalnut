@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <exception>
+
 #include <QtGui/QtGui>
 
 #include "WMainWindow.h"
@@ -29,31 +31,45 @@
 #include "WApplication.h"
 #include "WApplication.moc"
 
+#include "core/common/WException.h"
+
 WApplication::WApplication( int argc, char** argv, bool GUIenabled )
-    : QApplication( argc, argv, GUIenabled ),
-    myMainWindow( 0 )
+    : QApplication( argc, argv, GUIenabled )
+    , myMainWidget( 0 )
 {
 }
 
-void WApplication::setMyMainWindow( WMainWindow* window )
+void WApplication::setMyMainWidget( QWidget* widget )
 {
-    myMainWindow =  window;
+    myMainWidget = widget;
 }
 
 void WApplication::commitData( QSessionManager& manager ) // NOLINT
 {
+    if( !myMainWidget )
+    {
+        manager.release(); // no main window, nothing to store, yet
+        return;
+    }
+
+    WMainWindow* mainWindow = dynamic_cast<WMainWindow*>(myMainWidget);
+    if( !mainWindow )
+    {
+        manager.release(); // not our main class, can't store
+        return;
+    }
     QApplication::commitData( manager );
     if ( manager.allowsInteraction() )
     {
         int ret =  QMessageBox::warning(
-                myMainWindow,
+                myMainWidget,
                 tr( "OpenWalnut" ),
                 tr( "Save changes?" ),
                 QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel );
         switch ( ret )
         {
             case QMessageBox::Save:
-                if ( myMainWindow->projectSaveAll() )
+                if ( mainWindow->projectSaveAll() )
                 {
                     // we want to save and saving was successful, we are ready!
                     manager.release();
@@ -77,3 +93,27 @@ void WApplication::commitData( QSessionManager& manager ) // NOLINT
     }
 }
 
+bool WApplication::notify( QObject* object, QEvent* event )
+{
+    bool retval = false;
+    try
+    {
+        // do the default action, but catch exceptions
+        retval = QApplication::notify( object, event );
+    }
+    catch( WException &we )
+    {
+        std::cout << "thrown uncaught WException: " << we.what() << std::endl;
+        QMessageBox::critical( myMainWidget, tr("Uncaught Exception"),
+                              tr("An uncaught exception occurred which may be due to a corrupt installation or a programming bug. Please check the openwalnut bug reporter for similar tickets and report the issue including the following text:<br>")
+                              + we.what() );
+    }
+    catch( std::exception &se )
+    {
+        std::cout << "thrown uncaught std::exception: " << se.what() << std::endl;
+        QMessageBox::critical( myMainWidget, tr("Uncaught Exception"),
+                              tr("An uncaught exception occurred which may be due to a corrupt installation or a programming bug. Please check the openwalnut bug reporter for similar tickets and report the issue including the following text:<br>")
+                              + se.what() );
+    }
+    return retval;
+}
