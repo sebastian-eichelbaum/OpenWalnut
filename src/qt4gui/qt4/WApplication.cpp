@@ -33,6 +33,8 @@
 
 #include "core/common/WException.h"
 
+#define OPENWALNUT_BUGREPORTER_URL "http://www.openwalnut.org/projects/openwalnut/issues"
+
 WApplication::WApplication( int argc, char** argv, bool GUIenabled )
     : QApplication( argc, argv, GUIenabled )
     , myMainWidget( 0 )
@@ -58,6 +60,7 @@ void WApplication::commitData( QSessionManager& manager ) // NOLINT
         manager.release(); // not our main class, can't store
         return;
     }
+    
     QApplication::commitData( manager );
     if ( manager.allowsInteraction() )
     {
@@ -95,6 +98,8 @@ void WApplication::commitData( QSessionManager& manager ) // NOLINT
 
 bool WApplication::notify( QObject* object, QEvent* event )
 {
+    // Question: can we assume that WLogger is running here?
+    // if so, we should log the message to the logger as well.
     bool retval = false;
     try
     {
@@ -103,17 +108,46 @@ bool WApplication::notify( QObject* object, QEvent* event )
     }
     catch( WException &we )
     {
-        std::cout << "thrown uncaught WException: " << we.what() << std::endl;
-        QMessageBox::critical( myMainWidget, tr("Uncaught Exception"),
-                              tr("An uncaught exception occurred which may be due to a corrupt installation or a programming bug. Please check the openwalnut bug reporter for similar tickets and report the issue including the following text:<br>")
-                              + we.what() );
+        QMessageBox msgBox( myMainWidget );
+        msgBox.setIcon( QMessageBox::Critical );
+        msgBox.setInformativeText( tr( "An uncaught exception occurred which may be due to a corrupt installation or a programming bug. "
+                                       "Please check the openwalnut bug reporter for similar tickets and report the issue including the following text:<br><br><i>" )
+                                  + we.what() +
+                                        "</i><br><br>Please report to<br><a href=\""
+                                        OPENWALNUT_BUGREPORTER_URL
+                                        "\">" OPENWALNUT_BUGREPORTER_URL "</a>" );
+        msgBox.setText( tr( "Uncaught Exception" ) );
+        QPushButton* websiteButton = msgBox.addButton( tr("Go to web site"), QMessageBox::ActionRole );
+        msgBox.setStandardButtons( QMessageBox::Ignore );
+        msgBox.setEscapeButton( QMessageBox::Ignore );
+
+        msgBox.exec();
+        if( msgBox.clickedButton() == websiteButton )
+        {
+            /* bool success = */ QDesktopServices::openUrl ( QUrl( OPENWALNUT_BUGREPORTER_URL ) );
+        }
     }
     catch( std::exception &se )
     {
-        std::cout << "thrown uncaught std::exception: " << se.what() << std::endl;
-        QMessageBox::critical( myMainWidget, tr("Uncaught Exception"),
-                              tr("An uncaught exception occurred which may be due to a corrupt installation or a programming bug. Please check the openwalnut bug reporter for similar tickets and report the issue including the following text:<br>")
-                              + se.what() );
+        QMessageBox msgBox( myMainWidget );
+        msgBox.setIcon( QMessageBox::Critical );
+        msgBox.setInformativeText( tr( "An uncaught exception occurred which may be due to a corrupt installation or a programming bug. "
+                                      "Please check the openwalnut bug reporter for similar tickets and report the issue including the following text:<br><br><i>" )
+                                  + se.what() +
+                                  "</i><br><br>Please report to<br><a href=\""
+                                  OPENWALNUT_BUGREPORTER_URL
+                                  "\">" OPENWALNUT_BUGREPORTER_URL "</a>" );
+        msgBox.setText( tr( "Uncaught Exception" ) );
+        QPushButton* websiteButton = msgBox.addButton( tr("Go to web site"), QMessageBox::ActionRole );
+        msgBox.setStandardButtons( QMessageBox::Ignore );
+        msgBox.setEscapeButton( QMessageBox::Ignore );
+        
+        msgBox.exec();
+        if( msgBox.clickedButton() == websiteButton )
+        {
+            /* bool success = */ QDesktopServices::openUrl ( QUrl( OPENWALNUT_BUGREPORTER_URL ) );
+        }
+
     }
     return retval;
 }
