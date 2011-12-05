@@ -78,7 +78,8 @@ typedef enum
     PV_TRIGGER,          //!< for triggering an event
     PV_MATRIX4X4,        //!< for 4x4 matrices
     PV_TRANSFERFUNCTION, //!< for transfer function textures
-    PV_STRUCT            //!< for complex, structured properties (used by \ref WPropertyStruct)
+    PV_STRUCT,           //!< for complex, structured properties (used by \ref WPropertyStruct)
+    PV_LIST              //!< for a dynamic list of properties of the same type (see \ref WPropertyList)
 }
 PROPERTY_TYPE;
 

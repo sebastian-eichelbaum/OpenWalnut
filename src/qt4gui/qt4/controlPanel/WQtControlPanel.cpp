@@ -865,50 +865,13 @@ WQtPropertyGroupWidget*  WQtControlPanel::buildPropWidget( WPropertyGroupBase::S
         // iterate all properties.
         for( WPropertyGroupBase::PropertyConstIterator iter = propAccess->get().begin(); iter != propAccess->get().end(); ++iter )
         {
-            switch ( ( *iter )->getType() )
+            if( ( *iter )->getType() == PV_GROUP )
             {
-                case PV_BOOL:
-                    tab->addProp( ( *iter )->toPropBool() );
-                    break;
-                case PV_INT:
-                    tab->addProp( ( *iter )->toPropInt() );
-                    break;
-                case PV_DOUBLE:
-                    tab->addProp( ( *iter )->toPropDouble() );
-                    break;
-                case PV_STRING:
-                    tab->addProp( ( *iter )->toPropString() );
-                    break;
-                case PV_PATH:
-                    tab->addProp( ( *iter )->toPropFilename() );
-                    break;
-                case PV_SELECTION:
-                    tab->addProp( ( *iter )->toPropSelection() );
-                    break;
-                case PV_COLOR:
-                    tab->addProp( ( *iter )->toPropColor() );
-                    break;
-                case PV_POSITION:
-                    tab->addProp( ( *iter )->toPropPosition() );
-                    break;
-                case PV_TRIGGER:
-                    tab->addProp( ( *iter )->toPropTrigger() );
-                    break;
-                case PV_GROUP:
-                    tab->addGroup( buildPropWidget( ( *iter )->toPropGroupBase() ) );
-                    break;
-                case PV_STRUCT:
-                    tab->addGroup( buildPropWidget( ( *iter )->toPropGroupBase() ) );
-                    break;
-                case PV_MATRIX4X4:
-                    tab->addProp( ( *iter )->toPropMatrix4X4() );
-                    break;
-                case PV_TRANSFERFUNCTION:
-                    tab->addProp( ( *iter )->toPropTransferFunction() );
-                    break;
-                default:
-                    WLogger::getLogger()->addLogMessage( "This property type is not yet supported.", "ControlPanel", LL_WARNING );
-                    break;
+                tab->addGroup( buildPropWidget( ( *iter )->toPropGroupBase() ) );
+            }
+            else
+            {
+                tab->addProp( *iter );
             }
         }
     }

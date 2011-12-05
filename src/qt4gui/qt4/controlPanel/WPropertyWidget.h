@@ -83,6 +83,36 @@ public:
      */
     virtual std::string getTooltip() const;
 
+    /**
+     * Returns the parameter widget for this property.
+     *
+     * \return the widget
+     */
+    QWidget* getParameterWidgets();
+
+    /**
+     * Returns the info widget for this property.
+     *
+     * \return the widget.
+     */
+    QWidget* getInformationWidgets();
+
+    /**
+     * Constructs a proper widget for the specified property. If the widget type is not supported, NULL is returned.
+     *
+     * \param property the property to create the widget for
+     * \param propertyGrid grid to provide to he widget
+     * \param parent parent of the widget
+     *
+     * \return widget
+     */
+    static WPropertyWidget* construct( WPropertyBase::SPtr property, QGridLayout* propertyGrid = NULL, QWidget* parent = NULL );
+
+    /**
+     * Request an update of the property widget. Can be called from any thread.
+     */
+    virtual void requestUpdate();
+
 protected:
 
     /**
@@ -124,11 +154,6 @@ protected:
      * Flag denoting whether the widget is set to an invalid value.
      */
     bool m_invalid;
-
-    /**
-     * Callback for WPropertyBase::getChangeCondition. It emits an event to ensure all updates are done in gui thread.
-     */
-    virtual void propertyChangeNotifier();
 
     /**
      * Custom event dispatcher. Gets called by QT's Event system every time an event got sent to this widget. This event handler

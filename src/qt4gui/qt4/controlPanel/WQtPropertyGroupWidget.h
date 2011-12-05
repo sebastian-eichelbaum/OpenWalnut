@@ -30,6 +30,7 @@
 #include <QtGui/QGridLayout>
 #include <QtGui/QWidget>
 
+
 #include "WPropertyBoolWidget.h"
 #include "WPropertyIntWidget.h"
 #include "WPropertyStringWidget.h"
@@ -41,8 +42,11 @@
 #include "WPropertyPositionWidget.h"
 #include "WPropertyMatrix4X4Widget.h"
 #include "WPropertyTransferFunctionWidget.h"
+#include "WPropertyStructWidget.h"
 
 #include "core/common/WPropertyVariable.h"
+#include "core/common/WPropertyStruct.h"
+#include "core/common/WPropertyGroupBase.h"
 
 /**
  * Container widget to contain a number of properties for the module context in the control panel.
@@ -80,104 +84,13 @@ public:
     QPushButton* addPushButton( QString label );
 
     /**
-     * Adds a new bool property to the PropertyGroup.
+     * Adds a new property widget to the PropertyGroup. Returns NULL if property not supported.
      *
      * \param property the property to add.
      *
      * \return the widget that has been added.
      */
-    WPropertyBoolWidget* addProp( WPropBool property );
-
-    /**
-     * Adds a new int property to the PropertyGroup.
-     *
-     * \param property the property to add.
-     *
-     * \return the widget that has been added.
-     */
-    WPropertyIntWidget* addProp( WPropInt property );
-
-    /**
-     * Adds a new double property to the PropertyGroup.
-     *
-     * \param property the property to add.
-     *
-     * \return the widget that has been added.
-     */
-    WPropertyDoubleWidget* addProp( WPropDouble property );
-
-    /**
-     * Adds a new string property to the PropertyGroup.
-     *
-     * \param property the property to add.
-     *
-     * \return the widget that has been added.
-     */
-    WPropertyStringWidget* addProp( WPropString property );
-
-    /**
-     * Adds a new path property to the PropertyGroup.
-     *
-     * \param property the property to add.
-     *
-     * \return the widget that has been added.
-     */
-    WPropertyFilenameWidget* addProp( WPropFilename property );
-
-    /**
-     * Adds a new list property to the PropertyGroup.
-     *
-     * \param property the property to add.
-     *
-     * \return the widget that has been added.
-     */
-    WPropertySelectionWidget* addProp( WPropSelection property );
-
-    /**
-     * Adds a new position property to the PropertyGroup.
-     *
-     * \param property the property to add.
-     *
-     * \return the widget that has been added.
-     */
-    WPropertyPositionWidget* addProp( WPropPosition property );
-
-    /**
-     * Adds a new color property to the PropertyGroup.
-     *
-     * \param property the property to add.
-     *
-     * \return the widget that has been added.
-     */
-    WPropertyColorWidget* addProp( WPropColor property );
-
-    /**
-     * Adds a new trigger property to the PropertyGroup.
-     *
-     * \param property the property to add.
-     *
-     * \return the widget that has been added.
-     */
-    WPropertyTriggerWidget* addProp( WPropTrigger property );
-
-    /**
-     * Adds a new trigger property to the PropertyGroup.
-     *
-     * \param property the property to add.
-     *
-     * \return the widget that has been added.
-     */
-    WPropertyMatrix4X4Widget* addProp( WPropMatrix4X4 property );
-
-    /**
-     * Adds a new trigger property to the PropertyGroup.
-     *
-     * \param property the property to add.
-     *
-     * \return the widget that has been added.
-     */
-    WPropertyTransferFunctionWidget* addProp( WPropTransferFunction property );
-
+    WPropertyWidget* addProp( WPropertyBase::SPtr property );
 
     /**
      * Adds an widget containing another property group to this widget. It encloses it with a GroupBox.

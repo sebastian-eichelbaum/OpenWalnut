@@ -97,81 +97,15 @@ bool WQtPropertyGroupWidget::event( QEvent* event )
     return QWidget::event( event );
 }
 
-WPropertyBoolWidget* WQtPropertyGroupWidget::addProp( WPropBool property )
+WPropertyWidget* WQtPropertyGroupWidget::addProp( WPropertyBase::SPtr property )
 {
-    ++m_numberOfWidgets;
-
-    return new WPropertyBoolWidget( property, m_controlLayout, this );
-}
-
-WPropertyIntWidget* WQtPropertyGroupWidget::addProp( WPropInt property )
-{
-    ++m_numberOfWidgets;
-
-    return new WPropertyIntWidget( property, m_controlLayout, this );
-}
-
-WPropertyDoubleWidget* WQtPropertyGroupWidget::addProp( WPropDouble property )
-{
-    ++m_numberOfWidgets;
-
-    return new WPropertyDoubleWidget( property, m_controlLayout, this );
-}
-
-WPropertyStringWidget* WQtPropertyGroupWidget::addProp( WPropString property )
-{
-    ++m_numberOfWidgets;
-
-    return new WPropertyStringWidget( property, m_controlLayout, this );
-}
-
-WPropertyColorWidget* WQtPropertyGroupWidget::addProp( WPropColor property )
-{
-    ++m_numberOfWidgets;
-
-    return new WPropertyColorWidget( property, m_controlLayout, this );
-}
-
-WPropertyFilenameWidget* WQtPropertyGroupWidget::addProp( WPropFilename property )
-{
-    ++m_numberOfWidgets;
-
-    return new WPropertyFilenameWidget( property, m_controlLayout, this );
-}
-
-WPropertyTriggerWidget* WQtPropertyGroupWidget::addProp( WPropTrigger property )
-{
-    ++m_numberOfWidgets;
-
-    return new WPropertyTriggerWidget( property, m_controlLayout, this );
-}
-
-WPropertyPositionWidget* WQtPropertyGroupWidget::addProp( WPropPosition property )
-{
-    ++m_numberOfWidgets;
-
-    return new WPropertyPositionWidget( property, m_controlLayout, this );
-}
-
-WPropertyMatrix4X4Widget* WQtPropertyGroupWidget::addProp( WPropMatrix4X4 property )
-{
-    ++m_numberOfWidgets;
-
-    return new WPropertyMatrix4X4Widget( property, m_controlLayout, this );
-}
-
-WPropertySelectionWidget* WQtPropertyGroupWidget::addProp( WPropSelection property )
-{
-    ++m_numberOfWidgets;
-
-    return new WPropertySelectionWidget( property, m_controlLayout, this );
-}
-
-WPropertyTransferFunctionWidget* WQtPropertyGroupWidget::addProp( WPropTransferFunction property )
-{
-    ++m_numberOfWidgets;
-
-    return new WPropertyTransferFunctionWidget( property, m_controlLayout, this );
+    // create a widget and increase counter if successful
+    WPropertyWidget* widget = WPropertyWidget::construct( property, m_controlLayout, this );
+    if( widget )
+    {
+        ++m_numberOfWidgets;
+    }
+    return widget;
 }
 
 void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asScrollArea )

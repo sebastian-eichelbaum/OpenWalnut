@@ -375,7 +375,7 @@ public:
     virtual bool setAsString( std::string value )
     {
         // this method splits the given string and simply forwards the call to the other properties
-        std::vector< std::string > propsAsString = string_utils::tokenize( value, "|" );
+        std::vector< std::string > propsAsString = string_utils::tokenize( value, "|", false );
         if( size() != propsAsString.size() )
         {
             return false;
@@ -388,6 +388,7 @@ public:
         bool success = true;
         for( std::vector< std::string >::const_iterator iter = propsAsString.begin(); iter != propsAsString.end(); ++iter )
         {
+
             success = success && l->get()[ curPropNb ]->setAsString( *iter );
             curPropNb++;
         }
