@@ -71,7 +71,7 @@ public:
         // we test getting/setting via string here
 
         // create the prop
-        typedef typename WPropertyStruct< WPropInt, WPropBool >::SPtr TestStruct;
+        typedef WPropertyStruct< WPropInt, WPropBool >::SPtr TestStruct;
         TestStruct prop( new TestStruct::element_type( "Hallo", "Description Text" ) );
 
         // set some defaults
