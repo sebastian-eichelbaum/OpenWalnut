@@ -103,7 +103,7 @@ protected:
     virtual void inputNotifyDataChange( boost::shared_ptr<WModuleConnector> /*input*/, boost::shared_ptr<WModuleConnector> /*output*/ )
     {
         // if the input changes its data-> forward the change to this output instance
-        updateData( m_in->getData() );
+        WModuleOutputData< T >::updateData( m_in->getData() );
     }
 
 private:
