@@ -389,7 +389,6 @@ public:
         bool success = true;
         for( std::vector< std::string >::const_iterator iter = propsAsString.begin(); iter != propsAsString.end(); ++iter )
         {
-
             success = success && l->get()[ curPropNb ]->setAsString( *iter );
             curPropNb++;
         }

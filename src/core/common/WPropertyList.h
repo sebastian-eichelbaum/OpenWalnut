@@ -25,6 +25,8 @@
 #ifndef WPROPERTYLIST_H
 #define WPROPERTYLIST_H
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include "WPropertyGroupBase.h"
