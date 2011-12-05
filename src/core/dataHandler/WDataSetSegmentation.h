@@ -30,7 +30,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../kernel/WModuleInputData.h"
 #include "WDataSet.h"
 #include "WDataSetScalar.h"
 #include "WDataSetSingle.h"
