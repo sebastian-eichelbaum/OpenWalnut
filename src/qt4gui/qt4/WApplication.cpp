@@ -54,13 +54,13 @@ void WApplication::commitData( QSessionManager& manager ) // NOLINT
         return;
     }
 
-    WMainWindow* mainWindow = dynamic_cast<WMainWindow*>(myMainWidget);
+    WMainWindow* mainWindow = dynamic_cast<WMainWindow*>( myMainWidget );
     if( !mainWindow )
     {
         manager.release(); // not our main class, can't store
         return;
     }
-    
+
     QApplication::commitData( manager );
     if ( manager.allowsInteraction() )
     {
@@ -106,48 +106,49 @@ bool WApplication::notify( QObject* object, QEvent* event )
         // do the default action, but catch exceptions
         retval = QApplication::notify( object, event );
     }
-    catch( WException &we )
+    catch( const WException &we )
     {
         QMessageBox msgBox( myMainWidget );
         msgBox.setIcon( QMessageBox::Critical );
         msgBox.setInformativeText( tr( "An uncaught exception occurred which may be due to a corrupt installation or a programming bug. "
-                                       "Please check the openwalnut bug reporter for similar tickets and report the issue including the following text:<br><br><i>" )
+                                       "Please check the openwalnut bug reporter for similar tickets and report the "
+                                       "issue including the following text:<br><br><i>" )
                                   + we.what() +
                                         "</i><br><br>Please report to<br><a href=\""
                                         OPENWALNUT_BUGREPORTER_URL
                                         "\">" OPENWALNUT_BUGREPORTER_URL "</a>" );
         msgBox.setText( tr( "Uncaught Exception" ) );
-        QPushButton* websiteButton = msgBox.addButton( tr("Go to web site"), QMessageBox::ActionRole );
+        QPushButton* websiteButton = msgBox.addButton( tr( "Go to web site" ), QMessageBox::ActionRole );
         msgBox.setStandardButtons( QMessageBox::Ignore );
         msgBox.setEscapeButton( QMessageBox::Ignore );
 
         msgBox.exec();
         if( msgBox.clickedButton() == websiteButton )
         {
-            /* bool success = */ QDesktopServices::openUrl ( QUrl( OPENWALNUT_BUGREPORTER_URL ) );
+            /* bool success = */ QDesktopServices::openUrl( QUrl( OPENWALNUT_BUGREPORTER_URL ) );
         }
     }
-    catch( std::exception &se )
+    catch( const std::exception &se )
     {
         QMessageBox msgBox( myMainWidget );
         msgBox.setIcon( QMessageBox::Critical );
         msgBox.setInformativeText( tr( "An uncaught exception occurred which may be due to a corrupt installation or a programming bug. "
-                                      "Please check the openwalnut bug reporter for similar tickets and report the issue including the following text:<br><br><i>" )
+                                      "Please check the openwalnut bug reporter for similar tickets and report the "
+                                      "issue including the following text:<br><br><i>" )
                                   + se.what() +
                                   "</i><br><br>Please report to<br><a href=\""
                                   OPENWALNUT_BUGREPORTER_URL
                                   "\">" OPENWALNUT_BUGREPORTER_URL "</a>" );
         msgBox.setText( tr( "Uncaught Exception" ) );
-        QPushButton* websiteButton = msgBox.addButton( tr("Go to web site"), QMessageBox::ActionRole );
+        QPushButton* websiteButton = msgBox.addButton( tr( "Go to web site" ), QMessageBox::ActionRole );
         msgBox.setStandardButtons( QMessageBox::Ignore );
         msgBox.setEscapeButton( QMessageBox::Ignore );
-        
+
         msgBox.exec();
         if( msgBox.clickedButton() == websiteButton )
         {
-            /* bool success = */ QDesktopServices::openUrl ( QUrl( OPENWALNUT_BUGREPORTER_URL ) );
+            /* bool success = */ QDesktopServices::openUrl( QUrl( OPENWALNUT_BUGREPORTER_URL ) );
         }
-
     }
     return retval;
 }

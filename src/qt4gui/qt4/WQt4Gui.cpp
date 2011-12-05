@@ -147,9 +147,10 @@ int WQt4Gui::run()
     //TODO(mario): this should run on all platforms but crashes at least on Linux right now. Therefore, I only use it on OSX
     WApplication appl( m_argc, m_argv, true );
 #else
-    QApplication appl( m_argc, m_argv, true ); // TODO( mario ): I want a WApplication here for session handling but that code crashes
+    // TODO( mario ): I want a WApplication here for session handling but that code crashes
+    QApplication appl( m_argc, m_argv, true );
 #endif
-    
+
     // the call path of the application, this uses QApplication which needs to be instantiated.
     boost::filesystem::path walnutBin = boost::filesystem::path( QApplication::applicationDirPath().toStdString() );
     // setup path helper which provides several paths to others^

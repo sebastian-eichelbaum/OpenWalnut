@@ -45,7 +45,7 @@ public:
      * This is an overloaded function from QT.
      */
     virtual void commitData( QSessionManager& manager ); // NOLINT
-    
+
     /**
      * store the main widget for error reporting and session management
      */
@@ -55,7 +55,7 @@ public:
      * Overloaded to catch uncaught exceptions in event handlers and displays a bug-warning.
      */
     virtual bool notify( QObject* receiver, QEvent* e );
-    
+
 protected:
     QWidget* myMainWidget;
 };
