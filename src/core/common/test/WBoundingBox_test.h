@@ -28,7 +28,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include <osg/Vec3d>
-#include "../math/linearAlgebra/WVectorFixed.h"
+#include "../math/linearAlgebra/WPosition.h"
 
 #include "../WBoundingBox.h"
 #include "../WLimits.h"
