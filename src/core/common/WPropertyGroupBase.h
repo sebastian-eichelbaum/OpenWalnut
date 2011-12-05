@@ -194,6 +194,11 @@ protected:
     boost::shared_ptr< WConditionSet > m_childUpdateCondition;
 
     /**
+     * Callback of m_childUpdateCondition. Overwrite this method to extend the default notification with some custom code.
+     */
+    virtual void onChildUpdate();
+
+    /**
      * Compares the names of two properties and returns true if they are equal.
      *
      * \param prop1 the first prop.

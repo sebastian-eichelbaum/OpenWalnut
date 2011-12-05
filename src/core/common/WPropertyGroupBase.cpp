@@ -45,6 +45,7 @@ WPropertyGroupBase::WPropertyGroupBase( std::string name, std::string descriptio
     m_childUpdateCondition( new WConditionSet() )
 {
     m_updateCondition->add( m_properties.getChangeCondition() );
+    m_childUpdateCondition->subscribeSignal( boost::bind( &WPropertyGroupBase::onChildUpdate, this ) );
 }
 
 WPropertyGroupBase::~WPropertyGroupBase()
@@ -73,6 +74,7 @@ WPropertyGroupBase::WPropertyGroupBase( const WPropertyGroupBase& from ):
 
     // add the change condition of the prop list
     m_updateCondition->add( m_properties.getChangeCondition() );
+    m_childUpdateCondition->subscribeSignal( boost::bind( &WPropertyGroupBase::onChildUpdate, this ) );
 }
 
 boost::shared_ptr< WCondition > WPropertyGroupBase::getChildUpdateCondition() const
@@ -207,3 +209,6 @@ WPropertyGroupBase::PropertySharedContainerType::ReadTicket WPropertyGroupBase::
     return m_properties.getReadTicket();
 }
 
+void WPropertyGroupBase::onChildUpdate()
+{
+}

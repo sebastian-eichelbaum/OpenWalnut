@@ -306,8 +306,9 @@ public:
      */
     const WPropertyBase::SPtr& getProperty( size_t n ) const
     {
-        WPropertyStruct* nonconst = const_cast< WPropertyStruct* >( this );
-        return nonconst->getProperty( n );
+       // lock, unlocked if l looses focus
+        PropertySharedContainerType::ReadTicket l = m_properties.getReadTicket();
+        return l->get()[ n ];
     }
 
     /**
