@@ -156,13 +156,13 @@ void WMGridRenderer::properties()
 {
     WPropertyBase::PropertyChangeNotifierType  notifier = boost::bind( &WMGridRenderer::updateNode, this, _1 );
 
-    m_bboxColor = m_properties->addProperty( "Bounding Box Color", "The color of the bounding box.", WColor( 0.3, 0.3, 0.3, 1.0 ), notifier );
+    m_bboxColor = m_properties->addProperty( "Bounding box color", "The color of the bounding box.", WColor( 0.3, 0.3, 0.3, 1.0 ), notifier );
 
-    m_gridColor = m_properties->addProperty( "Grid Color", "The color of the grid.", WColor( 0.1, 0.1, 0.1, 1.0 ), notifier );
+    m_gridColor = m_properties->addProperty( "Grid color", "The color of the grid.", WColor( 0.1, 0.1, 0.1, 1.0 ), notifier );
 
     m_possibleModes = WItemSelection::SPtr( new WItemSelection() );
     m_possibleModes->addItem( "Labels", "Show the boundary labels.", WMGridRenderer_label_xpm );          // NOTE: you can add XPM images here.
-    m_possibleModes->addItem( "Bounding Box", "Show the bounding box.", WMGridRenderer_boundary_xpm );
+    m_possibleModes->addItem( "Bounding box", "Show the bounding box.", WMGridRenderer_boundary_xpm );
     m_possibleModes->addItem( "Grid", "Show the inner grid.",  WMGridRenderer_grid_xpm );
 
     // selecting all at once might be a bad idea since the grid rendering can be very very slow. So, by default, only show bbox and labels.

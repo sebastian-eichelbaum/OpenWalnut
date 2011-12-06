@@ -39,10 +39,10 @@ WSegmentationAlgoWatershed::~WSegmentationAlgoWatershed()
 
 void WSegmentationAlgoWatershed::properties()
 {
-    m_threshold = m_properties->addProperty( "Threshold.", "Threshold in %.", 0.0, m_propCondition );
-    m_level = m_properties->addProperty( "Level.", "Water level in %.", 0.0, m_propCondition );
-    m_iter = m_properties->addProperty( "Iterations.", "Number of smoothing passes:", 10, m_propCondition );
-    m_conductance = m_properties->addProperty( "Conductance.", "Conductance parameter for smoothing.", 1.0, m_propCondition );
+    m_threshold = m_properties->addProperty( "Threshold", "Threshold in %.", 0.0, m_propCondition );
+    m_level = m_properties->addProperty( "Level", "Water level in %.", 0.0, m_propCondition );
+    m_iter = m_properties->addProperty( "Iterations", "Number of smoothing passes:", 10, m_propCondition );
+    m_conductance = m_properties->addProperty( "Conductance", "Conductance parameter for smoothing.", 1.0, m_propCondition );
     m_conductance->setMax( 10.0 );
 }
 
