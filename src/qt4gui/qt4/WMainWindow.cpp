@@ -273,7 +273,7 @@ void WMainWindow::setupGUI()
     connect( projectLoadButton, SIGNAL(  triggered( bool ) ), this, SLOT( projectLoad() ) );
     connect( projectSaveButton, SIGNAL( triggered( bool ) ), this, SLOT( projectSaveAll() ) );
 
-    m_loadButton->setToolTip( "Load Data" );
+    m_loadButton->setToolTip( "Load a dataset from file" );
     resetButton->setToolTip( "Reset main view" );
     roiButton->setToolTip( "Create New ROI" );
     projectLoadButton->setToolTip( "Load a project from file" );
@@ -750,7 +750,7 @@ void WMainWindow::openOpenWalnutHelpDialog()
     std::string content = readFileIntoString( filename );
 
     QWidget* window = new QWidget( this, Qt::Window );
-
+    window->setWindowTitle( "OpenWalnut Help" );
     // specify intial layout
     QVBoxLayout *layout = new QVBoxLayout( window );
     window->setLayout( layout );
