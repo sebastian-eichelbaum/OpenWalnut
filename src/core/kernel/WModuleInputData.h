@@ -26,7 +26,6 @@
 #define WMODULEINPUTDATA_H
 
 #include <string>
-#include <sstream>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/locks.hpp>
