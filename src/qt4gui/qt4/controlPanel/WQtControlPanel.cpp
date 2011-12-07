@@ -1094,7 +1094,7 @@ void WQtControlPanel::deleteModuleTreeItem()
             {
                 // remove from the container. It will create a new event in the GUI after it has been removed which is then handled by the tree item.
                 // This method deep removes the module ( it also removes depending modules )
-                WKernel::getRunningKernel()->getRootContainer()->removeDeep(
+                WKernel::getRunningKernel()->getRootContainer()->remove(
                         static_cast< WQtTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) )->getModule()
                         );
                 // select another item

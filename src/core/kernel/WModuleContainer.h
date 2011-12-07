@@ -122,14 +122,6 @@ public:
     virtual void remove( boost::shared_ptr< WModule > module );
 
     /**
-     * As \ref remove, it removes the module from the container. In contrast to \ref remove, it also removes all the depending modules from the
-     * container.
-     *
-     * \param module the module which should be removed including all depending modules
-     */
-    virtual void removeDeep( boost::shared_ptr< WModule > module );
-
-    /**
      * Stops all modules inside this container. Note that this function could take some time, since it waits until the last module
      * has quit.
      */

@@ -232,14 +232,6 @@ void WModuleContainer::remove( boost::shared_ptr< WModule > module )
     slock.unlock();
 }
 
-void WModuleContainer::removeDeep( boost::shared_ptr< WModule > module )
-{
-    WLogger::getLogger()->addLogMessage( "Deep removal of modules is not yet implemented.", "ModuleContainer (" + getName() + ")", LL_WARNING );
-
-    // at least, remove the module itself
-    remove( module );
-}
-
 WModuleContainer::DataModuleListType WModuleContainer::getDataModules()
 {
     DataModuleListType l;
