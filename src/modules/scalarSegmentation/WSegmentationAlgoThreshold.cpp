@@ -37,7 +37,7 @@ WSegmentationAlgoThreshold::~WSegmentationAlgoThreshold()
 
 void WSegmentationAlgoThreshold::properties()
 {
-    m_threshold = m_properties->addProperty( "Threshold.", "Threshold in %.", 0.0, m_propCondition );
+    m_threshold = m_properties->addProperty( "Threshold", "Threshold in %.", 0.0, m_propCondition );
 }
 
 std::string WSegmentationAlgoThreshold::getName()

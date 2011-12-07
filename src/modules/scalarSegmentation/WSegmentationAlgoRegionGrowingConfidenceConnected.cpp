@@ -39,14 +39,14 @@ WSegmentationAlgoRegionGrowingConfidenceConnected::~WSegmentationAlgoRegionGrowi
 
 void WSegmentationAlgoRegionGrowingConfidenceConnected::properties()
 {
-    m_smoothingIter = m_properties->addProperty( "Smoothing iterations.", "Number of smoothing passes.", 10, m_propCondition );
-    m_conductance = m_properties->addProperty( "Conductance.", "Conductance parameter for smoothing.", 1.0, m_propCondition );
+    m_smoothingIter = m_properties->addProperty( "Smoothing iterations", "Number of smoothing passes.", 10, m_propCondition );
+    m_conductance = m_properties->addProperty( "Conductance", "Conductance parameter for smoothing.", 1.0, m_propCondition );
     m_conductance->setMax( 10.0 );
-    m_regionGrowingIterations = m_properties->addProperty( "Iterations.", "Number of region growing iterations.", 10, m_propCondition );
-    m_neighborhoodRadius = m_properties->addProperty( "Neighborhood radius.", "Initial neighborhood radius.", 2, m_propCondition );
+    m_regionGrowingIterations = m_properties->addProperty( "Iterations", "Number of region growing iterations.", 10, m_propCondition );
+    m_neighborhoodRadius = m_properties->addProperty( "Neighborhood radius", "Initial neighborhood radius.", 2, m_propCondition );
     m_neighborhoodRadius->setMin( 1 );
     m_neighborhoodRadius->setMax( 35 );
-    m_multiplier = m_properties->addProperty( "Variance multiplier.", "Variance multiplier.", 2.5, m_propCondition );
+    m_multiplier = m_properties->addProperty( "Variance multiplier", "Variance multiplier.", 2.5, m_propCondition );
     m_multiplier->setMax( 20.0 );
 }
 
