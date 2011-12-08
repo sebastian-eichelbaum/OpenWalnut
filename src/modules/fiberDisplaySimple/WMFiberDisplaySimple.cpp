@@ -270,7 +270,7 @@ void WMFiberDisplaySimple::moduleMain()
 
         bool dataValid = ( fibers );
         bool dataPropertiesUpdated = propObserver->updated();
-        bool propertiesUpdated = m_clipPlaneShowPlane->changed();
+        bool propertiesUpdated = m_clipPlaneShowPlane->changed() || m_tubeEnable->changed();
 
         // reset graphics if noting is on the input
         if( !dataValid )
@@ -306,7 +306,7 @@ void WMFiberDisplaySimple::moduleMain()
             }
             m_fiberClusteringUpdate = true;
         }
-        if( fibersUpdated && ( fibers != m_fibers ) )
+        if( ( fibersUpdated && ( fibers != m_fibers ) ) ||  m_tubeEnable->changed() )
         {
             debugLog() << "Fibers updated.";
             m_fibers = fibers;
