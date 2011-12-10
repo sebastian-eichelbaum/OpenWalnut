@@ -81,6 +81,11 @@ public:
      **/
     void deleteSelectedItems();
 
+    /**
+     * TODO
+     **/
+    QList<QGraphicsItem *> selectedItems() const;
+
 protected:
 
     /**

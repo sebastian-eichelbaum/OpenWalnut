@@ -64,6 +64,7 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     view->setDragMode( QGraphicsView::RubberBandDrag );
     view->setRenderHint( QPainter::Antialiasing );
     view->setMinimumSize( 20, 20 );
+    this->setFocusProxy( view );
 
     m_scene = new WQtNetworkScene();
     m_scene->setSceneRect( m_scene->itemsBoundingRect() );
@@ -98,6 +99,11 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
 WQtNetworkEditor::~WQtNetworkEditor()
 {
     delete m_layout;
+}
+
+QList<QGraphicsItem *> WQtNetworkEditor::selectedItems() const
+{
+    return m_scene->selectedItems();
 }
 
 void WQtNetworkEditor::selectItem()
