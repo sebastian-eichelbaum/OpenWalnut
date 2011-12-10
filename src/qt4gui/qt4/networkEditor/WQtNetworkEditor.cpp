@@ -81,18 +81,6 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     setWidget( panel );
     connect( m_scene, SIGNAL( selectionChanged() ), this, SLOT( selectItem() ) );
 
-    // this fakeitem is added to the scene to get a better behavior of the forced
-    // based layout. ALL WQtNetworkItems in the scene are "connected" to this
-    // object to avoid that conneceted groups push away each other.
-    // TODO(rfrohl): clean and remove the fake item
-    QGraphicsRectItem *fake = new QGraphicsRectItem();
-    fake->setRect( 0, 0, 10, 10 );
-    fake->setPos( 0, 0 );
-    fake->setBrush( Qt::green );
-    fake->setFlag( QGraphicsItem::ItemIsMovable, true );
-    m_scene->addItem( fake );
-    m_scene->setFakeItem( fake );
-
     m_layout = new WNetworkLayout();
 }
 
