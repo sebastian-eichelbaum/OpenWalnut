@@ -74,7 +74,6 @@ public:
 
 protected:
 private:
-
     bool m_myThreadFinished; //!< Has the thread finished?
 
     int m_left; //!< left boundary

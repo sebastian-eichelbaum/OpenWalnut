@@ -42,7 +42,6 @@ class WGE_EXPORT WGEBorderLayout: public WGEGroupNode
 {
 friend class SafeUpdateCallback;
 public:
-
     /**
      * Default constructor.
      */

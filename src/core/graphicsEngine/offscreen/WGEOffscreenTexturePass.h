@@ -72,7 +72,6 @@ public:
 
 protected:
 private:
-
     /**
      * Sets the whole node up. Used to get some code duplication out of the constructors.
      */

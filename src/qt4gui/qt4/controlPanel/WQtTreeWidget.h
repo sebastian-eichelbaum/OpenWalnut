@@ -60,7 +60,6 @@ public:
 
 protected:
 private:
-
 signals:
     void dragDrop(); //!< signal to notify higher ups of the drag&drop action
 };

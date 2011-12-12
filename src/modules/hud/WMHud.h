@@ -105,7 +105,6 @@ protected:
     virtual const char** getXPMIcon() const;
 
 private:
-
     boost::shared_mutex m_updateLock; //!< Lock to prevent concurrent threads trying to update the osg node
 
     /**

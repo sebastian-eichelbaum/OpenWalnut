@@ -90,7 +90,6 @@ public:
 
 protected:
 private:
-
     /**
      * The functor getting called each callback.
      */

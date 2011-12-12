@@ -124,7 +124,6 @@ public:
 
 protected:
 private:
-
     /**
      * Private default constructor to force the use of special function for dummy infos.
      */
