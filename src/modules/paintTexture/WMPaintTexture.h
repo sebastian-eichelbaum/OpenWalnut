@@ -49,7 +49,6 @@
 class WMPaintTexture: public WModule
 {
 public:
-
     /**
      *
      */
@@ -87,7 +86,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */

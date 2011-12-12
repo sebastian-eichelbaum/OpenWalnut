@@ -37,7 +37,6 @@
 class WHistogramBasicTest : public CxxTest::TestSuite
 {
 public:
-
     /**
      * Setup logger and other stuff for each test.
      */

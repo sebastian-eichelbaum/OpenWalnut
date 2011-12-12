@@ -49,7 +49,6 @@
 class WMSuperquadricGlyphs: public WModule
 {
 public:
-
     /**
      * Constructor.
      */
@@ -89,7 +88,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -106,7 +104,6 @@ protected:
     virtual void properties();
 
 private:
-
     /**
      * Initializes the needed geodes, transformations and vertex arrays. This needs to be done once for each new dataset.
      */
@@ -248,7 +245,6 @@ private:
     class GlyphGeometryNodeCallback : public osg::Drawable::UpdateCallback
     {
     public: // NOLINT
-
         /**
          * Constructor.
          *

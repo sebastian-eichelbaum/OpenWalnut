@@ -39,7 +39,6 @@
 class WDataHandlerTest : public CxxTest::TestSuite
 {
 public:
-
     /**
      * Setup logger and other stuff for each test.
      */

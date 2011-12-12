@@ -45,7 +45,6 @@
 class WDataSetSegmentation : public WDataSetSingle
 {
 public:
-
     /**
      * Constructs an instance out of a value set and a grid.
      *

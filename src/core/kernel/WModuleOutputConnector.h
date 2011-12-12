@@ -44,7 +44,6 @@
 class OWKERNEL_EXPORT WModuleOutputConnector: public WModuleConnector
 {
 public:
-
     // **************************************************************************************************************************
     // Methods
     // **************************************************************************************************************************
@@ -113,7 +112,6 @@ public:
     virtual bool isOutputConnector() const;
 
 protected:
-
     // If you want to add additional signals an output connector should subscribe FROM an input connector, overwrite
     // connectSignals
     // virtual void connectSignals( boost::shared_ptr<WModuleConnector> con );
@@ -124,7 +122,6 @@ protected:
     virtual void propagateDataChange();
 
 private:
-
     /**
      * Signal fired whenever new data should be propagated. Represented by DATA_CHANGED enum- element.
      */

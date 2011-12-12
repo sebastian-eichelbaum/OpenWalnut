@@ -37,7 +37,6 @@
 class WGE_EXPORT WGEInitFailed: public WGEException
 {
 public:
-
     /**
      * Default constructor.
      * \param msg the exception message.
@@ -50,7 +49,6 @@ public:
     virtual ~WGEInitFailed() throw();
 
 protected:
-
 private:
 };
 

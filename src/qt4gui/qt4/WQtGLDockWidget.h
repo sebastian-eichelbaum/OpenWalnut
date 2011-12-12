@@ -65,7 +65,6 @@ public:
     boost::shared_ptr< WQtGLWidget > getGLWidget() const;
 
 protected:
-
     /**
      * Layout of this widget. Use this to extend the dock width other widgets (i.e. PropWidgets).
      */
@@ -85,7 +84,6 @@ private slots:
     void handleVisibilityChange( bool visible );
 
 private:
-
     /**
      * My GL widget.
      */

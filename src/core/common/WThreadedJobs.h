@@ -97,7 +97,6 @@ public:
     virtual void compute( boost::shared_ptr< InputType const > input, JobType const& job ) = 0;
 
 protected:
-
     //! the input
     boost::shared_ptr< InputType const > m_input;
 private:
@@ -173,7 +172,6 @@ public:
     virtual void compute( boost::shared_ptr< InputType const > input, std::size_t voxelNum ) = 0;
 
 protected:
-
     //! the input
     boost::shared_ptr< InputType const > m_input;
 private:

@@ -35,7 +35,6 @@ class WQtNetworkScene: public QGraphicsScene
 {
     Q_OBJECT
 public:
-
     /**
      * Constructor
      */
@@ -63,7 +62,6 @@ public:
     QGraphicsItem* getFakeItem();
 
 protected:
-
     /**
      * Emits a Signal to notify the WQtNetworkEditor to build a default WQtCombinerToolbar
      *

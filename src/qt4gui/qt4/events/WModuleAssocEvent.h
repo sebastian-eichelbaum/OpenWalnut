@@ -38,7 +38,6 @@
 class WModuleAssocEvent: public QEvent
 {
 public:
-
     /**
      * Creates a new event instance denoting that the specified module got associated in the root container.
      *
@@ -59,7 +58,6 @@ public:
     boost::shared_ptr< WModule > getModule();
 
 protected:
-
     /**
      * The module that got associated.
      */

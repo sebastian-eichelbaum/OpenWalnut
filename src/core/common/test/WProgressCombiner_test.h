@@ -40,7 +40,6 @@
 class WProgressCombinerTest : public CxxTest::TestSuite
 {
 public:
-
    /**
     * Test whether WProgress is instantiatable.
     */

@@ -38,7 +38,6 @@
 class Callable
 {
 public:
-
     /**
      * Flag set true when the thread starts.
      */
@@ -68,7 +67,6 @@ public:
 class WConditionOneShotTest : public CxxTest::TestSuite
 {
 public:
-
     /**
      * An instantiation should never throw an exception, as well as tear down.
      */

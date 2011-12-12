@@ -43,7 +43,6 @@
 class OWKERNEL_EXPORT WModuleInputConnector: public WModuleConnector
 {
 public:
-
     /**
      * Constructor.
      *
@@ -115,7 +114,6 @@ public:
     virtual bool handledUpdate();
 
 protected:
-
     /**
      * Connect additional signals.
      *
@@ -153,7 +151,6 @@ protected:
     virtual void setUpdated();
 
 private:
-
     /**
      * Signal for "DATA_CHANGED" Events. We use a separate signal here (instead of using the signal send by the connected output)
      * since the output can not determine the receiver when signalling. So we use an own signal handler and signal to "forward"

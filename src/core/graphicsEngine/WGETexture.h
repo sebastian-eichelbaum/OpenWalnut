@@ -218,7 +218,6 @@ public:
     virtual WBoundingBox getBoundingBox() const;
 
 protected:
-
     /**
      * Handles all property updates. Called by m_propCondition.
      */

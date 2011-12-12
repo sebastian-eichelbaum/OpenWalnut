@@ -145,7 +145,6 @@ public:
     void clearPreprocessors();
 
 protected:
-
     /**
      * This method searches and processes all includes in the shader source. The filenames in the include statement are assumed to
      * be relative to this shader's path. It simply unrolls the code.
@@ -266,7 +265,6 @@ protected:
         virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
 
     protected:
-
         /**
          * The shader belonging to the node currently getting updated.
          */

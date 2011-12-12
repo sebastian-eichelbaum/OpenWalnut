@@ -38,7 +38,6 @@
 class OWKERNEL_EXPORT WModuleConnectorModuleLockFailed: public WKernelException
 {
 public:
-
     /**
      * Default constructor.
      * \param msg the exception message.
@@ -52,7 +51,6 @@ public:
     virtual ~WModuleConnectorModuleLockFailed() throw();
 
 protected:
-
 private:
 };
 

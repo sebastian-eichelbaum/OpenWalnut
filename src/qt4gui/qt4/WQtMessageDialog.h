@@ -62,7 +62,6 @@ public:
     virtual void show();
 
 protected:
-
 private slots:
 
     /**

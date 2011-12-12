@@ -49,7 +49,6 @@
 class WMTeemGlyphs: public WModule
 {
 public:
-
     /**
      * Nothing special with this constructor.
      */
@@ -87,7 +86,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -226,7 +224,6 @@ private:
          */
         osg::ref_ptr< osg::Geode > getGraphics();
     private:
-
         /**
          * Makes the radii of the glyph be distributed between [0,1]
          * \param glyph The glyph that will be normalized given as teem's limnPolyData.

@@ -148,7 +148,6 @@ public:
     bool advance();
 
 protected:
-
     /**
      * If the item is changed we want to get notified.
      *
@@ -205,7 +204,6 @@ protected:
     void paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* w );
 
 private:
-
     boost::shared_ptr< WModule > m_module; //!< the module
 
     QList< WQtNetworkInputPort* > m_inPorts; //!< the input ports of the item

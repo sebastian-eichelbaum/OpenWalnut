@@ -101,7 +101,6 @@ protected:
 
 private:
 
-
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
     boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output; //!< The only output of this filter module.
     boost::shared_ptr< WDataSetSingle > m_dataSet; //!< Pointer providing access to the treated data set in the whole module.

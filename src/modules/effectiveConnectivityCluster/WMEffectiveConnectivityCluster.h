@@ -86,7 +86,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -117,7 +116,6 @@ protected:
     void fiberDataChange( boost::shared_ptr< WModuleConnector > input, boost::shared_ptr< WModuleConnector > output );
 
 private:
-
     /**
      * The fiber dataset used.
      */

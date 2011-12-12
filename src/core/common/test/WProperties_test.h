@@ -40,7 +40,6 @@
 class WPropertiesTest : public CxxTest::TestSuite
 {
 public:
-
     /**
      * A temporary holder for some value.
      */

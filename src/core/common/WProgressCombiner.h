@@ -41,7 +41,6 @@ class OWCOMMON_EXPORT WProgressCombiner: public WProgress
 {
 friend class WProgressCombinerTest;
 public:
-
     /**
      * Default constructor. It creates a empty combiner.
      *
@@ -109,7 +108,6 @@ public:
     std::string getCombinedNames() const;
 
 protected:
-
     /**
      * The name of the combiner.
      */

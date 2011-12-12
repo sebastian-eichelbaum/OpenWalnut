@@ -279,7 +279,6 @@ public:
     WCondition::SPtr getChangeCondition() const;
 
 protected:
-
     /**
      * Default constructor.
      */
@@ -337,7 +336,6 @@ protected:
     void textureUpdate();
 
 private:
-
     /**
      * Singleton instance of WGEColormapping
      */

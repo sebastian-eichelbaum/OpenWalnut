@@ -39,7 +39,6 @@
 class WSimpleResamplerTest : public CxxTest::TestSuite
 {
 public:
-
     /**
      * The line integrator sum's up all segment's length''''ssss. Damn I never
      * know when to set the apostroph''ss...

@@ -39,7 +39,6 @@ class WRequirement;
 class OWKERNEL_EXPORT WModuleRequirementNotMet: public WModuleException
 {
 public:
-
     /**
      * Default constructor. Creates an instance and sets the message according to the requirement specified here.
      *
@@ -53,7 +52,6 @@ public:
     virtual ~WModuleRequirementNotMet() throw();
 
 protected:
-
 private:
 };
 

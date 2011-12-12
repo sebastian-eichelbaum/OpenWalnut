@@ -49,7 +49,6 @@
 class WMSliceContext: public WModule
 {
 public:
-
     /**
      *
      */
@@ -87,7 +86,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -157,7 +155,6 @@ private:
     class SliceContextUpdateCallback : public osg::NodeCallback
     {
     public: // NOLINT
-
         /**
          * Constructor.
          *

@@ -35,7 +35,6 @@
 class WGE_EXPORT WGEScene: public WGEGroupNode
 {
 public:
-
     /**
      * Default constructor.
      */
@@ -51,7 +50,6 @@ public:
     bool isHomePositionRequested();
 
 protected:
-
     /**
      * Destructor. Protected. To avoid accidental destruction of these root nodes.
      */

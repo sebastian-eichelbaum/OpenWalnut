@@ -53,7 +53,6 @@ template < typename T >
 class OWCOMMON_EXPORT WFlagForwarder // NOLINT
 {
 public:
-
     /**
      * Default constructor.
      *
@@ -75,7 +74,6 @@ public:
     void forward( boost::shared_ptr< WFlag< T > > to );
 
 protected:
-
     /**
      * The source property to which all other properties are synced to.
      */
@@ -97,7 +95,6 @@ protected:
     void sourceChanged();
 
 private:
-
     /**
      * Disallow copy construction.
      *

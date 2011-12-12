@@ -38,7 +38,6 @@
 class OWKERNEL_EXPORT WPrototypeNotUnique: public WKernelException
 {
 public:
-
     /**
      * Default constructor.
      * \param msg the exception message.
@@ -51,7 +50,6 @@ public:
     virtual ~WPrototypeNotUnique() throw();
 
 protected:
-
 private:
 };
 

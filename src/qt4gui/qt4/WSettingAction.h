@@ -43,7 +43,6 @@ class WSettingAction: public QAction
     Q_OBJECT
 
 public:
-
     /**
      * Constructs an action which handles a certain setting.
      *
@@ -80,9 +79,7 @@ signals:
     void change( bool value );
 
 protected:
-
 private:
-
     /**
      * The name of the setting handled here.
      */

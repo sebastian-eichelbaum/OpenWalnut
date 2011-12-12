@@ -37,7 +37,6 @@
 class WProgressTest : public CxxTest::TestSuite
 {
 public:
-
     /**
      * Test whether WProgress is instantiatable.
      */

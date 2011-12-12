@@ -116,7 +116,6 @@ protected:
     virtual void properties();
 
 private:
-
     WPropInt m_order; //!< Property holding the order of the spherical harmonics
 
     WPropDouble m_regularisationFactorLambda; //!< Property holding the regularisation factor lambda
@@ -230,7 +229,6 @@ public:
     result_type operator() ( WValueSet< T > const* /* vs */ ) const;
 
 private:
-
     //! The parameters that will be forwarded to the threads.
     WSphericalHarmonicsCoefficientsThread<>::ThreadParameter m_parameter;
 

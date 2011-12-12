@@ -185,7 +185,6 @@ public:
     virtual bool changed( bool reset = false );
 
 protected:
-
     /**
      * The condition to be used for waiting/notifying. Please note, that it gets deleted during destruction.
      */

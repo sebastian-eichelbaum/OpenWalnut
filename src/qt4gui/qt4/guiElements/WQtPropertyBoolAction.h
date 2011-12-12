@@ -36,7 +36,6 @@ class WQtPropertyBoolAction: public QAction
 {
     Q_OBJECT
 public:
-
     /**
      * Constructor. Creates a new action appropriate for the specified property.
      *
@@ -51,7 +50,6 @@ public:
     virtual ~WQtPropertyBoolAction();
 
 protected:
-
     /**
      * Called whenever the widget should update.
      */
@@ -85,7 +83,6 @@ protected:
     boost::signals2::connection m_connection;
 
 private:
-
 public slots:
 
     /**

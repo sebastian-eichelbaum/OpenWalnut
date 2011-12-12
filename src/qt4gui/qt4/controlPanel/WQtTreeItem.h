@@ -120,7 +120,6 @@ public slots:
     void update();
 
 protected:
-
     /**
      * Updates the state of the tree item basing on the module's state.
      */
@@ -169,7 +168,6 @@ protected:
     std::string m_handledOutput;
 
 private:
-
     /**
      * The module represented by this tree item.
      */

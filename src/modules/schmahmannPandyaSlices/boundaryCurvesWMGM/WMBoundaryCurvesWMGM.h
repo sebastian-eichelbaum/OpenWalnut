@@ -44,7 +44,6 @@ template< class T > class WModuleInputData;
 class WMBoundaryCurvesWMGM: public WModule
 {
 public:
-
     /**
      * Default constructor.
      */

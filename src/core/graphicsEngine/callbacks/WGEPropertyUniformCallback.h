@@ -69,7 +69,6 @@ public:
     typedef typename wge::UniformType< typename T::element_type::ValueType >::Type UniformType;
 
 protected:
-
     /**
      * The property
      */

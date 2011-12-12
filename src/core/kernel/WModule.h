@@ -83,7 +83,6 @@ friend class WModuleFactory;    // for proper creation of module instances, the 
 friend class WModuleContainer;  // for proper management of m_container WModuleContainer needs access.
 
 public:
-
     /**
      * Constructs a new WModule instance
      */
@@ -348,7 +347,6 @@ public:
      */
     std::string getDeprecationMessage() const;
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -629,7 +627,6 @@ protected:
     Requirements m_requirements;
 
 private:
-
      /**
      * Lock for m_inputConnectors.
      */

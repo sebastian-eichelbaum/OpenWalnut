@@ -161,7 +161,6 @@ public:
     boost::signals2::connection subscribeSignal( HandleImageCallbackType callback );
 
 protected:
-
     /**
      * The function handles new images. Implement it.
      *
@@ -179,7 +178,6 @@ protected:
     void record( size_t frames = std::numeric_limits< size_t >::max() );
 
 private:
-
     /**
      * Counts the frames to take.
      */

@@ -47,7 +47,6 @@ class WFiber;
 class OWDATAHANDLER_EXPORT WDataSetFibers : public WDataSet // NOLINT
 {
 public:
-
     // some type alias for the used arrays.
     /**
      * Pointer to dataset.
@@ -91,7 +90,6 @@ public:
     {
     friend class WDataSetFibers;
     public:
-
         /**
          * different kinds of color arrays can be used in this class. This enum defines their possible types.
          */
@@ -140,7 +138,6 @@ public:
         };
 
     protected:
-
         /**
          * Sets the color array for this item.
          *
@@ -372,7 +369,6 @@ public:
     WFiber operator[]( size_t numTract ) const;
 
 protected:
-
     /**
      * The prototype as singleton.
      */

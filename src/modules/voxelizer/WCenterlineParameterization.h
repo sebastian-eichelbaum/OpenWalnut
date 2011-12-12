@@ -37,7 +37,6 @@
 class WCenterlineParameterization: public WRasterParameterization
 {
 public:
-
     /**
      * Default constructor.
      *
@@ -93,7 +92,6 @@ public:
     virtual void finished();
 
 protected:
-
     /**
      * Stores the current length of the centerline fiber at each voxel.
      */

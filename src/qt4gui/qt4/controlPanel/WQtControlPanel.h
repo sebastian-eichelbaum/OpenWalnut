@@ -213,7 +213,6 @@ public:
     QAction* getMissingModuleAction() const;
 
 protected:
-
     /**
      * Custom event dispatcher. Gets called by QT's Event system every time an event got sent to this widget. This event handler
      * processes several custom events, like WModuleAssocEvent.

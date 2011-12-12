@@ -36,7 +36,6 @@
 class WGE_EXPORT WGERequirement: public WRequirement // NOLINT
 {
 public:
-
     /**
      * Create instance. If your module uses this requirement, it needs running WGE.
      */
@@ -62,7 +61,6 @@ public:
     virtual std::string getDescription() const;
 
 protected:
-
 private:
 };
 

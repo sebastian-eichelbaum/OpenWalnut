@@ -78,7 +78,6 @@ public:
     osg::ref_ptr< WGEGroupNode > generateSlice( const unsigned char sliceNum ) const;
 
 protected:
-
 private:
     /**
      * Projects a given line strip onto the given slice simply by setting its components to the slice position.

@@ -46,7 +46,6 @@
 class WGE_EXPORT WGEGroupNode: public osg::MatrixTransform
 {
 public:
-
     /**
      * Default constructor.
      */
@@ -101,7 +100,6 @@ protected:
     class SafeUpdaterCallback : public osg::NodeCallback
     {
     public:
-
         /**
          * Callback method called by the NodeVisitor when visiting a node.
          * This inserts and removes enqueued nodes from this group node instance.

@@ -35,7 +35,6 @@
 class WIntegrationParameterization: public WRasterParameterization
 {
 public:
-
     /**
      * Default constructor.
      *
@@ -85,7 +84,6 @@ public:
     virtual void newSegment( const WPosition& start, const WPosition& end );
 
 protected:
-
     /**
      * Stores the current length of the fiber at each voxel.
      */

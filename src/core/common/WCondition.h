@@ -85,7 +85,6 @@ public:
     boost::signals2::connection subscribeSignal( t_ConditionNotifierType notifier ) const;
 
 protected:
-
     /**
      * Type used for condition notification.
      */

@@ -93,14 +93,12 @@ public:
     bool getActive() const;
 
 protected:
-
     /**
      * Fires m_updateCondition which should denote an update in the preprocessor filter.
      */
     virtual void updated();
 
 private:
-
     /**
      * The condition fires on every call of updated().
      */

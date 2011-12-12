@@ -49,7 +49,6 @@ class WGEManagedGroupNode;
 class WMTriangleMeshRenderer: public WModule
 {
 public:
-
     /**
      * Constructor. Creates the module skeleton.
      */
@@ -87,7 +86,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -104,7 +102,6 @@ protected:
     virtual void properties();
 
 private:
-
     /**
      * Calculates the bounding box of a vector and increases the specified one if needed.
      *

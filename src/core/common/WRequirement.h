@@ -37,7 +37,6 @@
 class OWCOMMON_EXPORT WRequirement // NOLINT
 {
 public:
-
     /**
      * Default constructor.
      */
@@ -63,7 +62,6 @@ public:
     virtual std::string getDescription() const = 0;
 
 protected:
-
 private:
 };
 

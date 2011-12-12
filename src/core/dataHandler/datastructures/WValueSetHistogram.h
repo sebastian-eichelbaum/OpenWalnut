@@ -216,7 +216,6 @@ protected:
     virtual void insert( double value );
 
 private:
-
     /**
      * Size of one bucket in the initial histogram.
      */

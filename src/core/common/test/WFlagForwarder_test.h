@@ -37,7 +37,6 @@
 class WFlagForwarderTest : public CxxTest::TestSuite
 {
 public:
-
     /**
      * Add some flags and test whether the value gets propagated properly.
      */

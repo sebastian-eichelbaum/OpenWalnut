@@ -40,7 +40,6 @@
 class WJoinContourTreeTest : public CxxTest::TestSuite
 {
 public:
-
     /**
      * The construction of a Join Tree is done via a special index array.
      */

@@ -47,7 +47,6 @@ class WPropertyWidget: public QStackedWidget
     Q_OBJECT
 
 public:
-
     /**
      * Constructor. Creates a new widget appropriate for the specified property.
      *
@@ -114,7 +113,6 @@ public:
     virtual void requestUpdate();
 
 protected:
-
     /**
      * Called whenever the widget should update itself.
      */

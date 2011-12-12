@@ -75,7 +75,6 @@ public:
     void updatePickText( WPickInfo pickInfo );
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -106,7 +105,6 @@ protected:
     virtual const char** getXPMIcon() const;
 
 private:
-
 
     boost::shared_mutex m_updateLock; //!< Lock to prevent concurrent threads trying to update the osg node
 

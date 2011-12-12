@@ -296,7 +296,6 @@ public:
     typedef boost::function<void ( boost::shared_ptr< WPropertyBase > )> PropertyChangeNotifierType;
 
 protected:
-
     /**
      * Name of the property.
      */

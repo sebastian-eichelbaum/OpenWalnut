@@ -58,7 +58,6 @@
 class CustomWidget
 {
 public:
-
     /**
      * Constructor. Creates a custom widget.
      *
@@ -93,7 +92,6 @@ public:
     }
 
 private:
-
     //! The pointer to the widget.
     WCustomWidget::SPtr m_widget;
 };

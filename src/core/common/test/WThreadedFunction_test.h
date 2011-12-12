@@ -110,7 +110,6 @@ class WThreadedFunctionTest : public CxxTest::TestSuite
         }
 
     private:
-
         //! the input data
         boost::shared_ptr< int const > m_input;
 

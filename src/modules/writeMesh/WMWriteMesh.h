@@ -53,7 +53,6 @@ class WMWriteMesh: public WModule
 friend class WMWriteMeshTest;
 
 public:
-
     /**
      *
      */

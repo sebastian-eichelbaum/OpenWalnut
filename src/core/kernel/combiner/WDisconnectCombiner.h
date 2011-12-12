@@ -46,7 +46,6 @@
 class OWKERNEL_EXPORT WDisconnectCombiner: public WModuleOneToOneCombiner
 {
 public:
-
     /**
      * Creates a combiner which disconnects the specified connection. If the specified connection does not exist (anymore), nothing will happen.
      *
@@ -91,7 +90,6 @@ public:
     virtual void apply();
 
 protected:
-
 private:
 };
 

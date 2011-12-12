@@ -39,7 +39,6 @@
 class OWDATAHANDLER_EXPORT WDataSetRawHARDI : public WDataSetSingle // NOLINT
 {
 public:
-
     /**
      * Constructs an instance out of:
      *  - an appropriate value set with a vector of measure values for each voxel,
@@ -169,7 +168,6 @@ public:
     double getDiffusionBValue() const;
 
 protected:
-
     /**
      * The prototype as singleton.
      */

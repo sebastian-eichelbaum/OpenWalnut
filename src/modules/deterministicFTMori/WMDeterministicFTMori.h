@@ -101,7 +101,6 @@ public:
     virtual const std::string getDescription() const;
 
 protected:
-
     /**
      * The worker function, runs in its own thread.
      */
@@ -123,7 +122,6 @@ protected:
     virtual void activate();
 
 private:
-
     //! the threaded per-voxel function for the eigenvector computation (float input)
     typedef WThreadedPerVoxelOperation< float, 6, double, 4 > TPVOFloat;
 

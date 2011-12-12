@@ -94,9 +94,7 @@ public:
     void setValue( const ValueType& value );
 
 protected:
-
 private:
-
     /**
      * The name of the define.
      */

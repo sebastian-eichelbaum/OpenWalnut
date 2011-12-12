@@ -104,7 +104,6 @@ protected:
     virtual void properties();
 
 private:
-
     /**
      * A condition used to notify about changes in several properties.
      */

@@ -35,7 +35,6 @@
 class WRenderedFrameEvent: public QEvent
 {
 public:
-
     /**
      * Creates a new event instance.
      */

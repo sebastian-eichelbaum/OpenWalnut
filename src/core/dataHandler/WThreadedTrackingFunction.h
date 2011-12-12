@@ -55,7 +55,6 @@ namespace wtracking // note that this is not final
     class OWDATAHANDLER_EXPORT WTrackingUtility
     {
     public:
-
         //! define a job type for tracking algorithms
         typedef std::pair< WVector3d, WVector3d > JobType;
 

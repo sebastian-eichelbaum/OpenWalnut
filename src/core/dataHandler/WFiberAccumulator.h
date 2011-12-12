@@ -41,7 +41,6 @@
 class OWDATAHANDLER_EXPORT WFiberAccumulator        // NOLINT
 {
 public:
-
     /**
      * Constructor.
      */

@@ -47,7 +47,6 @@ class WFiberCluster;
 class WMLineGuidedSlice : public WModule, public osg::Referenced
 {
 public:
-
     /**
      *
      */
@@ -85,7 +84,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -103,7 +101,6 @@ protected:
 
 
 private:
-
     /**
      * Updates the positions of the slice
      */

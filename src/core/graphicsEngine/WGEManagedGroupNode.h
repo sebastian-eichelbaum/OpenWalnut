@@ -39,7 +39,6 @@
 class WGE_EXPORT WGEManagedGroupNode: public WGEGroupNode
 {
 public:
-
     /**
      * Shared pointer.
      */

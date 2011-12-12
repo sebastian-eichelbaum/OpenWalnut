@@ -42,7 +42,6 @@
 class WPropertyStructTest : public CxxTest::TestSuite
 {
 public:
-
     /**
      * Test instantiation, also test name and description and type (from WPropertyBase)
      */

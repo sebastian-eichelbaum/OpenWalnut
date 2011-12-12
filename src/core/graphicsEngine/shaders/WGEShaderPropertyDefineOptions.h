@@ -55,7 +55,6 @@ template< typename PropType = WPropSelection, typename PropIndexAdapter = WGESha
 class WGEShaderPropertyDefineOptions: public WGEShaderDefineOptions
 {
 public:
-
     /**
      * Convenience typedef for a boost_shared_ptr< WGEShaderPropertyDefineOptions >.
      */
@@ -109,9 +108,7 @@ public:
     PropType getProperty() const;
 
 protected:
-
 private:
-
     /**
      * The property controlling this instance and the active options list.
      */

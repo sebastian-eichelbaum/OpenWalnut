@@ -152,7 +152,6 @@ public:
     void  setLockOnVector( bool value = true );
 
 protected:
-
 private:
     static size_t maxSphereId; //!< Current maximum boxId over all spheres.
     size_t sphereId; //!< Id of the current sphere.

@@ -43,7 +43,6 @@ class WPropertyStructWidget: public WPropertyWidget
 {
     Q_OBJECT
 public:
-
     /**
      * Constructor. Creates a new widget appropriate for the specified property.
      *
@@ -59,7 +58,6 @@ public:
     virtual ~WPropertyStructWidget();
 
 protected:
-
     /**
      * Called whenever the widget should update.
      */

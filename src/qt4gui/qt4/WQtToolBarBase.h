@@ -60,9 +60,7 @@ public:
     QMenu* getStyleMenu( QString title = QString( "Toolbar Style" ) ) const;
 
 protected:
-
 private:
-
     /**
      * The main window parent.
      */

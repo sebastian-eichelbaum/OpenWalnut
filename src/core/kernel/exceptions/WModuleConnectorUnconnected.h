@@ -38,7 +38,6 @@
 class OWKERNEL_EXPORT WModuleConnectorUnconnected: public WModuleException
 {
 public:
-
     /**
      * Default constructor.
      * \param msg the exception message.
@@ -52,7 +51,6 @@ public:
     virtual ~WModuleConnectorUnconnected() throw();
 
 protected:
-
 private:
 };
 

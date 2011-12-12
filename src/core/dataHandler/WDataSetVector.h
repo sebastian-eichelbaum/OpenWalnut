@@ -35,7 +35,6 @@
 class OWDATAHANDLER_EXPORT WDataSetVector : public WDataSetSingle // NOLINT
 {
 public:
-
     /**
      * Constructs an instance out of an appropriate value set and a grid.
      *
@@ -136,7 +135,6 @@ public:
     boost::shared_ptr< WDataSetVector > isVectorDataSet();
 
 protected:
-
     /**
      * The prototype as singleton.
      */

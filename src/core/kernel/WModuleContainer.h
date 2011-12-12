@@ -58,7 +58,6 @@ class WDataModule;
 class OWKERNEL_EXPORT WModuleContainer: public WModule
 {
 public:
-
     // the following typedefs are for convenience; to help accessing the container in a thread safe way.
 
     /**
@@ -283,7 +282,6 @@ public:
     WCombinerTypes::WCompatiblesList getPossibleConnections( boost::shared_ptr< WModule > module );
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread. The module container does not use this method. It simply
      * returns.
@@ -387,7 +385,6 @@ protected:
     bool m_crashIfModuleCrashes;
 
 private:
-
     // the following typedefs are for convenience; to help accessing the container in a thread safe way.
 
     /**

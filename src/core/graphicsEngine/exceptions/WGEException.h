@@ -38,7 +38,6 @@
 class WGE_EXPORT WGEException: public WException
 {
 public:
-
     /**
      * Default constructor.
      * \param msg the exception message.
@@ -51,7 +50,6 @@ public:
     virtual ~WGEException() throw();
 
 protected:
-
 private:
 };
 

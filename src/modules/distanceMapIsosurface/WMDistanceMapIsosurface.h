@@ -92,7 +92,6 @@ protected:
     virtual void activate();
 
 private:
-
     WPropDouble m_isoValueProp; //!< Property holding the value for the distance.
     WPropInt m_opacityProp; //!< Property holding the value for the opacity of the surface.
     WPropBool m_useTextureProp; //!< Property indicating whether to use texturing with scalar data sets.

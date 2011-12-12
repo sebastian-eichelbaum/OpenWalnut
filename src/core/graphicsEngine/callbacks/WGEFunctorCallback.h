@@ -44,7 +44,6 @@ template < typename Type = osg::Node >
 class WGEFunctorCallback: public WGECallbackTraits< Type >::CallbackType
 {
 public:
-
     /**
      * Shared pointer.
      */

@@ -36,7 +36,6 @@
 class OWCOMMON_EXPORT WProjectFileIO // NOLINT
 {
 public:
-
     /**
      * Default constructor.
      */
@@ -71,7 +70,6 @@ public:
     virtual void save( std::ostream& output ) = 0;   // NOLINT
 
 protected:
-
 private:
 };
 

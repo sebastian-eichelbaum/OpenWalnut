@@ -36,7 +36,6 @@ class WSettingMenu: public QMenu
 {
     Q_OBJECT
 public:
-
     /**
      * Constructs a menu with the specified options and automatically handles updates.
      *
@@ -73,7 +72,6 @@ signals:
     void change( unsigned int index );
 
 protected:
-
 private:
     /**
      * The name of the setting handled here.

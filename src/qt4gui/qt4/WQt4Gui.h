@@ -193,7 +193,6 @@ public:
     const boost::program_options::variables_map& getOptionMap() const;
 
 protected:
-
     /**
      * Called whenever a module crashes.
      *

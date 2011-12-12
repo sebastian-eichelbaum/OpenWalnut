@@ -48,7 +48,6 @@ template< class T > class WModuleInputForwardData;
 class WMSlices: public WModuleContainer
 {
 public:
-
     /**
      * Constructs this module.
      */

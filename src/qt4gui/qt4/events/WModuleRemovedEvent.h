@@ -37,7 +37,6 @@
 class WModuleRemovedEvent: public QEvent
 {
 public:
-
     /**
      * Creates a new event instance denoting that the specified module got removed from the root container.
      *
@@ -58,7 +57,6 @@ public:
     boost::shared_ptr< WModule > getModule();
 
 protected:
-
     /**
      * The module that got removed.
      */

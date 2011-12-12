@@ -40,7 +40,6 @@ class WPropertyPositionWidget: public WPropertyWidget
 {
     Q_OBJECT
 public:
-
     /**
      * Constructor. Creates a new widget appropriate for the specified property.
      *
@@ -56,7 +55,6 @@ public:
     virtual ~WPropertyPositionWidget();
 
 protected:
-
     /**
      * Called whenever the widget should update.
      */
@@ -105,7 +103,6 @@ protected:
     void setPropertyFromWidgets( bool validateOnly = false );
 
 private:
-
     /**
      * Helper function converting a position into a nice formatted string.
      *

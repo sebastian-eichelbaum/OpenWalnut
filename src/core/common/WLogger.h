@@ -130,7 +130,6 @@ public:
     boost::signals2::connection subscribeSignal( LogEvent event, LogEntryCallback callback );
 
 protected:
-
 private:
     /**
      * Constructor. The logger is created using the static method startup.

@@ -55,7 +55,6 @@ class OWDATAHANDLER_EXPORT WDataHandler // NOLINT
 friend class WDataHandlerTest;
 
 public:
-
     /**
      * For shortening: a type defining a shared vector of WSubject pointers.
      */
@@ -143,14 +142,12 @@ public:
     SubjectSharedContainerType::ReadTicket getSubjects() const;
 
 protected:
-
     /**
      * A container for all WSubjects.
      */
     SubjectSharedContainerType m_subjects;
 
 private:
-
     /**
      * Singleton instance of WDataHandler.
      */

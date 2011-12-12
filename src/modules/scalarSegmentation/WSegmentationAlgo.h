@@ -43,7 +43,6 @@
 class WSegmentationAlgo : public boost::static_visitor< boost::shared_ptr< WDataSetScalar > >
 {
 public:
-
     //! A conveniant typedef.
     typedef boost::shared_ptr< WDataSetScalar > DataSetPtr;
 
@@ -106,7 +105,6 @@ public:
     void hideProperties( bool hide );
 
 protected:
-
     /**
      * A virtual function that calls the correct segmentation operation.
      * \return The resulting dataset.

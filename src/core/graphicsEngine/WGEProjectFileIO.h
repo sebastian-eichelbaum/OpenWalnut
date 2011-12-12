@@ -40,7 +40,6 @@
 class WGE_EXPORT WGEProjectFileIO: public WProjectFileIO
 {
 public:
-
     /**
      * Default constructor.
      */
@@ -75,7 +74,6 @@ public:
     virtual void save( std::ostream& output );   // NOLINT
 
 protected:
-
     /**
      * All Cameras parsed.
      */

@@ -99,7 +99,6 @@ protected:
     virtual void properties();
 
 private:
-
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;  //!< Input connector required by this module.
 
     /**
