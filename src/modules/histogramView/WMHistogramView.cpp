@@ -1138,7 +1138,8 @@ void WMHistogramView::createInfo()
         if( bin < m_histograms[ 0 ]->size() )
         {
             // add the bin value for every dataset as a text in the top right corner of the window
-            int h = 0;
+            int h = 1;
+            
             for( std::size_t k = 0; k < m_data.size(); ++k )
             {
                 if( !m_data[ k ] )
@@ -1146,7 +1147,7 @@ void WMHistogramView::createInfo()
                     continue;
                 }
 
-                WVector3d textPos( m_windowWidth - 20.0, m_windowHeight - ( h + 1 ) * 16, 0.0 );
+                WVector3d textPos( m_windowWidth - 20.0, m_windowHeight - h * 16, 0.0 );
 
                 osgText::Text* text = new osgText::Text;
 
@@ -1162,6 +1163,25 @@ void WMHistogramView::createInfo()
 
                 ++h;
             }
+
+            // add the bin minimum and maximum
+            WVector3d textPos( m_windowWidth - 20.0, m_windowHeight - h * 16, 0.0 );
+
+            osgText::Text* text = new osgText::Text;
+            std::stringstream s;
+            s << "[" << m_histograms[ 0 ]->getIntervalForIndex( bin ).first
+              << "," << m_histograms[ 0 ]->getIntervalForIndex( bin ).second
+              << ")";
+
+            text->setFont( WPathHelper::getAllFonts().Default.file_string() );
+            text->setColor( WColor( 0.0, 0.0, 0.0, 1.0 ) );
+            text->setCharacterSize( 12 );
+            text->setAlignment( osgText::TextBase::RIGHT_CENTER );
+            text->setPosition( textPos );
+            text->setLayout( osgText::Text::LEFT_TO_RIGHT );
+            text->setText( s.str() );
+
+            m_infoNode->addDrawable( text );
 
             // mark the currently selected histogram bin by simple drawing a bar in the background
             m_markerNode = new osg::Geode;
