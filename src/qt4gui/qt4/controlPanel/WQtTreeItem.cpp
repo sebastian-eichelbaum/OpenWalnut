@@ -245,7 +245,6 @@ void WQtTreeItem::updateState()
     if( m_deleteInProgress && !m_module->isRunning().get() && m_needPostDeleteEvent )
     {
         m_needPostDeleteEvent = false;  // this ensures the event is only posted once
-        // Diabled Network Editor due to bug: #11
         QCoreApplication::postEvent( WQt4Gui::getMainWindow()->getNetworkEditor(), new WModuleDeleteEvent( this ) );
         QCoreApplication::postEvent( WQt4Gui::getMainWindow()->getControlPanel(), new WModuleDeleteEvent( this ) );
     }

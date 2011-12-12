@@ -104,11 +104,12 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_deleteModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "remove" ), "Remove Module", m_moduleTreeWidget );
     {
         // Set the key for removing modules
-        m_deleteModuleAction->setShortcutContext( Qt::WidgetShortcut );
+        //m_deleteModuleAction->setShortcutContext( Qt::WidgetShortcut );
+        m_deleteModuleAction->setShortcutContext( Qt::WidgetWithChildrenShortcut );
         m_deleteModuleAction->setShortcut( QKeySequence::Delete );
         m_deleteModuleAction->setIconVisibleInMenu( true );
     }
-    connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModuleTreeItem() ) );
+    connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModule() ) );
     m_moduleTreeWidget->addAction( m_deleteModuleAction );
 
     // a separator to clean up the tree widget's context menu
@@ -122,20 +123,18 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_missingModuleAction->setIconVisibleInMenu( true );
     m_moduleTreeWidget->addAction( m_missingModuleAction );
 
-    // Disabled Network Editor due to bug: #11
-    // // the network editor also needs the context menu
-    // // TODO(rfrohl): context menu gets not opened if a graphicitem is clicked. This should be fixed.
-    // if( m_mainWindow->getNetworkEditor() )
-    // {
-    //     m_mainWindow->getNetworkEditor()->setContextMenuPolicy( Qt::ActionsContextMenu );
-    //     m_mainWindow->getNetworkEditor()->addAction( m_connectWithPrototypeAction );
-    //     m_mainWindow->getNetworkEditor()->addAction( m_connectWithModuleAction );
-    //     m_mainWindow->getNetworkEditor()->addAction( m_disconnectAction );
-    //     m_mainWindow->getNetworkEditor()->addAction( separator );
-    //     m_mainWindow->getNetworkEditor()->addAction( m_deleteModuleAction );
-    //     m_mainWindow->getNetworkEditor()->addAction( separator );
-    //     m_mainWindow->getNetworkEditor()->addAction( m_missingModuleAction );
-    // }
+    // the network editor also needs the context menu
+    if( m_mainWindow->getNetworkEditor() )
+    {
+        m_mainWindow->getNetworkEditor()->setContextMenuPolicy( Qt::ActionsContextMenu );
+        m_mainWindow->getNetworkEditor()->addAction( m_connectWithPrototypeAction );
+        m_mainWindow->getNetworkEditor()->addAction( m_connectWithModuleAction );
+        m_mainWindow->getNetworkEditor()->addAction( m_disconnectAction );
+        m_mainWindow->getNetworkEditor()->addAction( separator );
+        m_mainWindow->getNetworkEditor()->addAction( m_deleteModuleAction );
+        m_mainWindow->getNetworkEditor()->addAction( separator );
+        m_mainWindow->getNetworkEditor()->addAction( m_missingModuleAction );
+    }
 
     m_colormapper = new WQtColormapper( m_mainWindow );
     m_colormapper->setToolTip( "Reorder the textures." );
@@ -1082,9 +1081,8 @@ QAction* WQtControlPanel::toggleViewAction() const
     return result;
 }
 
-void WQtControlPanel::deleteModuleTreeItem()
+void WQtControlPanel::deleteModule()
 {
-    // TODO(rfrohl): check if there is a better way to check for focus
     if( m_moduleTreeWidget->hasFocus() )
     {
         if( m_moduleTreeWidget->selectedItems().count() > 0 )
@@ -1101,6 +1099,15 @@ void WQtControlPanel::deleteModuleTreeItem()
                 m_moduleTreeWidget->setCurrentItem( m_moduleTreeWidget->topLevelItem( 0 ) );
             }
         }
+    }
+    else if( m_mainWindow->getNetworkEditor()->hasFocus() )
+    {
+        if( m_mainWindow->getNetworkEditor()->selectedItems().count() > 0 )
+            // This method deep removes the module ( it also removes depending modules )
+            WKernel::getRunningKernel()->getRootContainer()->remove(
+                static_cast< WQtNetworkItem* >( m_mainWindow->getNetworkEditor()->selectedItems().at( 0 ) )->getModule()
+                );
+
     }
 }
 
