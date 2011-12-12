@@ -24,9 +24,9 @@
 
 #include <vector>
 
-//#include "../../../graphicsEngine/WGraphicsEngine.h"
 #include "../graphicsEngine/WROIBox.h"
 #include "../graphicsEngine/WROIArbitrary.h"
+#include "WKdTree.h"
 
 #include "WSelectorRoi.h"
 

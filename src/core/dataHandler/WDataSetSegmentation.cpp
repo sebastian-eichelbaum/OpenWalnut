@@ -26,7 +26,6 @@
 #include <vector>
 
 #include "WDataSetScalar.h"
-#include "../kernel/WKernel.h"
 
 #include "WDataSetSegmentation.h"
 

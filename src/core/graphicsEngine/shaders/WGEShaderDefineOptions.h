@@ -129,7 +129,7 @@ public:
      *
      * \param idx the option to deactivate
      */
-    void dactivateOption( size_t idx );
+    void deactivateOption( size_t idx );
 
     /**
      * Activates all the options.

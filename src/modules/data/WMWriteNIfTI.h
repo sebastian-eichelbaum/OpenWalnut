@@ -106,7 +106,7 @@ protected:
 
 private:
     /**
-     * Allows to get a void* out of WValueSet.
+     * Allows one to get a void* out of WValueSet.
      * \param returnData the casted data will be returned through this pointer.
      */
     template< typename T > void castData( void*& returnData );

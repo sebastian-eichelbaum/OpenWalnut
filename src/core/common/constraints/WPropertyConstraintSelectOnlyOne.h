@@ -53,7 +53,7 @@ public:
      *
      * \return true if the file/path is a directory
      */
-    virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, T value );
+    virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, const T& value );
 
     /**
      * Allows simple identification of the real constraint type.
@@ -83,7 +83,7 @@ WPropertyConstraintSelectOnlyOne< T >::~WPropertyConstraintSelectOnlyOne()
 }
 
 template < typename T >
-bool WPropertyConstraintSelectOnlyOne< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, T value )
+bool WPropertyConstraintSelectOnlyOne< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, const T& value )
 {
     return ( value.size() <= 1 );
 }

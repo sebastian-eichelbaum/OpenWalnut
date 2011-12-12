@@ -196,6 +196,74 @@ public:
             TS_ASSERT_EQUALS( m( 1, 0 ), 3.0 );
         }
     }
+
+    /**
+     * The optimizations for symmetric tensors should not corrupt the result, so we
+     * compare the optimized evaluation function to a simple implementaion.
+     */
+    void testEvaluateSphericalFunction()
+    {
+        WTensorSym< 4, 3, double > t;
+        // the tensor
+        t( 0, 0, 0, 0 ) = 2.5476;
+        t( 1, 1, 1, 1 ) = 3.5476;
+        t( 2, 2, 2, 2 ) = 4.5476;
+        t( 0, 0, 0, 1 ) = 5.5476;
+        t( 0, 0, 0, 2 ) = 6.5476;
+        t( 1, 1, 1, 0 ) = 7.5476;
+        t( 1, 1, 1, 2 ) = 8.5476;
+        t( 2, 2, 2, 0 ) = 9.5476;
+        t( 2, 2, 2, 1 ) = 10.5476;
+        t( 0, 0, 1, 2 ) = 11.5476;
+        t( 1, 1, 0, 2 ) = 12.5476;
+        t( 2, 2, 0, 1 ) = 13.5476;
+        t( 0, 0, 1, 1 ) = 14.5476;
+        t( 0, 0, 2, 2 ) = 15.5476;
+        t( 1, 1, 2, 2 ) = 16.5476;
+
+        // the gradients
+        std::vector< WVector3d > gradients;
+        gradients.push_back( WVector3d( 1.0, 0.0, 0.0 ) );
+        gradients.push_back( WVector3d( 0.0, 1.0, 0.0 ) );
+        gradients.push_back( normalize( WVector3d( 1.0, 1.0, 0.0 ) ) );
+        gradients.push_back( normalize( WVector3d( 0.3, 0.4, 0.5 ) ) );
+        gradients.push_back( normalize( WVector3d( -7.0, 3.0, -1.0 ) ) );
+
+        for( int k = 0; k < 5; ++k )
+        {
+            double res = calcTens( t, gradients[ k ] );
+            TS_ASSERT_DELTA( res, t.evaluateSphericalFunction( gradients[ k ] ), 0.001 );
+        }
+    }
+
+private:
+
+    /**
+     * A helper function that implements the simple approach to tensor evaluation.
+     *
+     * \param t The tensor.
+     * \param v The gradient.
+     *
+     * \return The value of the spherical function in the direction of the gradient.
+     */
+    double calcTens( WTensorSym< 4, 3, double > const& t, WVector3d const& v )
+    {
+        double res = 0.0;
+        for( int a = 0; a < 3; ++a )
+        {
+            for( int b = 0; b < 3; ++b )
+            {
+                for( int c = 0; c < 3; ++c )
+                {
+                    for( int d = 0; d < 3; ++d )
+                    {
+                        res += v[ a ] * v[ b ] * v[ c ] * v[ d ] * t( a, b, c, d );
+                    }
+                }
+            }
+        }
+        return res;
+    }
 };
 
 #endif  // WTENSORSYM_TEST_H

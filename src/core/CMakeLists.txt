@@ -68,6 +68,9 @@ SETUP_LIB_INSTALL( ${LibName} ${OW_LIBRARY_DIR_RELATIVE} "CORE" )
 # NOTE: do not use ${TARGET_H_FILES}. The command requires a list
 SETUP_DEV_INSTALL( ${LibName} ${OW_LIBRARY_DIR_RELATIVE} TARGET_H_FILES "include/openwalnut/core" "CORE_DEV" )
 
+# The core does also provide some nice pkg-config file. Set this up and configure it to contain the correct install prefix
+SETUP_CONFIGURED_FILE( "core-dev" "lib/pkgconfig/openwalnut.pc" "CORE_DEV" )
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Test Setup
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -96,7 +99,7 @@ ADD_CUSTOM_TARGET( core_devdoc
 
 # copy our own resources
 IF( NOT OW_PACKAGE_NOCOPY_COREFONTS )
-    SETUP_RESOURCES( "core" "CORE" )
+    SETUP_GLOBAL_RESOURCES( "core" "CORE" )
 ELSE()
     # This is a hack which is quite debian specific. We do this here to avoid font duplicates since the ttf-liberation fonts are already
     # available on Debian. If you need to modify this for another packaging thingy, please let me know (ebaum@informatik.uni-leipzig.d). We then
@@ -106,8 +109,6 @@ ELSE()
                 COMPONENT "CORE" )
         INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E make_directory \${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts )"
                 COMPONENT "CORE" ) 
-        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Bold.ttf \${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/arial.ttf )"
-                COMPONENT "CORE" )
         INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Bold.ttf \${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/Bold.ttf )"
                 COMPONENT "CORE" )
         INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Italic.ttf \${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/Italic.ttf )"

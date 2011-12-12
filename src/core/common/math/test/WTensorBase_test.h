@@ -2179,7 +2179,7 @@ public:
             std::size_t* idx = NULL;
             s[ idx ] = 5.0;
 
-            TS_ASSERT_THROWS_NOTHING( T04( s ) );
+            TS_ASSERT_THROWS_NOTHING( T04 t = T04( s ) );
             T04 t = T04( s );
 
             TS_ASSERT_EQUALS( t[ idx ], 5.0 );
@@ -2409,7 +2409,8 @@ public:
      */
     void testIndexIteration()
     {
-        std::vector< std::size_t > is( 3, 0 );   // is == ( 0, 0, 0 )
+        boost::array< std::size_t, 3 > is;
+        is.assign( 0 );   // is == ( 0, 0, 0 )
         std::vector< std::size_t > shouldBe( 3, 0 );
         shouldBe[ 2 ] = 1; // shouldBe == ( 0, 0, 1 )
 
@@ -2442,7 +2443,9 @@ public:
      */
     void testIndexIterationSorted()
     {
-        std::vector< std::size_t > v( 3, 0 );
+        boost::array< std::size_t, 3 > v;
+        v.assign( 0 );
+
         std::size_t numIter = WBinom< 5, 3 >::value - 1;
 
         // the indices should always be sorted

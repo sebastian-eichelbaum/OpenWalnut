@@ -96,11 +96,11 @@ void WMDatasetProfile::properties()
     m_snapSelectionsList->addItem( "coronal", "" );
     m_snapSelectionsList->addItem( "sagittal", "" );
 
-    m_snapSelection = m_properties->addProperty( "snap to",  "snap",
+    m_snapSelection = m_properties->addProperty( "Snap to",  "snap",
             m_snapSelectionsList->getSelectorFirst(), m_propCondition );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_snapSelection );
 
-    m_propAddKnobTrigger = m_properties->addProperty( "Add Knob", "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
+    m_propAddKnobTrigger = m_properties->addProperty( "Add knob", "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
 
     m_graphColor = m_properties->addProperty( "Graph color", "Description.", WColor( 0.2, 0.2, 0.2, 1.0 ) );
 
@@ -109,7 +109,7 @@ void WMDatasetProfile::properties()
     m_propLength->setMax( 500 );
     m_propUseLength = m_properties->addProperty( "Use length", "Description.", false );
 
-    m_propInterpolate = m_properties->addProperty( "interpolate", "Description.", true );
+    m_propInterpolate = m_properties->addProperty( "Interpolate", "Description.", true );
 
     m_propNumSamples = m_properties->addProperty( "Number of sample points", "Description.", 100 );
     m_propNumSamples->setMin( 1 );

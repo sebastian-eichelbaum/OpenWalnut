@@ -49,6 +49,6 @@ bool WGERequirement::isComplied() const
 
 std::string WGERequirement::getDescription() const
 {
-    return "Module needs an running graphics engine.";
+    return "Module needs a running graphics engine.";
 }
 

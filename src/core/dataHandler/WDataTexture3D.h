@@ -35,6 +35,7 @@
 #include "../graphicsEngine/WGETexture.h"
 #include "../graphicsEngine/WGETypeTraits.h"
 #include "../common/WProperties.h"
+#include "../common/WLogger.h"
 
 #include "WValueSetBase.h"
 #include "WGridRegular3D.h"

@@ -325,6 +325,14 @@ void WMGaussFiltering::moduleMain()
                     newValueSet = iterativeFilterField( vals, iterations );
                     break;
                 }
+                case W_DT_UINT16:
+                {
+                    boost::shared_ptr<WValueSet<uint16_t> > vals;
+                    vals = boost::shared_dynamic_cast<WValueSet<uint16_t> >( ( *m_dataSet ).getValueSet() );
+                    WAssert( vals, "Data type and data type indicator must fit." );
+                    newValueSet = iterativeFilterField( vals, iterations );
+                    break;
+                }
                 case W_DT_SIGNED_INT:
                 {
                     boost::shared_ptr<WValueSet<int32_t> > vals;

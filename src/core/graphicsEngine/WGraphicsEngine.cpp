@@ -56,15 +56,6 @@ WGraphicsEngine::WGraphicsEngine():
 {
     WLogger::getLogger()->addLogMessage( "Initializing Graphics Engine", "GE", LL_INFO );
 
-    // NOTE: the osgViewer::StatsHandler uses a hard coded font filename. :-(. Fortunately OSG allows us to modify the search path using
-    // environment variables:
-#ifndef _WIN32
-    setenv( "OSGFILEPATH", WPathHelper::getFontPath().file_string().c_str(), 1 );
-#else
-    std::string envStr = std::string( "OSGFILEPATH=" ) + WPathHelper::getFontPath().file_string();
-    putenv( envStr.c_str() );
-#endif
-
 #ifndef __APPLE__
     // initialize OSG render window
     m_viewer = osg::ref_ptr<osgViewer::CompositeViewer>( new osgViewer::CompositeViewer() );
@@ -82,7 +73,12 @@ WGraphicsEngine::~WGraphicsEngine()
 
 void WGraphicsEngine::setMultiThreadedViews( bool enable )
 {
-#ifndef __APPLE__
+#ifdef __APPLE__
+    if ( enable )
+    {
+        WLogger::getLogger()->addLogMessage( "WGraphicsEngine::setMultiThreadedViews not implemented for OSX, yet", "GE", LL_INFO );
+    }
+#else
     // ThreadingModel: enum with the following possibilities
     //
     //  SingleThreaded
@@ -189,12 +185,15 @@ bool WGraphicsEngine::waitForStartupComplete()
 {
     if( !m_instance )
     {
+        WLogger::getLogger()->addLogMessage( "Not Graphics Engine running", "GE", LL_INFO );
         return false;
     }
 
+    WLogger::getLogger()->addLogMessage( "Blocking for graphics engine startup", "GE", LL_INFO );
     // this ensures that the startup is completed if returning.
     m_instance->m_startThreadingCondition.wait();
 
+    WLogger::getLogger()->addLogMessage( "Done blocking for graphics engine startup, maybe running now", "GE", LL_INFO );
     // did something went wrong? Ensure by checking if really running.
     return isRunning();
 }
@@ -211,6 +210,9 @@ void WGraphicsEngine::threadMain()
     m_viewer->run();
     m_viewer->stopThreading();
     m_running = false;
+#else
+    //m_startThreadingCondition.wait();
+    m_running = true; // we have to make sure, that we are "running"
 #endif
 }
 
@@ -238,6 +240,8 @@ boost::signals2::connection WGraphicsEngine::subscribeSignal( GE_SIGNAL signal, 
     {
         case GE_RELOADSHADERS:
             return m_reloadShadersSignal.connect( notifier );
+        case GE_STARTUPCOMPLETE:
+            return m_startThreadingCondition.subscribeSignal( notifier );
         default:
             std::ostringstream s;
             s << "Could not subscribe to unknown signal.";

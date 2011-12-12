@@ -24,6 +24,7 @@
 
 #include <string>
 #include <vector>
+#include <fstream>
 
 #include "core/common/WPathHelper.h"
 #include "core/common/WPropertyHelper.h"

@@ -22,18 +22,32 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#ifndef WTRANSFERFUNCTIONBACKGROUND_H
+#define WTRANSFERFUNCTIONBACKGROUND_H
 
-#include "WModuleSignalUnknown.h"
+#include "QtGui/QGraphicsPixmapItem"
 
-WModuleSignalUnknown::WModuleSignalUnknown( const std::string& msg ): WModuleException( msg )
+class WTransferFunctionWidget;
+
+/**
+ * A QGraphicsItem that displays a pixmap in the background of the scene.
+ *
+ * Compared to the QT implementation, the function setMyPixmap (which has
+ * to be used because setPixmap is not virutal) scales the item to the size
+ * of the scene, so it covers the entire area.
+ */
+class WTransferFunctionBackground : public QGraphicsPixmapItem
 {
-    // initialize members
-}
+    public:
+        typedef QGraphicsPixmapItem BaseClass;
 
-WModuleSignalUnknown::~WModuleSignalUnknown() throw()
-{
-    // cleanup
-}
+        explicit WTransferFunctionBackground( WTransferFunctionWidget* parent = 0x0 );
+        virtual ~WTransferFunctionBackground();
 
+        QRectF boundingRect() const;
+
+        void setMyPixmap( const QPixmap& pixmap );
+};
+
+#endif  // WTRANSFERFUNCTIONBACKGROUND_H
 

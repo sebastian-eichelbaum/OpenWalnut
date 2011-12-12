@@ -34,7 +34,7 @@
 
 // Use filesystem version 2 for compatibility with newer boost versions.
 #ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
+#define BOOST_FILESYSTEM_VERSION 2
 #endif
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
@@ -48,10 +48,12 @@
 
 template < typename T >
 class WPropertyVariable;
-class WProperties;
+class WPropertyGroup;
+
+class WTransferFunction;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NOTE: If you add new types here, please also add corresponding addProperty methods to WProperties
+// NOTE: If you add new types here, please also add corresponding addProperty methods to WPropertyGroup
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,18 +65,21 @@ class WProperties;
  */
 typedef enum
 {
-    PV_UNKNOWN,        //!< type not known
-    PV_GROUP,          //!< the group property
-    PV_INT,            //!< integer value
-    PV_DOUBLE,         //!< floating point value
-    PV_BOOL,           //!< boolean
-    PV_STRING,         //!< a string
-    PV_PATH,           //!< a Boost Path object denoting a filename/path
-    PV_SELECTION,      //!< a list of strings, selectable
-    PV_POSITION,       //!< a position property
-    PV_COLOR,          //!< a color property
-    PV_TRIGGER,        //!< for triggering an event
-    PV_MATRIX4X4       //!< for 4x4 matrices
+    PV_UNKNOWN,          //!< type not known
+    PV_GROUP,            //!< the group property
+    PV_INT,              //!< integer value
+    PV_DOUBLE,           //!< floating point value
+    PV_BOOL,             //!< boolean
+    PV_STRING,           //!< a string
+    PV_PATH,             //!< a Boost Path object denoting a filename/path
+    PV_SELECTION,        //!< a list of strings, selectable
+    PV_POSITION,         //!< a position property
+    PV_COLOR,            //!< a color property
+    PV_TRIGGER,          //!< for triggering an event
+    PV_MATRIX4X4,        //!< for 4x4 matrices
+    PV_TRANSFERFUNCTION, //!< for transfer function textures
+    PV_STRUCT,           //!< for complex, structured properties (used by \ref WPropertyStruct)
+    PV_LIST              //!< for a dynamic list of properties of the same type (see \ref WPropertyList)
 }
 PROPERTY_TYPE;
 
@@ -87,7 +92,7 @@ typedef enum
 {
     PV_PURPOSE_INFORMATION,     //!< information property not meant to be modified from someone (except the creating object)
     PV_PURPOSE_PARAMETER        //!< a parameter meant to be modified by others to manipulate the behaviour of the module (or whomever created
-                                //!< the property)
+        //!< the property)
 }
 PROPERTY_PURPOSE;
 
@@ -99,15 +104,16 @@ PROPERTY_PURPOSE;
  */
 namespace WPVBaseTypes
 {
-    typedef int32_t                                         PV_INT;         //!< base type used for every WPVInt
-    typedef double                                          PV_DOUBLE;      //!< base type used for every WPVDouble
-    typedef bool                                            PV_BOOL;        //!< base type used for every WPVBool
-    typedef std::string                                     PV_STRING;      //!< base type used for every WPVString
-    typedef boost::filesystem::path                         PV_PATH;        //!< base type used for every WPVFilename
-    typedef WItemSelector                                   PV_SELECTION;   //!< base type used for every WPVSelection
-    typedef WPosition                                     PV_POSITION;    //!< base type used for every WPVPosition
-    typedef WColor                                          PV_COLOR;       //!< base type used for every WPVColor
-    typedef WMatrix4d                                     PV_MATRIX4X4;   //!< base type used for every WPVMatrix4X4
+    typedef int32_t                                         PV_INT;              //!< base type used for every WPVInt
+    typedef double                                          PV_DOUBLE;           //!< base type used for every WPVDouble
+    typedef bool                                            PV_BOOL;             //!< base type used for every WPVBool
+    typedef std::string                                     PV_STRING;           //!< base type used for every WPVString
+    typedef boost::filesystem::path                         PV_PATH;             //!< base type used for every WPVFilename
+    typedef WItemSelector                                   PV_SELECTION;        //!< base type used for every WPVSelection
+    typedef WPosition                                       PV_POSITION;         //!< base type used for every WPVPosition
+    typedef WColor                                          PV_COLOR;            //!< base type used for every WPVColor
+    typedef WMatrix4d                                       PV_MATRIX4X4;        //!< base type used for every WPVMatrix4X4
+    typedef WTransferFunction                               PV_TRANSFERFUNCTION; //!< base type for every transfer function
 
     /**
      * Enum denoting the possible trigger states. It is used for trigger properties.
@@ -117,7 +123,16 @@ namespace WPVBaseTypes
         PV_TRIGGER_READY = 0,                                               //!< Trigger property: is ready to be triggered (again)
         PV_TRIGGER_TRIGGERED                                                //!< Trigger property: got triggered
     }
-                                                            PV_TRIGGER;     //!< base type used for every WPVTrigger
+    PV_TRIGGER;     //!< base type used for every WPVTrigger
+
+    /**
+     * Checks which property types are derived from \ref WPropertyGroupBase. This, for example, is true for PV_GROUP and PV_STRUCT.
+     *
+     * \param type the type to check.
+     *
+     * \return true if cast-able \ref WPropertyGroupBase.
+     */
+    bool isPropertyGroup( PROPERTY_TYPE  type );
 
     /**
      * Write a PV_TRIGGER in string representation to the given output stream.
@@ -149,7 +164,7 @@ namespace WPVBaseTypes
 /**
  * Group properties.
  */
-typedef WProperties WPVGroup;
+typedef WPropertyGroup WPVGroup;
 
 /**
  * Int properties.
@@ -200,6 +215,11 @@ typedef WPropertyVariable< WPVBaseTypes::PV_TRIGGER > WPVTrigger;
  * Trigger properties
  */
 typedef WPropertyVariable< WPVBaseTypes::PV_MATRIX4X4 > WPVMatrix4X4;
+
+/**
+ * Transfer Function properties
+ */
+typedef WPropertyVariable< WPVBaseTypes::PV_TRANSFERFUNCTION > WPVTransferFunction;
 
 /**
  * Some convenience type alias for a even more easy usage of WPropertyVariable.
@@ -261,6 +281,10 @@ typedef boost::shared_ptr< WPVTrigger > WPropTrigger;
  */
 typedef boost::shared_ptr< WPVMatrix4X4 > WPropMatrix4X4;
 
+/**
+ * Alias for the transfer function properties
+ */
+typedef boost::shared_ptr< WPVTransferFunction > WPropTransferFunction;
 
 /**
  * This namespace contains several helper classes which translate their template type to an enum.
@@ -587,6 +611,51 @@ namespace PROPERTY_TYPE_HELPER
             }
             return out.str();
         }
+    };
+
+    /**
+     * Class helping to adapt types specified as template parameter into an enum.
+     */
+    template<>
+    class WTypeIdentifier< WPVBaseTypes::PV_TRANSFERFUNCTION >
+    {
+    public:
+        /**
+         * Get type identifier of the template type T.
+         *
+         * \return type identifier-
+         */
+        PROPERTY_TYPE getType()
+        {
+            return PV_TRANSFERFUNCTION;
+        }
+    };
+
+    /**
+     * Class helping to create a new instance of the property content from an old one. Selections need this special care since they contain not
+     * serializable content which needs to be acquired from its predecessor instance.
+     */
+    template<>
+    class WStringConversion< WPVBaseTypes::PV_TRANSFERFUNCTION >
+    {
+    public:
+        /**
+         * Creates a new instance of the type from a given string. Some classes need a predecessor which is also specified here.
+         *
+         * \param str the new value as string
+         *
+         * \return the new instance
+         */
+        WPVBaseTypes::PV_TRANSFERFUNCTION create( const WPVBaseTypes::PV_TRANSFERFUNCTION& /*old*/, const std::string str );
+
+        /**
+         * Creates a string from the specified value.
+         *
+         * \param tf the value to convert
+         *
+         * \return the string representation
+         */
+        std::string asString( const WPVBaseTypes::PV_TRANSFERFUNCTION& tf );
     };
 
     /**

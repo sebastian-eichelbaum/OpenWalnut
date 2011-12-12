@@ -374,7 +374,7 @@ private:
          *
          * \return true if the new value is OK.
          */
-        virtual bool accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING > >  property, WPVBaseTypes::PV_STRING value );
+        virtual bool accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING > >  property, const WPVBaseTypes::PV_STRING& value );
 
         /**
          * Method to clone the constraint and create a new one with the correct dynamic type.

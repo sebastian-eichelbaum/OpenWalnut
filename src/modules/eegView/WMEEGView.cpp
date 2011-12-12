@@ -26,6 +26,7 @@
 #include <vector>
 
 #include <osg/LightModel>
+#include <osg/ShapeDrawable>
 #include <osgSim/ColorRange>
 
 #include "core/dataHandler/WEEG2.h"
@@ -105,31 +106,31 @@ void WMEEGView::connectors()
 void WMEEGView::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
-    m_drawElectrodes   = m_properties->addProperty( "Draw Electrodes",
+    m_drawElectrodes   = m_properties->addProperty( "Draw electrodes",
                                                     "Draw the 3D positions of the electrodes.",
                                                     true,
                                                     m_propCondition );
-    m_drawHeadSurface  = m_properties->addProperty( "Draw Head Surface",
+    m_drawHeadSurface  = m_properties->addProperty( "Draw head surface",
                                                     "Draw the head surface between the electrodes.",
                                                     true,
                                                     m_propCondition );
-    m_drawLabels       = m_properties->addProperty( "Draw Labels",
+    m_drawLabels       = m_properties->addProperty( "Draw labels",
                                                     "Draw the labels of the electrodes at their 3D positions.",
                                                     true,
                                                     m_propCondition );
-    m_labelsWidth      = m_properties->addProperty( "Labels Width",
+    m_labelsWidth      = m_properties->addProperty( "Labels width",
                                                     "The width of the label display in pixel.",
                                                     24 );
-    m_timePos          = m_properties->addProperty( "Time Position",
+    m_timePos          = m_properties->addProperty( "Time position",
                                                     "The time position in seconds where to start the graph at the left edge.",
                                                     0.0 );
-    m_timeRange        = m_properties->addProperty( "Time Range",
+    m_timeRange        = m_properties->addProperty( "Time range",
                                                     "The width of the graph in seconds.",
                                                     4.0 );
-    m_graphWidth       = m_properties->addProperty( "Graph Width",
+    m_graphWidth       = m_properties->addProperty( "Graph width",
                                                     "The width of the graph in pixel.",
                                                     992 );
-    m_yPos             = m_properties->addProperty( "Y Position",
+    m_yPos             = m_properties->addProperty( "Y position",
                                                     "The y position in pixel at the lower edge.",
                                                     -724.5 );
     m_ySpacing         = m_properties->addProperty( "Spacing",
@@ -138,7 +139,7 @@ void WMEEGView::properties()
     m_ySensitivity     = m_properties->addProperty( "Sensitivity",
                                                     "The sensitivity of the graph in microvolt per pixel.",
                                                     2.0 );
-    m_colorSensitivity = m_properties->addProperty( "Color Sensitivity",
+    m_colorSensitivity = m_properties->addProperty( "Color sensitivity",
             "The sensitivity of the color map. It ranges from -Color Sensitivity to +Color Sensitivity in microvolt.",
                                                     23.0 );
 
@@ -363,7 +364,7 @@ bool WMEEGView::openCustomWidget()
     bool success = m_widget.get();
     if( success )
     {
-        debugLog() << "Succesfully opened EEG View widget.";
+        debugLog() << "Successfully opened EEG View widget.";
 
         if( m_handler )
         {

@@ -53,6 +53,11 @@ public:
     virtual ~WSharedObject();
 
     /**
+     * The type protected by this shared object class
+     */
+    typedef T ValueT;
+
+    /**
      * Type for read tickets.
      */
     typedef boost::shared_ptr< WSharedObjectTicketRead< T > > ReadTicket;
@@ -61,6 +66,16 @@ public:
      * Type for write tickets.
      */
     typedef boost::shared_ptr< WSharedObjectTicketWrite< T > > WriteTicket;
+
+    /**
+     * Shared pointer abbreviation.
+     */
+    typedef boost::shared_ptr< WSharedObject< T > > SPtr;
+
+    /**
+     * Const shared ptr abbreviation.
+     */
+    typedef boost::shared_ptr< WSharedObject< T > > ConstSPtr;
 
     /**
      * Returns a ticket to get read access to the contained data. After the ticket is freed, the read lock vanishes.

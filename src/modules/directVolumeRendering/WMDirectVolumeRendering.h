@@ -106,6 +106,7 @@ protected:
 
 private:
 
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_transferFunction;
     /**
      * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
      */
@@ -141,26 +142,6 @@ private:
     WPropSelection m_localIlluminationAlgo;
 
     /**
-     * The group containing the tf loader path and trigger.
-     */
-    WPropGroup m_tfLoaderGroup;
-
-    /**
-     * If true, the texture is used for transfer functions.
-     */
-    WPropBool m_tfLoaderEnabled;
-
-    /**
-     * The path to the file to load.
-     */
-    WPropFilename m_tfLoaderFile;
-
-    /**
-     * Triggered to actually do loading
-     */
-    WPropTrigger m_tfLoaderTrigger;
-
-    /**
      * All properties for those nice improvement methods.
      */
     WPropGroup m_improvementGroup;
@@ -177,6 +158,16 @@ private:
     WPropBool m_opacityCorrectionEnabled;
 
     /**
+     * If active, Maximum intensity projection is used based on the alpha value of the points
+     */
+    WPropBool m_maximumIntensityProjectionEnabled;
+
+    /**
+     * If active, color coding is done by depth projection mode where the intensity is taken from the alpha channel and the color from the color channel ( last part not implemented, yet )
+     */
+    WPropBool m_depthProjectionEnabled;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
@@ -185,6 +176,11 @@ private:
      * the DVR shader.
      */
     osg::ref_ptr< WGEShader > m_shader;
+
+    /**
+     * the main geometry node
+     */
+    osg::ref_ptr< osg::Node > cube;
 };
 
 #endif  // WMDIRECTVOLUMERENDERING_H

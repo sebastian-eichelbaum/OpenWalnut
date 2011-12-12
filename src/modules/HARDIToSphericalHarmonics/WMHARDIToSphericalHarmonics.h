@@ -126,7 +126,7 @@ private:
     WPropBool m_doErrorCalculation; //!< Property indicating whether a reprojection error of the spherical harmonics is calculated.
 
     /**
-     * Property indicating whether the reprojection error (measurement relative to spherical harmonic calculation) is stored into a seperate dataset.
+     * Property indicating whether the reprojection error (measurement relative to spherical harmonic calculation) is stored into a separate dataset.
      */
     WPropBool m_doResidualCalculation;
 
@@ -178,7 +178,7 @@ private:
          *
          * \return true if the new value is OK.
          */
-        virtual bool accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_INT > >  property, WPVBaseTypes::PV_INT value );
+        virtual bool accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_INT > >  property, const WPVBaseTypes::PV_INT& value );
 
         /**
          * Method to clone the constraint and create a new one with the correct dynamic type.

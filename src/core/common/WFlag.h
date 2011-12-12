@@ -60,7 +60,7 @@ public:
      * \note condition can also be a WConditionOneShot.
      * \param initial the initial value of this flag.
      */
-    WFlag( WCondition* condition, T initial );
+    WFlag( WCondition* condition, const T& initial );
 
     /**
      * Constructor. Uses a given condition to realize the wait/notify functionality. By using this constructor, the specified
@@ -70,7 +70,7 @@ public:
      * \note condition can also be a WConditionOneShot.
      * \param initial the initial value of this flag.
      */
-    WFlag( boost::shared_ptr< WCondition > condition, T initial );
+    WFlag( boost::shared_ptr< WCondition > condition, const T& initial );
 
     /**
      * Copy constructor. Creates a deep copy of this property. As boost::signals2 and condition variables are non-copyable, new instances get
@@ -95,21 +95,21 @@ public:
      *
      * \return the value.
      */
-    virtual const T get( bool resetChangeState = false );
+    virtual const T& get( bool resetChangeState = false );
 
     /**
      * Operator returns value of the flag.
      *
      * \return the value.
      */
-    virtual const T get() const;
+    virtual const T& get() const;
 
     /**
      * Operator returns value of the flag.
      *
      * \return the value.
      */
-    virtual const T operator()() const;
+    virtual const T& operator()() const;
 
     /**
      * Operator returns value of the flag. It does not reset the change flag.
@@ -133,14 +133,14 @@ public:
      *
      * \note set( get() ) == true
      */
-    virtual bool set( T value, bool suppressNotification = false );
+    virtual bool set( const T& value, bool suppressNotification = false );
 
     /**
      * Sets the new value for this flag. Also notifies waiting threads.
      *
      * \param value the new value
      */
-    virtual void operator()( T value );
+    virtual void operator()( const T& value );
 
     /**
      * Returns the condition that is used by this flag.
@@ -165,7 +165,7 @@ public:
      *
      * \return true if it is a valid/acceptable value.
      */
-    virtual bool accept( T newValue );
+    virtual bool accept( const T& newValue );
 
     /**
      * Tests whether a flag is currently valid. It is equal to accept( get() );
@@ -216,7 +216,7 @@ private:
 typedef WFlag< bool > WBoolFlag;
 
 template < typename T >
-WFlag< T >::WFlag( WCondition* condition, T initial ):
+WFlag< T >::WFlag( WCondition* condition, const T& initial ):
     m_condition( boost::shared_ptr< WCondition >( condition ) ),
     m_valueChangeCondition( boost::shared_ptr< WCondition >( new WCondition() ) ),
     m_flag( initial ),
@@ -225,7 +225,7 @@ WFlag< T >::WFlag( WCondition* condition, T initial ):
 }
 
 template < typename T >
-WFlag< T >::WFlag( boost::shared_ptr< WCondition > condition, T initial ):
+WFlag< T >::WFlag( boost::shared_ptr< WCondition > condition, const T& initial ):
     m_condition( condition ),
     m_valueChangeCondition( boost::shared_ptr< WCondition >( new WCondition() ) ),
     m_flag( initial ),
@@ -248,13 +248,13 @@ WFlag< T >::~WFlag()
 }
 
 template < typename T >
-const T WFlag< T >::operator()() const
+const T& WFlag< T >::operator()() const
 {
     return get();
 }
 
 template < typename T >
-const T WFlag< T >::get( bool resetChangeState )
+const T& WFlag< T >::get( bool resetChangeState )
 {
     if( resetChangeState )
     {
@@ -264,7 +264,7 @@ const T WFlag< T >::get( bool resetChangeState )
 }
 
 template < typename T >
-const T WFlag< T >::get() const
+const T& WFlag< T >::get() const
 {
     return m_flag;
 }
@@ -282,13 +282,13 @@ void WFlag< T >::wait() const
 }
 
 template < typename T >
-void WFlag< T >::operator()( T value )
+void WFlag< T >::operator()( const T& value )
 {
     set( value );
 }
 
 template < typename T >
-bool WFlag< T >::set( T value, bool suppressNotification )
+bool WFlag< T >::set( const T& value, bool suppressNotification )
 {
     // if the value is the same as the current one -> do not notify but let the caller know "all ok"
     if( m_flag == value )
@@ -328,7 +328,7 @@ boost::shared_ptr< WCondition > WFlag< T >::getValueChangeCondition()
 }
 
 template < typename T >
-bool WFlag< T >::accept( T /* newValue */ )
+bool WFlag< T >::accept( const T& /* newValue */ )
 {
     // please implement this method in your class to modify the behaviour.
     return true;

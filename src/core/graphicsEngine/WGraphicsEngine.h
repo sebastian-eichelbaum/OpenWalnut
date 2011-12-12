@@ -27,13 +27,10 @@
 
 #include <map>
 #include <string>
-#include <vector>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
-#include <boost/function.hpp>
 #include <boost/thread/mutex.hpp>
-#include <boost/thread/thread.hpp>
 
 #include <osg/Camera>
 #include <osg/Texture3D>
@@ -41,8 +38,6 @@
 #include <osg/Vec4>
 #include <osg/ref_ptr>
 #include <osgViewer/CompositeViewer>
-#include <osgViewer/View>
-#include <osgViewer/Viewer>
 
 #include "../common/WThreadedRunner.h"
 #include "../common/WConditionOneShot.h"

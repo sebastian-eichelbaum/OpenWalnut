@@ -22,4 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
+#include <limits>
+
 #include "WLimits.h"
+
+namespace wlimits
+{
+    const double MAX_DOUBLE = std::numeric_limits< double >::max();
+    const float MAX_FLOAT = std::numeric_limits< float >::max();
+    const size_t MAX_SIZE_T = std::numeric_limits< size_t >::max();
+    const int32_t MAX_INT32_T = std::numeric_limits< int32_t >::max();
+    const double MIN_DOUBLE = std::numeric_limits< double >::min();
+    const double DBL_EPS = std::numeric_limits< double >::epsilon();
+    const float FLT_EPS = std::numeric_limits< float >::epsilon();
+}
+

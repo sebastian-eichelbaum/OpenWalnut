@@ -77,6 +77,7 @@
 #include "events/WModuleReadyEvent.h"
 #include "events/WModuleRemovedEvent.h"
 #include "events/WOpenCustomDockWidgetEvent.h"
+#include "events/WCloseCustomDockWidgetEvent.h"
 #include "guiElements/WQtPropertyBoolAction.h"
 #include "WQt4Gui.h"
 #include "WQtCombinerToolbar.h"
@@ -94,9 +95,9 @@
 WMainWindow::WMainWindow():
     QMainWindow(),
     m_currentCompatiblesToolbar( NULL ),
-    m_iconManager(),
-    m_navSlicesAlreadyLoaded( false )
+    m_iconManager()
 {
+    setAcceptDrops( true ); // enable drag and drop events
 }
 
 WMainWindow::~WMainWindow()
@@ -124,6 +125,12 @@ void WMainWindow::setupGUI()
                                                                true,
                                                                true    // this requires a restart
                                                        );
+    WSettingAction* showNetworkEditor = new WSettingAction( this, "qt4gui/showNetworkEditor",
+                                                               "Show Network Editor",
+                                                               "Show the network editor allowing you to manipulate the module graph graphically?",
+                                                               false,
+                                                               true    // this requires a restart
+                                                       );
     m_autoDisplaySetting = new WSettingAction( this, "qt4gui/useAutoDisplay",
                                                      "Auto-Display",
                                                      "If enabled, the best matching module is automatically added if some data was loaded.",
@@ -148,7 +155,7 @@ void WMainWindow::setupGUI()
     logOptions.push_back( "Error" );
     WSettingMenu* logLevels = new WSettingMenu( this, "qt4gui/logLevel",
                                                       "Log-Level",
-                                                      "Allows to set the log verbosity.",
+                                                      "Allows one to set the log verbosity.",
                                                       1,    // info is the default
                                                       logOptions
                                               );
@@ -189,11 +196,13 @@ void WMainWindow::setupGUI()
 
     setDockOptions( QMainWindow::AnimatedDocks |  QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks );
 
-#ifdef OW_QT4GUI_NETWORKEDITOR
     //network Editor
-    m_networkEditor = new WQtNetworkEditor( this );
-    m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
-#endif
+    m_networkEditor = NULL;
+    if( showNetworkEditor->get() )
+    {
+        m_networkEditor = new WQtNetworkEditor( this );
+        m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
+    }
 
     // the control panel instance is needed for the menu
     m_controlPanel = new WQtControlPanel( this );
@@ -202,17 +211,19 @@ void WMainWindow::setupGUI()
 
     // add all docks
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getModuleDock() );
-#ifdef OW_QT4GUI_NETWORKEDITOR
-    addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
-#endif
+    if( m_networkEditor )
+    {
+        addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
+    }
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getColormapperDock() );
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getRoiDock() );
 
     // tabify those panels by default
-#ifdef OW_QT4GUI_NETWORKEDITOR
-    tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
-#endif
+    if( m_networkEditor )
+    {
+        tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
+    }
     tabifyDockWidget( m_controlPanel->getModuleDock(), m_controlPanel->getColormapperDock() );
     tabifyDockWidget( m_controlPanel->getColormapperDock(), m_controlPanel->getRoiDock() );
 
@@ -222,7 +233,6 @@ void WMainWindow::setupGUI()
     m_glDock->setDocumentMode( true );
     setCentralWidget( m_glDock );
     WQtGLDockWidget* mainGLDock = new WQtGLDockWidget( "main", "3D View", m_glDock );
-    mainGLDock->setMinimumWidth( 500 );
     mainGLDock->getGLWidget()->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
     m_mainGLWidget = mainGLDock->getGLWidget();
     m_mainGLWidgetScreenCapture = m_mainGLWidget->getScreenCapture( this );
@@ -263,7 +273,7 @@ void WMainWindow::setupGUI()
     connect( projectLoadButton, SIGNAL(  triggered( bool ) ), this, SLOT( projectLoad() ) );
     connect( projectSaveButton, SIGNAL( triggered( bool ) ), this, SLOT( projectSaveAll() ) );
 
-    m_loadButton->setToolTip( "Load Data" );
+    m_loadButton->setToolTip( "Load a dataset from file" );
     resetButton->setToolTip( "Reset main view" );
     roiButton->setToolTip( "Create New ROI" );
     projectLoadButton->setToolTip( "Load a project from file" );
@@ -306,6 +316,7 @@ void WMainWindow::setupGUI()
     viewMenu->addAction( hideMenuAction );
     viewMenu->addSeparator();
     viewMenu->addAction( showNavWidgets );
+    viewMenu->addAction( showNetworkEditor );
     viewMenu->addSeparator();
     viewMenu->addMenu( m_permanentToolBar->getStyleMenu() );
 
@@ -320,7 +331,7 @@ void WMainWindow::setupGUI()
 
     QMenu* settingsMenu = m_menuBar->addMenu( "Settings" );
     settingsMenu->addAction( m_autoDisplaySetting );
-    settingsMenu->addAction( m_controlPanel->getModuleExcluder().getConfigureAction() );
+    settingsMenu->addAction( m_controlPanel->getModuleConfig().getConfigureAction() );
     settingsMenu->addSeparator();
     settingsMenu->addAction( mtViews );
     settingsMenu->addSeparator();
@@ -460,8 +471,14 @@ void WMainWindow::setupGUI()
     restoreSavedState();
 }
 
-void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string proto )
+void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string proto, bool onlyOnce )
 {
+    // if only one module should be added, and there already is one --- skip.
+    if( onlyOnce && !WKernel::getRunningKernel()->getRootContainer()->getModules( proto ).empty() )
+    {
+        return;
+    }
+
     // get the prototype.
     if( !WKernel::getRunningKernel()->getRootContainer()->applyModule( module, proto, true ) )
     {
@@ -496,11 +513,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             // it is a dataset single
             // load a nav slice module if a WDataSetSingle is available!?
-            if( !m_navSlicesAlreadyLoaded )
-            {
-                autoAdd( module, "Navigation Slices" );
-                m_navSlicesAlreadyLoaded = true;
-            }
+            autoAdd( module, "Navigation Slices", true );
         }
         else if( dataModule->getDataSet()->isA< WDataSetFibers >() )
         {
@@ -554,13 +567,15 @@ WQtNetworkEditor* WMainWindow::getNetworkEditor()
     return m_networkEditor;
 }
 
-void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer )
+bool WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer )
 {
     QFileDialog fd;
     fd.setWindowTitle( "Save Project as" );
     fd.setFileMode( QFileDialog::AnyFile );
     fd.setAcceptMode( QFileDialog::AcceptSave );
 
+    // My Mac OSX Lion automatically appends .owproj to the file name
+    // if no extension is given.
     QStringList filters;
     filters << "Project File (*.owproj *.owp)";
     fd.setNameFilters( filters );
@@ -570,13 +585,20 @@ void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
     {
         fileNames = fd.selectedFiles();
     }
+    else
+    {
+        return false; // the user canceled, no files, so nothing saved
+    }
 
+    bool success = true;
     QStringList::const_iterator constIterator;
     for( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
     {
         std::string filename = ( *constIterator ).toStdString();
-        // append owp if not existent
-        if( filename.rfind( ".owp" ) == std::string::npos )
+
+        // append owp if suffix is not present, yet
+        if( filename.rfind( ".owp" ) != filename.size() - 4
+         && filename.rfind( ".owproj" ) != filename.size() - 7 )
         {
             filename += ".owp";
         }
@@ -603,36 +625,38 @@ void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
             QString message = "<b>Problem while saving project file.</b><br/><br/><b>File:  </b>" + ( *constIterator ) +
                               "<br/><b>Message:  </b>" + QString::fromStdString( e.what() );
             QMessageBox::critical( this, title, message );
+            success = false;
         }
     }
+    return success;
 }
 
-void WMainWindow::projectSaveAll()
+bool WMainWindow::projectSaveAll()
 {
     std::vector< boost::shared_ptr< WProjectFileIO > > w;
     // an empty list equals "all"
-    projectSave( w );
+    return projectSave( w );
 }
 
-void WMainWindow::projectSaveCameraOnly()
+bool WMainWindow::projectSaveCameraOnly()
 {
     std::vector< boost::shared_ptr< WProjectFileIO > > w;
     w.push_back( WProjectFile::getCameraWriter() );
-    projectSave( w );
+    return projectSave( w );
 }
 
-void WMainWindow::projectSaveROIOnly()
+bool WMainWindow::projectSaveROIOnly()
 {
     std::vector< boost::shared_ptr< WProjectFileIO > > w;
     w.push_back( WProjectFile::getROIWriter() );
-    projectSave( w );
+    return projectSave( w );
 }
 
-void WMainWindow::projectSaveModuleOnly()
+bool WMainWindow::projectSaveModuleOnly()
 {
     std::vector< boost::shared_ptr< WProjectFileIO > > w;
     w.push_back( WProjectFile::getModuleWriter() );
-    projectSave( w );
+    return projectSave( w );
 }
 
 void WMainWindow::projectLoad()
@@ -726,7 +750,7 @@ void WMainWindow::openOpenWalnutHelpDialog()
     std::string content = readFileIntoString( filename );
 
     QWidget* window = new QWidget( this, Qt::Window );
-
+    window->setWindowTitle( "OpenWalnut Help" );
     // specify intial layout
     QVBoxLayout *layout = new QVBoxLayout( window );
     window->setLayout( layout );
@@ -895,6 +919,19 @@ void WMainWindow::customEvent( QEvent* event )
 
         ocdwEvent->getFlag()->set( widget );
     }
+    if( event->type() == WCloseCustomDockWidgetEvent::CUSTOM_TYPE )
+    {
+        WCloseCustomDockWidgetEvent* closeEvent = static_cast< WCloseCustomDockWidgetEvent* >( event );
+        boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
+        if( m_customDockWidgets.count( closeEvent->getTitle() ) > 0 )
+        {
+            if( m_customDockWidgets[closeEvent->getTitle()]->decreaseUseCount() )
+            {
+                // custom dock widget should be deleted
+                m_customDockWidgets.erase( closeEvent->getTitle() );
+            }
+        }
+    }
     else
     {
         // other event
@@ -952,23 +989,13 @@ boost::shared_ptr< WQtCustomDockWidget > WMainWindow::getCustomDockWidget( std::
     boost::shared_ptr< WQtCustomDockWidget > out = m_customDockWidgets.count( title ) > 0 ?
         m_customDockWidgets[title] :
         boost::shared_ptr< WQtCustomDockWidget >();
-    //m_customDockWidgetsLock.unlock();
     return out;
 }
 
 
 void WMainWindow::closeCustomDockWidget( std::string title )
 {
-    boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
-    if( m_customDockWidgets.count( title ) > 0 )
-    {
-        if( m_customDockWidgets[title]->decreaseUseCount() )
-        {
-            // custom dock widget should be deleted
-            m_customDockWidgets.erase( title );
-        }
-    }
-    //m_customDockWidgetsLock.unlock();
+    QCoreApplication::postEvent( this, new WCloseCustomDockWidgetEvent( title ) );
 }
 
 void WMainWindow::newRoi()
@@ -1077,5 +1104,131 @@ void WMainWindow::restoreMainGLWidgetSize()
     m_mainGLWidget->setMaximumHeight( QWIDGETSIZE_MAX );
     m_mainGLWidget->setMinimumWidth( 250 );
     m_mainGLWidget->setMaximumWidth( QWIDGETSIZE_MAX );
+}
+
+// Drag and drop functionality
+
+void WMainWindow::dropEvent( QDropEvent *event )
+{
+    if ( event->mimeData()->hasUrls() )
+    {
+        std::vector < std::string > projects;
+        std::vector < std::string > filenames;
+        std::vector < std::string > unsupported;
+        foreach( QUrl url, event->mimeData()->urls() )
+        {
+            QString path =  url.toLocalFile();
+            QFileInfo info( path );
+            QString suffix =  info.completeSuffix();
+            if ( suffix == "cnt"
+              || suffix == "edf"
+              || suffix == "asc"
+              || suffix == "nii"
+              || suffix == "nii.gz"
+              || suffix == "fib" )
+            {
+                filenames.push_back( path.toStdString() );
+            }
+            else
+            {
+                if ( suffix == "owp"
+                    || suffix == "owproj" )
+                {
+                    projects.push_back( path.toStdString() );
+                }
+                else
+                {
+                    unsupported.push_back( path.toStdString() );
+                }
+            }
+        }
+        if ( projects.size() > 0 )
+        {
+            for ( size_t i = 0; i < projects.size(); ++i )
+            {
+                boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
+                        new WProjectFile( projects[ i ] )
+                );
+
+                // This call is asynchronous. It parses the file and the starts a thread to actually do all the stuff
+                proj->load();
+            }
+            event->accept();
+        }
+        if ( filenames.size() > 0 )
+        {
+            m_loaderSignal( filenames );
+            event->accept();
+        }
+        if ( unsupported.size() > 0 )
+        {
+            QString message = QString() +
+                "The following files are not supported as standard data types by OpenWalnut at the moment:<br>";
+            for ( size_t i = 0; i < unsupported.size(); ++i )
+            {
+                message += QString::fromStdString( unsupported[ i ] ) + QString( "<br>" );
+            }
+            message += "There may be additional modules supporting them.<br>"
+                "All other files have been loaded and should be visible in the module "
+                "browser and network editor.";
+            QMessageBox::information( this, "Not yet implemented!",
+                    message
+                    );
+        }
+    }
+    QMainWindow::dropEvent( event );
+}
+
+void WMainWindow::dragMoveEvent( QDragMoveEvent *event )
+{
+    if ( event->mimeData()->hasUrls() )
+    {
+        foreach( QUrl url, event->mimeData()->urls() )
+        {
+            QString path =  url.toLocalFile();
+            QFileInfo info( path );
+            // TODO(mario): check when this fails, I assume we have problems with files with multiple dots such as session.1.nii
+            QString suffix =  info.completeSuffix();
+            if ( suffix == "cnt"
+              || suffix == "edf"
+              || suffix == "asc"
+              || suffix == "nii"
+              || suffix == "nii.gz"
+              || suffix == "fib"
+              || suffix == "owp"
+              || suffix == "owproj" )
+            {
+                event->acceptProposedAction();
+                return;
+            }
+        }
+    }
+    QMainWindow::dragMoveEvent( event );
+}
+
+void WMainWindow::dragEnterEvent( QDragEnterEvent *event )
+{
+    if ( event->mimeData()->hasUrls() )
+    {
+        foreach( QUrl url, event->mimeData()->urls() )
+        {
+            QString path =  url.toLocalFile();
+            QFileInfo info( path );
+            QString suffix =  info.completeSuffix();
+            if ( suffix == "cnt"
+              || suffix == "edf"
+              || suffix == "asc"
+              || suffix == "nii"
+              || suffix == "nii.gz"
+              || suffix == "fib"
+              || suffix == "owp"
+              || suffix == "owproj" )
+            {
+                event->acceptProposedAction();
+                return;
+            }
+        }
+    }
+    QMainWindow::dragEnterEvent( event );
 }
 

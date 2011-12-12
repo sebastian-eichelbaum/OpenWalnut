@@ -25,7 +25,6 @@
 #ifndef WQTNETWORKEDITOR_H
 #define WQTNETWORKEDITOR_H
 
-#include <time.h>
 #include <string>
 #include <list>
 
@@ -53,7 +52,7 @@ class WQtNetworkEditor : public QDockWidget
 public:
 
     /**
-     * default constructor
+     * constructor
      *
      * \param parent The widget that manages this widget
      */
@@ -63,12 +62,6 @@ public:
      * destructor.
      */
     virtual ~WQtNetworkEditor();
-
-    /**
-     * Create a new WQtNetworkItem for a given WModule
-     * \param module a new WModule
-     */
-    void addModule(  boost::shared_ptr< WModule > module );
 
     /**
      * Simple search the WQtNetworkItem that belongs to the WModule
@@ -84,16 +77,14 @@ public:
     void connectSlots();
 
     /**
-     * This Method is everytime called when a new Module is inserted or an
-     * WQtNetworkItem is moved manually. A Timer is set for calculating the new
-     * forces.
-     */
-    void itemMoved();
-
-    /**
      * Deletes all items in the scene who are selected.
      **/
     void deleteSelectedItems();
+
+    /**
+     * TODO
+     **/
+    QList<QGraphicsItem *> selectedItems() const;
 
 protected:
 
@@ -107,28 +98,15 @@ protected:
      * deleted the kernels emits a signal and here we look how to behave.
      *
      * \param event the event that should be handled here.
+     * \return if event was accepted or not
      */
     virtual bool event( QEvent* event );
-
-    /**
-     * This event is called every 'timerID' in ms. If the WQtNetworkItems don't
-     * move as result of the calculated forces the timer won't be reseted.
-     *
-     * \param event the timer event
-     */
-    void timerEvent( QTimerEvent* event );
 
 private:
 
     WQtNetworkScene* m_scene; //!< QGraphicsScene
 
-    //QGraphicsView* m_view; //!< QGraphicsView
-
     WNetworkLayout *m_layout; //!< the object that handels the layout
-
-    //QWidget* m_panel; //!< panel
-
-    //QVBoxLayout* m_layout; //!< layout
 
     QList< WQtNetworkItem* > m_items; //!< a list of the WQtNetworkItems in the WQtNetworkScene
 
@@ -146,16 +124,6 @@ private:
      * Action which disconnects a connector from the module.
      */
     QAction* m_disconnectAction;
-
-    /**
-     * Is needed for random position of the WQtNetworkItems.
-     */
-    time_t m_time;
-
-    /**
-     * Certain time span in ms in which timerEvent gets called.
-     */
-    int timerId;
 
 private slots:
 

@@ -39,12 +39,12 @@ WSegmentationAlgoLevelSetCanny::~WSegmentationAlgoLevelSetCanny()
 
 void WSegmentationAlgoLevelSetCanny::properties()
 {
-    m_smoothingIter = m_properties->addProperty( "Smoothing iterations.", "Number of smoothing passes.", 10, m_propCondition );
-    m_conductance = m_properties->addProperty( "Conductance.", "Conductance parameter for smoothing.", 1.0, m_propCondition );
+    m_smoothingIter = m_properties->addProperty( "Smoothing iterations", "Number of smoothing passes.", 10, m_propCondition );
+    m_conductance = m_properties->addProperty( "Conductance", "Conductance parameter for smoothing.", 1.0, m_propCondition );
     m_conductance->setMax( 10.0 );
-    m_level = m_properties->addProperty( "Level.", "The isovalue.", 0.0, m_propCondition );
-    m_variance = m_properties->addProperty( "Variance.", "variance for the level set.", 1.0, m_propCondition );
-    m_threshold = m_properties->addProperty( "Threshold.", "Threshold in %.", 0.0, m_propCondition );
+    m_level = m_properties->addProperty( "Level", "The isovalue.", 0.0, m_propCondition );
+    m_variance = m_properties->addProperty( "Variance", "variance for the level set.", 1.0, m_propCondition );
+    m_threshold = m_properties->addProperty( "Threshold", "Threshold in %.", 0.0, m_propCondition );
 }
 
 std::string WSegmentationAlgoLevelSetCanny::getName()

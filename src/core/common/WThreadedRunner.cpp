@@ -24,14 +24,17 @@
 
 #include <iostream>
 
+#include "exceptions/WSignalSubscriptionFailed.h"
 #include "WConditionOneShot.h"
 #include "WCondition.h"
+#include "WException.h"
 #include "WLogger.h"
 
 #include "WThreadedRunner.h"
 
 WThreadedRunner::WThreadedRunner():
-    m_shutdownFlag( new WConditionOneShot(), false )
+    m_shutdownFlag( new WConditionOneShot(), false ),
+    m_isCrashed( new WConditionOneShot(), false )
 {
     // initialize members
 }
@@ -43,9 +46,30 @@ WThreadedRunner::~WThreadedRunner()
     // wait( true ); <-- no
 }
 
+const WBoolFlag& WThreadedRunner::isCrashed() const
+{
+    return m_isCrashed;
+}
+
+void WThreadedRunner::onThreadException( const WException& e )
+{
+    handleDeadlyException( e );
+}
+
+void WThreadedRunner::handleDeadlyException( const WException& e, std::string sender )
+{
+    wlog::error( sender ) << "WException. Notifying. Message: " << e.what();
+
+    // ensure proper exception propagation
+    signal_thread_error( e );
+
+    // notify waiting threads
+    m_isCrashed( true );
+}
+
 void WThreadedRunner::run()
 {
-    run( boost::bind( &WThreadedRunner::threadMain, this ) );
+    run( boost::bind( &WThreadedRunner::threadMainSave, this ) );
 }
 
 void WThreadedRunner::run( THREADFUNCTION f )
@@ -76,6 +100,22 @@ void WThreadedRunner::waitForStop()
     m_shutdownFlag.wait();
 }
 
+void WThreadedRunner::threadMainSave()
+{
+    try
+    {
+        threadMain();
+    }
+    catch( const WException& e )
+    {
+        onThreadException( e );
+    }
+    catch( const std::exception& e )
+    {
+        onThreadException( WException( e ) );
+    }
+}
+
 void WThreadedRunner::threadMain()
 {
     WLogger::getLogger()->addLogMessage( "This should never be called. Implement a thread function here.", "WThreadedRunner", LL_WARNING );
@@ -98,5 +138,17 @@ void WThreadedRunner::sleep( const int32_t t ) const
 void WThreadedRunner::msleep( const int32_t t ) const
 {
     boost::this_thread::sleep( boost::posix_time::microseconds( t ) );
+}
+
+boost::signals2::connection WThreadedRunner::subscribeSignal( THREAD_SIGNAL signal, t_ThreadErrorSignalHandlerType notifier )
+{
+    switch (signal)
+    {
+        case WTHREAD_ERROR:
+            return signal_thread_error.connect( notifier );
+        default:
+            throw WSignalSubscriptionFailed( "Could not subscribe to unknown signal." );
+            break;
+    }
 }
 

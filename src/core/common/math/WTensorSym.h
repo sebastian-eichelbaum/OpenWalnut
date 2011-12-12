@@ -28,6 +28,7 @@
 #include <iostream>
 #include <vector>
 
+#include "WTensorMeta.h"
 #include "WTensorBase.h"
 
 // ############################# class WTensorSym<> #############################################
@@ -84,8 +85,40 @@ public:
      */
     explicit WTensorSym( const WValue< Data_T >& data );
 
+    /**
+     * Evaluate - for a given gradient - the spherical function represented by this symmetric tensor.
+     *
+     * \tparam The type that stores the gradient, must implement operator [].
+     *
+     * \param gradient The normalized vector that represents the gradient direction.
+     *
+     * \note If the gradient is not normalized, the result is undefined.
+     *
+     * Thanks to CHeine for the idea for this algorithm.
+     *
+     * \return The function value on the sphere for this tensor and the given gradient. 
+     */
+    Data_T evaluateSphericalFunction( WValue< Data_T > const& gradient ) const;
+
+    /**
+     * Evaluate - for a given gradient - the spherical function represented by this symmetric tensor.
+     *
+     * \tparam The type that stores the gradient, must implement operator [].
+     *
+     * \param gradient The normalized vector that represents the gradient direction.
+     *
+     * \note If the gradient is not normalized, the result is undefined.
+     *
+     * Thanks to CHeine for the idea for this algorithm.
+     *
+     * \return The function value on the sphere for this tensor and the given gradient. 
+     */
+    Data_T evaluateSphericalFunction( WVector3d const& gradient ) const;
+
 protected:
 private:
+
+    using WTensorFunc< WTensorBaseSym, order, dim, Data_T >::m_data;
 };
 
 template< std::size_t order, std::size_t dim, typename Data_T >
@@ -99,6 +132,23 @@ WTensorSym< order, dim, Data_T >::WTensorSym( const WValue< Data_T >& data )
     : WTensorFunc< WTensorBaseSym, order, dim, Data_T >( data )
 {
 }
+
+template< std::size_t order, std::size_t dim, typename Data_T >
+Data_T WTensorSym< order, dim, Data_T >::evaluateSphericalFunction( WValue< Data_T > const& gradient ) const
+{
+    Data_T const* tens = &m_data[ 0 ];
+    Data_T const* grad = &gradient[ 0 ];
+    return WRecursiveTensorEvaluation< Data_T, order, 0, dim, 0 >::evaluate( tens, grad, 1.0 ) * WFactorial< order >::value;
+}
+
+template< std::size_t order, std::size_t dim, typename Data_T >
+Data_T WTensorSym< order, dim, Data_T >::evaluateSphericalFunction( WVector3d const& gradient ) const
+{
+    Data_T const* tens = &m_data[ 0 ];
+    Data_T const* grad = &gradient[ 0 ];
+    return WRecursiveTensorEvaluation< Data_T, order, 0, dim, 0 >::evaluate( tens, grad, 1.0 ) * WFactorial< order >::value;
+}
+
 // ######################## stream output operators #################################
 
 /**

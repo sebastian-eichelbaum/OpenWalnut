@@ -87,6 +87,11 @@ uniform int u_texture0SizeX;
 uniform int u_texture0SizeY;
 
 /**
+ * Size of texture in pixels
+ */
+uniform int u_texture0SizeZ;
+
+/**
  * Offset to access the neighbouring pixel in a texture.
  */
 float offsetX = 1.0 / u_texture0SizeX;

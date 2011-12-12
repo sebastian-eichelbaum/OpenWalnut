@@ -256,7 +256,7 @@ void WMHARDIToSphericalHarmonics::properties()
                                                       m_propCondition );
 
     m_doResidualCalculation = m_properties->addProperty( "Residual Calculation",
-                                                         "Indicating whether the reprojection errors is stored into a seperate dataset.",
+                                                         "Indicating whether the reprojection errors is stored into a separate dataset.",
                                                          false,
                                                          m_propCondition );
 
@@ -300,7 +300,7 @@ void WMHARDIToSphericalHarmonics::properties()
 }
 
 bool WMHARDIToSphericalHarmonics::evenInt::accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_INT > >,
-                                       WPVBaseTypes::PV_INT value )
+                                       const WPVBaseTypes::PV_INT& value )
 {
     return ( value % 2 == 0 );
 }

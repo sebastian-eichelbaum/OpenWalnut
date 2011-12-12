@@ -41,7 +41,7 @@ class WQtNetworkOutputPort;
 class WQtNetworkInputPort;
 
 /**
- * This Class is needed for connecting two ports, and drawing a line between
+ * This Class is needed for connecting two ports and drawing a line between
  * them.
  */
 class WQtNetworkArrow : public QGraphicsLineItem

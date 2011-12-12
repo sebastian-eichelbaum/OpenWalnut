@@ -28,34 +28,33 @@
 #include <stdint.h> // since <cstdint> is part of c++0x upcoming standard
 
 #include <cstddef>
-#include <limits>
 
 #include <boost/math/special_functions/fpclassify.hpp> // isnan, isinf
 
 /**
- * Project wide limits for different quantitities.
+ * Project wide limits for different quantities.
  */
 namespace wlimits
 {
-    static const double MAX_DOUBLE = std::numeric_limits< double >::max(); //!< Maximum double value
+    extern const double MAX_DOUBLE; //!< Maximum double value
 
-    static const float MAX_FLOAT = std::numeric_limits< float >::max(); //!< Maximum float value
+    extern const float MAX_FLOAT; //!< Maximum float value
 
-    static const size_t MAX_SIZE_T = std::numeric_limits< size_t >::max(); //!< Maximum size value
+    extern const size_t MAX_SIZE_T; //!< Maximum size value
 
-    static const int32_t MAX_INT32_T = std::numeric_limits< int32_t >::max(); //!< Maximum int32_t value
+    extern const int32_t MAX_INT32_T; //!< Maximum int32_t value
 
-    static const double MIN_DOUBLE = std::numeric_limits< double >::min(); //!< Positive minimum double value
+    extern const double MIN_DOUBLE; //!< Positive minimum double value
 
     /**
      * Smallest double such: 1.0 + DBL_EPS == 1.0 is still true.
      */
-    static const double DBL_EPS = std::numeric_limits< double >::epsilon();
+    extern const double DBL_EPS;
 
     /**
      * Smallest float such: 1.0 + FLT_EPS == 1.0 is still true.
      */
-    static const float FLT_EPS = std::numeric_limits< float >::epsilon();
+    extern const float FLT_EPS;
 
     /**
      * Determines if a number is considered as NaN (aka Not a Number) or not.

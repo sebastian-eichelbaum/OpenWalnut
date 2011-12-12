@@ -41,7 +41,7 @@
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WROIManager.h"
 #include "WMClusterDisplay.h"
-#include "WMClusterDisplay.xpm" // Please put a real icon here.
+#include "WMClusterDisplay.xpm"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMClusterDisplay )

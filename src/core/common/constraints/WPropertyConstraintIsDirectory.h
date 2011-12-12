@@ -53,7 +53,7 @@ public:
      *
      * \return true if the file/path is a directory
      */
-    virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, T value );
+    virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, const T& value );
 
     /**
      * Allows simple identification of the real constraint type.
@@ -83,7 +83,7 @@ WPropertyConstraintIsDirectory< T >::~WPropertyConstraintIsDirectory()
 }
 
 template < typename T >
-bool WPropertyConstraintIsDirectory< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, T value )
+bool WPropertyConstraintIsDirectory< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, const T& value )
 {
     return boost::filesystem::is_directory( value );
 }

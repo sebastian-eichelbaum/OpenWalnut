@@ -44,8 +44,9 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
 
     m_glWidget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( viewTitle.toStdString(), m_panel, projectionMode, shareWidget ) );
 
-    setMinimumSize( 240, 240 );
-    //setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
+    // NOTE: do not remove this. When creating custom widgets using the OSG manipulators, a too small size here (or even no min size) causes the
+    // cull visitor to do crap ... unknown reason ...
+    setMinimumSize( 50, 50 );
 
     // add panel to layout.
     m_layout->addWidget( m_glWidget.get() );

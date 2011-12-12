@@ -58,7 +58,7 @@
 #include "../WMainWindow.h"
 #include "../WQt4Gui.h"
 #include "../WQtCombinerActionList.h"
-#include "../WQtModuleExcluder.h"
+#include "../WQtModuleConfig.h"
 #include "WQtBranchTreeItem.h"
 #include "WQtColormapper.h"
 
@@ -72,7 +72,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     setObjectName( "Control Panel Dock" );
 
     m_mainWindow = parent;
-    setMinimumWidth( 300 );
+    setMinimumWidth( 200 );
 
     m_panel = new QWidget( this );
     m_moduleTreeWidget = new WQtTreeWidget( m_panel );
@@ -104,11 +104,12 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_deleteModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "remove" ), "Remove Module", m_moduleTreeWidget );
     {
         // Set the key for removing modules
-        m_deleteModuleAction->setShortcutContext( Qt::WidgetShortcut );
-        m_deleteModuleAction->setShortcut( QKeySequence( "Delete" ) );
+        //m_deleteModuleAction->setShortcutContext( Qt::WidgetShortcut );
+        m_deleteModuleAction->setShortcutContext( Qt::WidgetWithChildrenShortcut );
+        m_deleteModuleAction->setShortcut( QKeySequence::Delete );
         m_deleteModuleAction->setIconVisibleInMenu( true );
     }
-    connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModuleTreeItem() ) );
+    connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModule() ) );
     m_moduleTreeWidget->addAction( m_deleteModuleAction );
 
     // a separator to clean up the tree widget's context menu
@@ -122,23 +123,24 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_missingModuleAction->setIconVisibleInMenu( true );
     m_moduleTreeWidget->addAction( m_missingModuleAction );
 
-    // Disabled Network Editor due to bug: #11
-    // // the network editor also needs the context menu
-    // // TODO(rfrohl): context menu gets not opened if a graphicitem is clicked. This should be fixed.
-    // m_mainWindow->getNetworkEditor()->setContextMenuPolicy( Qt::ActionsContextMenu );
-    // m_mainWindow->getNetworkEditor()->addAction( m_connectWithPrototypeAction );
-    // m_mainWindow->getNetworkEditor()->addAction( m_connectWithModuleAction );
-    // m_mainWindow->getNetworkEditor()->addAction( m_disconnectAction );
-    // m_mainWindow->getNetworkEditor()->addAction( separator );
-    // m_mainWindow->getNetworkEditor()->addAction( m_deleteModuleAction );
-    // m_mainWindow->getNetworkEditor()->addAction( separator );
-    // m_mainWindow->getNetworkEditor()->addAction( m_missingModuleAction );
+    // the network editor also needs the context menu
+    if( m_mainWindow->getNetworkEditor() )
+    {
+        m_mainWindow->getNetworkEditor()->setContextMenuPolicy( Qt::ActionsContextMenu );
+        m_mainWindow->getNetworkEditor()->addAction( m_connectWithPrototypeAction );
+        m_mainWindow->getNetworkEditor()->addAction( m_connectWithModuleAction );
+        m_mainWindow->getNetworkEditor()->addAction( m_disconnectAction );
+        m_mainWindow->getNetworkEditor()->addAction( separator );
+        m_mainWindow->getNetworkEditor()->addAction( m_deleteModuleAction );
+        m_mainWindow->getNetworkEditor()->addAction( separator );
+        m_mainWindow->getNetworkEditor()->addAction( m_missingModuleAction );
+    }
 
     m_colormapper = new WQtColormapper( m_mainWindow );
     m_colormapper->setToolTip( "Reorder the textures." );
 
     m_tabWidget = new QTabWidget( m_panel );
-    m_tabWidget->setMinimumHeight( 250 );
+    m_tabWidget->setMinimumHeight( 100 );
 
     m_moduleDock = new QDockWidget( "Module Tree", m_mainWindow );
     m_moduleDock->setObjectName( "Module Dock" );
@@ -157,7 +159,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_roiTreeWidget->setDragDropMode( QAbstractItemView::InternalMove );
     m_roiDock->setWidget( m_roiTreeWidget );
 
-    m_moduleExcluder = new WQtModuleExcluder( parent );
+    m_moduleExcluder = new WQtModuleConfig( parent );
     connect( m_missingModuleAction, SIGNAL( triggered( bool ) ), m_moduleExcluder, SLOT( configure() ) );
 
     m_layout = new QVBoxLayout();
@@ -182,7 +184,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     {
         // Set the key for removing modules
         m_deleteRoiAction->setShortcutContext( Qt::WidgetShortcut );
-        m_deleteRoiAction->setShortcut( QKeySequence( "Delete" ) );
+        m_deleteRoiAction->setShortcut( QKeySequence::Delete );
         m_deleteRoiAction->setIconVisibleInMenu( true );
     }
     connect( m_deleteRoiAction, SIGNAL( triggered() ), this, SLOT( deleteROITreeItem() ) );
@@ -668,8 +670,7 @@ void WQtControlPanel::selectTreeItem()
 
     if( m_moduleTreeWidget->selectedItems().size() != 0  )
     {
-        // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
-        m_tabWidget->clear();
+        clearAndDeleteTabs();
 
         // disable delete action for tree items that have children.
         if( m_moduleTreeWidget->selectedItems().at( 0 )->childCount() != 0 )
@@ -755,8 +756,7 @@ void WQtControlPanel::selectTreeItem()
 
 void WQtControlPanel::selectRoiTreeItem()
 {
-    // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
-    m_tabWidget->clear();
+    clearAndDeleteTabs();
 
     // Make compatibles toolbar empty
     {
@@ -833,13 +833,13 @@ void WQtControlPanel::selectDataModule( boost::shared_ptr< WDataSet > dataSet )
 
 void WQtControlPanel::selectDataModule( osg::ref_ptr< WGETexture3D > texture )
 {
-    m_tabWidget->clear();
+    clearAndDeleteTabs();
     buildPropTab( texture->getProperties(), texture->getInformationProperties() );
 }
 
 void WQtControlPanel::setNewActiveModule( boost::shared_ptr< WModule > module )
 {
-    m_tabWidget->clear();
+    clearAndDeleteTabs();
 
     // NOTE: this handles null pointers properly.
     createCompatibleButtons( module );
@@ -851,57 +851,26 @@ void WQtControlPanel::setNewActiveModule( boost::shared_ptr< WModule > module )
     }
 }
 
-WQtPropertyGroupWidget*  WQtControlPanel::buildPropWidget( boost::shared_ptr< WProperties > props )
+WQtPropertyGroupWidget*  WQtControlPanel::buildPropWidget( WPropertyGroupBase::SPtr props )
 {
     WQtPropertyGroupWidget* tab = new WQtPropertyGroupWidget( props );
     if( props.get() )
     {
         // read lock, gets unlocked upon destruction (out of scope)
-        WProperties::PropertySharedContainerType::ReadTicket propAccess = props->getProperties();
+        WPropertyGroupBase::PropertySharedContainerType::ReadTicket propAccess = props->getProperties();
 
         tab->setName( QString::fromStdString( props->getName() ) );
 
         // iterate all properties.
-        for( WProperties::PropertyConstIterator iter = propAccess->get().begin(); iter != propAccess->get().end(); ++iter )
+        for( WPropertyGroupBase::PropertyConstIterator iter = propAccess->get().begin(); iter != propAccess->get().end(); ++iter )
         {
-            switch ( ( *iter )->getType() )
+            if( ( *iter )->getType() == PV_GROUP )
             {
-                case PV_BOOL:
-                    tab->addProp( ( *iter )->toPropBool() );
-                    break;
-                case PV_INT:
-                    tab->addProp( ( *iter )->toPropInt() );
-                    break;
-                case PV_DOUBLE:
-                    tab->addProp( ( *iter )->toPropDouble() );
-                    break;
-                case PV_STRING:
-                    tab->addProp( ( *iter )->toPropString() );
-                    break;
-                case PV_PATH:
-                    tab->addProp( ( *iter )->toPropFilename() );
-                    break;
-                case PV_SELECTION:
-                    tab->addProp( ( *iter )->toPropSelection() );
-                    break;
-                case PV_COLOR:
-                    tab->addProp( ( *iter )->toPropColor() );
-                    break;
-                case PV_POSITION:
-                    tab->addProp( ( *iter )->toPropPosition() );
-                    break;
-                case PV_TRIGGER:
-                    tab->addProp( ( *iter )->toPropTrigger() );
-                    break;
-                case PV_GROUP:
-                    tab->addGroup( buildPropWidget( ( *iter )->toPropGroup() ) );
-                    break;
-                case PV_MATRIX4X4:
-                    tab->addProp( ( *iter )->toPropMatrix4X4() );
-                    break;
-                default:
-                    WLogger::getLogger()->addLogMessage( "This property type is not yet supported.", "ControlPanel", LL_WARNING );
-                    break;
+                tab->addGroup( buildPropWidget( ( *iter )->toPropGroupBase() ) );
+            }
+            else
+            {
+                tab->addProp( *iter );
             }
         }
     }
@@ -1112,9 +1081,8 @@ QAction* WQtControlPanel::toggleViewAction() const
     return result;
 }
 
-void WQtControlPanel::deleteModuleTreeItem()
+void WQtControlPanel::deleteModule()
 {
-    // TODO(rfrohl): check if there is a better way to check for focus
     if( m_moduleTreeWidget->hasFocus() )
     {
         if( m_moduleTreeWidget->selectedItems().count() > 0 )
@@ -1124,7 +1092,7 @@ void WQtControlPanel::deleteModuleTreeItem()
             {
                 // remove from the container. It will create a new event in the GUI after it has been removed which is then handled by the tree item.
                 // This method deep removes the module ( it also removes depending modules )
-                WKernel::getRunningKernel()->getRootContainer()->removeDeep(
+                WKernel::getRunningKernel()->getRootContainer()->remove(
                         static_cast< WQtTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) )->getModule()
                         );
                 // select another item
@@ -1132,11 +1100,15 @@ void WQtControlPanel::deleteModuleTreeItem()
             }
         }
     }
-// Disabled Network Editor due to bug: #11
-//    else if( m_mainWindow->getNetworkEditor()->isActiveWindow() )
-//    {
-//        m_mainWindow->getNetworkEditor()->deleteSelectedItems();
-//    }
+    else if( m_mainWindow->getNetworkEditor()->hasFocus() )
+    {
+        if( m_mainWindow->getNetworkEditor()->selectedItems().count() > 0 )
+            // This method deep removes the module ( it also removes depending modules )
+            WKernel::getRunningKernel()->getRootContainer()->remove(
+                static_cast< WQtNetworkItem* >( m_mainWindow->getNetworkEditor()->selectedItems().at( 0 ) )->getModule()
+                );
+
+    }
 }
 
 void WQtControlPanel::deleteROITreeItem()
@@ -1192,7 +1164,7 @@ QDockWidget* WQtControlPanel::getColormapperDock() const
     return m_colormapper;
 }
 
-WQtModuleExcluder& WQtControlPanel::getModuleExcluder() const
+WQtModuleConfig& WQtControlPanel::getModuleConfig() const
 {
     return *m_moduleExcluder;
 }
@@ -1201,3 +1173,16 @@ QAction* WQtControlPanel::getMissingModuleAction() const
 {
     return m_missingModuleAction;
 }
+
+void WQtControlPanel::clearAndDeleteTabs()
+{
+    m_tabWidget->setDisabled( true );
+    QWidget *widget;
+    while ((  widget = m_tabWidget->widget( 0 ) ))
+    {
+        m_tabWidget->removeTab( 0 );
+        delete widget;
+    }
+    m_tabWidget->setEnabled( true );
+}
+

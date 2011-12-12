@@ -106,7 +106,7 @@ vec3 getGradient( in vec3 position )
 #ifdef GRADIENTTEXTURE_ENABLED
     return ( 2.0 * texture3D( u_gradientsSampler, position ).rgb ) + vec3( -1.0 );
 #else
-    float s = 0.01;
+    float s = 0.02;
     float valueXP = texture3D( u_volumeSampler, position + vec3( s, 0.0, 0.0 ) ).r;
     float valueXM = texture3D( u_volumeSampler, position - vec3( s, 0.0, 0.0 ) ).r;
     float valueYP = texture3D( u_volumeSampler, position + vec3( 0.0, s, 0.0 ) ).r;
@@ -168,12 +168,12 @@ vec4 localIllumination( in vec3 position, in vec4 color )
     vec3 worldNormal = ( gl_ModelViewMatrix * vec4( g, 0.0 ) ).xyz;
     if( length( g ) < 0.01 )
     {
-        return vec4( 0.0, 0.0, 0.0, 0.0 );
+        return vec4( 0.0 ); //vec4( g.x, g.y, g.z, 1.0 );
     }
 
     // let the normal point towards the viewer. Technically this would be:
     // worldNormal *= sign( dot( worldNormal, vec3( 0.0, 0.0, 1.0 ) ) );
-    // but as the most of the components in the view vector are 0 we can use:
+    // but as most of the components in the view vector are 0 we can use:
     worldNormal *= sign( worldNormal.z );
 
     // Phong:
@@ -181,7 +181,7 @@ vec4 localIllumination( in vec3 position, in vec4 color )
             0.1 * color.rgb,                              // material ambient
             1.0 * color.rgb,                                    // material diffuse
             0.5 * color.rgb,                              // material specular
-            1000.0,                                         // shinines
+            100.0,                                         // shinines
             vec3( 1.0, 1.0, 1.0 ),                        // light diffuse
             vec3( 1.0, 1.0, 1.0 ),                        // light ambient
             normalize( worldNormal ),                     // normal
@@ -217,7 +217,7 @@ void main()
     // First, find the rayEnd point. We need to do it in the fragment shader as the ray end point may be interpolated wrong
     // when done for each vertex.
     float totalDistance = 0.0;      // the maximal distance along the ray until the BBox ends
-    float currentDistance = 0.05;   // accumulated distance along the ray
+    float currentDistance = 0.02;   // accumulated distance along the ray
 
 #ifdef JITTERTEXTURE_ENABLED
     // stochastic jittering can help to void these ugly wood-grain artifacts with larger sampling distances but might
@@ -230,9 +230,66 @@ void main()
 
     vec3 rayEnd = findRayEnd( rayStart, totalDistance );
 
+#ifdef MIP_ENABLED
+    // There is no nice early ray termination, so this will slow things
+    // down a bit.
+    float maxdist = -1.0;
+    float maxalpha = 0.0;
     // walk along the ray
     vec4 dst = vec4( 0.0 );
-    while( currentDistance <= ( totalDistance - 0.05 )  )
+    vec3 maxRayPoint;
+    while( currentDistance <= ( totalDistance - 0.02 )  )
+    {
+        // get current value, classify and illuminate
+        vec3 rayPoint = rayStart + ( currentDistance * v_ray );
+        float alpha = transferFunction( texture3D( u_volumeSampler, rayPoint ).r ).a;
+        if(alpha > maxalpha)
+        {
+            maxRayPoint = rayPoint;
+            maxdist = currentDistance;
+            maxalpha = alpha;
+        }
+
+        // go to next value
+        currentDistance += v_sampleDistance;
+    }
+
+    // Get color at brightest point taken from alpha value of texture
+    // both depth projection and mip need this information.
+    if( maxdist > 0.0 )
+    {
+       dst = localIllumination( maxRayPoint, transferFunction( texture3D( u_volumeSampler, maxRayPoint ).r ) );
+       dst.a = 1.0;
+    }
+#ifdef DEPTH_PROJECTION_ENABLED
+    // FIXME: This is technically not correct as our ray starts at the boundary of the volume and not
+    // in the view plane. Therefore, we get artifacts showing the edges and corners of the box.
+
+    // map depth value to color
+    if( maxdist > 0.0 )
+    {
+        const float MAX_DISTANCE = 1.1; // FIXME: estimate reasonable maximum value here
+        float normval = maxdist/MAX_DISTANCE;
+
+        // if( normval > 0.5 )
+        // {
+        //     dst = vec4( 0., normval-0.5, ( normval - 0.5 )*2.0, 1. );
+        // }
+        // else
+        // {
+        //     dst = vec4( 2.* ( 0.5-normval ), normval, 0., 1. );
+        // }
+        dst = vec4( texture1D( u_transferFunctionSampler, normval ).rgb, 1.0 );
+    }
+    else
+    {
+        dst = vec4( 0., 0., 0., 0. );
+    }
+#endif
+#else
+    // walk along the ray
+    vec4 dst = vec4( 0.0 );
+    while( currentDistance <= ( totalDistance - 0.02 )  )
     {
         // do not dynamically branch every cycle for early-ray termination, so do n steps before checking alpha value
         for( int i = 0; i < 4; ++i )
@@ -262,6 +319,7 @@ void main()
         if( dst.a >= 0.95 )
             break;
     }
+#endif
 
     // have we hit something which was classified not to be transparent?
     // This is, visually, not needed but useful if volume renderer is used in conjunction with other geometry.

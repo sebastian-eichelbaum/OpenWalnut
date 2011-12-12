@@ -33,13 +33,8 @@
 #include <string>
 #include <vector>
 
-// Use filesystem version 2 for compatibility with newer boost versions.
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
-#include <boost/filesystem.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/thread.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/signals2.hpp>
 
 #include "constraints/WPropertyConstraintIsDirectory.h"
 #include "constraints/WPropertyConstraintMax.h"
@@ -50,7 +45,6 @@
 #include "constraints/WPropertyConstraintTypes.h"
 #include "WCondition.h"
 #include "WFlag.h"
-#include "WLogger.h"
 #include "WPropertyBase.h"
 #include "WSharedAssociativeContainer.h"
 #include "WSharedObjectTicketRead.h"
@@ -161,7 +155,7 @@ public:
      *
      * \return true if it is a valid/acceptable value.
      */
-    virtual bool accept( T newValue );
+    virtual bool accept( const T& newValue );
 
     /**
      * This method is useful to ensure, that there is a valid value in the property. Assume the following situation. The property p got a min
@@ -174,7 +168,7 @@ public:
      *
      * \return true if the new value has been accepted ( if it was valid ) - for short true if the property NOW is valid
      */
-    virtual bool ensureValidity( T newValidValue, bool suppressNotification = false );
+    virtual bool ensureValidity( const T& newValidValue, bool suppressNotification = false );
 
     /**
      * Class building the base for user defined constraints on a property instance.
@@ -201,7 +195,7 @@ public:
          *
          * \return true whenever the new value is acceptable for the property.
          */
-        virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, T value ) = 0;
+        virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, const T& value ) = 0;
 
         /**
          * Allows simple identification of the real constraint type.
@@ -273,7 +267,7 @@ public:
      *
      * \return the new constraint.
      */
-    static PropertyConstraintMin minConstraint( T min );
+    static PropertyConstraintMin minConstraint( const T& min );
 
     /**
      * Creates a new WPropertyConstraintMax for this WPropertyVariable.
@@ -282,7 +276,7 @@ public:
      *
      * \return the new constraint.
      */
-    static PropertyConstraintMax maxConstraint( T max );
+    static PropertyConstraintMax maxConstraint( const T& max );
 
     /**
      * Set a minimum constraint.
@@ -291,7 +285,7 @@ public:
      *
      * \return the newly created constraint.
      */
-    PropertyConstraintMin setMin( T min );
+    PropertyConstraintMin setMin( const T& min );
 
     /**
      * Set a maximum constraint.
@@ -300,7 +294,7 @@ public:
      *
      * \return the newly created constraint.
      */
-    PropertyConstraintMax setMax( T max );
+    PropertyConstraintMax setMax( const T& max );
 
     /**
      * Gets the current minimum constraint value.
@@ -404,7 +398,7 @@ public:
      * \note set( get() ) == true
      * \note this is defined here to help the compiler to disambiguate between WFlag::set and the WPropertyBase::set.
      */
-    virtual bool set( T value, bool suppressNotification = false );
+    virtual bool set( const T& value, bool suppressNotification = false );
 
     /**
      * Sets the specified value as recommended value. The difference to \ref set is simple. If some value was set using the method \ref set
@@ -415,7 +409,7 @@ public:
      *
      * \return true if value has been set successfully.
      */
-    virtual bool setRecommendedValue( T value );
+    virtual bool setRecommendedValue( const T& value );
 
 protected:
 
@@ -583,7 +577,7 @@ void WPropertyVariable< T >::propertyChangeNotifier()
 }
 
 template < typename T >
-bool WPropertyVariable< T >::accept( T newValue )
+bool WPropertyVariable< T >::accept( const T& newValue )
 {
     // lock, lock vanishes if l looses focus
     typename WPropertyVariable< T >::ConstraintContainerType::ReadTicket l = m_constraints->getReadTicket();
@@ -640,14 +634,14 @@ bool WPropertyVariable< T >::set( boost::shared_ptr< WPropertyBase > value )
 }
 
 template < typename T >
-bool WPropertyVariable< T >::set( T value, bool suppressNotification )
+bool WPropertyVariable< T >::set( const T& value, bool suppressNotification )
 {
     m_notYetSet = false;
     return WFlag< T >::set( value, suppressNotification );
 }
 
 template < typename T >
-bool WPropertyVariable< T >::setRecommendedValue( T value )
+bool WPropertyVariable< T >::setRecommendedValue( const T& value )
 {
     // NOTE: well this is quite problematic when used multi-threaded ...
     if( m_notYetSet )
@@ -663,7 +657,7 @@ bool WPropertyVariable< T >::setRecommendedValue( T value )
 }
 
 template < typename T >
-bool WPropertyVariable< T >::ensureValidity( T newValidValue, bool suppressNotification )
+bool WPropertyVariable< T >::ensureValidity( const T& newValidValue, bool suppressNotification )
 {
     if( !accept( WFlag< T >::get() ) )
     {
@@ -700,19 +694,19 @@ void WPropertyVariable< T >::updateType()
 }
 
 template < typename T >
-boost::shared_ptr< WPropertyConstraintMin< T > > WPropertyVariable< T >::minConstraint( T min )
+boost::shared_ptr< WPropertyConstraintMin< T > > WPropertyVariable< T >::minConstraint( const T& min )
 {
     return boost::shared_ptr< WPropertyConstraintMin< T > >( new WPropertyConstraintMin< T >( min ) );
 }
 
 template < typename T >
-boost::shared_ptr< WPropertyConstraintMax< T > > WPropertyVariable< T >::maxConstraint( T max )
+boost::shared_ptr< WPropertyConstraintMax< T > > WPropertyVariable< T >::maxConstraint( const T& max )
 {
     return boost::shared_ptr< WPropertyConstraintMax< T > >( new WPropertyConstraintMax< T >( max ) );
 }
 
 template < typename T >
-boost::shared_ptr< WPropertyConstraintMin< T > > WPropertyVariable< T >::setMin( T min )
+boost::shared_ptr< WPropertyConstraintMin< T > > WPropertyVariable< T >::setMin( const T& min )
 {
     boost::shared_ptr< WPropertyConstraintMin< T > > c = minConstraint( min );
     replaceConstraint( c, PC_MIN );
@@ -720,7 +714,7 @@ boost::shared_ptr< WPropertyConstraintMin< T > > WPropertyVariable< T >::setMin(
 }
 
 template < typename T >
-boost::shared_ptr< WPropertyConstraintMax< T > > WPropertyVariable< T >::setMax( T max )
+boost::shared_ptr< WPropertyConstraintMax< T > > WPropertyVariable< T >::setMax( const T& max )
 {
     boost::shared_ptr< WPropertyConstraintMax< T > > c = maxConstraint( max );
     replaceConstraint( c, PC_MAX );

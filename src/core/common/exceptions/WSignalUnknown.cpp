@@ -22,38 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMODULESIGNALUNKNOWN_H
-#define WMODULESIGNALUNKNOWN_H
-
 #include <string>
 
-#include "WModuleException.h"
+#include "WSignalUnknown.h"
 
-#include "../WExportKernel.h"
-
-/**
- * General purpose exception and therefore base class for all kernel related exceptions.
- * \ingroup kernel
- */
-class OWKERNEL_EXPORT WModuleSignalUnknown: public WModuleException
+WSignalUnknown::WSignalUnknown( const std::string& msg ): WException( msg )
 {
-public:
+    // initialize members
+}
 
-    /**
-     * Default constructor.
-     * \param msg the exception message.
-     */
-    explicit WModuleSignalUnknown( const std::string& msg = "Signal is not known." );
+WSignalUnknown::~WSignalUnknown() throw()
+{
+    // cleanup
+}
 
-    /**
-     * Destructor.
-     */
-    virtual ~WModuleSignalUnknown() throw();
-
-protected:
-
-private:
-};
-
-#endif  // WMODULESIGNALUNKNOWN_H
 

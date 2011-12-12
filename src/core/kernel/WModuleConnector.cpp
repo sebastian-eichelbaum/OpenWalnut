@@ -38,6 +38,7 @@
 #include <boost/signals2/signal.hpp>
 #include <boost/signals2/connection.hpp>
 
+#include "../common/exceptions/WSignalSubscriptionFailed.h"
 #include "WModule.h"
 #include "WModuleConnectorSignals.h"
 #include "WModuleContainer.h"
@@ -48,7 +49,6 @@
 #include "exceptions/WModuleConnectionInvalid.h"
 #include "exceptions/WModuleConnectorsIncompatible.h"
 #include "exceptions/WModuleDisconnectFailed.h"
-#include "exceptions/WModuleSignalSubscriptionFailed.h"
 #include "exceptions/WModuleConnectorModuleLockFailed.h"
 
 #include "WModuleConnector.h"
@@ -233,7 +233,7 @@ boost::signals2::connection WModuleConnector::subscribeSignal( MODULE_CONNECTOR_
         default:
             std::ostringstream s;
             s << "Could not subscribe to unknown signal. You need to implement this signal type explicitly.";
-            throw WModuleSignalSubscriptionFailed( s.str() );
+            throw WSignalSubscriptionFailed( s.str() );
             break;
     }
 }

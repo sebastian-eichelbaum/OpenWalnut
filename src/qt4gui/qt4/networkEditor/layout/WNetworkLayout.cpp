@@ -50,12 +50,23 @@ void WNetworkLayout::connectItems( WQtNetworkItem *parent, WQtNetworkItem *child
 void WNetworkLayout::disconnectNodes( WQtNetworkItem *parent, WQtNetworkItem *child )
 {
     parent->getLayoutNode()->remove( child->getLayoutNode() );
+    child->getLayoutNode()->remove( parent->getLayoutNode() );
+
     traverse();
 }
 
-void WNetworkLayout::removeItem( WQtNetworkItem *item )
+bool WNetworkLayout::removeItem( WQtNetworkItem *item )
 {
-    delete item->getLayoutNode();
+    if( item->getLayoutNode()->nChildren() == 0 && item->getLayoutNode()->nParents() == 0 )
+    {
+        m_nodes.remove( item->getLayoutNode() );
+        delete item->getLayoutNode();
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 // private
@@ -127,19 +138,18 @@ void WNetworkLayout::traverse()
     }
 
     // set position of each node
-    unsigned int x = 0;
+    unsigned int y = 0;
     for( std::list< std::list< WNetworkLayoutNode * > >::iterator rowsIter = rows.begin();
             rowsIter != rows.end(); ++rowsIter )
     {
-        unsigned int y = 0;
+        unsigned int x = 0;
         for( std::list< WNetworkLayoutNode * >::iterator iter = rowsIter->begin(); iter != rowsIter->end(); ++iter )
         {
             QPoint pos( x, y );
             ( *iter )->setGridPos( pos );
-            ++y;
+            ++x;
         }
-
-        ++x;
+        ++y;
     }
 }
 

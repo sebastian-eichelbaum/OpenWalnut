@@ -29,8 +29,6 @@
 #include <string>
 #include <vector>
 
-//#include <boost/program_options.hpp>
-//#include <boost/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
 #include <boost/thread.hpp>
 
@@ -120,7 +118,10 @@ public:
     boost::shared_ptr< WQtCustomDockWidget > getCustomDockWidget( std::string name );
 
     /**
-     * Close one of the custom dock widget saved in the map of customDockWidgets
+     * Close one of the custom dock widget saved in the map of customDockWidgets. This method is thread-safe and ensures that the widget is
+     * closed in the GUI thread. NEVER call this in the GUI thread. It will block the GUI.
+     *
+     * \note the widget might not be closed after this call. The widget is usage counted.
      *
      * \param title the title of the widget to close
      */
@@ -206,7 +207,22 @@ protected:
      *
      * \param writer the list of writers to use.
      */
-    virtual void projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer );
+    virtual bool projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer );
+
+    /**
+     * drag and drop implementation
+     */
+    void dropEvent( QDropEvent* event );
+
+    /**
+     * drag and drop implementation
+     */
+     void dragMoveEvent( QDragMoveEvent* event );
+
+    /**
+     * drag and drop implementation
+     */
+     void dragEnterEvent( QDragEnterEvent* event );
 
 public slots:
     /**
@@ -277,22 +293,22 @@ public slots:
     /**
      * Gets called whenever the user presses the project save button.
      */
-    void projectSaveAll();
+    bool projectSaveAll();
 
     /**
      * Gets called by the save menu to only save the camera settings
      */
-    void projectSaveCameraOnly();
+    bool projectSaveCameraOnly();
 
     /**
      * Gets called by the save menu to only save the ROI settings
      */
-    void projectSaveROIOnly();
+    bool projectSaveROIOnly();
 
     /**
      * Gets called by the save menu to only save the Module settings
      */
-    void projectSaveModuleOnly();
+    bool projectSaveModuleOnly();
 
     /**
      * Is able to handle updates in the log-level setting.
@@ -347,10 +363,9 @@ private:
      *
      * \param module the module to be combined.
      * \param proto the prototype to combine with the module.
+     * \param onlyOnce if true, it is ensured that only one module is in the container.
      */
-    void autoAdd( boost::shared_ptr< WModule > module, std::string proto );
-
-    bool m_navSlicesAlreadyLoaded; //!< if true, the navslices have been loaded already
+    void autoAdd( boost::shared_ptr< WModule > module, std::string proto, bool onlyOnce = false );
 
     /**
      * Loads the window states and geometries from a file.

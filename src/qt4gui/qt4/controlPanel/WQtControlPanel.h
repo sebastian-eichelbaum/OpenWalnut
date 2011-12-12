@@ -39,7 +39,7 @@
 #include "core/dataHandler/WDataSet.h"
 #include "core/graphicsEngine/WROI.h"
 
-#include "../WQtModuleExcluder.h"
+#include "../WQtModuleConfig.h"
 
 #include "../WQtCombinerToolbar.h"
 #include "WQtPropertyGroupWidget.h"
@@ -203,7 +203,7 @@ public:
      *
      * \return the module excluder.
      */
-    WQtModuleExcluder& getModuleExcluder() const;
+    WQtModuleConfig& getModuleConfig() const;
 
     /**
      * Returns an action which can be triggered by the user if some module are missing.
@@ -263,6 +263,12 @@ protected:
      * \return a list of all matching items.
      */
     std::list< WQtTreeItem* > findItemsByModule( boost::shared_ptr< WModule > module );
+
+    /**
+     * As QTabWidget::clear() does not delete tabs, we have to manage that ourselves.
+     * So this function clears all tabs and deletes the data as well.
+     */
+    void clearAndDeleteTabs();
 
 private:
     WQtTreeWidget* m_moduleTreeWidget; //!< pointer to the tree widget
@@ -349,7 +355,7 @@ private:
      * The WQtCombinerActionList needs some predicate which decides whether to exclude a certain module from the list or not. We use this
      * predicate here. It is configured internally using a white and blacklist.
      */
-    WQtModuleExcluder* m_moduleExcluder;
+    WQtModuleConfig* m_moduleExcluder;
 
     /**
      * Action giving the user fast access to the module config dialog.
@@ -390,11 +396,11 @@ private slots:
     void buildPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps );
 
     /**
-     * Method builds a widgets containing all properties in props. It recursively calls itself to build group widgets for WPropGroup properties.
+     * Method builds a widgets containing all properties in props. It recursively calls itself to build group widgets for WPropertyGroupBase properties.
      *
      * \param props the properties.
      */
-    WQtPropertyGroupWidget* buildPropWidget( boost::shared_ptr< WProperties > props );
+    WQtPropertyGroupWidget* buildPropWidget( WPropertyGroupBase::SPtr props );
 
     /**
      * function gets called when a change to a tree item, eg. check box status, occurs
@@ -413,9 +419,9 @@ private slots:
     void deleteROITreeItem();
 
     /**
-     * delete a module tree item
+     * delete a module
      */
-    void deleteModuleTreeItem();
+    void deleteModule();
 
     /**
      * function to notify the roi manager of any drag&drop action in the roi tree

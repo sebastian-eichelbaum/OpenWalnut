@@ -55,7 +55,7 @@ public:
      *
      * \return true if value <= m_max
      */
-    virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, T value );
+    virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, const T& value );
 
     /**
      * Returns the current max value.
@@ -98,7 +98,7 @@ WPropertyConstraintMax< T >::~WPropertyConstraintMax()
 }
 
 template < typename T >
-bool WPropertyConstraintMax< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, T value )
+bool WPropertyConstraintMax< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, const T& value )
 {
     return value <= m_max;
 }

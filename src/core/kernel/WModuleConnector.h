@@ -132,7 +132,7 @@ public:
     /**
      * Connects a specified notify function with a signal this module instance is offering.
      *
-     * \exception WModuleSignalSubscriptionFailed thrown if the signal can't be connected.
+     * \exception WSignalSubscriptionFailed thrown if the signal can't be connected.
      *
      * \param signal the signal to connect to.
      * \param notifier the notifier function to bind.

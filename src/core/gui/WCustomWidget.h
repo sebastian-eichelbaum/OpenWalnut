@@ -25,11 +25,14 @@
 #ifndef WCUSTOMWIDGET_H
 #define WCUSTOMWIDGET_H
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include <osg/ref_ptr>
 
 #include "../graphicsEngine/WGEViewer.h"
+
 class WGEGroupNode;
 
 /**
@@ -38,6 +41,23 @@ class WGEGroupNode;
 class WCustomWidget
 {
 public:
+    /**
+     * Abbreviation for a shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< WCustomWidget > SPtr;
+
+    /**
+     * Abbreviation for a const shared pointer on a instance of this class.
+     */
+    typedef boost::shared_ptr< const WCustomWidget > ConstSPtr;
+
+    /**
+     * Constructor. Create a custom widget instance.
+     *
+     * \param title the title of the widget
+     */
+    explicit WCustomWidget( std::string title );
+
     /**
      * Destructor
      */
@@ -57,8 +77,20 @@ public:
      */
     virtual boost::shared_ptr< WGEViewer > getViewer() const = 0;
 
+    /**
+     * Get the title of the widget.
+     *
+     * \return title as string
+     */
+    virtual std::string getTitle() const;
+
 protected:
 private:
+
+    /**
+     * The widget's title string.
+     */
+    std::string m_title;
 };
 
 #endif  // WCUSTOMWIDGET_H

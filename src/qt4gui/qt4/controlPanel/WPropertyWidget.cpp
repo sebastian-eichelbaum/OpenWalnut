@@ -26,8 +26,24 @@
 
 #include <QtGui/QApplication>
 
+#include <core/common/WLogger.h>
+
 #include "../events/WEventTypes.h"
 #include "../events/WPropertyChangedEvent.h"
+
+#include "WPropertyBoolWidget.h"
+#include "WPropertyIntWidget.h"
+#include "WPropertyStringWidget.h"
+#include "WPropertyDoubleWidget.h"
+#include "WPropertyColorWidget.h"
+#include "WPropertyFilenameWidget.h"
+#include "WPropertyTriggerWidget.h"
+#include "WPropertySelectionWidget.h"
+#include "WPropertyPositionWidget.h"
+#include "WPropertyMatrix4X4Widget.h"
+#include "WPropertyTransferFunctionWidget.h"
+#include "WPropertyStructWidget.h"
+#include "WQtPropertyGroupWidget.h"
 
 #include "WPropertyWidget.h"
 #include "WPropertyWidget.moc"
@@ -73,7 +89,7 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
     m_label.setHidden( m_property->isHidden() );
 
     // setup the update callback
-    m_connection = m_property->getUpdateCondition()->subscribeSignal( boost::bind( &WPropertyWidget::propertyChangeNotifier, this ) );
+    m_connection = m_property->getUpdateCondition()->subscribeSignal( boost::bind( &WPropertyWidget::requestUpdate, this ) );
 }
 
 WPropertyWidget::~WPropertyWidget()
@@ -82,7 +98,7 @@ WPropertyWidget::~WPropertyWidget()
     m_connection.disconnect();
 }
 
-void WPropertyWidget::propertyChangeNotifier()
+void WPropertyWidget::requestUpdate()
 {
     QCoreApplication::postEvent( this, new WPropertyChangedEvent() );
 }
@@ -136,3 +152,59 @@ void WPropertyWidget::invalidate( bool invalid )
     }
 }
 
+QWidget* WPropertyWidget::getParameterWidgets()
+{
+    return &m_parameterWidgets;
+}
+
+QWidget* WPropertyWidget::getInformationWidgets()
+{
+    return &m_informationWidgets;
+}
+
+WPropertyWidget* WPropertyWidget::construct( WPropertyBase::SPtr property, QGridLayout* propertyGrid, QWidget* parent )
+{
+    switch ( property->getType() )
+    {
+        case PV_BOOL:
+            return new WPropertyBoolWidget( property->toPropBool(), propertyGrid, parent );
+            break;
+        case PV_INT:
+            return new WPropertyIntWidget( property->toPropInt(), propertyGrid, parent  );
+            break;
+        case PV_DOUBLE:
+            return new WPropertyDoubleWidget( property->toPropDouble(), propertyGrid, parent  );
+            break;
+        case PV_STRING:
+            return new WPropertyStringWidget( property->toPropString(), propertyGrid, parent  );
+            break;
+        case PV_PATH:
+            return new WPropertyFilenameWidget( property->toPropFilename(), propertyGrid, parent  );
+            break;
+        case PV_SELECTION:
+            return new WPropertySelectionWidget( property->toPropSelection(), propertyGrid, parent  );
+            break;
+        case PV_COLOR:
+            return new WPropertyColorWidget( property->toPropColor(), propertyGrid, parent  );
+            break;
+        case PV_POSITION:
+            return new WPropertyPositionWidget( property->toPropPosition(), propertyGrid, parent );
+            break;
+        case PV_TRIGGER:
+            return new WPropertyTriggerWidget( property->toPropTrigger(), propertyGrid, parent  );
+            break;
+        case PV_STRUCT:
+            return new WPropertyStructWidget( property->toPropGroupBase(), propertyGrid, parent );
+            break;
+        case PV_MATRIX4X4:
+            return new WPropertyMatrix4X4Widget( property->toPropMatrix4X4(), propertyGrid, parent  );
+            break;
+        case PV_TRANSFERFUNCTION:
+            return new WPropertyTransferFunctionWidget( property->toPropTransferFunction(), propertyGrid, parent  );
+            break;
+        default:    // NOTE:: WPropGroup will be handled in WQtConrolPanel::buildPropWidget
+            WLogger::getLogger()->addLogMessage( "This property type is not yet supported.", "WPropertyWidget", LL_WARNING );
+            break;
+    }
+    return NULL;
+}

@@ -77,7 +77,5 @@ typedef boost::function< void ( boost::shared_ptr< WModule >, const WException& 
  */
 typedef boost::signals2::signal< void ( boost::shared_ptr< WModule >, const WException& ) >  t_ModuleErrorSignalType;
 
-
 #endif  // WMODULESIGNALS_H
-
 

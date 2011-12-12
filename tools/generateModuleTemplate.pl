@@ -244,4 +244,4 @@ close( FILE );
 
 print "Generating completed.\n";
 print "\n";
-print "Have look at the template module for an introduction to module programming.\n";
+print "Look at the template module for an introduction to module programming.\n";

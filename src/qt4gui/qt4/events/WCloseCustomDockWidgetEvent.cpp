@@ -22,38 +22,20 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMODULESIGNALSUBSCRIPTIONFAILED_H
-#define WMODULESIGNALSUBSCRIPTIONFAILED_H
-
 #include <string>
 
-#include "WModuleException.h"
+#include "core/gui/WCustomWidget.h"
 
-#include "../WExportKernel.h"
+#include "WCloseCustomDockWidgetEvent.h"
 
-/**
- * General purpose exception and therefore base class for all kernel related exceptions.
- * \ingroup kernel
- */
-class OWKERNEL_EXPORT WModuleSignalSubscriptionFailed: public WModuleException
+WCloseCustomDockWidgetEvent::WCloseCustomDockWidgetEvent( std::string title ):
+    QEvent( CUSTOM_TYPE ),
+    m_title( title )
 {
-public:
+}
 
-    /**
-     * Default constructor.
-     * \param msg the exception message.
-     */
-    explicit WModuleSignalSubscriptionFailed( const std::string& msg = "Signal Subscription Failed" );
-
-    /**
-     * Destructor.
-     */
-    virtual ~WModuleSignalSubscriptionFailed() throw();
-
-protected:
-
-private:
-};
-
-#endif  // WMODULESIGNALSUBSCRIPTIONFAILED_H
+std::string WCloseCustomDockWidgetEvent::getTitle() const
+{
+    return m_title;
+}
 

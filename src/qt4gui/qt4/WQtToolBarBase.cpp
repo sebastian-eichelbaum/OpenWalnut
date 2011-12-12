@@ -49,7 +49,7 @@ WQtToolBarBase::WQtToolBarBase( const QString& title, WMainWindow* parent ):
     styleOptions.push_back( "Follow Style" );
     m_styleOptionMenu = new WSettingMenu( parent, "qt4gui/" + windowTitle().toStdString() + "toolbarStyle",
                                                   title.toStdString(),
-                                                  "Allows to change the style of toolbars..",
+                                                  "Allows one to change the style of toolbars.",
                                                   0,
                                                   styleOptions );
     connect( m_styleOptionMenu, SIGNAL( change( unsigned int ) ), this, SLOT( handleStyleUpdate( unsigned int ) ) );

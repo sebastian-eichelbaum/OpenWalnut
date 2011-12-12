@@ -111,7 +111,7 @@ private:
     /**
      * loads and parses the meta file
      * \param path to the meta file
-     * \return true if a meta file was succesfully loaded, false otherwise
+     * \return true if a meta file was successfully loaded, false otherwise
      */
     bool loadPngs( boost::filesystem::path path );
 

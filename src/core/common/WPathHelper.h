@@ -57,11 +57,13 @@ public:
     static boost::shared_ptr< WPathHelper > getPathHelper();
 
     /**
-     * Set the current application path. This should be called only once.
+     * Set the current application path. This should be called only once. The home path hereby is NOT the users home. It is an directory, where
+     * OW can write user specific data. A good default here is to specify USERHOME/.OpenWalnut for example.
      *
      * \param appPath the application path
+     * \param homePath the OW home path
      */
-    void setAppPath( boost::filesystem::path appPath );
+    void setBasePaths( boost::filesystem::path appPath, boost::filesystem::path homePath );
 
     /**
      * The path where the binary file resides in. This is for example /usr/bin.
@@ -127,12 +129,36 @@ public:
     static boost::filesystem::path getModulePath();
 
     /**
-     * This returns a list of search paths for modules. This list is defined by the environment variable "OW_MODULE_PATH". All of these
+     * The path to the OW dir in the user's home. This will not be the home dir directly. It is something like $HOME/.OpenWalnut.
+     *
+     * \return OW home path
+     */
+    static boost::filesystem::path getHomePath();
+
+    /**
+     * This returns a list of search paths for modules. This list is defined by the environment variable "OW_MODULE_PATH" and the list of additional
+     * module paths. All of these
      * directories CAN contain modules. On startup, they get searched in the specified order.
      *
      * \return list of search paths for modules
      */
     static std::vector< boost::filesystem::path > getAllModulePaths();
+
+    /**
+     * This method adds the given path to the list of module paths. This way, arbitrary paths can be specified to search for modules. Each path
+     * is searched recursively.
+     *
+     * \param path the path to add.
+     */
+    void addAdditionalModulePath( const boost::filesystem::path& path );
+
+    /**
+     * Returns the list of paths added using addAdditionalModulePath. This does NOT contain the paths in OW_MODULE_PATH. Use getAllModulePaths
+     * for this.
+     *
+     * \return the list of additional paths
+     */
+    const std::vector< boost::filesystem::path >& getAdditionalModulePaths() const;
 
     /**
      * The path to the OW libs. You normally should not need this.
@@ -201,6 +227,17 @@ private:
      * The path to the OW libs.
      */
     boost::filesystem::path m_libPath;
+
+    /**
+     * The path of a user specific OW directory.
+     */
+    boost::filesystem::path m_homePath;
+
+    /**
+     * A list of additional paths to search for modules. This does not contain the paths in the environment variable OW_MODULE_PATH. This method
+     * is not thread-safe. You should only use it before the module factory loads the modules.
+     */
+    std::vector< boost::filesystem::path > m_additionalModulePaths;
 
     /**
      * Singleton instance of WPathHelper.

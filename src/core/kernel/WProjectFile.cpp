@@ -113,77 +113,75 @@ void WProjectFile::save()
 
 void WProjectFile::threadMain()
 {
-    try
+    // Parse the file
+    wlog::info( "Project File" ) << "Loading project file \"" << m_project.file_string() << "\".";
+
+    // read the file
+    std::ifstream input( m_project.file_string().c_str() );
+    if( !input.is_open() )
     {
-        // Parse the file
-        wlog::info( "Project File" ) << "Loading project file \"" << m_project.file_string() << "\".";
+        throw WFileNotFound( std::string( "The project file \"" ) + m_project.file_string() +
+                             std::string( "\" does not exist." ) );
+    }
 
-        // read the file
-        std::ifstream input( m_project.file_string().c_str() );
-        if( !input.is_open() )
-        {
-            throw WFileNotFound( std::string( "The project file \"" ) + m_project.file_string() +
-                                 std::string( "\" does not exist." ) );
-        }
+    // the comment
+    static const boost::regex commentRe( "^ *//.*$" );
 
-        // the comment
-        static const boost::regex commentRe( "^ *//.*$" );
+    // read it line by line
+    std::string line;       // the current line
+    int i = 0;              // line counter
+    bool match = false;     // true of a parser successfully parsed the line
+    boost::smatch matches;  // the list of matches
 
-        // read it line by line
-        std::string line;       // the current line
-        int i = 0;              // line counter
-        bool match = false;     // true of a parser successfully parsed the line
-        boost::smatch matches;  // the list of matches
+    while( std::getline( input, line ) )
+    {
+        ++i;    // line number
+        match = false;
 
-        while( std::getline( input, line ) )
-        {
-            ++i;    // line number
-            match = false;
-
-            // allow each parser to handle the line.
-            for( std::vector< boost::shared_ptr< WProjectFileIO > >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
-            {
-                try
-                {
-                    if( ( *iter )->parse( line, i ) )
-                    {
-                        match = true;
-                        // the first parser matching this line -> next line
-                        break;
-                    }
-                }
-                catch( const std::exception& e )
-                {
-                    wlog::error( "Project Loader" ) << "Line " << i << ": Parsing caused an exception. Line Malformed? Skipping.";
-                }
-            }
-
-            // did someone match this line? Or is it empty or a comment?
-            if( !match && !line.empty() && !boost::regex_match( line, matches, commentRe ) )
-            {
-                // no it is something else -> warning!
-                wlog::warn( "Project Loader" ) << "Line " << i << ": Malformed. Skipping.";
-            }
-        }
-
-        input.close();
-
-        // finally, let every one know that we have finished
+        // allow each parser to handle the line.
         for( std::vector< boost::shared_ptr< WProjectFileIO > >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
         {
-            ( *iter )->done();
+            try
+            {
+                if( ( *iter )->parse( line, i ) )
+                {
+                    match = true;
+                    // the first parser matching this line -> next line
+                    break;
+                }
+            }
+            catch( const std::exception& e )
+            {
+                wlog::error( "Project Loader" ) << "Line " << i << ": Parsing caused an exception. Line Malformed? Skipping.";
+            }
+        }
+
+        // did someone match this line? Or is it empty or a comment?
+        if( !match && !line.empty() && !boost::regex_match( line, matches, commentRe ) )
+        {
+            // no it is something else -> warning!
+            wlog::warn( "Project Loader" ) << "Line " << i << ": Malformed. Skipping.";
         }
     }
-    catch( const std::exception& e )
-    {
-        // remove from thread list
-        WKernel::getRunningKernel()->getRootContainer()->finishedPendingThread( shared_from_this() );
 
-        // re-throw
-        throw e;
+    input.close();
+
+    // finally, let every one know that we have finished
+    for( std::vector< boost::shared_ptr< WProjectFileIO > >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
+    {
+        ( *iter )->done();
     }
 
     // remove from thread list
     WKernel::getRunningKernel()->getRootContainer()->finishedPendingThread( shared_from_this() );
 }
 
+void WProjectFile::onThreadException( const WException& e )
+{
+    // let WThreadedRunner do the remaining tasks.
+    handleDeadlyException( e, "Project Loader" );
+
+    // remove from thread list. Please note: this NEEDS to be done after handleDeadlyException - if done before, the thread pointer might be
+    // deleted already.
+    WKernel::getRunningKernel()->getRootContainer()->finishedPendingThread( shared_from_this() );
+}

@@ -32,6 +32,7 @@
 
 #include "../common/WLogger.h"
 #include "../common/WThreadedRunner.h"
+#include "../common/exceptions/WSignalSubscriptionFailed.h"
 #include "WBatchLoader.h"
 #include "WKernel.h"
 #include "WModule.h"
@@ -42,7 +43,6 @@
 #include "WModuleTypes.h"
 #include "combiner/WApplyCombiner.h"
 #include "exceptions/WModuleAlreadyAssociated.h"
-#include "exceptions/WModuleSignalSubscriptionFailed.h"
 #include "exceptions/WModuleUninitialized.h"
 #include "WDataModule.h"
 
@@ -232,14 +232,6 @@ void WModuleContainer::remove( boost::shared_ptr< WModule > module )
     slock.unlock();
 }
 
-void WModuleContainer::removeDeep( boost::shared_ptr< WModule > module )
-{
-    WLogger::getLogger()->addLogMessage( "Deep removal of modules is not yet implemented.", "ModuleContainer (" + getName() + ")", LL_WARNING );
-
-    // at least, remove the module itself
-    remove( module );
-}
-
 WModuleContainer::DataModuleListType WModuleContainer::getDataModules()
 {
     DataModuleListType l;
@@ -332,7 +324,7 @@ void WModuleContainer::addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleGeneric
         default:
             std::ostringstream s;
             s << "Could not subscribe to unknown signal.";
-            throw WModuleSignalSubscriptionFailed( s.str() );
+            throw WSignalSubscriptionFailed( s.str() );
             break;
     }
 }
@@ -350,7 +342,7 @@ void WModuleContainer::addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleErrorSi
         default:
             std::ostringstream s;
             s << "Could not subscribe to unknown signal.";
-            throw WModuleSignalSubscriptionFailed( s.str() );
+            throw WSignalSubscriptionFailed( s.str() );
             break;
     }
 }
@@ -373,7 +365,7 @@ void WModuleContainer::addDefaultNotifier( MODULE_CONNECTOR_SIGNAL signal, t_Gen
         default:
             std::ostringstream s;
             s << "Could not subscribe to unknown signal.";
-            throw WModuleSignalSubscriptionFailed( s.str() );
+            throw WSignalSubscriptionFailed( s.str() );
             break;
     }
 }
@@ -490,6 +482,27 @@ void WModuleContainer::setCrashIfModuleCrashes( bool crashIfCrashed )
 WModuleContainer::ModuleSharedContainerType::ReadTicket WModuleContainer::getModules() const
 {
     return m_modules.getReadTicket();
+}
+
+WModuleContainer::ModuleVectorType WModuleContainer::getModules( std::string name ) const
+{
+    // get the list of all first.
+    WModuleContainer::ModuleSharedContainerType::ReadTicket lock = getModules();
+
+    // put results in here
+    WModuleContainer::ModuleVectorType result;
+
+    // handle each module
+    for( ModuleConstIterator listIter = lock->get().begin(); listIter != lock->get().end(); ++listIter )
+    {
+        // check name
+        if( name == ( *listIter )->getName() )
+        {
+            result.push_back( ( *listIter ) );
+        }
+    }
+
+    return result;
 }
 
 WCombinerTypes::WCompatiblesList WModuleContainer::getPossibleConnections( boost::shared_ptr< WModule > module )

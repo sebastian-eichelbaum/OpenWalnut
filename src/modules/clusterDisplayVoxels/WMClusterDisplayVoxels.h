@@ -40,6 +40,7 @@
 #include "core/graphicsEngine/geodes/WDendrogramGeode.h"
 #include "core/graphicsEngine/WGEManagedGroupNode.h"
 #include "core/graphicsEngine/widgets/WOSGButton.h"
+#include "core/graphicsEngine/WPickHandler.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
 #include "core/kernel/WModuleOutputData.h"
@@ -60,7 +61,7 @@ typedef enum
 CDV_DISPLAYMODE;
 
 /**
- * Allows to display and interact with clustered voxel data.
+ * Allows one to display and interact with clustered voxel data.
  * \ingroup modules
  */
 class WMClusterDisplayVoxels: public WModule
@@ -125,7 +126,7 @@ private:
     /**
      * loads and parses the clustering text file
      * \param clusterFile to the clustering file
-     * \return true if a meta file was succesfully loaded, false otherwise
+     * \return true if a meta file was successfully loaded, false otherwise
      */
     bool loadClustering( boost::filesystem::path clusterFile );
 

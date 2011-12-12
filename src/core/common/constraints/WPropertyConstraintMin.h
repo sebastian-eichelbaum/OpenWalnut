@@ -55,7 +55,7 @@ public:
      *
      * \return true if value >= m_min
      */
-    virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, T value );
+    virtual bool accept( boost::shared_ptr< WPropertyVariable< T > > property, const T& value );
 
     /**
      * Returns the current min value.
@@ -98,7 +98,7 @@ WPropertyConstraintMin< T >::~WPropertyConstraintMin()
 }
 
 template < typename T >
-bool WPropertyConstraintMin< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, T value )
+bool WPropertyConstraintMin< T >::accept( boost::shared_ptr< WPropertyVariable< T > > /* property */, const T& value )
 {
     return value >= m_min;
 }

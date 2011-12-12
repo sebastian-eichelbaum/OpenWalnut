@@ -31,6 +31,7 @@
 
 WQtCustomDockWidget::WQtCustomDockWidget( std::string title, QWidget* parent, WGECamera::ProjectionMode projectionMode )
     : WQtGLDockWidget( QString::fromStdString( title ), QString::fromStdString( title ), parent, projectionMode ),
+      WCustomWidget( title ),
       m_useCount( 1 )
 {
     setObjectName( QString( "Custom Dock Window " ) + QString::fromStdString( title ) );
@@ -38,6 +39,9 @@ WQtCustomDockWidget::WQtCustomDockWidget( std::string title, QWidget* parent, WG
     m_scene = new WGEGroupNode();
     m_scene->setDataVariance( osg::Object::DYNAMIC );
     getGLWidget()->getViewer()->setScene( m_scene );
+
+    // send mouse move events even if no button is pressed
+    getGLWidget()->setMouseTracking( true );
 }
 
 osg::ref_ptr< WGEGroupNode > WQtCustomDockWidget::getScene() const

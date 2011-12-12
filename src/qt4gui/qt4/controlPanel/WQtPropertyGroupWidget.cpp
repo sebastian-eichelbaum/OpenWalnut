@@ -32,14 +32,14 @@
 #include "../events/WEventTypes.h"
 #include "../events/WPropertyChangedEvent.h"
 
-#include "core/common/WProperties.h"
+#include "core/common/WPropertyGroupBase.h"
 
 #include "../WGuiConsts.h"
 
 #include "WQtPropertyGroupWidget.h"
 #include "WQtPropertyGroupWidget.moc"
 
-WQtPropertyGroupWidget::WQtPropertyGroupWidget( WPropGroup group, QWidget* parent )
+WQtPropertyGroupWidget::WQtPropertyGroupWidget( WPropertyGroupBase::SPtr group, QWidget* parent )
     : QWidget( parent ),
     m_name( group->getName().c_str() ),
     m_numberOfWidgets( 0 ),
@@ -58,8 +58,8 @@ WQtPropertyGroupWidget::WQtPropertyGroupWidget( WPropGroup group, QWidget* paren
     m_pageLayout->addLayout( m_controlLayout );
 
     // empty groups are hidden too
-    // NOTE: the WProperties class fires the update condition if a prop gets added. So it automatically un-hides if a prop is added.
-    WProperties::PropertySharedContainerType::ReadTicket r = m_group->getReadTicket();
+    // NOTE: the WPropertyGroupBase class fires the update condition if a prop gets added. So it automatically un-hides if a prop is added.
+    WPropertyGroupBase::PropertySharedContainerType::ReadTicket r = m_group->getReadTicket();
     bool hide = ( r->get().empty() | m_group->isHidden() );
     r.reset();
     // NOTE: a simple setHidden( group->isHidden() ) causes the QWidgets to popup if hidden is false. This is why we set hidden only if it really
@@ -88,7 +88,7 @@ bool WQtPropertyGroupWidget::event( QEvent* event )
     // a property changed
     if( event->type() == WQT_PROPERTY_CHANGED_EVENT )
     {
-        WProperties::PropertySharedContainerType::ReadTicket r = m_group->getReadTicket();
+        WPropertyGroupBase::PropertySharedContainerType::ReadTicket r = m_group->getReadTicket();
         setHidden( r->get().empty() | m_group->isHidden() );
         emit hideSignal( m_group->isHidden() );
         return true;
@@ -97,74 +97,15 @@ bool WQtPropertyGroupWidget::event( QEvent* event )
     return QWidget::event( event );
 }
 
-WPropertyBoolWidget* WQtPropertyGroupWidget::addProp( WPropBool property )
+WPropertyWidget* WQtPropertyGroupWidget::addProp( WPropertyBase::SPtr property )
 {
-    ++m_numberOfWidgets;
-
-    return new WPropertyBoolWidget( property, m_controlLayout, this );
-}
-
-WPropertyIntWidget* WQtPropertyGroupWidget::addProp( WPropInt property )
-{
-    ++m_numberOfWidgets;
-
-    return new WPropertyIntWidget( property, m_controlLayout, this );
-}
-
-WPropertyDoubleWidget* WQtPropertyGroupWidget::addProp( WPropDouble property )
-{
-    ++m_numberOfWidgets;
-
-    return new WPropertyDoubleWidget( property, m_controlLayout, this );
-}
-
-WPropertyStringWidget* WQtPropertyGroupWidget::addProp( WPropString property )
-{
-    ++m_numberOfWidgets;
-
-    return new WPropertyStringWidget( property, m_controlLayout, this );
-}
-
-WPropertyColorWidget* WQtPropertyGroupWidget::addProp( WPropColor property )
-{
-    ++m_numberOfWidgets;
-
-    return new WPropertyColorWidget( property, m_controlLayout, this );
-}
-
-WPropertyFilenameWidget* WQtPropertyGroupWidget::addProp( WPropFilename property )
-{
-    ++m_numberOfWidgets;
-
-    return new WPropertyFilenameWidget( property, m_controlLayout, this );
-}
-
-WPropertyTriggerWidget* WQtPropertyGroupWidget::addProp( WPropTrigger property )
-{
-    ++m_numberOfWidgets;
-
-    return new WPropertyTriggerWidget( property, m_controlLayout, this );
-}
-
-WPropertyPositionWidget* WQtPropertyGroupWidget::addProp( WPropPosition property )
-{
-    ++m_numberOfWidgets;
-
-    return new WPropertyPositionWidget( property, m_controlLayout, this );
-}
-
-WPropertyMatrix4X4Widget* WQtPropertyGroupWidget::addProp( WPropMatrix4X4 property )
-{
-    ++m_numberOfWidgets;
-
-    return new WPropertyMatrix4X4Widget( property, m_controlLayout, this );
-}
-
-WPropertySelectionWidget* WQtPropertyGroupWidget::addProp( WPropSelection property )
-{
-    ++m_numberOfWidgets;
-
-    return new WPropertySelectionWidget( property, m_controlLayout, this );
+    // create a widget and increase counter if successful
+    WPropertyWidget* widget = WPropertyWidget::construct( property, m_controlLayout, this );
+    if( widget )
+    {
+        ++m_numberOfWidgets;
+    }
+    return widget;
 }
 
 void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asScrollArea )

@@ -127,7 +127,9 @@ public:
     boost::shared_ptr< WModule > getModule();
 
     /**
-     * returns the layout item for this network item, layout item is set through the layout item (friend)
+     * Returns the layout item for this network item, layout item is set through the layout item (friend).
+     *
+     * \return the associated node
      **/
     WNetworkLayoutNode * getLayoutNode();
 
@@ -136,12 +138,6 @@ public:
      * \param active true if module is ready.
      */
     void activate( bool active );
-
-    /**
-     * calculate new forces to layout the WQtNetworkItems in the
-     * WQtNetworkScene.
-     */
-    void calculateForces();
 
     /**
      * Check if new calculated position is different from current. If yes

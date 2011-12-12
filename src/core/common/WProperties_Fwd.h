@@ -27,7 +27,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-// This class contains forward declarations for every thing which is needed to use WProperties in all their variations. Simply include this file
+// This class contains forward declarations for every thing which is needed to use WPropertyGroup in all their variations. Simply include this file
 // in your headers if your somehow need properties or related classes.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@
 // WPropertyTypes.h does not include any other property header. So we can include it directly here.
 // Provides:
 //  * class WPropertyVariable< T >
-//  * class WProperties
+//  * class WPropertyGroup
 //  * enum PROPERTY_TYPE
 //  * enum PROPERTY_PURPOSE
 //  * typedefs WPVPropXYZ
@@ -48,6 +48,9 @@
 
 // From WPropertyBase.h
 class WPropertyBase;
+
+// From WPropertyGroupBase.h
+class WPropertyGroupBase;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Utilities

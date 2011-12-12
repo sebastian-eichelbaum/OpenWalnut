@@ -29,6 +29,7 @@
 
 #include <osg/LineWidth>
 #include <osg/LightModel>
+#include <osg/Geometry>
 
 #include "algorithms/WMarchingLegoAlgorithm.h"
 

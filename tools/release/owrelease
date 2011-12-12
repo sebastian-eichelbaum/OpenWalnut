@@ -32,21 +32,21 @@
 VERSION_BASE=1.2.5
 
 # Should the package number contain the HG revision?
-VERSION_INCLUDE_HG=0
+VERSION_INCLUDE_HG=1
 
 # Where to grab the sources?
 REPO="ssh://openwalnut.com//srv/hg/ow"
 REPO_BRANCH="OpenWalnut_$VERSION_BASE"
 
 # Which packages to build
-PACKAGES="deb src tgz"
+PACKAGES="deb src"
 
 # Define which chroot/distribution to use for build the packages
 # NOTE: supported are "sid wheezy squeeze lucid maverick natty"
 
 # As we only need a source DEB, we do not build the deb for all supported distributions. The NeuroDebian project is doing this.
 # DISTRIBUTIONS_DEB="sid wheezy squeeze lucid maverick natty"
-DISTRIBUTIONS_DEB="sid"
+DISTRIBUTIONS_DEB="sid oneiric"
 
 # use these distributions to build binary tgz
 #DISTRIBUTIONS_TGZ="sid wheezy squeeze lucid maverick natty"
@@ -55,7 +55,7 @@ DISTRIBUTIONS_TGZ=""
 
 # Architectures to build for
 # NOTE: we need the debsrc package.
-ARCHITECTURES_DEB="amd64"
+ARCHITECTURES_DEB="amd64 i386"
 # Build binary tgz for 386 and amd64
 ARCHITECTURES_TGZ="amd64 i386"
 
@@ -251,11 +251,10 @@ UsageExit()
 {
         echo "Central script for release management. Bootstraps the OpenWalnut Release code and starts the building."
         echo ""
-        echo "Usage: $0 {bootstrap|clean}"
+        echo "Usage: $0 {clean|purge|bootstrap|do}"
         echo "  COMMANDS:"
         echo "    clean: removes created build sub-directories and logs but keeps bootstrap status."
         echo "    purge: like clean but also removes checkouts and scripts."
-        echo "    bootstrap: gets a fresh copy of OpenWalnut."
         echo "    bootstrap: gets a fresh copy of OpenWalnut."
         echo "    do: does the actual building."
         echo ""

@@ -22,18 +22,43 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#include <iostream>
 
-#include "WModuleSignalSubscriptionFailed.h"
+#include "QtGui/QPainter"
+#include "QtGui/QStyleOption"
+#include "QtGui/QGraphicsSceneMouseEvent"
 
-WModuleSignalSubscriptionFailed::WModuleSignalSubscriptionFailed( const std::string& msg ): WModuleException( msg )
+#include "WTransferFunctionBackground.h"
+#include "WTransferFunctionWidget.h"
+
+WTransferFunctionBackground::WTransferFunctionBackground( WTransferFunctionWidget * /*parent*/ ) : BaseClass()
 {
-    // initialize members
+    //this->setFlag( ItemIsMovable );
+    setOpacity( 1.0 );
+    setZValue( -1 );
+
+    setPos( QPointF( 0, 0 ) );
 }
 
-WModuleSignalSubscriptionFailed::~WModuleSignalSubscriptionFailed() throw()
+void WTransferFunctionBackground::setMyPixmap( const QPixmap& newpixmap )
 {
-    // cleanup
+    if ( newpixmap.width() > 0 && newpixmap.height() > 0 )
+    {
+        // std::cout << "SET MY PIXMAP" << std::endl;
+        QTransform m( scene()->sceneRect().width()/( double )newpixmap.width(), 0, 0,
+                      0, scene()->sceneRect().height()/( double )newpixmap.height(), 0,
+                      0, 0, 1 );
+        setTransform( m );
+    }
+    BaseClass::setPixmap( newpixmap );
 }
 
+WTransferFunctionBackground::~WTransferFunctionBackground()
+{
+}
+
+QRectF WTransferFunctionBackground::boundingRect() const
+{
+    return scene()->sceneRect();
+}
 

@@ -57,9 +57,24 @@ public:
 protected:
 
     /**
+     * Internal helper, called to set the color
+     */
+    virtual void setColor( const QColor& color );
+
+    /**
      * Called whenever the widget should update.
      */
     virtual void update();
+
+    /**
+     * Reimplemented to accept color drops
+     */
+    virtual void dragEnterEvent( QDragEnterEvent* event );
+
+    /**
+     * Reimplemented to accept color drops
+     */
+    virtual void dropEvent( QDropEvent* event );
 
     /**
      * The integer property represented by this widget.
@@ -95,7 +110,7 @@ private:
      *
      * \return the corresponding QColor.
      */
-    QColor toQColor( WColor color );
+    static QColor toQColor( WColor color );
 
     /**
      * Helper to convert between QColor and WColor.
@@ -104,14 +119,14 @@ private:
      *
      * \return the corresponding WColor.
      */
-     WColor toWColor( QColor color );
+     static WColor toWColor( QColor color );
 
 public slots:
 
     /**
-     * Called when the m_button was pressed.
+     * Called when the m_button is clicked
      */
-    void buttonReleased();
+    void buttonClicked();
 };
 
 #endif  // WPROPERTYCOLORWIDGET_H
