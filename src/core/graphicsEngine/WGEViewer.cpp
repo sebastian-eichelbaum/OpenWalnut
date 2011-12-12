@@ -43,10 +43,13 @@
 
 #include "exceptions/WGEInitFailed.h"
 #include "WGE2DManipulator.h"
+#include "WGEGroupNode.h"
 #include "WGENoOpManipulator.h"
 #include "WGEZoomTrackballManipulator.h"
 #include "WPickHandler.h"
 #include "../common/WConditionOneShot.h"
+
+#include "../common/WThreadedRunner.h"
 
 #include "WGEViewer.h"
 

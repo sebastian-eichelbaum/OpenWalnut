@@ -142,7 +142,8 @@ SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
 # Eigen3 specifics
 
 # NOTE: this is included in ext. But we need to set several definitions to make this work on 32 Bit machines due to alignment problems
-ADD_DEFINITIONS( -DEIGEN_DONT_VECTORIZE -DEIGEN_DONT_ALIGN -DEIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT )
+SET( EIGEN3_DEFINES -DEIGEN_DONT_VECTORIZE -DEIGEN_DONT_ALIGN -DEIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT )
+ADD_DEFINITIONS( ${EIGEN3_DEFINES} )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
@@ -239,6 +240,10 @@ IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
   ENDIF()
 ENDIF()
 FIND_PACKAGE( OpenSceneGraph ${MIN_OSG_VERSION} REQUIRED osgDB osgUtil osgGA osgViewer osgSim osgWidget osgText )
+IF( OPENSCENEGRAPH_FOUND )
+    INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
+ENDIF()
+
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # Eigen3, at least 3.0.0
@@ -357,7 +362,7 @@ ADD_CUSTOM_TARGET( doc
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # SETUP_STYLECHECKER adds targets for each lib which then add theirself to this target
-ADD_CUSTOM_TARGET( stylecheck DEPENDS numCores )
+ADD_CUSTOM_TARGET( stylecheck )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #

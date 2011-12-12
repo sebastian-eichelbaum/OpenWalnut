@@ -32,11 +32,8 @@
 
 #include <osg/Node>
 #include <osg/Version>
-#include <osgGA/DriveManipulator>
-#include <osgGA/FlightManipulator>
-#include <osgGA/TerrainManipulator>
-#include <osgGA/UFOManipulator>
 #include <osgViewer/View>
+#include <osgViewer/Viewer>
 
 // OSG interface changed in 2.9.7, to make it compile also with those versions we do this:
 // OSG_MIN_VERSION_REQUIRED(2, 9, 8) macro is not available in e.g. OSG 2.8.1, hence we use the old way
@@ -53,13 +50,12 @@
 
 #include "../common/WColor.h"
 #include "../common/WFlag.h"
-#include "../common/WThreadedRunner.h"
 #include "WExportWGE.h"
 #include "WGECamera.h"
 #include "WGEGraphicsWindow.h"
-#include "WGEGroupNode.h"
+class WGEGroupNode;
 #include "WGEScreenCapture.h"
-#include "WPickHandler.h"
+class WPickHandler;
 #include "animation/WGEAnimationManipulator.h"
 
 /**

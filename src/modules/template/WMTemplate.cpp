@@ -386,7 +386,8 @@ void WMTemplate::moduleMain()
     // One note about "setResetable": It might happen, that a condition fires and your thread does not currently waits on it. This would mean,
     // that your thread misses the event. The resettable flag for those condition sets can help here. Whenever a condition, managed by the
     // condition set, fires, the moduleState variable remembers it. So, the next call to m_moduleState.wait() will immediately return and reset
-    // the "memory" of the moduleState. For more details, see: http://berkeley.informatik.uni-leipzig.de/trac/ow-public/wiki/HowtoWaitCorrectly
+    // the "memory" of the moduleState. For more details, see:
+    // http://www.openwalnut.org/projects/openwalnut/wiki/MultithreadingHowto#How-to-wait-correctly
 
     // Signal ready state. Now your module can be connected by the container, which owns the module.
     ready();
@@ -709,7 +710,7 @@ void WMTemplate::TranslateCallback::operator()( osg::Node* node, osg::NodeVisito
 }
 
 bool WMTemplate::StringLength::accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING > > /* property */,
-                                       WPVBaseTypes::PV_STRING value )
+                                       const WPVBaseTypes::PV_STRING& value )
 {
     // This method gets called every time the m_aString property is going to be changed. It can decide whether the new value is valid or not. If
     // the method returns true, the new value is set. If it returns false, the value is rejected.
