@@ -303,7 +303,7 @@ namespace
         case enum_type:\
             return boost::shared_ptr<MCAlgoMapperBase<AlgoBase> >( new MCAlgoMapper<AlgoBase, DataTypeRT< enum_type >::type >() )
 
-        switch ( enum_type )
+        switch( enum_type )
         {
             //CASE( W_DT_BINARY ); // the cast operation DataTypeRT is not implemented for binaries, so far
             CASE( W_DT_UNSIGNED_CHAR );
@@ -340,7 +340,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
     boost::shared_ptr< WValueSetBase > valueSet( m_dataSet->getValueSet() );
 
     boost::shared_ptr<MCBase> algo;
-    if ( m_useMarchingLego->get( true ) )
+    if( m_useMarchingLego->get( true ) )
     {
         algo = createAlgo<WMarchingLegoAlgorithm>( valueSet->getDataType() );
     }
@@ -349,7 +349,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
         algo = createAlgo<WMarchingCubesAlgorithm>( valueSet->getDataType() );
     }
 
-    if ( algo )
+    if( algo )
     {
         m_triMesh = algo->execute( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
                                           m_grid->getTransformationMatrix(),

@@ -198,7 +198,7 @@ void WMDatasetProfile::updateCallback()
         knobs[i]->setLockY( false );
         knobs[i]->setLockZ( false );
     }
-    switch ( m_snapSelection->get( true ).getItemIndexOfSelected( 0 ) )
+    switch( m_snapSelection->get( true ).getItemIndexOfSelected( 0 ) )
     {
         case 0:
             break;

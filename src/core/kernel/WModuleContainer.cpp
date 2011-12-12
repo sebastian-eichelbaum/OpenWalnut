@@ -304,7 +304,7 @@ const std::string WModuleContainer::getDescription() const
 void WModuleContainer::addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleGenericSignalHandlerType notifier )
 {
     boost::unique_lock<boost::shared_mutex> lock;
-    switch (signal)
+    switch( signal)
     {
         case WM_ASSOCIATED:
             lock = boost::unique_lock<boost::shared_mutex>( m_associatedNotifiersLock );
@@ -332,7 +332,7 @@ void WModuleContainer::addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleGeneric
 void WModuleContainer::addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleErrorSignalHandlerType notifier )
 {
     boost::unique_lock<boost::shared_mutex> lock;
-    switch (signal)
+    switch( signal)
     {
         case WM_ERROR:
             lock = boost::unique_lock<boost::shared_mutex>( m_errorNotifiersLock );
@@ -350,7 +350,7 @@ void WModuleContainer::addDefaultNotifier( MODULE_SIGNAL signal, t_ModuleErrorSi
 void WModuleContainer::addDefaultNotifier( MODULE_CONNECTOR_SIGNAL signal, t_GenericSignalHandlerType notifier )
 {
     boost::unique_lock<boost::shared_mutex> lock;
-    switch (signal)
+    switch( signal)
     {
         case CONNECTION_ESTABLISHED:
             lock = boost::unique_lock<boost::shared_mutex>( m_connectorNotifiersLock );

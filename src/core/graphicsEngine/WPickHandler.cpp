@@ -66,7 +66,7 @@ boost::signals2::signal1< void, WPickInfo >* WPickHandler::getPickSignal()
 
 bool WPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa )
 {
-    switch ( ea.getEventType() )
+    switch( ea.getEventType() )
     {
         case osgGA::GUIEventAdapter::DRAG : // Mouse pushed an dragged
         case osgGA::GUIEventAdapter::PUSH : // Mousebutton pushed

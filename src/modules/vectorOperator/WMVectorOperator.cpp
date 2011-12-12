@@ -195,7 +195,7 @@ public:
                             const WVector3d&, const WVector3d&,
                             const WVector3d&, const WVector3d&,
                             const WVector3d&, const WVector3d& ) > op;
-        switch ( m_opIdx )
+        switch( m_opIdx )
         {
             case 1:
                 op = &opCurvature< T >;

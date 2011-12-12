@@ -123,11 +123,11 @@ double radToDeg( double rad )
 template < typename T >
 T sign( T value )
 {
-    if ( value > T( 0 ) )
+    if( value > T( 0 ) )
     {
         return 1;
     }
-    if ( value < T( 0 ) )
+    if( value < T( 0 ) )
     {
         return -1;
     }
@@ -152,11 +152,11 @@ T positive( T value )
  */
 double smooth( double value, double min, double max )
 {
-    if ( value >= max )
+    if( value >= max )
     {
         return max;
     }
-    if ( value < min )
+    if( value < min )
     {
         return min;
     }
@@ -277,7 +277,7 @@ public:
     {
         // get a scaling factor
         double zfactor = abs( factor );
-        if ( factor < 1.0 )
+        if( factor < 1.0 )
         {
             zfactor = 1.0 / factor;
         }
@@ -289,7 +289,7 @@ public:
         double rtime = time - startTime;
         double sfactor = 1.0 + smooth( ( speed * rtime ), 0.0, zfactor );
 
-        if ( factor < 1.0 )
+        if( factor < 1.0 )
         {
             makeScale( 1.0 / sfactor, 1.0 / sfactor, 1.0 / sfactor );
         }

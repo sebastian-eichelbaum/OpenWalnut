@@ -205,13 +205,13 @@ WDataSetSegmentation::copyDataSetsToArray( const std::vector< boost::shared_ptr<
 {
     const size_t voxelDim = dataSets.size();
     size_t countVoxels = 0;
-    if ( !dataSets.empty() ) countVoxels = ( *dataSets.begin() )->getValueSet()->size();
+    if( !dataSets.empty() ) countVoxels = ( *dataSets.begin() )->getValueSet()->size();
 
     std::vector< T > data( countVoxels * voxelDim );
 
     // loop over images
     size_t dimIndex = 0;
-    for ( std::vector< boost::shared_ptr< WDataSetScalar > >::const_iterator it = dataSets.begin(); it != dataSets.end(); it++ )
+    for( std::vector< boost::shared_ptr< WDataSetScalar > >::const_iterator it = dataSets.begin(); it != dataSets.end(); it++ )
     {
       for( size_t voxelNumber = 0; voxelNumber < countVoxels; voxelNumber++ )
       {

@@ -200,7 +200,7 @@ private:
          */
         bool handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& /* aa */ )
         {
-            switch ( ea.getEventType() )
+            switch( ea.getEventType() )
             {
             case osgGA::GUIEventAdapter::RESIZE:
                 {

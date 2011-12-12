@@ -214,7 +214,7 @@ template< typename T > WValue< T > WDataSetRawHARDI::getNonZeroGradientSignals( 
     size_t idx = 0;
     boost::shared_ptr< WValueSet< T > > vs = boost::shared_dynamic_cast< WValueSet< T > >( m_valueSet );
     WValue< T > signal( vs->getWValue( index ) );
-    for ( std::vector< size_t >::const_iterator cit = m_nonZeroGradientIndexes.begin(); cit != m_nonZeroGradientIndexes.end(); ++cit )
+    for( std::vector< size_t >::const_iterator cit = m_nonZeroGradientIndexes.begin(); cit != m_nonZeroGradientIndexes.end(); ++cit )
     {
         result[ idx ] = signal[ *cit ];
         ++idx;

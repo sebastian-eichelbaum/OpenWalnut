@@ -579,7 +579,7 @@ void WMCoordinateSystem::addSagittalGrid( float position )
     WPosition p1 = boundingBox.getMin();
     WPosition p2 = boundingBox.getMax();
 
-    switch ( m_coordConverter->getCoordinateSystemMode() )
+    switch( m_coordConverter->getCoordinateSystemMode() )
     {
         case CS_WORLD:
         case CS_CANONICAL:
@@ -660,7 +660,7 @@ void WMCoordinateSystem::addCoronalGrid( float position )
     WPosition p1 = boundingBox.getMin();
     WPosition p2 = boundingBox.getMax();
 
-    switch ( m_coordConverter->getCoordinateSystemMode() )
+    switch( m_coordConverter->getCoordinateSystemMode() )
     {
         case CS_WORLD:
         case CS_CANONICAL:
@@ -741,7 +741,7 @@ void WMCoordinateSystem::addAxialGrid( float position )
     WPosition p1 = boundingBox.getMin();
     WPosition p2 = boundingBox.getMax();
 
-    switch ( m_coordConverter->getCoordinateSystemMode() )
+    switch( m_coordConverter->getCoordinateSystemMode() )
     {
         case CS_WORLD:
         case CS_CANONICAL:

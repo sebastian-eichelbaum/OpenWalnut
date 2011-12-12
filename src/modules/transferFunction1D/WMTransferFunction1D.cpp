@@ -119,21 +119,21 @@ void WMTransferFunction1D::moduleMain()
 
     ready();
 
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         m_moduleState.wait();
 
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
           break;
 
         bool tfChanged = m_transferFunction->changed();
         WTransferFunction tf = m_transferFunction->get( true );
         debugLog() << "Current transfer function " << tf.numAlphas() << " alphas.";
-        if ( m_input->updated() || m_binSize->changed() )
+        if( m_input->updated() || m_binSize->changed() )
         {
             boost::shared_ptr< WDataSetSingle > dataSet= m_input->getData();
             bool dataValid = ( dataSet );
-            if ( !dataValid )
+            if( !dataValid )
             {
                 // FIXME: invalidate histogram in GUI
                 tf.removeHistogram();
@@ -148,7 +148,7 @@ void WMTransferFunction1D::moduleMain()
                 // because of the current semantics of WTransferFunction,
                 // we have to create a copy of the data here.
                 std::vector<double> vhistogram( histogram.size() );
-                for ( int i = 0; i < binsize; ++i )
+                for( int i = 0; i < binsize; ++i )
                 {
                     vhistogram[ i ] = histogram[ i ];
                 }
@@ -160,7 +160,7 @@ void WMTransferFunction1D::moduleMain()
             m_transferFunction->set( tf );
         }
 
-        if ( m_resolution->changed() || tfChanged )
+        if( m_resolution->changed() || tfChanged )
         {
             // debugLog() << "resampling transfer function";
             unsigned int resolution = m_resolution->get( true );

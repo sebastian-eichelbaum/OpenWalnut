@@ -372,7 +372,7 @@ public:
         // character of the operators forbids it as template methods can't be virtual. Besides this, at some point in the module main the
         // selector needs to be queried and its index mapped to a pointer. This is what we do here.
         boost::function< ResultT( ResultT, ResultT ) > op;
-        switch ( m_opIdx )
+        switch( m_opIdx )
         {
             case 1:
                 op = &opMinus< ResultT >;
@@ -509,7 +509,7 @@ public:
         // character of the operators forbids it as template methods can't be virtual. Besides this, at some point in the module main the
         // selector needs to be queried and its index mapped to a pointer. This is what we do here.
         boost::function< ResultT( ResultT, ResultT l, ResultT u ) > op;
-        switch ( m_opIdx )
+        switch( m_opIdx )
         {
             case 5:
                 op = &opAbs< ResultT >;

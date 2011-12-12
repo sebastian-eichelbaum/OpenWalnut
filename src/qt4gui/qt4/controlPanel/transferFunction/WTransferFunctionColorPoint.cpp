@@ -91,7 +91,7 @@ void WTransferFunctionColorPoint::paint( QPainter *painter, const QStyleOptionGr
 {
     QRadialGradient gradient( 0.0, 0.0, radius );
 
-    if ( option->state & QStyle::State_Selected )
+    if( option->state & QStyle::State_Selected )
     {
         gradient.setColorAt( 0, Qt::yellow );
         gradient.setColorAt( 1, Qt::red );
@@ -123,9 +123,9 @@ void WTransferFunctionColorPoint::paint( QPainter *painter, const QStyleOptionGr
 
     painter->drawPolygon( triangle );
 
-    if ( left && right )
+    if( left && right )
     {
-        if ( option->state & QStyle::State_Sunken )
+        if( option->state & QStyle::State_Sunken )
         {
             painter->setPen(  QPen( Qt::red, 1, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin ) );
         }
@@ -166,14 +166,14 @@ QVariant WTransferFunctionColorPoint::itemChange( GraphicsItemChange change, con
     //   _parent->forceRedraw();
     // }
 
-    if ( change == ItemPositionChange )
+    if( change == ItemPositionChange )
     {
         QPointF newPos = value.toPointF();
         this->setToolTip( QString( "isovalue=" ) + QString::number( newPos.x() ) + " color=("
                 + QString::number( color.red() ) +','
                 + QString::number( color.green() ) +','
                 + QString::number( color.blue() ) + ')' );
-        if ( _parent )
+        if( _parent )
             _parent->dataChanged();
     }
 
@@ -191,7 +191,7 @@ void WTransferFunctionColorPoint::colorSelected( const QColor &newcolor )
 {
     color = newcolor;
     //this->update();
-    if ( _parent )
+    if( _parent )
     {
         _parent->dataChanged();
     }
@@ -199,7 +199,7 @@ void WTransferFunctionColorPoint::colorSelected( const QColor &newcolor )
 
 void WTransferFunctionColorPoint::mouseMoveEvent( QGraphicsSceneMouseEvent *event )
 {
-    if ( left && right )
+    if( left && right )
     {
         //this->update();
         BaseClass::mouseMoveEvent( event );
@@ -208,12 +208,12 @@ void WTransferFunctionColorPoint::mouseMoveEvent( QGraphicsSceneMouseEvent *even
 #if 1
         QRectF boundingBox( this->scene()->sceneRect() );
 
-        if ( !left )
+        if( !left )
         {
             this->setPos( 0, this->pos().y() );
         }
 
-        if ( !right )
+        if( !right )
         {
             this->setPos( boundingBox.x() + boundingBox.width(), this->pos().y() );
         }
@@ -242,16 +242,16 @@ void WTransferFunctionColorPoint::mouseReleaseEvent( QGraphicsSceneMouseEvent *e
 
 void WTransferFunctionColorPoint::clampToLeftAndRight()
 {
-    if ( left )
+    if( left )
     {
-        if ( this->pos().x() <= left->pos().x() )
+        if( this->pos().x() <= left->pos().x() )
         {
             this->setPos( left->pos().x() + 1, this->pos().y() );
         }
     }
-    if ( right )
+    if( right )
     {
-        if ( this->pos().x() >= right->pos().x() )
+        if( this->pos().x() >= right->pos().x() )
         {
             this->setPos( right->pos().x() - 1, this->pos().y() );
         }
@@ -284,7 +284,7 @@ QColor WTransferFunctionColorPoint::getColor() const
 
 void WTransferFunctionColorPoint::dragEnterEvent( QGraphicsSceneDragDropEvent* event )
 {
-    if ( event->mimeData()->hasColor() )
+    if( event->mimeData()->hasColor() )
     {
         event->setAccepted( true );
     }
@@ -292,11 +292,11 @@ void WTransferFunctionColorPoint::dragEnterEvent( QGraphicsSceneDragDropEvent* e
 
 void WTransferFunctionColorPoint::dropEvent( QGraphicsSceneDragDropEvent* event )
 {
-    if ( event->mimeData()->hasColor() )
+    if( event->mimeData()->hasColor() )
     {
         color = qvariant_cast<QColor>( event->mimeData()->colorData() );
         //this->update();
-        if ( _parent )
+        if( _parent )
             _parent->dataChanged();
     }
 }
@@ -315,10 +315,10 @@ void WTransferFunctionColorPoint::contextMenuEvent( QGraphicsSceneContextMenuEve
     QAction *changeColor  = menu.addAction( "Change Color" );
     QAction *selectedAction = menu.exec( event->screenPos() );
 
-    if ( selectedAction == removeAction )
+    if( selectedAction == removeAction )
     {
     }
-    if ( selectedAction == changeColor )
+    if( selectedAction == changeColor )
     {
         showColorPicker();
     }

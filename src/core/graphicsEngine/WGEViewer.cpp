@@ -134,7 +134,7 @@ WGEViewer::getView()
 
 void WGEViewer::setCameraManipulator( osg::ref_ptr<osgGA::MatrixManipulator> manipulator )
 {
-    if ( !m_inAnimationMode )
+    if( !m_inAnimationMode )
     {
         m_View->setCameraManipulator( manipulator );
     }
@@ -260,7 +260,7 @@ std::string WGEViewer::QueryCallback::getVendor() const
 
 WGEAnimationManipulator::RefPtr WGEViewer::animationMode( bool on )
 {
-    if ( m_inAnimationMode && !on ) // turn off mode
+    if( m_inAnimationMode && !on ) // turn off mode
     {
         m_inAnimationMode = false;
 

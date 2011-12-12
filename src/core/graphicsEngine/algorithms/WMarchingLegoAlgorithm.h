@@ -175,7 +175,7 @@ WMarchingLegoAlgorithm::generateSurface( size_t nbCoordsX, size_t nbCoordsY, siz
     size_t nPointsInSlice = nX * nY;
 
     boost::shared_ptr< WProgress > progress;
-    if ( mainProgress )
+    if( mainProgress )
     {
         progress = boost::shared_ptr< WProgress >( new WProgress( "Marching Cubes", m_nCellsZ ) );
         mainProgress->addSubProgress( progress );
@@ -184,7 +184,7 @@ WMarchingLegoAlgorithm::generateSurface( size_t nbCoordsX, size_t nbCoordsY, siz
     // Generate isosurface.
     for( size_t z = 0; z < m_nCellsZ; z++ )
     {
-        if ( progress )
+        if( progress )
         {
             ++*progress;
         }
@@ -298,7 +298,7 @@ WMarchingLegoAlgorithm::generateSurface( size_t nbCoordsX, size_t nbCoordsY, siz
         triMesh->addTriangle( ( *vecIterator ).pointID[0], ( *vecIterator ).pointID[1], ( *vecIterator ).pointID[2] );
         vecIterator++;
     }
-    if ( progress )
+    if( progress )
     {
         progress->finish();
     }
