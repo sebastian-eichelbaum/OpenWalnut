@@ -74,7 +74,7 @@ void main()
 #endif  // CLIPPLANE_ENABLED
 
     // The same accounds for the vertex. Transfer it to world-space.
-    v_vertex  = gl_ModelViewMatrix * gl_Vertex;
+    v_vertex = gl_ModelViewMatrix * gl_Vertex;
 
     // fill this varying with a dummy. Not always needed.
     v_normal = vec3( 1.0, 0.0, 0.0 );
@@ -130,6 +130,9 @@ void main()
     // NOTE: v_vertex is in world-space. We need to get it back to scene space. Directly using gl_Vertex would be possible too but this would
     // ignore the actual width of the tube.
     colormapping( gl_ModelViewMatrixInverse * v_vertex );
+#endif
+#ifdef CLUSTER_FILTER_ENABLED
+    v_clusterColor = gl_SecondaryColor.rgb;
 #endif
 
     // Simply project the vertex afterwards

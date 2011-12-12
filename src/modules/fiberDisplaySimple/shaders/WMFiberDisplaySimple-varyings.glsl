@@ -68,3 +68,10 @@ varying float v_surfaceParam;
  * The scaling component of the modelview matrix.
  */
 varying float v_worldScale;
+
+#ifdef CLUSTER_FILTER_ENABLED
+/**
+ * This varying carries the current cluster color.
+ */
+varying vec3 v_clusterColor;
+#endif

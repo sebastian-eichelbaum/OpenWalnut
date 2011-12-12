@@ -33,6 +33,7 @@
 
 // forward declarations
 class WDataSetFibers;
+class WDataSetFiberClustering;
 class WGEShader;
 
 /**
@@ -98,11 +99,37 @@ protected:
     virtual void properties();
 
 private:
+    /**
+     * Geometry update callback. Handles fiber cluster filtering
+     *
+     * \param geometry the geometry instance to handle
+     */
+    void geometryUpdate( osg::Drawable* geometry );
+
+    /**
+     * If true, the geometryUpdate() callback will upload a new filter attribute array.
+     */
+    bool m_fiberClusteringUpdate;
 
     /**
      * The fiber dataset which is going to be filtered.
      */
     boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fiberInput;
+
+    /**
+     * An optional fiber clustering can be specified to filter in m_fiberInput.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetFiberClustering > > m_fiberClusteringInput;
+
+    /**
+     * The current fiber data
+     */
+    WDataSetFibers::SPtr m_fibers;
+
+    /**
+     * The current fiber clustering
+     */
+    WDataSetFiberClustering::SPtr m_fiberClustering;
 
     /**
      * A condition used to notify about changes in several properties.

@@ -65,7 +65,15 @@ void main()
 {
 #ifdef CLIPPLANE_ENABLED
     // discard fragment if too far from plane
-    if ( abs( v_dist ) >= u_distance )
+    if( abs( dist ) >= u_distance )
+    {
+        discard;
+    }
+#endif
+
+#ifdef CLUSTER_FILTER_ENABLED
+    // is this a cluster color?
+    if( v_clusterColor.r + v_clusterColor.g + v_clusterColor.b < 0.0001 )
     {
         discard;
     }
@@ -119,6 +127,9 @@ void main()
 
     // apply colormapping to the input color
     vec4 finalColor = gl_Color;
+#ifdef CLUSTER_FILTER_ENABLED
+    finalColor = vec4( v_clusterColor, 1.0 );
+#endif
 #ifdef COLORMAPPING_ENABLED
     finalColor = mix( finalColor, colormapping(), u_colormapRatio );
 #endif
