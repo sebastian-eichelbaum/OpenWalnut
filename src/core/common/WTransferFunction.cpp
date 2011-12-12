@@ -133,7 +133,7 @@ void WTransferFunction::sample1DTransferFunction( unsigned char*array, int width
             color = colors.begin()->color;
             color[ 3 ] = alphas.begin()->alpha;
         }
-        else if ( iso >= isomax )
+        else if( iso >= isomax )
         {
             color = colors.back().color;
             color[ 3 ] = alphas.back().alpha;

@@ -268,7 +268,7 @@ WGEAnimationManipulator::RefPtr WGEViewer::animationMode( bool on )
         m_View->setCameraManipulator( m_animationModeManipulatorBackup );
         return NULL;
     }
-    else if ( !m_inAnimationMode && on ) // turn on
+    else if( !m_inAnimationMode && on ) // turn on
     {
         m_inAnimationMode = true;
 
@@ -280,7 +280,7 @@ WGEAnimationManipulator::RefPtr WGEViewer::animationMode( bool on )
         m_View->setCameraManipulator( anim );
         return anim;
     }
-    else if ( m_inAnimationMode ) // already on
+    else if( m_inAnimationMode ) // already on
     {
         return dynamic_cast< WGEAnimationManipulator* >( getCameraManipulator().get() );
     }

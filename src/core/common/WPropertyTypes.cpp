@@ -96,7 +96,7 @@ namespace PROPERTY_TYPE_HELPER
                                 boost::lexical_cast< double >( innerTokens[ 4 ].c_str() ), // blue
                                 1. ) );  // blue
                 }
-                else if ( innerTokens[ 0 ] == "a" )
+                else if( innerTokens[ 0 ] == "a" )
                 {
                     tf.addAlpha( boost::lexical_cast< double >( innerTokens[ 1 ].c_str() ),
                             boost::lexical_cast< double >( innerTokens[ 2 ].c_str() ) );

@@ -329,7 +329,7 @@ void WTransferFunctionWidget::keyPressEvent( QKeyEvent *event )
                 WTransferFunctionPoint *next = 0;
                 if( current->getLeft() && current->getLeft()->getLeft( ) )
                     next = current->getLeft();
-                else if ( current->getRight() && current->getRight()->getRight() )
+                else if( current->getRight() && current->getRight()->getRight() )
                     next = current->getRight();
 
                 current->getLeft()->setRight( current->getRight() );
@@ -346,7 +346,7 @@ void WTransferFunctionWidget::keyPressEvent( QKeyEvent *event )
                 WTransferFunctionColorPoint *next = 0;
                 if( ccurrent->getLeft() && ccurrent->getLeft()->getLeft( ) )
                     next = ccurrent->getLeft();
-                else if ( ccurrent->getRight() && ccurrent->getRight()->getRight() )
+                else if( ccurrent->getRight() && ccurrent->getRight()->getRight() )
                     next = ccurrent->getRight();
 
                 ccurrent->getLeft()->setRight( ccurrent->getRight() );

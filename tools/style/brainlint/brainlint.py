@@ -1881,7 +1881,7 @@ def CheckSpacing(filename, clean_lines, linenum, error):
 
   # A pet peeve of mine: no spaces after an if, while, switch, or for
   # math: Modified for exact opposite behaviour, we don't want spaces before the braces
-  match = Search(r'(if|for|while|switch) \(', line)
+  match = Search(r'^\s*(else if|if|for|while|switch) \(', line)
   if match:
     error(filename, linenum, 'whitespace/parens', 5,
           'Extra space before ( in %s' % match.group(1))

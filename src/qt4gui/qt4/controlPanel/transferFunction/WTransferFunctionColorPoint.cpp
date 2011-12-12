@@ -97,7 +97,7 @@ void WTransferFunctionColorPoint::paint( QPainter *painter, const QStyleOptionGr
         gradient.setColorAt( 1, Qt::red );
         painter->setPen( QPen( Qt::black, 2 ) );
     }
-    else if ( option->state & QStyle::State_Sunken )
+    else if( option->state & QStyle::State_Sunken )
     {
         gradient.setColorAt( 0, color ); //QColor( Qt::yellow ).light( 120 ) );
         gradient.setColorAt( 1, color ); //QColor( Qt::darkYellow ).light( 120 ) );

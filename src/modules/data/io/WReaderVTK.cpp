@@ -356,11 +356,11 @@ void WReaderVTK::readPointData()
     {
         readScalars( nbPoints, name );
     }
-    else if ( tokens.size() == 3 && string_utils::toUpper( tokens.at( 0 ) ) == "VECTORS" )
+    else if( tokens.size() == 3 && string_utils::toUpper( tokens.at( 0 ) ) == "VECTORS" )
     {
         readVectors( nbPoints, name );
     }
-    else if ( tokens.size() == 3 && string_utils::toUpper( tokens.at( 0 ) ) == "TENSORS" )
+    else if( tokens.size() == 3 && string_utils::toUpper( tokens.at( 0 ) ) == "TENSORS" )
     {
         readTensors( nbPoints, name );
     }
