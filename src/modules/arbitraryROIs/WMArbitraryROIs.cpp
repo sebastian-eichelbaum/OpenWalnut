@@ -130,7 +130,7 @@ void WMArbitraryROIs::moduleMain()
             break;
         }
 
-        if( m_dataSet != m_input->getData() )
+        if( m_input->getData() && m_dataSet != m_input->getData() )
         {
             // acquire data from the input connector
             m_dataSet = m_input->getData();
