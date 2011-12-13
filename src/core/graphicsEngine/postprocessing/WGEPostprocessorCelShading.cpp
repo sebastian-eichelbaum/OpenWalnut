@@ -40,7 +40,7 @@ WGEPostprocessorCelShading::WGEPostprocessorCelShading( osg::ref_ptr< WGEOffscre
                       "This postprocessor reduces color by binning colors." )
 {
     // we also provide a property
-    WPropInt bins = m_properties->addProperty( "Number of Bins", "The number of color bins used for cel shading.", 2 );
+    WPropInt bins = m_properties->addProperty( "Number of Bins", "The number of color bins used for cel shading.", 10 );
     bins->setMin( 1 );
     bins->setMax( 100 );
 

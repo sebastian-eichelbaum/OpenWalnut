@@ -42,6 +42,12 @@
  */
 uniform int u_celShadingBins = 2;
 
+/**
+ * The threshold used to clip away "unwanted" borders. Basically removes noise
+ */
+uniform float u_edgeEdgeThresholdLower = 0.25;
+uniform float u_edgeEdgeThresholdUpper = 0.75;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Varying
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -96,7 +102,7 @@ float getEdge()
             0.0 * edgebl +  1.0 * edgeb + 0.0 * edgebr
         );
 
-    return edge;
+    return smoothstep( u_edgeEdgeThresholdLower, u_edgeEdgeThresholdUpper, edge );
 }
 
 /**

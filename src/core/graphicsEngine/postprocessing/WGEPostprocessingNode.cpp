@@ -26,6 +26,7 @@
 #include "../../common/WItemSelection.h"
 
 #include "../shaders/WGEShaderPropertyDefineOptions.h"
+#include "../callbacks/WGENodeMaskCallback.h"
 #include "../WGEUtils.h"
 
 #include "WGEPostprocessor.h"
@@ -43,6 +44,8 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > refere
     // this node has some properties:
     boost::shared_ptr< WItemSelection > m_possibleSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_possibleSelections->addItem( "None", "No postprocessing." );
+
+    m_showHud = m_properties->addProperty( "Texture Debug", "If set, all intermediate texture are shown on screen for debugging.", false );
     m_active = m_properties->addProperty( "Enable", "If set, post-processing is enabled.", false, true );
     m_activePostprocessor = m_properties->addProperty( "Postprocessor", "Selection one of the postprocessors.",
                                                        m_possibleSelections->getSelectorFirst(),
@@ -50,12 +53,17 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > refere
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_activePostprocessor );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_activePostprocessor );
 
+    // control texture HUD
+    osg::ref_ptr< WGENodeMaskCallback > textureHudCallback = new WGENodeMaskCallback( m_showHud );
+
     // get available postprocessors and setup the node
     WGEPostprocessor::ProcessorList processors = WGEPostprocessor::getPostprocessors();
     for( WGEPostprocessor::ProcessorList::const_iterator iter = processors.begin(); iter != processors.end(); ++iter )
     {
         // offscreen node
         osg::ref_ptr< WGEOffscreenRenderNode > offscreen( new WGEOffscreenRenderNode( reference, width, height, noHud ) );
+        offscreen->getTextureHUD()->addUpdateCallback( textureHudCallback );
+
         // the geometry render step
         osg::ref_ptr< WGEOffscreenRenderPass > render = offscreen->addGeometryRenderPass(
             m_childs,

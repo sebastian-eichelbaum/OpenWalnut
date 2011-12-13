@@ -24,6 +24,7 @@
 
 #include <osg/Camera>
 
+#include "../shaders/WGEPropertyUniform.h"
 #include "../shaders/WGEShaderPropertyDefineOptions.h"
 
 #include "WGEPostprocessorEdgeEnhance.h"
@@ -41,6 +42,12 @@ WGEPostprocessorEdgeEnhance::WGEPostprocessorEdgeEnhance( osg::ref_ptr< WGEOffsc
 {
     // we also provide a property
     WPropBool whiteEdge = m_properties->addProperty( "White Edge", "If set, the edge is drawn in white instead of black.", false );
+    WPropDouble edgeThresholdL = m_properties->addProperty( "Edge Lower Threshold", "Define the edge threshold. Filters way \"weak\" edges.", 0.0 );
+    WPropDouble edgeThresholdU = m_properties->addProperty( "Edge Upper Threshold", "Define the edge threshold. Filters way \"weak\" edges.", 1.0 );
+    edgeThresholdL->setMin( 0.0 );
+    edgeThresholdL->setMax( 1.0 );
+    edgeThresholdU->setMin( 0.0 );
+    edgeThresholdU->setMax( 1.0 );
 
     // Use the standard postprocessor uber-shader
     WGEShader::RefPtr s = new WGEShader( "WGEPostprocessor" );
@@ -54,6 +61,8 @@ WGEPostprocessorEdgeEnhance::WGEPostprocessorEdgeEnhance( osg::ref_ptr< WGEOffsc
 
     // create the rendering pass
     osg::ref_ptr< WGEOffscreenTexturePass > pass = offscreen->addTextureProcessingPass( s, "Edge Detection" );
+    pass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_edgeEdgeThresholdUpper", edgeThresholdU ) );
+    pass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_edgeEdgeThresholdLower", edgeThresholdL ) );
 
     // attach color0 output
     m_resultTexture = pass->attach( osg::Camera::COLOR_BUFFER0, GL_RGB );

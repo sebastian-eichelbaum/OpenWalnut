@@ -155,6 +155,11 @@ private:
     WPropBool m_active;
 
     /**
+     * Activate to show the texture HUDs
+     */
+    WPropBool m_showHud;
+
+    /**
      * The property containing the currently active method or a combination.
      */
     WPropSelection m_activePostprocessor;
