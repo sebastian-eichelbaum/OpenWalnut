@@ -112,7 +112,6 @@ public:
     virtual void insert( double value );
 
 protected:
-
 private:
     /**
      * Bins to associate with the values. Each bin has the width of m_intervalWidth;

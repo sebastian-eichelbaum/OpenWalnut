@@ -169,7 +169,6 @@ public:
 
 protected:
 private:
-
     std::string m_name; //!< name of picked object.
     std::string m_viewerName; //!< name of the viewer
     WPosition m_pickPosition; //!< position where object was hit.

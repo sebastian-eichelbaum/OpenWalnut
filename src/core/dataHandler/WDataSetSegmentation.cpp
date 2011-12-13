@@ -85,7 +85,7 @@ WDataSetSingle::SPtr WDataSetSegmentation::clone() const
 
 boost::shared_ptr< WPrototyped > WDataSetSegmentation::getPrototype()
 {
-    if ( !m_prototype )
+    if( !m_prototype )
     {
         m_prototype = boost::shared_ptr< WPrototyped >( new WDataSetSegmentation() );
     }

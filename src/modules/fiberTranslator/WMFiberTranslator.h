@@ -40,7 +40,6 @@
 class WMFiberTranslator : public WModule
 {
 public:
-
     /**
      * Constructor.
      */
@@ -78,7 +77,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -100,7 +98,6 @@ protected:
     virtual void requirements();
 
 private:
-
     /**
      * Merge the fibers in the given directory.
      *

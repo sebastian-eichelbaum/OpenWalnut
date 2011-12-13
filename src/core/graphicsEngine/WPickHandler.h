@@ -43,7 +43,6 @@
 class WGE_EXPORT WPickHandler: public osgGA::GUIEventHandler
 {
 public:
-
     /**
      * Constructor that initalizes members with sensible defaults.
      */

@@ -36,7 +36,6 @@
 class WDataModule: public WModule
 {
 public:
-
     /**
      * Convenience typedef for a boost::shared_ptr< WDataModule >.
      */
@@ -91,7 +90,6 @@ public:
     virtual boost::filesystem::path getFilename() const = 0;
 
 protected:
-
 private:
 };
 

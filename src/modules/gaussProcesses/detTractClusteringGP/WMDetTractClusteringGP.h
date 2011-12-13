@@ -47,7 +47,6 @@ class WDendrogram;
 class WMDetTractClusteringGP: public WModule
 {
 public:
-
     /**
      * Constructs a new clustering instance.
      */

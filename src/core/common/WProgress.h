@@ -42,7 +42,6 @@ class OWCOMMON_EXPORT WProgress // NOLINT
 {
 friend class WProgressTest;
 public:
-
     /**
      * Creates a new progress instance as child of the specified progress. The instance is instantly marked "running".
      *
@@ -118,7 +117,6 @@ public:
     virtual bool isDetermined();
 
 protected:
-
     /**
      * Progress name. Can be set only once (during construction).
      */

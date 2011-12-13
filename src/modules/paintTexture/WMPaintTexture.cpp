@@ -256,7 +256,7 @@ void WMPaintTexture::doPaint()
         int voxelNum = m_grid->getVoxelNum( paintPosition );
         if( voxelNum != -1 )
         {
-            switch ( m_pencilSelection->get( true ).getItemIndexOfSelected( 0 ) )
+            switch( m_pencilSelection->get( true ).getItemIndexOfSelected( 0 ) )
             {
                 case 0:
                     data[ voxelNum ] = m_paintIndex->get();

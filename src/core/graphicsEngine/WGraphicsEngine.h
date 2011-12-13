@@ -58,7 +58,6 @@
 class WGE_EXPORT WGraphicsEngine: public WThreadedRunner
 {
 public:
-
     /**
      * Destructor.
      */
@@ -167,7 +166,6 @@ public:
     bool isMultiThreadedViews() const;
 
 protected:
-
     /**
      * Constructors are protected because this is a Singleton.
      */

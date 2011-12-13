@@ -44,7 +44,6 @@ class OWKERNEL_EXPORT WBatchLoader: public WThreadedRunner,
                                   public boost::enable_shared_from_this< WBatchLoader >
 {
 public:
-
     /**
      * Initializes the batchloader but does not start it. Use run().
      *
@@ -64,7 +63,6 @@ public:
     virtual void run();
 
 protected:
-
     /**
      * Function that has to be overwritten for execution. It gets executed in a separate thread after run()
      * has been called.

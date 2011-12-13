@@ -39,7 +39,6 @@ template < typename S >
 class WSharedSequenceContainer: public WSharedObject< S >
 {
 public:
-
     // Some helpful typedefs
 
     /**
@@ -237,7 +236,6 @@ public:
     typename WSharedSequenceContainer< S >::ConstIterator find( const typename S::value_type& value );
 
 protected:
-
 private:
 };
 

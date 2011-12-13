@@ -137,7 +137,6 @@ public:
     boost::shared_ptr< WProperties > getInformationProperties() const;
 
 protected:
-
     /**
      * The prototype as singleton.
      */

@@ -479,7 +479,6 @@ public:
     WGridTransformOrtho const getTransform() const;
 
 protected:
-
 private:
     /**
      * Computes for the n'th component of the voxel coordinate where the voxel

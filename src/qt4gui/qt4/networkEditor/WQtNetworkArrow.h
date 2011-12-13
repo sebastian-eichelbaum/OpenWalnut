@@ -47,7 +47,6 @@ class WQtNetworkInputPort;
 class WQtNetworkArrow : public QGraphicsLineItem
 {
 public:
-
     /**
      * This customize the return value of type()
      */
@@ -119,7 +118,6 @@ public:
 
 
 protected:
-
     /**
      * Draw some customized stuff in the scene.
      *
@@ -144,7 +142,6 @@ protected:
     void hoverLeaveEvent( QGraphicsSceneHoverEvent *event );
 
 private:
-
     /**
      * This method changes the color of the arrow.
      *

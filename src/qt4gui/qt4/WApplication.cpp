@@ -62,17 +62,17 @@ void WApplication::commitData( QSessionManager& manager ) // NOLINT
     }
 
     QApplication::commitData( manager );
-    if ( manager.allowsInteraction() )
+    if( manager.allowsInteraction() )
     {
         int ret =  QMessageBox::warning(
                 myMainWidget,
                 tr( "OpenWalnut" ),
                 tr( "Save changes?" ),
                 QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel );
-        switch ( ret )
+        switch( ret )
         {
             case QMessageBox::Save:
-                if ( mainWindow->projectSaveAll() )
+                if( mainWindow->projectSaveAll() )
                 {
                     // we want to save and saving was successful, we are ready!
                     manager.release();

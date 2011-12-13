@@ -88,7 +88,7 @@ boost::signals2::connection WModuleInputConnector::subscribeSignal( MODULE_CONNE
                                                                     t_GenericSignalHandlerType notifier )
 {
     // connect DataChanged signal
-    switch ( signal )
+    switch( signal )
     {
         case DATA_CHANGED:
             return signal_DataChanged.connect( notifier );

@@ -129,7 +129,6 @@ private slots:
 
 protected:
 private:
-
     /**
      * The list of available modules.
      */

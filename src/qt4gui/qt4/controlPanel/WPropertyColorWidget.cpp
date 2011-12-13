@@ -124,7 +124,7 @@ void WPropertyColorWidget::buttonClicked()
 #else
     current = QColorDialog::getColor( current, this );
 #endif
-    if ( current.isValid() )
+    if( current.isValid() )
     {
         // set the button background to the appropriate color
         //m_button.setPalette( QPalette( current ) );
@@ -137,7 +137,7 @@ void WPropertyColorWidget::buttonClicked()
 
 void WPropertyColorWidget::dragEnterEvent( QDragEnterEvent* event )
 {
-    if ( event->mimeData()->hasColor() )
+    if( event->mimeData()->hasColor() )
     {
         event->setAccepted( true );
     }
@@ -145,10 +145,10 @@ void WPropertyColorWidget::dragEnterEvent( QDragEnterEvent* event )
 
 void WPropertyColorWidget::dropEvent( QDropEvent* event )
 {
-    if ( event->mimeData()->hasColor() )
+    if( event->mimeData()->hasColor() )
     {
         QColor color = qvariant_cast<QColor>( event->mimeData()->colorData() );
-        if ( color.isValid() )
+        if( color.isValid() )
         {
             setColor( color );
 

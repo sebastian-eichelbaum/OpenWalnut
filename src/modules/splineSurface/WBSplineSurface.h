@@ -58,7 +58,6 @@
 class WBSplineSurface
 {
 public:
-
     /**
      * Constructor for the surface that takes the orders and de Boor points of the underlying splines
      * while constructing normalized knotVectors automatically.

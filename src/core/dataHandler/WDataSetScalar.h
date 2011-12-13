@@ -41,7 +41,6 @@
 class OWDATAHANDLER_EXPORT WDataSetScalar : public WDataSetSingle // NOLINT
 {
 public:
-
     /**
      * Constructs an instance out of an appropriate value set and a grid.
      * Computes the maximum an minimum values stored as member variables.
@@ -158,14 +157,12 @@ public:
     using WDataSetSingle::getValueAt;
 
 protected:
-
     /**
      * The prototype as singleton.
      */
     static boost::shared_ptr< WPrototyped > m_prototype;
 
 private:
-
     /**
      * The histograms for later use. Each histogram for a requested bucket count gets cached.
      **/

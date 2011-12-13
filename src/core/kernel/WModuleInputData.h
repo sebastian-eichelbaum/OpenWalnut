@@ -182,9 +182,7 @@ public:
     };
 
 protected:
-
 private:
-
     /**
      * If true, the returned data will be NULL. Needed because disconnection process is based on multiple steps.
      */

@@ -43,7 +43,6 @@ class OWCOMMON_EXPORT WConditionSet: public WCondition
 {
 friend class WConditionSetTest;
 public:
-
     /**
      * Shared pointer to instance of this class.
      */
@@ -111,7 +110,6 @@ public:
     bool isResetable();
 
 protected:
-
     /**
      * Flag denoting whether the condition set should act like a one shot condition.
      */

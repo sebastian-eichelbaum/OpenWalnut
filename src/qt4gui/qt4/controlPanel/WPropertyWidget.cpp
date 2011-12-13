@@ -164,7 +164,7 @@ QWidget* WPropertyWidget::getInformationWidgets()
 
 WPropertyWidget* WPropertyWidget::construct( WPropertyBase::SPtr property, QGridLayout* propertyGrid, QWidget* parent )
 {
-    switch ( property->getType() )
+    switch( property->getType() )
     {
         case PV_BOOL:
             return new WPropertyBoolWidget( property->toPropBool(), propertyGrid, parent );

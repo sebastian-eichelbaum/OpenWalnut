@@ -67,7 +67,7 @@ WTransferFunctionPoint* WTransferFunctionLine::getRight() const
 
 void WTransferFunctionLine::paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget* widget )
 {
-    if ( left && right )
+    if( left && right )
     {
         // update the line before painting according to our neighboring points
         QLineF line( left->pos(), right->pos() );

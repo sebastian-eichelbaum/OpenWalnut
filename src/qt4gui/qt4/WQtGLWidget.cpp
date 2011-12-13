@@ -132,7 +132,7 @@ QSize WQtGLWidget::sizeHint() const
 void WQtGLWidget::setCameraManipulator( WQtGLWidget::CameraManipulators manipulator )
 {
     m_CurrentManipulator = manipulator;
-    switch ( manipulator )
+    switch( manipulator )
     {
         case TWO_D:
             WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"WGE2D\".",

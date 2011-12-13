@@ -39,7 +39,6 @@
 class Callable
 {
 public:
-
     /**
      * The flag to be tested
      */

@@ -47,7 +47,6 @@ class OWKERNEL_EXPORT WModuleProjectFileCombiner: public WModuleCombiner,
                                                     public WProjectFileIO
 {
 public:
-
     /**
      * Creates an empty combiner.
      *
@@ -100,7 +99,6 @@ public:
     virtual void save( std::ostream& output );   // NOLINT
 
 protected:
-
     /**
      * The module ID type. A pair of ID and pointer to module.
      */

@@ -91,9 +91,7 @@ public:
     static boost::shared_ptr< WPropertyObserver > create();
 
 protected:
-
 private:
-
     /**
      * Disallow copy construction.
      *

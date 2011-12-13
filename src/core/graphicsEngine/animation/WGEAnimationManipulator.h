@@ -145,7 +145,6 @@ public:
     virtual void setTimer( WTimer::ConstSPtr timer );
 
 private:
-
     /**
      * The view matrix. Gets modified on a per-frame basis.
      */

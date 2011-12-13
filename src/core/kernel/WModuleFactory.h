@@ -47,7 +47,6 @@ class OWKERNEL_EXPORT WModuleFactory // NOLINT
 {
 friend class WModuleFactoryTest;
 public:
-
     /**
      * For shortening: a type defining a shared set of WModule pointers.
      */
@@ -203,7 +202,6 @@ protected:
     bool checkPrototype( boost::shared_ptr< WModule > module, PrototypeSharedContainerType::ReadTicket ticket );
 
 private:
-
     /**
      * Loader class managing dynamically loaded modules in OpenWalnut.
      */

@@ -224,7 +224,7 @@ void WModuleConnector::disconnectSignals( boost::shared_ptr<WModuleConnector> /*
 boost::signals2::connection WModuleConnector::subscribeSignal( MODULE_CONNECTOR_SIGNAL signal,
                                                                t_GenericSignalHandlerType notifier )
 {
-    switch (signal)
+    switch( signal)
     {
         case CONNECTION_ESTABLISHED:
             return signal_ConnectionEstablished.connect( notifier );

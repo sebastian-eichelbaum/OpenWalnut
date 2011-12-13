@@ -682,7 +682,7 @@ void WQtControlPanel::selectTreeItem()
             m_deleteModuleAction->setEnabled( true );
         }
 
-        switch ( m_moduleTreeWidget->selectedItems().at( 0 )->type() )
+        switch( m_moduleTreeWidget->selectedItems().at( 0 )->type() )
         {
             case SUBJECT:
             case MODULEHEADER:
@@ -775,7 +775,7 @@ void WQtControlPanel::selectRoiTreeItem()
 
     if( m_roiTreeWidget->selectedItems().size() != 0  )
     {
-        switch ( m_roiTreeWidget->selectedItems().at( 0 )->type() )
+        switch( m_roiTreeWidget->selectedItems().at( 0 )->type() )
         {
             case SUBJECT:
             case DATASET:
@@ -1178,7 +1178,7 @@ void WQtControlPanel::clearAndDeleteTabs()
 {
     m_tabWidget->setDisabled( true );
     QWidget *widget;
-    while ((  widget = m_tabWidget->widget( 0 ) ))
+    while( (  widget = m_tabWidget->widget( 0 ) ))
     {
         m_tabWidget->removeTab( 0 );
         delete widget;

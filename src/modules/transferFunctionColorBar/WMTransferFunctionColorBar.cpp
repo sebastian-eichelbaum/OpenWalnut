@@ -212,7 +212,7 @@ void WMTransferFunctionColorBar::moduleMain()
 
                 // create the texture for color lookup
                 // boost::shared_ptr< WDataSetSingle > dataSet = m_transferFunction->getData();
-                if ( !dataSet )
+                if( !dataSet )
                 {
                     debugLog() << "no data set?";
                 }
@@ -222,7 +222,7 @@ void WMTransferFunctionColorBar::moduleMain()
                     boost::shared_ptr< WValueSetBase > valueSet = dataSet->getValueSet();
                     WAssert( valueSet, "value set" );
                     boost::shared_ptr< WValueSet< unsigned char > > cvalueSet( boost::shared_dynamic_cast<WValueSet< unsigned char> >( valueSet ) );
-                    if ( !cvalueSet )
+                    if( !cvalueSet )
                     {
                         debugLog() << "invalid type";
                     }

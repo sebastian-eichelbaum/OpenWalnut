@@ -37,7 +37,6 @@
 class OWKERNEL_EXPORT WRoiProjectFileIO: public WProjectFileIO
 {
 public:
-
     /**
      * Default constructor.
      */
@@ -72,7 +71,6 @@ public:
     virtual void save( std::ostream& output );   // NOLINT
 
 protected:
-
 private:
 };
 

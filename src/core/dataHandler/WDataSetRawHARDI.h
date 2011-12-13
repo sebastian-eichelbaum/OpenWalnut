@@ -39,7 +39,6 @@
 class OWDATAHANDLER_EXPORT WDataSetRawHARDI : public WDataSetSingle // NOLINT
 {
 public:
-
     /**
      * Constructs an instance out of:
      *  - an appropriate value set with a vector of measure values for each voxel,
@@ -169,7 +168,6 @@ public:
     double getDiffusionBValue() const;
 
 protected:
-
     /**
      * The prototype as singleton.
      */
@@ -214,7 +212,7 @@ template< typename T > WValue< T > WDataSetRawHARDI::getNonZeroGradientSignals( 
     size_t idx = 0;
     boost::shared_ptr< WValueSet< T > > vs = boost::shared_dynamic_cast< WValueSet< T > >( m_valueSet );
     WValue< T > signal( vs->getWValue( index ) );
-    for ( std::vector< size_t >::const_iterator cit = m_nonZeroGradientIndexes.begin(); cit != m_nonZeroGradientIndexes.end(); ++cit )
+    for( std::vector< size_t >::const_iterator cit = m_nonZeroGradientIndexes.begin(); cit != m_nonZeroGradientIndexes.end(); ++cit )
     {
         result[ idx ] = signal[ *cit ];
         ++idx;

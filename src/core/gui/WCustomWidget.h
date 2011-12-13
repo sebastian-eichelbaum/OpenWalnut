@@ -86,7 +86,6 @@ public:
 
 protected:
 private:
-
     /**
      * The widget's title string.
      */

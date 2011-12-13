@@ -44,7 +44,6 @@
 class WQtNetworkPort : public QGraphicsRectItem
 {
 public:
-
     WQtNetworkPort();
 
     ~WQtNetworkPort();
@@ -130,7 +129,6 @@ public:
     virtual QList< WQtNetworkArrow* > getArrowList();
 
 protected:
-
     /**
      * Start drawing an arrow temporary.
      *
@@ -162,7 +160,6 @@ protected:
     QString m_name; //!< the portname
 
 private:
-
     QGraphicsLineItem * m_line; //!< the temporary line when you connect two ports
 };
 #endif  // WQTNETWORKPORT_H

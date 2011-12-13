@@ -79,7 +79,6 @@ public:
     virtual boost::shared_ptr< typename WPropertyVariable< T >::PropertyConstraint > clone();
 
 private:
-
     /**
      * The minimal value the property should have
      */

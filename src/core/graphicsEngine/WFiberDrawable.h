@@ -41,7 +41,6 @@
 class WGE_EXPORT WFiberDrawable: public osg::Drawable // NOLINT
 {
 public:
-
     /**
     * The constructor here does nothing. One thing that may be necessary is
     * disabling display lists. This can be done by calling

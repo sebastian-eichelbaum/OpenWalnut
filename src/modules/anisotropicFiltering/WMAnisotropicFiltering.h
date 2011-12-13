@@ -42,7 +42,6 @@
 class WMAnisotropicFiltering : public WModule
 {
 public:
-
     /**
      * Standard constructor.
      */
@@ -81,7 +80,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -103,7 +101,6 @@ protected:
     virtual void activate();
 
 private:
-
     /**
      * Calculates the resulting smoothed image.
      *

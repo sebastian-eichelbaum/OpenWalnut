@@ -121,7 +121,7 @@ void WMWriteMesh::moduleMain()
 
         m_saveTriggerProp->set( WPVBaseTypes::PV_TRIGGER_READY, false );
 
-        switch ( m_fileTypeSelection->get( true ).getItemIndexOfSelected( 0 ) )
+        switch( m_fileTypeSelection->get( true ).getItemIndexOfSelected( 0 ) )
         {
             case 0:
                 debugLog() << "type VTK ASCII file selected";

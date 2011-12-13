@@ -45,7 +45,6 @@
 class WGETextureHud: public osg::Projection
 {
 public:
-
     /**
      * Default constructor.
      */
@@ -62,7 +61,6 @@ public:
     class WGETextureHudEntry: public osg::MatrixTransform
     {
     public: // NOLINT
-
         /**
          * Constructor.
          *
@@ -113,7 +111,6 @@ public:
         osg::ref_ptr< osg::Texture2D > getTexture() const;
 
     protected:
-
         /**
          * The texture.
          */
@@ -191,7 +188,6 @@ public:
     size_t getRenderBin() const;
 
 protected:
-
     /**
      * The group Node where all those texture reside in. Theoretically, it is nonsense to use a separate group inside a osg::Projection since it
      * also is a group node. But WGEGroupNode offers all those nice and thread-safe insert/remove methods.
@@ -219,14 +215,12 @@ protected:
     bool m_coupleTexViewport;
 
 private:
-
     /**
      * Callback which aligns and renders the textures.
      */
     class SafeUpdateCallback : public osg::NodeCallback
     {
     public: // NOLINT
-
         /**
          * Constructor.
          *

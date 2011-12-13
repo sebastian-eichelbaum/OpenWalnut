@@ -109,7 +109,6 @@ class WNetworkLayoutNode
         QPointF getGridPos();
 
     protected:
-
     private:
         std::list< WNetworkLayoutNode * > m_children; //!< the nodes this node links to i.e. children of this node
 

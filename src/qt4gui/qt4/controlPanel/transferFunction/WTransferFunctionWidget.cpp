@@ -137,30 +137,30 @@ namespace
 
 void WTransferFunctionWidget::sample1DTransferFunction( unsigned char*array, int width )
 {
-    if ( !first || !cfirst)
+    if( !first || !cfirst)
         return;
 
     WTransferFunctionPoint *acurrent( first );
     WTransferFunctionColorPoint *ccurrent( cfirst );
 
-    for ( int i = 0; i < width; ++i )
+    for( int i = 0; i < width; ++i )
     {
         double normalized = ( double )i/( double )scene->width();
-        while (acurrent && acurrent->getRight() && normalized > acurrent->getRight()->pos().x() )
+        while( acurrent && acurrent->getRight() && normalized > acurrent->getRight()->pos().x() )
         {
             acurrent = acurrent->getRight();
         }
 
-        while ( ccurrent && ccurrent->getRight() && normalized > ccurrent->getRight()->pos().x() )
+        while( ccurrent && ccurrent->getRight() && normalized > ccurrent->getRight()->pos().x() )
         {
             ccurrent = ccurrent->getRight();
         }
 
-        if ( !acurrent || !acurrent->getRight() )
+        if( !acurrent || !acurrent->getRight() )
         {
             break;
         }
-        if ( !ccurrent || !ccurrent->getRight() )
+        if( !ccurrent || !ccurrent->getRight() )
         {
             break;
         }
@@ -189,16 +189,16 @@ void WTransferFunctionWidget::sample1DTransferFunctionForDisplay( unsigned char*
     //WTransferFunctionPoint *acurrent( first );
     WTransferFunctionColorPoint *ccurrent( cfirst );
 
-    for ( int i = 0; i < width; ++i )
+    for( int i = 0; i < width; ++i )
     {
         double normalized = ( double )i/( double )width * scenewidth;
 
-        while ( ccurrent && ccurrent->getRight() && normalized > ccurrent->getRight()->pos().x() )
+        while( ccurrent && ccurrent->getRight() && normalized > ccurrent->getRight()->pos().x() )
         {
             ccurrent = ccurrent->getRight();
         }
 
-        if ( ccurrent && ccurrent->getRight() )
+        if( ccurrent && ccurrent->getRight() )
         {
             double cwidth = ccurrent->getRight()->pos().x() - ccurrent->pos().x();
 
@@ -232,7 +232,7 @@ void WTransferFunctionWidget::setMyBackground()
     const int transferFunctionSize = 100;
     static unsigned char texturearray[ 4*transferFunctionSize ];
 
-    if ( background )
+    if( background )
     {
         sample1DTransferFunctionForDisplay( texturearray, transferFunctionSize );
 
@@ -269,7 +269,7 @@ void WTransferFunctionWidget::setHistogram( const std::vector< double > &newHist
 
 void WTransferFunctionWidget::dataChanged()
 {
-    if ( !initialized )
+    if( !initialized )
     {
         return;
     }
@@ -280,7 +280,7 @@ void WTransferFunctionWidget::dataChanged()
 
 void WTransferFunctionWidget::forceRedraw()
 {
-    if ( !initialized )
+    if( !initialized )
     {
         return;
     }
@@ -291,7 +291,7 @@ void WTransferFunctionWidget::forceRedraw()
 
 void WTransferFunctionWidget::clearTransferFunction()
 {
-    while ( cfirst )
+    while( cfirst )
     {
         WTransferFunctionColorPoint *next = cfirst->getRight();
         delete cfirst;
@@ -299,10 +299,10 @@ void WTransferFunctionWidget::clearTransferFunction()
     }
     clast = 0x0;
 
-    while ( first )
+    while( first )
     {
         WTransferFunctionPoint *next = first->getRight();
-        if ( first->getLine() )
+        if( first->getLine() )
         {
             delete ( first->getLine() );
         }
@@ -316,20 +316,20 @@ void WTransferFunctionWidget::clearTransferFunction()
 
 void WTransferFunctionWidget::keyPressEvent( QKeyEvent *event )
 {
-    if ( event->key() == Qt::Key_Backspace
+    if( event->key() == Qt::Key_Backspace
             || event->key() == Qt::Key_Delete )
     {
-        if ( current )
+        if( current )
         {
-            if ( current->getRight() && current->getLeft() )
+            if( current->getRight() && current->getLeft() )
             {
                 current->getLeft()->getLine()->setRight( current->getRight() );
                 delete current->getLine();
 
                 WTransferFunctionPoint *next = 0;
-                if ( current->getLeft() && current->getLeft()->getLeft( ) )
+                if( current->getLeft() && current->getLeft()->getLeft( ) )
                     next = current->getLeft();
-                else if ( current->getRight() && current->getRight()->getRight() )
+                else if( current->getRight() && current->getRight()->getRight() )
                     next = current->getRight();
 
                 current->getLeft()->setRight( current->getRight() );
@@ -339,14 +339,14 @@ void WTransferFunctionWidget::keyPressEvent( QKeyEvent *event )
                 this->dataChanged();
             }
         }
-        if ( ccurrent )
+        if( ccurrent )
         {
-            if ( ccurrent->getRight() && ccurrent->getLeft() )
+            if( ccurrent->getRight() && ccurrent->getLeft() )
             {
                 WTransferFunctionColorPoint *next = 0;
-                if ( ccurrent->getLeft() && ccurrent->getLeft()->getLeft( ) )
+                if( ccurrent->getLeft() && ccurrent->getLeft()->getLeft( ) )
                     next = ccurrent->getLeft();
-                else if ( ccurrent->getRight() && ccurrent->getRight()->getRight() )
+                else if( ccurrent->getRight() && ccurrent->getRight()->getRight() )
                     next = ccurrent->getRight();
 
                 ccurrent->getLeft()->setRight( ccurrent->getRight() );
@@ -370,25 +370,25 @@ void WTransferFunctionWidget::insertColor( const QPointF& pos, QColor const *con
     scene->addItem( point );
 
     WTransferFunctionColorPoint* left( this->findCPointOnLeft( pos ) );
-    if ( left )
+    if( left )
     {
         WTransferFunctionColorPoint* right( left->getRight() );
 
         left->setRight( point );
         point->setLeft( left );
         point->setRight( right );
-        if ( right )
+        if( right )
         {
             right->setLeft( point );
         }
-        if ( color )
+        if( color )
         {
             point->colorSelected( *color );
         }
         else
         {
             QColor a = left->getColor();
-            if ( right )
+            if( right )
             {
                 QColor b = right->getColor();
                 double p = ( point->pos().x() - left->pos().x() )/( right->pos().x() - left->pos().x() );
@@ -403,23 +403,23 @@ void WTransferFunctionWidget::insertColor( const QPointF& pos, QColor const *con
     else
     {
         point->setRight( cfirst );
-        if ( cfirst )
+        if( cfirst )
         {
             cfirst->setLeft( point );
         }
         cfirst = point;
-        if ( !clast )
+        if( !clast )
         {
             clast = cfirst;
         }
-        if ( color )
+        if( color )
         {
             point->colorSelected( *color );
         }
         else
         {
             // this is not part of our logic, maybe find the point to the right and look there?
-            if ( point->getRight() )
+            if( point->getRight() )
             {
                 point->colorSelected( point->getRight()->getColor() );
             }
@@ -444,7 +444,7 @@ void WTransferFunctionWidget::insertPoint( const QPointF& position )
 
     // insert into list
     WTransferFunctionPoint* left( this->findPointOnLeft( position ) );
-    if ( left )
+    if( left )
     {
         WTransferFunctionPoint* right( left->getRight() );
 
@@ -452,7 +452,7 @@ void WTransferFunctionWidget::insertPoint( const QPointF& position )
         point->setLeft( left );
         point->setRight( right );
 
-        if ( right )
+        if( right )
         {
             right->setLeft( point );
         }
@@ -461,7 +461,7 @@ void WTransferFunctionWidget::insertPoint( const QPointF& position )
         // add the line to the new point
         // otherwise, add the line to the left point.
         // because we are the last point in the list
-        if ( left->getLine() )
+        if( left->getLine() )
         {
             assert( right );
 
@@ -483,7 +483,7 @@ void WTransferFunctionWidget::insertPoint( const QPointF& position )
         // there is nothing left of su, so we are the leftmost element
         // now, add pointers to the right and we are first.
         point->setRight( first );
-        if ( first )
+        if( first )
         {
             // if there is already a point to our right, we have to add a line
             first->setLeft( point );
@@ -496,7 +496,7 @@ void WTransferFunctionWidget::insertPoint( const QPointF& position )
             delete line;
         }
         first = point;
-        if ( !clast )
+        if( !clast )
         {
             clast = cfirst;
         }
@@ -508,10 +508,10 @@ void WTransferFunctionWidget::insertPoint( const QPointF& position )
 
 void WTransferFunctionWidget::mousePressEvent( QMouseEvent *event )
 {
-    if ( event->button() == Qt::RightButton )
+    if( event->button() == Qt::RightButton )
     {
         QPointF position( this->mapToScene( event->pos() ) );
-        if ( position.y() < 0 )
+        if( position.y() < 0 )
         {
             insertColor( position, 0 );
         }
@@ -531,12 +531,12 @@ void WTransferFunctionWidget::mousePressEvent( QMouseEvent *event )
 WTransferFunctionPoint* WTransferFunctionWidget::findPointOnLeft( QPointF position )
 {
     WTransferFunctionPoint *current( first );
-    if ( !current || current->pos().x() > position.x() )
+    if( !current || current->pos().x() > position.x() )
         return 0x0;
-    while ( current && current->getRight() )
+    while( current && current->getRight() )
     {
         WTransferFunctionPoint *right( current->getRight() );
-        if ( right->pos().x() > position.x() )
+        if( right->pos().x() > position.x() )
         {
             return current;
         }
@@ -549,15 +549,15 @@ WTransferFunctionPoint* WTransferFunctionWidget::findPointOnLeft( QPointF positi
 WTransferFunctionColorPoint* WTransferFunctionWidget::findCPointOnLeft( QPointF position )
 {
     WTransferFunctionColorPoint *current( cfirst );
-    if ( !current || current->pos().x() > position.x() )
+    if( !current || current->pos().x() > position.x() )
     {
         return 0x0;
     }
 
-    while ( current && current->getRight() )
+    while( current && current->getRight() )
     {
         WTransferFunctionColorPoint *right( current->getRight() );
-        if ( right->pos().x() > position.x() )
+        if( right->pos().x() > position.x() )
         {
             return current;
         }
@@ -585,7 +585,7 @@ void WTransferFunctionWidget::updateTransferFunction()
         QRectF bb = scene->sceneRect();
 
         WTransferFunctionColorPoint *cp( cfirst );
-        while ( cp )
+        while( cp )
         {
             double iso = ( cp->pos().x() - bb.x() )/bb.width();
             tf.addColor( iso, toWColor( cp->getColor() ) );
@@ -593,7 +593,7 @@ void WTransferFunctionWidget::updateTransferFunction()
         }
 
         WTransferFunctionPoint *p( first );
-        while ( p )
+        while( p )
         {
             double iso = ( p->pos().x() - bb.x() )/bb.width();
             double alpha = 1.-( ( p->pos().y() - bb.y() )/bb.height() );
@@ -603,7 +603,7 @@ void WTransferFunctionWidget::updateTransferFunction()
     }
 
     // std::cout << "updating gui" << parent << std::endl;
-    if ( parent )
+    if( parent )
         parent->guiUpdate( tf );
     // std::cout << "done updating gui" << std::endl;
 }

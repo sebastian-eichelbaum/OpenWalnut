@@ -35,7 +35,6 @@
 class WGEGraphicsWindow
 {
 public:
-
     /**
      * Default constructor.
      *

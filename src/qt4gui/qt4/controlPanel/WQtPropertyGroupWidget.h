@@ -129,7 +129,6 @@ signals:
     void hideSignal( bool hide );
 
 protected:
-
     /**
      * Callback for WPropertyBase::getChangeCondition. It emits an event to ensure all updates are done in gui thread.
      */
@@ -147,7 +146,6 @@ protected:
     virtual bool event( QEvent* event );
 
 private:
-
     /**
      * The name used for this widget.
      */

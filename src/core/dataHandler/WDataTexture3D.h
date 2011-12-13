@@ -98,7 +98,6 @@ namespace WDataTexture3DScalers
 class OWDATAHANDLER_EXPORT WDataTexture3D: public WGETexture3D
 {
 public:
-
     /**
      * Constructor. Creates the texture. Just run it after graphics engine was initialized.
      *
@@ -121,14 +120,12 @@ public:
     virtual WBoundingBox getBoundingBox() const;
 
 protected:
-
     /**
      * Creates the texture data. This method creates the texture during the first update traversal using the value set and grid.
      */
     virtual void create();
 
 private:
-
     /**
      * The value set from which the texture gets created.
      */

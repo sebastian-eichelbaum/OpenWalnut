@@ -36,7 +36,6 @@
 class OWCOMMON_EXPORT WLibraryFetchFailed : public WException
 {
 public:
-
     /**
      * Default constructor.
      * \param msg the exception message.

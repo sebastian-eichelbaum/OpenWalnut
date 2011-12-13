@@ -102,7 +102,6 @@ public:
     bool isColored() const;
 
 private:
-
     /**
      * Disallow copy.
      *

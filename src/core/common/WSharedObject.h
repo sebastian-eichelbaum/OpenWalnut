@@ -41,7 +41,6 @@ template < typename T >
 class WSharedObject
 {
 public:
-
     /**
      * Default constructor.
      */
@@ -101,7 +100,6 @@ public:
     boost::shared_ptr< WCondition > getChangeCondition() const;
 
 protected:
-
     /**
      * The object wrapped by this class. This member is mutable as the \ref getReadTicket and \ref getWriteTicket functions are const but need a
      * non-const reference to m_object.

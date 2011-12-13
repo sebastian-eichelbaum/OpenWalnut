@@ -174,9 +174,7 @@ public:
     osg::ref_ptr< T >  addRenderPass( std::string name = "Unnamed" );
 
 protected:
-
 private:
-
     /**
      * The camera to which is used for setting this camera up.
      */

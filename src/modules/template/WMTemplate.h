@@ -47,7 +47,6 @@
 class WMTemplate: public WModule
 {
 public:
-
     /**
      * Default constructor.
      */
@@ -85,7 +84,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -122,7 +120,6 @@ protected:
     virtual void activate();
 
 private:
-
     /**
      * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
      */
@@ -287,7 +284,6 @@ private:
     class SafeUpdateCallback : public osg::NodeCallback
     {
     public: // NOLINT
-
         /**
          * Constructor.
          *
@@ -327,7 +323,6 @@ private:
     class TranslateCallback : public osg::NodeCallback
     {
     public: // NOLINT
-
         /**
          * Constructor.
          *

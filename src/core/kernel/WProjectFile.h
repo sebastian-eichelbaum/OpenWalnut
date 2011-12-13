@@ -46,7 +46,6 @@ class OWKERNEL_EXPORT WProjectFile: public WThreadedRunner,
                                       public boost::enable_shared_from_this< WProjectFile >
 {
 public:
-
     /**
      * Default constructor. It does NOT parse the file. Parsing is done by apply().
      *
@@ -99,7 +98,6 @@ public:
     static boost::shared_ptr< WProjectFileIO > getROIWriter();
 
 protected:
-
     /**
      * Function that has to be overwritten for execution. It gets executed in a separate thread after run()
      * has been called.

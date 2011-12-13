@@ -46,7 +46,6 @@
 class OWCOMMON_EXPORT WThreadedRunner // NOLINT
 {
 public:
-
     /**
      * Type used for simple thread functions.
      */
@@ -107,7 +106,6 @@ public:
     const WBoolFlag& isCrashed() const;
 
 protected:
-
     /**
      * Function that has to be overwritten for execution. It gets executed in a separate thread after run()
      * has been called.
@@ -181,7 +179,6 @@ protected:
     WBoolFlag m_isCrashed;
 
 private:
-
     /**
      * Disallow copy construction.
      *

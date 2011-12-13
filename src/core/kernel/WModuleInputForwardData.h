@@ -128,7 +128,6 @@ public:
     static PtrType createAndAdd( boost::shared_ptr< WModule > module, std::string name = "", std::string description = "" );
 
 protected:
-
     /**
      * The output connector which collects data and distributes it to all connectors connected using the forwardTo() method.
      */

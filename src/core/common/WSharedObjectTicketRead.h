@@ -40,7 +40,6 @@ class WSharedObjectTicketRead: public WSharedObjectTicket< Data >
 // the shared object class needs protected access to create new instances
 friend class WSharedObject< Data >;
 public:
-
     /**
      * Destroys the ticket and releases the lock.
      */
@@ -63,7 +62,6 @@ public:
     };
 
 protected:
-
     /**
      * Create a new instance. It is protected to avoid someone to create them. It locks the mutex for read.
      *

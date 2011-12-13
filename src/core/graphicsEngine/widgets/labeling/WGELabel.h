@@ -39,7 +39,6 @@ class WGE_EXPORT WGELabel: public osgText::Text,
                                 WGELayoutableItem
 {
 public:
-
     /**
      * Convenience typedef for a osg::ref_ptr< WGELabel >.
      */
@@ -75,7 +74,6 @@ public:
     virtual void setAnchor( const osg::Vec3& anchor );
 
 protected:
-
     /**
      * The anchor of the label in world space.
      */

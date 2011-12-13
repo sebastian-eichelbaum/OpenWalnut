@@ -43,7 +43,6 @@
 class OWCOMMON_EXPORT WPathHelper // NOLINT
 {
 public:
-
     /**
      * Destructor.
      */
@@ -189,14 +188,12 @@ public:
     static boost::filesystem::path getConfigPath();
 
 protected:
-
     /**
      * Constructors are protected because this is a Singleton.
      */
     WPathHelper();
 
 private:
-
     /**
      * Application path. NOT the path of the binary. The application path is the directory in which the binary is placed.
      * The binary path is m_appPath+"/openwalnut".

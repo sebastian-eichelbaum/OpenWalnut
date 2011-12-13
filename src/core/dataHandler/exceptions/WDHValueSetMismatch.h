@@ -50,7 +50,6 @@ public:
     virtual ~WDHValueSetMismatch() throw();
 
 protected:
-
 private:
 };
 

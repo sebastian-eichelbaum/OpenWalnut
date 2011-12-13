@@ -36,7 +36,6 @@
 class OWKERNEL_EXPORT WPrototypeRequirement: public WRequirement // NOLINT
 {
 public:
-
     /**
      * Create instance. If your module uses this requirement, it needs the specified module.
      *
@@ -64,9 +63,7 @@ public:
     virtual std::string getDescription() const;
 
 protected:
-
 private:
-
     /**
      * The required prototype.
      */

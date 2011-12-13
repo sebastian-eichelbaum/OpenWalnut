@@ -50,7 +50,6 @@ public:
     virtual ~WQtCommandPromptToolbar();
 
 protected:
-
 private slots:
 
     /**

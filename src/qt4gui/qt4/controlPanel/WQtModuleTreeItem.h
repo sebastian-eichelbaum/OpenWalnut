@@ -39,7 +39,6 @@
 class WQtModuleTreeItem: public WQtTreeItem
 {
 public:
-
     /**
      * Constructor
      *
@@ -54,7 +53,6 @@ public:
     virtual ~WQtModuleTreeItem();
 
 protected:
-
 private:
 };
 

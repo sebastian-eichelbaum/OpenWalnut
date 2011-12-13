@@ -40,7 +40,6 @@ class WPropertyTriggerWidget: public WPropertyWidget
 {
     Q_OBJECT
 public:
-
     /**
      * Constructor. Creates a new widget appropriate for the specified property.
      *
@@ -63,7 +62,6 @@ public:
     virtual QPushButton* getButton();
 
 protected:
-
     /**
      * Called whenever the widget should update.
      */
@@ -95,7 +93,6 @@ protected:
     QHBoxLayout m_infoLayout;
 
 private:
-
 public slots:
 
     /**

@@ -42,7 +42,6 @@
 class WMWriteMeshTest : public CxxTest::TestSuite
 {
 public:
-
     /**
      * Setup method called before every test case.
      */

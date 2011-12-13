@@ -1110,7 +1110,7 @@ void WMainWindow::restoreMainGLWidgetSize()
 
 void WMainWindow::dropEvent( QDropEvent *event )
 {
-    if ( event->mimeData()->hasUrls() )
+    if( event->mimeData()->hasUrls() )
     {
         std::vector < std::string > projects;
         std::vector < std::string > filenames;
@@ -1120,7 +1120,7 @@ void WMainWindow::dropEvent( QDropEvent *event )
             QString path =  url.toLocalFile();
             QFileInfo info( path );
             QString suffix =  info.completeSuffix();
-            if ( suffix == "cnt"
+            if( suffix == "cnt"
               || suffix == "edf"
               || suffix == "asc"
               || suffix == "nii"
@@ -1131,7 +1131,7 @@ void WMainWindow::dropEvent( QDropEvent *event )
             }
             else
             {
-                if ( suffix == "owp"
+                if( suffix == "owp"
                     || suffix == "owproj" )
                 {
                     projects.push_back( path.toStdString() );
@@ -1142,9 +1142,9 @@ void WMainWindow::dropEvent( QDropEvent *event )
                 }
             }
         }
-        if ( projects.size() > 0 )
+        if( projects.size() > 0 )
         {
-            for ( size_t i = 0; i < projects.size(); ++i )
+            for( size_t i = 0; i < projects.size(); ++i )
             {
                 boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
                         new WProjectFile( projects[ i ] )
@@ -1155,16 +1155,16 @@ void WMainWindow::dropEvent( QDropEvent *event )
             }
             event->accept();
         }
-        if ( filenames.size() > 0 )
+        if( filenames.size() > 0 )
         {
             m_loaderSignal( filenames );
             event->accept();
         }
-        if ( unsupported.size() > 0 )
+        if( unsupported.size() > 0 )
         {
             QString message = QString() +
                 "The following files are not supported as standard data types by OpenWalnut at the moment:<br>";
-            for ( size_t i = 0; i < unsupported.size(); ++i )
+            for( size_t i = 0; i < unsupported.size(); ++i )
             {
                 message += QString::fromStdString( unsupported[ i ] ) + QString( "<br>" );
             }
@@ -1181,7 +1181,7 @@ void WMainWindow::dropEvent( QDropEvent *event )
 
 void WMainWindow::dragMoveEvent( QDragMoveEvent *event )
 {
-    if ( event->mimeData()->hasUrls() )
+    if( event->mimeData()->hasUrls() )
     {
         foreach( QUrl url, event->mimeData()->urls() )
         {
@@ -1189,7 +1189,7 @@ void WMainWindow::dragMoveEvent( QDragMoveEvent *event )
             QFileInfo info( path );
             // TODO(mario): check when this fails, I assume we have problems with files with multiple dots such as session.1.nii
             QString suffix =  info.completeSuffix();
-            if ( suffix == "cnt"
+            if( suffix == "cnt"
               || suffix == "edf"
               || suffix == "asc"
               || suffix == "nii"
@@ -1208,14 +1208,14 @@ void WMainWindow::dragMoveEvent( QDragMoveEvent *event )
 
 void WMainWindow::dragEnterEvent( QDragEnterEvent *event )
 {
-    if ( event->mimeData()->hasUrls() )
+    if( event->mimeData()->hasUrls() )
     {
         foreach( QUrl url, event->mimeData()->urls() )
         {
             QString path =  url.toLocalFile();
             QFileInfo info( path );
             QString suffix =  info.completeSuffix();
-            if ( suffix == "cnt"
+            if( suffix == "cnt"
               || suffix == "edf"
               || suffix == "asc"
               || suffix == "nii"

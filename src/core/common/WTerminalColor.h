@@ -36,7 +36,6 @@ class OWCOMMON_EXPORT WTerminalColor // NOLINT
 {
 friend class WTerminalColorTest;
 public:
-
     /**
      * Define possible attributes.
      */
@@ -157,7 +156,6 @@ public:
     bool isEnabled() const;
 
 protected:
-
     /**
      * The string actually containing the control sequence to enable colors on the console.
      */
@@ -184,7 +182,6 @@ protected:
     TerminalColorBackground m_background;
 
 private:
-
     /**
      * Actually generates the control sequences.
      */

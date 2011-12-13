@@ -41,7 +41,6 @@
 class WMHistogramEqualization: public WModule
 {
 public:
-
     /**
      * Default constructor.
      */
@@ -79,7 +78,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -96,7 +94,6 @@ protected:
     virtual void properties();
 
 private:
-
     /**
      * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
      */

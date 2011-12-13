@@ -41,7 +41,6 @@ class OWCOMMON_EXPORT WConditionOneShot: public WCondition
 {
     friend class WConditionOneShot_test;
 public:
-
     /**
      * Default constructor.
      */
@@ -63,7 +62,6 @@ public:
     virtual void notify();
 
 protected:
-
     /**
      * Locked as long the condition was not fired.
      */

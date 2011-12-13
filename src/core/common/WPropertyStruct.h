@@ -200,7 +200,6 @@ class WPropertyStruct: public WPropertyGroupBase
 {
 friend class WPropertyStructTest;
 public:
-
    /**
     * The type of this template instantiation.
     */
@@ -449,9 +448,7 @@ public:
     }
 
 protected:
-
 private:
-
     /**
      * How many elements are in this WPropertyStruct?
      */

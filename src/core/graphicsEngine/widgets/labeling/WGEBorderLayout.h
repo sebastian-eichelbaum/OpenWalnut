@@ -42,8 +42,6 @@ class WGE_EXPORT WGEBorderLayout: public WGEGroupNode
 {
 friend class SafeUpdateCallback;
 public:
-
-
     /**
      * Default constructor.
      */
@@ -63,7 +61,6 @@ public:
     virtual void addLayoutable( osg::ref_ptr< WGELabel > obj );
 
 protected:
-
     /**
      * The geode containing all drawables.
      */
@@ -85,7 +82,6 @@ protected:
     class SafeUpdateCallback : public osg::NodeCallback
     {
     public: // NOLINT
-
         /**
          * Constructor.
          *

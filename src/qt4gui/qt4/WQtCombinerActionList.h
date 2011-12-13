@@ -51,7 +51,6 @@
 class WQtCombinerActionList: public QList< QAction* >
 {
 public:
-
     /**
      * This constructor creates a list of actions recursively from the specified compatibles list.
      * \param parent the parent widget of this widget, i.e. the widget that manages it.
@@ -83,7 +82,6 @@ public:
     virtual ~WQtCombinerActionList();
 
 protected:
-
 private:
 };
 

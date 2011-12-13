@@ -176,7 +176,6 @@ public:
     class PropertyConstraint
     {
     public:
-
         /**
          * Default constructor.
          */
@@ -412,7 +411,6 @@ public:
     virtual bool setRecommendedValue( const T& value );
 
 protected:
-
     /**
      * The connection used for notification.
      */
@@ -444,7 +442,6 @@ protected:
     boost::shared_ptr< ConstraintContainerType > m_constraints;
 
 private:
-
     /**
      * This is true, if the user did not set a value until now using \ref set.
      */

@@ -83,9 +83,7 @@ public:
     void removeSliderProperty( boost::shared_ptr< WPropertyBase > prop );
 
 protected:
-
 private:
-
     /**
      * The slider's title.
      */

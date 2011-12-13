@@ -72,7 +72,7 @@ WLogger* WLogger::getLogger()
 
 boost::signals2::connection WLogger::subscribeSignal( LogEvent event, LogEntryCallback callback )
 {
-    switch ( event ) // subscription
+    switch( event ) // subscription
     {
     case AddLog:
         return m_addLogSignal.connect( callback );

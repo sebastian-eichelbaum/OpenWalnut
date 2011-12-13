@@ -41,7 +41,6 @@
 class OWKERNEL_EXPORT WModuleOneToOneCombiner: public WModuleCombiner
 {
 public:
-
     /**
      * Creates a combiner which sets up the specified modules and prototype combination. Specifying a NULL pointer to the srcModule parameter
      * causes the combiner to only add the target module without any connections. This is especially useful for modules which do not provide any
@@ -112,7 +111,6 @@ public:
     std::string getTargetConnector() const;
 
 protected:
-
     /**
      * The source module to connect with the target
      */

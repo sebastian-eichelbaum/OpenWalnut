@@ -44,7 +44,6 @@
 class WDataSetFiberClustering: public WTransferable
 {
 public:
-
     /**
      * Convenience typedef for a boost::shared_ptr< WDataSetFiberClustering >.
      */
@@ -156,13 +155,11 @@ public:
     ClusterMap::iterator end();
 
 protected:
-
     /**
      * Prototype for this dataset
      */
     static boost::shared_ptr< WPrototyped > m_prototype;
 private:
-
     /**
      * The map between ID and cluster.
      */

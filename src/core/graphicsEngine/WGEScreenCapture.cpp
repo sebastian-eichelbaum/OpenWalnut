@@ -80,7 +80,7 @@ void WGEScreenCapture::operator()( osg::RenderInfo& renderInfo ) const  // NOLIN
     RecordingInformation& frameCounter = w->get();
 
     // is there something to record?
-    if ( !frameCounter.m_framesLeft )
+    if( !frameCounter.m_framesLeft )
     {
         return;
     }
@@ -92,7 +92,7 @@ void WGEScreenCapture::operator()( osg::RenderInfo& renderInfo ) const  // NOLIN
     size_t width = 0;
     size_t height = 0;
     GLenum pixelFormat = GL_RGB;
-    if (gc->getTraits())
+    if( gc->getTraits())
     {
         width = gc->getTraits()->width;
         height = gc->getTraits()->height;

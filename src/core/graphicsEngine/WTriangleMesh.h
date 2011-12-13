@@ -44,7 +44,6 @@ class WGE_EXPORT WTriangleMesh  : public WTransferable
 {
 friend class WTriangleMeshTest;
 public:
-
     /**
      * Shared pointer
      */

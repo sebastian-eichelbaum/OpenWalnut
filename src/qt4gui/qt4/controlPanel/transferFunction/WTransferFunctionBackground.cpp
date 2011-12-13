@@ -42,7 +42,7 @@ WTransferFunctionBackground::WTransferFunctionBackground( WTransferFunctionWidge
 
 void WTransferFunctionBackground::setMyPixmap( const QPixmap& newpixmap )
 {
-    if ( newpixmap.width() > 0 && newpixmap.height() > 0 )
+    if( newpixmap.width() > 0 && newpixmap.height() > 0 )
     {
         // std::cout << "SET MY PIXMAP" << std::endl;
         QTransform m( scene()->sceneRect().width()/( double )newpixmap.width(), 0, 0,

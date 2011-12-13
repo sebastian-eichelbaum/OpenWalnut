@@ -35,7 +35,6 @@
 class WModuleDeleteEvent: public QEvent
 {
 public:
-
     /**
      * Creates a new event instance denoting that the specified module got deleted in the root container.
      *
@@ -56,7 +55,6 @@ public:
     WQtTreeItem* getTreeItem();
 
 protected:
-
     /**
      * The tree item sent this event.
      */

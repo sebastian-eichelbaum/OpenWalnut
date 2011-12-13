@@ -237,7 +237,6 @@ public:
     }
 
 private:
-
     /**
      * A helper function that implements the simple approach to tensor evaluation.
      *

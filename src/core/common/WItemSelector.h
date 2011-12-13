@@ -53,7 +53,6 @@ class OWCOMMON_EXPORT WItemSelector // NOLINT
 {
 friend class WItemSelection;
 public:
-
     /**
      * The type used for storing index lists. It is a list of integer correlating with the elements in the managed WItemSelection class.
      */
@@ -236,7 +235,6 @@ public:
     IndexList getIndexList() const;
 
 protected:
-
     /**
      * Constructor creates an selector for the specified selection of items. Noting is selected after construction.
      *
@@ -261,7 +259,6 @@ protected:
     boost::signals2::connection m_invalidateSignalConnection;
 
 private:
-
     /**
      * Creates a new selector instance using the specified index list. Handles all needed signal subscription stuff.
      *

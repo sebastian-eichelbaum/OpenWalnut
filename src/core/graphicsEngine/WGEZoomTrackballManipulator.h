@@ -120,7 +120,6 @@ public:
 
 protected:
 private:
-
     /**
      * Handles events related to zooming.
      * \param ea Event class for storing Keyboard, mouse and window events.

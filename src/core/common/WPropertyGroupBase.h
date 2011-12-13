@@ -53,7 +53,6 @@
 class OWCOMMON_EXPORT WPropertyGroupBase: public WPropertyBase
 {
 public:
-
     /**
      * For shortening: a type defining a shared vector of WSubject pointers.
      */

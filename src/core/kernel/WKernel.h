@@ -60,7 +60,6 @@ class WThreadedRunner;
 class OWKERNEL_EXPORT WKernel: public WThreadedRunner
 {
 public:
-
     /**
      * Returns pointer to the running kernel or a new if no kernel was there.
      * If a running kernel exists the function return it and does not check if

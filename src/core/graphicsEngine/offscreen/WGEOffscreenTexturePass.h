@@ -41,7 +41,6 @@ class WGETextureHud;
 class WGEOffscreenTexturePass: public WGEOffscreenRenderPass
 {
 public:
-
     /**
      * Creates a new offscreen rendering instance.
      *
@@ -73,7 +72,6 @@ public:
 
 protected:
 private:
-
     /**
      * Sets the whole node up. Used to get some code duplication out of the constructors.
      */
@@ -90,7 +88,6 @@ private:
     class TextureMatrixUpdateCallback : public osg::NodeCallback
     {
     public: // NOLINT
-
         /**
          * Constructor.
          *

@@ -785,7 +785,7 @@ void WMClusterDisplay::updateWidgets()
 
 std::string WMClusterDisplay::createLabel( size_t id )
 {
-    switch ( m_labelMode )
+    switch( m_labelMode )
     {
         case 1:
             return boost::lexical_cast<std::string>( m_tree.size( id ) );

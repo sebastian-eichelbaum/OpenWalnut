@@ -36,7 +36,6 @@
 class WPropertyChangedEvent: public QEvent
 {
 public:
-
     /**
      * Creates a new event instance denoting that a property has changed.
      */

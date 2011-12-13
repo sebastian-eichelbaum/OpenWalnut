@@ -39,7 +39,6 @@
 class OWCOMMON_EXPORT WTransferFunction // NOLINT problem with OWCOMMON_EXPORT macro
 {
 private:
-
     /**
      * Prototype for a storage element
      */
@@ -259,7 +258,6 @@ public:
      */
     static WTransferFunction createFromRGBA( unsigned char const * const rgba, size_t size );
 private:
-
     std::vector<ColorEntry> colors; //< sorted list of colors
     std::vector<AlphaEntry> alphas; //< sorted list of alpha values
 

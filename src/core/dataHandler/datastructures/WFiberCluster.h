@@ -283,7 +283,6 @@ public:
     WBoundingBox getBoundingBox() const;
 
 protected:
-
     /**
      * Prototype for this dataset
      */

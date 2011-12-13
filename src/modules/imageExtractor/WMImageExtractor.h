@@ -42,7 +42,6 @@
 class WMImageExtractor: public WModule
 {
 public:
-
     /**
      * Standard constructor.
      */
@@ -81,7 +80,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -103,7 +101,6 @@ protected:
     virtual void activate();
 
 private:
-
     /**
      * Extract the ith image from the dataset. If there is no
      * ith image, an invalid pointer will be returned. For scalar datasets, only the 0th

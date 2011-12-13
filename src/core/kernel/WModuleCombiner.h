@@ -43,7 +43,6 @@ class OWKERNEL_EXPORT WModuleCombiner: public WThreadedRunner,
                                          public boost::enable_shared_from_this< WModuleCombiner >
 {
 public:
-
     /**
      * Creates an empty combiner.
      *
@@ -75,7 +74,6 @@ public:
     virtual void run();
 
 protected:
-
     /**
      * Function that has to be overwritten for execution. It gets executed in a separate thread after run()
      * has been called. It actually calls apply() in another thread.

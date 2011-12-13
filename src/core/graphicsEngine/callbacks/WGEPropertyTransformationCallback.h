@@ -41,7 +41,6 @@ template < typename ParentType = osg::Node, typename TargetType = osg::MatrixTra
 class WGEPropertyTransformationCallback: public WGECallbackTraits< ParentType >::CallbackType
 {
 public:
-
     /**
      * Default constructor.
      *
@@ -63,9 +62,7 @@ public:
     virtual void operator()( typename WGECallbackTraits< ParentType >::HandledType* handled, osg::NodeVisitor* nv );
 
 protected:
-
 private:
-
     /**
      * The property controlling the callback
      */

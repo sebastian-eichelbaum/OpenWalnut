@@ -53,7 +53,6 @@
 class WMScalarSegmentation: public WModule
 {
 public:
-
     /**
      * Default constructor.
      */
@@ -93,7 +92,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -115,7 +113,6 @@ protected:
     virtual void activate();
 
 private:
-
     //! A List type for all available algorithms.
     typedef std::vector< boost::shared_ptr< WSegmentationAlgo > > AlgoList;
 

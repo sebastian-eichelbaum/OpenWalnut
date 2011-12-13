@@ -43,7 +43,6 @@
 class WMGpView: public WModule
 {
 public:
-
     /**
      * Constructs a new GP viewer.
      */

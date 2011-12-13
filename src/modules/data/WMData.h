@@ -46,7 +46,6 @@ template< class T > class WModuleOutputData;
 class WMData: public WDataModule
 {
 public:
-
     /**
      * Default constructor.
      */
@@ -178,7 +177,6 @@ protected:
     WMatrix< double > m_transformQForm;
 
 private:
-
     //! a condition for the matrix selection
     boost::shared_ptr< WCondition > m_propCondition;
 

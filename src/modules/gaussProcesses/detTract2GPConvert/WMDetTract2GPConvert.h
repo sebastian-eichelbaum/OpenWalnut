@@ -42,7 +42,6 @@
 class WMDetTract2GPConvert: public WModule
 {
 public:
-
     /**
      * Constructs a new module.
      */

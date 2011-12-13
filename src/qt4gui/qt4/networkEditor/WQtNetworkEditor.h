@@ -50,7 +50,6 @@ class WQtNetworkEditor : public QDockWidget
 {
     Q_OBJECT
 public:
-
     /**
      * constructor
      *
@@ -87,7 +86,6 @@ public:
     QList<QGraphicsItem *> selectedItems() const;
 
 protected:
-
     /**
      * Reference to the main window of the application.
      */
@@ -103,7 +101,6 @@ protected:
     virtual bool event( QEvent* event );
 
 private:
-
     WQtNetworkScene* m_scene; //!< QGraphicsScene
 
     WNetworkLayout *m_layout; //!< the object that handels the layout

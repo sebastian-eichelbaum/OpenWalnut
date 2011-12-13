@@ -41,7 +41,6 @@
 class OWDATAHANDLER_EXPORT WFiberAccumulator        // NOLINT
 {
 public:
-
     /**
      * Constructor.
      */
@@ -78,7 +77,6 @@ public:
 
 protected:
 private:
-
     /**
      * A mutex needed to guarantee thread-safety.
      */

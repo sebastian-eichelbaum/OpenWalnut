@@ -37,7 +37,6 @@
 class WModuleConnectEvent: public QEvent
 {
 public:
-
     /**
      * Creates a new event denoting the established connection between both connectors.
      *
@@ -66,7 +65,6 @@ public:
     boost::shared_ptr< WModuleConnector > getOutput() const;
 
 protected:
-
     /**
      * The input.
      */

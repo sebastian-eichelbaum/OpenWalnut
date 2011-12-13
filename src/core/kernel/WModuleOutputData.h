@@ -185,9 +185,7 @@ public:
     };
 
 protected:
-
 private:
-
     /**
      * The data associated with this connector.
      */

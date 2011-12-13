@@ -73,7 +73,6 @@ public:
     typedef typename WGEPropertyUniformCallback< T >::UniformType UniformType;
 
 protected:
-
     /**
      * The property controlling the uniform.
      */

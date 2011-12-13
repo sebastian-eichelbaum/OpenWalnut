@@ -53,7 +53,6 @@ class WQtGLScreenCapture: public QDockWidget
 {
     Q_OBJECT
 public:
-
     /**
      * Creates screen capture gui for the specified capture callback of a certain view.
      *

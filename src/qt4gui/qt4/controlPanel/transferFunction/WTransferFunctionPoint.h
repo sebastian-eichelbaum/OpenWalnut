@@ -61,7 +61,6 @@ class WTransferFunctionPoint : public QGraphicsItem
         //! overloaded form base class for debugging
         virtual void setPos( QPointF point );
     protected:
-
         void clampToRectangle( QPointF* const pos, const QRectF& rectangle ) const;
         void clampToLeftAndRight( QPointF* const pos ) const;
 

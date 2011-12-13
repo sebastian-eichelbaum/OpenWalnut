@@ -37,7 +37,6 @@
 class WGE_EXPORT WGEAnimationFrameTimer: public WTimer
 {
 public:
-
     /**
      * Convenience typedef for a shared_ptr
      */
@@ -78,7 +77,6 @@ public:
     virtual void tick();
 
 private:
-
     /**
      * The current tick value.
      */

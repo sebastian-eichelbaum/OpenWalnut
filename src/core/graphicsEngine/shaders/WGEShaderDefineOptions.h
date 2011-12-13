@@ -43,7 +43,6 @@
 class WGE_EXPORT WGEShaderDefineOptions: public WGEShaderPreprocessor
 {
 public:
-
     /**
      * Shared pointer for this class.
      */
@@ -150,7 +149,6 @@ public:
     void addOption( std::string opt );
 
 protected:
-
     /**
      * Sets the specified index list as the new activation list. Triggers an update.
      *
@@ -159,7 +157,6 @@ protected:
     void setActivationList( const IdxList& newList );
 
 private:
-
     /**
      * The list of options.
      */

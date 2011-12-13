@@ -59,7 +59,6 @@ class WMBermanTracking: public WModule
     typedef WMBermanTracking This;
 
 public:
-
     /**
      * Standard constructor.
      */
@@ -98,7 +97,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -115,7 +113,6 @@ protected:
     virtual void properties();
 
 private:
-
     //! the threaded tracking functor
     typedef wtracking::WThreadedTrackingFunction Tracking;
 
