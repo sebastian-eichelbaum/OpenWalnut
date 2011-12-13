@@ -531,13 +531,13 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
         clusterAttribs->push_back( osg::Vec3( 1.0, 1.0, 1.0 ) );
 
         // a line needs 2 verts at least
-        if ( len < 2 )
+        if( len < 2 )
         {
             continue;
         }
 
         // provide tangents and vertices for the end-caps
-        if ( tubeMode )
+        if( tubeMode )
         {
             // NOTE: we could also use the tangents stored in the tangents array but we cannot ensure they are oriented always outwards.
             // grab first and second vertex.
@@ -584,7 +584,7 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
             if( tubeMode )
             {
                 // if in tube-mode, some final sprites are needed to provide some kind of ending for the tube
-                if ( ( k == 0 ) || ( k == len - 1 ) )
+                if( ( k == 0 ) || ( k == len - 1 ) )
                 {
                     endColors->push_back( color );
                 }
@@ -691,12 +691,12 @@ void WMFiberDisplaySimple::geometryUpdate( osg::Drawable* geometry )
 
 void WMFiberDisplaySimple::lineGeodeStateCallback( osg::StateSet* state )
 {
-    if ( m_lineWidth->changed() )
+    if( m_lineWidth->changed() )
     {
         state->setAttributeAndModes( new osg::LineWidth( m_lineWidth->get( true ) ), osg::StateAttribute::ON );
     }
 
-    if ( m_lineSmooth->changed( true ) )
+    if( m_lineSmooth->changed( true ) )
     {
         // Line smoothing. Will be very slow!
         osg::StateAttribute::GLModeValue onoff = m_lineSmooth->get() ? osg::StateAttribute::ON : osg::StateAttribute::OFF;
