@@ -23,15 +23,16 @@
 //---------------------------------------------------------------------------
 
 #include <cmath>
+#include <string>
 #include <vector>
 
 #include <osg/ref_ptr>
 
 #include "core/common/exceptions/WTypeMismatch.h"
 #include "core/common/WLogger.h"
-#include "core/graphicsEngine/WGEGroupNode.h"
 #include "core/dataHandler/WDataSetScalar.h"
 #include "core/dataHandler/WGridRegular3D.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
 #include "WSPSliceBuilder.h"
 
 WSPSliceBuilder::WSPSliceBuilder( ProbTractList probTracts, WPropGroup sliceGroup, std::vector< WPropGroup > colorMap )

@@ -22,20 +22,20 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
 #include <iostream>
+#include <map>
+#include <string>
 
-#include <QtGui/QDockWidget>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QKeyEvent>
 #include <QtGui/QApplication>
+#include <QtGui/QDockWidget>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QVBoxLayout>
 
 #include "core/graphicsEngine/WGECamera.h"
-#include "core/graphicsEngine/WGEViewer.h"
 #include "core/graphicsEngine/WGEScene.h"
-#include "events/WPropertyChangedEvent.h"
+#include "core/graphicsEngine/WGEViewer.h"
 #include "events/WEventTypes.h"
-
+#include "events/WPropertyChangedEvent.h"
 #include "WQtNavGLWidget.h"
 #include "WQtNavGLWidget.moc"
 

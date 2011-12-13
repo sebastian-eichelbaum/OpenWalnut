@@ -22,15 +22,16 @@
 //
 //---------------------------------------------------------------------------
 
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include "core/common/WLimits.h"
+#include "../../emptyIcon.xpm" // Please put a real icon here.
 #include "core/common/datastructures/WDendrogram.h"
 #include "core/common/datastructures/WUnionFind.h"
+#include "core/common/WLimits.h"
 #include "core/kernel/WKernel.h"
-#include "../../emptyIcon.xpm" // Please put a real icon here.
 #include "WMDetTractClusteringGP.h"
 
 WMDetTractClusteringGP::WMDetTractClusteringGP():

@@ -22,8 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WROI.h"
+#include <list>
 
+#include "WROI.h"
 #include "WPickHandler.h"
 
 WROI::WROI() :

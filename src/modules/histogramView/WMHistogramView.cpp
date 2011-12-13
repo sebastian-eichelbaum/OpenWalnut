@@ -22,27 +22,29 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
+#include <limits>
 #include <string>
+#include <utility>
+#include <vector>
+
+#include <boost/lexical_cast.hpp>
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
 
 #include <osg/Drawable>
-#include <osg/Geometry>
 #include <osg/Geode>
+#include <osg/Geometry>
 #include <osg/LineWidth>
 #include <osgText/Text>
 
-#include <boost/thread/locks.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include "core/common/WPathHelper.h"
-#include "core/kernel/WKernel.h"
-#include "core/gui/WGUI.h"
-#include "core/gui/WCustomWidget.h"
 #include "core/graphicsEngine/WGERequirement.h"
-
-#include "WMHistogramView.xpm"
-
+#include "core/gui/WCustomWidget.h"
+#include "core/gui/WGUI.h"
+#include "core/kernel/WKernel.h"
 #include "WMHistogramView.h"
+#include "WMHistogramView.xpm"
 
 /**
  * \class CustomWidget
@@ -1137,7 +1139,7 @@ void WMHistogramView::createInfo()
         {
             // add the bin value for every dataset as a text in the top right corner of the window
             int h = 1;
-            
+
             for( std::size_t k = 0; k < m_data.size(); ++k )
             {
                 if( !m_data[ k ] )

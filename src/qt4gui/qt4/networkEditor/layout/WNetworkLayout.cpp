@@ -22,9 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WNetworkLayoutGlobals.h"
+#include <list>
 
 #include "WNetworkLayout.h"
+#include "WNetworkLayoutGlobals.h"
 
 WNetworkLayout::WNetworkLayout()
 {

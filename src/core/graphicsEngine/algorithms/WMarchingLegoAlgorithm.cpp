@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <vector>
+
 #include "WMarchingLegoAlgorithm.h"
 
 WMarchingLegoAlgorithm::WMarchingLegoAlgorithm()

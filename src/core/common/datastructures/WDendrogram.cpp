@@ -23,11 +23,12 @@
 //---------------------------------------------------------------------------
 
 #include <algorithm>
-#include <iterator>
 #include <fstream>
+#include <iterator>
 #include <map>
 #include <set>
 #include <sstream>
+#include <string>
 #include <vector>
 
 #include "../exceptions/WOutOfBounds.h"

@@ -22,8 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WMainWindow.h"
+#include <string>
 
+#include "WMainWindow.h"
 #include "WSettingAction.h"
 #include "WSettingAction.moc"
 

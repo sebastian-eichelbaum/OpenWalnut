@@ -22,11 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../../common/WPropertyHelper.h"
+#include <string>
+#include <vector>
 
+#include "../../common/WPropertyHelper.h"
 #include "../shaders/WGEShaderPropertyDefineOptions.h"
 #include "../WGEUtils.h"
-
 #include "WGEPostprocessingNode.h"
 
 WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > reference, size_t width, size_t height, bool noHud ):

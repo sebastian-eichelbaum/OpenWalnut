@@ -22,6 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
+#include <list>
+#include <vector>
+
 #include <boost/lambda/bind.hpp>
 
 #include <osg/Geometry>

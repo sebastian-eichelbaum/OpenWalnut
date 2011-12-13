@@ -22,7 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <iostream>
+#include <list>
+#include <vector>
 
 #include "../kernel/WKernel.h"
 #include "WFiberSelector.h"

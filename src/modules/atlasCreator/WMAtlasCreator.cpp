@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <vector>
 
 // Use filesystem version 2 for compatibility with newer boost versions.
 #ifndef BOOST_FILESYSTEM_VERSION
@@ -35,8 +36,8 @@
 #include <osgDB/ReadFile>
 
 #include "core/kernel/WKernel.h"
-#include "WMAtlasCreator.xpm"
 #include "WMAtlasCreator.h"
+#include "WMAtlasCreator.xpm"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMAtlasCreator )

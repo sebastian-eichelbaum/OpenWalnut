@@ -22,22 +22,21 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
+#include <vector>
 
-#include "QtGui/QMouseEvent"
-#include "QtGui/QPaintEngine"
-#include "QtGui/QGraphicsSceneMouseEvent"
+#include <QtGui/QGraphicsSceneMouseEvent>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QPaintEngine>
 
 #include "core/common/WTransferFunction.h"
-
-#include "WTransferFunctionPoint.h"
-#include "WTransferFunctionColorPoint.h"
 #include "WTransferFunctionBackground.h"
+#include "WTransferFunctionColorPoint.h"
 #include "WTransferFunctionHistogram.h"
 #include "WTransferFunctionLine.h"
+#include "WTransferFunctionPoint.h"
 #include "WTransferFunctionScene.h"
-
 #include "WTransferFunctionWidget.h"
 #include "WTransferFunctionWidget.moc"
 
@@ -328,9 +327,13 @@ void WTransferFunctionWidget::keyPressEvent( QKeyEvent *event )
 
                 WTransferFunctionPoint *next = 0;
                 if( current->getLeft() && current->getLeft()->getLeft( ) )
+                {
                     next = current->getLeft();
+                }
                 else if( current->getRight() && current->getRight()->getRight() )
+                {
                     next = current->getRight();
+                }
 
                 current->getLeft()->setRight( current->getRight() );
                 current->getRight()->setLeft( current->getLeft() );
@@ -345,9 +348,13 @@ void WTransferFunctionWidget::keyPressEvent( QKeyEvent *event )
             {
                 WTransferFunctionColorPoint *next = 0;
                 if( ccurrent->getLeft() && ccurrent->getLeft()->getLeft( ) )
+                {
                     next = ccurrent->getLeft();
+                }
                 else if( ccurrent->getRight() && ccurrent->getRight()->getRight() )
+                {
                     next = ccurrent->getRight();
+                }
 
                 ccurrent->getLeft()->setRight( ccurrent->getRight() );
                 ccurrent->getRight()->setLeft( ccurrent->getLeft() );

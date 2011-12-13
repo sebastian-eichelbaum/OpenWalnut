@@ -3313,8 +3313,9 @@ def ProcessFile(filename, vlevel, extra_check_functions=[]):
 
   # When reading from stdin, the extension is unknown, so no cpplint tests
   # should rely on the extension.
+  # math: Modified to also accept glsl files
   if (filename != '-' and file_extension != 'cc' and file_extension != 'h'
-      and file_extension != 'cpp'):
+      and file_extension != 'cpp' and file_extension != 'glsl' ):
     sys.stderr.write('Ignoring %s; not a .cc or .h file\n' % filename)
   else:
     ProcessFileData(filename, file_extension, lines, Error,
@@ -3326,7 +3327,8 @@ def ProcessFile(filename, vlevel, extra_check_functions=[]):
             'One or more unexpected \\r (^M) found;'
             'better to use only a \\n')
 
-  sys.stderr.write('Done processing %s\n' % filename)
+  # math: Disabled, clutters output
+  # sys.stderr.write('Done processing %s\n' % filename)
 
 
 def PrintUsage(message):

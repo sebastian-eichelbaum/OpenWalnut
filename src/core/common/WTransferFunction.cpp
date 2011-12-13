@@ -22,12 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
-#include <algorithm>
+#include <vector>
 
 #include "WAssert.h"
-
 #include "WTransferFunction.h"
 
 bool WTransferFunction::operator==( const WTransferFunction &rhs ) const

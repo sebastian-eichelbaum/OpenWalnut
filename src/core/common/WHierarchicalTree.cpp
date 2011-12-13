@@ -22,6 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
+#include <list>
+#include <vector>
+
 #include "WHierarchicalTree.h"
 
 WHierarchicalTree::WHierarchicalTree() :
@@ -126,9 +129,9 @@ std::vector< size_t > WHierarchicalTree::downXLevelsFromTop( size_t level, bool 
         level = m_maxLevel -1;
     }
 
-    std::vector<size_t>returnVector;
+    std::vector< size_t > returnVector;
 
-    std::list<size_t>worklist;
+    std::list< size_t > worklist;
     worklist.push_back( m_clusterCount - 1 );
 
     for( size_t i = 0; i < level; ++i )

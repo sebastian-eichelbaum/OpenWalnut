@@ -22,9 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
+#include <cmath>
 #include <string>
 #include <utility>
-#include <cmath>
 
 #include <osg/Geode>
 #include <osg/Group>
@@ -37,18 +38,18 @@
 #include "core/common/WColor.h"
 #include "core/common/WPropertyHelper.h"
 #include "core/dataHandler/WDataSetScalar.h"
-#include "core/graphicsEngine/WGEColormapping.h"
-#include "core/graphicsEngine/WGEGeodeUtils.h"
-#include "core/graphicsEngine/WGEManagedGroupNode.h"
-#include "core/graphicsEngine/WGEUtils.h"
 #include "core/graphicsEngine/shaders/WGEShader.h"
 #include "core/graphicsEngine/shaders/WGEShaderDefine.h"
 #include "core/graphicsEngine/shaders/WGEShaderDefineOptions.h"
-#include "core/graphicsEngine/WGETextureUtils.h"
+#include "core/graphicsEngine/WGEColormapping.h"
+#include "core/graphicsEngine/WGEGeodeUtils.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
 #include "core/graphicsEngine/WGERequirement.h"
+#include "core/graphicsEngine/WGETextureUtils.h"
+#include "core/graphicsEngine/WGEUtils.h"
 #include "core/kernel/WKernel.h"
-#include "WMDirectVolumeRendering.xpm"
 #include "WMDirectVolumeRendering.h"
+#include "WMDirectVolumeRendering.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMDirectVolumeRendering )

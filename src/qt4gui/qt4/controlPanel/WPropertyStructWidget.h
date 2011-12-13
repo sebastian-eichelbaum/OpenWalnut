@@ -26,13 +26,13 @@
 #define WPROPERTYSTRUCTWIDGET_H
 
 #include <string>
+#include <vector>
 
-#include <QtGui/QCheckBox>
 #include <QtGui/QAction>
+#include <QtGui/QCheckBox>
 #include <QtGui/QHBoxLayout>
 
-#include <core/common/WPropertyGroupBase.h>
-
+#include "core/common/WPropertyGroupBase.h"
 #include "WPropertyWidget.h"
 
 /**

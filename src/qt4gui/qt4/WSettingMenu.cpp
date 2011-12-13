@@ -22,11 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include <QtGui/QMessageBox>
 
-#include "WQt4Gui.h"
 #include "WMainWindow.h"
-
+#include "WQt4Gui.h"
 #include "WSettingMenu.h"
 #include "WSettingMenu.moc"
 

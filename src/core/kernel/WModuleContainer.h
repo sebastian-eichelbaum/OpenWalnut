@@ -26,18 +26,18 @@
 #define WMODULECONTAINER_H
 
 #include <list>
-#include <set>
 #include <map>
-#include <vector>
+#include <set>
 #include <string>
+#include <utility>
+#include <vector>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/thread.hpp>
-#include <boost/signals2/signal.hpp>
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/signals2/signal.hpp>
+#include <boost/thread.hpp>
 
 #include "../common/WSharedObject.h"
-
 #include "WModuleCombinerTypes.h"
 #include "WModuleConnectorSignals.h"
 #include "WModuleSignals.h"

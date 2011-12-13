@@ -22,14 +22,14 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#include <algorithm>
 #include <sstream>
+#include <string>
 
 #include <boost/algorithm/string.hpp>
 
-#include "WTerminalColor.h"
-
 #include "WLogEntry.h"
+#include "WTerminalColor.h"
 
 LogLevel logLevelFromString( const std::string& str )
 {

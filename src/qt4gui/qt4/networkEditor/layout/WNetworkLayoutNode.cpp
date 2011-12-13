@@ -22,8 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WNetworkLayoutGlobals.h"
+#include <list>
 
+#include "WNetworkLayoutGlobals.h"
 #include "WNetworkLayoutNode.h"
 
 WNetworkLayoutNode::WNetworkLayoutNode( WQtNetworkItem *item )
