@@ -261,7 +261,6 @@ void WMFiberDisplaySimple::moduleMain()
     osg::ref_ptr< WGEPostprocessingNode > postNode = new WGEPostprocessingNode(
         WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera()
     );
-    postNode->setEnabled( false );  // do not use it by default
     postNode->addUpdateCallback( new WGENodeMaskCallback( m_active ) ); // disable the postNode with m_active
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( postNode );
     // provide the properties of the post-processor to the user

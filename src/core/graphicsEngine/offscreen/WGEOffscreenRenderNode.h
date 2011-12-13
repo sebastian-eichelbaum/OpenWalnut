@@ -69,9 +69,13 @@ public:
      * viewport, clear-mask and clear-color get used. The default texture resolution is 2048x2048 which is more than full-HD resolution. So it
      * should be enough.
      *
+     * \note The width and hight define the offscreen texture size. The viewport if each rendering is automatically set to the one of the
+     * reference camera. This means, width and height only define the maximal supported resolution without upscaling of your offscreen renderer.
+     *
      * \param reference camera used as reference
-     * \param width the width of the textures used in this rendering. The real used space is determined by the reference camera.
-     * \param height the height of the textures used in this rendering. The real used space is determined by the reference camera.
+     * \param width the width of the textures used in this rendering. Must be in [8,4096] and a power of two.
+     * \param height the height of the textures used in this rendering. Must be in [8,4096] and a power of two.
+     *
      * \param noHud If true, no hud gets displayed showing the created and used textures.
      */
     WGEOffscreenRenderNode( osg::ref_ptr< osg::Camera > reference, size_t width = 2048, size_t height = 2048, bool noHud = false );

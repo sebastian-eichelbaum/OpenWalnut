@@ -42,6 +42,8 @@
 #include "../WGEGroupNode.h"
 #include "../WExportWGE.h"
 
+#include "WGEPostprocessor.h"
+
 /**
  * This class enables you to add arbitrary nodes that get post-processed in screen space. The only thing you need to take care of is your shader.
  * You need some special parts in it. Please see the all-in-one super-shader-example module WMShaderExample in modules/template.
@@ -63,12 +65,15 @@ public:
     typedef osg::ref_ptr< const WGEPostprocessingNode > ConstRefPtr;
 
     /**
-     * Create a new post-processing node. It used the WGEOffscreenRenderNode to setup an offscreen, shader-based post-processing for rendered
+     * Create a new post-processing node. It uses the WGEOffscreenRenderNode to setup an offscreen, shader-based post-processing for rendered
      * images. This is not limited to geometry but can also be used for ray-traced images.
      *
+     * \note The width and hight define the offscreen texture size. The viewport if each rendering is automatically set to the one of the
+     * reference camera. This means, width and height only define the maximal supported resolution without upscaling of your postprocessor.
+     *
      * \param reference camera used as reference
-     * \param width the width of the textures used in this rendering
-     * \param height the height of the textures used in this rendering*
+     * \param width the width of the textures used in this rendering. Must be in [8,4096] and a power of two.
+     * \param height the height of the textures used in this rendering. Must be in [8,4096] and a power of two.
      * \param noHud If true, no hud gets displayed showing the created and used textures.
      */
     WGEPostprocessingNode( osg::ref_ptr< osg::Camera > reference, size_t width = 2048, size_t height = 2048, bool noHud = false );
@@ -114,13 +119,6 @@ public:
      */
     void clear();
 
-    /**
-     * Activates/Deactivates the post-processing. This is a shortcut for getProperties()->getProperty( "Enable" )->toPropBool()->set( enable ).
-     *
-     * \param enable if true, post-processing is active-
-     */
-    void setEnabled( bool enable = true );
-
 protected:
 private:
     /**
@@ -142,29 +140,9 @@ private:
     NodeShaderAssociation m_nodeShaderAssociation;
 
     /**
-     * The actual offscreen render node.
-     */
-    osg::ref_ptr< WGEOffscreenRenderNode > m_offscreen;
-
-    /**
      * The group of child nodes to post-process.
      */
     osg::ref_ptr< WGEGroupNode > m_childs;
-
-    /**
-     * The first pass, rendering.
-     */
-    osg::ref_ptr< WGEOffscreenRenderPass > m_render;
-
-    /**
-     * The actual post-processing.
-     */
-    osg::ref_ptr< WGEOffscreenFinalPass > m_postprocess;
-
-    /**
-     * This shader actually does post-processing in screen space.
-     */
-    WGEShader::RefPtr m_postProcessShader;
 
     /**
      * All the properties of the post-processor.
@@ -177,24 +155,19 @@ private:
     WPropBool m_active;
 
     /**
-     * If true, a HUD with intermediate textures is shown.
-     */
-    WPropBool m_showHUD;
-
-    /**
      * The property containing the currently active method or a combination.
      */
-    WPropSelection m_activePostprocessors;
+    WPropSelection m_activePostprocessor;
 
     /**
-     * Possible post-processors.
+     * The postprocessors.
      */
-    boost::shared_ptr< WItemSelection > m_possiblePostprocessors;
+    WGEPostprocessor::ProcessorList m_postprocs;
 
     /**
-     * Some text denoting that this is not yet completely done.
+     * Callback for changes in m_activePostprocessor.
      */
-    WPropString m_infoText;
+    void postprocessorSelected();
 };
 
 #endif  // WGEPOSTPROCESSINGNODE_H
