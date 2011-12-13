@@ -26,27 +26,24 @@
 
 #include <QtGui/QApplication>
 
-#include <core/common/WLogger.h>
-
 #include "../events/WEventTypes.h"
 #include "../events/WPropertyChangedEvent.h"
-
+#include "core/common/WLogger.h"
 #include "WPropertyBoolWidget.h"
-#include "WPropertyIntWidget.h"
-#include "WPropertyStringWidget.h"
-#include "WPropertyDoubleWidget.h"
 #include "WPropertyColorWidget.h"
+#include "WPropertyDoubleWidget.h"
 #include "WPropertyFilenameWidget.h"
-#include "WPropertyTriggerWidget.h"
-#include "WPropertySelectionWidget.h"
-#include "WPropertyPositionWidget.h"
+#include "WPropertyIntWidget.h"
 #include "WPropertyMatrix4X4Widget.h"
-#include "WPropertyTransferFunctionWidget.h"
+#include "WPropertyPositionWidget.h"
+#include "WPropertySelectionWidget.h"
+#include "WPropertyStringWidget.h"
 #include "WPropertyStructWidget.h"
-#include "WQtPropertyGroupWidget.h"
-
+#include "WPropertyTransferFunctionWidget.h"
+#include "WPropertyTriggerWidget.h"
 #include "WPropertyWidget.h"
 #include "WPropertyWidget.moc"
+#include "WQtPropertyGroupWidget.h"
 
 WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, QGridLayout* propertyGrid, QWidget* parent ):
     QStackedWidget( parent ),

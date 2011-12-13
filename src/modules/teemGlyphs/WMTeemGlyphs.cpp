@@ -29,7 +29,7 @@
 #include <osg/LightModel>
 #include <osg/Geometry>
 
-#include <teem/elf.h>
+#include <teem/elf.h> // NOLINT false positive C system header
 
 #include "core/common/WAssert.h"
 #include "core/common/WConditionOneShot.h"
