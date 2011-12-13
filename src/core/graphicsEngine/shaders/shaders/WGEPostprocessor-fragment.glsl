@@ -1,3 +1,4 @@
+
 //---------------------------------------------------------------------------
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
@@ -39,21 +40,37 @@
  * The texture Unit for the original color field
  */
 uniform sampler2D u_texture0Sampler;
+#define u_colorSampler u_texture0Sampler
 
 /**
  * The texture Unit for the Normal Map
  */
 uniform sampler2D u_texture1Sampler;
+#define u_normalSampler u_texture1Sampler
+
+/**
+ * The additional parameters from the source
+ */
+uniform sampler2D u_texture2Sampler;
+#define u_parameterSampler u_texture2Sampler
 
 /**
  * The depth texture
  */
-uniform sampler2D u_texture2Sampler;
+uniform sampler2D u_texture3Sampler;
+#define u_depthSampler u_texture3Sampler
 
 /**
  * The white-noise 3 channel texture: sampler
  */
-uniform sampler2D u_texture3Sampler;
+uniform sampler2D u_texture4Sampler;
+#define u_noiseSampler u_texture4Sampler
+
+/**
+ * The tangent data
+ */
+uniform sampler2D u_texture5Sampler;
+#define u_tangentSampler u_texture5Sampler
 
 /**
  * The white-noise 3 channel texture: size in x direction
@@ -130,7 +147,7 @@ const vec2 zeroOneList = vec2( 1.0, 0.0 );
  */
 vec4 getColor( in vec2 where )
 {
-    return texture2D( u_texture0Sampler, where );
+    return texture2D( u_colorSampler, where );
 }
 
 /**
@@ -154,7 +171,7 @@ vec4 getColor()
  */
 vec4 getNormal( in vec2 where )
 {
-    return normalize( texture2DUnscaled( u_texture1Sampler, where, -1.0, 2.0 ).xyz ).xyzz * zeroOneList.xxxy + zeroOneList.yyyx;
+    return normalize( texture2DUnscaled( u_normalSampler, where, -1.0, 2.0 ).xyz ).xyzz * zeroOneList.xxxy + zeroOneList.yyyx;
 }
 
 /**
@@ -170,6 +187,30 @@ vec4 getNormal()
 }
 
 /**
+ * Grabs the normal at the specified point. The returned normal has been de-scaled to [-1,1] and normalized The w component is 1.
+ *
+ * \param where the pixel to grab
+ *
+ * \return the normal
+ */
+vec4 getTangent( in vec2 where )
+{
+    return normalize( texture2DUnscaled( u_tangentSampler, where, -1.0, 2.0 ).xyz ).xyzz * zeroOneList.xxxy + zeroOneList.yyyx;
+}
+
+/**
+ * Grabs the normal at the current pixel. The returned normal has been de-scaled to [-1,1]. The w component is 1.
+ *
+ * \note GLSL does not officially allow default values for function arguments which is why we need this additional function.
+ *
+ * \return the normal
+ */
+vec4 getTangent()
+{
+    return getNormal( pixelCoord );
+}
+
+/**
  * Grabs the depth at the specified point.
  *
  * \param where the position where to grab it.
@@ -178,7 +219,7 @@ vec4 getNormal()
  */
 float getDepth( in vec2 where )
 {
-    return texture2D( u_texture2Sampler, where ).r;
+    return texture2D( u_depthSampler, where ).r;
 }
 
 /**
@@ -191,6 +232,29 @@ float getDepth( in vec2 where )
 float getDepth()
 {
     return getDepth( pixelCoord );
+}
+
+/**
+ * Returns the zoom factor for the current pixel if set by the output shader of the geometry getting post-processed here.
+ *
+ * \param where the pixel to grab
+ *
+ * \return the zoom factor
+ */
+float getZoom( in vec2 where )
+{
+    // TODO(ebaum): somehow remove this scaler
+    return texture2D( u_parameterSampler, pixelCoord ).r * 10.0;
+}
+
+/**
+ * Returns the zoom factor for the current pixel if set by the output shader of the geometry getting post-processed here.
+ *
+ * \return the zoom factor
+ */
+float getZoom()
+{
+    return getZoom( pixelCoord );
 }
 
 /**
@@ -244,23 +308,25 @@ void blendAdd( in float f )
  * Phong based Per-Pixel-Lighting.
  *
  * \param normal the surface normal. Normalized.
+ * \param lightParams the ligh parameters
  *
  * \return the intensity.
  */
-float getPPLPhong( vec3 normal )
+float getPPLPhong( in wge_LightIntensityParameter lightParams, in vec3 normal )
 {
-    // TODO(ebaum): provide properties/uniforms for the scaling factors here
-    return blinnPhongIlluminationIntensity(
-        0.2 ,               // material ambient
-        0.75,               // material diffuse
-        0.5,               // material specular
-        100.0,                               // shinines
-        1.0,               // light diffuse
-        0.3,               // light ambient
-        normal,                              // normal
-        vec4( 0.0, 0.0, 1.0, 1.0 ).xyz,      // view direction  // in world space, this always is the view-dir
-        gl_LightSource[0].position.xyz       // light source position
-    );
+    return blinnPhongIlluminationIntensity( lightParams, normal );
+}
+
+/**
+ * Phong based Per-Pixel-Lighting.
+ *
+ * \param normal the surface normal. Normalized.
+ *
+ * \return the intensity.
+ */
+float getPPLPhong( in vec3 normal )
+{
+    return blinnPhongIlluminationIntensity( normal );
 }
 
 /**
@@ -271,6 +337,18 @@ float getPPLPhong( vec3 normal )
 float getPPLPhong()
 {
     return getPPLPhong( getNormal().xyz );
+}
+
+/**
+ * Phong based Per-Pixel-Lighting based on the specified color.
+ *
+ * \param lightParams the ligh parameters
+ *
+ * \return the intensity.
+ */
+float getPPLPhong( in wge_LightIntensityParameter lightParams )
+{
+    return getPPLPhong( lightParams, getNormal().xyz );
 }
 
 /**
@@ -435,7 +513,7 @@ float getDepthFading( vec2 where )
 {
     // TODO(ebaum): add uniforms for this limits
     float invD = ( 1.0 - getDepth( where ) );
-    return smoothstep( 0.20, 0.5, invD );
+    return smoothstep( 0.2, 0.5, invD );
 }
 
 /**
@@ -502,7 +580,7 @@ void main()
 #endif
 
 #ifdef WGE_POSTPROCESSOR_NORMAL
-    blend( getNormal() );
+    blend( abs( getNormal() ) );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_CUSTOM
