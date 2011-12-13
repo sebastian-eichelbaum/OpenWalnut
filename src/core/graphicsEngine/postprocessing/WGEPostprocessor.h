@@ -39,6 +39,8 @@
 #include "../offscreen/WGEOffscreenRenderPass.h"
 #include "../offscreen/WGEOffscreenFinalPass.h"
 
+#include "../shaders/WGEShaderPropertyDefineOptions.h"
+
 #include "../../common/WProperties.h"
 #include "../../common/WPrototyped.h"
 
@@ -205,6 +207,11 @@ protected:
      * A flag denoting whether the effect should be combined with color or not.
      */
     WPropBool m_effectOnly;
+
+    /**
+     * For convenience, this is a shader preprocessor controlled by m_effectOnly property.
+     */
+    WGEShaderPreprocessor::SPtr m_effectOnlyPreprocessor;
 private:
 
     /**

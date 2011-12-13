@@ -39,22 +39,24 @@ WGEPostprocessorEdgeEnhance::WGEPostprocessorEdgeEnhance( osg::ref_ptr< WGEOffsc
     WGEPostprocessor( offscreen, gbuffer, "Edge Enhance",
                       "Edge detection filter to emphasize edges in complex geometry." )
 {
-    // construct pipeline
+    // we also provide a property
+    WPropBool whiteEdge = m_properties->addProperty( "White Edge", "If set, the edge is drawn in white instead of black.", false );
 
     // Use the standard postprocessor uber-shader
     WGEShader::RefPtr s = new WGEShader( "WGEPostprocessor" );
     s->setDefine( "WGE_POSTPROCESSOR_EDGE" );
 
     // also add the m_effectOnly property as shader preprocessor
+    s->addPreprocessor( m_effectOnlyPreprocessor );
     s->addPreprocessor( WGEShaderPreprocessor::SPtr(
-        new WGEShaderPropertyDefineOptions< WPropBool >( m_effectOnly, "COMBINE_COLOR_WITH_EFFECT", "EFFECT_ONLY" ) )
+        new WGEShaderPropertyDefineOptions< WPropBool >( whiteEdge, "WGE_POSTPROCESSOR_EDGE_BLACKEDGE", "WGE_POSTPROCESSOR_EDGE_WHITEEDGE" ) )
     );
 
     // create the rendering pass
     osg::ref_ptr< WGEOffscreenTexturePass > pass = offscreen->addTextureProcessingPass( s, "Edge Detection" );
 
     // attach color0 output
-    m_resultTexture = pass->attach( osg::Camera::COLOR_BUFFER0, GL_RGBA );
+    m_resultTexture = pass->attach( osg::Camera::COLOR_BUFFER0, GL_RGB );
 
     // provide the Gbuffer input
     gbuffer.bind( pass );

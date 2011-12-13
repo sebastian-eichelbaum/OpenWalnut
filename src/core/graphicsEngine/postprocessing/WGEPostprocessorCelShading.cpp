@@ -24,7 +24,6 @@
 
 #include <osg/Camera>
 
-#include "../shaders/WGEShaderPropertyDefineOptions.h"
 #include "../shaders/WGEPropertyUniform.h"
 
 #include "WGEPostprocessorCelShading.h"
@@ -45,6 +44,9 @@ WGEPostprocessorCelShading::WGEPostprocessorCelShading( osg::ref_ptr< WGEOffscre
     bins->setMin( 1 );
     bins->setMax( 100 );
 
+    // hide m_effectOnly since this is not useful for Cel Shading
+    m_effectOnly->setHidden( true );
+
     // construct pipeline
 
     // Use the standard postprocessor uber-shader
@@ -52,9 +54,7 @@ WGEPostprocessorCelShading::WGEPostprocessorCelShading( osg::ref_ptr< WGEOffscre
     s->setDefine( "WGE_POSTPROCESSOR_CEL" );
 
     // also add the m_effectOnly property as shader preprocessor
-    s->addPreprocessor( WGEShaderPreprocessor::SPtr(
-        new WGEShaderPropertyDefineOptions< WPropBool >( m_effectOnly, "COMBINE_COLOR_WITH_EFFECT", "EFFECT_ONLY" ) )
-    );
+    s->addPreprocessor( m_effectOnlyPreprocessor );
 
     // create the rendering pass
     osg::ref_ptr< WGEOffscreenTexturePass > pass = offscreen->addTextureProcessingPass( s, "Cel Shading" );

@@ -46,7 +46,12 @@ WGEPostprocessor::WGEPostprocessor( osg::ref_ptr< WGEOffscreenRenderNode > /* of
     m_description( description )
 {
     // there is always one property:
-    m_effectOnly = m_properties->addProperty( "Effect only", "If active, the plain effect will be shown instead a combination of effect and color", false );
+    m_effectOnly = m_properties->addProperty( "Effect only", "If active, the plain effect will be shown instead a combination of effect "
+                                                             "and color. This settings does not affect all postprocessors.", false );
+
+    // for convenience, also create a preprocessor for this property
+    m_effectOnlyPreprocessor = WGEShaderPreprocessor::SPtr( new WGEShaderPropertyDefineOptions< WPropBool >( m_effectOnly,
+        "WGE_POSTPROCESSOR_OUTPUT_COMBINE", "WGE_POSTPROCESSOR_OUTPUT_EFFECT_ONLY" ) );
 }
 
 WGEPostprocessor::~WGEPostprocessor()

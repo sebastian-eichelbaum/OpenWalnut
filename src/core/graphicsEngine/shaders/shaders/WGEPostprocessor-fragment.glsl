@@ -59,53 +59,6 @@ uniform int u_celShadingBins = 2;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Phong based Per-Pixel-Lighting.
- *
- * \param normal the surface normal. Normalized.
- * \param lightParams the ligh parameters
- *
- * \return the intensity.
- */
-float getPPLPhong( in wge_LightIntensityParameter lightParams, in vec3 normal )
-{
-    return blinnPhongIlluminationIntensity( lightParams, normal );
-}
-
-/**
- * Phong based Per-Pixel-Lighting.
- *
- * \param normal the surface normal. Normalized.
- *
- * \return the intensity.
- */
-float getPPLPhong( in vec3 normal )
-{
-    return blinnPhongIlluminationIntensity( normal );
-}
-
-/**
- * Phong based Per-Pixel-Lighting based on the specified color.
- *
- * \return the new lighten color.
- */
-float getPPLPhong()
-{
-    return getPPLPhong( getNormal().xyz );
-}
-
-/**
- * Phong based Per-Pixel-Lighting based on the specified color.
- *
- * \param lightParams the ligh parameters
- *
- * \return the intensity.
- */
-float getPPLPhong( in wge_LightIntensityParameter lightParams )
-{
-    return getPPLPhong( lightParams, getNormal().xyz );
-}
-
-/**
  * Apply laplace-filter to depth buffer. An edge is > 0.0.
  *
  * \return the edge
@@ -191,7 +144,28 @@ void main()
 
 #ifdef WGE_POSTPROCESSOR_EDGE
     // output the depth and final color.
-    gl_FragColor = vec4( vec3( 1.0 - getEdge() ), 1.0 );
+    #ifdef WGE_POSTPROCESSOR_OUTPUT_COMBINE
+
+        // for black borders, multiply edge with color
+        #ifdef WGE_POSTPROCESSOR_EDGE_BLACKEDGE
+            #define EDGEOP * ( 1.0 - getEdge() )
+        #else
+            // for white borders, add
+            #define EDGEOP + vec3( getEdge() )
+        #endif
+
+        // apply operation and output color
+        gl_FragColor = vec4( getColor().rgb EDGEOP, 1.0 );
+    #else
+        // also do this for the effect-only output
+        #ifdef WGE_POSTPROCESSOR_EDGE_BLACKEDGE
+            #define EDGEOP 1.0 -
+        #else
+            // for white borders, add
+            #define EDGEOP 0.0 +
+        #endif
+        gl_FragColor = vec4( vec3( EDGEOP getEdge() ), 1.0 );
+    #endif
 #endif
 
 #ifdef WGE_POSTPROCESSOR_CEL
