@@ -30,13 +30,18 @@
 /**
  * The distance to the plane
  */
-varying float dist;
+varying float v_dist;
 #endif
 
 /**
  * The surface normal. Needed for nice lighting.
  */
 varying vec3 v_normal;
+
+/**
+ * The line tangent.
+ */
+varying vec3 v_tangent;
 
 /**
  * The normal parameterizing the surface in orthogonal tangent direction.
@@ -58,6 +63,11 @@ varying float v_diameter;
  * borders.
  */
 varying float v_surfaceParam;
+
+/**
+ * The scaling component of the modelview matrix.
+ */
+varying float v_worldScale;
 
 #ifdef CLUSTER_FILTER_ENABLED
 /**

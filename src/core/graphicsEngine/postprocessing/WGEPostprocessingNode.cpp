@@ -45,11 +45,14 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > refere
 
     // link them together with the corresponding textures
     osg::ref_ptr< osg::Texture2D > renderColorTexture = m_render->attach( osg::Camera::COLOR_BUFFER0 );
-    osg::ref_ptr< osg::Texture2D > renderNormalTexture = m_render->attach( osg::Camera::COLOR_BUFFER1 );
+    osg::ref_ptr< osg::Texture2D > renderNormalTexture = m_render->attach( osg::Camera::COLOR_BUFFER1, GL_RGB );
+    osg::ref_ptr< osg::Texture2D > renderParameterTexture = m_render->attach( osg::Camera::COLOR_BUFFER2, GL_LUMINANCE );
+    osg::ref_ptr< osg::Texture2D > renderTangentTexture = m_render->attach( osg::Camera::COLOR_BUFFER3, GL_RGB );
     osg::ref_ptr< osg::Texture2D > renderDepthTexture = m_render->attach( osg::Camera::DEPTH_BUFFER );
     m_postprocess->bind( renderColorTexture, 0 );
     m_postprocess->bind( renderNormalTexture, 1 );
-    m_postprocess->bind( renderDepthTexture, 2 );
+    m_postprocess->bind( renderParameterTexture, 2 );
+    m_postprocess->bind( renderDepthTexture, 3 );
 
     // add the offscreen renderer and the original node to the switch
     addChild( m_childs );
@@ -100,6 +103,12 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > refere
     m_offscreen->getTextureHUD()->addUpdateCallback( new WGENodeMaskCallback( m_showHUD ) );
     // let the activePostprocessors property control the options in the shader:
     m_postProcessShader->addPreprocessor( activePostprocessorsOpts );
+
+    // some of the post-processors need some white noise, like the ssao
+    const size_t size = 64;
+    osg::ref_ptr< WGETexture2D > randTex = wge::genWhiteNoiseTexture( size, size, 3 );
+    m_postprocess->bind( randTex, 4 );
+    m_postprocess->bind( renderTangentTexture, 5 );
 }
 
 WGEPostprocessingNode::~WGEPostprocessingNode()

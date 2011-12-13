@@ -142,9 +142,14 @@ private:
     WProperties::SPtr m_fibProps;
 
     /**
-     * The shader used for clipping of fibers using an arbitrary plane.
+     * The shader used for actually drawing the fake tubes or lines.
      */
     osg::ref_ptr< WGEShader > m_shader;
+
+    /**
+     * The shader used for drawing end cap sprites if in tube mode.
+     */
+    osg::ref_ptr< WGEShader > m_endCapShader;
 
     /**
      * Illumination.
@@ -197,6 +202,11 @@ private:
     WPropBool m_tubeEnable;
 
     /**
+     * Property denoting whether to use end-caps on tubes
+     */
+    WPropBool m_tubeEndCapsEnable;
+
+    /**
      * Prop denoting whether tubes can be zoomed or not.
      */
     WPropBool m_tubeZoomable;
@@ -218,6 +228,21 @@ private:
     WPropGroup m_tubeGroup;
 
     /**
+     * Group containing line specific properties
+     */
+    WPropGroup m_lineGroup;
+
+    /**
+     * Line width.
+     */
+    WPropDouble m_lineWidth;
+
+    /**
+     * Line smoothing.
+     */
+    WPropBool m_lineSmooth;
+
+    /**
      * Update the transform node to provide an cue were the plane actually is.
      *
      * \param node the transform node
@@ -232,18 +257,26 @@ private:
     osg::ref_ptr< osg::Node > createClipPlane() const;
 
     /**
-     * Creates a geode containing the fiber geometry.
+     * Creates a geode containing the fiber geometry
      *
-     * \param fibers the fiber dataset to render
-     *
-     * \return the geode
+     * \param fibers the fiber data
+     * \param fibGeode the geode with the fibers as tube strip or lines
+     * \param endCapGeode the end cap sprites. Not used if not in tube mode.
      */
-    osg::ref_ptr< osg::Node > createFiberGeode( WDataSetFibers::SPtr fibers );
+    void createFiberGeode( boost::shared_ptr< WDataSetFibers > fibers, osg::ref_ptr< osg::Geode > fibGeode,
+                                                                                         osg::ref_ptr< osg::Geode > endCapGeode );
 
     /**
      * The plane node.
      */
     osg::ref_ptr< osg::Node > m_plane;
+
+    /**
+     * Callback for the line geode to allow interactive modification of line smooth and width states.
+     *
+     * \param state the state
+     */
+    void lineGeodeStateCallback( osg::StateSet* state );
 };
 
 #endif  // WMFIBERDISPLAYSIMPLE_H
