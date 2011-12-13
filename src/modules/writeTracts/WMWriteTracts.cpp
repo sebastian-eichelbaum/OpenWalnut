@@ -126,7 +126,7 @@ void WMWriteTracts::moduleMain()
 
         if( m_run->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            switch ( m_fileTypeSelection->get( true ).getItemIndexOfSelected( 0 ) )
+            switch( m_fileTypeSelection->get( true ).getItemIndexOfSelected( 0 ) )
             {
                 case 0:
                     {

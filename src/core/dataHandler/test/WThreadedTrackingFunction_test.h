@@ -188,7 +188,6 @@ public:
     }
 
 private:
-
     /**
      * A simple direction calculation function.
      *

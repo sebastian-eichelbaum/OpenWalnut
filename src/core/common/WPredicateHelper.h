@@ -93,7 +93,6 @@ namespace WPredicateHelper
         };
 
     private:
-
         /**
          * The string to check against.
          */
@@ -132,7 +131,6 @@ namespace WPredicateHelper
         };
 
     private:
-
         /**
          * The string to check against.
          */
@@ -218,7 +216,6 @@ namespace WPredicateHelper
         };
 
     private:
-
         /**
          * The predicate to use for checking
          */

@@ -50,7 +50,6 @@ class OWCOMMON_EXPORT WPropertyGroup: public WPropertyGroupBase
 {
 friend class WPropertiesTest;
 public:
-
     // the following typedefs are for convenience.
     typedef boost::shared_ptr< WPropertyGroup > SPtr; //!< shared pointer to object of this type
     typedef boost::shared_ptr< const WPropertyGroup > ConstSPtr; //!< const shared pointer to object of this type
@@ -888,7 +887,6 @@ public:
                                 WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
 protected:
-
 private:
 };
 

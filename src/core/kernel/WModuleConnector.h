@@ -53,7 +53,6 @@ friend class WModuleConnectorTest;
 friend class WModuleProjectFileCombiner;
 
 public:
-
     /**
      * Shared pointer to this class.
      */
@@ -223,7 +222,6 @@ public:
     virtual bool isOutputConnector() const = 0;
 
 protected:
-
     /**
      * List of connectors connected to this connector.
      */
@@ -298,7 +296,6 @@ protected:
     t_GenericSignalType signal_ConnectionClosed;
 
 private:
-
     /**
      * The connections name.
      */

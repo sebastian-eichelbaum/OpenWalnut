@@ -52,7 +52,6 @@ public:
     virtual ~WDHNoSuchDataSet() throw();
 
 protected:
-
 private:
 };
 

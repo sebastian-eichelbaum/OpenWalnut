@@ -32,18 +32,18 @@
 
 bool WTransferFunction::operator==( const WTransferFunction &rhs ) const
 {
-    if ( histogram.size() != rhs.histogram.size() )
+    if( histogram.size() != rhs.histogram.size() )
     {
         return false;
     }
     {
         std::vector< double >::const_iterator ait1 = histogram.begin();
         std::vector< double >::const_iterator ait2 = rhs.histogram.begin();
-        for ( ;
+        for( ;
                 ait1 != histogram.end();
                 ++ait1, ++ait2 )
         {
-            if ( *ait1 != *ait2 )
+            if( *ait1 != *ait2 )
             {
                 return false;
             }
@@ -51,23 +51,23 @@ bool WTransferFunction::operator==( const WTransferFunction &rhs ) const
     }
 
 
-    if ( colors.size() != rhs.colors.size() || alphas.size() != rhs.alphas.size() )
+    if( colors.size() != rhs.colors.size() || alphas.size() != rhs.alphas.size() )
     {
         return false;
     }
 
-    if ( isomin != rhs.isomin && isomax != rhs.isomax )
+    if( isomin != rhs.isomin && isomax != rhs.isomax )
     {
         return false;
     }
 
     std::vector< ColorEntry >::const_iterator it1 = colors.begin();
     std::vector< ColorEntry >::const_iterator it2 = rhs.colors.begin();
-    for ( ;
+    for( ;
             it1 != colors.end();
             ++it1, ++it2 )
     {
-        if ( !( *it1 == *it2 ) )
+        if( !( *it1 == *it2 ) )
         {
             return false;
         }
@@ -75,11 +75,11 @@ bool WTransferFunction::operator==( const WTransferFunction &rhs ) const
 
     std::vector< AlphaEntry >::const_iterator ait1 = alphas.begin();
     std::vector< AlphaEntry >::const_iterator ait2 = rhs.alphas.begin();
-    for ( ;
+    for( ;
             ait1 != alphas.end();
             ++ait1, ++ait2 )
     {
-        if ( !( *ait1 == *ait2 ) )
+        if( !( *ait1 == *ait2 ) )
         {
             return false;
         }
@@ -114,8 +114,8 @@ namespace
 
 void WTransferFunction::sample1DTransferFunction( unsigned char*array, int width, double min, double max ) const
 {
-    if ( colors.size() < 1 ) return;
-    if ( alphas.size() < 1 ) return;
+    if( colors.size() < 1 ) return;
+    if( alphas.size() < 1 ) return;
 
     std::vector< ColorEntry >::const_iterator c1 = colors.begin();
     std::vector< ColorEntry >::const_iterator c2 = c1+1;
@@ -123,24 +123,24 @@ void WTransferFunction::sample1DTransferFunction( unsigned char*array, int width
     std::vector< AlphaEntry >::const_iterator a1 = alphas.begin();
     std::vector< AlphaEntry >::const_iterator a2 = a1+1;
 
-    for ( int i = 0; i < width; ++i )
+    for( int i = 0; i < width; ++i )
     {
         WColor color;
         double iso = ( double )i/( double )width * ( max-min ) + min;
 
-        if ( iso <= isomin )
+        if( iso <= isomin )
         {
             color = colors.begin()->color;
             color[ 3 ] = alphas.begin()->alpha;
         }
-        else if ( iso >= isomax )
+        else if( iso >= isomax )
         {
             color = colors.back().color;
             color[ 3 ] = alphas.back().alpha;
         }
         else
         {
-            while ( c2 != colors.end() && iso > c2->iso )
+            while( c2 != colors.end() && iso > c2->iso )
             {
                 WAssert( c2 != colors.end(), "Corruption of internal data structure." );
                 c1++;
@@ -148,7 +148,7 @@ void WTransferFunction::sample1DTransferFunction( unsigned char*array, int width
                 WAssert( c1 != colors.end(), "Corruption of internal data structure." );
             }
 
-            while ( a2 != alphas.end() && iso > a2->iso )
+            while( a2 != alphas.end() && iso > a2->iso )
             {
                 WAssert( a2 != alphas.end(), "Corruption of internal data structure." );
                 a1++;
@@ -156,7 +156,7 @@ void WTransferFunction::sample1DTransferFunction( unsigned char*array, int width
                 WAssert( a1 != alphas.end(), "Corruption of internal data structure." );
             }
 
-            if ( c2 == colors.end() )
+            if( c2 == colors.end() )
             {
                 color = c1->color;
             }
@@ -165,7 +165,7 @@ void WTransferFunction::sample1DTransferFunction( unsigned char*array, int width
                 double colorParameter = ( iso - c1->iso )/( c2->iso - c1->iso );
                 color = blend( c1->color, 1.-colorParameter, c2->color, colorParameter );
             }
-            if ( a2 == alphas.end() )
+            if( a2 == alphas.end() )
             {
                 color[ 3 ] = a1->alpha;
             }
@@ -175,7 +175,7 @@ void WTransferFunction::sample1DTransferFunction( unsigned char*array, int width
                 color[ 3 ] = ablend( a1->alpha, 1.-alphaParameter, a2->alpha, alphaParameter );
             }
         }
-        for ( int j = 0; j < 4; ++j )
+        for( int j = 0; j < 4; ++j )
         {
             array[ 4*i + j ] = color[ j ]*255.;
         }
@@ -185,7 +185,7 @@ void WTransferFunction::sample1DTransferFunction( unsigned char*array, int width
 
 void WTransferFunction::addColor( double iso, const WColor& color )
 {
-    if ( colors.size() == 0 )
+    if( colors.size() == 0 )
     {
         colors.push_back( ColorEntry( iso, color ) );
     }
@@ -195,7 +195,7 @@ void WTransferFunction::addColor( double iso, const WColor& color )
         colors.insert( e, ColorEntry( iso, color ) );
     }
 
-    if ( alphas.size() >= 1 )
+    if( alphas.size() >= 1 )
     {
         isomin = std::min( colors.front().iso, alphas.front().iso );
         isomax = std::max( colors.back().iso, alphas.back().iso );
@@ -209,7 +209,7 @@ void WTransferFunction::addColor( double iso, const WColor& color )
 
 void WTransferFunction::addAlpha( double iso, double alpha )
 {
-    if ( alphas.size() == 0 )
+    if( alphas.size() == 0 )
     {
         alphas.push_back( AlphaEntry( iso, alpha ) );
     }
@@ -219,7 +219,7 @@ void WTransferFunction::addAlpha( double iso, double alpha )
         alphas.insert( e, AlphaEntry( iso, alpha ) );
     }
 
-    if ( colors.size() >= 1 )
+    if( colors.size() >= 1 )
     {
         isomin = std::min( colors.front().iso, alphas.front().iso );
         isomax = std::max( colors.back().iso, alphas.back().iso );
@@ -244,7 +244,7 @@ WTransferFunction WTransferFunction::createFromRGBA( unsigned char const * const
     std::vector < float > values( size );
 
     // copy channel
-    for ( size_t i = 0; i < size; ++i )
+    for( size_t i = 0; i < size; ++i )
     {
         values[ i ] =  static_cast<double>( rgba[ i*4+3 ] );
     }
@@ -256,15 +256,15 @@ WTransferFunction WTransferFunction::createFromRGBA( unsigned char const * const
     std::vector < float > errors( size );
 
     size_t seed = 0;
-    while ( seed < size-1 )
+    while( seed < size-1 )
     {
         // start at first pixel and fit a line to the data
         size_t to = seed+1;
-        while ( to < size )
+        while( to < size )
         {
             double error = 0.0;
             double incline =  ( values[ to ] - values[ seed ] )/( to-seed );
-            for ( size_t j = seed+1; j < to; ++j )
+            for( size_t j = seed+1; j < to; ++j )
             {
                 error +=  std::sqrt( std::pow( values[ j ] - values[ seed ] - incline * ( j-seed ), 2 ) );
             }
@@ -273,19 +273,19 @@ WTransferFunction WTransferFunction::createFromRGBA( unsigned char const * const
         }
         size_t minElement = size-1;
         double minerror = errors[ minElement ];
-        for ( to = size-1; to > seed; --to )
+        for( to = size-1; to > seed; --to )
         {
-            if ( errors[ to ] <  minerror )
+            if( errors[ to ] <  minerror )
             {
                 minElement = to;
                 minerror = errors[ to ];
-                if ( minerror < MIN_ERROR_THRESHOLD )
+                if( minerror < MIN_ERROR_THRESHOLD )
                 {
                     break;
                 }
             }
         }
-        if ( minElement < size-1 )
+        if( minElement < size-1 )
         {
             rgbatf.addAlpha( ( double )minElement/( double )( size-1 ), values[ minElement ]/255. );
         }
@@ -301,18 +301,18 @@ WTransferFunction WTransferFunction::createFromRGBA( unsigned char const * const
     // first try of code: use combined RGB errors
 
     seed = 0;
-    while ( seed < size-1 )
+    while( seed < size-1 )
     {
         // start at first pixel and fit a line to the data
         size_t to = seed+1;
-        while ( to < size )
+        while( to < size )
         {
             double error = 0.0;
             double inclineR =  ( rgba[ to*4+0 ] - rgba[ seed*4+0 ] )/( to-seed );
             double inclineG =  ( rgba[ to*4+1 ] - rgba[ seed*4+1 ] )/( to-seed );
             double inclineB =  ( rgba[ to*4+2 ] - rgba[ seed*4+2 ] )/( to-seed );
 
-            for ( size_t j = seed; j < to; ++j )
+            for( size_t j = seed; j < to; ++j )
             {
                 error +=  std::sqrt(
                         std::pow( rgba[ 4*j+0 ] - rgba[ 4*seed+0 ] - inclineR * ( j-seed ), 2 ) +
@@ -327,19 +327,19 @@ WTransferFunction WTransferFunction::createFromRGBA( unsigned char const * const
         size_t minElement = size-1;
         double minerror = errors[ size-1 ];
         // traverse from back
-        for ( to = size-2; to > seed; --to )
+        for( to = size-2; to > seed; --to )
         {
-            if ( errors[ to ] <  minerror )
+            if( errors[ to ] <  minerror )
             {
                 minElement = to;
                 minerror = errors[ to ];
             }
-            if ( minerror < MIN_ERROR_THRESHOLD*2.0 ) //! the threshold here is larger than for alpha, becuase we compare all colors at once
+            if( minerror < MIN_ERROR_THRESHOLD*2.0 ) //! the threshold here is larger than for alpha, becuase we compare all colors at once
             {
                 break;
             }
         }
-        if ( minElement < size-1 )
+        if( minElement < size-1 )
         {
             rgbatf.addColor( ( double )minElement/( double )( size-1 ),
                 WColor( rgba[ minElement*4+0 ]/255.f, rgba[ minElement*4+1 ]/255.f, rgba[ minElement*4+2 ]/255.f, 0.f ) );
@@ -354,19 +354,19 @@ WTransferFunction WTransferFunction::createFromRGBA( unsigned char const * const
 std::ostream& operator << ( std::ostream& out, const WTransferFunction& tf )
 {
     size_t numColors = tf.numColors();
-    for ( size_t i = 0; i < numColors; ++i )
+    for( size_t i = 0; i < numColors; ++i )
     {
         double iso = tf.getColorIsovalue( i );
         WColor c = tf.getColor( i );
         out << "c:" << iso << ":" << c[ 0 ] << ":" << c[ 1 ] << ":" << c[ 2 ] << ";";
     }
     size_t numAlphas = tf.numAlphas();
-    for ( size_t i = 0; i < numAlphas; ++i )
+    for( size_t i = 0; i < numAlphas; ++i )
     {
         double iso = tf.getAlphaIsovalue( i );
         double alpha = tf.getAlpha( i );
         out << "a:" << iso << ":" << alpha;
-        if ( i != numAlphas-1 )
+        if( i != numAlphas-1 )
         {
             out << ";";
         }

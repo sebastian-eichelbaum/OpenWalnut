@@ -88,7 +88,7 @@ std::string WLogEntry::getLogString( std::string format, bool colors ) const
 
     boost::ireplace_first( s, "%t", m_timeColor + m_time + !m_timeColor );
 
-    switch ( m_level )
+    switch( m_level )
     {
         case LL_DEBUG:
             boost::ireplace_first( s, "%l", m_debugColor + "DEBUG  " + !m_debugColor );

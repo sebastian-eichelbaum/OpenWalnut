@@ -46,7 +46,6 @@
 class WGENoOpManipulator: public osgGA::MatrixManipulator
 {
 public:
-
     /**
      * Convenience typedef for a boost::shared_ptr< WGENoOpManipulator >.
      */
@@ -128,7 +127,6 @@ public:
     virtual bool handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us );
 
 protected:
-
 private:
 };
 

@@ -93,7 +93,7 @@ osg::ref_ptr< osg::Texture2D > WGEOffscreenRenderPass::attach( BufferComponent b
     else
     {
 #if defined(__APPLE__)
-        if ( internalFormat != GL_RGBA )
+        if( internalFormat != GL_RGBA )
         {
             wlog::warn( "WGEOffscreenRenderPass::attach:" ) <<
                 "Changing internal format to GL_RGBA because the original format is not supported on Mac OSX.";
@@ -159,7 +159,7 @@ void WGEOffscreenRenderPass::addUniform( osg::ref_ptr< osg::Uniform > uniform )
 
 std::string WGEOffscreenRenderPass::getBufferName( BufferComponent buffer )
 {
-    switch ( buffer )
+    switch( buffer )
     {
         case DEPTH_BUFFER:
             return "Depth";

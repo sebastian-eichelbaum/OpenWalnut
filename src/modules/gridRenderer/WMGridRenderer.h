@@ -105,7 +105,6 @@ protected:
     virtual void properties();
 
 private:
-
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
 
     WItemSelection::SPtr m_possibleModes; //!< the modes available.

@@ -38,7 +38,6 @@
 class OWCOMMON_EXPORT WSignalSubscriptionFailed: public WException
 {
 public:
-
     /**
      * Default constructor.
      * \param msg the exception message.
@@ -51,7 +50,6 @@ public:
     virtual ~WSignalSubscriptionFailed() throw();
 
 protected:
-
 private:
 };
 

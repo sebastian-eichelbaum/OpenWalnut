@@ -37,7 +37,6 @@
 class OWCOMMON_EXPORT WPrototyped // NOLINT
 {
 public:
-
     /**
      * Default constructor. Creates a instance of the class. This not necessarily mean that the instance is fully usable. This is
      * required for type checking and inheritance checking.

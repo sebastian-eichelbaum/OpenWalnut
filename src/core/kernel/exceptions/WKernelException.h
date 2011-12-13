@@ -38,7 +38,6 @@
 class OWKERNEL_EXPORT WKernelException: public WException
 {
 public:
-
     /**
      * Default constructor.
      * \param msg the exception message.
@@ -51,7 +50,6 @@ public:
     virtual ~WKernelException() throw();
 
 protected:
-
 private:
 };
 

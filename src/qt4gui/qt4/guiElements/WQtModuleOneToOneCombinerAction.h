@@ -44,7 +44,6 @@ class WQtModuleOneToOneCombinerAction : public QAction
     Q_OBJECT
 
 public:
-
     /**
      * Constructor creating a module application action.
      *
@@ -62,7 +61,6 @@ public:
     virtual ~WQtModuleOneToOneCombinerAction();
 
 protected:
-
     /**
      * The combiner of this action
      */

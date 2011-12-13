@@ -35,7 +35,6 @@
 class OWCOMMON_EXPORT WTimer      // NOLINT - no OWCOMMON_EXPORT does not need an virtual destructor.
 {
 public:
-
     /**
      * Convenience typedef for a shared_ptr
      */

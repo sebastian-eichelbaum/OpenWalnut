@@ -370,7 +370,7 @@ boost::shared_ptr< WModuleConnector > WModule::getConnector( std::string name )
 
 boost::signals2::connection WModule::subscribeSignal( MODULE_SIGNAL signal, t_ModuleGenericSignalHandlerType notifier )
 {
-    switch ( signal )
+    switch( signal )
     {
         case WM_READY:
             return signal_ready.connect( notifier );
@@ -384,7 +384,7 @@ boost::signals2::connection WModule::subscribeSignal( MODULE_SIGNAL signal, t_Mo
 
 boost::signals2::connection WModule::subscribeSignal( MODULE_SIGNAL signal, t_ModuleErrorSignalHandlerType notifier )
 {
-    switch (signal)
+    switch( signal)
     {
         case WM_ERROR:
             return signal_error.connect( notifier );
@@ -398,7 +398,7 @@ boost::signals2::connection WModule::subscribeSignal( MODULE_SIGNAL signal, t_Mo
 
 const t_GenericSignalHandlerType WModule::getSignalHandler( MODULE_CONNECTOR_SIGNAL signal )
 {
-    switch ( signal )
+    switch( signal )
     {
         case CONNECTION_ESTABLISHED:
             return boost::bind( &WModule::notifyConnectionEstablished, this, _1, _2 );

@@ -113,7 +113,6 @@ protected:
     virtual void properties();
 
 private:
-
     /**
      * Prepares and commits everything for rendering with the OSG
      */

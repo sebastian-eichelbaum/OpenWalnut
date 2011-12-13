@@ -47,7 +47,6 @@
 class InstanceCounter
 {
 public:
-
     /**
      * Constructor.
      */
@@ -80,7 +79,6 @@ public:
     }
 
 private:
-
     //! No copy construction.
     InstanceCounter( InstanceCounter& /* count */ );
 
@@ -110,7 +108,6 @@ private:
 class WMHistogramView : public WModule
 {
 public:
-
     /**
      * Constuctor.
      */
@@ -149,7 +146,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -171,7 +167,6 @@ protected:
     virtual void requirements();
 
 private:
-
     /**
      * \class WindowHandler
      *
@@ -180,7 +175,6 @@ private:
     class WindowHandler : public osgGA::GUIEventHandler
     {
     public:
-
         /**
          * Constructor.
          *
@@ -200,7 +194,7 @@ private:
          */
         bool handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& /* aa */ )
         {
-            switch ( ea.getEventType() )
+            switch( ea.getEventType() )
             {
             case osgGA::GUIEventAdapter::RESIZE:
                 {
@@ -222,7 +216,6 @@ private:
             return false;
         }
     private:
-
         //! The WMHistogram to handle events for.
         WMHistogramView* const m_module;
     };

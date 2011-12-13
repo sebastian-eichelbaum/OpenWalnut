@@ -134,7 +134,7 @@ WGEViewer::getView()
 
 void WGEViewer::setCameraManipulator( osg::ref_ptr<osgGA::MatrixManipulator> manipulator )
 {
-    if ( !m_inAnimationMode )
+    if( !m_inAnimationMode )
     {
         m_View->setCameraManipulator( manipulator );
     }
@@ -260,7 +260,7 @@ std::string WGEViewer::QueryCallback::getVendor() const
 
 WGEAnimationManipulator::RefPtr WGEViewer::animationMode( bool on )
 {
-    if ( m_inAnimationMode && !on ) // turn off mode
+    if( m_inAnimationMode && !on ) // turn off mode
     {
         m_inAnimationMode = false;
 
@@ -268,7 +268,7 @@ WGEAnimationManipulator::RefPtr WGEViewer::animationMode( bool on )
         m_View->setCameraManipulator( m_animationModeManipulatorBackup );
         return NULL;
     }
-    else if ( !m_inAnimationMode && on ) // turn on
+    else if( !m_inAnimationMode && on ) // turn on
     {
         m_inAnimationMode = true;
 
@@ -280,7 +280,7 @@ WGEAnimationManipulator::RefPtr WGEViewer::animationMode( bool on )
         m_View->setCameraManipulator( anim );
         return anim;
     }
-    else if ( m_inAnimationMode ) // already on
+    else if( m_inAnimationMode ) // already on
     {
         return dynamic_cast< WGEAnimationManipulator* >( getCameraManipulator().get() );
     }

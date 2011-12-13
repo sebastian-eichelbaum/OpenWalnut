@@ -365,7 +365,7 @@ void WMClusterDisplayVoxels::moduleMain()
             m_propMinBranchSize->setHidden( true );
             m_propSelectedLoadedPartion->setHidden( true );
 
-            switch ( m_clusterSelection->get( true ).getItemIndexOfSelected( 0 ) )
+            switch( m_clusterSelection->get( true ).getItemIndexOfSelected( 0 ) )
             {
                 case 0:
                     m_propSelectedCluster->setHidden( false );
@@ -401,7 +401,7 @@ void WMClusterDisplayVoxels::moduleMain()
         if( m_buttonExecuteSelection->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
             m_buttonExecuteSelection->set( WPVBaseTypes::PV_TRIGGER_READY, false );
-            switch ( m_clusterSelection->get( true ).getItemIndexOfSelected( 0 ) )
+            switch( m_clusterSelection->get( true ).getItemIndexOfSelected( 0 ) )
             {
                 case 0:
                     m_currentDisplayMode = CDV_SINGLE;
@@ -489,7 +489,7 @@ void WMClusterDisplayVoxels::moduleMain()
 
 void WMClusterDisplayVoxels::updateAll()
 {
-    switch ( m_currentDisplayMode )
+    switch( m_currentDisplayMode )
     {
         case CDV_SINGLE:
             m_activatedClusters.clear();

@@ -36,7 +36,6 @@
 class WMarchingCubesAlgorithmTest : public CxxTest::TestSuite
 {
 public:
-
     /**
      * Test interpolate on edge
      */

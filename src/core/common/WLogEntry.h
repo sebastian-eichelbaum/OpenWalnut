@@ -56,7 +56,6 @@ LogLevel logLevelFromString( const std::string& str );
 class OWCOMMON_EXPORT WLogEntry // NOLINT
 {
 public:
-
     /**
      * Creates a new log message.
      *

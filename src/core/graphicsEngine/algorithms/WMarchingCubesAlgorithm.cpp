@@ -48,7 +48,7 @@ WPointXYZId WMarchingCubesAlgorithm::interpolate( double fX1, double fY1, double
 
 int WMarchingCubesAlgorithm::getEdgeID( unsigned int nX, unsigned int nY, unsigned int nZ, unsigned int nEdgeNo )
 {
-    switch ( nEdgeNo )
+    switch( nEdgeNo )
     {
         case 0:
             return 3 * getVertexID( nX, nY, nZ ) + 1;

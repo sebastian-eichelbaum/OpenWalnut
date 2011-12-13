@@ -38,7 +38,6 @@
 class OWKERNEL_EXPORT WModuleDisconnectFailed: public WModuleException
 {
 public:
-
     /**
      * Default constructor.
      * \param msg the exception message.
@@ -51,7 +50,6 @@ public:
     virtual ~WModuleDisconnectFailed() throw();
 
 protected:
-
 private:
 };
 

@@ -34,7 +34,6 @@
 class WUpdateTextureSorterEvent: public QEvent
 {
 public:
-
     /**
      * Creates a new event instance denoting that the specified module got associated in the root container.
      */

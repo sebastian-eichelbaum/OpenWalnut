@@ -59,7 +59,6 @@ public:
     virtual std::string process( const std::string& file, const std::string& code ) const;
 
 protected:
-
 private:
 };
 

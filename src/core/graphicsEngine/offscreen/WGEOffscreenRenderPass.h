@@ -172,7 +172,6 @@ public:
      */
     virtual void addUniform( osg::ref_ptr< osg::Uniform > uniform );
 protected:
-
     /**
      * The width of the textures used for this pass. This should be as large as needed for each "common" viewport."
      */

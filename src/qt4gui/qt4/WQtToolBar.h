@@ -64,7 +64,6 @@ public:
     void clearButtons();
 
 protected:
-
     /**
      * The list of widgets in this toolbar.
      */

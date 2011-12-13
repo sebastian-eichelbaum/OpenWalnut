@@ -88,7 +88,7 @@ void WTransferFunctionPoint::paint( QPainter *painter, const QStyleOptionGraphic
 {
     QRadialGradient gradient( 0.0, 0.0, radius );
 
-    if ( option->state & QStyle::State_Sunken )
+    if( option->state & QStyle::State_Sunken )
     {
         gradient.setColorAt( 0, QColor( Qt::yellow ).light( 120 ) );
         gradient.setColorAt( 1, QColor( Qt::darkYellow ).light( 120 ) );
@@ -109,32 +109,32 @@ void WTransferFunctionPoint::paint( QPainter *painter, const QStyleOptionGraphic
 
 QVariant WTransferFunctionPoint::itemChange( GraphicsItemChange change, const QVariant &value )
 {
-    if ( !scene() )
+    if( !scene() )
     {
         return value; //< we are still initializing things, no changes at this point
     }
 
-    if ( _parent )
+    if( _parent )
     {
         _parent->dataChanged();
     }
 
-    if ( !left && !right )
+    if( !left && !right )
     {
         return BaseClass::itemChange(  change, value );
     }
-    if ( ( change == ItemPositionHasChanged || change == ItemPositionChange ) && scene() )
+    if( ( change == ItemPositionHasChanged || change == ItemPositionChange ) && scene() )
     {
         QPointF newPos = value.toPointF();
 
         QRectF boundingBox( this->scene()->sceneRect() );
 
-        if ( !left )
+        if( !left )
         {
             newPos = ( QPointF( 0, newPos.y() ) );
         }
 
-        if ( !right )
+        if( !right )
         {
             newPos = ( QPointF( boundingBox.x() + boundingBox.width(), newPos.y() ) );
         }
@@ -155,23 +155,23 @@ void WTransferFunctionPoint::mousePressEvent( QGraphicsSceneMouseEvent *event )
 {
     //this->update();
     BaseClass::mousePressEvent( event );
-    if ( _parent )
+    if( _parent )
         _parent->setCurrent( this );
 }
 
 void WTransferFunctionPoint::clampToLeftAndRight( QPointF* const pos ) const
 {
     Q_ASSERT( pos );
-    if ( left )
+    if( left )
     {
-        if ( pos->x() <= left->pos().x() )
+        if( pos->x() <= left->pos().x() )
         {
             ( *pos ) = QPointF( left->pos().x() + 1, pos->y() );
         }
     }
-    if ( right )
+    if( right )
     {
-        if ( pos->x() >= right->pos().x() )
+        if( pos->x() >= right->pos().x() )
         {
             ( *pos ) = QPointF( right->pos().x() - 1, pos->y() );
         }

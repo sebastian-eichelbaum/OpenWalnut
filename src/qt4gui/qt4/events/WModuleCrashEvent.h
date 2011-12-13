@@ -40,7 +40,6 @@
 class WModuleCrashEvent: public QEvent
 {
 public:
-
     /**
      * Creates a new event instance denoting that the specified module got associated in the root container.
      *
@@ -69,7 +68,6 @@ public:
     std::string getMessage();
 
 protected:
-
     /**
      * The module that got associated.
      */

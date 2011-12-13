@@ -43,7 +43,6 @@ template< typename T >
 class WModuleOutputForwardData: public WModuleOutputData< T >
 {
 public:
-
     /**
      * Constructor. This creates a new output data connector which is able to forward data changes <b>FROM</b> other output data connectors.
      *
@@ -90,7 +89,6 @@ public:
     }
 
 protected:
-
     /**
      * The output connector which collects data and distributes it to all connectors connected using the forwardTo() method.
      */

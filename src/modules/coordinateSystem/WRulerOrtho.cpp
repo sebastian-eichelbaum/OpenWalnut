@@ -58,7 +58,7 @@ void WRulerOrtho::create()
     osg::ref_ptr< osg::Geode > rulerGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() );
     osg::ref_ptr< osg::Geometry > geometry;
 
-    switch ( m_scaleMode )
+    switch( m_scaleMode )
     {
         case RULER_ALONG_X_AXIS_SCALE_Y:
             geometry = createXY();
@@ -131,7 +131,7 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createXY()
 
     int startX = static_cast< int > ( m_lb[0] + 0.5 );
 
-    switch ( m_coordConverter->getCoordinateSystemMode() )
+    switch( m_coordConverter->getCoordinateSystemMode() )
     {
         case CS_WORLD:
         case CS_CANONICAL:
@@ -205,7 +205,7 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createXZ()
 
     int startX = static_cast< int > ( m_lb[0] + 0.5 );
 
-    switch ( m_coordConverter->getCoordinateSystemMode() )
+    switch( m_coordConverter->getCoordinateSystemMode() )
     {
         case CS_WORLD:
         case CS_CANONICAL:
@@ -278,7 +278,7 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createYX()
 
     int startY = static_cast< int > ( m_lb[1] + 0.5 );
 
-    switch ( m_coordConverter->getCoordinateSystemMode() )
+    switch( m_coordConverter->getCoordinateSystemMode() )
     {
         case CS_WORLD:
         case CS_CANONICAL:
@@ -353,7 +353,7 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createYZ()
 
     int startY = static_cast< int > ( m_lb[1] + 0.5 );
 
-    switch ( m_coordConverter->getCoordinateSystemMode() )
+    switch( m_coordConverter->getCoordinateSystemMode() )
     {
         case CS_WORLD:
         case CS_CANONICAL:
@@ -428,7 +428,7 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createZX()
 
     int startZ = static_cast< int > ( m_lb[2] + 0.5 );
 
-    switch ( m_coordConverter->getCoordinateSystemMode() )
+    switch( m_coordConverter->getCoordinateSystemMode() )
     {
         case CS_WORLD:
         case CS_CANONICAL:
@@ -503,7 +503,7 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createZY()
 
     int startZ = static_cast< int > ( m_lb[2] + 0.5 );
 
-    switch ( m_coordConverter->getCoordinateSystemMode() )
+    switch( m_coordConverter->getCoordinateSystemMode() )
     {
         case CS_WORLD:
         case CS_CANONICAL:
@@ -573,7 +573,7 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createZY()
 
 std::string WRulerOrtho::numberToString( int number )
 {
-    switch ( m_scaleMode )
+    switch( m_scaleMode )
     {
         case RULER_ALONG_X_AXIS_SCALE_Y:
             return boost::lexical_cast< std::string >( m_coordConverter->numberToCsX( number ) );

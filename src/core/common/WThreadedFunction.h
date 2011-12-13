@@ -68,7 +68,6 @@ class OWCOMMON_EXPORT WThreadedFunctionBase // NOLINT
     typedef boost::signal< void ( WException const& ) > ExceptionSignal;
 
 public:
-
     //! a type for exception callbacks
     typedef boost::function< void ( WException const& ) > ExceptionFunction;
 
@@ -179,7 +178,6 @@ class WThreadedFunction : public WThreadedFunctionBase
     typedef boost::signal< void ( WException const& ) > ExceptionSignal;
 
 public:
-
     //! a type for exception callbacks
     typedef boost::function< void ( WException const& ) > ExceptionFunction;
 

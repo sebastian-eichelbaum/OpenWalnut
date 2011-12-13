@@ -76,7 +76,7 @@ coordinateSystemMode WCoordConverter::getCoordinateSystemMode()
 
 int WCoordConverter::numberToCsX( int number )
 {
-    switch ( m_coordinateSystemMode )
+    switch( m_coordinateSystemMode )
     {
         case CS_WORLD:
             return number;
@@ -98,7 +98,7 @@ int WCoordConverter::numberToCsX( int number )
 
 int WCoordConverter::numberToCsY( int number )
 {
-    switch ( m_coordinateSystemMode )
+    switch( m_coordinateSystemMode )
     {
         case CS_WORLD:
             return number;
@@ -120,7 +120,7 @@ int WCoordConverter::numberToCsY( int number )
 
 int WCoordConverter::numberToCsZ( int number )
 {
-    switch ( m_coordinateSystemMode )
+    switch( m_coordinateSystemMode )
     {
         case CS_WORLD:
             return number;

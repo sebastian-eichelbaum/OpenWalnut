@@ -85,7 +85,6 @@ public:
     virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
 
 protected:
-
     /**
      * The axis to transform along.
      */

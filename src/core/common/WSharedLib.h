@@ -48,7 +48,6 @@
 class OWCOMMON_EXPORT WSharedLib // NOLINT
 {
 public:
-
     /**
      * Constructor. Loads the specified library.
      *
@@ -139,9 +138,7 @@ public:
     static std::string getSystemLibPath();
 
 protected:
-
 private:
-
     //! neutral function pointer type
     typedef void (*func_ptr_type)(void);
 

@@ -82,13 +82,13 @@ namespace PROPERTY_TYPE_HELPER
         tokens = string_utils::tokenize( str, ";" );
         //WAssert( tokens.size() >= 16, "There weren't 16 values for a 4x4 Matrix" );
         size_t idx = 0;
-        while ( idx < tokens.size() )
+        while( idx < tokens.size() )
         {
             std::vector< std::string > innerTokens;
             innerTokens = string_utils::tokenize( tokens[ idx ], ":" );
             // evaluate inner tokens
             {
-                if ( innerTokens[ 0 ] == "c" )
+                if( innerTokens[ 0 ] == "c" )
                 {
                     tf.addColor( boost::lexical_cast< double >( innerTokens[ 1 ].c_str() ), // isovalue
                             WColor( boost::lexical_cast< double >( innerTokens[ 2 ].c_str() ), // red
@@ -96,7 +96,7 @@ namespace PROPERTY_TYPE_HELPER
                                 boost::lexical_cast< double >( innerTokens[ 4 ].c_str() ), // blue
                                 1. ) );  // blue
                 }
-                else if ( innerTokens[ 0 ] == "a" )
+                else if( innerTokens[ 0 ] == "a" )
                 {
                     tf.addAlpha( boost::lexical_cast< double >( innerTokens[ 1 ].c_str() ),
                             boost::lexical_cast< double >( innerTokens[ 2 ].c_str() ) );
@@ -111,19 +111,19 @@ namespace PROPERTY_TYPE_HELPER
     {
         std::ostringstream out;
         size_t numColors = tf.numColors();
-        for ( size_t i = 0; i < numColors; ++i )
+        for( size_t i = 0; i < numColors; ++i )
         {
             double iso = tf.getColorIsovalue( i );
             WColor c = tf.getColor( i );
             out << "c:" << iso << ":" << c[ 0 ] << ":" << c[ 1 ] << ":" << c[ 2 ] << ";";
         }
         size_t numAlphas = tf.numAlphas();
-        for ( size_t i = 0; i < numAlphas; ++i )
+        for( size_t i = 0; i < numAlphas; ++i )
         {
             double iso = tf.getAlphaIsovalue( i );
             double alpha = tf.getAlpha( i );
             out << "a:" << iso << ":" << alpha;
-            if ( i != numAlphas-1 )
+            if( i != numAlphas-1 )
             {
                 out << ";";
             }

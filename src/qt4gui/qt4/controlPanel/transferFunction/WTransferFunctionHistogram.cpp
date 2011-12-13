@@ -52,10 +52,10 @@ QRectF WTransferFunctionHistogram::boundingRect() const
 void WTransferFunctionHistogram::paint( QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget* )
 {
     const int steps = data.size();
-    if ( steps > 0 )
+    if( steps > 0 )
     {
         double maxval = *std::max_element( data.begin(), data.end() );
-        if ( maxval > 0.0 )
+        if( maxval > 0.0 )
         {
             QRadialGradient gradient( 0.0, 0.0, 10 );
             painter->setBrush( gradient );
@@ -69,7 +69,7 @@ void WTransferFunctionHistogram::paint( QPainter *painter, const QStyleOptionGra
             histogram << QPoint( bb.right(), bb.bottom() );
             histogram << QPoint( bb.left(), bb.bottom() );
 
-            for ( int i = 0; i < steps; ++i )
+            for( int i = 0; i < steps; ++i )
             {
                 // logarithmic mapping of histogram to values
                 // the added 1.001 is to avoid numerical problems but should work for most data sets

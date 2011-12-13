@@ -158,7 +158,6 @@ public:
     boost::shared_ptr< WCondition > getListChangeCondition() const;
 
 protected:
-
     /**
      * A container for all WDataSet.
      */
@@ -175,7 +174,6 @@ protected:
     boost::shared_ptr< WConditionSet > m_listChangeCondition;
 
 private:
-
     WPersonalInformation m_personalInfo; //!< Information on the person represented by this WSubject.
 };
 

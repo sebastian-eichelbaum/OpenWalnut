@@ -412,7 +412,7 @@ template< typename T > WPointXYZId WMarchingCubesAlgorithm::calculateIntersectio
     unsigned int v2y = nY;
     unsigned int v2z = nZ;
 
-    switch ( nEdgeNo )
+    switch( nEdgeNo )
     {
         case 0:
             v2y += 1;

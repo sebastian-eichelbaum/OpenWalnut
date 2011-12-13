@@ -96,7 +96,7 @@ void WPropertyTransferFunctionWidget::update()
     WTransferFunction tf( m_transferFunctionProperty->get() );
 
     // check whether the values changed. If they did, propagate to the GUI
-    if ( tf != lastTransferFunction )
+    if( tf != lastTransferFunction )
     {
         m_transferFunction.clearTransferFunction();
         //m_transferFunction.externalDataChange( tf );
@@ -105,7 +105,7 @@ void WPropertyTransferFunctionWidget::update()
         // initialize the widget with the new transfer function
         size_t nbColors = tf.numColors();
         QColor c;
-        for ( size_t i = 0; i< nbColors; ++i )
+        for( size_t i = 0; i< nbColors; ++i )
         {
           WColor cc = tf.getColor( i );
           c = toQColor( cc );
@@ -115,7 +115,7 @@ void WPropertyTransferFunctionWidget::update()
         size_t nbAlphas = tf.numAlphas();
 
         // add first alpha first
-        if ( nbAlphas > 0 )
+        if( nbAlphas > 0 )
         {
             double alpha = tf.getAlpha( 0 );
             double iso = tf.getAlphaIsovalue( 0 );
@@ -123,14 +123,14 @@ void WPropertyTransferFunctionWidget::update()
         }
 
         // add last alpha second to prevent the widget moving mid points to the right
-        if ( nbAlphas > 1 )
+        if( nbAlphas > 1 )
         {
             double alpha = tf.getAlpha( nbAlphas-1 );
             double iso = tf.getAlphaIsovalue( nbAlphas-1 );
             m_transferFunction.insertPointNormalized( QPointF( iso,  alpha ) );
         }
 
-        for ( size_t i = 1; i< nbAlphas-1; ++i )
+        for( size_t i = 1; i< nbAlphas-1; ++i )
         {
           double alpha = tf.getAlpha( i );
           double iso = tf.getAlphaIsovalue( i );
@@ -150,7 +150,7 @@ void WPropertyTransferFunctionWidget::guiUpdate( const WTransferFunction& tf )
     // repainting because of conversion errors between the widget's storage in
     // screen space and WTransferFunction's storage in normalized space
     lastTransferFunction = tf;
-    if ( !modifying )
+    if( !modifying )
     {
         // std::cout << "guiUpdate(...)" << std::endl;
         m_transferFunctionProperty->set( tf );

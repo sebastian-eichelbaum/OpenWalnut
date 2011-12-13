@@ -270,7 +270,7 @@ void WQtGLScreenCapture::handleImage( size_t /* framesLeft */, size_t totalFrame
     ss << totalFrames;
 
     size_t pos;
-    while ( ( pos = filename.find( "%f" ) ) != std::string::npos )
+    while( ( pos = filename.find( "%f" ) ) != std::string::npos )
     {
         filename.replace( pos, 2, ss.str() );
     }
@@ -301,7 +301,7 @@ bool WQtGLScreenCapture::event( QEvent* event )
         m_configFrameLabel->setText( QString::fromStdString( frames.str() ) );
 
         // disable some elements if in recording mode
-        if ( framesLeft == 0 )   // recording done:
+        if( framesLeft == 0 )   // recording done:
         {
             m_screenshotWidget->setDisabled( false );
             m_configWidget->setDisabled( false );
@@ -374,7 +374,7 @@ void WQtGLScreenCapture::recAnim()
 
 void WQtGLScreenCapture::toolBoxChanged( int index )
 {
-    if ( index != 3 )
+    if( index != 3 )
     {
         wlog::debug( "WQtGLScreenCapture" ) << "Deactivating animation mode.";
         m_viewer->animationMode( false );
@@ -387,7 +387,7 @@ void WQtGLScreenCapture::toolBoxChanged( int index )
 
 void WQtGLScreenCapture::resolutionChange( bool force )
 {
-    if ( force )
+    if( force )
     {
         wlog::debug( "WQtGLScreenCapture" ) << "Forcing resolution";
 

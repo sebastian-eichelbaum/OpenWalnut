@@ -42,7 +42,6 @@
 class OWDATAHANDLER_EXPORT WDataSetSphericalHarmonics : public WDataSetSingle // NOLINT
 {
 public:
-
     /**
      * Constructs an instance out of an appropriate value set and a grid.
      *
@@ -138,7 +137,6 @@ public:
     virtual bool isTexture() const;
 
 protected:
-
     /**
      * The prototype as singleton.
      */

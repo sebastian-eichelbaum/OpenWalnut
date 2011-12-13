@@ -44,7 +44,6 @@ class OWCOMMON_EXPORT WException: public std::exception
 friend class WExceptionTest;
 
 public:
-
     /**
      * Default constructor.
      * \param msg Exception description.
@@ -105,7 +104,6 @@ protected:
      */
     static bool noBacktrace;
 private:
-
     /**
      * Color used for the "trace:" label.
      */

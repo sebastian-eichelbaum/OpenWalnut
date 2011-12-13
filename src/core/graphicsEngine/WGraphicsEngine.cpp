@@ -74,7 +74,7 @@ WGraphicsEngine::~WGraphicsEngine()
 void WGraphicsEngine::setMultiThreadedViews( bool enable )
 {
 #ifdef __APPLE__
-    if ( enable )
+    if( enable )
     {
         WLogger::getLogger()->addLogMessage( "WGraphicsEngine::setMultiThreadedViews not implemented for OSX, yet", "GE", LL_INFO );
     }
@@ -236,7 +236,7 @@ void WGraphicsEngine::requestShaderReload()
 
 boost::signals2::connection WGraphicsEngine::subscribeSignal( GE_SIGNAL signal, t_GEGenericSignalHandlerType notifier )
 {
-    switch ( signal )
+    switch( signal )
     {
         case GE_RELOADSHADERS:
             return m_reloadShadersSignal.connect( notifier );

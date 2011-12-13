@@ -834,7 +834,6 @@ public:
     }
 
 private:
-
     /**
      * Set up a matrix used for a lot of tests.
      */

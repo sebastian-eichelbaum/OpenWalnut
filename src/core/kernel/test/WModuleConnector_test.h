@@ -56,7 +56,6 @@ class WTestTransferableBase: public WTransferable
 friend class WModuleConnectorTest;
 
 public:
-
     /**
      * Constructor.
      */
@@ -117,7 +116,6 @@ public:
     }
 
 protected:
-
     /**
      * The data.
      */
@@ -134,7 +132,6 @@ class WTestTransferableDerived: public WTestTransferableBase
 friend class WModuleConnectorTest;
 
 public:
-
     /**
      * Constructor.
      */
@@ -173,7 +170,6 @@ public:
     }
 
 protected:
-
 private:
 };
 
@@ -186,7 +182,6 @@ class WModuleImpl: public WModule
 friend class WModuleConnectorTest;
 
 public:
-
     /**
      * Constructor.
      *
@@ -266,7 +261,6 @@ public:
     }
 
 protected:
-
     /**
      * temporary name string
      */
@@ -331,7 +325,6 @@ protected:
     }
 
 private:
-
     /**
      * The data lastly submitted.
      */
@@ -366,7 +359,6 @@ private:
 class WModuleConnectorTest : public CxxTest::TestSuite
 {
 public:
-
     /**
      * Setup logger and other stuff for each test.
      */

@@ -38,7 +38,6 @@
 class OWCOMMON_EXPORT WSignalUnknown: public WException
 {
 public:
-
     /**
      * Default constructor.
      * \param msg the exception message.
@@ -51,7 +50,6 @@ public:
     virtual ~WSignalUnknown() throw();
 
 protected:
-
 private:
 };
 

@@ -68,8 +68,6 @@ typedef std::vector< std::pair< std::string, std::string > > WEEGChannelLabels;
 class OWDATAHANDLER_EXPORT WEEG : public WRecording // NOLINT
 {
 public:
-
-
     /**
      * Constructs a WEEG object from the give infos.
      * \param data Array of segments
@@ -156,7 +154,6 @@ public:
     static boost::shared_ptr< WPrototyped > getPrototype();
 
 protected:
-
     /**
      * The prototype as singleton.
      */

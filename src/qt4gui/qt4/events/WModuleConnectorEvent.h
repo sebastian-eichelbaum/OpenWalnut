@@ -38,7 +38,6 @@
 class WModuleConnectorEvent: public QEvent
 {
 public:
-
     /**
      * Creates a new event denoting the updated connector of a module.
      *
@@ -67,7 +66,6 @@ public:
     WModule::SPtr getModule() const;
 
 protected:
-
     /**
      * The module.
      */

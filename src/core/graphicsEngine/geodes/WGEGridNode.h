@@ -42,7 +42,6 @@
 class WGE_EXPORT WGEGridNode: public osg::MatrixTransform
 {
 public:
-
     /**
      * Convenience typedef for a osg::ref_ptr< WGEGridNode >.
      */
@@ -150,9 +149,7 @@ public:
     void setGridColor( const WColor& color );
 
 protected:
-
 private:
-
     /**
      * The actual grid which should be represented by this node.
      */

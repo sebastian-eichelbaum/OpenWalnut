@@ -48,7 +48,6 @@
 class OWKERNEL_EXPORT WModuleLoader
 {
 public:
-
     /**
      * Constructor. It does not load any files. Use load to do this.
      *
@@ -75,7 +74,6 @@ public:
     static std::string getModulePrefix();
 
 private:
-
     /**
      * All the loaded shared libraries. Get freed on destruction. So do NOT free this instance while the libs are used.
      */

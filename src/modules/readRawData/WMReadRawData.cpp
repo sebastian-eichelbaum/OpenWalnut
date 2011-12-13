@@ -150,43 +150,43 @@ boost::shared_ptr< WDataSetScalar > WMReadRawData::readData( std::string fileNam
     {
         newValueSet =  boost::shared_ptr< WValueSetBase >( new WValueSet< uint8_t >( 0, 1, readDataTyped< uint8_t >( fileName ), W_DT_UINT8 ) );
     }
-    else if ( dataTypeName == "UINT16")
+    else if( dataTypeName == "UINT16")
     {
         newValueSet =  boost::shared_ptr< WValueSetBase >( new WValueSet< uint16_t >( 0, 1, readDataTyped< uint16_t >( fileName ), W_DT_UINT16 ) );
     }
-    // else if ( dataTypeName == "UINT32")
+    // else if( dataTypeName == "UINT32")
     // {
     //     newValueSet = readDataTyped< uint32_t >( fileName );
     // }
-    // else if ( dataTypeName == "UINT64")
+    // else if( dataTypeName == "UINT64")
     // {
     //     newValueSet = readDataTyped< uint64_t >( fileName );
     // }
-    // else if ( dataTypeName == "INT8" )
+    // else if( dataTypeName == "INT8" )
     // {
     //     newValueSet = readDataTyped< int8_t >( fileName );
     // }
-    // else if ( dataTypeName == "INT16")
+    // else if( dataTypeName == "INT16")
     // {
     //     newValueSet = readDataTyped< int16_t >( fileName );
     // }
-    // else if ( dataTypeName == "INT32")
+    // else if( dataTypeName == "INT32")
     // {
     //     newValueSet = readDataTyped< int32_t >( fileName );
     // }
-    // else if ( dataTypeName == "INT64")
+    // else if( dataTypeName == "INT64")
     // {
     //     newValueSet = readDataTyped< int64_t >( fileName );
     // }
-    // else if ( dataTypeName == "FLOAT" )
+    // else if( dataTypeName == "FLOAT" )
     // {
     //     newValueSet = readDataTyped< float >( fileName );
     // }
-    else if ( dataTypeName == "DOUBLE" )
+    else if( dataTypeName == "DOUBLE" )
     {
         newValueSet =  boost::shared_ptr< WValueSetBase >( new WValueSet< double >( 0, 1, readDataTyped< double >( fileName ), W_DT_DOUBLE ) );
     }
-    else if ( dataTypeName == "FLOAT128" )
+    else if( dataTypeName == "FLOAT128" )
     {
         newValueSet =
             boost::shared_ptr< WValueSetBase >( new WValueSet< long double >( 0, 1, readDataTyped< long double >( fileName ), W_DT_FLOAT128 ) );

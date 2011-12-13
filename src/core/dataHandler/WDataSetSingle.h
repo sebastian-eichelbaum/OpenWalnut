@@ -47,7 +47,6 @@ class WDataTexture3D;
 class OWDATAHANDLER_EXPORT WDataSetSingle : public WDataSet // NOLINT
 {
 public:
-
     /**
      * Convenience typedef for a boost::shared_ptr
      */
@@ -169,7 +168,6 @@ public:
     static boost::shared_ptr< WPrototyped > getPrototype();
 
 protected:
-
     /**
      * The prototype as singleton.
      */
@@ -186,7 +184,6 @@ protected:
     boost::shared_ptr< WValueSetBase > m_valueSet;
 
 private:
-
     /**
      * The 3D texture representing this dataset.
      */

@@ -57,7 +57,6 @@ template<>
 class WSphericalHarmonicsCoefficientsThread< void >
 {
 public:
-
     /**
     * This structure is a collection of parameter and pointer to input and output data needed by each thread.
     */

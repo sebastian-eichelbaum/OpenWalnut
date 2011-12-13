@@ -71,9 +71,7 @@ public:
     virtual ~WGEShaderPropertyDefine();
 
 protected:
-
 private:
-
     /**
      * The associated property.
      */

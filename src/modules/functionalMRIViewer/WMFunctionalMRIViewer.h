@@ -42,7 +42,6 @@
 class WMFunctionalMRIViewer: public WModule
 {
 public:
-
     /**
      * Standard constructor.
      */
@@ -80,7 +79,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -97,7 +95,6 @@ protected:
     virtual void properties();
 
 private:
-
     //! The current input.
     boost::shared_ptr< WDataSetTimeSeries > m_dataSet;
 

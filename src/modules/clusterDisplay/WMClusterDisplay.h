@@ -53,7 +53,6 @@ const unsigned int MASK_3D = 0x0F000000; //!< used for osgWidget stuff
 class WMClusterDisplay: public WModule
 {
 public:
-
     /**
      * constructor
      */
@@ -91,7 +90,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */

@@ -35,7 +35,6 @@
 class OWCOMMON_EXPORT WItemSelectionItem // NOLINT
 {
 public:
-
     /**
      * Constructs a new item with the specified values.
      *
@@ -81,7 +80,6 @@ public:
     bool operator==( const WItemSelectionItem& other ) const;
 
 protected:
-
     /**
      * Item name.
      */

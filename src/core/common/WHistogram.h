@@ -117,7 +117,6 @@ public:
     virtual std::pair< double, double > getIntervalForIndex( size_t index ) const = 0;
 
 protected:
-
     /**
      * The smallest value
      */

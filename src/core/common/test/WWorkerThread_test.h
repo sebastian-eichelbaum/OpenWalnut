@@ -107,7 +107,6 @@ class WWorkerThreadTest : public CxxTest::TestSuite
         }
 
     private:
-
         //! the input data
         boost::shared_ptr< int const > m_input;
 
@@ -134,7 +133,6 @@ class WWorkerThreadTest : public CxxTest::TestSuite
     };
 
 public:
-
     /**
      * Test if calculation with a single thread works.
      */

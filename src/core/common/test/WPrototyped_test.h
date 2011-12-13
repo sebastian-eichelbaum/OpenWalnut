@@ -37,7 +37,6 @@
 class SomePrototypeClass1: public WPrototyped
 {
 public:
-
     /**
      * Gets the name of this prototype.
      *
@@ -66,7 +65,6 @@ public:
 class SomePrototypeClass2: public WPrototyped
 {
 public:
-
     /**
      * Gets the name of this prototype.
      *
@@ -94,7 +92,6 @@ public:
 class WPrototypedTest : public CxxTest::TestSuite
 {
 public:
-
     /**
      * Test the runtime type check
      */

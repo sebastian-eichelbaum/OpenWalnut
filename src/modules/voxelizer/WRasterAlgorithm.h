@@ -89,7 +89,6 @@ public:
     virtual void finished();
 
 protected:
-
     /**
      * All the parameterization algorithms to apply while rasterizing a line.
      */

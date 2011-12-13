@@ -46,7 +46,6 @@
 class OWKERNEL_EXPORT WApplyCombiner: public WModuleOneToOneCombiner
 {
 public:
-
     /**
      * Creates a combiner which sets up the specified modules and prototype combination. Specifying a NULL pointer to the srcModule parameter
      * causes the combiner to only add the target module without any connections. This is especially useful for modules which do not provide any
@@ -137,7 +136,6 @@ public:
     }
 
 protected:
-
 private:
 };
 

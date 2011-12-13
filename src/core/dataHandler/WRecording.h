@@ -40,7 +40,6 @@
 class OWDATAHANDLER_EXPORT WRecording : public WDataSet // NOLINT
 {
 public:
-
     /**
      * Empty standard constructor for recordings
      */
@@ -89,7 +88,6 @@ public:
     static const unsigned int MAX_RECORDING_SAMPLING_FREQUENCY = 20000;
 
 protected:
-
     /**
      * The prototype as singleton.
      */

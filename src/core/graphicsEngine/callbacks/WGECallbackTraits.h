@@ -70,7 +70,6 @@ template <>
 class WGECallbackTraits< osg::Node >
 {
 public:
-
     /**
      * The real callback type. Some specific OSG classes have specific callbacks. Specialize this template in this case.
      */
@@ -101,7 +100,6 @@ template <>
 class WGECallbackTraits< osg::StateAttribute >
 {
 public:
-
     /**
      * The real callback type. Some specific OSG classes have specific callbacks. Specialize this template in this case.
      */
@@ -128,7 +126,6 @@ template <>
 class WGECallbackTraits< osg::StateSet >
 {
 public:
-
     /**
      * The real callback type. Some specific OSG classes have specific callbacks. Specialize this template in this case.
      */
@@ -155,7 +152,6 @@ template <>
 class WGECallbackTraits< osg::Drawable >
 {
 public:
-
     /**
      * The real callback type. Some specific OSG classes have specific callbacks. Specialize this template in this case.
      */

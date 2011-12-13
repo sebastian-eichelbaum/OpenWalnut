@@ -35,7 +35,6 @@
 class WGELayoutableItem
 {
 public:
-
     /**
      * Default constructor.
      */
@@ -54,7 +53,6 @@ public:
     virtual osg::Vec3 getAnchor() const = 0;
 
 protected:
-
 private:
 };
 

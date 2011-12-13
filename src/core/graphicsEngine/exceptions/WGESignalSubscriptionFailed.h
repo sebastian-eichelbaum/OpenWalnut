@@ -37,7 +37,6 @@
 class WGE_EXPORT WGESignalSubscriptionFailed: public WGEException
 {
 public:
-
     /**
      * Default constructor.
      * \param msg the exception message.
@@ -50,7 +49,6 @@ public:
     virtual ~WGESignalSubscriptionFailed() throw();
 
 protected:
-
 private:
 };
 

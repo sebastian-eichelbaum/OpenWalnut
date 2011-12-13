@@ -135,7 +135,7 @@ WColor wge::createColorFromHSV( int h, float s, float v )
     float q = v * ( 1.0 - s * f );
     float t = v * ( 1.0 - s * ( 1.0 - f ) );
 
-    switch ( hi )
+    switch( hi )
     {
         case 0:
             return WColor( v, t, p, 1.0 );

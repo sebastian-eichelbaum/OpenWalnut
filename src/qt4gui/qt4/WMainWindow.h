@@ -162,7 +162,6 @@ public:
     void restoreMainGLWidgetSize();
 
 protected:
-
     /**
      * Setup the GUI by handling special modules. NavSlices for example setup several toolbar buttons.
      *

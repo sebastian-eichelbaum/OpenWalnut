@@ -96,7 +96,6 @@ public:
     WVector3d getEuclidean() const;
 
 protected:
-
 private:
     /** coordinate */
     double m_theta;

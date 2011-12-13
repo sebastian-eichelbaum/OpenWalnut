@@ -213,7 +213,6 @@ public:
     void normalize();
 
 protected:
-
 private:
     /** order of the spherical harmonic */
     size_t m_order;

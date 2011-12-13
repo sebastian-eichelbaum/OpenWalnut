@@ -54,7 +54,6 @@ signals:
     void done();
 
 protected:
-
     /**
      * Converts the given key press event into a line edit action.
      *

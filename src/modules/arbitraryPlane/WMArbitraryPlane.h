@@ -45,7 +45,6 @@
 class WMArbitraryPlane: public WModule
 {
 public:
-
     /**
      * standard constructor
      */
@@ -83,7 +82,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */

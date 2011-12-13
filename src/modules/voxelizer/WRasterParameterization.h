@@ -39,7 +39,6 @@
 class WRasterParameterization
 {
 public:
-
     /**
      * Default constructor. It needs a grid as the parameterization volume HAS to be in the same grid.
      *
@@ -94,7 +93,6 @@ public:
     virtual void finished();
 
 protected:
-
     /**
      * The grid, which needs to be used for the created dataset and to which the parameterizeVoxel method is relating to.
      */

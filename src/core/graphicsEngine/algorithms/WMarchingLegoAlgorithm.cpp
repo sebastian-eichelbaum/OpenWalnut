@@ -45,7 +45,7 @@ void WMarchingLegoAlgorithm::addSurface( size_t x, size_t y, size_t z, size_t su
     pt3.newID = 0;
     pt4.newID = 0;
 
-    switch ( surface )
+    switch( surface )
     {
         case 1:
         {
@@ -308,7 +308,7 @@ boost::shared_ptr<WTriangleMesh> WMarchingLegoAlgorithm::genSurfaceOneValue( siz
     size_t nPointsInSlice = nX * nY;
 
     boost::shared_ptr< WProgress > progress;
-    if ( mainProgress )
+    if( mainProgress )
     {
         progress = boost::shared_ptr< WProgress >( new WProgress( "Marching Legos", m_nCellsZ ) );
         mainProgress->addSubProgress( progress );
@@ -317,7 +317,7 @@ boost::shared_ptr<WTriangleMesh> WMarchingLegoAlgorithm::genSurfaceOneValue( siz
     // Generate isosurface.
     for( size_t z = 0; z < m_nCellsZ; z++ )
     {
-        if ( progress )
+        if( progress )
         {
             ++*progress;
         }
@@ -432,7 +432,7 @@ boost::shared_ptr<WTriangleMesh> WMarchingLegoAlgorithm::genSurfaceOneValue( siz
         vecIterator++;
     }
 
-    if ( progress )
+    if( progress )
     {
         progress->finish();
     }

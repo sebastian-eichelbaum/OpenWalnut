@@ -67,7 +67,6 @@ public:
     QString getName();
 
 private:
-
     QString m_name; //!< name of the push button
 
 public slots:

@@ -119,7 +119,7 @@ void WMReadMesh::moduleMain()
 
         m_readTriggerProp->set( WPVBaseTypes::PV_TRIGGER_READY, false );
 
-        switch ( m_fileTypeSelection->get( true ).getItemIndexOfSelected( 0 ) )
+        switch( m_fileTypeSelection->get( true ).getItemIndexOfSelected( 0 ) )
         {
             case 0:
                 m_triMesh = readMesh();

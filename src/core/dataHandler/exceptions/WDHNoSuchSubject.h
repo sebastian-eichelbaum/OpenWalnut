@@ -52,7 +52,6 @@ public:
     virtual ~WDHNoSuchSubject() throw();
 
 protected:
-
 private:
 };
 

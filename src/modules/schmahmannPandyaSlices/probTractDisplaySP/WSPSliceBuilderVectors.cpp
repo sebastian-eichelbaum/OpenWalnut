@@ -253,7 +253,7 @@ std::pair< unsigned char, unsigned char > WSPSliceBuilderVectors::computeSliceBa
     *a = dir[ *( slices.begin() ) ];
     *b = dir[ *( slices.rbegin() ) ];
 
-    return std::make_pair< unsigned char, unsigned char >( *( slices.begin() ), *( slices.rbegin() ) );
+    return std::make_pair( *( slices.begin() ), *( slices.rbegin() ) );
 }
 
 boost::shared_ptr< std::vector< WVector3d > > WSPSliceBuilderVectors::generateClockwiseDir( std::pair< unsigned char, unsigned char > activeDims,

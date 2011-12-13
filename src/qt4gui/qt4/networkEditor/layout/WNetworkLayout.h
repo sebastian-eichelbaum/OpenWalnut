@@ -82,7 +82,6 @@ class WNetworkLayout
         bool removeItem( WQtNetworkItem *item );
 
     protected:
-
     private:
         /**
          * This function traverses the layout graph and creates the new layout through assigning

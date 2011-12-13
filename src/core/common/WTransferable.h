@@ -37,7 +37,6 @@
 class OWCOMMON_EXPORT WTransferable: public WPrototyped
 {
 public:
-
     /**
      * Default constructor.
      */
@@ -49,7 +48,6 @@ public:
     virtual ~WTransferable();
 
 protected:
-
 private:
 };
 

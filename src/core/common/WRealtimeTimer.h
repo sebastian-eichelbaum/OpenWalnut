@@ -39,7 +39,6 @@
 class OWCOMMON_EXPORT WRealtimeTimer: public WTimer
 {
 public:
-
     /**
      * Convenience typedef for a shared_ptr
      */
@@ -73,7 +72,6 @@ public:
     virtual double elapsed() const;
 
 private:
-
     /**
      * The osg timer is used here.
      */

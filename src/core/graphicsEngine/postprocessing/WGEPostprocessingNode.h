@@ -52,7 +52,6 @@
 class WGE_EXPORT WGEPostprocessingNode: public osg::Switch // NOLINT
 {
 public:
-
     /**
      * Convenience typedef for an osg::ref_ptr
      */
@@ -123,9 +122,7 @@ public:
     void setEnabled( bool enable = true );
 
 protected:
-
 private:
-
     /**
      * This type is used to actually store the association between a node and its associated shader and custom preprocessor.
      */

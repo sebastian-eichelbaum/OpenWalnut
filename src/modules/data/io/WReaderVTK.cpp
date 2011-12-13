@@ -99,7 +99,7 @@ void WReaderVTK::readHeader()
             << boost::lexical_cast< std::string >( m_header.at( 1 ).size() );
     }
     namespace su = string_utils;
-    if ( ( su::toUpper( su::trim( m_header.at( 2 ) ) ) != "BINARY" )
+    if( ( su::toUpper( su::trim( m_header.at( 2 ) ) ) != "BINARY" )
             &&( su::toUpper( su::trim( m_header.at( 2 ) ) ) != "ASCII" ) )
     {
         wlog::error( "WReaderVTK" ) << "VTK files in '" << m_header.at( 2 ) << "' format are not yet supported. Must be BINARY or ASCII";
@@ -165,7 +165,7 @@ void WReaderVTK::readScalars( size_t nbPoints, const std::string& /*name*/ )
 
     std::string line = getLine( "LookupTableOrData" );
     std::vector<std::string> tokens = string_utils::tokenize( line );
-    if ( string_utils::toUpper( tokens.at( 0 ) ) == "LOOKUP_TABLE" )
+    if( string_utils::toUpper( tokens.at( 0 ) ) == "LOOKUP_TABLE" )
     {
         line = getLine( "Data" );
         tokens = string_utils::tokenize( line );
@@ -173,21 +173,21 @@ void WReaderVTK::readScalars( size_t nbPoints, const std::string& /*name*/ )
     }
 
     boost::shared_ptr<std::vector< float > > data( new std::vector< float >( nbPoints ) );
-    if ( this->isAscii )
+    if( this->isAscii )
     {
         wlog::debug( "WReaderVTK" ) << "Reading ASCII";
         size_t point = 0;
-        while ( point < nbPoints )
+        while( point < nbPoints )
         {
-            for ( size_t token = 0; token < tokens.size(); ++token )
+            for( size_t token = 0; token < tokens.size(); ++token )
             {
                 ( *data )[ point++ ] = getLexicalCast< float >( tokens.at( token ), "invalid data point" );
-                if ( point > nbPoints )
+                if( point > nbPoints )
                 {
                     throw WDHException( std::string( "Too many points in file" ) );
                 }
             }
-            if ( point < nbPoints )
+            if( point < nbPoints )
             {
                 line = getLine( "Data Loop" );
                 tokens = string_utils::tokenize( line );
@@ -196,7 +196,7 @@ void WReaderVTK::readScalars( size_t nbPoints, const std::string& /*name*/ )
     }
     else
     {
-        if ( pos != m_ifs->tellg() )
+        if( pos != m_ifs->tellg() )
         {
             m_ifs->seekg( pos, std::ios::beg );
         }
@@ -219,7 +219,7 @@ void WReaderVTK::readVectors( size_t nbPoints, const std::string& /*name*/ )
     // some files even have a lookup-table tag for vector-valued data
     std::string line = getLine( "LookupTableOrData" );
     std::vector< std::string > tokens = string_utils::tokenize( line );
-    if ( string_utils::toUpper( tokens.at( 0 ) ) == "LOOKUP_TABLE" )
+    if( string_utils::toUpper( tokens.at( 0 ) ) == "LOOKUP_TABLE" )
     {
         line = getLine( "Data" );
         tokens = string_utils::tokenize( line );
@@ -231,21 +231,21 @@ void WReaderVTK::readVectors( size_t nbPoints, const std::string& /*name*/ )
     // with 2D vectors and no unique interpretation of the data
     const size_t dimension = 3;
     boost::shared_ptr< std::vector< float > > data( new std::vector< float >( nbPoints * dimension ) );
-    if ( this->isAscii )
+    if( this->isAscii )
     {
         wlog::debug( "WReaderVTK" ) << "Reading ASCII";
         size_t point = 0;
-        while ( point < nbPoints * dimension )
+        while( point < nbPoints * dimension )
         {
-            for ( size_t token = 0; token < tokens.size(); ++token )
+            for( size_t token = 0; token < tokens.size(); ++token )
             {
                 ( *data )[ point++ ] = getLexicalCast< float >( tokens.at( token ), "invalid data point" );
-                if ( point > nbPoints * dimension)
+                if( point > nbPoints * dimension)
                 {
                     throw WDHException( std::string( "Too many points in file" ) );
                 }
             }
-            if ( point < nbPoints * dimension )
+            if( point < nbPoints * dimension )
             {
                 line = getLine( "Data Loop" );
                 tokens = string_utils::tokenize( line );
@@ -254,7 +254,7 @@ void WReaderVTK::readVectors( size_t nbPoints, const std::string& /*name*/ )
     }
     else
     {
-        if ( pos != m_ifs->tellg() )
+        if( pos != m_ifs->tellg() )
         {
             m_ifs->seekg( pos, std::ios::beg );
         }
@@ -277,7 +277,7 @@ void WReaderVTK::readTensors( size_t nbPoints, const std::string& /*name*/ )
     // some files even have a lookup-table tag for vector-valued data
     std::string line = getLine( "LookupTableOrData" );
     std::vector< std::string > tokens = string_utils::tokenize( line );
-    if ( string_utils::toUpper( tokens.at( 0 ) ) == "LOOKUP_TABLE" )
+    if( string_utils::toUpper( tokens.at( 0 ) ) == "LOOKUP_TABLE" )
     {
         line = getLine( "Data" );
         tokens = string_utils::tokenize( line );
@@ -289,21 +289,21 @@ void WReaderVTK::readTensors( size_t nbPoints, const std::string& /*name*/ )
     // with 2D vectors and no unique interpretation of the data
     const size_t dimension = 9;
     boost::shared_ptr< std::vector< float > > data( new std::vector< float >( nbPoints * dimension ) );
-    if ( this->isAscii )
+    if( this->isAscii )
     {
         wlog::debug( "WReaderVTK" ) << "Reading ASCII";
         size_t point = 0;
-        while ( point < nbPoints * dimension )
+        while( point < nbPoints * dimension )
         {
-            for ( size_t token = 0; token < tokens.size(); ++token )
+            for( size_t token = 0; token < tokens.size(); ++token )
             {
                 ( *data )[ point++ ] = getLexicalCast< float >( tokens.at( token ), "invalid data point" );
-                if ( point > nbPoints * dimension)
+                if( point > nbPoints * dimension)
                 {
                     throw WDHException( std::string( "Too many points in file" ) );
                 }
             }
-            if ( point < nbPoints * dimension )
+            if( point < nbPoints * dimension )
             {
                 line = getLine( "Data Loop" );
                 tokens = string_utils::tokenize( line );
@@ -312,7 +312,7 @@ void WReaderVTK::readTensors( size_t nbPoints, const std::string& /*name*/ )
     }
     else
     {
-        if ( pos != m_ifs->tellg() )
+        if( pos != m_ifs->tellg() )
         {
             m_ifs->seekg( pos, std::ios::beg );
         }
@@ -334,7 +334,7 @@ void WReaderVTK::readPointData()
     std::string line = getLine( "POINT_DATA declaration" );
 
     std::vector< std::string > tokens = string_utils::tokenize( line );
-    if ( tokens.size() != 2 || string_utils::toUpper( tokens.at( 0 ) ) != "POINT_DATA" )
+    if( tokens.size() != 2 || string_utils::toUpper( tokens.at( 0 ) ) != "POINT_DATA" )
     {
         throw WDHException( std::string( "Invalid SCALARS tag" ) );
     }
@@ -348,19 +348,19 @@ void WReaderVTK::readPointData()
 
 
     std::string name = "Default";
-    if ( tokens.size() >= 2 )
+    if( tokens.size() >= 2 )
     {
         name = tokens.at( 1 );
     }
-    if ( tokens.size() == 3 && string_utils::toUpper( tokens.at( 0 ) ) == "SCALARS" )
+    if( tokens.size() == 3 && string_utils::toUpper( tokens.at( 0 ) ) == "SCALARS" )
     {
         readScalars( nbPoints, name );
     }
-    else if ( tokens.size() == 3 && string_utils::toUpper( tokens.at( 0 ) ) == "VECTORS" )
+    else if( tokens.size() == 3 && string_utils::toUpper( tokens.at( 0 ) ) == "VECTORS" )
     {
         readVectors( nbPoints, name );
     }
-    else if ( tokens.size() == 3 && string_utils::toUpper( tokens.at( 0 ) ) == "TENSORS" )
+    else if( tokens.size() == 3 && string_utils::toUpper( tokens.at( 0 ) ) == "TENSORS" )
     {
         readTensors( nbPoints, name );
     }

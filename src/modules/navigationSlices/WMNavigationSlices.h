@@ -48,7 +48,6 @@
 class WMNavigationSlices: public WModule
 {
 public:
-
     /**
      * Default constructor.
      */
@@ -86,7 +85,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -129,7 +127,6 @@ private:
         PickCallback( osg::ref_ptr< osg::Node > node, WPropDouble property, bool negateDirection = false );
 
     private:
-
         /**
          * Pick event handler. Uses for dragging the slices
          *

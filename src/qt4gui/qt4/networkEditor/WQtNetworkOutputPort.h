@@ -38,7 +38,6 @@ class WQtNetworkArrow;
 class WQtNetworkOutputPort : public WQtNetworkPort
 {
 public:
-
     /**
      * Constructor
      *
@@ -72,7 +71,6 @@ public:
     boost::shared_ptr<WModuleOutputConnector> getConnector();
 
 private:
-
     boost::shared_ptr<WModuleOutputConnector> m_connector; //!< the related WModuleInputConnector
 };
 #endif  // WQTNETWORKOUTPUTPORT_H

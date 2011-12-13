@@ -53,7 +53,6 @@ class WDataSet;
 class WGUI : public boost::enable_shared_from_this< WGUI >
 {
 public:
-
     /**
      * Constructor.
      *

@@ -117,7 +117,6 @@ public:
 
 protected:
 private:
-
     using WTensorFunc< WTensorBaseSym, order, dim, Data_T >::m_data;
 };
 

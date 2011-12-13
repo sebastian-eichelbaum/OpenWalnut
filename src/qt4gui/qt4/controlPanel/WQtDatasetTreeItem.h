@@ -37,7 +37,6 @@
 class WQtDatasetTreeItem : public WQtTreeItem
 {
 public:
-
     /**
      * Constructor
      *
@@ -52,7 +51,6 @@ public:
     virtual ~WQtDatasetTreeItem();
 
 protected:
-
 private:
 };
 

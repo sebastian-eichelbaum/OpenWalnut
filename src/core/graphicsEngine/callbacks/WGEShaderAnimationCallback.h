@@ -39,7 +39,6 @@
 class WGE_EXPORT WGEShaderAnimationCallback: public osg::Uniform::Callback
 {
 public:
-
     /**
      * Default constructor. Creates a new instance and sets the precision
      *
@@ -61,7 +60,6 @@ public:
     virtual void operator() ( osg::Uniform* uniform, osg::NodeVisitor* nv );
 
 protected:
-
     /**
      * Timer that stops the time hopefully OS independent
      */

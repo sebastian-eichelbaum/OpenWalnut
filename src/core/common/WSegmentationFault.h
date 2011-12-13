@@ -52,7 +52,6 @@ public:
     }
 
 protected:
-
 private:
     class SingletonTranslator
     {
@@ -80,7 +79,6 @@ private:
 class OWCOMMON_EXPORT WSegmentationFault: public WException
 {
 public:
-
     /**
      * Default constructor.
      * \param msg name of the exception. mostly the default "Segmentation Fault"
@@ -105,7 +103,6 @@ public:
     static void installSignalHandler() throw();
 
 protected:
-
 private:
 };
 

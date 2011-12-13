@@ -39,7 +39,6 @@
 class WColorTest : public CxxTest::TestSuite
 {
 public:
-
     /**
      * Red in HSV is ( 0, 1, 1 ) and in RGB ( 1, 0, 0 )
      * Green in HSV is ( 0.3, 1, 1 ) and in RGB ( 0, 1, 0 )
