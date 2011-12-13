@@ -48,13 +48,28 @@
     #define wge_FragNormal gl_FragData[1].rgb
     #define wge_FragColor  gl_FragData[0]
     #define wge_FragZoom   gl_FragData[2].r
+    #define wge_FragTangent gl_FragData[3].rgb
 #else
     vec3 WGE_POSTPROCESSING_ENABLED_dummyVec3;
     float WGE_POSTPROCESSING_ENABLED_dummyFloat;
     #define wge_FragNormal WGE_POSTPROCESSING_ENABLED_dummyVec3
     #define wge_FragColor  gl_FragData[0]
     #define wge_FragZoom   WGE_POSTPROCESSING_ENABLED_dummyFloat
+    #define wge_FragTangent WGE_POSTPROCESSING_ENABLED_dummyVec3
 #endif
+
+/**
+ * This initializes the G-Buffer (Geometry Buffer). You need to call this before using one of the output variables wge_FragXYZ.
+ * \note: a G-Buffer is basically a term for several textures storing per-pixel geometry information like normals and positions and similar.
+ */
+void wgeInitGBuffer()
+{
+    // we need to initialize all output buffers with an alpha value or they will be blended away if blending is on.
+    gl_FragData[0] = vec4( vec3( 0.0 ), 1.0 );
+    gl_FragData[1] = vec4( vec3( 0.0 ), 1.0 );
+    gl_FragData[2] = vec4( vec3( 0.0 ), 1.0 );
+    gl_FragData[3] = vec4( vec3( 0.0 ), 1.0 );
+}
 
 #endif // WGEPOSTPROCESSING_GLSL
 

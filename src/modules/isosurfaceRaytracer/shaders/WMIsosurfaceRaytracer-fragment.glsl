@@ -138,9 +138,12 @@ vec3 getNormal( in vec3 position )
  */
 void main()
 {
-    // please do not laugh, it is a very very very simple "isosurface" shader
+    // init outputs
+    wgeInitGBuffer();
     wge_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
     gl_FragDepth = 1.0;
+
+    // please do not laugh, it is a very very very simple "isosurface" shader
 
     // First, find the rayEnd point. We need to do it in the fragment shader as the ray end point may be interpolated wrong
     // when done for each vertex.

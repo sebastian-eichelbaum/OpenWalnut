@@ -44,7 +44,6 @@ class WGEShader;
 class WMFiberDisplaySimple: public WModule
 {
 public:
-
     /**
      * Default constructor.
      */
@@ -82,7 +81,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -264,7 +262,7 @@ private:
      * \param endCapGeode the end cap sprites. Not used if not in tube mode.
      */
     void createFiberGeode( boost::shared_ptr< WDataSetFibers > fibers, osg::ref_ptr< osg::Geode > fibGeode,
-                                                                                         osg::ref_ptr< osg::Geode > endCapGeode ) const;
+                                                                                         osg::ref_ptr< osg::Geode > endCapGeode );
 
     /**
      * The plane node.
@@ -277,11 +275,6 @@ private:
      * \param state the state
      */
     void lineGeodeStateCallback( osg::StateSet* state );
-
-    /**
-     * If true, the fibs are RGBA colored.
-     */
-    mutable bool m_transparency;
 };
 
 #endif  // WMFIBERDISPLAYSIMPLE_H

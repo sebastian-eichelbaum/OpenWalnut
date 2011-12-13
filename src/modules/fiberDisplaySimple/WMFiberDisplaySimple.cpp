@@ -25,13 +25,18 @@
 #include <vector>
 #include <string>
 
-#include <osg/Point>
-#include <osg/LineWidth>
+#include <osg/Depth>
+#include <osg/Drawable>
+#include <osg/Geode>
+#include <osg/Geometry>
 #include <osg/Hint>
+#include <osg/LineWidth>
+#include <osg/Point>
 
 #include "core/common/WPropertyHelper.h"
 #include "core/common/WPropertyObserver.h"
 #include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/WDataSetFiberClustering.h"
 #include "core/dataHandler/WDataSetFibers.h"
 #include "core/graphicsEngine/WGEColormapping.h"
 #include "core/graphicsEngine/callbacks/WGEFunctorCallback.h"
@@ -41,6 +46,7 @@
 #include "core/graphicsEngine/shaders/WGEShaderDefineOptions.h"
 #include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
 #include "core/kernel/WKernel.h"
+
 #include "WMFiberDisplaySimple.h"
 #include "WMFiberDisplaySimple.xpm"
 
@@ -84,8 +90,15 @@ void WMFiberDisplaySimple::connectors()
         new WModuleInputData< WDataSetFibers >( shared_from_this(), "fibers", "The fiber dataset to color" )
     );
 
+    m_fiberClusteringInput = boost::shared_ptr< WModuleInputData < WDataSetFiberClustering > >(
+        new WModuleInputData< WDataSetFiberClustering >( shared_from_this(), "fiberClustering",
+            "Optional input to filter the fibers using a clustering."
+        )
+    );
+
     // As properties, every connector needs to be added to the list of connectors.
     addConnector( m_fiberInput );
+    addConnector( m_fiberClusteringInput );
 
     // call WModule's initialization
     WModule::connectors();
@@ -142,7 +155,7 @@ void WMFiberDisplaySimple::properties()
  */
 void enableTransparency( osg::StateSet* state )
 {
-    state->setMode( GL_BLEND, osg::StateAttribute::ON );
+    // NOTE: this does not en/disable blending. This is always on.
     state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
 
     // Enable depth test so that an opaque polygon will occlude a transparent one behind it.
@@ -166,8 +179,6 @@ void enableTransparency( osg::StateSet* state )
 void disableTransparency( osg::StateSet* state )
 {
     // TODO(ebaum): this transparency is problematic. Depth write is on because we need the depth buffer for post-processing
-    state->setMode( GL_BLEND, osg::StateAttribute::OFF );
-
     // Enable depth test so that an opaque polygon will occlude a transparent one behind it.
     state->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
 
@@ -223,6 +234,13 @@ void WMFiberDisplaySimple::moduleMain()
         new WGEShaderPropertyDefineOptions< WPropBool >( m_tubeEndCapsEnable, "ENDCAPS_DISABLED", "ENDCAPS_ENABLED" ) );
     m_endCapShader->addPreprocessor( defineTmp );
 
+    WGEShaderDefineOptions::SPtr clusterFilterOption = WGEShaderDefineOptions::SPtr(
+        new WGEShaderDefineOptions( "CLUSTER_FILTER_ENABLED" )
+    );
+    clusterFilterOption->deactivateAllOptions();
+    m_shader->addPreprocessor( clusterFilterOption );
+    m_endCapShader->addPreprocessor( clusterFilterOption );
+
     osg::ref_ptr< WGEPropertyUniform< WPropDouble > > tubeSizeUniform = new WGEPropertyUniform< WPropDouble >( "u_tubeSize", m_tubeSize );
     osg::ref_ptr< WGEPropertyUniform< WPropDouble > > colormapRationUniform =
         new WGEPropertyUniform< WPropDouble >( "u_colormapRatio", m_colormapRatio );
@@ -233,6 +251,7 @@ void WMFiberDisplaySimple::moduleMain()
     // get notified about data changes
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_fiberInput->getDataChangedCondition() );
+    m_moduleState.add( m_fiberClusteringInput->getDataChangedCondition() );
     // Remember the condition provided to some properties in properties()? The condition can now be used with this condition set.
     m_moduleState.add( m_propCondition );
 
@@ -263,13 +282,13 @@ void WMFiberDisplaySimple::moduleMain()
     m_plane = createClipPlane();
 
     // main loop
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
         // woke up since the module is requested to finish?
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -278,15 +297,20 @@ void WMFiberDisplaySimple::moduleMain()
         // Get and check data
         //////////////////////////////////////////////////////////////////////////////////////////
 
+        // changed? And set new current data pointers
+        bool fibersUpdated = m_fiberInput->updated();
+        bool clusteringUpdated = m_fiberClusteringInput->updated();
+
         // To query whether an input was updated, simply ask the input:
-        bool dataUpdated = m_fiberInput->updated();
         boost::shared_ptr< WDataSetFibers > fibers = m_fiberInput->getData();
+        boost::shared_ptr< WDataSetFiberClustering > fiberClustering = m_fiberClusteringInput->getData();
+
         bool dataValid = ( fibers );
         bool dataPropertiesUpdated = propObserver->updated();
-        bool propertiesUpdated = m_clipPlaneShowPlane->changed();
+        bool propertiesUpdated = m_clipPlaneShowPlane->changed() || m_tubeEnable->changed();
 
         // reset graphics if noting is on the input
-        if ( !dataValid )
+        if( !dataValid )
         {
             debugLog() << "Resetting.";
             // remove geode if no valid data is available
@@ -298,54 +322,79 @@ void WMFiberDisplaySimple::moduleMain()
         }
 
         // something happened we are interested in?
-        if ( !( dataValid && ( propertiesUpdated || dataPropertiesUpdated || dataUpdated ) ) )
+        if( !( dataValid && ( propertiesUpdated || dataPropertiesUpdated || fibersUpdated || clusteringUpdated ) ) )
         {
+            debugLog() << "Nothing to do.";
             continue;
         }
 
-        // update the prop observer if new data is available
-        m_properties->removeProperty( m_fibProps );
-        m_fibProps = fibers->getProperties();
-        propObserver->observe( m_fibProps );
-        propObserver->handled();
-        // also add the fib props to own props. This allows the user to modify the fib props directly
-        m_properties->addProperty( m_fibProps );
-
-        //////////////////////////////////////////////////////////////////////////////////////////
-        // Create new rendering
-        //////////////////////////////////////////////////////////////////////////////////////////
-
-        // add geode to module node
-        postNode->clear();
-
-        // create the fiber geode
-        osg::ref_ptr< osg::Geode > geode = new osg::Geode();
-        osg::ref_ptr< osg::Geode > endCapGeode = new osg::Geode();
-        createFiberGeode( fibers, geode, endCapGeode );
-
-        // Apply the shader. This is for clipping.
-        m_shader->apply( geode );
-        m_endCapShader->apply( endCapGeode );
-        // apply colormapping
-        WGEColormapping::apply( geode, m_shader );
-        WGEColormapping::apply( endCapGeode, m_endCapShader );
-
-        // for line smoothing and width features
-        geode->getOrCreateStateSet()->setUpdateCallback( new WGEFunctorCallback< osg::StateSet >(
-            boost::bind( &WMFiberDisplaySimple::lineGeodeStateCallback, this, _1 ) )
-        );
-
-        // Add geometry
-        if ( m_clipPlaneShowPlane->get() )
+        if( clusteringUpdated && ( fiberClustering != m_fiberClustering ) )
         {
-            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_plane );
+            debugLog() << "Clustering updated.";
+            m_fiberClustering = fiberClustering;
+            // also inform the shader to use cluster filter stuff
+            if( m_fiberClustering )
+            {
+                clusterFilterOption->activateOption( 0 );
+            }
+            else
+            {
+                clusterFilterOption->deactivateOption( 0 );
+            }
+            m_fiberClusteringUpdate = true;
         }
-        else
+
+        if( ( fibersUpdated && ( fibers != m_fibers ) ) ||  m_tubeEnable->changed() )
         {
-            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_plane );
+            debugLog() << "Fibers updated.";
+            m_fibers = fibers;
+
+            // update the prop observer if new data is available
+            m_properties->removeProperty( m_fibProps );
+            m_fibProps = fibers->getProperties();
+            propObserver->observe( m_fibProps );
+            propObserver->handled();
+            // also add the fib props to own props. This allows the user to modify the fib props directly
+            m_properties->addProperty( m_fibProps );
+
+            //////////////////////////////////////////////////////////////////////////////////////////
+            // Create new rendering
+            //////////////////////////////////////////////////////////////////////////////////////////
+
+            // add geode to module node
+            postNode->clear();
+
+            // create the fiber geode
+            osg::ref_ptr< osg::Geode > geode = new osg::Geode();
+            osg::ref_ptr< osg::Geode > endCapGeode = new osg::Geode();
+            createFiberGeode( fibers, geode, endCapGeode );
+
+            // Apply the shader. This is for clipping.
+            m_shader->apply( geode );
+            m_endCapShader->apply( endCapGeode );
+            // apply colormapping
+            WGEColormapping::apply( geode, m_shader );
+            WGEColormapping::apply( endCapGeode, m_endCapShader );
+
+            // for line smoothing and width features
+            geode->getOrCreateStateSet()->setUpdateCallback( new WGEFunctorCallback< osg::StateSet >(
+                boost::bind( &WMFiberDisplaySimple::lineGeodeStateCallback, this, _1 ) )
+            );
+
+            // Add geometry
+            if( m_clipPlaneShowPlane->get() )
+            {
+                WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_plane );
+            }
+            else
+            {
+                WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_plane );
+            }
+
+            m_fiberClusteringUpdate = true;
+            postNode->insert( geode, m_shader );
+            postNode->insert( endCapGeode, m_endCapShader );
         }
-        postNode->insert( geode, m_shader );
-        postNode->insert( endCapGeode, m_endCapShader );
     }
 
     // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove
@@ -394,6 +443,7 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createClipPlane() const
     planeGeode->addDrawable( planeGeometry );
 
     enableTransparency( planeGeode->getOrCreateStateSet() );
+    planeGeode->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
 
     // add a callback for showing and hiding the plane
     planeTransform->addUpdateCallback( new WGENodeMaskCallback( m_clipPlaneShowPlane ) );
@@ -409,15 +459,19 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createClipPlane() const
 }
 
 void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers > fibers, osg::ref_ptr< osg::Geode > fibGeode,
-                                                                                         osg::ref_ptr< osg::Geode > endCapGeode ) const
+                                                                                         osg::ref_ptr< osg::Geode > endCapGeode )
 {
     // geode and geometry
     osg::StateSet* state = fibGeode->getOrCreateStateSet();
     osg::StateSet* endState = endCapGeode->getOrCreateStateSet();
 
+    // disable light for this geode as lines can't be lit properly
+    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+
     // create everytring needed for the line_strip drawable
     osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+    osg::ref_ptr< osg::Vec3Array > clusterAttribs = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec3Array > tangents = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::FloatArray > texcoords = osg::ref_ptr< osg::FloatArray >( new osg::FloatArray );
     osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
@@ -440,18 +494,20 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
     WDataSetFibers::ColorArray  fibColors = fibers->getColorScheme()->getColor();
 
     // enable blending, select transparent bin
-    if ( fibColorMode == WDataSetFibers::ColorScheme::RGBA )
+    if( fibColorMode == WDataSetFibers::ColorScheme::RGBA )
     {
-        m_transparency = true;
         enableTransparency( state );
         enableTransparency( endState );
     }
     else
     {
-        m_transparency = false;
         disableTransparency( state );
         disableTransparency( endState );
     }
+    // blending is always needed for the filter attributes
+    state->setMode( GL_BLEND, osg::StateAttribute::ON );
+    // NOTE: this must be turned on in any case as it is used to discard some caps
+    endState->setMode( GL_BLEND, osg::StateAttribute::ON );
 
     // progress indication
     boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Adding fibers to geode", fibStart->size() ) );
@@ -471,6 +527,8 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
 
         // the length of the fiber
         size_t len = fibLen->at( fidx );
+
+        clusterAttribs->push_back( osg::Vec3( 1.0, 1.0, 1.0 ) );
 
         // a line needs 2 verts at least
         if ( len < 2 )
@@ -504,7 +562,7 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
         }
 
         // walk along the fiber
-        for ( size_t k = 0; k < len; ++k )
+        for( size_t k = 0; k < len; ++k )
         {
             osg::Vec3 vert = osg::Vec3( fibVerts->at( ( 3 * k ) + sidx ),
                                         fibVerts->at( ( 3 * k ) + sidx + 1 ),
@@ -523,7 +581,7 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
             colors->push_back( color );
             tangents->push_back( tangent );
 
-            if ( tubeMode )
+            if( tubeMode )
             {
                 // if in tube-mode, some final sprites are needed to provide some kind of ending for the tube
                 if ( ( k == 0 ) || ( k == len - 1 ) )
@@ -544,7 +602,7 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
         }
 
         // add the above line-strip
-        if ( m_tubeEnable->get() )
+        if( m_tubeEnable->get() )
         {
             geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUAD_STRIP, 2 * currentStart, 2 * len ) );
         }
@@ -562,7 +620,9 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
     geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
     geometry->setNormalArray( tangents );
     geometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
-    if ( m_tubeEnable->get() )    // tex coords are only needed for fake-tubes
+    geometry->setSecondaryColorArray( clusterAttribs );
+    geometry->setSecondaryColorBinding( osg::Geometry::BIND_PER_PRIMITIVE_SET );
+    if( tubeMode )    // tex coords are only needed for fake-tubes
     {
         geometry->setTexCoordArray( 0, texcoords );
 
@@ -576,16 +636,57 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
         endCapGeode->addDrawable( endGeometry );
 
         endState->setAttribute( new osg::Point( 1.0f ), osg::StateAttribute::ON );
-
-        // NOTE: this must be turned on in any case as it is used to discard some caps
-        endState->setMode( GL_BLEND, osg::StateAttribute::ON );
     }
+    // enable VBO
+    geometry->setUseDisplayList( false );
+    geometry->setUseVertexBufferObjects( true );
+
+    // add an update callback which later handles several things like the filter attribute array
+    geometry->setUpdateCallback( new WGEFunctorCallback< osg::Drawable >( boost::bind( &WMFiberDisplaySimple::geometryUpdate, this, _1 ) ) );
 
     // set drawable
     fibGeode->addDrawable( geometry );
 
     debugLog() << "Iterating over all fibers: done!";
     progress1->finish();
+}
+
+void WMFiberDisplaySimple::geometryUpdate( osg::Drawable* geometry )
+{
+    osg::Geometry* g = static_cast< osg::Geometry* >( geometry );
+    if( m_fiberClusteringUpdate && m_fiberClustering )
+    {
+        m_fiberClusteringUpdate = false;
+        size_t maxFibIdx = m_fibers->getLineStartIndexes()->size() - 1;
+        osg::ref_ptr< osg::Vec3Array > attribs = new osg::Vec3Array( maxFibIdx + 1 );
+        // now initialize attribute array
+        for( size_t fidx = 0; fidx < m_fibers->getLineStartIndexes()->size() ; ++fidx )
+        {
+            ( *attribs)[ fidx ] = osg::Vec3( 0.0, 0.0, 0.0 );
+        }
+
+        // go through each of the clusters
+        for( WDataSetFiberClustering::ClusterMap::const_iterator iter = m_fiberClustering->begin(); iter != m_fiberClustering->end(); ++iter )
+        {
+            // for each of the fiber IDs:
+            const WFiberCluster::IndexList& ids = ( *iter ).second->getIndices();
+            for( WFiberCluster::IndexList::const_iterator fibIter = ids.begin(); fibIter != ids.end(); ++fibIter )
+            {
+                // be nice here. If the clustering contains some invalid IDs, ignore it.
+                if( *fibIter > maxFibIdx )
+                {
+                    continue;
+                }
+                // set the color
+                ( *attribs)[ *fibIter ] = osg::Vec3(
+                        ( *iter ).second->getColor().r(),
+                        ( *iter ).second->getColor().g(),
+                        ( *iter ).second->getColor().b()
+                );
+            }
+        }
+        g->setSecondaryColorArray( attribs );
+    }
 }
 
 void WMFiberDisplaySimple::lineGeodeStateCallback( osg::StateSet* state )
@@ -602,9 +703,8 @@ void WMFiberDisplaySimple::lineGeodeStateCallback( osg::StateSet* state )
         state->setAttributeAndModes( new osg::Hint( GL_LINE_SMOOTH_HINT, GL_NICEST ), onoff );
         state->setMode( GL_LINE_SMOOTH, onoff );
 
-        // if transparency is needed, keep blend on, even if smoothing is off
-        onoff = m_lineSmooth->get() || m_transparency ? osg::StateAttribute::ON : osg::StateAttribute::OFF;
-        state->setMode( GL_BLEND, onoff );
+        // always keep blending enabled
+        state->setMode( GL_BLEND, osg::StateAttribute::ON );
     }
 }
 
