@@ -36,7 +36,7 @@ WGEPostprocessorCelShading::WGEPostprocessorCelShading():
 
 WGEPostprocessorCelShading::WGEPostprocessorCelShading( osg::ref_ptr< WGEOffscreenRenderNode > offscreen,
                                                         const WGEPostprocessor::PostprocessorInput& gbuffer ):
-    WGEPostprocessor( offscreen, gbuffer, "Cel Shading",
+    WGEPostprocessor( "Cel Shading",
                       "This postprocessor reduces color by binning colors." )
 {
     // we also provide a property

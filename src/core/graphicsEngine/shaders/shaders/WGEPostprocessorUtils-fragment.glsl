@@ -57,16 +57,26 @@ uniform sampler2D u_texture3Sampler;
 #define u_depthSampler u_texture3Sampler
 
 /**
+ * The tangent data
+ */
+uniform sampler2D u_texture4Sampler;
+#define u_tangentSampler u_texture4Sampler
+
+/**
  * The white-noise 3 channel texture: sampler
  */
 uniform sampler2D u_texture5Sampler;
 #define u_noiseSampler u_texture5Sampler
 
 /**
- * The tangent data
+ * Texture in unit 6
  */
-uniform sampler2D u_texture4Sampler;
-#define u_tangentSampler u_texture4Sampler
+uniform sampler2D u_texture6Sampler;
+
+/**
+ * Texture in unit 7
+ */
+uniform sampler2D u_texture7Sampler;
 
 /**
  * Size of texture in pixels

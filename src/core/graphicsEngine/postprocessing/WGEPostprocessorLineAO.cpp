@@ -37,8 +37,7 @@ WGEPostprocessorLineAO::WGEPostprocessorLineAO():
 
 WGEPostprocessorLineAO::WGEPostprocessorLineAO( osg::ref_ptr< WGEOffscreenRenderNode > offscreen,
                                                           const WGEPostprocessor::PostprocessorInput& gbuffer ):
-    WGEPostprocessor( offscreen, gbuffer,
-                      "LineAO",
+    WGEPostprocessor( "LineAO",
                       "LineAO is a special ambient occlusion technique optimized for dense line and tube rendering." )
 {
     // the LineAO algorithm has some parameters. Provide these parameters to the user

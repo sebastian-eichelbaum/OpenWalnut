@@ -38,8 +38,7 @@ WGEPostprocessorSSAO::WGEPostprocessorSSAO():
 
 WGEPostprocessorSSAO::WGEPostprocessorSSAO( osg::ref_ptr< WGEOffscreenRenderNode > offscreen,
                                                           const WGEPostprocessor::PostprocessorInput& gbuffer ):
-    WGEPostprocessor( offscreen, gbuffer,
-                      "SSAO",
+    WGEPostprocessor( "SSAO",
                       "SSAO is a special ambient occlusion technique." )
 {
     // the SSAO algorithm has some parameters. Provide these parameters to the user

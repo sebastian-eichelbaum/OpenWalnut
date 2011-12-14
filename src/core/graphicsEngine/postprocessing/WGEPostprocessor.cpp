@@ -26,6 +26,7 @@
 
 #include "WGEPostprocessorEdgeEnhance.h"
 #include "WGEPostprocessorCelShading.h"
+#include "WGEPostprocessorGauss.h"
 #include "WGEPostprocessorSSAO.h"
 #include "WGEPostprocessorLineAO.h"
 
@@ -33,18 +34,8 @@
 
 WGEPostprocessor::WGEPostprocessor( std::string name, std::string description ):
     WPrototyped(),
-    m_name( name ),
-    m_description( description )
-{
-}
-
-WGEPostprocessor::WGEPostprocessor( osg::ref_ptr< WGEOffscreenRenderNode > /* offscreen */,
-                                    const WGEPostprocessor::PostprocessorInput& gbuffer,
-                                    std::string name,
-                                    std::string description ):
-    WPrototyped(),
-    m_resultTexture( gbuffer.m_colorTexture ),
-    m_depthTexture( gbuffer.m_depthTexture ),
+    m_resultTexture(),
+    m_depthTexture(),
     m_properties( boost::shared_ptr< WProperties >( new WProperties( "Settings for " + name, "Post-processing properties" ) ) ),
     m_name( name ),
     m_description( description )
@@ -108,6 +99,7 @@ WGEPostprocessor::ProcessorList WGEPostprocessor::getPostprocessors()
     // create prototypes of the postprocessors OW knows about
     postprocs.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorEdgeEnhance() ) );
     postprocs.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorCelShading() ) );
+    postprocs.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorGauss() ) );
     postprocs.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorSSAO() ) );
     postprocs.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorLineAO() ) );
     return postprocs;

@@ -88,7 +88,14 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > refere
         osg::ref_ptr< WGEOffscreenFinalPass > output = offscreen->addFinalOnScreenPass( new WGEShader( "WGEPostprocessorCombiner" ),
                                                                                         "Output" );
         output->bind( processor->getOutput(), 0 );
-        output->bind( processor->getDepth(), 1 );
+
+        // does this processor provide a depth?
+        osg::ref_ptr< osg::Texture2D > depthTex = processor->getDepth();
+        if( !depthTex )
+        {
+            depthTex = buf.m_depthTexture;
+        }
+        output->bind( depthTex, 1 );
 
         // add the offscreen renderer and the original node to the switch
         addChild( offscreen );

@@ -138,7 +138,8 @@ public:
     virtual ~WGEPostprocessor();
 
     /**
-     * Create instance. Uses the protected constructor. Implement it if you derive from this class!
+     * Create instance. Uses the protected constructor. Implement it if you derive from this class! This is called whenever your postprocessor is
+     * applied to the standard render-output. You can add your own constructors and creators for other cases.
      *
      * \param offscreen use this offscreen node to add your texture pass'
      * \param gbuffer the input textures you should use
@@ -160,7 +161,7 @@ public:
     virtual osg::ref_ptr< osg::Texture2D > getOutput() const;
 
     /**
-     * Returns the new depth texture. Allows you to modify the depth values. By default, this is the input depth texture.
+     * Returns the new depth texture. Allows you to modify the depth values. By default, this is NULL. Check this!
      *
      * \return the depth texture
      */
@@ -180,17 +181,6 @@ public:
      */
     virtual const std::string getDescription() const;
 protected:
-    /**
-     * Constructor. Call this constructor from your derived class.
-     *
-     * \param offscreen use this offscreen node to add your texture pass'
-     * \param gbuffer the input textures you should use
-     * \param name a name for this postprocessor
-     * \param description a useful description
-     */
-    WGEPostprocessor( osg::ref_ptr< WGEOffscreenRenderNode > offscreen, const PostprocessorInput& gbuffer,
-                      std::string name, std::string description );
-
     /**
      * The texture contains the result
      */

@@ -37,7 +37,7 @@ WGEPostprocessorEdgeEnhance::WGEPostprocessorEdgeEnhance():
 
 WGEPostprocessorEdgeEnhance::WGEPostprocessorEdgeEnhance( osg::ref_ptr< WGEOffscreenRenderNode > offscreen,
                                                           const WGEPostprocessor::PostprocessorInput& gbuffer ):
-    WGEPostprocessor( offscreen, gbuffer, "Edge Enhance",
+    WGEPostprocessor( "Edge Enhance",
                       "Edge detection filter to emphasize edges in complex geometry." )
 {
     // we also provide a property
