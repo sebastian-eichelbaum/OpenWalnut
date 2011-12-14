@@ -194,7 +194,6 @@ void WMIsosurfaceRaytracer::moduleMain()
     osg::ref_ptr< WGEPostprocessingNode > postNode = new WGEPostprocessingNode(
         WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera()
     );
-    postNode->setEnabled( false );  // do not use it by default
     postNode->addUpdateCallback( new WGENodeMaskCallback( m_active ) ); // disable the postNode with m_active
 
     // provide the properties of the post-processor to the user
