@@ -99,7 +99,7 @@ void main()
     float d = dot( u_planePoint, n );
     float dist = dot( gl_PositionIn[0].xyz, n ) - d;
 
-    if ( abs( dist ) >= u_distance )
+    if( abs( dist ) >= u_distance )
     {
         return;
     }

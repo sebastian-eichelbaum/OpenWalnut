@@ -255,7 +255,7 @@ float getSSAO()
  * The total influence of SSAO.
  */
 //uniform float u_lineaoTotalStrength = 2.5;     // lines
- uniform float u_lineaoTotalStrength = 2.5;     // brain lines
+uniform float u_lineaoTotalStrength = 2.5;     // brain lines
 //uniform float u_lineaoTotalStrength = 2.25;     // brain lines video
 //uniform float u_lineaoTotalStrength = 1.5;   // smallfibs
 //uniform float u_lineaoTotalStrength =2.0;   // smallfibs-corticospinal-tubes

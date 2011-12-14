@@ -48,9 +48,13 @@ void directionalLight( in int i, in vec3 normal, in float shininess,
     nDotHV = max( 0.0, dot( normal, H ) );
 
     if( nDotVP == 0.0 )
+    {
         pf = 0.0;
+    }
     else
+    {
         pf = pow( nDotHV, gl_FrontMaterial.shininess );
+    }
 
     ambient += gl_LightSource[i].ambient;
     diffuse += gl_LightSource[i].diffuse * nDotVP;
