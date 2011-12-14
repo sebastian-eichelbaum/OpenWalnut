@@ -2699,7 +2699,8 @@ def CheckLanguage(filename, clean_lines, linenum, file_extension, include_state,
     # which looks much like the cast we're trying to detect.
     if (match.group(1) is None and  # If new operator, then this isn't a cast
         not (Match(r'^\s*MOCK_(CONST_)?METHOD\d+(_T)?\(', line) or
-             Match(r'^\s*MockCallback<.*>', line))):
+             Match(r'^\s*MockCallback<.*>', line)) and
+        not (file_extension == 'glsl')):
       error(filename, linenum, 'readability/casting', 4,
             'Using deprecated casting style.  '
             'Use static_cast<%s>(...) instead' %
@@ -3312,7 +3313,8 @@ def ProcessFileData(filename, file_extension, lines, error,
                 extra_check_functions)
   class_state.CheckFinished(filename, error)
 
-  CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error)
+  if not file_extension == 'glsl':
+    CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error)
 
   # We check here rather than inside ProcessLine so that we see raw
   # lines rather than "cleaned" lines.
