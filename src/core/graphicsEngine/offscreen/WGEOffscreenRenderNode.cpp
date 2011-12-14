@@ -26,7 +26,19 @@
 
 #include <osg/Geode>
 
+#include "../../common/WAssert.h"
+
 #include "WGEOffscreenRenderNode.h"
+
+bool isPowerOfTwo( size_t x )
+{
+    return ( (x != 0 ) && ( (x & ( ~x + 1 ) ) == x ) );
+}
+
+bool checkTextureSize( size_t size )
+{
+    return !( ( size > 4096 ) || ( size < 8 ) || !isPowerOfTwo( size ) );
+}
 
 WGEOffscreenRenderNode::WGEOffscreenRenderNode( osg::ref_ptr< osg::Camera > reference, size_t width, size_t height, bool noHud ):
     WGEGroupNode(),
@@ -36,6 +48,8 @@ WGEOffscreenRenderNode::WGEOffscreenRenderNode( osg::ref_ptr< osg::Camera > refe
     m_textureHeight( height ),
     m_nextPassNum( 0 )
 {
+    WAssert( checkTextureSize( width ) && checkTextureSize( height ), "Invalid offscreen texture size. Must be power of two and in [8,4096]." );
+
     // initialize members
     m_hud = new WGETextureHud();
     if( !noHud )

@@ -22,12 +22,26 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGEPOSTPROCESSOR_VERTEX_GLSL
-#define WGEPOSTPROCESSOR_VERTEX_GLSL
+#ifndef WGEPOSTPROCESSORCOMBINER_VERTEX_GLSL
+#define WGEPOSTPROCESSORCOMBINER_VERTEX_GLSL
 
 #version 120
 
-#include "WGEPostprocessorUtils-vertex.glsl"
+/**
+ * Does transfer the quad to image space.
+ */
+void main()
+{
+    // pass the color to the fragment shader
+    gl_FrontColor = gl_Color;
+    gl_BackColor =  gl_Color;
 
-#endif // WGEPOSTPROCESSOR_VERTEX_GLSL
+    // pass tex coordinates
+    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+
+    // transform position
+    gl_Position = ftransform();
+}
+
+#endif // WGEPOSTPROCESSORCOMBINER_VERTEX_GLSL
 

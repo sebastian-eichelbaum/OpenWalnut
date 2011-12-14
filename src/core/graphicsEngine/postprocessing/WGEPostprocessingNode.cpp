@@ -22,101 +22,91 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
-#include <vector>
-
 #include "../../common/WPropertyHelper.h"
+#include "../../common/WItemSelection.h"
+
 #include "../shaders/WGEShaderPropertyDefineOptions.h"
+#include "../callbacks/WGENodeMaskCallback.h"
 #include "../WGEUtils.h"
+
+#include "WGEPostprocessor.h"
+
 #include "WGEPostprocessingNode.h"
 
 WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > reference, size_t width, size_t height, bool noHud ):
     osg::Switch(),
-    m_offscreen( new WGEOffscreenRenderNode( reference, width, height, noHud ) ),
     m_childs( new WGEGroupNode() ),
-    m_postProcessShader( new WGEShader( "WGEPostprocessor" ) ),
     m_properties( boost::shared_ptr< WProperties >( new WProperties( "Post-processing", "Post-processing properties" ) ) )
 {
-    // create both render pass
-    m_render = m_offscreen->addGeometryRenderPass(
-        m_childs,
-        "Rendered"
-    );
-    m_postprocess = m_offscreen->addFinalOnScreenPass( m_postProcessShader, "Post-processed" );
-
-    // link them together with the corresponding textures
-    osg::ref_ptr< osg::Texture2D > renderColorTexture = m_render->attach( osg::Camera::COLOR_BUFFER0 );
-    osg::ref_ptr< osg::Texture2D > renderNormalTexture = m_render->attach( osg::Camera::COLOR_BUFFER1, GL_RGB );
-    osg::ref_ptr< osg::Texture2D > renderParameterTexture = m_render->attach( osg::Camera::COLOR_BUFFER2, GL_LUMINANCE );
-    osg::ref_ptr< osg::Texture2D > renderTangentTexture = m_render->attach( osg::Camera::COLOR_BUFFER3, GL_RGB );
-    osg::ref_ptr< osg::Texture2D > renderDepthTexture = m_render->attach( osg::Camera::DEPTH_BUFFER );
-    m_postprocess->bind( renderColorTexture, 0 );
-    m_postprocess->bind( renderNormalTexture, 1 );
-    m_postprocess->bind( renderParameterTexture, 2 );
-    m_postprocess->bind( renderDepthTexture, 3 );
-
-    // add the offscreen renderer and the original node to the switch
+    // the geometry is always the first in the switch node
     addChild( m_childs );
-    addChild( m_offscreen );
 
-    // some info text:
-    m_infoText = m_properties->addProperty( "Hint", "This is for advanced users.",
-        std::string( "The post-processing has to be seen as facility to create appealing images. The here offered options are not all "
-                     "possibilities. The most powerful effects can be achieved by using custom combinations (using custom GLSL code) of "
-                     "post-processors and is recommended for <b>advanced users</b> only." )
-    );
-    m_infoText->setPurpose( PV_PURPOSE_INFORMATION );
+    // this node has some properties:
+    boost::shared_ptr< WItemSelection > m_possibleSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_possibleSelections->addItem( "None", "No postprocessing." );
 
-    // add some properties here:
-    m_active = m_properties->addProperty( "Enable", "If set, post-processing is enabled.", true );
-    m_showHUD = m_properties->addProperty( "Show HUD", "If set, the intermediate textures are shown.", false );
+    m_showHud = m_properties->addProperty( "Texture Debug", "If set, all intermediate texture are shown on screen for debugging.", false );
+    m_active = m_properties->addProperty( "Enable", "If set, post-processing is enabled.", false, true );
+    m_activePostprocessor = m_properties->addProperty( "Postprocessor", "Selection one of the postprocessors.",
+                                                       m_possibleSelections->getSelectorFirst(),
+                                                       boost::bind( &WGEPostprocessingNode::postprocessorSelected, this ) );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_activePostprocessor );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_activePostprocessor );
 
-    // Post-processings:
-    // First: Create a list with name, description and shader define which is used to enable it
-    typedef WGEShaderPropertyDefineOptionsTools::NameDescriptionDefineTuple Tuple;
-    std::vector< Tuple > namesAndDefs;
-    namesAndDefs.push_back( Tuple( "Color Only",   "No Post-Processing.",                               "WGE_POSTPROCESSOR_COLOR" ) );
-    namesAndDefs.push_back( Tuple( "Smoothed Color", "Smoothed Color Image using Gauss Filter.",        "WGE_POSTPROCESSOR_GAUSSEDCOLOR" ) );
-    namesAndDefs.push_back( Tuple( "PPL - Phong",   "Per-Pixel-Lighting using Phong.",                  "WGE_POSTPROCESSOR_PPLPHONG" ) );
-    namesAndDefs.push_back( Tuple( "Cel-Shading",  "Under-sampling of the color for cartoon-like shading.", "WGE_POSTPROCESSOR_CELSHADING" ) );
-    namesAndDefs.push_back( Tuple( "Depth-Cueing", "Use the Depth to fade out the pixel's brightness.", "WGE_POSTPROCESSOR_DEPTHFADING" ) );
-    namesAndDefs.push_back( Tuple( "Edge",         "Edge of Rendered Geometry.",                        "WGE_POSTPROCESSOR_EDGE" ) );
-    namesAndDefs.push_back( Tuple( "Depth",        "Depth Value only.",                                 "WGE_POSTPROCESSOR_DEPTH" ) );
-    namesAndDefs.push_back( Tuple( "Smoothed Depth", "Gauss-Smoothed Depth Value only.",                "WGE_POSTPROCESSOR_GAUSSEDDEPTH" ) );
-    namesAndDefs.push_back( Tuple( "Normal",       "Geometry Normal.",                                  "WGE_POSTPROCESSOR_NORMAL" ) );
-    namesAndDefs.push_back( Tuple( "Custom", "Provide Your Own Post-processing-Code.",                  "WGE_POSTPROCESSOR_CUSTOM" ) );
+    // control texture HUD
+    osg::ref_ptr< WGENodeMaskCallback > textureHudCallback = new WGENodeMaskCallback( m_showHud );
 
-    // Second: create the Shader option object and the corresponding property automatically:
-    WGEShaderPropertyDefineOptions< WPropSelection >::SPtr activePostprocessorsOpts(
-        WGEShaderPropertyDefineOptionsTools::createSelection(
-            "Post-processors",
-            "Select the post-processings you want.",
-            m_properties,
-            namesAndDefs
-        )
-    );
-    m_activePostprocessors = activePostprocessorsOpts->getProperty();
-    // avoid that a user selects nothing
-    WPropertyHelper::PC_NOTEMPTY::addTo( m_activePostprocessors );
+    // get available postprocessors and setup the node
+    WGEPostprocessor::ProcessorList processors = WGEPostprocessor::getPostprocessors();
+    for( WGEPostprocessor::ProcessorList::const_iterator iter = processors.begin(); iter != processors.end(); ++iter )
+    {
+        // offscreen node
+        osg::ref_ptr< WGEOffscreenRenderNode > offscreen( new WGEOffscreenRenderNode( reference, width, height, noHud ) );
+        offscreen->getTextureHUD()->addUpdateCallback( textureHudCallback );
+
+        // the geometry render step
+        osg::ref_ptr< WGEOffscreenRenderPass > render = offscreen->addGeometryRenderPass(
+            m_childs,
+            "Rendered"
+        );
+
+        // create G-Buffer
+        WGEPostprocessor::PostprocessorInput buf( WGEPostprocessor::PostprocessorInput::attach( render ) );
+
+        // let the specific post processor build its pipeline
+        WGEPostprocessor::SPtr processor = ( *iter )->create( offscreen, buf );
+        m_postprocs.push_back( processor );
+
+        // add the postprocessor's properties
+        m_properties->addProperty( processor->getProperties() );
+        processor->getProperties()->setHidden( true );
+
+        // add it to the selection prop
+        m_possibleSelections->addItem( processor->getName(), processor->getDescription() );
+
+        // the final step
+        osg::ref_ptr< WGEOffscreenFinalPass > output = offscreen->addFinalOnScreenPass( new WGEShader( "WGEPostprocessorCombiner" ),
+                                                                                        "Output" );
+        output->bind( processor->getOutput(), 0 );
+        output->bind( processor->getDepth(), 1 );
+
+        // add the offscreen renderer and the original node to the switch
+        addChild( offscreen );
+    }
 
     // let the props control some stuff
-    addUpdateCallback( new WGESwitchCallback< WPropBool >( m_active ) );
-    m_offscreen->getTextureHUD()->addUpdateCallback( new WGENodeMaskCallback( m_showHUD ) );
-    // let the activePostprocessors property control the options in the shader:
-    m_postProcessShader->addPreprocessor( activePostprocessorsOpts );
+    addUpdateCallback( new WGESwitchCallback< WPropSelection >( m_activePostprocessor ) );
 
     // some of the post-processors need some white noise, like the ssao
-    const size_t size = 64;
+   /* const size_t size = 64;
     osg::ref_ptr< WGETexture2D > randTex = wge::genWhiteNoiseTexture( size, size, 3 );
     m_postprocess->bind( randTex, 4 );
-    m_postprocess->bind( renderTangentTexture, 5 );
+    */
 }
 
 WGEPostprocessingNode::~WGEPostprocessingNode()
 {
     // cleanup
-    m_render->detach( osg::Camera::COLOR_BUFFER0 );
-    m_render->detach( osg::Camera::COLOR_BUFFER1 );
 }
 
 WPropGroup WGEPostprocessingNode::getProperties() const
@@ -178,8 +168,22 @@ void WGEPostprocessingNode::clear()
     m_childs->clear();
 }
 
-void WGEPostprocessingNode::setEnabled( bool enable )
+void WGEPostprocessingNode::postprocessorSelected()
 {
-    m_active->set( enable );
-}
+    if( m_postprocs.size() == 0 )
+    {
+        m_active->set( false );
+        return;
+    }
 
+    size_t active = m_activePostprocessor->get();
+
+    // this triggers several shader preprocessors of all child nodes
+    m_active->set( active != 0 );
+
+    // hide all, but not the active one
+    for( size_t i = 0; i < m_postprocs.size(); ++i )
+    {
+        m_postprocs[ i ]->getProperties()->setHidden( i != ( active - 1 ) );
+    }
+}
