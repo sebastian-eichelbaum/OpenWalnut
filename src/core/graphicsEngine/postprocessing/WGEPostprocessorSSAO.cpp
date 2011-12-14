@@ -42,7 +42,6 @@ WGEPostprocessorSSAO::WGEPostprocessorSSAO( osg::ref_ptr< WGEOffscreenRenderNode
                       "SSAO",
                       "SSAO is a special ambient occlusion technique." )
 {
-
     // the SSAO algorithm has some parameters. Provide these parameters to the user
     WPropInt ssaoSamples = m_properties->addProperty( "Samples", "The number of samples to take in screen-space. Higher values produce better "
                                                                  "quality but can reduce FPS dramatically.", 16 );

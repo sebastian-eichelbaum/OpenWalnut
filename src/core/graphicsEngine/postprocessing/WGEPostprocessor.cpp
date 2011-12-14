@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WGEPostprocessorEdgeEnhance.h"
 #include "WGEPostprocessorCelShading.h"
 #include "WGEPostprocessorSSAO.h"

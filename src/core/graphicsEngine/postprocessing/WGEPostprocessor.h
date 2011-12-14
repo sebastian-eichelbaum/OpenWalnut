@@ -188,7 +188,8 @@ protected:
      * \param name a name for this postprocessor
      * \param description a useful description
      */
-    WGEPostprocessor( osg::ref_ptr< WGEOffscreenRenderNode > offscreen, const PostprocessorInput& gbuffer, std::string name, std::string description );
+    WGEPostprocessor( osg::ref_ptr< WGEOffscreenRenderNode > offscreen, const PostprocessorInput& gbuffer,
+                      std::string name, std::string description );
 
     /**
      * The texture contains the result
@@ -215,7 +216,6 @@ protected:
      */
     WGEShaderPreprocessor::SPtr m_effectOnlyPreprocessor;
 private:
-
     /**
      * Name string. Set by the constructor.
      */

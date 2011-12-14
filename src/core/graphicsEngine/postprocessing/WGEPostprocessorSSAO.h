@@ -35,7 +35,6 @@
 class WGEPostprocessorSSAO: public WGEPostprocessor
 {
 public:
-
     /**
      * Convenience typedef for a boost::shared_ptr< WGEPostprocessorSSAO >.
      */

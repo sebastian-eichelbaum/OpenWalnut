@@ -2350,7 +2350,7 @@ def CheckStyle(filename, clean_lines, linenum, file_extension, class_state,
     line_width = GetLineWidth(line)
     if line_width > 150:
       error(filename, linenum, 'whitespace/line_length', 4,
-            'Lines should very rarely be longer than 100 characters')
+            'Lines should very rarely be longer than 150 characters')
     elif line_width > 150:
       error(filename, linenum, 'whitespace/line_length', 2,
             'Lines should be <= 150 characters long')
