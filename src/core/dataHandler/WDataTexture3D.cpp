@@ -22,13 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
-
-#include "WValueSet.h"
-
 #include "../graphicsEngine/WGETextureUtils.h"
-
 #include "WDataTexture3D.h"
+#include "WValueSet.h"
 
 WDataTexture3D::WDataTexture3D( boost::shared_ptr< WValueSetBase > valueSet, boost::shared_ptr< WGridRegular3D > grid ):
     WGETexture3D( static_cast< float >( valueSet->getMaximumValue() - valueSet->getMinimumValue() ),

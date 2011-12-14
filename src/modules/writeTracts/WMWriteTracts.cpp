@@ -22,8 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
 #include <fstream>
+#include <string>
+#include <vector>
 
 #include "core/common/WPropertyHelper.h"
 #include "core/dataHandler/io/WWriterFiberVTK.h"

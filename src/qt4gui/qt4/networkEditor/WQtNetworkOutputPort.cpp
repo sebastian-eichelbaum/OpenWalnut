@@ -33,10 +33,18 @@ WQtNetworkOutputPort::WQtNetworkOutputPort( boost::shared_ptr<WModuleOutputConne
 
     // create tooltip
     QString tmp;
-    if( isOutPort() == true ) tmp = "output";
-    else if( isOutPort() == false ) tmp = "input";
+    if( isOutPort() == true )
+    {
+        tmp = "output";
+    }
+    else if( isOutPort() == false )
+    {
+        tmp = "input";
+    }
     else
+    {
         tmp = "undefined";
+    }
 
     QString str = "<b>Name: </b> " + getPortName() +
                   "<br/><b>PortType: </b>" + tmp;

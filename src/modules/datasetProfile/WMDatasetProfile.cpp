@@ -23,21 +23,20 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <vector>
 
-#include <osgGA/TrackballManipulator>
+#include <osg/LightModel>
 #include <osgGA/StateSetManipulator>
+#include <osgGA/TrackballManipulator>
 #include <osgViewer/ViewerEventHandlers>
 #include <osgWidget/Util> //NOLINT
 #include <osgWidget/ViewerEventHandlers> //NOLINT
 #include <osgWidget/WindowManager> //NOLINT
-#include <osg/LightModel>
 
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WSelectionManager.h"
-
-#include "WMDatasetProfile.xpm" // Please put a real icon here.
-
 #include "WMDatasetProfile.h"
+#include "WMDatasetProfile.xpm" // Please put a real icon here.
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMDatasetProfile )

@@ -22,8 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
+#include <algorithm>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -34,21 +35,19 @@
 #include <boost/program_options.hpp>
 
 #include <QtCore/QDir>
+#include <QtGui/QCheckBox>
+#include <QtGui/QDialogButtonBox>
 #include <QtGui/QFileDialog>
-#include <QtGui/QVBoxLayout>
 #include <QtGui/QGridLayout>
 #include <QtGui/QLabel>
-#include <QtGui/QCheckBox>
 #include <QtGui/QPushButton>
-#include <QtGui/QDialogButtonBox>
 #include <QtGui/QTabWidget>
+#include <QtGui/QVBoxLayout>
 
-#include "core/kernel/WModuleFactory.h"
 #include "core/common/WPathHelper.h"
-
-#include "WQt4Gui.h"
+#include "core/kernel/WModuleFactory.h"
 #include "WMainWindow.h"
-
+#include "WQt4Gui.h"
 #include "WQtModuleConfig.h"
 #include "WQtModuleConfig.moc"
 

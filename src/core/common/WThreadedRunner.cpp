@@ -23,13 +23,13 @@
 //---------------------------------------------------------------------------
 
 #include <iostream>
+#include <string>
 
 #include "exceptions/WSignalSubscriptionFailed.h"
-#include "WConditionOneShot.h"
 #include "WCondition.h"
+#include "WConditionOneShot.h"
 #include "WException.h"
 #include "WLogger.h"
-
 #include "WThreadedRunner.h"
 
 WThreadedRunner::WThreadedRunner():

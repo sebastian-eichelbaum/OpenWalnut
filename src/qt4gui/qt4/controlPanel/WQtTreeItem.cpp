@@ -24,31 +24,26 @@
 
 #include <set>
 #include <string>
+#include <vector>
 
 #include <QtGui/QApplication>
 
-#include "core/kernel/WKernel.h"
-
-#include "core/common/WProgressCombiner.h"
-#include "core/common/WProgress.h"
+#include "../events/WEventTypes.h"
+#include "../events/WModuleConnectorEvent.h"
+#include "../events/WModuleDeleteEvent.h"
+#include "../events/WPropertyChangedEvent.h"
+#include "../WMainWindow.h"
+#include "../WQt4Gui.h"
 #include "core/common/WLogger.h"
-
+#include "core/common/WProgress.h"
+#include "core/common/WProgressCombiner.h"
+#include "core/kernel/WKernel.h"
 #include "core/kernel/WModuleInputConnector.h"
 #include "core/kernel/WModuleOutputConnector.h"
-
-#include "../events/WModuleDeleteEvent.h"
-#include "../events/WEventTypes.h"
-#include "../events/WPropertyChangedEvent.h"
-#include "../events/WModuleConnectorEvent.h"
-
-#include "../WQt4Gui.h"
-#include "../WMainWindow.h"
-
 #include "WQtControlPanel.h"
-#include "WTreeItemTypes.h"
-
 #include "WQtTreeItem.h"
 #include "WQtTreeItem.moc"
+#include "WTreeItemTypes.h"
 
 WQtTreeItem::WQtTreeItem( QTreeWidgetItem * parent, WTreeItemType type, boost::shared_ptr< WModule > module ) :
     QTreeWidgetItem( parent, type ),

@@ -23,19 +23,18 @@
 //---------------------------------------------------------------------------
 
 #include <string>
-
-#include "core/kernel/WKernel.h"
-#include "modules/emptyIcon.xpm" // Please put a real icon here.
-
-#include "WMTransferFunction1D.h"
+#include <vector>
 
 #include "core/common/WTransferFunction.h"
+#include "core/dataHandler/datastructures/WValueSetHistogram.h"
 #include "core/dataHandler/WDataSetScalar.h"
 #include "core/dataHandler/WGrid.h"
 #include "core/dataHandler/WGridRegular3D.h"
 #include "core/dataHandler/WValueSet.h"
 #include "core/dataHandler/WValueSetBase.h"
-#include "core/dataHandler/datastructures/WValueSetHistogram.h"
+#include "core/kernel/WKernel.h"
+#include "modules/emptyIcon.xpm" // Please put a real icon here.
+#include "WMTransferFunction1D.h"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMTransferFunction1D )

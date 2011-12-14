@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <vector>
 
 #include "WPropertyTypes.h"
 #include "WTransferFunction.h"

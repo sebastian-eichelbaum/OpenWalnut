@@ -25,9 +25,10 @@
 #include <stdarg.h>
 
 #include <algorithm>
+#include <string>
+#include <vector>
 
 #include "../../common/exceptions/WPreconditionNotMet.h"
-
 #include "WGEShaderDefineOptions.h"
 
 WGEShaderDefineOptions::WGEShaderDefineOptions( std::string first,

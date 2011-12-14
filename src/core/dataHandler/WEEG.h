@@ -27,11 +27,13 @@
 
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
-#include "WRecording.h"
-#include "../common/WPrototyped.h"
+
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../common/WPrototyped.h"
 #include "WExportDataHandler.h"
+#include "WRecording.h"
 
 /**
  * An incomplete implementation to store information about electrodes of EEG data

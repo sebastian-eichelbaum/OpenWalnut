@@ -23,13 +23,13 @@
 //---------------------------------------------------------------------------
 
 #include <sstream>
+#include <string>
 
 #include <osg/LineWidth>
 
-#include "../callbacks/WGEFunctorCallback.h"
 #include "../../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../callbacks/WGEFunctorCallback.h"
 #include "../WGEGeodeUtils.h"
-
 #include "WGEGridNode.h"
 
 WGEGridNode::WGEGridNode( WGridRegular3D::ConstSPtr grid ):

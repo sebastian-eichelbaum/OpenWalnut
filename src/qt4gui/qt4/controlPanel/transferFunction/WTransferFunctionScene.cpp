@@ -22,16 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
-// #include <iostream>
+#include <vector>
 
-#include "QtCore/QMimeData"
-#include <QtGui/QGraphicsSceneDragDropEvent>
+#include <QtCore/QMimeData>
 #include <QtCore/QUrl>
+#include <QtGui/QGraphicsSceneDragDropEvent>
 
-#include "WTransferFunctionWidget.h"
 #include "core/common/WTransferFunction.h"
-
 #include "WTransferFunctionScene.h"
+#include "WTransferFunctionWidget.h"
 
 WTransferFunctionScene::WTransferFunctionScene( QObject*parent )
     : BaseClass( parent ),

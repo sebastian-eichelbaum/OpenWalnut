@@ -23,10 +23,13 @@
 //---------------------------------------------------------------------------
 
 #include <cstdlib>
+#include <set>
+#include <utility>
+#include <vector>
 
+#include <osg/Depth>
 #include <osg/Geometry>
 #include <osg/LineStipple>
-#include <osg/Depth>
 
 #include "core/common/exceptions/WTypeMismatch.h"
 #include "core/common/math/linearAlgebra/WPosition.h"

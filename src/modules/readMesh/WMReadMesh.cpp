@@ -510,19 +510,34 @@ osg::Vec4 WMReadMesh::blueGreenPurpleColorMap( float value )
     value *= 5.0;
     osg::Vec4 color;
     if( value < 0.0 )
+    {
         color = osg::Vec4( 0.0, 0.0, 0.0, 1.0 );
+    }
     else if( value < 1.0 )
+    {
         color = osg::Vec4( 0.0, value, 1.0, 1.0 );
+    }
     else if( value < 2.0 )
+    {
         color = osg::Vec4( 0.0, 1.0, 2.0-value, 1.0 );
+    }
     else if( value < 3.0 )
+    {
         color =  osg::Vec4( value-2.0, 1.0, 0.0, 1.0 );
+    }
     else if( value < 4.0 )
+    {
         color = osg::Vec4( 1.0, 4.0-value, 0.0, 1.0 );
+    }
     else if( value <= 5.0 )
+    {
         color = osg::Vec4( 1.0, 0.0, value-4.0, 1.0 );
+    }
     else
+    {
         color =  osg::Vec4( 1.0, 0.0, 1.0, 1.0 );
+    }
+
     return color;
 }
 

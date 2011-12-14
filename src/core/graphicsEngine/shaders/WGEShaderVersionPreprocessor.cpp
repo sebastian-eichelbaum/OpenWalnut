@@ -22,14 +22,14 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
-#include <sstream>
+#include <algorithm>
 #include <ostream>
+#include <sstream>
+#include <string>
 
 #include <boost/regex.hpp>
 
 #include "../../common/WLogger.h"
-
 #include "WGEShaderVersionPreprocessor.h"
 
 WGEShaderVersionPreprocessor::WGEShaderVersionPreprocessor()

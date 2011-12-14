@@ -22,6 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+#include <vector>
+
 #include "WGEShaderPropertyDefineOptions.h"
 
 WGEShaderPropertyDefineOptions< WPropSelection >::SPtr WGEShaderPropertyDefineOptionsTools::createSelection(

@@ -22,7 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WDataSetGP.h"
+
 boost::shared_ptr< WPrototyped > WDataSetGP::m_prototype = boost::shared_ptr< WPrototyped >();
 
 WDataSetGP::WDataSetGP()

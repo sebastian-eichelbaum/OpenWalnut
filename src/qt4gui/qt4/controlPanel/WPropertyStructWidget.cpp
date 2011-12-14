@@ -23,9 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include "../WGuiConsts.h"
-
-#include <core/common/WAssert.h>
-
+#include "core/common/WAssert.h"
 #include "WPropertyStructWidget.h"
 #include "WPropertyStructWidget.moc"
 
@@ -34,7 +32,6 @@ WPropertyStructWidget::WPropertyStructWidget( WPropertyGroupBase::SPtr property,
     m_struct( property ),
     m_layout( &m_parameterWidgets )
 {
-
     // although we could also work with other group types, we limit this widget to PV_STRUCT properties, because they have fixed size and cannot
     // be modified somehow. If you remove this assert, ensure the widget is able to handle dynamic updates in the group!
     WAssert( property->getType() == PV_STRUCT, "WPropertyStructWidget is only compatible with WPropertyStruct instances." );
