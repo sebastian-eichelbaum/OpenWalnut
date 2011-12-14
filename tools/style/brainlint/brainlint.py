@@ -1046,6 +1046,63 @@ def CloseExpression(clean_lines, linenum, pos):
     num_open -= 1                 # chopped off another )
   return (line, linenum, endpos + 1)
 
+def CheckForCompleteCommentHeader(filename, lines, error):
+  """Logs an error if the prescribed CommentHeader does not appear at the top of the file."""
+
+  # We'll say it should occur by line 10. Don't forget there's a
+  # dummy line at the front.
+  if ( not (re.match(r'//---------------------------------------------------------------------------', lines[1])
+            and ( len( lines[1] ) == 77 )
+            and re.match(r'//', lines[2])
+            and ( len( lines[2] ) == 2 )
+            and re.match(r'// Project: OpenWalnut \( http://www.openwalnut.org \)', lines[3])
+            and ( len( lines[3] ) == 52 )
+            and re.match(r'//', lines[4])
+            and ( len( lines[4] ) == 2 )
+            and re.match(r'// Copyright 2009 ', lines[5]) #Checks only the first part of the line. Other copyrights could appear.
+            #            and ( len( lines[5] ) == 18 )    #Checks only the first part of the line. Other copyrights could appear.
+            and re.match(r'// For more information see http://www.openwalnut.org/copying', lines[6])
+            and ( len( lines[6] ) == 61 )
+            and re.match(r'//', lines[7])
+            and ( len( lines[7] ) == 2 )
+            and re.match(r'// This file is part of OpenWalnut.', lines[8])
+            and ( len( lines[8] ) == 35 )
+            and re.match(r'//', lines[9])
+            and ( len( lines[9] ) == 2 )
+            and re.match(r'// OpenWalnut is free software: you can redistribute it and/or modify', lines[10])
+            and ( len( lines[10] ) == 69 )
+            and re.match(r'// it under the terms of the GNU Lesser General Public License as published by', lines[11])
+            and ( len( lines[11] ) == 78 )
+            and re.match(r'// the Free Software Foundation, either version 3 of the License, or', lines[12])
+            and ( len( lines[12] ) == 68 )
+            and re.match(r'// \(at your option\) any later version.', lines[13])
+            and ( len( lines[13] ) == 38 )
+            and re.match(r'//', lines[14])
+            and ( len( lines[14] ) == 2 )
+            and re.match(r'// OpenWalnut is distributed in the hope that it will be useful,', lines[15])
+            and ( len( lines[15] ) == 64 )
+            and re.match(r'// but WITHOUT ANY WARRANTY; without even the implied warranty of', lines[16])
+            and ( len( lines[16] ) == 65 )
+            and re.match(r'// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the', lines[17])
+            and ( len( lines[17] ) == 64 )
+            and re.match(r'// GNU Lesser General Public License for more details.', lines[18])
+            and ( len( lines[18] ) == 54 )
+            and re.match(r'//', lines[19])
+            and ( len( lines[19] ) == 2 )
+            and re.match(r'// You should have received a copy of the GNU Lesser General Public License', lines[20])
+            and ( len( lines[20] ) == 75 )
+            and re.match(r'// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.', lines[21])
+            and ( len( lines[21] ) == 69 )
+            and re.match(r'//', lines[22])
+            and ( len( lines[22] ) == 2 )
+            and re.match(r'//---------------------------------------------------------------------------', lines[23])
+            and re.match(r'$', lines[24])
+            )
+       ):
+    error(filename, 0, 'legal/comment_header', 5,
+          'No valid comment header found. '
+          'Have a look at the CodingStandard for the appropriate header. '
+          'Do not forget to check for trailing whitespaces and similar hidden problems.')
 
 def CheckForCopyright(filename, lines, error):
   """Logs an error if no Copyright message appears at the top of the file."""
@@ -1058,6 +1115,8 @@ def CheckForCopyright(filename, lines, error):
     error(filename, 0, 'legal/copyright', 5,
           'No copyright message found.  '
           'You should have a line: "Copyright [year] <Copyright Owner>"')
+
+  CheckForCompleteCommentHeader(filename, lines, error );
 
 
 def GetHeaderGuardCPPVariable(filename):
@@ -3313,8 +3372,9 @@ def ProcessFile(filename, vlevel, extra_check_functions=[]):
 
   # When reading from stdin, the extension is unknown, so no cpplint tests
   # should rely on the extension.
+  # math: Modified to also accept glsl files
   if (filename != '-' and file_extension != 'cc' and file_extension != 'h'
-      and file_extension != 'cpp'):
+      and file_extension != 'cpp' and file_extension != 'glsl' ):
     sys.stderr.write('Ignoring %s; not a .cc or .h file\n' % filename)
   else:
     ProcessFileData(filename, file_extension, lines, Error,
@@ -3326,7 +3386,8 @@ def ProcessFile(filename, vlevel, extra_check_functions=[]):
             'One or more unexpected \\r (^M) found;'
             'better to use only a \\n')
 
-  sys.stderr.write('Done processing %s\n' % filename)
+  # math: Disabled, clutters output
+  # sys.stderr.write('Done processing %s\n' % filename)
 
 
 def PrintUsage(message):

@@ -22,27 +22,29 @@
 //
 //---------------------------------------------------------------------------
 
+#include <map>
 #include <string>
+#include <vector>
 
 #include <osg/Array>
 #include <osg/Geode>
 #include <osg/Geometry>
+#include <osg/LightModel>
 #include <osg/LineWidth>
+#include <osg/Material>
 #include <osg/MatrixTransform>
 #include <osg/ShapeDrawable>
 #include <osg/Vec3>
-#include <osg/LightModel>
-#include <osg/Material>
 
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../common/WPathHelper.h"
 #include "../common/math/WMath.h"
-#include "WGESubdividedPlane.h"
+#include "../common/WPathHelper.h"
+#include "shaders/WGEShader.h"
 #include "WGEGeodeUtils.h"
 #include "WGEGeometryUtils.h"
-#include "WGEUtils.h"
 #include "WGEGroupNode.h"
-#include "shaders/WGEShader.h"
+#include "WGESubdividedPlane.h"
+#include "WGEUtils.h"
 #include "widgets/labeling/WGELabel.h"
 
 osg::ref_ptr< osg::Geode > wge::generateBoundingBoxGeode( const WBoundingBox& bb, const WColor& color )

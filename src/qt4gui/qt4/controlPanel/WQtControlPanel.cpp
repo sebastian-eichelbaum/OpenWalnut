@@ -1107,7 +1107,6 @@ void WQtControlPanel::deleteModule()
             WKernel::getRunningKernel()->getRootContainer()->remove(
                 static_cast< WQtNetworkItem* >( m_mainWindow->getNetworkEditor()->selectedItems().at( 0 ) )->getModule()
                 );
-
     }
 }
 

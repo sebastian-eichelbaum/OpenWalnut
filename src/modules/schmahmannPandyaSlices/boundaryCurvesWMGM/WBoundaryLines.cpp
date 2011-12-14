@@ -22,7 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <bitset>
+#include <list>
+
 #include <boost/unordered_map.hpp>
 
 #include <osg/Geode>

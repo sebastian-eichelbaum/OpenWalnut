@@ -22,22 +22,22 @@
 //
 //---------------------------------------------------------------------------
 
-#include <sstream>
 #include <iostream>
+#include <sstream>
+#include <string>
 
 #include <boost/lexical_cast.hpp>
 
 #include <osgDB/WriteFile>
 
 #include <QtCore/QDir>
-#include <QtGui/QApplication>
 #include <QtCore/QEvent>
+#include <QtGui/QApplication>
 #include <QtGui/QGroupBox>
 
-#include "WMainWindow.h"
-#include "events/WEventTypes.h"
 #include "core/common/WLogger.h"
-
+#include "events/WEventTypes.h"
+#include "WMainWindow.h"
 #include "WQtGLScreenCapture.h"
 #include "WQtGLScreenCapture.moc"
 

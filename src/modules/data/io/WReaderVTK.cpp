@@ -23,25 +23,25 @@
 //---------------------------------------------------------------------------
 
 #include <stdint.h>
+
 #include <fstream>
+#include <iosfwd>
 #include <string>
 #include <vector>
-#include <iosfwd>
 
 #include <boost/shared_ptr.hpp>
 
+#include "core/common/WAssert.h"
 #include "core/common/WIOTools.h"
 #include "core/common/WLimits.h"
-#include "core/common/WAssert.h"
 #include "core/common/WLogger.h"
 #include "core/common/WStringUtils.h"
-#include "core/dataHandler/WDataSet.h"
-#include "core/dataHandler/WGridRegular3D.h"
-#include "core/dataHandler/WDataSetScalar.h"
 #include "core/dataHandler/exceptions/WDHIOFailure.h"
 #include "core/dataHandler/exceptions/WDHNoSuchFile.h"
 #include "core/dataHandler/exceptions/WDHParseError.h"
-
+#include "core/dataHandler/WDataSet.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WGridRegular3D.h"
 #include "WReaderVTK.h"
 
 WReaderVTK::WReaderVTK( std::string fname )
@@ -152,7 +152,7 @@ void WReaderVTK::readStructuredPoints()
 
     // FIXME: setting a reasonable transform (in my case a scaling of 0.00025 for a 200x200x200 grid)
     // FIXME: does not show the data set, so this is disabled for now
-    WGridTransformOrtho transform( spacings[ 0 ], spacings[ 1 ], spacings[ 2 ] );
+    WGridTransformOrtho transform( spacings[ 0 ], spacings[ 1 ], spacings[ 2 ] ); // NOLINT since this is not transform from STL <algorithm>, but just a identifier
     transform.translate( origin ); // this is unclear in the codumentation of OpenWalnut
     this->newGrid.reset(
             new WGridRegular3D( dimensions[ 0 ], dimensions[ 1 ], dimensions[ 2 ], transform ) );

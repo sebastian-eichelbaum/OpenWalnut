@@ -26,9 +26,6 @@
 #define WPROPERTYSTRUCT_TEST_H
 
 #include <string>
-// NOTE: this is only included because the stylechecker wants this, although we never use std::vector. It thinks the mpl::vector is an
-// std::vector and NOLINT does not work there (why?)
-#include <vector>
 
 #include <cxxtest/TestSuite.h>
 

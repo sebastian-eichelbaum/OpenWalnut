@@ -22,16 +22,14 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
 #include <fstream>
+#include <string>
+#include <vector>
 
 #include "core/dataHandler/WFiberAccumulator.h"
-
 #include "core/kernel/WKernel.h"
-
-#include "WMFiberTranslator.xpm"
-
 #include "WMFiberTranslator.h"
+#include "WMFiberTranslator.xpm"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMFiberTranslator )

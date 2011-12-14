@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <vector>
+
 #include "WIntegrationParameterization.h"
 
 WIntegrationParameterization::WIntegrationParameterization( boost::shared_ptr< WGridRegular3D > grid ):

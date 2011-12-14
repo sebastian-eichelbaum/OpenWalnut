@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WCustomWidget.h"
 
 WCustomWidget::WCustomWidget( std::string title ):

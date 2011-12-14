@@ -22,14 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
-#include <osg/Vec3>
+#include <algorithm>
+#include <string>
+
 #include <osg/LineWidth>
 #include <osg/MatrixTransform>
+#include <osg/Vec3>
 
-#include "core/common/WPropertyHelper.h"
 #include "core/common/math/WMath.h"
-#include "core/graphicsEngine/WGEColormapping.h"
-#include "core/graphicsEngine/WGEGeodeUtils.h"
+#include "core/common/WPropertyHelper.h"
 #include "core/graphicsEngine/callbacks/WGELinearTranslationCallback.h"
 #include "core/graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "core/graphicsEngine/callbacks/WGEPropertyUniformCallback.h"
@@ -38,11 +39,12 @@
 #include "core/graphicsEngine/shaders/WGEShader.h"
 #include "core/graphicsEngine/shaders/WGEShaderDefineOptions.h"
 #include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
-#include "core/kernel/WSelectionManager.h"
+#include "core/graphicsEngine/WGEColormapping.h"
+#include "core/graphicsEngine/WGEGeodeUtils.h"
 #include "core/graphicsEngine/WGraphicsEngine.h"
 #include "core/graphicsEngine/WPickHandler.h"
 #include "core/kernel/WKernel.h"
-
+#include "core/kernel/WSelectionManager.h"
 #include "WMNavigationSlices.h"
 #include "WMNavigationSlices.xpm"
 
