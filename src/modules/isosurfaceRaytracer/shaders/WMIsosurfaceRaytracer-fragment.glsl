@@ -143,6 +143,10 @@ void main()
     wge_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
     gl_FragDepth = 1.0;
 
+#ifdef WGE_POSTPROCESSING_ENABLED
+    wge_FragZoom = 0.1 * v_worldScale;
+#endif
+
     // please do not laugh, it is a very very very simple "isosurface" shader
 
     // First, find the rayEnd point. We need to do it in the fragment shader as the ray end point may be interpolated wrong

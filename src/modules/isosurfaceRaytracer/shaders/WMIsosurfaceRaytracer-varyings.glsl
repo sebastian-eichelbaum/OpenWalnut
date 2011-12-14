@@ -39,3 +39,6 @@ varying vec3 v_normal;
 // The isovalue scaled using texture scaling information to [0,1]
 varying float v_isovalue;
 
+// The scaling component of the modelview matrix.
+varying float v_worldScale;
+

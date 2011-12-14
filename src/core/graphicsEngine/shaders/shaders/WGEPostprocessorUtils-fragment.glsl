@@ -237,5 +237,27 @@ float getZoom()
     return getZoom( pixelCoord );
 }
 
+/**
+ * Grab a vector from the noise texture. You should of course bind a RGB texture to u_noiseSampler.
+ *
+ * \param where position
+ *
+ * \return the unscaled vector in [-1,1] for each component
+ */
+vec3 getNoiseAsVector( in vec2 where )
+{
+    return texture2D( u_noiseSampler, where ).rgb * 2.0 - vec3( 1.0 );
+}
+
+/**
+ * Grab a vector from the noise texture. You should of course bind a RGB texture to u_noiseSampler.
+ *
+ * \return the unscaled vector in [-1,1] for each component
+ */
+vec3 getNoiseAsVector()
+{
+    return getNoiseAsVector( pixelCoord );
+}
+
 #endif // WGEPOSTPROCESSORUTILS_FRAGMENT_GLSL
 

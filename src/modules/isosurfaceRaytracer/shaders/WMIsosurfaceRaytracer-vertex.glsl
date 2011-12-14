@@ -81,6 +81,12 @@ void main()
     vec4 camLookAt = vec4( 0.0, 0.0, -1.0, 0.0 );
     v_ray = worldToLocal( camLookAt ).xyz;
 
+#ifdef WGE_POSTPROCESSING_ENABLED
+    // Keep track of scaling information. This is needed by some postprocessors.
+    // TODO(ebaum): I do not yet understand this factor! Fix this.
+    v_worldScale = 0.015 * getModelViewScale();
+#endif
+
     // Simply project the vertex
     gl_Position = ftransform();
     gl_FrontColor = gl_Color;

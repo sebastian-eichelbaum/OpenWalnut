@@ -96,12 +96,6 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > refere
 
     // let the props control some stuff
     addUpdateCallback( new WGESwitchCallback< WPropSelection >( m_activePostprocessor ) );
-
-    // some of the post-processors need some white noise, like the ssao
-   /* const size_t size = 64;
-    osg::ref_ptr< WGETexture2D > randTex = wge::genWhiteNoiseTexture( size, size, 3 );
-    m_postprocess->bind( randTex, 4 );
-    */
 }
 
 WGEPostprocessingNode::~WGEPostprocessingNode()

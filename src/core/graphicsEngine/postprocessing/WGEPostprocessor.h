@@ -71,8 +71,10 @@ public:
          * Attaches these textures to the specified renderpass
          *
          * \param to attach to this
+         *
+         * \return the ID of the NEXT free texture unit you can use
          */
-        void bind( osg::ref_ptr< WGEOffscreenRenderPass > to ) const;
+        size_t bind( osg::ref_ptr< WGEOffscreenRenderPass > to ) const;
 
         /**
          * Color in RGBA
