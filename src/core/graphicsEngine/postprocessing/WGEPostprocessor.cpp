@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WGEPostprocessorEdgeEnhance.h"
 #include "WGEPostprocessorCelShading.h"
 
@@ -86,13 +88,15 @@ WGEPostprocessor::PostprocessorInput WGEPostprocessor::PostprocessorInput::attac
     return buf;
 }
 
-void WGEPostprocessor::PostprocessorInput::bind( osg::ref_ptr< WGEOffscreenRenderPass > to ) const
+size_t WGEPostprocessor::PostprocessorInput::bind( osg::ref_ptr< WGEOffscreenRenderPass > to ) const
 {
     to->bind( m_colorTexture, 0 );
     to->bind( m_normalTexture, 1 );
     to->bind( m_parameterTexture, 2 );
     to->bind( m_depthTexture, 3 );
     to->bind( m_tangentTexture, 4 );
+
+    return 5;
 }
 
 WGEPostprocessor::ProcessorList WGEPostprocessor::getPostprocessors()

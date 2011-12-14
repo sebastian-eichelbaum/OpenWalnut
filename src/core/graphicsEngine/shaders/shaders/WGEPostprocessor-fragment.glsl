@@ -32,21 +32,10 @@
 #include "WGEPostprocessorUtils-fragment.glsl"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Uniforms
+// Global Uniforms
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// These are specific to the postprocessor
-
-/**
- * The number of bins to use for cel shading
- */
-uniform int u_celShadingBins = 2;
-
-/**
- * The threshold used to clip away "unwanted" borders. Basically removes noise
- */
-uniform float u_edgeEdgeThresholdLower = 0.25;
-uniform float u_edgeEdgeThresholdUpper = 0.75;
+// These are NOT specific to any postprocessor
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Varying
@@ -63,6 +52,14 @@ uniform float u_edgeEdgeThresholdUpper = 0.75;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Postprocessors
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef WGE_POSTPROCESSOR_EDGE
+
+/**
+ * The threshold used to clip away "unwanted" borders. Basically removes noise
+ */
+uniform float u_edgeEdgeThresholdLower = 0.25;
+uniform float u_edgeEdgeThresholdUpper = 0.75;
 
 /**
  * Apply laplace-filter to depth buffer. An edge is > 0.0.
@@ -105,6 +102,15 @@ float getEdge()
     return smoothstep( u_edgeEdgeThresholdLower, u_edgeEdgeThresholdUpper, edge );
 }
 
+#endif
+
+#ifdef WGE_POSTPROCESSOR_CEL
+
+/**
+ * The number of bins to use for cel shading
+ */
+uniform int u_celShadingBins = 2;
+
 /**
  * Calculate the cel-shading of a specified color. The number of colors is defined by the u_celShadingSamples uniform.
  *
@@ -131,6 +137,8 @@ vec4 getCelShading()
     return getCelShading( getColor() );
 }
 
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -143,6 +151,7 @@ void main()
     // don't do this stuff for background pixel
     float depth = getDepth();
     gl_FragDepth = depth;
+    gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
     if( depth > 0.99 )
     {
         discard;

@@ -35,7 +35,6 @@
 class WGEPostprocessorCelShading: public WGEPostprocessor
 {
 public:
-
     /**
      * Convenience typedef for a boost::shared_ptr< WGEPostprocessorCelShading >.
      */

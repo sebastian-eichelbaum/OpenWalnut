@@ -71,8 +71,10 @@ public:
          * Attaches these textures to the specified renderpass
          *
          * \param to attach to this
+         *
+         * \return the ID of the NEXT free texture unit you can use
          */
-        void bind( osg::ref_ptr< WGEOffscreenRenderPass > to ) const;
+        size_t bind( osg::ref_ptr< WGEOffscreenRenderPass > to ) const;
 
         /**
          * Color in RGBA
@@ -186,7 +188,8 @@ protected:
      * \param name a name for this postprocessor
      * \param description a useful description
      */
-    WGEPostprocessor( osg::ref_ptr< WGEOffscreenRenderNode > offscreen, const PostprocessorInput& gbuffer, std::string name, std::string description );
+    WGEPostprocessor( osg::ref_ptr< WGEOffscreenRenderNode > offscreen, const PostprocessorInput& gbuffer,
+                      std::string name, std::string description );
 
     /**
      * The texture contains the result
@@ -213,7 +216,6 @@ protected:
      */
     WGEShaderPreprocessor::SPtr m_effectOnlyPreprocessor;
 private:
-
     /**
      * Name string. Set by the constructor.
      */
