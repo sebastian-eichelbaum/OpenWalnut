@@ -32,6 +32,11 @@
 #include "WPropertyGroupBase.h"
 #include "WPropertyTypes.h"
 
+/**
+ * This is a dynamic property list. With its help, user can dynamically add items.
+ *
+ * \tparam T This is a property type. The list will then contain several of these properties.
+ */
 template< typename T >
 class WPropertyList: public WPropertyGroupBase
 {
