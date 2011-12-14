@@ -242,6 +242,219 @@ float getSSAO()
 
 #endif
 
+#ifdef WGE_POSTPROCESSOR_LINEAO
+
+#ifndef WGE_POSTPROCESSOR_LINEAO_SAMPLES
+    #define WGE_POSTPROCESSOR_LINEAO_SAMPLES 32
+#endif
+#ifndef WGE_POSTPROCESSOR_LINEAO_SCALERS
+    #define WGE_POSTPROCESSOR_LINEAO_SCALERS 3
+#endif
+
+/**
+ * The total influence of SSAO.
+ */
+//uniform float u_lineaoTotalStrength = 2.5;     // lines
+ uniform float u_lineaoTotalStrength = 2.5;     // brain lines
+//uniform float u_lineaoTotalStrength = 2.25;     // brain lines video
+//uniform float u_lineaoTotalStrength = 1.5;   // smallfibs
+//uniform float u_lineaoTotalStrength =2.0;   // smallfibs-corticospinal-tubes
+//uniform float u_lineaoTotalStrength =2.5;   // smallfibs-corticospinal-lines
+//uniform float u_lineaoTotalStrength = 2.0;   // deltawing tube
+//uniform float u_lineaoTotalStrength = 3.0;   // deltawing lines
+
+/**
+ * The radius of the hemispshere in screen-space which gets scaled.
+ */
+//uniform float u_lineaoRadiusSS = 2.0;   // lines
+uniform float u_lineaoRadiusSS = 2.5;   // brain lines
+//uniform float u_lineaoRadiusSS = 2.0;   // brain lines-video
+//uniform float u_lineaoRadiusSS = 2.5; // smallfibs
+//uniform float u_lineaoRadiusSS = 2.5;   // brain lines -corticospinal
+//uniform float u_lineaoRadiusSS = 1.0; // deltawing tube
+//uniform float u_lineaoRadiusSS = 2.5; // deltawing lines
+
+/**
+ * The strength of the occluder influence in relation to the geometry density. The higher the value, the larger the influence. Low values remove
+ * the drop-shadow effect.
+ */
+//uniform float u_lineaoDensityWeight = 2.0;    // video
+uniform float u_lineaoDensityWeight = 1.0;
+
+/**
+ * Calculate the screen-space ambient occlusion LineAO for the given pixel.
+ *
+ * \param where the pixel to get SSAO for
+ *
+ * \return the LineAO factor
+ */
+float getLineAO( vec2 where )
+{
+    #define SCALERS WGE_POSTPROCESSOR_LINEAO_SCALERS  // how much hemispheres to sample?
+    #define SAMPLES WGE_POSTPROCESSOR_LINEAO_SAMPLES  // the numbers of samples to check on the hemisphere
+    const float invSamples = 1.0 / float( SAMPLES );
+
+    // Fall-off for SSAO per occluder. This hould be zero (or nearly zero) since it defines what is counted as before, or behind.
+    const float falloff = 0.00001;
+
+    // grab a random normal for reflecting the sample rays later on
+    vec3 randNormal = normalize( ( texture2D( u_noiseSampler, where * u_noiseSizeX ).xyz * 2.0 ) - vec3( 1.0 ) );
+
+    // grab the current pixel's normal and depth
+    vec3 currentPixelSample = getNormal( where ).xyz;
+    float currentPixelDepth = getDepth( where );
+
+    // current fragment coords in screen space
+    vec3 ep = vec3( where.xy, currentPixelDepth );
+
+    // get the normal of current fragment
+    vec3 normal = currentPixelSample.xyz;
+
+    // the radius of the sphere is, in screen-space, half a pixel. So the hemisphere covers nearly one pixel. Scaling by depth somehow makes it
+    // more invariant for zooming
+    float radius = ( getZoom() * u_lineaoRadiusSS / float( u_texture0SizeX ) ) / ( 1.0 - currentPixelDepth );
+
+    // some temporaries needed inside the loop
+    vec3 ray;                     // the current ray inside the sphere
+    vec3 hemispherePoint;         // the point on the hemisphere
+    vec3 occluderNormal;          // the normal at the point on the hemisphere
+
+    float occluderDepth;          // the depth of the potential occluder on the hemisphere
+    float depthDifference;        // the depth difference between the current point and the occluder (point on hemisphere)
+    float normalDifference;       // the projection of the occluderNormal to the surface normal
+
+    // accumulated occlusion
+    float occlusion = 0.0;
+    float radiusScaler = 0.0;     // we sample with multiple radii, so use a scaling factor here
+
+    // this allows an adaptive radius
+    float[SCALERS] rads;
+    #define radScaleMin 0.5
+    #define radScaleMax 3.0
+    rads[0] = radScaleMin + 0.0 * ( radScaleMax / SCALERS );
+#if ( SCALERS > 1 )
+    rads[1] = radScaleMin + 1.0 * ( radScaleMax / SCALERS );
+#endif
+#if ( SCALERS > 2 )
+    rads[2] = radScaleMin + 2.0 * ( radScaleMax / SCALERS );
+#endif
+#if ( SCALERS > 3 )
+    rads[3] = radScaleMin + 3.0 * ( radScaleMax / SCALERS );
+#endif
+#if ( SCALERS > 4 )
+    rads[4] = radScaleMin + 4.0 * ( radScaleMax / SCALERS );
+#endif
+#if ( SCALERS > 5 )
+    rads[5] = radScaleMin + 5.0 * ( radScaleMax / SCALERS );
+#endif
+#if ( SCALERS > 6 )
+    rads[5] = radScaleMin + 6.0 * ( radScaleMax / SCALERS );
+#endif
+#if ( SCALERS > 7 )
+    rads[5] = radScaleMin + 7.0 * ( radScaleMax / SCALERS );
+#endif
+    float fac = 0.0;
+    float maxi = 0.0;
+
+    // sample for different radii
+    for( int l = 0; l < SCALERS; ++l )
+    {
+        float occlusionStep = 0.0;  // this variable accumulates the occlusion for the current radius
+        radiusScaler += rads[ l ];    // increment radius each time.
+
+        // Get SAMPLES-times samples on the hemisphere and check for occluders
+        for( int i = 0; i < SAMPLES; ++i )
+        {
+            // grab a rand normal from the noise texture
+            vec3 randSphereNormal = ( texture2D( u_noiseSampler, vec2( float( i ) / float( SAMPLES ),
+                                                                       float( l + 1 ) / float( SCALERS ) ) ).rgb * 2.0 ) - vec3( 1.0 );
+
+            // get a vector (randomized inside of a sphere with radius 1.0) from a texture and reflect it
+            vec3 hemisphereVector = reflect( randSphereNormal, randNormal );
+            ray = radiusScaler * radius * hemisphereVector;
+            ray = sign( dot( ray, normal ) ) * ray;
+
+            // if the ray is outside the hemisphere then change direction
+            hemispherePoint = ray + ep;
+
+            // HACK! Somehow handle borders
+            //if ( ( hemispherePoint.x < 0.0 ) || ( hemispherePoint.x > 0.65 ) )
+            //{
+            //    hemispherePoint.x *= -1.0;
+            //}
+            //if ( ( hemispherePoint.y < 0.0 ) || ( hemispherePoint.y > 0.575 ) )
+            //{
+            //    hemispherePoint.y *= -1.0;
+            //}
+
+            // get the depth of the occluder fragment
+            occluderDepth = getDepth( hemispherePoint.xy );
+
+            // get the normal of the occluder fragment
+            occluderNormal = getNormal( hemispherePoint.xy ).xyz;
+
+            // if depthDifference is negative = occluder is behind the current fragment -> occluding this fragment
+            depthDifference = currentPixelDepth - occluderDepth;
+
+            // calculate the difference between the normals as a weight. This weight determines how much the occluder occludes the fragment
+            // TODO(ebaum): evaluate these alternatives: the first one is the surface direction and occluder surface direction
+            float pointDiffuse = max( dot( hemisphereVector, normal ), 0.0 ); // this equals the diffuse term in Phong if lightDir is the
+                                                                              // occluder's surface
+
+            // TODO(ebaum): check normal again with another light
+            vec3 t = getTangent( hemispherePoint.xy ).xyz;
+            vec3 newnorm = normalize( cross( normalize( cross( t, normalize( hemisphereVector ) ) ), t ) );
+            float occluderDiffuse = max( dot( newnorm, gl_LightSource[0].position.xyz ), 0.0 );
+
+            // TODO(ebaum): better incorporate specular reflection
+            vec3 H = normalize( gl_LightSource[0].position.xyz + normalize( hemisphereVector ) );
+            float occluderSpecular = pow( max( dot( H, occluderNormal ), 0.0 ), 100.0 );
+
+            // this second is as proposed for AO, the omega (hemisphere vector) and surface normal
+            normalDifference = pointDiffuse * ( occluderSpecular + occluderDiffuse );
+            normalDifference = 1.0 - normalDifference;
+
+            // the higher the depth difference, the less it should influence the occlusion value since large space between geometry normally allows
+            // many light. It somehow can be described with "shadowiness". In other words, it describes the density of geometry and its influence to
+            // the occlusion.
+            float scaler = 1.0 - ( l / ( float( SCALERS - 1 ) ) );
+            float densityInfluence = scaler * scaler * u_lineaoDensityWeight;
+
+            //  This reduces the occlusion if the occluder is far away
+            float densityWeight = 1.0 - smoothstep( falloff, densityInfluence, depthDifference );
+            // This is the same as:
+            // float e0 = falloff;
+            // float e1 = densityInfluence;
+            // float r = ( depthDifference - e0 ) / ( e1 - e0 );
+            // float densityWeight = 1.0 - smoothstep( 0.0, 1.0, r );
+
+            // the following step function ensures that negative depthDifference values get clamped to 0, meaning that this occluder should have NO
+            // influence on the occlusion value. A positive value (fragment is behind the occluder) increases the occlusion factor according to the
+            // normal weight and density weight
+            occlusionStep += invSamples * normalDifference * densityWeight * step( falloff, depthDifference );
+        }
+
+        // for this radius, add to total occlusion
+        occlusion += occlusionStep / float( SCALERS );
+        maxi = max( occlusionStep, maxi );
+    }
+
+    // output the result
+    return clamp( ( 1.0 - ( u_lineaoTotalStrength * occlusion ) ), 0, 1 );
+}
+
+/**
+ * Calculate the screen-space ambient occlusion  LineAO for the current pixel.
+ *
+ * \return the LineAO factor
+ */
+float getLineAO()
+{
+    return getLineAO( pixelCoord );
+}
+
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -297,6 +510,15 @@ void main()
         gl_FragColor = vec4( getColor().rgb * getSSAO(), 1.0 );
     #else
         gl_FragColor = vec4( vec3( getSSAO() ), 1.0 );
+    #endif
+#endif
+
+#ifdef WGE_POSTPROCESSOR_LINEAO
+    // output color AND SSAO?
+    #ifdef WGE_POSTPROCESSOR_OUTPUT_COMBINE
+        gl_FragColor = vec4( getColor().rgb * getLineAO(), 1.0 );
+    #else
+        gl_FragColor = vec4( vec3( getLineAO() ), 1.0 );
     #endif
 #endif
 }

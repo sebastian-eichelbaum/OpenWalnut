@@ -25,7 +25,7 @@
 #include <osg/Camera>
 
 #include "../shaders/WGEPropertyUniform.h"
-#include "../shaders/WGEShaderPropertyDefineOptions.h"
+#include "../shaders/WGEShaderPropertyDefine.h"
 
 #include "WGEPostprocessorLineAO.h"
 
@@ -41,35 +41,64 @@ WGEPostprocessorLineAO::WGEPostprocessorLineAO( osg::ref_ptr< WGEOffscreenRender
                       "LineAO",
                       "LineAO is a special ambient occlusion technique optimized for dense line and tube rendering." )
 {
-    // we also provide a property
-    WPropBool whiteEdge = m_properties->addProperty( "White Edge", "If set, the edge is drawn in white instead of black.", false );
-    WPropDouble edgeThresholdL = m_properties->addProperty( "Edge Lower Threshold", "Define the edge threshold. Filters way \"weak\" edges.", 0.0 );
-    WPropDouble edgeThresholdU = m_properties->addProperty( "Edge Upper Threshold", "Define the edge threshold. Filters way \"weak\" edges.", 1.0 );
-    edgeThresholdL->setMin( 0.0 );
-    edgeThresholdL->setMax( 1.0 );
-    edgeThresholdU->setMin( 0.0 );
-    edgeThresholdU->setMax( 1.0 );
+    // the LineAO algorithm has some parameters. Provide these parameters to the user
+    WPropInt lineaoSamples = m_properties->addProperty( "Samples", "The number of samples to take in screen-space. Higher values produce better "
+                                                                 "quality but can reduce FPS dramatically.", 32 );
+    lineaoSamples->setMin( 1 );
+    lineaoSamples->setMax( 128 );
+
+    WPropInt lineaoScalers = m_properties->addProperty( "Hemispheres", "The number of hemispheres to sample around each pixel. Higher values "
+                                                                       "produce better quality but can reduce FPS dramatically.", 3 );
+    lineaoScalers->setMin( 1 );
+    lineaoScalers->setMax( 8 );
+
+    WPropDouble lineaoRadiusSS = m_properties->addProperty( "Radius", "The radius around the pixel to sample for occluders in pixels.", 2.5 );
+    lineaoRadiusSS->setMin( 0.0 );
+    lineaoRadiusSS->setMax( 100.0 );
+
+    WPropDouble lineaoTotalStrength = m_properties->addProperty( "Total Strength", "The strength of the effect. Higher values emphasize the effect.",
+                                                                                 2.5 );
+    lineaoTotalStrength->setMin( 0.0 );
+    lineaoTotalStrength->setMax( 10.0 );
+
+    WPropDouble lineaoDensityWeight = m_properties->addProperty( "Density Weight", "The strength of the occluder influence in relation to the "
+                                                                                   "geometry density. The higher the value, the larger the "
+                                                                                   "influence. Low values remove the drop-shadow effect. "
+                                                                                   "This defines the influence of one occluder to the overall "
+                                                                                   "AO effect.", 1.0 );
+    lineaoDensityWeight->setMin( 0.0 );
+    lineaoDensityWeight->setMax( 2.0 );
+
 
     // Use the standard postprocessor uber-shader
     WGEShader::RefPtr s = new WGEShader( "WGEPostprocessor" );
-    s->setDefine( "WGE_POSTPROCESSOR_EDGE" );
+    s->setDefine( "WGE_POSTPROCESSOR_LINEAO" );
 
     // also add the m_effectOnly property as shader preprocessor
     s->addPreprocessor( m_effectOnlyPreprocessor );
     s->addPreprocessor( WGEShaderPreprocessor::SPtr(
-        new WGEShaderPropertyDefineOptions< WPropBool >( whiteEdge, "WGE_POSTPROCESSOR_EDGE_BLACKEDGE", "WGE_POSTPROCESSOR_EDGE_WHITEEDGE" ) )
+        new WGEShaderPropertyDefine< WPropInt >( "WGE_POSTPROCESSOR_LINEAO_SCALERS", lineaoScalers ) )
+    );
+    s->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefine< WPropInt >( "WGE_POSTPROCESSOR_LINEAO_SAMPLES", lineaoSamples ) )
     );
 
     // create the rendering pass
-    osg::ref_ptr< WGEOffscreenTexturePass > pass = offscreen->addTextureProcessingPass( s, "Edge Detection" );
-    pass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_edgeEdgeThresholdUpper", edgeThresholdU ) );
-    pass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_edgeEdgeThresholdLower", edgeThresholdL ) );
+    osg::ref_ptr< WGEOffscreenTexturePass > pass = offscreen->addTextureProcessingPass( s, "LineAO" );
+    pass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_lineaoDensityWeight", lineaoDensityWeight ) );
+    pass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_lineaoTotalStrength", lineaoTotalStrength ) );
+    pass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_lineaoRadiusSS", lineaoRadiusSS ) );
 
     // attach color0 output
     m_resultTexture = pass->attach( osg::Camera::COLOR_BUFFER0, GL_RGB );
 
     // provide the Gbuffer input
-    gbuffer.bind( pass );
+    size_t gBufUnitOffset = gbuffer.bind( pass );
+
+    // this effect needs some additional noise texture:
+    const size_t size = 64;
+    osg::ref_ptr< WGETexture2D > randTex = wge::genWhiteNoiseTexture( size, size, 3 );
+    pass->bind( randTex, gBufUnitOffset );
 }
 
 WGEPostprocessorLineAO::~WGEPostprocessorLineAO()
