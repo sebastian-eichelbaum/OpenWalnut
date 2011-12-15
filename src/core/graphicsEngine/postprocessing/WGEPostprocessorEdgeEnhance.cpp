@@ -37,7 +37,7 @@ WGEPostprocessorEdgeEnhance::WGEPostprocessorEdgeEnhance():
 
 WGEPostprocessorEdgeEnhance::WGEPostprocessorEdgeEnhance( osg::ref_ptr< WGEOffscreenRenderNode > offscreen,
                                                           const WGEPostprocessor::PostprocessorInput& gbuffer ):
-    WGEPostprocessor( offscreen, gbuffer, "Edge Enhance",
+    WGEPostprocessor( "Edge Enhance",
                       "Edge detection filter to emphasize edges in complex geometry." )
 {
     // we also provide a property
@@ -65,7 +65,7 @@ WGEPostprocessorEdgeEnhance::WGEPostprocessorEdgeEnhance( osg::ref_ptr< WGEOffsc
     pass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_edgeEdgeThresholdLower", edgeThresholdL ) );
 
     // attach color0 output
-    m_resultTexture = pass->attach( osg::Camera::COLOR_BUFFER0, GL_RGB );
+    m_resultTextures.push_back( pass->attach( osg::Camera::COLOR_BUFFER0, GL_RGB ) );
 
     // provide the Gbuffer input
     gbuffer.bind( pass );

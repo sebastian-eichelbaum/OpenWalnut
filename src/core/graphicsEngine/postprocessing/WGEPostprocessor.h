@@ -59,6 +59,34 @@ public:
     {
     public:
         /**
+         * Constructs an instance from a given list of textures. The order in the list define color, normal, parameter, tangent, depth. There are
+         * no restrictions to the input list. If textures are missing, the corresponding textures in the GBuffer are missing.
+         *
+         * \param from source list
+         */
+        explicit PostprocessorInput( std::vector< osg::ref_ptr< osg::Texture2D > > from );
+
+        /**
+         * Construct GBuffer with an explicit list of textures.
+         *
+         * \param color color texture
+         * \param normal normal texture
+         * \param parameter parameter texture
+         * \param tangent tangent texture
+         * \param depth depth texture
+         */
+        PostprocessorInput( osg::ref_ptr< osg::Texture2D > color,
+                            osg::ref_ptr< osg::Texture2D > normal,
+                            osg::ref_ptr< osg::Texture2D > parameter,
+                            osg::ref_ptr< osg::Texture2D > tangent,
+                            osg::ref_ptr< osg::Texture2D > depth );
+
+        /**
+         * Constructor creates empty GBuffer. All textures are un-initialized.
+         */
+        PostprocessorInput();
+
+        /**
          * Attaches the needed textures to the specified render pass and returns the G-Buffer
          *
          * \param from the renderpass to attach this to
@@ -138,7 +166,8 @@ public:
     virtual ~WGEPostprocessor();
 
     /**
-     * Create instance. Uses the protected constructor. Implement it if you derive from this class!
+     * Create instance. Uses the protected constructor. Implement it if you derive from this class! This is called whenever your postprocessor is
+     * applied to the standard render-output. You can add your own constructors and creators for other cases.
      *
      * \param offscreen use this offscreen node to add your texture pass'
      * \param gbuffer the input textures you should use
@@ -155,12 +184,21 @@ public:
     /**
      * Returns the result texture. Use this to continue processing.
      *
+     * \param idx which output. Each postprocessor returns at least one texture in index 0, which also is the default value
+     *
      * \return the result texture
      */
-    virtual osg::ref_ptr< osg::Texture2D > getOutput() const;
+    virtual osg::ref_ptr< osg::Texture2D > getOutput( size_t idx = 0 ) const;
 
     /**
-     * Returns the new depth texture. Allows you to modify the depth values. By default, this is the input depth texture.
+     * This processor can produce multiple outputs. Grab them here. This vector always contains at least the first filtered texture in unit 0.
+     *
+     * \return the vector as copy.
+     */
+    const std::vector< osg::ref_ptr< osg::Texture2D > >& getOutputList() const;
+
+    /**
+     * Returns the new depth texture. Allows you to modify the depth values. By default, this is NULL. Check this!
      *
      * \return the depth texture
      */
@@ -181,20 +219,9 @@ public:
     virtual const std::string getDescription() const;
 protected:
     /**
-     * Constructor. Call this constructor from your derived class.
-     *
-     * \param offscreen use this offscreen node to add your texture pass'
-     * \param gbuffer the input textures you should use
-     * \param name a name for this postprocessor
-     * \param description a useful description
+     * The textures contain the result. Add at least one result texture
      */
-    WGEPostprocessor( osg::ref_ptr< WGEOffscreenRenderNode > offscreen, const PostprocessorInput& gbuffer,
-                      std::string name, std::string description );
-
-    /**
-     * The texture contains the result
-     */
-    osg::ref_ptr< osg::Texture2D > m_resultTexture;
+    std::vector< osg::ref_ptr< osg::Texture2D > > m_resultTextures;
 
     /**
      * The texture contains the new depth

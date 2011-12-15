@@ -139,6 +139,51 @@ vec4 getCelShading()
 
 #endif
 
+#ifdef WGE_POSTPROCESSOR_GAUSS
+
+/**
+ * Returns the gauss-smoothed color of the specified pixel from the input texture.
+ *
+ * \param where the pixel to grab
+ * \param sampler the texture to gauss
+ *
+ * \return the color
+ */
+vec4 getGaussedColor( vec2 where, sampler2D sampler )
+{
+    // get the 8-neighbourhood
+    vec4 gaussedColorc  = texture2D( sampler, where );
+    vec4 gaussedColorbl = texture2D( sampler, where + vec2( -offsetX, -offsetY ) );
+    vec4 gaussedColorl  = texture2D( sampler, where + vec2( -offsetX,     0.0  ) );
+    vec4 gaussedColortl = texture2D( sampler, where + vec2( -offsetX,  offsetY ) );
+    vec4 gaussedColort  = texture2D( sampler, where + vec2(     0.0,   offsetY ) );
+    vec4 gaussedColortr = texture2D( sampler, where + vec2(  offsetX,  offsetY ) );
+    vec4 gaussedColorr  = texture2D( sampler, where + vec2(  offsetX,     0.0  ) );
+    vec4 gaussedColorbr = texture2D( sampler, where + vec2(  offsetX,  offsetY ) );
+    vec4 gaussedColorb  = texture2D( sampler, where + vec2(     0.0,  -offsetY ) );
+
+    // apply Gauss filter
+    vec4 gaussed = ( 1.0 / 16.0 ) * (
+            1.0 * gaussedColortl +  2.0 * gaussedColort + 1.0 * gaussedColortr +
+            2.0 * gaussedColorl  +  4.0 * gaussedColorc + 2.0 * gaussedColorr  +
+            1.0 * gaussedColorbl +  2.0 * gaussedColorb + 1.0 * gaussedColorbr );
+    return gaussed;
+}
+
+/**
+ * Returns the gauss-smoothed color of the current pixel from the input color texture.
+ *
+ * \param sampler the texture to gauss
+ *
+ * \return the color
+ */
+vec4 getGaussedColor( sampler2D sampler )
+{
+    return getGaussedColor( pixelCoord, sampler );
+}
+
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -149,13 +194,7 @@ vec4 getCelShading()
 void main()
 {
     // don't do this stuff for background pixel
-    float depth = getDepth();
-    gl_FragDepth = depth;
-    gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
-    if( depth > 0.99 )
-    {
-        discard;
-    }
+    gl_FragData[0] = vec4( 1.0, 0.0, 0.0, 1.0 );
 
 #ifdef WGE_POSTPROCESSOR_EDGE
     // output the depth and final color.
@@ -170,7 +209,7 @@ void main()
         #endif
 
         // apply operation and output color
-        gl_FragColor = vec4( getColor().rgb EDGEOP, 1.0 );
+        gl_FragData[0] = vec4( getColor().rgb EDGEOP, 1.0 );
     #else
         // also do this for the effect-only output
         #ifdef WGE_POSTPROCESSOR_EDGE_BLACKEDGE
@@ -179,13 +218,76 @@ void main()
             // for white borders, add
             #define EDGEOP 0.0 +
         #endif
-        gl_FragColor = vec4( vec3( EDGEOP getEdge() ), 1.0 );
+        gl_FragData[0] = vec4( vec3( EDGEOP getEdge() ), 1.0 );
     #endif
 #endif
 
 #ifdef WGE_POSTPROCESSOR_CEL
     // output the depth and final color.
-    gl_FragColor = getCelShading();
+    gl_FragData[0] = getCelShading();
+#endif
+
+#ifdef WGE_POSTPROCESSOR_GAUSS
+    // output the depth and final color.
+    #ifdef WGE_POSTPROCESSOR_GAUSS_UNIT0
+        gl_FragData[0] = getGaussedColor( pixelCoord, u_texture0Sampler );
+    #endif
+    #ifdef WGE_POSTPROCESSOR_GAUSS_UNIT1
+        gl_FragData[1] = getGaussedColor( pixelCoord, u_texture1Sampler );
+    #endif
+    #ifdef WGE_POSTPROCESSOR_GAUSS_UNIT2
+        gl_FragData[2] = getGaussedColor( pixelCoord, u_texture2Sampler );
+    #endif
+    #ifdef WGE_POSTPROCESSOR_GAUSS_UNIT3
+        gl_FragData[3] = getGaussedColor( pixelCoord, u_texture3Sampler );
+    #endif
+    #ifdef WGE_POSTPROCESSOR_GAUSS_UNIT4
+        gl_FragData[4] = getGaussedColor( pixelCoord, u_texture4Sampler );
+    #endif
+    #ifdef WGE_POSTPROCESSOR_GAUSS_UNIT5
+        gl_FragData[5] = getGaussedColor( pixelCoord, u_texture5Sampler );
+    #endif
+    #ifdef WGE_POSTPROCESSOR_GAUSS_UNIT6
+        gl_FragData[6] = getGaussedColor( pixelCoord, u_texture6Sampler );
+    #endif
+    #ifdef WGE_POSTPROCESSOR_GAUSS_UNIT7
+        gl_FragData[7] = getGaussedColor( pixelCoord, u_texture7Sampler );
+    #endif
+#endif
+
+#ifdef WGE_POSTPROCESSOR_MERGEOP
+    // output the depth and final color.
+    #ifdef WGE_POSTPROCESSOR_MERGEOP_CUSTOM
+        vec4 color = vec4( 1.0 );
+        %WGE_POSTPROCESSOR_MERGEOP_CODE%
+        gl_FragData[0] = color;
+    #else
+        #ifdef WGE_POSTPROCESSOR_MERGEOP_UNIT0
+            vec4 color = texture2D( u_texture0Sampler, pixelCoord );
+        #endif
+        #ifdef WGE_POSTPROCESSOR_MERGEOP_UNIT1
+            color = mix( color, texture2D( u_texture1Sampler, pixelCoord ), 0.5 );
+        #endif
+        #ifdef WGE_POSTPROCESSOR_MERGEOP_UNIT2
+            color = mix( color, texture2D( u_texture2Sampler, pixelCoord ), 0.5 );
+        #endif
+        #ifdef WGE_POSTPROCESSOR_MERGEOP_UNIT3
+            color = mix( color, texture2D( u_texture3Sampler, pixelCoord ), 0.5 );
+        #endif
+        #ifdef WGE_POSTPROCESSOR_MERGEOP_UNIT4
+            color = mix( color, texture2D( u_texture4Sampler, pixelCoord ), 0.5 );
+        #endif
+        #ifdef WGE_POSTPROCESSOR_MERGEOP_UNIT5
+            color = mix( color, texture2D( u_texture5Sampler, pixelCoord ), 0.5 );
+        #endif
+        #ifdef WGE_POSTPROCESSOR_MERGEOP_UNIT6
+            color = mix( color, texture2D( u_texture6Sampler, pixelCoord ), 0.5 );
+        #endif
+        #ifdef WGE_POSTPROCESSOR_MERGEOP_UNIT7
+            color = mix( color, texture2D( u_texture7Sampler, pixelCoord ), 0.5 );
+        #endif
+        gl_FragData[0] = color;
+    #endif
 #endif
 }
 
