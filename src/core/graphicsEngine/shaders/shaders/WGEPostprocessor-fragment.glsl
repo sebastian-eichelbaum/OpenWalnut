@@ -233,7 +233,7 @@ float getSSAO( vec2 where, float radius )
     vec3 fres = normalize( ( texture2D( u_noiseSampler, where * u_noiseSizeX ).xyz * 2.0 ) - vec3( 1.0 ) );
     vec4 currentPixelSample = getNormal( where );
     float currentPixelDepth = getDepth( where );
-    float radiusSS = ( getZoom() * u_ssaoRadius / float( u_texture0SizeX ) ) / ( 1.0 - currentPixelDepth );
+    float radiusSS = radius * ( getZoom() * u_ssaoRadius / float( u_texture0SizeX ) ) / ( 1.0 - currentPixelDepth );
 
     // current fragment coords in screen space
     vec3 ep = vec3( where.xy, currentPixelDepth );
@@ -510,13 +510,7 @@ float getLineAO()
 void main()
 {
     // don't do this stuff for background pixel
-    float depth = getDepth();
-    gl_FragDepth = depth;
     gl_FragData[0] = vec4( 1.0, 0.0, 0.0, 1.0 );
-    if( depth > 0.99 )
-    {
-        discard;
-    }
 
 #ifdef WGE_POSTPROCESSOR_EDGE
     // output the depth and final color.
@@ -574,6 +568,41 @@ void main()
     #endif
     #ifdef WGE_POSTPROCESSOR_GAUSS_UNIT7
         gl_FragData[7] = getGaussedColor( pixelCoord, u_texture7Sampler );
+    #endif
+#endif
+
+#ifdef WGE_POSTPROCESSOR_MERGEOP
+    // output the depth and final color.
+    #ifdef WGE_POSTPROCESSOR_MERGEOP_CUSTOM
+        vec4 color = vec4( 1.0 );
+        %WGE_POSTPROCESSOR_MERGEOP_CODE%
+        gl_FragData[0] = color;
+    #else
+        #ifdef WGE_POSTPROCESSOR_MERGEOP_UNIT0
+            vec4 color = texture2D( u_texture0Sampler, pixelCoord );
+        #endif
+        #ifdef WGE_POSTPROCESSOR_MERGEOP_UNIT1
+            color = mix( color, texture2D( u_texture1Sampler, pixelCoord ), 0.5 );
+        #endif
+        #ifdef WGE_POSTPROCESSOR_MERGEOP_UNIT2
+            color = mix( color, texture2D( u_texture2Sampler, pixelCoord ), 0.5 );
+        #endif
+        #ifdef WGE_POSTPROCESSOR_MERGEOP_UNIT3
+            color = mix( color, texture2D( u_texture3Sampler, pixelCoord ), 0.5 );
+        #endif
+        #ifdef WGE_POSTPROCESSOR_MERGEOP_UNIT4
+            color = mix( color, texture2D( u_texture4Sampler, pixelCoord ), 0.5 );
+        #endif
+        #ifdef WGE_POSTPROCESSOR_MERGEOP_UNIT5
+            color = mix( color, texture2D( u_texture5Sampler, pixelCoord ), 0.5 );
+        #endif
+        #ifdef WGE_POSTPROCESSOR_MERGEOP_UNIT6
+            color = mix( color, texture2D( u_texture6Sampler, pixelCoord ), 0.5 );
+        #endif
+        #ifdef WGE_POSTPROCESSOR_MERGEOP_UNIT7
+            color = mix( color, texture2D( u_texture7Sampler, pixelCoord ), 0.5 );
+        #endif
+        gl_FragData[0] = color;
     #endif
 #endif
 

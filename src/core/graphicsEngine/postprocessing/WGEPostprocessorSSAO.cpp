@@ -83,7 +83,7 @@ WGEPostprocessorSSAO::WGEPostprocessorSSAO( osg::ref_ptr< WGEOffscreenRenderNode
     pass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_ssaoFalloff", ssaoFalloff ) );
 
     // attach color0 output
-    m_resultTexture = pass->attach( osg::Camera::COLOR_BUFFER0, GL_RGB );
+    m_resultTextures.push_back( pass->attach( osg::Camera::COLOR_BUFFER0, GL_RGB ) );
 
     // provide the Gbuffer input
     size_t gBufUnitOffset = gbuffer.bind( pass );

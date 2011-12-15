@@ -61,7 +61,7 @@ WGEPostprocessorCelShading::WGEPostprocessorCelShading( osg::ref_ptr< WGEOffscre
     pass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropInt >( "u_celShadingBins", bins ) );
 
     // attach color0 output
-    m_resultTexture = pass->attach( osg::Camera::COLOR_BUFFER0, GL_RGBA );
+    m_resultTextures.push_back( pass->attach( osg::Camera::COLOR_BUFFER0, GL_RGBA ) );
 
     // provide the Gbuffer input
     gbuffer.bind( pass );

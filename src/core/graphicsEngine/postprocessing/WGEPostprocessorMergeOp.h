@@ -22,36 +22,38 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGEPOSTPROCESSORGAUSS_H
-#define WGEPOSTPROCESSORGAUSS_H
+#ifndef WGEPOSTPROCESSORMERGEOP_H
+#define WGEPOSTPROCESSORMERGEOP_H
 
 #include <boost/shared_ptr.hpp>
 
 #include <osg/Texture2D>
 
+#include "../shaders/WGEShader.h"
+#include "../shaders/WGEShaderCodeInjector.h"
+
 #include "WGEPostprocessor.h"
 
 /**
- * Gauss filtering of the input. It does filter all the textures you bind on it and returns a gauss filtered version. If you want to define the
- * exact list of textures to filter in one pass, use the alternative \ref create call.
+ * MergeOp is a operator to merge multiple input texture. The merge operation can be defined by the user.
  */
-class WGEPostprocessorGauss: public WGEPostprocessor
+class WGEPostprocessorMergeOp: public WGEPostprocessor
 {
 public:
     /**
-     * Convenience typedef for a boost::shared_ptr< WGEPostprocessorGauss >.
+     * Convenience typedef for a boost::shared_ptr< WGEPostprocessorMergeOp >.
      */
-    typedef boost::shared_ptr< WGEPostprocessorGauss > SPtr;
+    typedef boost::shared_ptr< WGEPostprocessorMergeOp > SPtr;
 
     /**
-     * Convenience typedef for a boost::shared_ptr< const WGEPostprocessorGauss >.
+     * Convenience typedef for a boost::shared_ptr< const WGEPostprocessorMergeOp >.
      */
-    typedef boost::shared_ptr< const WGEPostprocessorGauss > ConstSPtr;
+    typedef boost::shared_ptr< const WGEPostprocessorMergeOp > ConstSPtr;
 
     /**
      * Default constructor.
      */
-    WGEPostprocessorGauss();
+    WGEPostprocessorMergeOp();
 
     /**
      * Constructor. We implement a public constructor which can take more textures as input
@@ -66,7 +68,7 @@ public:
      * \param tex6 texture to filter
      * \param tex7 texture to filter
      */
-    WGEPostprocessorGauss( osg::ref_ptr< WGEOffscreenRenderNode > offscreen,
+    WGEPostprocessorMergeOp( osg::ref_ptr< WGEOffscreenRenderNode > offscreen,
                            osg::ref_ptr< osg::Texture2D > tex0,
                            osg::ref_ptr< osg::Texture2D > tex1 = osg::ref_ptr< osg::Texture2D >(),
                            osg::ref_ptr< osg::Texture2D > tex2 = osg::ref_ptr< osg::Texture2D >(),
@@ -79,7 +81,7 @@ public:
     /**
      * Destructor.
      */
-    virtual ~WGEPostprocessorGauss();
+    virtual ~WGEPostprocessorMergeOp();
 
     /**
      * Create instance. Uses the protected constructor. Implement it if you derive from this class!
@@ -89,9 +91,27 @@ public:
      */
     virtual WGEPostprocessor::SPtr create( osg::ref_ptr< WGEOffscreenRenderNode > offscreen,
                                            const PostprocessorInput& gbuffer ) const;
+
+    /**
+     * Set the GLSL code inserted into the shader as merging operation. If none was set, the mix command is used for each incoming texture. The
+     * code you write here should not make any assumptions to the environment it is inserted. What you have is a vec4 named color, initialized
+     * with vec4( 1.0 ). Set your final color to this vec4. It will be the result.
+     *
+     * \param code the code as string
+     */
+    void setGLSLMergeCode( std::string code );
 protected:
 private:
+    /**
+     * The shader used for merging
+     */
+    WGEShader::RefPtr m_mergeOpShader;
+
+    /**
+     * This preprocessor handles insertion of the custom merge code.
+     */
+    WGEShaderCodeInjector::SPtr m_codeInjector;
 };
 
-#endif  // WGEPOSTPROCESSORGAUSS_H
+#endif  // WGEPOSTPROCESSORMERGEOP_H
 
