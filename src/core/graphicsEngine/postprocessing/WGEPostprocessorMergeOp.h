@@ -25,6 +25,8 @@
 #ifndef WGEPOSTPROCESSORMERGEOP_H
 #define WGEPOSTPROCESSORMERGEOP_H
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include <osg/Texture2D>

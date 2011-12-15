@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include <osg/Camera>
 
 #include "../../common/WLogger.h"

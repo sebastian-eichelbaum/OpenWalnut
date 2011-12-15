@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <vector>
 
 #include "WGEPostprocessorEdgeEnhance.h"
 #include "WGEPostprocessorCelShading.h"
