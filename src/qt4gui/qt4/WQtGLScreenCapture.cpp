@@ -141,7 +141,8 @@ WQtGLScreenCapture::WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* par
 
     QLabel* screenshotLabel = new QLabel();
     screenshotLabel->setWordWrap( true );
-    screenshotLabel->setText( "Take a screenshot of the current scene with the current camera. You need to specify a filename." );
+    screenshotLabel->setText( "Take a screenshot of the current scene with the current camera. You need to specify "
+                              "a filename in the toolbox item \"Configuration\"." );
     screenshotLayout->addWidget( screenshotLabel );
     screenshotLayout->addWidget( m_screenshotButton );
 
@@ -155,7 +156,8 @@ WQtGLScreenCapture::WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* par
 
     QLabel* movieLabel = new QLabel();
     movieLabel->setWordWrap( true );
-    movieLabel->setText( "Take a screenshot for every frame with the current camera. You need to specify a filename. "
+    movieLabel->setText( "Take a screenshot for every frame with the current camera. You need to specify a filename "
+                         "in the toolbox item \"Configuration\". "
                               "You should always add %f to your filename to differentiate between each frame. "
                               "This kind of recording can be very slow and produce a high IO load on your machine. Consider recording movies with "
                               "the animation tool which plays back a previously recorded scene and snapshot it frame-wise. "
