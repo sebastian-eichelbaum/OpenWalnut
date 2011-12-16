@@ -92,7 +92,7 @@ void WMHud::moduleMain()
     // NOTE: ALWAYS remove your osg nodes!
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
     // disconnect from picking
-    boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Main View" );
     if( viewer->getPickHandler() )
     {
         viewer->getPickHandler()->getPickSignal()->disconnect( boost::bind( &WMHud::updatePickText, this, _1 ) );
@@ -207,7 +207,7 @@ void WMHud::init()
     }
 
     // connect updateGFX with picking
-    boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Main View" );
     WAssert( viewer, "Requested viewer (main) not found." );
     if(viewer->getPickHandler() )
     {

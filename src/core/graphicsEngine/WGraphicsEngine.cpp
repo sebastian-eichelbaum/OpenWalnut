@@ -168,7 +168,7 @@ boost::shared_ptr< WGEViewer > WGraphicsEngine::getViewerByName( std::string nam
 boost::shared_ptr< WGEViewer > WGraphicsEngine::getViewer()
 {
     boost::mutex::scoped_lock lock( m_viewersLock );
-    return m_viewers[ "main" ];
+    return m_viewers[ "Main View" ];
 }
 
 bool WGraphicsEngine::isRunning()

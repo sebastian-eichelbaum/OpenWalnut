@@ -87,7 +87,7 @@ boost::shared_ptr< WCrosshair >WSelectionManager::getCrosshair()
 int WSelectionManager::getFrontSector()
 {
     boost::shared_ptr< WGEViewer > viewer;
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Main View" );
     viewer->getCamera()->getViewMatrix();
     osg::Matrix rm = viewer->getCamera()->getViewMatrix();
 

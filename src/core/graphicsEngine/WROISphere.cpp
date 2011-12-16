@@ -56,7 +56,7 @@ WROISphere::WROISphere( WPosition position, float radius ) :
 {
     boost::shared_ptr< WGraphicsEngine > ge = WGraphicsEngine::getGraphicsEngine();
     assert( ge );
-    boost::shared_ptr< WGEViewer > viewer = ge->getViewerByName( "main" );
+    boost::shared_ptr< WGEViewer > viewer = ge->getViewerByName( "Main View" );
     assert( viewer );
     m_viewer = viewer;
     m_pickHandler = m_viewer->getPickHandler();

@@ -232,7 +232,7 @@ void WMainWindow::setupGUI()
     m_glDock->setDockOptions( QMainWindow::AnimatedDocks |  QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks );
     m_glDock->setDocumentMode( true );
     setCentralWidget( m_glDock );
-    WQtGLDockWidget* mainGLDock = new WQtGLDockWidget( "main", "3D View", m_glDock );
+    WQtGLDockWidget* mainGLDock = new WQtGLDockWidget( "Main View", "3D View", m_glDock );
     mainGLDock->getGLWidget()->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
     m_mainGLWidget = mainGLDock->getGLWidget();
     m_mainGLWidgetScreenCapture = m_mainGLWidget->getScreenCapture( this );
@@ -772,7 +772,7 @@ void WMainWindow::openOpenWalnutHelpDialog()
 void WMainWindow::setPresetViewLeft()
 {
     boost::shared_ptr< WGEViewer > viewer;
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Main View" );
     osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
     osg::Quat q( 0.5, -0.5, -0.5, 0.5 );
     cm->setRotation( q );
@@ -781,7 +781,7 @@ void WMainWindow::setPresetViewLeft()
 void WMainWindow::setPresetViewRight()
 {
     boost::shared_ptr< WGEViewer > viewer;
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Main View" );
     osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
     osg::Quat q( -0.5, -0.5, -0.5, -0.5 );
     cm->setRotation( q );
@@ -790,7 +790,7 @@ void WMainWindow::setPresetViewRight()
 void WMainWindow::setPresetViewSuperior()
 {
     boost::shared_ptr< WGEViewer > viewer;
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Main View" );
     osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
     osg::Quat q( 0., 0., 0., 1 );
     cm->setRotation( q );
@@ -799,7 +799,7 @@ void WMainWindow::setPresetViewSuperior()
 void WMainWindow::setPresetViewInferior()
 {
     boost::shared_ptr< WGEViewer > viewer;
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Main View" );
     osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
     osg::Quat q( 0., -1., 0., 0. );
     cm->setRotation( q );
@@ -808,7 +808,7 @@ void WMainWindow::setPresetViewInferior()
 void WMainWindow::setPresetViewAnterior()
 {
     boost::shared_ptr< WGEViewer > viewer;
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Main View" );
     osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
     osg::Quat q( 0., -0.707107, -0.707107, 0. );
     cm->setRotation( q );
@@ -817,7 +817,7 @@ void WMainWindow::setPresetViewAnterior()
 void WMainWindow::setPresetViewPosterior()
 {
     boost::shared_ptr< WGEViewer > viewer;
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Main View" );
     osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
     osg::Quat q( 0.707107, 0., 0., 0.707107 );
     cm->setRotation( q );

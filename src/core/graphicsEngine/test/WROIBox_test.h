@@ -37,7 +37,7 @@ class WROIBoxTest : public CxxTest::TestSuite
 public:
     /**
      * I would like to test instantiation here, but WROIBox needs nearly a complete
-     * running GUI and GE with the "main" viewer. This seemed to much effort for
+     * running GUI and GE with the "Main View" viewer. This seemed to much effort for
      * this small test to me.
      */
     void testInstantiation( void )

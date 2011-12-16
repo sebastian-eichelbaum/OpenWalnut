@@ -100,7 +100,7 @@ void WMLineGuidedSlice::moduleMain()
     boost::shared_ptr< WGraphicsEngine > ge = WGraphicsEngine::getGraphicsEngine();
     assert( ge );
 
-    m_viewer = ge->getViewerByName( "main" );
+    m_viewer = ge->getViewerByName( "Main View" );
     assert( m_viewer );
     m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMLineGuidedSlice::setSlicePosFromPick, this, _1 ) );
 
