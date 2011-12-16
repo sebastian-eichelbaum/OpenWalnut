@@ -153,8 +153,27 @@ int WQt4Gui::run()
 
     // the call path of the application, this uses QApplication which needs to be instantiated.
     boost::filesystem::path walnutBin = boost::filesystem::path( QApplication::applicationDirPath().toStdString() );
-    // setup path helper which provides several paths to others^
+    // setup path helper which provides several paths to others
+#ifdef Q_WS_MAC
+    // apple has a special file hierarchy in so-called bundles
+    // this code determines whether we are started from a bundle context
+    // and sets the paths according to Apple's guidelines inside the bundle
+    if ( QApplication::applicationDirPath().endsWith( "/MacOS" ) )
+    {
+        std::cout <<  "OSX bundle" << std::endl;
+        // we are in a bundle
+        // TODO(mario): apply default OSX behavior of using $HOME/Library/OpenWalnut ?
+        WPathHelper::getPathHelper()->setBasePathsOSXBundle( walnutBin, boost::filesystem::path( QDir::homePath().toStdString() ) / ".OpenWalnut" );
+    }
+    else
+    {
+        // assume standard behavior
+        WPathHelper::getPathHelper()->setBasePaths( walnutBin, boost::filesystem::path( QDir::homePath().toStdString() ) / ".OpenWalnut" );
+    }
+#else
+    // on all other platforms, get the home directory form Qt and the path from the application binary location
     WPathHelper::getPathHelper()->setBasePaths( walnutBin, boost::filesystem::path( QDir::homePath().toStdString() ) / ".OpenWalnut" );
+#endif
     // with the correct paths, we can load the settings
     m_settings = new QSettings( QString::fromStdString( ( WPathHelper::getHomePath() / "config.qt4gui" ).string() ), QSettings::IniFormat );
 

@@ -65,6 +65,18 @@ void WPathHelper::setBasePaths( boost::filesystem::path appPath, boost::filesyst
     m_modulePath = m_libPath / "openwalnut";
 }
 
+void WPathHelper::setBasePathsOSXBundle( boost::filesystem::path appPath, boost::filesystem::path homePath )
+{
+    //W_ASSERT( appPath.substr( size()-sizeof( "MacOS" ), sizeof( "MacOS" ) ) == "MacOS" );
+    m_appPath    = appPath;
+    m_homePath   = homePath;
+    m_sharePath  = m_appPath / "../Resources/openwalnut";
+    m_docPath    = m_appPath / "../Resources/doc";
+    m_configPath = m_appPath / "../Resources/openwalnut";
+    m_libPath    = m_appPath / "../lib"; // TODO(mario): what is this for?
+    m_modulePath = m_appPath / "../Resources/modules";
+}
+
 boost::filesystem::path WPathHelper::getAppPath()
 {
     return getPathHelper()->m_appPath;
