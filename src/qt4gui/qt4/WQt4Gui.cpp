@@ -158,7 +158,7 @@ int WQt4Gui::run()
     // apple has a special file hierarchy in so-called bundles
     // this code determines whether we are started from a bundle context
     // and sets the paths according to Apple's guidelines inside the bundle
-    if ( QApplication::applicationDirPath().endsWith( "/MacOS" ) )
+    if( QApplication::applicationDirPath().endsWith( "/MacOS" ) )
     {
         std::cout <<  "OSX bundle" << std::endl;
         // we are in a bundle
