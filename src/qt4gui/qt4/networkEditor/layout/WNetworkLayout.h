@@ -58,9 +58,9 @@ class WNetworkLayout
         /**
          * Connect the two items and update the layout.
          *
-         * \param start The item thats at a 'higher' position in the layout, i.e. the parent of the end
+         * \param start The item that is at a 'higher' position in the layout, i.e., the parent of end
          * item.
-         * \param end the item at the lower position, i.e. the child.
+         * \param end the item at the lower position, i.e., the child.
          **/
         void connectItems( WQtNetworkItem *start, WQtNetworkItem *end );
 
