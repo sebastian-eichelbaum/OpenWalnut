@@ -39,56 +39,150 @@ class WTransferFunctionWidget;
  */
 class WTransferFunctionColorPoint : public QObject, public QGraphicsItem
 {
-   Q_OBJECT // NOLINT
-   Q_INTERFACES( QGraphicsItem ) // NOLINT
+    Q_OBJECT // NOLINT
+    Q_INTERFACES( QGraphicsItem ) // NOLINT
 
-  public:
+public:
+    /** type of our base class */
     typedef QGraphicsItem BaseClass;
 
+    /** default constructor
+     * \param parent the parent widget
+     */
     explicit WTransferFunctionColorPoint( WTransferFunctionWidget* parent = 0x0 );
+
+    /**
+     * default destructor
+     */
     virtual ~WTransferFunctionColorPoint();
 
+    /**
+     * returns the item left of the this item
+     * \returns the item left of us
+     */
     WTransferFunctionColorPoint *getLeft() const;
-    WTransferFunctionColorPoint *getRight() const;
-    void setLeft( WTransferFunctionColorPoint* );
-    void setRight( WTransferFunctionColorPoint* );
 
+    /**
+     * returns the item right of this item
+     * \returns the item right of us
+     */
+    WTransferFunctionColorPoint *getRight() const;
+
+    /**
+     * set the item left of us
+     * \param left the item left of us
+     */
+    void setLeft( WTransferFunctionColorPoint* left);
+
+    /**
+     * set the item right of us
+     * \param right the item right of us
+     */
+    void setRight( WTransferFunctionColorPoint* right);
+
+    /**
+     * the bounding rectangle used for paint and click events
+     * \returns the bounding rectangle
+     */
     QRectF boundingRect() const;
+
+    /**
+     * paint the handle and additional item hints
+     * \param painter the painter used
+     * \param option the paint options used
+     * \param widget the widget used for painting
+     */
     virtual void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget* widget = 0x0 );
 
+    /** \returns the color of the entry */
     QColor getColor() const;
 
+    /**
+     * drag enter implementation for items that contain a color
+     * \param event the event to handle
+     */
     virtual void dragEnterEvent( QGraphicsSceneDragDropEvent* event );
+
+    /**
+     * drop implementation for items that contain a color
+     * \param event the event to handle
+     */
     virtual void dropEvent( QGraphicsSceneDragDropEvent* event );
 
+    /**
+     * handler for context menu envents. Currently disabled because it
+     * conflicts with other mouse interactions
+     * \param event the event to hanlde
+     */
     void contextMenuEvent( QGraphicsSceneContextMenuEvent* event );
 
-  public slots:
+public slots:
     /**
       * Called by the color dialog every time the user changes the color.
+      * \param color the new color
       */
-    void colorSelected( const QColor& );
+    void colorSelected( const QColor& color);
 
-  protected:
+protected:
+    /** helper for item changed
+     * \param rectangle a rectangel
+     */
     void clampToRectangle( const QRectF& rectangle );
+
+    /** helper for item changed */
     void clampToLeftAndRight( );
 
+    /**
+     * handles change notifications
+     * \param change the requrested change
+     * \param value the requested value
+     * \returns the proposed value
+     */
     QVariant itemChange( GraphicsItemChange change, const QVariant &value );
 
+    /**
+     * handles mouse move events
+     * \param event the event
+     */
     void mouseMoveEvent( QGraphicsSceneMouseEvent *event );
+
+    /**
+     * handles press move events
+     * \param event the event
+     */
     void mousePressEvent( QGraphicsSceneMouseEvent *event );
+
+    /**
+     * handles mouse move events
+     * \param event the event
+     */
     void mouseReleaseEvent( QGraphicsSceneMouseEvent *event );
 
+    /**
+     * handles mouse double click events by opening a color selector
+     * if the item is clicked.
+     * \param event the event
+     */
     void mouseDoubleClickEvent( QGraphicsSceneMouseEvent *event );
 
+    /** show the color picker dialog */
     void showColorPicker();
-  private:
+
+private:
+
+    /** the radius used for paining of the handle */
     double radius;
+
+    /** the entry left of this entry */
     WTransferFunctionColorPoint *left;
+
+    /** the entry to the right of our entry */
     WTransferFunctionColorPoint *right;
 
+    /** the parent widget */
     WTransferFunctionWidget* _parent;
 
+    /** the color entry */
     QColor color;
 };
 

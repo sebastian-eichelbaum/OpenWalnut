@@ -103,7 +103,11 @@ protected:
     virtual void requirements();
 
 private:
+    /**
+     * The transfer function as an input data set
+     */
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_transferFunction;
+
     /**
      * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
      */

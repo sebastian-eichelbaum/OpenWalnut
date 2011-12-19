@@ -100,21 +100,33 @@ class WReaderVTK : public WReader // NOLINT
      * Read VTK SCALARS field
      * \post the data set pointer is set to the data set constructed of the current grid
      *       and the read scalar values
+     * \param nbScalars
+     *      the number of scalars to read
+     * \param name
+     *      the name of the data set that may be overwritten by information in the scalars line
      */
     void readScalars( size_t nbScalars, const std::string & name );
 
     /**
      * Read VTK SCALARS field
      * \post the data set pointer is set to the data set constructed of the current grid
-     *       and the read scalar values
-     */
+     *       and the read vector values
+     * \param nbVectors
+     *      the number of vectors to read
+     * \param name
+     *      the name of the data set that may be overwritten by information in the vectors line
+      */
     void readVectors( size_t nbVectors, const std::string & name );
 
     /**
      * Read VTK TENSORS field
      * \post the data set pointer is set to the data set constructed of the current grid
-     *       and the read scalar values
-     */
+     *       and the read tensor values
+     * \param nbTensors
+     *      the number of tensors to read
+     * \param name
+     *      the name of the data set that may be overwritten by information in the tensors line
+      */
     void readTensors( size_t nbTensors, const std::string & name );
 
 
@@ -164,9 +176,19 @@ class WReaderVTK : public WReader // NOLINT
 
 
 
+    /**
+     * reference to the currently loading data set
+     */
     boost::shared_ptr< WDataSet > newDataSet;
+
+    /**
+     * reference to the currently loading grid
+     */
     boost::shared_ptr< WGridRegular3D > newGrid;
 
+    /**
+     * internal flag whether we read ascii or binary
+     */
     bool isAscii;
 };
 

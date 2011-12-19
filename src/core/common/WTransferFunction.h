@@ -55,13 +55,15 @@ private:
         /**
          * comparison by isovalue
          * \param rhs entry to compare t
+         * \returns true if this->iso <=  rhs.iso
          */
         bool operator <= ( const Entry &rhs ) const
         {
             return iso <= rhs.iso;
         }
 
-        double iso; //< the isovalue
+        /** the isovalue */
+        double iso;
     };
 
     /**
@@ -80,13 +82,15 @@ private:
         /**
          * comparison operator to check for changes
          * \param rhs ColorEntry to compare to
+         * \returns true if rhs equals this
          */
         bool operator==( const ColorEntry& rhs ) const
         {
             return iso == rhs.iso && color == rhs.color;
         }
 
-        WColor color; //< holds the current color at isovalue Entry::iso
+        /** holds the current color at isovalue Entry::iso */
+        WColor color;
     };
 
     /**
@@ -108,13 +112,15 @@ private:
         /**
          * comparison operator to check for changes
          * \param rhs AlphaEntry to compare to
+         * \returns true if rhs is equal to this
          */
         bool operator==( const AlphaEntry& rhs ) const
         {
             return iso == rhs.iso && alpha == rhs.alpha;
         }
 
-        double alpha; //< holds the current alpha at isovalue Entry::iso
+        /** holds the current alpha at isovalue Entry::iso */
+        double alpha;
     };
 
     /**
@@ -123,17 +129,24 @@ private:
     template<typename T>
         struct LessPred
         {
+            /** constructs a predicate that compares for less than iso
+             * \param iso: used iso value
+             */
             explicit LessPred( double iso ) : iso( iso )
             {
             }
 
-            /** isovalue-based comparison */
+            /** isovalue-based comparison
+             * \param t the object to compare to
+             * \returns true if iso is less than t.iso
+             */
             bool operator()( const T& t )
             {
                 return iso < t.iso;
             }
 
-            double iso; //< the isovalue to compare to
+            /** the isovalue to compare to */
+            double iso;
         };
 
 public:
@@ -142,13 +155,19 @@ public:
     {
     }
 
-    /** deep copy constructor */
+    /** deep copy constructor
+     * \param rhs the value to histogram
+     */
     WTransferFunction( const WTransferFunction &rhs )
         : colors( rhs.colors ), alphas( rhs.alphas ), isomin( rhs.isomin ), isomax( rhs.isomax ), histogram( rhs.histogram )
     {
     }
 
-    /** deep copy operator */
+    /** deep copy operator
+     * \param rhs the value to copy
+     * \returns reference to current object
+     * \returns reference to current object
+     */
     WTransferFunction& operator=( const WTransferFunction &rhs )
     {
         this->colors = rhs.colors;
@@ -168,6 +187,7 @@ public:
 
     /**
      * \returns negated result of operator==
+     * \param rhs the value to compare with
      */
     bool operator!=( const WTransferFunction &rhs ) const;
 
@@ -176,31 +196,54 @@ public:
     {
     }
 
+    /**
+     * \returns the number of alpha points
+     */
     size_t numAlphas() const
     {
         return alphas.size();
     }
 
+    /**
+     * \returns the number of color points
+     */
     size_t numColors() const
     {
         return colors.size();
     }
 
+    /**
+     * \param i the index of the point to query
+     * \returns the alpha values position/isovalue at index i
+     */
     double getAlphaIsovalue( size_t i ) const
     {
         return alphas.at( i ).iso;
     }
 
+
+    /**
+     * \param i the index of the point to query
+     * \returns the color values position/isovalue at index i
+     */
     double getColorIsovalue( size_t i ) const
     {
         return colors.at( i ).iso;
     }
 
+    /**
+     * \param i the index to query
+     * \returns the alpha value at index i
+     */
     double getAlpha( size_t i ) const
     {
         return alphas.at( i ).alpha;
     }
 
+    /**
+     * \param i the index to query
+     * \returns the color at index i
+     */
     const WColor& getColor( size_t i ) const
     {
         return colors.at( i ).color;
@@ -208,11 +251,15 @@ public:
 
     /**
      * insert a new color point
+     * \param iso the new iso value
+     * \param color the new color at the given iso value
      */
     void addColor( double iso, const WColor& color );
 
     /**
      * insert a new alpha point
+     * \param iso the new iso value
+     * \param alpha the new alpha value at the given iso value
      */
     void addAlpha( double iso, double alpha );
 
@@ -222,6 +269,8 @@ public:
      * This should be changed in the future to be handled in a different
      * way. A good option would be to introduce an object encapsulating
      * a transfer function and histogram information.
+     *
+     * \param data the histogram data between isomin and isomax
      */
     void setHistogram( std::vector< double > & data )
     {
@@ -236,6 +285,10 @@ public:
         histogram.clear();
     }
 
+    /**
+     * returns the histogram
+     * \returns a reference to the internal representation of the histogram
+     */
     const std::vector< double >& getHistogram() const
     {
         return histogram;
@@ -243,10 +296,12 @@ public:
 
     /**
      * sample/render the transfer function linearly between min and max in an RGBA texture.
+     * \param array pointer to an allocated data structure
      * \param width is the number of RGBA samples.
      * \param min the lowest value to be sampled
      * \param max the hightes value to be sampled
      * \post array contains the sampled data
+     * \pre array is allocated and has space for width elements
      */
     void sample1DTransferFunction( unsigned char*array, int width, double min, double max ) const;
 
@@ -258,14 +313,21 @@ public:
      */
     static WTransferFunction createFromRGBA( unsigned char const * const rgba, size_t size );
 private:
-    std::vector<ColorEntry> colors; //< sorted list of colors
-    std::vector<AlphaEntry> alphas; //< sorted list of alpha values
+    /** sorted list of colors */
+    std::vector<ColorEntry> colors;
 
-    double isomin; //< smallest iso value
-    double isomax; //< largest iso value
+    /** sorted list of alpha values */
+    std::vector<AlphaEntry> alphas;
 
-    std::vector< double > histogram; //< store a histogram. This is used for property-handling only
-                                     // and does not change the transfer function at all.
+    /** the smallest used iso value */
+    double isomin;
+    /** the largest used iso value */
+    double isomax;
+
+    /** stores a histogram. This is used for property-handling only
+     * and does not change the transfer function at all.
+     */
+    std::vector< double > histogram;
 
     friend std::ostream& operator << ( std::ostream& out, const WTransferFunction& tf );
 };
@@ -275,7 +337,7 @@ private:
  * This code should only be used for debugging and you should not realy on the interface.
  * \param tf The transfer function to output
  * \param out The stream to which we write
- * \returns reference to \param out
+ * \returns reference to out
  */
 std::ostream& operator << ( std::ostream& out, const WTransferFunction& tf );
 
