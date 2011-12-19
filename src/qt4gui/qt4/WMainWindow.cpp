@@ -907,6 +907,7 @@ void WMainWindow::customEvent( QEvent* event )
 
             // restore state and geometry
             m_glDock->restoreDockWidget( widget.get() );
+            //TODO(mario): is there a fallback if the configuration is "stupid" or not set?
 
             // store it in CustomDockWidget list
             m_customDockWidgets.insert( make_pair( title, widget ) );
@@ -919,7 +920,7 @@ void WMainWindow::customEvent( QEvent* event )
 
         ocdwEvent->getFlag()->set( widget );
     }
-    if( event->type() == WCloseCustomDockWidgetEvent::CUSTOM_TYPE )
+    else if( event->type() == WCloseCustomDockWidgetEvent::CUSTOM_TYPE )
     {
         WCloseCustomDockWidgetEvent* closeEvent = static_cast< WCloseCustomDockWidgetEvent* >( event );
         boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
