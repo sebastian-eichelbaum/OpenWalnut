@@ -61,13 +61,13 @@ class WTransferFunctionLine : public QGraphicsLineItem
          * sets point to the left
          * \param left new point to the left
          */
-        void setLeft( WTransferFunctionPoint* left);
+        void setLeft( WTransferFunctionPoint* left );
 
         /**
          * sets point to the right
          * \param right new point to the right
          */
-        void setRight( WTransferFunctionPoint* right);
+        void setRight( WTransferFunctionPoint* right );
 
         /**
          * paint the line

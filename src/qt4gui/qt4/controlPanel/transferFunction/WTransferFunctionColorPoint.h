@@ -72,13 +72,13 @@ public:
      * set the item left of us
      * \param left the item left of us
      */
-    void setLeft( WTransferFunctionColorPoint* left);
+    void setLeft( WTransferFunctionColorPoint* left );
 
     /**
      * set the item right of us
      * \param right the item right of us
      */
-    void setRight( WTransferFunctionColorPoint* right);
+    void setRight( WTransferFunctionColorPoint* right );
 
     /**
      * the bounding rectangle used for paint and click events
@@ -121,7 +121,7 @@ public slots:
       * Called by the color dialog every time the user changes the color.
       * \param color the new color
       */
-    void colorSelected( const QColor& color);
+    void colorSelected( const QColor& color );
 
 protected:
     /** helper for item changed
@@ -169,7 +169,6 @@ protected:
     void showColorPicker();
 
 private:
-
     /** the radius used for paining of the handle */
     double radius;
 

@@ -1145,7 +1145,9 @@ void WMHistogramView::createInfo()
 
         // this finds the bin selected by the mouse cursor
         std::size_t bin;
-        for( bin = 0; m_histograms[ 0 ]->getIntervalForIndex( bin ).second < m[ 0 ]; ++bin );
+        for( bin = 0; m_histograms[ 0 ]->getIntervalForIndex( bin ).second < m[ 0 ]; ++bin )
+        {
+        }
 
         // if the bin is in the histogram
         if( bin < m_histograms[ 0 ]->size() )
