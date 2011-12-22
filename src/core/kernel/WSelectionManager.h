@@ -34,6 +34,8 @@
 
 #include "WExportKernel.h"
 
+class WGridRegular3D;
+
 typedef enum
 {
     PAINTMODE_NONE = 0,

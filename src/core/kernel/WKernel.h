@@ -34,10 +34,10 @@
 #include "../common/WLogger.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
 #include "WExportKernel.h"
-#include "WModule.h"
 
 // forward declarations
 class WGUI;
+class WModule;
 class WModuleContainer;
 class WModuleFactory;
 class WROIManager;

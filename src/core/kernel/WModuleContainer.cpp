@@ -34,8 +34,6 @@
 #include "../common/WThreadedRunner.h"
 #include "../common/exceptions/WSignalSubscriptionFailed.h"
 #include "WBatchLoader.h"
-#include "WKernel.h"
-#include "WModule.h"
 #include "WModuleCombiner.h"
 #include "WModuleFactory.h"
 #include "WModuleInputConnector.h"

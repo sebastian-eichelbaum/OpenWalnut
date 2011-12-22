@@ -30,8 +30,6 @@
     #include <mach-o/dyld.h>
 #endif
 
-#include <iostream>
-#include <list>
 #include <string>
 #include <vector>
 
@@ -39,17 +37,13 @@
 #ifndef BOOST_FILESYSTEM_VERSION
     #define BOOST_FILESYSTEM_VERSION 2
 #endif
-#include <boost/filesystem.hpp>
-#include <boost/thread/xtime.hpp>
 
-#include "../common/WStringUtils.h"
 #include "../common/WThreadedRunner.h"
 #include "../common/WTimer.h"
 #include "../common/WRealtimeTimer.h"
 #include "../dataHandler/WDataHandler.h"
 #include "../gui/WGUI.h"
 #include "WKernel.h"
-#include "WModule.h"
 #include "WModuleContainer.h"
 #include "WModuleFactory.h"
 #include "WROIManager.h"

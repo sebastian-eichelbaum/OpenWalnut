@@ -30,7 +30,7 @@
 #include <boost/signals2/signal.hpp>
 #include <boost/signals2/connection.hpp>
 
-#include "WModule.h"
+class WModule;
 #include "WModuleConnector.h"
 #include "WModuleConnectorSignals.h"
 #include "../common/WPrototyped.h"

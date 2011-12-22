@@ -24,9 +24,10 @@
 
 #include <string>
 
-#include "WModule.h"
+// #include "WModule.h"
 #include "WModuleOutputConnector.h"
 #include "WModuleConnectorSignals.h"
+#include "../common/WCondition.h"
 
 #include "WModuleInputConnector.h"
 

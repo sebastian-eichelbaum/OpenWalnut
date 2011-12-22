@@ -38,13 +38,14 @@
 #include <boost/thread.hpp>
 
 #include "../common/WSharedObject.h"
+
+#include "WModule.h"
 #include "WModuleCombinerTypes.h"
 #include "WModuleConnectorSignals.h"
 #include "WModuleSignals.h"
 
 class WThreadedRunner;
 class WBatchLoader;
-class WModule;
 class WDataModule;
 
 #include "WExportKernel.h"
