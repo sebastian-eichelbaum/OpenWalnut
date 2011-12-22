@@ -35,7 +35,7 @@
 
 #define OPENWALNUT_BUGREPORTER_URL "http://www.openwalnut.org/projects/openwalnut/issues"
 
-WApplication::WApplication( int &argc, char** argv, bool GUIenabled )
+WApplication::WApplication( int &argc, char** argv, bool GUIenabled ) // NOLINT
     : QApplication( argc, argv, GUIenabled )
     , myMainWidget( 0 )
 {
