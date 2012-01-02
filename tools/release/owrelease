@@ -36,10 +36,12 @@ VERSION_INCLUDE_HG=1
 
 # Where to grab the sources?
 REPO="ssh://openwalnut.com//srv/hg/ow"
-REPO_BRANCH="OpenWalnut_$VERSION_BASE"
+REPO_BRANCH="default"
+# build from a release branch?
+#REPO_BRANCH="OpenWalnut_$VESION"
 
 # Which packages to build
-PACKAGES="deb src"
+PACKAGES="deb tgz src"
 
 # Define which chroot/distribution to use for build the packages
 # NOTE: supported are "sid wheezy squeeze lucid maverick natty"
