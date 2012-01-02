@@ -29,7 +29,7 @@
 #############################################################################################################
 
 # Which version?
-VERSION_BASE=1.2.5
+VERSION_BASE=1.3.0
 
 # Should the package number contain the HG revision?
 VERSION_INCLUDE_HG=1
