@@ -198,24 +198,14 @@ Builder_TGZ()
     # get back to working dir and go install dir
     cd $BUILDER_PREFIX_DIR_REL
 
-    # this is a convenience thing: copy the .desktop file to the install prefix dir so the user can click this file and startup openwalnut
-    echo "[Desktop Entry]" > openwalnut.desktop
-    echo "Categories=Education;Science;" >> openwalnut.desktop
-    echo "Exec=/usr/bin/openwalnut" >> openwalnut.desktop
-    echo "Name=OpenWalnut" >> openwalnut.desktop
-    echo "Icon=share/pixmaps/openwalnut.png" >> openwalnut.desktop
-    echo "X-KDE-StartupNotify=true" >> openwalnut.desktop
-    echo "Terminal=false" >> openwalnut.desktop
-    echo "Type=Application" >> openwalnut.desktop
-
     # tar these files
-    tar cvfz openwalnut.tgz openwalnut
+    tar cvfz openwalnut-$WORKING_DIR_POSTFIX.tgz openwalnut
     if [ $? -ne 0 ]; then
         echo " * unable to tar the build files."
         cd ..
         exit 1
     fi
-    tar cvfz openwalnut-doc.tgz openwalnut-doc
+    tar cvfz openwalnut-doc-$WORKING_DIR_POSTFIX.tgz openwalnut-doc
     if [ $? -ne 0 ]; then
         echo " * unable to tar the build files."
         cd ..
@@ -224,7 +214,7 @@ Builder_TGZ()
 
     # copy archive to release dir
     echo "* Copy files to release dir \"$RELEASE_DIR\"."
-    cp openwalnut.tgz openwalnut-doc.tgz ../../$RELEASE_DIR
+    cp openwalnut*.tgz ../../$RELEASE_DIR
     if [ $? -ne 0 ]; then
         echo " * Failed to copy to release dir."
         exit 1
