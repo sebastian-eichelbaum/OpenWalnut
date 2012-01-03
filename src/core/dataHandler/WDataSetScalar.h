@@ -28,6 +28,7 @@
 #include <map>
 
 #include <boost/thread.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "datastructures/WValueSetHistogram.h"
 
@@ -41,6 +42,16 @@
 class OWDATAHANDLER_EXPORT WDataSetScalar : public WDataSetSingle // NOLINT
 {
 public:
+    /**
+     * shared_ptr abbreviation
+     */
+    typedef boost::shared_ptr< WDataSetScalar > SPtr;
+
+    /**
+     * const shared_ptr abbreviation
+     */
+    typedef boost::shared_ptr< const WDataSetScalar > ConstSPtr;
+
     /**
      * Constructs an instance out of an appropriate value set and a grid.
      * Computes the maximum an minimum values stored as member variables.
