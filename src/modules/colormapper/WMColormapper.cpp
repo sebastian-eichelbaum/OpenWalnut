@@ -88,6 +88,9 @@ void WMColormapper::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
+    m_defaultName = m_properties->addProperty( "Default Name", "This specifies the name to use for textures which are not yet named.",
+            std::string( "Unnamed" ), true );
+
     m_replace = m_properties->addProperty( "Keep position",
                                            "If true, new texture on the input connector get placed in the list where the old one was.", true );
 
@@ -247,6 +250,12 @@ void WMColormapper::moduleMain()
 
                 // add
                 WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_barProjection );
+            }
+
+            // if the texture has no name, use the default name property value
+            if( dataSet && dataSet->isTexture() && ( dataSet->getTexture()->name()->get() == std::string( "Unnamed" ) ) )
+            {
+                dataSet->getTexture()->name()->setRecommendedValue( m_defaultName->get() );
             }
 
             // replace texture instead of removing it?

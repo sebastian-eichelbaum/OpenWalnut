@@ -153,6 +153,11 @@ private:
     WPropBool m_colorBarBorder;
 
     /**
+     * This property holds the name of the texture to use if the texture itself is unnamed.
+     */
+    WPropString m_defaultName;
+
+    /**
      * The projection node for the colorbar and labels
      */
     osg::ref_ptr< osg::Projection > m_barProjection;
