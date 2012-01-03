@@ -112,6 +112,15 @@ public:
     virtual void add( boost::shared_ptr< WModule > module, bool run = true );
 
     /**
+     * Convenience method to create a module instance with a given name and automatically add it to the container.
+     *
+     * \param name the prototype name to create
+     *
+     * \return the created and added module
+     */
+    virtual WModule::SPtr createAndAdd( std::string name );
+
+    /**
      * Remove the given module from this container if it is associated with it. It only provides flat removal. It does not remove depending
      * modules. Please be aware that this method does NOT stop the module. It just removes it from the container. If you release the shared
      * pointer after removing from the container, the instance gets freed although it still might run. To also wait for the module to quit, use

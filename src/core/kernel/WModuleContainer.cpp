@@ -181,6 +181,19 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
     }
 }
 
+WModule::SPtr WModuleContainer::createAndAdd( std::string name )
+{
+    WModule::SPtr module = WModuleFactory::getModuleFactory()->create(
+        WModuleFactory::getModuleFactory()->getPrototypeByName( name )
+    );
+
+    // add to the container
+    add( module );
+    module->isReady().wait();
+
+    return module;
+}
+
 void WModuleContainer::remove( boost::shared_ptr< WModule > module )
 {
     // simple flat removal.
