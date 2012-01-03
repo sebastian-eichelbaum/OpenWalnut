@@ -295,7 +295,10 @@ void WMData::moduleMain()
     // textures also provide properties
     if( m_dataSet->isTexture() )
     {
-        WGEColormapping::registerTexture( m_dataSet->getTexture(), m_runtimeName->get() );
+        if( !getSuppressColormaps() )
+        {
+            WGEColormapping::registerTexture( m_dataSet->getTexture(), m_runtimeName->get() );
+        }
         m_properties->addProperty( m_dataSet->getTexture()->getProperties() );
         m_infoProperties->addProperty( m_dataSet->getTexture()->getInformationProperties() );
     }
@@ -358,7 +361,10 @@ void WMData::moduleMain()
 
                 if( m_isTexture )
                 {
-                    WGEColormapping::registerTexture( m_dataSet->getTexture(), m_runtimeName->get() );
+                    if( !getSuppressColormaps() )
+                    {
+                        WGEColormapping::registerTexture( m_dataSet->getTexture(), m_runtimeName->get() );
+                    }
                     m_properties->addProperty( m_dataSet->getTexture()->getProperties() );
                     m_infoProperties->addProperty( m_dataSet->getTexture()->getInformationProperties() );
                 }

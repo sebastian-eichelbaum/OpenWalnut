@@ -43,9 +43,9 @@
 #include "WModuleCombinerTypes.h"
 #include "WModuleConnectorSignals.h"
 #include "WModuleSignals.h"
+#include "WBatchLoader.h"
 
 class WThreadedRunner;
-class WBatchLoader;
 class WDataModule;
 
 #include "WExportKernel.h"
@@ -195,18 +195,24 @@ public:
      *
      * \param fileNames list of filenames to load. The registered notification handler for the root container will get notified on
      * error and success.
+     * \param suppressColormaps if true, the data modules are instructed to avoid registration of colormaps. This can be very handy if you
+     * combine multiple data loaders into one new data loader or data set
      *
      * \return the loader handling the load operation
      */
-    boost::shared_ptr< WBatchLoader > loadDataSets( std::vector< std::string > fileNames );
+    WBatchLoader::SPtr loadDataSets( std::vector< std::string > fileNames, bool suppressColormaps = false );
 
     /**
-     * Loads the specified files synchronously.
+     * Loads the specified files synchronously. The returned batchloader can be queried for the list of data modules that have been added.
      *
      * \param fileNames list of filenames to load. The registered notification handler for the root container will get notified on
      * error and success.
+     * \param suppressColormaps if true, the data modules are instructed to avoid registration of colormaps. This can be very handy if you
+     * combine multiple data loaders into one new data loader or data set
+     *
+     * \return the loader has handled the load operation
      */
-    void loadDataSetsSynchronously( std::vector< std::string > fileNames );
+    WBatchLoader::SPtr loadDataSetsSynchronously( std::vector< std::string > fileNames, bool suppressColormaps = false );
 
     /**
      * Add the specified thread to the list of pending jobs. Only this ensures, that ALL pending threads get stopped before the

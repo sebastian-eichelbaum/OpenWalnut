@@ -242,11 +242,11 @@ int WQt4Gui::run()
     m_mainWindow->setupGUI();
     m_mainWindow->show();
 
-    // connect out loader signal with kernel
+    // connect loader signal with kernel
 #ifdef _WIN32
-    getLoadButtonSignal()->connect( boost::bind( &WKernel::loadDataSetsSynchronously, m_kernel, _1 ) );
+    getLoadButtonSignal()->connect( boost::bind( &WKernel::loadDataSetsSynchronously, m_kernel, _1, false ) );
 #else
-    getLoadButtonSignal()->connect( boost::bind( &WKernel::loadDataSets, m_kernel, _1 ) );
+    getLoadButtonSignal()->connect( boost::bind( &WKernel::loadDataSets, m_kernel, _1, false ) );
 #endif
 
     // now we are initialized
