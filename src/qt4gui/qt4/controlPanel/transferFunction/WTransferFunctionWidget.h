@@ -45,11 +45,18 @@ class WTransferFunction; // I want to remove this if possible to keep the code c
  */
 struct WTransferFunctionGuiNotificationClass
 {
+    /**
+     * default destructor
+     */
     virtual ~WTransferFunctionGuiNotificationClass()
     {
     }
 
-    virtual void guiUpdate( const WTransferFunction& ) = 0;
+    /**
+     * update the gui
+     * \param tf the new transfer function
+     */
+    virtual void guiUpdate( const WTransferFunction& tf ) = 0;
 };
 
 /**
@@ -64,6 +71,7 @@ class WTransferFunctionWidget :public QGraphicsView
     Q_OBJECT
 
 public:
+    /** type of our base class for easier coding */
     typedef QGraphicsView BaseClass;
 
     /**
@@ -91,28 +99,39 @@ public:
     void forceRedraw();
 
     /** set the current active point => this should be changed to QGraphicsScene
-     * object selection */
+     * object selection
+     * \param current the new selection
+     */
     void setCurrent( WTransferFunctionPoint* current )
     {
         this->current = current;
         this->ccurrent = 0x0;
     }
 
-    /** similart to setCurrent but for Color control points */
+    /**
+     * similart to setCurrent but for Color control points
+     * \param ccurrent the new seelection
+     */
     void setCurrentColor( WTransferFunctionColorPoint* ccurrent )
     {
         this->ccurrent = ccurrent;
         this->current = 0x0;
     }
 
-    /** sample the transfer function into a 1D RGBA texture */
+    /**
+     * sample the transfer function into a 1D RGBA texture
+     * \param array target byte array of RGBA values
+     * \param width width of array in number of color values
+     */
     void sample1DTransferFunction( unsigned char*array, int width );
 
     /** sample the transfer function into a 1D RGBA, ABGR, ARGB, ... whatever...
-      This function should work on the graphics native system, but I did not find the
-      function to get information about the alignment, yet.
-      (X11 Linux, little endian: ABRG. OSX: ARGB, X11 on OSX from Linux host->???)
-      */
+     * This function should work on the graphics native system, but I did not find the
+     * function to get information about the alignment, yet.
+     * (X11 Linux, little endian: ABRG. OSX: ARGB, X11 on OSX from Linux host->???)
+     * \param array target byte array of RGBA values
+     * \param width width of array in number of color values
+     */
     void sample1DTransferFunctionForDisplay( unsigned char*array, int width );
 
     //void dropEvent( QGraphicsSceneDragDropEvent* event );
@@ -142,6 +161,8 @@ public:
 
     /**
      * Same as insertColor but in normalized coordinates, i.e., [ 0...1 ] along x
+     * \param pos the position
+     * \param color the new color ( my be 0 and will then be interpolated linearly )
      */
     void insertColorNormalized( const QPointF& pos, QColor const *const color = 0 );
 
@@ -158,6 +179,11 @@ public slots:
     void dataChanged();
 
 protected:
+    /**
+     * draws the background
+     * \param painter the painter to use
+     * \param rect the QRectF to repaint
+     */
     virtual void drawBackground( QPainter *painter, const QRectF &rect );
 
     /**
@@ -168,27 +194,34 @@ protected:
      * double click on objects: (handled by individual objects) open parameter dialog, e.g.,
      *     to change the color
      * "Delete" or "Backspace": delete selected itom
+     * \param event the event to handle
      */
     virtual void keyPressEvent( QKeyEvent *event );
 
     /**
      * for a documentation of the implemented actions confer the keyPressEvent documentation
+     * \param event the event to handle
      */
     virtual void mousePressEvent( QMouseEvent *event );
 
     /**
      * internal helper function: Find the point to the left of the given point
+     * \param position in the widget
+     * \returns an alpha point left of the given position, i.e., with return.x <  x_position
      */
     WTransferFunctionPoint* findPointOnLeft( QPointF position );
 
     /**
      * internal helper function: Find the point to the left of the given color control point
+     * \param position a position
+     * \returns a color point left of the given position, i.e., with return.x <  x_position
      */
     WTransferFunctionColorPoint* findCPointOnLeft( QPointF position );
 
+    /**
+     * Updates the transfer funciton
+     */
     void updateTransferFunction();
-
-    //void drawLineStrip( QPainter *painter );
 
     /**
      * internal helper function to update the QGraphicsPixmapItem that holds a representation
@@ -205,17 +238,17 @@ private:
     QGraphicsScene *scene;
 
     /** linked list of alpha items */
-    WTransferFunctionPoint *first;           //< first element
-    WTransferFunctionPoint *last;            //< last element in list
-    WTransferFunctionPoint *current;         //< currently selected/active element
+    WTransferFunctionPoint *first;           //! first element
+    WTransferFunctionPoint *last;            //! last element in list
+    WTransferFunctionPoint *current;         //! currently selected/active element
 
     /** linked list of color items */
-    WTransferFunctionColorPoint *cfirst;     //< first element
-    WTransferFunctionColorPoint *clast;      //< last element
-    WTransferFunctionColorPoint *ccurrent;   //< currently selected/active color element
+    WTransferFunctionColorPoint *cfirst;     //! first element
+    WTransferFunctionColorPoint *clast;      //! last element
+    WTransferFunctionColorPoint *ccurrent;   //! currently selected/active color element
 
-    WTransferFunctionBackground *background; //< background that displays the color map
-    WTransferFunctionHistogram *histogram;   //< item responsible for displaying histogram data
+    WTransferFunctionBackground *background; //! background that displays the color map
+    WTransferFunctionHistogram *histogram;   //! item responsible for displaying histogram data
 
     bool initialized; //< set to true after initialization
 };

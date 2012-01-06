@@ -345,7 +345,7 @@ void WMFiberDisplaySimple::moduleMain()
 
         if( ( fibersUpdated && ( fibers != m_fibers ) ) ||  m_tubeEnable->changed() )
         {
-            debugLog() << "Fibers updated.";
+            debugLog() << "Fibers updated." << m_tubeEnable->changed() << " ---" << fibersUpdated<< " -- " << fibers << " " << m_fibers;
             m_fibers = fibers;
 
             // update the prop observer if new data is available
@@ -514,8 +514,9 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
 
     // for each fiber:
     debugLog() << "Iterating over " << fibStart->size() << " fibers.";
+    debugLog() << "Number of vertices: " << fibVerts->size();
     size_t currentStart = 0;
-    bool tubeMode = m_tubeEnable->get();
+    bool tubeMode = m_tubeEnable->get( true );
     for( size_t fidx = 0; fidx < fibStart->size() ; ++fidx )
     {
         ++*progress1;

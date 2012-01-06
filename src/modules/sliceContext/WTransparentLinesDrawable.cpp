@@ -51,7 +51,7 @@ void WTransparentLinesDrawable::drawImplementation( osg::RenderInfo &renderInfo 
 {
     boost::shared_ptr< WGraphicsEngine > ge = WGraphicsEngine::getGraphicsEngine();
     boost::shared_ptr< WGEViewer > viewer; //!< Stores reference to the main viewer
-    viewer = ge->getViewerByName( "main" );
+    viewer = ge->getViewerByName( "Main View" );
     WPosition endPos = WPosition( wge::unprojectFromScreen( WPosition( 0.0, 0.0, 1.0 ), viewer->getCamera() ) );
     WPosition startPos = WPosition( wge::unprojectFromScreen( WPosition(), viewer->getCamera() ) );
     WPosition viewDir = normalize( endPos - startPos );

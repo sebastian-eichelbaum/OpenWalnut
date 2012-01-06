@@ -40,42 +40,113 @@ class WTransferFunctionLine;
 class WTransferFunctionPoint : public QGraphicsItem
 {
     public:
+        /** type of the base class */
         typedef QGraphicsItem BaseClass;
 
+        /** default constructor
+         *
+         * \param parent pointer to parent widget
+         */
         explicit WTransferFunctionPoint( WTransferFunctionWidget* parent = 0x0 );
+
+        /**
+         * default destructor
+         */
         virtual ~WTransferFunctionPoint();
 
-        void setLeft( WTransferFunctionPoint* );
+        /**
+         * set point to the left
+         * \param left new point to the left
+         */
+        void setLeft( WTransferFunctionPoint* left );
+
+        /**
+         * get point to the left
+         * \returns point to the left
+         */
         WTransferFunctionPoint *getLeft() const;
 
-        void setRight( WTransferFunctionPoint* );
-        WTransferFunctionPoint *getRight() const;
+        /**
+         * set point to the right
+         * \param right new point to the right
+         */
+         void setRight( WTransferFunctionPoint* right );
 
-        void setLine( WTransferFunctionLine* line );
-        WTransferFunctionLine* getLine() const;
+         /**
+         * get point to the right
+         * \returns point to the right
+         */
+         WTransferFunctionPoint *getRight() const;
 
+         /**
+          * set the line pointing to the right
+          * \param line the new line
+          */
+         void setLine( WTransferFunctionLine* line );
+
+         /**
+          * \returns the line if any has been set (i.e., may be 0)
+          */
+         WTransferFunctionLine* getLine() const;
+
+         /**
+          * get the bounding rectangle
+          * \returns the bounding rect of this object
+          */
         QRectF boundingRect() const;
 
+        /**
+         * paint the object
+         * \param painter the painter to use
+         * \param option the options for painting
+         */
         virtual void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget* );
 
         //! overloaded form base class for debugging
+        //! \param point the point that should be set
         virtual void setPos( QPointF point );
+
     protected:
+        /**
+         * helper to itemChange
+         * \param pos position that is clamped to rectangle
+         * \param rectangle the rectangle
+         */
         void clampToRectangle( QPointF* const pos, const QRectF& rectangle ) const;
+
+        /**
+         * helper to itemChange
+         * \param pos the position that is clamped between the left and right neighbors
+         */
         void clampToLeftAndRight( QPointF* const pos ) const;
 
+        /**
+         * handle item changes and change requests
+         * \param change the proposed change
+         * \param value the proposed value
+         * \returns the requested change
+         */
         QVariant itemChange( GraphicsItemChange change, const QVariant &value );
 
+        /**
+         * handle mouse press events for selections and highlighting
+         * \param event the handled event
+         */
         void mousePressEvent( QGraphicsSceneMouseEvent *event );
 
     private:
+        /** the radius of the object */
         double radius;
 
+        /** pointer to point to the left*/
         WTransferFunctionPoint *left;
+        /** pointer to point to the right*/
         WTransferFunctionPoint *right;
 
+        /** pointer to line to the right */
         WTransferFunctionLine *line;
 
+        /** reference to the parent widget */
         WTransferFunctionWidget* _parent;
 };
 

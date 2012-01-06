@@ -36,11 +36,21 @@ class WTransferFunctionWidget;
 class WTransferFunctionHistogram : public QGraphicsItem
 {
     public:
+        /** type of the base class */
         typedef QGraphicsItem BaseClass;
 
+        /**
+         * default constructor
+         * \param parent the parent widget
+         */
         explicit WTransferFunctionHistogram( WTransferFunctionWidget* parent = 0x0 );
+
+        /**
+         * default destructor
+         */
         virtual ~WTransferFunctionHistogram();
 
+        /** \returns the bounding rectange */
         QRectF boundingRect() const;
 
         /**
@@ -49,7 +59,7 @@ class WTransferFunctionHistogram : public QGraphicsItem
          */
         virtual void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget* );
 
-        // the histogram data
+        /** the histogram data */
         std::vector< double > data;
 };
 

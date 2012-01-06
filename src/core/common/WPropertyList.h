@@ -33,7 +33,7 @@
 #include "WPropertyTypes.h"
 
 /**
- * This is a dynamic property list. With its help, user can dynamically add items.
+ * This is a dynamic property list. With its help, users can dynamically add items.
  *
  * \tparam T This is a property type. The list will then contain several of these properties.
  */

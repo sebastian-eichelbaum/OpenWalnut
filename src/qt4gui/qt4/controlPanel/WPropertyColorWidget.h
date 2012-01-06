@@ -56,6 +56,7 @@ public:
 protected:
     /**
      * Internal helper, called to set the color
+     * \param color the new color
      */
     virtual void setColor( const QColor& color );
 
@@ -66,11 +67,13 @@ protected:
 
     /**
      * Reimplemented to accept color drops
+     * \param event the handled event
      */
     virtual void dragEnterEvent( QDragEnterEvent* event );
 
     /**
      * Reimplemented to accept color drops
+     * \param event the handled event
      */
     virtual void dropEvent( QDropEvent* event );
 

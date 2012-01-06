@@ -56,13 +56,22 @@ public:
     static boost::shared_ptr< WPathHelper > getPathHelper();
 
     /**
-     * Set the current application path. This should be called only once. The home path hereby is NOT the users home. It is an directory, where
+     * Set the current application path. This should be called only once. The home path hereby is NOT the users home. It is a directory, where
      * OW can write user specific data. A good default here is to specify USERHOME/.OpenWalnut for example.
      *
      * \param appPath the application path
      * \param homePath the OW home path
      */
     void setBasePaths( boost::filesystem::path appPath, boost::filesystem::path homePath );
+
+    /**
+     * Set the current application path. This should be called only once. The home path hereby is NOT the users home. It is a directory, where
+     * OW can write user specific data. A good default here is to specify USERHOME/.OpenWalnut for example.
+     *
+     * \param appPath the application path
+     * \param homePath the OW home path
+     */
+    void setBasePathsOSXBundle( boost::filesystem::path appPath, boost::filesystem::path homePath );
 
     /**
      * The path where the binary file resides in. This is for example /usr/bin.

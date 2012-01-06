@@ -205,21 +205,26 @@ protected:
      * Called for each project save request.
      *
      * \param writer the list of writers to use.
+     *
+     * \returns true if saving was successful
      */
     virtual bool projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer );
 
     /**
-     * drag and drop implementation
+     * drag and drop implementation for loading files
+     * \param event the event to handle
      */
     void dropEvent( QDropEvent* event );
 
     /**
-     * drag and drop implementation
+     * drag and drop implementation for loading files
+     * \param event the event to handle
      */
      void dragMoveEvent( QDragMoveEvent* event );
 
     /**
-     * drag and drop implementation
+     * drag and drop implementation for loading files
+     * \param event the event to handle
      */
      void dragEnterEvent( QDragEnterEvent* event );
 

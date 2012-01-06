@@ -29,11 +29,10 @@
 
 #include <boost/thread/locks.hpp>
 
-#include "WModule.h"
+class WModule;
 #include "WModuleConnector.h"
-#include "WModuleConnectorSignals.h"
 
-#include "../common/WCondition.h"
+class WCondition;
 
 #include "WExportKernel.h"
 

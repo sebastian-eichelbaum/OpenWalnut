@@ -42,27 +42,38 @@ class WTransferFunctionWidget;
 class WTransferFunctionScene : public QGraphicsScene
 {
     public:
+        /** type of base class for cleaner programming */
         typedef QGraphicsScene BaseClass;
 
+        /**
+         * default constructor
+         * \param parent the parent QObject, typically the QWidget
+         */
         explicit WTransferFunctionScene( QObject*parent =0 );
 
+        /**
+         * default destructor
+         */
         virtual ~WTransferFunctionScene();
 
     protected:
         /**
          * Checks whether the drag is inside the main rectangle of the scene
          * and whether the dragged object is of type QColor or similar.
+         * \param event the event to handle
          */
         virtual void dragMoveEvent( QGraphicsSceneDragDropEvent* event );
 
         /**
          * Allows drop of QColor-alike objects and creates new color control points
          * in the scene
+         * \param event the event to handle
          */
         virtual void dropEvent( QGraphicsSceneDragDropEvent* event );
 
     private:
-        WTransferFunctionWidget *myparent; //< storage of the widget as this currently manages the data
+        /** storage of the widget as this currently manages the data */
+        WTransferFunctionWidget *myparent;
 };
 
 #endif  // WTRANSFERFUNCTIONSCENE_H

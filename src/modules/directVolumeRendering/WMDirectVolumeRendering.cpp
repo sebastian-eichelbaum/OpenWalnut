@@ -200,7 +200,6 @@ void WMDirectVolumeRendering::moduleMain()
     // jitter
     WGEShaderDefine< std::string >::SPtr jitterSamplerDefine = m_shader->setDefine( "JITTERTEXTURE_SAMPLER", std::string( "tex3" ) );
     WGEShaderDefine< int >::SPtr jitterSizeXDefine = m_shader->setDefine( "JITTERTEXTURE_SIZEX", 0 );
-    WGEShaderDefineSwitch::SPtr jitterEnableDefine = m_shader->setDefine( "JITTERTEXTURE_ENABLED" );
 
     // opacity correction enabled?
     WGEShaderDefineSwitch::SPtr opacityCorrectionEnableDefine = m_shader->setDefine( "OPACITYCORRECTION_ENABLED" );

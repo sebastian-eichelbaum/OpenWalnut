@@ -107,6 +107,7 @@ public:
      * \param mat the matrix transforming the vertices from canonical space
      * \param vals the values at the vertices
      * \param isoValue The surface will run through all positions with this value.
+     * \param progress parent's WProgressCombiner. May be empty if no status report is requested
      *
      * \return the created triangle mesh
      */

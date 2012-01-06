@@ -34,8 +34,6 @@
 #include "../common/WThreadedRunner.h"
 #include "../common/exceptions/WSignalSubscriptionFailed.h"
 #include "WBatchLoader.h"
-#include "WKernel.h"
-#include "WModule.h"
 #include "WModuleCombiner.h"
 #include "WModuleFactory.h"
 #include "WModuleInputConnector.h"
@@ -181,6 +179,19 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
     {
         module->run();
     }
+}
+
+WModule::SPtr WModuleContainer::createAndAdd( std::string name )
+{
+    WModule::SPtr module = WModuleFactory::getModuleFactory()->create(
+        WModuleFactory::getModuleFactory()->getPrototypeByName( name )
+    );
+
+    // add to the container
+    add( module );
+    module->isReady().wait();
+
+    return module;
 }
 
 void WModuleContainer::remove( boost::shared_ptr< WModule > module )
@@ -425,24 +436,27 @@ boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< W
     return m;
 }
 
-boost::shared_ptr< WBatchLoader > WModuleContainer::loadDataSets( std::vector< std::string > fileNames )
+WBatchLoader::SPtr WModuleContainer::loadDataSets( std::vector< std::string > fileNames, bool suppressColormaps )
 {
     // create thread which actually loads the data
     boost::shared_ptr< WBatchLoader > t = boost::shared_ptr< WBatchLoader >( new WBatchLoader( fileNames,
                 boost::shared_static_cast< WModuleContainer >( shared_from_this() ) )
     );
+    t->setSuppressColormaps( suppressColormaps );
     t->run();
     return t;
 }
 
-void WModuleContainer::loadDataSetsSynchronously( std::vector< std::string > fileNames )
+WBatchLoader::SPtr WModuleContainer::loadDataSetsSynchronously( std::vector< std::string > fileNames, bool suppressColormaps )
 {
     // create thread which actually loads the data
     boost::shared_ptr< WBatchLoader > t = boost::shared_ptr< WBatchLoader >( new WBatchLoader( fileNames,
                 boost::shared_static_cast< WModuleContainer >( shared_from_this() ) )
     );
+    t->setSuppressColormaps( suppressColormaps );
     t->run();
     t->wait();
+    return t;
 }
 
 void WModuleContainer::addPendingThread( boost::shared_ptr< WThreadedRunner > thread )

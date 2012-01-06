@@ -271,9 +271,16 @@ void WMHistogramView::moduleMain()
         if( m_mainNode )
         {
             bool dataChanged = false;
+            bool hasData = false;
             for( std::size_t k = 0; k < m_data.size(); ++k )
             {
                 dataChanged = dataChanged || ( m_input[ k ]->getData() && m_data[ k ] != m_input[ k ]->getData() );
+                hasData = hasData || ( m_input[ k ]->getData() || m_data[ k ] );
+            }
+
+            if( !hasData )
+            {
+                continue;
             }
 
             bool colorChanged = false;
@@ -344,6 +351,7 @@ void WMHistogramView::moduleMain()
                 {
                     m_mainNode->remove( m_markerNode );
                 }
+
                 createInfo();
             }
         }
@@ -857,6 +865,11 @@ void WMHistogramView::createGeometryStairs( int type )
 
 double WMHistogramView::findOptimalSpacing( double intervalLength, double availableSpace, double textSize )
 {
+    if( intervalLength < 0.0 )
+    {
+        throw WException( "Error in label spacing calculation!" );
+    }
+
     // minimum distance of two labels in window coordinates (pixels)
     double const minDistance = 2 * textSize;
 
@@ -1132,7 +1145,9 @@ void WMHistogramView::createInfo()
 
         // this finds the bin selected by the mouse cursor
         std::size_t bin;
-        for( bin = 0; m_histograms[ 0 ]->getIntervalForIndex( bin ).second < m[ 0 ]; ++bin );
+        for( bin = 0; m_histograms[ 0 ]->getIntervalForIndex( bin ).second < m[ 0 ]; ++bin )
+        {
+        }
 
         // if the bin is in the histogram
         if( bin < m_histograms[ 0 ]->size() )

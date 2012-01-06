@@ -124,7 +124,7 @@ WROIBox::WROIBox( WPosition minPos, WPosition maxPos ) :
 
     boost::shared_ptr< WGraphicsEngine > ge = WGraphicsEngine::getGraphicsEngine();
     assert( ge );
-    boost::shared_ptr< WGEViewer > viewer = ge->getViewerByName( "main" );
+    boost::shared_ptr< WGEViewer > viewer = ge->getViewerByName( "Main View" );
     assert( viewer );
     m_viewer = viewer;
     m_pickHandler = m_viewer->getPickHandler();

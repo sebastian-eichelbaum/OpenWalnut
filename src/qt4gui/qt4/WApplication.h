@@ -37,17 +37,25 @@ class WApplication : public QApplication
 {
     Q_OBJECT
 public:
-    /** default constructor, see QApplication */
-    WApplication( int argc, char** argv, bool GUIenabled = true );
+    /**
+     * default constructor, see QApplication
+     * \param argc number of arguments (may be modified internally)
+     * \param argv values of arguments (may be modified interanlly)
+     * \param GUIenabled true if we want a gui
+     */
+    WApplication( int & argc, char** argv, bool GUIenabled = true );
 
     /** manage save dialogs when the session manager asks us to
      * take care of our data.
      * This is an overloaded function from QT.
+     * \param manager the session manager
      */
     virtual void commitData( QSessionManager& manager ); // NOLINT
 
     /**
      * store the main widget for error reporting and session management
+     * \param widget the main widget used, e.g., when application data
+     * should be stored
      */
     void setMyMainWidget( QWidget* widget );
 
@@ -57,6 +65,9 @@ public:
     virtual bool notify( QObject* receiver, QEvent* e );
 
 protected:
+    /**
+     * reference to the main widget set by setMyMainWidget
+     */
     QWidget* myMainWidget;
 };
 

@@ -171,6 +171,7 @@ public:
      *
      * \param offscreen use this offscreen node to add your texture pass'
      * \param gbuffer the input textures you should use
+     * \returns shared pointer to the created instance
      */
     virtual SPtr create( osg::ref_ptr< WGEOffscreenRenderNode > offscreen, const PostprocessorInput& gbuffer ) const = 0;
 

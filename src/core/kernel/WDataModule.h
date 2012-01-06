@@ -89,8 +89,29 @@ public:
      */
     virtual boost::filesystem::path getFilename() const = 0;
 
+    /**
+     * Allows suppression of colormap registration in data modules. This can be handy if you use data modules in a container to construct more
+     * complex data sets from multiple input files.
+     *
+     * \note call this before adding and running the module.
+     *
+     * \param suppress true if suppress
+     */
+    virtual void setSuppressColormaps( bool suppress = true );
+
+    /**
+     * Checks whether suppression of colormaps is active.
+     *
+     * \return true if colormaps are suppressed.
+     */
+    bool getSuppressColormaps() const;
+
 protected:
 private:
+    /**
+     * If true, data modules are instructed to suppress colormap registration.
+     */
+    bool m_suppressColormaps;
 };
 
 #endif  // WDATAMODULE_H

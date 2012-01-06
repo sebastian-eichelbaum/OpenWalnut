@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2009 OpenWalnut Community, BSV-Leipzig and CNCF-CBS
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -22,38 +22,43 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMDIRECTVOLUMERENDERING_H
-#define WMDIRECTVOLUMERENDERING_H
+#ifndef WMOPENIGTLINK_H
+#define WMOPENIGTLINK_H
 
 #include <string>
 
-#include <osg/Node>
-#include <osg/Uniform>
+#include <osg/Geode>
 
-#include "core/graphicsEngine/shaders/WGEShader.h"
-#include "core/dataHandler/WDataSetScalar.h"
-#include "core/dataHandler/WDataSetVector.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
 #include "core/kernel/WModuleOutputData.h"
 
 /**
- * This module is a basic volume renderer.
+ * This module provides an interface to OpenIGTLink, a protocol to exchange
+ * data remotely over IP networks.
+ *
+ * The module can act as a source or sink and, thus, transmit or receive data
+ * to and from servers or clients across the network.
+ * Clients that support the protocol are most VTK-based applications, including
+ * 3D Slicer, but there are interfaces for other tools such as MATLAB or proprietary
+ * scanner software as well.
+ *
+ * For more information see http://www.na-mic.org/Wiki/index.php/OpenIGTLink
  *
  * \ingroup modules
  */
-class WMDirectVolumeRendering: public WModule
+class WMOpenIGTLinkSender: public WModule
 {
 public:
     /**
-     * Default constructor.
+     *
      */
-    WMDirectVolumeRendering();
+    WMOpenIGTLinkSender();
 
     /**
-     * Destructor.
+     *
      */
-    virtual ~WMDirectVolumeRendering();
+    virtual ~WMOpenIGTLinkSender();
 
     /**
      * Gives back the name of this module.
@@ -77,7 +82,8 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
-     * \return the icon.
+     *
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 
@@ -102,87 +108,73 @@ protected:
      */
     virtual void requirements();
 
+
 private:
     /**
-     * The transfer function as an input data set
+     * input for data to send
      */
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_transferFunction;
+    boost::shared_ptr < WModuleInputData < WDataSetScalar > > m_input;
 
     /**
-     * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
+     * output of received data
      */
-    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;
+    boost::shared_ptr < WModuleOutputData < WDataSetScalar > > m_output;
 
     /**
-     * The gradient field input
+     * A condition used to notify about changes in several properties
      */
-    boost::shared_ptr< WModuleInputData< WDataSetVector > > m_gradients;
+    boost::shared_ptr < WCondition > m_propCondition;
 
     /**
-     * The number of samples to walk along the ray.
+     * hostname to connect to
      */
-    WPropInt m_samples;
+    WPropString m_hostname;
 
     /**
-     * Types of local illumination supported.
+     * port to listen on or to connect to
      */
-    enum LOCALILLUMINATION_ALGORITHMS
-    {
-        None = 0,
-        Phong
-    };
+    WPropInt m_port;
+
+    WPropDouble    m_xPos; //!< x position of the slice
+
+    WPropDouble    m_yPos; //!< y position of the slice
+
+    WPropDouble    m_zPos; //!< z position of the slice
 
     /**
-     * The available shading algorithms.
+     * whether we connect to the remote host or just listen
      */
-    boost::shared_ptr< WItemSelection > m_localIlluminationSelections;
+    //WPropBool m_propListenOnPort;
 
     /**
-     * The actually selected shading algorithm.
+     * List of selections to pick whether to act as an TCPIP server or as an TCPIP client,
+     * i.e., whether to listen on a port for incoming connections
+     * or whether to connect actively to a remote host.
      */
-    WPropSelection m_localIlluminationAlgo;
+    boost::shared_ptr <  WItemSelection >  m_propServerOrClientSelections;
 
     /**
-     * All properties for those nice improvement methods.
+     * Pick whether to act as an TCPIP server or as an TCPIP client,
+     * i.e., whether to listen on a port for incoming connections
+     * or whether to connect actively to a remote host.
      */
-    WPropGroup m_improvementGroup;
+    WPropSelection m_propServerOrClient;
 
     /**
-     * If true, stochastic jittering is used for image quality improvement.
+     * Activation status of the server
      */
-    WPropBool m_stochasticJitterEnabled;
+    WPropBool m_propActive;
+
 
     /**
-     * If active, the opacity of the classified fragment gets scaled according to sample count to ensure relative opacities even if sampling
-     * number changes (m_samples)
+     * Check CRC
      */
-    WPropBool m_opacityCorrectionEnabled;
+    WPropBool m_propCheckCRC;
 
     /**
-     * If active, Maximum intensity projection is used based on the alpha value of the points
+     * whether we connect to the remote host or just listen
      */
-    WPropBool m_maximumIntensityProjectionEnabled;
-
-    /**
-     * If active, color coding is done by depth projection mode where the intensity is taken from the alpha channel and the color from the color channel ( last part not implemented, yet )
-     */
-    WPropBool m_depthProjectionEnabled;
-
-    /**
-     * A condition used to notify about changes in several properties.
-     */
-    boost::shared_ptr< WCondition > m_propCondition;
-
-    /**
-     * the DVR shader.
-     */
-    osg::ref_ptr< WGEShader > m_shader;
-
-    /**
-     * the main geometry node
-     */
-    osg::ref_ptr< osg::Node > cube;
+    //WPropBool m_propConnectToRemote;
 };
 
-#endif  // WMDIRECTVOLUMERENDERING_H
-
+#endif  // WMOPENIGTLINK_H

@@ -26,7 +26,6 @@
 #include <vector>
 
 #include "WModule.h"
-#include "WDataModule.h"
 #include "WModuleContainer.h"
 #include "WModuleFactory.h"
 
@@ -36,7 +35,8 @@ WBatchLoader::WBatchLoader( std::vector< std::string > fileNames, boost::shared_
     WThreadedRunner(),
     boost::enable_shared_from_this< WBatchLoader >(),
     m_fileNamesToLoad( fileNames ),
-    m_targetContainer( targetContainer )
+    m_targetContainer( targetContainer ),
+    m_suppressColormaps( false )
 {
     // initialize members
 }
@@ -63,16 +63,36 @@ void WBatchLoader::threadMain()
         boost::shared_ptr< WModule > mod = WModuleFactory::getModuleFactory()->create(
                 WModuleFactory::getModuleFactory()->getPrototypeByName( "Data Module" )
         );
+        WDataModule::SPtr dmod = boost::shared_static_cast< WDataModule >( mod );
+        dmod->setSuppressColormaps( m_suppressColormaps );
 
         // set the filename
-        boost::shared_static_cast< WDataModule >( mod )->setFilename( *iter );
+        dmod->setFilename( *iter );
 
         m_targetContainer->add( mod );
         // serialize loading of a couple of data sets
         // ignore the case where isCrashed is true
         mod->isReadyOrCrashed().wait();
+
+        // add module to the list
+        m_dataModules.push_back( dmod );
     }
 
     m_targetContainer->finishedPendingThread( shared_from_this() );
+}
+
+WBatchLoader::DataModuleList::ReadTicket WBatchLoader::getDataModuleList() const
+{
+    return m_dataModules.getReadTicket();
+}
+
+void WBatchLoader::setSuppressColormaps( bool suppress )
+{
+    m_suppressColormaps = suppress;
+}
+
+bool WBatchLoader::getSuppressColormaps() const
+{
+    return m_suppressColormaps;
 }
 

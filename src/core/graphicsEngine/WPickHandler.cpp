@@ -185,7 +185,7 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
     updatePickInfoModifierKeys( &pickInfo );
 
     // if we are in another viewer than the main view we just need the pixel position
-    if( m_viewerName != "" && m_viewerName != "main" )
+    if( m_viewerName != "" && m_viewerName != "Main View" )
     {
         pickInfo = WPickInfo( "", m_viewerName, m_startPick.getPickPosition(), std::make_pair( x, y ),
                               m_startPick.getModifierKey(), m_mouseButton, m_startPick.getPickNormal() );

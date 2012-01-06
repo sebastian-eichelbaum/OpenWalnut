@@ -33,11 +33,14 @@
 #include "../common/WTimer.h"
 #include "../common/WLogger.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
+
+#include "WBatchLoader.h"
+
 #include "WExportKernel.h"
-#include "WModule.h"
 
 // forward declarations
 class WGUI;
+class WModule;
 class WModuleContainer;
 class WModuleFactory;
 class WROIManager;
@@ -108,16 +111,24 @@ public:
      *
      * \param fileNames list of filenames to load. The registered notification handler for the root container will get notified on
      * error and success.
+     * \param suppressColormaps if true, the data modules are instructed to avoid registration of colormaps. This can be very handy if you
+     * combine multiple data loaders into one new data loader or data set
+     *
+     * \return the batch loader responsible for loading. Can be queried for the list of data modules.
      */
-    void loadDataSets( std::vector< std::string > fileNames );
+    WBatchLoader::SPtr loadDataSets( std::vector< std::string > fileNames, bool suppressColormaps = false );
 
     /**
      * Loads the specified files synchronously.
      *
      * \param fileNames list of filenames to load. The registered notification handler for the root container will get notified on
      * error and success.
+     * \param suppressColormaps if true, the data modules are instructed to avoid registration of colormaps. This can be very handy if you
+     * combine multiple data loaders into one new data loader or data set
+     *
+     * \return the batch loader responsible for loading. Can be queried for the list of data modules.
      */
-    void loadDataSetsSynchronously( std::vector< std::string > fileNames );
+    WBatchLoader::SPtr loadDataSetsSynchronously( std::vector< std::string > fileNames, bool suppressColormaps = false );
 
     /**
      * Function combines to modules. This is a simple alias for "getRootContainer()->applyModule". It runs synchronously, which

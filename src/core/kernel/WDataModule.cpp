@@ -39,3 +39,13 @@ MODULE_TYPE WDataModule::getType() const
     return MODULE_DATA;
 }
 
+void WDataModule::setSuppressColormaps( bool suppress )
+{
+    m_suppressColormaps = suppress;
+}
+
+bool WDataModule::getSuppressColormaps() const
+{
+    return m_suppressColormaps;
+}
+

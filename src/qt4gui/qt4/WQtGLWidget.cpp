@@ -187,9 +187,11 @@ void WQtGLWidget::paintGL()
     m_Viewer->paint();
 }
 
-void WQtGLWidget::resizeEvent( QResizeEvent* /* event */ )
+void WQtGLWidget::resizeEvent( QResizeEvent* event )
 {
-    // m_Viewer->resize( event->size().width(), event->size().height() );
+    // we must hand over the event to our base class because that one takes care
+    // that resizeGL is eventually called
+    WQtGLWidgetParent::resizeEvent( event );
 }
 
 void WQtGLWidget::resizeGL( int width, int height )
@@ -207,6 +209,8 @@ void WQtGLWidget::paintGL()
 void WQtGLWidget::resizeEvent( QResizeEvent* event )
 {
     m_Viewer->resize( event->size().width(), event->size().height() );
+
+    WQtGLWidgetParent::resizeEvent( event );
 }
 
 void WQtGLWidget::resizeGL( int /* width */, int /* height */ )

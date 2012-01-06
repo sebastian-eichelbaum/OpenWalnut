@@ -122,9 +122,104 @@ CreateWorkingDir()
 # Create a binary package using CPack (binary tgz builder)
 Builder_TGZ()
 {
-    # apply builder
-    echo "Not yet implemented!"
-    exit 0
+    source $CONFIG_FILE
+
+    BUILDER_SRC_DIR=OpenWalnut-$VERSION
+    BUILDER_BLD_DIR=$BUILDER_SRC_DIR/build
+    BUILDER_PREFIX_DIR_REL=../../installed
+
+    # create some place to work in
+    CreateWorkingDir "tgz" "$BUILDER_SRC_DIR"
+    if [ $? -ne 0 ]; then
+        echo " * Failed to create working diretory."
+        exit 1
+    fi
+
+    # go to src dir and build
+    cd $BUILDER_BLD_DIR
+    echo "* Starting cmake in \"`pwd`\"."
+    cmake   -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
+            -DOW_USE_CUDA=OFF\
+            -DOW_USE_OPENCL=OFF\
+            -DOW_USE_TESTS=OFF\
+            -DOW_PACKAGE_BUILD=ON\
+            -DOW_PACKAGE_PACKAGER=tgz\
+            -DOW_MODULE_TOOLBOX_BASE=ON\
+            -DOW_MODULE_TOOLBOX_EEG=ON\
+            -DOW_MODULE_TOOLBOX_IO=ON\
+            -DOW_MODULE_TOOLBOX_IMAGEPROCESSING=ON\
+            -DOW_MODULE_TOOLBOX_OTHERS=ON\
+            ../src
+    if [ $? -ne 0 ]; then
+        echo " * cmake failed. You probably missed dependencies."
+        cd ../..
+        exit 1
+    fi
+
+    # for parallel builds, this can be handy
+    NBJOBS=1
+    if test "${OWPACK_NB_MAKEJOBS+set}" != set; then
+        NBJOBS=1
+    else
+        NBJOBS=$OWPACK_NB_MAKEJOBS
+    fi
+
+    # make
+    make -j$NBJOBS
+    if [ $? -ne 0 ]; then
+        echo " * make failed."
+        cd ../..
+        exit 1
+    fi
+	# build the core api documentation too
+	make core_devdoc
+    if [ $? -ne 0 ]; then
+        echo " * building developer documentation failed."
+        cd ../..
+        exit 1
+    fi
+
+    # make install
+    FAILED=0
+    # openwalnut, modules, qt gui and lib -- also includes dev files
+    cmake -DCOMPONENT=CORE      -DCMAKE_INSTALL_PREFIX=$BUILDER_PREFIX_DIR_REL/openwalnut -P cmake_install.cmake || FAILED=1
+    cmake -DCOMPONENT=EXT       -DCMAKE_INSTALL_PREFIX=$BUILDER_PREFIX_DIR_REL/openwalnut -P cmake_install.cmake || FAILED=1
+    cmake -DCOMPONENT=QT4GUI    -DCMAKE_INSTALL_PREFIX=$BUILDER_PREFIX_DIR_REL/openwalnut -P cmake_install.cmake || FAILED=1
+    cmake -DCOMPONENT=MODULES   -DCMAKE_INSTALL_PREFIX=$BUILDER_PREFIX_DIR_REL/openwalnut -P cmake_install.cmake || FAILED=1
+    cmake -DCOMPONENT=CORE_DEV  -DCMAKE_INSTALL_PREFIX=$BUILDER_PREFIX_DIR_REL/openwalnut -P cmake_install.cmake || FAILED=1
+    # devdoc
+    cmake -DCOMPONENT=CORE_DOC  -DCMAKE_INSTALL_PREFIX=$BUILDER_PREFIX_DIR_REL/openwalnut-doc -P cmake_install.cmake || FAILED=1
+    if [ $FAILED -ne 0 ]; then
+        echo " * cmake install scripts failed."
+        cd ../..
+        exit 1
+    fi
+
+    # get back to working dir and go install dir
+    cd $BUILDER_PREFIX_DIR_REL
+
+    # tar these files
+    tar cvfz openwalnut-$WORKING_DIR_POSTFIX.tgz openwalnut
+    if [ $? -ne 0 ]; then
+        echo " * unable to tar the build files."
+        cd ..
+        exit 1
+    fi
+    tar cvfz openwalnut-doc-$WORKING_DIR_POSTFIX.tgz openwalnut-doc
+    if [ $? -ne 0 ]; then
+        echo " * unable to tar the build files."
+        cd ..
+        exit 1
+    fi
+
+    # copy archive to release dir
+    echo "* Copy files to release dir \"$RELEASE_DIR\"."
+    cp openwalnut*.tgz ../../$RELEASE_DIR
+    if [ $? -ne 0 ]; then
+        echo " * Failed to copy to release dir."
+        exit 1
+    fi
+    # done
 }
 
 #########################################################################################################
@@ -279,7 +374,7 @@ Exit()
 # Quit and print usage info.
 UsageExit()
 {
-        echo "Usage: $0 {init|clean|deb|src|rpm|tgz} BUILD_DIR_PREFIX [WORKING_DIR]"
+        echo "Usage: $0 {clean|deb|src|rpm|tgz} BUILD_DIR_PREFIX [WORKING_DIR]"
         echo "  COMMANDS:"
         echo "    clean: removes created build sub-directories."
         echo "    deb: build source and binary packages for debian systems."
@@ -291,6 +386,9 @@ UsageExit()
         echo "    BUILD_DIR_PREFIX: $0 creates a build directory. Include this as prefix into its name."
         echo "    WORKING_DIR: $0 changes to this directory if specified."
         echo "    VERSION: optional parameter. Needed for init command."
+        echo ""
+        echo "  ENVIRONMENT VARIABLES:"
+        echo "    OWPACK_NB_MAKEJOBS: the number of parallel make jobs to start. Useful on multi-core systems."
         echo ""
         echo "  IMPORTANT:"
         echo "    This script needs an fresh checked-out version of OpenWalnut to be available, together with a $CONFIG_FILE file. Create this using owrelease script."
