@@ -275,7 +275,7 @@ void WMainWindow::setupGUI()
 
     m_loadButton->setToolTip( "Load a dataset from file" );
     resetButton->setToolTip( "Reset main view" );
-    roiButton->setToolTip( "Create New ROI" );
+    roiButton->setToolTip( "Create new ROI" );
     projectLoadButton->setToolTip( "Load a project from file" );
     projectSaveButton->setToolTip( "Save current project to file" );
 
@@ -429,19 +429,19 @@ void WMainWindow::setupGUI()
     // create the show/hide actions using the selection manager's props
     WQtPropertyBoolAction* showAxial = new WQtPropertyBoolAction( WKernel::getRunningKernel()->getSelectionManager()->getPropAxialShow(),
                                                                   m_permanentToolBar );
-    showAxial->setToolTip( "Toggle Axial Slice" );
+    showAxial->setToolTip( "Toggle axial slice" );
     showAxial->setText( "Toggle Axial Slice" );
     showAxial->setIcon( m_iconManager.getIcon( "axial icon" ) );
 
     WQtPropertyBoolAction* showCoronal = new WQtPropertyBoolAction( WKernel::getRunningKernel()->getSelectionManager()->getPropCoronalShow(),
                                                                     m_permanentToolBar );
-    showCoronal->setToolTip( "Toggle Coronal Slice" );
+    showCoronal->setToolTip( "Toggle coronal slice" );
     showCoronal->setText( "Toggle Coronal Slice" );
     showCoronal->setIcon( m_iconManager.getIcon( "coronal icon" ) );
 
     WQtPropertyBoolAction* showSagittal = new WQtPropertyBoolAction( WKernel::getRunningKernel()->getSelectionManager()->getPropSagittalShow(),
                                                                      m_permanentToolBar );
-    showSagittal->setToolTip( "Toggle Sagittal Slice" );
+    showSagittal->setToolTip( "Toggle sagittal slice" );
     showSagittal->setText( "Toggle Sagittal Slice" );
     showSagittal->setIcon( m_iconManager.getIcon( "sagittal icon" ) );
 
