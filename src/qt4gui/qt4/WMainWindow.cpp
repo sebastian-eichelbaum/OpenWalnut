@@ -137,7 +137,7 @@ void WMainWindow::setupGUI()
                                                      true );
 
     WSettingAction* mtViews = new WSettingAction( this, "qt4gui/ge/multiThreadedViewer",
-                                                        "Multi-threaded Views",
+                                                        "Multi-Threaded Views",
                                                         "If enabled, the graphic windows are rendered in different threads. This can speed-up "
                                                         "rendering on machines with multiple cores. WARNING: can lead to crashes sometimes.",
                                                         false,

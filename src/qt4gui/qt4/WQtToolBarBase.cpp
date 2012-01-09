@@ -44,8 +44,8 @@ WQtToolBarBase::WQtToolBarBase( const QString& title, WMainWindow* parent ):
     QList< QString > styleOptions;
     styleOptions.push_back( "Icon Only" );
     styleOptions.push_back( "Text Only" );
-    styleOptions.push_back( "Text besides Icon" );
-    styleOptions.push_back( "Text under Icon" );
+    styleOptions.push_back( "Text Besides Icon" );
+    styleOptions.push_back( "Text Under Icon" );
     styleOptions.push_back( "Follow Style" );
     m_styleOptionMenu = new WSettingMenu( parent, "qt4gui/" + windowTitle().toStdString() + "toolbarStyle",
                                                   title.toStdString(),
