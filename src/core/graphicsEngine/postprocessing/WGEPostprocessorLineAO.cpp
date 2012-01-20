@@ -56,16 +56,16 @@ WGEPostprocessorLineAO::WGEPostprocessorLineAO( osg::ref_ptr< WGEOffscreenRender
     lineaoRadiusSS->setMax( 100.0 );
 
     WPropDouble lineaoTotalStrength = m_properties->addProperty( "Total Strength", "The strength of the effect. Higher values emphasize the effect.",
-                                                                                 2.5 );
+                                                                                 1.0 );
     lineaoTotalStrength->setMin( 0.0 );
-    lineaoTotalStrength->setMax( 10.0 );
+    lineaoTotalStrength->setMax( 5.0 );
 
     WPropDouble lineaoDensityWeight = m_properties->addProperty( "Density Weight", "The strength of the occluder influence in relation to the "
                                                                                    "geometry density. The higher the value, the larger the "
                                                                                    "influence. Low values remove the drop-shadow effect. "
                                                                                    "This defines the influence of one occluder to the overall "
                                                                                    "AO effect.", 1.0 );
-    lineaoDensityWeight->setMin( 0.0 );
+    lineaoDensityWeight->setMin( 0.001 );
     lineaoDensityWeight->setMax( 2.0 );
 
 
