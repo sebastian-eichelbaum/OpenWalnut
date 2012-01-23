@@ -197,13 +197,13 @@ public:
 
 private:
     //! normalized direction of the grid's x-axis in world coordinates
-    WVector3d m_directionX;
+    WVector3d m_unitDirectionX;
 
     //! normalized direction of the grid's y-axis in world coordinates
-    WVector3d m_directionY;
+    WVector3d m_unitDirectionY;
 
     //! normalized direction of the grid's z-axis in world coordinates
-    WVector3d m_directionZ;
+    WVector3d m_unitDirectionZ;
 
     //! the scaling factors for the 3 axes, i.e. the distance between samples
     WVector3d m_scaling;
