@@ -158,6 +158,12 @@ public:
     WPosition getOrigin() const;
 
     /**
+     * Returns the scaling of the grid.
+     * \return The scaling of the grid.
+     */
+    const WVector3d& getScaling() const;
+
+    /**
      * Returns a 4x4 matrix that represents the grid's transformaion.
      * \return The grid's transformation.
      */
@@ -226,6 +232,11 @@ void WGridTransformOrtho::scale( VecType const& scale )
     m_scaling[ 0 ] *= scale[ 0 ];
     m_scaling[ 1 ] *= scale[ 1 ];
     m_scaling[ 2 ] *= scale[ 2 ];
+}
+
+inline const WVector3d& WGridTransformOrtho::getScaling() const
+{
+    return m_scaling;
 }
 
 #endif  // WGRIDTRANSFORMORTHO_H
