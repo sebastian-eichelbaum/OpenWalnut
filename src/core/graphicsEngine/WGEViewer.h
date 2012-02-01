@@ -53,6 +53,7 @@
 #include "WExportWGE.h"
 #include "WGECamera.h"
 #include "WGEGraphicsWindow.h"
+#include "WGraphicsEngineMode.h"
 class WGEGroupNode;
 #include "WGEScreenCapture.h"
 class WPickHandler;
@@ -120,7 +121,7 @@ public:
      *
      * \return the OSG Viewer instance.
      */
-#ifdef __APPLE__
+#ifdef WGEMODE_SINGLETHREADED
     osg::ref_ptr<osgViewer::Viewer> getView();
 #else
     osg::ref_ptr<osgViewer::View> getView();
@@ -240,7 +241,7 @@ protected:
     /**
      * The OpenSceneGraph view used in this (Composite)Viewer.
      */
-#ifdef __APPLE__
+#ifdef WGEMODE_SINGLETHREADED
     osg::ref_ptr< osgViewer::Viewer > m_View;
 #else
     osg::ref_ptr< osgViewer::View > m_View;

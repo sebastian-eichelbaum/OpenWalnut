@@ -28,6 +28,8 @@
 #include <boost/shared_ptr.hpp>
 #include <osgViewer/GraphicsWindow>
 
+#include "WGraphicsEngineMode.h"
+
 /**
  * Class managing a single graphics context and OSG GraphicsWindow.
  * \ingroup ge
@@ -113,7 +115,7 @@ protected:
      */
     osg::ref_ptr<osgViewer::GraphicsWindow> m_GraphicsWindow;
 
-#ifndef __APPLE__
+#ifdef WGEMODE_MULTITHREADED
      /**
      * Creates a new OpenGL context in the calling thread. Needs to be called before any other OpenGL operation.
      *

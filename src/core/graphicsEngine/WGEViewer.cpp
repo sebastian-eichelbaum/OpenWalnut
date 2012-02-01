@@ -64,7 +64,7 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
 {
     try
     {
-#ifndef __APPLE__
+#ifdef WGEMODE_MULTITHREADED
         m_View = osg::ref_ptr<osgViewer::View>( new osgViewer::View );
 #else
         // on mac, this is a viewer!
@@ -76,7 +76,7 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
         m_View->getCamera()->setInitialDrawCallback( m_queryCallback );
         m_View->getCamera()->setFinalDrawCallback( m_screenCapture );
 
-#ifndef __APPLE__
+#ifdef WGEMODE_MULTITHREADED
         m_View->getCamera()->setGraphicsContext( m_GraphicsContext.get() );
 #else
         m_View->getCamera()->setGraphicsContext( m_GraphicsWindow.get() );
@@ -122,7 +122,7 @@ WGEViewer::~WGEViewer()
     close();
 }
 
-#ifdef __APPLE__
+#ifdef WGEMODE_SINGLETHREADED
 osg::ref_ptr<osgViewer::Viewer>
 #else
 osg::ref_ptr<osgViewer::View>
@@ -174,7 +174,7 @@ void WGEViewer::setBgColor( const WColor& bgColor )
 
 void WGEViewer::paint()
 {
-#ifdef __APPLE__
+#ifdef WGEMODE_SINGLETHREADED
     m_View->frame();
 #endif
 }

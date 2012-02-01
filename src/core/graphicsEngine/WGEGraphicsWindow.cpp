@@ -29,7 +29,7 @@
 #include "exceptions/WGEInitFailed.h"
 
 WGEGraphicsWindow::WGEGraphicsWindow( osg::ref_ptr<osg::Referenced>
-     #ifndef __APPLE__
+     #ifdef WGEMODE_MULTITHREADED
         wdata  // this parameter is only needed on non-mac
      #endif
         ,
@@ -38,7 +38,7 @@ WGEGraphicsWindow::WGEGraphicsWindow( osg::ref_ptr<osg::Referenced>
                                             int width,
                                             int height )
 {
-#ifndef __APPLE__
+#ifdef WGEMODE_MULTITHREADED
     // initialize context
     m_WindowData = wdata;
     try
@@ -66,7 +66,7 @@ osg::ref_ptr<osgViewer::GraphicsWindow> WGEGraphicsWindow::getGraphicsWindow()
     return m_GraphicsWindow;
 }
 
-#ifndef __APPLE__
+#ifdef WGEMODE_MULTITHREADED
 void WGEGraphicsWindow::createContext( int x, int y, int width, int height )
 {
     // Create traits for graphics contest request

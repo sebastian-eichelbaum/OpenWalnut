@@ -43,6 +43,7 @@
 #include "core/graphicsEngine/WGEViewer.h"
 #include "core/graphicsEngine/WGEZoomTrackballManipulator.h"
 #include "core/graphicsEngine/WGraphicsEngine.h"
+#include "core/graphicsEngine/WGraphicsEngineMode.h"
 #include "core/kernel/WKernel.h"
 
 #include "WQtGLScreenCapture.h"
@@ -51,7 +52,7 @@
 #include "WSettingAction.h"
 #include "WMainWindow.h"
 
-#ifndef __APPLE__
+#ifdef WGEMODE_MULTITHREADED
     #ifndef _WIN32
         #include <osgViewer/api/X11/GraphicsWindowX11>
         typedef osgViewer::GraphicsWindowX11::WindowData WindowData;
@@ -83,7 +84,7 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
     setFocusPolicy( Qt::ClickFocus );
 
     // initialize OpenGL context and OpenSceneGraph
-#ifndef __APPLE__
+#ifdef WGEMODE_MULTITHREADED
     osg::ref_ptr<osg::Referenced> wdata = new WindowData( winId() );
 
     // create viewer
@@ -180,7 +181,7 @@ void WQtGLWidget::paintEvent( QPaintEvent* /*event*/ )
     }
 }
 
-#ifdef __APPLE__
+#ifdef WGEMODE_SINGLETHREADED
 
 void WQtGLWidget::paintGL()
 {
