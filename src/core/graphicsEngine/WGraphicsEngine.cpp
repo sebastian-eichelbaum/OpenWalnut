@@ -59,6 +59,7 @@ WGraphicsEngine::WGraphicsEngine():
 #ifndef __APPLE__
     // initialize OSG render window
     m_viewer = osg::ref_ptr<osgViewer::CompositeViewer>( new osgViewer::CompositeViewer() );
+    m_viewer->setThreadingModel( osgViewer::ViewerBase::SingleThreaded );
 #endif
 
     // initialize members
