@@ -148,9 +148,8 @@ Builder_SRC()
     fi
 
     # simply tar the stuff
-    # NOTE: we derefernce symbolic links! This will ease the life of Windows users.
     echo "* Create source tar \"$BUILDER_SRC_UPSTREAM_SRC_TAR\"."
-    tar -cfzh $BUILDER_SRC_UPSTREAM_SRC_TAR $BUILDER_SRC_UPSTREAM_SRC_DIR
+    tar -cfz $BUILDER_SRC_UPSTREAM_SRC_TAR $BUILDER_SRC_UPSTREAM_SRC_DIR
     if [ $? -ne 0 ]; then
         echo " * Failed to create tar archive."
         exit 1
