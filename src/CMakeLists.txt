@@ -240,6 +240,9 @@ IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
   ENDIF()
 ENDIF()
 FIND_PACKAGE( OpenSceneGraph ${MIN_OSG_VERSION} REQUIRED osgDB osgUtil osgGA osgViewer osgSim osgWidget osgText )
+IF( OPENSCENEGRAPH_FOUND )
+    INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
+ENDIF()
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # Eigen3, at least 3.0.0
