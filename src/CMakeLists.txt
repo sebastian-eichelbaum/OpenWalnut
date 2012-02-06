@@ -244,7 +244,6 @@ IF( OPENSCENEGRAPH_FOUND )
     INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
 ENDIF()
 
-
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # Eigen3, at least 3.0.0
 # See http://eigen.tuxfamily.org
@@ -397,7 +396,7 @@ ADD_CUSTOM_TARGET( many
 ADD_CUSTOM_TARGET( list_install_tarets
                    COMMAND echo The following components can be installed:
                    COMMAND echo " * install - install everything."
-                   COMMAND echo " * install_runtime - install only openwalnut-qt4."
+                   COMMAND echo " * install_runtime - install the GUIs."
                    COMMAND echo " * install_lib - install only libopenwalnut."
                    COMMAND echo " * install_modules - install only the compiled modules."
                    COMMAND echo " * install_dev - install the development headers for libopenwalnut."
@@ -460,11 +459,14 @@ ADD_SUBDIRECTORY( core )
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # QT4 OpenWalnut binary
 
-SET( OWQt4GuiName "qt4gui" )
-SET( OWBinaryName "openwalnut-qt4" )
+OPTION( OW_GUI_QT4 "Enable this to build the QT4-based OpenWalnut GUI." ON )
+IF( OW_GUI_QT4 )
+    SET( OWQt4GuiName "qt4gui" )
+    SET( OWBinaryName "openwalnut-qt4" )
 
-# build core
-ADD_SUBDIRECTORY( qt4gui )
+    # build
+    ADD_SUBDIRECTORY( qt4gui )
+ENDIF()
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # Modules
