@@ -219,6 +219,9 @@ FIND_PACKAGE( Boost 1.39.0 REQUIRED program_options thread filesystem date_time 
 # include the boost headers
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 
+# avoid filesystem 2 stuff
+ADD_DEFINITIONS( "-DBOOST_FILESYSTEM_VERSION=3" )
+
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # OpenGL, at least 1.2
 # See http://www.opengl.org
