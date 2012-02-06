@@ -31,10 +31,6 @@
     #include <windows.h>        // NOLINT
 #endif
 
-// Use filesystem version 2 for compatibility with newer boost versions.
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
 #include <boost/filesystem.hpp>
 
 #include "exceptions/WLibraryFetchFailed.h"
@@ -243,7 +239,7 @@ struct WSharedLib::data
 #endif
 
 WSharedLib::WSharedLib( boost::filesystem::path lib ):
-    m_data( new data( lib.native_file_string() ) )
+    m_data( new data( lib.string() ) )
 {
 }
 

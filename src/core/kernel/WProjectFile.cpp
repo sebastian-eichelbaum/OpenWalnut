@@ -86,13 +86,13 @@ void WProjectFile::load()
 
 void WProjectFile::save( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer )
 {
-    wlog::info( "Project File" ) << "Saving project file \"" << m_project.file_string() << "\".";
+    wlog::info( "Project File" ) << "Saving project file \"" << m_project.string() << "\".";
 
     // open the file for write
-    std::ofstream output( m_project.file_string().c_str() );
+    std::ofstream output( m_project.string().c_str() );
     if( !output.is_open() )
     {
-        throw WFileOpenFailed( std::string( "The project file \"" ) + m_project.file_string() +
+        throw WFileOpenFailed( std::string( "The project file \"" ) + m_project.string() +
                                std::string( "\" could not be opened for write access." ) );
     }
 
@@ -114,13 +114,13 @@ void WProjectFile::save()
 void WProjectFile::threadMain()
 {
     // Parse the file
-    wlog::info( "Project File" ) << "Loading project file \"" << m_project.file_string() << "\".";
+    wlog::info( "Project File" ) << "Loading project file \"" << m_project.string() << "\".";
 
     // read the file
-    std::ifstream input( m_project.file_string().c_str() );
+    std::ifstream input( m_project.string().c_str() );
     if( !input.is_open() )
     {
-        throw WFileNotFound( std::string( "The project file \"" ) + m_project.file_string() +
+        throw WFileNotFound( std::string( "The project file \"" ) + m_project.string() +
                              std::string( "\" does not exist." ) );
     }
 

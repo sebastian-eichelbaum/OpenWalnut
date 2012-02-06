@@ -261,7 +261,7 @@ WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Textur
     state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
     addChild( textGeode );
     osgText::Text* label = new osgText::Text();
-    label->setFont( WPathHelper::getAllFonts().Default.file_string() );
+    label->setFont( WPathHelper::getAllFonts().Default.string() );
     label->setBackdropType( osgText::Text::OUTLINE );
     label->setCharacterSize( 15 );
     label->setText( m_name );

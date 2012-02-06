@@ -388,7 +388,7 @@ osg::ref_ptr< osg::PositionAttitudeTransform > wge::addLabel( osg::Vec3 position
     labelGeode->addDrawable( label );
 
     // setup font
-    label->setFont( WPathHelper::getAllFonts().Default.file_string() );
+    label->setFont( WPathHelper::getAllFonts().Default.string() );
     label->setBackdropType( osgText::Text::OUTLINE );
     label->setCharacterSize( 6 );
 

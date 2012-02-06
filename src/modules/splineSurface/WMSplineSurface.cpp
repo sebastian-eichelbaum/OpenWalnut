@@ -265,7 +265,7 @@ bool WMSplineSurface::save() const
     //        return false;
     //    }
     //
-    //    const char* c_file = m_meshFile->get().file_string().c_str();
+    //    const char* c_file = m_meshFile->get().string().c_str();
     //    std::ofstream dataFile( c_file );
     //
     //    if( dataFile )
@@ -274,7 +274,7 @@ bool WMSplineSurface::save() const
     //    }
     //    else
     //    {
-    //        WLogger::getLogger()->addLogMessage( "open file failed" + m_meshFile->get().file_string() , "Marching Cubes", LL_ERROR );
+    //        WLogger::getLogger()->addLogMessage( "open file failed" + m_meshFile->get().string() , "Marching Cubes", LL_ERROR );
     //        return false;
     //    }
     //

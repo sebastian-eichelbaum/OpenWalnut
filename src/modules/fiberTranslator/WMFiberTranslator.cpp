@@ -140,7 +140,7 @@ boost::shared_ptr< WDataSetFibers > WMFiberTranslator::mergeFibers( boost::files
 
     if( !boost::filesystem::exists( dir ) || !boost::filesystem::is_directory( dir ) )
     {
-        errorLog() << "Directory " << dir.file_string() << " does not exist!";
+        errorLog() << "Directory " << dir.string() << " does not exist!";
         return boost::shared_ptr< WDataSetFibers >();
     }
 
@@ -158,7 +158,7 @@ boost::shared_ptr< WDataSetFibers > WMFiberTranslator::mergeFibers( boost::files
             continue;
         }
 
-        std::fstream f( it->path().file_string().c_str(), std::ios::in );
+        std::fstream f( it->path().string().c_str(), std::ios::in );
 
         WVector3d v;
         while( f >> v[ 0 ] >> v[ 1 ] >> v[ 2 ] )
@@ -184,7 +184,7 @@ boost::shared_ptr< WDataSetFibers > WMFiberTranslator::mergeFibersNrrd( boost::f
 
     if( !boost::filesystem::exists( dir ) || !boost::filesystem::is_directory( dir ) )
     {
-        errorLog() << "Directory " << dir.file_string() << " does not exist!";
+        errorLog() << "Directory " << dir.string() << " does not exist!";
         return boost::shared_ptr< WDataSetFibers >();
     }
 
@@ -202,7 +202,7 @@ boost::shared_ptr< WDataSetFibers > WMFiberTranslator::mergeFibersNrrd( boost::f
             continue;
         }
 
-        std::fstream f( it->path().file_string().c_str(), std::ios::in | std::ios::binary );
+        std::fstream f( it->path().string().c_str(), std::ios::in | std::ios::binary );
 
         WVector3d v;
         while( f >> v[ 0 ] >> v[ 1 ] >> v[ 2 ] )
@@ -230,26 +230,26 @@ boost::shared_ptr< WDataSetFibers > WMFiberTranslator::loadExploreDTIFibers( boo
 
     if( !boost::filesystem::exists( file ) || boost::filesystem::is_directory( file ) )
     {
-        errorLog() << "File " << file.file_string() << " does not exist!";
+        errorLog() << "File " << file.string() << " does not exist!";
         return boost::shared_ptr< WDataSetFibers >();
     }
 
     // the file should end in "_coordinates.txt"
-    if( file.file_string().length() < 16 || file.file_string().find( "_coordinates.txt" ) != file.file_string().length() - 16 )
+    if( file.string().length() < 16 || file.string().find( "_coordinates.txt" ) != file.string().length() - 16 )
     {
         errorLog() << "File " << file << " does not end in _coordinates.txt. Ignoring.";
         return boost::shared_ptr< WDataSetFibers >();
     }
 
     // get the name of the corresponding fiber length file
-    std::string lengthFile = file.file_string();
+    std::string lengthFile = file.string();
     lengthFile.resize( lengthFile.length() - 16 );
     lengthFile += "_lengths.txt";
 
     WFiberAccumulator accu;
 
     // open files
-    std::fstream coords( file.file_string().c_str(), std::ios::in );
+    std::fstream coords( file.string().c_str(), std::ios::in );
     std::fstream lengths( lengthFile.c_str(), std::ios::in );
 
     while( !lengths.eof() && !lengths.bad() )

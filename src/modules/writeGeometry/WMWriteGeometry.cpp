@@ -119,10 +119,10 @@ void WMWriteGeometry::writeFile()
 {
     boost::shared_ptr< WTriangleMesh > mesh = m_input->getData();
     using std::fstream;
-    fstream out( m_savePath->get().file_string().c_str(), fstream::out | fstream::in | fstream::trunc | fstream::binary );
+    fstream out( m_savePath->get().string().c_str(), fstream::out | fstream::in | fstream::trunc | fstream::binary );
     if( !out || out.bad() )
     {
-        throw WException( std::string( "Invalid file, or permission: " ) + m_savePath->get().file_string() );
+        throw WException( std::string( "Invalid file, or permission: " ) + m_savePath->get().string() );
     }
 
     std::string appearance = ""

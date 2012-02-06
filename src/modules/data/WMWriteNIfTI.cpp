@@ -167,7 +167,7 @@ void WMWriteNIfTI::writeToFile()
 {
     m_saveTriggerProp->set( WPVBaseTypes::PV_TRIGGER_READY, false );
 
-    infoLog() << "Writing Data to " << m_filename->get().file_string();
+    infoLog() << "Writing Data to " << m_filename->get().string();
     nifti_image *outField = nifti_simple_init_nim();
 
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
@@ -281,7 +281,7 @@ void WMWriteNIfTI::writeToFile()
     }
     outField->data = data;
 
-    std::string s = m_filename->get().file_string();
+    std::string s = m_filename->get().string();
     if( nifti_set_filenames( outField, s.c_str(), 0, 1 ) )
     {
         throw WException( std::string( "NIfTI filename Problem" ) );

@@ -33,7 +33,7 @@ WGELabel::WGELabel():
 {
     // initialize members
     setCharacterSize( 21 );
-    setFont( WPathHelper::getAllFonts().Default.file_string() );
+    setFont( WPathHelper::getAllFonts().Default.string() );
     setAxisAlignment( osgText::Text::SCREEN );
     setAlignment( osgText::Text::LEFT_BOTTOM );
     setBackdropType( osgText::Text::OUTLINE );

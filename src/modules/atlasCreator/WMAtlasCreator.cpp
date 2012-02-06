@@ -25,10 +25,6 @@
 #include <string>
 #include <vector>
 
-// Use filesystem version 2 for compatibility with newer boost versions.
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
 #include <boost/filesystem.hpp>
 
 #include <osg/Image>
@@ -136,7 +132,7 @@ bool WMAtlasCreator::loadPngs( boost::filesystem::path sliceFile )
     }
 
     osg::Image* osgImage;
-    osgImage = osgDB::readImageFile( sliceFile.file_string().c_str() );
+    osgImage = osgDB::readImageFile( sliceFile.string().c_str() );
 
     debugLog() << osgImage->r() << " : " << osgImage->s() << " : " << osgImage->t();
 
@@ -146,14 +142,14 @@ bool WMAtlasCreator::loadPngs( boost::filesystem::path sliceFile )
 
 
     path dirPath( sliceFile );
-    dirPath.remove_filename().file_string();
+    dirPath.remove_filename().string();
 
     m_volume.resize( m_xDim * m_yDim * m_zDim, 0 );
 
     directory_iterator end_itr; // default construction yields past-the-end
     for( directory_iterator itr( dirPath ); itr != end_itr; ++itr )
     {
-        //debugLog() << itr->path().file_string().c_str();
+        //debugLog() << itr->path().string().c_str();
         path p( itr->path() );
 
         if( p.extension() == ".png" )
@@ -174,7 +170,7 @@ void WMAtlasCreator::addPngToVolume( boost::filesystem::path image )
 {
     using namespace boost::filesystem; //NOLINT
 
-    std::string fn = image.filename();
+    std::string fn = image.filename().string();
     fn.erase( fn.size() - 4, 4 );
     std::string number = fn.substr( fn.size() - 3 );
     fn.erase( fn.size() - 3, 3 );
@@ -204,7 +200,7 @@ void WMAtlasCreator::addPngToVolume( boost::filesystem::path image )
     }
 
     osg::Image* osgImage;
-    osgImage = osgDB::readImageFile( image.file_string().c_str() );
+    osgImage = osgDB::readImageFile( image.string().c_str() );
     unsigned char* data = osgImage->data();
 
     pos /= 2;

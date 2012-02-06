@@ -26,10 +26,6 @@
 #include <streambuf>
 #include <string>
 
-// Use filesystem version 2 for compatibility with newer boost versions.
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
 #include <boost/filesystem.hpp>
 
 #include "exceptions/WFileNotFound.h"
@@ -43,11 +39,11 @@ std::string readFileIntoString( const std::string& name )
 
 std::string readFileIntoString( const boost::filesystem::path& path )
 {
-    std::string filename = path.file_string();
+    std::string filename = path.string();
     std::ifstream input( filename.c_str() );
     if( !input.is_open() )
     {
-        throw WFileNotFound( std::string( "The file \"" ) + boost::filesystem::complete( path ).file_string() + std::string( "\" does not exist." ) );
+        throw WFileNotFound( std::string( "The file \"" ) + path.string() + std::string( "\" does not exist." ) );
     }
 
     // preallocate space for the string.
@@ -69,10 +65,10 @@ void writeStringIntoFile( const std::string& name, const std::string& content )
 
 void writeStringIntoFile( const boost::filesystem::path& path, const std::string& content )
 {
-    std::ofstream outfile( path.file_string().c_str() );
+    std::ofstream outfile( path.string().c_str() );
     if( !outfile.is_open() )
     {
-        throw WFileOpenFailed( "The file \"" + boost::filesystem::complete( path ).file_string() + "\" could not be opened." );
+        throw WFileOpenFailed( "The file \"" +  path.string() + "\" could not be opened." );
     }
 
     outfile << content << std::flush;

@@ -30,10 +30,6 @@
 #include <algorithm>
 #include <string>
 
-// Use filesystem version 2 for compatibility with newer boost versions.
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
 #include <boost/filesystem.hpp>
 
 #include "WExportCommon.h"
@@ -96,9 +92,18 @@ template< class T > void switchByteOrderOfArray( T *array, const size_t arraySiz
  * \param name File name to get the extension or suffix from.
  * \return filename suffix
  */
+inline std::string getSuffix( boost::filesystem::path name )
+{
+    return  name.extension().string();
+}
+
+/**
+ * \param name File name to get the extension or suffix from.
+ * \return filename suffix
+ */
 inline std::string getSuffix( std::string name )
 {
-    return boost::filesystem::path( name ).extension();
+    return getSuffix( boost::filesystem::path( name ) );
 }
 
 /**

@@ -30,10 +30,6 @@
 #include <vector>
 
 #include <boost/enable_shared_from_this.hpp>
-// Use filesystem version 2 for compatibility with newer boost versions.
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
 #include <boost/filesystem.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>

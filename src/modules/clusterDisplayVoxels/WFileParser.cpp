@@ -26,10 +26,6 @@
 #include <string>
 #include <vector>
 
-// Use filesystem version 2 for compatibility with newer boost versions.
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 

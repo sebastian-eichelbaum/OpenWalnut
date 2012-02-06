@@ -1061,7 +1061,7 @@ void WMHistogramView::createFrame()
         osgText::Text* text = new osgText::Text;
         WVector2d textPos = histogramSpaceToWindowSpace( WVector2d( i, 0.0 ) ) - offsetY * 1.2;
 
-        text->setFont( WPathHelper::getAllFonts().Default.file_string() );
+        text->setFont( WPathHelper::getAllFonts().Default.string() );
         text->setColor( frameColor );
         text->setCharacterSize( 12 );
         text->setAlignment( osgText::TextBase::CENTER_TOP );
@@ -1083,7 +1083,7 @@ void WMHistogramView::createFrame()
         osgText::Text* text = new osgText::Text;
         WVector2d textPos = histogramSpaceToWindowSpace( WVector2d( m_frameLowerLeft[ 0 ], i ) ) - offsetX * 1.2;
 
-        text->setFont( WPathHelper::getAllFonts().Default.file_string() );
+        text->setFont( WPathHelper::getAllFonts().Default.string() );
         text->setColor( frameColor );
         text->setCharacterSize( 12 );
         text->setAlignment( osgText::TextBase::RIGHT_CENTER );
@@ -1166,7 +1166,7 @@ void WMHistogramView::createInfo()
 
                 osgText::Text* text = new osgText::Text;
 
-                text->setFont( WPathHelper::getAllFonts().Default.file_string() );
+                text->setFont( WPathHelper::getAllFonts().Default.string() );
                 text->setColor( m_colors[ k ]->get( false ) );
                 text->setCharacterSize( 12 );
                 text->setAlignment( osgText::TextBase::RIGHT_CENTER );
@@ -1188,7 +1188,7 @@ void WMHistogramView::createInfo()
               << "," << m_histograms[ 0 ]->getIntervalForIndex( bin ).second
               << ")";
 
-            text->setFont( WPathHelper::getAllFonts().Default.file_string() );
+            text->setFont( WPathHelper::getAllFonts().Default.string() );
             text->setColor( WColor( 0.0, 0.0, 0.0, 1.0 ) );
             text->setCharacterSize( 12 );
             text->setAlignment( osgText::TextBase::RIGHT_CENTER );

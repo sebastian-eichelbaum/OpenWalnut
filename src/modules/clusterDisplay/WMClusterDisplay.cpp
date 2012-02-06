@@ -405,7 +405,7 @@ void WMClusterDisplay::moduleMain()
 
         if( m_readTriggerProp->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            std::string fileName = m_propTreeFile->get().file_string().c_str();
+            std::string fileName = m_propTreeFile->get().string().c_str();
             treeLoaded = loadTreeAscii( fileName );
             m_readTriggerProp->set( WPVBaseTypes::PV_TRIGGER_READY, true );
             if( treeLoaded )

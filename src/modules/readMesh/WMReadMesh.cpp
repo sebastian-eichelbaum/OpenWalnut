@@ -147,7 +147,7 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readMeshFnav()
 {
     namespace su = string_utils;
 
-    std::string fileName = m_meshFile->get().file_string().c_str();
+    std::string fileName = m_meshFile->get().string().c_str();
     WAssert( !fileName.empty(), "No filename specified." );
 
     boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Read Mesh", 3 ) );
@@ -274,7 +274,7 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readMesh()
 {
     namespace su = string_utils;
 
-    std::string fileName = m_meshFile->get().file_string().c_str();
+    std::string fileName = m_meshFile->get().string().c_str();
     WAssert( !fileName.empty(), "No filename specified." );
 
     boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Read Mesh", 3 ) );
@@ -413,7 +413,7 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readBrainVISA()
     debugLog() << "brainVISA reader (don't forget to fix switch statement)";
     namespace su = string_utils;
 
-    std::string fileName = m_meshFile->get().file_string().c_str();
+    std::string fileName = m_meshFile->get().string().c_str();
     WAssert( !fileName.empty(), "No filename specified." );
 
     boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Read Mesh", 3 ) );
@@ -545,7 +545,7 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readDip()
 {
     namespace su = string_utils;
 
-    std::string fileName = m_meshFile->get().file_string().c_str();
+    std::string fileName = m_meshFile->get().string().c_str();
     WAssert( !fileName.empty(), "No filename specified." );
 
     boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Read Mesh", 3 ) );

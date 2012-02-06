@@ -24,9 +24,6 @@
 
 #include <string>
 
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
 #include <boost/filesystem.hpp>
 
 #include <osg/Image>
@@ -266,9 +263,9 @@ void WMWebglSupport::saveSlicesGray()
             }
         }
         path fileName = m_fileName->get();
-        fileName.remove_filename().file_string();
+        fileName.remove_filename().string();
         std::string fn( std::string( "coronal_" ) +  boost::lexical_cast<std::string>( y ) + std::string( ".bmp" ) );
-        osgDB::writeImageFile( *ima, ( fileName.file_string() + fn ).c_str() );
+        osgDB::writeImageFile( *ima, ( fileName.string() + fn ).c_str() );
     }
 
     osg::ref_ptr< osg::Image > ima1 = new osg::Image;
@@ -293,9 +290,9 @@ void WMWebglSupport::saveSlicesGray()
             }
         }
         path fileName = m_fileName->get();
-        fileName.remove_filename().file_string();
+        fileName.remove_filename().string();
         std::string fn( std::string( "sagittal_" ) +  boost::lexical_cast<std::string>( x ) + std::string( ".bmp" ) );
-        osgDB::writeImageFile( *ima1, ( fileName.file_string() + fn ).c_str() );
+        osgDB::writeImageFile( *ima1, ( fileName.string() + fn ).c_str() );
     }
 
     osg::ref_ptr< osg::Image > ima2 = new osg::Image;
@@ -320,9 +317,9 @@ void WMWebglSupport::saveSlicesGray()
             }
         }
         path fileName = m_fileName->get();
-        fileName.remove_filename().file_string();
+        fileName.remove_filename().string();
         std::string fn( std::string( "axial_" ) +  boost::lexical_cast<std::string>( z ) + std::string( ".bmp" ) );
-        osgDB::writeImageFile( *ima2, ( fileName.file_string() + fn ).c_str() );
+        osgDB::writeImageFile( *ima2, ( fileName.string() + fn ).c_str() );
     }
 }
 
@@ -361,9 +358,9 @@ void WMWebglSupport::saveSlicesRGB()
             }
         }
         path fileName = m_fileName->get();
-        fileName.remove_filename().file_string();
+        fileName.remove_filename().string();
         std::string fn( std::string( "coronal_" ) +  boost::lexical_cast<std::string>( y ) + std::string( ".bmp" ) );
-        osgDB::writeImageFile( *ima, ( fileName.file_string() + fn ).c_str() );
+        osgDB::writeImageFile( *ima, ( fileName.string() + fn ).c_str() );
     }
 
     osg::ref_ptr< osg::Image > ima1 = new osg::Image;
@@ -394,9 +391,9 @@ void WMWebglSupport::saveSlicesRGB()
             }
         }
         path fileName = m_fileName->get();
-        fileName.remove_filename().file_string();
+        fileName.remove_filename().string();
         std::string fn( std::string( "sagittal_" ) +  boost::lexical_cast<std::string>( x ) + std::string( ".bmp" ) );
-        osgDB::writeImageFile( *ima1, ( fileName.file_string() + fn ).c_str() );
+        osgDB::writeImageFile( *ima1, ( fileName.string() + fn ).c_str() );
     }
 
     osg::ref_ptr< osg::Image > ima2 = new osg::Image;
@@ -428,8 +425,8 @@ void WMWebglSupport::saveSlicesRGB()
             }
         }
         path fileName = m_fileName->get();
-        fileName.remove_filename().file_string();
+        fileName.remove_filename().string();
         std::string fn( std::string( "axial_" ) +  boost::lexical_cast<std::string>( z ) + std::string( ".bmp" ) );
-        osgDB::writeImageFile( *ima2, ( fileName.file_string() + fn ).c_str() );
+        osgDB::writeImageFile( *ima2, ( fileName.string() + fn ).c_str() );
     }
 }

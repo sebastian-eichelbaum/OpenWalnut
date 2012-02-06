@@ -736,7 +736,7 @@ void WMainWindow::openAboutQtDialog()
 
 void WMainWindow::openAboutDialog()
 {
-    std::string filename( WPathHelper::getDocPath().file_string() + "/openwalnut-qt4/OpenWalnutAbout.html" );
+    std::string filename( WPathHelper::getDocPath().string() + "/openwalnut-qt4/OpenWalnutAbout.html" );
     std::string content = readFileIntoString( filename );
     std::string windowHeading =  std::string( "About OpenWalnut " ) + std::string( W_VERSION );
     QMessageBox::about( this, windowHeading.c_str(), content.c_str() );
@@ -744,7 +744,7 @@ void WMainWindow::openAboutDialog()
 
 void WMainWindow::openOpenWalnutHelpDialog()
 {
-    std::string filename( WPathHelper::getDocPath().file_string() + "/openwalnut-qt4/OpenWalnutHelp.html" );
+    std::string filename( WPathHelper::getDocPath().string() + "/openwalnut-qt4/OpenWalnutHelp.html" );
 
 #ifndef QT4GUI_NOWEBKIT
     std::string content = readFileIntoString( filename );
@@ -759,7 +759,7 @@ void WMainWindow::openOpenWalnutHelpDialog()
     window->show();
 
     QWebView *view = new QWebView( this );
-    QString location( QString( "file://" ) + WPathHelper::getDocPath().file_string().c_str() + "/openwalnut-qt4/" );
+    QString location( QString( "file://" ) + WPathHelper::getDocPath().string().c_str() + "/openwalnut-qt4/" );
     view->setHtml( content.c_str(), QUrl( location  ) );
     view->show();
     layout->addWidget( view );
@@ -1075,7 +1075,7 @@ void WMainWindow::handleGLVendor()
 void WMainWindow::handleStartMessages()
 {
     // Load welcome file
-    std::string filename( WPathHelper::getDocPath().file_string() + "/openwalnut-qt4/OpenWalnutWelcome.html" );
+    std::string filename( WPathHelper::getDocPath().string() + "/openwalnut-qt4/OpenWalnutWelcome.html" );
     std::string content = readFileIntoString( filename );
 
     // gen ID for it using version (allows showing release/welcome message for each new release)

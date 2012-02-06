@@ -29,10 +29,6 @@
 #include <fstream>
 
 #include <boost/algorithm/string.hpp>
-// Use filesystem version 2 for compatibility with newer boost versions.
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
 #include <boost/filesystem.hpp>
 #include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
@@ -242,9 +238,9 @@ std::string WGEShader::processShaderRecursive( const std::string filename, bool 
 
     // use one of the following paths
     std::string fn = filename;
-    std::string fnLocal = ( m_shaderPath / filename ).file_string();
-    std::string fnLocalShaders = ( m_shaderPath / "shaders" / filename ).file_string();
-    std::string fnGlobal = ( WPathHelper::getShaderPath() / filename ).file_string();
+    std::string fnLocal = ( m_shaderPath / filename ).string();
+    std::string fnLocalShaders = ( m_shaderPath / "shaders" / filename ).string();
+    std::string fnGlobal = ( WPathHelper::getShaderPath() / filename ).string();
 
     if( boost::filesystem::exists( m_shaderPath / filename ) )
     {
@@ -261,8 +257,8 @@ std::string WGEShader::processShaderRecursive( const std::string filename, bool 
     else if( !optional )
     {
         WLogger::getLogger()->addLogMessage( "The requested shader \"" + filename + "\" does not exist in \"" +
-                                             m_shaderPath.file_string() + "\", \"" + ( m_shaderPath / "shaders" ).file_string() + "\" or \"" +
-                                             WPathHelper::getShaderPath().file_string() + "\".", "WGEShader (" + filename + ")", LL_ERROR
+                                             m_shaderPath.string() + "\", \"" + ( m_shaderPath / "shaders" ).string() + "\" or \"" +
+                                             WPathHelper::getShaderPath().string() + "\".", "WGEShader (" + filename + ")", LL_ERROR
         );
 
         return "";
