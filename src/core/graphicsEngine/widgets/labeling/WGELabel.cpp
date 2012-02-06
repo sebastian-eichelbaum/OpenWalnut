@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "../../../common/WPathHelper.h"
 
 #include "WGELabel.h"

@@ -1070,6 +1070,20 @@ void WMainWindow::handleGLVendor()
         WQtMessageDialog* msgDia = new WQtMessageDialog( "MesaWarning", "Mesa Warning", l, getSettings(), this );
         msgDia->show();
     }
+
+    // is this a mesa card?
+    if( ( vendor.find( "Chromium" ) != std::string::npos ) ||
+        ( vendor.find( "Humper" ) != std::string::npos ) )
+    {
+        QString msg = "<b>Warning:</b> You seem to use OpenWalnut from inside a virtual machine. Graphics acceleration on these virtual machines"
+                      " is often limited. OpenWalnut might not properly work in your setup.";
+        QLabel* l = new QLabel( msg );
+        l->setWordWrap( true );
+        l->setMinimumWidth( 640 );
+
+        WQtMessageDialog* msgDia = new WQtMessageDialog( "VMChromiumWarning", "Virtual Machine Warning", l, getSettings(), this );
+        msgDia->show();
+    }
 }
 
 void WMainWindow::handleStartMessages()
