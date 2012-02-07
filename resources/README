@@ -15,4 +15,6 @@ There is one exception to the rule. The directory called "platformDependent"
 is not copied directly. It, again, contains subdirectories for each component
 and inside of them, subdirectories for the platform. So, if the core needs a
 certain file on windows, in directory abc, then put the file to 
-resources/platformDependent/core/windows/abc.
+resources/platformDependent/core/windows/abc. 
+
+Platform directories allowed: linux, windows, macosx
