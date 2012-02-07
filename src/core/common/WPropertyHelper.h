@@ -34,7 +34,7 @@
 #include "constraints/WPropertyConstraintIsDirectory.h"
 #include "constraints/WPropertyConstraintSelectOnlyOne.h"
 #include "constraints/WPropertyConstraintIsValid.h"
-#include "WExportCommon.h"
+
 
 /**
  * This namespace contains several utility functions to handle properties. Especially constraint helper to easily create constraints.
@@ -51,7 +51,7 @@ namespace WPropertyHelper
          *
          * \param prop the property where to add the constraint.
          */
-        void OWCOMMON_EXPORT addTo( WPropSelection prop );
+        void addTo( WPropSelection prop );
     }
 
     /**
@@ -64,21 +64,21 @@ namespace WPropertyHelper
          *
          * \param prop the property where to add the constraint.
          */
-        void OWCOMMON_EXPORT addTo( WPropSelection prop );
+        void addTo( WPropSelection prop );
 
         /**
          * Add the PC_NOTEMPTY constraint to the property.
          *
          * \param prop the property where to add the constraint.
          */
-        void OWCOMMON_EXPORT addTo( WPropString prop );
+        void addTo( WPropString prop );
 
         /**
          * Add the PC_NOTEMPTY constraint to the property.
          *
          * \param prop the property where to add the constraint.
          */
-        void OWCOMMON_EXPORT addTo( WPropFilename prop );
+        void addTo( WPropFilename prop );
     }
 
     /**
@@ -91,7 +91,7 @@ namespace WPropertyHelper
          *
          * \param prop the property where to add the constraint.
          */
-        void OWCOMMON_EXPORT addTo( WPropFilename prop );
+        void addTo( WPropFilename prop );
     }
 
     /**
@@ -104,7 +104,7 @@ namespace WPropertyHelper
          *
          * \param prop the property where to add the constraint.
          */
-        void OWCOMMON_EXPORT addTo( WPropFilename prop );
+        void addTo( WPropFilename prop );
     }
 
     /**
@@ -117,7 +117,7 @@ namespace WPropertyHelper
          *
          * \param prop the property where to add the constraint.
          */
-        void OWCOMMON_EXPORT addTo( WPropSelection prop );
+        void addTo( WPropSelection prop );
     }
 }
 

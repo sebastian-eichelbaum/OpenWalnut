@@ -30,14 +30,14 @@
 #include "../common/WPrototyped.h"
 
 #include "WDataSet.h"
-#include "WExportDataHandler.h"
+
 
 /**
  * Base class for all recorded data and results with events
  * and sensor positions.
  * \ingroup dataHandler
  */
-class OWDATAHANDLER_EXPORT WRecording : public WDataSet // NOLINT
+class WRecording : public WDataSet // NOLINT
 {
 public:
     /**

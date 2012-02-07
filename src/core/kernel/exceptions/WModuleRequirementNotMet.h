@@ -29,14 +29,14 @@
 
 #include "WModuleException.h"
 
-#include "../WExportKernel.h"
+
 
 class WRequirement;
 
 /**
  * Thrown whenever a module should be run but its requirements are not completely met.
  */
-class OWKERNEL_EXPORT WModuleRequirementNotMet: public WModuleException
+class  WModuleRequirementNotMet: public WModuleException
 {
 public:
     /**

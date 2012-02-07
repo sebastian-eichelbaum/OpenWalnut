@@ -39,7 +39,7 @@
 #include "../common/WAssert.h"
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
-#include "WExportWGE.h"
+
 
 namespace wge
 {
@@ -60,7 +60,7 @@ namespace wge
      *
      * \return Refernce to the same vector but as osg::Vec3Array.
      */
-    osg::ref_ptr< osg::Vec3Array > WGE_EXPORT osgVec3Array( const std::vector< WPosition >& posArray );
+    osg::ref_ptr< osg::Vec3Array > osgVec3Array( const std::vector< WPosition >& posArray );
 
     /**
      * Converts screen coordinates into Camera coordinates.
@@ -70,7 +70,7 @@ namespace wge
      *
      * \return un-projects a screen coordinate back to world space
      */
-    osg::Vec3 WGE_EXPORT unprojectFromScreen( const osg::Vec3 screen, osg::ref_ptr< osg::Camera > camera  );
+    osg::Vec3 unprojectFromScreen( const osg::Vec3 screen, osg::ref_ptr< osg::Camera > camera  );
 
     /**
      * creates the same color as the atlas colormap shader from the index
@@ -78,7 +78,7 @@ namespace wge
      * \param index unsigned char that indexes the color
      * \return the color
      */
-    WColor WGE_EXPORT createColorFromIndex( int index );
+    WColor createColorFromIndex( int index );
 
     /**
      * creates a rgb WColor from a HSV value
@@ -87,7 +87,7 @@ namespace wge
      * \param v value
      * \return the color
      */
-    WColor WGE_EXPORT createColorFromHSV( int h, float s = 1.0, float v = 1.0 );
+    WColor createColorFromHSV( int h, float s = 1.0, float v = 1.0 );
 
     /**
      * creates the nth color of a partition of the hsv color circle
@@ -95,7 +95,7 @@ namespace wge
      * \param n number of the color
      * \return the color
      */
-    WColor WGE_EXPORT getNthHSVColor( int n );
+    WColor getNthHSVColor( int n );
 }
 
 inline WColor wge::getRGBAColorFromDirection( const WPosition &pos1, const WPosition &pos2 )

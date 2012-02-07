@@ -27,13 +27,13 @@
 
 #include <utility>
 
-#include "WExportCommon.h"
+
 
 /**
  * Container which associate values with (uniform width) bins (aka intervals or buckets). This class implements the abstract interface and
  * therefore builds the base class for all histogram classes. The interface also allows programming histogram of different bucket sizes.
  */
-class OWCOMMON_EXPORT WHistogram // NOLINT
+class WHistogram // NOLINT
 {
 public:
     /**

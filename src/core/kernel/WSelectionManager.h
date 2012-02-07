@@ -32,7 +32,7 @@
 #include "../common/WProperties.h"
 #include "WCrosshair.h"
 
-#include "WExportKernel.h"
+
 
 class WGridRegular3D;
 
@@ -46,7 +46,7 @@ WPaintMode;
 /**
  * manages the several selection tools
  */
-class OWKERNEL_EXPORT WSelectionManager // NOLINT
+class  WSelectionManager // NOLINT
 {
 public:
     /**

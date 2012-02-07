@@ -32,13 +32,13 @@
 
 #include "../WDataSetFiberVector.h"
 #include "../WDataSetFibers.h"
-#include "../WExportDataHandler.h"
+
 #include "WWriter.h"
 
 /**
  * Writes a FiberVTK file.
  */
-class OWDATAHANDLER_EXPORT WWriterFiberVTK : public WWriter // NOLINT
+class WWriterFiberVTK : public WWriter // NOLINT
 {
 public:
     /**

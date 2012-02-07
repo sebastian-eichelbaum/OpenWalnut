@@ -39,7 +39,7 @@
 #include "../common/WBoundingBox.h"
 #include "../common/WCondition.h"
 #include "../common/WDefines.h"
-#include "WExportDataHandler.h"
+
 #include "WGrid.h"
 #include "WGridTransformOrtho.h"
 
@@ -51,7 +51,7 @@
  * \warning Positions on the upper bounddaries in x, y and z are considered outside the grid.
  * \ingroup dataHandler
  */
-class OWDATAHANDLER_EXPORT WGridRegular3D : public WGrid // NOLINT
+class WGridRegular3D : public WGrid // NOLINT
 {
     /**
      * Only test are allowed as friends.

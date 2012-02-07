@@ -38,12 +38,12 @@
 #include "WFlag.h"
 #include "WThreadedRunnerSignals.h"
 
-#include "WExportCommon.h"
+
 
 /**
  * Base class for all classes needing to be executed in a separate thread.
  */
-class OWCOMMON_EXPORT WThreadedRunner // NOLINT
+class WThreadedRunner // NOLINT
 {
 public:
     /**

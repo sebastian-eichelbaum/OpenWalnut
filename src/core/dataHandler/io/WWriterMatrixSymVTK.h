@@ -30,13 +30,13 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../WExportDataHandler.h"
+
 #include "WWriter.h"
 
 /**
  * Can write a look up table to a file in VTK format.
  */
-class OWDATAHANDLER_EXPORT WWriterMatrixSymVTK : public WWriter // NOLINT
+class WWriterMatrixSymVTK : public WWriter // NOLINT
 {
 public:
     /**

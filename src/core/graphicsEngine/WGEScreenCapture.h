@@ -39,7 +39,7 @@
 
 #include "animation/WGEAnimationFrameTimer.h"
 
-#include "WExportWGE.h"
+
 
 /**
  * This class is a screen recorder. It records the frame buffer to files on a per-frame-basis. This class is NOT thread-safe due to performance
@@ -52,7 +52,7 @@
  *
  * \ingroup GE
  */
-class WGE_EXPORT WGEScreenCapture: public osg::Camera::DrawCallback
+class WGEScreenCapture: public osg::Camera::DrawCallback
 {
 public:
     /**

@@ -36,7 +36,7 @@
 #include "../common/WProperties.h"
 #include "../common/WTransferable.h"
 #include "WDataTexture3D.h"
-#include "WExportDataHandler.h"
+
 
 class WCondition;
 class WDataSetVector;
@@ -48,7 +48,7 @@ class WDataSetVector;
  * steps) respectively.
  * \ingroup dataHandler
  */
-class OWDATAHANDLER_EXPORT WDataSet: public WTransferable, public boost::enable_shared_from_this< WDataSet > // NOLINT
+class WDataSet: public WTransferable, public boost::enable_shared_from_this< WDataSet > // NOLINT
 {
 public:
     /**

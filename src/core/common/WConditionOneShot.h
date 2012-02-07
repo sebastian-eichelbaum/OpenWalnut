@@ -28,7 +28,7 @@
 #include <boost/thread.hpp>
 
 #include "WCondition.h"
-#include "WExportCommon.h"
+
 
 /**
  * Implements a WCondition, but can be fired only ONCE. This is useful if you want to have a thread waiting for a condition but
@@ -37,7 +37,7 @@
  * on a mutex. All waiting threads try to get a read lock which is not possible as long it is write-locked. The notify method
  * releases the write lock and all waiting threads can continue.
  */
-class OWCOMMON_EXPORT WConditionOneShot: public WCondition
+class WConditionOneShot: public WCondition
 {
     friend class WConditionOneShot_test;
 public:

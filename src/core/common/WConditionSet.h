@@ -32,14 +32,14 @@
 #include <boost/thread.hpp>
 
 #include "WCondition.h"
-#include "WExportCommon.h"
+
 
 /**
  * Class allowing multiple conditions to be used for one waiting cycle. Since wait() can not be used for waiting on multiple
  * conditions, this class can encapsulate multiple conditions and offer a wait() command to wait for one of them to change its
  * state. Please not that this class can also be used as condition.
  */
-class OWCOMMON_EXPORT WConditionSet: public WCondition
+class WConditionSet: public WCondition
 {
 friend class WConditionSetTest;
 public:

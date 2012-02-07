@@ -27,12 +27,12 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "WExportCommon.h"
+
 
 /**
  * Base class for timing. Derive from it to write several timers like a frame-timer or realtime-timer.
  */
-class OWCOMMON_EXPORT WTimer      // NOLINT - no OWCOMMON_EXPORT does not need an virtual destructor.
+class WTimer      // NOLINT - no does not need an virtual destructor.
 {
 public:
     /**

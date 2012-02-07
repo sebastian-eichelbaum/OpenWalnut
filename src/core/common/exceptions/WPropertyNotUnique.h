@@ -28,12 +28,12 @@
 #include <string>
 
 #include "../WException.h"
-#include "../WExportCommon.h"
+
 
 /**
  * Indicates that a given property is not unique in a group of properties.
  */
-class OWCOMMON_EXPORT WPropertyNotUnique : public WException
+class WPropertyNotUnique : public WException
 {
 public:
     /**

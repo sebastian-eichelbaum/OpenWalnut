@@ -28,14 +28,14 @@
 #include "../common/math/WMatrix.h"
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
-#include "WExportDataHandler.h"
+
 
 /**
  * Implements an orthogonal grid transformation.
  *
  * \class WGridTransformOrtho
  */
-class OWDATAHANDLER_EXPORT WGridTransformOrtho
+class WGridTransformOrtho
 {
 public:
     /**

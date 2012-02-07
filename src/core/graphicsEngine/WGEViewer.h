@@ -50,7 +50,7 @@
 
 #include "../common/WColor.h"
 #include "../common/WFlag.h"
-#include "WExportWGE.h"
+
 #include "WGECamera.h"
 #include "WGEGraphicsWindow.h"
 #include "WGraphicsEngineMode.h"
@@ -64,7 +64,7 @@ class WPickHandler;
  * It is, besides WGraphicsEngine, the ONLY entry point for each widget for accessing the graphics engine.
  * \ingroup ge
  */
-class WGE_EXPORT WGEViewer: public WGEGraphicsWindow,
+class WGEViewer: public WGEGraphicsWindow,
                             public boost::enable_shared_from_this< WGEViewer >
 {
 public:

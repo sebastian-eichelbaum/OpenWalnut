@@ -30,7 +30,7 @@
 #include <vector>
 
 #include "../WBoundingBox.h"
-#include "../WExportCommon.h"
+
 #include "../WMixinVector.h"
 #include "linearAlgebra/WLinearAlgebra.h"
 
@@ -40,7 +40,7 @@ class WLineTest;
 /**
  * A line is an ordered sequence of WPositions.
  */
-class OWCOMMON_EXPORT WLine : public WMixinVector< WPosition >
+class WLine : public WMixinVector< WPosition >
 {
 public:
     /**
@@ -103,7 +103,7 @@ public:
  *
  * \return The AABB for this line.
  */
-OWCOMMON_EXPORT WBoundingBox computeBoundingBox( const WLine& line );
+WBoundingBox computeBoundingBox( const WLine& line );
 
 /**
  * Computes the length of a line in terms of accumulated segment lengths.
@@ -112,7 +112,7 @@ OWCOMMON_EXPORT WBoundingBox computeBoundingBox( const WLine& line );
  *
  * \return Sum of all line segment lengths
  */
-OWCOMMON_EXPORT double pathLength( const WLine& line );
+double pathLength( const WLine& line );
 
 /**
  * Returns the point in the middle of a line. In case of an even sized
@@ -125,7 +125,7 @@ OWCOMMON_EXPORT double pathLength( const WLine& line );
  *
  * \return Const reference to the midpoint element.
  */
-OWCOMMON_EXPORT const WPosition& midPoint( const WLine& line );
+const WPosition& midPoint( const WLine& line );
 
 /**
  * Compares two lines with each other point wise upto a given delta.
@@ -136,7 +136,7 @@ OWCOMMON_EXPORT const WPosition& midPoint( const WLine& line );
  *
  * \return -1 in case of the two fibers are considered equal, otherwise the first position on which they differ is returned.
  */
-OWCOMMON_EXPORT int equalsDelta( const WLine& line, const WLine& other, double delta );
+int equalsDelta( const WLine& line, const WLine& other, double delta );
 
 /**
  * Compute the maximal segment length of all segements of a line. If there are no segements meaning
@@ -146,7 +146,7 @@ OWCOMMON_EXPORT int equalsDelta( const WLine& line, const WLine& other, double d
  *
  * \return Max segement length or zero if there aren't any.
  */
-OWCOMMON_EXPORT double maxSegmentLength( const WLine& line );
+double maxSegmentLength( const WLine& line );
 
 /**
  * Boolean predicate indicating that the first line has more points then

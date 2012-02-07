@@ -32,12 +32,12 @@
 
 #include "WRMBranch.h"
 
-#include "WExportKernel.h"
+
 
 /**
  * Class to store and manage different ROI's for fiber selection
  */
-class OWKERNEL_EXPORT WROIManager: public boost::enable_shared_from_this< WROIManager >
+class  WROIManager: public boost::enable_shared_from_this< WROIManager >
 {
 public:
     /**

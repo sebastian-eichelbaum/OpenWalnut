@@ -40,13 +40,13 @@
     #include <osgGA/MatrixManipulator>
 #endif
 
-#include "WExportWGE.h"
+
 
 /**
  * A manipulator which changes the view of a 2D scene. Does things like panning
  * and zooming.
  */
-class WGE_EXPORT WGE2DManipulator : public osgGA::MatrixManipulator
+class WGE2DManipulator : public osgGA::MatrixManipulator
 {
 public:
     /**

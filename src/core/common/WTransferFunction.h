@@ -30,13 +30,13 @@
 
 #include "WColor.h"
 
-#include "WExportCommon.h"
+
 
 /**
  * A cass that stores a 1D transfer function which consits
  * of a linear interpolation of alpha and color values
  */
-class OWCOMMON_EXPORT WTransferFunction // NOLINT problem with OWCOMMON_EXPORT macro
+class WTransferFunction // NOLINT problem with macro
 {
 private:
     /**

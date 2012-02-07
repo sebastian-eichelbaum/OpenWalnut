@@ -29,13 +29,13 @@
 
 #include "../WException.h"
 
-#include "../WExportCommon.h"
+
 
 /**
  * General purpose exception and therefore base class for all kernel related exceptions.
  * \ingroup kernel
  */
-class OWCOMMON_EXPORT WSignalUnknown: public WException
+class WSignalUnknown: public WException
 {
 public:
     /**

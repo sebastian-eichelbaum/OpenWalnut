@@ -29,12 +29,12 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "WExportCommon.h"
+
 
 /**
  * Interface class for the concept "Prototype". The requirements are a zero-parameter constructor.
  */
-class OWCOMMON_EXPORT WPrototyped // NOLINT
+class WPrototyped // NOLINT
 {
 public:
     /**

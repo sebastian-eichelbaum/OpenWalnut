@@ -38,7 +38,7 @@
 #include "WModuleCombinerTypes.h"
 #include "WModuleConnectorSignals.h"
 
-#include "WExportKernel.h"
+
 
 class WModuleInputConnector;
 class WModuleOutputConnector;
@@ -47,7 +47,7 @@ class WModuleOutputConnector;
  * Base class for modelling connections between kernel modules. It contains several pure virtual member functions and can
  * therefore not instantiated directly.
  */
-class OWKERNEL_EXPORT WModuleConnector: public boost::enable_shared_from_this<WModuleConnector>
+class  WModuleConnector: public boost::enable_shared_from_this<WModuleConnector>
 {
 friend class WModuleConnectorTest;
 friend class WModuleProjectFileCombiner;

@@ -87,6 +87,6 @@ namespace utility
  * \param[out] triangles The resulting triangles as a list of indices into the vertex vector.
  * \param level The tesselation level.
  */
-void OWCOMMON_EXPORT tesselateIcosahedron( std::vector< WVector3d >* vertices, std::vector< unsigned int >* triangles, unsigned int level );
+void tesselateIcosahedron( std::vector< WVector3d >* vertices, std::vector< unsigned int >* triangles, unsigned int level );
 
 #endif  // WGEOMETRYFUNCTIONS_H

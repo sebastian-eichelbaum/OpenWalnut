@@ -28,12 +28,12 @@
 #include <string>
 
 #include "../WException.h"
-#include "../WExportCommon.h"
+
 
 /**
  * Thrown whenever a symbol could not be fetched.
  */
-class OWCOMMON_EXPORT WLibraryFetchFailed : public WException
+class WLibraryFetchFailed : public WException
 {
 public:
     /**

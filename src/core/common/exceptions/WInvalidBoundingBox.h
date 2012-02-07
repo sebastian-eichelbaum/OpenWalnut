@@ -28,12 +28,12 @@
 #include <string>
 
 #include "../WException.h"
-#include "../WExportCommon.h"
+
 
 /**
  * Indicates that a bounding box is not valid, meaning its valid() member function delivers false.
  */
-class OWCOMMON_EXPORT WInvalidBoundingBox : public WException
+class WInvalidBoundingBox : public WException
 {
 public:
     /**

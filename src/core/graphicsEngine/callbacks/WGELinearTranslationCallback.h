@@ -31,7 +31,7 @@
 #include <osg/MatrixTransform>
 
 #include "../../common/WProperties.h"
-#include "../WExportWGE.h"
+
 
 /**
  * This class is an OSG Callback which allows simple linear translation of a matrix transform node along a specified axis. It is controlled by a

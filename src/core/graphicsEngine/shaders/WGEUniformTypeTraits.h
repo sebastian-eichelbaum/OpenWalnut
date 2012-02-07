@@ -28,7 +28,7 @@
 #include <osg/Vec3>
 #include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 
-#include "../WExportWGE.h"
+
 
 class WItemSelector;
 
@@ -41,7 +41,7 @@ namespace wge
      * osg::uniform does not offer proper constructors/setters for these types.
      */
     template< typename T >
-    class WGE_EXPORT UniformType
+    class UniformType
     {
     public:
         /**
@@ -54,7 +54,7 @@ namespace wge
      * Maps doubles to floats as only floats are allowed in uniforms.
      */
     template<>
-    class WGE_EXPORT UniformType< double >
+    class UniformType< double >
     {
     public:
         /**
@@ -67,7 +67,7 @@ namespace wge
      * Maps WVector3d/WPosition to osg::Vec3.
      */
     template<>
-    class WGE_EXPORT UniformType< WVector3d >
+    class UniformType< WVector3d >
     {
     public:
         /**
@@ -80,7 +80,7 @@ namespace wge
      * Maps Selection Properties to ints.
      */
     template<>
-    class WGE_EXPORT UniformType< WItemSelector >
+    class UniformType< WItemSelector >
     {
     public:
         /**

@@ -57,15 +57,6 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
         std::string suffix = getSuffix( i->path() );
         std::string stem = i->path().stem().string();
 
-#ifdef _MSC_VER
-        std::string supposedFilename = getModulePrefix() + '_' + i->path().parent_path().filename()
-#ifdef _DEBUG
-            + 'd'
-#endif
-            + WSharedLib::getSystemSuffix();
-        std::string isFileName = i->path().filename();
-#endif // _MSC_VER
-
         // we want to strip the search directory from the path
         std::string relPath = i->path().string();
         relPath.erase( 0, dir.string().length() + 1 ); // NOTE: +1 because we want to remove the "/" too
@@ -84,10 +75,7 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
         if( !boost::filesystem::is_directory( *i ) &&
             ( boost::regex_match( i->path().string(), matches, CheckLibMMP ) ) &&
             ( stem.compare( 0, getModulePrefix().length(), getModulePrefix() ) == 0 )
-#ifdef _MSC_VER
-            && supposedFilename == isFileName
-#endif
-            )
+          )
         {
             try
             {

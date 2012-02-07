@@ -49,10 +49,8 @@ INCLUDE( BuildUtils )
 INCLUDE( BuildModuleUtils )
 
 # CMAKE automatism to select static vs. shared building:
-IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
-  OPTION( BUILD_SHARED_LIBS "Build shared libs" ON )
-  MARK_AS_ADVANCED( BUILD_SHARED_LIBS )
-ENDIF()
+OPTION( BUILD_SHARED_LIBS "Build shared libs" ON )
+MARK_AS_ADVANCED( BUILD_SHARED_LIBS )
 
 # The build types
 IF( NOT CMAKE_BUILD_TYPE )
@@ -112,30 +110,21 @@ SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OW_ARCHIVE_DIR} )
 # -Wno-long-long    since on Ubuntu 8.10 it won't compile without it
 # -ansi             force ISO-C++98 compliance (not GNU++98)
 
-IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
-    FILE( GLOB EXCLUDE_LIBRARIES RELATIVE ${Boost_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS}/libboost* )
-    SET( CMAKE_SHARED_LINKER_FLAGS " /STACK:10000000 /machine:I386 /NODEFAULTLIB:${EXCLUDE_LIBRARIES}"  CACHE STRING "" FORCE )
-    SET( CMAKE_EXE_LINKER_FLAGS " /STACK:10000000 /machine:I386 /NODEFAULTLIB:${EXCLUDE_LIBRARIES}"  CACHE STRING "" FORCE )
-    SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D \"NOMINMAX\"" )
-    SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /wd4101" )
-    SET( CMAKE_DEBUG_POSTFIX "d" CACHE STRING "add a postfix, usually d on windows" )
+# Unfortunately libstdc++'s header files don't work with mingw in ansi mode (basically libstdc++'s fault)
+IF( CMAKE_HOST_SYSTEM MATCHES "Windows" )
+    SET( CMAKE_CXX_FLAGS "-frtti -pedantic -Wall -Wno-long-long -Wextra " CACHE STRING "" FORCE )
 ELSE()
-    # Unfortunately libstdc++'s header files don't work with mingw in ansi mode (basically libstdc++'s fault)
-    IF( CMAKE_HOST_SYSTEM MATCHES "Windows" )
-        SET( CMAKE_CXX_FLAGS "-frtti -pedantic -Wall -Wno-long-long -Wextra " CACHE STRING "" FORCE )
-    ELSE()
-        SET( CMAKE_CXX_FLAGS "-frtti -pedantic -ansi -Wall -Wno-long-long -Wextra " CACHE STRING "" FORCE )
-    ENDIF()
-
-    # Darwin's ld isn't GNU and doesn't like the following
-    IF( NOT CMAKE_SYSTEM_NAME MATCHES "Darwin" )
-        ## The following allows us to prevent cyclic dependencies even on linux
-        SET( CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined -Wl,--allow-shlib-undefined,--as-needed" CACHE STRING "" FORCE )
-        SET( CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed" CACHE STRING "" FORCE )
-    ENDIF()
-    SET( CMAKE_CXX_FLAGS_RELEASE "-O3" CACHE STRING "" FORCE )
-    SET( CMAKE_CXX_FLAGS_DEBUG "-g -DDEBUG -O0" CACHE STRING "" FORCE )
+    SET( CMAKE_CXX_FLAGS "-frtti -pedantic -ansi -Wall -Wno-long-long -Wextra " CACHE STRING "" FORCE )
 ENDIF()
+
+# Darwin's ld isn't GNU and doesn't like the following
+IF( NOT CMAKE_SYSTEM_NAME MATCHES "Darwin" )
+    ## The following allows us to prevent cyclic dependencies even on linux
+    SET( CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined -Wl,--allow-shlib-undefined,--as-needed" CACHE STRING "" FORCE )
+    SET( CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed" CACHE STRING "" FORCE )
+ENDIF()
+SET( CMAKE_CXX_FLAGS_RELEASE "-O3" CACHE STRING "" FORCE )
+SET( CMAKE_CXX_FLAGS_DEBUG "-g -DDEBUG -O0" CACHE STRING "" FORCE )
 SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -208,10 +197,6 @@ SET( OW_SOVERSION ${OW_VERSION_MAJOR} )
 
 # Setup boost options
 SET( Boost_USE_MULTITHREAD ON )
-# As every time: do something Visual Studio specific: only use static boost libs
-IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
-  SET( Boost_USE_STATIC_LIBS ON )
-ENDIF()
 
 # find the boost packages
 FIND_PACKAGE( Boost 1.39.0 REQUIRED program_options thread filesystem date_time system signals regex )
@@ -237,11 +222,6 @@ INCLUDE_DIRECTORIES( ${OPENGL_INCLUDE_DIR} )
 
 # find the needed packages
 SET( MIN_OSG_VERSION 2.8.0 )
-IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
-  IF( NOT VERSION LESS 2.6.3 )
-    SET ( CMAKE_PREFIX_PATH "$ENV{ProgramFiles}/OpenSceneGraph" )
-  ENDIF()
-ENDIF()
 FIND_PACKAGE( OpenSceneGraph ${MIN_OSG_VERSION} REQUIRED osgDB osgUtil osgGA osgViewer osgSim osgWidget osgText )
 IF( OPENSCENEGRAPH_FOUND )
     INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
@@ -328,17 +308,15 @@ ENDIF()
 
 # TODO(ebaum): use try_run for this
 # Determines the number of cores available on this machine
-IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
-    SET( NUM_CORES_SOURCE_DIR ${OW_TOOLS_DIR}/cmake/numCores )
-    SET( NUM_CORES_BINARY_DIR ${PROJECT_BINARY_DIR}/numCores )
-    SET( NUM_CORES_BINARY ${NUM_CORES_BINARY_DIR}/numCores )
-    ADD_CUSTOM_TARGET( numCores
-                   COMMAND ${CMAKE_COMMAND} -E make_directory ${NUM_CORES_BINARY_DIR}
-                   COMMAND cd ${NUM_CORES_BINARY_DIR} && ${CMAKE_COMMAND} ${NUM_CORES_SOURCE_DIR} > /dev/null
-                   COMMAND $(MAKE) -C ${NUM_CORES_BINARY_DIR} > /dev/null
-                   COMMENT "Determines the number of cores available on this machine"
-                 )
-ENDIF()
+SET( NUM_CORES_SOURCE_DIR ${OW_TOOLS_DIR}/cmake/numCores )
+SET( NUM_CORES_BINARY_DIR ${PROJECT_BINARY_DIR}/numCores )
+SET( NUM_CORES_BINARY ${NUM_CORES_BINARY_DIR}/numCores )
+ADD_CUSTOM_TARGET( numCores
+               COMMAND ${CMAKE_COMMAND} -E make_directory ${NUM_CORES_BINARY_DIR}
+               COMMAND cd ${NUM_CORES_BINARY_DIR} && ${CMAKE_COMMAND} ${NUM_CORES_SOURCE_DIR} > /dev/null
+               COMMAND $(MAKE) -C ${NUM_CORES_BINARY_DIR} > /dev/null
+               COMMENT "Determines the number of cores available on this machine"
+             )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #

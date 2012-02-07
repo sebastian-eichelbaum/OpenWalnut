@@ -85,12 +85,6 @@ INSTALL( TARGETS ${BinName}
          COMPONENT "QT4GUI"
         )
 
-# TODO(all): comment this stuff. I do not know what the purpose is
-IF( MSVC_IDE )
-    SET_TARGET_PROPERTIES( ${BinName} PROPERTIES DEBUG_POSTFIX "d")
-    SET_TARGET_PROPERTIES( ${BinName} PROPERTIES PREFIX "../")
-ENDIF( MSVC_IDE )
-
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Test Setup
 # ---------------------------------------------------------------------------------------------------------------------------------------------------

@@ -689,17 +689,6 @@ void WMainWindow::projectLoad()
 
 void WMainWindow::openLoadDialog()
 {
-#ifdef _MSC_VER
-    QStringList fileNames;
-    QString filters;
-    filters = QString::fromStdString( std::string( "Known file types (*.cnt *.edf *.asc *.nii *.nii.gz *.fib);;" )
-        + std::string( "EEG files (*.cnt *.edf *.asc);;" )
-        + std::string( "NIfTI (*.nii *.nii.gz);;" )
-        + std::string( "Fibers (*.fib);;" )
-        + std::string( "Any files (*)" ) );
-
-    fileNames = QFileDialog::getOpenFileNames( this, "Open", "", filters  );
-#else
     QFileDialog fd;
     fd.setFileMode( QFileDialog::ExistingFiles );
 
@@ -716,7 +705,6 @@ void WMainWindow::openLoadDialog()
     {
         fileNames = fd.selectedFiles();
     }
-#endif
 
     std::vector< std::string > stdFileNames;
 

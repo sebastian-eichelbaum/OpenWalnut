@@ -1590,21 +1590,13 @@ Data_T& WTensorFunc< TensorBase_T, 0, dim, Data_T >::operator() ()
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
 Data_T const& WTensorFunc< TensorBase_T, 0, dim, Data_T >::operator() () const
 {
-#ifdef _MSC_VER
-    return TensorBase_T< 0, dim, Data_T >::operator[]< std::size_t >( NULL );
-#else
     return TensorBase_T< 0, dim, Data_T >::template operator[]< std::size_t >( NULL );
-#endif
 }
 
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
 WTensorFunc< TensorBase_T, 0, dim, Data_T >::operator Data_T() const
 {
-#ifdef _MSC_VER
-    return TensorBase_T< 0, dim, Data_T >::operator[]< std::size_t >( NULL );
-#else
     return TensorBase_T< 0, dim, Data_T >::template operator[]< std::size_t >( NULL );
-#endif
 }
 
 #endif  // WTENSORBASE_H

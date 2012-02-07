@@ -28,11 +28,7 @@
 #include "slices/WMSlices.h"
 #include "WSchmahmannPandyaSlicesMain.h"
 
-#ifdef _MSC_VER
-extern "C" __declspec( dllexport ) void WLoadModule( WModuleList& m ) // NOLINT const ref
-#else
 extern "C" void WLoadModule( WModuleList& m ) // NOLINT const ref
-#endif
 {
     m.push_back( boost::shared_ptr< WModule >( new WMBoundaryCurvesWMGM ) );
     m.push_back( boost::shared_ptr< WModule >( new WMProbTractDisplaySP ) );

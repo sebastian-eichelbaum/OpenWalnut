@@ -31,7 +31,7 @@
 
 #include "../callbacks/WGEPropertyUniformCallback.h"
 #include "WGEUniformTypeTraits.h"
-#include "../WExportWGE.h"
+
 
 /**
  * Class implementing a uniform which can be controlled by a property instance. This is mainly a convenience class for

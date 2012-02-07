@@ -25,15 +25,11 @@
 #ifndef WMATH_H
 #define WMATH_H
 
-#if defined ( _MSC_VER )
-    #include <float.h>
-#endif
-
 #include <cmath>
 
 #include <boost/math/constants/constants.hpp>
 
-#include "../WExportCommon.h"
+
 #include "WLine.h"
 #include "WPlane.h"
 #include "linearAlgebra/WLinearAlgebra.h"
@@ -81,7 +77,7 @@ inline int myIsfinite( double number )
  *
  * \return True if both intersects otherwise false.
  */
-bool OWCOMMON_EXPORT testIntersectTriangle( const WPosition& p1, const WPosition& p2, const WPosition& p3, const WPlane& p );
+bool testIntersectTriangle( const WPosition& p1, const WPosition& p2, const WPosition& p3, const WPlane& p );
 
 /**
  * Checks if the given segment intersects with the plane or not. Even if
@@ -97,7 +93,7 @@ bool OWCOMMON_EXPORT testIntersectTriangle( const WPosition& p1, const WPosition
  *
  * \return True if an intersection was detected, false otherwise.
  */
-bool OWCOMMON_EXPORT intersectPlaneSegment( const WPlane& p,
+bool intersectPlaneSegment( const WPlane& p,
         const WPosition& p1,
         const WPosition& p2,
         boost::shared_ptr< WPosition > pointOfIntersection );
@@ -113,7 +109,7 @@ bool OWCOMMON_EXPORT intersectPlaneSegment( const WPlane& p,
  *
  * \return True if an intersection was detected, false otherwise.
  */
-bool OWCOMMON_EXPORT intersectPlaneLineNearCP( const WPlane& p, const WLine& l, boost::shared_ptr< WPosition > cutPoint );
+bool intersectPlaneLineNearCP( const WPlane& p, const WLine& l, boost::shared_ptr< WPosition > cutPoint );
 
 /**
  * Computes the signum for the given value.
@@ -129,7 +125,7 @@ template< typename T > int signum( const T& value );
  * Calculates the odd factorial. This means 1*3*5* ... * border if border is odd, or 1*3*5* ... * (border-1) if border is even.
  * \param border the threshold for the factorial calculation.
  */
-inline unsigned int OWCOMMON_EXPORT oddFactorial( unsigned int border )
+inline unsigned int oddFactorial( unsigned int border )
 {
     unsigned int result = 1;
     for( unsigned int i = 3; i <= border; i+=2 )
@@ -143,7 +139,7 @@ inline unsigned int OWCOMMON_EXPORT oddFactorial( unsigned int border )
  * Calculates the even factorial. This means 2*4*6 ... * \param border if border is even, or 2*4*6* ... * ( \param border - 1 ) if border is odd.
  * \param border the threshold for the factorial calculation.
  */
-inline unsigned int OWCOMMON_EXPORT evenFactorial( unsigned int border )
+inline unsigned int evenFactorial( unsigned int border )
 {
     unsigned int result = 1;
     for( unsigned int i = 2; i <= border; i+=2 )

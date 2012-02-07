@@ -29,12 +29,12 @@
 
 #include "WGEShaderPreprocessor.h"
 
-#include "../WExportWGE.h"
+
 
 /**
  * This preprocessor is able to inject code into a shader. It therefore replaces a specified keyword with code.
  */
-class WGE_EXPORT WGEShaderCodeInjector: public WGEShaderPreprocessor
+class WGEShaderCodeInjector: public WGEShaderPreprocessor
 {
 public:
     /**

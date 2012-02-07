@@ -35,13 +35,13 @@
 #include "../common/WLogger.h"
 #include "../common/WSharedAssociativeContainer.h"
 #include "../common/WSharedLib.h"
-#include "WExportKernel.h"
+
 #include "WModule.h"
 
 /**
  * Loads module prototypes from shared objects in a given directory and injects it into the module factory.
  */
-class OWKERNEL_EXPORT WModuleLoader
+class  WModuleLoader
 {
 public:
     /**

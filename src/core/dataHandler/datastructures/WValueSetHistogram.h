@@ -35,7 +35,7 @@
 
 #include "../../common/WHistogram.h"
 #include "../WValueSet.h"
-#include "../WExportDataHandler.h"
+
 
 /**
  * Used to find the occurrence frequencies of values in a value set. It implements a classical histogram but allows easy modification of bucket
@@ -44,7 +44,7 @@
  *
  * \note This histogram is different from from WValueSetHistogram which is a generic histogram class.
  */
-class OWDATAHANDLER_EXPORT WValueSetHistogram: public WHistogram // NOLINT
+class WValueSetHistogram: public WHistogram // NOLINT
 {
 friend class WValueSetHistogramTest;
 public:

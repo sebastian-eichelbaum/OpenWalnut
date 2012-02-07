@@ -31,14 +31,14 @@
 
 #include "../../common/WCondition.h"
 
-#include "../WExportWGE.h"
+
 
 /**
  * Base class for each preprocessing possible to shader code. This is useful to derive your own preprocessor which might be able to implement
  * some tricky "metaprogramming" for GLSL or similar. Another possibility are defines. In addition, it implements an update notification
  * mechanism which forces associated WGEShader to reload. This is useful for preprocessors that can be modified dynamically.
  */
-class WGE_EXPORT WGEShaderPreprocessor  // NOLINT
+class WGEShaderPreprocessor  // NOLINT
 {
 public:
     /**

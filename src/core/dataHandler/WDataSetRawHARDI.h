@@ -30,13 +30,13 @@
 
 #include "WDataSetSingle.h"
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "WExportDataHandler.h"
+
 
 /**
  * This data set type contains raw HARDI and its gradients.
  * \ingroup dataHandler
  */
-class OWDATAHANDLER_EXPORT WDataSetRawHARDI : public WDataSetSingle // NOLINT
+class WDataSetRawHARDI : public WDataSetSingle // NOLINT
 {
 public:
     /**

@@ -28,13 +28,11 @@
 #include <vector>
 
 #include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/WExportCommon.h"
-
 
 /**
  * This class stores coordinates on the unit sphere.
  */
-class OWCOMMON_EXPORT WUnitSphereCoordinates // NOLINT
+class WUnitSphereCoordinates // NOLINT
 {
 // TODO(all): implement test
 // friend class WUnitSphereCoordinatesTest;

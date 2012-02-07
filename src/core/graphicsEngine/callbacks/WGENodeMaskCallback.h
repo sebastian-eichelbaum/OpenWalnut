@@ -32,7 +32,7 @@
 
 #include "../../common/WFlag.h"
 
-#include "../WExportWGE.h"
+
 
 /**
  * This callback is useful to en-/disable nodes using the node mask based on properties. In contrast to WGEManagedGroupNode, this callback can be
@@ -41,7 +41,7 @@
  * inactive too. To reactive the node again, the callback somehow needs to remember which node it has deactivated. This is done during the first
  * deactivation in update traversal.
  */
-class WGE_EXPORT WGENodeMaskCallback: public osg::NodeCallback
+class WGENodeMaskCallback: public osg::NodeCallback
 {
 public:
     /**

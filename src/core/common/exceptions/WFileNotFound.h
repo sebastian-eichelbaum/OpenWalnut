@@ -28,12 +28,12 @@
 #include <string>
 
 #include "../WException.h"
-#include "../WExportCommon.h"
+
 
 /**
  * Thrown whenever a file was not found.
  */
-class OWCOMMON_EXPORT WFileNotFound : public WException
+class WFileNotFound : public WException
 {
 public:
     /**

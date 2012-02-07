@@ -28,12 +28,12 @@
 #include <ostream>
 #include <string>
 
-#include "WExportCommon.h"
+
 /**
  * A base class for all parts of OpenWalnut which can be serialized to a project file. It is used by WProjectFile to actually parse the file line
  * by line. Derive from this class if you write your own parser and use it to fill your internal data structures.
  */
-class OWCOMMON_EXPORT WProjectFileIO // NOLINT
+class WProjectFileIO // NOLINT
 {
 public:
     /**

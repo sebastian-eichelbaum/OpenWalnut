@@ -37,7 +37,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "WExportCommon.h"
+
 
 /**
  * Some utilities for string manipulation and output operations. Please note
@@ -65,7 +65,7 @@ namespace string_utils
      *  - <tt>\\t</tt> tab
      *  - <tt>' '</tt> space
      */
-    extern OWCOMMON_EXPORT const std::string WHITESPACE;
+    extern const std::string WHITESPACE;
 
     /**
      * Trims any occurence of each character given in parameter t from the end
@@ -76,7 +76,7 @@ namespace string_utils
      * \return A copy of the trimmed string
      */
 
-    std::string OWCOMMON_EXPORT rTrim( const std::string& source, const std::string& t = WHITESPACE );
+    std::string rTrim( const std::string& source, const std::string& t = WHITESPACE );
 
     /**
      * Trims any occurence of each character given in parameter t from the
@@ -86,7 +86,7 @@ namespace string_utils
      * \param t String representing a set containg all trimmable characters
      * \return A copy of the trimmed string
      */
-    std::string OWCOMMON_EXPORT lTrim( const std::string& source, const std::string& t =
+    std::string lTrim( const std::string& source, const std::string& t =
             WHITESPACE );
 
     /**
@@ -97,7 +97,7 @@ namespace string_utils
      * \param t String representing a set containg all trimmable characters
      * \return A copy of the trimmed string
      */
-    std::string OWCOMMON_EXPORT trim( const std::string& source, const std::string& t = WHITESPACE );
+    std::string trim( const std::string& source, const std::string& t = WHITESPACE );
 
     /**
      * Transforms all characters in the given string into upper case
@@ -106,7 +106,7 @@ namespace string_utils
      * \param source String to transpose.
      * \return A copy of the upper case only string
      */
-    std::string OWCOMMON_EXPORT toUpper( const std::string& source );
+    std::string toUpper( const std::string& source );
 
     /**
      * Transforms all characters in the given string into lower case
@@ -115,7 +115,7 @@ namespace string_utils
      * \param source String to transpose.
      * \return A copy of the lower case only string
      */
-    std::string OWCOMMON_EXPORT toLower( const std::string& source );
+    std::string toLower( const std::string& source );
 
     /**
      * Splits the given string into a vector of strings (so called tokens).
@@ -127,7 +127,7 @@ namespace string_utils
      * as whitespace.
      * \return A vector of strings containing the tokens.
      */
-    std::vector< std::string > OWCOMMON_EXPORT tokenize( const std::string& source,
+    std::vector< std::string > tokenize( const std::string& source,
                                                        const std::string& delim = WHITESPACE,
                                                        bool compress = true );
 

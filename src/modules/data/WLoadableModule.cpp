@@ -35,12 +35,7 @@
  * \note we need the module instance to be created using a shared_ptr as WModule is derived from enable_shared_from_this. Removing the shared
  *       pointer causes segmentation faults during load.
  */
-#ifdef _MSC_VER
-    #define DECLSPECSTUFF __declspec( dllexport )
-#else
-    #define DECLSPECSTUFF
-#endif
-extern "C" DECLSPECSTUFF void WLoadModule( WModuleList& m ) // NOLINT - yes this is a non-const reference
+extern "C" void WLoadModule( WModuleList& m ) // NOLINT - yes this is a non-const reference
 {
     m.push_back( boost::shared_ptr< WModule >( new WMData ) );
     m.push_back( boost::shared_ptr< WModule >( new WMReadSphericalHarmonics ) );

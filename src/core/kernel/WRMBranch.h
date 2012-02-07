@@ -35,14 +35,14 @@
 
 #include "../graphicsEngine/WROI.h"
 
-#include "WExportKernel.h"
+
 
 class WROIManager;
 
 /**
  * implements a branch in the tree like structure for rois
  */
-class OWKERNEL_EXPORT WRMBranch : public boost::enable_shared_from_this< WRMBranch >
+class  WRMBranch : public boost::enable_shared_from_this< WRMBranch >
 {
 public:
     /**

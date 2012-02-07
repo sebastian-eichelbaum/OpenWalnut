@@ -36,7 +36,7 @@
 #include "../common/WSharedSequenceContainer.h"
 
 #include "WDataSet.h"
-#include "WExportDataHandler.h"
+
 
 class WSubject;
 
@@ -47,7 +47,7 @@ class WSubject;
  *
  * \ingroup dataHandler
  */
-class OWDATAHANDLER_EXPORT WDataHandler // NOLINT
+class WDataHandler // NOLINT
 {
 /**
  * Only UnitTests may be friends.

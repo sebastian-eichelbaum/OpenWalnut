@@ -31,7 +31,7 @@
 #include "../../common/math/WMatrix.h"
 #include "../../common/WProgressCombiner.h"
 #include "../WTriangleMesh.h"
-#include "../WExportWGE.h"
+
 
 /**
  * A point consisting of its coordinates and ID
@@ -60,7 +60,7 @@ typedef std::vector<WMLTriangle> WMLTriangleVECTOR;
 /**
  * Creates a non interpolated triangulation of an isosurface
  */
-class WGE_EXPORT WMarchingLegoAlgorithm
+class WMarchingLegoAlgorithm
 {
 public:
     /**

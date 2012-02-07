@@ -32,7 +32,7 @@
 
 #include "../common/math/WValue.h"
 #include "WDataHandlerEnums.h"
-#include "WExportDataHandler.h"
+
 
 //! forward declaration
 template< typename T >
@@ -55,7 +55,7 @@ typedef boost::variant< WValueSet< uint8_t > const*,
  * Abstract base class to all WValueSets. This class doesn't provide any genericness.
  * \ingroup dataHandler
  */
-class OWDATAHANDLER_EXPORT WValueSetBase // NOLINT
+class WValueSetBase // NOLINT
 {
 public:
     /**
@@ -123,7 +123,6 @@ public:
      */
     virtual size_t elementsPerValue() const
     {
-        // Windows Hack: the MSVC obviously does not support ( oh wonder, which wonder ) pow with integers.
         return static_cast< size_t >( std::pow( static_cast< double >( m_dimension ), static_cast< int >( m_order ) ) );
     }
 

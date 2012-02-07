@@ -29,12 +29,12 @@
 
 #include "../common/math/WTensorSym.h"
 #include "WDataSetSingle.h"
-#include "WExportDataHandler.h"
+
 
 /**
  * Represents a Diffusion-Tensor-Image dataset. Diffusion tensors are symmetric matrices.
  */
-class OWDATAHANDLER_EXPORT WDataSetDTI : public WDataSetSingle
+class WDataSetDTI : public WDataSetSingle
 {
 public:
     /**

@@ -33,14 +33,14 @@
 
 
 #include "WPickInfo.h"
-#include "WExportWGE.h"
+
 
 /**
  * Class to handle events with a pick.
  *
  * The handler ignores any geometry whose name starts with an underscore ("_").
  */
-class WGE_EXPORT WPickHandler: public osgGA::GUIEventHandler
+class WPickHandler: public osgGA::GUIEventHandler
 {
 public:
     /**

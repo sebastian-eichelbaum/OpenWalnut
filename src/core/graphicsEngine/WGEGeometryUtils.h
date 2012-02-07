@@ -32,7 +32,7 @@
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WTriangleMesh.h"
 
-#include "WExportWGE.h"
+
 
 namespace wge
 {
@@ -63,7 +63,7 @@ namespace wge
      *
      * \return OSG vertex array where every four vertices describing a QUAD.
      */
-    osg::ref_ptr< osg::Vec3Array > WGE_EXPORT generateCuboidQuads( const std::vector< WPosition >& corners );
+    osg::ref_ptr< osg::Vec3Array > generateCuboidQuads( const std::vector< WPosition >& corners );
 
     /**
      * Generates for a QUAD given via 3 three points ( the fourth is not needed ) the
@@ -75,7 +75,7 @@ namespace wge
      *
      *\return OSG Vector of the normal of the QUAD
      */
-    osg::Vec3 WGE_EXPORT getQuadNormal( const WPosition& a, const WPosition& b, const WPosition& c );
+    osg::Vec3 getQuadNormal( const WPosition& a, const WPosition& b, const WPosition& c );
 
     /**
      * Generates for all QUADS of the Cuboid the normals in the following order:
@@ -103,7 +103,7 @@ namespace wge
      *
      *\return Array of normals in the order as shown above.
      */
-    osg::ref_ptr< osg::Vec3Array > WGE_EXPORT generateCuboidQuadNormals( const std::vector< WPosition >& corners );
+    osg::ref_ptr< osg::Vec3Array > generateCuboidQuadNormals( const std::vector< WPosition >& corners );
 
     /**
      * Calculate the Delaunay Triangulation of the given points.
@@ -124,7 +124,7 @@ namespace wge
      *                                 triangulation
      * \return triangulation as WTriangleMesh
      */
-    WTriangleMesh::SPtr WGE_EXPORT triangulate( const std::vector< WPosition >& points, double transformationFactor = 0.0 );
+    WTriangleMesh::SPtr triangulate( const std::vector< WPosition >& points, double transformationFactor = 0.0 );
 }
 
 #endif  // WGEGEOMETRYUTILS_H

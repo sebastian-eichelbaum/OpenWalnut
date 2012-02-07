@@ -37,7 +37,7 @@
 #include "../common/WProperties.h"
 #include "../common/WTransferable.h"
 #include "WDataSetScalar.h"
-#include "WExportDataHandler.h"
+
 
 //! forward declaration
 class WDataSetTimeSeriesTest;
@@ -48,7 +48,7 @@ class WDataSetTimeSeriesTest;
  * \note Only works for scalar datasets at the moment!
  * \note this is only a temporary solution
  */
-class OWDATAHANDLER_EXPORT WDataSetTimeSeries : public WDataSet
+class WDataSetTimeSeries : public WDataSet
 {
     //! the test is a friend
     friend class WDataSetTimeSeriesTest;

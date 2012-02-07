@@ -28,12 +28,12 @@
 #include <string>
 
 #include "../WException.h"
-#include "../WExportCommon.h"
+
 
 /**
  * Indicates invalid use of subscribeSignal methods
  */
-class OWCOMMON_EXPORT WSignalSubscriptionInvalid : public WException
+class WSignalSubscriptionInvalid : public WException
 {
 public:
     /**

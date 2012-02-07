@@ -47,7 +47,7 @@
 #include "../dataHandler/WDataSet.h"
 #include "../dataHandler/WDataSetSingle.h"
 #include "../dataHandler/WValueSet.h"
-#include "WExportKernel.h"
+
 #include "WModuleCombinerTypes.h"
 #include "WModuleConnectorSignals.h"
 #include "WModuleSignals.h"
@@ -66,7 +66,7 @@ template < typename T > class WModuleOutputData;
  * Class representing a single module of OpenWalnut.
  * \ingroup kernel
  */
-class OWKERNEL_EXPORT WModule: public WThreadedRunner,
+class  WModule: public WThreadedRunner,
                                public WPrototyped,
                                public boost::enable_shared_from_this< WModule >
 {
@@ -669,13 +669,8 @@ typedef void ( *W_LOADABLE_MODULE_SIGNATURE )( WModuleList& );
  * \note we need the module instance to be created using a shared_ptr as WModule is derived from enable_shared_from_this. Removing the shared
  *       pointer causes segmentation faults during load.
  */
-#ifdef _MSC_VER
-#define W_LOADABLE_MODULE( MODULECLASS ) \
-extern "C" __declspec(dllexport) void WLoadModule( WModuleList& m ) { m.push_back( boost::shared_ptr< WModule >( new MODULECLASS ) ); }  // NOLINT
-#else
 #define W_LOADABLE_MODULE( MODULECLASS ) \
 extern "C"                       void WLoadModule( WModuleList& m ) { m.push_back( boost::shared_ptr< WModule >( new MODULECLASS ) ); }  // NOLINT
-#endif
 
 /**
  * The corresponding symbol name.

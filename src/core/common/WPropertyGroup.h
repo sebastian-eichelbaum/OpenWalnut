@@ -37,7 +37,7 @@
 #include "WSharedSequenceContainer.h"
 #include "exceptions/WPropertyNotUnique.h"
 
-#include "WExportCommon.h"
+
 
 /**
  * Class to manage properties of an object and to provide convenience methods for easy access and manipulation. It also allows
@@ -46,7 +46,7 @@
  * is the property with the name "property" in the group "you" which against is in the group "hello".
  * \note The root group of each module does not have a name.
  */
-class OWCOMMON_EXPORT WPropertyGroup: public WPropertyGroupBase
+class WPropertyGroup: public WPropertyGroupBase
 {
 friend class WPropertiesTest;
 public:

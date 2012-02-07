@@ -34,12 +34,12 @@ class WModule;
 
 class WCondition;
 
-#include "WExportKernel.h"
+
 
 /**
  * Class implementing input connection functionality between modules.
  */
-class OWKERNEL_EXPORT WModuleInputConnector: public WModuleConnector
+class  WModuleInputConnector: public WModuleConnector
 {
 public:
     /**

@@ -34,12 +34,12 @@
 
 #include "../widgets/labeling/WGELabel.h"
 
-#include "../WExportWGE.h"
+
 
 /**
  * This node is able to represent a grid in certain ways. It can show its boundary or the whole grid if desired.
  */
-class WGE_EXPORT WGEGridNode: public osg::MatrixTransform
+class WGEGridNode: public osg::MatrixTransform
 {
 public:
     /**

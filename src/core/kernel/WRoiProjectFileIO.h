@@ -29,12 +29,12 @@
 
 #include "../common/WProjectFileIO.h"
 
-#include "WExportKernel.h"
+
 
 /**
  * IO Class for writing the ROI structure to a project file.
  */
-class OWKERNEL_EXPORT WRoiProjectFileIO: public WProjectFileIO
+class  WRoiProjectFileIO: public WProjectFileIO
 {
 public:
     /**

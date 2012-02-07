@@ -37,13 +37,13 @@
 
 #include "../WModuleCombiner.h"
 
-#include "../WExportKernel.h"
+
 
 /**
  * This class is able to parse project files and create the appropriate module graph inside a specified container. It is also derived from
  * WProjectFileIO to allow WProjectFile to fill this combiner.
  */
-class OWKERNEL_EXPORT WModuleProjectFileCombiner: public WModuleCombiner,
+class  WModuleProjectFileCombiner: public WModuleCombiner,
                                                     public WProjectFileIO
 {
 public:

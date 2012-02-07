@@ -394,7 +394,12 @@ FUNCTION( SETUP_LIB_INSTALL _libName _targetRelative _component )
     # NOTE: we need two separate install targets here since the namelink to the lib (libopenwalnut.so -> linopenwalnut.so.1.2.3) is only needed
     # in the DEV release. Have a look at NAMELINK_SKIP and NAMELINK_ONLY
     INSTALL( TARGETS ${_libName}
-                ARCHIVE # NOTE: this is needed on windows
+                ARCHIVE # NOTE: this is needed on windows (*.dll.a)
+                    DESTINATION ${_targetRelative} 
+                    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
+                                GROUP_READ GROUP_EXECUTE  
+                                WORLD_READ WORLD_EXECUTE
+                RUNTIME # NOTE: this is needed on windows (*.dll)
                     DESTINATION ${_targetRelative} 
                     PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
                                 GROUP_READ GROUP_EXECUTE  

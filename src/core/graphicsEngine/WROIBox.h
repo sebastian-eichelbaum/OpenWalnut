@@ -36,12 +36,12 @@
 class WGEViewer;
 
 #include "WROI.h"
-#include "WExportWGE.h"
+
 
 /**
  * A box representing a region of interest.
  */
-class WGE_EXPORT WROIBox : public WROI
+class WROIBox : public WROI
 {
 public:
     /**

@@ -36,7 +36,7 @@
 
 #include "WGEShaderDefine.h"
 
-#include "../WExportWGE.h"
+
 
 /**
  * This class is able to provide arbitrary values as define statements in GLSL code. Unlike WGEShaderDefine, it is automatically controlled by a
