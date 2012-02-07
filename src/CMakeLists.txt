@@ -334,6 +334,11 @@ ADD_CUSTOM_TARGET( doc
                    VERBATIM
                  )
 
+# On Windows, we want the common doc (README, AUTHORS and COPYING) to be in the root install dir too:
+IF( CMAKE_HOST_SYSTEM MATCHES "Windows" )
+    SETUP_COMMON_DOC( "." "COMMON_DOC_ON_WINDOWS" )
+ENDIF()
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
 # Style
