@@ -425,6 +425,11 @@ FUNCTION( SETUP_DEV_INSTALL _libName _targetRelative _headers _headerTargetRelat
     INSTALL( TARGETS ${_libName}
                 ARCHIVE # NOTE: this is needed on windows
                     DESTINATION ${_targetRelative} 
+                    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                                GROUP_READ GROUP_EXECUTE
+                                WORLD_READ WORLD_EXECUTE
+                RUNTIME # NOTE: this is needed on windows (*.dll)
+                    DESTINATION ${_targetRelative} 
                     PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
                                 GROUP_READ GROUP_EXECUTE  
                                 WORLD_READ WORLD_EXECUTE
@@ -437,7 +442,7 @@ FUNCTION( SETUP_DEV_INSTALL _libName _targetRelative _headers _headerTargetRelat
              COMPONENT ${_component}
     )
 
-    # we want to copy the headers to. Unfortunately, cmake's install command does not preserver the directory structure.
+    # we want to copy the headers to. Unfortunately, cmake's install command does not preserve the directory structure.
     FOREACH( _header ${${_headers}} )
         STRING( REGEX MATCH "(.*)[/\\]" directory ${_header} )
         STRING( REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" directoryRelative ${directory} )
