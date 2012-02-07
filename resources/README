@@ -1,0 +1,18 @@
+Non-Compile Resources
+=====================
+
+This directory contains all additional files. They usually need no compilation
+and need to be copied to a certain place.
+
+This directory contains directories for each component defined in the CMake files.
+Ensure that the names match exactly. The SETUP_GLOBAL_RESOURCES CMake function
+then searches in the directory belonging to the component. Inside this directory,
+all contents will be copied to the installation dir/build dir, keeping the 
+structure. This means, if the core lib needs something in share/openwalnut, 
+you need to put it into resources/core/share/openwalnut.
+
+There is one exception to the rule. The directory called "platformDependent" 
+is not copied directly. It, again, contains subdirectories for each component
+and inside of them, subdirectories for the platform. So, if the core needs a
+certain file on windows, in directory abc, then put the file to 
+resources/platformDependent/core/windows/abc.
