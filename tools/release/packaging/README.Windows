@@ -1,0 +1,24 @@
+Windows Packaging
+=================
+
+Basically, all the work is done nicely by the "make install" command. Please
+have a look at the WIKI which describes some details that need to be done
+additionally before make install does everything correctly for us. This includes
+copying the startup script -> a batch script which starts OpenWalnut.  It
+extends the PATH variable to include the lib and ext directories and then calls
+the OW executable. But batch files look ugly.  This is why we have a "compiled
+batch" file. We used the program "Batch To Exe Converter", found at www.f2ko.de.
+The Exe needs to be copied to the root directory of your binary OpenWalnut
+distribution. The user can the start it simply by double clicking the nice icon.
+
+These problems still exist 
+
+ 1. External binary DLLs are missing
+
+How to solve these problems? 
+
+1.) External libraries are problematic. We need to provide them as OpenWalnut
+will not start without them. The batch script added a directory "ext" to the
+path. We need to copy the external DLLs to this directory. The WIKI provides
+further information about this.
+
