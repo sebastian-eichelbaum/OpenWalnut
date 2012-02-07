@@ -290,6 +290,16 @@ FUNCTION( SETUP_GLOBAL_RESOURCES _resource _component )
                              ${_component}                  # component
                              ${_component}                  # install component is same as component as it is unique
     )
+
+    # allow platform dependent setup
+    STRING( TOLOWER ${CMAKE_SYSTEM_NAME} PLATFORM_NAME_LOWER )
+    # just forward the call with the proper parameter
+    SETUP_RESOURCES_GENERIC( "${PROJECT_SOURCE_DIR}/../resources/platformDependent/${_resource}/${PLATFORM_NAME_LOWER}"  # source dir
+                             "."                            # target dir - global resources always put into the build/install dir directly
+                             ${_component}_${PLATFORM_NAME_LOWER}  # component
+                             ${_component}                  # install component is same as component as it is unique
+    )
+
 ENDFUNCTION( SETUP_GLOBAL_RESOURCES )
 
 # This function copies the typical source docs (README, AUTHORS, CONTRIBUTORS and Licence files to the specified directory.
