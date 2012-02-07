@@ -252,9 +252,15 @@ ENDFUNCTION( SETUP_STYLECHECKER )
 # _installcomponent to which installation component does this resource belong? (i.e. MODULES ...)
 FUNCTION( SETUP_RESOURCES_GENERIC _source_path _destination_path _component _installcomponent )
     # as all the resources with the correct directory structure reside in ../resources, this target is very easy to handle
-    SET( ResourcesPath "${_source_path}/" )
+    SET( ResourcesPath "${_source_path}" )
+    # remove trailing slashes if any
+    STRING( REGEX REPLACE "/$" "" ResourcesPath "${ResourcesPath}" )
+    # this ensures we definitely have one slash at the and
+    SET( ResourcesPath "${ResourcesPath}/" )
 
-    IF( IS_DIRECTORY "${_source_path}/" )
+    IF( IS_DIRECTORY "${ResourcesPath}" )
+        MESSAGE( STATUS "Found resources in ${ResourcesPath}" )
+
         ADD_CUSTOM_TARGET( ResourceConfiguration_${_component}
             ALL
             COMMAND ${CMAKE_COMMAND} -E copy_directory "${ResourcesPath}" "${PROJECT_BINARY_DIR}/${_destination_path}/"
