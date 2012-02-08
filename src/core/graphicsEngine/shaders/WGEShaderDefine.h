@@ -26,9 +26,12 @@
 #define WGESHADERDEFINE_H
 
 #include <string>
+#include  <iostream>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
+
+#include "../../common/WStringUtils.h"
 
 #include "WGEShaderPreprocessor.h"
 
@@ -128,8 +131,7 @@ std::string WGEShaderDefine< ValueType >::process( const std::string& /*file*/, 
     {
         return code;
     }
-
-    return "#define " + getName() + " " + boost::lexical_cast< std::string >( getValue() ) + "\n" + code;
+    return "#define " + getName() + " " + string_utils::toString( getValue() ) + "\n" + code;
 }
 
 template< typename ValueType >

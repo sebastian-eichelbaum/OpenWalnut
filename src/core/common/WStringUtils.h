@@ -210,6 +210,39 @@ namespace string_utils
         os << rTrim( result.str(), ", " ) << "}";
         return os;
     }
+
+    /**
+     * Convert a given value to a string. The input value must provide a operator<< or be a standard scalar type.
+     *
+     * \tparam T the source type. You do not need to specify this directly as it can be deducted from the given parameter
+     * \param value the value to cast to string
+     *
+     * \return the string.
+     */
+    template< typename T >
+    inline std::string toString( const T& value )
+    {
+        std::stringstream ss;
+        ss << value;
+        return ss.str();
+    }
+
+    /**
+     * Convert a given string to a value of a certain type. The target type must provide a operator>> to work or be a standard scalar type.
+     *
+     * \tparam T the source type.
+     * \param value the value to cast to string
+     *
+     * \return the string.
+     */
+    template< typename T >
+    inline T fromString( const std::string& str )
+    {
+        std::stringstream ss( str );
+        T value;
+        ss >> value;
+        return value;
+    }
 }  // end of namespace
 
 #endif  // WSTRINGUTILS_H
