@@ -40,6 +40,7 @@
 #include "core/common/WAssert.h"
 #include "core/common/WPathHelper.h"
 #include "core/common/WThreadedFunction.h"
+#include "core/common/WStringUtils.h"
 #include "core/dataHandler/WDataSetScalar.h"
 #include "core/graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 #include "core/graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
@@ -243,7 +244,7 @@ void WMAtlasSurfaces::createSurfaces()
 
     for(size_t i = 1; i < m_dataSet->getMax() + 1; ++i )
     {
-        std::string label = boost::lexical_cast<std::string>( i ) + std::string( " " ) + m_labels[i].second;
+        std::string label = string_utils::toString( i ) + std::string( " " ) + m_labels[i].second;
         m_possibleSelections->addItem( label, "" );
     }
 
@@ -259,7 +260,7 @@ void WMAtlasSurfaces::createOSGNode()
         osg::Geometry* surfaceGeometry = new osg::Geometry();
         osg::ref_ptr< osg::Geode > outputGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
-        std::string label = boost::lexical_cast<std::string>( i ) + std::string( " " ) + m_labels[i].second;
+        std::string label = string_utils::toString( i ) + std::string( " " ) + m_labels[i].second;
         outputGeode->setName( label );
 
         surfaceGeometry->setUseDisplayList( false );
@@ -383,7 +384,7 @@ void WMAtlasSurfaces::loadLabels( std::string fileName )
             if( svec.size() == 3 )
             {
                 std::pair< std::string, std::string >newLabel( svec[1], svec[2] );
-                m_labels[boost::lexical_cast<size_t>( svec[0] )] = newLabel;
+                m_labels[ string_utils::fromString< size_t >( svec[0] )] = newLabel;
             }
         }
         m_labelsLoaded = true;
@@ -449,7 +450,7 @@ void WMAtlasSurfaces::cutArea( int index )
     }
     else
     {
-        newRoi->setName( std::string( "region " ) + boost::lexical_cast<std::string>( index ) );
+        newRoi->setName( std::string( "region " ) + string_utils::toString( index ) );
     }
 
     if( WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() == NULL )

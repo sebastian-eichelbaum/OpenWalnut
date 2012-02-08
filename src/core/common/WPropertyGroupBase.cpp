@@ -28,9 +28,9 @@
 #include <vector>
 #include <algorithm>
 
-#include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
 
+#include "WStringUtils.h"
 #include "WLogger.h"
 #include "exceptions/WPropertyUnknown.h"
 #include "exceptions/WPropertyNotUnique.h"
@@ -129,7 +129,7 @@ boost::shared_ptr< WPropertyBase > WPropertyGroupBase::findProperty( std::string
         }
 
         // get the properties along the path
-        result = findProperty( curProps, boost::lexical_cast< std::string >( *it ) );
+        result = findProperty( curProps, string_utils::toString( *it ) );
         if( !result )
         {
             // not found? Return NULL.

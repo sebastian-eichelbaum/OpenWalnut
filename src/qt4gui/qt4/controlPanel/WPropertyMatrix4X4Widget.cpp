@@ -26,8 +26,8 @@
 #include <cmath>
 #include <string>
 
-#include <boost/lexical_cast.hpp>
 
+#include "core/common/WStringUtils.h"
 #include "core/common/WLogger.h"
 #include "core/common/WPropertyVariable.h"
 #include "../WGuiConsts.h"
@@ -91,12 +91,12 @@ void WPropertyMatrix4X4Widget::update()
         for( size_t col = 0; col < 4; ++col )
         {
             size_t i = row * 4 + col;
-            m_edits[ i ].setText( QString::fromStdString( boost::lexical_cast< std::string >( m( row, col ) ) ) );
+            m_edits[ i ].setText( QString::fromStdString( string_utils::toString( m( row, col ) ) ) );
         }
     }
 
     // do not forget to update the label
-    m_asText.setText( QString::fromStdString( boost::lexical_cast< std::string >( m_matrixProperty->get() ) ) );
+    m_asText.setText( QString::fromStdString( string_utils::toString( m_matrixProperty->get() ) ) );
 }
 
 void WPropertyMatrix4X4Widget::editChanged()

@@ -35,7 +35,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
 
 
 
@@ -59,6 +58,39 @@
  */
 namespace string_utils
 {
+    /**
+     * Convert a given value to a string. The input value must provide a operator<< or be a standard scalar type.
+     *
+     * \tparam T the source type. You do not need to specify this directly as it can be deducted from the given parameter
+     * \param value the value to cast to string
+     *
+     * \return the string.
+     */
+    template< typename T >
+    inline std::string toString( const T& value )
+    {
+        std::stringstream ss;
+        ss << value;
+        return ss.str();
+    }
+
+    /**
+     * Convert a given string to a value of a certain type. The target type must provide a operator>> to work or be a standard scalar type.
+     *
+     * \tparam T the source type.
+     * \param value the value to cast to string
+     *
+     * \return the string.
+     */
+    template< typename T >
+    inline T fromString( const std::string& str )
+    {
+        std::stringstream ss( str );
+        T value;
+        ss >> value;
+        return value;
+    }
+
     /** We consider the following characters as whitespace:
      *  - <tt>\\r</tt> carriage return
      *  - <tt>\\n</tt> newline
@@ -153,7 +185,7 @@ namespace string_utils
      * Also wrapping brackets '[' ']' are expected. In general this is the opposite of the
      * output operator above.
      * \warning The inputstream is first written into a string then the convertion into T
-     * via boost::lexical_cast takes place.
+     * via fromString takes place.
      * \warning The delimiter should not be in an elements string representation since then
      * the tokenizer may gets confused
      *
@@ -172,7 +204,7 @@ namespace string_utils
         v.reserve( tokens.size() );
         for( size_t i = 0; i < tokens.size(); ++i )
         {
-            v.push_back( boost::lexical_cast< T >( tokens[i] ) );
+            v.push_back( fromString< T >( tokens[i] ) );
         }
         return in;
     }
@@ -209,39 +241,6 @@ namespace string_utils
         std::copy( s.begin(), s.end(), std::ostream_iterator< T >( result, ", " ) );
         os << rTrim( result.str(), ", " ) << "}";
         return os;
-    }
-
-    /**
-     * Convert a given value to a string. The input value must provide a operator<< or be a standard scalar type.
-     *
-     * \tparam T the source type. You do not need to specify this directly as it can be deducted from the given parameter
-     * \param value the value to cast to string
-     *
-     * \return the string.
-     */
-    template< typename T >
-    inline std::string toString( const T& value )
-    {
-        std::stringstream ss;
-        ss << value;
-        return ss.str();
-    }
-
-    /**
-     * Convert a given string to a value of a certain type. The target type must provide a operator>> to work or be a standard scalar type.
-     *
-     * \tparam T the source type.
-     * \param value the value to cast to string
-     *
-     * \return the string.
-     */
-    template< typename T >
-    inline T fromString( const std::string& str )
-    {
-        std::stringstream ss( str );
-        T value;
-        ss >> value;
-        return value;
     }
 }  // end of namespace
 

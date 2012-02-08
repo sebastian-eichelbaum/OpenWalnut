@@ -25,7 +25,6 @@
 #include <cmath>
 #include <string>
 
-#include <boost/lexical_cast.hpp>
 
 #include <QtGui/QFileDialog>
 

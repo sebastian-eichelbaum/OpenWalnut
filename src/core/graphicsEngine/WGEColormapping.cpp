@@ -28,6 +28,8 @@
 #include <string>
 
 #include "../common/WLogger.h"
+#include "../common/WStringUtils.h"
+
 #include "WGETextureUtils.h"
 #include "exceptions/WGESignalSubscriptionFailed.h"
 
@@ -50,8 +52,8 @@ void setDefines( osg::ref_ptr< WGEShader > shader, size_t start = 0 )
         // disable textures with invalid unit numbers
         if( unit < wge::getMaxTexUnits() - start )
         {
-            shader->setDefine( "Colormap" + boost::lexical_cast< std::string >( unit ) + "Enabled", true );
-            shader->setDefine( "Colormap" + boost::lexical_cast< std::string >( unit ) + "Unit", start + unit );
+            shader->setDefine( "Colormap" + string_utils::toString( unit ) + "Enabled", true );
+            shader->setDefine( "Colormap" + string_utils::toString( unit ) + "Unit", start + unit );
         }
     }
 }
@@ -282,7 +284,7 @@ void WGEColormapping::callback( osg::Node* node )
              ( unit < maxTexUnits ) && ( iter != rt->get().end() );
              ++iter )
         {
-            wge::bindTexture( node, *iter, unit, "u_colormap" + boost::lexical_cast< std::string >( unit - info->m_texUnitStart ) );
+            wge::bindTexture( node, *iter, unit, "u_colormap" + string_utils::toString( unit - info->m_texUnitStart ) );
             unit++;
         }
 

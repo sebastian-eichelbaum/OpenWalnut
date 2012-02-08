@@ -25,11 +25,11 @@
 #include <string>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
-
+#include "core/common/WStringUtils.h"
 #include "core/dataHandler/WDataSetScalar.h"
 #include "core/kernel/WModuleFactory.h"
 #include "core/kernel/WModuleInputForwardData.h"
+
 #include "WMProbTractDisplay.h"
 #include "WMProbTractDisplay.xpm"
 
@@ -118,7 +118,7 @@ void WMProbTractDisplay::initSubModules()
         m_input->forward( m_isoSurfaces.back()->getInputConnector( "values" ) );
 
         // forward properties of interest, the reason for grouping is: property container cannot hold not-unique names
-        std::string isoSurfaceNum = boost::lexical_cast< std::string >( i );
+        std::string isoSurfaceNum = string_utils::toString( i );
         WPropGroup m_group = m_properties->addPropertyGroup( "Isosurface " + isoSurfaceNum,  "Property group for isosurface " + isoSurfaceNum );
         WPropDouble p0 = m_isoSurfaces.back()->getProperties()->getProperty( "Iso value" )->toPropDouble();
         p0->setMax( 1000.0 );

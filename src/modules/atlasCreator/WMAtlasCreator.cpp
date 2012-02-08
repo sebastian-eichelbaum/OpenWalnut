@@ -31,7 +31,9 @@
 #include <osg/Texture3D>
 #include <osgDB/ReadFile>
 
+#include "core/common/WStringUtils.h"
 #include "core/kernel/WKernel.h"
+
 #include "WMAtlasCreator.h"
 #include "WMAtlasCreator.xpm"
 
@@ -175,7 +177,7 @@ void WMAtlasCreator::addPngToVolume( boost::filesystem::path image )
     std::string number = fn.substr( fn.size() - 3 );
     fn.erase( fn.size() - 3, 3 );
 
-    size_t pos = boost::lexical_cast<size_t>( number );
+    size_t pos = string_utils::fromString<size_t>( number );
 
     if( pos > 119 )
     {

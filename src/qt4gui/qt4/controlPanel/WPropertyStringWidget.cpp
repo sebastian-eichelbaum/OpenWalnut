@@ -25,7 +25,6 @@
 #include <cmath>
 #include <string>
 
-#include <boost/lexical_cast.hpp>
 
 #include "core/common/WLogger.h"
 #include "core/common/WPropertyVariable.h"

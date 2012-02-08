@@ -29,7 +29,6 @@
 #include <vector>
 
 #include <boost/filesystem/fstream.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include "../common/datastructures/WFiber.h"
 #include "../common/WBoundingBox.h"

@@ -26,7 +26,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
 
 #include "../common/exceptions/WOutOfBounds.h"
 #include "../common/WStringUtils.h"

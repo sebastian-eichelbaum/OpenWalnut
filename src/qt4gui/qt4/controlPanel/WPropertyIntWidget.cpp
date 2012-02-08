@@ -27,7 +27,6 @@
 #include <string>
 #include <algorithm>
 
-#include <boost/lexical_cast.hpp>
 
 #include "../WGuiConsts.h"
 #include "core/common/WLogger.h"

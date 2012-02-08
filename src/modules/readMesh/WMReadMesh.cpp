@@ -26,6 +26,7 @@
 #include <vector>
 #include <fstream>
 
+#include "core/common/WStringUtils.h"
 #include "core/common/WPathHelper.h"
 #include "core/common/WPropertyHelper.h"
 #include "core/kernel/WKernel.h"
@@ -172,11 +173,11 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readMeshFnav()
         {
             try
             {
-                numPoints = boost::lexical_cast< size_t >( tokens.at( 1 ) );
+                numPoints = string_utils::fromString< size_t >( tokens.at( 1 ) );
                 debugLog() << numPoints << " points";
                 break;
             }
-            catch( const boost::bad_lexical_cast &e )
+            catch( const std::exception &e )
             {
                 WLogger::getLogger()->addLogMessage( "Invalid number of points: " + tokens.at( 1 ), "Read Mesh", LL_ERROR );
                 progress->finish();
@@ -196,11 +197,11 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readMeshFnav()
 
         try
         {
-            points.push_back( osg::Vec3( boost::lexical_cast< float >( tokens.at( 0 ) ),
-                                         boost::lexical_cast< float >( tokens.at( 1 ) ),
-                                         boost::lexical_cast< float >( tokens.at( 2 ) ) ) );
+            points.push_back( osg::Vec3( string_utils::fromString< float >( tokens.at( 0 ) ),
+                                         string_utils::fromString< float >( tokens.at( 1 ) ),
+                                         string_utils::fromString< float >( tokens.at( 2 ) ) ) );
         }
-        catch( const boost::bad_lexical_cast &e )
+        catch( const std::exception &e )
         {
             WLogger::getLogger()->addLogMessage( "Invalid vertex position", "Read Mesh", LL_ERROR );
             progress->finish();
@@ -218,10 +219,10 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readMeshFnav()
     {
         try
         {
-            numCells = boost::lexical_cast< size_t >( tokens.at( 1 ) );
+            numCells = string_utils::fromString< size_t >( tokens.at( 1 ) );
             debugLog() << numCells << " cells";
         }
-        catch( const boost::bad_lexical_cast &e )
+        catch( const std::exception &e )
         {
             WLogger::getLogger()->addLogMessage( "Invalid number of cells: " + tokens.at( 1 ), "Read Mesh", LL_ERROR );
             progress->finish();
@@ -248,11 +249,11 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readMeshFnav()
 
         try
         {
-            triMesh->addTriangle( boost::lexical_cast< size_t >( tokens.at( 1 ) ),
-                                  boost::lexical_cast< size_t >( tokens.at( 2 ) ),
-                                  boost::lexical_cast< size_t >( tokens.at( 3 ) ) );
+            triMesh->addTriangle( string_utils::fromString< size_t >( tokens.at( 1 ) ),
+                                  string_utils::fromString< size_t >( tokens.at( 2 ) ),
+                                  string_utils::fromString< size_t >( tokens.at( 3 ) ) );
         }
-        catch( const boost::bad_lexical_cast &e )
+        catch( const std::exception &e )
         {
             WLogger::getLogger()->addLogMessage( "Invalid triangle ID", "Read Mesh", LL_ERROR );
             progress->finish();
@@ -335,9 +336,9 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readMesh()
     }
     try
     {
-        numPoints = boost::lexical_cast< size_t >( tokens.at( 1 ) );
+        numPoints = string_utils::fromString< size_t >( tokens.at( 1 ) );
     }
-    catch( const boost::bad_lexical_cast &e )
+    catch( const std::exception &e )
     {
         WLogger::getLogger()->addLogMessage( "Invalid number of points: " + tokens.at( 1 ), "Read Mesh", LL_ERROR );
         progress->finish();
@@ -573,9 +574,9 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readDip()
         {
             try
             {
-                numPoints = boost::lexical_cast< size_t >( tokens.at( 1 ) );
+                numPoints = string_utils::fromString< size_t >( tokens.at( 1 ) );
             }
-            catch( const boost::bad_lexical_cast &e )
+            catch( const std::exception &e )
             {
                 WLogger::getLogger()->addLogMessage( "Invalid number of points: " + tokens.at( 1 ), "Read Mesh", LL_ERROR );
                 progress->finish();
@@ -586,9 +587,9 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readDip()
         {
             try
             {
-                numCells = boost::lexical_cast< size_t >( tokens.at( 1 ) );
+                numCells = string_utils::fromString< size_t >( tokens.at( 1 ) );
             }
-            catch( const boost::bad_lexical_cast &e )
+            catch( const std::exception &e )
             {
                 WLogger::getLogger()->addLogMessage( "Invalid number of polygons: " + tokens.at( 1 ), "Read Mesh", LL_ERROR );
                 progress->finish();
@@ -599,9 +600,9 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readDip()
         {
             try
             {
-                typeCells = boost::lexical_cast< size_t >( tokens.at( 1 ) );
+                typeCells = string_utils::fromString< size_t >( tokens.at( 1 ) );
             }
-            catch( const boost::bad_lexical_cast &e )
+            catch( const std::exception &e )
             {
                 WLogger::getLogger()->addLogMessage( "Invalid type of polygons: " + tokens.at( 1 ), "Read Mesh", LL_ERROR );
                 progress->finish();
@@ -649,11 +650,11 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readDip()
 
         try
         {
-            points.push_back( osg::Vec3( boost::lexical_cast< float >( tokens.at( 1 ) ) + 80.0,
-                                         boost::lexical_cast< float >( tokens.at( 0 ) ) + 100.0,
-                                         boost::lexical_cast< float >( tokens.at( 2 ) ) + 80.0 ) );
+            points.push_back( osg::Vec3( string_utils::fromString< float >( tokens.at( 1 ) ) + 80.0,
+                                         string_utils::fromString< float >( tokens.at( 0 ) ) + 100.0,
+                                         string_utils::fromString< float >( tokens.at( 2 ) ) + 80.0 ) );
         }
-        catch( const boost::bad_lexical_cast &e )
+        catch( const std::exception &e )
         {
             WLogger::getLogger()->addLogMessage( "Invalid vertex position", "Read Mesh", LL_ERROR );
             progress->finish();
@@ -700,11 +701,11 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readDip()
 
         try
         {
-            triMesh->addTriangle( boost::lexical_cast< size_t >( tokens.at( 0 ) ),
-                                  boost::lexical_cast< size_t >( tokens.at( 1 ) ),
-                                  boost::lexical_cast< size_t >( tokens.at( 2 ) ) );
+            triMesh->addTriangle( string_utils::fromString< size_t >( tokens.at( 0 ) ),
+                                  string_utils::fromString< size_t >( tokens.at( 1 ) ),
+                                  string_utils::fromString< size_t >( tokens.at( 2 ) ) );
         }
-        catch( const boost::bad_lexical_cast &e )
+        catch( const std::exception &e )
         {
             WLogger::getLogger()->addLogMessage( "Invalid triangle ID", "Read Mesh", LL_ERROR );
             progress->finish();

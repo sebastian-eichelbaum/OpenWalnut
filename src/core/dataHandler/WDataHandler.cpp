@@ -26,12 +26,12 @@
 #include <string>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
 
 #include "WSubject.h"
 #include "exceptions/WDHNoSuchSubject.h"
 
 #include "../common/WLogger.h"
+#include "../common/WStringUtils.h"
 
 #include "WDataHandler.h"
 
@@ -52,7 +52,7 @@ WDataHandler::~WDataHandler()
 void WDataHandler::addSubject( boost::shared_ptr< WSubject > subject )
 {
     WLogger::getLogger()->addLogMessage( "Adding subject with ID \"" +
-                                         boost::lexical_cast< std::string >( subject->getPersonalInformation().getSubjectID() ) + "\" and Name \""
+                                         string_utils::toString( subject->getPersonalInformation().getSubjectID() ) + "\" and Name \""
                                          + subject->getName() + "\".",
                                          "Data Handler", LL_DEBUG );
 
@@ -65,7 +65,7 @@ void WDataHandler::removeSubject( boost::shared_ptr< WSubject > subject )
     SubjectSharedContainerType::WriteTicket l = m_subjects.getWriteTicket();
 
     WLogger::getLogger()->addLogMessage( "Removing subject with ID \"" +
-                                         boost::lexical_cast< std::string >( subject->getPersonalInformation().getSubjectID() ) + "\" and Name \""
+                                         string_utils::toString( subject->getPersonalInformation().getSubjectID() ) + "\" and Name \""
                                          + subject->getName() + "\".",
                                          "Data Handler", LL_DEBUG );
 
@@ -91,7 +91,7 @@ void WDataHandler::clear()
             ++iter )
     {
         WLogger::getLogger()->addLogMessage( "Removing subject \"" +
-                boost::lexical_cast< std::string >( ( *iter )->getPersonalInformation().getSubjectID() ) + "\".",
+                string_utils::toString( ( *iter )->getPersonalInformation().getSubjectID() ) + "\".",
                 "Data Handler", LL_DEBUG );
 
         ( *iter )->clear();

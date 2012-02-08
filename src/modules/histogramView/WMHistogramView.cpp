@@ -28,7 +28,6 @@
 #include <utility>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
 
@@ -38,6 +37,7 @@
 #include <osg/LineWidth>
 #include <osgText/Text>
 
+#include "core/common/WStringUtils.h"
 #include "core/common/WPathHelper.h"
 #include "core/graphicsEngine/WGERequirement.h"
 #include "core/gui/WCustomWidget.h"
@@ -145,7 +145,7 @@ void WMHistogramView::connectors()
         m_input[ k ] = boost::shared_ptr< WModuleInputData< WDataSetScalar > >(
                                       new WModuleInputData< WDataSetScalar >(
                                             shared_from_this(),
-                                            std::string( "Input dataset #" ) + boost::lexical_cast< std::string >( k ),
+                                            std::string( "Input dataset #" ) + string_utils::toString( k ),
                                             "A dataset to show in the histogram viewer." ) );
         addConnector( m_input[ k ] );
     }
@@ -196,9 +196,9 @@ void WMHistogramView::properties()
 
     for( std::size_t k = 0; k < m_colors.size(); ++k )
     {
-        m_colors[ k ] = m_properties->addProperty( std::string( "Input " ) + boost::lexical_cast< std::string >( k ) + " color",
+        m_colors[ k ] = m_properties->addProperty( std::string( "Input " ) + string_utils::toString( k ) + " color",
                                                    std::string( "Choose a color for the histogram of input dataset " )
-                                                   + boost::lexical_cast< std::string >( k ), WColor( 1.0, 0.0, 0.0, 1.0 ), m_propCondition );
+                                                   + string_utils::toString( k ), WColor( 1.0, 0.0, 0.0, 1.0 ), m_propCondition );
     }
 
     WModule::properties();
@@ -232,7 +232,7 @@ void WMHistogramView::moduleMain()
 
     ready();
 
-    CustomWidget widget( std::string( "HistogramView " ) + boost::lexical_cast< std::string >( m_instanceID ), WGECamera::TWO_D, m_shutdownFlag );
+    CustomWidget widget( std::string( "HistogramView " ) + string_utils::toString( m_instanceID ), WGECamera::TWO_D, m_shutdownFlag );
 
     if( widget.get() )
     {
@@ -1067,7 +1067,7 @@ void WMHistogramView::createFrame()
         text->setAlignment( osgText::TextBase::CENTER_TOP );
         text->setPosition( WVector3d( textPos[ 0 ], textPos[ 1 ], 0.0 ) );
         text->setLayout( osgText::Text::LEFT_TO_RIGHT );
-        text->setText( boost::lexical_cast< std::string >( i ) );
+        text->setText( string_utils::toString( i ) );
 
         m_frameNode->addDrawable( text );
     }
@@ -1089,7 +1089,7 @@ void WMHistogramView::createFrame()
         text->setAlignment( osgText::TextBase::RIGHT_CENTER );
         text->setPosition( WVector3d( textPos[ 0 ], textPos[ 1 ], 0.0 ) );
         text->setLayout( osgText::Text::LEFT_TO_RIGHT );
-        text->setText( boost::lexical_cast< std::string >( i ) );
+        text->setText( string_utils::toString( i ) );
 
         m_frameNode->addDrawable( text );
     }
@@ -1172,7 +1172,7 @@ void WMHistogramView::createInfo()
                 text->setAlignment( osgText::TextBase::RIGHT_CENTER );
                 text->setPosition( textPos );
                 text->setLayout( osgText::Text::LEFT_TO_RIGHT );
-                text->setText( boost::lexical_cast< std::string >( m_histograms[ k ]->at( bin ) ) );
+                text->setText( string_utils::toString( m_histograms[ k ]->at( bin ) ) );
 
                 m_infoNode->addDrawable( text );
 

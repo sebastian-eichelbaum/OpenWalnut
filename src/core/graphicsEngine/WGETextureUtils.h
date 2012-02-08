@@ -34,12 +34,10 @@
 #include <osg/Texture2D>
 #include <osg/Texture3D>
 
-#include <boost/lexical_cast.hpp>
+#include "../common/WStringUtils.h"
 
 #include "shaders/WGEPropertyUniform.h"
 #include "callbacks/WGEPropertyTransformationCallback.h"
-
-
 
 template < typename T > class WGETexture;
 class WDataTexture3D;
@@ -148,7 +146,7 @@ void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< T > texture
 {
     if( prefix == "" )
     {
-        prefix = "u_texture" + boost::lexical_cast< std::string >( unit );
+        prefix = "u_texture" + string_utils::toString( unit );
     }
 
     osg::StateSet* state = node->getOrCreateStateSet();
@@ -165,7 +163,7 @@ void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGETexture<
 {
     if( prefix == "" )
     {
-        prefix = "u_texture" + boost::lexical_cast< std::string >( unit );
+        prefix = "u_texture" + string_utils::toString( unit );
     }
 
     wge::bindTexture< T >( node, osg::ref_ptr< T >( texture ), unit, prefix );

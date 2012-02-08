@@ -29,7 +29,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "core/common/math/linearAlgebra/WLinearAlgebra.h"
@@ -67,7 +66,7 @@ boost::shared_ptr< WEEGPositionsLibrary > WReaderELC::read()
     }
 
     std::vector< std::string > tokens = string_utils::tokenize( line );
-    std::size_t numPositions = boost::lexical_cast< std::size_t >( tokens.at( 1 ) );
+    std::size_t numPositions = string_utils::fromString< std::size_t >( tokens.at( 1 ) );
 
     while( ifs.good() && line.substr( 0, 9 ) != "Positions" )  // go to line before start of positions
     {
@@ -94,9 +93,9 @@ boost::shared_ptr< WEEGPositionsLibrary > WReaderELC::read()
             std::vector< std::string > lineTokens = string_utils::tokenize( line, ":" );
 
             std::vector< std::string > posTokens = string_utils::tokenize( lineTokens.back() );
-            double posX = boost::lexical_cast< double >( posTokens.at( posTokens.size() - 3 ) );
-            double posY = boost::lexical_cast< double >( posTokens.at( posTokens.size() - 2 ) );
-            double posZ = boost::lexical_cast< double >( posTokens.at( posTokens.size() - 1 ) );
+            double posX = string_utils::fromString< double >( posTokens.at( posTokens.size() - 3 ) );
+            double posY = string_utils::fromString< double >( posTokens.at( posTokens.size() - 2 ) );
+            double posZ = string_utils::fromString< double >( posTokens.at( posTokens.size() - 1 ) );
             positions.push_back( WPosition( posX, posY, posZ ) );
         }
     }

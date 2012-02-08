@@ -27,7 +27,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "../../common/WAssert.h"
@@ -105,9 +104,9 @@ void WReaderMatrixSymVTK::readTable( boost::shared_ptr< std::vector< double > > 
     }
     try
     {
-        numDistances = boost::lexical_cast< size_t >( tokens.at( 1 ) );
+        numDistances = string_utils::fromString< size_t >( tokens.at( 1 ) );
     }
-    catch( const boost::bad_lexical_cast &e )
+    catch( const std::exception &e )
     {
         throw WDHException( std::string( "Invalid number of elements: " + tokens.at( 1 ) ) );
     }

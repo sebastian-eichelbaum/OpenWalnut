@@ -96,7 +96,7 @@ void WReaderVTK::readHeader()
         wlog::warn( "WReaderVTK" ) << "Invalid header size of VTK file: "
             << m_fname
             << ", max. 256 but got: "
-            << boost::lexical_cast< std::string >( m_header.at( 1 ).size() );
+            << m_header.at( 1 ).size();
     }
     namespace su = string_utils;
     if( ( su::toUpper( su::trim( m_header.at( 2 ) ) ) != "BINARY" )

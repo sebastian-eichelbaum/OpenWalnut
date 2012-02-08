@@ -28,7 +28,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
 
 #include <osg/Array>
 #include <osg/Vec3>

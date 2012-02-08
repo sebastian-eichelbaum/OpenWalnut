@@ -35,11 +35,13 @@
 #include <osgWidget/ViewerEventHandlers> //NOLINT
 #include <osgWidget/WindowManager> //NOLINT
 
+#include "core/common/WStringUtils.h"
 #include "core/common/WPathHelper.h"
 #include "core/common/WPropertyHelper.h"
 #include "core/graphicsEngine/WGEUtils.h"
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WROIManager.h"
+
 #include "WMClusterDisplay.h"
 #include "WMClusterDisplay.xpm"
 
@@ -168,7 +170,7 @@ bool WMClusterDisplay::loadTreeAscii( std::string fileName )
             svec.push_back( *it++ );
         }
 
-        size_t level = boost::lexical_cast<size_t>( svec[1] );
+        size_t level = string_utils::fromString< size_t >( svec[1] );
         if( level == 0 )
         {
             m_tree.addLeaf();
@@ -180,16 +182,16 @@ bool WMClusterDisplay::loadTreeAscii( std::string fileName )
             std::vector<size_t>leafes;
             while( svec[k] != ")" )
             {
-                leafes.push_back( boost::lexical_cast<size_t>( svec[k] ) );
+                leafes.push_back( string_utils::fromString< size_t >( svec[k] ) );
                 ++k;
             }
             //skip ) (
             k += 2;
 
-            size_t cluster1 = boost::lexical_cast<size_t>( svec[k++] );
-            size_t cluster2 = boost::lexical_cast<size_t>( svec[k++] );
+            size_t cluster1 = string_utils::fromString< size_t >( svec[k++] );
+            size_t cluster2 = string_utils::fromString< size_t >( svec[k++] );
             ++k;
-            float data = boost::lexical_cast<float>( svec[k++] );
+            float data = string_utils::fromString< float >( svec[k++] );
 
             m_tree.addCluster( cluster1, cluster2, level, leafes, data );
             //m_tree.addCluster( cluster1, cluster2, data );
@@ -788,13 +790,13 @@ std::string WMClusterDisplay::createLabel( size_t id )
     switch( m_labelMode )
     {
         case 1:
-            return boost::lexical_cast<std::string>( m_tree.size( id ) );
+            return string_utils::toString( m_tree.size( id ) );
             break;
         case 2:
-            return boost::lexical_cast<std::string>( m_tree.getCustomData( id ) );
+            return string_utils::toString( m_tree.getCustomData( id ) );
             break;
         default:
-            return boost::lexical_cast<std::string>( id );
+            return string_utils::toString( id );
     }
 }
 

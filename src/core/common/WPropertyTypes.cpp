@@ -25,6 +25,7 @@
 #include <string>
 #include <vector>
 
+#include "WStringUtils.h"
 #include "WPropertyTypes.h"
 #include "WTransferFunction.h"
 
@@ -91,16 +92,17 @@ namespace PROPERTY_TYPE_HELPER
             {
                 if( innerTokens[ 0 ] == "c" )
                 {
-                    tf.addColor( boost::lexical_cast< double >( innerTokens[ 1 ].c_str() ), // isovalue
-                            WColor( boost::lexical_cast< double >( innerTokens[ 2 ].c_str() ), // red
-                                boost::lexical_cast< double >( innerTokens[ 3 ].c_str() ), // green
-                                boost::lexical_cast< double >( innerTokens[ 4 ].c_str() ), // blue
-                                1. ) );  // blue
+                    tf.addColor( string_utils::fromString< double >( innerTokens[ 1 ].c_str() ), // isovalue
+                                 WColor( string_utils::fromString< double >( innerTokens[ 2 ].c_str() ), // red
+                                         string_utils::fromString< double >( innerTokens[ 3 ].c_str() ), // green
+                                         string_utils::fromString< double >( innerTokens[ 4 ].c_str() ), // blue
+                                         1. )
+                               );  // blue
                 }
                 else if( innerTokens[ 0 ] == "a" )
                 {
-                    tf.addAlpha( boost::lexical_cast< double >( innerTokens[ 1 ].c_str() ),
-                            boost::lexical_cast< double >( innerTokens[ 2 ].c_str() ) );
+                    tf.addAlpha( string_utils::fromString< double >( innerTokens[ 1 ].c_str() ),
+                                 string_utils::fromString< double >( innerTokens[ 2 ].c_str() ) );
                 }
                 idx++;
             }

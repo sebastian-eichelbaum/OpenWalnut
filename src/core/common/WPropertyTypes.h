@@ -33,8 +33,8 @@
 #include <utility>
 
 #include <boost/filesystem.hpp>
-#include <boost/lexical_cast.hpp>
 
+#include "WStringUtils.h"
 #include "math/linearAlgebra/WLinearAlgebra.h"
 #include "math/linearAlgebra/WMatrixFixed.h"
 #include "math/linearAlgebra/WVectorFixed.h"
@@ -308,7 +308,7 @@ namespace PROPERTY_TYPE_HELPER
     /**
      * Class helping to create a new instance of the property content from an old one. This might be needed by some types (some need to have a
      * predecessor for creation).
-     * You only need to specialize this class for types not allowing the direct use of boost::lexical_cast.
+     * You only need to specialize this class for types not allowing the direct use of string_utils::fromString
      */
     template< typename T >
     class WStringConversion
@@ -323,7 +323,7 @@ namespace PROPERTY_TYPE_HELPER
          */
         T create( const T& /*old*/, const std::string str )
         {
-            return boost::lexical_cast< T >( str );
+            return string_utils::fromString< T >( str );
         }
 
         /**
@@ -335,7 +335,7 @@ namespace PROPERTY_TYPE_HELPER
          */
         std::string asString( const T& v )
         {
-            return boost::lexical_cast< std::string >( v );
+            return string_utils::toString( v );
         }
     };
 
@@ -477,7 +477,7 @@ namespace PROPERTY_TYPE_HELPER
          */
         std::string asString( const WPVBaseTypes::PV_SELECTION& v )
         {
-            return boost::lexical_cast< std::string >( v );
+            return string_utils::toString( v );
         }
     };
 
@@ -580,7 +580,7 @@ namespace PROPERTY_TYPE_HELPER
             {
                 for( size_t col = 0; col < 4; ++col )
                 {
-                    c( row, col ) = boost::lexical_cast< double >( tokens[ idx ] );
+                    c( row, col ) = string_utils::fromString< double >( tokens[ idx ] );
                     idx++;
                 }
             }
@@ -679,7 +679,7 @@ namespace PROPERTY_TYPE_HELPER
             size_t idx = 0;
             for( size_t col = 0; col < 3; ++col )
             {
-                c[ col ] = boost::lexical_cast< double >( tokens[ idx ] );
+                c[ col ] = string_utils::fromString< double >( tokens[ idx ] );
                 idx++;
             }
             return c;

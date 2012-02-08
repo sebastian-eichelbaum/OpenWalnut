@@ -34,6 +34,7 @@
 #include <osgWidget/WindowManager> //NOLINT
 #include <osg/LightModel>
 
+#include "core/common/WStringUtils.h"
 #include "core/common/WPathHelper.h"
 #include "core/common/WPropertyHelper.h"
 #include "core/graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
@@ -41,6 +42,7 @@
 #include "core/graphicsEngine/WGEUtils.h"
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WSelectionManager.h"
+
 #include "WFileParser.h"
 #include "WMClusterDisplayVoxels.h"
 #include "WMClusterDisplayVoxels.xpm"
@@ -617,9 +619,9 @@ bool WMClusterDisplayVoxels::loadClustering( boost::filesystem::path clusterFile
     {
         std::vector< std::string > svec = coords[i];
 
-        m_tree.addLeaf( m_grid->getVoxelNum( boost::lexical_cast< size_t >( svec[0] ),
-                                             boost::lexical_cast< size_t >( svec[1] ),
-                                             boost::lexical_cast< size_t >( svec[2] ) ) );
+        m_tree.addLeaf( m_grid->getVoxelNum( string_utils::fromString< size_t >( svec[0] ),
+                                             string_utils::fromString< size_t >( svec[1] ),
+                                             string_utils::fromString< size_t >( svec[2] ) ) );
     }
 
     std::vector< std::vector< std::string> >clusters = parser.getLinesForTagSeparated( "clusters" );
@@ -628,9 +630,9 @@ bool WMClusterDisplayVoxels::loadClustering( boost::filesystem::path clusterFile
     {
         std::vector< std::string > svec = clusters[i];
 
-        m_tree.addCluster( boost::lexical_cast< size_t >( svec[0] ),
-                           boost::lexical_cast< size_t >( svec[1] ),
-                           boost::lexical_cast< float >( svec[2] ) );
+        m_tree.addCluster( string_utils::fromString< size_t >( svec[0] ),
+                           string_utils::fromString< size_t >( svec[1] ),
+                           string_utils::fromString< float >( svec[2] ) );
     }
 
     std::vector< std::vector< std::string> >partitions = parser.getLinesForTagSeparated( "partitions" );
@@ -643,7 +645,7 @@ bool WMClusterDisplayVoxels::loadClustering( boost::filesystem::path clusterFile
 
         for( size_t k = 0; k < svec.size(); ++k )
         {
-            partition.push_back( boost::lexical_cast< size_t >( svec[k] ) );
+            partition.push_back( string_utils::fromString< size_t >( svec[k] ) );
         }
         m_loadedPartitions.push_back( partition );
     }
@@ -765,7 +767,7 @@ void WMClusterDisplayVoxels::renderMesh()
             osg::Geometry* surfaceGeometry = new osg::Geometry();
             osg::ref_ptr< osg::Geode >outputGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
-            outputGeode->setName( ( std::string( "cluster" ) + boost::lexical_cast<std::string>( m_activatedClusters[i] ) ).c_str() );
+            outputGeode->setName( ( std::string( "cluster" ) + string_utils::toString( m_activatedClusters[i] ) ).c_str() );
 
             surfaceGeometry->setVertexArray( m_triMeshes[i]->getVertexArray() );
 
@@ -1104,19 +1106,19 @@ void WMClusterDisplayVoxels::setButtonLabels()
         {
             if( m_buttonLabelSelection->get( true ).getItemIndexOfSelected( 0 ) == 0 )
             {
-                ns = boost::lexical_cast<std::string>( m_activatedClusters[i] );
+                ns = string_utils::toString( m_activatedClusters[i] );
             }
             else if( m_buttonLabelSelection->get( true ).getItemIndexOfSelected( 0 ) == 1 )
             {
-                ns = boost::lexical_cast<std::string>( m_tree.size( m_activatedClusters[i] ) );
+                ns = string_utils::toString( m_tree.size( m_activatedClusters[i] ) );
             }
             else if( m_buttonLabelSelection->get( true ).getItemIndexOfSelected( 0 ) == 2 )
             {
-                ns = boost::lexical_cast<std::string>( m_tree.getLevel( m_activatedClusters[i] ) );
+                ns = string_utils::toString( m_tree.getLevel( m_activatedClusters[i] ) );
             }
             else
             {
-                ns = boost::lexical_cast<std::string>( m_tree.getCustomData( m_activatedClusters[i] ) );
+                ns = string_utils::toString( m_tree.getCustomData( m_activatedClusters[i] ) );
                 if( ns.size() > 8 )
                 {
                     ns = ns.substr( 0, 8 );
