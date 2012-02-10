@@ -35,9 +35,6 @@
 #include <string>
 #include <vector>
 
-
-
-
 /**
  * Some utilities for string manipulation and output operations. Please note
  * that the overloaded ostream output operators aren't in a separate namespace
@@ -78,7 +75,7 @@ namespace string_utils
      * Convert a given string to a value of a certain type. The target type must provide a operator>> to work or be a standard scalar type.
      *
      * \tparam T the source type.
-     * \param value the value to cast to string
+     * \param str the value to cast to string
      *
      * \return the string.
      */

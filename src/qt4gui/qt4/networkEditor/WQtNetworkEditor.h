@@ -81,9 +81,11 @@ public:
     void deleteSelectedItems();
 
     /**
-     * TODO
+     * Query a list of selected items.
+     *
+     * \return the list
      **/
-    QList<QGraphicsItem *> selectedItems() const;
+    QList< QGraphicsItem* > selectedItems() const;
 
 protected:
     /**
@@ -103,7 +105,7 @@ protected:
 private:
     WQtNetworkScene* m_scene; //!< QGraphicsScene
 
-    WNetworkLayout *m_layout; //!< the object that handels the layout
+    WNetworkLayout* m_layout; //!< the object that handels the layout
 
     QList< WQtNetworkItem* > m_items; //!< a list of the WQtNetworkItems in the WQtNetworkScene
 

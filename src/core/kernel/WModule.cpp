@@ -40,6 +40,7 @@
 #include "WModuleConnectorSignals.h"
 #include "WModuleContainer.h"
 #include "WModuleFactory.h"
+#include "WModuleMetaInformation.h"
 #include "exceptions/WModuleConnectorInitFailed.h"
 #include "exceptions/WModuleConnectorNotFound.h"
 #include "exceptions/WModuleUninitialized.h"
@@ -223,6 +224,11 @@ void WModule::activate()
 std::string WModule::deprecated() const
 {
     return "";
+}
+
+WModuleMetaInformation WModule::getMetaInformation() const
+{
+    return WModuleMetaInformation( getName() );
 }
 
 void WModule::initialize()

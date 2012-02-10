@@ -58,6 +58,7 @@ class WModuleContainer;
 class WModuleFactory;
 class WModuleInputConnector;
 class WModuleOutputConnector;
+class WModuleMetaInformation;
 template < typename T > class WModuleInputData;
 template < typename T > class WModuleInputForwardData;
 template < typename T > class WModuleOutputData;
@@ -405,6 +406,14 @@ protected:
      * \return deprecation message
      */
     virtual std::string deprecated() const;
+
+    /**
+     * The meta information of this module. This contains several information like name, description, icons, help links and so on. It, at least,
+     * contains the name.
+     *
+     * \return the meta info object for this module.
+     */
+    virtual WModuleMetaInformation getMetaInformation() const;
 
     /**
      * Manages connector initialization. Gets called by module container.
