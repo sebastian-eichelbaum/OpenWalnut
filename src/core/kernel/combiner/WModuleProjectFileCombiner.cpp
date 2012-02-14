@@ -73,7 +73,7 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
 {
     // this is the proper regular expression for modules
     static const boost::regex modRe( "^ *MODULE:([0-9]*):(.*)$" );
-    static const boost::regex dataRe( "^ *DATA:([0-9]*):(.*)$" );
+    static const boost::regex dataRe( "^ *DATA:([0-9]*):\"?([^\"]*)\"?$" );
     static const boost::regex conRe( "^ *CONNECTION:\\(([0-9]*),(.*)\\)->\\(([0-9]*),(.*)\\)$" );
     static const boost::regex propRe( "^ *PROPERTY:\\(([0-9]*),(.*)\\)=(.*)$" );
 
@@ -369,7 +369,7 @@ void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
         // handle data modules separately
         if( ( *iter )->getType() == MODULE_DATA )
         {
-            output << "DATA:" << i << ":" <<  boost::shared_static_cast< WDataModule >( ( *iter ) )->getFilename() << std::endl;
+            output << "DATA:" << i << ":" <<  boost::shared_static_cast< WDataModule >( ( *iter ) )->getFilename().string() << std::endl;
         }
         else
         {
