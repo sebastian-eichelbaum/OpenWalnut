@@ -76,8 +76,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_mainWindow = parent;
     setMinimumWidth( 200 );
 
-    m_panel = new QWidget( this );
-    m_moduleTreeWidget = new WQtTreeWidget( m_panel );
+    m_moduleTreeWidget = new WQtTreeWidget();
     m_moduleTreeWidget->setContextMenuPolicy( Qt::ActionsContextMenu );
 
     m_moduleTreeWidget->setHeaderLabel( QString( "Module Tree" ) );
@@ -141,7 +140,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_colormapper = new WQtColormapper( m_mainWindow );
     m_colormapper->setToolTip( "Reorder the textures." );
 
-    m_tabWidget = new QTabWidget( m_panel );
+    m_tabWidget = new QTabWidget(  );
     m_tabWidget->setMinimumHeight( 100 );
 
     m_moduleDock = new QDockWidget( "Module Tree", m_mainWindow );
@@ -164,14 +163,9 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_moduleExcluder = new WQtModuleConfig( parent );
     connect( m_missingModuleAction, SIGNAL( triggered( bool ) ), m_moduleExcluder, SLOT( configure() ) );
 
-    m_layout = new QVBoxLayout();
-    m_layout->addWidget( m_tabWidget );
-
-    m_panel->setLayout( m_layout );
-
     this->setAllowedAreas( Qt::AllDockWidgetAreas );
     this->setFeatures( QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
-    this->setWidget( m_panel );
+    this->setWidget( m_tabWidget );
 
     m_tiModules = new WQtModuleHeaderTreeItem( m_moduleTreeWidget );
     m_tiModules->setText( 0, QString( "Subject-independent Modules" ) );
@@ -201,7 +195,7 @@ WQtControlPanel::~WQtControlPanel()
 void WQtControlPanel::connectSlots()
 {
     // if the user changes some white/blacklist setting: update.
-    connect( m_moduleExcluder, SIGNAL( updated() ), this, SLOT( selectTreeItem() ) );
+    connect( m_moduleExcluder, SIGNAL( updated() ), this, SLOT( reselectTreeItem() ) );
     connect( m_moduleTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeTreeItem( QTreeWidgetItem*, int ) ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ),  m_roiTreeWidget, SLOT( clearSelection() ) );
@@ -210,11 +204,6 @@ void WQtControlPanel::connectSlots()
     connect( m_colormapper, SIGNAL( textureSelectionChanged( osg::ref_ptr< WGETexture3D > ) ),
              this, SLOT( selectDataModule( osg::ref_ptr< WGETexture3D > ) ) );
     connect( m_roiTreeWidget, SIGNAL( dragDrop() ), this, SLOT( handleDragDrop() ) );
-}
-
-void WQtControlPanel::addToolbar( QToolBar* tb )
-{
-    m_layout->insertWidget( 0, tb );
 }
 
 WQtSubjectTreeItem* WQtControlPanel::addSubject( std::string name )
@@ -652,6 +641,11 @@ boost::shared_ptr< WModule > WQtControlPanel::getSelectedModule()
     return boost::shared_ptr< WModule >();
 }
 
+void WQtControlPanel::reselectTreeItem()
+{
+    setActiveModule( getSelectedModule(), true );
+}
+
 void WQtControlPanel::selectTreeItem()
 {
     if( m_ignoreSelectionChange )
@@ -825,7 +819,7 @@ void WQtControlPanel::deactivateModuleSelection( bool selectTopmost )
     return;
 }
 
-void WQtControlPanel::setActiveModule( WModule::SPtr module )
+void WQtControlPanel::setActiveModule( WModule::SPtr module, bool forceUpdate )
 {
     m_ignoreSelectionChange = true;
 
@@ -838,7 +832,7 @@ void WQtControlPanel::setActiveModule( WModule::SPtr module )
     }
 
     // only if something has changed
-    if( m_activeModule == module )
+    if( ( m_activeModule == module ) && !forceUpdate )
     {
         m_ignoreSelectionChange = false;
         return;

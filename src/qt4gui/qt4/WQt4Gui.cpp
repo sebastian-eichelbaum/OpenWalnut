@@ -172,7 +172,7 @@ int WQt4Gui::run()
     WPathHelper::getPathHelper()->setBasePaths( walnutBin, boost::filesystem::path( QDir::homePath().toStdString() ) / ".OpenWalnut" );
 #endif
 
-    QPixmap splashPixmap( QString::fromStdString( ( WPathHelper::getPathHelper()->getSharePath() / "qt4gui/splash.png" ).string() ) );
+    QPixmap splashPixmap( QString::fromStdString( ( WPathHelper::getPathHelper()->getSharePath() / "qt4gui" / "splash.png" ).string() ) );
     m_splash = new QSplashScreen( splashPixmap );
     m_splash->show();
 

@@ -159,13 +159,6 @@ public:
     QAction* toggleViewAction() const;
 
     /**
-     * Add the specified toolbar to the top of the control panel.
-     *
-     * \param tb the toolbar to add
-     */
-    void addToolbar( QToolBar* tb );
-
-    /**
      * Selects the uppermost entry in the module tree.
      */
     void selectUpperMostEntry();
@@ -209,8 +202,9 @@ public:
      * Sets the module which is now active. Updates the GUI accordingly. Can be NULL which causes the GUI to remove all module specific stuff.
      *
      * \param module the module to activate
+     * \param forceUpdate force update even if the module is the same as the current one.
      */
-    void setActiveModule( WModule::SPtr module );
+    void setActiveModule( WModule::SPtr module, bool forceUpdate = false );
 
     /**
      * Used to clean the GUI from any module specify widgets.
@@ -285,10 +279,6 @@ private:
     QTabWidget* m_tabWidget; //!< pointer to the tab widget
 
     QTabWidget* m_tabWidget2; //!< pointer to the tab widget
-
-    QWidget* m_panel; //!< panel
-
-    QVBoxLayout* m_layout; //!< layout
 
     QSplitter* m_splitter; //!< splitter to have resizable widgets in the control panel
 
@@ -382,6 +372,11 @@ private slots:
      * is rebuilt with the controls provided by the tree item
      */
     void selectTreeItem();
+
+    /**
+     * This de-selects and re-selects the current item. This is useful for updating compatibles bar and similar if data changes
+     */
+    void reselectTreeItem();
 
     /**
      * function that gets called when a tree item is selected, on a new select that tab widget
