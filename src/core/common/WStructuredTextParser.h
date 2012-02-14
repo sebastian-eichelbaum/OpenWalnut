@@ -29,6 +29,7 @@
 #include <ostream>
 #include <string>
 #include <vector>
+#include <map>
 
 #include <boost/config/warning_disable.hpp>
 #include <boost/spirit/include/qi.hpp>
@@ -196,33 +197,117 @@ namespace WStructuredTextParser
     /**
      * This simplifies working with a tree in a WStructuredTextParser::ObjectType instance.
      */
-    class SyntaxTree
+    class StructuredValueTree
     {
     public:
         /**
-         * Create a syntax tree by giving the root node.
+         * Construct a tree by giving a name.
          *
-         * \param root the root node.
+         * \param name the name
          */
-        explicit SyntaxTree( const ObjectType& root );
+        StructuredValueTree( const std::string& name );
 
         /**
          * Cleanup.
          */
-        virtual ~SyntaxTree();
+        virtual ~StructuredValueTree();
 
         /**
-         * Returns a copy of the root node.
+         * Returns the name of this object.
          *
-         * \return the root node
+         * \return the name
          */
-        ObjectType getRoot() const;
+        std::string getName() const;
+
+        /**
+         * Gives the object with the give name. Is not recursive. If the given entity is not found, a exception is thrown.
+         *
+         * \param name the key name.
+         *
+         * \return the object.
+         */
+        const StructuredValueTree& operator[]( std::string name ) const;
+
+        /**
+         * Gives the object with the give name. Is not recursive. If the given entity is not found, a exception is thrown.
+         *
+         * \param name the key name.
+         *
+         * \return the object.
+         */
+        StructuredValueTree& operator[]( std::string name );
+
+        /**
+         * Checks whether the given value or object exists.
+         *
+         * \param name name of the value/object to search
+         *
+         * \return true if existing.
+         */
+        bool exists( std::string name ) const;
+
+        /**
+         * Queries the value with the given name. If it is not found, the default value will be returned.
+         *
+         * \param name name of the value
+         * \param defaultValue the default if no value was found
+         *
+         * \return the value
+         *
+         * \note this does not return a reference because. It returns a copy of the value.
+         */
+        std::string operator()( std::string name, std::string defaultValue ) const;
+
+        /**
+         * Queries the value with the given name. If it is not found, an exception is thrown.
+         *
+         * \param name name of the value
+         * \param defaultValue the default if no value was found
+         *
+         * \return the value
+         */
+        std::string& operator()( std::string name );
+
+        /**
+         * Queries the value with the given name. If it is not found, an exception is thrown.
+         *
+         * \param name name of the value
+         * \param defaultValue the default if no value was found
+         *
+         * \return the value
+         */
+        const std::string& operator()( std::string name ) const;
+
     protected:
     private:
         /**
-         * The root node in the AST
+         * The name of this object
          */
-        ObjectType m_root;
+        std::string m_name;
+
+        /**
+         * The type used for storing the list of children
+         */
+        typedef std::vector< StructuredValueTree > ChildrenType;
+
+        /**
+         * The of an value entry.
+         */
+        typedef std::map< std::string, std::string > EntryMapType;
+
+        /**
+         * The named values.
+         */
+        EntryMapType m_entries;
+
+        /**
+         * Child trees
+         */
+        ChildrenType m_children;
+
+        StructuredValueTree* queryTree( const std::string& name );
+
+        const StructuredValueTree* queryTree( const std::string& name ) const;
     };
 
     /**
@@ -234,7 +319,7 @@ namespace WStructuredTextParser
      *
      * \throw WParseError on parse error
      */
-    SyntaxTree parseFromString( std::string input );
+    StructuredValueTree parseFromString( std::string input );
 
     /**
      * Parse the given input and return the syntax tree. Throws an exception WParseError on error.
@@ -246,7 +331,7 @@ namespace WStructuredTextParser
      * \throw WParseError on parse error
      * \throw WFileNotFOund in case the specified file could not be opened
      */
-    SyntaxTree parseFromFile( boost::filesystem::path path );
+    StructuredValueTree parseFromFile( boost::filesystem::path path );
 }
 
 #endif  // WSTRUCTUREDTEXTPARSER_H

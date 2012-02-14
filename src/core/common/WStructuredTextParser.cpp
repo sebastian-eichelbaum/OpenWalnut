@@ -23,32 +23,18 @@
 //---------------------------------------------------------------------------
 
 #include <sstream>
+#include <algorithm>
 
 #include "exceptions/WParseError.h"
+#include "exceptions/WNotFound.h"
 #include "WIOTools.h"
+#include "WPredicateHelper.h"
 
 #include "WStructuredTextParser.h"
 
 namespace WStructuredTextParser
 {
-
-    SyntaxTree::SyntaxTree( const ObjectType& root ):
-        m_root( root )
-    {
-        // initialize member
-    }
-
-    SyntaxTree::~SyntaxTree()
-    {
-        // cleanup
-    }
-
-    ObjectType SyntaxTree::getRoot() const
-    {
-        return m_root;
-    }
-
-    SyntaxTree parseFromString( std::string input )
+    StructuredValueTree parseFromString( std::string input )
     {
         std::ostringstream error;
         WStructuredTextParser::Grammar< std::string::const_iterator > parser( error );
@@ -66,10 +52,10 @@ namespace WStructuredTextParser
         }
 
         // done. return
-        return SyntaxTree( ast );
+        //return SyntaxTree( ast );
     }
 
-    SyntaxTree parseFromFile( boost::filesystem::path path )
+    StructuredValueTree parseFromFile( boost::filesystem::path path )
     {
         // NOTE: do not catch the io exception here.
         std::string input= readFileIntoString( path );
@@ -91,6 +77,83 @@ namespace WStructuredTextParser
         }
 
         // done. return
-        return SyntaxTree( ast );
+        //return SyntaxTree( ast );
+    }
+
+
+    StructuredValueTree::StructuredValueTree( const std::string& name ):
+        m_name( name )
+    {
+        // initialize member
+    }
+
+    StructuredValueTree::~StructuredValueTree()
+    {
+        // cleanup
+    }
+
+    std::string StructuredValueTree::getName() const
+    {
+        return m_name;
+    }
+
+    std::string StructuredValueTree::operator()( std::string name, std::string defaultValue ) const
+    {
+        if( !exists( name ) )
+        {
+            return defaultValue;
+        }
+        return operator()( name );
+    }
+
+    const std::string& StructuredValueTree::operator()( std::string name ) const
+    {
+        return const_cast< StructuredValueTree& >( *this )( name );
+    }
+
+    const StructuredValueTree& StructuredValueTree::operator[]( std::string name ) const
+    {
+        return const_cast< StructuredValueTree& >( *this )( name );
+    }
+
+    const StructuredValueTree* StructuredValueTree::queryTree( const std::string& name ) const
+    {
+        return const_cast< StructuredValueTree* >( this )->queryTree( name );
+    }
+
+    StructuredValueTree& StructuredValueTree::operator[]( std::string name )
+    {
+        // find
+        /*ChildrenType::iterator elem = std::find_if( m_children.begin(), m_children.end(),
+                                                    WPredicateHelper::Name< StructuredValueTree >( name ) );
+        if( elem == m_children.end() )
+        {
+            throw WNotFound( "The object with the name \"" + name + "\" was not found." );
+        }*/
+    }
+
+    bool StructuredValueTree::exists( std::string name ) const
+    {
+        /*ChildrenType::const_iterator elem = std::find_if( m_children.begin(), m_children.end(),
+                                                          WPredicateHelper::Name< StructuredValueTree >( name ) );
+        bool entryExists = ( m_entries.count( name ) != 0 );
+
+        return !entryExists && ( elem == m_children.end() );*/
+    }
+
+    std::string& StructuredValueTree::operator()( std::string name )
+    {
+        /*bool entryExists = ( m_entries.count( name ) != 0 );
+        if( !entryExists )
+        {
+            throw WNotFound( "The object with the name \"" + name + "\" was not found." );
+        }
+        return m_entries[ name ];*/
+    }
+
+    StructuredValueTree* StructuredValueTree::queryTree( const std::string& name )
+    {
+        return NULL;
     }
 }
+

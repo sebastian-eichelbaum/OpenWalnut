@@ -30,6 +30,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/filesystem/path.hpp>
 
+#include "../common/WStructuredTextParser.h"
+
 #include "WModule.h"
 
 /**
@@ -51,7 +53,8 @@ public:
     typedef boost::shared_ptr< const WModuleMetaInformation > ConstSPtr;
 
     /**
-     * Constructor. The help object will be empty, meaning there is no further meta info available. The name is the only required value.
+     * Constructor. The help object will be empty, meaning there is no further meta info available. The name is the only required value. Of
+     * course, this is of limited use in most cases.
      *
      * \param name the name of the module
      */
@@ -66,14 +69,6 @@ public:
     WModuleMetaInformation( std::string name, boost::filesystem::path metafile );
 
     /**
-     * Constructs the meta information using the info from the module pointer. It does not copy the info from the module. It reloads it. This is
-     * the difference to the copy constructor.
-     *
-     * \param module the module pointer
-     */
-    explicit WModuleMetaInformation( WModule::ConstSPtr module );
-
-    /**
      * Destructor. Cleans internal list.
      */
     virtual ~WModuleMetaInformation();
@@ -83,6 +78,11 @@ private:
      * The name of the module providing this meta information.
      */
     std::string m_name;
+
+    /**
+     * The tree representing the data
+     */
+    //WStructuredTextParser::SyntaxTree m_metaData;
 };
 
 #endif  // WMODULEMETAINFORMATION_H
