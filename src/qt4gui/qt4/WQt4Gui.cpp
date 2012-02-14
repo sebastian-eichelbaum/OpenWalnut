@@ -282,11 +282,11 @@ void WQt4Gui::slotAddLog( const WLogEntry& /*entry*/ )
 void WQt4Gui::slotAddDatasetOrModuleToTree( boost::shared_ptr< WModule > module )
 {
     // create a new event for this and insert it into event queue
-    QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleAssocEvent( module ) );
     if( m_mainWindow->getNetworkEditor() )
     {
         QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleAssocEvent( module ) );
     }
+    QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleAssocEvent( module ) );
 }
 
 void WQt4Gui::slotAddRoiToTree( osg::ref_ptr< WROI > roi )
@@ -302,23 +302,23 @@ void WQt4Gui::slotRemoveRoiFromTree( osg::ref_ptr< WROI > roi )
 void WQt4Gui::slotActivateDatasetOrModuleInTree( boost::shared_ptr< WModule > module )
 {
     // create a new event for this and insert it into event queue
-    QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleReadyEvent( module ) );
-    QCoreApplication::postEvent( m_mainWindow, new WModuleReadyEvent( module ) );
     if( m_mainWindow->getNetworkEditor() )
     {
         QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleReadyEvent( module ) );
     }
+    QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleReadyEvent( module ) );
+    QCoreApplication::postEvent( m_mainWindow, new WModuleReadyEvent( module ) );
 }
 
 void WQt4Gui::slotRemoveDatasetOrModuleInTree( boost::shared_ptr< WModule > module )
 {
     // create a new event for this and insert it into event queue
+    QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleRemovedEvent( module ) );
+    QCoreApplication::postEvent( m_mainWindow, new WModuleRemovedEvent( module ) );
     if( m_mainWindow->getNetworkEditor() )
     {
         QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleRemovedEvent( module ) );
     }
-    QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleRemovedEvent( module ) );
-    QCoreApplication::postEvent( m_mainWindow, new WModuleRemovedEvent( module ) );
 }
 
 void WQt4Gui::slotConnectionEstablished( boost::shared_ptr<WModuleConnector> in, boost::shared_ptr<WModuleConnector> out )

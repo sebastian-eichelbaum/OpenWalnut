@@ -171,13 +171,6 @@ public:
     void selectUpperMostEntry();
 
     /**
-     * allows other objects to build the property tab (probably only for WQtNetworkeditor)
-     *
-     * \param module the module from which the property tab is created
-     **/
-    void setNewActiveModule( boost::shared_ptr< WModule > module );
-
-    /**
      * Gets the ROI dock widget.
      *
      * \return the ROI dock.
@@ -212,6 +205,19 @@ public:
      */
     QAction* getMissingModuleAction() const;
 
+    /**
+     * Sets the module which is now active. Updates the GUI accordingly. Can be NULL which causes the GUI to remove all module specific stuff.
+     *
+     * \param module the module to activate
+     */
+    void setActiveModule( WModule::SPtr module );
+
+    /**
+     * Used to clean the GUI from any module specify widgets.
+     *
+     * \param selectTopmost select top element or keep current
+     */
+    void deactivateModuleSelection( bool selectTopmost = true );
 protected:
     /**
      * Custom event dispatcher. Gets called by QT's Event system every time an event got sent to this widget. This event handler
@@ -351,6 +357,11 @@ private:
     bool m_ignoreSelectionChange;
 
     /**
+     * Ignore recursive selection update in network editor.
+     */
+    bool m_ignoreSelectionChangeNWE;
+
+    /**
      * The WQtCombinerActionList needs some predicate which decides whether to exclude a certain module from the list or not. We use this
      * predicate here. It is configured internally using a white and blacklist.
      */
@@ -361,6 +372,10 @@ private:
      */
     QAction* m_missingModuleAction;
 
+    /**
+     * The module currently active
+     */
+    WModule::SPtr m_activeModule;
 private slots:
     /**
      * function that gets called when a tree item is selected, on a new select that tab widget
@@ -375,16 +390,19 @@ private slots:
     void selectRoiTreeItem();
 
     /**
-     * Will be called to select the data module for the given dataset.
-     * \param dataSet the module for this dataset will be selected.
-     */
-    void selectDataModule( boost::shared_ptr< WDataSet > dataSet );
-
-    /**
      * Will be called to select the data module for the given texture.
      * \param texture the texture currently selected.
      */
     void selectDataModule( osg::ref_ptr< WGETexture3D > texture );
+
+    /**
+     * Search the tree item representing this module
+     *
+     * \param module the module
+     *
+     * \return the item or null if not found
+     */
+    QTreeWidgetItem* findModuleItem( WModule::SPtr module ) const;
 
     /**
      * function that builds the property tab

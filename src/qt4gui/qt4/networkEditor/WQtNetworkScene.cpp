@@ -51,21 +51,3 @@ WQtNetworkScene::~WQtNetworkScene()
 {
 }
 
-void WQtNetworkScene::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
-{
-    clearSelection();
-    //emit selectionChanged();
-
-    QGraphicsScene::mousePressEvent( mouseEvent );
-}
-
-void WQtNetworkScene::setFakeItem( QGraphicsItem *fake )
-{
-    m_fakeItem = fake;
-}
-
-QGraphicsItem* WQtNetworkScene::getFakeItem()
-{
-    return m_fakeItem;
-}
-

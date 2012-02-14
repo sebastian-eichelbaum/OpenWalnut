@@ -34,6 +34,8 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QVBoxLayout>
 
+#include "core/kernel/WModule.h"
+
 #include "../WQtCombinerToolbar.h"
 #include "layout/WNetworkLayout.h"
 #include "WQtNetworkItem.h"
@@ -86,6 +88,18 @@ public:
      * \return the list
      **/
     QList< QGraphicsItem* > selectedItems() const;
+
+    /**
+     * Clears the selection.
+     */
+    void clearSelection();
+
+    /**
+     * Select the item representing the given module. If module not found or NULL, nothing is selected.
+     *
+     * \param module the module
+     */
+    void selectByModule( WModule::SPtr module );
 
 protected:
     /**

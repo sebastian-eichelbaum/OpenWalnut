@@ -56,6 +56,7 @@
 #include "../events/WRoiAssocEvent.h"
 #include "../events/WRoiRemoveEvent.h"
 #include "../WMainWindow.h"
+#include "../networkEditor/WQtNetworkEditor.h"
 #include "../WQt4Gui.h"
 #include "../WQtCombinerActionList.h"
 #include "../WQtModuleConfig.h"
@@ -67,7 +68,8 @@
 
 WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     : QDockWidget( "Control Panel", parent ),
-    m_ignoreSelectionChange( false )
+    m_ignoreSelectionChange( false ),
+    m_activeModule( WModule::SPtr() )
 {
     setObjectName( "Control Panel Dock" );
 
@@ -298,18 +300,13 @@ bool WQtControlPanel::event( QEvent* event )
             return true;
         }
 
-        WLogger::getLogger()->addLogMessage( "Activating module " + e->getModule()->getName() + " in control panel.",
-                                             "ControlPanel", LL_DEBUG );
-
-        // search all the item matching the module
         std::list< WQtTreeItem* > items = findItemsByModule( e->getModule() );
-        for( std::list< WQtTreeItem* >::const_iterator iter = items.begin(); iter != items.end(); ++iter )
+        for( std::list< WQtTreeItem* >::const_iterator it = items.begin(); it != items.end(); ++it )
         {
-            ( *iter )->setSelected( true );
-            ( *iter )->setDisabled( false );
+            ( *it )->setDisabled( false );
         }
 
-        selectTreeItem();
+        setActiveModule( e->getModule() );
 
         return true;
     }
@@ -545,7 +542,6 @@ WQtDatasetTreeItem* WQtControlPanel::addDataset( boost::shared_ptr< WModule > mo
     WQtSubjectTreeItem* subject = static_cast< WQtSubjectTreeItem* >( m_moduleTreeWidget->topLevelItem( subjectId + c ) );
     subject->setExpanded( true );
     WQtDatasetTreeItem* item = subject->addDatasetItem( module );
-    m_moduleTreeWidget->setCurrentItem( item );
     item->setDisabled( true );
     item->setExpanded( true );
 
@@ -663,94 +659,42 @@ void WQtControlPanel::selectTreeItem()
         return;
     }
 
-    boost::shared_ptr< WModule > module;
-    boost::shared_ptr< WProperties > props;
-    boost::shared_ptr< WProperties > infoProps;
-
     if( m_moduleTreeWidget->selectedItems().size() != 0  )
     {
-        clearAndDeleteTabs();
-
-        // disable delete action for tree items that have children.
-        if( m_moduleTreeWidget->selectedItems().at( 0 )->childCount() != 0 )
-        {
-            m_deleteModuleAction->setEnabled( false );
-        }
-        else
-        {
-            m_deleteModuleAction->setEnabled( true );
-        }
-
         switch( m_moduleTreeWidget->selectedItems().at( 0 )->type() )
         {
             case SUBJECT:
             case MODULEHEADER:
-                // deletion of headers and subjects is not allowed
-                m_deleteModuleAction->setEnabled( false );
-                createCompatibleButtons( module );  // module is NULL at this point
+                {
+                    // deletion of headers and subjects is not allowed
+                    deactivateModuleSelection( false );
+                }
                 break;
             case DATASET:
-                module = ( static_cast< WQtDatasetTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
-                // crashed modules should not provide any props
-                if( module->isCrashed()() )
                 {
-                    return;
+                    WModule::SPtr module = ( static_cast< WQtDatasetTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
+                    setActiveModule( module );
                 }
-
-                props = module->getProperties();
-                infoProps = module->getInformationProperties();
-                createCompatibleButtons( module );
-
-                {
-                    boost::shared_ptr< WDataModule > dataModule = boost::shared_dynamic_cast< WDataModule >( module );
-
-                    // if the selected module contains a texture, select the corresponding texture in the texture sorter.
-                    if( dataModule )
-                    {
-                        if( dataModule->getDataSet() )
-                        {
-                            m_colormapper->selectTexture( dataModule->getDataSet() );
-                        }
-                    }
-                }
-
                 break;
             case MODULE:
                 {
-                    module = ( static_cast< WQtModuleTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
-                    m_deleteModuleAction->setEnabled( true );
-
-                    // this is ugly since it causes the property tab to update multiple times if multiple items get selected by this call
-                    // but it highlights all the same items which is nice and wanted here
-                    // Set the ignore flag to avoid that this method gets called several times
-                    m_ignoreSelectionChange = true;
-                    std::list< WQtTreeItem* > items = findItemsByModule( module );
-                    for( std::list< WQtTreeItem* >::const_iterator iter = items.begin(); iter != items.end(); ++iter )
-                    {
-                        ( *iter )->setSelected( true );
-                    }
-                    m_ignoreSelectionChange = false;
-
-                    // crashed modules should not provide any props
-                    if( module->isCrashed()() )
-                    {
-                        return;
-                    }
-                    props = module->getProperties();
-                    infoProps = module->getInformationProperties();
-                    createCompatibleButtons( module );
+                    WModule::SPtr module = ( static_cast< WQtModuleTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
+                    setActiveModule( module );
                 }
                 break;
             case ROIHEADER:
             case ROIBRANCH:
             case ROI:
-                break;
             default:
+                deactivateModuleSelection( false );
                 break;
         }
     }
-
-    buildPropTab( props, infoProps );
+    else
+    {
+        // clean up if nothing is selected
+        setActiveModule( WModule::SPtr() );  // module is NULL at this point
+    }
 }
 
 void WQtControlPanel::selectRoiTreeItem()
@@ -805,49 +749,139 @@ void WQtControlPanel::selectRoiTreeItem()
     buildPropTab( props, boost::shared_ptr< WProperties >() );
 }
 
-void WQtControlPanel::selectDataModule( boost::shared_ptr< WDataSet > dataSet )
-{
-    m_moduleTreeWidget->clearSelection();
-
-    QTreeWidgetItemIterator it( m_moduleTreeWidget );
-    while( *it )
-    {
-        if( dynamic_cast< WQtDatasetTreeItem* >( *it ) )
-        {
-            boost::shared_ptr< WDataModule > dataModule;
-            dataModule = boost::shared_dynamic_cast< WDataModule >( ( dynamic_cast< WQtDatasetTreeItem* >( *it ) )->getModule() );
-            if( dataModule )
-            {
-                if( dataModule->getDataSet() == dataSet )
-                {
-                    ( *it )->setSelected( true );
-                }
-            }
-        }
-        ++it;
-    }
-
-    selectTreeItem();
-}
-
 void WQtControlPanel::selectDataModule( osg::ref_ptr< WGETexture3D > texture )
 {
     clearAndDeleteTabs();
     buildPropTab( texture->getProperties(), texture->getInformationProperties() );
 }
 
-void WQtControlPanel::setNewActiveModule( boost::shared_ptr< WModule > module )
+QTreeWidgetItem* WQtControlPanel::findModuleItem( WModule::SPtr module ) const
 {
+    QTreeWidgetItemIterator it( m_moduleTreeWidget );
+    QTreeWidgetItem* item = NULL;
+    while( *it )
+    {
+        if( dynamic_cast< WQtModuleTreeItem* >( *it ) )
+        {
+            WModule::SPtr currentModule;
+            currentModule = boost::shared_dynamic_cast< WModule >( ( dynamic_cast< WQtModuleTreeItem* >( *it ) )->getModule() );
+            if( currentModule )
+            {
+                if( currentModule == module )
+                {
+                    item = *it;
+                    break;
+                }
+            }
+        }
+        else if( dynamic_cast< WQtDatasetTreeItem* >( *it ) )
+        {
+            boost::shared_ptr< WDataModule > dataModule;
+            dataModule = boost::shared_dynamic_cast< WDataModule >( ( dynamic_cast< WQtDatasetTreeItem* >( *it ) )->getModule() );
+            if( dataModule )
+            {
+                if( dataModule == module )
+                {
+                    item = *it;
+                    break;
+                }
+            }
+        }
+        ++it;
+    }
+
+    return item;
+}
+
+void WQtControlPanel::deactivateModuleSelection( bool selectTopmost )
+{
+    m_ignoreSelectionChange = true;
+
+    m_activeModule = WModule::SPtr();
+
+    // select top element and reset some menu actions
+    if( selectTopmost )
+    {
+        m_moduleTreeWidget->clearSelection();
+        selectUpperMostEntry();
+    }
+    m_deleteModuleAction->setEnabled( false );
+
+    // remove properties tabs
     clearAndDeleteTabs();
 
-    // NOTE: this handles null pointers properly.
+    // clean compatibles toolbar, add only subject independent items
+    createCompatibleButtons( m_activeModule );
+
+    // also notify network editor
+    WQtNetworkEditor* nwe = m_mainWindow->getNetworkEditor();
+    if( nwe )
+    {
+        nwe->clearSelection();
+    }
+
+    m_ignoreSelectionChange = false;
+
+    return;
+}
+
+void WQtControlPanel::setActiveModule( WModule::SPtr module )
+{
+    m_ignoreSelectionChange = true;
+
+    // is module NULL? remove everything
+    if( !module || module->isCrashed() )
+    {
+        deactivateModuleSelection();
+        m_ignoreSelectionChange = false;
+        return;
+    }
+
+    // only if something has changed
+    if( m_activeModule == module )
+    {
+        m_ignoreSelectionChange = false;
+        return;
+    }
+    m_activeModule = module;
+
+    wlog::debug( "ControlPanel" ) << "Activating module \"" << module->getName() << "\".";
+
+    // update the m_moduleTreeWidget
+    std::list< WQtTreeItem* > items = findItemsByModule( module );
+    WAssert( items.size(), "No item found for module " + module->getName() );
+    m_moduleTreeWidget->clearSelection();
+    for( std::list< WQtTreeItem* >::const_iterator it = items.begin(); it != items.end(); ++it )
+    {
+        ( *it )->setSelected( true );
+    }
+
+    // also notify network editor
+    WQtNetworkEditor* nwe = m_mainWindow->getNetworkEditor();
+    if( nwe )
+    {
+        nwe->selectByModule( module );
+    }
+
+    // remove property tabs
+    clearAndDeleteTabs();
+    // set new property tabs
+    buildPropTab( module->getProperties(), module->getInformationProperties() );
+
+    // update compatibles toolbar
     createCompatibleButtons( module );
 
-    if( module )
+    // disable delete action for tree items that have children.
+    if( m_moduleTreeWidget->selectedItems().at( 0 )->childCount() != 0 )
     {
-        createCompatibleButtons( module );
-        buildPropTab( module->getProperties(), module->getInformationProperties() );
+        m_deleteModuleAction->setEnabled( false );
     }
+    else
+    {
+        m_deleteModuleAction->setEnabled( true );
+    }
+
+    m_ignoreSelectionChange = false;
 }
 
 WQtPropertyGroupWidget*  WQtControlPanel::buildPropWidget( WPropertyGroupBase::SPtr props )
