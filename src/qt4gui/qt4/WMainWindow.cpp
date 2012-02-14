@@ -131,7 +131,7 @@ void WMainWindow::setupGUI()
     WSettingAction* showNetworkEditor = new WSettingAction( this, "qt4gui/showNetworkEditor",
                                                                "Show Network Editor",
                                                                "Show the network editor allowing you to manipulate the module graph graphically?",
-                                                               false,
+                                                               true,
                                                                true    // this requires a restart
                                                        );
     m_autoDisplaySetting = new WSettingAction( this, "qt4gui/useAutoDisplay",
