@@ -93,38 +93,6 @@ T _addDefaultConstraints( T prop )
 }
 
 /**
- * Add the default constraints for a certain type of property. For ints, a min and max is set to 0 and 100.
- *
- * \note Information properties never get constraints by default
- *
- * \param prop the property
- *
- * \return the property inserted gets returned.
- */
-WPropInt _addDefaultConstraints( WPropInt prop )
-{
-    prop->setMin( 0 );
-    prop->setMax( 100 );
-    return prop;
-}
-
-/**
- * Add the default constraints for a certain type of property. For doubles, a min and max is set to 0 and 100.
- *
- * \note Information properties never get constraints by default
- *
- * \param prop the property
- *
- * \return the property inserted gets returned.
- */
-WPropDouble _addDefaultConstraints( WPropDouble prop )
-{
-    prop->setMin( 0.0 );
-    prop->setMax( 100.0 );
-    return prop;
-}
-
-/**
  * Add the default constraints for a certain type of property. For selections, the PC_ISVALID constraint is added.
  *
  * \note Information properties never get constraints by default

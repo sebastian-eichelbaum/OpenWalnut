@@ -32,6 +32,7 @@
 #include <osg/StateAttribute>
 
 #include "core/common/WColor.h"
+#include "core/common/WLimits.h"
 #include "core/common/WPropertyHelper.h"
 #include "core/dataHandler/WDataSetScalar.h"
 #include "core/dataHandler/WDataSetVector.h"
