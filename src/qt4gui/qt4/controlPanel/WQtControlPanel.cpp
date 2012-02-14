@@ -439,7 +439,6 @@ bool WQtControlPanel::event( QEvent* event )
         {
             wlog::error( "ControlPanel" ) << "Removed module has strange usage count: " << module.use_count() << ". Should be 1 here. " <<
                                               "Module reference is held by someone else.";
-            WAssert( false, "Removed module has strange usage count. Should be 1 here. Module reference is held by someone else." );
         }
 
         return true;
