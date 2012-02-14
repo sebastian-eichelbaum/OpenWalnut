@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
 #include <sstream>
 #include <algorithm>
 
@@ -46,7 +47,7 @@ namespace WStructuredTextParser
         bool r = phrase_parse( iter, end, parser, boost::spirit::ascii::space, ast );
 
         // error?
-        if( ! ( r && iter == end ) )
+        if( !( r && iter == end ) )
         {
             throw WParseError( "Parse error. Parser message: " + error.str() );
         }
@@ -71,7 +72,7 @@ namespace WStructuredTextParser
         bool r = phrase_parse( iter, end, parser, boost::spirit::ascii::space, ast );
 
         // error?
-        if( ! ( r && iter == end ) )
+        if( !( r && iter == end ) )
         {
             throw WParseError( "Parse error. Parser message: " + error.str() );
         }
@@ -108,12 +109,12 @@ namespace WStructuredTextParser
 
     const std::string& StructuredValueTree::operator()( std::string name ) const
     {
-        return const_cast< StructuredValueTree& >( *this )( name );
+        return const_cast< StructuredValueTree& >( *this ).operator()( name );
     }
 
     const StructuredValueTree& StructuredValueTree::operator[]( std::string name ) const
     {
-        return const_cast< StructuredValueTree& >( *this )( name );
+        return const_cast< StructuredValueTree& >( *this ).operator[]( name );
     }
 
     const StructuredValueTree* StructuredValueTree::queryTree( const std::string& name ) const

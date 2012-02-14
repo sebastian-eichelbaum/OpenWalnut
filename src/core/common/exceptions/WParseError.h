@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPARSERERROR_H
-#define WPARSERERROR_H
+#ifndef WPARSEERROR_H
+#define WPARSEERROR_H
 
 #include <string>
 
@@ -50,4 +50,4 @@ protected:
 private:
 };
 
-#endif  // WPARSERERROR_H
+#endif  // WPARSEERROR_H

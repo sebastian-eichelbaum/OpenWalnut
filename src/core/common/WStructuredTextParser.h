@@ -146,7 +146,7 @@ namespace WStructuredTextParser
         /**
          * Constructor and grammar description. It contains the EBNF (Extended Backus Naur Form) of the format we can parse.
          */
-        explicit Grammar( std::ostream& error ): Grammar::base_type( object, "WStructuredTextParser::Grammar" )
+        explicit Grammar( std::ostream& error ): Grammar::base_type( object, "WStructuredTextParser::Grammar" ) // NOLINT - non-const ref
         {
             // a key begins with a letter
             key    %=  qi::char_( "a-zA-Z_" ) >> *qi::char_( "a-zA-Z_0-9" );
@@ -165,10 +165,10 @@ namespace WStructuredTextParser
 
             // provide error handlers
             // XXX: can someone tell me how to get them work? According to the boost::spirit doc, this is everything needed but it doesn't work.
-            qi::on_error<qi::fail>( object, error << phoenix::val( "Error: " ) << qi::_4 );
-            qi::on_error<qi::fail>( kvpair, error << phoenix::val( "Error: " ) << qi::_4 );
-            qi::on_error<qi::fail>( key,    error << phoenix::val( "Error: " ) << qi::_4 );
-            qi::on_error<qi::fail>( value,  error << phoenix::val( "Error: " ) << qi::_4 );
+            qi::on_error< qi::fail >( object, error << phoenix::val( "Error: " ) << qi::_4 );
+            qi::on_error< qi::fail >( kvpair, error << phoenix::val( "Error: " ) << qi::_4 );
+            qi::on_error< qi::fail >( key,    error << phoenix::val( "Error: " ) << qi::_4 );
+            qi::on_error< qi::fail >( value,  error << phoenix::val( "Error: " ) << qi::_4 );
        }
 
         // Rules we use
@@ -205,7 +205,7 @@ namespace WStructuredTextParser
          *
          * \param name the name
          */
-        StructuredValueTree( const std::string& name );
+        explicit StructuredValueTree( const std::string& name );
 
         /**
          * Cleanup.
