@@ -31,6 +31,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <QtGui/QApplication>
+#include <QtGui/QSplashScreen>
 #include <QtGui/QFileDialog>
 #include <QtCore/QDir>
 #include <QtCore/QSettings>
@@ -135,6 +136,7 @@ int WQt4Gui::run()
     XInitThreads();
 #endif
 
+    m_splash = NULL;
     // init logger
     m_loggerConnection = WLogger::getLogger()->subscribeSignal( WLogger::AddLog, boost::bind( &WQt4Gui::slotAddLog, this, _1 ) );
 
@@ -156,7 +158,6 @@ int WQt4Gui::run()
     // and sets the paths according to Apple's guidelines inside the bundle
     if( QApplication::applicationDirPath().endsWith( "/MacOS" ) )
     {
-        std::cout <<  "OSX bundle" << std::endl;
         // we are in a bundle
         // TODO(mario): apply default OSX behavior of using $HOME/Library/OpenWalnut ?
         WPathHelper::getPathHelper()->setBasePathsOSXBundle( walnutBin, boost::filesystem::path( QDir::homePath().toStdString() ) / ".OpenWalnut" );
@@ -170,6 +171,11 @@ int WQt4Gui::run()
     // on all other platforms, get the home directory form Qt and the path from the application binary location
     WPathHelper::getPathHelper()->setBasePaths( walnutBin, boost::filesystem::path( QDir::homePath().toStdString() ) / ".OpenWalnut" );
 #endif
+
+    QPixmap splashPixmap( QString::fromStdString( ( WPathHelper::getPathHelper()->getSharePath() / "qt4gui/splash.png" ).string() ) );
+    m_splash = new QSplashScreen( splashPixmap );
+    m_splash->show();
+
     // with the correct paths, we can load the settings
     m_settings = new QSettings( QString::fromStdString( ( WPathHelper::getHomePath() / "config.qt4gui" ).string() ), QSettings::IniFormat );
 
@@ -230,7 +236,7 @@ int WQt4Gui::run()
     m_kernel->getRoiManager()->addRemoveNotifier( removeRoiSignal );
 
     // create the window
-    m_mainWindow = new WMainWindow();
+    m_mainWindow = new WMainWindow( m_splash );
 #ifdef Q_WS_MAC
     //TODO(mario): this should run on all platforms but crashes at least on Linux right now. Therefore, I only use it on OSX
     appl.setMyMainWidget( m_mainWindow );
@@ -270,7 +276,7 @@ void WQt4Gui::slotUpdateTextureSorter()
 
 void WQt4Gui::slotAddLog( const WLogEntry& /*entry*/ )
 {
-    // TODO(rfrohl): create a new event for this and insert it into event queue
+    // emit event?
 }
 
 void WQt4Gui::slotAddDatasetOrModuleToTree( boost::shared_ptr< WModule > module )

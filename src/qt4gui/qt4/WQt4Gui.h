@@ -32,6 +32,7 @@
 
 #include <QtCore/QSettings>
 #include <QtCore/QMutex>
+#include <QtGui/QSplashScreen>
 
 #include "core/graphicsEngine/WROI.h"
 #include "core/graphicsEngine/WGraphicsEngine.h"
@@ -253,6 +254,11 @@ private:
      * \note can be called from an arbitrary thread. Protected by m_deferredLoadMutex.
      */
     void deferredLoad();
+
+    /**
+     * The splash screen.
+     */
+    QSplashScreen* m_splash;
 };
 
 #endif  // WQT4GUI_H

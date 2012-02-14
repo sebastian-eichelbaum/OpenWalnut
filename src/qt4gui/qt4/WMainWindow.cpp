@@ -92,8 +92,9 @@
 #include "WMainWindow.h"
 #include "WMainWindow.moc"
 
-WMainWindow::WMainWindow():
+WMainWindow::WMainWindow( QSplashScreen* splash ):
     QMainWindow(),
+    m_splash( splash ),
     m_currentCompatiblesToolbar( NULL ),
     m_iconManager()
 {
@@ -107,6 +108,8 @@ WMainWindow::~WMainWindow()
 
 void WMainWindow::setupGUI()
 {
+    wlog::info( "WMainWindow" ) << "Setting up GUI";
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Setting setup
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -248,6 +251,7 @@ void WMainWindow::setupGUI()
 
     // NOTE: we abuse the gl widgets first frame event to handle startup news.
     connect( m_mainGLWidget.get(), SIGNAL( renderedFirstFrame() ), this, SLOT( handleStartMessages() ) );
+    connect( m_mainGLWidget.get(), SIGNAL( renderedFirstFrame() ), this, SLOT( closeSplash() ) );
 
     m_permanentToolBar = new WQtToolBar( "Standard Toolbar", this );
     addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
@@ -753,7 +757,8 @@ void WMainWindow::openOpenWalnutHelpDialog()
     layout->addWidget( view );
 #else
     QMessageBox::information( this, "Help", QString::fromStdString( "Sorry! Your version of OpenWalnut was not compiled with embedded help. "
-                                                                    "To open the help pages, use this link: <a href="+filename+">Help</a>." ) );
+                                                                    "To open the help pages in your browser, use this link: <a href=" +
+                                                                    filename + ">Help</a>." ) );
 #endif
 }
 
@@ -836,12 +841,18 @@ void WMainWindow::closeEvent( QCloseEvent* e )
     // handle close event
     if( reallyClose )
     {
+        m_splash->show();
+        m_splash->showMessage( "Shutting down" );
+
         saveWindowState();
 
         // signal everybody to shut down properly.
+        m_splash->showMessage( "Shutting down kernel. Waiting for modules to finish." );
         WKernel::getRunningKernel()->finalize();
 
         // now nobody acesses the osg anymore
+        m_splash->showMessage( "Shutting down GUI." );
+
         // clean up gl widgets
         m_mainGLWidget->close();
         if( m_navAxial )
@@ -1233,5 +1244,15 @@ void WMainWindow::dragEnterEvent( QDragEnterEvent *event )
         }
     }
     QMainWindow::dragEnterEvent( event );
+}
+
+void WMainWindow::closeSplash()
+{
+    m_splash->finish( this );
+}
+
+QSplashScreen* WMainWindow::getSplash() const
+{
+    return m_splash;
 }
 
