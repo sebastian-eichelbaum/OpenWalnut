@@ -1,0 +1,106 @@
+#!/usr/bin/env python
+
+"""Script which transforms a given nifti file from an arbitrary type to the given Nifti-types.
+For a list of supported types try '-l' option. Use the command line option -h for more help."""
+
+import nifti           # loading and saving Nifti files
+import numpy           # internal data type conversion and data representation
+import sys             # for program exit
+import optparse        # for option, argument handling as well as usage and help text
+import os              # for file name manipulation
+import string          # for better readable file type list
+
+niftiTypeNumbers = {'NIFTI_TYPE_UINT8':2, 'NIFTI_TYPE_INT16':4, 'NIFTI_TYPE_INT32':8,
+   'NIFTI_TYPE_FLOAT32':16, 'NIFTI_TYPE_COMPLEX64':32, 'NIFTI_TYPE_FLOAT64':64,
+   'NIFTI_TYPE_INT8':256, 'NIFTI_TYPE_UINT16':512,'NIFTI_TYPE_UINT32':768,
+   'NIFTI_TYPE_INT64':1024, 'NIFTI_TYPE_UINT64':1280, 'NIFTI_TYPE_FLOAT128':1536,
+   'NIFTI_TYPE_COMPLEX128':1792, 'NIFTI_TYPE_COMPLEX256':2048}
+
+numpyTypes = {2:'uint8', 4:'int16', 8:'int32', 16:'float32', 32:'complex64', 64:'float64',
+   256:'int8', 512:'uint16', 1024:'int64', 1280:'uint64', 1536:'float128', 1792:'complex128',
+   2048:'complex265'}
+
+def generateListOfSupportedTypes():
+    """Generates a string listing all supported Nifti types as well as their nummerical counter
+    parts."""
+
+    result = []
+    for k,v in niftiTypeNumbers.items():
+        result.append( " - " + string.ljust( str( k ), 40 ) + " " + string.rjust( str( v ), 5 ) + "\n" )
+    result.sort()
+    result.insert( 0, "\nSupported types:\n" )
+    result.append( "\nRGB types are NOT supported." )
+    return string.join( result )
+
+def parseOptions():
+    """Parse options with the help optparse and returns all options and arguments."""
+
+    parser = optparse.OptionParser( usage = "usage: %prog [options] input_file" )
+    parser.add_option("-o", action = "store", type = "string",
+       dest = "output_file", help = "file name to write Nifti-Image to.", metavar = "OUTPUT_FILE" )
+    parser.add_option("-d", action = "store", type = "string",
+       dest = "datatype", help = "datatype to convert input to. (Either number or string)",
+       metavar = "DATATYPE", default = 'NIFTI_TYPE_UINT8' )
+    parser.add_option( "-l", action = "store_true", dest = "list_types",
+       help = "print list of supported types" )
+
+    (options, args ) = parser.parse_args()
+
+    if( options.list_types ):
+        print generateListOfSupportedTypes()
+        sys.exit( 0 )
+
+    if( len( args ) != 1 ):
+        parser.print_help()
+        sys.exit( "\nError: Invalid number of arguments" )
+
+    return (options, args[0])
+
+def numpyDatatype( datatype ):
+    """"Converts an integer (representing a Nifti type) or a Nifti-type-string to the
+    corresponding Numpy type string."""
+
+    if( isinstance( datatype, str ) ):
+        if datatype not in niftiTypeNumbers:
+            try:
+                datatype = int( datatype )
+            except ValueError:
+                return ''
+            keys = [k for k, v in niftiTypeNumbers.iteritems() if v == datatype]
+            if( len( keys ) != 1 ):
+                return ''
+        else:
+            datatype = niftiTypeNumbers[ datatype ]
+    else:
+        return ''
+
+    return numpyTypes[ datatype ]
+
+def convertFile( input_file, output_file, datatype ):
+    """Converts the given Nifti file to the given datatype by converting the data and set
+    appropriate Nifti header information. Finally all is saved to the give file name. If the file
+    name is empty one is generated out of the input file name."""
+
+    img = nifti.NiftiImage( input_file )
+    numpyType = numpyDatatype( datatype );
+    if( numpyType == '' ):
+        print "Error: Unsupported datatype: ", datatype
+        print "\nPlease use '-l' option to get a list of supported types.\n"
+        sys.exit( 1 )
+
+    newData = img.data.astype( numpyType ) # transform data
+    newHeader = img.header # copy header
+    newHeader['datatype'] = datatype # set new nifti datatype
+    newImage = nifti.NiftiImage( newData, newHeader ) # compose new image
+    if( output_file is None ):
+        # assume input file name is has suffix .nii.gz but will work with .nii files too
+        suffix = ['','']
+        baseName, suffix[0] = os.path.splitext( input_file )
+        baseName, suffix[1] = os.path.splitext( baseName )
+        output_file = baseName + "_" + numpyType + "_converted" + suffix[1] + suffix[0]
+
+    newImage.save( output_file )
+
+if( __name__=="__main__" ):
+    (options, input_file ) = parseOptions()
+    convertFile( input_file, options.output_file, options.datatype )
