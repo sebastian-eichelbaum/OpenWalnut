@@ -81,13 +81,8 @@ WVector3d WGridTransformOrtho::positionToWorldSpace( WVector3d const& position )
 
 WVector3d WGridTransformOrtho::positionToGridSpace( WVector3d const& position ) const
 {
-    std::cout << "WGridTransformOrtho" << " position: " << position;
     WVector3d p = position - m_origin;
-    std::cout << "WGridTransformOrtho" << " p2: " << p;
-    std::cout << "WGridTransformOrtho" << " m_unitDirectionX: " << m_unitDirectionX;
     p = WVector3d( dot( p, m_unitDirectionX ), dot( p, m_unitDirectionY ), dot( p, m_unitDirectionZ ) );
-    std::cout << "WGridTransformOrtho" << " p3: " << p;
-    std::cout << "WGridTransformOrtho" << " m_scaling: " << m_scaling;
     p[ 0 ] /= m_scaling[ 0 ];
     p[ 1 ] /= m_scaling[ 1 ];
     p[ 2 ] /= m_scaling[ 2 ];
