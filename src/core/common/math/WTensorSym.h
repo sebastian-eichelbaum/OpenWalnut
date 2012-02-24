@@ -86,6 +86,15 @@ public:
     explicit WTensorSym( const WValue< Data_T >& data );
 
     /**
+     * Constructs and initializes the symmetrical Tensor with a boost array.
+     *
+     * \note The same ordering as for the data member is required.
+     *
+     * \param data The components in same ordering as for the data member \c m_data is required, (\see m_data).
+     */
+    explicit WTensorSym( const boost::array< Data_T, WTensorBaseSym< order, dim, Data_T >::dataSize >& data );
+
+    /**
      * Evaluate - for a given gradient - the spherical function represented by this symmetric tensor.
      *
      * \tparam The type that stores the gradient, must implement operator [].
@@ -128,6 +137,12 @@ WTensorSym< order, dim, Data_T >::WTensorSym()
 
 template< std::size_t order, std::size_t dim, typename Data_T >
 WTensorSym< order, dim, Data_T >::WTensorSym( const WValue< Data_T >& data )
+    : WTensorFunc< WTensorBaseSym, order, dim, Data_T >( data )
+{
+}
+
+template< std::size_t order, std::size_t dim, typename Data_T >
+WTensorSym< order, dim, Data_T >::WTensorSym( const boost::array< Data_T, WTensorBaseSym< order, dim, Data_T >::dataSize >& data )
     : WTensorFunc< WTensorBaseSym, order, dim, Data_T >( data )
 {
 }

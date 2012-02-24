@@ -289,6 +289,17 @@ public:
      */
     bool operator != ( WTensorBase const& other ) const;
 
+    /**
+     * Declare a compile-time constant as enum and not as static constant.
+     */
+    enum
+    {
+        /**
+         * The number of elements to store.
+         */
+        dataSize = WPower< dim, order >::value
+    };
+
 private:
     /**
      * Calculate the position of the element in the data vector. The function
@@ -300,17 +311,6 @@ private:
      */
     template< typename Index_T >
     static inline std::size_t getPos( Index_T pos[] );
-
-    /**
-     * Declare a compile-time constant as enum and not as static constant.
-     */
-    enum
-    {
-        /**
-         * The number of elements to store.
-         */
-        dataSize = WPower< dim, order >::value
-    };
 
     //! Stores all elements.
     //std::vector< Data_T > m_data;
@@ -641,17 +641,6 @@ template< std::size_t order, std::size_t dim, typename Data_T >
 class WTensorBaseSym
 {
     /**
-     * Declare a compile-time constant as enum and not as static constant.
-     */
-    enum
-    {
-        /**
-         * The number of elements to store.
-         */
-        dataSize = WBinom< order + dim - 1, order >::value
-    };
-
-    /**
      * For dim == 0, create an artificial compiler error.
      */
     BOOST_STATIC_ASSERT( dim != 0 );
@@ -663,6 +652,17 @@ class WTensorBaseSym
     friend class ::WTensorFuncTest;
 
 public:
+    /**
+     * Declare a compile-time constant as enum and not as static constant.
+     */
+    enum
+    {
+        /**
+         * The number of elements to store.
+         */
+        dataSize = WBinom< order + dim - 1, order >::value
+    };
+
     /**
      * Standard constructor.
      *
@@ -677,6 +677,14 @@ public:
      * ordering of the components to match the ordering in \see m_data.
      */
     explicit WTensorBaseSym( const WValue< Data_T >& data );
+
+    /**
+     * Constructs the symmetrical tensor and initialize with the given data.
+     *
+     * \param data The components of the symmetrical tensor: Take care of the
+     * ordering of the components to match the ordering in \see m_data.
+     */
+    explicit WTensorBaseSym( const boost::array< Data_T, dataSize >& data );
 
     /**
      * Copy constructor.
@@ -713,7 +721,14 @@ public:
      *
      * \param values The input values.
      */
-    void setValues( WValue< Data_T > const values );
+    void setValues( WValue< Data_T > const& values );
+
+    /**
+     * Set internal data from a boost array.
+     *
+     * \param values The input values.
+     */
+    void setValues( boost::array< Data_T, dataSize > const& values );
 
     /**
      * Get the element at a specific position.
@@ -907,6 +922,12 @@ WTensorBaseSym< order, dim, Data_T >::WTensorBaseSym( const WValue< Data_T >& da
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
+WTensorBaseSym< order, dim, Data_T >::WTensorBaseSym( const boost::array< Data_T, dataSize >& data )
+{
+    std::copy( &data[ 0 ], &data[ 0 ] + dataSize, &m_data[ 0 ] );
+}
+
+template< std::size_t order, std::size_t dim, typename Data_T >
 WTensorBaseSym< order, dim, Data_T >::WTensorBaseSym( WTensorBaseSym const& t )
     : m_data( t.m_data )
 {
@@ -932,12 +953,16 @@ std::size_t WTensorBaseSym< order, dim, Data_T >::getOrder() const
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
-void WTensorBaseSym< order, dim, Data_T >::setValues( WValue< Data_T > const values )
+void WTensorBaseSym< order, dim, Data_T >::setValues( WValue< Data_T > const& values )
 {
-    if( m_data.size() == values.size() )
-    {
-        std::copy( &values[ 0 ], &values[ 0 ] + values.size(), &m_data[ 0 ] );
-    }
+    WAssert( m_data.size() == values.size(), "Number of given components does not match the order and dimension of this symmetric tensor" );
+    std::copy( &values[ 0 ], &values[ 0 ] + values.size(), &m_data[ 0 ] );
+}
+
+template< std::size_t order, std::size_t dim, typename Data_T >
+void WTensorBaseSym< order, dim, Data_T >::setValues( boost::array< Data_T, dataSize > const& values )
+{
+    std::copy( &values[ 0 ], &values[ 0 ] + dataSize, &m_data[ 0 ] );
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
@@ -1122,13 +1147,6 @@ public:
         return m_data != other.m_data;
     }
 
-protected:
-    /**
-     * Stores the value.
-     */
-    Data_T m_data;
-
-private:
     /**
      * Declare a compile-time constant as enum and not as static constant.
      */
@@ -1139,6 +1157,14 @@ private:
          */
         dataSize = 1
     };
+
+protected:
+    /**
+     * Stores the value.
+     */
+    Data_T m_data;
+
+private:
 };
 
 // ################################### class WTensorFunc<> ######################################
@@ -1156,7 +1182,45 @@ private:
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t order, std::size_t dim, typename Data_T > //NOLINT
 class WTensorFunc : public TensorBase_T< order, dim, Data_T >
 {
+public:
+    /**
+     * Default constructor.
+     */
+    WTensorFunc();
+
+    /**
+     * Initializes the tensor with the given data.
+     *
+     * \param data Components in same ordering as the components of the TensorBase class.
+     */
+    explicit WTensorFunc( const WValue< Data_T >& data );
+
+    /**
+     * Initializes the tensor with the given data.
+     *
+     * \param data Components in same ordering as the components of the TensorBase class.
+     */
+    explicit WTensorFunc( const boost::array< Data_T, TensorBase_T< order, dim, Data_T >::dataSize >& data );
 };
+
+template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t order, std::size_t dim, typename Data_T >
+WTensorFunc< TensorBase_T, order, dim, Data_T >::WTensorFunc()
+    : TensorBase_T< order, dim, Data_T >()
+{
+}
+
+template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t order, std::size_t dim, typename Data_T >
+WTensorFunc< TensorBase_T, order, dim, Data_T >::WTensorFunc( const WValue< Data_T >& data )
+    : TensorBase_T< order, dim, Data_T >( data )
+{
+}
+
+template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t order, std::size_t dim, typename Data_T >
+WTensorFunc< TensorBase_T, order, dim, Data_T >::WTensorFunc( const boost::array< Data_T, TensorBase_T< order, dim, Data_T >::dataSize >& data )
+    : TensorBase_T< order, dim, Data_T >( data )
+{
+}
+
 
 /**
  * Implements the operator () for an order of 6.
@@ -1181,6 +1245,13 @@ public:
      * \param data Components in same ordering as the components of the TensorBase class.
      */
     explicit WTensorFunc( const WValue< Data_T >& data );
+
+    /**
+     * Initializes the tensor with the given data.
+     *
+     * \param data Components in same ordering as the components of the TensorBase class.
+     */
+    explicit WTensorFunc( const boost::array< Data_T, TensorBase_T< 6, dim, Data_T >::dataSize  >& data );
 
     /**
      * Access operator.
@@ -1219,6 +1290,12 @@ WTensorFunc< TensorBase_T, 6, dim, Data_T >::WTensorFunc()
 
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T >
 WTensorFunc< TensorBase_T, 6, dim, Data_T >::WTensorFunc( const WValue< Data_T >& data )
+    : TensorBase_T< 6, dim, Data_T >( data )
+{
+}
+
+template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T >
+WTensorFunc< TensorBase_T, 6, dim, Data_T >::WTensorFunc( const boost::array< Data_T, TensorBase_T< 6, dim, Data_T >::dataSize >& data )
     : TensorBase_T< 6, dim, Data_T >( data )
 {
 }
@@ -1311,6 +1388,25 @@ class WTensorFunc< TensorBase_T, 4, dim, Data_T > : public TensorBase_T< 4, dim,
 {
 public:
     /**
+     * Default constructor.
+     */
+    WTensorFunc();
+
+    /**
+     * Initializes the tensor with the given data.
+     *
+     * \param data Components in same ordering as the components of the TensorBase class.
+     */
+    explicit WTensorFunc( const WValue< Data_T >& data );
+
+    /**
+     * Initializes the tensor with the given data.
+     *
+     * \param data Components in same ordering as the components of the TensorBase class.
+     */
+    explicit WTensorFunc( const boost::array< Data_T, TensorBase_T< 4, dim, Data_T >::dataSize  >& data );
+
+    /**
      * Access operator.
      *
      * \param i0 An index.
@@ -1334,6 +1430,24 @@ public:
      */
     Data_T const& operator() ( std::size_t i0, std::size_t i1, std::size_t i2, std::size_t i3 ) const;
 };
+
+template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T >
+WTensorFunc< TensorBase_T, 4, dim, Data_T >::WTensorFunc()
+    : TensorBase_T< 4, dim, Data_T >()
+{
+}
+
+template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T >
+WTensorFunc< TensorBase_T, 4, dim, Data_T >::WTensorFunc( const WValue< Data_T >& data )
+    : TensorBase_T< 4, dim, Data_T >( data )
+{
+}
+
+template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T >
+WTensorFunc< TensorBase_T, 4, dim, Data_T >::WTensorFunc( const boost::array< Data_T, TensorBase_T< 4, dim, Data_T >::dataSize >& data )
+    : TensorBase_T< 4, dim, Data_T >( data )
+{
+}
 
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
 Data_T& WTensorFunc< TensorBase_T, 4, dim, Data_T >::operator() ( std::size_t i0, std::size_t i1, std::size_t i2, std::size_t i3 )
@@ -1423,6 +1537,13 @@ public:
     explicit WTensorFunc( const WValue< Data_T >& data );
 
     /**
+     * Initializes the tensor with the given data.
+     *
+     * \param data Components in same ordering as the components of the TensorBase class.
+     */
+    explicit WTensorFunc( const boost::array< Data_T, TensorBase_T< 2, dim, Data_T >::dataSize  >& data );
+
+    /**
      * Access operator.
      *
      * \param i0 An index.
@@ -1456,6 +1577,12 @@ WTensorFunc< TensorBase_T, 2, dim, Data_T >::WTensorFunc()
 
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T >
 WTensorFunc< TensorBase_T, 2, dim, Data_T >::WTensorFunc( const WValue< Data_T >& data )
+    : TensorBase_T< 2, dim, Data_T >( data )
+{
+}
+
+template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T >
+WTensorFunc< TensorBase_T, 2, dim, Data_T >::WTensorFunc( const boost::array< Data_T, TensorBase_T< 2, dim, Data_T >::dataSize >& data )
     : TensorBase_T< 2, dim, Data_T >( data )
 {
 }
