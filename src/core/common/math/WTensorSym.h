@@ -28,6 +28,8 @@
 #include <iostream>
 #include <vector>
 
+#include <boost/array.hpp>
+
 #include "WTensorMeta.h"
 #include "WTensorBase.h"
 
