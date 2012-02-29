@@ -71,12 +71,18 @@ WGridTransformOrtho::~WGridTransformOrtho()
 
 WVector3d WGridTransformOrtho::positionToWorldSpace( WVector3d const& position ) const
 {
-    return WVector3d( m_scaling[ 0 ] * position[ 0 ] * m_unitDirectionX[ 0 ] + m_scaling[ 1 ] * position[ 1 ] * m_unitDirectionY[ 0 ]
-                    + m_scaling[ 2 ] * position[ 2 ] * m_unitDirectionZ[ 0 ] + m_origin[ 0 ],
-                      m_scaling[ 0 ] * position[ 0 ] * m_unitDirectionX[ 1 ] + m_scaling[ 1 ] * position[ 1 ] * m_unitDirectionY[ 1 ]
-                    + m_scaling[ 2 ] * position[ 2 ] * m_unitDirectionZ[ 1 ] + m_origin[ 1 ],
-                      m_scaling[ 0 ] * position[ 0 ] * m_unitDirectionX[ 2 ] + m_scaling[ 1 ] * position[ 1 ] * m_unitDirectionY[ 2 ]
-                    + m_scaling[ 2 ] * position[ 2 ] * m_unitDirectionZ[ 2 ] + m_origin[ 2 ] );
+    return WVector3d( m_scaling[ 0 ] * position[ 0 ] * m_unitDirectionX[ 0 ] +
+                      m_scaling[ 1 ] * position[ 1 ] * m_unitDirectionY[ 0 ] +
+                      m_scaling[ 2 ] * position[ 2 ] * m_unitDirectionZ[ 0 ] +
+                      m_origin[ 0 ],
+                      m_scaling[ 0 ] * position[ 0 ] * m_unitDirectionX[ 1 ] +
+                      m_scaling[ 1 ] * position[ 1 ] * m_unitDirectionY[ 1 ] +
+                      m_scaling[ 2 ] * position[ 2 ] * m_unitDirectionZ[ 1 ] +
+                      m_origin[ 1 ],
+                      m_scaling[ 0 ] * position[ 0 ] * m_unitDirectionX[ 2 ] +
+                      m_scaling[ 1 ] * position[ 1 ] * m_unitDirectionY[ 2 ] +
+                      m_scaling[ 2 ] * position[ 2 ] * m_unitDirectionZ[ 2 ] +
+                      m_origin[ 2 ] );
 }
 
 WVector3d WGridTransformOrtho::positionToGridSpace( WVector3d const& position ) const
@@ -91,12 +97,17 @@ WVector3d WGridTransformOrtho::positionToGridSpace( WVector3d const& position ) 
 
 WVector3d WGridTransformOrtho::directionToWorldSpace( WVector3d const& direction ) const
 {
-    return WVector3d( m_scaling[ 0 ] * direction[ 0 ] * m_unitDirectionX[ 0 ] + m_scaling[ 1 ] * direction[ 1 ] * m_unitDirectionY[ 0 ]
-                    + m_scaling[ 2 ] * direction[ 2 ] * m_unitDirectionZ[ 0 ],
-                      m_scaling[ 0 ] * direction[ 0 ] * m_unitDirectionX[ 1 ] + m_scaling[ 1 ] * direction[ 1 ] * m_unitDirectionY[ 1 ]
-                    + m_scaling[ 2 ] * direction[ 2 ] * m_unitDirectionZ[ 1 ],
-                      m_scaling[ 0 ] * direction[ 0 ] * m_unitDirectionX[ 2 ] + m_scaling[ 1 ] * direction[ 1 ] * m_unitDirectionY[ 2 ]
-                    + m_scaling[ 2 ] * direction[ 2 ] * m_unitDirectionZ[ 2 ] );
+    return WVector3d( m_scaling[ 0 ] * direction[ 0 ] * m_unitDirectionX[ 0 ] +
+                      m_scaling[ 1 ] * direction[ 1 ] * m_unitDirectionY[ 0 ] +
+                      m_scaling[ 2 ] * direction[ 2 ] * m_unitDirectionZ[ 0 ],
+
+                      m_scaling[ 0 ] * direction[ 0 ] * m_unitDirectionX[ 1 ] +
+                      m_scaling[ 1 ] * direction[ 1 ] * m_unitDirectionY[ 1 ] +
+                      m_scaling[ 2 ] * direction[ 2 ] * m_unitDirectionZ[ 1 ],
+
+                      m_scaling[ 0 ] * direction[ 0 ] * m_unitDirectionX[ 2 ] +
+                      m_scaling[ 1 ] * direction[ 1 ] * m_unitDirectionY[ 2 ] +
+                      m_scaling[ 2 ] * direction[ 2 ] * m_unitDirectionZ[ 2 ] );
 }
 
 WVector3d WGridTransformOrtho::directionToGridSpace( WVector3d const& direction ) const
