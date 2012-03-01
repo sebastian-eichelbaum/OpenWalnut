@@ -149,9 +149,9 @@ public:
     * \return Transformation matrix
     */
     static WMatrix<double> getSHFittingMatrix( const std::vector< WVector3d >& orientations,
-                                                      int order,
-                                                      double lambda,
-                                                      bool withFRT );
+                                               int order,
+                                               double lambda,
+                                               bool withFRT );
 
     /**
     * This calculates the transformation/fitting matrix T like in the 2007 Descoteaux paper. The orientations are given as WUnitSphereCoordinates .
@@ -162,9 +162,31 @@ public:
     * \return Transformation matrix
     */
     static WMatrix<double> getSHFittingMatrix( const std::vector< WUnitSphereCoordinates >& orientations,
-                                                      int order,
-                                                      double lambda,
-                                                      bool withFRT );
+                                               int order,
+                                               double lambda,
+                                               bool withFRT );
+
+    /**
+    * This calculates the transformation/fitting matrix T like in the 2010 Aganj paper. The orientations are given as WUnitSphereCoordinates .
+    * \param orientations The vector with the used orientation on the unit sphere (usually the gradients of the HARDI)
+    * \param order The order of the spherical harmonics intended to create
+    * \param lambda Regularization parameter for smoothing matrix
+    * \return Transformation matrix
+    */
+    static WMatrix<double> getSHFittingMatrixForConstantSolidAngle( const std::vector< WVector3d >& orientations,
+                                                                    int order,
+                                                                    double lambda );
+
+    /**
+    * This calculates the transformation/fitting matrix T like in the 2010 Aganj paper. The orientations are given as WUnitSphereCoordinates .
+    * \param orientations The vector with the used orientation on the unit sphere (usually the gradients of the HARDI)
+    * \param order The order of the spherical harmonics intended to create
+    * \param lambda Regularization parameter for smoothing matrix
+    * \return Transformation matrix
+    */
+    static WMatrix<double> getSHFittingMatrixForConstantSolidAngle( const std::vector< WUnitSphereCoordinates >& orientations,
+                                                                    int order,
+                                                                    double lambda );
 
     /**
     * Calculates the base matrix B like in the dissertation of Descoteaux.
@@ -182,6 +204,19 @@ public:
     */
     static WMatrix< std::complex< double > > calcComplexBaseMatrix( std::vector< WUnitSphereCoordinates > const& orientations,
                                                                            int order );
+    /**
+    * Calc eigenvalues for SH elements..
+    * \param order The order of the spherical harmonic
+    * \return The eigenvalues of the coefficients
+    */
+    static WValue<double> calcEigenvalues( size_t order );
+
+    /**
+    * Calc matrix with the eigenvalues of the SH elements on its diagonal.
+    * \param order The order of the spherical harmonic
+    * \return The matrix with the eigenvalues of the coefficients
+    */
+    static WMatrix<double> calcMatrixWithEigenvalues( size_t order );
 
     /**
     * This calcs the smoothing matrix L from the 2007 Descoteaux Paper "Regularized, Fast, and Robust Analytical Q-Ball Imaging"

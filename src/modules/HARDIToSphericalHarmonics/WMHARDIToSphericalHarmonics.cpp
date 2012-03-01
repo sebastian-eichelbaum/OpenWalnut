@@ -86,6 +86,13 @@ const std::string WMHARDIToSphericalHarmonics::getDescription() const
 
 void WMHARDIToSphericalHarmonics::moduleMain()
 {
+    enum RECONSTRUCTION_TYPE
+    {
+        DEFAULT = 0,
+        CSA = 1
+    };
+    RECONSTRUCTION_TYPE reconstructionType;
+
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
     m_moduleState.add( m_propCondition );
@@ -107,6 +114,24 @@ void WMHARDIToSphericalHarmonics::moduleMain()
         boost::shared_ptr< WDataSetRawHARDI > newDataSet = m_input->getData();
         bool dataChanged = ( m_dataSet != newDataSet );
         bool dataValid   = ( newDataSet );
+
+        switch( m_reconstructionTypeProp->get( true ).getItemIndexOfSelected( 0 ) )
+        {
+        case 0:
+            m_doFunkRadonTransformation->setHidden( false );
+            m_doErrorCalculation->setHidden( false );
+            m_doResidualCalculation->setHidden( false );
+            m_doNormalisation->setHidden( false );
+            reconstructionType = DEFAULT;
+            break;
+        case 1:
+            m_doFunkRadonTransformation->setHidden();
+            m_doErrorCalculation->setHidden();
+            m_doResidualCalculation->setHidden();
+            m_doNormalisation->setHidden();
+            reconstructionType = CSA;
+            break;
+        }
 
         if( dataChanged && dataValid )
         {
@@ -167,25 +192,36 @@ void WMHARDIToSphericalHarmonics::moduleMain()
             }
             int order = m_order->get( true );
 
-            WMatrix< double > transformMatrix(
-                      WSymmetricSphericalHarmonic::getSHFittingMatrix( gradients,
-                                                                       order,
-                                                                       m_regularisationFactorLambda->get( true ),
-                                                                       m_doFunkRadonTransformation->get( true ) ) );
 
             WSphericalHarmonicsCoefficientsThread<>::ThreadParameter parameter( m_shutdownFlag );
             parameter.m_valueSet = m_dataSet->getValueSet();
             parameter.m_validIndices = validIndices;
             parameter.m_S0Indexes = S0Indexes;
             parameter.m_order = order;
-            parameter.m_TransformMatrix = boost::shared_ptr< WMatrix< double > >( new WMatrix< double >( transformMatrix ) );
             parameter.m_gradients = gradients;
-            parameter.m_doFunkRadonTransformation = m_doFunkRadonTransformation->get( true );
             parameter.m_doResidualCalculation = m_doResidualCalculation->get( true );
             parameter.m_doErrorCalculation = m_doErrorCalculation->get( true ) || parameter.m_doResidualCalculation;
             // parameter.m_regularisationFactorLambda = m_regularisationFactorLambda->get( true );
             parameter.m_bDiffusionWeightingFactor = m_dataSet->getDiffusionBValue();
             parameter.m_normalize = m_doNormalisation->get( true );
+            parameter.m_csa = ( reconstructionType == CSA );
+            parameter.m_doFunkRadonTransformation = m_doFunkRadonTransformation->get( true );
+            WMatrix< double > transformMatrix(
+                      WSymmetricSphericalHarmonic::getSHFittingMatrix( gradients,
+                                                                       order,
+                                                                       m_regularisationFactorLambda->get( true ),
+                                                                       parameter.m_doFunkRadonTransformation ) );
+            if( reconstructionType == CSA )
+            {
+                parameter.m_doResidualCalculation = false;
+                parameter.m_doErrorCalculation = false;
+                parameter.m_normalize = false;
+                parameter.m_doFunkRadonTransformation = false;
+                transformMatrix = WSymmetricSphericalHarmonic::getSHFittingMatrixForConstantSolidAngle( gradients,
+                                                                                                        order,
+                                                                                                        m_regularisationFactorLambda->get( true ) );
+            }
+            parameter.m_TransformMatrix = boost::shared_ptr< WMatrix< double > >( new WMatrix< double >( transformMatrix ) );
 
             //to show progess
             parameter.m_progress = boost::shared_ptr< WProgress >( new WProgress( "Creating Spherical Harmonics",
@@ -239,6 +275,17 @@ void WMHARDIToSphericalHarmonics::connectors()
 void WMHARDIToSphericalHarmonics::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+
+    m_reconstructionTypes = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_reconstructionTypes->addItem( "default", "default" );
+    m_reconstructionTypes->addItem( "Constant solid angle", "Constant Solid Angle" );
+    m_reconstructionTypeProp = m_properties->addProperty( "Reconstruction Type",
+                                                          "Which reconstruction type will be used?",
+                                                          m_reconstructionTypes->getSelector( 0 ),
+                                                          m_propCondition );
+
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_reconstructionTypeProp );
 
     m_order                     = m_properties->addProperty( "Order of Spherical Harmonics",
                                                              "Order of Spherical Harmonics",
