@@ -206,13 +206,6 @@ public:
     WVector3d worldCoordToTexCoord( WPosition point );
 
     /**
-     * Transforms texture coordinates to world coordinates.
-     * \param coords The point with these coordinates will be transformed.
-     * \return coords transformed into world coordinate system.
-     */
-    WPosition texCoordToWorldCoord( WVector3d coords );
-
-    /**
      * Returns the i'th voxel where the given position belongs too.
      *
      * A voxel is a cuboid which surrounds a point on the grid.
@@ -259,7 +252,6 @@ public:
      * the grid.
      */
     int getVoxelNum( const size_t x, const size_t y, const size_t z ) const;
-
     /**
      * Computes the X coordinate of that voxel that contains the
      * position pos.
@@ -295,42 +287,6 @@ public:
      * grid.
      */
     int getZVoxelCoord( const WPosition& pos ) const;
-
-    /**
-     * Computes the X coordinate of that voxel that contains the
-     * position pos. Works on rotated grids.
-     *
-     * \param pos The position which selects the voxel for which the X
-     * coordinate is computed.
-     *
-     * \return The X coordinate or -1 if pos refers to point outside of the
-     * grid.
-     */
-    int getXVoxelCoordRotated( const WPosition& pos ) const;
-
-    /**
-     * Computes the Y coordinate of that voxel that contains the
-     * position pos. Works on rotated grids.
-     *
-     * \param pos The position which selects the voxel for which the Y
-     * coordinate is computed.
-     *
-     * \return The Y coordinate or -1 if pos refers to point outside of the
-     * grid.
-     */
-    int getYVoxelCoordRotated( const WPosition& pos ) const;
-
-    /**
-     * Computes the Z coordinate of that voxel that contains the
-     * position pos. Works on rotated grids.
-     *
-     * \param pos The position which selects the voxel for which the Z
-     * coordinate is computed.
-     *
-     * \return The Z coordinate or -1 if pos refers to point outside of the
-     * grid.
-     */
-    int getZVoxelCoordRotated( const WPosition& pos ) const;
 
     /**
      * Computes the voxel coordinates of that voxel which contains
@@ -593,21 +549,6 @@ inline double WGridRegular3D::getOffsetZ() const
     return m_transform.getOffsetZ();
 }
 
-inline WVector3d WGridRegular3D::getUnitDirectionX() const
-{
-    return m_transform.getUnitDirectionX();
-}
-
-inline WVector3d WGridRegular3D::getUnitDirectionY() const
-{
-    return m_transform.getUnitDirectionY();
-}
-
-inline WVector3d WGridRegular3D::getUnitDirectionZ() const
-{
-    return m_transform.getUnitDirectionZ();
-}
-
 inline WVector3d WGridRegular3D::getDirectionX() const
 {
     return m_transform.getDirectionX();
@@ -623,9 +564,207 @@ inline WVector3d WGridRegular3D::getDirectionZ() const
     return m_transform.getDirectionZ();
 }
 
+inline WVector3d WGridRegular3D::getUnitDirectionX() const
+{
+    return m_transform.getUnitDirectionX();
+}
+
+inline WVector3d WGridRegular3D::getUnitDirectionY() const
+{
+    return m_transform.getUnitDirectionY();
+}
+
+inline WVector3d WGridRegular3D::getUnitDirectionZ() const
+{
+    return m_transform.getUnitDirectionZ();
+}
+
 inline WPosition WGridRegular3D::getOrigin() const
 {
     return m_transform.getOrigin();
+}
+
+inline WMatrix< double > WGridRegular3D::getTransformationMatrix() const
+{
+    return m_transform.getTransformationMatrix();
+}
+
+inline WBoundingBox WGridRegular3D::getBoundingBox() const
+{
+    WBoundingBox result;
+    result.expandBy( m_transform.positionToWorldSpace( WPosition( 0.0,                0.0,                0.0            ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( WPosition( getNbCoordsX() - 1, 0.0,                0.0            ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( WPosition( 0.0,                getNbCoordsY() - 1, 0.0            ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( WPosition( getNbCoordsX() - 1, getNbCoordsY() - 1, 0.0            ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( WPosition( 0.0,                0.0,                getNbCoordsZ() - 1 ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( WPosition( getNbCoordsX() - 1, 0.0,                getNbCoordsZ() - 1 ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( WPosition( 0.0,                getNbCoordsY() - 1, getNbCoordsZ() - 1 ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( WPosition( getNbCoordsX() - 1, getNbCoordsY() - 1, getNbCoordsZ() - 1 ) ) );
+    return result;
+}
+
+inline WPosition WGridRegular3D::getPosition( unsigned int i ) const
+{
+    return getPosition( i % m_nbPosX, ( i / m_nbPosX ) % m_nbPosY, i / ( m_nbPosX * m_nbPosY ) );
+}
+
+inline WPosition WGridRegular3D::getPosition( unsigned int iX, unsigned int iY, unsigned int iZ ) const
+{
+    WVector3d i( iX, iY, iZ );
+    return m_transform.positionToWorldSpace( i );
+}
+
+inline WVector3d WGridRegular3D::worldCoordToTexCoord( WPosition point )
+{
+    WVector3d r( m_transform.positionToGridSpace( point ) );
+
+    // Scale to [0,1]
+    r[0] = r[0] / m_nbPosX;
+    r[1] = r[1] / m_nbPosY;
+    r[2] = r[2] / m_nbPosZ;
+
+    // Correct the coordinates to have the position at the center of the texture voxel.
+    r[0] += 0.5 / m_nbPosX;
+    r[1] += 0.5 / m_nbPosY;
+    r[2] += 0.5 / m_nbPosZ;
+
+    return r;
+}
+
+inline int WGridRegular3D::getVoxelNum( const WPosition& pos ) const
+{
+    // Note: the reason for the +1 is that the first and last Voxel in a x-axis
+    // row are cut.
+    //
+    //  y-axis
+    //  _|_______     ___ this is the 3rd Voxel
+    // 1 |   |   |   v
+    //   |...............
+    //  _|_:_|_:_|_:_|_:____ x-axis
+    //   | : | : | : | :
+    //   |.:...:...:...:.
+    //   0   1   2
+    int xVoxelCoord = getXVoxelCoord( pos );
+    int yVoxelCoord = getYVoxelCoord( pos );
+    int zVoxelCoord = getZVoxelCoord( pos );
+    if( xVoxelCoord == -1 || yVoxelCoord == -1 || zVoxelCoord == -1 )
+    {
+        return -1;
+    }
+    return xVoxelCoord
+         + yVoxelCoord * ( m_nbPosX )
+         + zVoxelCoord * ( m_nbPosX ) * ( m_nbPosY );
+}
+
+inline int WGridRegular3D::getVoxelNum( const size_t x, const size_t y, const size_t z ) const
+{
+    // since we use size_t here only a check for the upper bounds is needed
+    if( x > m_nbPosX || y > m_nbPosY || z > m_nbPosZ )
+    {
+        return -1;
+    }
+    return x + y * ( m_nbPosX ) + z * ( m_nbPosX ) * ( m_nbPosY );
+}
+
+inline int WGridRegular3D::getXVoxelCoord( const WPosition& pos ) const
+{
+    // the current get*Voxel stuff is too complicated anyway
+    WPosition v = m_transform.positionToGridSpace( pos );
+
+    // this part could be refactored into an inline function
+    double d;
+    v[ 2 ] = modf( v[ 0 ] + 0.5, &d );
+    int i = static_cast< int >( v[ 0 ] >= 0.0 && v[ 0 ] < m_nbPosX - 1.0 );
+    return -1 + i * static_cast< int >( 1.0 + d );
+}
+
+inline int WGridRegular3D::getYVoxelCoord( const WPosition& pos ) const
+{
+    WPosition v = m_transform.positionToGridSpace( pos );
+
+    double d;
+    v[ 0 ] = modf( v[ 1 ] + 0.5, &d );
+    int i = static_cast< int >( v[ 1 ] >= 0.0 && v[ 1 ] < m_nbPosY - 1.0 );
+    return -1 + i * static_cast< int >( 1.0 + d );
+}
+
+inline int WGridRegular3D::getZVoxelCoord( const WPosition& pos ) const
+{
+    WPosition v = m_transform.positionToGridSpace( pos );
+
+    double d;
+    v[ 0 ] = modf( v[ 2 ] + 0.5, &d );
+    int i = static_cast< int >( v[ 2 ] >= 0.0 && v[ 2 ] < m_nbPosZ - 1.0 );
+    return -1 + i * static_cast< int >( 1.0 + d );
+}
+
+inline WVector3i WGridRegular3D::getVoxelCoord( const WPosition& pos ) const
+{
+    WVector3i result;
+    result[0] = getXVoxelCoord( pos );
+    result[1] = getYVoxelCoord( pos );
+    result[2] = getZVoxelCoord( pos );
+    return result;
+}
+
+inline size_t WGridRegular3D::getCellId( const WPosition& pos, bool* success ) const
+{
+    WAssert( isNotRotated(), "Only feasible for grids that are only translated or scaled so far." );
+
+    WPosition posRelativeToOrigin = pos - getOrigin();
+
+    double xCellId = floor( posRelativeToOrigin[0] / getOffsetX() );
+    double yCellId = floor( posRelativeToOrigin[1] / getOffsetY() );
+    double zCellId = floor( posRelativeToOrigin[2] / getOffsetZ() );
+
+    *success = xCellId >= 0 && yCellId >=0 && zCellId >= 0 && xCellId < m_nbPosX - 1 && yCellId < m_nbPosY -1 && zCellId < m_nbPosZ -1;
+
+    return xCellId + yCellId * ( m_nbPosX - 1 ) + zCellId * ( m_nbPosX - 1 ) * ( m_nbPosY - 1 );
+}
+
+inline WGridRegular3D::CellVertexArray WGridRegular3D::getCellVertexIds( size_t cellId ) const
+{
+    WGridRegular3D::CellVertexArray vertices;
+    size_t minVertexIdZ =  cellId / ( ( m_nbPosX - 1 ) * ( m_nbPosY - 1 ) );
+    size_t remainderXY = cellId - minVertexIdZ * ( ( m_nbPosX - 1 ) * ( m_nbPosY - 1 ) );
+    size_t minVertexIdY = remainderXY  / ( m_nbPosX - 1 );
+    size_t minVertexIdX = remainderXY % ( m_nbPosX - 1 );
+
+    size_t minVertexId = minVertexIdX + minVertexIdY * m_nbPosX + minVertexIdZ * m_nbPosX * m_nbPosY;
+
+    vertices[0] = minVertexId;
+    vertices[1] = minVertexId + 1;
+    vertices[2] = minVertexId + m_nbPosX;
+    vertices[3] = minVertexId + m_nbPosX +1;
+    vertices[4] = minVertexId + m_nbPosX * m_nbPosY;
+    vertices[5] = minVertexId + m_nbPosX * m_nbPosY + 1;
+    vertices[6] = minVertexId + m_nbPosX * m_nbPosY + m_nbPosX;
+    vertices[7] = minVertexId + m_nbPosX * m_nbPosY + m_nbPosX +1;
+    return vertices;
+}
+
+inline bool WGridRegular3D::encloses( WPosition const& pos ) const
+{
+    WVector3d v = m_transform.positionToGridSpace( pos );
+
+    if( v[ 0 ] < 0.0 || v[ 0 ] >= m_nbPosX - 1 )
+    {
+        return false;
+    }
+    if( v[ 1 ] < 0.0 || v[ 1 ] >= m_nbPosY - 1 )
+    {
+        return false;
+    }
+    if( v[ 2 ] < 0.0 || v[ 2 ] >= m_nbPosZ - 1 )
+    {
+        return false;
+    }
+    return true;
+}
+
+inline bool WGridRegular3D::isNotRotated() const
+{
+    return m_transform.isNotRotated();
 }
 
 inline WGridTransformOrtho const WGridRegular3D::getTransform() const
@@ -633,8 +772,4 @@ inline WGridTransformOrtho const WGridRegular3D::getTransform() const
     return m_transform;
 }
 
-inline WMatrix< double > WGridRegular3D::getTransformationMatrix() const
-{
-    return m_transform.getTransformationMatrix();
-}
 #endif  // WGRIDREGULAR3D_H
