@@ -324,7 +324,8 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
     m_progress->addSubProgress( progress );
 
     size_t sliceType = m_sliceOrientationSelectionProp->get( true ).getItemIndexOfSelected( 0 );
-    size_t order = string_utils::fromString< float >(  m_orders->getSelector( m_orderProp->get( true ).getItemIndexOfSelected( 0 ) ) .at( 0 )->getName() );
+    size_t order =
+        string_utils::fromString< float >( m_orders->getSelector( m_orderProp->get( true ).getItemIndexOfSelected( 0 ) ) .at( 0 )->getName() );
 
     {
         boost::unique_lock< boost::mutex > lock( m_moduleNodeLock );
