@@ -24,6 +24,8 @@
 
 #include <vector>
 
+#include "core/common/math/linearAlgebra/WVectorFixed.h"
+
 #include "WIntegrationParameterization.h"
 
 WIntegrationParameterization::WIntegrationParameterization( boost::shared_ptr< WGridRegular3D > grid ):
@@ -68,7 +70,7 @@ namespace wip //WIntegrationParameterization
     }
 }
 
-void WIntegrationParameterization::parameterizeVoxel( const WValue< int >& voxel, size_t /*voxelIdx*/, const int /*axis*/,
+void WIntegrationParameterization::parameterizeVoxel( const WVector3i& voxel, size_t /*voxelIdx*/, const int /*axis*/,
                                                       const double /*value*/,
                                                       const WPosition& /*start*/,
                                                       const WPosition& /*end*/ )

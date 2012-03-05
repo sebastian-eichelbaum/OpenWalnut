@@ -30,7 +30,7 @@
 
 #include "core/common/math/WLine.h"
 #include "core/common/math/linearAlgebra/WLinearAlgebra.h"
-#include "core/common/math/WValue.h"
+#include "core/common/math/linearAlgebra/WVectorFixed.h"
 #include "core/common/WAssert.h"
 #include "core/common/WLogger.h"
 #include "core/dataHandler/WGridRegular3D.h"
@@ -69,8 +69,8 @@ void WBresenham::raster( const WLine& line )
 void WBresenham::rasterSegment( const WPosition& start, const WPosition& end )
 {
     int i;
-    WValue< int > gridStartPos = m_grid->getVoxelCoord( start );
-    WValue< int > gridEndPos = m_grid->getVoxelCoord( end );
+    WVector3i gridStartPos = m_grid->getVoxelCoord( start );
+    WVector3i gridEndPos = m_grid->getVoxelCoord( end );
     int dx = gridEndPos[0] - gridStartPos[0];
     int dy = gridEndPos[1] - gridStartPos[1];
     int dz = gridEndPos[2] - gridStartPos[2];
@@ -84,7 +84,7 @@ void WBresenham::rasterSegment( const WPosition& start, const WPosition& end )
     int dx2 = l << 1;
     int dy2 = m << 1;
     int dz2 = n << 1;
-    WValue< int > voxel = gridStartPos;
+    WVector3i voxel = gridStartPos;
 
     if( ( l >= m ) && ( l >= n ) )
     {
@@ -191,7 +191,7 @@ double WBresenham::composeValue( double newValue, double existingValue ) const
     // return newValue + existingValue;
 }
 
-void WBresenham::markVoxel( const WValue< int >& voxel, const int axis, const WPosition& start, const WPosition& end )
+void WBresenham::markVoxel( const WVector3i& voxel, const int axis, const WPosition& start, const WPosition& end )
 {
     size_t nbX  = m_grid->getNbCoordsX();
     size_t nbXY = m_grid->getNbCoordsX() * m_grid->getNbCoordsY();

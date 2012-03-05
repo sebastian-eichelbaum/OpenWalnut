@@ -27,6 +27,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "core/common/WLogger.h"
+#include "core/common/math/linearAlgebra/WVectorFixed.h"
 #include "core/dataHandler/WDataSetScalar.h"
 #include "core/dataHandler/WGridRegular3D.h"
 #include "WRasterAlgorithm.h"
@@ -79,7 +80,7 @@ void WRasterAlgorithm::newSegment( const WPosition& start, const WPosition& end 
     }
 }
 
-void WRasterAlgorithm::parameterizeVoxel( const WValue< int >& voxel, size_t voxelIdx, const int axis, const double value,
+void WRasterAlgorithm::parameterizeVoxel( const WVector3i& voxel, size_t voxelIdx, const int axis, const double value,
                                     const WPosition& start,
                                     const WPosition& end )
 {

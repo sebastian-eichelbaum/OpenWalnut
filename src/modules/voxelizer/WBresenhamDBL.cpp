@@ -41,8 +41,8 @@ WBresenhamDBL::~WBresenhamDBL()
 void WBresenhamDBL::rasterSegment( const WPosition& start, const WPosition& end )
 {
     int i;
-    WValue< int > gridStartPos = m_grid->getVoxelCoord( start );
-    WValue< int > gridEndPos = m_grid->getVoxelCoord( end );
+    WVector3i gridStartPos = m_grid->getVoxelCoord( start );
+    WVector3i gridEndPos = m_grid->getVoxelCoord( end );
     int dx = gridEndPos[0] - gridStartPos[0];
     int dy = gridEndPos[1] - gridStartPos[1];
     int dz = gridEndPos[2] - gridStartPos[2];
@@ -56,7 +56,7 @@ void WBresenhamDBL::rasterSegment( const WPosition& start, const WPosition& end 
     int dx2 = l << 1;
     int dy2 = m << 1;
     int dz2 = n << 1;
-    WValue< int > voxel = gridStartPos;
+    WVector3i voxel = gridStartPos;
     WPosition gridOffset( 0, 0, 0 );
     gridOffset[0] = start[0] - gridStartPos[0];
     gridOffset[1] = start[1] - gridStartPos[1];

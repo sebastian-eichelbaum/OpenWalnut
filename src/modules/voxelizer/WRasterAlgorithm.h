@@ -33,6 +33,8 @@
 #include "core/dataHandler/WDataSetScalar.h"
 #include "core/dataHandler/WGridRegular3D.h"
 #include "core/common/math/WLine.h"
+#include "core/common/math/linearAlgebra/WVectorFixed.h"
+
 #include "WRasterParameterization.h"
 
 /**
@@ -125,7 +127,7 @@ protected:
      * \param start Start point of the line segment (used to computed the distance)
      * \param end   End point of the line segment (used to computed the distance)
      */
-    virtual void parameterizeVoxel( const WValue< int >& voxel, size_t voxelIdx, const int axis, const double value,
+    virtual void parameterizeVoxel( const WVector3i& voxel, size_t voxelIdx, const int axis, const double value,
                                     const WPosition& start,
                                     const WPosition& end );
 

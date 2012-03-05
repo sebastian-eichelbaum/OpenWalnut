@@ -154,9 +154,9 @@ int WGridRegular3D::getZVoxelCoord( const WPosition& pos ) const
     return -1 + i * static_cast< int >( 1.0 + d );
 }
 
-WValue< int > WGridRegular3D::getVoxelCoord( const WPosition& pos ) const
+WVector3i WGridRegular3D::getVoxelCoord( const WPosition& pos ) const
 {
-    WValue< int > result( 3 );
+    WVector3i result;
     result[0] = getXVoxelCoord( pos );
     result[1] = getYVoxelCoord( pos );
     result[2] = getZVoxelCoord( pos );
@@ -183,9 +183,9 @@ size_t WGridRegular3D::getCellId( const WPosition& pos, bool* success ) const
     return xCellId + yCellId * ( m_nbPosX - 1 ) + zCellId * ( m_nbPosX - 1 ) * ( m_nbPosY - 1 );
 }
 
-std::vector< size_t > WGridRegular3D::getCellVertexIds( size_t cellId ) const
+WGridRegular3D::CellVertexArray WGridRegular3D::getCellVertexIds( size_t cellId ) const
 {
-    std::vector< size_t > vertices( 8 );
+    WGridRegular3D::CellVertexArray vertices;
     size_t minVertexIdZ =  cellId / ( ( m_nbPosX - 1 ) * ( m_nbPosY - 1 ) );
     size_t remainderXY = cellId - minVertexIdZ * ( ( m_nbPosX - 1 ) * ( m_nbPosY - 1 ) );
     size_t minVertexIdY = remainderXY  / ( m_nbPosX - 1 );

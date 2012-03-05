@@ -27,6 +27,8 @@
 
 #include <vector>
 
+#include "core/common/math/linearAlgebra/WVectorFixed.h"
+
 #include "WRasterParameterization.h"
 
 /**
@@ -57,7 +59,7 @@ public:
      * \param start Start point of the line segment (used to computed the distance)
      * \param end   End point of the line segment (used to computed the distance)
      */
-    virtual void parameterizeVoxel( const WValue< int >& voxel, size_t voxelIdx, const int axis, const double value,
+    virtual void parameterizeVoxel( const WVector3i& voxel, size_t voxelIdx, const int axis, const double value,
                                     const WPosition& start,
                                     const WPosition& end );
 

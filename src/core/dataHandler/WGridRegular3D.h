@@ -69,6 +69,11 @@ public:
     typedef boost::shared_ptr< const WGridRegular3D > ConstSPtr;
 
     /**
+     * Convenience typedef for a boost::array< size_t, 8 >. Return type of getCellVertexIds.
+     */
+    typedef boost::array< size_t, 8 > CellVertexArray;
+
+    /**
      * Defines the number of samples in each coordinate direction as ints,
      * and the transformation of the grid via a grid transform.
      *
@@ -338,7 +343,7 @@ public:
      * Z component of the voxel coordinate. If the selecting position is
      * outside of the grid then -1 -1 -1 is returned.
      */
-    WValue< int > getVoxelCoord( const WPosition& pos ) const;
+    WVector3i getVoxelCoord( const WPosition& pos ) const;
 
     /**
      * Computes the id of the cell containing the position pos. Note that the upper
@@ -371,7 +376,7 @@ public:
        \endverbatim
      *
      */
-    std::vector< size_t > getCellVertexIds( const size_t cellId ) const;
+    CellVertexArray getCellVertexIds( size_t cellId ) const;
 
     /**
      * Computes the vertices for a voxel cuboid around the given point:

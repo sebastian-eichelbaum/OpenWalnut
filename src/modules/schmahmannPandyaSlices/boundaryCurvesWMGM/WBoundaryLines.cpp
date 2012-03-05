@@ -236,7 +236,8 @@ osg::ref_ptr< WGEGroupNode > WBoundaryLines::generateSlice( const unsigned char 
                                                                                 //  +--0--+--1--+
 
 
-        std::vector< size_t > vertexIDs = sliceGrid->getCellVertexIds( cellID ); // only the first four are of interest since z-axis is set to zero
+        // only the first four are of interest since z-axis is set to zero
+        WGridRegular3D::CellVertexArray vertexIDs = sliceGrid->getCellVertexIds( cellID );
 
         // swap indices to make the numbering clockwise
         //

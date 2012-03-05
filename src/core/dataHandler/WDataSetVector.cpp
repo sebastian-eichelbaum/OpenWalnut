@@ -82,8 +82,11 @@ boost::shared_ptr< WPrototyped > WDataSetVector::getPrototype()
 
 namespace
 {
-    boost::array< double, 8 > computePrefactors( const WPosition& pos, boost::shared_ptr< const WGrid > i_grid,
-            boost::shared_ptr< const WValueSetBase > i_valueSet, bool *success, boost::shared_ptr< std::vector< size_t > > vertexIds )
+    boost::array< double, 8 > computePrefactors( const WPosition& pos,
+                                                 boost::shared_ptr< const WGrid > i_grid,
+                                                 boost::shared_ptr< const WValueSetBase > i_valueSet,
+                                                 bool *success,
+                                                 boost::shared_ptr< WGridRegular3D::CellVertexArray > vertexIds )
     {
         boost::shared_ptr< const WGridRegular3D > grid = boost::shared_dynamic_cast< const WGridRegular3D >( i_grid );
 
@@ -135,7 +138,7 @@ namespace
 
 WVector3d WDataSetVector::interpolate( const WPosition& pos, bool *success ) const
 {
-    boost::shared_ptr< std::vector< size_t > > vertexIds( new std::vector< size_t > );
+    boost::shared_ptr< WGridRegular3D::CellVertexArray > vertexIds( new WGridRegular3D::CellVertexArray );
     boost::array< double, 8 > h = computePrefactors( pos, m_grid, m_valueSet, success, vertexIds );
     WVector3d result( 0.0, 0.0, 0.0 );
 
@@ -152,7 +155,7 @@ WVector3d WDataSetVector::interpolate( const WPosition& pos, bool *success ) con
 
 WVector3d WDataSetVector::eigenVectorInterpolate( const WPosition& pos, bool *success ) const
 {
-    boost::shared_ptr< std::vector< size_t > > vertexIds( new std::vector< size_t > );
+    boost::shared_ptr< WGridRegular3D::CellVertexArray > vertexIds( new WGridRegular3D::CellVertexArray );
     boost::array< double, 8 > h = computePrefactors( pos, m_grid, m_valueSet, success, vertexIds );
     WVector3d result( 0.0, 0.0, 0.0 );
 

@@ -26,6 +26,8 @@
 #include <iostream>
 #include <vector>
 
+#include "core/common/math/linearAlgebra/WVectorFixed.h"
+
 #include "WCenterlineParameterization.h"
 
 WCenterlineParameterization::WCenterlineParameterization( boost::shared_ptr< WGridRegular3D > grid, boost::shared_ptr< WFiber > centerline ):
@@ -119,7 +121,7 @@ namespace wcp // WCenterlineParameterization
     }
 }
 
-void WCenterlineParameterization::parameterizeVoxel( const WValue< int >& voxel, size_t /*voxelIdx*/, const int /*axis*/,
+void WCenterlineParameterization::parameterizeVoxel( const WVector3i& voxel, size_t /*voxelIdx*/, const int /*axis*/,
                                                       const double /*value*/,
                                                       const WPosition& /*start*/,
                                                       const WPosition& /*end*/ )
