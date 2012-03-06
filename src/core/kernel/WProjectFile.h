@@ -28,21 +28,17 @@
 #include <string>
 #include <vector>
 
-// Use filesystem version 2 for compatibility with newer boost versions.
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
 #include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "../common/WProjectFileIO.h"
-#include "WExportKernel.h"
+
 
 /**
  * Class loading project files. This class opens an file and reads it line by line. It delegates the actual parsing to each of the known
  * WProjectFileIO instances which then do their job.
  */
-class OWKERNEL_EXPORT WProjectFile: public WThreadedRunner,
+class  WProjectFile: public WThreadedRunner,
                                       public boost::enable_shared_from_this< WProjectFile >
 {
 public:

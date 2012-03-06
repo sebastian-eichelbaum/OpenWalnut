@@ -32,7 +32,7 @@
 
 #include "WGECallbackTraits.h"
 #include "../../common/WProperties.h"
-#include "../WExportWGE.h"
+
 
 /**
  * TODO(ebaum): write.

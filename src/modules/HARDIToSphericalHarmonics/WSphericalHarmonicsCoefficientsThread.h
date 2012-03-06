@@ -145,6 +145,11 @@ public:
         bool m_normalize;
 
         /**
+         * Indicate if the constant solid angle reconstruction is done.
+         */
+        bool m_csa;
+
+        /**
          * A shutdownFlag that may tell the thread to stop.
          */
         WBoolFlag const& m_shutdownFlag;
@@ -200,6 +205,9 @@ void WSphericalHarmonicsCoefficientsThread< T >::threadMain()
     m_errorCount = 0;
     m_overallError = 0.0;
 
+    WMatrix<double> transformMatrix( *m_parameter.m_TransformMatrix );
+    size_t l = ( m_parameter.m_order + 1 ) * ( m_parameter.m_order + 2 ) / 2;
+
     for( size_t i = m_range.first; i < m_range.second; i++ )
     {
         if( m_parameter.m_shutdownFlag() )
@@ -228,22 +236,46 @@ void WSphericalHarmonicsCoefficientsThread< T >::threadMain()
         }
         S0avg /= m_parameter.m_S0Indexes.size();
 
-        double minVal = 1e99;
-        double maxVal = -1e99;
+        // to have a valid value for the average S0 signal
+        if( S0avg <= 0.01 )
+        {
+            S0avg = 0.01;
+        }
+
+        // double minVal = 1e99;
+        // double maxVal = -1e99;
+        double thresholdDelta1 = 0.01;
+        double thresholdDelta2 = 0.01;
         for( std::vector< size_t >::const_iterator it = m_parameter.m_validIndices.begin(); it != m_parameter.m_validIndices.end(); it++, idx++ )
         {
-            measures[ idx ] = S0avg <= 0.0 ? 0.0 : static_cast< double >( allMeasures[ *it ] ) / S0avg;
-            if( measures[ idx ] < minVal )
+            if( m_parameter.m_csa )
             {
-                minVal = measures[ idx ];
+                double val = static_cast< double >( allMeasures[ *it ] ) / S0avg;
+                if( val < 0.0)
+                {
+                    val = thresholdDelta1 / 2.0;
+                }
+                else if( val < thresholdDelta1 )
+                {
+                    val = thresholdDelta1 / 2.0 + val * val / ( 2.0 * thresholdDelta1 );
+                }
+                else if( val > 1.0 - thresholdDelta2 && val < 1.0 )
+                {
+                    val = 1.0 - thresholdDelta2 / 2.0 - std::pow( 1.0 - val, 2 ) / ( 2.0 * thresholdDelta2 );
+                }
+                else if( val >= 1.0 )
+                {
+                    val = 1.0 - thresholdDelta2 / 2.0;
+                }
+                measures[ idx ] = std::log( -std::log( val  ) );
             }
-            if( measures[ idx ] > maxVal )
+            else
             {
-                maxVal = measures[ idx ];
+                measures[ idx ] = static_cast< double >( allMeasures[ *it ] ) / S0avg;
             }
         }
 
-        WValue< double > coefficients( ( *m_parameter.m_TransformMatrix ) * measures );
+        WValue< double > coefficients( *m_parameter.m_TransformMatrix * measures );
 
         if( m_parameter.m_doResidualCalculation || m_parameter.m_doErrorCalculation )
         {
@@ -269,7 +301,6 @@ void WSphericalHarmonicsCoefficientsThread< T >::threadMain()
         ++( *( m_parameter.m_progress ) );
 
         // copy coefficients to output "data"
-        size_t l = ( m_parameter.m_order + 1 ) * ( m_parameter.m_order + 2 ) / 2;
 
         // normalization
         double scale = 1.0;
@@ -278,9 +309,15 @@ void WSphericalHarmonicsCoefficientsThread< T >::threadMain()
             scale *= std::sqrt( 4.0 * piDouble ) / coefficients[ 0 ];
         }
 
+        if( m_parameter.m_csa )
+        {
+            coefficients[ 0 ] = 1.0 / ( 2.0 * std::sqrt( piDouble ) );
+        }
+
         for( std::size_t j = 0; j < l; j++ )
         {
             m_parameter.m_data->operator[]( l * i + j ) = coefficients[ j ];
+            // wlog::debug( "WSphericalHarmonicsCoefficientsThread" ) << "coefficients[" << j << "]: " << coefficients[ j ];
         }
     }
 }

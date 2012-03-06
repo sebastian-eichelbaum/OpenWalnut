@@ -24,7 +24,6 @@
 
 #include <string>
 
-#include <boost/lexical_cast.hpp>
 
 #include <osg/Geode>
 #include <osg/Geometry>
@@ -32,6 +31,7 @@
 #include <osg/PositionAttitudeTransform>
 #include <osgText/Text>
 
+#include "core/common/WStringUtils.h"
 #include "core/common/WPathHelper.h"
 
 #include "WRulerOrtho.h"
@@ -106,7 +106,7 @@ void WRulerOrtho::addLabel( osg::Vec3 position, std::string text )
     labelGeode->addDrawable( label );
 
     // setup font
-    label->setFont( WPathHelper::getAllFonts().Default.file_string() );
+    label->setFont( WPathHelper::getAllFonts().Default.string() );
     label->setBackdropType( osgText::Text::OUTLINE );
     label->setCharacterSize( 6 );
 
@@ -178,7 +178,7 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createXY()
                     rlength += 1.0;
                     if( m_showNumbers )
                     {
-                        addLabel( osg::Vec3( tmpPoint[0], tmpPoint[1], m_origin.z() ), boost::lexical_cast< std::string >( i ) );
+                        addLabel( osg::Vec3( tmpPoint[0], tmpPoint[1], m_origin.z() ), string_utils::toString( i ) );
                     }
                 }
                 if( i % 5 == 0 )
@@ -252,7 +252,7 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createXZ()
                     rlength += 1.0;
                     if( m_showNumbers )
                     {
-                        addLabel( osg::Vec3( tmpPoint[0], m_origin.y(), tmpPoint[2] ), boost::lexical_cast< std::string >( i ) );
+                        addLabel( osg::Vec3( tmpPoint[0], m_origin.y(), tmpPoint[2] ), string_utils::toString( i ) );
                     }
                 }
                 if( i % 5 == 0 )
@@ -325,7 +325,7 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createYX()
                     rlength += 1.0;
                     if( m_showNumbers )
                     {
-                        addLabel( osg::Vec3( tmpPoint[0], tmpPoint[1], m_origin.z() ), boost::lexical_cast< std::string >( i ) );
+                        addLabel( osg::Vec3( tmpPoint[0], tmpPoint[1], m_origin.z() ), string_utils::toString( i ) );
                     }
                 }
                 if( i % 5 == 0 )
@@ -400,7 +400,7 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createYZ()
                     rlength += 1.0;
                     if( m_showNumbers )
                     {
-                        addLabel( osg::Vec3( m_origin.x(), tmpPoint[1], tmpPoint[2] ), boost::lexical_cast< std::string >( i ) );
+                        addLabel( osg::Vec3( m_origin.x(), tmpPoint[1], tmpPoint[2] ), string_utils::toString( i ) );
                     }
                 }
                 if( i % 5 == 0 )
@@ -475,7 +475,7 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createZX()
                     rlength += 1.0;
                     if( m_showNumbers )
                     {
-                        addLabel( osg::Vec3( tmpPoint[0], m_origin.y(), tmpPoint[2] ), boost::lexical_cast< std::string >( i ) );
+                        addLabel( osg::Vec3( tmpPoint[0], m_origin.y(), tmpPoint[2] ), string_utils::toString( i ) );
                     }
                 }
                 if( i % 5 == 0 )
@@ -550,7 +550,7 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createZY()
                     rlength += 1.0;
                     if( m_showNumbers )
                     {
-                        addLabel( osg::Vec3( m_origin.x(), tmpPoint[1], tmpPoint[2] ), boost::lexical_cast< std::string >( i ) );
+                        addLabel( osg::Vec3( m_origin.x(), tmpPoint[1], tmpPoint[2] ), string_utils::toString( i ) );
                     }
                 }
                 if( i % 5 == 0 )
@@ -576,22 +576,22 @@ std::string WRulerOrtho::numberToString( int number )
     switch( m_scaleMode )
     {
         case RULER_ALONG_X_AXIS_SCALE_Y:
-            return boost::lexical_cast< std::string >( m_coordConverter->numberToCsX( number ) );
+            return string_utils::toString( m_coordConverter->numberToCsX( number ) );
             break;
         case RULER_ALONG_X_AXIS_SCALE_Z:
-            return boost::lexical_cast< std::string >( m_coordConverter->numberToCsX( number ) );
+            return string_utils::toString( m_coordConverter->numberToCsX( number ) );
             break;
         case RULER_ALONG_Y_AXIS_SCALE_X:
-            return boost::lexical_cast< std::string >( m_coordConverter->numberToCsY( number ) );
+            return string_utils::toString( m_coordConverter->numberToCsY( number ) );
             break;
         case RULER_ALONG_Y_AXIS_SCALE_Z:
-            return boost::lexical_cast< std::string >( m_coordConverter->numberToCsY( number ) );
+            return string_utils::toString( m_coordConverter->numberToCsY( number ) );
             break;
         case RULER_ALONG_Z_AXIS_SCALE_X:
-            return boost::lexical_cast< std::string >( m_coordConverter->numberToCsZ( number ) );
+            return string_utils::toString( m_coordConverter->numberToCsZ( number ) );
             break;
         case RULER_ALONG_Z_AXIS_SCALE_Y:
-            return boost::lexical_cast< std::string >( m_coordConverter->numberToCsZ( number ) );
+            return string_utils::toString( m_coordConverter->numberToCsZ( number ) );
             break;
         default:
             break;

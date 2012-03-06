@@ -22,11 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
-#version 120
+#include <string>
 
-uniform vec4 u_gwColor;
+#include "WParseError.h"
 
-void main()
+WParseError::WParseError( const std::string& msg )
+    : WException( msg )
 {
-    gl_FragColor = u_gwColor;
+    // init members
+}
+
+WParseError::~WParseError() throw()
+{
+    // clean up
 }

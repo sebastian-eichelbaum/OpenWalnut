@@ -40,7 +40,7 @@
 #include "WPropertyVariable.h"
 #include "WSharedSequenceContainer.h"
 
-#include "WExportCommon.h"
+
 
 /**
  * This is the base class and interface for property groups. This class itself is abstract and derived from WPropertyBase. So if you create a
@@ -50,7 +50,7 @@
  *
  * Another advantage is, that the GUI implementations which support WPropertyGroupBase can display your custom properties directly.
  */
-class OWCOMMON_EXPORT WPropertyGroupBase: public WPropertyBase
+class WPropertyGroupBase: public WPropertyBase
 {
 public:
     /**

@@ -28,12 +28,12 @@
 #include <string>
 
 #include "../WException.h"
-#include "../WExportCommon.h"
+
 
 /**
  * Thrown whenever a library could not been loaded. This may be caused by a file not found error or link errors.
  */
-class OWCOMMON_EXPORT WLibraryLoadFailed : public WException
+class WLibraryLoadFailed : public WException
 {
 public:
     /**

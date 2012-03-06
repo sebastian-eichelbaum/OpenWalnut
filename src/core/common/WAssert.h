@@ -28,7 +28,7 @@
 #include <string>
 
 #include "WException.h"
-#include "WExportCommon.h"
+
 
 /**
  * Implements assertion logic.
@@ -41,7 +41,7 @@
  * \param line The line in the file.
  * \param msg An optional message.
  */
-void OWCOMMON_EXPORT wAssertFailed( std::string const& expression, std::string const& file, std::size_t line, std::string const& msg );
+void wAssertFailed( std::string const& expression, std::string const& file, std::size_t line, std::string const& msg );
 
 //! the actual assertion macro
 #define WAssert( e, msg )  ( ( e ) ? ( ( void )0 ) : ( wAssertFailed( #e, __FILE__, __LINE__, msg ) ) )

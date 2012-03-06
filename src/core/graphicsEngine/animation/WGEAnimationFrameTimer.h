@@ -29,12 +29,12 @@
 
 #include "../../common/WTimer.h"
 
-#include "../WExportWGE.h"
+
 
 /**
  * Frame-based animation timing.
  */
-class WGE_EXPORT WGEAnimationFrameTimer: public WTimer
+class WGEAnimationFrameTimer: public WTimer
 {
 public:
     /**

@@ -493,7 +493,7 @@ void WMTemplate::moduleMain()
             // whether it has been changed externally.
 
             // This is a simple example for doing an operation which is not depending on any other property.
-            debugLog() << "Doing an operation on the file \"" << m_aFile->get( true ).file_string() << "\".";
+            debugLog() << "Doing an operation on the file \"" << m_aFile->get( true ).string() << "\".";
 
             // NOTE: be careful if you want to use dataSet here, as it might be unset. Verify data validity using dataUpdated && dataValid.
         }

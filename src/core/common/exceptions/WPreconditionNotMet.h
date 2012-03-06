@@ -30,12 +30,12 @@
 #include <utility>
 
 #include "../WException.h"
-#include "../WExportCommon.h"
+
 
 /**
  * An exception that gets thrown when preconditions of a function are not met.
  */
-class OWCOMMON_EXPORT WPreconditionNotMet : public WException
+class WPreconditionNotMet : public WException
 {
 public:
     /**

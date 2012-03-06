@@ -33,7 +33,7 @@
 #include <osg/NodeCallback>
 
 #include "../common/WPredicateHelper.h"
-#include "WExportWGE.h"
+
 
 /**
  * Class to wrap around the osg Group node and providing a thread safe add/removal mechanism. Please be sure to use
@@ -43,7 +43,7 @@
  *
  * \ingroup GE
  */
-class WGE_EXPORT WGEGroupNode: public osg::MatrixTransform
+class WGEGroupNode: public osg::MatrixTransform
 {
 public:
     /**

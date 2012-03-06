@@ -28,12 +28,12 @@
 #include <string>
 
 #include "../WException.h"
-#include "../WExportCommon.h"
+
 
 /**
  * Indicates invalid type of something. This is a general purpose exception wherever a dynamic cast fails for example.
  */
-class OWCOMMON_EXPORT WTypeMismatch : public WException
+class WTypeMismatch : public WException
 {
 public:
     /**

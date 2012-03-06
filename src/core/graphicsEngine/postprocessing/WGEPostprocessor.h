@@ -44,7 +44,7 @@
 #include "../../common/WProperties.h"
 #include "../../common/WPrototyped.h"
 
-#include "../WExportWGE.h"
+
 
 /**
  * The base class for all custom post-processors. It allows building an own texture processing pipeline for special processings.

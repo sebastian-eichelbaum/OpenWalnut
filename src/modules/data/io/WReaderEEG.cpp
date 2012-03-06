@@ -26,8 +26,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
-
+#include "core/common/WStringUtils.h"
 #include "core/common/WAssert.h"
 #include "core/common/WLogger.h"
 
@@ -65,7 +64,7 @@ WEEGElectrodeLibrary WReaderEEG::extractElectrodePositions()
         }
     }
     std::vector< std::string > tokens = su::tokenize( line );
-    size_t numPositions = boost::lexical_cast< size_t >( tokens.at( 1 ) );
+    size_t numPositions = string_utils::fromString< size_t >( tokens.at( 1 ) );
 
     while( ifs.good() && line.substr( 0, 9 ) != "Positions" )  // go to line before start of positions
     {
@@ -93,9 +92,9 @@ WEEGElectrodeLibrary WReaderEEG::extractElectrodePositions()
             label = su::rTrim( label );
 //                 std::cout << "Loading positions: " << label << std::endl;
             std::vector< std::string > posTokens = su::tokenize( lineTokens.at( 1 ) );
-            double posX = boost::lexical_cast< double >( posTokens.at( 1 ) );
-            double posY = boost::lexical_cast< double >( posTokens.at( 2 ) );
-            double posZ = boost::lexical_cast< double >( posTokens.at( 3 ) );
+            double posX = string_utils::fromString< double >( posTokens.at( 1 ) );
+            double posY = string_utils::fromString< double >( posTokens.at( 2 ) );
+            double posZ = string_utils::fromString< double >( posTokens.at( 3 ) );
             WPosition pos( posX, posY, posZ );
             elecPos.push_back( WEEGElectrodeObject( pos ) );
 //                 std::cout << "Loading positions: " << pos << std::endl;

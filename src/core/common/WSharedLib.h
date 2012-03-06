@@ -28,13 +28,9 @@
 #include <algorithm>
 #include <string>
 
-// Use filesystem version 2 for compatibility with newer boost versions.
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
 #include <boost/filesystem.hpp>
 
-#include "WExportCommon.h"
+
 
 /**
  * This class loads shared libraries and provides function pointers. This is especially useful for dynamic loading of shared libraries during
@@ -45,7 +41,7 @@
  * \warning Because the POSIX standard does not enforce thread safety for the functions dlopen, dlclose, dlerror, and dlsym, these should not
  *          be used simultaneously with variables of this class.
  */
-class OWCOMMON_EXPORT WSharedLib // NOLINT
+class WSharedLib // NOLINT
 {
 public:
     /**

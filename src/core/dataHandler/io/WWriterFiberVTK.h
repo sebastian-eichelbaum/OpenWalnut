@@ -27,22 +27,18 @@
 
 #include <string>
 
-// Use filesystem version 2 for compatibility with newer boost versions.
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
 #include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "../WDataSetFiberVector.h"
 #include "../WDataSetFibers.h"
-#include "../WExportDataHandler.h"
+
 #include "WWriter.h"
 
 /**
  * Writes a FiberVTK file.
  */
-class OWDATAHANDLER_EXPORT WWriterFiberVTK : public WWriter // NOLINT
+class WWriterFiberVTK : public WWriter // NOLINT
 {
 public:
     /**

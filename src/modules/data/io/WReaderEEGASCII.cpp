@@ -27,7 +27,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
 
 #include "core/common/WAssert.h"
 #include "core/common/WException.h"
@@ -74,7 +73,7 @@ boost::shared_ptr< WDataSet > WReaderEEGASCII::load()
         WAssert( tokens.size() == nbChannels, "Error." );
         for( unsigned int i = 0; i < nbChannels; ++i )
         {
-            segments[0][i].push_back(  boost::lexical_cast< double >( tokens[i].c_str() ) );
+            segments[0][i].push_back( string_utils::fromString< double >( tokens[i].c_str() ) );
         }
         getline( in, tmp );
     }

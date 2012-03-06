@@ -28,7 +28,7 @@
 #include <cstddef>
 
 #include "../common/WBoundingBox.h"
-#include "WExportDataHandler.h"
+
 
 // forward declarations
 class WPropertyGroup;
@@ -37,7 +37,7 @@ class WPropertyGroup;
  * Base class to all grid types, e.g. a regular grid.
  * \ingroup dataHandler
  */
-class OWDATAHANDLER_EXPORT WGrid // NOLINT
+class WGrid // NOLINT
 {
 public:
     /**

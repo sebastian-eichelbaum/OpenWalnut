@@ -33,8 +33,6 @@ WConditionOneShot::WConditionOneShot()
 
 WConditionOneShot::~WConditionOneShot()
 {
-    // win crashes here sometimes
-#ifndef _MSC_VER
     // cleanup
     try
     {
@@ -44,7 +42,6 @@ WConditionOneShot::~WConditionOneShot()
     {
         // ignore this particular error since it is thrown when the lock is not locked anymore
     }
-#endif
 }
 
 void WConditionOneShot::wait() const

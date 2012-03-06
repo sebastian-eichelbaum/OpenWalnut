@@ -27,21 +27,17 @@
 
 #include <string>
 
-// Use filesystem version 2 for compatibility with newer boost versions.
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
 #include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "../WExportDataHandler.h"
+
 #include "WWriter.h"
 
 class WDendrogram;
 /**
  * Writes a Dendrogram file.
  */
-class OWDATAHANDLER_EXPORT WWriterDendrogram : public WWriter // NOLINT
+class WWriterDendrogram : public WWriter // NOLINT
 {
 public:
     /**

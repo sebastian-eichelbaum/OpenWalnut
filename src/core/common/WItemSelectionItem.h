@@ -27,12 +27,12 @@
 
 #include <string>
 
-#include "WExportCommon.h"
+
 
 /**
  * Class for keeping a single named item in a WItemSelection.
  */
-class OWCOMMON_EXPORT WItemSelectionItem // NOLINT
+class WItemSelectionItem // NOLINT
 {
 public:
     /**

@@ -43,12 +43,12 @@
 #include "../../common/WTimer.h"
 #include "../../common/WRealtimeTimer.h"
 
-#include "../WExportWGE.h"
+
 
 /**
  * New OSG manipulator: AnimationManipulator. Can play back animation paths (not osg::AnimationPath),
  */
-class WGE_EXPORT WGEAnimationManipulator: public osgGA::MatrixManipulator
+class WGEAnimationManipulator: public osgGA::MatrixManipulator
 {
 public:
     /**

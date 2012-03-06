@@ -36,7 +36,7 @@
 #include "../common/WBoundingBox.h"
 #include "../common/WProperties.h"
 #include "WDataSet.h"
-#include "WExportDataHandler.h"
+
 
 // forward declarations
 class WFiber;
@@ -44,7 +44,7 @@ class WFiber;
 /**
  * Represents a simple set of WFibers.
  */
-class OWDATAHANDLER_EXPORT WDataSetFibers : public WDataSet // NOLINT
+class WDataSetFibers : public WDataSet // NOLINT
 {
 public:
     // some type alias for the used arrays.

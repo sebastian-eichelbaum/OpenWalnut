@@ -28,7 +28,7 @@
 #include <boost/shared_ptr.hpp>
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
-#include "WExportKernel.h"
+
 
 /**
  * This class stores the position of the crossing navigation slices,
@@ -36,7 +36,7 @@
  * It can be used for placing things. An example are the ROIBoxes which
  * are placed at the crosshairs position at the moment I am writing this.
  */
-class OWKERNEL_EXPORT WCrosshair
+class  WCrosshair
 {
 public:
     /**

@@ -184,7 +184,7 @@ void WMHud::init()
     m_osgPickText = osg::ref_ptr< osgText::Text >( new osgText::Text() );
 
     m_osgPickText->setCharacterSize( 14 );
-    m_osgPickText->setFont( WPathHelper::getAllFonts().Default.file_string() );
+    m_osgPickText->setFont( WPathHelper::getAllFonts().Default.string() );
     m_osgPickText->setText( "nothing picked" );
     m_osgPickText->setAxisAlignment( osgText::Text::SCREEN );
     m_osgPickText->setPosition( osg::Vec3( 600, 80, -1.5 ) );

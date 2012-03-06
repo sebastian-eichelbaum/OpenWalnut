@@ -30,7 +30,6 @@
 #include <utility>
 
 #include <boost/regex.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include "../WKernel.h"
 #include "../WModuleCombiner.h"
@@ -43,6 +42,7 @@
 #include "../exceptions/WModuleConnectorNotFound.h"
 
 #include "../../common/exceptions/WFileNotFound.h"
+#include "../../common/WStringUtils.h"
 #include "../../common/WProperties.h"
 #include "../../common/WPropertyBase.h"
 #include "../../common/WPropertyVariable.h"
@@ -73,7 +73,7 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
 {
     // this is the proper regular expression for modules
     static const boost::regex modRe( "^ *MODULE:([0-9]*):(.*)$" );
-    static const boost::regex dataRe( "^ *DATA:([0-9]*):(.*)$" );
+    static const boost::regex dataRe( "^ *DATA:([0-9]*):\"?([^\"]*)\"?$" );
     static const boost::regex conRe( "^ *CONNECTION:\\(([0-9]*),(.*)\\)->\\(([0-9]*),(.*)\\)$" );
     static const boost::regex propRe( "^ *PROPERTY:\\(([0-9]*),(.*)\\)=(.*)$" );
 
@@ -102,7 +102,7 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
         else
         {
             boost::shared_ptr< WModule > module = WModuleFactory::getModuleFactory()->create( proto );
-            m_modules.insert( ModuleID( boost::lexical_cast< unsigned int >( matches[1] ), module ) );
+            m_modules.insert( ModuleID( string_utils::fromString< unsigned int >( matches[1] ), module ) );
         }
     }
     else if( boost::regex_match( line, matches, dataRe ) )
@@ -130,7 +130,7 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
             else
             {
                 boost::shared_static_cast< WDataModule >( module )->setFilename( parameter );
-                m_modules.insert( ModuleID( boost::lexical_cast< unsigned int >( matches[1] ), module ) );
+                m_modules.insert( ModuleID( string_utils::fromString< unsigned int >( matches[1] ), module ) );
             }
         }
     }
@@ -144,8 +144,8 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
                                                  << matches[1] << " and \"" << matches[4] << "\" of module " << matches[3] << ".";
 
         // now we search in modules[ matches[1] ] for an output connector named matches[2]
-        m_connections.push_back( Connection( Connector( boost::lexical_cast< unsigned int >( matches[1] ), matches[2] ),
-                                           Connector( boost::lexical_cast< unsigned int >( matches[3] ), matches[4] ) ) );
+        m_connections.push_back( Connection( Connector( string_utils::fromString< unsigned int >( matches[1] ), matches[2] ),
+                                           Connector( string_utils::fromString< unsigned int >( matches[3] ), matches[4] ) ) );
     }
     else if( boost::regex_match( line, matches, propRe ) )
     {
@@ -157,7 +157,7 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
         wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Property \"" << matches[2] << "\" of module " << matches[1]
                                                  << " set to " << matches[3];
 
-        m_properties.push_back( PropertyValue( Property( boost::lexical_cast< unsigned int >( matches[1] ), matches[2] ), matches[3] ) );
+        m_properties.push_back( PropertyValue( Property( string_utils::fromString< unsigned int >( matches[1] ), matches[2] ), matches[3] ) );
     }
     else
     {
@@ -369,7 +369,7 @@ void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
         // handle data modules separately
         if( ( *iter )->getType() == MODULE_DATA )
         {
-            output << "DATA:" << i << ":" <<  boost::shared_static_cast< WDataModule >( ( *iter ) )->getFilename() << std::endl;
+            output << "DATA:" << i << ":" <<  boost::shared_static_cast< WDataModule >( ( *iter ) )->getFilename().string() << std::endl;
         }
         else
         {

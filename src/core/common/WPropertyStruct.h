@@ -97,7 +97,7 @@ namespace WPropertyStructHelper
     /**
      * Alias for default type to emulate variadic templates
      */
-    typedef  boost::mpl::na NOTYPE;
+    typedef boost::mpl::na NOTYPE;
 
     /**
      * Convert a list of template parameters to a boost::mpl::vector. This is currently done using the boost::mpl no-type type. This might get a
@@ -208,12 +208,12 @@ public:
     /**
      * Convenience typedef for a boost::shared_ptr< WPropertyStructType >
      */
-    typedef boost::shared_ptr< WPropertyStructType > SPtr;
+    typedef typename boost::shared_ptr< WPropertyStructType > SPtr;
 
     /**
      * Convenience typedef for a  boost::shared_ptr< const WPropertyStructType >
      */
-    typedef boost::shared_ptr< const WPropertyStructType > ConstSPtr;
+    typedef typename boost::shared_ptr< const WPropertyStructType > ConstSPtr;
 
     /**
      * The boost mpl vector for all the types specified.
@@ -351,7 +351,7 @@ public:
     virtual WPropertyBase::SPtr clone()
     {
         // just use the copy constructor
-        return WPropertyStructType::SPtr( new WPropertyStructType( *this ) );
+        return typename WPropertyStructType::SPtr( new WPropertyStructType( *this ) );
     }
 
     /**

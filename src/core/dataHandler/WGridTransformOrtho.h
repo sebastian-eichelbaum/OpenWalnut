@@ -28,14 +28,14 @@
 #include "../common/math/WMatrix.h"
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
-#include "WExportDataHandler.h"
+
 
 /**
  * Implements an orthogonal grid transformation.
  *
  * \class WGridTransformOrtho
  */
-class OWDATAHANDLER_EXPORT WGridTransformOrtho
+class WGridTransformOrtho
 {
 public:
     /**
@@ -158,6 +158,12 @@ public:
     WPosition getOrigin() const;
 
     /**
+     * Returns the scaling of the grid.
+     * \return The scaling of the grid.
+     */
+    const WVector3d& getScaling() const;
+
+    /**
      * Returns a 4x4 matrix that represents the grid's transformaion.
      * \return The grid's transformation.
      */
@@ -197,13 +203,13 @@ public:
 
 private:
     //! normalized direction of the grid's x-axis in world coordinates
-    WVector3d m_directionX;
+    WVector3d m_unitDirectionX;
 
     //! normalized direction of the grid's y-axis in world coordinates
-    WVector3d m_directionY;
+    WVector3d m_unitDirectionY;
 
     //! normalized direction of the grid's z-axis in world coordinates
-    WVector3d m_directionZ;
+    WVector3d m_unitDirectionZ;
 
     //! the scaling factors for the 3 axes, i.e. the distance between samples
     WVector3d m_scaling;
@@ -226,6 +232,11 @@ void WGridTransformOrtho::scale( VecType const& scale )
     m_scaling[ 0 ] *= scale[ 0 ];
     m_scaling[ 1 ] *= scale[ 1 ];
     m_scaling[ 2 ] *= scale[ 2 ];
+}
+
+inline const WVector3d& WGridTransformOrtho::getScaling() const
+{
+    return m_scaling;
 }
 
 #endif  // WGRIDTRANSFORMORTHO_H

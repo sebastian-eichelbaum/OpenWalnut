@@ -30,7 +30,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../WExportCommon.h"
+
 /**
  * Implements a very simple union-find datastructure aka disjoint_sets.
  * \note I know there is a boost solution on that, but I didn't get it to work and I don't know how fast it is:
@@ -70,7 +70,7 @@
    dset.find_set( u ); // find the set owning u. A representative of the set is returned
    \endverbatim
  */
-class OWCOMMON_EXPORT WUnionFind
+class WUnionFind
 {
 friend class WUnionFindTest;
 public:

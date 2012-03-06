@@ -22,15 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
-#version 120
+#ifndef WGRAPHICSENGINEMODE_H
+#define WGRAPHICSENGINEMODE_H
 
-/**
- * Vertex Main. Simply transforms the geometry. The work is done per fragment.
- */
-void main()
-{
-    // for easy access to texture coordinates
-    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_Vertex;
+#if ( defined( WGEMODE_SINGLETHREADED ) || defined( WGEMODE_MULTITHREADED ))
+    // should we do something here? No! We assume the user defined it in cmake
+#else
+    #ifdef __APPLE__
+        #define WGEMODE_SINGLETHREADED
+    #else
+        #define WGEMODE_MULTITHREADED
+    #endif
 
-    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-}
+#endif
+
+#endif  // WGRAPHICSENGINEMODE_H
+

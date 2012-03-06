@@ -34,6 +34,8 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QVBoxLayout>
 
+#include "core/kernel/WModule.h"
+
 #include "../WQtCombinerToolbar.h"
 #include "layout/WNetworkLayout.h"
 #include "WQtNetworkItem.h"
@@ -81,9 +83,23 @@ public:
     void deleteSelectedItems();
 
     /**
-     * TODO
+     * Query a list of selected items.
+     *
+     * \return the list
      **/
-    QList<QGraphicsItem *> selectedItems() const;
+    QList< QGraphicsItem* > selectedItems() const;
+
+    /**
+     * Clears the selection.
+     */
+    void clearSelection();
+
+    /**
+     * Select the item representing the given module. If module not found or NULL, nothing is selected.
+     *
+     * \param module the module
+     */
+    void selectByModule( WModule::SPtr module );
 
 protected:
     /**
@@ -103,7 +119,7 @@ protected:
 private:
     WQtNetworkScene* m_scene; //!< QGraphicsScene
 
-    WNetworkLayout *m_layout; //!< the object that handels the layout
+    WNetworkLayout* m_layout; //!< the object that handels the layout
 
     QList< WQtNetworkItem* > m_items; //!< a list of the WQtNetworkItems in the WQtNetworkScene
 

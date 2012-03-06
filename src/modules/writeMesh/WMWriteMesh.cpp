@@ -158,7 +158,7 @@ bool WMWriteMesh::saveVTKASCII() const
         return false;
     }
 
-    const char* c_file = m_meshFile->get().file_string().c_str();
+    const char* c_file = m_meshFile->get().string().c_str();
     std::ofstream dataFile( c_file, std::ios_base::binary );
 
     if( dataFile )
@@ -167,7 +167,7 @@ bool WMWriteMesh::saveVTKASCII() const
     }
     else
     {
-        WLogger::getLogger()->addLogMessage( "open file failed" + m_meshFile->get().file_string() , "Write Mesh", LL_ERROR );
+        WLogger::getLogger()->addLogMessage( "open file failed" + m_meshFile->get().string() , "Write Mesh", LL_ERROR );
         return false;
     }
 
@@ -235,7 +235,7 @@ bool WMWriteMesh::saveJson() const
         return false;
     }
 
-    const char* c_file = m_meshFile->get().file_string().c_str();
+    const char* c_file = m_meshFile->get().string().c_str();
     std::ofstream dataFile( c_file, std::ios_base::binary );
 
     if( dataFile )
@@ -244,7 +244,7 @@ bool WMWriteMesh::saveJson() const
     }
     else
     {
-        WLogger::getLogger()->addLogMessage( "open file failed" + m_meshFile->get().file_string() , "Write Mesh", LL_ERROR );
+        WLogger::getLogger()->addLogMessage( "open file failed" + m_meshFile->get().string() , "Write Mesh", LL_ERROR );
         return false;
     }
 

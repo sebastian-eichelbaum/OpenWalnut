@@ -28,6 +28,7 @@
 
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 
+#include "core/common/WLogger.h"
 #include "../exceptions/WPreconditionNotMet.h"
 #include "linearAlgebra/WLinearAlgebra.h"
 #include "WLinearAlgebraFunctions.h"
@@ -270,9 +271,9 @@ WMatrix<double> WSymmetricSphericalHarmonic::getSHFittingMatrix( const std::vect
 }
 
 WMatrix<double> WSymmetricSphericalHarmonic::getSHFittingMatrix( const std::vector< WUnitSphereCoordinates >& orientations,
-                                                                        int order,
-                                                                        double lambda,
-                                                                        bool withFRT )
+                                                                 int order,
+                                                                 double lambda,
+                                                                 bool withFRT )
 {
   WMatrix<double> B( WSymmetricSphericalHarmonic::calcBaseMatrix( orientations, order ) );
   WMatrix<double> Bt( B.transposed() );
@@ -284,7 +285,6 @@ WMatrix<double> WSymmetricSphericalHarmonic::getSHFittingMatrix( const std::vect
   }
 
   result = pseudoInverse( result )*Bt;
-//   result *= Bt;
   if( withFRT )
   {
     WMatrix<double> P( WSymmetricSphericalHarmonic::calcFRTMatrix( order ) );
@@ -292,6 +292,57 @@ WMatrix<double> WSymmetricSphericalHarmonic::getSHFittingMatrix( const std::vect
   }
   return result;
 }
+
+WMatrix<double> WSymmetricSphericalHarmonic::getSHFittingMatrixForConstantSolidAngle( const std::vector< WVector3d >& orientations,
+                                                                                      int order,
+                                                                                      double lambda )
+{
+  // convert euclid 3d orientations/gradients to sphere coordinates
+  std::vector< WUnitSphereCoordinates > sphereCoordinates;
+  for( std::vector< WVector3d >::const_iterator it = orientations.begin(); it != orientations.end(); it++ )
+  {
+    sphereCoordinates.push_back( WUnitSphereCoordinates( *it ) );
+  }
+  return WSymmetricSphericalHarmonic::getSHFittingMatrixForConstantSolidAngle( sphereCoordinates, order, lambda );
+}
+
+WMatrix<double> WSymmetricSphericalHarmonic::getSHFittingMatrixForConstantSolidAngle(
+    const std::vector< WUnitSphereCoordinates >& orientations,
+    int order,
+    double lambda )
+{
+  WMatrix<double> B( WSymmetricSphericalHarmonic::calcBaseMatrix( orientations, order ) );
+  WMatrix<double> Bt( B.transposed() );
+  WMatrix<double> result( Bt*B );
+
+  // regularisation
+  if( lambda != 0.0 )
+  {
+    WMatrix<double> L( WSymmetricSphericalHarmonic::calcSmoothingMatrix( order ) );
+    result += lambda*L;
+  }
+
+  result = pseudoInverse( result )*Bt;
+
+  // multiply with eigenvalues of coefficients / Laplace-Beltrami operator
+  WMatrix<double> LB( WSymmetricSphericalHarmonic::calcMatrixWithEigenvalues( order ) );
+  wlog::debug( "" ) << "LB: " << LB;
+  result = LB*result;
+  wlog::debug( "" ) << "LB*result: " << result;
+
+  // apply FRT
+  WMatrix<double> P( WSymmetricSphericalHarmonic::calcFRTMatrix( order ) );
+  result = P * result;
+  wlog::debug( "" ) << "P: " << P;
+  wlog::debug( "" ) << "P*result: " << result;
+
+  // correction factor
+  double correctionFactor = 1.0 / ( 16.0 * std::pow( piDouble, 2 ) );
+  result *= correctionFactor;
+
+  return result;
+}
+
 
 WMatrix<double> WSymmetricSphericalHarmonic::calcBaseMatrix( const std::vector< WUnitSphereCoordinates >& orientations,
                                                                     int order )
@@ -357,18 +408,40 @@ WSymmetricSphericalHarmonic::calcComplexBaseMatrix( std::vector< WUnitSphereCoor
     return B;
 }
 
-WMatrix<double> WSymmetricSphericalHarmonic::calcSmoothingMatrix( size_t order )
+WValue<double> WSymmetricSphericalHarmonic::calcEigenvalues( size_t order )
 {
     size_t R = ( ( order + 1 ) * ( order + 2 ) ) / 2;
     std::size_t i = 0;
-    WMatrix<double> L( R, R );
+    WValue<double> result( R );
     for( size_t k = 0; k <= order; k += 2 )
     {
         for( int m = -static_cast< int >( k ); m <= static_cast< int >( k ); ++m )
         {
-            L( i, i ) = static_cast< double > ( k * k * ( k + 1 ) * ( k + 1 ) );
+            result[ i ] = -static_cast< double > ( k * ( k + 1 ) );
             ++i;
         }
+    }
+    return result;
+}
+
+WMatrix<double> WSymmetricSphericalHarmonic::calcMatrixWithEigenvalues( size_t order )
+{
+    WValue<double> eigenvalues( WSymmetricSphericalHarmonic::calcEigenvalues( order ) );
+    WMatrix<double> L( eigenvalues.size(), eigenvalues.size() );
+    for( std::size_t i = 0; i < eigenvalues.size(); ++i )
+    {
+        L( i, i ) = eigenvalues[ i ];
+    }
+    return L;
+}
+
+WMatrix<double> WSymmetricSphericalHarmonic::calcSmoothingMatrix( size_t order )
+{
+    WValue<double> eigenvalues( WSymmetricSphericalHarmonic::calcEigenvalues( order ) );
+    WMatrix<double> L( eigenvalues.size(), eigenvalues.size() );
+    for( std::size_t i = 0; i < eigenvalues.size(); ++i )
+    {
+        L( i, i ) = std::pow( eigenvalues[ i ], 2 );
     }
     return L;
 }

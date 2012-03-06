@@ -35,12 +35,12 @@
 
 #include "WKdTree.h"
 
-#include "WExportKernel.h"
+
 
 /**
  * Adaptor class between the roi manager and the fiber display
  */
-class OWKERNEL_EXPORT WFiberSelector // NOLINT
+class  WFiberSelector // NOLINT
 {
 public:
     /**

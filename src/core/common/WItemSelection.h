@@ -36,7 +36,7 @@
 
 #include "WSharedSequenceContainer.h"
 #include "WItemSelectionItem.h"
-#include "WExportCommon.h"
+
 
 class WItemSelector;
 
@@ -47,7 +47,7 @@ class WItemSelector;
  * not implement any function that might change the item list, use the provided ones. If the item list changes, existing selectors get invalid
  * automatically using the change condition of the inherited WSharedSequenceContainer.
  */
-class OWCOMMON_EXPORT WItemSelection: public boost::enable_shared_from_this< WItemSelection >,
+class WItemSelection: public boost::enable_shared_from_this< WItemSelection >,
                                       public WSharedSequenceContainer< std::vector< boost::shared_ptr< WItemSelectionItem > > >
 {
 friend class WItemSelector; // for proper locking and unlocking

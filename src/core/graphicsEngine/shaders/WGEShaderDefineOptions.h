@@ -32,7 +32,7 @@
 
 #include "WGEShaderPreprocessor.h"
 
-#include "../WExportWGE.h"
+
 
 /**
  * This GLSL preprocessor is able to set one define from a list of defines depending on the active option. You should prefer this class instead
@@ -40,7 +40,7 @@
  *
  * \note: operations on the option list are not thread-safe.
  */
-class WGE_EXPORT WGEShaderDefineOptions: public WGEShaderPreprocessor
+class WGEShaderDefineOptions: public WGEShaderPreprocessor
 {
 public:
     /**

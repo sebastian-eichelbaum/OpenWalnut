@@ -26,7 +26,6 @@
 #include <sstream>
 #include <string>
 
-#include <boost/lexical_cast.hpp>
 
 #include <osgDB/WriteFile>
 

@@ -33,6 +33,7 @@
 #include <boost/thread.hpp>
 
 #include <QtGui/QMainWindow>
+#include <QtGui/QSplashScreen>
 #include <QtCore/QSettings>
 
 #include "WIconManager.h"
@@ -66,9 +67,11 @@ class WMainWindow : public QMainWindow
 
 public:
     /**
-     * Constructor of the main window
+     * Constructor of the main window.
+     *
+     * \param splash the splash screen currently show. This windows later handles its close stuff.
      */
-    WMainWindow();
+    explicit WMainWindow( QSplashScreen* splash );
 
     /**
      * Destructor. Stores window state.
@@ -160,6 +163,13 @@ public:
      * Restores the main GL widget size if it was fixed with forceMainGLWidgetSize() previously.
      */
     void restoreMainGLWidgetSize();
+
+    /**
+     * Get the current splash screen
+     *
+     * \return the splash screen. Might be closed.
+     */
+    QSplashScreen* getSplash() const;
 
 protected:
     /**
@@ -323,6 +333,11 @@ public slots:
 
 private:
     /**
+     * The splash screen object opened on startup.
+     */
+    QSplashScreen* m_splash;
+
+    /**
      * The currently set compatibles toolbar
      */
     WQtCombinerToolbar* m_currentCompatiblesToolbar;
@@ -396,6 +411,11 @@ private slots:
      * Shows startup info messages
      */
     void handleStartMessages();
+
+    /**
+     * Finally closes the splash screen.
+     */
+    void closeSplash();
 };
 
 #endif  // WMAINWINDOW_H

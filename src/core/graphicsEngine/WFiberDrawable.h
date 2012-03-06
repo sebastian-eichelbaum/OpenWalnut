@@ -33,12 +33,12 @@
 
 #include <osg/Drawable>
 
-#include "WExportWGE.h"
+
 
 /**
  * Class implements an osg::Drawable that paints fiber representations either using lines or tubes
  */
-class WGE_EXPORT WFiberDrawable: public osg::Drawable // NOLINT
+class WFiberDrawable: public osg::Drawable // NOLINT
 {
 public:
     /**

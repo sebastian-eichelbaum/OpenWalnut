@@ -45,32 +45,8 @@ public:
      */
     virtual ~WQtNetworkScene();
 
-    /**
-     * Set a fakeitem to the scene to avoid that groups of connected items
-     * or single items in the scene push away each other.
-     *
-     * \param fake the fake item
-     */
-    void setFakeItem( QGraphicsItem* fake );
-
-    /**
-     * Return the fakeitem in the scene to calculate forces in a more
-     * beautiful way.
-     *
-     * \return the fake item
-     */
-    QGraphicsItem* getFakeItem();
-
 protected:
-    /**
-     * Emits a Signal to notify the WQtNetworkEditor to build a default WQtCombinerToolbar
-     *
-     * \param mouseEvent the mouse event
-     */
-    void mousePressEvent( QGraphicsSceneMouseEvent* mouseEvent );
-
 private:
-    QGraphicsItem *m_fakeItem; //!< the fakeitem for the forcebased layout
 };
 #endif  // WQTNETWORKSCENE_H
 

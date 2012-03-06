@@ -41,7 +41,7 @@
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../common/WColor.h"
 #include "../common/datastructures/WColoredVertices.h"
-#include "WExportWGE.h"
+
 #include "WGEGeometryUtils.h"
 #include "WGESubdividedPlane.h"
 #include "WGEUtils.h"
@@ -57,7 +57,7 @@ namespace wge
      *
      * \return The OSG geode containing the 12 edges of the box.
      */
-    osg::ref_ptr< osg::Geode > WGE_EXPORT generateBoundingBoxGeode( const WBoundingBox& bb, const WColor& color );
+    osg::ref_ptr< osg::Geode > generateBoundingBoxGeode( const WBoundingBox& bb, const WColor& color );
 
     /**
      * Generates an OSG node for the specified bounding box. It uses solid faces. This actually returns a MatrixTransform node and is especially
@@ -69,7 +69,7 @@ namespace wge
      *
      * \return The OSG node containing the 12 edges of the box.
      */
-    osg::ref_ptr< osg::Node > WGE_EXPORT generateSolidBoundingBoxNode( const WBoundingBox& bb, const WColor& color, bool threeDTexCoords = true );
+    osg::ref_ptr< osg::Node > generateSolidBoundingBoxNode( const WBoundingBox& bb, const WColor& color, bool threeDTexCoords = true );
 
     /**
      * Creates a osg::Geometry containing an unit cube, having 3D texture coordinates.
@@ -78,7 +78,7 @@ namespace wge
      *
      * \return the geometry
      */
-    osg::ref_ptr< osg::Geometry > WGE_EXPORT createUnitCube( const WColor& color );
+    osg::ref_ptr< osg::Geometry > createUnitCube( const WColor& color );
 
     /**
      * Creates a osg::Geometry containing an unit cube as line-strips, having 3D texture coordinates.
@@ -87,7 +87,7 @@ namespace wge
      *
      * \return the geometry
      */
-    osg::ref_ptr< osg::Geometry > WGE_EXPORT createUnitCubeAsLines( const WColor& color );
+    osg::ref_ptr< osg::Geometry > createUnitCubeAsLines( const WColor& color );
 
     /**
      * Extract the vertices and triangles from a WTriangleMesh and save them
@@ -122,7 +122,7 @@ namespace wge
      * \return an osg::Geometry containing the mesh
      * \note mesh cannot be const since osg::Geometry needs non-const pointers to the contained arrays
      */
-    osg::ref_ptr< osg::Geometry > WGE_EXPORT convertToOsgGeometry( WTriangleMesh::SPtr mesh, const WColoredVertices& colorMap,
+    osg::ref_ptr< osg::Geometry > convertToOsgGeometry( WTriangleMesh::SPtr mesh, const WColoredVertices& colorMap,
                                                                    const WColor& defaultColor = WColor( 1.0, 1.0, 1.0, 1.0 ),
                                                                    bool includeNormals = false,
                                                                    bool lighting = false
@@ -137,7 +137,7 @@ namespace wge
      *
      * \return The new assembled geode for this line
      */
-    osg::ref_ptr< osg::Geode > WGE_EXPORT generateLineStripGeode( const WLine& line,
+    osg::ref_ptr< osg::Geode > generateLineStripGeode( const WLine& line,
                                                                   const float thickness = 3.0f,
                                                                   const WColor& color = WColor( 0, 0, 0, 0 ) );
 
@@ -148,7 +148,7 @@ namespace wge
      * \param text text
      * \return a positionattitudetransfom object containing the label
      */
-    osg::ref_ptr< osg::PositionAttitudeTransform > WGE_EXPORT addLabel( osg::Vec3 position, std::string text );
+    osg::ref_ptr< osg::PositionAttitudeTransform > addLabel( osg::Vec3 position, std::string text );
 
     /**
      * helper function to add a label with it's position vector
@@ -156,7 +156,7 @@ namespace wge
      * \param position position of the label
      * \return a positionattitudetransfom object containing the label
      */
-    osg::ref_ptr< osg::PositionAttitudeTransform > WGE_EXPORT vector2label( osg::Vec3 position );
+    osg::ref_ptr< osg::PositionAttitudeTransform > vector2label( osg::Vec3 position );
 
     /**
      * Generates a geode out of a Plane with a fixed size in direction of the vectors which span that plane.
@@ -169,7 +169,7 @@ namespace wge
      *
      * \return The new assembled geode for this plane
      */
-    osg::ref_ptr< osg::Geode > WGE_EXPORT genFinitePlane( double xSize,
+    osg::ref_ptr< osg::Geode > genFinitePlane( double xSize,
                                                           double ySize,
                                                           const WPlane& p,
                                                           const WColor& color = WColor( 0.0, 0.7, 0.7, 1.0 ),
@@ -202,7 +202,7 @@ namespace wge
      *
      * \return the geode
      */
-    osg::ref_ptr< osg::Geode > WGE_EXPORT genFinitePlane( osg::Vec3 const& base, osg::Vec3 const& a, osg::Vec3 const& b );
+    osg::ref_ptr< osg::Geode > genFinitePlane( osg::Vec3 const& base, osg::Vec3 const& a, osg::Vec3 const& b );
 
     /**
      * Generates a plane subdivided into quads.
@@ -213,7 +213,7 @@ namespace wge
      *
      * \return The new uncolored plane geode
      */
-    osg::ref_ptr< WGESubdividedPlane > WGE_EXPORT genUnitSubdividedPlane( size_t resX, size_t resY, double spacing = 0.01 );
+    osg::ref_ptr< WGESubdividedPlane > genUnitSubdividedPlane( size_t resX, size_t resY, double spacing = 0.01 );
 
     /**
      * For each points in the STL container generate small cubes.

@@ -29,23 +29,19 @@
 #include <string>
 #include <vector>
 
-// Use filesystem version 2 for compatibility with newer boost versions.
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
 #include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "../common/WLogger.h"
 #include "../common/WSharedAssociativeContainer.h"
 #include "../common/WSharedLib.h"
-#include "WExportKernel.h"
+
 #include "WModule.h"
 
 /**
  * Loads module prototypes from shared objects in a given directory and injects it into the module factory.
  */
-class OWKERNEL_EXPORT WModuleLoader
+class  WModuleLoader
 {
 public:
     /**

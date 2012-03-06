@@ -32,13 +32,13 @@
 
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../common/WPrototyped.h"
-#include "WExportDataHandler.h"
+
 #include "WRecording.h"
 
 /**
  * An incomplete implementation to store information about electrodes of EEG data
  */
-class OWDATAHANDLER_EXPORT WEEGElectrodeObject // NOLINT
+class WEEGElectrodeObject // NOLINT
 {
 public:
     /**
@@ -67,7 +67,7 @@ typedef std::vector< std::pair< std::string, std::string > > WEEGChannelLabels;
  * Contains EEG recording data.
  * \ingroup dataHandler
  */
-class OWDATAHANDLER_EXPORT WEEG : public WRecording // NOLINT
+class WEEG : public WRecording // NOLINT
 {
 public:
     /**

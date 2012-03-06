@@ -54,21 +54,12 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
          i != boost::filesystem::directory_iterator(); ++i )
     {
         // all modules need to begin with this
-        std::string suffix = getSuffix( i->leaf() );
-        std::string stem = i->path().stem();
-
-#ifdef _MSC_VER
-        std::string supposedFilename = getModulePrefix() + '_' + i->path().parent_path().filename()
-#ifdef _DEBUG
-            + 'd'
-#endif
-            + WSharedLib::getSystemSuffix();
-        std::string isFileName = i->path().filename();
-#endif // _MSC_VER
+        std::string suffix = getSuffix( i->path() );
+        std::string stem = i->path().stem().string();
 
         // we want to strip the search directory from the path
-        std::string relPath = i->path().file_string();
-        relPath.erase( 0, dir.file_string().length() + 1 ); // NOTE: +1 because we want to remove the "/" too
+        std::string relPath = i->path().string();
+        relPath.erase( 0, dir.string().length() + 1 ); // NOTE: +1 because we want to remove the "/" too
 
         // is it a lib? Use a regular expression to check this
         // NOTE:: the double \\ is needed to escape the escape char
@@ -84,10 +75,7 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
         if( !boost::filesystem::is_directory( *i ) &&
             ( boost::regex_match( i->path().string(), matches, CheckLibMMP ) ) &&
             ( stem.compare( 0, getModulePrefix().length(), getModulePrefix() ) == 0 )
-#ifdef _MSC_VER
-            && supposedFilename == isFileName
-#endif
-            )
+          )
         {
             try
             {
@@ -145,12 +133,12 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
     // go through each of the paths
     for( std::vector< boost::filesystem::path >::const_iterator path = allPaths.begin(); path != allPaths.end(); ++path )
     {
-        WLogger::getLogger()->addLogMessage( "Searching modules in \"" + ( *path ).file_string() + "\".", "Module Loader", LL_INFO );
+        WLogger::getLogger()->addLogMessage( "Searching modules in \"" + ( *path ).string() + "\".", "Module Loader", LL_INFO );
 
         // does the directory exist?
         if( !boost::filesystem::is_directory( *path ) || !boost::filesystem::exists( *path ) )
         {
-            WLogger::getLogger()->addLogMessage( "Searching modules in \"" + ( *path ).file_string() +
+            WLogger::getLogger()->addLogMessage( "Searching modules in \"" + ( *path ).string() +
                                                  "\" failed. It is not a directory or does not exist." +
                                                  " Ignoring.", "Module Loader", LL_WARNING );
 

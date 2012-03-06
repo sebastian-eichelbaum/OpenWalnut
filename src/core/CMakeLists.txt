@@ -30,14 +30,10 @@ SET( LibName ${OWCoreName} )
 
 # Set the prefix and suffix of dynamically loadable modules to match
 # CMAKEs naming of them. The quotes are necessary so the shell doesn't mess
-# with these defines. Unfortunately, the Visual Studio has problems handling
-# the quotes on the command line. WSharedLib::getSystemPrefix and
+# with these defines. WSharedLib::getSystemPrefix and
 # getSystemSuffix hard codes the right strings for VC.
-# Maybe you have to spend another 500 bucks to have your VC support quotes.
-IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
-    ADD_DEFINITIONS( '-DW_LIB_PREFIX="${CMAKE_SHARED_LIBRARY_PREFIX}"' )
-    ADD_DEFINITIONS( '-DW_LIB_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}"' )
-ENDIF()
+ADD_DEFINITIONS( '-DW_LIB_PREFIX="${CMAKE_SHARED_LIBRARY_PREFIX}"' )
+ADD_DEFINITIONS( '-DW_LIB_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}"' )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Add sources as target

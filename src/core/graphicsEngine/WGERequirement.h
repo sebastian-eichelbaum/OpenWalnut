@@ -28,12 +28,12 @@
 #include <string>
 
 #include "../common/WRequirement.h"
-#include "WExportWGE.h"
+
 
 /**
  * This requirement ensures an up and running WGE.
  */
-class WGE_EXPORT WGERequirement: public WRequirement // NOLINT
+class WGERequirement: public WRequirement // NOLINT
 {
 public:
     /**

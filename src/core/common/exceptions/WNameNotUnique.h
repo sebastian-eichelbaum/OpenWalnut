@@ -28,12 +28,12 @@
 #include <string>
 
 #include "../WException.h"
-#include "../WExportCommon.h"
+
 
 /**
  * Indicates that a given name is not unique in a group of names.
  */
-class OWCOMMON_EXPORT WNameNotUnique : public WException
+class WNameNotUnique : public WException
 {
 public:
     /**

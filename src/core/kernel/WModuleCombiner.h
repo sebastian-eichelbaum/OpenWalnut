@@ -31,7 +31,7 @@
 
 #include "WModuleContainer.h"
 
-#include "WExportKernel.h"
+
 /**
  * This is a base class for all module combination classes. The basic idea is to hide the actual combination work from others. These classes may
  * be useful in the GUI. The GUI can create a module combiner instance in a special way, with an interface the GUI wants to have. Then, the
@@ -39,7 +39,7 @@
  * loads projects files and creates a module graph out of it. The only think which all the combiners need to know: the target container. Derive
  * all specific combiner classes from this one.
  */
-class OWKERNEL_EXPORT WModuleCombiner: public WThreadedRunner,
+class  WModuleCombiner: public WThreadedRunner,
                                          public boost::enable_shared_from_this< WModuleCombiner >
 {
 public:

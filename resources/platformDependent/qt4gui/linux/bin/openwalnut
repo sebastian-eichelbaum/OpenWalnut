@@ -18,6 +18,9 @@ done
 # Finally, export it
 export LD_PRELOAD=$Preloads
 
+# Force C locale. This fixes an issue with newer boost versions. See ticket #130.
+export LC_ALL=C
+
 # Run OpenWalnut
 bin/openwalnut-qt4 $@
 

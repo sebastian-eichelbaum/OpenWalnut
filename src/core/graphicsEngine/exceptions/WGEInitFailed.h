@@ -28,13 +28,13 @@
 #include <string>
 
 #include "WGEException.h"
-#include "../WExportWGE.h"
+
 
 /**
  * Exception thrown if initialization of the graphics engine fails.
  * \ingroup ge
  */
-class WGE_EXPORT WGEInitFailed: public WGEException
+class WGEInitFailed: public WGEException
 {
 public:
     /**

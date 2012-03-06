@@ -115,6 +115,9 @@ protected:
     virtual void properties();
 
 private:
+    boost::shared_ptr< WItemSelection > m_reconstructionTypes; //!< A list of the selectable reconstruction types.
+    WPropSelection m_reconstructionTypeProp; //!< To choose the reconstruction type.
+
     WPropInt m_order; //!< Property holding the order of the spherical harmonics
 
     WPropDouble m_regularisationFactorLambda; //!< Property holding the regularisation factor lambda

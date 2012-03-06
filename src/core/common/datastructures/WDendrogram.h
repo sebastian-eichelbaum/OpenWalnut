@@ -33,7 +33,7 @@
 
 #include "../WTransferable.h"
 
-#include "../WExportCommon.h"
+
 
 /**
  * Hirachical binary tree datastructure with spatial layout information called dendrogram. Please note that there are some
@@ -59,7 +59,7 @@
    \endverbatim
  *
  */
-class OWCOMMON_EXPORT WDendrogram : public WTransferable // NOLINT
+class WDendrogram : public WTransferable // NOLINT
 {
 friend class WDendrogramTest;
 public:

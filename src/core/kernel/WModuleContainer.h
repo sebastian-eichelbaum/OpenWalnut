@@ -48,7 +48,7 @@
 class WThreadedRunner;
 class WDataModule;
 
-#include "WExportKernel.h"
+
 
 /**
  * Class able to contain other modules. It manages several tasks like finding appropriate modules, managing data modules and
@@ -56,7 +56,7 @@ class WDataModule;
  *
  * \ingroup Kernel
  */
-class OWKERNEL_EXPORT WModuleContainer: public WModule
+class  WModuleContainer: public WModule
 {
 public:
     // the following typedefs are for convenience; to help accessing the container in a thread safe way.

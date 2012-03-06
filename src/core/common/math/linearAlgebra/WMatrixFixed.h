@@ -29,7 +29,6 @@
 #include <algorithm>
 
 #include <boost/static_assert.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
 
 // Needed for conversion: OSG Types
@@ -975,8 +974,8 @@ public:
     {
         if( ( row >= Rows ) || ( col >= Cols ) )
         {
-            throw WOutOfBounds( "Index pair (" + boost::lexical_cast< std::string >( row ) + ", " + boost::lexical_cast< std::string >( col ) +
-                                ") is invalid for " + boost::lexical_cast< std::string >( Rows ) + "x" + boost::lexical_cast< std::string >( Cols ) +
+            throw WOutOfBounds( "Index pair (" + string_utils::toString( row ) + ", " + string_utils::toString( col ) +
+                                ") is invalid for " + string_utils::toString( Rows ) + "x" + string_utils::toString( Cols ) +
                                 " matrix." );
         }
         return operator()( row, col );
@@ -998,8 +997,8 @@ public:
     {
         if( ( row >= Rows ) || ( col >= Cols ) )
         {
-            throw WOutOfBounds( "Index pair (" + boost::lexical_cast< std::string >( row ) + ", " + boost::lexical_cast< std::string >( col ) +
-                                ") is invalid for " + boost::lexical_cast< std::string >( Rows ) + "x" + boost::lexical_cast< std::string >( Cols ) +
+            throw WOutOfBounds( "Index pair (" + string_utils::toString( row ) + ", " + string_utils::toString( col ) +
+                                ") is invalid for " + string_utils::toString( Rows ) + "x" + string_utils::toString( Cols ) +
                                 " matrix." );
         }
         return operator()( row, col );
@@ -1460,7 +1459,7 @@ std::istream& operator>>( std::istream& in, WMatrixFixed< ValueT, Rows, Cols, Va
             {
                 return in;
             }
-            m( row, col ) = boost::lexical_cast< ValueT >( *it );
+            m( row, col ) = string_utils::fromString< ValueT >( *it );
             ++it;
         }
     }

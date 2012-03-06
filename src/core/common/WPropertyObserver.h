@@ -34,14 +34,14 @@
 
 #include "WCondition.h"
 #include "WProperties.h"
-#include "WExportCommon.h"
+
 
 /**
  * This class can observe properties inside a property group. The property group to observer can simply be set and replaced comfortably. Whenever
  * one of the child properties updates, the observer fires too. If the observed property group itself
  * changes (added properties, removed properties and so on), the observer gets updated automatically.
  */
-class OWCOMMON_EXPORT WPropertyObserver: public WCondition
+class WPropertyObserver: public WCondition
 {
 public:
     /**

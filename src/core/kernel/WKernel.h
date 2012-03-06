@@ -36,7 +36,7 @@
 
 #include "WBatchLoader.h"
 
-#include "WExportKernel.h"
+
 
 // forward declarations
 class WGUI;
@@ -60,7 +60,7 @@ class WThreadedRunner;
  * GUI, GE and DataHandler
  * \ingroup kernel
  */
-class OWKERNEL_EXPORT WKernel: public WThreadedRunner
+class  WKernel: public WThreadedRunner
 {
 public:
     /**

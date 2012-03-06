@@ -93,7 +93,7 @@ WSymmetricSphericalHarmonic WDataSetSphericalHarmonics::interpolate( const WPosi
     }
 
     // ids of vertices for interpolation
-    std::vector< size_t > vertexIds = m_gridRegular3D->getCellVertexIds( cellId );
+    WGridRegular3D::CellVertexArray vertexIds = m_gridRegular3D->getCellVertexIds( cellId );
 
     WPosition localPos = pos - m_gridRegular3D->getPosition( vertexIds[0] );
 

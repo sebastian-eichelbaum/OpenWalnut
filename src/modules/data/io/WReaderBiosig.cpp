@@ -74,11 +74,7 @@ boost::shared_ptr< WDataSet > WReaderBiosig::load()
 {
     WAssert( m_fname.substr( m_fname.size() - 4 ) == ".edf", "We expect only EDF for the biosig loader so far." );
 
-#ifdef _MSC_VER
-    hd =  biosig_sopen( m_fname.c_str(), "r", 0 );
-#else
     hd =  sopen( m_fname.c_str(), "r", 0 );
-#endif
 
     switch( B4C_ERRNUM )
     {
@@ -115,11 +111,7 @@ boost::shared_ptr< WDataSet > WReaderBiosig::load()
 
     biosig_data_type* DATA = 0;
     size_t LEN = 1;
-#ifdef _MSC_VER
-    size_t dummy = biosig_sread( DATA, 0, LEN, hd );
-#else
     size_t dummy = sread( DATA, 0, LEN, hd );
-#endif
     wlog::info( "BIOSIG" ) << " DataSize " << dummy;
     size_t nbSamples = LEN*hd->SPR*hd->NS;
     m_rows =  hd->data.size[0];

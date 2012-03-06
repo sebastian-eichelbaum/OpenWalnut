@@ -29,7 +29,7 @@
 
 #include <osg/Image>
 
-#include "WExportWGE.h"
+
 
 namespace wge
 {
@@ -37,7 +37,7 @@ namespace wge
      * Class helping to adapt types specified as template parameter into the best matching OpenGL type.
      */
     template< typename T >
-    class WGE_EXPORT GLType
+    class GLType
     {
     public:
         /**
@@ -55,7 +55,7 @@ namespace wge
      * Class helping to adapt types specified as template parameter into the best matching OpenGL type.
      */
     template <>
-    class WGE_EXPORT GLType< double >
+    class GLType< double >
     {
     public:
         /**
@@ -81,7 +81,7 @@ namespace wge
      * Class helping to adapt types specified as template parameter into the best matching OpenGL type.
      */
     template <>
-    class WGE_EXPORT GLType< long double >
+    class GLType< long double >
     {
     public:
         /**
@@ -106,7 +106,7 @@ namespace wge
      * Class helping to adapt types specified as template parameter into the best matching OpenGL type.
      */
     template <>
-    class WGE_EXPORT GLType< float >
+    class GLType< float >
     {
     public:
         /**
@@ -131,7 +131,7 @@ namespace wge
      * Class helping to adapt types specified as template parameter into the best matching OpenGL type.
      */
     template <>
-    class WGE_EXPORT GLType< int8_t >
+    class GLType< int8_t >
     {
     public:
         /**
@@ -156,7 +156,7 @@ namespace wge
      * Class helping to adapt types specified as template parameter into the best matching OpenGL type.
      */
     template <>
-    class WGE_EXPORT GLType< uint8_t >
+    class GLType< uint8_t >
     {
     public:
         /**
@@ -183,7 +183,7 @@ namespace wge
      * \note integral types get downscaled to float. This is done for easiness but might be better if the real type is used instead.
      */
     template <>
-    class WGE_EXPORT GLType< int16_t >
+    class GLType< int16_t >
     {
     public:
         /**
@@ -210,7 +210,7 @@ namespace wge
      * \note integral types get downscaled to float. This is done for easiness but might be better if the real type is used instead.
      */
     template <>
-    class WGE_EXPORT GLType< uint16_t >
+    class GLType< uint16_t >
     {
     public:
         /**
@@ -237,7 +237,7 @@ namespace wge
      * \note integral types get downscaled to float. This is done for easiness but might be better if the real type is used instead.
      */
     template <>
-    class WGE_EXPORT GLType< int32_t >
+    class GLType< int32_t >
     {
     public:
         /**
@@ -264,7 +264,7 @@ namespace wge
      * \note integral types get downscaled to float. This is done for easiness but might be better if the real type is used instead.
      */
     template <>
-    class WGE_EXPORT GLType< uint32_t >
+    class GLType< uint32_t >
     {
     public:
         /**
@@ -291,7 +291,7 @@ namespace wge
      * \note integral types get downscaled to float. This is done for easiness but might be better if the real type is used instead.
      */
     template <>
-    class WGE_EXPORT GLType< int64_t >
+    class GLType< int64_t >
     {
     public:
         /**
@@ -318,7 +318,7 @@ namespace wge
      * \note integral types get downscaled to float. This is done for easiness but might be better if the real type is used instead.
      */
     template <>
-    class WGE_EXPORT GLType< uint64_t >
+    class GLType< uint64_t >
     {
     public:
         /**

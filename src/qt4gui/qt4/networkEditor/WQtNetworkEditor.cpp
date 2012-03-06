@@ -58,8 +58,6 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     setObjectName( "Module Graph Dock" );
     m_mainWindow = parent;
 
-    QWidget *panel = new QWidget( this );
-
     QGraphicsView *view = new QGraphicsView();
     view->setDragMode( QGraphicsView::RubberBandDrag );
     view->setRenderHint( QPainter::Antialiasing );
@@ -71,14 +69,9 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
 
     view->setScene( m_scene );
 
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->addWidget( view );
-
-    panel->setLayout( layout );
-
     this->setAllowedAreas( Qt::AllDockWidgetAreas );
     this->setFeatures( QDockWidget::DockWidgetClosable |QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
-    setWidget( panel );
+    setWidget( view );
     connect( m_scene, SIGNAL( selectionChanged() ), this, SLOT( selectItem() ) );
 
     m_layout = new WNetworkLayout();
@@ -94,30 +87,36 @@ QList<QGraphicsItem *> WQtNetworkEditor::selectedItems() const
     return m_scene->selectedItems();
 }
 
+void WQtNetworkEditor::clearSelection()
+{
+    m_scene->clearSelection();
+}
+
+void WQtNetworkEditor::selectByModule( WModule::SPtr module )
+{
+    WQtNetworkItem* item = findItemByModule( module );
+    if( item && !item->isSelected() )
+    {
+        m_scene->clearSelection();
+        item->setSelected( true );
+    }
+}
+
 void WQtNetworkEditor::selectItem()
 {
     boost::shared_ptr< WModule > module;
-
     if( m_scene->selectedItems().size() != 0 &&
          m_scene->selectedItems().at( 0 )->type() == WQtNetworkItem::Type )
     {
         if( m_scene->selectedItems().at(0)->type() == WQtNetworkItem::Type )
         {
             module = ( static_cast< WQtNetworkItem* >( m_scene->selectedItems().at( 0 ) ) )->getModule();
+            m_mainWindow->getControlPanel()->setActiveModule( module );
+            return;
         }
-
-        // crashed modules should not provide any props
-        if( module->isCrashed() )
-        {
-             return;
-        }
-
-        m_mainWindow->getControlPanel()->setNewActiveModule( module );
     }
-    else
-    {
-        m_mainWindow->getControlPanel()->setNewActiveModule( module );
-    }
+
+    m_mainWindow->getControlPanel()->deactivateModuleSelection();
 }
 
 void WQtNetworkEditor::deleteSelectedItems()
@@ -181,8 +180,6 @@ bool WQtNetworkEditor::event( QEvent* event )
             m_layout->addItem( item );
             m_scene->addItem( item );
         }
-
-        //TODO(skiunke): disablen des moduls solange nicht rdy!
         return true;
     }
 
@@ -246,7 +243,6 @@ bool WQtNetworkEditor::event( QEvent* event )
         else
         {
             return true;
-            //TODO(skiunke): warning
         }
 
         WQtNetworkItem *inItem = findItemByModule( mIn );
@@ -328,7 +324,6 @@ bool WQtNetworkEditor::event( QEvent* event )
         else
         {
             return true;
-            //TODO(skiunke): warning
         }
 
 

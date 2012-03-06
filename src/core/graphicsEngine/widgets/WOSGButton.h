@@ -33,12 +33,12 @@
 #include "../../common/WProperties.h"
 
 #include "WOSGButtonLabel.h"
-#include "../WExportWGE.h"
+
 
 /**
  * Class implements an osgWidget::Box with a label that can be used as a button in the 3D scene
  */
-class WGE_EXPORT WOSGButton : public osgWidget::Box // NOLINT
+class WOSGButton : public osgWidget::Box // NOLINT
 {
 public:
     /**

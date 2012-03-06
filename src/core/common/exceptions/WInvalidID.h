@@ -28,12 +28,12 @@
 #include <string>
 
 #include "../WException.h"
-#include "../WExportCommon.h"
+
 
 /**
  * Indicates invalid element access of a container.
  */
-class OWCOMMON_EXPORT WInvalidID : public WException
+class WInvalidID : public WException
 {
 public:
     /**

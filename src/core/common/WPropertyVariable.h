@@ -598,7 +598,7 @@ bool WPropertyVariable< T >::setAsString( std::string value )
         PROPERTY_TYPE_HELPER::WStringConversion< T > h = PROPERTY_TYPE_HELPER::WStringConversion< T >();
         return set( h.create( WFlag< T >::get(), value ) );
     }
-    catch( const boost::bad_lexical_cast &e )
+    catch( const std::exception &e )
     {
         return false;
     }

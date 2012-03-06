@@ -31,12 +31,14 @@
 
 #include <teem/elf.h> // NOLINT false positive C system header
 
+#include "core/common/WStringUtils.h"
 #include "core/common/WAssert.h"
 #include "core/common/WConditionOneShot.h"
 #include "core/common/WLimits.h"
 #include "core/common/WPropertyHelper.h"
 #include "core/common/WThreadedFunction.h"
 #include "core/kernel/WKernel.h"
+
 #include "WMTeemGlyphs.h"
 #include "WMTeemGlyphs.xpm"
 
@@ -322,7 +324,8 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
     m_progress->addSubProgress( progress );
 
     size_t sliceType = m_sliceOrientationSelectionProp->get( true ).getItemIndexOfSelected( 0 );
-    size_t order = boost::lexical_cast< float >(  m_orders->getSelector( m_orderProp->get( true ).getItemIndexOfSelected( 0 ) ) .at( 0 )->getName() );
+    size_t order =
+        string_utils::fromString< float >( m_orders->getSelector( m_orderProp->get( true ).getItemIndexOfSelected( 0 ) ) .at( 0 )->getName() );
 
     {
         boost::unique_lock< boost::mutex > lock( m_moduleNodeLock );

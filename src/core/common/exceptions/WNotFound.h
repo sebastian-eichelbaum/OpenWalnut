@@ -22,24 +22,32 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WEXPORTCOMMON_H
-#define WEXPORTCOMMON_H
+#ifndef WNOTFOUND_H
+#define WNOTFOUND_H
 
-#ifdef _MSC_VER
+#include <string>
 
-    #pragma warning( disable: 4251 )
+#include "../WException.h"
 
-    #if defined( owcommon_EXPORTS ) || defined( OWcommon_EXPORTS )
-    #define OWCOMMON_EXPORT __declspec( dllexport )
-    #else
-    #define OWCOMMON_EXPORT __declspec( dllimport )
-    #endif
+/**
+ * Indicates invalid value which could not be found.
+ */
+class WNotFound : public WException
+{
+public:
+    /**
+     * Default constructor.
+     * \param msg the exception message.
+     */
+    explicit WNotFound( const std::string& msg = "Not found." );
 
-#else
+    /**
+     * Destructor.
+     */
+    virtual ~WNotFound() throw();
 
-    #define OWCOMMON_EXPORT
+protected:
+private:
+};
 
-#endif // _MSC_VER
-
-#endif  // WEXPORTCOMMON_H
-
+#endif  // WNOTFOUND_H

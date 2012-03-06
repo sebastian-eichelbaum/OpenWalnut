@@ -31,12 +31,12 @@
 
 #include <osg/Uniform>
 
-#include "../WExportWGE.h"
+
 
 /**
  * This is a uniform callback setting the uniform to the current time in milliseconds, hundredth of a second or tenth of a second.
  */
-class WGE_EXPORT WGEShaderAnimationCallback: public osg::Uniform::Callback
+class WGEShaderAnimationCallback: public osg::Uniform::Callback
 {
 public:
     /**

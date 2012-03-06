@@ -30,13 +30,9 @@
 #include <algorithm>
 #include <string>
 
-// Use filesystem version 2 for compatibility with newer boost versions.
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
 #include <boost/filesystem.hpp>
 
-#include "WExportCommon.h"
+
 #include "WAssert.h"
 
 /**
@@ -96,9 +92,18 @@ template< class T > void switchByteOrderOfArray( T *array, const size_t arraySiz
  * \param name File name to get the extension or suffix from.
  * \return filename suffix
  */
+inline std::string getSuffix( boost::filesystem::path name )
+{
+    return  name.extension().string();
+}
+
+/**
+ * \param name File name to get the extension or suffix from.
+ * \return filename suffix
+ */
 inline std::string getSuffix( std::string name )
 {
-    return boost::filesystem::path( name ).extension();
+    return getSuffix( boost::filesystem::path( name ) );
 }
 
 /**
@@ -128,7 +133,7 @@ boost::filesystem::path tempFileName();
  *
  * \return The file content in as string.
  */
-std::string OWCOMMON_EXPORT readFileIntoString( const boost::filesystem::path& path );
+std::string readFileIntoString( const boost::filesystem::path& path );
 
 /**
  * Get the contens of a file as a string.
@@ -141,7 +146,7 @@ std::string OWCOMMON_EXPORT readFileIntoString( const boost::filesystem::path& p
  *
  * \return The file content in as string.
  */
-std::string OWCOMMON_EXPORT readFileIntoString( const std::string& name );
+std::string readFileIntoString( const std::string& name );
 
 /**
  * Writes the contens of a string to the given path.
@@ -151,7 +156,7 @@ std::string OWCOMMON_EXPORT readFileIntoString( const std::string& name );
  *
  * \throw WFileOpenFailed If file cannot be opened for writing
  */
-void OWCOMMON_EXPORT writeStringIntoFile( const boost::filesystem::path& path, const std::string& content );
+void writeStringIntoFile( const boost::filesystem::path& path, const std::string& content );
 
 /**
  * Writes the contens of a string to the given path.
@@ -161,6 +166,6 @@ void OWCOMMON_EXPORT writeStringIntoFile( const boost::filesystem::path& path, c
  *
  * \throw WFileOpenFailed If file cannot be opened for writing
  */
-void OWCOMMON_EXPORT writeStringIntoFile( const std::string& name, const std::string& content );
+void writeStringIntoFile( const std::string& name, const std::string& content );
 
 #endif  // WIOTOOLS_H

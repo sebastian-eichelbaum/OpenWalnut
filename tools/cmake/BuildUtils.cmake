@@ -221,7 +221,7 @@ FUNCTION( SETUP_STYLECHECKER _TargetName _CheckFiles _Excludes )
     IF( CMAKE_HOST_WIN32 )
         SET( XARGS_OPTIONS "-n 128" )
     ELSEIF( CMAKE_HOST_UNIX )
-        SET( XARGS_OPTIONS -P \$\$\(${NUM_CORES_BINARY}\) -n 64 )
+        SET( XARGS_OPTIONS "-n 64" )
     ELSE()
         SET( XARGS_OPTIONS "" )
     ENDIF()
@@ -252,9 +252,15 @@ ENDFUNCTION( SETUP_STYLECHECKER )
 # _installcomponent to which installation component does this resource belong? (i.e. MODULES ...)
 FUNCTION( SETUP_RESOURCES_GENERIC _source_path _destination_path _component _installcomponent )
     # as all the resources with the correct directory structure reside in ../resources, this target is very easy to handle
-    SET( ResourcesPath "${_source_path}/" )
+    SET( ResourcesPath "${_source_path}" )
+    # remove trailing slashes if any
+    STRING( REGEX REPLACE "/$" "" ResourcesPath "${ResourcesPath}" )
+    # this ensures we definitely have one slash at the and
+    SET( ResourcesPath "${ResourcesPath}/" )
 
-    IF( IS_DIRECTORY "${_source_path}/" )
+    IF( IS_DIRECTORY "${ResourcesPath}" )
+        MESSAGE( STATUS "Found resources in ${ResourcesPath}" )
+
         ADD_CUSTOM_TARGET( ResourceConfiguration_${_component}
             ALL
             COMMAND ${CMAKE_COMMAND} -E copy_directory "${ResourcesPath}" "${PROJECT_BINARY_DIR}/${_destination_path}/"
@@ -284,6 +290,16 @@ FUNCTION( SETUP_GLOBAL_RESOURCES _resource _component )
                              ${_component}                  # component
                              ${_component}                  # install component is same as component as it is unique
     )
+
+    # allow platform dependent setup
+    STRING( TOLOWER ${CMAKE_SYSTEM_NAME} PLATFORM_NAME_LOWER )
+    # just forward the call with the proper parameter
+    SETUP_RESOURCES_GENERIC( "${PROJECT_SOURCE_DIR}/../resources/platformDependent/${_resource}/${PLATFORM_NAME_LOWER}"  # source dir
+                             "."                            # target dir - global resources always put into the build/install dir directly
+                             ${_component}_${PLATFORM_NAME_LOWER}  # component
+                             ${_component}                  # install component is same as component as it is unique
+    )
+
 ENDFUNCTION( SETUP_GLOBAL_RESOURCES )
 
 # This function copies the typical source docs (README, AUTHORS, CONTRIBUTORS and Licence files to the specified directory.
@@ -394,7 +410,12 @@ FUNCTION( SETUP_LIB_INSTALL _libName _targetRelative _component )
     # NOTE: we need two separate install targets here since the namelink to the lib (libopenwalnut.so -> linopenwalnut.so.1.2.3) is only needed
     # in the DEV release. Have a look at NAMELINK_SKIP and NAMELINK_ONLY
     INSTALL( TARGETS ${_libName}
-                ARCHIVE # NOTE: this is needed on windows
+                ARCHIVE # NOTE: this is needed on windows (*.dll.a)
+                    DESTINATION ${_targetRelative} 
+                    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
+                                GROUP_READ GROUP_EXECUTE  
+                                WORLD_READ WORLD_EXECUTE
+                RUNTIME # NOTE: this is needed on windows (*.dll)
                     DESTINATION ${_targetRelative} 
                     PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
                                 GROUP_READ GROUP_EXECUTE  
@@ -420,6 +441,11 @@ FUNCTION( SETUP_DEV_INSTALL _libName _targetRelative _headers _headerTargetRelat
     INSTALL( TARGETS ${_libName}
                 ARCHIVE # NOTE: this is needed on windows
                     DESTINATION ${_targetRelative} 
+                    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                                GROUP_READ GROUP_EXECUTE
+                                WORLD_READ WORLD_EXECUTE
+                RUNTIME # NOTE: this is needed on windows (*.dll)
+                    DESTINATION ${_targetRelative} 
                     PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
                                 GROUP_READ GROUP_EXECUTE  
                                 WORLD_READ WORLD_EXECUTE
@@ -432,7 +458,7 @@ FUNCTION( SETUP_DEV_INSTALL _libName _targetRelative _headers _headerTargetRelat
              COMPONENT ${_component}
     )
 
-    # we want to copy the headers to. Unfortunately, cmake's install command does not preserver the directory structure.
+    # we want to copy the headers to. Unfortunately, cmake's install command does not preserve the directory structure.
     FOREACH( _header ${${_headers}} )
         STRING( REGEX MATCH "(.*)[/\\]" directory ${_header} )
         STRING( REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" directoryRelative ${directory} )

@@ -31,7 +31,7 @@
 #include <osg/NodeCallback>
 
 #include "WGECallbackTraits.h"
-#include "../WExportWGE.h"
+
 
 /**
  * This callback allows you a simple usage of callbacks in your module. The callback uses function pointers and calls them every update cycle.

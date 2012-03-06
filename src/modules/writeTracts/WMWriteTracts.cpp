@@ -181,7 +181,7 @@ bool WMWriteTracts::saveJson() const
         return false;
     }
 
-    const char* c_file = m_savePath->get().file_string().c_str();
+    const char* c_file = m_savePath->get().string().c_str();
     std::ofstream dataFile( c_file, std::ios_base::binary );
 
     if( dataFile )
@@ -190,7 +190,7 @@ bool WMWriteTracts::saveJson() const
     }
     else
     {
-        WLogger::getLogger()->addLogMessage( "open file failed" + m_savePath->get().file_string() , "Write Tracts", LL_ERROR );
+        WLogger::getLogger()->addLogMessage( "open file failed" + m_savePath->get().string() , "Write Tracts", LL_ERROR );
         return false;
     }
 
@@ -281,7 +281,7 @@ bool WMWriteTracts::saveJson2() const
         return false;
     }
 
-    const char* c_file = m_savePath->get().file_string().c_str();
+    const char* c_file = m_savePath->get().string().c_str();
     std::ofstream dataFile( c_file, std::ios_base::binary );
 
     if( dataFile )
@@ -290,7 +290,7 @@ bool WMWriteTracts::saveJson2() const
     }
     else
     {
-        WLogger::getLogger()->addLogMessage( "open file failed" + m_savePath->get().file_string() , "Write Tracts", LL_ERROR );
+        WLogger::getLogger()->addLogMessage( "open file failed" + m_savePath->get().string() , "Write Tracts", LL_ERROR );
         return false;
     }
 
@@ -410,7 +410,7 @@ bool WMWriteTracts::saveJsonTriangles() const
         return false;
     }
 
-    const char* c_file = m_savePath->get().file_string().c_str();
+    const char* c_file = m_savePath->get().string().c_str();
     std::ofstream dataFile( c_file, std::ios_base::binary );
 
     if( dataFile )
@@ -419,7 +419,7 @@ bool WMWriteTracts::saveJsonTriangles() const
     }
     else
     {
-        WLogger::getLogger()->addLogMessage( "open file failed" + m_savePath->get().file_string() , "Write Tracts", LL_ERROR );
+        WLogger::getLogger()->addLogMessage( "open file failed" + m_savePath->get().string() , "Write Tracts", LL_ERROR );
         return false;
     }
 
@@ -476,8 +476,8 @@ bool WMWriteTracts::savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers
     // open file
     boost::filesystem::path meshFile( m_savePath->get() );
     std::string fnPath = meshFile.parent_path().string();
-    std::string fnBase = meshFile.stem();
-    std::string fnExt = meshFile.extension();
+    std::string fnBase = meshFile.stem().string();
+    std::string fnExt = meshFile.extension().string();
 
     // construct the filenames
     // the meshfile

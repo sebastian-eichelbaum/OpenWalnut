@@ -29,13 +29,13 @@
 
 #include "WGEShaderPreprocessor.h"
 
-#include "../WExportWGE.h"
+
 
 /**
  * This preprocessor removes the version-statement from the code and puts it to the beginning of the code. This is requires for some GLSL
  * compiler.
  */
-class WGE_EXPORT WGEShaderVersionPreprocessor: public WGEShaderPreprocessor
+class WGEShaderVersionPreprocessor: public WGEShaderPreprocessor
 {
 public:
     /**

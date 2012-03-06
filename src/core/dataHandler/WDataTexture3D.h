@@ -40,7 +40,7 @@
 #include "WValueSetBase.h"
 #include "WGridRegular3D.h"
 
-#include "WExportDataHandler.h"
+
 
 /**
  * Namespace provides some scaling functions for scaling data values to meet the OpenGL requirements.
@@ -95,7 +95,7 @@ namespace WDataTexture3DScalers
  * This class allows simple creation of WGETexture3D by using a specified grid and value-set. One advantage: the
  * first call to the texture's update callback ensures texture creation. It is not created earlier.
  */
-class OWDATAHANDLER_EXPORT WDataTexture3D: public WGETexture3D
+class WDataTexture3D: public WGETexture3D
 {
 public:
     /**
@@ -174,7 +174,7 @@ namespace wge
      * \param prefix if specified, defines the uniform name prefix. (Sampler, Unit, Sizes, ...)
      * \tparam T the type of texture. Usually osg::Texture3D or osg::Texture2D.
      */
-    void OWDATAHANDLER_EXPORT bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WDataTexture3D > texture,
+    void bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WDataTexture3D > texture,
                                            size_t unit = 0, std::string prefix = ""  );
 }
 

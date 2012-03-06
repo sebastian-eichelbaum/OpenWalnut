@@ -22,24 +22,32 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WEXPORTWGE_H
-#define WEXPORTWGE_H
+#ifndef WPARSEERROR_H
+#define WPARSEERROR_H
 
-#ifdef _MSC_VER
+#include <string>
 
-#pragma warning( disable: 4251 )
+#include "../WException.h"
 
-    #if defined( owge_EXPORTS ) || defined( OWge_EXPORTS )
-    #define WGE_EXPORT __declspec( dllexport )
-    #else
-    #define WGE_EXPORT __declspec( dllimport )
-    #endif
+/**
+ * Indicates invalid input in a parser.
+ */
+class WParseError : public WException
+{
+public:
+    /**
+     * Default constructor.
+     * \param msg the exception message.
+     */
+    explicit WParseError( const std::string& msg = "Error while parsing." );
 
-#else
+    /**
+     * Destructor.
+     */
+    virtual ~WParseError() throw();
 
-    #define WGE_EXPORT
+protected:
+private:
+};
 
-#endif // _MSC_VER
-
-#endif  // WEXPORTWGE_H
-
+#endif  // WPARSEERROR_H

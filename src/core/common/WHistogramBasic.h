@@ -29,13 +29,13 @@
 #include <vector>
 
 #include "WHistogram.h"
-#include "WExportCommon.h"
+
 
 /**
  * Container which associate values with (uniform width) bins (aka intervals or buckets). This class implements a very simple and easy to use
  * generic histogram with uniform bucket sizes.
  */
-class OWCOMMON_EXPORT WHistogramBasic: public WHistogram
+class WHistogramBasic: public WHistogram
 {
 public:
     /**

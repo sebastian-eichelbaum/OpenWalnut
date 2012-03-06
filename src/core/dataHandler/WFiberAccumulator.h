@@ -33,12 +33,12 @@
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WDataSetFiberVector.h"
 #include "WDataSetFibers.h"
-#include "WExportDataHandler.h"
+
 
 /**
  * A class that encapsulates the data needed to construct a WDataSetFibers.
  */
-class OWDATAHANDLER_EXPORT WFiberAccumulator        // NOLINT
+class WFiberAccumulator        // NOLINT
 {
 public:
     /**

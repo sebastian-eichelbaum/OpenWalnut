@@ -29,9 +29,9 @@
 #include <string>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "core/common/WStringUtils.h"
 #include "core/dataHandler/WDataSet.h"
 #include "core/dataHandler/exceptions/WDHIOFailure.h"
 #include "core/dataHandler/exceptions/WDHNoSuchFile.h"
@@ -197,9 +197,9 @@ template< typename T > inline T WReaderVTK::getLexicalCast( std::string stringVa
     T result;
     try
     {
-        result = boost::lexical_cast< T >( stringValue );
+        result = string_utils::fromString< T >( stringValue );
     }
-    catch( const boost::bad_lexical_cast &e )
+    catch( const std::exception &e )
     {
         throw WDHParseError( std::string( "Cast error in VTK file: " + m_fname + ": " + errMsg + ": " + stringValue ) );
     }

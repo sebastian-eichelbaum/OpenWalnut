@@ -31,12 +31,12 @@
 #include <boost/shared_ptr.hpp>
 
 #include "WReader.h"
-#include "../WExportDataHandler.h"
+
 
 /**
  * Can read a look up table from a file in VTK format.
  */
-class OWDATAHANDLER_EXPORT WReaderMatrixSymVTK : public WReader // NOLINT
+class WReaderMatrixSymVTK : public WReader // NOLINT
 {
 public:
     /**

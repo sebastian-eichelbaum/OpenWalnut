@@ -29,14 +29,14 @@
 
 #include "../math/WLine.h"
 #include "../math/linearAlgebra/WLinearAlgebra.h"
-#include "../WExportCommon.h"
+
 
 class WFiberTest;
 
 /**
  * Represents a neural pathway.
  */
-class OWCOMMON_EXPORT WFiber : public WLine
+class WFiber : public WLine
 {
 friend class WFiberTest;
 public:

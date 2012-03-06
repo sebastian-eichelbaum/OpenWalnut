@@ -35,10 +35,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
-
-#include "WExportCommon.h"
-
 /**
  * Some utilities for string manipulation and output operations. Please note
  * that the overloaded ostream output operators aren't in a separate namespace
@@ -59,13 +55,46 @@
  */
 namespace string_utils
 {
+    /**
+     * Convert a given value to a string. The input value must provide a operator<< or be a standard scalar type.
+     *
+     * \tparam T the source type. You do not need to specify this directly as it can be deducted from the given parameter
+     * \param value the value to cast to string
+     *
+     * \return the string.
+     */
+    template< typename T >
+    inline std::string toString( const T& value )
+    {
+        std::stringstream ss;
+        ss << value;
+        return ss.str();
+    }
+
+    /**
+     * Convert a given string to a value of a certain type. The target type must provide a operator>> to work or be a standard scalar type.
+     *
+     * \tparam T the source type.
+     * \param str the value to cast to string
+     *
+     * \return the string.
+     */
+    template< typename T >
+    inline T fromString( const std::string& str )
+    {
+        std::stringstream ss( str );
+        T value;
+        ss >> value;
+        return value;
+    }
+
     /** We consider the following characters as whitespace:
      *  - <tt>\\r</tt> carriage return
      *  - <tt>\\n</tt> newline
      *  - <tt>\\t</tt> tab
      *  - <tt>' '</tt> space
      */
-    extern OWCOMMON_EXPORT const std::string WHITESPACE;
+    extern const std::string WHITESPACE;
 
     /**
      * Trims any occurence of each character given in parameter t from the end
@@ -76,7 +105,7 @@ namespace string_utils
      * \return A copy of the trimmed string
      */
 
-    std::string OWCOMMON_EXPORT rTrim( const std::string& source, const std::string& t = WHITESPACE );
+    std::string rTrim( const std::string& source, const std::string& t = WHITESPACE );
 
     /**
      * Trims any occurence of each character given in parameter t from the
@@ -86,7 +115,7 @@ namespace string_utils
      * \param t String representing a set containg all trimmable characters
      * \return A copy of the trimmed string
      */
-    std::string OWCOMMON_EXPORT lTrim( const std::string& source, const std::string& t =
+    std::string lTrim( const std::string& source, const std::string& t =
             WHITESPACE );
 
     /**
@@ -97,7 +126,7 @@ namespace string_utils
      * \param t String representing a set containg all trimmable characters
      * \return A copy of the trimmed string
      */
-    std::string OWCOMMON_EXPORT trim( const std::string& source, const std::string& t = WHITESPACE );
+    std::string trim( const std::string& source, const std::string& t = WHITESPACE );
 
     /**
      * Transforms all characters in the given string into upper case
@@ -106,7 +135,7 @@ namespace string_utils
      * \param source String to transpose.
      * \return A copy of the upper case only string
      */
-    std::string OWCOMMON_EXPORT toUpper( const std::string& source );
+    std::string toUpper( const std::string& source );
 
     /**
      * Transforms all characters in the given string into lower case
@@ -115,7 +144,7 @@ namespace string_utils
      * \param source String to transpose.
      * \return A copy of the lower case only string
      */
-    std::string OWCOMMON_EXPORT toLower( const std::string& source );
+    std::string toLower( const std::string& source );
 
     /**
      * Splits the given string into a vector of strings (so called tokens).
@@ -127,7 +156,7 @@ namespace string_utils
      * as whitespace.
      * \return A vector of strings containing the tokens.
      */
-    std::vector< std::string > OWCOMMON_EXPORT tokenize( const std::string& source,
+    std::vector< std::string > tokenize( const std::string& source,
                                                        const std::string& delim = WHITESPACE,
                                                        bool compress = true );
 
@@ -153,7 +182,7 @@ namespace string_utils
      * Also wrapping brackets '[' ']' are expected. In general this is the opposite of the
      * output operator above.
      * \warning The inputstream is first written into a string then the convertion into T
-     * via boost::lexical_cast takes place.
+     * via fromString takes place.
      * \warning The delimiter should not be in an elements string representation since then
      * the tokenizer may gets confused
      *
@@ -172,7 +201,7 @@ namespace string_utils
         v.reserve( tokens.size() );
         for( size_t i = 0; i < tokens.size(); ++i )
         {
-            v.push_back( boost::lexical_cast< T >( tokens[i] ) );
+            v.push_back( fromString< T >( tokens[i] ) );
         }
         return in;
     }

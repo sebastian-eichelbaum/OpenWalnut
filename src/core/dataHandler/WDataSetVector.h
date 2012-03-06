@@ -26,13 +26,13 @@
 #define WDATASETVECTOR_H
 
 #include "WDataSetSingle.h"
-#include "WExportDataHandler.h"
+
 
 /**
  * This data set type contains vectors as values.
  * \ingroup dataHandler
  */
-class OWDATAHANDLER_EXPORT WDataSetVector : public WDataSetSingle // NOLINT
+class WDataSetVector : public WDataSetSingle // NOLINT
 {
 public:
     /**

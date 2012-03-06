@@ -35,12 +35,12 @@
 
 #include "WROI.h"
 
-#include "WExportWGE.h"
+
 
 /**
  * A sphere representing a region of interest.
  */
-class WGE_EXPORT WROISphere : public WROI
+class WROISphere : public WROI
 {
 public:
     /**

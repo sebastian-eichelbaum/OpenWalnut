@@ -32,12 +32,12 @@
 #include <osg/PositionAttitudeTransform>
 
 #include "../../common/WHierarchicalTreeFibers.h"
-#include "../WExportWGE.h"
+
 
 /**
  * Class creates a dendrogram from a hierarchical clustering
  */
-class WGE_EXPORT WDendrogramGeode : public osg::Geode // NOLINT
+class WDendrogramGeode : public osg::Geode // NOLINT
 {
 public:
     /**

@@ -30,6 +30,8 @@
 #include <boost/regex.hpp>
 
 #include "../../common/WLogger.h"
+#include "../../common/WStringUtils.h"
+
 #include "WGEShaderVersionPreprocessor.h"
 
 WGEShaderVersionPreprocessor::WGEShaderVersionPreprocessor()
@@ -67,7 +69,7 @@ std::string WGEShaderVersionPreprocessor::process( const std::string& file, cons
     {
         if( boost::regex_match( line, matches, versionRegexp ) ) // look for the #version statement
         {
-            unsigned int versionNum = boost::lexical_cast< unsigned int >( matches[1] );
+            unsigned int versionNum = string_utils::fromString< unsigned int >( matches[1] );
             version = std::max( versionNum, version );
             foundVersion = true;
             continue;

@@ -28,7 +28,7 @@
 #include <string>
 
 #include "WTerminalColor.h"
-#include "WExportCommon.h"
+
 
 /**
  * Various log levels, to distinguish output on its level.
@@ -53,7 +53,7 @@ LogLevel logLevelFromString( const std::string& str );
 /**
  * Represents a simple log message with some attributes.
  */
-class OWCOMMON_EXPORT WLogEntry // NOLINT
+class WLogEntry // NOLINT
 {
 public:
     /**

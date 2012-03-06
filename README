@@ -93,6 +93,16 @@ Compilation on Windows and Mac:
 This is a little bit more complicated. We give you a step-by-step explanation
 on http://www.openwalnut.org.
 
+BINARY DISTRIBUTION
+===================
+
+If you have received OpenWalnut in binary form, you can always acquire the
+code at http://www.openwalnut.org or from your distributor. In the binary
+packages we provide, we might include open source, third-party libraries. 
+If so, the licences are re-distributed along the libraries. We did not modify
+the sources. However, you can get the sources of these libraries by contacting
+us.
+
 USING
 =====
 

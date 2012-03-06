@@ -40,14 +40,14 @@
 #include "WTriangleMesh.h"
 
 #include "WROI.h"
-#include "WExportWGE.h"
+
 
 class WDataSetScalar;
 
 /**
  * A box containing information on an arbitrarily shaped a region of interest.
  */
-class WGE_EXPORT WROIArbitrary : public WROI
+class WROIArbitrary : public WROI
 {
 public:
     /**

@@ -28,11 +28,7 @@
 #include "gpView/WMGpView.h"
 #include "WGaussProcessesMain.h"
 
-#ifdef _MSC_VER
-extern "C" __declspec( dllexport ) void WLoadModule( WModuleList& m ) // NOLINT const ref
-#else
 extern "C" void WLoadModule( WModuleList& m ) // NOLINT const ref
-#endif
 {
     m.push_back( boost::shared_ptr< WModule >( new WMDetTract2GPConvert ) );
     m.push_back( boost::shared_ptr< WModule >( new WMGpView ) );

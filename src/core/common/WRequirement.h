@@ -27,14 +27,14 @@
 
 #include <string>
 
-#include "WExportCommon.h"
+
 
 /**
  * Base class for all possible kinds of requirements. Derive your own kind of requirement from this class. This allows easy checking of required
  * features on a target system. Of course this is only useful for things checkable during runtime. You should avoid writing classes for checking
  * weather some library is installed or not. This is checked by the linker on the target system.
  */
-class OWCOMMON_EXPORT WRequirement // NOLINT
+class WRequirement // NOLINT
 {
 public:
     /**

@@ -31,7 +31,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "WExportKernel.h"
+
 
 class WModule;
 class WModuleOneToOneCombiner;
@@ -72,7 +72,7 @@ namespace WCombinerTypes
      *
      * \return true if lhs < rhs
      */
-    bool OWKERNEL_EXPORT compatiblesSort( WCompatiblesGroup lhs, WCompatiblesGroup rhs );
+    bool  compatiblesSort( WCompatiblesGroup lhs, WCompatiblesGroup rhs );
 }
 
 #endif  // WMODULECOMBINERTYPES_H

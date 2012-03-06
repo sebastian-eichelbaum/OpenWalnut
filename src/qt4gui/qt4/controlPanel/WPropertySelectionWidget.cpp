@@ -30,7 +30,6 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QScrollBar>
 
-#include <boost/lexical_cast.hpp>
 
 #include "core/common/WLogger.h"
 #include "core/common/WPropertyVariable.h"

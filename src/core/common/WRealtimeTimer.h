@@ -31,12 +31,12 @@
 
 #include "WTimer.h"
 
-#include "WExportCommon.h"
+
 
 /**
  * Realtime timing. Internally, this uses an osg::Timer.
  */
-class OWCOMMON_EXPORT WRealtimeTimer: public WTimer
+class WRealtimeTimer: public WTimer
 {
 public:
     /**

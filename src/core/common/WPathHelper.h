@@ -27,20 +27,16 @@
 
 #include <vector>
 
-// Use filesystem version 2 for compatibility with newer boost versions.
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
 #include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "WExportCommon.h"
+
 
 /**
  * Singleton class helping to find files and paths. It is a useful to to search for resources and the central place to "hardcode" relative paths.
  * It contains global paths only. Modules have their OWN local paths.
  */
-class OWCOMMON_EXPORT WPathHelper // NOLINT
+class WPathHelper // NOLINT
 {
 public:
     /**

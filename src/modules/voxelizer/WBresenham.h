@@ -33,7 +33,7 @@
 #include "core/dataHandler/WGridRegular3D.h"
 #include "core/common/math/WLine.h"
 #include "core/common/math/linearAlgebra/WLinearAlgebra.h"
-#include "core/common/math/WValue.h"
+#include "core/common/math/linearAlgebra/WVectorFixed.h"
 #include "WRasterAlgorithm.h"
 
 /**
@@ -98,7 +98,7 @@ protected:
      * \param end End point of the line segment (used to computed the
      * distance)
      */
-    virtual void markVoxel( const WValue< int >& voxel, const int axis, const WPosition& start, const WPosition& end );
+    virtual void markVoxel( const WVector3i& voxel, const int axis, const WPosition& start, const WPosition& end );
 
     /**
      * Returns the value to mark the hit voxels with, depending on their

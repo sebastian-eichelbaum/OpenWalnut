@@ -36,15 +36,13 @@
 #include "WGridRegular3D.h"
 #include "WValueSet.h"
 
-#include "WExportDataHandler.h"
-
 class WDataTexture3D;
 
 /**
  * A data set consisting of a set of values based on a grid.
  * \ingroup dataHandler
  */
-class OWDATAHANDLER_EXPORT WDataSetSingle : public WDataSet // NOLINT
+class WDataSetSingle : public WDataSet // NOLINT
 {
 public:
     /**

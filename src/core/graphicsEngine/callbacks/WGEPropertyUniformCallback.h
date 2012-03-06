@@ -28,7 +28,7 @@
 #include <osg/Uniform>
 
 #include "../../common/WProperties.h"
-#include "../WExportWGE.h"
+
 #include "../shaders/WGEUniformTypeTraits.h"
 
 /**

@@ -37,14 +37,14 @@
 #include "WEEGPositionsLibrary.h"
 #include "WEEG2Segment.h"
 #include "WRecording.h"
-#include "WExportDataHandler.h"
+
 
 
 /**
  * Class which contains EEG recording data, read from a WPagerEEG.
  * \ingroup dataHandler
  */
-class OWDATAHANDLER_EXPORT WEEG2 : public WRecording // NOLINT
+class WEEG2 : public WRecording // NOLINT
 {
 public:
     /**

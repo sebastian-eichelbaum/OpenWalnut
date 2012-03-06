@@ -39,6 +39,8 @@
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../common/math/WMath.h"
 #include "../common/WPathHelper.h"
+#include "../common/WStringUtils.h"
+
 #include "shaders/WGEShader.h"
 #include "WGEGeodeUtils.h"
 #include "WGEGeometryUtils.h"
@@ -388,7 +390,7 @@ osg::ref_ptr< osg::PositionAttitudeTransform > wge::addLabel( osg::Vec3 position
     labelGeode->addDrawable( label );
 
     // setup font
-    label->setFont( WPathHelper::getAllFonts().Default.file_string() );
+    label->setFont( WPathHelper::getAllFonts().Default.string() );
     label->setBackdropType( osgText::Text::OUTLINE );
     label->setCharacterSize( 6 );
 
@@ -410,8 +412,8 @@ osg::ref_ptr< osg::PositionAttitudeTransform > wge::addLabel( osg::Vec3 position
 
 osg::ref_ptr< osg::PositionAttitudeTransform > wge::vector2label( osg::Vec3 position )
 {
-    std::string label = "(" + boost::lexical_cast< std::string >( position[0] ) + "," +
-    boost::lexical_cast< std::string >( position[1] ) + "," + boost::lexical_cast< std::string >( position[2] ) + ")";
+    std::string label = "(" + string_utils::toString( position[0] ) + "," +
+    string_utils::toString( position[1] ) + "," + string_utils::toString( position[2] ) + ")";
     return ( addLabel( position, label ) );
 }
 

@@ -25,10 +25,6 @@
 #include <fstream>
 #include <string>
 
-// Use filesystem version 2 for compatibility with newer boost versions.
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
 #include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -39,7 +35,7 @@
 #include "WWriterFiberVTK.h"
 
 WWriterFiberVTK::WWriterFiberVTK( const boost::filesystem::path& path, bool overwrite )
-    : WWriter( path.file_string(), overwrite )
+    : WWriter( path.string(), overwrite )
 {
 }
 void WWriterFiberVTK::writeFibs( boost::shared_ptr< const WDataSetFibers > fiberDS ) const

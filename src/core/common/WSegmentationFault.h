@@ -32,10 +32,9 @@
 
 #include <string>
 
-#include <boost/lexical_cast.hpp>
-
+#include "WStringUtils.h"
 #include "WException.h"
-#include "WExportCommon.h"
+
 
 #ifdef __linux__
 // This is highly platform dependent. Used for backtrace functionality.
@@ -64,7 +63,7 @@ private:
         static void SignalHandler( int signum )
         {
             throw SignalExceptionClass( std::string( "SIGNAL: " ) +
-                                        boost::lexical_cast<std::string>( signum ) );
+                                        string_utils::toString( signum ) );
         }
     };
 };
@@ -76,7 +75,7 @@ private:
  * recoverable, which means it can NOT be catched!
  * Also note that this will only work on Linux.
  */
-class OWCOMMON_EXPORT WSegmentationFault: public WException
+class WSegmentationFault: public WException
 {
 public:
     /**

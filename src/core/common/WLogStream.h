@@ -34,7 +34,7 @@
 /**
  * Class implementing a capsule for an output stream and the needed level and format information.
  */
-class OWCOMMON_EXPORT WLogStream // NOLINT
+class WLogStream // NOLINT
 {
 public:
     typedef boost::shared_ptr< WLogStream > SharedPtr;  //!< shared pointer type

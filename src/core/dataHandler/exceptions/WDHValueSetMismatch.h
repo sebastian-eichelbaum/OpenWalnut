@@ -28,14 +28,14 @@
 #include <string>
 
 #include "WDHException.h"
-#include "../WExportDataHandler.h"
+
 
 /**
  * An exception that should be used whenever two valuesets are used which need to be of same size, dim, order or whatever.
  *
  * \ingroup dataHandler
  */
-class OWDATAHANDLER_EXPORT WDHValueSetMismatch : public WDHException
+class WDHValueSetMismatch : public WDHException
 {
 public:
     /**

@@ -28,12 +28,12 @@
 #include <string>
 
 #include "../common/WRequirement.h"
-#include "WExportKernel.h"
+
 
 /**
  * This requirement ensures that the specified prototype exists in the factory. These requirements are especially useful for container modules.
  */
-class OWKERNEL_EXPORT WPrototypeRequirement: public WRequirement // NOLINT
+class  WPrototypeRequirement: public WRequirement // NOLINT
 {
 public:
     /**

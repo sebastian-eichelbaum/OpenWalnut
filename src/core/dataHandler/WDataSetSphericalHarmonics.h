@@ -33,13 +33,13 @@
 #include "WValueSet.h"
 
 #include "WDataSetSingle.h"
-#include "WExportDataHandler.h"
+
 
 /**
  * This data set type contains spherical harmonic coefficients as values. The index scheme is like in the Descoteaux paper "Regularized, Fast, and Robust Analytical Q-Ball Imaging".
  * \ingroup dataHandler
  */
-class OWDATAHANDLER_EXPORT WDataSetSphericalHarmonics : public WDataSetSingle // NOLINT
+class WDataSetSphericalHarmonics : public WDataSetSingle // NOLINT
 {
 public:
     /**

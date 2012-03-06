@@ -25,12 +25,13 @@
 #include <string>
 
 #include <boost/regex.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
 
 #include <osg/Camera>
 
 #include "../common/WLogger.h"
+#include "../common/WStringUtils.h"
+
 #include "WGraphicsEngine.h"
 #include "WGEViewer.h"
 
@@ -68,7 +69,7 @@ double* parseDoubleSequence( std::string seq, unsigned int size )
     unsigned int i = 0;
     for( tokenizer::iterator it = tok.begin(); ( it != tok.end() ) && ( i < size ); ++it )
     {
-        values[ i ] = boost::lexical_cast< double >( ( *it ) );
+        values[ i ] = string_utils::fromString< double >( ( *it ) );
         ++i;
     }
 
@@ -119,7 +120,7 @@ bool WGEProjectFileIO::parse( std::string line, unsigned int lineNumber )
         wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Camera \"" << matches[2] << "\" with ID " << matches[1];
 
         // store it
-        m_cameras[ boost::lexical_cast< unsigned int >( matches[1] ) ] = matches[2];
+        m_cameras[ string_utils::fromString< unsigned int >( matches[1] ) ] = matches[2];
 
         return true;
     }
@@ -131,8 +132,8 @@ bool WGEProjectFileIO::parse( std::string line, unsigned int lineNumber )
         wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Camera Manipulator Matrix with ID " << matches[1];
 
         // is there already a matrix for this camera? -> we do not care :-). Overwrite it.
-        m_manipulatorMatrices[ boost::lexical_cast< unsigned int >( matches[1] ) ] =
-            osg::Matrixd( parseMatrix( boost::lexical_cast< std::string >( matches[2] ) ) );
+        m_manipulatorMatrices[ string_utils::fromString< unsigned int >( matches[1] ) ] =
+            osg::Matrixd( parseMatrix( string_utils::toString( matches[2] ) ) );
 
         return true;
     }
@@ -145,8 +146,8 @@ bool WGEProjectFileIO::parse( std::string line, unsigned int lineNumber )
         wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Camera Manipulator Home Eye Point with ID " << matches[1];
 
         // is there already a vector set? -> ignore.
-        double* vals = parseVector( boost::lexical_cast< std::string >( matches[2] ) );
-        m_homeEyeVectors[ boost::lexical_cast< unsigned int >( matches[1] ) ] = osg::Vec3d( vals[0], vals[1], vals[2] );
+        double* vals = parseVector( string_utils::toString( matches[2] ) );
+        m_homeEyeVectors[ string_utils::fromString< unsigned int >( matches[1] ) ] = osg::Vec3d( vals[0], vals[1], vals[2] );
 
         return true;
     }
@@ -159,8 +160,8 @@ bool WGEProjectFileIO::parse( std::string line, unsigned int lineNumber )
         wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Camera Manipulator Home Center Point with ID " << matches[1];
 
         // is there already a vector set? -> ignore.
-        double* vals = parseVector( boost::lexical_cast< std::string >( matches[2] ) );
-        m_homeCenterVectors[ boost::lexical_cast< unsigned int >( matches[1] ) ] = osg::Vec3d( vals[0], vals[1], vals[2] );
+        double* vals = parseVector( string_utils::toString( matches[2] ) );
+        m_homeCenterVectors[ string_utils::fromString< unsigned int >( matches[1] ) ] = osg::Vec3d( vals[0], vals[1], vals[2] );
 
         return true;
     }
@@ -173,8 +174,8 @@ bool WGEProjectFileIO::parse( std::string line, unsigned int lineNumber )
         wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Camera Manipulator Home Up Point with ID " << matches[1];
 
         // is there already a vector set? -> ignore.
-        double* vals = parseVector( boost::lexical_cast< std::string >( matches[2] ) );
-        m_homeUpVectors[ boost::lexical_cast< unsigned int >( matches[1] ) ] = osg::Vec3d( vals[0], vals[1], vals[2] );
+        double* vals = parseVector( string_utils::toString( matches[2] ) );
+        m_homeUpVectors[string_utils::fromString< unsigned int >( matches[1] ) ] = osg::Vec3d( vals[0], vals[1], vals[2] );
 
         return true;
     }

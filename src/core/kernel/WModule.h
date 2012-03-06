@@ -30,10 +30,6 @@
 #include <vector>
 
 #include <boost/enable_shared_from_this.hpp>
-// Use filesystem version 2 for compatibility with newer boost versions.
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
 #include <boost/filesystem.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
@@ -51,7 +47,7 @@
 #include "../dataHandler/WDataSet.h"
 #include "../dataHandler/WDataSetSingle.h"
 #include "../dataHandler/WValueSet.h"
-#include "WExportKernel.h"
+
 #include "WModuleCombinerTypes.h"
 #include "WModuleConnectorSignals.h"
 #include "WModuleSignals.h"
@@ -62,6 +58,7 @@ class WModuleContainer;
 class WModuleFactory;
 class WModuleInputConnector;
 class WModuleOutputConnector;
+class WModuleMetaInformation;
 template < typename T > class WModuleInputData;
 template < typename T > class WModuleInputForwardData;
 template < typename T > class WModuleOutputData;
@@ -70,7 +67,7 @@ template < typename T > class WModuleOutputData;
  * Class representing a single module of OpenWalnut.
  * \ingroup kernel
  */
-class OWKERNEL_EXPORT WModule: public WThreadedRunner,
+class  WModule: public WThreadedRunner,
                                public WPrototyped,
                                public boost::enable_shared_from_this< WModule >
 {
@@ -411,6 +408,14 @@ protected:
     virtual std::string deprecated() const;
 
     /**
+     * The meta information of this module. This contains several information like name, description, icons, help links and so on. It, at least,
+     * contains the name.
+     *
+     * \return the meta info object for this module.
+     */
+    virtual WModuleMetaInformation getMetaInformation() const;
+
+    /**
      * Manages connector initialization. Gets called by module container.
      *
      * \throw WModuleConnectorInitFailed if called multiple times.
@@ -673,13 +678,8 @@ typedef void ( *W_LOADABLE_MODULE_SIGNATURE )( WModuleList& );
  * \note we need the module instance to be created using a shared_ptr as WModule is derived from enable_shared_from_this. Removing the shared
  *       pointer causes segmentation faults during load.
  */
-#ifdef _MSC_VER
-#define W_LOADABLE_MODULE( MODULECLASS ) \
-extern "C" __declspec(dllexport) void WLoadModule( WModuleList& m ) { m.push_back( boost::shared_ptr< WModule >( new MODULECLASS ) ); }  // NOLINT
-#else
 #define W_LOADABLE_MODULE( MODULECLASS ) \
 extern "C"                       void WLoadModule( WModuleList& m ) { m.push_back( boost::shared_ptr< WModule >( new MODULECLASS ) ); }  // NOLINT
-#endif
 
 /**
  * The corresponding symbol name.

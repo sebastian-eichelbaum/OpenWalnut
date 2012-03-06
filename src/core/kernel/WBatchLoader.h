@@ -36,14 +36,14 @@
 
 #include "WDataModule.h"
 
-#include "WExportKernel.h"
+
 
 class WModuleContainer;
 
 /**
  * Class for loading many datasets. It runs in a separate thread.
  */
-class OWKERNEL_EXPORT WBatchLoader: public WThreadedRunner,
+class  WBatchLoader: public WThreadedRunner,
                                   public boost::enable_shared_from_this< WBatchLoader >
 {
 public:

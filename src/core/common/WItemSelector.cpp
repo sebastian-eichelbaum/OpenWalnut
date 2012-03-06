@@ -25,8 +25,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
-
 #include "WStringUtils.h"
 #include "WItemSelection.h"
 
@@ -91,7 +89,7 @@ WItemSelector WItemSelector::newSelector( const std::string asString ) const
     IndexList l;
     for( size_t i = 0; i < tokens.size(); ++i )
     {
-        l.push_back( boost::lexical_cast< size_t >( tokens[i] ) );
+        l.push_back( string_utils::fromString< size_t >( tokens[i] ) );
     }
 
     return createSelector( l );

@@ -40,7 +40,7 @@
 #include "../callbacks/WGESwitchCallback.h"
 #include "../callbacks/WGENodeMaskCallback.h"
 #include "../WGEGroupNode.h"
-#include "../WExportWGE.h"
+
 
 #include "WGEPostprocessor.h"
 
@@ -51,7 +51,7 @@
  * \note Although this is an osg::Switch node, you should avoid using its inherited API unless you know what you do. Using the osg::Switch API
  * might be useful for those who want to modify the post-processing pipeline.
  */
-class WGE_EXPORT WGEPostprocessingNode: public osg::Switch // NOLINT
+class WGEPostprocessingNode: public osg::Switch // NOLINT
 {
 public:
     /**

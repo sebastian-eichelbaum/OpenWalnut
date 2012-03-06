@@ -35,12 +35,12 @@
 #include "../common/WAssert.h"
 #include "../common/WColor.h"
 #include "../common/WTransferable.h"
-#include "WExportWGE.h"
+
 
 /**
  * Triangle mesh data structure allowing for convenient access of the elements.
  */
-class WGE_EXPORT WTriangleMesh  : public WTransferable
+class WTriangleMesh  : public WTransferable
 {
 friend class WTriangleMeshTest;
 public:
@@ -597,7 +597,7 @@ namespace tm_utils
      *
      * \return List of components where each of them is a WTriangleMesh again.
      */
-    WGE_EXPORT boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > componentDecomposition( const WTriangleMesh& mesh );
+    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > componentDecomposition( const WTriangleMesh& mesh );
 
     /**
      * Prints for each mesh \#vertices and \#triangles, as well as each triangle with its positions. No point IDs are printed.
@@ -607,7 +607,7 @@ namespace tm_utils
      *
      * \return The output stream again for further usage.
      */
-    WGE_EXPORT std::ostream& operator<<( std::ostream& os, const WTriangleMesh& rhs );
+    std::ostream& operator<<( std::ostream& os, const WTriangleMesh& rhs );
 }
 
 inline bool WTriangleMesh::operator==( const WTriangleMesh& rhs ) const

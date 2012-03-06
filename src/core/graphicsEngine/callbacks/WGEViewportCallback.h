@@ -28,7 +28,7 @@
 #include <osg/Camera>
 #include <osg/Node>
 
-#include "../WExportWGE.h"
+
 
 /**
  * This callback is useful to update viewport information on several nodes supporting it. The specified type must support an setViewport method.

@@ -46,6 +46,8 @@
 #include "WGEViewer.h"
 #include "exceptions/WGEInitFailed.h"
 #include "exceptions/WGESignalSubscriptionFailed.h"
+#include "WGraphicsEngineMode.h"
+
 #include "WGraphicsEngine.h"
 
 // graphics engine instance as singleton
@@ -56,9 +58,10 @@ WGraphicsEngine::WGraphicsEngine():
 {
     WLogger::getLogger()->addLogMessage( "Initializing Graphics Engine", "GE", LL_INFO );
 
-#ifndef __APPLE__
+#ifdef WGEMODE_MULTITHREADED
     // initialize OSG render window
     m_viewer = osg::ref_ptr<osgViewer::CompositeViewer>( new osgViewer::CompositeViewer() );
+    m_viewer->setThreadingModel( osgViewer::ViewerBase::SingleThreaded );
 #endif
 
     // initialize members
@@ -73,10 +76,10 @@ WGraphicsEngine::~WGraphicsEngine()
 
 void WGraphicsEngine::setMultiThreadedViews( bool enable )
 {
-#ifdef __APPLE__
+#ifdef  WGEMODE_SINGLETHREADED
     if( enable )
     {
-        WLogger::getLogger()->addLogMessage( "WGraphicsEngine::setMultiThreadedViews not implemented for OSX, yet", "GE", LL_INFO );
+        WLogger::getLogger()->addLogMessage( "WGraphicsEngine::setMultiThreadedViews not implemented for single threaded mode", "GE", LL_INFO );
     }
 #else
     // ThreadingModel: enum with the following possibilities
@@ -101,7 +104,7 @@ void WGraphicsEngine::setMultiThreadedViews( bool enable )
 
 bool WGraphicsEngine::isMultiThreadedViews() const
 {
-#ifndef __APPLE__
+#ifdef WGEMODE_MULTITHREADED
     return ( osgViewer::Viewer::SingleThreaded != m_viewer->getThreadingModel() );
 #endif
     // on mac, this always is false currently
@@ -132,7 +135,7 @@ boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( std::string name, os
     viewer->setBgColor( bgColor );
     viewer->setScene( getScene() );
 
-#ifndef __APPLE__
+#ifdef WGEMODE_MULTITHREADED
     // finally add view
     m_viewer->addView( viewer->getView() );
 #endif
@@ -202,7 +205,7 @@ void WGraphicsEngine::threadMain()
 {
     WLogger::getLogger()->addLogMessage( "Starting Graphics Engine", "GE", LL_INFO );
 
-#ifndef __APPLE__
+#ifdef WGEMODE_MULTITHREADED
     // NOTE: this is needed here since the viewer might start without any widgets being initialized properly.
     m_startThreadingCondition.wait();
     m_running = true;
@@ -219,7 +222,7 @@ void WGraphicsEngine::threadMain()
 void WGraphicsEngine::notifyStop()
 {
     WLogger::getLogger()->addLogMessage( "Stopping Graphics Engine", "GE", LL_INFO );
-#ifndef __APPLE__
+#ifdef WGEMODE_MULTITHREADED
     m_viewer->setDone( true );
 #endif
 }

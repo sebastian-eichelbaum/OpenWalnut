@@ -37,13 +37,13 @@
 #include "WLogStream.h"
 #include "WStringUtils.h"
 #include "WSharedSequenceContainer.h"
-#include "WExportCommon.h"
+
 
 /**
  * This class defines the interface for adding logs and managing several output streams for them. The actual log entry is in \ref WLogEntry and
  * the output is done in \ref WLogStream.
  */
-class OWCOMMON_EXPORT WLogger       // NOLINT
+class WLogger       // NOLINT
 {
 public:
     /**
@@ -169,7 +169,7 @@ namespace wlog
     /**
      * Resource class for streamed logging.
      */
-    class OWCOMMON_EXPORT WStreamedLogger // NOLINT
+    class WStreamedLogger // NOLINT
     {
     public:
         /**

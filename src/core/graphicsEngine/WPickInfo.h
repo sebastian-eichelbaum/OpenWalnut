@@ -30,13 +30,13 @@
 
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../common/WDefines.h"
-#include "WExportWGE.h"
+
 
 
 /**
  * Encapsulates info for pick action.
  */
-class WGE_EXPORT WPickInfo
+class WPickInfo
 {
 public:
     /**

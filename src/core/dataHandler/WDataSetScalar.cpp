@@ -108,7 +108,7 @@ double WDataSetScalar::interpolate( const WPosition& pos, bool* success ) const
         return 0.0;
     }
 
-    std::vector< size_t > vertexIds = grid->getCellVertexIds( cellId );
+    WGridRegular3D::CellVertexArray vertexIds = grid->getCellVertexIds( cellId );
 
     WPosition localPos = pos - grid->getPosition( vertexIds[0] );
 

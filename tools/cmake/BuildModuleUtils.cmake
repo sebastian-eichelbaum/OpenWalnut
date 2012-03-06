@@ -92,11 +92,6 @@ FUNCTION( SETUP_MODULE _MODULE_NAME _MODULE_SOURCE_DIR _MODULE_DEPENDENCIES _MOD
     # Do not forget the install targets
     SETUP_LIB_INSTALL( ${MODULE_NAME} ${MODULE_TARGET_DIR_RELATIVE} "MODULES" )
 
-    # TODO(all): someone needs to explain this
-    IF(MSVC_IDE)
-        SET_TARGET_PROPERTIES( ${MODULE_NAME} PROPERTIES PREFIX "../")
-    ENDIF(MSVC_IDE)
-
     # -----------------------------------------------------------------------------------------------------------------------------------------------
     # Test Setup
     # -----------------------------------------------------------------------------------------------------------------------------------------------

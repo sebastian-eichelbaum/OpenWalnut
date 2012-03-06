@@ -450,9 +450,8 @@ public:
     void testGetCellVertexIds( void )
     {
         WGridRegular3D g( 5, 3, 3 );
-        size_t ids[] = { 23, 24, 28, 29, 38, 39, 43, 44 }; // NOLINT
-        std::vector< size_t > expected( ids, ids + 8 );
-        TS_ASSERT_EQUALS(  g.getCellVertexIds( 15 ), expected );
+        WGridRegular3D::CellVertexArray expected = { { 23, 24, 28, 29, 38, 39, 43, 44 } };
+        TS_ASSERT_EQUALS( g.getCellVertexIds( 15 ), expected );
     }
 
     /**

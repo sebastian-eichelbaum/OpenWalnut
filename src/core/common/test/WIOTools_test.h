@@ -105,7 +105,7 @@ public:
         boost::filesystem::path fpath = tempFileName();
         writeStringIntoFile( fpath, content );
 
-        std::ifstream input( fpath.file_string().c_str() );
+        std::ifstream input( fpath.string().c_str() );
         std::string actual;
         actual.assign( ( std::istreambuf_iterator< char >( input ) ), std::istreambuf_iterator< char >() );
         input.close();

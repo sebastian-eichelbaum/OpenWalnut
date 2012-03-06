@@ -28,10 +28,6 @@
 #include <map>
 #include <string>
 
-// Use filesystem version 2 for compatibility with newer boost versions.
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
 #include <boost/filesystem.hpp>
 #include <boost/signals2/signal.hpp>
 
@@ -41,14 +37,14 @@
 
 #include "../../common/WPathHelper.h"
 #include "../../common/WSharedAssociativeContainer.h"
-#include "../WExportWGE.h"
+
 #include "WGEShaderDefine.h"
 #include "WGEShaderPreprocessor.h"
 
 /**
  * Class encapsulating the OSG Program class for a more convenient way of adding and modifying shader.
  */
-class WGE_EXPORT WGEShader: public osg::Program
+class WGEShader: public osg::Program
 {
 public:
     /**
