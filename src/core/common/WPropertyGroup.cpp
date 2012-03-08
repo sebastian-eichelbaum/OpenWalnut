@@ -142,9 +142,35 @@ T addDefaultConstraints( T prop )
     return _addDefaultConstraints( prop );
 }
 
-bool WPropertyGroup::set( boost::shared_ptr< WPropertyBase > /*value*/ )
+bool WPropertyGroup::set( boost::shared_ptr< WPropertyBase > value, bool recommendedOnly )
 {
-    return true;
+    // is this the same type as we are?
+    typename WPropertyGroup::SPtr v = boost::shared_dynamic_cast< WPropertyGroup >( value );
+    if( !v )
+    {
+        // it is not a WPropertyStruct with the same type
+        return false;
+    }
+
+    // go through each of the given child props
+    WPropertyGroup::PropertySharedContainerType::ReadTicket r = v->getReadTicket();
+    size_t c = 0;   // number of props we have set
+    for( WPropertyGroupBase::PropertyConstIterator it = r->get().begin(); it != r->get().end(); ++it )
+    {
+        // do we have a property named the same as in the source props?
+        WPropertyBase::SPtr prop = findProperty( ( *it )->getName() );
+        if( !prop )
+        {
+            // not found. Ignore it. We cannot set the target property as the source did not exist
+            continue;
+        }
+        // ok there it is -> set
+        prop->set( *it, recommendedOnly );
+        c++;
+    }
+
+    // success only if all props have been set
+    return ( c == r->get().size() );
 }
 
 void WPropertyGroup::removeProperty( boost::shared_ptr< WPropertyBase > prop )

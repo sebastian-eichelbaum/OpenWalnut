@@ -182,10 +182,11 @@ public:
      * dynamic type of the property.
      *
      * \param value the new value.
+     * \param recommendedOnly if true, property types which support recommended values apply the given value as recommendation.
      *
      * \return true if the value has been accepted.
      */
-    virtual bool set( boost::shared_ptr< WPropertyBase > value ) = 0;
+    virtual bool set( boost::shared_ptr< WPropertyBase > value, bool recommendedOnly = false ) = 0;
 
     /////////////////////////////////////////////////////////////////////////////////////////////
     // Helpers for easy conversion to the possible types

@@ -57,7 +57,7 @@ WModuleMetaInformation::WModuleMetaInformation( std::string name ):
     // initialize members
 }
 
-WModuleMetaInformation::WModuleMetaInformation( std::string name, boost::filesystem::path metafile ):
+WModuleMetaInformation::WModuleMetaInformation( std::string name, boost::filesystem::path /* metafile */ ):
     m_name( name )
     //m_metaData( createModuleRootElement( name ) )
 {

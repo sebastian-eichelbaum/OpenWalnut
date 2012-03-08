@@ -128,11 +128,6 @@ private:
     double m_valueScale;
 
     /**
-     * If true, the new texture gets placed at the position of the old one in the texture sorter
-     */
-    WPropBool m_replace;
-
-    /**
      * If true, a colorbar is shown.
      */
     WPropBool m_showColorbar;

@@ -148,14 +148,15 @@ public:
     /**
      * Sets the value from the specified property to this one. This is especially useful to copy a value without explicitly casting/knowing the
      * dynamic type of the property.
-     *
-     * \note for WPropertyGroup, this actually does nothing an.
+     * For WPropertyGroup, this tries to set the contained properties to the value of the given group. It does not add/remove properties. It
+     * simply sets the children values to the ones given.
      *
      * \param value the new value.
+     * \param recommendedOnly if true, property types which support recommended values apply the given value as recommendation.
      *
-     * \return true, always.
+     * \return true if the values of the children could be set. If one could not be set, false
      */
-    virtual bool set( boost::shared_ptr< WPropertyBase > value );
+    virtual bool set( boost::shared_ptr< WPropertyBase > value, bool recommendedOnly = false );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     // Extend the WPropertyGroupBase to allow the property list to be modified

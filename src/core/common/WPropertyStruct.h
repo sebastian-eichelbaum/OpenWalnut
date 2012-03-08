@@ -421,10 +421,11 @@ public:
      * dynamic type of the property.
      *
      * \param value the new value.
+     * \param recommendedOnly if true, property types which support recommended values apply the given value as recommendation.
      *
      * \return true if the value has been accepted.
      */
-    virtual bool set( boost::shared_ptr< WPropertyBase > value )
+    virtual bool set( boost::shared_ptr< WPropertyBase > value, bool recommendedOnly = false )
     {
         // is this the same type as we are?
         typename WPropertyStructType::SPtr v = boost::shared_dynamic_cast< WPropertyStructType >( value );
@@ -441,7 +442,7 @@ public:
         // set each property
         for( size_t curPropNb = 0; curPropNb < size(); ++curPropNb )
         {
-            success = success && l->get()[ curPropNb ]->set( lother->get()[ curPropNb ] );
+            success = success && l->get()[ curPropNb ]->set( lother->get()[ curPropNb ], recommendedOnly );
         }
 
         return success;
