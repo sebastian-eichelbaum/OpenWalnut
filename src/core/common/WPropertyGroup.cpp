@@ -145,7 +145,7 @@ T addDefaultConstraints( T prop )
 bool WPropertyGroup::set( boost::shared_ptr< WPropertyBase > value, bool recommendedOnly )
 {
     // is this the same type as we are?
-    typename WPropertyGroup::SPtr v = boost::shared_dynamic_cast< WPropertyGroup >( value );
+    WPropertyGroup::SPtr v = boost::shared_dynamic_cast< WPropertyGroup >( value );
     if( !v )
     {
         // it is not a WPropertyStruct with the same type
