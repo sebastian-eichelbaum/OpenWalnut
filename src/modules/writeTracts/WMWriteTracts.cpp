@@ -206,16 +206,16 @@ bool WMWriteTracts::saveJson() const
     float fValue;
     for( size_t i = 0; i < (verts->size() - 1 )/ 3; ++i )
     {
-        fValue = 160 - verts->at( i * 3 );
+        fValue = verts->at( i * 3 );
         dataFile << fValue << ",";
-        fValue = 200 - verts->at( i * 3 + 1 );
+        fValue = verts->at( i * 3 + 1 );
         dataFile << fValue << ",";
         fValue = verts->at( i * 3 + 2 );
         dataFile << fValue << ",";
     }
-    fValue = 160 - verts->at( verts->size() - 3 );
+    fValue = verts->at( verts->size() - 3 );
     dataFile << fValue << ",";
-    fValue = 200 - verts->at( verts->size() - 2 );
+    fValue = verts->at( verts->size() - 2 );
     dataFile << fValue << ",";
     fValue = verts->at( verts->size() - 1 );
     dataFile << fValue << "],\n";
@@ -320,8 +320,8 @@ bool WMWriteTracts::saveJson2() const
         {
             if( i % 2 == 0 )
             {
-                nVertices.push_back( 160 - verts->at( i * 3 ) );
-                nVertices.push_back( 200 - verts->at( i * 3 + 1 ) );
+                nVertices.push_back( verts->at( i * 3 ) );
+                nVertices.push_back( verts->at( i * 3 + 1 ) );
                 nVertices.push_back( verts->at( i * 3 + 2 ) );
 
                 nNormals.push_back( - tangents->at( i * 3 ) );
