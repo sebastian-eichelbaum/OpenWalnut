@@ -300,26 +300,6 @@ ENDIF()
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
-# Num Cores
-#  - Number of paralelle operations on this machine
-#  - Needed by several of our following targets
-#
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-# TODO(ebaum): use try_run for this
-# Determines the number of cores available on this machine
-SET( NUM_CORES_SOURCE_DIR ${OW_TOOLS_DIR}/cmake/numCores )
-SET( NUM_CORES_BINARY_DIR ${PROJECT_BINARY_DIR}/numCores )
-SET( NUM_CORES_BINARY ${NUM_CORES_BINARY_DIR}/numCores )
-ADD_CUSTOM_TARGET( numCores
-               COMMAND ${CMAKE_COMMAND} -E make_directory ${NUM_CORES_BINARY_DIR}
-               COMMAND cd ${NUM_CORES_BINARY_DIR} && ${CMAKE_COMMAND} ${NUM_CORES_SOURCE_DIR} > /dev/null
-               COMMAND $(MAKE) -C ${NUM_CORES_BINARY_DIR} > /dev/null
-               COMMENT "Determines the number of cores available on this machine"
-             )
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-#
 # Documentation
 #  - Call doxygen here
 #
@@ -355,27 +335,10 @@ ADD_CUSTOM_TARGET( stylecheck )
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Removes nasty windows line endings
-ADD_CUSTOM_TARGET( removewinlineendings
-                   COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/../tools/removeWinLineEnding.py ${PROJECT_BINARY_DIR}/brainlintlist
-                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-                   COMMENT "Removes Windows Line endings"
-                 )
-
 # Checks if all is well to commit (aka commitCheck, cicheck)
 ADD_CUSTOM_TARGET( cicheck
                    COMMAND $(MAKE) stylecheck && $(MAKE) test && $(MAKE) doc
                    COMMENT "Checks if all is well to commit"
-                 )
-
-# Makes many special make targets in combination. Default number of cores is 1.
-ADD_CUSTOM_TARGET( many
-                   COMMAND echo Using \$\$\(${NUM_CORES_BINARY}\) cores.\; $(MAKE) all -j\$\$\(${NUM_CORES_BINARY}\)
-                   COMMAND $(MAKE) test
-                   COMMAND $(MAKE) stylecheck
-                   COMMAND $(MAKE) doc
-                   DEPENDS numCores
-                   COMMENT "Make many special make targets in combination."
                  )
 
 # some convenience install targets:
