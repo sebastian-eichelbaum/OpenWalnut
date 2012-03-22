@@ -56,6 +56,7 @@
 class WModuleConnector;
 class WModuleContainer;
 class WModuleFactory;
+class WModuleLoader;
 class WModuleInputConnector;
 class WModuleOutputConnector;
 class WModuleMetaInformation;
@@ -79,6 +80,7 @@ template< typename T > friend class WModuleOutputForwardData;  // requires acces
 friend class WModuleFactory;    // for proper creation of module instances, the factory needs access to protected functions.
                                 // (especially initialize)
 friend class WModuleContainer;  // for proper management of m_container WModuleContainer needs access.
+friend class WModuleLoader;     // needs to set several protected values like local path and library names.
 
 public:
     /**
@@ -318,18 +320,27 @@ public:
     WCombinerTypes::WDisconnectList getPossibleDisconnections();
 
     /**
-     * Sets the local module path. This gets called by the module loader.
-     *
-     * \param path the local path.
-     */
-    void setLocalPath( boost::filesystem::path path );
-
-    /**
      * Returns the local path of the module. Whenever you try to load local resources, use this path. It is especially useful for shader loading.
      *
      * \return the local module path.
      */
     boost::filesystem::path getLocalPath() const;
+
+    /**
+     * Returns the absolute path to the library containing this module.
+     *
+     * \return the path.
+     */
+    boost::filesystem::path getLibPath() const;
+
+    /**
+     * Returns the name of the package the module belongs to, The package name basically is the name of the
+     * library containing this and maybe other modules. Your build system manages this. The package name is used to identify the resources for
+     * the modules in the library (a.k.a package).
+     *
+     * \return the name
+     */
+    std::string getPackageName() const;
 
     /**
      * Checks whether the module was marked as deprecated.
@@ -529,6 +540,34 @@ protected:
 
     // **************************************************************************************************************************
     //
+    // Loading Management
+    //
+    // **************************************************************************************************************************
+
+    /**
+     * Sets the local module path. This gets called by the module loader.
+     *
+     * \param path the local path.
+     */
+    void setLocalPath( boost::filesystem::path path );
+
+    /**
+     * Set the path to the library which contains this module. This is usually set by \ref WModuleLoader.
+     *
+     * \param path the path to the library. Needs to be absolute.
+     */
+    void setLibPath( boost::filesystem::path path );
+
+    /**
+     * Set the package name. This basically is the library name of the lib containing this module. The package name is used to identify resources
+     * and other things which belong to a library (a.k.a. package).
+     *
+     * \param name the name to set
+     */
+    void setPackageName( std::string name );
+
+    // **************************************************************************************************************************
+    //
     // Members
     //
     // **************************************************************************************************************************
@@ -621,6 +660,16 @@ protected:
      * module loader. Use this to load shaders and so on.
      */
     boost::filesystem::path m_localPath;
+
+    /**
+     * The absolute path to the library containing this module.
+     */
+    boost::filesystem::path m_libPath;
+
+    /**
+     * The name of the lib/the package containing this module.
+     */
+    std::string m_packageName;
 
     /**
      * The type of the requirement list.

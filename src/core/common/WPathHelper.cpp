@@ -63,6 +63,11 @@ void WPathHelper::setBasePaths( boost::filesystem::path appPath, boost::filesyst
     m_configPath = m_appPath / "../share/openwalnut";
     m_libPath    = m_appPath / "../lib";
     m_modulePath = m_libPath / "openwalnut";
+
+    // this is the relative path for module resources. It is relative to the path of the lib containing the module.
+    // Our build system places modules in lib/openwalnut/packagename/. The relative path needs to go out of the lib directory to a share
+    // directory.
+    m_moduleResourcePathRelative = boost::filesystem::path( "../../../share/openwalnut/modules" );
 }
 
 void WPathHelper::setBasePathsOSXBundle( boost::filesystem::path appPath, boost::filesystem::path homePath )
@@ -75,6 +80,10 @@ void WPathHelper::setBasePathsOSXBundle( boost::filesystem::path appPath, boost:
     m_configPath = m_appPath / "../Resources/openwalnut";
     m_libPath    = m_appPath / "../lib"; // TODO(mario): what is this for?
     m_modulePath = m_appPath / "../Resources/modules";
+
+    // this is the relative path for module resources. It is relative to the path of the lib containing the module.
+    // The MacOSX bundle stores the modules in Resources/modules. We want the additional resources to be stored in the module's directory.
+    m_moduleResourcePathRelative = boost::filesystem::path( "." );
 }
 
 boost::filesystem::path WPathHelper::getAppPath()
@@ -131,6 +140,23 @@ boost::filesystem::path WPathHelper::getDocPath()
 boost::filesystem::path WPathHelper::getConfigPath()
 {
     return getPathHelper()->m_configPath;
+}
+
+boost::filesystem::path WPathHelper::getModuleResourcePath( boost::filesystem::path moduleLibPath, std::string packageName )
+{
+    // relative path to the resources
+    boost::filesystem::path resRel = getPathHelper()->m_moduleResourcePathRelative / packageName;
+
+    // boost filesystem::canonical only works if the path exists. So ensure it exists:
+    if( boost::filesystem::exists( moduleLibPath / resRel ) )
+    {
+        return boost::filesystem::canonical( moduleLibPath / resRel );
+    }
+    else
+    {
+        // now resources for the module. Just return module path.
+        return moduleLibPath;
+    }
 }
 
 std::vector< boost::filesystem::path > WPathHelper::getAllModulePaths()
