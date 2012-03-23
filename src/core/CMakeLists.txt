@@ -26,7 +26,7 @@
 # Some common setup
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-SET( LibName ${OWCoreName} )
+SET( LibName ${OW_LIB_OPENWALNUT} )
 
 # Set the prefix and suffix of dynamically loadable modules to match
 # CMAKEs naming of them. The quotes are necessary so the shell doesn't mess

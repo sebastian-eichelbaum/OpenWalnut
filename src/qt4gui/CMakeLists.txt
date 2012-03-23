@@ -70,7 +70,7 @@ INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 
 # Setup the target
 ADD_EXECUTABLE( ${BinName} ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${OW_VERSION_HEADER} )
-TARGET_LINK_LIBRARIES( ${BinName} ${OWCoreName} ${QT_LIBS} ${Boost_LIBRARIES} )
+TARGET_LINK_LIBRARIES( ${BinName} ${OW_LIB_OPENWALNUT} ${QT_LIBS} ${Boost_LIBRARIES} )
 
 # Tell CMake that someone creates this file for us. See doc of SETUP_VERSION_HEADER for details why this is needed.
 # NOTE: this needs to be placed AFTER ADD_EXECUTABLE or ADD_LIBRARY

@@ -43,6 +43,9 @@ SET( OW_TOOLS_DIR ${PROJECT_SOURCE_DIR}/../tools )
 # append search path for FindModules:
 LIST( APPEND CMAKE_MODULE_PATH ${OW_TOOLS_DIR}/cmake )
 
+# use internally
+SET( OW_EXTERNAL_MODULE false )
+
 # These scripts contains all the needed tools to setup the build:
 # * Compiler Setup
 # * Common OpenWalnut Options
@@ -127,13 +130,8 @@ ADD_DEPENDENCIES( install_devdoc core_devdoc )
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-# to allow non-core code to access core and ext absolutely
-INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR} )
-
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # core library
-
-SET( OWCoreName "openwalnut" )
 
 # build core
 ADD_SUBDIRECTORY( core )

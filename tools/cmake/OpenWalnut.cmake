@@ -24,6 +24,48 @@
 
 INCLUDE( OpenWalnutUtils )
 
+# name of the core lib. Used when linking modules or other GUI
+SET( OW_LIB_OPENWALNUT "openwalnut" )
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+#
+# External Building Support
+#
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# if this is included for external module building, find OpenWalnut.
+IF( NOT ${OW_EXTERNAL_MODULE} )
+    # to allow non-core code to access core and ext absolutely
+    MESSAGE( STATUS "This is OpenWalnut Build System." )   
+    INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR} )
+ELSE()
+    MESSAGE( STATUS "This is OpenWalnut Build System configured for external use." )   
+
+    FIND_PATH( OPENWALNUT_INCLUDE_DIR core/kernel/WKernel.h $ENV{OPENWALNUT_INCLUDEDIR} /usr/include/openwalnut /usr/local/include/openwalnut )
+    FIND_LIBRARY( OPENWALNUT_LIBRARIES NAMES ${OW_LIB_OPENWALNUT} lib${OW_LIB_OPENWALNUT} HINTS $ENV{OPENWALNUT_LIBDIR} /usr/lib /usr/local/lib )
+    SET( OPENWALNUT_FOUND FALSE )
+    
+    # provide some output
+    IF( OPENWALNUT_INCLUDE_DIR )
+      MESSAGE( STATUS "Found OpenWalnut include files in ${OPENWALNUT_INCLUDE_DIR}." )
+    ENDIF()
+    IF( OPENWALNUT_LIBRARIES )
+      MESSAGE( STATUS "Found OpenWalnut libs in ${OPENWALNUT_LIBRARIES}." )
+    ENDIF()
+
+    # really found?
+    IF( OPENWALNUT_INCLUDE_DIR AND OPENWALNUT_LIBRARIES )
+        SET( OPENWALNUT_FOUND TRUE )
+        MESSAGE( STATUS "Found OpenWalnut." )
+    ELSE()
+        MESSAGE( FATAL_ERROR "Could not find OpenWalnut." )
+    ENDIF()
+
+    # include
+    INCLUDE_DIRECTORIES( ${OPENWALNUT_INCLUDE_DIR} )
+    SET( OW_LIB_OPENWALNUT ${OPENWALNUT_LIBRARIES} )
+ENDIF()
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
 # This is mandatory. Defines the target paths for building all elements in OpenWalnut
@@ -81,10 +123,6 @@ FUNCTION( BUILD_SYSTEM_COMPILER )
     SET( CMAKE_CXX_FLAGS_DEBUG "-g -DDEBUG -O0" CACHE STRING "" FORCE )
     SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
 ENDFUNCTION( BUILD_SYSTEM_COMPILER )
-
-# This finds all the needed third-party libs for you and sets them up properly. Usually, you will not need to call this explicitly. 
-FUNCTION( BUILD_SYSTEM_DEPENDENCIES )
-ENDFUNCTION( BUILD_SYSTEM_DEPENDENCIES )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
