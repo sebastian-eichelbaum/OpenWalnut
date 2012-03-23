@@ -35,6 +35,7 @@ SET( BinName ${OWBinaryName} )
 
 # Package dependencies:
 FIND_PACKAGE( Qt4 REQUIRED )
+MARK_AS_ADVANCED( FORCE QT_QMAKE_EXECUTABLE )
 
 # Includes:
 INCLUDE_DIRECTORIES( ${QT_INCLUDE_DIR} )
@@ -71,7 +72,7 @@ INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 ADD_EXECUTABLE( ${BinName} ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${OW_VERSION_HEADER} )
 TARGET_LINK_LIBRARIES( ${BinName} ${OWCoreName} ${QT_LIBS} ${Boost_LIBRARIES} )
 
-# Tell CMake that someone creates this file for us. See doc of SETUP_VERSION_HEADER in BuildUtils.cmake for details why this is needed.
+# Tell CMake that someone creates this file for us. See doc of SETUP_VERSION_HEADER for details why this is needed.
 # NOTE: this needs to be placed AFTER ADD_EXECUTABLE or ADD_LIBRARY
 SETUP_USE_VERSION_HEADER( ${BinName} )
 

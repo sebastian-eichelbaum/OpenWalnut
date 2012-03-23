@@ -10,7 +10,7 @@ ENDIF()
 
 FILE( GLOB LIBEEP_SRC "libavr/*.c" "libcnt/*.c" "libeep/*.c" )
 
-ADD_LIBRARY( ${OWExtEEPName} ${LIBEEP_SRC} )
+ADD_LIBRARY( ${OWExtEEPName} SHARED ${LIBEEP_SRC} )
 IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
     TARGET_LINK_LIBRARIES( ${OWExtEEPName} )
 ELSE()

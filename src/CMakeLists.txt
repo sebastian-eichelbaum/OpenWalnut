@@ -31,255 +31,25 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 PROJECT( OpenWalnut )
 
-# guard against in-source builds
-IF( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )
-  MESSAGE( FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. (you may need to remove CMakeCache.txt" )
-ENDIF()
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+#
+# Include the OpenWalnut build system.
+#
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # where to find our utils and cmake modules?
 SET( OW_TOOLS_DIR ${PROJECT_SOURCE_DIR}/../tools )
 
 # append search path for FindModules:
 LIST( APPEND CMAKE_MODULE_PATH ${OW_TOOLS_DIR}/cmake )
-# here, we have certain utilities. For example ASSERT_GE_VERSION which ensures a specific minimum version
-INCLUDE( Utils )
 
-# These scripts contains all the needed tools to setup the build
-INCLUDE( BuildUtils )
-INCLUDE( BuildModuleUtils )
-
-# CMAKE automatism to select static vs. shared building:
-OPTION( BUILD_SHARED_LIBS "Build shared libs" ON )
-MARK_AS_ADVANCED( BUILD_SHARED_LIBS )
-
-# The build types
-IF( NOT CMAKE_BUILD_TYPE )
-    SET( CMAKE_BUILD_TYPE Release
-         CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo"
-         FORCE
-       )
-ENDIF( NOT CMAKE_BUILD_TYPE )
-
-# guard against typos in build-type strings
-STRING( TOLOWER "${CMAKE_BUILD_TYPE}" cmake_build_type_tolower)
-IF( NOT cmake_build_type_tolower STREQUAL "debug" AND
-    NOT cmake_build_type_tolower STREQUAL "release" AND
-    NOT cmake_build_type_tolower STREQUAL "relwithdebinfo" AND
-    NOT cmake_build_type_tolower STREQUAL "")
-  MESSAGE( SEND_ERROR "Unknown build type \"${CMAKE_BUILD_TYPE}\". Allowed values are Debug, Release, RelWithDebInfo  and \"\" (case-insensitive).")
-ENDIF()
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-#
-# Install/Target-dir Options
-#  - NOTE: in our setup, build dir structure and install structure are the same
-#
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-# mimic layout of install dir for build:
-
-# these dirs are the same for all parts of OW
-SET( OW_RUNTIME_DIR_RELATIVE "bin" )
-SET( OW_RUNTIME_DIR ${PROJECT_BINARY_DIR}/${OW_RUNTIME_DIR_RELATIVE} )
-SET( OW_LIBRARY_DIR_RELATIVE "lib" )
-SET( OW_LIBRARY_DIR ${PROJECT_BINARY_DIR}/${OW_LIBRARY_DIR_RELATIVE} )
-SET( OW_ARCHIVE_DIR_RELATIVE "lib" )
-SET( OW_ARCHIVE_DIR ${PROJECT_BINARY_DIR}/${OW_ARCHIVE_DIR_RELATIVE} )
-SET( OW_MODULE_DIR_RELATIVE "lib/openwalnut" )
-SET( OW_MODULE_DIR ${PROJECT_BINARY_DIR}/${OW_MODULE_DIR_RELATIVE} )
-SET( OW_MAN_DIR_RELATIVE "share/man" )
-SET( OW_MAN_DIR "${PROJECT_BINARY_DIR}/share/man" )
-
-# One could also define this for every part of OW, but it does not make sense. It is "share" because it is shared among the different parts
-SET( OW_SHARE_DIR_RELATIVE "share/openwalnut" )
-SET( OW_SHARE_DIR ${PROJECT_BINARY_DIR}/${OW_SHARE_DIR_RELATIVE} )
-
-# set our paths for install targets
-SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OW_RUNTIME_DIR} )
-SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OW_LIBRARY_DIR} )
-SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OW_ARCHIVE_DIR} )
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-#
-# Compilation Options
-#
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Global compiler flags:
-#-----------------------
-# -Wno-long-long    since on Ubuntu 8.10 it won't compile without it
-# -ansi             force ISO-C++98 compliance (not GNU++98)
-
-# Unfortunately libstdc++'s header files don't work with mingw in ansi mode (basically libstdc++'s fault)
-IF( CMAKE_HOST_SYSTEM MATCHES "Windows" )
-    SET( CMAKE_CXX_FLAGS "-frtti -pedantic -Wall -Wno-long-long -Wextra " CACHE STRING "" FORCE )
-ELSE()
-    SET( CMAKE_CXX_FLAGS "-frtti -pedantic -ansi -Wall -Wno-long-long -Wextra " CACHE STRING "" FORCE )
-ENDIF()
-
-# Darwin's ld isn't GNU and doesn't like the following
-IF( NOT CMAKE_SYSTEM_NAME MATCHES "Darwin" )
-    ## The following allows us to prevent cyclic dependencies even on linux
-    SET( CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined -Wl,--allow-shlib-undefined,--as-needed" CACHE STRING "" FORCE )
-    SET( CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed" CACHE STRING "" FORCE )
-ENDIF()
-SET( CMAKE_CXX_FLAGS_RELEASE "-O3" CACHE STRING "" FORCE )
-SET( CMAKE_CXX_FLAGS_DEBUG "-g -DDEBUG -O0" CACHE STRING "" FORCE )
-SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
-
-# -----------------------------------------------------------------------------------------------------------------------------------------------
-# Eigen3 specifics
-
-# NOTE: this is included in ext. But we need to set several definitions to make this work on 32 Bit machines due to alignment problems
-SET( EIGEN3_DEFINES -DEIGEN_DONT_VECTORIZE -DEIGEN_DONT_ALIGN -DEIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT )
-ADD_DEFINITIONS( ${EIGEN3_DEFINES} )
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-#
-# OpenWalnut specific options
-#
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-# other options
-OPTION( OW_HANDLE_SHADERS "This ensures that shaders are available in build directory after build." ON )
-
-# sorry, linking not available properly on windows, Cygwin supports this but we do not want special rules for thousands of environments.
-# ==> keep it clean
-IF( NOT CMAKE_HOST_SYSTEM MATCHES "Windows" )
-    OPTION( OW_LINK_SHADERS "If turned on, shaders do not get copied. They get linked. This is a nice option for developers." OFF )
-ENDIF()
-
-# Provide several options to control some aspects of resource copy.
-OPTION( OW_PACKAGE_BUILD "Enable this to get fine-grained control over several resources and files getting installed. This is very handy for package building." OFF )
-IF( OW_PACKAGE_BUILD )
-    SET( OW_PACKAGE_PACKAGER "cpack" CACHE STRING "Package builder. Set this to enable packager-specific options during install." )
-
-    OPTION( OW_PACKAGE_NOCOPY_LICENSE "Disable to copy our licensing information. Enabling this can be useful for package maintainer since several packaging systems have their own licence mechanism (i.e. Debian)." OFF )
-    OPTION( OW_PACKAGE_NOCOPY_COREFONTS "Enable this if you have liberation fonts installed on your system. They will be linked. If disabled, our fonts are copied." OFF )
-ENDIF()
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-# The openwalnut executable should print the revision/tag
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Generate needed headers
-# NOTE: add a line ADD_DEPENDENCIES( XYZ OW_generate_version_header ) to your target XYZ if you need the header!
-SET( OW_VERSION_HEADER_DIRECTORY ${PROJECT_BINARY_DIR}/versionHeader )
-SET( OW_VERSION_HEADER ${OW_VERSION_HEADER_DIRECTORY}/WVersion.h )
-# to allow all those targets to find the header:
-INCLUDE_DIRECTORIES( ${OW_VERSION_HEADER_DIRECTORY} )
-# Setup the target
-SETUP_VERSION_HEADER( ${OW_VERSION_HEADER} )
-
-# Set the OW version string. This can be used by others for setting target versions during compilation.
-GET_VERSION_STRING( OW_VERSION OW_LIB_VERSION )
-MESSAGE( STATUS "OW Version: \"${OW_VERSION}\"; OW Lib Version: \"${OW_LIB_VERSION}\"." )
-
-# We need a SOVERSION too. This somehow describes the API compatibility. We use the major number here.
-SPLIT_VERSION_STRING( ${OW_LIB_VERSION} OW_VERSION_MAJOR OW_VERSION_MINOR OW_VERSION_PATCH )
-SET( OW_SOVERSION ${OW_VERSION_MAJOR} )
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-#
-# REQUIRED third party libs
-#
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-# NOTE: please also have a look in src/ext/CMakeLists.txt. Other third-party libs might be searched there.
-
-# -----------------------------------------------------------------------------------------------------------------------------------------------
-# Boost, at least 1.39
-# See http://www.boost.org/
-#
-# To see, which boost libs we currently use, you may run the following command # in the src directory on a linux box to make some investigations:
-# grep -i include `find . -type f` | grep boost | awk '{print $2}' | sort | uniq
-
-
-# Setup boost options
-SET( Boost_USE_MULTITHREAD ON )
-
-# find the boost packages
-FIND_PACKAGE( Boost 1.39.0 REQUIRED program_options thread filesystem date_time system signals regex )
-
-# include the boost headers
-INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
-
-# avoid filesystem 2 stuff
-ADD_DEFINITIONS( "-DBOOST_FILESYSTEM_VERSION=3" )
-
-# -----------------------------------------------------------------------------------------------------------------------------------------------
-# OpenGL, at least 1.2
-# See http://www.opengl.org
-#
-FIND_PACKAGE( OpenGL REQUIRED )
-
-# include the OpenGL header paths
-INCLUDE_DIRECTORIES( ${OPENGL_INCLUDE_DIR} )
-
-# -----------------------------------------------------------------------------------------------------------------------------------------------
-# OpenSceneGraph, at least 2.8.0
-# See http://www.openscenegraph.org
-
-# find the needed packages
-SET( MIN_OSG_VERSION 2.8.0 )
-FIND_PACKAGE( OpenSceneGraph ${MIN_OSG_VERSION} REQUIRED osgDB osgUtil osgGA osgViewer osgSim osgWidget osgText )
-IF( OPENSCENEGRAPH_FOUND )
-    INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
-ENDIF()
-
-# -----------------------------------------------------------------------------------------------------------------------------------------------
-# Eigen3, at least 3.0.0
-# See http://eigen.tuxfamily.org
-
-FIND_PACKAGE( eigen3 REQUIRED )
-IF( EIGEN3_FOUND )
-    INCLUDE_DIRECTORIES( ${EIGEN3_INCLUDE_DIR} )
-ENDIF()
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-#
-# OPTIONAL third party libs
-#  - include only libs you need in the OW framework
-#
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-# NOTE: please add only libs which are used in core! If you need a third party lib for your module, include it in your module's CMakeLists!
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-#
-# Unit Testing
-#
-#  - We use cxxtest. See http://cxxtest.tigris.org
-#
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Try to find it
-FIND_PACKAGE( CxxTest QUIET )
-
-# If it is found, and OW_USE_TESTS is on, build the tests and activate CMake's test mechanisms
-IF( CXXTEST_FOUND )
-  # To enable testing
-  OPTION( OW_USE_TESTS "This enables compilation of tests" ON )
-  INCLUDE_DIRECTORIES( ${CXXTEST_INCLUDE_DIRS} )
-  INCLUDE_DIRECTORIES( ${CXXTEST_INCLUDE_DIR} ) # NOTE: old FindCXXTest versions used this name
-  IF( OW_USE_TESTS )
-    SET( OW_COMPILE_TESTS ON ) #We need this variable because this is tested more often.
-    # Package settings:
-    SET( CXXTEST_USE_PYTHON 1 )
-    # Activate CTest and "test" target
-    ENABLE_TESTING()
-  ELSE()
-    SET( OW_COMPILE_TESTS OFF )
-  ENDIF()
-ELSE()
-  SET( OW_COMPILE_TESTS OFF )
-ENDIF()
-
-# we want a more verbose testing too.
-ADD_CUSTOM_TARGET( vtest
-                   COMMAND $(MAKE) test ARGS="-V"
-                   COMMENT "Runs the test in verboseness to see what actually went wrong"
-                 )
+# These scripts contains all the needed tools to setup the build:
+# * Compiler Setup
+# * Common OpenWalnut Options
+# * Third-party Dependencies Setup
+# * Unit Testing Setup if found
+# * Doxygen Setup if found
+INCLUDE( OpenWalnut )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
@@ -300,46 +70,9 @@ ENDIF()
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
-# Documentation
-#  - Call doxygen here
-#
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-#let doxygen do the work
-ADD_CUSTOM_TARGET( doc
-                   COMMAND doxygen ${PROJECT_SOURCE_DIR}/../doc/developer/doxygenConfig
-                   COMMAND chmod -R g+r ${PROJECT_SOURCE_DIR}/../doc/developer/html
-                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..
-                   COMMENT "Build doxygen documentation"
-                   VERBATIM
-                 )
-
-# On Windows, we want the common doc (README, AUTHORS and COPYING) to be in the root install dir too:
-IF( CMAKE_HOST_SYSTEM MATCHES "Windows" )
-    SETUP_COMMON_DOC( "." "COMMON_DOC_ON_WINDOWS" )
-ENDIF()
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-#
-# Style
-#  - We use brainlint for this
-#
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-# SETUP_STYLECHECKER adds targets for each lib which then add theirself to this target
-ADD_CUSTOM_TARGET( stylecheck )
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-#
 # Convenience targets
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Checks if all is well to commit (aka commitCheck, cicheck)
-ADD_CUSTOM_TARGET( cicheck
-                   COMMAND $(MAKE) stylecheck && $(MAKE) test && $(MAKE) doc
-                   COMMENT "Checks if all is well to commit"
-                 )
 
 # some convenience install targets:
 ADD_CUSTOM_TARGET( list_install_tarets
@@ -398,7 +131,7 @@ ADD_DEPENDENCIES( install_devdoc core_devdoc )
 INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR} )
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
-# openwalnut core library
+# core library
 
 SET( OWCoreName "openwalnut" )
 
@@ -406,7 +139,7 @@ SET( OWCoreName "openwalnut" )
 ADD_SUBDIRECTORY( core )
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
-# QT4 OpenWalnut binary
+# QT4 GUI
 
 OPTION( OW_GUI_QT4 "Enable this to build the QT4-based OpenWalnut GUI." ON )
 IF( OW_GUI_QT4 )
@@ -422,55 +155,4 @@ ENDIF()
 
 # build modules
 ADD_SUBDIRECTORY( modules )
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-#
-# Advanced variables
-#  - Here, we mark all variables advanced which are from mandatory dependencies.
-#
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-# NOTE: sorry but this is needed since those vars spam the ccmake. The user should find the important options fast!
-
-# Remove all of them
-MARK_AS_ADVANCED( FORCE QT_QMAKE_EXECUTABLE )
-   
-MARK_AS_ADVANCED( FORCE OSG_INCLUDE_DIR )
-MARK_AS_ADVANCED( FORCE OSG_LIBRARY )
-MARK_AS_ADVANCED( FORCE OSG_LIBRARY_DEBUG )
-MARK_AS_ADVANCED( FORCE OSGDB_INCLUDE_DIR )
-MARK_AS_ADVANCED( FORCE OSGDB_LIBRARY )
-MARK_AS_ADVANCED( FORCE OSGDB_LIBRARY_DEBUG )
-MARK_AS_ADVANCED( FORCE OSGGA_INCLUDE_DIR )
-MARK_AS_ADVANCED( FORCE OSGGA_LIBRARY )
-MARK_AS_ADVANCED( FORCE OSGGA_LIBRARY_DEBUG )
-MARK_AS_ADVANCED( FORCE OSGSIM_INCLUDE_DIR )
-MARK_AS_ADVANCED( FORCE OSGSIM_LIBRARY )
-MARK_AS_ADVANCED( FORCE OSGSIM_LIBRARY_DEBUG )
-MARK_AS_ADVANCED( FORCE OSGUTIL_INCLUDE_DIR )
-MARK_AS_ADVANCED( FORCE OSGUTIL_LIBRARY )
-MARK_AS_ADVANCED( FORCE OSGUTIL_LIBRARY_DEBUG )
-MARK_AS_ADVANCED( FORCE OSGTEXT_INCLUDE_DIR )
-MARK_AS_ADVANCED( FORCE OSGTEXT_LIBRARY )
-MARK_AS_ADVANCED( FORCE OSGTEXT_LIBRARY_DEBUG )
-MARK_AS_ADVANCED( FORCE OSGWIDGET_INCLUDE_DIR )
-MARK_AS_ADVANCED( FORCE OSGWIDGET_LIBRARY )
-MARK_AS_ADVANCED( FORCE OSGWIDGET_LIBRARY_DEBUG )
-MARK_AS_ADVANCED( FORCE OSGVIEWER_INCLUDE_DIR )
-MARK_AS_ADVANCED( FORCE OSGVIEWER_LIBRARY )
-MARK_AS_ADVANCED( FORCE OSGVIEWER_LIBRARY_DEBUG )
-
-MARK_AS_ADVANCED( FORCE OPENTHREADS_INCLUDE_DIR )
-MARK_AS_ADVANCED( FORCE OPENTHREADS_LIBRARY )
-MARK_AS_ADVANCED( FORCE OPENTHREADS_LIBRARY_DEBUG )
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-#
-# CPack - Packaging
-#  - TGZ, Deb, RPM
-#
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-# for package setup:
-INCLUDE( Packaging )
 

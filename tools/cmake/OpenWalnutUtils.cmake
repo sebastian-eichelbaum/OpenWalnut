@@ -22,7 +22,36 @@
 #
 #---------------------------------------------------------------------------
 
-# Unlike Utils.cmake, this file contains only build related utilities.
+# This function converts a given filename to a proper target name. This is very useful if you want to define custom targets for
+# files and need a unique name.
+# _filename the filename to convert
+# _target returns the proper target string
+FUNCTION( FILE_TO_TARGETSTRING _filename _target )
+    # strip the whole path up to src
+    STRING( REGEX REPLACE "^.*/src" "src" fileExcaped "${_filename}" ) 
+
+    # remove all those ugly chars
+    STRING( REGEX REPLACE "[^A-Za-z0-9]" "X" fileExcaped "${fileExcaped}" )
+
+    # done. Return value
+    SET( ${_target} "${fileExcaped}" PARENT_SCOPE )
+ENDFUNCTION( FILE_TO_TARGETSTRING )
+
+# Gets the major, minor and patch number from a version string.
+# _VersionString the string to split
+# _Major the major version number - result
+# _Minor the minor version number - result
+# _Patch the patch number - result
+FUNCTION( SPLIT_VERSION_STRING _VersionString _Major _Minor _Patch )
+  STRING( STRIP _VersionString ${_VersionString} )
+  STRING( REGEX MATCH "^[0-9]+" _MajorProxy "${_VersionString}" )
+  STRING( REGEX MATCH "[^0-9][0-9]+[^0-9]" _MinorProxy "${_VersionString}" )
+  STRING( REGEX MATCH "[0-9]+" _MinorProxy "${_MinorProxy}" )
+  STRING( REGEX MATCH "[0-9]+$" _PatchProxy "${_VersionString}" )
+  SET( ${_Major} "${_MajorProxy}" PARENT_SCOPE )
+  SET( ${_Minor} "${_MinorProxy}" PARENT_SCOPE )
+  SET( ${_Patch} "${_PatchProxy}" PARENT_SCOPE )
+ENDFUNCTION( SPLIT_VERSION_STRING )
 
 # Recursively searches compile files (headers, sources).
 # _DirString: where to search
@@ -546,7 +575,7 @@ FUNCTION( SETUP_VERSION_HEADER _OW_VERSION_HEADER )
     # The file WVersion.* needs the version definition.
     ADD_CUSTOM_COMMAND( OUTPUT ${_OW_VERSION_HEADER}
                         DEPENDS ${PROJECT_SOURCE_DIR}/../VERSION ${HG_DEP}
-                        COMMAND ${CMAKE_COMMAND} -D PROJECT_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -D HEADER_FILENAME:STRING=${_OW_VERSION_HEADER} -P BuildVersionHeader.cmake
+                        COMMAND ${CMAKE_COMMAND} -D PROJECT_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -D HEADER_FILENAME:STRING=${_OW_VERSION_HEADER} -P OpenWalnutVersion.cmake
                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../tools/cmake/
                         COMMENT "Creating Version Header ${_OW_VERSION_HEADER}."
     )
@@ -564,3 +593,105 @@ FUNCTION( SETUP_USE_VERSION_HEADER _target )
     SET_SOURCE_FILES_PROPERTIES( ${OW_VERSION_HEADER} PROPERTIES GENERATED ON )
     ADD_DEPENDENCIES( ${_target} OW_generate_version_header )
 ENDFUNCTION( SETUP_USE_VERSION_HEADER )
+
+# Automatically add a module. Do not use this function if your module nees additional dependencies or similar. For more flexibility, use your own
+# CMakeLists in combination with the SETUP_MODULE function. The Code for the module is searched in ${CMAKE_CURRENT_SOURCE_DIR}/${_MODULE_NAME}.
+# It loads the CMakeLists in the module dir if there is any.
+# _MODULE_NAME the name of the module
+# Optional second Parameter: list of additional dependencies
+# Optional third Parameter: list of style-excludes as regexp.
+FUNCTION( ADD_MODULE _MODULE_NAME )
+    SET( MODULE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${_MODULE_NAME} )
+
+    # is there a CMakeLists.txt? If yes, use it.
+    IF( EXISTS ${MODULE_SOURCE_DIR}/CMakeLists.txt )
+        ADD_SUBDIRECTORY( ${_MODULE_NAME} )
+        RETURN()
+    ENDIF()
+
+    # Optional second parameter: style exclusion list
+    SET( _DEPENDENCIES ${ARGV1} )
+    SET( _EXCLUDES ${ARGV2} )
+
+    # -----------------------------------------------------------------------------------------------------------------------------------------------
+    # Setup for compilation
+    # -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    # Let this function do the job. It sets up tests and copies shaders automatically. It additionally configures the stylecheck mechanism for this
+    # module.
+    SETUP_MODULE( ${_MODULE_NAME}                # name of the module
+                 "${MODULE_SOURCE_DIR}"
+                 "${_DEPENDENCIES}"
+                 "${_EXCLUDES}"
+    )
+ENDFUNCTION( ADD_MODULE )
+
+# Comfortably setup a module for compilation. This automatically handles the target creation, stylecheck and tests (with fixtures).
+# _MODULE_NAME the name of the module
+# _MODULE_SOURCE_DIR where to finx the code for the module
+# _MODULE_DEPENDENCIES additional dependencies can be added here. This is a list. Use ";" to add multiple additional dependencies
+# _MODULE_STYLE_EXCLUDES exclude files from stylecheck matching these regular expressions (list)
+FUNCTION( SETUP_MODULE _MODULE_NAME _MODULE_SOURCE_DIR _MODULE_DEPENDENCIES _MODULE_STYLE_EXCLUDES )
+    # -----------------------------------------------------------------------------------------------------------------------------------------------
+    # Some common setup
+    # -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    # setup the target directories and names
+    SET( MODULE_NAME ${_MODULE_NAME} )
+    SET( MODULE_TARGET_DIR_RELATIVE ${OW_MODULE_DIR_RELATIVE}/${MODULE_NAME} )
+    SET( MODULE_TARGET_RESOURCE_DIR_RELATIVE ${OW_SHARE_DIR_RELATIVE}/modules/${MODULE_NAME} )
+    SET( MODULE_TARGET_DIR ${PROJECT_BINARY_DIR}/${MODULE_TARGET_DIR_RELATIVE} )
+    SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${MODULE_TARGET_DIR} )
+    SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${MODULE_TARGET_DIR} )
+    SET( MODULE_SOURCE_DIR ${_MODULE_SOURCE_DIR} )
+
+    # -----------------------------------------------------------------------------------------------------------------------------------------------
+    # Add sources as target
+    # -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    # Collect the compile-files for this target
+    COLLECT_COMPILE_FILES( "${MODULE_SOURCE_DIR}" TARGET_CPP_FILES TARGET_H_FILES TARGET_TEST_FILES )
+
+    # Setup the target
+    ADD_LIBRARY( ${MODULE_NAME} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} )
+    TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${OWCoreName} ${Boost_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES} ${_MODULE_DEPENDENCIES} )
+
+    # Set the version of the library.
+    SET_TARGET_PROPERTIES( ${MODULE_NAME} PROPERTIES
+        VERSION ${OW_LIB_VERSION}
+        SOVERSION ${OW_SOVERSION}
+    )
+
+    # Do not forget the install targets
+    SETUP_LIB_INSTALL( ${MODULE_NAME} ${MODULE_TARGET_DIR_RELATIVE} "MODULES" )
+
+    # -----------------------------------------------------------------------------------------------------------------------------------------------
+    # Test Setup
+    # -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    # Setup tests of this target
+    SETUP_TESTS( "${TARGET_TEST_FILES}" "${MODULE_NAME}" "${_MODULE_DEPENDENCIES}" )
+
+    # -----------------------------------------------------------------------------------------------------------------------------------------------
+    # Copy Shaders
+    # -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    COLLECT_SHADER_FILES( ${MODULE_SOURCE_DIR} TARGET_GLSL_FILES )
+    SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${MODULE_TARGET_RESOURCE_DIR_RELATIVE}/shaders" "MODULES" )
+
+    # -----------------------------------------------------------------------------------------------------------------------------------------------
+    # Copy Additional Resources
+    # -----------------------------------------------------------------------------------------------------------------------------------------------
+    SETUP_RESOURCES_GENERIC( "${MODULE_SOURCE_DIR}/resources" ${MODULE_TARGET_RESOURCE_DIR_RELATIVE} "${_MODULE_NAME}" "MODULES" )
+
+    # -----------------------------------------------------------------------------------------------------------------------------------------------
+    # Style Checker
+    # -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    # setup the stylechecker. Ignore the platform specific stuff.
+    SETUP_STYLECHECKER( "${MODULE_NAME}"
+                        "${TARGET_CPP_FILES};${TARGET_H_FILES};${TARGET_TEST_FILES};${TARGET_GLSL_FILES}"  # add all these files to the stylechecker
+                        "${_MODULE_STYLE_EXCLUDES}" )                                                      # exlude some ugly files
+
+ENDFUNCTION( SETUP_MODULE )
+
