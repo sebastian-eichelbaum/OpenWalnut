@@ -54,7 +54,6 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
          i != boost::filesystem::directory_iterator(); ++i )
     {
         // all modules need to begin with this
-        std::string suffix = getSuffix( i->path() );
         std::string stem = i->path().stem().string();
 
         // we want to strip the search directory from the path
@@ -62,18 +61,21 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
         relPath.erase( 0, dir.string().length() + 1 ); // NOTE: +1 because we want to remove the "/" too
 
         // is it a lib? Use a regular expression to check this
-        // NOTE:: the double \\ is needed to escape the escape char
+        // NOTE:: the double \\ is needed to escape the escape char (to interpret the "dot" as dot and not as "any char".
         #ifdef __WIN32__
-            static const boost::regex CheckLibMMP( "^.*\\" + WSharedLib::getSystemSuffix() +"$" );
+            static const boost::regex CheckLibMMP( "^(lib)?(.*)\\" + WSharedLib::getSystemSuffix() +"$" );
         #elif __APPLE__
-            static const boost::regex CheckLibMMP( "^.*\\.[0-9]+\\.[0-9]+\\.[0-9]+\\" + WSharedLib::getSystemSuffix() + "$" );
+            static const boost::regex CheckLibMMP( "^(lib)?\\.[0-9]+\\.[0-9]+\\.[0-9]+\\" + WSharedLib::getSystemSuffix() + "$" );
         #else
-            static const boost::regex CheckLibMMP( "^.*\\" + WSharedLib::getSystemSuffix() + "\\.[0-9]+\\.[0-9]+\\.[0-9]+$" );
+            static const boost::regex CheckLibMMP( "^(lib)?(.*)\\" + WSharedLib::getSystemSuffix() + "\\.[0-9]+\\.[0-9]+\\.[0-9]+$" );
         #endif
+        // this will contain the filename afterwards
         boost::smatch matches;
+        bool matchLibName = boost::regex_match( i->path().filename().string(), matches, CheckLibMMP );
+        std::string libBaseName = matchLibName ? std::string( matches[2] ) : "";
 
         if( !boost::filesystem::is_directory( *i ) &&
-            ( boost::regex_match( i->path().string(), matches, CheckLibMMP ) ) &&
+            matchLibName &&
             ( stem.compare( 0, getModulePrefix().length(), getModulePrefix() ) == 0 )
           )
         {
@@ -102,8 +104,17 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
                     // yes, add it to the list of prototypes
                     for( WModuleList::const_iterator iter = m.begin(); iter != m.end(); ++iter )
                     {
-                        ( *iter )->setLocalPath( i->path().parent_path() );
+                        // which lib?
+                        ( *iter )->setLibPath( i->path() );
+                        // we use the library name (excluding extension and optional lib prefix) as package name
+                        ( *iter )->setPackageName( libBaseName );
+                        // resource path
+                        ( *iter )->setLocalPath( WPathHelper::getModuleResourcePath( i->path().parent_path(), ( *iter )->getPackageName() ) );
+
+                        // add module
                         ticket->get().insert( *iter );
+
+                        // we need to keep a reference to the lib
                         m_libs.push_back( l );
                     }
 

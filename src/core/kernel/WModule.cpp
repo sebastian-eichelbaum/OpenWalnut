@@ -591,6 +591,26 @@ boost::filesystem::path WModule::getLocalPath() const
     return m_localPath;
 }
 
+void WModule::setLibPath( boost::filesystem::path path )
+{
+    m_libPath = path;
+}
+
+boost::filesystem::path WModule::getLibPath() const
+{
+    return m_libPath;
+}
+
+void WModule::setPackageName( std::string name )
+{
+    m_packageName = name;
+}
+
+std::string WModule::getPackageName() const
+{
+    return m_packageName;
+}
+
 bool WModule::isDeprecated() const
 {
     return !deprecated().empty();
