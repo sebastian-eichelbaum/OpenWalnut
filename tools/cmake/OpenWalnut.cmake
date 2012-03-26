@@ -29,7 +29,35 @@ SET( OW_LIB_OPENWALNUT "openwalnut" )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
-# External Building Support
+# This is executed on inclusion. It sets up everything needed. Beginning with compiler and OpenWalnut options and the third-party dependencies.
+#
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# guard against in-source builds
+IF( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )
+  MESSAGE( FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. (you may need to remove CMakeCache.txt" )
+ENDIF()
+
+# the build types
+IF( NOT CMAKE_BUILD_TYPE )
+    SET( CMAKE_BUILD_TYPE Release
+         CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo"
+         FORCE
+       )
+ENDIF( NOT CMAKE_BUILD_TYPE )
+
+# guard against typos in build-type strings
+STRING( TOLOWER "${CMAKE_BUILD_TYPE}" cmake_build_type_tolower)
+IF( NOT cmake_build_type_tolower STREQUAL "debug" AND
+    NOT cmake_build_type_tolower STREQUAL "release" AND
+    NOT cmake_build_type_tolower STREQUAL "relwithdebinfo" AND
+    NOT cmake_build_type_tolower STREQUAL "")
+  MESSAGE( SEND_ERROR "Unknown build type \"${CMAKE_BUILD_TYPE}\". Allowed values are Debug, Release, RelWithDebInfo  and \"\" (case-insensitive).")
+ENDIF()
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+#
+# External Building Support (find OpenWalnut if needed)
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -41,10 +69,25 @@ IF( NOT ${OW_EXTERNAL_MODULE} )
 ELSE()
     MESSAGE( STATUS "This is OpenWalnut Build System configured for external use." )   
 
-    FIND_PATH( OPENWALNUT_INCLUDE_DIR core/kernel/WKernel.h $ENV{OPENWALNUT_INCLUDEDIR} /usr/include/openwalnut /usr/local/include/openwalnut )
-    FIND_LIBRARY( OPENWALNUT_LIBRARIES NAMES ${OW_LIB_OPENWALNUT} lib${OW_LIB_OPENWALNUT} HINTS $ENV{OPENWALNUT_LIBDIR} /usr/lib /usr/local/lib )
+    FIND_PATH( OPENWALNUT_INCLUDE_DIR core/kernel/WKernel.h ${OPENWALNUT_INCLUDEDIR} $ENV{OPENWALNUT_INCLUDEDIR} /usr/include/openwalnut /usr/local/include/openwalnut )
+    FIND_LIBRARY( OPENWALNUT_LIBRARIES NAMES ${OW_LIB_OPENWALNUT} lib${OW_LIB_OPENWALNUT} HINTS 
+                  ${OPENWALNUT_LIBDIR}
+                  $ENV{OPENWALNUT_LIBDIR} 
+                  /usr/lib
+                  /usr/local/lib
+                  /usr
+                  /usr/local
+                  /usr/local/openwalnut
+                  /usr/local/OpenWalnut
+                  $ENV{PROGRAMFILES}/OpenWalnut )
+
     SET( OPENWALNUT_FOUND FALSE )
-    
+
+    # do not confuse the user with this
+    MARK_AS_ADVANCED( FORCE OPENWALNUT_INCLUDE_DIR )
+    MARK_AS_ADVANCED( FORCE OPENWALNUT_LIBRARIES )
+    MARK_AS_ADVANCED( FORCE OPENWALNUT_FOUND )
+
     # provide some output
     IF( OPENWALNUT_INCLUDE_DIR )
       MESSAGE( STATUS "Found OpenWalnut include files in ${OPENWALNUT_INCLUDE_DIR}." )
@@ -123,34 +166,6 @@ FUNCTION( BUILD_SYSTEM_COMPILER )
     SET( CMAKE_CXX_FLAGS_DEBUG "-g -DDEBUG -O0" CACHE STRING "" FORCE )
     SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
 ENDFUNCTION( BUILD_SYSTEM_COMPILER )
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-#
-# This is executed on inclusion. It sets up everything needed. Beginning with compiler and OpenWalnut options and the third-party dependencies.
-#
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-# guard against in-source builds
-IF( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )
-  MESSAGE( FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. (you may need to remove CMakeCache.txt" )
-ENDIF()
-
-# the build types
-IF( NOT CMAKE_BUILD_TYPE )
-    SET( CMAKE_BUILD_TYPE Release
-         CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo"
-         FORCE
-       )
-ENDIF( NOT CMAKE_BUILD_TYPE )
-
-# guard against typos in build-type strings
-STRING( TOLOWER "${CMAKE_BUILD_TYPE}" cmake_build_type_tolower)
-IF( NOT cmake_build_type_tolower STREQUAL "debug" AND
-    NOT cmake_build_type_tolower STREQUAL "release" AND
-    NOT cmake_build_type_tolower STREQUAL "relwithdebinfo" AND
-    NOT cmake_build_type_tolower STREQUAL "")
-  MESSAGE( SEND_ERROR "Unknown build type \"${CMAKE_BUILD_TYPE}\". Allowed values are Debug, Release, RelWithDebInfo  and \"\" (case-insensitive).")
-ENDIF()
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Compiler setup
@@ -343,11 +358,11 @@ IF( EXISTS ${OW_DOXYGEN_DIR}/doxygenConfig )
                        COMMENT "Build doxygen documentation"
                        VERBATIM
                      )
+ENDIF()
 
-    # On Windows, we want the common doc (README, AUTHORS and COPYING) to be in the root install dir too:
-    IF( CMAKE_HOST_SYSTEM MATCHES "Windows" )
-        SETUP_COMMON_DOC( "." "COMMON_DOC_ON_WINDOWS" )
-    ENDIF()
+# On Windows, we want the common doc (README, AUTHORS and COPYING) to be in the root install dir too:
+IF( CMAKE_HOST_SYSTEM MATCHES "Windows" )
+    SETUP_COMMON_DOC( "." "COMMON_DOC_ON_WINDOWS" )
 ENDIF()
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------

@@ -123,7 +123,7 @@ FUNCTION( SETUP_TESTS _TEST_FILES _TEST_TARGET )
         SET( _DEPENDENCIES ${ARGV2} )
 
         # target directory for fixtures
-        SET( FixtureTargetDirectory "${CMAKE_BINARY_DIR}/core/fixtures/" )
+        SET( FixtureTargetDirectory "${CMAKE_BINARY_DIR}/fixtures/${_TEST_TARGET}" )
 
         # -------------------------------------------------------------------------------------------------------------------------------------------
         # Setup CXX test
@@ -275,13 +275,22 @@ ENDFUNCTION( SETUP_STYLECHECKER )
 
 # This function handles local and global resources needed for program execution. This is a generic function which allows any resource in a source directory
 # to be copied  to a target directory in build and install directory. Use this for module resources or the OpenWalnut resources.
-# _source_path path to a directory whose CONTENTS get copied/installed
+#
+# For convenience, this function first checks in _source_path, and if nothing was found there, in ${CMAKE_CURRENT_SOURCE_DIR}/${_source_path}]
+# _source_path path to a directory whose CONTENTS get copied/installed.
 # _destination_path where to put the resources. This MUST be relative to the install/build dir (${PROJECT_BINARY_DIR})
 # _component the component to which this is related. This must be unique for every call.
 # _installcomponent to which installation component does this resource belong? (i.e. MODULES ...)
 FUNCTION( SETUP_RESOURCES_GENERIC _source_path _destination_path _component _installcomponent )
     # as all the resources with the correct directory structure reside in ../resources, this target is very easy to handle
     SET( ResourcesPath "${_source_path}" )
+
+    # if the given dir does not exists here, it might be relative? lets try to check this against the current source directory
+    IF( NOT IS_DIRECTORY "${ResourcesPath}" )
+      SET( ResourcesPath ${CMAKE_CURRENT_SOURCE_DIR}/${ResourcesPath} )
+      MESSAGE( STATUS "OW Hint: assuming resource in current source path for ${_component}." )
+    ENDIF()
+
     # remove trailing slashes if any
     STRING( REGEX REPLACE "/$" "" ResourcesPath "${ResourcesPath}" )
     # this ensures we definitely have one slash at the and
