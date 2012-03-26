@@ -123,7 +123,7 @@ FUNCTION( SETUP_TESTS _TEST_FILES _TEST_TARGET )
         SET( _DEPENDENCIES ${ARGV2} )
 
         # target directory for fixtures
-        SET( FixtureTargetDirectory "${CMAKE_BINARY_DIR}/fixtures/${_TEST_TARGET}" )
+        SET( FixtureTargetDirectory "${CMAKE_BINARY_DIR}/fixtures/${_TEST_TARGET}/" )
 
         # -------------------------------------------------------------------------------------------------------------------------------------------
         # Setup CXX test
@@ -288,7 +288,6 @@ FUNCTION( SETUP_RESOURCES_GENERIC _source_path _destination_path _component _ins
     # if the given dir does not exists here, it might be relative? lets try to check this against the current source directory
     IF( NOT IS_DIRECTORY "${ResourcesPath}" )
       SET( ResourcesPath ${CMAKE_CURRENT_SOURCE_DIR}/${ResourcesPath} )
-      MESSAGE( STATUS "OW Hint: assuming resource in current source path for ${_component}." )
     ENDIF()
 
     # remove trailing slashes if any
