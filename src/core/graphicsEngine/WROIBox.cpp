@@ -280,8 +280,8 @@ void WROIBox::updateGFX()
                 m_minPos += moveVec;
                 m_maxPos += moveVec;
 
-                m_minPos += toDepthWorld * depthMove;
-                m_maxPos += toDepthWorld * depthMove;
+                m_minPos += 2.0 * toDepthWorld * depthMove;
+                m_maxPos += 2.0 * toDepthWorld * depthMove;
                 setVertices( vertices, m_minPos, m_maxPos );
                 m_surfaceGeometry->setVertexArray( vertices );
             }
