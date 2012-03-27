@@ -91,7 +91,7 @@ void WMHARDIToSphericalHarmonics::moduleMain()
         DEFAULT = 0,
         CSA = 1
     };
-    RECONSTRUCTION_TYPE reconstructionType;
+    RECONSTRUCTION_TYPE reconstructionType( DEFAULT );
 
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
