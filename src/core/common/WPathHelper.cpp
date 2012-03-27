@@ -147,16 +147,8 @@ boost::filesystem::path WPathHelper::getModuleResourcePath( boost::filesystem::p
     // relative path to the resources
     boost::filesystem::path resRel = getPathHelper()->m_moduleResourcePathRelative / packageName;
 
-    // boost filesystem::canonical only works if the path exists. So ensure it exists:
-    if( boost::filesystem::exists( moduleLibPath / resRel ) )
-    {
-        return boost::filesystem::canonical( moduleLibPath / resRel );
-    }
-    else
-    {
-        // now resources for the module. Just return module path.
-        return moduleLibPath;
-    }
+    // return absolute paths
+    return moduleLibPath / resRel;
 }
 
 std::vector< boost::filesystem::path > WPathHelper::getAllModulePaths()
