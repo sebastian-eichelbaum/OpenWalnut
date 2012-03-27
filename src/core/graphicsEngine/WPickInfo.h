@@ -25,12 +25,13 @@
 #ifndef WPICKINFO_H
 #define WPICKINFO_H
 
+#include <stdint.h>
+
 #include <string>
 #include <utility>
 
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../common/WDefines.h"
-
 
 
 /**
@@ -74,6 +75,7 @@ public:
      * \param modKey relevant modifier key pressed during the pick
      * \param mButton mouse button that initiated the pick
      * \param pickNormal normal at position where object was hit. (0,0,0) means not set.
+     * \param wheelValue the value of the scroll wheel
      */
     inline WPickInfo( std::string name,
                       std::string viewerName,
@@ -81,7 +83,8 @@ public:
                       std::pair< float, float > pixelCoords,
                       modifierKey modKey,
                       WMouseButton mButton = WPickInfo::MOUSE_LEFT,
-                      WVector3d pickNormal = WVector3d() );
+                      WVector3d pickNormal = WVector3d(),
+                      int32_t wheelValue = 0 );
 
     /**
      * Creates an object with the empty name, zero position and no modkey.
@@ -151,6 +154,13 @@ public:
     inline WVector2d getPickPixel() const;
 
     /**
+     * Returns an integer denoting the wheel movement. If the value gets smaller, the wheel scrolled down.
+     *
+     * \return the value.
+     */
+    inline int32_t getScrollWheel() const;
+
+    /**
      * Tests two pick infos for equality
      * \param rhs right hand side of comparison
      *
@@ -176,6 +186,7 @@ private:
     modifierKey m_modKey; //!< modifier key associated with the pick
     WMouseButton m_mouseButton; //!< which mouse button was used for the pick
     WVector3d m_pickNormal; //!< normal at position where object was hit.
+    int32_t m_scrollValue; //!< the scroll wheel value.
 };
 
 WPickInfo::WPickInfo( std::string name,
@@ -184,14 +195,16 @@ WPickInfo::WPickInfo( std::string name,
                       std::pair< float, float > pixelCoords,
                       modifierKey modKey,
                       WMouseButton mButton,
-                      WVector3d pickNormal ) :
+                      WVector3d pickNormal,
+                      int32_t wheelValue ) :
     m_name( name ),
     m_viewerName( viewerName ),
     m_pickPosition( pickPosition ),
     m_pixelCoords( pixelCoords ),
     m_modKey( modKey ),
     m_mouseButton( mButton ),
-    m_pickNormal( pickNormal )
+    m_pickNormal( pickNormal ),
+    m_scrollValue( wheelValue )
 {
 }
 
@@ -201,7 +214,8 @@ WPickInfo::WPickInfo() :
     m_pickPosition( WPosition() ),
     m_pixelCoords( std::make_pair( 0.0, 0.0 ) ),
     m_modKey( WPickInfo::NONE ),
-    m_mouseButton( WPickInfo::MOUSE_LEFT )
+    m_mouseButton( WPickInfo::MOUSE_LEFT ),
+    m_scrollValue( 0 )
 {
 }
 
@@ -263,6 +277,11 @@ inline WVector2d WPickInfo::getPickPixel() const
     v[0] = m_pixelCoords.first;
     v[1] = m_pixelCoords.second;
     return v;
+}
+
+inline int32_t WPickInfo::getScrollWheel() const
+{
+    return m_scrollValue;
 }
 
 #endif  // WPICKINFO_H

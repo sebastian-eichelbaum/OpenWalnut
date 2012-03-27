@@ -31,8 +31,6 @@
 
 #include <osg/Uniform>
 
-
-
 /**
  * This is a uniform callback setting the uniform to the current time in milliseconds, hundredth of a second or tenth of a second.
  */

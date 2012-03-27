@@ -22,12 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <string>
 #include <utility>
 
 #include <osg/LineWidth>
 #include <osg/LightModel>
 #include <osg/Geometry>
+
+#include "../common/WLogger.h"
 
 #include "WROIBox.h"
 #include "WGraphicsEngine.h"
@@ -116,6 +119,7 @@ WROIBox::WROIBox( WPosition minPos, WPosition maxPos ) :
     boxId( maxBoxId++ ),
     m_pickNormal( WVector3d() ),
     m_oldPixelPosition( WVector2d::zero() ),
+    m_oldScrollWheel( 0 ),
     m_color( osg::Vec4( 0.f, 1.f, 1.f, 0.4f ) ),
     m_notColor( osg::Vec4( 1.0f, 0.0f, 0.0f, 0.4f ) )
 {
@@ -229,6 +233,14 @@ void WROIBox::updateGFX()
             osg::Vec3 in( newPixelPos.x(), newPixelPos.y(), 0.0 );
             osg::Vec3 world = wge::unprojectFromScreen( in, m_viewer->getCamera() );
 
+            // we want the vector pointing into the screen in world coordinates
+            // NOTE: set w = 0 to use it as vector and ignore translation
+            osg::Vec4 toDepth = wge::unprojectFromScreen( osg::Vec4( 0.0, 0.0, 1.0, 0.0 ), m_viewer->getCamera() );
+            toDepth.normalize();
+            WPosition toDepthWorld( toDepth[0], toDepth[1], toDepth[2] );
+
+            float depthMove = m_pickInfo.getScrollWheel() - m_oldScrollWheel;
+
             WPosition newPixelWorldPos( world[0], world[1], world[2] );
             WPosition oldPixelWorldPos;
             if(  m_oldPixelPosition.x() == 0 && m_oldPixelPosition.y() == 0 )
@@ -267,6 +279,9 @@ void WROIBox::updateGFX()
             {
                 m_minPos += moveVec;
                 m_maxPos += moveVec;
+
+                m_minPos += toDepthWorld * depthMove;
+                m_maxPos += toDepthWorld * depthMove;
                 setVertices( vertices, m_minPos, m_maxPos );
                 m_surfaceGeometry->setVertexArray( vertices );
             }
@@ -294,10 +309,13 @@ void WROIBox::updateGFX()
                 colors->push_back( osg::Vec4( 0.0f, 1.0f, 0.0f, 0.4f ) );
                 m_surfaceGeometry->setColorArray( colors );
             }
+
+            m_oldScrollWheel = m_pickInfo.getScrollWheel();
         }
         m_oldPixelPosition = newPixelPos;
         setDirty();
         m_isPicked = true;
+        m_oldScrollWheel = m_pickInfo.getScrollWheel();
 
         signalRoiChange();
     }

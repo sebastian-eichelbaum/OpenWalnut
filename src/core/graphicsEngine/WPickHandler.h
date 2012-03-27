@@ -114,6 +114,9 @@ protected:
     int m_paintMode; //!< the paint mode
     WPickInfo::WMouseButton m_mouseButton; //!< stores mouse button that initiated the pick
 
+    bool m_inPickMode;  //!< if true, the pick handler currently is in pick mode.
+
+    int32_t m_scrollWheel; //!< the virtual value of the scrollwheel
 
 private:
     /**

@@ -121,12 +121,18 @@ namespace WStructuredTextParser
     };
 }
 
+/**
+ * Tell boost::fusion about our types.
+ */
 BOOST_FUSION_ADAPT_STRUCT(
     WStructuredTextParser::ObjectType,
     ( std::string, m_name )
     ( std::vector< WStructuredTextParser::MemberType >, m_nodes )
 )
 
+/**
+ * Tell boost::fusion about our types.
+ */
 BOOST_FUSION_ADAPT_STRUCT(
     WStructuredTextParser::KeyValueType,
     ( std::string, m_name )

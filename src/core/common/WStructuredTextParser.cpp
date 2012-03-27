@@ -140,6 +140,7 @@ namespace WStructuredTextParser
         bool entryExists = ( m_entries.count( name ) != 0 );
 
         return !entryExists && ( elem == m_children.end() );*/
+        return false;
     }
 
     std::string& StructuredValueTree::operator()( std::string name )
