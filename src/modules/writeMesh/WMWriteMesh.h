@@ -26,6 +26,7 @@
 #define WMWRITEMESH_H
 
 #include <string>
+#include <vector>
 
 #include <osg/Geode>
 
@@ -35,13 +36,8 @@
 #include "core/kernel/WModuleOutputData.h"
 
 /**
- * Someone should add some documentation here.
- * Probably the best person would be the module's
- * creator, i.e. "wiebel".
- *
- * This is only an empty template for a new module. For
- * an example module containing many interesting concepts
- * and extensive documentation have a look at "src/modules/template"
+ * This module writes the triangle mesh given at its input connector
+ * as a VTK ASCII file or .json file
  *
  * \ingroup modules
  */
@@ -119,11 +115,19 @@ private:
      *
      * \return true if successful.
      */
-    bool saveJson() const;
+    bool saveJson();
+
+    /**
+     * Splits the mesh in several mesh files (to solve maximum mesh limits in BrainGlL).
+     *
+     * \param triMesh mesh object to be divided
+     * \param  targetSize maximum resulting mesh size
+     * \return vector of resulting meshes
+     */
+    std::vector< boost::shared_ptr< WTriangleMesh > >splitMesh( boost::shared_ptr< WTriangleMesh > triMesh, size_t targetSize );
 
     boost::shared_ptr< WModuleInputData< WTriangleMesh > > m_meshInput; //!< Input connector for a mesh
     boost::shared_ptr< WTriangleMesh > m_triMesh; //!< A pointer to the currently processed tri mesh
-
     boost::shared_ptr< WCondition > m_propCondition;  //!< A condition used to notify about changes in several properties.
     WPropGroup    m_savePropGroup; //!< Property group containing properties needed for saving the mesh.
     WPropTrigger  m_saveTriggerProp; //!< This property triggers the actual writing,

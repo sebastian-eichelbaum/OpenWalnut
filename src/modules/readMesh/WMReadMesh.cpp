@@ -26,11 +26,16 @@
 #include <vector>
 #include <fstream>
 
+#include "core/common/WIOTools.h"
 #include "core/common/WStringUtils.h"
 #include "core/common/WPathHelper.h"
 #include "core/common/WPropertyHelper.h"
 #include "core/kernel/WKernel.h"
 #include "core/graphicsEngine/WTriangleMesh.h"
+
+#include "core/dataHandler/exceptions/WDHIOFailure.h"
+#include "core/dataHandler/exceptions/WDHNoSuchFile.h"
+#include "core/dataHandler/exceptions/WDHParseError.h"
 
 #include "WMReadMesh.h"
 #include "WMReadMesh.xpm"
@@ -75,7 +80,7 @@ const std::string WMReadMesh::getDescription() const
 void WMReadMesh::connectors()
 {
     m_output = boost::shared_ptr< WModuleOutputData< WTriangleMesh > >(
-            new WModuleOutputData< WTriangleMesh >( shared_from_this(), "mesh", "The loaded mesh." ) );
+                new WModuleOutputData< WTriangleMesh >( shared_from_this(), "mesh", "The loaded mesh." ) );
 
     addConnector( m_output );
     // call WModules initialization
@@ -88,18 +93,24 @@ void WMReadMesh::properties()
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
     m_meshFile = m_properties->addProperty( "Mesh file", "", WPathHelper::getAppPath() );
-    m_readTriggerProp = m_properties->addProperty( "Do read",  "Press!",
-                                                  WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
-    WPropertyHelper::PC_PATHEXISTS::addTo( m_meshFile );
+    m_propDatasetSizeX = m_properties->addProperty( "Dataset size X", "size of the dataset in the x coordinate", 160, m_propCondition );
+    m_propDatasetSizeY = m_properties->addProperty( "Dataset size Y", "size of the dataset in the x coordinate", 200, m_propCondition );
+    m_propDatasetSizeZ = m_properties->addProperty( "Dataset size Z", "size of the dataset in the x coordinate", 160, m_propCondition );
+
 
     m_fileTypeSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_fileTypeSelectionsList->addItem( "Mesh", "" );
     m_fileTypeSelectionsList->addItem( "Mesh fibernavigator", "" );
     m_fileTypeSelectionsList->addItem( "DIP", "" );
     m_fileTypeSelectionsList->addItem( "BrainVISA", "" );
+    m_fileTypeSelectionsList->addItem( "Freesurfer", "" );
 
     m_fileTypeSelection = m_properties->addProperty( "File type",  "file type.", m_fileTypeSelectionsList->getSelectorFirst() );
-       WPropertyHelper::PC_SELECTONLYONE::addTo( m_fileTypeSelection );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_fileTypeSelection );
+
+    m_readTriggerProp = m_properties->addProperty( "Do read",  "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
+    WPropertyHelper::PC_PATHEXISTS::addTo( m_meshFile );
+
 
 
     WModule::properties();
@@ -122,21 +133,24 @@ void WMReadMesh::moduleMain()
 
         switch( m_fileTypeSelection->get( true ).getItemIndexOfSelected( 0 ) )
         {
-            case 0:
-                m_triMesh = readMesh();
-                break;
-            case 1:
-                m_triMesh = readMeshFnav();
-                break;
-            case 2:
-                m_triMesh = readDip();
-                break;
-            case 3:
-                m_triMesh = readBrainVISA();
-                break;
-            default:
-                debugLog() << "this shouldn't be reached";
-                break;
+        case 0:
+            m_triMesh = readMesh();
+            break;
+        case 1:
+            m_triMesh = readMeshFnav();
+            break;
+        case 2:
+            m_triMesh = readDip();
+            break;
+        case 3:
+            m_triMesh = readBrainVISA();
+            break;
+        case 4:
+            m_triMesh = readFreesurfer();
+            break;
+        default:
+            debugLog() << "this shouldn't be reached";
+            break;
         }
         m_output->updateData( m_triMesh );
 
@@ -476,7 +490,7 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readBrainVISA()
 
     for( size_t i = 0; i < numVertices; ++i )
     {
-        triMesh->addVertex( pointData[i * 3], 200 - pointData[i * 3 + 1], 160 - pointData[i * 3 + 2] );
+        triMesh->addVertex( pointData[i * 3], m_propDatasetSizeY->get( true )-pointData[i*3+1], m_propDatasetSizeZ->get( true )-pointData[i*3+2] );
     }
     for( size_t i = 0; i < numTriangles; ++i )
     {
@@ -650,9 +664,9 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readDip()
 
         try
         {
-            points.push_back( osg::Vec3( string_utils::fromString< float >( tokens.at( 1 ) ) + 80.0,
-                                         string_utils::fromString< float >( tokens.at( 0 ) ) + 100.0,
-                                         string_utils::fromString< float >( tokens.at( 2 ) ) + 80.0 ) );
+            points.push_back( osg::Vec3( string_utils::fromString< float >( tokens.at( 1 ) ) + ( m_propDatasetSizeX->get( true )/2.0 ),
+                                         string_utils::fromString< float >( tokens.at( 0 ) ) + ( m_propDatasetSizeY->get( true )/2.0 ),
+                                         string_utils::fromString< float >( tokens.at( 2 ) ) + ( m_propDatasetSizeZ->get( true )/2.0 ) ) );
         }
         catch( const std::exception &e )
         {
@@ -717,4 +731,70 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readDip()
     progress->finish();
 
     return triMesh;
+}
+
+boost::shared_ptr< WTriangleMesh > WMReadMesh::readFreesurfer()
+{
+    namespace su = string_utils;
+
+    std::string fileName = m_meshFile->get().string();
+    WAssert( !fileName.empty(), "No filename specified." );
+
+    boost::shared_ptr< std::ifstream > ifs = boost::shared_ptr< std::ifstream >( new std::ifstream() );
+    ifs->open( fileName.c_str(), std::ifstream::in | std::ifstream::binary );
+    if( !ifs || ifs->bad() )
+    {
+        throw WDHIOFailure( std::string( "internal error while opening" ) );
+    }
+    getLine( ifs, "" );
+    getLine( ifs, "" );
+
+    int *pointData = new int[ 2 ];
+    ifs->read( reinterpret_cast< char* >( pointData ), 8 );
+    switchByteOrderOfArray( pointData, 2 );
+    size_t numVertices = pointData[0];
+    size_t numTriangles = pointData[1];
+    //std::cout << numVertices << " " << numTriangles << std::endl;
+
+    float* verts = new float[ numVertices * 3 ];
+    ifs->read( reinterpret_cast< char* >( verts ), 3 * sizeof( float ) * numVertices );
+    switchByteOrderOfArray( verts, numVertices * 3 );
+
+    int* tris = new int[ numTriangles * 3 ];
+    ifs->read( reinterpret_cast< char* >( tris ), 3 * sizeof( int ) * numTriangles );
+    switchByteOrderOfArray( tris, numTriangles * 3 );
+
+    boost::shared_ptr< WTriangleMesh > triMesh( new WTriangleMesh( numVertices, numTriangles ) );
+
+    for( size_t i = 0; i < numVertices; ++i )
+    {
+        triMesh->addVertex( verts[i*3]+  ( ( m_propDatasetSizeX->get( true )+1 )/2.0 ),
+                            verts[i*3+1]+( ( m_propDatasetSizeY->get( true )+1 )/2.0 ),
+                            verts[i*3+2]+( ( m_propDatasetSizeZ->get( true )+1 )/2.0 ) );
+    }
+    for( size_t i = 0; i < numTriangles; ++i )
+    {
+        triMesh->addTriangle( tris[i * 3], tris[i * 3 + 2], tris[i * 3 + 1] );
+    }
+    return triMesh;
+}
+
+std::string WMReadMesh::getLine( boost::shared_ptr< std::ifstream > ifs, const std::string& desc )
+{
+    std::string line;
+    try
+    {
+        // we use '\n' as line termination under every platform so our files (which are most likely to be generated on Unix systems)
+        // can be read from all platforms not having those line termination symbols like e.g. windows ('\r\n').
+        std::getline( *ifs, line, '\n' );
+    }
+    catch( const std::ios_base::failure &e )
+    {
+        throw WDHIOFailure( std::string( "IO error while " + desc + " of VTK fiber file: , " + e.what() ) );
+    }
+    if( !ifs->good() )
+    {
+        throw WDHParseError( std::string( "Unexpected end of VTK fiber file." ) );
+    }
+    return line;
 }

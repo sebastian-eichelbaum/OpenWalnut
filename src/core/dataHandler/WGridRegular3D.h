@@ -392,6 +392,19 @@ public:
      *
      * \param id Number of the voxel for which the neighbours should be computed
      *
+     * \param range neighborhood range selected. It specifies the distance to count as neighbour in each direction.
+     *
+     * \return Vector of voxel ids which are all neighboured
+     */
+    std::vector< size_t > getNeighboursRange( size_t id, size_t range ) const;
+
+    /**
+     * Return the list of all neighbour voxels.
+     *
+     * \throw WOutOfBounds If the voxel id is outside of the grid.
+     *
+     * \param id Number of the voxel for which the neighbours should be computed
+     *
      * \return Vector of voxel ids which are all neighboured along the XY plane
      */
     std::vector< size_t > getNeighbours9XY( size_t id ) const;

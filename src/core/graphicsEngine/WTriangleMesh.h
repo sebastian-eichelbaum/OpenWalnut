@@ -290,7 +290,7 @@ public:
      * \param index
      * \return normal
      */
-    WVector3d getNormal( size_t index ) const;
+    WVector3d getNormal( size_t index );
 
     /**
      * getter
@@ -635,6 +635,10 @@ inline void WTriangleMesh::addVertex( osg::Vec3 vert )
     if( ( *m_textureCoordinates ).size() == m_countVerts )
     {
         ( *m_textureCoordinates ).resize( m_countVerts + 1 );
+    }
+    if( ( *m_vertColors ).size() == m_countVerts )
+    {
+        ( *m_vertColors ).resize( m_countVerts + 1 );
     }
 
     ( *m_verts )[m_countVerts] = vert;
