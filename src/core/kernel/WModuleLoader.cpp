@@ -129,7 +129,8 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
                                                      "Module Loader", LL_ERROR );
             }
         }
-        else if( ( level == 0 ) && boost::filesystem::is_directory( *i ) )     // this only traverses down one level
+        else if( ( level <= 10 ) &&  // this sould be enough to tranverse the typical structure build/release/lib/openwalnut/MODULENAME (5 levels)
+                 boost::filesystem::is_directory( *i ) )     // this only traverses down one level
         {
             // if it a dir -> traverse down
             load( ticket, *i, level + 1 );
