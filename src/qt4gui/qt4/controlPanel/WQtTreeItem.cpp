@@ -201,7 +201,7 @@ void WQtTreeItem::updateState()
     {
         progress = "Busy " + p->getCombinedNames();
         setIcon( 0, WQt4Gui::getMainWindow()->getIconManager()->getIcon( "moduleBusy" ) );
-        std::ostringstream title;
+        std::ostringstream progressText;
 
         // construct a name for the progress indicator
         std::string name = p->getName();
@@ -212,16 +212,16 @@ void WQtTreeItem::updateState()
 
         if( p->isDetermined() )
         {
-            title.setf( std::ios::fixed );
-            title.precision( 0 );
-            title << p->getProgress() << "%" << name;
+            progressText.setf( std::ios::fixed );
+            progressText.precision( 0 );
+            progressText << p->getProgress() << "%" << name;
         }
         else
         {
-            title << "Pending" << name;
+            progressText << "Pending" << name;
         }
 
-        setText( 0, ( m_name + " - " + title.str() + connInfo ).c_str() );
+        setText( 0, ( m_name + " - " + progressText.str() + connInfo ).c_str() );
     }
     else
     {
