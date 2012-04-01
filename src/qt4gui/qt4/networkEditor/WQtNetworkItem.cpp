@@ -43,8 +43,17 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
 
     setCacheMode( DeviceCoordinateCache );
 
-    //caption
-    m_text = new QGraphicsTextItem( module->getName().c_str() );
+    // for captions of data modules
+    std::string dataNameString;
+
+    boost::shared_ptr< WDataModule > dataModule;
+    dataModule = boost::shared_dynamic_cast< WDataModule >( module );    if( dataModule )
+    {
+        dataNameString = std::string( "\n(" ) + string_utils::tokenize( dataModule->getFilename().string(), "/" ).back() + ")";
+    }
+
+    // caption
+    m_text = new QGraphicsTextItem( ( module->getName().c_str() + dataNameString  ).c_str() );
     m_text->setParentItem( this );
     m_text->setDefaultTextColor( Qt::white );
 
