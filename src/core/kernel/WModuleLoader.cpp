@@ -65,7 +65,7 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
         #ifdef __WIN32__
             static const boost::regex CheckLibMMP( "^(lib)?(.*)\\" + WSharedLib::getSystemSuffix() +"$" );
         #elif __APPLE__
-            static const boost::regex CheckLibMMP( "^(lib)?\\.[0-9]+\\.[0-9]+\\.[0-9]+\\" + WSharedLib::getSystemSuffix() + "$" );
+            static const boost::regex CheckLibMMP( "^(lib)?(.*)\\.[0-9]+\\.[0-9]+\\.[0-9]+\\" + WSharedLib::getSystemSuffix() + "$" );
         #else
             static const boost::regex CheckLibMMP( "^(lib)?(.*)\\" + WSharedLib::getSystemSuffix() + "\\.[0-9]+\\.[0-9]+\\.[0-9]+$" );
         #endif
