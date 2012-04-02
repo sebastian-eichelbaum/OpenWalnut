@@ -108,6 +108,7 @@ void WMGridRenderer::moduleMain()
             // OK, the output has not yet sent data
             // NOTE: see comment at the end of this while loop for m_moduleState
             WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_gridNode );
+            m_gridNode = NULL;
             continue;
         }
 
@@ -123,6 +124,7 @@ void WMGridRenderer::moduleMain()
         // create the new grid node if it not exists
         if( !m_gridNode )
         {
+            debugLog() << "Creating grid geode.";
             m_gridNode = new WGEGridNode( regGrid );
             m_gridNode->addUpdateCallback( new WGENodeMaskCallback( m_active ) );
             WGraphicsEngine::getGraphicsEngine()->getScene()->insert( m_gridNode );
