@@ -21,7 +21,7 @@ See the files "AUTHORS" and "CONTRIBUTORS".
 LICENSE
 =======
 
-OpenWalnut is licenced under the terms of the LGPLv3.
+OpenWalnut is licensed under the terms of the LGPLv3.
 See "COPYING" and "COPYING.LESSER".
 
 CONTACT
@@ -99,7 +99,7 @@ BINARY DISTRIBUTION
 If you have received OpenWalnut in binary form, you can always acquire the
 code at http://www.openwalnut.org or from your distributor. In the binary
 packages we provide, we might include open source, third-party libraries. 
-If so, the licences are re-distributed along the libraries. We did not modify
+If so, the licenses are re-distributed along the libraries. We did not modify
 the sources. However, you can get the sources of these libraries by contacting
 us.
 
