@@ -29,13 +29,14 @@
 #include "WQtNetworkPort.h"
 #include "WQtNetworkOutputPort.h"
 #include "WQtNetworkInputPort.h"
+#include "WQtNetworkColors.h"
+
 #include "core/kernel/combiner/WApplyCombiner.h"
 
 WQtNetworkPort::WQtNetworkPort()
 {
     setRect( 0.0, 0.0, WNETWORKPORT_SIZEX, WNETWORKPORT_SIZEY );
-    setBrush( Qt::gray );
-    setPen( QPen( Qt::red, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
+    setPen( QPen( Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
 
     setAcceptsHoverEvents( true );
     m_line = NULL;
@@ -44,6 +45,20 @@ WQtNetworkPort::WQtNetworkPort()
 WQtNetworkPort::~WQtNetworkPort()
 {
     removeArrows();
+}
+
+void WQtNetworkPort::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget )
+{
+    if( isOutPort() )
+    {
+        setBrush( WQtNetworkColors::OutputConnector );
+    }
+    else
+    {
+        setBrush( WQtNetworkColors::InputConnector );
+    }
+
+    QGraphicsRectItem::paint( painter, option, widget );
 }
 
 void WQtNetworkPort::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )

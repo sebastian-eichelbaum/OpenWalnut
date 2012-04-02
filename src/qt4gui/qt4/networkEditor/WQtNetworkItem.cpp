@@ -26,12 +26,16 @@
 #include <iostream>
 
 #include <boost/shared_ptr.hpp>
+
 #include <QtGui/QStyleOptionGraphicsItem>
+#include <QtGui/QTextCharFormat>
+#include <QtGui/QTextCursor>
 
 #include "WQtNetworkArrow.h"
 #include "WQtNetworkItem.h"
 #include "WQtNetworkScene.h"
 #include "WQtNetworkEditor.h"
+#include "WQtNetworkColors.h"
 #include "WQtNetworkEditorGlobals.h"
 
 WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WModule > module )
@@ -39,7 +43,6 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
 {
     m_networkEditor = editor;
     m_module = module;
-    changeColor( Qt::white );
 
     setCacheMode( DeviceCoordinateCache );
 
@@ -57,12 +60,12 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
     m_text->setParentItem( this );
     m_text->setDefaultTextColor( Qt::white );
 
-
     m_inPorts = QList< WQtNetworkInputPort* > ();
     m_outPorts = QList< WQtNetworkOutputPort* > ();
 
     //add input ports
     WModule::InputConnectorList cons = module->getInputConnectors();
+    bool hasInput = cons.size();
     for( WModule::InputConnectorList::const_iterator iter = cons.begin(); iter != cons.end(); ++iter )
     {
         WQtNetworkInputPort *port = new WQtNetworkInputPort( *iter );
@@ -72,6 +75,7 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
 
     //add output ports
     WModule::OutputConnectorList outCons = module->getOutputConnectors();
+    bool hasOutput = outCons.size();
     for( WModule::OutputConnectorList::const_iterator iter = outCons.begin(); iter != outCons.end(); ++iter )
     {
         WQtNetworkOutputPort *port = new WQtNetworkOutputPort( *iter );
@@ -79,11 +83,31 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
         this->addOutputPort( port );
     }
 
+    // Standard processing modules with in- and outputs are colored this way:
+    m_itemColor = WQtNetworkColors::Module;
+    if( !hasInput && !hasOutput )
+    {
+        // neither inputs nor outputs
+        m_itemColor = WQtNetworkColors::StandaloneModule;
+    }
+    else if( !hasInput )
+    {
+        // no inputs -> source
+        m_itemColor = WQtNetworkColors::SourceModule;
+    }
+    else if( !hasOutput )
+    {
+        // no outputs but inputs -> sink
+        m_itemColor = WQtNetworkColors::SinkModule;
+    }
+
     activate( false );
 
     fitLook();
 
     m_layoutNode = NULL;
+
+    changeState( Disabled );
 }
 
 WQtNetworkItem::~WQtNetworkItem()
@@ -110,65 +134,27 @@ void WQtNetworkItem::hoverEnterEvent( QGraphicsSceneHoverEvent *event )
 {
     Q_UNUSED( event );
 
-    if( m_color != Qt::darkBlue )
+    if( !isSelected() )
     {
-        changeColor( Qt::darkBlue );
+        changeState( Hovered );
     }
-
-    std::string tooltip = "";
-//    if( m_module->isCrashed()() )
-//    {
-//        tooltip += "<b>A problem occured. The module has been stopped. </b><br/><br/>";
-//    }
-//    tooltip += "<b>Module: </b>" + m_module->getName() + "<br/>";
-//    //tooltip += "<b>Progress: </b>" + progress + "<br/>";
-//    tooltip += "<b>Connectors: </b>";
-//
-//    // also list the connectors
-//    std::string conList = "";
-//    WModule::InputConnectorList consIn = m_module->getInputConnectors();
-//    WModule::OutputConnectorList consOut = m_module->getOutputConnectors();
-//    conList += "<table><tr><th>Name</th><th>Description</th><th>Type (I/O)</th><th>Connected</th></tr>";
-//    int conCount = 0;
-//    for( WModule::InputConnectorList::const_iterator it = consIn.begin(); it != consIn.end(); ++it )
-//    {
-//        ++conCount;
-//        conList += "<tr><td><b>" + ( *it )->getName() + "&nbsp;</b></td><td>" + ( *it )->getDescription() + "&nbsp;</td>";
-//        conList += "<td><center>In</center></td>";
-//        conList += ( *it )->isConnected() ? "<td><center>Yes</center></td>" : "<td><center>No</center></td>";
-//        conList += "</tr>";
-//    }
-//    for( WModule::OutputConnectorList::const_iterator it = consOut.begin(); it != consOut.end(); ++it )
-//    {
-//        ++conCount;
-//        conList += "<tr><td><b>" + ( *it )->getName() + "&nbsp;</b></td><td>" + ( *it )->getDescription() + "&nbsp;</td>";
-//        conList += "<td><center>Out</center></td>";
-//        conList += ( *it )->isConnected() ? "<td></center>Yes</center></td>" : "<td><center>No</center></td>";
-//        conList += "</tr>";
-//    }
-//    conList += "</table>";
-//
-//    tooltip += conCount ? "Yes" + conList + "<br/><br/>" : "None<br/>";
-//    tooltip += "<b>Module Description: </b><br/>" + m_module->getDescription();
-
-
-    setToolTip( tooltip.c_str() );
 }
 
 void WQtNetworkItem::hoverLeaveEvent( QGraphicsSceneHoverEvent *event )
 {
     Q_UNUSED( event );
-    if( m_color != Qt::gray )
+
+    if( !isSelected() )
     {
-        changeColor( Qt::gray );
+        changeState( Idle );
     }
 }
 
 void WQtNetworkItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* w )
 {
-    if( isSelected() && m_color != Qt::darkGreen )
+    if( isSelected() )
     {
-        changeColor( Qt::darkGreen );
+        changeState( Selected );
     }
 
     QStyleOptionGraphicsItem *o = const_cast<QStyleOptionGraphicsItem*>( option );
@@ -207,7 +193,7 @@ QVariant WQtNetworkItem::itemChange( GraphicsItemChange change, const QVariant &
     switch( change )
     {
         case ItemSelectedHasChanged:
-            changeColor( Qt::gray );
+            changeState( Idle );
         case ItemPositionHasChanged:
             foreach( WQtNetworkPort *port, m_inPorts )
             {
@@ -286,7 +272,7 @@ void WQtNetworkItem::fitLook()
         portNumber++;
     }
 
-    changeColor( Qt::gray );
+    changeState( Idle );
 }
 
 void WQtNetworkItem::setTextItem( QGraphicsTextItem *text )
@@ -299,18 +285,41 @@ QString WQtNetworkItem::getText()
     return m_text->toPlainText();
 }
 
-void WQtNetworkItem::changeColor( QColor color )
+void WQtNetworkItem::changeState( State state )
 {
-    m_color = color;
-    m_gradient.setStart( 0, 0 );
-    m_gradient.setFinalStop( 0, m_height );
+    m_currentState = state;
 
-    m_gradient.setColorAt( 0.0, m_color );
-    m_gradient.setColorAt( 0.3, Qt::black );
-    m_gradient.setColorAt( 0.7, Qt::black );
-    m_gradient.setColorAt( 1.0, m_color );
-    setBrush( m_gradient );
-    setPen( QPen( m_color, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
+    // This is the default appearance
+    QPen pen = QPen( m_itemColor, 1, Qt::SolidLine, Qt::SquareCap, Qt::RoundJoin );
+    QLinearGradient gradient;
+    gradient.setStart( 0, 0 );
+    gradient.setFinalStop( 0, m_height );
+    gradient.setColorAt( 0.0, m_itemColor );
+    gradient.setColorAt( 1.0, m_itemColor );
+
+    // change appearance due to state changes
+    switch( state )
+    {
+        case Disabled:
+            gradient.setColorAt( 0.0, m_itemColor.darker( 300 ) );
+            gradient.setColorAt( 1.0, m_itemColor.darker( 300 ) );
+            break;
+        case Idle:
+            // default behaviour
+            break;
+        case Hovered:
+            gradient.setColorAt( 0.0, m_itemColor.lighter() );
+            gradient.setColorAt( 1.0, m_itemColor.lighter() );
+            break;
+        case Selected:
+            pen = QPen( Qt::black, 2, Qt::DotLine, Qt::SquareCap, Qt::RoundJoin );
+            break;
+        default:
+            break;
+    }
+
+    setBrush( gradient );
+    setPen( pen );
 }
 
 boost::shared_ptr< WModule > WQtNetworkItem::getModule()
@@ -327,14 +336,14 @@ void WQtNetworkItem::activate( bool active )
         setAcceptsHoverEvents( true );
         setFlag( QGraphicsItem::ItemIsSelectable );
         setFlag( QGraphicsItem::ItemIsMovable );
-        changeColor( Qt::gray );
+        changeState( Idle );
     }
     if( active == false )
     {
         setAcceptsHoverEvents( false );
         setFlag( QGraphicsItem::ItemIsSelectable, false );
         setFlag( QGraphicsItem::ItemIsMovable, false );
-        changeColor( Qt::white );
+        changeState( Disabled );
     }
 }
 

@@ -128,6 +128,14 @@ public:
      */
     virtual QList< WQtNetworkArrow* > getArrowList();
 
+    /**
+     * Actually paints the port.
+     *
+     * \param painter the painter
+     * \param option style options
+     * \param widget parent widget.
+     */
+    virtual void paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget );
 protected:
     /**
      * Start drawing an arrow temporary.

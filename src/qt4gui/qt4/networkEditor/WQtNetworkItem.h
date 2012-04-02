@@ -188,13 +188,6 @@ protected:
     void hoverLeaveEvent( QGraphicsSceneHoverEvent* event );
 
     /**
-     * This method changes the coloration of gradient.
-     *
-     * \param color the choosen color
-     */
-    void changeColor( QColor color );
-
-    /**
      * Draw some customized stuff in the scene.
      *
      * \param painter
@@ -204,15 +197,29 @@ protected:
     void paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* w );
 
 private:
+    /**
+     * Denotes the current state this item is in.
+     */
+    enum State
+    {
+        Disabled = 0,
+        Idle,
+        Hovered,
+        Selected
+    };
+
+    /**
+     * Update the visual state of the item. Draw the item according to the state specified.
+     *
+     * \param state the state
+     */
+    void changeState( State state );
+
     boost::shared_ptr< WModule > m_module; //!< the module
 
     QList< WQtNetworkInputPort* > m_inPorts; //!< the input ports of the item
 
     QList< WQtNetworkOutputPort* > m_outPorts; //!< the output ports of the item
-
-    QLinearGradient m_gradient; //!< the gradient for a nice coloring of the item
-
-    QColor m_color; //!< the current color
 
     QRectF m_rect; //!< the size of the items rect
 
@@ -229,5 +236,9 @@ private:
     WQtNetworkEditor* m_networkEditor; //!< the related WQtNetworkEditor
 
     WNetworkLayoutNode *m_layoutNode; //!< the layout item
+
+    QColor m_itemColor; //!< the color of the item. Depends on type (source, sink, ...).
+
+    State m_currentState; //!< denotes the state the item currently is in
 };
 #endif  // WQTNETWORKITEM_H
