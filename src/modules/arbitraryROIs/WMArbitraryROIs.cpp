@@ -161,7 +161,12 @@ void WMArbitraryROIs::moduleMain()
 
         //m_moduleState.wait();
     }
+    m_moduleNode->clear();
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
+    if( m_selectionROI )
+    {
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_selectionROI );
+    }
 }
 
 void WMArbitraryROIs::initSelectionROI()

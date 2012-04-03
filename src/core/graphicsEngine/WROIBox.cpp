@@ -137,7 +137,6 @@ WROIBox::WROIBox( WPosition minPos, WPosition maxPos ) :
     m_surfaceGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
     m_surfaceGeometry->setDataVariance( osg::Object::DYNAMIC );
 
-    //m_geode = osg::ref_ptr<osg::Geode>( new osg::Geode );
     std::stringstream ss;
     ss << "ROIBox" << boxId;
 
@@ -192,10 +191,6 @@ WROIBox::WROIBox( WPosition minPos, WPosition maxPos ) :
 
 WROIBox::~WROIBox()
 {
-//    std::cout << "destructor called" << std::endl;
-//    std::cout << "ref count geode: " << m_geode->referenceCount() << std::endl;
-//
-//    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_geode );
 }
 
 WPosition WROIBox::getMinPos() const
