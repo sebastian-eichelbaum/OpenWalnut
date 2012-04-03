@@ -94,7 +94,7 @@ void WMProbTractDisplaySP::updateProperitesForTheInputConnectors( boost::shared_
             if( ( m_probICs[i]->getData( false ) ) && ( m_colorMap[i]->isHidden() ) )
             {
                 m_colorMap[i]->setHidden( false );
-                m_colorMap[i]->findProperty( "Filename" )->toPropString()->set( m_probICs[i]->getData( false )->getFileName() );
+                m_colorMap[i]->findProperty( "Filename" )->toPropString()->set( m_probICs[i]->getData( false )->getFilename() );
             }
             if( !m_probICs[i]->getData( false ) )
             {
@@ -360,7 +360,7 @@ void WMProbTractDisplaySP::checkProbabilityRanges( std::vector< boost::shared_pt
     {
         if( ( *p )->getMax() > 10 ) // Note: same check is made in the builder, later when colors are deterimined and alpha values depending on prob
         {
-            ss << ( *p )->getFileName() << " ";
+            ss << ( *p )->getFilename() << " ";
             otherRange = true;
         }
     }

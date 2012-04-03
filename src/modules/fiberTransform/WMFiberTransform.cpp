@@ -128,7 +128,7 @@ void WMFiberTransform::moduleMain()
         WAssert( m_savePath, "No save path property" );
         if( m_savePath->get().string() == "/no/such/file" )
         {
-            m_savePath->set( saveFileName( m_rawDataset->getFileName() ) );
+            m_savePath->set( saveFileName( m_rawDataset->getFilename() ) );
         }
 
         if( m_run->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )

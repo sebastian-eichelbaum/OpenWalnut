@@ -114,6 +114,6 @@ boost::shared_ptr< WDataSet > WReaderLibeep::load()
         electrodeLibrary,
         channelLabels
     ) );
-    out->setFileName( m_fname );
+    out->setFilename( m_fname );
     return out;
 }

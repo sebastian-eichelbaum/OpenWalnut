@@ -160,14 +160,14 @@ const WBoolFlag& WKernel::isFinishRequested() const
     return m_shutdownFlag;
 }
 
-WBatchLoader::SPtr WKernel::loadDataSets( std::vector< std::string > fileNames, bool suppressColormaps )
+WBatchLoader::SPtr WKernel::loadDataSets( std::vector< std::string > filenames, bool suppressColormaps )
 {
-    return getRootContainer()->loadDataSets( fileNames, suppressColormaps );
+    return getRootContainer()->loadDataSets( filenames, suppressColormaps );
 }
 
-WBatchLoader::SPtr WKernel::loadDataSetsSynchronously( std::vector< std::string > fileNames, bool suppressColormaps )
+WBatchLoader::SPtr WKernel::loadDataSetsSynchronously( std::vector< std::string > filenames, bool suppressColormaps )
 {
-    return getRootContainer()->loadDataSetsSynchronously( fileNames, suppressColormaps );
+    return getRootContainer()->loadDataSetsSynchronously( filenames, suppressColormaps );
 }
 
 boost::shared_ptr< WModule > WKernel::applyModule( boost::shared_ptr< WModule > applyOn, boost::shared_ptr< WModule > prototype )

@@ -526,7 +526,7 @@ void WMTemplate::moduleMain()
 
             debugLog() << "Number of Rows: " << rows;
             debugLog() << "Radii: " << radii;
-            debugLog() << "Current dataset: " << dataSet->getFileName() << " with name: " << dataSet->getName();
+            debugLog() << "Current dataset: " << dataSet->getFilename() << " with name: " << dataSet->getName();
 
             // This block will be executed whenever we have a new dataset or the m_anInteger property has changed. This example codes produces
             // some shapes and replaces the existing root node by a new (updated) one. Therefore, a new root node is needed:

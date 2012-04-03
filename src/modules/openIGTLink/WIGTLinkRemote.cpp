@@ -258,7 +258,7 @@ WDataSetScalarSPtr WIGTLinkRemote::receiveImage( igtl::MessageHeader::Pointer he
         WDataSetScalarSPtr ds( new WDataSetScalar( valueSet, grid ) );
         // if( length( imgMsg->GetDeviceName() > 0 ) )
         // {
-        //    ds->setFileName( imgMsg->GetDeviceName() );
+        //    ds->setFilename( imgMsg->GetDeviceName() );
         // }
 
         return ds;
@@ -334,10 +334,10 @@ void WIGTLinkRemote::sendImageMetaData( const std::vector < WDataSetScalarSPtr >
     {
         igtl::ImageMetaElement::Pointer imgMeta;
         imgMeta = igtl::ImageMetaElement::New();
-        imgMeta->SetName( dataSets[ i ]->getFileName().c_str() );
-        imgMeta->SetDeviceName( dataSets[ i ]->getFileName().c_str() );
+        imgMeta->SetName( dataSets[ i ]->getFilename().c_str() );
+        imgMeta->SetDeviceName( dataSets[ i ]->getFilename().c_str() );
         imgMeta->SetModality( "UNKNOWN_MODALITY" );
-        imgMeta->SetPatientName( dataSets[ i ]->getFileName().c_str() );
+        imgMeta->SetPatientName( dataSets[ i ]->getFilename().c_str() );
         imgMeta->SetPatientID( "PATIENT_ID_0" );
 
         igtl::TimeStamp::Pointer ts0;

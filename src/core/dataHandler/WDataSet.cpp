@@ -39,20 +39,30 @@ WDataSet::WDataSet()
     : WTransferable(),
     m_properties( boost::shared_ptr< WProperties >( new WProperties( "Data-Set Properties", "Properties of a data-set" ) ) ),
     m_infoProperties( boost::shared_ptr< WProperties >( new WProperties( "Data-Set Info Properties", "Data-set's information properties" ) ) ),
-    m_fileName( "" )
+    m_filename( "" )
 {
     m_infoProperties->setPurpose( PV_PURPOSE_INFORMATION );
 }
 
-void WDataSet::setFileName( const std::string fileName )
+void WDataSet::setFileName( const std::string filename )
 {
-    WAssert( fileName != "", "No filename set for data set." );
-    m_fileName = fileName;
+    setFilename( filename );
 }
 
 std::string WDataSet::getFileName() const
 {
-    return m_fileName;
+    return getFilename();
+}
+
+void WDataSet::setFilename( const std::string filename )
+{
+    WAssert( filename != "", "No filename set for data set." );
+    m_filename = filename;
+}
+
+std::string WDataSet::getFilename() const
+{
+    return m_filename;
 }
 
 bool WDataSet::isTexture() const

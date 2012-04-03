@@ -84,8 +84,8 @@ public:
     {
         boost::shared_ptr< WDataSet > dummyDataSet;
         dummyDataSet = boost::shared_ptr< WDataSet >( new WDataSet );
-        std::string fileName = "Hallo";
-        dummyDataSet->setFileName( fileName );
+        std::string filename = "Hallo";
+        dummyDataSet->setFilename( filename );
 
         WSubject dummySubject;
         dummySubject.addDataSet( dummyDataSet );
@@ -97,7 +97,7 @@ public:
         for( WSubject::DatasetConstIterator iter = a->get().begin(); iter != a->get().end(); ++iter )
         {
             count++;
-            TS_ASSERT_EQUALS( fileName, ( *iter )->getFileName() );
+            TS_ASSERT_EQUALS( filename, ( *iter )->getFilename() );
             TS_ASSERT_EQUALS( dummyDataSet, ( *iter ) );
         }
 
@@ -111,8 +111,8 @@ public:
     {
         boost::shared_ptr< WDataSet > dummyDataSet;
         dummyDataSet = boost::shared_ptr< WDataSet >( new WDataSet );
-        std::string fileName = "Hallo";
-        dummyDataSet->setFileName( fileName );
+        std::string filename = "Hallo";
+        dummyDataSet->setFilename( filename );
 
         WSubject dummySubject;
         TS_ASSERT_EQUALS( 0, dummySubject.m_datasets.size() );

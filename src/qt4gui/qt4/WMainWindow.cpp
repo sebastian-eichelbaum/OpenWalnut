@@ -584,10 +584,10 @@ bool WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
     filters << "Project File (*.owproj *.owp)";
     fd.setNameFilters( filters );
     fd.setViewMode( QFileDialog::Detail );
-    QStringList fileNames;
+    QStringList filenames;
     if( fd.exec() )
     {
-        fileNames = fd.selectedFiles();
+        filenames = fd.selectedFiles();
     }
     else
     {
@@ -596,7 +596,7 @@ bool WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
 
     bool success = true;
     QStringList::const_iterator constIterator;
-    for( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
+    for( constIterator = filenames.constBegin(); constIterator != filenames.constEnd(); ++constIterator )
     {
         std::string filename = ( *constIterator ).toStdString();
 
@@ -673,14 +673,14 @@ void WMainWindow::projectLoad()
             << "Any files (*)";
     fd.setNameFilters( filters );
     fd.setViewMode( QFileDialog::Detail );
-    QStringList fileNames;
+    QStringList filenames;
     if( fd.exec() )
     {
-        fileNames = fd.selectedFiles();
+        filenames = fd.selectedFiles();
     }
 
     QStringList::const_iterator constIterator;
-    for( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
+    for( constIterator = filenames.constBegin(); constIterator != filenames.constEnd(); ++constIterator )
     {
         boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
                 new WProjectFile( ( *constIterator ).toStdString() )
@@ -704,21 +704,21 @@ void WMainWindow::openLoadDialog()
             << "Any files (*)";
     fd.setNameFilters( filters );
     fd.setViewMode( QFileDialog::Detail );
-    QStringList fileNames;
+    QStringList filenames;
     if( fd.exec() )
     {
-        fileNames = fd.selectedFiles();
+        filenames = fd.selectedFiles();
     }
 
-    std::vector< std::string > stdFileNames;
+    std::vector< std::string > stdFilenames;
 
     QStringList::const_iterator constIterator;
-    for( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
+    for( constIterator = filenames.constBegin(); constIterator != filenames.constEnd(); ++constIterator )
     {
-        stdFileNames.push_back( ( *constIterator ).toLocal8Bit().constData() );
+        stdFilenames.push_back( ( *constIterator ).toLocal8Bit().constData() );
     }
 
-    m_loaderSignal( stdFileNames );
+    m_loaderSignal( stdFilenames );
 }
 
 void WMainWindow::openAboutQtDialog()

@@ -66,7 +66,7 @@ public:
         WMWriteMesh mc;
         boost::shared_ptr< WTriangleMesh > triMesh( new WTriangleMesh( 0, 0 ) );
         mc.m_triMesh = triMesh;
-        std::string fileName = tempFileName().string();
+        std::string fileName = tempFilename().string();
         mc.m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "Module's properties" ) );
         mc.m_savePropGroup = mc.m_properties->addPropertyGroup( "Save Surface",  "" );
         mc.m_meshFile = mc.m_savePropGroup->addProperty( "Mesh file", "", boost::filesystem::path( fileName.c_str() ) );
@@ -96,7 +96,7 @@ public:
             triMesh->addVertex( x, y, z );
         }
 
-        std::string fileName = tempFileName().string();
+        std::string fileName = tempFilename().string();
         mc.m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "Module's properties" ) );
         mc.m_savePropGroup = mc.m_properties->addPropertyGroup( "Save Surface",  "" );
         mc.m_meshFile = mc.m_savePropGroup->addProperty( "Mesh file", "", boost::filesystem::path( fileName.c_str() ) );

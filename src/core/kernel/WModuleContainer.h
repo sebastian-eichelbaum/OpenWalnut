@@ -202,26 +202,26 @@ public:
     /**
      * Load specified datasets. It immediately returns and starts another thread, which actually loads the data.
      *
-     * \param fileNames list of filenames to load. The registered notification handler for the root container will get notified on
+     * \param filenames list of filenames to load. The registered notification handler for the root container will get notified on
      * error and success.
      * \param suppressColormaps if true, the data modules are instructed to avoid registration of colormaps. This can be very handy if you
      * combine multiple data loaders into one new data loader or data set
      *
      * \return the loader handling the load operation
      */
-    WBatchLoader::SPtr loadDataSets( std::vector< std::string > fileNames, bool suppressColormaps = false );
+    WBatchLoader::SPtr loadDataSets( std::vector< std::string > filenames, bool suppressColormaps = false );
 
     /**
      * Loads the specified files synchronously. The returned batchloader can be queried for the list of data modules that have been added.
      *
-     * \param fileNames list of filenames to load. The registered notification handler for the root container will get notified on
+     * \param filenames list of filenames to load. The registered notification handler for the root container will get notified on
      * error and success.
      * \param suppressColormaps if true, the data modules are instructed to avoid registration of colormaps. This can be very handy if you
      * combine multiple data loaders into one new data loader or data set
      *
      * \return the loader has handled the load operation
      */
-    WBatchLoader::SPtr loadDataSetsSynchronously( std::vector< std::string > fileNames, bool suppressColormaps = false );
+    WBatchLoader::SPtr loadDataSetsSynchronously( std::vector< std::string > filenames, bool suppressColormaps = false );
 
     /**
      * Add the specified thread to the list of pending jobs. Only this ensures, that ALL pending threads get stopped before the

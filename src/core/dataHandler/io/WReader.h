@@ -28,7 +28,7 @@
 #include <string>
 
 #include "../exceptions/WDHNoSuchFile.h"
-
+#include "../../common/WDefines.h"
 
 /**
  * Read some data from a given file. This base class is just for file
@@ -36,7 +36,7 @@
  * specify their file format which is not the purpose of this base class.
  * \ingroup dataHandler
  */
-class WReader // NOLINT
+class WReader
 {
 public:
     /**
@@ -52,8 +52,17 @@ public:
      *
      * \param fname file name
      * \throws WDHNoSuchFile
+     * \deprecated use setFilename instead.
      */
-    void setFileName( std::string fname ) throw( WDHNoSuchFile );
+    OW_API_DEPRECATED void setFileName( std::string fname ) throw( WDHNoSuchFile );
+
+    /**
+     * Reset the file name and checks if it exists.
+     *
+     * \param fname file name
+     * \throws WDHNoSuchFile
+     */
+    void setFilename( std::string fname ) throw( WDHNoSuchFile );
 
 protected:
     std::string m_fname; //!< Absolute path of the file to read from

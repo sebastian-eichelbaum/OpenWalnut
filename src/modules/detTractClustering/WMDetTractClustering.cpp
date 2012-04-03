@@ -435,7 +435,7 @@ std::string WMDetTractClustering::lookUpTableFileName() const
     std::stringstream newExtension;
     newExtension << std::fixed << std::setprecision( 2 );
     newExtension << ".pt-" << m_proximity_t->get() << ".dlt";
-    boost::filesystem::path tractFileName( m_tracts->getFileName() );
+    boost::filesystem::path tractFileName( m_tracts->getFilename() );
     return tractFileName.replace_extension( newExtension.str() ).string();
 }
 

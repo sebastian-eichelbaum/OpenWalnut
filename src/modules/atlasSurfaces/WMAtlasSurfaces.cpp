@@ -150,7 +150,7 @@ void WMAtlasSurfaces::moduleMain()
 
             if( m_labelFile->get( true ) == boost::filesystem::path( "" ) )
             {
-                std::string fn = m_dataSet->getFileName();
+                std::string fn = m_dataSet->getFilename();
                 std::string ext( ".nii.gz" );
                 std::string csvExt( ".csv" );
                 fn.replace( fn.find( ext ), ext.size(), csvExt );

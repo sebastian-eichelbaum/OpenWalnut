@@ -106,7 +106,7 @@ void WSPSliceBuilder::checkAndExtractGrids()
 
 WColor WSPSliceBuilder::colorMap( size_t probTractNum ) const
 {
-    std::string dataSetFileName = m_probTracts[probTractNum]->getFileName();
+    std::string dataSetFileName = m_probTracts[probTractNum]->getFilename();
 
     for( size_t i = 0; i < m_colorMap.size(); ++i )
     {
