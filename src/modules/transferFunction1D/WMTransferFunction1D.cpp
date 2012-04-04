@@ -33,7 +33,7 @@
 #include "core/dataHandler/WValueSet.h"
 #include "core/dataHandler/WValueSetBase.h"
 #include "core/kernel/WKernel.h"
-#include "modules/emptyIcon.xpm" // Please put a real icon here.
+#include "WMTransferFunction1D.xpm"
 #include "WMTransferFunction1D.h"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
@@ -56,7 +56,7 @@ boost::shared_ptr< WModule > WMTransferFunction1D::factory() const
 
 const char** WMTransferFunction1D::getXPMIcon() const
 {
-    return emptyIcon_xpm; // Please put a real icon here.
+    return WMTransferFunction1D_xpm;
 }
 const std::string WMTransferFunction1D::getName() const
 {
