@@ -143,7 +143,7 @@ boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( std::string name, os
     // store it in viewer list
     boost::mutex::scoped_lock lock( m_viewersLock );
     bool insertSucceeded = m_viewers.insert( make_pair( name, viewer ) ).second;
-    assert( insertSucceeded == true );
+    assert( insertSucceeded == true ); // if false, viewer with same name already exists
 
     return viewer;
 }

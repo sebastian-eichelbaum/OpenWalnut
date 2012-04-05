@@ -397,6 +397,7 @@ void WMEEGView::closeCustomWidget()
     }
 
     WKernel::getRunningKernel()->getGui()->closeCustomWidget( getName() );
+    m_widget.reset(); // forces need call of destructor
 }
 
 void WMEEGView::redraw()
