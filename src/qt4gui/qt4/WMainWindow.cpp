@@ -902,7 +902,7 @@ void WMainWindow::customEvent( QEvent* event )
             // create new custom dock widget
             widget = boost::shared_ptr< WQtCustomDockWidget >(
                 new WQtCustomDockWidget( title, m_glDock, ocdwEvent->getProjectionMode() ) );
-            // m_glDock->addDockWidget( Qt::BottomDockWidgetArea, widget.get() );
+            m_glDock->addDockWidget( Qt::BottomDockWidgetArea, widget.get() );
 
             // restore state and geometry
             m_glDock->restoreDockWidget( widget.get() );
@@ -918,6 +918,7 @@ void WMainWindow::customEvent( QEvent* event )
         }
 
         ocdwEvent->getFlag()->set( widget );
+        boost::shared_dynamic_cast< QDockWidget >( widget )->toggleViewAction()->activate( QAction::Trigger );
     }
     else if( event->type() == WCloseCustomDockWidgetEvent::CUSTOM_TYPE )
     {
