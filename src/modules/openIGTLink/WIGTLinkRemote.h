@@ -60,12 +60,17 @@ public:
     virtual ~WIGTLinkRemote();
 
     /**
-     * use this as a server that waits for client connections
+     * Use this as a server that waits for client connections.
+     *
+     * \param port Port number for the connection
      */
     void createSocketAndWaitForConnection( uint32_t port );
 
     /**
      * Use this as a client that connects to a remote server
+     *
+     * \param server Name of the remote server.
+     * \param port Port number for the connection.
      */
     void createSocketAndConnect( std::string server, uint32_t port );
 
@@ -75,12 +80,17 @@ public:
     void readDataLoop();
 
     /**
-     * receive a transform
+     * Receive a transform
+     *
+     * \param headerMsg The message conatining the transform.
      */
     void receiveTransform( igtl::MessageHeader::Pointer headerMsg );
 
     /**
-     * receive an image
+     * Receive an image
+     *
+     * \param headerMsg The image in this message is used to create a dataset
+     * \return Dataset created from message.
      */
     WDataSetScalarSPtr receiveImage( igtl::MessageHeader::Pointer headerMsg );
 
@@ -90,12 +100,16 @@ public:
     void injectMessage();
 
     /**
-     * send metadata of a list of data sets
+     * Send metadata of a list of data sets
+     *
+     * \param dataSets A vector containing pointer to the datasets whose metadata we want to send.
      */
     void sendImageMetaData( const std::vector<WDataSetScalarSPtr>& dataSets );
 
     /**
-     * send image data of a single data set
+     * Send image data of a single data set
+     *
+     * \param dataSetScalar Pointer to the dataset we want to send
      */
     void sendImageData( WDataSetScalarSPtr  dataSetScalar );
 
@@ -108,14 +122,19 @@ public:
     void sendTransform( const std::string& name, const WMatrix <double> & matrix );
 
     /**
-     * internal helper to create a value set from a message
+     * Internal helper to create a value set from a message
+     *
+     * \param imgMsg The image behind this pointer is used to create the dataset
+     * \return Created value set.
      */
     boost::shared_ptr < WValueSetBase > createValueSet( const igtl::ImageMessage::Pointer& imgMsg );
 
     /**
-     * set whether we check the CRC. Otherwise, we just ignore it while unpacking the data.
+     * Set whether we check the CRC. Otherwise, we just ignore it while unpacking the data.
      * The default for checkCRC is false, so there is no CRC checking when this function
      * has not been called.
+     *
+     * \param doCheckCRC Should CRC of the data be checked?
      */
     void setCheckCRC( bool doCheckCRC = true )
     {
@@ -128,7 +147,9 @@ public:
     void listenLoop();
 
     /**
-     * send a message containing the metadata of the data sets
+     * Send a message containing the metadata of the data sets
+     *
+     * \param dataSets A vector containing pointers to the datasets whose metadata we want to send.
      */
     void sendImageMetaData( std::vector < WDataSetScalarSPtr > dataSets );
 

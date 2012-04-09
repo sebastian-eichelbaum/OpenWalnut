@@ -61,12 +61,16 @@ public:
 
     /**
      * Overloaded to catch uncaught exceptions in event handlers and displays a bug-warning.
+     *
+     * \param receiver Target of the notification
+     * \param e The event that the target will be notified of.
+     * \return Value that is returned from the receiver's event handler
      */
     virtual bool notify( QObject* receiver, QEvent* e );
 
 protected:
     /**
-     * reference to the main widget set by setMyMainWidget
+     * Reference to the main widget set by setMyMainWidget
      */
     QWidget* myMainWidget;
 };
