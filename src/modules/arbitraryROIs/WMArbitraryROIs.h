@@ -129,6 +129,11 @@ private:
     void finalizeROI();
 
     /**
+     * Removes the ROI and cleans up the scene.
+     */
+    void cleanup();
+
+    /**
      * copies the data from the input dataset which is marked by the selection box, otherwise data is zero
      *
      * \param inGrid The grid from which the area will be cut
@@ -178,6 +183,9 @@ private:
     boost::shared_ptr< WTriangleMesh > m_triMesh; //!< This triangle mesh is provided as output through the connector.
 
     bool m_showSelector; //!< flag indication if the temporary ROI should be shown;
+
+    WPosition m_lastMinPos; //!< the last know min position of the ROI if there was any
+    WPosition m_lastMaxPos; //!< the last know max position of the ROI if there was any
 };
 
 #endif  // WMARBITRARYROIS_H
