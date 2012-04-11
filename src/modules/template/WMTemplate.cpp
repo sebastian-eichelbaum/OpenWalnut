@@ -22,25 +22,27 @@
 //
 //---------------------------------------------------------------------------
 
-
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// How to run this module in OpenWalnut:
+//   * Download a sample Dataset (http://www.informatik.uni-leipzig.de/~wiebel/public_data/walnut/walnut_masked.nii.gz)
+//   * Load the dataset by dragging it into OpenWalnut
+//   * Click on it and add the template module
+//     * This can be done via right-click menu or the module toolbar below the menu
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // How to create your own module in OpenWalnut? Here are the steps to take:
+//   * Setup your module building framework
+//     * See http://www.openwalnut.org/projects/openwalnut/wiki/Module_ExternalDevelopment for details
 //   * copy the template module directory
 //   * think about a name for your module
 //   * rename the files from WMTemplate.cpp and WMTemplate.h to WMYourModuleName.cpp and WMYourModuleName.h
 //   * rename the class inside these files to WMYourModuleName
 //   * rename the class inside "W_LOADABLE_MODULE" to WMYourModuleName
 //   * change WMYourModuleName::getName() to a unique name, like "Your Module Name"
-//   * add a your module to src/modules/CMakeLists.txt
-//     * analogously to the other modules, add yours
-//   * run CMake and compile
 //   * read the documentation in this module and modify it to your needs
+//   * compile
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
 
 // Some rules to the inclusion of headers:
 //  * Ordering:
@@ -159,34 +161,16 @@ void WMTemplate::connectors()
 
     // Here is an example of how to create connectors. This module wants to have an input connector. This connector is defined by the type of
     // data that should be transferred, an module-wide unique name and a proper description:
-    m_input = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
-        new WModuleInputData< WDataSetSingle >( shared_from_this(),
-                                                               "in", "The dataset to display" )
-        );
-    // Lazy Programmer's Alternative:
-    // m_input = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "in", "The dataset to display" );
+    m_input = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "in", "The dataset to display" );
 
     // This creates an input connector which can receive WDataSetSingle. It will never be able to connect to output connectors providing just a
     // WDataSet (which is the father class of WDataSetSingle), but it will be able to be connected to an output connector with a type derived
-    // from WDataSetSingle.
-
-    // As properties, every connector needs to be added to the list of connectors.
-    addConnector( m_input );
-
-    // For all the lazy programmers, the creation and addition of the connector can be simplified to one type-less-compatible step:
-    // m_input = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "in", "The dataset to display" );
-    // This is fully equivalent to the above calls and works for output connectors too.
+    // from WDataSetSingle (like WDataSetScalar or WDataSetVector)
 
     // Now, lets add an output connector. We want to provide data calculated here to other modules. The output connector is initialized the same
     // way as input connectors. You need the type, the module-wide unique name and the description. The type you specify here also determines
     // which input connectors can be connected to this output connector: only connectors with a type equal or lower in class hierarchy.
-    m_output = boost::shared_ptr< WModuleOutputData < WDataSetSingle  > >(
-        new WModuleOutputData< WDataSetSingle >( shared_from_this(),
-                                                               "out", "The calculated dataset" )
-        );
-
-    // As above: make it known.
-    addConnector( m_output );
+    m_output = WModuleOutputData < WDataSetSingle  >::createAndAdd( shared_from_this(), "out", "The calculated dataset" );
 
     // call WModule's initialization
     WModule::connectors();
