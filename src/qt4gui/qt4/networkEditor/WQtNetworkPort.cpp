@@ -189,12 +189,17 @@ void WQtNetworkPort::alignPosition( int size, int portNumber, QRectF rect, bool 
 {
     if( outPort == false )
     {
-        setPos( rect.width() / ( size+1 ) * portNumber - 5.0, 0.0 );
+        setPos( rect.width() / ( size + 1 ) * portNumber - 5.0, 0.0 );
     }
     else if( outPort == true )
     {
-        setPos( rect.width() / ( size+1 ) * portNumber - 5.0, rect.height() - 5 );
+        setPos( rect.width() / ( size + 1 ) * portNumber - 5.0, rect.height() - this->rect().height() / 2 - 2 );
     }
+}
+
+float WQtNetworkPort::getMultiplePortWidth( size_t nbPorts )
+{
+    return ( 5 + WNETWORKPORT_SIZEX ) * nbPorts;
 }
 
 void WQtNetworkPort::removeArrow( WQtNetworkArrow *arrow )
