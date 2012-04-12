@@ -39,6 +39,15 @@ WQtNetworkItemActivator::WQtNetworkItemActivator( boost::shared_ptr< WModule > m
     setRect( 0.0, 0.0, WNETWORKPORT_SIZEX, WNETWORKPORT_SIZEY );
     setPen( QPen( Qt::white, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
     setAcceptsHoverEvents( true );
+
+    if( m_module->getProperties()->getProperty( "active" )->toPropBool()->get() )
+    {
+        setToolTip( "<b>Active</b><br> Click to deactivate" );
+    }
+    else
+    {
+        setToolTip( "<b>Not</b> active.<br> Click to activate." );
+    }
 }
 
 WQtNetworkItemActivator::~WQtNetworkItemActivator()
@@ -71,10 +80,12 @@ void WQtNetworkItemActivator::mousePressEvent( QGraphicsSceneMouseEvent *mouseEv
         if( m_module->getProperties()->getProperty( "active" )->toPropBool()->get() )
         {
             m_module->getProperties()->getProperty( "active" )->toPropBool()->set( false );
+            setToolTip( "<b>Not</b> active<br> Click to activate." );
         }
         else
         {
             m_module->getProperties()->getProperty( "active" )->toPropBool()->set( true );
+            setToolTip( "<b>Active</b><br> Click to deactivate." );
         }
 
         mouseEvent->accept();
