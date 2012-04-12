@@ -27,7 +27,10 @@
 #include <iostream>
 
 #include <QtGui/QGraphicsLineItem>
+#include <QtGui/QGraphicsPathItem>
 #include <QtGui/QStyleOptionGraphicsItem>
+#include <QtGui/QPainterPath>
+
 #include "WQtNetworkInputPort.h"
 #include "WQtNetworkOutputPort.h"
 
@@ -36,7 +39,7 @@
 const qreal Pi = 3.14;
 
 WQtNetworkArrow::WQtNetworkArrow( WQtNetworkOutputPort *startPort, WQtNetworkInputPort *endPort )
-    : QGraphicsLineItem()
+    : QGraphicsPathItem()
 {
     m_startPort = startPort;
     m_endPort = endPort;
@@ -64,8 +67,25 @@ void WQtNetworkArrow::updatePosition()
     QRectF eRect = m_startPort->rect();
     QLineF tmpLine( mapFromItem( m_startPort, sRect.bottomRight() * 0.5 ),
                     mapFromItem( m_endPort, eRect.bottomRight() * 0.5 ) );
-    QLineF line( tmpLine.x1(), tmpLine.y1()+5, tmpLine.x2(), tmpLine.y2()-5 );
-    setLine( line );
+    m_line = QLineF( tmpLine.x1(), tmpLine.y1()+5, tmpLine.x2(), tmpLine.y2()-5 );
+
+    QPainterPath path( m_line.p1() );
+
+    // the control points
+    // Change some of these values to modify the bezier effect
+    double dx = abs( m_line.dx() );
+    double dy = abs( m_line.dy() );
+    double minCDist = 50.0;
+    double maxCDist = 250.0;
+    // this magic code is the result of try and error
+    dy = std::min( maxCDist, std::max( minCDist, std::max( dx * 0.5, dy ) * 0.5 ) );
+
+    QPointF c1( m_line.p1() + QPointF( 0, +dy ) );
+    QPointF c2( m_line.p2() + QPointF( 0, -dy ) );
+
+    // cubic bezier
+    path.cubicTo( c1, c2, m_line.p2() );
+    setPath( path );
 }
 
 WQtNetworkOutputPort* WQtNetworkArrow::getStartPort()
@@ -99,23 +119,17 @@ void WQtNetworkArrow::paint( QPainter* painter, const QStyleOptionGraphicsItem* 
     QStyleOptionGraphicsItem *o = const_cast<QStyleOptionGraphicsItem*>( option );
     o->state &= ~QStyle::State_Selected;
 
-    QGraphicsLineItem::paint( painter, o, w );
+    QGraphicsPathItem::paint( painter, o, w );
 
     qreal arrowSize = 10;
-    double angle = ::acos( line().dx() / line().length() );
-    if( line().dy() >= 0 )
-        angle = ( Pi * 2 ) - angle;
-
-    QPointF arrowP1 = line().p2() - QPointF( sin( angle + Pi / 3 ) * arrowSize,
-            cos( angle + Pi / 3 ) * arrowSize );
-    QPointF arrowP2 = line().p2() - QPointF( sin( angle + Pi - Pi / 3 ) * arrowSize,
-            cos( angle + Pi - Pi / 3 ) * arrowSize );
-    arrowHead.clear();
-    arrowHead << line().p2() << arrowP1 << arrowP2;
+    QPointF arrowP1 = m_line.p2() + QPointF(  0.5 * arrowSize, -arrowSize );
+    QPointF arrowP2 = m_line.p2() + QPointF( -0.5 * arrowSize, -arrowSize );
+    m_arrowHead.clear();
+    m_arrowHead << m_line.p2() << arrowP1 << arrowP2;
 
     painter->setPen( QPen( m_color, 1, Qt::SolidLine ) );
     painter->setBrush( m_color );
-    painter->drawPolygon( arrowHead );
+    painter->drawPolygon( m_arrowHead );
 }
 
 QRectF WQtNetworkArrow::boundingRect() const
@@ -132,8 +146,8 @@ QRectF WQtNetworkArrow::boundingRect() const
 
 QPainterPath WQtNetworkArrow::shape() const
 {
-     QPainterPath path = QGraphicsLineItem::shape();
-     path.addPolygon( arrowHead );
+     QPainterPath path = QGraphicsPathItem::shape();
+     path.addPolygon( m_arrowHead );
      return path;
 }
 
