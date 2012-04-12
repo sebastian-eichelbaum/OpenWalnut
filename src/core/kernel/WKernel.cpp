@@ -58,6 +58,8 @@ WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WG
     WLogger::getLogger()->addLogMessage( "Initializing Kernel", "Kernel", LL_INFO );
     wlog::debug( "Kernel" ) << "Version: " << W_VERSION;
 
+    setThreadName( "Kernel" );
+
     // init the singleton
     m_kernel = this;
 

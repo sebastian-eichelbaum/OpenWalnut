@@ -22,6 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
+#ifdef __linux__
+#include <sys/prctl.h>
+#endif
+
 #include <iostream>
 #include <string>
 
@@ -34,7 +38,8 @@
 
 WThreadedRunner::WThreadedRunner():
     m_shutdownFlag( new WConditionOneShot(), false ),
-    m_isCrashed( new WConditionOneShot(), false )
+    m_isCrashed( new WConditionOneShot(), false ),
+    m_threadName( "" )
 {
     // initialize members
 }
@@ -102,6 +107,8 @@ void WThreadedRunner::waitForStop()
 
 void WThreadedRunner::threadMainSave()
 {
+    WThreadedRunner::setThisThreadName( getThreadName() );
+
     try
     {
         threadMain();
@@ -152,3 +159,20 @@ boost::signals2::connection WThreadedRunner::subscribeSignal( THREAD_SIGNAL sign
     }
 }
 
+void WThreadedRunner::setThreadName( std::string name )
+{
+    m_threadName = name;
+}
+
+std::string WThreadedRunner::getThreadName() const
+{
+    return m_threadName;
+}
+
+void WThreadedRunner::setThisThreadName( std::string name )
+{
+#ifdef __linux__
+    // set the name of the thread. This name is shown by the "top", for example.
+    prctl( PR_SET_NAME, ( "openwalnut (" + name + ")" ).c_str() );
+#endif
+}

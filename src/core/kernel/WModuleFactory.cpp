@@ -87,6 +87,7 @@ void WModuleFactory::load()
             ++listIter;
         }
     }
+    WLogger::getLogger()->addLogMessage( "Loading Modules Done", "ModuleFactory", LL_INFO );
 }
 
 bool WModuleFactory::isPrototype( boost::shared_ptr< WModule > module )

@@ -66,6 +66,8 @@ WGraphicsEngine::WGraphicsEngine():
 
     // initialize members
     m_rootNode = new WGEScene();
+
+    setThreadName( "WGE" );
 }
 
 WGraphicsEngine::~WGraphicsEngine()

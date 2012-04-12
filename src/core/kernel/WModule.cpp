@@ -22,10 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#ifdef __linux__
-#include <sys/prctl.h>
-#endif
-
 #include <algorithm>
 #include <set>
 #include <string>
@@ -251,6 +247,9 @@ void WModule::initialize()
     // now, the module is initialized but not necessarily usable (if not associated with a container)
     m_initialized( true );
     m_isUsable( m_initialized() && m_isAssociated() );
+
+    // also set thread name
+    setThreadName( getName() );
 }
 
 void WModule::cleanup()
@@ -519,11 +518,6 @@ const WRequirement* WModule::checkRequirements() const
 
 void WModule::threadMain()
 {
-#ifdef __linux__
-    // set the name of the thread. This name is shown by the "top", for example.
-    prctl( PR_SET_NAME, ( "openwalnut (" + getName() + ")" ).c_str() );
-#endif
-
     WLogger::getLogger()->addLogMessage( "Starting module main method.", "Module (" + getName() + ")", LL_INFO );
 
     // check requirements
