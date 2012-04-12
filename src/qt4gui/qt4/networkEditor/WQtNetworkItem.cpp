@@ -33,6 +33,7 @@
 
 #include "WQtNetworkArrow.h"
 #include "WQtNetworkItem.h"
+#include "WQtNetworkItemActivator.h"
 #include "WQtNetworkScene.h"
 #include "WQtNetworkEditor.h"
 #include "WQtNetworkColors.h"
@@ -100,6 +101,9 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
         // no outputs but inputs -> sink
         m_itemColor = WQtNetworkColors::SinkModule;
     }
+
+    m_hidden = new WQtNetworkItemActivator( m_module );
+    m_hidden->setParentItem( this );
 
     activate( false );
 
