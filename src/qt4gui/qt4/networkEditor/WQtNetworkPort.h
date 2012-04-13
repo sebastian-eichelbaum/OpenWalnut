@@ -169,5 +169,7 @@ protected:
 
 private:
     QGraphicsLineItem * m_line; //!< the temporary line when you connect two ports
+
+    bool m_brushNotSet; //!< used to indicate that the correct brush was not yet set.
 };
 #endif  // WQTNETWORKPORT_H

@@ -37,6 +37,8 @@ WQtNetworkPort::WQtNetworkPort()
 {
     setRect( 0.0, 0.0, WNETWORKPORT_SIZEX, WNETWORKPORT_SIZEY );
     setPen( QPen( Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
+    setBrush( WQtNetworkColors::OutputConnector );
+    m_brushNotSet = true;
 
     setAcceptsHoverEvents( true );
     m_line = NULL;
@@ -49,13 +51,18 @@ WQtNetworkPort::~WQtNetworkPort()
 
 void WQtNetworkPort::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget )
 {
-    if( isOutPort() )
+    // as the command setBrush forces a re-paint, permanently calling setbrush causes the widget to permanently redraw itself.
+    if( m_brushNotSet )
     {
-        setBrush( WQtNetworkColors::OutputConnector );
-    }
-    else
-    {
-        setBrush( WQtNetworkColors::InputConnector );
+        m_brushNotSet = false;
+        if( isOutPort() )
+        {
+            setBrush( WQtNetworkColors::OutputConnector );
+        }
+        else
+        {
+            setBrush( WQtNetworkColors::InputConnector );
+        }
     }
 
     QGraphicsRectItem::paint( painter, option, widget );
