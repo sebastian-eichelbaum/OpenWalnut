@@ -268,7 +268,6 @@ namespace WStructuredTextParser
          * Queries the value with the given name. If it is not found, an exception is thrown.
          *
          * \param name name of the value
-         * \param defaultValue the default if no value was found
          *
          * \return the value
          */
@@ -278,7 +277,6 @@ namespace WStructuredTextParser
          * Queries the value with the given name. If it is not found, an exception is thrown.
          *
          * \param name name of the value
-         * \param defaultValue the default if no value was found
          *
          * \return the value
          */
