@@ -32,7 +32,7 @@
 
 #include <boost/filesystem.hpp>
 
-
+#include "WDefines.h"
 #include "WAssert.h"
 
 /**
@@ -118,9 +118,17 @@ inline bool fileExists( const std::string& name )
 
 /**
  * Generate a file name with full path for a temp file.
+ * \deprecated use tempFilename instead
  * \return The file name.
  */
-boost::filesystem::path tempFileName();
+OW_API_DEPRECATED boost::filesystem::path tempFileName();
+
+/**
+ * Generate a file name with full path for a temp file.
+ *
+ * \return The file name.
+ */
+boost::filesystem::path tempFilename();
 
 /**
  * Get the contens of a file as a string.

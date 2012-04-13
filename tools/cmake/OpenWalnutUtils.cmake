@@ -292,7 +292,7 @@ FUNCTION( SETUP_RESOURCES_GENERIC _source_path _destination_path _component _ins
 
     # remove trailing slashes if any
     STRING( REGEX REPLACE "/$" "" ResourcesPath "${ResourcesPath}" )
-    # this ensures we definitely have one slash at the and
+    # this ensures we definitely have one slash at the end
     SET( ResourcesPath "${ResourcesPath}/" )
 
     IF( IS_DIRECTORY "${ResourcesPath}" )

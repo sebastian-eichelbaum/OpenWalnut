@@ -9,7 +9,7 @@ extends the PATH variable to include the lib and ext directories and then calls
 the OW executable. But batch files look ugly.  This is why we have a "compiled
 batch" file. We used the program "Batch To Exe Converter", found at www.f2ko.de.
 The Exe needs to be copied to the root directory of your binary OpenWalnut
-distribution. The user can the start it simply by double clicking the nice icon.
+distribution. The user can then start it simply by double clicking the nice icon.
 
 These problems still exist 
 

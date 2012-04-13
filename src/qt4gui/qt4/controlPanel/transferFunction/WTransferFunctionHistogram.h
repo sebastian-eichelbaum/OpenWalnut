@@ -55,7 +55,10 @@ class WTransferFunctionHistogram : public QGraphicsItem
 
         /**
          * Paint a semi-transparent histogram on top of the transfer function but below the
-         * input handles
+         * input handles.
+         *
+         * \param painter Painter that does the low-level painting of the histogram item
+         * \param option Style of the graphics histogram graphics item (currently not used in the function)
          */
         virtual void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget* );
 

@@ -53,7 +53,7 @@ class WDataSet: public WTransferable, public boost::enable_shared_from_this< WDa
 public:
     /**
      * This constructor should be used if a dataSet does not stem from a file.
-     * It presets the its correpsonding fileName as empty string.
+     * It presets the its correpsonding filename as empty string.
      */
     WDataSet();
 
@@ -67,16 +67,34 @@ public:
 
     /**
      * Set the name of the file that this data set stems from.
-     * \param fileName the string representing the name
+     *
+     * \param filename the string representing the name
      */
-    void setFileName( const std::string fileName );
+    void setFilename( const std::string filename );
 
     /**
      * Get the name of the file that this data set stems from.
      *
      * \return the filename.
      */
-    std::string getFileName() const;
+    std::string getFilename() const;
+
+    /**
+     * Set the name of the file that this data set stems from.
+     *
+     * \param filename the string representing the name
+     *
+     * \deprecated use setFilename instead
+     */
+    OW_API_DEPRECATED void setFileName( const std::string filename );
+
+    /**
+     * Get the name of the file that this data set stems from.
+     *
+     * \deprecated use getFilename instead
+     * \return the filename.
+     */
+    OW_API_DEPRECATED std::string getFileName() const;
 
     /**
      * Determines whether this dataset can be used as a texture.
@@ -160,7 +178,7 @@ private:
      * may allow hollowing data sets later. DataSets that were not loaded
      * from a file should have the empty string stored here.
      */
-    std::string m_fileName;
+    std::string m_filename;
 };
 
 #endif  // WDATASET_H

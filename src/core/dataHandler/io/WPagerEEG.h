@@ -32,8 +32,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../WEEGValueMatrix.h"
-
-
+#include "../../common/WDefines.h"
 
 /**
  * Abstract class to load an EEG file and keep it open to support paging.
@@ -52,7 +51,15 @@ public:
      *
      * \return name of file
      */
-    std::string getFileName() const;
+    std::string getFilename() const;
+
+    /**
+     * Get the name of the loaded file.
+     *
+     * \return name of file
+     * \deprecated use getFilename instead
+     */
+    OW_API_DEPRECATED std::string getFileName() const;
 
     /**
      * Get the number of segments this EEG consists of.
@@ -113,13 +120,11 @@ protected:
     /**
      * Constructor
      *
-     * \param fileName path and filename to the file to load
+     * \param filename path and filename to the file to load
      */
-    explicit WPagerEEG( std::string fileName );
-
-    std::string m_fileName; //!< name of the loaded file
-
+    explicit WPagerEEG( std::string filename );
 private:
+    std::string m_filename; //!< name of the loaded file
 };
 
 #endif  // WPAGEREEG_H

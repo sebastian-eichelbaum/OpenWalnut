@@ -84,6 +84,6 @@ boost::shared_ptr< WDataSet > WReaderEEGASCII::load()
     WEEGElectrodeLibrary lib;  // TODO(wiebel): this is a dummy
 
     boost::shared_ptr< WEEG > eeg = boost::shared_ptr< WEEG >( new WEEG( segments, lib, labels ) );
-    eeg->setFileName( m_fname );
+    eeg->setFilename( m_fname );
     return eeg;
 }

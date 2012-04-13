@@ -102,7 +102,7 @@ public:
     void testWriteStringIntoFile( void )
     {
         std::string content = "Hello Pansen!\r\n";
-        boost::filesystem::path fpath = tempFileName();
+        boost::filesystem::path fpath = tempFilename();
         writeStringIntoFile( fpath, content );
 
         std::ifstream input( fpath.string().c_str() );

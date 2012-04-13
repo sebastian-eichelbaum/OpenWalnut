@@ -136,7 +136,7 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
                 if( tractColor[3] > m_probThreshold->get() )
                 {
                     // determine density of line stipples 1 => 10 samples. 0 => 0 samples
-                    size_t numSamples = static_cast< size_t >( tractColor[3] * 10 ); // / m_spacing->get() );
+                    size_t numSamples = static_cast< size_t >( tractColor[3] * 10 + 1 ); // / m_spacing->get() );
                     for( size_t sample = 0; sample < numSamples; ++sample )
                     {
                         double s = 1.0 * m_spacing->get(); // jitter scaling

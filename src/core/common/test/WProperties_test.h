@@ -164,7 +164,7 @@ public:
     }
 
     /**
-     * Tests whether the properties children can be set by the ::set call using a other WProperties instance
+     * Tests whether the properties children can be set by the WProperties::set call using a other WProperties instance
      */
     void testRecursiveSetByProperty( void )
     {

@@ -59,7 +59,8 @@ public:
 
 protected:
     /**
-    * called when the gui has new data
+    * Called when the gui has new data
+    * \param tf New transfer function
     */
     virtual void guiUpdate( const WTransferFunction& tf );
 

@@ -205,7 +205,7 @@ public:
     static WMatrix< std::complex< double > > calcComplexBaseMatrix( std::vector< WUnitSphereCoordinates > const& orientations,
                                                                            int order );
     /**
-    * Calc eigenvalues for SH elements..
+    * Calc eigenvalues for SH elements.
     * \param order The order of the spherical harmonic
     * \return The eigenvalues of the coefficients
     */

@@ -393,7 +393,7 @@ void WMClusterDisplay::moduleMain()
         if( m_dataSet != m_fiberInput->getData() )
         {
             m_dataSet = m_fiberInput->getData();
-            std::string fn = m_dataSet->getFileName();
+            std::string fn = m_dataSet->getFilename();
             std::string ext( ".fib" );
             std::string csvExt( "_hie.txt" );
             fn.replace( fn.find( ext ), ext.size(), csvExt );

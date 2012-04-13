@@ -397,6 +397,7 @@ void WMEEGView::closeCustomWidget()
     }
 
     WKernel::getRunningKernel()->getGui()->closeCustomWidget( getName() );
+    m_widget.reset(); // forces need call of destructor
 }
 
 void WMEEGView::redraw()
@@ -433,7 +434,7 @@ void WMEEGView::redraw()
 
         m_rootNode3d = new WGEGroupNode;
 
-        debugLog() << "Displaying EEG " << m_eeg->getFileName();
+        debugLog() << "Displaying EEG " << m_eeg->getFilename();
         debugLog() << "  Number of segments: " << m_eeg->getNumberOfSegments();
         size_t nbChannels = m_eeg->getNumberOfChannels();
         debugLog() << "  Number of channels: " << nbChannels;

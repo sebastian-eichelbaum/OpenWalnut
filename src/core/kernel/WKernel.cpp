@@ -58,6 +58,8 @@ WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WG
     WLogger::getLogger()->addLogMessage( "Initializing Kernel", "Kernel", LL_INFO );
     wlog::debug( "Kernel" ) << "Version: " << W_VERSION;
 
+    setThreadName( "Kernel" );
+
     // init the singleton
     m_kernel = this;
 
@@ -160,14 +162,14 @@ const WBoolFlag& WKernel::isFinishRequested() const
     return m_shutdownFlag;
 }
 
-WBatchLoader::SPtr WKernel::loadDataSets( std::vector< std::string > fileNames, bool suppressColormaps )
+WBatchLoader::SPtr WKernel::loadDataSets( std::vector< std::string > filenames, bool suppressColormaps )
 {
-    return getRootContainer()->loadDataSets( fileNames, suppressColormaps );
+    return getRootContainer()->loadDataSets( filenames, suppressColormaps );
 }
 
-WBatchLoader::SPtr WKernel::loadDataSetsSynchronously( std::vector< std::string > fileNames, bool suppressColormaps )
+WBatchLoader::SPtr WKernel::loadDataSetsSynchronously( std::vector< std::string > filenames, bool suppressColormaps )
 {
-    return getRootContainer()->loadDataSetsSynchronously( fileNames, suppressColormaps );
+    return getRootContainer()->loadDataSetsSynchronously( filenames, suppressColormaps );
 }
 
 boost::shared_ptr< WModule > WKernel::applyModule( boost::shared_ptr< WModule > applyOn, boost::shared_ptr< WModule > prototype )

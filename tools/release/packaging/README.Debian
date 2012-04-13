@@ -105,7 +105,7 @@ debian/changelog
 debian/rules
 	- allows setting certain CMake options
 debian/control
-	- defines some short description-text and dependnecies
+	- defines some short description-text and dependencies
 		-> for new dependencies, modify this file!
 debian/openwalnut.doc-base
 	- lists additional documentation we provide
@@ -127,4 +127,4 @@ represent a Debian source package.
 
 HINT: you should definitely use some chroot jail to build the packages.
       PBuilder is a good option. You can also use your own jail or use 
-      our build envirnoment created with owbuildchroot.
+      our build environment created with owbuildchroot.

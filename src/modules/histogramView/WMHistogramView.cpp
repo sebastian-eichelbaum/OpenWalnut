@@ -87,6 +87,8 @@ public:
 
     /**
      * Returns a pointer to the widget.
+     *
+     * \return Shared pointer to the widget.
      */
     WCustomWidget::SPtr get()
     {

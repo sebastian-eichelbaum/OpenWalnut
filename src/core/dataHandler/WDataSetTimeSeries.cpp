@@ -180,7 +180,7 @@ boost::shared_ptr< WDataSetScalar const > WDataSetTimeSeries::calcDataSetAtTime(
         break;
     }
     boost::shared_ptr< WDataSetScalar > ds( new WDataSetScalar( vs, m_dataSets.front().first->getGrid() ) );
-    ds->setFileName( name );
+    ds->setFilename( name );
     return ds;
 }
 

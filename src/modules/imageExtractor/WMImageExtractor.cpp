@@ -159,7 +159,7 @@ void WMImageExtractor::moduleMain()
                 if( m_outData )
                 {
                     setOutputProps();
-                    m_outData->setFileName( makeImageName( i ) );
+                    m_outData->setFilename( makeImageName( i ) );
                     // provide the texture's properties as own properties
                     m_properties->addProperty( m_outData->getTexture()->getProperties() );
                     m_infoProperties->addProperty( m_outData->getTexture()->getInformationProperties() );
@@ -360,7 +360,7 @@ const std::string WMImageExtractor::makeImageName( std::size_t i )
     WAssert( m_dataSet, "" );
     WAssert( m_dataSet->getValueSet(), "" );
 
-    s << m_dataSet->getFileName() << " (" << i << " of " << m_dataSet->getValueSet()->dimension() << ")";
+    s << m_dataSet->getFilename() << " (" << i << " of " << m_dataSet->getValueSet()->dimension() << ")";
     return s.str();
 }
 

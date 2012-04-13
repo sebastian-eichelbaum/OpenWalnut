@@ -33,10 +33,15 @@
 WWriter::WWriter( std::string fname, bool overwrite )
     : m_overwrite( overwrite )
 {
-    setFileName( fname ); // not in constructor list since fileExcsits check
+    setFilename( fname ); // not in constructor list since fileExcsits check
 }
 
 void WWriter::setFileName( std::string fname )
+{
+    setFilename( fname );
+}
+
+void WWriter::setFilename( std::string fname )
 {
     m_fname = fname;
     if( !m_overwrite && boost::filesystem::exists( boost::filesystem::path( m_fname ) ) )

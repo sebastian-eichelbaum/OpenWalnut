@@ -109,26 +109,26 @@ public:
     /**
      * Load specified datasets. It immediately returns and starts another thread, which actually loads the data.
      *
-     * \param fileNames list of filenames to load. The registered notification handler for the root container will get notified on
+     * \param filenames list of filenames to load. The registered notification handler for the root container will get notified on
      * error and success.
      * \param suppressColormaps if true, the data modules are instructed to avoid registration of colormaps. This can be very handy if you
      * combine multiple data loaders into one new data loader or data set
      *
      * \return the batch loader responsible for loading. Can be queried for the list of data modules.
      */
-    WBatchLoader::SPtr loadDataSets( std::vector< std::string > fileNames, bool suppressColormaps = false );
+    WBatchLoader::SPtr loadDataSets( std::vector< std::string > filenames, bool suppressColormaps = false );
 
     /**
      * Loads the specified files synchronously.
      *
-     * \param fileNames list of filenames to load. The registered notification handler for the root container will get notified on
+     * \param filenames list of filenames to load. The registered notification handler for the root container will get notified on
      * error and success.
      * \param suppressColormaps if true, the data modules are instructed to avoid registration of colormaps. This can be very handy if you
      * combine multiple data loaders into one new data loader or data set
      *
      * \return the batch loader responsible for loading. Can be queried for the list of data modules.
      */
-    WBatchLoader::SPtr loadDataSetsSynchronously( std::vector< std::string > fileNames, bool suppressColormaps = false );
+    WBatchLoader::SPtr loadDataSetsSynchronously( std::vector< std::string > filenames, bool suppressColormaps = false );
 
     /**
      * Function combines to modules. This is a simple alias for "getRootContainer()->applyModule". It runs synchronously, which

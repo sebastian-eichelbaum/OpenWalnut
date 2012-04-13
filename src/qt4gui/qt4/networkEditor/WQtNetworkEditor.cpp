@@ -58,20 +58,18 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     setObjectName( "Module Graph Dock" );
     m_mainWindow = parent;
 
-    QGraphicsView *view = new QGraphicsView();
-    view->setDragMode( QGraphicsView::RubberBandDrag );
-    view->setRenderHint( QPainter::Antialiasing );
-    view->setMinimumSize( 20, 20 );
-    this->setFocusProxy( view );
+    m_view = new WQtNetworkEditorView();
+    m_view->setMinimumSize( 20, 20 );
+    this->setFocusProxy( m_view );
 
     m_scene = new WQtNetworkScene();
     m_scene->setSceneRect( m_scene->itemsBoundingRect() );
 
-    view->setScene( m_scene );
+    m_view->setScene( m_scene );
 
     this->setAllowedAreas( Qt::AllDockWidgetAreas );
     this->setFeatures( QDockWidget::DockWidgetClosable |QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
-    setWidget( view );
+    setWidget( m_view );
     connect( m_scene, SIGNAL( selectionChanged() ), this, SLOT( selectItem() ) );
 
     m_layout = new WNetworkLayout();
@@ -166,6 +164,10 @@ void WQtNetworkEditor::deleteSelectedItems()
 
 bool WQtNetworkEditor::event( QEvent* event )
 {
+    // list to store the connectors temporarily
+    QList< WQtNetworkInputPort* > tmpIn;
+    QList< WQtNetworkOutputPort* > tmpOut;
+
     // a module got associated with the root container -> add it to the list
     if( event->type() == WQT_ASSOC_EVENT )
     {
@@ -251,22 +253,24 @@ bool WQtNetworkEditor::event( QEvent* event )
         WQtNetworkInputPort *ip = NULL;
         WQtNetworkOutputPort *op = NULL;
 
-        for( QList< WQtNetworkInputPort* >::const_iterator iter = inItem->getInPorts().begin();
-                iter != inItem->getInPorts().end();
+        tmpIn = inItem->getInPorts();
+        for( QList< WQtNetworkInputPort* >::const_iterator iter = tmpIn.begin();
+                iter != tmpIn.end();
                 ++iter )
         {
-            WQtNetworkInputPort *inP = dynamic_cast< WQtNetworkInputPort* >( *iter );
+            WQtNetworkInputPort* inP = *iter;
             if( e->getInput() == inP->getConnector() )
             {
                 ip = inP;
             }
         }
 
-        for( QList< WQtNetworkOutputPort* >::const_iterator iter = outItem->getOutPorts().begin();
-                iter != outItem->getOutPorts().end();
+        tmpOut = outItem->getOutPorts();
+        for( QList< WQtNetworkOutputPort* >::const_iterator iter = tmpOut.begin();
+                iter != tmpOut.end();
                 ++iter )
         {
-            WQtNetworkOutputPort *outP = dynamic_cast< WQtNetworkOutputPort* >( *iter );
+            WQtNetworkOutputPort* outP = *iter;
             if( e->getOutput() == outP->getConnector() )
             {
                 op = outP;
@@ -333,31 +337,34 @@ bool WQtNetworkEditor::event( QEvent* event )
         WQtNetworkInputPort *ip = NULL;
         WQtNetworkOutputPort *op = NULL;
 
-        for( QList< WQtNetworkInputPort* >::const_iterator iter = inItem->getInPorts().begin();
-            iter != inItem->getInPorts().end();
+        tmpIn = inItem->getInPorts();
+        for( QList< WQtNetworkInputPort* >::const_iterator iter = tmpIn.begin();
+            iter != tmpIn.end();
             ++iter )
         {
-           WQtNetworkInputPort *inP = dynamic_cast< WQtNetworkInputPort* >( *iter );
+           WQtNetworkInputPort *inP = *iter;
            if( e->getInput() == inP->getConnector() )
            {
                ip = inP;
            }
         }
-            for( QList< WQtNetworkOutputPort* >::const_iterator iter = outItem->getOutPorts().begin();
-                    iter != outItem->getOutPorts().end();
-                    ++iter )
+        tmpOut = outItem->getOutPorts();
+        for( QList< WQtNetworkOutputPort* >::const_iterator iter = tmpOut.begin();
+                iter != tmpOut.end();
+                ++iter )
+        {
+            WQtNetworkOutputPort *outP = *iter;
+            if( e->getOutput() == outP->getConnector() )
             {
-                WQtNetworkOutputPort *outP = dynamic_cast< WQtNetworkOutputPort* >( *iter );
-                if( e->getOutput() == outP->getConnector() )
-                {
-                    op = outP;
-                }
+                op = outP;
             }
+        }
 
         WQtNetworkArrow *ar = NULL;
 
-        for( QList< QGraphicsItem * >::const_iterator iter = m_scene->items().begin();
-                iter != m_scene->items().end();
+        QList< QGraphicsItem* > tmpItems = m_scene->items();
+        for( QList< QGraphicsItem* >::const_iterator iter = tmpItems.begin();
+                iter != tmpItems.end();
                 ++iter )
         {
             ar = dynamic_cast< WQtNetworkArrow* >( *iter );

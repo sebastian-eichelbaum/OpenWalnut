@@ -31,6 +31,7 @@
 
 #include "core/common/WLogger.h"
 #include "core/common/WLogStream.h"
+#include "core/common/WThreadedRunner.h"
 #include "core/common/WSegmentationFault.h"
 
 #include "qt4/WQt4Gui.h"
@@ -69,6 +70,8 @@ void printVersion()
  */
 int main( int argc, char** argv )
 {
+    WThreadedRunner::setThisThreadName( "QT4 Gui" );
+
     // where to write the by default?
     std::string logFile = "openwalnut.log";
 

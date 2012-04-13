@@ -430,7 +430,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
             newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSingle( newValueSet, newGrid ) );
         }
     }
-    newDataSet->setFileName( m_fname );
+    newDataSet->setFilename( m_fname );
 
     nifti_image_free( filedata );
 

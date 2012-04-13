@@ -120,6 +120,11 @@ void WMArbitraryROIs::moduleMain()
     // signal ready state
     ready();
 
+    // init the intial ROI position using the current crosshair position
+    WPosition crossHairPos = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    m_lastMinPos = crossHairPos - WPosition( 10., 10., 10. );
+    m_lastMaxPos = crossHairPos + WPosition( 10., 10., 10. );
+
     // loop until the module container requests the module to quit
     while( !m_shutdownFlag() )
     {
@@ -132,6 +137,9 @@ void WMArbitraryROIs::moduleMain()
 
         if( m_input->getData() && m_dataSet != m_input->getData() )
         {
+            // remove old ROI and ISO
+            cleanup();
+
             // acquire data from the input connector
             m_dataSet = m_input->getData();
 
@@ -158,19 +166,29 @@ void WMArbitraryROIs::moduleMain()
             finalizeROI();
             m_finalizeTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
         }
-
-        //m_moduleState.wait();
     }
+    cleanup();
+}
+
+void WMArbitraryROIs::cleanup()
+{
+    // if we already had a ROI, we want to keep the position for the next ROI
+    if( m_selectionROI )
+    {
+        m_lastMinPos = m_selectionROI->getMinPos();
+        m_lastMaxPos = m_selectionROI->getMaxPos();
+    }
+    m_moduleNode->clear();
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
+    if( m_selectionROI )
+    {
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_selectionROI );
+    }
 }
 
 void WMArbitraryROIs::initSelectionROI()
 {
-    WPosition crossHairPos = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
-    WPosition minROIPos = crossHairPos - WPosition( 10., 10., 10. );
-    WPosition maxROIPos = crossHairPos + WPosition( 10., 10., 10. );
-
-    m_selectionROI = osg::ref_ptr< WROIBox >( new WROIBox( minROIPos, maxROIPos ) );
+    m_selectionROI = osg::ref_ptr< WROIBox >( new WROIBox( m_lastMinPos, m_lastMaxPos ) );
     m_selectionROI->setColor( osg::Vec4( 0., 0., 1.0, 0.4 ) );
     createCutDataset();
 }

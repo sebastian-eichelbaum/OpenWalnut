@@ -51,18 +51,18 @@ WPagerEEGLibeep::WPagerEEGLibeep( std::string fileName )
     std::setlocale( LC_NUMERIC, "C" );
 
     // initialize
-    std::FILE* file = std::fopen( m_fileName.c_str(), "rb" );
+    std::FILE* file = std::fopen( getFilename().c_str(), "rb" );
     if( !file )
     {
-        throw WDHNoSuchFile( m_fileName + " could not be opened" );
+        throw WDHNoSuchFile( getFilename() + " could not be opened" );
     }
 
     int status;
-    m_eeg = eep_init_from_file( m_fileName.c_str(), file, &status );
+    m_eeg = eep_init_from_file( getFilename().c_str(), file, &status );
     if( status != CNTERR_NONE || !m_eeg )
     {
         std::ostringstream stream;
-        stream << m_fileName << " could not be initialized. Libeep status code: " << status;
+        stream << getFilename() << " could not be initialized. Libeep status code: " << status;
         throw WDHIOFailure( stream.str() );
     }
 
@@ -83,7 +83,7 @@ WPagerEEGLibeep::~WPagerEEGLibeep()
     if( status != CNTERR_NONE )
     {
         std::ostringstream stream;
-        stream << m_fileName << " could not be closed. Libeep status code: " << status;
+        stream << getFilename() << " could not be closed. Libeep status code: " << status;
         throw WDHIOFailure( stream.str() );
     }
 }
@@ -103,7 +103,7 @@ std::size_t WPagerEEGLibeep::getNumberOfSamples( std::size_t segmentID ) const
     if( segmentID != 0 )
     {
         std::ostringstream stream;
-        stream << m_fileName << " has no segment number " << segmentID;
+        stream << getFilename() << " has no segment number " << segmentID;
         throw WOutOfBounds( stream.str() );
     }
 
@@ -115,14 +115,14 @@ boost::shared_ptr< WEEGValueMatrix > WPagerEEGLibeep::getValues( std::size_t seg
     if( segmentID != 0 )
     {
         std::ostringstream stream;
-        stream << m_fileName << " has no segment number " << segmentID;
+        stream << getFilename() << " has no segment number " << segmentID;
         throw WOutOfBounds( stream.str() );
     }
 
     if( start + length > m_nbSamples )
     {
         std::ostringstream stream;
-        stream << "Could not read sample number " << start + length - 1 << " of file " << m_fileName
+        stream << "Could not read sample number " << start + length - 1 << " of file " << getFilename()
                << ", it only has " << m_nbSamples << " samples";
         throw WOutOfBounds( stream.str() );
     }
@@ -131,7 +131,7 @@ boost::shared_ptr< WEEGValueMatrix > WPagerEEGLibeep::getValues( std::size_t seg
     if( status != CNTERR_NONE )
     {
         std::ostringstream stream;
-        stream << "Seek error on " << m_fileName << ". Libeep status code: " << status;
+        stream << "Seek error on " << getFilename() << ". Libeep status code: " << status;
         throw WDHIOFailure( stream.str() );
     }
 
@@ -140,7 +140,7 @@ boost::shared_ptr< WEEGValueMatrix > WPagerEEGLibeep::getValues( std::size_t seg
     if( status != CNTERR_NONE )
     {
         std::ostringstream stream;
-        stream << "Read error on " << m_fileName << ". Libeep status code: " << status;
+        stream << "Read error on " << getFilename() << ". Libeep status code: " << status;
         throw WDHIOFailure( stream.str() );
     }
 
@@ -167,7 +167,7 @@ std::string WPagerEEGLibeep::getChannelUnit( std::size_t channelID ) const
     if( channelID >= m_nbChannels )
     {
         std::ostringstream stream;
-        stream << m_fileName << " has no channel number " << channelID;
+        stream << getFilename() << " has no channel number " << channelID;
         throw WOutOfBounds( stream.str() );
     }
 
@@ -179,7 +179,7 @@ std::string WPagerEEGLibeep::getChannelLabel( std::size_t channelID ) const
     if( channelID >= m_nbChannels )
     {
         std::ostringstream stream;
-        stream << m_fileName << " has no channel number " << channelID;
+        stream << getFilename() << " has no channel number " << channelID;
         throw WOutOfBounds( stream.str() );
     }
 

@@ -136,6 +136,16 @@ public:
      * \param widget parent widget.
      */
     virtual void paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget );
+
+    /**
+     * Calculates the spaced needed for the given amount of ports.
+     *
+     * \param nbPorts width of this amount of ports
+     *
+     * \return the width
+     */
+    static float getMultiplePortWidth( size_t nbPorts );
+
 protected:
     /**
      * Start drawing an arrow temporary.

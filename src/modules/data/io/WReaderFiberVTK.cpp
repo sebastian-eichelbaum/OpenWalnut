@@ -66,7 +66,7 @@ boost::shared_ptr< WDataSetFibers > WReaderFiberVTK::read()
                                                                                                           m_fiberStartIndices,
                                                                                                           m_fiberLengths,
                                                                                                           m_pointFiberMapping ) );
-    fibers->setFileName( m_fname );
+    fibers->setFilename( m_fname );
 
     m_ifs->close();
     return fibers;
