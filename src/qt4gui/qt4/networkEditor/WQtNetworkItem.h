@@ -38,6 +38,7 @@
 
 class WNetworkLayoutNode;
 class WQtNetworkEditor;
+class WQtNetworkItemActivator;
 
 /**
  * This class represents a WModule as QGraphicsRectItem and
@@ -240,5 +241,7 @@ private:
     QColor m_itemColor; //!< the color of the item. Depends on type (source, sink, ...).
 
     State m_currentState; //!< denotes the state the item currently is in
+
+    WQtNetworkItemActivator *m_hidden; //!< indicator showing if module's graphics are activated (allows to activate it)
 };
 #endif  // WQTNETWORKITEM_H

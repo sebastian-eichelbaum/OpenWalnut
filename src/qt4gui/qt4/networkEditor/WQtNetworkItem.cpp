@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <string>
 #include <iostream>
 
@@ -33,6 +34,7 @@
 
 #include "WQtNetworkArrow.h"
 #include "WQtNetworkItem.h"
+#include "WQtNetworkItemActivator.h"
 #include "WQtNetworkScene.h"
 #include "WQtNetworkEditor.h"
 #include "WQtNetworkColors.h"
@@ -100,6 +102,9 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
         // no outputs but inputs -> sink
         m_itemColor = WQtNetworkColors::SinkModule;
     }
+
+    m_hidden = new WQtNetworkItemActivator( m_module );
+    m_hidden->setParentItem( this );
 
     activate( false );
 
@@ -237,18 +242,20 @@ WNetworkLayoutNode * WQtNetworkItem::getLayoutNode()
 
 void WQtNetworkItem::fitLook()
 {
+    m_width = WNETWORKITEM_MINIMUM_WIDTH;
+    m_height = WNETWORKITEM_MINIMUM_HEIGHT;
+
+    // we need to respect the size minimally needed by ports
+    m_width = std::max(
+            WQtNetworkPort::getMultiplePortWidth( std::max( m_outPorts.size(), m_inPorts.size() ) ),
+            m_width );
+
     if( m_text != 0)
     {
-        m_width = m_text->boundingRect().width() + 10;
-        m_height = m_text->boundingRect().height() + 10;
-        if( m_width < WNETWORKITEM_MINIMUM_WIDTH )
-        {
-            m_width = WNETWORKITEM_MINIMUM_WIDTH;
-        }
-        if( m_height < WNETWORKITEM_MINIMUM_HEIGHT )
-        {
-            m_height = WNETWORKITEM_MINIMUM_HEIGHT;
-        }
+        m_width = std::max( static_cast< float >( m_text->boundingRect().width() + 10 ), m_width );
+        m_height = std::max( static_cast< float >( m_text->boundingRect().height() + 10 ), m_height );
+
+        // finally, set the size
         QRectF rect( 0, 0, m_width, m_height );
         m_rect = rect;
         setRect( m_rect );

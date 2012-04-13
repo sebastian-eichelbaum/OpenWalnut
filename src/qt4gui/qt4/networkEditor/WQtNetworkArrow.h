@@ -30,6 +30,7 @@
 
 #include <QtGui/QGraphicsSceneMouseEvent>
 #include <QtGui/QGraphicsLineItem>
+#include <QtGui/QGraphicsPathItem>
 #include <QtGui/QGraphicsScene>
 #include <QtGui/QPainter>
 #include <boost/shared_ptr.hpp>
@@ -44,7 +45,7 @@ class WQtNetworkInputPort;
  * This Class is needed for connecting two ports and drawing a line between
  * them.
  */
-class WQtNetworkArrow : public QGraphicsLineItem
+class WQtNetworkArrow : public QGraphicsPathItem
 {
 public:
     /**
@@ -155,6 +156,8 @@ private:
 
     QColor m_color; //!< the current color
 
-    QPolygonF arrowHead; //!< the arrowhead
+    QPolygonF m_arrowHead; //!< the arrowhead
+
+    QLineF m_line; //!< the line representing the arrow
 };
 #endif  // WQTNETWORKARROW_H

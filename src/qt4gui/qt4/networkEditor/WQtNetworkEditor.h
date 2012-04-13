@@ -38,6 +38,7 @@
 
 #include "../WQtCombinerToolbar.h"
 #include "layout/WNetworkLayout.h"
+#include "WQtNetworkEditorView.h"
 #include "WQtNetworkItem.h"
 #include "WQtNetworkScene.h"
 
@@ -137,6 +138,11 @@ private:
      * Action which disconnects a connector from the module.
      */
     QAction* m_disconnectAction;
+
+    /**
+     * The view controlling several scene transformations.
+     */
+    WQtNetworkEditorView* m_view;
 
 private slots:
 
