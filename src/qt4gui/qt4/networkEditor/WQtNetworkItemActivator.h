@@ -25,6 +25,8 @@
 #ifndef WQTNETWORKITEMACTIVATOR_H
 #define WQTNETWORKITEMACTIVATOR_H
 
+#include <boost/signals2.hpp>
+
 #include <QtGui/QGraphicsEllipseItem>
 #include <QtGui/QGraphicsLineItem>
 
@@ -86,5 +88,25 @@ protected:
 
     QColor m_activeColor; //!< color used for active indicator
     QColor m_inactiveColor; //!< color used for inactive indicator
+
+    /**
+     * The connection used for notification.
+     */
+    boost::signals2::connection m_notifierConnection;
+
+    /**
+     * Callback getting called by the module's active property to know about state changes
+     */
+    void activeChangeNotifier();
+
+    /**
+     * If true, the module state changed. Update the item.
+     */
+    bool m_needStateUpdate;
+
+    /**
+     * Setups tooltip and brush acccording to state.
+     */
+    void handleActiveState();
 };
 #endif  // WQTNETWORKITEMACTIVATOR_H

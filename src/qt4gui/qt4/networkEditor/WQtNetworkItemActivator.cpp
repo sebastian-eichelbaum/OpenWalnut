@@ -22,16 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
+#include <iostream>
+
 #include <boost/shared_ptr.hpp>
 
+#include <QtGui/QApplication>
+#include <QtGui/QPaintEvent>
 #include <QtGui/QGraphicsSceneMouseEvent>
 
-#include "WQtNetworkItemActivator.h"
 #include "WQtNetworkOutputPort.h"
 #include "WQtNetworkInputPort.h"
 #include "WQtNetworkColors.h"
 
-#include "core/kernel/combiner/WApplyCombiner.h"
+#include "WQtNetworkItemActivator.h"
 
 WQtNetworkItemActivator::WQtNetworkItemActivator( boost::shared_ptr< WModule > module )
     : m_module( module ), m_activeColor( Qt::darkYellow ), m_inactiveColor( Qt::gray )
@@ -39,6 +42,12 @@ WQtNetworkItemActivator::WQtNetworkItemActivator( boost::shared_ptr< WModule > m
     setRect( 0.0, 0.0, WNETWORKPORT_SIZEX, WNETWORKPORT_SIZEY );
     setPen( QPen( Qt::white, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
     setAcceptsHoverEvents( true );
+
+    // to avoid polling during paint, subscribe to the change signal
+    m_notifierConnection = m_module->getProperties()->getProperty( "active" )->toPropBool()->getValueChangeCondition()->subscribeSignal(
+            boost::bind( &WQtNetworkItemActivator::activeChangeNotifier, this )
+    );
+    m_needStateUpdate = true;
 
     if( m_module->getProperties()->getProperty( "active" )->toPropBool()->get() )
     {
@@ -59,15 +68,20 @@ int WQtNetworkItemActivator::type() const
     return Type;
 }
 
+void WQtNetworkItemActivator::activeChangeNotifier()
+{
+    // simply set a bool
+    m_needStateUpdate = true;
+    // we somehow need to force an update here. QCoreApplication::postEvent  does not work here since the graphics classes are not derived from
+    // qobject.
+}
+
 void WQtNetworkItemActivator::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget )
 {
-    if( m_module->getProperties()->getProperty( "active" )->toPropBool()->get() )
+    if( m_needStateUpdate )
     {
-        setBrush( QBrush( m_activeColor ) );
-    }
-    else
-    {
-        setBrush( QBrush( m_inactiveColor ) );
+        m_needStateUpdate = false;
+        handleActiveState();
     }
     QGraphicsEllipseItem::paint( painter, option, widget );
 }
@@ -77,21 +91,29 @@ void WQtNetworkItemActivator::mousePressEvent( QGraphicsSceneMouseEvent *mouseEv
     QList<QGraphicsItem *> startItem = scene()->items( mouseEvent->scenePos() );
     if( !startItem.isEmpty() )
     {
-        if( m_module->getProperties()->getProperty( "active" )->toPropBool()->get() )
-        {
-            m_module->getProperties()->getProperty( "active" )->toPropBool()->set( false );
-            setToolTip( "<b>Not</b> active<br> Click to activate." );
-        }
-        else
-        {
-            m_module->getProperties()->getProperty( "active" )->toPropBool()->set( true );
-            setToolTip( "<b>Active</b><br> Click to deactivate." );
-        }
+        WPropBool active = m_module->getProperties()->getProperty( "active" )->toPropBool();
+        active->set( !active->get() );
 
+        // update graphics
+        handleActiveState();
         mouseEvent->accept();
     }
     else
     {
         mouseEvent->ignore();
+    }
+}
+
+void WQtNetworkItemActivator::handleActiveState()
+{
+    if( m_module->getProperties()->getProperty( "active" )->toPropBool()->get() )
+    {
+        setBrush( QBrush( m_activeColor ) );
+        setToolTip( "<b>Not</b> active<br> Click to activate." );
+    }
+    else
+    {
+        setBrush( QBrush( m_inactiveColor ) );
+        setToolTip( "<b>Active</b><br> Click to deactivate." );
     }
 }
