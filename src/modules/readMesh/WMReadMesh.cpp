@@ -93,11 +93,6 @@ void WMReadMesh::properties()
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
     m_meshFile = m_properties->addProperty( "Mesh file", "", WPathHelper::getAppPath() );
-    m_propDatasetSizeX = m_properties->addProperty( "Dataset size X", "size of the dataset in the x coordinate", 160, m_propCondition );
-    m_propDatasetSizeY = m_properties->addProperty( "Dataset size Y", "size of the dataset in the x coordinate", 200, m_propCondition );
-    m_propDatasetSizeZ = m_properties->addProperty( "Dataset size Z", "size of the dataset in the x coordinate", 160, m_propCondition );
-
-
     m_fileTypeSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_fileTypeSelectionsList->addItem( "Mesh", "" );
     m_fileTypeSelectionsList->addItem( "Mesh fibernavigator", "" );
@@ -105,8 +100,20 @@ void WMReadMesh::properties()
     m_fileTypeSelectionsList->addItem( "BrainVISA", "" );
     m_fileTypeSelectionsList->addItem( "Freesurfer", "" );
 
-    m_fileTypeSelection = m_properties->addProperty( "File type",  "file type.", m_fileTypeSelectionsList->getSelectorFirst() );
+    m_fileTypeSelection = m_properties->addProperty( "File type",
+                                                     "file type.",
+                                                     m_fileTypeSelectionsList->getSelectorFirst(),
+                                                     boost::bind( &WMReadMesh::meshTypeSelected, this ) );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_fileTypeSelection );
+
+    m_propDatasetSizeX = m_properties->addProperty( "Dataset size X", "Size of the dataset in x direction", 160, m_propCondition );
+    m_propDatasetSizeY = m_properties->addProperty( "Dataset size Y", "Size of the dataset in y direction", 200, m_propCondition );
+    m_propDatasetSizeZ = m_properties->addProperty( "Dataset size Z", "Size of the dataset in z direction", 160, m_propCondition );
+
+    m_propDatasetSizeX->setHidden( true );
+    m_propDatasetSizeY->setHidden( true );
+    m_propDatasetSizeZ->setHidden( true );
+
 
     m_readTriggerProp = m_properties->addProperty( "Do read",  "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
     WPropertyHelper::PC_PATHEXISTS::addTo( m_meshFile );
@@ -797,4 +804,23 @@ std::string WMReadMesh::getLine( boost::shared_ptr< std::ifstream > ifs, const s
         throw WDHParseError( std::string( "Unexpected end of VTK fiber file." ) );
     }
     return line;
+}
+
+void WMReadMesh::meshTypeSelected()
+{
+    if( m_fileTypeSelection->get().getItemIndexOfSelected( 0 )  == 2 ||
+        m_fileTypeSelection->get().getItemIndexOfSelected( 0 )  == 3 ||
+        m_fileTypeSelection->get().getItemIndexOfSelected( 0 )  == 4 )
+
+    {
+        m_propDatasetSizeX->setHidden( false );
+        m_propDatasetSizeY->setHidden( false );
+        m_propDatasetSizeZ->setHidden( false );
+    }
+    else
+    {
+        m_propDatasetSizeX->setHidden( true );
+        m_propDatasetSizeY->setHidden( true );
+        m_propDatasetSizeZ->setHidden( true );
+    }
 }

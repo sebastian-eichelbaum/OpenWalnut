@@ -99,6 +99,11 @@ protected:
 
 private:
     /**
+     * Handles chage of selected mesh type, e.g. show/hide other properties.
+     */
+    void meshTypeSelected();
+
+    /**
      * Reads a mesh file and creates a WTriangleMesh out of it.
      *
      * \return Reference to the dataset.
