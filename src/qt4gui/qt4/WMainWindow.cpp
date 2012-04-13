@@ -247,7 +247,14 @@ void WMainWindow::setupGUI()
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
 
     // by default, the module editor should be in front
-    m_controlPanel->getModuleDock()->raise();
+    if( m_networkEditor )
+    {
+        m_networkEditor->raise();
+    }
+    else
+    {
+        m_controlPanel->getModuleDock()->raise();
+    }
 
     // NOTE: we abuse the gl widgets first frame event to handle startup news.
     connect( m_mainGLWidget.get(), SIGNAL( renderedFirstFrame() ), this, SLOT( handleStartMessages() ) );
