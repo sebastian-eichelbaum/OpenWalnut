@@ -137,3 +137,20 @@ void WQtNetworkEditorView::resizeEvent( QResizeEvent* event )
     // call the subclass resize so the scrollbars are updated correctly
     QGraphicsView::resizeEvent( event );
 }
+
+void WQtNetworkEditorView::keyPressEvent( QKeyEvent *event )
+{
+    // scale the view ie. do the zoom
+    double scaleFactor = 1.15;
+    if( event->matches( QKeySequence::ZoomIn ) )
+    {
+        // zoom in
+        scale( scaleFactor, scaleFactor );
+    }
+    if( event->matches( QKeySequence::ZoomOut ) )
+    {
+        // zooming out
+        scale( 1.0 / scaleFactor, 1.0 / scaleFactor );
+    }
+    QGraphicsView::keyPressEvent( event );
+}

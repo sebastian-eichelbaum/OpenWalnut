@@ -295,7 +295,7 @@ public slots:
     void openNotImplementedDialog();
 
     /**
-     * gets called when the button new roi is pressed
+     * gets called when the button new ROI is pressed
      */
     void newRoi();
 

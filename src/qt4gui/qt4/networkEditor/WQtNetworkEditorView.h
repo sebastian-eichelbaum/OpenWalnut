@@ -96,6 +96,13 @@ protected:
      */
     virtual void resizeEvent( QResizeEvent* event );
 
+    /**
+     * Key pressed.
+     *
+     * \param event contains event information.
+     */
+    void keyPressEvent( QKeyEvent *event );
+
 private:
     /**
      * The currently set centerpoint.

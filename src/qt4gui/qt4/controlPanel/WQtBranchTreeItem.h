@@ -38,7 +38,7 @@
 class WQtRoiTreeItem;
 
 /**
- * This class represents a roi branch in the tree widget
+ * This class represents a ROI branch in the tree widget
  */
 class WQtBranchTreeItem  : public QTreeWidgetItem
 {
@@ -57,8 +57,8 @@ public:
     virtual ~WQtBranchTreeItem();
 
     /**
-     * Add a roi to the tree view.
-     * \param roi The new roi.
+     * Add a ROI to the tree view.
+     * \param roi The new ROI.
      *
      * \return Pointer to the new ROI tree item.
      */
@@ -73,7 +73,7 @@ public:
 
 protected:
 private:
-    boost::shared_ptr< WRMBranch > m_branch; //!< roi
+    boost::shared_ptr< WRMBranch > m_branch; //!< ROI
 };
 
 #endif  // WQTBRANCHTREEITEM_H
