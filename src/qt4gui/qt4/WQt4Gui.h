@@ -94,16 +94,16 @@ public:
     virtual void slotAddDatasetOrModuleToTree( boost::shared_ptr< WModule > module );
 
     /**
-     * Slot gets called whenever a new roi is added.
+     * Slot gets called whenever a new ROI is added.
      *
-     * \param roi the roi to be added
+     * \param roi the ROI to be added
      */
     virtual void slotAddRoiToTree( osg::ref_ptr< WROI > roi );
 
     /**
-     * Slot gets called whenever a roi is removed.
+     * Slot gets called whenever a ROI is removed.
      *
-     * \param roi the roi to be removed
+     * \param roi the ROI to be removed
      */
     virtual void slotRemoveRoiFromTree( osg::ref_ptr< WROI > roi );
 

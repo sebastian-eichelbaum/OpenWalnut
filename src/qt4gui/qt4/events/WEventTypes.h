@@ -39,7 +39,7 @@
 // when a module signals its ready state
 #define WQT_READY_EVENT QEvent::User + 2
 
-// when a roi got associated
+// when a ROI got associated
 #define WQT_ROI_ASSOC_EVENT QEvent::User + 3
 
 // when a module crashes
@@ -51,7 +51,7 @@
 // when a property changes
 #define WQT_PROPERTY_CHANGED_EVENT QEvent::User + 6
 
-// when a roi got removed
+// when a ROI got removed
 #define WQT_ROI_REMOVE_EVENT QEvent::User + 7
 
 // when a module got removed from the root container

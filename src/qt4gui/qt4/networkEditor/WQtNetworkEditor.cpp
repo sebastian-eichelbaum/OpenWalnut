@@ -58,20 +58,18 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     setObjectName( "Module Graph Dock" );
     m_mainWindow = parent;
 
-    QGraphicsView *view = new QGraphicsView();
-    view->setDragMode( QGraphicsView::RubberBandDrag );
-    view->setRenderHint( QPainter::Antialiasing );
-    view->setMinimumSize( 20, 20 );
-    this->setFocusProxy( view );
+    m_view = new WQtNetworkEditorView();
+    m_view->setMinimumSize( 20, 20 );
+    this->setFocusProxy( m_view );
 
     m_scene = new WQtNetworkScene();
     m_scene->setSceneRect( m_scene->itemsBoundingRect() );
 
-    view->setScene( m_scene );
+    m_view->setScene( m_scene );
 
     this->setAllowedAreas( Qt::AllDockWidgetAreas );
     this->setFeatures( QDockWidget::DockWidgetClosable |QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
-    setWidget( view );
+    setWidget( m_view );
     connect( m_scene, SIGNAL( selectionChanged() ), this, SLOT( selectItem() ) );
 
     m_layout = new WNetworkLayout();

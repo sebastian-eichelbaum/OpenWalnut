@@ -32,7 +32,7 @@
 #include "core/graphicsEngine/WROI.h"
 
 /**
- * Event signalling a roi has been removed from the roi manager in the kernel.
+ * Event signalling a ROI has been removed from the ROI manager in the kernel.
  */
 class WRoiRemoveEvent : public QEvent
 {
@@ -49,15 +49,15 @@ public:
     virtual ~WRoiRemoveEvent();
 
     /**
-     * Getter for the roi that got removed.
+     * Getter for the ROI that got removed.
      *
-     * \return the roi.
+     * \return the ROI.
      */
     osg::ref_ptr< WROI > getRoi();
 
 protected:
     /**
-     * The roi that got removed.
+     * The ROI that got removed.
      */
     osg::ref_ptr< WROI > m_roi;
 

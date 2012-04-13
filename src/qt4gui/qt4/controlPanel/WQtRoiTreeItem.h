@@ -34,34 +34,34 @@
 #include "WQtTreeItem.h"
 
 /**
- * a tree widget item to represent a roi in the control panel
+ * A tree widget item to represent a ROI in the control panel
  */
 class WQtRoiTreeItem : public QTreeWidgetItem
 {
 public:
     /**
-     * constructor
+     * Constructor
      *
-     * \param parent
-     * \param roi
+     * \param parent The parent widget.
+     * \param roi The ROI taht is represented by this item.
      * \param type
      */
     WQtRoiTreeItem( QTreeWidgetItem * parent, osg::ref_ptr< WROI > roi, WTreeItemType type = ROI );
 
     /**
-     * destructor
+     * Destructor
      */
     virtual ~WQtRoiTreeItem();
 
     /**
-     * getter
-     * \return the roi representation object
+     * Getter
+     * \return the ROI representation object
      */
     osg::ref_ptr< WROI > getRoi();
 
 protected:
 private:
-    osg::ref_ptr< WROI > m_roi; //!< roi
+    osg::ref_ptr< WROI > m_roi; //!< Pointer to the ROI represented by this item.
 };
 
 #endif  // WQTROITREEITEM_H
