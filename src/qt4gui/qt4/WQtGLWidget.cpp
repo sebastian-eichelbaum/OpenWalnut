@@ -205,6 +205,7 @@ void WQtGLWidget::resizeGL( int width, int height )
 void WQtGLWidget::paintGL()
 {
     // m_Viewer->paint();
+    WQtGLWidgetParent::paintGL();
 }
 
 void WQtGLWidget::resizeEvent( QResizeEvent* event )
@@ -214,9 +215,10 @@ void WQtGLWidget::resizeEvent( QResizeEvent* event )
     WQtGLWidgetParent::resizeEvent( event );
 }
 
-void WQtGLWidget::resizeGL( int /* width */, int /* height */ )
+void WQtGLWidget::resizeGL( int width, int height )
 {
     // m_Viewer->resize( width, height );
+    WQtGLWidgetParent::resizeGL( width, height );
 }
 #endif
 
