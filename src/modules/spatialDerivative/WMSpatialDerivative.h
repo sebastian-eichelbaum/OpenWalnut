@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMSPATIALDERIVATION_H
-#define WMSPATIALDERIVATION_H
+#ifndef WMSPATIALDERIVATIVE_H
+#define WMSPATIALDERIVATIVE_H
 
 #include <string>
 
@@ -39,18 +39,18 @@
  *
  * \ingroup modules
  */
-class WMSpatialDerivation: public WModule
+class WMSpatialDerivative: public WModule
 {
 public:
     /**
      * Default constructor.
      */
-    WMSpatialDerivation();
+    WMSpatialDerivative();
 
     /**
      * Destructor.
      */
-    virtual ~WMSpatialDerivation();
+    virtual ~WMSpatialDerivative();
 
     /**
      * Gives back the name of this module.
@@ -127,5 +127,5 @@ private:
     void derive( boost::shared_ptr< WGridRegular3D > grid, boost::shared_ptr< WValueSet< T > > values );
 };
 
-#endif  // WMSPATIALDERIVATION_H
+#endif  // WMSPATIALDERIVATIVE_H
 

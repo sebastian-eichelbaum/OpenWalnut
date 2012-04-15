@@ -131,7 +131,7 @@ private:
                    boost::shared_ptr< WGridRegular3D > const& grid );
 
     /**
-     * Calculates an array containing the derivations in x, y and z directions of the image
+     * Calculates an array containing the derivatives in x, y and z directions of the image
      * intensity (i.e. contains the intensity gradient).
      *
      * \param deriv The memory used for the gradient values.

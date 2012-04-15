@@ -29,43 +29,43 @@
 #include "core/common/WPropertyHelper.h"
 #include "core/dataHandler/WDataHandler.h"
 
-#include "WMSpatialDerivation.h"
-#include "WMSpatialDerivation.xpm"
+#include "WMSpatialDerivative.h"
+#include "WMSpatialDerivative.xpm"
 
 // This line is needed by the module loader to actually find your module. You need to add this to your module too. Do NOT add a ";" here.
-W_LOADABLE_MODULE( WMSpatialDerivation )
+W_LOADABLE_MODULE( WMSpatialDerivative )
 
-WMSpatialDerivation::WMSpatialDerivation():
+WMSpatialDerivative::WMSpatialDerivative():
     WModule()
 {
 }
 
-WMSpatialDerivation::~WMSpatialDerivation()
+WMSpatialDerivative::~WMSpatialDerivative()
 {
     // Cleanup!
 }
 
-boost::shared_ptr< WModule > WMSpatialDerivation::factory() const
+boost::shared_ptr< WModule > WMSpatialDerivative::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMSpatialDerivation() );
+    return boost::shared_ptr< WModule >( new WMSpatialDerivative() );
 }
 
-const char** WMSpatialDerivation::getXPMIcon() const
+const char** WMSpatialDerivative::getXPMIcon() const
 {
-    return WMSpatialDerivation_xpm;
+    return WMSpatialDerivative_xpm;
 }
 
-const std::string WMSpatialDerivation::getName() const
+const std::string WMSpatialDerivative::getName() const
 {
-    return "Spatial Derivation";
+    return "Spatial Derivative";
 }
 
-const std::string WMSpatialDerivation::getDescription() const
+const std::string WMSpatialDerivative::getDescription() const
 {
     return "This module a scalar field and derives it spatially.";
 }
 
-void WMSpatialDerivation::connectors()
+void WMSpatialDerivative::connectors()
 {
     // the dataset to process. Only accept scalar data.
     m_scalarIn = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "scalars", "The scalar dataset."
@@ -79,7 +79,7 @@ void WMSpatialDerivation::connectors()
     WModule::connectors();
 }
 
-void WMSpatialDerivation::properties()
+void WMSpatialDerivative::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
@@ -90,7 +90,7 @@ void WMSpatialDerivation::properties()
     WModule::properties();
 }
 
-void WMSpatialDerivation::moduleMain()
+void WMSpatialDerivative::moduleMain()
 {
     // get notified about data changes
     m_moduleState.setResetable( true, true );
@@ -202,7 +202,7 @@ size_t getId( size_t xDim, size_t yDim, size_t /*zDim*/, size_t x, size_t y, siz
 }
 
 template< typename T >
-void WMSpatialDerivation::derive( boost::shared_ptr< WGridRegular3D > grid, boost::shared_ptr< WValueSet< T > > values )
+void WMSpatialDerivative::derive( boost::shared_ptr< WGridRegular3D > grid, boost::shared_ptr< WValueSet< T > > values )
 {
     size_t nX = grid->getNbCoordsX();
     size_t nY = grid->getNbCoordsY();
