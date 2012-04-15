@@ -252,6 +252,11 @@ private:
     WPropDouble m_translateZ;
 
     /**
+     * Toggle showing outline instead fo surface.
+     */
+    WPropBool m_showOutline;
+
+    /**
      * En/Disable display of only the main component (biggest vertices number)
      */
     WPropBool m_mainComponentOnly;

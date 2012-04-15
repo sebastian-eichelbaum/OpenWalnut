@@ -154,6 +154,7 @@ void WMTriangleMeshRenderer::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     // setup all the properties. See header file for their meaning and purpose.
+    m_showOutline = m_properties->addProperty( "Outline", "Show all edges of the trinagulation as lines.", false, m_propCondition );
     m_mainComponentOnly = m_properties->addProperty( "Main component", "Main component only", false, m_propCondition );
     m_showCoordinateSystem = m_properties->addProperty( "Coordinate system", "If enabled, the coordinate system of the mesh will be shown.",
                                                         false, m_propCondition );
@@ -360,28 +361,35 @@ void WMTriangleMeshRenderer::moduleMain()
         ++*progress;
 
         // now create the mesh but handle the color mode properly
-        WItemSelector s = m_colorMode->get( true );
-        if( s.getItemIndexOfSelected( 0 ) == 0 )
+        if( m_showOutline->get( true ) )
         {
-            // use single color
-            geometry = wge::convertToOsgGeometry( mesh, m_color->get(), true, true, false );
-        }
-        else if( s.getItemIndexOfSelected( 0 ) == 1 )
-        {
-            // take color from mesh
-            geometry = wge::convertToOsgGeometry( mesh, m_color->get(), true, true, true );
+            geometry = wge::convertToOsgGeometryLines( mesh, m_color->get(), false );
         }
         else
         {
-            // take color from map
-            if( colorMap )
+            WItemSelector s = m_colorMode->get( true );
+            if( s.getItemIndexOfSelected( 0 ) == 0 )
             {
-                geometry = wge::convertToOsgGeometry( mesh, *colorMap, m_color->get(), true, true );
+                // use single color
+                geometry = wge::convertToOsgGeometry( mesh, m_color->get(), true, true, false );
+            }
+            else if( s.getItemIndexOfSelected( 0 ) == 1 )
+            {
+                // take color from mesh
+                geometry = wge::convertToOsgGeometry( mesh, m_color->get(), true, true, true );
             }
             else
             {
-                warnLog() << "External colormap not connected. Using default color.";
-                geometry = wge::convertToOsgGeometry( mesh, m_color->get(), true, true, false );
+                // take color from map
+                if( colorMap )
+                {
+                    geometry = wge::convertToOsgGeometry( mesh, *colorMap, m_color->get(), true, true );
+                }
+                else
+                {
+                    warnLog() << "External colormap not connected. Using default color.";
+                    geometry = wge::convertToOsgGeometry( mesh, m_color->get(), true, true, false );
+                }
             }
         }
         ++*progress;
