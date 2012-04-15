@@ -341,6 +341,51 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mes
     return geometry;
 }
 
+osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometryLines( WTriangleMesh::SPtr mesh,
+                                                              const WColor& defaultColor,
+                                                              bool useMeshColor )
+{
+    osg::ref_ptr< osg::Geometry > geometry( new osg::Geometry );
+    geometry->setVertexArray( mesh->getVertexArray() );
+
+    osg::DrawElementsUInt* meshElement;
+
+    meshElement = new osg::DrawElementsUInt( osg::PrimitiveSet::LINES, 0 );
+
+    std::vector< size_t > tris = mesh->getTriangles();
+    meshElement->reserve( tris.size() * 3 );
+
+    for( unsigned int triId = 0; triId < tris.size() / 3.; ++triId )
+    {
+        for( size_t edgeId = 0; edgeId < 3; ++edgeId )
+        {
+            meshElement->push_back( tris[triId*3 + edgeId] );
+            meshElement->push_back( tris[triId*3 + ( edgeId + 1 ) % 3] );
+        }
+    }
+    geometry->addPrimitiveSet( meshElement );
+
+    // add the mesh colors
+    if( mesh->getVertexColorArray() && useMeshColor )
+    {
+        geometry->setColorArray( mesh->getVertexColorArray() );
+        geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+    }
+    else
+    {
+        osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+        colors->push_back( defaultColor );
+        geometry->setColorArray( colors );
+        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    }
+
+    osg::StateSet* stateset = geometry->getOrCreateStateSet();
+    stateset->setAttributeAndModes( new osg::LineWidth( 1 ), osg::StateAttribute::ON );
+    stateset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+
+    return geometry;
+}
+
 osg::ref_ptr< osg::Geode > wge::generateLineStripGeode( const WLine& line, const float thickness, const WColor& color )
 {
     using osg::ref_ptr;
