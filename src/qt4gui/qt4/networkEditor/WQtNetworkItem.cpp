@@ -135,6 +135,12 @@ int WQtNetworkItem::type() const
     return Type;
 }
 
+void WQtNetworkItem::update()
+{
+    // check progress.
+    // TODO(ebaum): implement progress updates, crash handling and similar.
+}
+
 void WQtNetworkItem::hoverEnterEvent( QGraphicsSceneHoverEvent *event )
 {
     Q_UNUSED( event );

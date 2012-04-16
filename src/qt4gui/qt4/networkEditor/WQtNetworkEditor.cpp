@@ -73,6 +73,12 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     connect( m_scene, SIGNAL( selectionChanged() ), this, SLOT( selectItem() ) );
 
     m_layout = new WNetworkLayout();
+
+    // as the QGraphicsItems are not derived from QObject, they cannot utilize the event system. We need to provide some possibility to update
+    // them regularly. We use a timer here.
+    QTimer* updater = new QTimer( this );
+    updater->start( 50 );
+    connect( updater, SIGNAL( timeout() ), this, SLOT( updateCylce() ) );
 }
 
 WQtNetworkEditor::~WQtNetworkEditor()
@@ -160,6 +166,14 @@ void WQtNetworkEditor::deleteSelectedItems()
     }
     itemList.clear();
     arrowList.clear();
+}
+
+void WQtNetworkEditor::updateCylce()
+{
+    for( QList< WQtNetworkItem* >::const_iterator i = m_items.begin(); i != m_items.end(); ++i )
+    {
+        ( *i )->update();
+    }
 }
 
 bool WQtNetworkEditor::event( QEvent* event )

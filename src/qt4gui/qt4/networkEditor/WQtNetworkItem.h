@@ -25,6 +25,7 @@
 #ifndef WQTNETWORKITEM_H
 #define WQTNETWORKITEM_H
 
+#include <QtCore/QTimer>
 #include <QtGui/QGraphicsRectItem>
 #include <QtGui/QGraphicsTextItem>
 #include <QtGui/QPainter>
@@ -147,6 +148,11 @@ public:
      * \return true if items position has changed
      */
     bool advance();
+
+    /**
+     * Can be used for polling the module states. It is called by a timer.
+     */
+    virtual void update();
 
 protected:
     /**

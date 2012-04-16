@@ -150,6 +150,11 @@ private slots:
      * Determines possible Connections and the propertytab.
      */
     void selectItem();
+
+    /**
+     * Called by a timer to allow updates of all module items.
+     */
+    void updateCylce();
 };
 
 #endif  // WQTNETWORKEDITOR_H
