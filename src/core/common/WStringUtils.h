@@ -150,9 +150,9 @@ namespace string_utils
      * Splits the given string into a vector of strings (so called tokens).
      *
      * \param source String to tokenize
-     * \param compress If true, charactes matching between two tokens are
+     * \param compress If true, characters matching between two tokens are
      * collapsed and handled as just one character.
-     * \param delim String representing a set containg all characters considered
+     * \param delim String representing a set containing all characters considered
      * as whitespace.
      * \return A vector of strings containing the tokens.
      */

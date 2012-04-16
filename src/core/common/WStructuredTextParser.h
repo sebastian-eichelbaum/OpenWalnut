@@ -25,11 +25,12 @@
 #ifndef WSTRUCTUREDTEXTPARSER_H
 #define WSTRUCTUREDTEXTPARSER_H
 
+#include <algorithm>
 #include <iostream>
+#include <map>
 #include <ostream>
 #include <string>
 #include <vector>
-#include <map>
 
 #include <boost/config/warning_disable.hpp>
 #include <boost/spirit/include/qi.hpp>
@@ -42,6 +43,10 @@
 #include <boost/variant/recursive_variant.hpp>
 #include <boost/fusion/include/io.hpp>
 #include <boost/filesystem/path.hpp>
+
+#include "WStringUtils.h"
+#include "exceptions/WTypeMismatch.h"
+#include "exceptions/WNotFound.h"
 
 /**
  * This namespace contains the WStructuredTextParser data types and the parser. It builds up the AST for the given input
@@ -142,7 +147,11 @@ BOOST_FUSION_ADAPT_STRUCT(
 namespace WStructuredTextParser
 {
     /**
-     * The grammar describing the structured format. It uses the boost::spirit features to parse the input.
+     * The grammar describing the structured format. It uses the boost::spirit features to parse the input. There are several rules to comply to
+     * successfully parse a file:
+     *  Key: identifier, needs to be a-z,A-Z,0-9,_
+     *  Object: defined as key + { ... }
+     *  Key-Value Pair: is a member of an object and is defines as key="value".
      *
      * \tparam Iterator the iterator, used to get the input stream
      */
@@ -201,17 +210,30 @@ namespace WStructuredTextParser
     };
 
     /**
-     * This simplifies working with a tree in a WStructuredTextParser::ObjectType instance.
+     * This simplifies working with a tree in a WStructuredTextParser::ObjectType instance. It provides easy query and check methods. It does not
+     * provide any semantic options. So check validity of the contents and structure of the tree is the job of the using class/derived class. As
+     * the tree does not know anything about the semantics of your structure, it is also untyped. For every key you query, you need to specify
+     * the type.
+     *
+     * This tree uses the types in the \ref WStructuredTextParser namespace. To avoid unnecessary copy operations, this class is not recursive
+     * itself. When querying, you always need to specify the full path. This class can be seen as accessor to the \ref ObjectType tree.
+     *
+     * \note The syntax of the parsed files is defined by the parser itself. See \ref Grammar for details.
      */
     class StructuredValueTree
     {
     public:
         /**
-         * Construct a tree by giving a name.
-         *
-         * \param name the name
+         * This char is used as separator for identifying values in the tree.
          */
-        explicit StructuredValueTree( const std::string& name );
+        static const std::string Separator;
+
+        /**
+         * Construct the instance given the original parsing structure.
+         *
+         * \param tree the parsing result structure (the root node).
+         */
+        explicit StructuredValueTree( const ObjectType& tree );
 
         /**
          * Cleanup.
@@ -219,99 +241,107 @@ namespace WStructuredTextParser
         virtual ~StructuredValueTree();
 
         /**
-         * Returns the name of this object.
-         *
-         * \return the name
-         */
-        std::string getName() const;
-
-        /**
-         * Gives the object with the give name. Is not recursive. If the given entity is not found, a exception is thrown.
-         *
-         * \param name the key name.
-         *
-         * \return the object.
-         */
-        const StructuredValueTree& operator[]( std::string name ) const;
-
-        /**
-         * Gives the object with the give name. Is not recursive. If the given entity is not found, a exception is thrown.
-         *
-         * \param name the key name.
-         *
-         * \return the object.
-         */
-        StructuredValueTree& operator[]( std::string name );
-
-        /**
          * Checks whether the given value or object exists.
          *
-         * \param name name of the value/object to search
+         * \param key path to the value
          *
          * \return true if existing.
          */
-        bool exists( std::string name ) const;
+        bool exists( std::string key ) const;
+
+        /**
+         * It is possible that there are multiple values matching a key. This method counts them.
+         *
+         * \param key path to the values to count
+         *
+         * \return the number of found values.
+         */
+        size_t count( std::string key ) const;
 
         /**
          * Queries the value with the given name. If it is not found, the default value will be returned.
          *
-         * \param name name of the value
+         * \param key path to the value
          * \param defaultValue the default if no value was found
+         * \tparam T the return type. This method tries to cast to this type. If it fails, an exception is thrown. Type std::string is always valid.
+         *
+         * \throw WTypeMismatch if the value cannot be cast to the specified target type
          *
          * \return the value
          *
-         * \note this does not return a reference because. It returns a copy of the value.
+         * \note this does not return a reference as the default value might be returned. It returns a copy of the value.
          */
-        std::string operator()( std::string name, std::string defaultValue ) const;
+        template< typename T >
+        T getValue( std::string key, const T& defaultValue ) const;
 
         /**
-         * Queries the value with the given name. If it is not found, an exception is thrown.
+         * Queries the list of values matching the given path. If it is not found, the default value will be returned.
          *
-         * \param name name of the value
+         * \param key path to the value
+         * \param defaults the defaults if no value was found
+         * \tparam T the return type. This method tries to cast to this type. If it fails, an exception is thrown. Type std::string is always valid.
+         *
+         * \throw WTypeMismatch if the value cannot be cast to the specified target type
          *
          * \return the value
+         *
+         * \note this does not return a reference as the default value might be returned. It returns a copy of the value.
          */
-        std::string& operator()( std::string name );
+        template< typename T >
+        std::vector< T > getValues( std::string key, const std::vector< T >& defaults ) const;
 
         /**
-         * Queries the value with the given name. If it is not found, an exception is thrown.
+         * Queries the list of values matching the given path. If it is not found, an empty results vector is returned.
          *
-         * \param name name of the value
+         * \param key path to the value
+         * \tparam T the return type. This method tries to cast to this type. If it fails, an exception is thrown. Type std::string is always valid.
          *
-         * \return the value
+         * \throw WTypeMismatch if the value cannot be cast to the specified target type
+         *
+         * \return the value vector. Might be empty if no elements where found.
+         *
+         * \note this does not return a reference as the default value might be returned. It returns a copy of the value.
          */
-        const std::string& operator()( std::string name ) const;
+        template< typename T >
+        std::vector< T > getValues( std::string key ) const;
+
+        /**
+         * Queries the value with the given name. If it is not found, an exception is thrown. If multiple entries with this path exist, the first
+         * one is returned. Use \ref getValues in this case. Query the count of a key:value pair using \ref count
+         *
+         * \param key path to the value
+         * \tparam T the return type. This method tries to cast to this type. If it fails, an exception is thrown. Type std::string is always valid.
+         * \throw WTypeMismatch if the value cannot be cast to the specified target type
+         * \throw WNotFound if the key:value pair does not exist
+         *
+         * \return the value as copy to avoid any const_cast which would allow modification.
+         */
+        template< typename T >
+        T operator[]( std::string key ) const;
 
     protected:
     private:
         /**
-         * The name of this object
-         */
-        std::string m_name;
-
-        /**
-         * The type used for storing the list of children
-         */
-        typedef std::vector< StructuredValueTree > ChildrenType;
-
-        /**
-         * The of an value entry.
-         */
-        typedef std::map< std::string, std::string > EntryMapType;
-
-        /**
          * The named values.
          */
-        EntryMapType m_entries;
+        MemberType m_tree;
 
         /**
-         * Child trees
+         * Recursively fills a result vector using a given path iterator. It checks whether the current element matches the current key. If yes,
+         * it traverses or adds the value to the result vector. This uses depth-first search and allows multiple matches for one key.
+         *
+         * \tparam T the return type. This method tries to cast to this type. If it fails, an exception is thrown. Type std::string is always valid.
+         * \throw WTypeMismatch if the value cannot be cast to the specified target type
+         *
+         * \param current current element to check and recursively traverse
+         * \param keyIter the current path element
+         * \param keyEnd the end iter. Just used to stop iteration if the key as not further elements
+         * \param result the result vector gets filled with the result values in correct type.
          */
-        ChildrenType m_children;
-
-        StructuredValueTree* queryTree( const std::string& name );
-
-        const StructuredValueTree* queryTree( const std::string& name ) const;
+        template< typename T >
+        void traverse( MemberType current, std::vector< std::string >::const_iterator keyIter,
+                                           std::vector< std::string >::const_iterator keyEnd,
+                                           std::vector< T >& result ) const;
     };
 
     /**
@@ -336,6 +366,149 @@ namespace WStructuredTextParser
      * \throw WFileNotFOund in case the specified file could not be opened
      */
     StructuredValueTree parseFromFile( boost::filesystem::path path );
+
+    template< typename T >
+    T StructuredValueTree::getValue( std::string key, const T& defaultValue ) const
+    {
+        // NOTE: getValues ensures that always something is returned (the default value). So the returned vector has a valid begin iterator
+        return *getValues< T >( key, std::vector< T >( 1, defaultValue ) ).begin();
+    }
+
+    template< typename T >
+    std::vector< T > StructuredValueTree::getValues( std::string key, const std::vector< T >& defaults ) const
+    {
+        std::vector< T > r = getValues< T >( key );
+        if( r.size() )
+        {
+            return r;
+        }
+        else
+        {
+            return defaults;
+        }
+    }
+
+    template< typename T >
+    T StructuredValueTree::operator[]( std::string key ) const
+    {
+        std::vector< T > r = getValues< T >( key );
+        if( r.size() )
+        {
+            return *r.begin();
+        }
+        else
+        {
+            throw WNotFound( "The key \"" + key + "\" was not found." );
+        }
+    }
+
+    /**
+     * Visitor to identify whether the given variant of type \ref MemberType is a object or key-value pair.
+     */
+    class IsLeafVisitor: public boost::static_visitor< bool >
+    {
+    public:
+        /**
+         * Returns always true as it is only called for key-value pairs.
+         *
+         * \return always true since it identified an key-value pair
+         */
+        bool operator()( const KeyValueType& /* element */ ) const
+        {
+            return true;
+        }
+
+        /**
+         * Returns always false as it is only called for objects.
+         *
+         * \return always false since it identified an Object.
+         */
+        bool operator()( const ObjectType& /* element */ ) const
+        {
+            return false;
+        }
+    };
+
+    /**
+     * Visitor to query the m_name member of \ref ObjectType and \ref KeyValueType.
+     */
+    class NameQueryVisitor: public boost::static_visitor< std::string >
+    {
+    public:
+        /**
+         * Returns the m_name member of the specified object or key-valuev pair.
+         *
+         * \tparam T one of the types of the \ref MemberType variant
+         * \return always true since it identified an key-value pair
+         */
+        template< typename T >
+        std::string operator()( const T& element ) const
+        {
+            return element.m_name;
+        }
+    };
+
+    template< typename T >
+    std::vector< T > StructuredValueTree::getValues( std::string key ) const
+    {
+        MemberType current = m_tree;
+
+        // split up the key
+        std::vector< std::string > keySplit = string_utils::tokenize( key, Separator, false );
+        // empty key -> return empty result list
+        if( !keySplit.size() )
+        {
+            return std::vector< T >();
+        }
+
+        // traverse the tree and construct the result vector
+        std::vector< T > r;
+        traverse( m_tree, keySplit.begin(), keySplit.end(), r );
+        return r;
+    }
+
+    template< typename T >
+    void StructuredValueTree::traverse( MemberType current, std::vector< std::string >::const_iterator keyIter,
+                                                            std::vector< std::string >::const_iterator keyEnd,
+                                                            std::vector< T >& result ) const
+    {
+        std::string elementName = boost::apply_visitor( NameQueryVisitor(), current );
+        bool elementIsLeaf = boost::apply_visitor( IsLeafVisitor(), current );
+
+        // does the current node match the current name?
+        if( elementName == *keyIter )
+        {
+            // only if the key path continues AND the current element is no lead, traverse
+            if( !elementIsLeaf && ( ( keyIter + 1 ) != keyEnd) )
+            {
+                ObjectType elementAsObj = boost::get< ObjectType >( current );
+                for( std::vector< MemberType >::const_iterator nodeIter = elementAsObj.m_nodes.begin();
+                    nodeIter != elementAsObj.m_nodes.end();
+                    ++nodeIter )
+                {
+                    traverse( *nodeIter, keyIter + 1, keyEnd, result );
+                }
+            }
+            else if( elementIsLeaf && ( ( keyIter + 1 ) == keyEnd ) )
+            {
+                // if this element is a leaf and the path also ends here (names match already checked) -> add value to result vector
+                KeyValueType elementAsKV = boost::get< KeyValueType >( current );
+
+                // try to cast to the desired type and add to vector
+                try
+                {
+                    result.push_back( string_utils::fromString< T >( elementAsKV.m_value ) );
+                }
+                catch( const std::exception& e )
+                {
+                    // convert the standard exception (if cannot convert) to a WTypeMismnatch.
+                    throw WTypeMismatch( "Cannot convert element \"" + *keyIter + "\" to desired type." );
+                }
+            }
+            // all the remaining cases are invalid and cause traversion to stop
+        }
+        // done
+    }
 }
 
 #endif  // WSTRUCTUREDTEXTPARSER_H
