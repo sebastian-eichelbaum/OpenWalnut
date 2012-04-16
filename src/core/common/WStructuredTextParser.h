@@ -126,6 +126,9 @@ namespace WStructuredTextParser
     };
 }
 
+
+// Doxygen has problems with the following
+// \cond Suppress_Doxygen
 /**
  * Tell boost::fusion about our types.
  */
@@ -133,7 +136,7 @@ BOOST_FUSION_ADAPT_STRUCT(
     WStructuredTextParser::ObjectType,
     ( std::string, m_name )
     ( std::vector< WStructuredTextParser::MemberType >, m_nodes )
-)
+    )
 
 /**
  * Tell boost::fusion about our types.
@@ -142,7 +145,8 @@ BOOST_FUSION_ADAPT_STRUCT(
     WStructuredTextParser::KeyValueType,
     ( std::string, m_name )
     ( std::string, m_value )
-)
+    )
+// \endcond
 
 namespace WStructuredTextParser
 {
@@ -160,6 +164,8 @@ namespace WStructuredTextParser
     {
         /**
          * Constructor and grammar description. It contains the EBNF (Extended Backus Naur Form) of the format we can parse.
+         *
+         * \param error Will contain error message if any occurs during functions execution
          */
         explicit Grammar( std::ostream& error ): Grammar::base_type( object, "WStructuredTextParser::Grammar" ) // NOLINT - non-const ref
         {
@@ -437,6 +443,8 @@ namespace WStructuredTextParser
     public:
         /**
          * Returns the m_name member of the specified object or key-valuev pair.
+         *
+         * \param element Specified object.
          *
          * \tparam T one of the types of the \ref MemberType variant
          * \return always true since it identified an key-value pair
