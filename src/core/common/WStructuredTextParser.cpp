@@ -22,10 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
-#include <string>
-#include <sstream>
 #include <algorithm>
+#include <sstream>
+#include <string>
+#include <vector>
 
 #include "exceptions/WParseError.h"
 #include "exceptions/WNotFound.h"

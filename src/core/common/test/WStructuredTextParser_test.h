@@ -25,6 +25,9 @@
 #ifndef WSTRUCTUREDTEXTPARSER_TEST_H
 #define WSTRUCTUREDTEXTPARSER_TEST_H
 
+#include <string>
+#include <vector>
+
 #include <cxxtest/TestSuite.h>
 
 #include "../exceptions/WParseError.h"
@@ -44,7 +47,8 @@ public:
      */
     void testParseFromFile()
     {
-        using namespace WStructuredTextParser;
+        using WStructuredTextParser::StructuredValueTree;
+        using WStructuredTextParser::parseFromFile;
 
         // try to parse the fixture file
         TS_ASSERT_THROWS_NOTHING( StructuredValueTree t = parseFromFile(
@@ -59,7 +63,7 @@ public:
             boost::filesystem::path( W_FIXTURE_PATH + "WStructuredTextParser_test_doesnotexist.txt" )
         ), WFileNotFound );
 
-        // NOTE: we do not test parseFromString as parseFromFile uses parseFromString already
+        // NOTE: we do not test parseFromString as both use the same backend functionality
     }
 
     /**
@@ -67,7 +71,8 @@ public:
      */
     void testEmptyAndCount()
     {
-        using namespace WStructuredTextParser;
+        using WStructuredTextParser::StructuredValueTree;
+        using WStructuredTextParser::parseFromFile;
 
         // load some data. Please see core/common/test/fixtures/WStructuredTextParser_test.txt for details
         StructuredValueTree t = parseFromFile( boost::filesystem::path( W_FIXTURE_PATH + "WStructuredTextParser_test.txt" ) );
@@ -108,7 +113,8 @@ public:
      */
     void testQuery()
     {
-        using namespace WStructuredTextParser;
+        using WStructuredTextParser::StructuredValueTree;
+        using WStructuredTextParser::parseFromFile;
 
         // load some data. Please see core/common/test/fixtures/WStructuredTextParser_test.txt for details
         StructuredValueTree t = parseFromFile( boost::filesystem::path( W_FIXTURE_PATH + "WStructuredTextParser_test.txt" ) );
