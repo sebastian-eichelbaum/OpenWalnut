@@ -130,6 +130,11 @@ namespace WStructuredTextParser
          */
         std::vector< MemberType > m_nodes;
     };
+
+    /**
+     * An object representing all objects and comments on file level.
+     */
+    typedef std::vector< MemberType > FileType;
 }
 
 
@@ -171,14 +176,14 @@ namespace WStructuredTextParser
      * \tparam Iterator the iterator, used to get the input stream
      */
     template <typename Iterator>
-    struct Grammar: qi::grammar<Iterator, ObjectType(), ascii::space_type >
+    struct Grammar: qi::grammar<Iterator, FileType(), ascii::space_type >
     {
         /**
          * Constructor and grammar description. It contains the EBNF (Extended Backus Naur Form) of the format we can parse.
          *
          * \param error Will contain error message if any occurs during functions execution
          */
-        explicit Grammar( std::ostream& error ): Grammar::base_type( object, "WStructuredTextParser::Grammar" ) // NOLINT - non-const ref
+        explicit Grammar( std::ostream& error ): Grammar::base_type( file, "WStructuredTextParser::Grammar" ) // NOLINT - non-const ref
         {
             // a key begins with a letter
             key    %=  qi::char_( "a-zA-Z_" ) >> *qi::char_( "a-zA-Z_0-9" );
@@ -191,12 +196,16 @@ namespace WStructuredTextParser
                        qi::lexeme[ *qi::char_( "a-zA-Z_0-9!\"#$%&'()*,:;<>?@\\^`{|}~/ .@=[]§!+-" ) ];
             // a object is a name, and a set of nested objects or key-value pairs
             object %= key >> '{' >> *( object | kvpair | comment ) >> '}' >> *qi::char_( ";" );
+            // a file is basically an object without name.
+            file %= *( object | kvpair | comment );
 
             // provide names for these objects for better readability of parse errors
             object.name( "object" );
             kvpair.name( "key-value pair" );
             key.name( "key" );
             value.name( "value" );
+            file.name( "file" );
+            comment.name( "comment" );
 
             // provide error handlers
             // XXX: can someone tell me how to get them work? According to the boost::spirit doc, this is everything needed but it doesn't work.
@@ -205,6 +214,7 @@ namespace WStructuredTextParser
             qi::on_error< qi::fail >( key,    error << phoenix::val( "Error: " ) << qi::_4 );
             qi::on_error< qi::fail >( value,  error << phoenix::val( "Error: " ) << qi::_4 );
             qi::on_error< qi::fail >( comment,  error << phoenix::val( "Error: " ) << qi::_4 );
+            qi::on_error< qi::fail >( file,  error << phoenix::val( "Error: " ) << qi::_4 );
        }
 
         // Rules we use
@@ -213,6 +223,11 @@ namespace WStructuredTextParser
          * Rule for objects. Attribute is ObjectType and is the start rule of the grammar. See constructor for exact definition.
          */
         qi::rule< Iterator, ObjectType(), ascii::space_type > object;
+
+        /**
+         * Rule for files. Basically the same as an object but without name
+         */
+        qi::rule< Iterator, FileType(), ascii::space_type > file;
 
         /**
          * Rule for comments. Ignored.
@@ -236,7 +251,7 @@ namespace WStructuredTextParser
     };
 
     /**
-     * This simplifies working with a tree in a WStructuredTextParser::ObjectType instance. It provides easy query and check methods. It does not
+     * This simplifies working with a tree in a \ref FileType instance. It provides easy query and check methods. It does not
      * provide any semantic options. So check validity of the contents and structure of the tree is the job of the using class/derived class. As
      * the tree does not know anything about the semantics of your structure, it is also untyped. For every key you query, you need to specify
      * the type.
@@ -260,9 +275,28 @@ namespace WStructuredTextParser
         /**
          * Construct the instance given the original parsing structure.
          *
-         * \param tree the parsing result structure (the root node).
+         * \param file the parsing result structure (the root node).
          */
-        explicit StructuredValueTree( const ObjectType& tree );
+        explicit StructuredValueTree( const FileType& file );
+
+        /**
+         * Construct the instance given a text as string.
+         *
+         * \param toParse the text to parse
+         */
+        explicit StructuredValueTree( const std::string& toParse );
+
+        /**
+         * Construct the instance given a path to a file to load.
+         *
+         * \param file the path to a file to load.
+         */
+        explicit StructuredValueTree( const boost::filesystem::path& file );
+
+        /**
+         * Creates an empty tree. It will contain no information at all.
+         */
+        StructuredValueTree();
 
         /**
          * Cleanup.
@@ -357,7 +391,7 @@ namespace WStructuredTextParser
         /**
          * The named values.
          */
-        MemberType m_tree;
+        FileType m_file;
 
         /**
          * Recursively fills a result vector using a given path iterator. It checks whether the current element matches the current key. If yes,
@@ -383,9 +417,9 @@ namespace WStructuredTextParser
          * \param resultObjects all matching instances of type \ref ObjectType
          * \param resultValues all matching instances of type \ref KeyValueType
          */
-        void traverse( MemberType current, std::string key,
-                                           std::vector< ObjectType >& resultObjects,
-                                           std::vector< KeyValueType >& resultValues ) const;
+        void traverse( FileType current, std::string key,
+                                         std::vector< ObjectType >& resultObjects,
+                                         std::vector< KeyValueType >& resultValues ) const;
     };
 
     /**
@@ -393,23 +427,23 @@ namespace WStructuredTextParser
      *
      * \param input the input to parse.
      *
-     * \return the syntax tree.
+     * \return the syntax tree in plain format. You should use WStructuredValueTree to use this.
      *
      * \throw WParseError on parse error
      */
-    StructuredValueTree parseFromString( std::string input );
+    FileType parseFromString( std::string input );
 
     /**
      * Parse the given input and return the syntax tree. Throws an exception WParseError on error.
      *
      * \param path the file to parse
      *
-     * \return the syntax tree.
+     * \return the syntax tree in plain format. You should use WStructuredValueTree to use this.
      *
      * \throw WParseError on parse error
      * \throw WFileNotFOund in case the specified file could not be opened
      */
-    StructuredValueTree parseFromFile( boost::filesystem::path path );
+    FileType parseFromFile( boost::filesystem::path path );
 
     template< typename T >
     T StructuredValueTree::getValue( std::string key, const T& defaultValue ) const
@@ -543,7 +577,7 @@ namespace WStructuredTextParser
         std::vector< KeyValueType > rKV;
 
         // traverse
-        traverse( m_tree, key, rObj, rKV );
+        traverse( m_file, key, rObj, rKV );
 
         // copy to result vector and cast
         std::vector< T > r;

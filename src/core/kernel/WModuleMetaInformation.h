@@ -36,8 +36,8 @@
 
 /**
  * A class abstracting module meta information. It encapsulates module name, description, icon, author lists, help resources, online resources
- * and much more. It is guaranteed to at least provide a module name. Everything else is optional. It also encapsulates the
- * WModuleMetaInformationParser class for loading the data.
+ * and much more. It is guaranteed to, at least, provide a module name. Everything else is optional. It also encapsulates the
+ * WStructuredTextParser class for loading the data.
  */
 class WModuleMetaInformation
 {
@@ -61,7 +61,8 @@ public:
     explicit WModuleMetaInformation( std::string name );
 
     /**
-     * Construct a meta info object that loads all information from the specified file.
+     * Construct a meta info object that loads all information from the specified file. If the file does not exist or could not be parsed, only
+     * an error log is printed. No exception is thrown.
      *
      * \param name the module name
      * \param metafile the path to the module's meta file. Usually, this is somewhere in WModule::m_localPath.
@@ -82,7 +83,7 @@ private:
     /**
      * The tree representing the data
      */
-    //WStructuredTextParser::SyntaxTree m_metaData;
+    WStructuredTextParser::StructuredValueTree m_metaData;
 };
 
 #endif  // WMODULEMETAINFORMATION_H

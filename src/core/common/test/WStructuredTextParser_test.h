@@ -47,19 +47,18 @@ public:
      */
     void testParseFromFile()
     {
-        using WStructuredTextParser::StructuredValueTree;
         using WStructuredTextParser::parseFromFile;
 
         // try to parse the fixture file
-        TS_ASSERT_THROWS_NOTHING( StructuredValueTree t = parseFromFile(
+        TS_ASSERT_THROWS_NOTHING( parseFromFile(
             boost::filesystem::path( W_FIXTURE_PATH + "WStructuredTextParser_test.txt" )
         ) );
 
-        TS_ASSERT_THROWS( StructuredValueTree t = parseFromFile(
+        TS_ASSERT_THROWS( parseFromFile(
             boost::filesystem::path( W_FIXTURE_PATH + "WStructuredTextParser_test_invalid.txt" )
         ), WParseError );
 
-        TS_ASSERT_THROWS( StructuredValueTree t = parseFromFile(
+        TS_ASSERT_THROWS( parseFromFile(
             boost::filesystem::path( W_FIXTURE_PATH + "WStructuredTextParser_test_doesnotexist.txt" )
         ), WFileNotFound );
 
@@ -72,10 +71,9 @@ public:
     void testEmptyAndCount()
     {
         using WStructuredTextParser::StructuredValueTree;
-        using WStructuredTextParser::parseFromFile;
 
         // load some data. Please see core/common/test/fixtures/WStructuredTextParser_test.txt for details
-        StructuredValueTree t = parseFromFile( boost::filesystem::path( W_FIXTURE_PATH + "WStructuredTextParser_test.txt" ) );
+        StructuredValueTree t( boost::filesystem::path( W_FIXTURE_PATH + "WStructuredTextParser_test.txt" ) );
 
         // check StructuredValueTree::exists
         TS_ASSERT( t.exists( "level0/level1/somekv" ) );
@@ -90,6 +88,14 @@ public:
         TS_ASSERT( t.exists( "level0/level1", true ) ); // NOTE: level1 is an object AND kv pair
         TS_ASSERT( !t.exists( "level0/notuniquelevel1", true ) );
         TS_ASSERT( t.exists( "level0/notuniquelevel1/unique", true ) );
+
+        // exists the other level0 object?
+        TS_ASSERT( t.exists( "anotherlevel0" ) );
+        TS_ASSERT( t.exists( "anotherlevel0/avalue" ) );
+
+        // exists the file level kv pair?
+        TS_ASSERT( t.exists( "fileLevelValue", true ) );
+        TS_ASSERT( t.exists( "filelevelvalue", true ) );
 
         // check StructuredValueTree::count
         TS_ASSERT( t.count( "level0/level1/somekv" ) == 1 );
@@ -106,6 +112,10 @@ public:
         TS_ASSERT( t.count( "level0/level1" ) == 2 ); // NOTE: level1 is an object AND kv pair
         TS_ASSERT( t.count( "level0/notuniquelevel1" ) == 2 );
         TS_ASSERT( t.count( "level0/notuniquelevel1", true ) == 0 );
+
+        // to ensure case sensitivity:
+        TS_ASSERT( t.count( "filelevelvalue", true ) == 1 );
+        TS_ASSERT( t.count( "fileLevelValue", true ) == 1 );
     }
 
     /**
@@ -114,10 +124,9 @@ public:
     void testQuery()
     {
         using WStructuredTextParser::StructuredValueTree;
-        using WStructuredTextParser::parseFromFile;
 
         // load some data. Please see core/common/test/fixtures/WStructuredTextParser_test.txt for details
-        StructuredValueTree t = parseFromFile( boost::filesystem::path( W_FIXTURE_PATH + "WStructuredTextParser_test.txt" ) );
+        StructuredValueTree t( boost::filesystem::path( W_FIXTURE_PATH + "WStructuredTextParser_test.txt" ) );
 
         // query only values here.
 
@@ -133,6 +142,9 @@ public:
 
         // check if we can find not unique names which represent a class and a kv pair
         TS_ASSERT( t.getValue< std::string >( "level0/level1", "default" ) == "something" );
+
+        // check if we can find the other level0 object
+        TS_ASSERT( t.getValue< std::string >( "anotherlevel0/avalue", "default" ) == "hey" );
 
         // now check getValues which should return a list of matching values
         std::vector< std::string > defs;
@@ -153,6 +165,10 @@ public:
         // this is valid for getValue, getValues and [] as they utilize the same function
         TS_ASSERT_THROWS( t.operator[]< size_t >( "level0/notuniquekv" ), WTypeMismatch );
         TS_ASSERT( t.operator[]< size_t >( "level0/level1/somekv" ) == 123 );
+
+        // to ensure case sensitivity:
+        TS_ASSERT( t.getValues< std::string >( "filelevelvalue", defs ).size() == 1 );
+        TS_ASSERT( t.getValues< std::string >( "fileLevelValue", defs ).size() == 1 );
     }
 };
 

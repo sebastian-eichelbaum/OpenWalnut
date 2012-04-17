@@ -38,10 +38,26 @@ namespace WStructuredTextParser
 {
     const std::string StructuredValueTree::Separator = "/";
 
-    StructuredValueTree::StructuredValueTree( const ObjectType& tree )
+    StructuredValueTree::StructuredValueTree( const FileType& file ):
+        m_file( file )
     {
         // initialize member
-        m_tree = tree;
+    }
+
+    StructuredValueTree::StructuredValueTree()
+    {
+        // do nothing.
+    }
+
+    StructuredValueTree::StructuredValueTree( const std::string& toParse ):
+        m_file( parseFromString( toParse ) )
+    {
+        // initialize
+    }
+
+    StructuredValueTree::StructuredValueTree( const boost::filesystem::path& file ):
+        m_file( parseFromFile( file ) )
+    {
     }
 
     StructuredValueTree::~StructuredValueTree()
@@ -60,7 +76,7 @@ namespace WStructuredTextParser
         std::vector< KeyValueType > rKV;
 
         // traverse
-        traverse( m_tree, key, rObj, rKV );
+        traverse( m_file, key, rObj, rKV );
 
         if( valuesOnly )
         {
@@ -72,9 +88,9 @@ namespace WStructuredTextParser
         }
     }
 
-    void StructuredValueTree::traverse( MemberType current, std::string key,
-                                                            std::vector< ObjectType >& resultObjects,
-                                                            std::vector< KeyValueType >& resultValues ) const
+    void StructuredValueTree::traverse( FileType current, std::string key,
+                                                          std::vector< ObjectType >& resultObjects,
+                                                          std::vector< KeyValueType >& resultValues ) const
     {
         // split up the key
         std::vector< std::string > keySplit = string_utils::tokenize( key, Separator, false );
@@ -85,7 +101,10 @@ namespace WStructuredTextParser
         }
 
         // traverse
-        traverse( current, keySplit.begin(), keySplit.end(), resultObjects, resultValues );
+        for( FileType::const_iterator i = current.begin(); i != current.end(); ++i )
+        {
+            traverse( *i, keySplit.begin(), keySplit.end(), resultObjects, resultValues );
+        }
     }
 
     void StructuredValueTree::traverse( MemberType current, std::vector< std::string >::const_iterator keyIter,
@@ -139,13 +158,13 @@ namespace WStructuredTextParser
         // done
     }
 
-    StructuredValueTree parseFromString( std::string input )
+    FileType parseFromString( std::string input )
     {
         std::ostringstream error;
         WStructuredTextParser::Grammar< std::string::const_iterator > parser( error );
 
         // parse
-        ObjectType ast;
+        FileType ast;
         std::string::const_iterator iter = input.begin();
         std::string::const_iterator end = input.end();
         bool r = phrase_parse( iter, end, parser, boost::spirit::ascii::space, ast );
@@ -157,10 +176,10 @@ namespace WStructuredTextParser
         }
 
         // done. return
-        return StructuredValueTree( ast );
+        return ast;
     }
 
-    StructuredValueTree parseFromFile( boost::filesystem::path path )
+    FileType parseFromFile( boost::filesystem::path path )
     {
         // NOTE: do not catch the io exception here.
         std::string input= readFileIntoString( path );
@@ -170,7 +189,7 @@ namespace WStructuredTextParser
         WStructuredTextParser::Grammar< std::string::const_iterator > parser( error );
 
         // parse
-        ObjectType ast;
+        FileType ast;
         std::string::const_iterator iter = input.begin();
         std::string::const_iterator end = input.end();
         bool r = phrase_parse( iter, end, parser, boost::spirit::ascii::space, ast );
@@ -182,7 +201,7 @@ namespace WStructuredTextParser
         }
 
         // done. return
-        return StructuredValueTree( ast );
+        return ast;
     }
 }
 
