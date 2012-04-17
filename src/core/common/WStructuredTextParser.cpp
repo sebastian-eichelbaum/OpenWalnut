@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <iostream>
 #include <string>
 #include <sstream>
 #include <algorithm>
@@ -48,14 +49,94 @@ namespace WStructuredTextParser
         // cleanup
     }
 
-    bool StructuredValueTree::exists( std::string key ) const
+    bool StructuredValueTree::exists( std::string key, bool valuesOnly ) const
     {
-        return count( key );
+        return count( key, valuesOnly );
     }
 
-    size_t StructuredValueTree::count( std::string key ) const
+    size_t StructuredValueTree::count( std::string key, bool valuesOnly ) const
     {
-        return getValues< std::string >( key ).size();
+        std::vector< ObjectType > rObj;
+        std::vector< KeyValueType > rKV;
+
+        // traverse
+        traverse( m_tree, key, rObj, rKV );
+
+        if( valuesOnly )
+        {
+            return rKV.size();
+        }
+        else
+        {
+            return rKV.size() + rObj.size();
+        }
+    }
+
+    void StructuredValueTree::traverse( MemberType current, std::string key,
+                                                            std::vector< ObjectType >& resultObjects,
+                                                            std::vector< KeyValueType >& resultValues ) const
+    {
+        // split up the key
+        std::vector< std::string > keySplit = string_utils::tokenize( key, Separator, false );
+        // empty key -> return empty result list
+        if( !keySplit.size() )
+        {
+            return;
+        }
+
+        // traverse
+        traverse( current, keySplit.begin(), keySplit.end(), resultObjects, resultValues );
+    }
+
+    void StructuredValueTree::traverse( MemberType current, std::vector< std::string >::const_iterator keyIter,
+                                                            std::vector< std::string >::const_iterator keyEnd,
+                                                            std::vector< ObjectType >& resultObjects,
+                                                            std::vector< KeyValueType >& resultValues ) const
+    {
+        // get some properties of the current entry:
+        std::string elementName = boost::apply_visitor( NameQueryVisitor(), current );
+        bool elementIsKeyValuePair = boost::apply_visitor( IsLeafVisitor(), current );
+        bool elementIsComment = boost::apply_visitor( IsCommentVisitor(), current );
+
+        // comments will be ignored.
+        // NOTE: we store comments in the original data structure to allow them to be written again to the file. This can be useful if OW loads a
+        // file (edited by the user) and re-writes this file. -> we are able to keep the comments
+        if( elementIsComment )
+        {
+            return;
+        }
+
+        // does the current node match the current name?
+        if( elementName == *keyIter )
+        {
+            // only if the key path continues AND the current element is no leaf, traverse
+            if( !elementIsKeyValuePair && ( ( keyIter + 1 ) != keyEnd) )
+            {
+                ObjectType elementAsObj = boost::get< ObjectType >( current );
+                for( std::vector< MemberType >::const_iterator nodeIter = elementAsObj.m_nodes.begin();
+                    nodeIter != elementAsObj.m_nodes.end();
+                    ++nodeIter )
+                {
+                    traverse( *nodeIter, keyIter + 1, keyEnd, resultObjects, resultValues );
+                }
+            }
+            else if( ( keyIter + 1 ) == keyEnd )
+            {
+                // we now have reached the end of the path.
+                if( elementIsKeyValuePair )
+                {
+                    // the current element is a key-value pair -> add to result vector
+                    resultValues.push_back( boost::get< KeyValueType >( current ) );
+                }
+                else
+                {
+                    // the element is a object -> add to result vector
+                    resultObjects.push_back( boost::get< ObjectType >( current ) );
+                }
+            }
+            // all the remaining cases are invalid and cause traversion to stop
+        }
+        // done
     }
 
     StructuredValueTree parseFromString( std::string input )

@@ -80,6 +80,11 @@ namespace WStructuredTextParser
     typedef std::string ValueType;
 
     /**
+     * The type used for comments
+     */
+    typedef std::string CommentType;
+
+    /**
      * Forward declare the object type.
      */
     struct ObjectType;
@@ -105,7 +110,8 @@ namespace WStructuredTextParser
     typedef
         boost::variant<
             boost::recursive_wrapper< ObjectType >,
-            KeyValueType
+            KeyValueType,
+            CommentType
         >
     MemberType;
 
@@ -153,9 +159,14 @@ namespace WStructuredTextParser
     /**
      * The grammar describing the structured format. It uses the boost::spirit features to parse the input. There are several rules to comply to
      * successfully parse a file:
-     *  Key: identifier, needs to be a-z,A-Z,0-9,_
-     *  Object: defined as key + { ... }
-     *  Key-Value Pair: is a member of an object and is defines as key="value".
+     * <ul>
+     *  <li>Key: identifier, needs to be a-z,A-Z,0-9,_
+     *  <li>Object: defined as key + { ... }
+     *  <li> ";" is optional after objects
+     *  <li>Key-Value Pair: is a member of an object and is defines as key="value".
+     *  <li>Comments begin with //
+     * </ul>
+     * For more details please see the test fixture file in core/common/test/fixtures/WStrutcuredTextParser_test.txt.
      *
      * \tparam Iterator the iterator, used to get the input stream
      */
@@ -175,8 +186,11 @@ namespace WStructuredTextParser
             value  %=  qi::lexeme[ '"' >> +( qi::char_ - '"' ) >> '"' ];
             // a pair is: key = value
             kvpair %=  key >> '=' >> value >> ';';
+            // a comment is // + arbitrary symbols
+            comment %= qi::lexeme[ qi::char_( "/" ) >> qi::char_( "/" ) ] >>
+                       qi::lexeme[ *qi::char_( "a-zA-Z_0-9!\"#$%&'()*,:;<>?@\\^`{|}~/ .@=[]§!+-" ) ];
             // a object is a name, and a set of nested objects or key-value pairs
-            object %=  key >> '{' >> *( object | kvpair ) >> '}';
+            object %= key >> '{' >> *( object | kvpair | comment ) >> '}' >> *qi::char_( ";" );
 
             // provide names for these objects for better readability of parse errors
             object.name( "object" );
@@ -190,6 +204,7 @@ namespace WStructuredTextParser
             qi::on_error< qi::fail >( kvpair, error << phoenix::val( "Error: " ) << qi::_4 );
             qi::on_error< qi::fail >( key,    error << phoenix::val( "Error: " ) << qi::_4 );
             qi::on_error< qi::fail >( value,  error << phoenix::val( "Error: " ) << qi::_4 );
+            qi::on_error< qi::fail >( comment,  error << phoenix::val( "Error: " ) << qi::_4 );
        }
 
         // Rules we use
@@ -198,6 +213,11 @@ namespace WStructuredTextParser
          * Rule for objects. Attribute is ObjectType and is the start rule of the grammar. See constructor for exact definition.
          */
         qi::rule< Iterator, ObjectType(), ascii::space_type > object;
+
+        /**
+         * Rule for comments. Ignored.
+         */
+        qi::rule< Iterator, CommentType(), ascii::space_type > comment;
 
         /**
          * Key-value pair rule. See constructor for exact definition.
@@ -225,12 +245,15 @@ namespace WStructuredTextParser
      * itself. When querying, you always need to specify the full path. This class can be seen as accessor to the \ref ObjectType tree.
      *
      * \note The syntax of the parsed files is defined by the parser itself. See \ref Grammar for details.
+     * \note This also stores the comments of the parsed file. This allows them to be written again if OW loads a file, modifies it and re-writes
+     * it.
      */
     class StructuredValueTree
     {
+        friend class WStructuredTextParserTest;
     public:
         /**
-         * This char is used as separator for identifying values in the tree.
+         * This char is used as separator for identifying values in the tree. NEVER change this value.
          */
         static const std::string Separator;
 
@@ -247,27 +270,31 @@ namespace WStructuredTextParser
         virtual ~StructuredValueTree();
 
         /**
-         * Checks whether the given value or object exists.
+         * Checks whether the given value or object exists. If you want to know only if a value with the given name exists, set valuesOnly to
+         * true.
          *
          * \param key path to the value
+         * \param valuesOnly if true, it checks only if a value with the name exists. If false, also objects with this name cause this function
+         * to return true.
          *
          * \return true if existing.
          */
-        bool exists( std::string key ) const;
+        bool exists( std::string key, bool valuesOnly = false ) const;
 
         /**
          * It is possible that there are multiple values matching a key. This method counts them.
          *
          * \param key path to the values to count
+         * \param valuesOnly if true, it only counts values matching the given name.
          *
          * \return the number of found values.
          */
-        size_t count( std::string key ) const;
+        size_t count( std::string key, bool valuesOnly = false ) const;
 
         /**
          * Queries the value with the given name. If it is not found, the default value will be returned.
          *
-         * \param key path to the value
+         * \param key path to the value. Paths to whole objects are invalid.
          * \param defaultValue the default if no value was found
          * \tparam T the return type. This method tries to cast to this type. If it fails, an exception is thrown. Type std::string is always valid.
          *
@@ -283,7 +310,7 @@ namespace WStructuredTextParser
         /**
          * Queries the list of values matching the given path. If it is not found, the default value will be returned.
          *
-         * \param key path to the value
+         * \param key path to the value. Paths to whole objects are invalid.
          * \param defaults the defaults if no value was found
          * \tparam T the return type. This method tries to cast to this type. If it fails, an exception is thrown. Type std::string is always valid.
          *
@@ -299,7 +326,7 @@ namespace WStructuredTextParser
         /**
          * Queries the list of values matching the given path. If it is not found, an empty results vector is returned.
          *
-         * \param key path to the value
+         * \param key path to the value. Paths to whole objects are invalid.
          * \tparam T the return type. This method tries to cast to this type. If it fails, an exception is thrown. Type std::string is always valid.
          *
          * \throw WTypeMismatch if the value cannot be cast to the specified target type
@@ -315,7 +342,7 @@ namespace WStructuredTextParser
          * Queries the value with the given name. If it is not found, an exception is thrown. If multiple entries with this path exist, the first
          * one is returned. Use \ref getValues in this case. Query the count of a key:value pair using \ref count
          *
-         * \param key path to the value
+         * \param key path to the value. Paths to whole objects are invalid.
          * \tparam T the return type. This method tries to cast to this type. If it fails, an exception is thrown. Type std::string is always valid.
          * \throw WTypeMismatch if the value cannot be cast to the specified target type
          * \throw WNotFound if the key:value pair does not exist
@@ -336,18 +363,29 @@ namespace WStructuredTextParser
          * Recursively fills a result vector using a given path iterator. It checks whether the current element matches the current key. If yes,
          * it traverses or adds the value to the result vector. This uses depth-first search and allows multiple matches for one key.
          *
-         * \tparam T the return type. This method tries to cast to this type. If it fails, an exception is thrown. Type std::string is always valid.
-         * \throw WTypeMismatch if the value cannot be cast to the specified target type
-         *
          * \param current current element to check and recursively traverse
          * \param keyIter the current path element
          * \param keyEnd the end iter. Just used to stop iteration if the key as not further elements
-         * \param result the result vector gets filled with the result values in correct type.
+         * \param resultObjects all matching instances of type \ref ObjectType
+         * \param resultValues all matching instances of type \ref KeyValueType
          */
-        template< typename T >
         void traverse( MemberType current, std::vector< std::string >::const_iterator keyIter,
                                            std::vector< std::string >::const_iterator keyEnd,
-                                           std::vector< T >& result ) const;
+                                           std::vector< ObjectType >& resultObjects,
+                                           std::vector< KeyValueType >& resultValues ) const;
+
+        /**
+         * Recursively fills a result vector using a given path iterator. It checks whether the current element matches the current key. If yes,
+         * it traverses or adds the value to the result vector. This uses depth-first search and allows multiple matches for one key.
+         *
+         * \param current current element to check and recursively traverse
+         * \param key the path
+         * \param resultObjects all matching instances of type \ref ObjectType
+         * \param resultValues all matching instances of type \ref KeyValueType
+         */
+        void traverse( MemberType current, std::string key,
+                                           std::vector< ObjectType >& resultObjects,
+                                           std::vector< KeyValueType >& resultValues ) const;
     };
 
     /**
@@ -427,9 +465,40 @@ namespace WStructuredTextParser
         /**
          * Returns always false as it is only called for objects.
          *
-         * \return always false since it identified an Object.
+         * \tparam T the type. Should be \ref ObjectType or \ref CommentType
+         * \return always false since it identified an Object/comment
          */
-        bool operator()( const ObjectType& /* element */ ) const
+        template< typename T >
+        bool operator()( const T& /* element */ ) const
+        {
+            return false;
+        }
+    };
+
+    /**
+     * Visitor to identify whether the given variant of type \ref MemberType is a comment.
+     */
+    class IsCommentVisitor: public boost::static_visitor< bool >
+    {
+    public:
+        /**
+         * Returns always true as it is only called for comments.
+         *
+         * \return always true
+         */
+        bool operator()( const CommentType& /* element */ ) const
+        {
+            return true;
+        }
+
+        /**
+         * Returns always false as it is only called for objects and key-value pairs.
+         *
+         * \tparam T the type. Should be \ref ObjectType or \ref KeyValueType
+         * \return always false since it identified an Object/KeyValueType
+         */
+        template< typename T >
+        bool operator()( const T& /* element */ ) const
         {
             return false;
         }
@@ -441,6 +510,16 @@ namespace WStructuredTextParser
     class NameQueryVisitor: public boost::static_visitor< std::string >
     {
     public:
+        /**
+         * Comments have no name.
+         *
+         * \return empty string.
+         */
+        std::string operator()( const CommentType& /* element */ ) const
+        {
+            return "";
+        }
+
         /**
          * Returns the m_name member of the specified object or key-valuev pair.
          *
@@ -459,63 +538,30 @@ namespace WStructuredTextParser
     template< typename T >
     std::vector< T > StructuredValueTree::getValues( std::string key ) const
     {
-        MemberType current = m_tree;
+        // traverse the tree
+        std::vector< ObjectType > rObj;
+        std::vector< KeyValueType > rKV;
 
-        // split up the key
-        std::vector< std::string > keySplit = string_utils::tokenize( key, Separator, false );
-        // empty key -> return empty result list
-        if( !keySplit.size() )
-        {
-            return std::vector< T >();
-        }
+        // traverse
+        traverse( m_tree, key, rObj, rKV );
 
-        // traverse the tree and construct the result vector
+        // copy to result vector and cast
         std::vector< T > r;
-        traverse( m_tree, keySplit.begin(), keySplit.end(), r );
-        return r;
-    }
-
-    template< typename T >
-    void StructuredValueTree::traverse( MemberType current, std::vector< std::string >::const_iterator keyIter,
-                                                            std::vector< std::string >::const_iterator keyEnd,
-                                                            std::vector< T >& result ) const
-    {
-        std::string elementName = boost::apply_visitor( NameQueryVisitor(), current );
-        bool elementIsLeaf = boost::apply_visitor( IsLeafVisitor(), current );
-
-        // does the current node match the current name?
-        if( elementName == *keyIter )
+        for( std::vector< KeyValueType >::const_iterator i = rKV.begin(); i != rKV.end(); ++i )
         {
-            // only if the key path continues AND the current element is no lead, traverse
-            if( !elementIsLeaf && ( ( keyIter + 1 ) != keyEnd) )
+            try
             {
-                ObjectType elementAsObj = boost::get< ObjectType >( current );
-                for( std::vector< MemberType >::const_iterator nodeIter = elementAsObj.m_nodes.begin();
-                    nodeIter != elementAsObj.m_nodes.end();
-                    ++nodeIter )
-                {
-                    traverse( *nodeIter, keyIter + 1, keyEnd, result );
-                }
+                r.push_back( string_utils::fromString< T >( ( *i ).m_value ) );
             }
-            else if( elementIsLeaf && ( ( keyIter + 1 ) == keyEnd ) )
+            catch( const std::exception& e )
             {
-                // if this element is a leaf and the path also ends here (names match already checked) -> add value to result vector
-                KeyValueType elementAsKV = boost::get< KeyValueType >( current );
-
-                // try to cast to the desired type and add to vector
-                try
-                {
-                    result.push_back( string_utils::fromString< T >( elementAsKV.m_value ) );
-                }
-                catch( const std::exception& e )
-                {
-                    // convert the standard exception (if cannot convert) to a WTypeMismnatch.
-                    throw WTypeMismatch( "Cannot convert element \"" + *keyIter + "\" to desired type." );
-                }
+                // convert the standard exception (if cannot convert) to a WTypeMismnatch.
+                throw WTypeMismatch( "Cannot convert element \"" + key + "\" to desired type." );
             }
-            // all the remaining cases are invalid and cause traversion to stop
         }
+
         // done
+        return r;
     }
 }
 

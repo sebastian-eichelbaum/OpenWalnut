@@ -1,0 +1,34 @@
+level0
+{
+    // test whether the parser finds these key-value pairs (KV)
+    uniquekv = "hello";
+    // test if it is able to handle multile, equally named KV
+    notuniquekv = "hello";
+    notuniquekv = "world";
+    
+    // test whether it can handle sub-classes
+    level1
+    {
+        somekv = "123";
+        level2
+        {
+            hello = "you";
+        }
+    }
+    // test whether it can handle a class and KV pair which have the same name
+    level1 = "something";
+
+    // test with two equally named sublevels
+    notuniquelevel1
+    {
+        // the parser needs to find both "somekv" values
+        somekv = "abc";
+    }
+    notuniquelevel1
+    {
+        somekv = "def";
+        // and it needs to find this KV which only is inside this sublevel
+        unique = "yes";
+    };
+    // NOTE: the ; on the end of the previous class: is optional
+}

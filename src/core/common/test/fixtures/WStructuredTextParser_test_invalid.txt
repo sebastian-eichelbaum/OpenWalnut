@@ -1,0 +1,6 @@
+// invalid class name/syntax test
+level0(
+{
+    
+};
+
