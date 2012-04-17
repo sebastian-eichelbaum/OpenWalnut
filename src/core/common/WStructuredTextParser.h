@@ -553,7 +553,7 @@ namespace WStructuredTextParser
             {
                 r.push_back( string_utils::fromString< T >( ( *i ).m_value ) );
             }
-            catch( const std::exception& e )
+            catch( ... )
             {
                 // convert the standard exception (if cannot convert) to a WTypeMismnatch.
                 throw WTypeMismatch( "Cannot convert element \"" + key + "\" to desired type." );

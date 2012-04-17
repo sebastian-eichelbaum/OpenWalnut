@@ -35,6 +35,8 @@
 #include <string>
 #include <vector>
 
+#include "exceptions/WTypeMismatch.h"
+
 /**
  * Some utilities for string manipulation and output operations. Please note
  * that the overloaded ostream output operators aren't in a separate namespace
@@ -77,6 +79,7 @@ namespace string_utils
      * \tparam T the source type.
      * \param str the value to cast to string
      *
+     * \throw WTypeMismatch if the string cannot be converted properly.
      * \return the string.
      */
     template< typename T >
@@ -85,6 +88,10 @@ namespace string_utils
         std::stringstream ss( str );
         T value;
         ss >> value;
+        if( ss.fail() )
+        {
+            throw WTypeMismatch( "Specified string could not be converted to target type." );
+        }
         return value;
     }
 

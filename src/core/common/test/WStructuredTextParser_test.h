@@ -29,6 +29,8 @@
 
 #include "../exceptions/WParseError.h"
 #include "../exceptions/WFileNotFound.h"
+#include "../exceptions/WNotFound.h"
+#include "../exceptions/WTypeMismatch.h"
 #include "../WStructuredTextParser.h"
 
 /**
@@ -127,12 +129,24 @@ public:
         TS_ASSERT( t.getValue< std::string >( "level0/level1", "default" ) == "something" );
 
         // now check getValues which should return a list of matching values
-        std::vector< std::string > defs( 1, "default" );
+        std::vector< std::string > defs;
 
         TS_ASSERT( t.getValues< std::string >( "level0/notuniquelevel1/somekv", defs ).size() == 2 );
         TS_ASSERT( ( *t.getValues< std::string >( "level0/notuniquelevel1/somekv", defs ).begin() ) == "abc" );
         TS_ASSERT( ( *( t.getValues< std::string >( "level0/notuniquelevel1/somekv", defs ).begin() + 1 ) ) == "def" );
 
+        // check the return of a default
+        TS_ASSERT( t.getValues< std::string >( "level0/notexists", defs ).size() == 0 );
+        // and the empty default
+        TS_ASSERT( t.getValues< std::string >( "level0/notexists" ).size() == 0 );
+
+        // check operator[] (it uses getValue internally. So we only check for the WNotFound exception)
+        TS_ASSERT_THROWS( t.operator[]< std::string >( "level0/notexists" ), WNotFound );
+
+        // check type conversion
+        // this is valid for getValue, getValues and [] as they utilize the same function
+        TS_ASSERT_THROWS( t.operator[]< size_t >( "level0/notuniquekv" ), WTypeMismatch );
+        TS_ASSERT( t.operator[]< size_t >( "level0/level1/somekv" ) == 123 );
     }
 };
 
