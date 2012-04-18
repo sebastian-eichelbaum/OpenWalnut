@@ -52,6 +52,19 @@ QPointF WQtNetworkEditorView::getCenter()
     return m_currentCenterPoint;
 }
 
+void WQtNetworkEditorView::leaveEvent( QEvent* event )
+{
+    // are we in pan mode?
+    if( !m_lastPanPoint.isNull() )
+    {
+        // if the widget is left by the mouse during pan: deactivate pan
+        m_lastPanPoint = QPoint();
+    }
+
+    // forward
+    QGraphicsView::leaveEvent( event );
+}
+
 void WQtNetworkEditorView::mousePressEvent( QMouseEvent* event )
 {
     // only pan if no element is hit

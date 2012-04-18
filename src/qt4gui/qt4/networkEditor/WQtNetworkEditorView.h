@@ -103,6 +103,13 @@ protected:
      */
     void keyPressEvent( QKeyEvent *event );
 
+    /**
+     * Mouse leaves the widget.
+     *
+     * \param event the event
+     */
+    void leaveEvent( QEvent* event );
+
 private:
     /**
      * The currently set centerpoint.
