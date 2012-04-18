@@ -28,8 +28,10 @@
 #include <vector>
 
 #include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
 
 #include "core/common/WLogger.h"
+#include "core/common/WIOTools.h"
 #include "core/common/WLogStream.h"
 #include "core/common/WThreadedRunner.h"
 #include "core/common/WSegmentationFault.h"
@@ -138,18 +140,46 @@ int main( int argc, char** argv )
     WLogger::startup();
 
     // add a crash-log.
-    // TODO(all): we should think about the location of this file.
-    std::ofstream crashLogFile( logFile.c_str() );
+    if( optionsMap.count( "log" ) )
+    {
+        logFile = optionsMap["log"].as< std::string >();
+    }
+
+    // determine log paths
+    boost::filesystem::path logPath( logFile );
+    logPath = boost::filesystem::system_complete( logPath );
+    bool fallbackLog = false; // if true, the original log file could not be opened. A fallback is provided.
+    boost::filesystem::path fallbackLogFile = tempFilename( "OpenWalnutLog-%%%%%%%%.log" );
+
+    // is the log writeable?
+    std::ofstream crashLogFile( logPath.string().c_str() );
     if( !crashLogFile.is_open() )
     {
-        wlog::warn( "Walnut" ) << "Could not open \"" << logFile << "\" for writing. You will have no log-file.";
+        // try to create fallback
+        crashLogFile.open( fallbackLogFile.string().c_str() );
+        fallbackLog = true;
+    }
+
+    // create log stream
+    if( crashLogFile.is_open() )
+    {
+        // create the WLogStream. Set special format and DISABLE colors.
+        WLogStream::SharedPtr crashLog = WLogStream::SharedPtr( new WLogStream( crashLogFile, LL_DEBUG, "%t %l %s: %m\n", false ) );
+        WLogger::getLogger()->addStream( crashLog );
+
+        // NOTE: the stream flushes after each entry. This is needed if a crash occurs.
+        if( !fallbackLog )
+        {
+            wlog::info( "Walnut" ) << "Using the file \"" << logPath.string() << "\" for logging.";
+        }
+        else
+        {
+            wlog::info( "Walnut" ) << "Using the fallback file \"" << fallbackLogFile.string() << "\" for logging.";
+        }
     }
     else
     {
-        // create the WLogStream. Set special format and DISABLE colors.
-        // NOTE: the stream flushes after each entry. This is needed if a crash occurs.
-        WLogStream::SharedPtr crashLog = WLogStream::SharedPtr( new WLogStream( crashLogFile, LL_DEBUG, "%t %l %s: %m\n", false ) );
-        WLogger::getLogger()->addStream( crashLog );
+        wlog::warn( "Walnut" ) << "Could not open \"" << logPath.string() << "\" for writing. You will have no log-file.";
     }
 
     // the kernel, and the gui should print their version info. This helps processing crashlogs from users.
