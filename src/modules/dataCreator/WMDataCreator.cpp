@@ -26,6 +26,7 @@
 
 #include "core/common/WAssert.h"
 #include "core/common/WProgress.h"
+#include "core/common/WStrategyHelper.h"
 #include "core/dataHandler/WGridRegular3D.h"
 #include "core/kernel/WKernel.h"
 
@@ -35,11 +36,12 @@
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMDataCreator )
 
-WMDataCreator::WMDataCreator() :
-    WModule()
+WMDataCreator::WMDataCreator():
+    WModule(),
+    m_strategy( "Dataset Creators", "Select one of the dataset creators and configure it to your needs.", NULL,
+                "Creator", "A list of all known creators." )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
-    // Implement WModule::initializeConnectors instead.
 }
 
 WMDataCreator::~WMDataCreator()
@@ -65,7 +67,7 @@ const std::string WMDataCreator::getName() const
 
 const std::string WMDataCreator::getDescription() const
 {
-    return "Allows the user to create data sets by providing a bunch of data creation schemes.";
+    return "Allows the user to create data sets on a regular grid by providing a bunch of data creation schemes.";
 }
 
 void WMDataCreator::connectors()
@@ -80,6 +82,25 @@ void WMDataCreator::connectors()
 void WMDataCreator::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+    // how much voxels?
+    m_nbVoxelsX = m_properties->addProperty( "Voxels X", "The number of voxels in X direction.", 128, m_propCondition );
+    m_nbVoxelsX->setMin( 1 );
+    m_nbVoxelsX->setMax( 4096 );
+    m_nbVoxelsY = m_properties->addProperty( "Voxels Y", "The number of voxels in Y direction.", 128, m_propCondition );
+    m_nbVoxelsY->setMin( 1 );
+    m_nbVoxelsY->setMax( 4096 );
+    m_nbVoxelsZ = m_properties->addProperty( "Voxels Z", "The number of voxels in Z direction.", 128, m_propCondition );
+    m_nbVoxelsZ->setMin( 1 );
+    m_nbVoxelsZ->setMax( 4096 );
+
+    // grid transform information
+    m_origin = m_properties->addProperty( "Origin", "Coordinate of the origin (voxel 0,0,0).", WPosition( 0.0, 0.0, 0.0 ), m_propCondition );
+    m_size = m_properties->addProperty( "Size", "The size of the dataset along the X,Y, and Z axis in the OpenWalnut coordinate system.",
+                                        WPosition( 128.0, 128.0, 128.0 ), m_propCondition );
+
+    // now, setup the strategy helper.
+    m_properties->addProperty( m_strategy.getProperties() );
 
     WModule::properties();
 }
@@ -106,7 +127,40 @@ void WMDataCreator::moduleMain()
         {
             break;
         }
-
     }
+}
+
+WMDataCreator::DataCreatorBase::DataCreatorBase( std::string name, std::string description, const char** icon ):
+    m_name( name ),
+    m_description( description ),
+    m_icon( icon ),
+    m_properties( new WProperties( name, description ) )
+{
+    // init
+}
+
+WMDataCreator::DataCreatorBase::~DataCreatorBase()
+{
+    // cleanup
+}
+
+std::string WMDataCreator::DataCreatorBase::getName() const
+{
+    return m_name;
+}
+
+std::string WMDataCreator::DataCreatorBase::getDescription() const
+{
+    return m_description;
+}
+
+const char** WMDataCreator::DataCreatorBase::getIcon() const
+{
+    return m_icon;
+}
+
+WProperties::SPtr WMDataCreator::DataCreatorBase::getProperties()
+{
+    return m_properties;
 }
 

@@ -27,6 +27,7 @@
 
 #include <string>
 
+#include "core/common/WStrategyHelper.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleOutputData.h"
 #include "core/dataHandler/WDataSet.h"
@@ -75,6 +76,73 @@ public:
      */
     virtual const char** getXPMIcon() const;
 
+    /**
+     * This class is the base for all data creators. Derive your creator from this class and implement the pure virtual methods.
+     */
+    class DataCreatorBase
+    {
+    public:
+        /**
+         * Shared ptr to an instance. Needed by WStrategyHelper.
+         */
+        typedef boost::shared_ptr< DataCreatorBase > SPtr;
+
+        /**
+         * Shared ptr to a const instance.
+         */
+        typedef boost::shared_ptr< const DataCreatorBase > ConstSPtr;
+
+        /**
+         * Construct a creator. Name and description are mandatory and must be unique among all DataCreator.
+         *
+         * \param name the name
+         * \param description the description
+         * \param icon an icon in XPM format. Can be NULL.
+         */
+        DataCreatorBase( std::string name, std::string description, const char** icon = NULL );
+
+        /**
+         * Destructor. Implement if you have non trivial cleanup stuff.
+         */
+        virtual ~DataCreatorBase();
+
+        /**
+         * The name of the creator.
+         *
+         * \return the name
+         */
+        virtual std::string getName() const;
+
+        /**
+         * The description of this creator.
+         *
+         * \return description text.
+         */
+        virtual std::string getDescription() const;
+
+        /**
+         * The icon of this creator.
+         *
+         * \return the icon in XPM format. Can be NULL.
+         */
+        virtual const char** getIcon() const;
+
+        /**
+         * Return the property group of this creator.
+         *
+         * \note the method is non-const to allow returning the properties as non-const
+         *
+         * \return  the properties.
+         */
+        virtual WProperties::SPtr getProperties();
+
+    private:
+        std::string m_name; //!< the name
+        std::string m_description; //!< the description
+        const char** m_icon; //!< the icon
+        WProperties::SPtr m_properties; //!< the properties of the creator.
+    };
+
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -98,6 +166,19 @@ private:
     boost::shared_ptr< WCondition > m_propCondition;
 
     boost::shared_ptr< WModuleOutputData< WDataSet > > m_output; //!< The only output of this module.
+
+
+    WPropInt m_nbVoxelsX; //!< number of voxels in x direction
+    WPropInt m_nbVoxelsY; //!< number of voxels in y direction
+    WPropInt m_nbVoxelsZ; //!< number of voxels in z direction
+
+    WPropPosition m_origin; //!< where to put the origin
+    WPropPosition m_size; //!< where to put the origin
+
+    WPropSelection m_valueType; //!< the datatype of the valueset
+    WPropSelection m_structuralType; //!< select between scalar, vector and other structural types
+
+    WStrategyHelper< DataCreatorBase > m_strategy; //!< the strategy currently active.
 };
 
 #endif  // WMDATACREATOR_H
