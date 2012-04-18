@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WObjectNDIP.h"
 
 WObjectNDIP::WObjectNDIP( std::string name, std::string description, const char** icon ):
