@@ -25,6 +25,8 @@
 #ifndef WQTNETWORKITEM_H
 #define WQTNETWORKITEM_H
 
+#include <string>
+
 #include <QtCore/QTimer>
 #include <QtGui/QGraphicsRectItem>
 #include <QtGui/QGraphicsTextItem>
@@ -234,9 +236,10 @@ private:
 
     float m_height; //!< the height of the rect
 
+    std::string m_textFull; //!< always contains the unclipped text of m_text
     QGraphicsTextItem* m_text; //!< the caption
-
-    QGraphicsTextItem *m_subtitle; //!< the caption
+    std::string m_subtitleFull; //!< always contains the unclipped text of m_subtitle
+    QGraphicsTextItem* m_subtitle; //!< the caption
 
     QPointF m_newPos; //!< the new position in the WQtNetworkScene
 

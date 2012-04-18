@@ -48,19 +48,30 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
 
     setCacheMode( DeviceCoordinateCache );
 
-    // for captions of data modules
-    std::string dataNameString;
-
-    boost::shared_ptr< WDataModule > dataModule;
-    dataModule = boost::shared_dynamic_cast< WDataModule >( module );    if( dataModule )
-    {
-        dataNameString = std::string( "\n(" ) + string_utils::tokenize( dataModule->getFilename().string(), "/" ).back() + ")";
-    }
-
     // caption
-    m_text = new QGraphicsTextItem( ( module->getName().c_str() + dataNameString  ).c_str() );
+    m_textFull = module->getName();
+    m_text = new QGraphicsTextItem( m_textFull.c_str() );
     m_text->setParentItem( this );
     m_text->setDefaultTextColor( Qt::white );
+
+    // for captions of data modules
+    boost::shared_ptr< WDataModule > dataModule;
+    dataModule = boost::shared_dynamic_cast< WDataModule >( module );
+    if( dataModule )
+    {
+        m_subtitleFull = dataModule->getFilename().filename().string();
+        m_subtitle = new QGraphicsTextItem( m_subtitleFull.c_str() );
+        m_subtitle->setParentItem( this );
+        m_subtitle->setDefaultTextColor( Qt::white );
+        QFont f = m_subtitle->font();
+        f.setPointSizeF( f.pointSizeF() * 0.75 );
+        f.setBold( true );
+        m_subtitle->setFont( f );
+    }
+    else
+    {
+        m_subtitle = NULL;
+    }
 
     m_inPorts = QList< WQtNetworkInputPort* > ();
     m_outPorts = QList< WQtNetworkOutputPort* > ();
@@ -127,7 +138,7 @@ WQtNetworkItem::~WQtNetworkItem()
         delete port;
     }
     delete m_text;
-    //delete m_subtitle;
+    delete m_subtitle;
 }
 
 int WQtNetworkItem::type() const
@@ -246,31 +257,126 @@ WNetworkLayoutNode * WQtNetworkItem::getLayoutNode()
     return m_layoutNode;
 }
 
+/**
+ * This function cuts away some text and attaches "..." to ensure a maximum width.
+ *
+ * \param item the item to clip
+ * \param maxWidth the maximum width. After this function finished, the item is <=maxWidth.
+ * \param fullText the original full text
+ */
+void clipText( QGraphicsTextItem* item, float maxWidth, std::string fullText )
+{
+    item->setPlainText( fullText.c_str() );
+    //item->adjustSize();
+
+    // get size
+    float w = item->boundingRect().width();
+    std::string newText = fullText;
+
+    // as long as the width is too large, cut away some letters
+    while( w > maxWidth )
+    {
+        // shorten the text
+        newText = newText.substr( 0, newText.length() - 1 );
+        item->setPlainText( ( newText + "..." ).c_str() );
+        // and measure new size
+        w = item->boundingRect().width();
+    }
+}
+
 void WQtNetworkItem::fitLook()
 {
+    // The purpose of this method is to ensure proper dimensions of the item and the contained text. This method ensures:
+    //  * an item maximum size is WNETWORKITEM_MINIMUM_WIDTH or the width of the connectors!
+    //  * text exceeding size limits is cut
+
     m_width = WNETWORKITEM_MINIMUM_WIDTH;
     m_height = WNETWORKITEM_MINIMUM_HEIGHT;
 
     // we need to respect the size minimally needed by ports
-    m_width = std::max(
-            WQtNetworkPort::getMultiplePortWidth( std::max( m_outPorts.size(), m_inPorts.size() ) ),
-            m_width );
+    float portWidth = WQtNetworkPort::getMultiplePortWidth( std::max( m_outPorts.size(), m_inPorts.size() ) );
 
+    // the item needs a maximum size constraint to avoid enormously large items
+    // NOTE: the specified size max can only be overwritten by the
+    float maxWidth = std::max( static_cast< float >( WNETWORKITEM_MAXIMUM_WIDTH ), portWidth );
+
+    // the width of the text elements
+    float textWidth = 0.0;
+    float textHeight = 0.0;
+
+    // the width and height of the subtext elements
+    float subtextWidth = 0.0;
+    float subtextHeight = 0.0;
+    float subtextMargin = 0.0;  // the margin between text and subtext
+
+    // 1: query sizes of sub elements
+    if( m_text != 0 )
+    {
+        textWidth = static_cast< float >( m_text->boundingRect().width() );
+        textHeight = static_cast< float >( m_text->boundingRect().height() );
+    }
+    if( m_subtitle != 0 )
+    {
+        subtextWidth = static_cast< float >( m_subtitle->boundingRect().width() );
+        subtextHeight = static_cast< float >( m_subtitle->boundingRect().height() );
+        subtextMargin = 0.5f * WNETWORKITE_MARGINY;
+    }
+
+    // and another height: the height of text and subtext
+    float wholeTextHeight = textHeight + subtextHeight + subtextMargin;
+
+    // get the required width and height
+    float maxTextWidth = maxWidth - ( 2.0f * WNETWORKITE_MARGINX );
+
+    // 2: limit sizes of sub elements if needed (especially the subtext)
+    if( ( m_text != 0 ) )
+    {
+        clipText( m_text, maxTextWidth, m_textFull );
+    }
+    if( ( m_subtitle != 0 ) )
+    {
+        clipText( m_subtitle, maxTextWidth, m_subtitleFull );
+    }
+
+    // the new text boxes now define the final sizes:
+    if( m_text != 0 )
+    {
+        textWidth = static_cast< float >( m_text->boundingRect().width() );
+        textHeight = static_cast< float >( m_text->boundingRect().height() );
+    }
+    if( m_subtitle != 0 )
+    {
+        subtextWidth = static_cast< float >( m_subtitle->boundingRect().width() );
+        subtextHeight = static_cast< float >( m_subtitle->boundingRect().height() );
+        subtextMargin = 0.5f * WNETWORKITE_MARGINY;
+    }
+    float requiredWidth = std::max( portWidth, std::max( subtextWidth, textWidth ) + ( 2.0f * WNETWORKITE_MARGINX ) );
+    float requiredHeight = wholeTextHeight + ( 2.0f * WNETWORKITE_MARGINY );
+
+    // 3: set the final sizes
+    m_height = std::max( requiredHeight, static_cast< float >( WNETWORKITEM_MINIMUM_HEIGHT ) );
+    m_width = std::min( std::max( requiredWidth, static_cast< float >( WNETWORKITEM_MINIMUM_WIDTH ) ), maxWidth );
+
+    QRectF rect( 0, 0, m_width, m_height );
+    m_rect = rect;
+    setRect( m_rect );
+
+    // 4: use the sizes and set the positions and sizes of the text elements properly
     if( m_text != 0)
     {
-        m_width = std::max( static_cast< float >( m_text->boundingRect().width() + 10 ), m_width );
-        m_height = std::max( static_cast< float >( m_text->boundingRect().height() + 10 ), m_height );
-
-        // finally, set the size
-        QRectF rect( 0, 0, m_width, m_height );
-        m_rect = rect;
-        setRect( m_rect );
-
         qreal x = ( m_width / 2.0 ) - ( m_text->boundingRect().width() / 2.0 );
-        qreal y = ( m_height / 2.0 ) - ( m_text->boundingRect().height() / 2.0 );
+        qreal y = ( m_height / 2.0 ) - ( wholeTextHeight / 2.0 );
         m_text->setPos( x, y );
     }
 
+    if( m_subtitle != 0)
+    {
+        qreal x = ( m_width / 2.0 ) - ( m_subtitle->boundingRect().width() / 2.0 );
+        qreal y = ( m_height / 2.0 ) - ( wholeTextHeight / 2.0 );
+        m_subtitle->setPos( x, y + textHeight );
+    }
+
+    // 5: handle the ports
     int portNumber = 1;
     foreach( WQtNetworkPort *port, m_inPorts )
     {
@@ -295,7 +401,7 @@ void WQtNetworkItem::setTextItem( QGraphicsTextItem *text )
 
 QString WQtNetworkItem::getText()
 {
-    return m_text->toPlainText();
+    return QString::fromStdString( m_textFull );
 }
 
 void WQtNetworkItem::changeState( State state )
