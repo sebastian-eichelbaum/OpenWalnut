@@ -126,9 +126,10 @@ OW_API_DEPRECATED boost::filesystem::path tempFileName();
 /**
  * Generate a file name with full path for a temp file.
  *
+ * \param model this string defines a base filename for the temp file. The % is replaced randomly. For details, see boost::filesystem::unique_path.
  * \return The file name.
  */
-boost::filesystem::path tempFilename();
+boost::filesystem::path tempFilename( boost::filesystem::path model = "%%%%%%%%" );
 
 /**
  * Get the contens of a file as a string.
