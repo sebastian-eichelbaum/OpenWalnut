@@ -60,6 +60,8 @@
  *
  * \note the class is thread-safe, although it might not be a nice idea to modify the strategy list while the user tries to select some. He will
  * probably be very annoyed.
+ *
+ * \note you should use \ref WObjectNDIP which complies to this rules. This furthermore eases the task of writing strategies.
  */
 template< class StrategyType >
 class WStrategyHelper

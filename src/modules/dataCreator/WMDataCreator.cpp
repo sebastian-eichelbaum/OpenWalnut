@@ -30,6 +30,9 @@
 #include "core/dataHandler/WGridRegular3D.h"
 #include "core/kernel/WKernel.h"
 
+#include "WDataCreatorSphere.h"
+#include "WDataCreatorRandom.h"
+
 #include "WMDataCreator.xpm"
 #include "WMDataCreator.h"
 
@@ -41,7 +44,9 @@ WMDataCreator::WMDataCreator():
     m_strategy( "Dataset Creators", "Select one of the dataset creators and configure it to your needs.", NULL,
                 "Creator", "A list of all known creators." )
 {
-    // WARNING: initializing connectors inside the constructor will lead to an exception.
+    // add some strategies here
+    m_strategy.addStrategy( WDataCreatorSphere::SPtr( new WDataCreatorSphere() ) );
+    m_strategy.addStrategy( WDataCreatorSphere::SPtr( new WDataCreatorRandom() ) );
 }
 
 WMDataCreator::~WMDataCreator()
@@ -75,7 +80,7 @@ void WMDataCreator::connectors()
     // initialize connectors
     m_output = WModuleOutputData< WDataSet >::createAndAdd( shared_from_this(), "out", "The data that has been created" );
 
-    // call WModules initialization
+    // call WModule's initialization
     WModule::connectors();
 }
 
@@ -102,6 +107,7 @@ void WMDataCreator::properties()
     // now, setup the strategy helper.
     m_properties->addProperty( m_strategy.getProperties() );
 
+    // call WModule's initialization
     WModule::properties();
 }
 
@@ -128,39 +134,5 @@ void WMDataCreator::moduleMain()
             break;
         }
     }
-}
-
-WMDataCreator::DataCreatorBase::DataCreatorBase( std::string name, std::string description, const char** icon ):
-    m_name( name ),
-    m_description( description ),
-    m_icon( icon ),
-    m_properties( new WProperties( name, description ) )
-{
-    // init
-}
-
-WMDataCreator::DataCreatorBase::~DataCreatorBase()
-{
-    // cleanup
-}
-
-std::string WMDataCreator::DataCreatorBase::getName() const
-{
-    return m_name;
-}
-
-std::string WMDataCreator::DataCreatorBase::getDescription() const
-{
-    return m_description;
-}
-
-const char** WMDataCreator::DataCreatorBase::getIcon() const
-{
-    return m_icon;
-}
-
-WProperties::SPtr WMDataCreator::DataCreatorBase::getProperties()
-{
-    return m_properties;
 }
 
