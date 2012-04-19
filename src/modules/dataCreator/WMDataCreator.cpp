@@ -78,7 +78,7 @@ const std::string WMDataCreator::getDescription() const
 void WMDataCreator::connectors()
 {
     // initialize connectors
-    m_output = WModuleOutputData< WDataSet >::createAndAdd( shared_from_this(), "out", "The data that has been created" );
+    m_output = WModuleOutputData< WDataSetSingle >::createAndAdd( shared_from_this(), "out", "The data that has been created" );
 
     // call WModule's initialization
     WModule::connectors();
@@ -133,6 +133,15 @@ void WMDataCreator::moduleMain()
         {
             break;
         }
+
+        // create a new WGridRegular3D
+        WGridTransformOrtho transform( m_size->get( true ).x(), m_size->get().y(), m_size->get().z() );
+        // apply transform to new origin
+        transform.translate( m_origin->get( true ) );
+        WGridRegular3D::SPtr p( new WGridRegular3D( m_nbVoxelsX->get( true ), m_nbVoxelsY->get( true ), m_nbVoxelsZ->get( true ), transform ) );
+
+        // get the current strategy
+        //m_strategy()
     }
 }
 

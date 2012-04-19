@@ -31,7 +31,7 @@
 #include "core/common/WObjectNDIP.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleOutputData.h"
-#include "core/dataHandler/WDataSet.h"
+#include "core/dataHandler/WDataSetSingle.h"
 
 /**
  * Module which utilizes the strategy pattern to provide a multitude of dataset creation algorithms
@@ -99,7 +99,7 @@ private:
      */
     boost::shared_ptr< WCondition > m_propCondition;
 
-    boost::shared_ptr< WModuleOutputData< WDataSet > > m_output; //!< The only output of this module.
+    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output; //!< The only output of this module.
 
 
     WPropInt m_nbVoxelsX; //!< number of voxels in x direction
