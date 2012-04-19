@@ -27,10 +27,12 @@
 
 #include <core/common/WObjectNDIP.h>
 
+#include "WMDataCreatorScalar.h"
+
 /**
  * Creates a sphere inside a given grid.
  */
-class WDataCreatorSphere: public WObjectNDIP
+class WDataCreatorSphere: public WObjectNDIP< WMDataCreatorScalar::DataCreatorInterface >
 {
 public:
     /**
@@ -42,6 +44,16 @@ public:
      * Destructor.
      */
     virtual ~WDataCreatorSphere();
+
+    /**
+     * Create the dataset. This needs to be implemented by all the creators you write.
+     *
+     * \param grid the grid on which the value set has to be build
+     * \param type the value type in the value set
+     *
+     * \return the value set for the given grid
+     */
+    virtual WValueSetBase::SPtr operator()( WGridRegular3D::ConstSPtr grid, dataType type = W_DT_FLOAT );
 
 protected:
 private:

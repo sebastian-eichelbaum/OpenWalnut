@@ -26,37 +26,4 @@
 
 #include "WObjectNDIP.h"
 
-WObjectNDIP::WObjectNDIP( std::string name, std::string description, const char** icon ):
-    m_name( name ),
-    m_description( description ),
-    m_icon( icon ),
-    m_properties( new WProperties( name, description ) )
-{
-    // init
-}
-
-WObjectNDIP::~WObjectNDIP()
-{
-    // cleanup
-}
-
-std::string WObjectNDIP::getName() const
-{
-    return m_name;
-}
-
-std::string WObjectNDIP::getDescription() const
-{
-    return m_description;
-}
-
-const char** WObjectNDIP::getIcon() const
-{
-    return m_icon;
-}
-
-WProperties::SPtr WObjectNDIP::getProperties()
-{
-    return m_properties;
-}
 

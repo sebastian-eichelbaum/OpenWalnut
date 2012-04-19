@@ -22,14 +22,44 @@
 //
 //---------------------------------------------------------------------------
 
+#include <ctime>
+
+#include <core/common/WLogger.h>
+
+#include <core/dataHandler/WDataHandlerEnums.h>
+#include <core/dataHandler/WValueSet.h>
+
 #include "WDataCreatorRandom.h"
 
 WDataCreatorRandom::WDataCreatorRandom():
-    WObjectNDIP( "Random", "Creates a noise volume." )
+    WObjectNDIP< WMDataCreatorScalar::DataCreatorInterface >( "Random", "Creates a noise volume." ),
+    m_rand( std::time( 0 ) ),
+    m_values01( 0.0, 1.0 )
 {
 }
 
 WDataCreatorRandom::~WDataCreatorRandom()
 {
+}
+
+WValueSetBase::SPtr WDataCreatorRandom::operator()( WGridRegular3D::ConstSPtr grid, dataType type )
+{
+    typedef double ValueType;
+    typedef WValueSet< ValueType > ValueSetType;
+
+    // create some memory for the data
+    boost::shared_ptr< std::vector< ValueType > > data( new std::vector< ValueType > );
+    // for scalar data we need only as much space as we have voxels
+    data->reserve( grid->size() );
+
+    // iterate the data and fill in some random values
+    for( size_t i = 0; i < grid->size(); ++i )
+    {
+        data->push_back( m_values01( m_rand ) );
+    }
+
+    // finally, create the value set and return it
+    // We have scalar data (order = 0 ) in 3d
+    return ValueSetType::SPtr( new ValueSetType( 0, 1, data ) );
 }
 

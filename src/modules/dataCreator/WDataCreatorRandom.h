@@ -25,12 +25,16 @@
 #ifndef WDATACREATORRANDOM_H
 #define WDATACREATORRANDOM_H
 
+#include <boost/random.hpp>
+
 #include <core/common/WObjectNDIP.h>
+
+#include "WMDataCreatorScalar.h"
 
 /**
  * Creates random values inside a given grid.
  */
-class WDataCreatorRandom: public WObjectNDIP
+class WDataCreatorRandom: public WObjectNDIP< WMDataCreatorScalar::DataCreatorInterface >
 {
 public:
     /**
@@ -43,8 +47,27 @@ public:
      */
     virtual ~WDataCreatorRandom();
 
+    /**
+     * Create the dataset. This needs to be implemented by all the creators you write.
+     *
+     * \param grid the grid on which the value set has to be build
+     * \param type the value type in the value set
+     *
+     * \return the value set for the given grid
+     */
+     virtual WValueSetBase::SPtr operator()( WGridRegular3D::ConstSPtr grid, dataType type = W_DT_FLOAT );
 protected:
 private:
+
+     /**
+      * Random number generator.
+      */
+    boost::random::mt19937 m_rand;
+
+    /**
+     * A distribution. This one creates random numbers in [0, 1)
+     */
+    boost::random::uniform_real_distribution<> m_values01;
 };
 
 #endif  // WDATACREATORRANDOM_H

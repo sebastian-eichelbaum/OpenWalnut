@@ -37,7 +37,8 @@
  *
  * \note This is a useful base class for strategies in \ref WModule and with \ref WStrategyHelper.
  */
-class WObjectNDIP
+template< typename T >
+class WObjectNDIP: public T
 {
 public:
    /**
@@ -91,7 +92,7 @@ protected:
      *
      * \param name the name
      * \param description the description
-     * \param icon an icon in XPM format. Can be NULL.
+     * \param icon an icon in XPM format. Can be NULL if no icon is required.
      */
     WObjectNDIP( std::string name, std::string description, const char** icon = NULL );
 
@@ -101,6 +102,47 @@ private:
     const char** m_icon; //!< the icon
     WProperties::SPtr m_properties; //!< the properties of the object.
 };
+
+template< typename T >
+WObjectNDIP< T >::WObjectNDIP( std::string name, std::string description, const char** icon ):
+    m_name( name ),
+    m_description( description ),
+    m_icon( icon ),
+    m_properties( new WProperties( name, description ) )
+{
+    // init
+}
+
+template< typename T >
+WObjectNDIP< T >::~WObjectNDIP()
+{
+    // cleanup
+}
+
+template< typename T >
+std::string WObjectNDIP< T >::getName() const
+{
+    return m_name;
+}
+
+template< typename T >
+std::string WObjectNDIP< T >::getDescription() const
+{
+    return m_description;
+}
+
+template< typename T >
+const char** WObjectNDIP< T >::getIcon() const
+{
+    return m_icon;
+}
+
+template< typename T >
+WProperties::SPtr WObjectNDIP< T >::getProperties()
+{
+    return m_properties;
+}
+
 
 #endif  // WOBJECTNDIP_H
 
