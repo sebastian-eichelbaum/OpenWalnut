@@ -121,27 +121,34 @@ void WMEEGView::properties()
     m_labelsWidth      = m_properties->addProperty( "Labels width",
                                                     "The width of the label display in pixel.",
                                                     24 );
-    m_timePos          = m_properties->addProperty( "Time position",
-                                                    "The time position in seconds where to start the graph at the left edge.",
-                                                    0.0 );
-    m_timeRange        = m_properties->addProperty( "Time range",
-                                                    "The width of the graph in seconds.",
-                                                    4.0 );
+
     m_graphWidth       = m_properties->addProperty( "Graph width",
                                                     "The width of the graph in pixel.",
                                                     992 );
-    m_yPos             = m_properties->addProperty( "Y position",
-                                                    "The y position in pixel at the lower edge.",
-                                                    -724.5 );
     m_ySpacing         = m_properties->addProperty( "Spacing",
                                                     "The distance between two curves of the graph in pixel.",
                                                     23.0 );
-    m_ySensitivity     = m_properties->addProperty( "Sensitivity",
-                                                    "The sensitivity of the graph in microvolt per pixel.",
-                                                    2.0 );
+
     m_colorSensitivity = m_properties->addProperty( "Color sensitivity",
             "The sensitivity of the color map. It ranges from -Color Sensitivity to +Color Sensitivity in microvolt.",
                                                     23.0 );
+
+
+    m_manualNavigationGroup = m_properties->addPropertyGroup( "Manual Navigation",
+                                                              "Manually modify the parameters that are usually changes by mouse"
+                                                              " actions in th EEG view." );
+    m_ySensitivity     = m_manualNavigationGroup->addProperty( "Sensitivity",
+                                                    "The sensitivity of the graph in microvolt per pixel.",
+                                                    2.0 );
+    m_timePos          = m_manualNavigationGroup->addProperty( "Time position",
+                                                    "The time position in seconds where to start the graph at the left edge.",
+                                                    0.0 );
+    m_timeRange        = m_manualNavigationGroup->addProperty( "Time range",
+                                                    "The width of the graph in seconds.",
+                                                    4.0 );
+    m_yPos             = m_manualNavigationGroup->addProperty( "Y position",
+                                                    "The y position in pixel at the lower edge.",
+                                                    -724.5 );
 
     m_labelsWidth->setMin( 0 );
     m_labelsWidth->setMax( 64 );
@@ -159,6 +166,7 @@ void WMEEGView::properties()
     m_ySensitivity->setMax( 100.0 );
     m_colorSensitivity->setMin( 0.01 );
     m_colorSensitivity->setMax( 10000.0 );
+
 
     WModule::properties();
 }
