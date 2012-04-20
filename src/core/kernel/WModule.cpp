@@ -222,9 +222,9 @@ std::string WModule::deprecated() const
     return "";
 }
 
-WModuleMetaInformation WModule::getMetaInformation() const
+WModuleMetaInformation::ConstSPtr WModule::getMetaInformation() const
 {
-    return WModuleMetaInformation( getName() );
+    return m_meta;
 }
 
 void WModule::initialize()
@@ -238,6 +238,9 @@ void WModule::initialize()
 
     // set the module name as default runtime name
     m_runtimeName->set( getName() );
+
+    // initialize module meta information
+    m_meta = WModuleMetaInformation::SPtr( new WModuleMetaInformation( shared_from_this() ) );
 
     // initialize connectors and properties
     requirements();

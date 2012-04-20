@@ -27,25 +27,37 @@
 #include "../common/WException.h"
 #include "../common/WLogger.h"
 #include "../common/WStructuredTextParser.h"
+#include "WModule.h"
 
 #include "WModuleMetaInformation.h"
 
 WModuleMetaInformation::WModuleMetaInformation( std::string name ):
-    m_name( name )
+    m_name( name ),
+    m_loaded( false )
 {
     // initialize members
 }
 
-WModuleMetaInformation::WModuleMetaInformation( std::string name, boost::filesystem::path metafile ):
-    m_name( name )
+WModuleMetaInformation::WModuleMetaInformation( boost::shared_ptr< WModule > module ):
+    m_name( module->getName() ),
+    m_loaded( false )
 {
+    // check whether file exists
+    boost::filesystem::path metafile = module->getLocalPath() / "META";
+    if( !boost::filesystem::exists( metafile ) )
+    {
+        return;
+    }
+
+    // try loading it
     try
     {
         m_metaData = WStructuredTextParser::StructuredValueTree( metafile );
+        m_loaded = true;
     }
     catch( const WException& e )
     {
-        wlog::error( "Module (" + name + ")" ) << "Meta file load failed. Message: " << e.what();
+        wlog::error( "Module (" + m_name + ")" ) << "Meta file load failed. Message: " << e.what();
     }
 }
 
