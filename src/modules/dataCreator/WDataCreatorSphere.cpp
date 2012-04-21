@@ -35,8 +35,9 @@ WDataCreatorSphere::~WDataCreatorSphere()
 {
 }
 
-WValueSetBase::SPtr WDataCreatorSphere::operator()( WGridRegular3D::ConstSPtr grid, dataType type )
+WValueSetBase::SPtr WDataCreatorSphere::operator()( WGridRegular3D::ConstSPtr grid, dataType /* type */ )
 {
+    // currently, the type is fixed. This will come soon.
     typedef double ValueType;
     typedef WValueSet< ValueType > ValueSetType;
 

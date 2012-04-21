@@ -42,8 +42,9 @@ WDataCreatorRandom::~WDataCreatorRandom()
 {
 }
 
-WValueSetBase::SPtr WDataCreatorRandom::operator()( WGridRegular3D::ConstSPtr grid, dataType type )
+WValueSetBase::SPtr WDataCreatorRandom::operator()( WGridRegular3D::ConstSPtr grid, dataType /* type */ )
 {
+    // currently, the type is fixed. This will come soon.
     typedef double ValueType;
     typedef WValueSet< ValueType > ValueSetType;
 
