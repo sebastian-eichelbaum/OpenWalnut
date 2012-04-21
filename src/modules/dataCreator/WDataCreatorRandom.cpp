@@ -23,11 +23,11 @@
 //---------------------------------------------------------------------------
 
 #include <ctime>
+#include <vector>
 
-#include <core/common/WLogger.h>
-
-#include <core/dataHandler/WDataHandlerEnums.h>
-#include <core/dataHandler/WValueSet.h>
+#include "core/common/WLogger.h"
+#include "core/dataHandler/WDataHandlerEnums.h"
+#include "core/dataHandler/WValueSet.h"
 
 #include "WDataCreatorRandom.h"
 
@@ -59,7 +59,7 @@ WValueSetBase::SPtr WDataCreatorRandom::operator()( WGridRegular3D::ConstSPtr gr
     }
 
     // finally, create the value set and return it
-    // We have scalar data (order = 0 ) in 3d
+    // We have scalar data (order = 0 ) in 3D
     return ValueSetType::SPtr( new ValueSetType( 0, 1, data ) );
 }
 

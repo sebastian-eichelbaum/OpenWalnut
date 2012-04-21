@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <vector>
+
 #include "WDataCreatorSphere.h"
 
 WDataCreatorSphere::WDataCreatorSphere():

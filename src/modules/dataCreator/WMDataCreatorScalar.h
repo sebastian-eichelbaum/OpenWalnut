@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMDATACREATOR_H
-#define WMDATACREATOR_H
+#ifndef WMDATACREATORSCALAR_H
+#define WMDATACREATORSCALAR_H
 
 #include <string>
 
@@ -94,6 +94,13 @@ public:
          * \return the value set for the given grid
          */
         virtual WValueSetBase::SPtr operator()( WGridRegular3D::ConstSPtr grid, dataType type = W_DT_FLOAT ) = 0;
+
+        /**
+         * Destructor
+         */
+        virtual ~DataCreatorInterface()
+        {
+        }
     };
 
 protected:
@@ -134,4 +141,4 @@ private:
     WStrategyHelper< WObjectNDIP< DataCreatorInterface > > m_strategy; //!< the strategy currently active.
 };
 
-#endif  // WMDATACREATOR_H
+#endif  // WMDATACREATORSCALAR_H

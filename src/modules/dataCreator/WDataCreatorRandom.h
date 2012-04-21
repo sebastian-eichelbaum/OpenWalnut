@@ -27,7 +27,7 @@
 
 #include <boost/random.hpp>
 
-#include <core/common/WObjectNDIP.h>
+#include "core/common/WObjectNDIP.h"
 
 #include "WMDataCreatorScalar.h"
 
@@ -58,10 +58,9 @@ public:
      virtual WValueSetBase::SPtr operator()( WGridRegular3D::ConstSPtr grid, dataType type = W_DT_FLOAT );
 protected:
 private:
-
-     /**
-      * Random number generator.
-      */
+    /**
+     * Random number generator.
+     */
     boost::random::mt19937 m_rand;
 
     /**

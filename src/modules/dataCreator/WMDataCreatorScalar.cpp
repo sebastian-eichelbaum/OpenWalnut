@@ -140,7 +140,8 @@ void WMDataCreatorScalar::moduleMain()
         debugLog() << "Re-creating dataset";
 
         // create a new WGridRegular3D
-        WGridTransformOrtho transform( m_size->get( true ).x() / static_cast< double >( m_nbVoxelsX->get( true ) - 1 ),
+        WGridTransformOrtho transform( m_size->get( true ).x() / static_cast< double >( m_nbVoxelsX->get( true ) - 1 ), // NOLINT
+                                       //  - its not std::transform
                                        m_size->get( true ).y() / static_cast< double >( m_nbVoxelsY->get( true ) - 1 ),
                                        m_size->get( true ).z() / static_cast< double >( m_nbVoxelsZ->get( true ) - 1 )
         );
