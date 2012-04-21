@@ -217,7 +217,7 @@ boost::shared_ptr< WDataSetScalar > WMImageExtractor::extract( std::size_t i ) c
 
     std::size_t dim = m_dataSet->getValueSet()->dimension();
 
-    // TODO( reichenbach ): use the new valueset function mechanism
+    // TODO(reichenbach): use the new valueset function mechanism
     switch( m_dataSet->getValueSet()->getDataType() )
     {
     case W_DT_FLOAT:

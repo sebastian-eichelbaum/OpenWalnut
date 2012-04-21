@@ -131,6 +131,11 @@ private:
     boost::shared_ptr< WCondition > m_propCondition;
 
     /**
+     * Group for parameters that are normally adjusted using mouse actions.
+     */
+    WPropGroup m_manualNavigationGroup;
+
+    /**
      * Property determining whether electode positions should be drawn.
      */
     WPropBool m_drawElectrodes;

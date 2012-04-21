@@ -97,7 +97,7 @@ private:
 };
 
 
-// TODO( reichenbach ): choose color of frame and marker depending on the user's chosen window background color
+// TODO(reichenbach): choose color of frame and marker depending on the user's chosen window background color
 /**
  * \class WMHistogramView
  *

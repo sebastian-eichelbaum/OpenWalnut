@@ -145,7 +145,7 @@ int WQt4Gui::run()
     //TODO(mario): this should run on all platforms but crashes at least on Linux right now. Therefore, I only use it on OSX
     WApplication appl( m_argc, m_argv, true );
 #else
-    // TODO( mario ): I want a WApplication here for session handling but that code crashes
+    // TODO(mario): I want a WApplication here for session handling but that code crashes
     QApplication appl( m_argc, m_argv, true );
 #endif
 
