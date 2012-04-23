@@ -22,81 +22,83 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <string>
 
 #include "core/common/WAssert.h"
 #include "core/common/WProgress.h"
 #include "core/common/WStrategyHelper.h"
 #include "core/dataHandler/WGridRegular3D.h"
+#include "core/dataHandler/WDataSetScalar.h"
 #include "core/kernel/WKernel.h"
 
 #include "WDataCreatorSphere.h"
 #include "WDataCreatorRandom.h"
 
-#include "WMDataCreator.xpm"
-#include "WMDataCreator.h"
+#include "WMDataCreatorScalar.xpm"
+#include "WMDataCreatorScalar.h"
 
 // This line is needed by the module loader to actually find your module.
-W_LOADABLE_MODULE( WMDataCreator )
+W_LOADABLE_MODULE( WMDataCreatorScalar )
 
-WMDataCreator::WMDataCreator():
+WMDataCreatorScalar::WMDataCreatorScalar():
     WModule(),
     m_strategy( "Dataset Creators", "Select one of the dataset creators and configure it to your needs.", NULL,
                 "Creator", "A list of all known creators." )
 {
     // add some strategies here
     m_strategy.addStrategy( WDataCreatorSphere::SPtr( new WDataCreatorSphere() ) );
-    m_strategy.addStrategy( WDataCreatorSphere::SPtr( new WDataCreatorRandom() ) );
+    m_strategy.addStrategy( WDataCreatorRandom::SPtr( new WDataCreatorRandom() ) );
 }
 
-WMDataCreator::~WMDataCreator()
+WMDataCreatorScalar::~WMDataCreatorScalar()
 {
     // cleanup
     removeConnectors();
 }
 
-boost::shared_ptr< WModule > WMDataCreator::factory() const
+boost::shared_ptr< WModule > WMDataCreatorScalar::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMDataCreator() );
+    return boost::shared_ptr< WModule >( new WMDataCreatorScalar() );
 }
 
-const char** WMDataCreator::getXPMIcon() const
+const char** WMDataCreatorScalar::getXPMIcon() const
 {
     return datacreator_xpm;
 }
 
-const std::string WMDataCreator::getName() const
+const std::string WMDataCreatorScalar::getName() const
 {
-    return "Data Creator";
+    return "Scalar Data Creator";
 }
 
-const std::string WMDataCreator::getDescription() const
+const std::string WMDataCreatorScalar::getDescription() const
 {
-    return "Allows the user to create data sets on a regular grid by providing a bunch of data creation schemes.";
+    return "Allows the user to create scalar data sets on a regular grid by providing a bunch of data creation schemes.";
 }
 
-void WMDataCreator::connectors()
+void WMDataCreatorScalar::connectors()
 {
     // initialize connectors
-    m_output = WModuleOutputData< WDataSetSingle >::createAndAdd( shared_from_this(), "out", "The data that has been created" );
+    m_output = WModuleOutputData< WDataSetScalar >::createAndAdd( shared_from_this(), "out", "The data that has been created" );
 
     // call WModule's initialization
     WModule::connectors();
 }
 
-void WMDataCreator::properties()
+void WMDataCreatorScalar::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     // how much voxels?
     m_nbVoxelsX = m_properties->addProperty( "Voxels X", "The number of voxels in X direction.", 128, m_propCondition );
-    m_nbVoxelsX->setMin( 1 );
+    m_nbVoxelsX->setMin( 2 );
     m_nbVoxelsX->setMax( 4096 );
     m_nbVoxelsY = m_properties->addProperty( "Voxels Y", "The number of voxels in Y direction.", 128, m_propCondition );
-    m_nbVoxelsY->setMin( 1 );
+    m_nbVoxelsY->setMin( 2 );
     m_nbVoxelsY->setMax( 4096 );
     m_nbVoxelsZ = m_properties->addProperty( "Voxels Z", "The number of voxels in Z direction.", 128, m_propCondition );
-    m_nbVoxelsZ->setMin( 1 );
+    m_nbVoxelsZ->setMin( 2 );
     m_nbVoxelsZ->setMax( 4096 );
 
     // grid transform information
@@ -111,11 +113,13 @@ void WMDataCreator::properties()
     WModule::properties();
 }
 
-void WMDataCreator::moduleMain()
+void WMDataCreatorScalar::moduleMain()
 {
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
+    // we need to wake up if some strategy prop changed
+    m_moduleState.add( m_strategy.getProperties()->getChildUpdateCondition() );
 
     // signal ready state
     ready();
@@ -134,14 +138,28 @@ void WMDataCreator::moduleMain()
             break;
         }
 
+        debugLog() << "Re-creating dataset";
+
         // create a new WGridRegular3D
-        WGridTransformOrtho transform( m_size->get( true ).x(), m_size->get().y(), m_size->get().z() );
+        WGridTransformOrtho transform( m_size->get( true ).x() / static_cast< double >( m_nbVoxelsX->get( true ) - 1 ), // NOLINT
+                                       //  - its not std::transform
+                                       m_size->get( true ).y() / static_cast< double >( m_nbVoxelsY->get( true ) - 1 ),
+                                       m_size->get( true ).z() / static_cast< double >( m_nbVoxelsZ->get( true ) - 1 )
+        );
         // apply transform to new origin
         transform.translate( m_origin->get( true ) );
-        WGridRegular3D::SPtr p( new WGridRegular3D( m_nbVoxelsX->get( true ), m_nbVoxelsY->get( true ), m_nbVoxelsZ->get( true ), transform ) );
+        WGridRegular3D::SPtr grid( new WGridRegular3D( m_nbVoxelsX->get(), m_nbVoxelsY->get(), m_nbVoxelsZ->get(), transform ) );
 
         // get the current strategy
-        //m_strategy()
+        WValueSetBase::SPtr valueSet = m_strategy()->operator()( grid );
+
+        debugLog() << "Created dataset with " << grid->size() << " voxels.";
+
+        // build dataset
+        WDataSetScalar::SPtr ds( new WDataSetScalar( valueSet, grid ) );
+
+        // done. update output
+        m_output->updateData( ds );
     }
 }
 

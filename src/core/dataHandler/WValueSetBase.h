@@ -28,6 +28,7 @@
 #include <cstddef>
 #include <cmath>
 
+#include <boost/shared_ptr.hpp>
 #include <boost/variant.hpp>
 
 #include "../common/math/WValue.h"
@@ -58,6 +59,16 @@ typedef boost::variant< WValueSet< uint8_t > const*,
 class WValueSetBase // NOLINT
 {
 public:
+    /**
+     * Shared pointer to an instance of this class.
+     */
+    typedef boost::shared_ptr< WValueSetBase > SPtr;
+
+    /**
+     * Shared pointer to an const instance of this class.
+     */
+    typedef boost::shared_ptr< const WValueSetBase > ConstSPtr;
+
     /**
      * Despite this is an abstract class all subclasses should have an order
      * and dimension.

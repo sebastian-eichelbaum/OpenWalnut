@@ -22,10 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
+#include <vector>
+
 #include "WDataCreatorSphere.h"
 
 WDataCreatorSphere::WDataCreatorSphere():
-    WObjectNDIP( "Spherical", "Creates a spherical volume." )
+    WObjectNDIP< WMDataCreatorScalar::DataCreatorInterface >( "Spherical", "Creates a spherical volume." )
 {
 }
 
@@ -33,3 +35,30 @@ WDataCreatorSphere::~WDataCreatorSphere()
 {
 }
 
+WValueSetBase::SPtr WDataCreatorSphere::operator()( WGridRegular3D::ConstSPtr grid, dataType /* type */ )
+{
+    // currently, the type is fixed. This will come soon.
+    typedef double ValueType;
+    typedef WValueSet< ValueType > ValueSetType;
+
+    // create some memory for the data
+    boost::shared_ptr< std::vector< ValueType > > data( new std::vector< ValueType > );
+    // for scalar data we need only as much space as we have voxels
+    data->resize( grid->size() );
+
+    // iterate the data and fill in some values
+    for( size_t x = 0; x < grid->getNbCoordsX(); ++x )
+    {
+        for( size_t y = 0; y < grid->getNbCoordsY(); ++y )
+        {
+            for( size_t z = 0; z < grid->getNbCoordsZ(); ++z )
+            {
+                data->operator[]( grid->getVoxelNum( x, y, z ) ) = x*x + y*y + z*z;
+            }
+        }
+    }
+
+    // finally, create the value set and return it
+    // We have scalar data (order = 0 ) in 3d
+    return ValueSetType::SPtr( new ValueSetType( 0, 1, data ) );
+}

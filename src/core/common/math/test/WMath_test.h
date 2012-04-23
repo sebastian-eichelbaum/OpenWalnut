@@ -254,7 +254,7 @@ public:
      */
     void testFactorials( void )
     {
-        // TODO( philips ): add even and odd factorials
+        // TODO(philips): add even and odd factorials
         TS_ASSERT_EQUALS( factorial( 0 ), 1 );
         TS_ASSERT_EQUALS( factorial( 1 ), 1 );
         TS_ASSERT_EQUALS( factorial( 2 ), 2 );

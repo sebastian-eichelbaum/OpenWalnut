@@ -110,7 +110,7 @@ public:
 
     /**
      * Constructs a value set with values of type T. Sets order and dimension
-     * to allow to interprete the values as tensors of a certain order and dimension.
+     * to allow to interpret the values as tensors of a certain order and dimension.
      * \param order tensor order of values stored in the value set
      * \param dimension tensor dimension of values stored in the value set
      * \param data the vector holding the raw data
@@ -118,6 +118,28 @@ public:
      */
     WValueSet( size_t order, size_t dimension, const boost::shared_ptr< std::vector< T > > data, dataType inDataType )
         : WValueSetBase( order, dimension, inDataType ),
+          m_data( data )
+    {
+        // calculate min and max
+        // Calculating this once simply ensures that it does not need to be recalculated in textures, histograms ...
+        m_minimum = wlimits::MAX_DOUBLE;
+        m_maximum = wlimits::MIN_DOUBLE;
+        for( typename std::vector< T >::const_iterator iter = data->begin(); iter != data->end(); ++iter )
+        {
+            m_minimum = m_minimum > *iter ? *iter : m_minimum;
+            m_maximum = m_maximum < *iter ? *iter : m_maximum;
+        }
+    }
+
+    /**
+     * Constructs a value set with values of type T. Sets order and dimension
+     * to allow to interpret the values as tensors of a certain order and dimension.
+     * \param order tensor order of values stored in the value set
+     * \param dimension tensor dimension of values stored in the value set
+     * \param data the vector holding the raw data
+     */
+    WValueSet( size_t order, size_t dimension, const boost::shared_ptr< std::vector< T > > data )
+        : WValueSetBase( order, dimension, DataType< T >::type ),
           m_data( data )
     {
         // calculate min and max

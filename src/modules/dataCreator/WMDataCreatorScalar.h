@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMDATACREATOR_H
-#define WMDATACREATOR_H
+#ifndef WMDATACREATORSCALAR_H
+#define WMDATACREATORSCALAR_H
 
 #include <string>
 
@@ -31,25 +31,27 @@
 #include "core/common/WObjectNDIP.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleOutputData.h"
-#include "core/dataHandler/WDataSetSingle.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WValueSetBase.h"
+#include "core/dataHandler/WDataHandlerEnums.h"
 
 /**
- * Module which utilizes the strategy pattern to provide a multitude of dataset creation algorithms
+ * Module which utilizes the strategy pattern to provide a multitude of dataset creation algorithms for scalar data.
  *
  * \ingroup modules
  */
-class WMDataCreator : public WModule
+class WMDataCreatorScalar: public WModule
 {
 public:
     /**
      * Standard constructor.
      */
-    WMDataCreator();
+    WMDataCreatorScalar();
 
     /**
      * Destructor.
      */
-    ~WMDataCreator();
+    ~WMDataCreatorScalar();
 
     /**
      * Gives back the name of this module.
@@ -77,6 +79,30 @@ public:
      */
     virtual const char** getXPMIcon() const;
 
+    /**
+     * Define the interface which is injected into an WObjectNDIP.
+     */
+    class DataCreatorInterface
+    {
+    public:
+        /**
+         * Create the dataset. This needs to be implemented by all the creators you write.
+         *
+         * \param grid the grid on which the value set has to be build
+         * \param type the value type in the value set
+         *
+         * \return the value set for the given grid
+         */
+        virtual WValueSetBase::SPtr operator()( WGridRegular3D::ConstSPtr grid, dataType type = W_DT_FLOAT ) = 0;
+
+        /**
+         * Destructor
+         */
+        virtual ~DataCreatorInterface()
+        {
+        }
+    };
+
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -99,7 +125,7 @@ private:
      */
     boost::shared_ptr< WCondition > m_propCondition;
 
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output; //!< The only output of this module.
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output; //!< The only output of this module.
 
 
     WPropInt m_nbVoxelsX; //!< number of voxels in x direction
@@ -112,7 +138,7 @@ private:
     WPropSelection m_valueType; //!< the datatype of the valueset
     WPropSelection m_structuralType; //!< select between scalar, vector and other structural types
 
-    WStrategyHelper< WObjectNDIP > m_strategy; //!< the strategy currently active.
+    WStrategyHelper< WObjectNDIP< DataCreatorInterface > > m_strategy; //!< the strategy currently active.
 };
 
-#endif  // WMDATACREATOR_H
+#endif  // WMDATACREATORSCALAR_H
