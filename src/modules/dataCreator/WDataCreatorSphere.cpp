@@ -30,8 +30,12 @@ WDataCreatorSphere::WDataCreatorSphere():
     WObjectNDIP< WMDataCreatorScalar::DataCreatorInterface >( "Spherical", "Creates a spherical volume." )
 {
     // add some properties
-    /*m_properties->addProperty( "Center", "The center point in grid coordinates. At this point, the value in the scalar field will be zero.",
-            WPosition() );*/
+    m_center = m_properties->addProperty( "Center", "The center point in relative coordinates, where 0.5 is the center. At this point, "
+                                                    "the value in the scalar field will be zero.",
+                                          WPosition( 0.5, 0.5, 0.5 ) );
+    m_radius = m_properties->addProperty( "Radius", "The radius in relative coordinates, where 0.5 creates a sphere in the size of the grid.",
+                                          0.5 );
+    m_radius->setMin( 0.0 );
 }
 
 WDataCreatorSphere::~WDataCreatorSphere()
@@ -49,14 +53,39 @@ WValueSetBase::SPtr WDataCreatorSphere::operator()( WGridRegular3D::ConstSPtr gr
     // for scalar data we need only as much space as we have voxels
     data->resize( grid->size() );
 
+    double originX = m_center->get().x();
+    double originY = m_center->get().y();
+    double originZ = m_center->get().z();
+
+    // the formular below calculates the stuff in -1,1 interval. The radius is meant to be used in -0.5 to 0.5 -> so scale up
+    double radius = 2.0 * m_radius->get();
+
     // iterate the data and fill in some values
+    double xRel = 0.0;
+    double yRel = 0.0;
+    double zRel = 0.0;
     for( size_t x = 0; x < grid->getNbCoordsX(); ++x )
     {
+        xRel = static_cast< double >( x ) / static_cast< double >( grid->getNbCoordsX() - 1 );
+        xRel -= originX;
+        xRel *= 2.0;
+
         for( size_t y = 0; y < grid->getNbCoordsY(); ++y )
         {
+            yRel = static_cast< double >( y ) / static_cast< double >( grid->getNbCoordsY() - 1 );
+            yRel -= originY;
+            yRel *= 2.0;
+
             for( size_t z = 0; z < grid->getNbCoordsZ(); ++z )
             {
-                data->operator[]( grid->getVoxelNum( x, y, z ) ) = x*x + y*y + z*z;
+                zRel = static_cast< double >( z ) / static_cast< double >( grid->getNbCoordsZ() - 1 );
+                zRel -= originZ;
+                zRel *= 2.0;
+
+                data->operator[]( grid->getVoxelNum( x, y, z ) ) = static_cast< ValueType >( ( 1.0 / ( radius * radius ) ) *
+                                                                                                   ( ( xRel * xRel ) +
+                                                                                                     ( yRel * yRel ) +
+                                                                                                     ( zRel * zRel ) ) );
             }
         }
     }

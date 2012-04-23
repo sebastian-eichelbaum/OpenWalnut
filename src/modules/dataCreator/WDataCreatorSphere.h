@@ -57,6 +57,15 @@ public:
 
 protected:
 private:
+    /**
+     * Relative center coordinates
+     */
+    WPropPosition m_center;
+
+    /**
+     * The radius of the sphere in relative coordinates.
+     */
+    WPropDouble m_radius;
 };
 
 #endif  // WDATACREATORSPHERE_H
