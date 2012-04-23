@@ -59,7 +59,8 @@ WValueSetBase::SPtr WDataCreatorRandom::operator()( WGridRegular3D::ConstSPtr gr
     // iterate the data and fill in some random values
     for( size_t i = 0; i < grid->size(); ++i )
     {
-        double randD = static_cast< double >( std::rand() ) / static_cast< double >( RAND_MAX );
+        // NOLINT: because we do not want to use rand_r.
+        double randD = static_cast< double >( std::rand() ) / static_cast< double >( RAND_MAX ); // NOLINT
         data->push_back( static_cast< ValueType >( m_rangeMin->get() + ( m_rangeMax->get() * randD ) ) );
     }
 
