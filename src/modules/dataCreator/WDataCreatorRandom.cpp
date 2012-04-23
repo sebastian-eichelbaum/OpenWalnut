@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <ctime>
+#include <cstdlib>
 #include <vector>
 
 #include "core/common/WLogger.h"
@@ -32,10 +33,10 @@
 #include "WDataCreatorRandom.h"
 
 WDataCreatorRandom::WDataCreatorRandom():
-    WObjectNDIP< WMDataCreatorScalar::DataCreatorInterface >( "Random", "Creates a noise volume." ),
-    m_rand( std::time( 0 ) ),
-    m_values01( 0.0, 1.0 )
+    WObjectNDIP< WMDataCreatorScalar::DataCreatorInterface >( "Random", "Creates a noise volume." )
 {
+    m_rangeMin = m_properties->addProperty( "Range Min", "The minimum value in the data.", 0.0 );
+    m_rangeMax = m_properties->addProperty( "Range Max", "The maximum value in the data.", 1.0 );
 }
 
 WDataCreatorRandom::~WDataCreatorRandom()
@@ -44,6 +45,8 @@ WDataCreatorRandom::~WDataCreatorRandom()
 
 WValueSetBase::SPtr WDataCreatorRandom::operator()( WGridRegular3D::ConstSPtr grid, dataType /* type */ )
 {
+    std::srand( time( 0 ) );
+
     // currently, the type is fixed. This will come soon.
     typedef double ValueType;
     typedef WValueSet< ValueType > ValueSetType;
@@ -56,7 +59,8 @@ WValueSetBase::SPtr WDataCreatorRandom::operator()( WGridRegular3D::ConstSPtr gr
     // iterate the data and fill in some random values
     for( size_t i = 0; i < grid->size(); ++i )
     {
-        data->push_back( m_values01( m_rand ) );
+        double randD = static_cast< double >( std::rand() ) / static_cast< double >( RAND_MAX );
+        data->push_back( static_cast< ValueType >( m_rangeMin->get() + ( m_rangeMax->get() * randD ) ) );
     }
 
     // finally, create the value set and return it

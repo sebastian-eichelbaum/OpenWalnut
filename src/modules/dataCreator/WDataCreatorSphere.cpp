@@ -29,6 +29,9 @@
 WDataCreatorSphere::WDataCreatorSphere():
     WObjectNDIP< WMDataCreatorScalar::DataCreatorInterface >( "Spherical", "Creates a spherical volume." )
 {
+    // add some properties
+    /*m_properties->addProperty( "Center", "The center point in grid coordinates. At this point, the value in the scalar field will be zero.",
+            WPosition() );*/
 }
 
 WDataCreatorSphere::~WDataCreatorSphere()

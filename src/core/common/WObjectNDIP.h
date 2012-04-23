@@ -96,19 +96,20 @@ protected:
      */
     WObjectNDIP( std::string name, std::string description, const char** icon = NULL );
 
+    WProperties::SPtr m_properties; //!< the properties of the object.
+
 private:
     std::string m_name; //!< the name
     std::string m_description; //!< the description
     const char** m_icon; //!< the icon
-    WProperties::SPtr m_properties; //!< the properties of the object.
 };
 
 template< typename T >
 WObjectNDIP< T >::WObjectNDIP( std::string name, std::string description, const char** icon ):
+    m_properties( new WProperties( name, description ) ),
     m_name( name ),
     m_description( description ),
-    m_icon( icon ),
-    m_properties( new WProperties( name, description ) )
+    m_icon( icon )
 {
     // init
 }

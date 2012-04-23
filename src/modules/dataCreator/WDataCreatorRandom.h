@@ -25,8 +25,6 @@
 #ifndef WDATACREATORRANDOM_H
 #define WDATACREATORRANDOM_H
 
-#include <boost/random.hpp>
-
 #include "core/common/WObjectNDIP.h"
 
 #include "WMDataCreatorScalar.h"
@@ -59,14 +57,14 @@ public:
 protected:
 private:
     /**
-     * Random number generator.
+     * Minimum value in the dataset.
      */
-    boost::random::mt19937 m_rand;
+    WPropDouble m_rangeMin;
 
     /**
-     * A distribution. This one creates random numbers in [0, 1)
+     * Maximum value in the dataset.
      */
-    boost::random::uniform_real_distribution<> m_values01;
+    WPropDouble m_rangeMax;
 };
 
 #endif  // WDATACREATORRANDOM_H
