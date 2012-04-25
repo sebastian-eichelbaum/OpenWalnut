@@ -32,7 +32,7 @@
 
 #include "../common/WStructuredTextParser.h"
 
-#include "WModule.h"
+class WModule;
 
 /**
  * A class abstracting module meta information. It encapsulates module name, description, icon, author lists, help resources, online resources
@@ -61,13 +61,12 @@ public:
     explicit WModuleMetaInformation( std::string name );
 
     /**
-     * Construct a meta info object that loads all information from the specified file. If the file does not exist or could not be parsed, only
+     * Construct a meta info object that loads all information from the specified file. If the file exist and could not be parsed, only
      * an error log is printed. No exception is thrown.
      *
-     * \param name the module name
-     * \param metafile the path to the module's meta file. Usually, this is somewhere in WModule::m_localPath.
+     * \param module The module to load the meta file for.
      */
-    WModuleMetaInformation( std::string name, boost::filesystem::path metafile );
+    explicit WModuleMetaInformation( boost::shared_ptr< WModule > module );
 
     /**
      * Destructor. Cleans internal list.
@@ -84,6 +83,12 @@ private:
      * The tree representing the data
      */
     WStructuredTextParser::StructuredValueTree m_metaData;
+
+    /**
+     * If true, m_metaData should be queried in all getters. If false, you can query m_meta but it will only tell you that the desired value
+     * could not be found.
+     */
+    bool m_loaded;
 };
 
 #endif  // WMODULEMETAINFORMATION_H

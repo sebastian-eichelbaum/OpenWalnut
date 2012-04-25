@@ -52,6 +52,7 @@
 #include "WModuleConnectorSignals.h"
 #include "WModuleSignals.h"
 #include "WModuleTypes.h"
+#include "WModuleMetaInformation.h"
 
 class WModuleConnector;
 class WModuleContainer;
@@ -59,7 +60,6 @@ class WModuleFactory;
 class WModuleLoader;
 class WModuleInputConnector;
 class WModuleOutputConnector;
-class WModuleMetaInformation;
 template < typename T > class WModuleInputData;
 template < typename T > class WModuleInputForwardData;
 template < typename T > class WModuleOutputData;
@@ -252,8 +252,8 @@ public:
     boost::shared_ptr< WModuleContainer > getAssociatedContainer() const;
 
     /**
-     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
-     * should never be initialized or modified in some other way. A simple new instance is required.
+     * Due to the prototype design pattern used to build modules, this method returns a new instance of this module. NOTE: it
+     * should never be initialized or modified in some other way.
      *
      * \return the prototype used to create every module in OpenWalnut.
      */
@@ -424,7 +424,7 @@ protected:
      *
      * \return the meta info object for this module.
      */
-    virtual WModuleMetaInformation getMetaInformation() const;
+    virtual WModuleMetaInformation::ConstSPtr getMetaInformation() const;
 
     /**
      * Manages connector initialization. Gets called by module container.
@@ -691,6 +691,11 @@ private:
      * Lock for m_outputConnectors.
      */
     // boost::shared_mutex m_outputConnectorsLock;
+
+    /**
+     * Module meta information. Set by the factory creating the module instance.
+     */
+    WModuleMetaInformation::SPtr m_meta;
 
     /**
      * Signal fired whenever a module main thread is ready.

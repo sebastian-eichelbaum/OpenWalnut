@@ -31,6 +31,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
+#include "WLogger.h"
 #include "WItemSelection.h"
 #include "WItemSelector.h"
 #include "WSharedSequenceContainer.h"
@@ -268,6 +269,7 @@ void WStrategyHelper< StrategyType >::addStrategy( typename StrategyType::SPtr s
 
     // add strategy to selector:
     m_possibleSelections->addItem( strategy->getName(), strategy->getDescription(), strategy->getIcon() );
+    m_properties->addProperty( strategy->getProperties() );
 
     // we can safely unlock m_strategies now. This is needed since an update in m_possibleSelectionProp requests a read lock and will deadlock if
     // w was not unlocked.
