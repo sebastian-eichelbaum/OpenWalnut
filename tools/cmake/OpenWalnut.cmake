@@ -224,8 +224,7 @@ SET( OW_SOVERSION ${OW_VERSION_MAJOR} )
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
-# Boost, at least 1.39
-# See http://www.boost.org/
+# Boost, see http://www.boost.org/
 #
 # To see, which boost libs we currently use, you may run the following command # in the src directory on a linux box to make some investigations:
 # grep -i include `find . -type f` | grep boost | awk '{print $2}' | sort | uniq
@@ -234,7 +233,7 @@ SET( OW_SOVERSION ${OW_VERSION_MAJOR} )
 SET( Boost_USE_MULTITHREAD ON )
 
 # find the boost packages
-FIND_PACKAGE( Boost 1.39.0 REQUIRED program_options thread filesystem date_time system signals regex )
+FIND_PACKAGE( Boost 1.46.0 REQUIRED program_options thread filesystem date_time system signals regex )
 
 # include the boost headers
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
