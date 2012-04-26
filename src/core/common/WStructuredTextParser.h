@@ -195,7 +195,7 @@ namespace WStructuredTextParser
             comment %= qi::lexeme[ qi::char_( "/" ) >> qi::char_( "/" ) ] >>
                        qi::lexeme[ *qi::char_( "a-zA-Z_0-9!\"#$%&'()*,:;<>?@\\^`{|}~/ .@=[]§!+-" ) ];
             // a object is a name, and a set of nested objects or key-value pairs
-            object %= key >> '{' >> *( object | kvpair | comment ) >> '}' >> *qi::char_( ";" );
+            object %= ( key | value ) >> '{' >> *( object | kvpair | comment ) >> '}' >> *qi::char_( ";" );
             // a file is basically an object without name.
             file %= *( object | kvpair | comment );
 
@@ -385,6 +385,28 @@ namespace WStructuredTextParser
          */
         template< typename T >
         T operator[]( std::string key ) const;
+
+        /**
+         * Gets a subtree. The ValueTree returned contains the node you have searched. It only contains the first match. If all matches are
+         * needed, use \ref getSubTrees instead. If the key is not valid/nothing matches the key, an empty value tree is returned. If they key
+         * matches a key-value pair, nothing is returned. This means, this method is only useful for objects.
+         *
+         * \param key key to search.
+         *
+         * \return the structured value tree.
+         */
+        StructuredValueTree getSubTree( std::string key ) const;
+
+        /**
+         * Gets all matching subtrees. The subtrees returned contains the node you have searched. If multiple objects match the key, a list of
+         * subtrees is returned. If nothing matches, the returned list is empty. If they key
+         * matches a key-value pair, nothing is returned. This means, this method is only useful for objects.
+         *
+         * \param key key to search.
+         *
+         * \return the structured value trees.
+         */
+        std::vector< StructuredValueTree > getSubTrees( std::string key ) const;
 
     protected:
     private:

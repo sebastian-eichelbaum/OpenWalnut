@@ -97,6 +97,10 @@ public:
         TS_ASSERT( t.exists( "fileLevelValue", true ) );
         TS_ASSERT( t.exists( "filelevelvalue", true ) );
 
+        // object names with spaces
+        TS_ASSERT( t.exists( "Name With Spaces" ) );
+        TS_ASSERT( t.exists( "Name With Spaces/akey", true ) );
+
         // check StructuredValueTree::count
         TS_ASSERT( t.count( "level0/level1/somekv" ) == 1 );
         // check also for existence of a object:
@@ -116,6 +120,10 @@ public:
         // to ensure case sensitivity:
         TS_ASSERT( t.count( "filelevelvalue", true ) == 1 );
         TS_ASSERT( t.count( "fileLevelValue", true ) == 1 );
+
+        // object names with spaces
+        TS_ASSERT( t.count( "Name With Spaces" ) == 1 );
+        TS_ASSERT( t.count( "Name With Spaces/akey", true ) == 1 );
     }
 
     /**
@@ -169,6 +177,28 @@ public:
         // to ensure case sensitivity:
         TS_ASSERT( t.getValues< std::string >( "filelevelvalue", defs ).size() == 1 );
         TS_ASSERT( t.getValues< std::string >( "fileLevelValue", defs ).size() == 1 );
+
+        // access to names with spaces
+        TS_ASSERT( t.getValue< std::string >( "Name With Spaces/akey", "nooo" ) == "value" );
+    }
+
+    /**
+     * Test the getSubTree functionality
+     */
+    void testSubTreeQuery()
+    {
+        using WStructuredTextParser::StructuredValueTree;
+
+        // load some data. Please see core/common/test/fixtures/WStructuredTextParser_test.txt for details
+        StructuredValueTree t( boost::filesystem::path( W_FIXTURE_PATH + "WStructuredTextParser_test.txt" ) );
+
+        // get this object ("level0")
+        StructuredValueTree level0;
+        TS_ASSERT_THROWS_NOTHING( level0 = *( t.getSubTrees ( "level0" ).begin() ) );
+        TS_ASSERT( level0.count( "uniquekv", true ) == 1 );
+
+        std::vector< StructuredValueTree > v = level0.getSubTrees( "notuniquelevel1" );
+        TS_ASSERT( v.size() == 2 );
     }
 };
 

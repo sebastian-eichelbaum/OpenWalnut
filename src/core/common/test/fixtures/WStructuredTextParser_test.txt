@@ -24,6 +24,8 @@
 
 // this file can be seen as reference for the syntax compatible with WStructuredTextParser.
 
+// Keys are always constructed using a-z,A-Z,0-9 and begin with a non-numerical char.
+
 level0
 {
     // test whether the parser finds these key-value pairs (KV)
@@ -70,3 +72,10 @@ fileLevelValue = "hey";
 
 // case sensitivity!
 filelevelvalue = "you";
+
+// Even names with spaces are allowed. If you use spaces or any other chars 
+// besides a-z,A-Z,0-9, you need to enclose it with a pair of "
+"Name With Spaces"
+{
+    akey="value";
+}

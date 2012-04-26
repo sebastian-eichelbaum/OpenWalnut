@@ -88,6 +88,40 @@ namespace WStructuredTextParser
         }
     }
 
+    StructuredValueTree StructuredValueTree::getSubTree( std::string key ) const
+    {
+        std::vector< StructuredValueTree > r = getSubTrees( key );
+
+        // return first match if any
+        if( r.size() )
+        {
+            return *r.begin();
+        }
+        else
+        {
+            return StructuredValueTree();
+        }
+    }
+
+    std::vector< StructuredValueTree > StructuredValueTree::getSubTrees( std::string key ) const
+    {
+        std::vector< ObjectType > rObj;
+        std::vector< KeyValueType > rKV;
+        std::vector< StructuredValueTree > r;
+
+        // traverse
+        traverse( m_file, key, rObj, rKV );
+
+        // now we transform each found object int a MemberType (boost variant).
+        for( std::vector< ObjectType >::const_iterator objects = rObj.begin(); objects != rObj.end(); ++objects )
+        {
+            // create a new StructuredValueTree instance
+            r.push_back( StructuredValueTree( ( *objects ).m_nodes ) );
+        }
+
+        return r;
+    }
+
     void StructuredValueTree::traverse( FileType current, std::string key,
                                                           std::vector< ObjectType >& resultObjects,
                                                           std::vector< KeyValueType >& resultValues ) const
