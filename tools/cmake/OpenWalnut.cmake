@@ -153,7 +153,7 @@ FUNCTION( BUILD_SYSTEM_COMPILER )
     IF( CMAKE_HOST_SYSTEM MATCHES "Windows" )
         SET( CMAKE_CXX_FLAGS "-frtti -pedantic -Wall -Wno-long-long -Wextra " CACHE STRING "" FORCE )
     ELSE()
-        SET( CMAKE_CXX_FLAGS "-frtti -pedantic -ansi -Wall -Wno-long-long -Wextra " CACHE STRING "" FORCE )
+        SET( CMAKE_CXX_FLAGS "-frtti -pedantic -std=c++98 -Wall -Wno-long-long -Wextra " CACHE STRING "" FORCE )
     ENDIF()
 
     # Darwin's ld isn't GNU and doesn't like the following
