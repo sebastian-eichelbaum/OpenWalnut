@@ -27,32 +27,17 @@
 
 // NOTE: everything but the module name is optional, even if this makes no
 //       sense at all.
-module
+
+// This defines some properties of the module "Navigation Slices". This must
+// match the name specified in WMNavigationSlices::getName().
+"Navigation Slices"
 {
-  // The name of the module. This must be the same as the one in your getName()
-  // method!
-  name = "Navigation Slices";
-  // Provide an icon
+  // Provide an icon. If the icon exists, it overrides the one provided by your
+  // getIcon method. This path is relative to your module's resource directory.
   icon="navslices.png";
 
   // Where to find the module?
   website = "http://www.openwalnut.org";
-
-  // Provide author information. Especially a contact address is very handy.
-  author
-  {
-    name = "OpenWalnut Project";
-    url="http://www.openwalnut.org";
-    email="contact@openwalnut.org";
-    what="Design, Development and Bug fixing";
-  };
-  // Multiple authors allowed. The order of appearance is the same as in the
-  // GUI.
-  author
-  {
-    name = "Students";
-    what="Bug fixing";
-  };
 
   // Provide a description, If you do so, this description overrides the one
   // provided by your getDescription method.
@@ -63,21 +48,45 @@ module
   // Help file. This should be an HTML or TXT document
   help ="help/index.html";
 
+  // Provide a list of authors. These authors can have further information associated with them.
+  author = "OpenWalnut Project";
+  author = "Students";
+
+  // Provide author information. Especially a contact address is very handy.
+  // This associates some URL and Mail contact info to "OpenWalnut Project".
+  "OpenWalnut Project" 
+  {
+    url="http://www.openwalnut.org";
+    email="contact@openwalnut.org";
+    what="Design, Development and Bug fixing";
+  };
+  // These additional author information are optional.
+  Students
+  {
+    what="Bug fixing";
+  };
+
   // You can provide online resources. They are shown in the GUI. You should
   // additionally provide a description to help the user know what this is.
   online
   {
+    // Name that appears for this resource. Required.
+    name="First Steps";
+    // Optional description for a resource
     description ="First Steps Tutorial, showing the first steps to take with OpenWalnut.";
+    // The URL. Required.
     url="http://www.openwalnut.org/projects/openwalnut/wiki/FirstSteps";
   };
   // Multiple online resources allowed.
   online
   {
+    name="Visualization Article";
     description="Description of the term visualization.";
     url="http://en.wikipedia.org/wiki/Visualization_(computer_graphics)";
   };
   online
   {
+    name="Video Demonstration";
     description="Video demonstration showing basic working principoles.";
     url="http://www.youtube.com/watch?v=5Afw6P6wWSU&context=C375513dADOEgsToPDskJXOVbrVDAV5rydr7H173AT";
   };

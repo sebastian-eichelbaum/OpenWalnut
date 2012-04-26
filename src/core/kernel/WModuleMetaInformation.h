@@ -52,6 +52,56 @@ public:
      */
     typedef boost::shared_ptr< const WModuleMetaInformation > ConstSPtr;
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // these are some structs to simply handling of the meta file structures
+
+    /**
+     * Structure to contain all supported author information
+     */
+    struct Author
+    {
+        /**
+         * Author name. Will never be empty.
+         */
+        std::string m_name;
+
+        /**
+         * URL to a website of the author. Can be empty.
+         */
+        std::string m_url;
+
+        /**
+         * E-Mail contact to the author. Can be empty.
+         */
+        std::string m_email;
+
+        /**
+         * What has this author done on the module? Can be empty.
+         */
+        std::string m_what;
+    };
+
+    /**
+     * Structure to encapsulate the META info online resources.
+     */
+    struct Online
+    {
+        /**
+         * Online resource's name.
+         */
+        std::string m_name;
+
+        /**
+         * Online resource's description.
+         */
+        std::string m_description;
+
+        /**
+         * The url to the resource.
+         */
+        std::string m_url;
+    };
+
     /**
      * Constructor. The help object will be empty, meaning there is no further meta info available. The name is the only required value. Of
      * course, this is of limited use in most cases.
@@ -72,12 +122,68 @@ public:
      * Destructor. Cleans internal list.
      */
     virtual ~WModuleMetaInformation();
+
+    /**
+     * The name of the module. Will always return the name of the module given on construction.
+     *
+     * \return the name
+     */
+    std::string getName() const;
+
+    /**
+     * Get the icon path. Can be invalid. Check for existence before opening.
+     *
+     * \return the path to the icon file
+     */
+    boost::filesystem::path getIcon() const;
+
+    /**
+     * The URL to a module website. Can be empty.
+     *
+     * \return URL to website
+     */
+    std::string getWebsite() const;
+
+    /**
+     * A module description. Can be empty but is initialized with the description of the module given on construction.
+     *
+     * \return the description.
+     */
+    std::string getDescription() const;
+
+    /**
+     * Path to a text or HTML file containing some module help. Can be invalid. Check for existence before opening.
+     *
+     * \return the path to help
+     */
+    boost::filesystem::path getHelp() const;
+
+    /**
+     * A list of authors. If the META file did not contain any author information, this returns the OpenWalnut Team as author.
+     *
+     * \return Author list.
+     */
+    std::vector< Author > getAuthors() const;
+
+    /**
+     * A list of online resources. Can be empty.
+     *
+     * \return list of online material
+     */
+    std::vector< Online > getOnlineResources() const;
+
 protected:
 private:
     /**
      * The name of the module providing this meta information.
      */
     std::string m_name;
+
+    /**
+     * The default description if none was specified in the META file. Initialized with the description of the module specified during
+     * construction.
+     */
+    std::string m_description;
 
     /**
      * The tree representing the data
@@ -89,6 +195,11 @@ private:
      * could not be found.
      */
     bool m_loaded;
+
+    /**
+     * The module local path. Used for several meta infos returning a path.
+     */
+    boost::filesystem::path m_localPath;
 };
 
 #endif  // WMODULEMETAINFORMATION_H

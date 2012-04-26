@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <string>
 
 #include "../common/WException.h"
@@ -40,7 +41,9 @@ WModuleMetaInformation::WModuleMetaInformation( std::string name ):
 
 WModuleMetaInformation::WModuleMetaInformation( boost::shared_ptr< WModule > module ):
     m_name( module->getName() ),
-    m_loaded( false )
+    m_description( module->getDescription() ),
+    m_loaded( false ),
+    m_localPath( module->getLocalPath() )
 {
     // check whether file exists
     boost::filesystem::path metafile = module->getLocalPath() / "META";
@@ -53,7 +56,13 @@ WModuleMetaInformation::WModuleMetaInformation( boost::shared_ptr< WModule > mod
     try
     {
         m_metaData = WStructuredTextParser::StructuredValueTree( metafile );
-        m_loaded = true;
+        // is there a module definition?
+        // If there is no meta info for this module, assume we could not load a meta file
+        m_loaded = m_metaData.exists( m_name );
+        if( !m_loaded )
+        {
+            wlog::error( "Module (" + m_name + ")" ) << "Meta file loaded but no entry for module \"" << m_name << "\" found. Ignoring.";
+        }
     }
     catch( const WException& e )
     {
@@ -64,5 +73,104 @@ WModuleMetaInformation::WModuleMetaInformation( boost::shared_ptr< WModule > mod
 WModuleMetaInformation::~WModuleMetaInformation()
 {
     // cleanup
+}
+
+std::string WModuleMetaInformation::getName() const
+{
+    return m_name;
+}
+
+boost::filesystem::path WModuleMetaInformation::getIcon() const
+{
+    // return a default if not meta data was loaded
+    if( !m_loaded )
+    {
+        return boost::filesystem::path();
+    }
+
+    // find key-value pair
+    return m_localPath / m_metaData.getValue< boost::filesystem::path >( m_name + "/icon", boost::filesystem::path( "icon.png" ) );
+}
+
+std::string WModuleMetaInformation::getWebsite() const
+{
+    // return a default if not meta data was loaded
+    if( !m_loaded )
+    {
+        return "";
+    }
+
+    // find key-value pair
+    return m_metaData.getValue< std::string >( m_name + "/website", "" );
+}
+
+std::string WModuleMetaInformation::getDescription() const
+{
+    // return a default if not meta data was loaded
+    if( !m_loaded )
+    {
+        return m_description;
+    }
+
+    // find key-value pair
+    return m_metaData.getValue< std::string >( m_name + "/description", m_description );
+}
+
+boost::filesystem::path WModuleMetaInformation::getHelp() const
+{
+    // return a default if not meta data was loaded
+    if( !m_loaded )
+    {
+        return boost::filesystem::path();
+    }
+
+    // find key-value pair
+    return m_localPath / m_metaData.getValue< boost::filesystem::path >( m_name + "/help", boost::filesystem::path( "help.html" ) );
+}
+
+std::vector< WModuleMetaInformation::Author > WModuleMetaInformation::getAuthors() const
+{
+    std::vector< WModuleMetaInformation::Author > r;
+
+    // return a default if not meta data was loaded
+    if( !m_loaded )
+    {
+        return r;
+    }
+
+    // how much author information is available?
+    std::vector< std::string > authors = m_metaData.getValues< std::string >( m_name + "/author" );
+    // prepare some memory
+    r.resize( authors.size() );
+
+    // for each author, get some associated data if available
+    for( std::vector< std::string >::const_iterator i = authors.begin(); i != authors.end(); ++i )
+    {
+        r[ i - authors.begin() ].m_email = m_metaData.getValue< std::string >( m_name + "/" + *i + "/email", "" );
+        r[ i - authors.begin() ].m_what = m_metaData.getValue< std::string >( m_name + "/" + *i + "/what", "" );
+        r[ i - authors.begin() ].m_url = m_metaData.getValue< std::string >( m_name + "/" + *i + "/url", "" );
+    }
+
+    // did we find some author info? If not, add a nice default OpenWalnut author
+    if( !r.size() )
+    {
+        WModuleMetaInformation::Author ow = { "OpenWalnut Project", "", "http://www.openwalnut.org", "Design, Development and Bug fixing" };
+        r.push_back( ow );
+    }
+
+    return r;
+}
+
+std::vector< WModuleMetaInformation::Online > WModuleMetaInformation::getOnlineResources() const
+{
+    std::vector< WModuleMetaInformation::Online > r;
+    // return a default if not meta data was loaded
+    if( !m_loaded )
+    {
+        return r;
+    }
+
+    // TODO(ebaum): implement me
+    return r;
 }
 
