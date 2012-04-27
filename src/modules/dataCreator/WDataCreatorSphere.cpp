@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "core/common/WAssert.h"
+#include "core/common/WLimits.h"
 
 #include "WDataCreatorSphere.h"
 
@@ -38,6 +39,18 @@ WDataCreatorSphere::WDataCreatorSphere():
     m_radius = m_properties->addProperty( "Radius", "The radius in relative coordinates, where 0.5 creates a sphere in the size of the grid.",
                                           0.5 );
     m_radius->setMin( 0.0 );
+
+    m_lowerClamp = m_properties->addProperty( "Lower Clamp Threshold", "Defines a threshold which allows all values below this value to be set to 0."
+                                              "This can be handy to create spheres which are 0 in the inside.",
+                                              0.0 );
+    m_lowerClamp->setMin( 0.0 );
+    m_upperClamp = m_properties->addProperty( "Upper Clamp Threshold", "Defines a threshold which allows all values above this value to be set to 0."
+                                              "This can be handy to create an empty field around the sphere",
+                                              wlimits::MAX_DOUBLE );
+    m_upperClamp->setMin( 0.0 );
+
+    m_lowerClampValue = m_properties->addProperty( "Lower Clamp Value", "Value to use when below lower clamp threshold.", 0.0 );
+    m_upperClampValue = m_properties->addProperty( "Upper Clamp Value", "Value to use when above upper clamp threshold.", 0.0 );
 }
 
 WDataCreatorSphere::~WDataCreatorSphere()
@@ -67,6 +80,12 @@ WValueSetBase::SPtr WDataCreatorSphere::operator()( WProgress::SPtr progress,
     // the formular below calculates the stuff in -1,1 interval. The radius is meant to be used in -0.5 to 0.5 -> so scale up
     double radius = 2.0 * m_radius->get();
 
+    // clamp info
+    double lowClamp = m_lowerClamp->get();
+    double upClamp = m_upperClamp->get();
+    double upClampValue = m_upperClampValue->get();
+    double lowClampValue = m_lowerClampValue->get();
+
     // iterate the data and fill in some values
     double xRel = 0.0;
     double yRel = 0.0;
@@ -89,10 +108,13 @@ WValueSetBase::SPtr WDataCreatorSphere::operator()( WProgress::SPtr progress,
                 zRel -= originZ;
                 zRel *= 2.0;
 
-                data->operator[]( grid->getVoxelNum( x, y, z ) ) = static_cast< ValueType >( ( 1.0 / ( radius * radius ) ) *
-                                                                                                   ( ( xRel * xRel ) +
-                                                                                                     ( yRel * yRel ) +
-                                                                                                     ( zRel * zRel ) ) );
+                ValueType val = static_cast< ValueType >( ( 1.0 / ( radius * radius ) ) *
+                                                                                          ( ( xRel * xRel ) +
+                                                                                            ( yRel * yRel ) +
+                                                                                            ( zRel * zRel ) ) );
+
+                // set value
+                data->operator[]( grid->getVoxelNum( x, y, z ) ) = val < lowClamp ? lowClampValue : ( val > upClamp ? upClampValue : val );
             }
 
             // updating progress for each voxel is not needed. It is enough to update each slice

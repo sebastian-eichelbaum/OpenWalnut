@@ -48,7 +48,7 @@ public:
     /**
      * Create the dataset. This needs to be implemented by all the creators you write. This method is designed to be applicable to all kinds of
      * WDataSetSingle that use WValueSetBase. Your implementation does not need to support all types. If you do not support any order/dimension
-     * combination, throw an exception (like by using \ref WAssert).
+     * combination, throw an exception (like by using WAssert).
      *
      * \param order the tensor order of the values stored in this WValueSet
      * \param dimension the tensor dimension of the values stored in this WValueSet
@@ -73,6 +73,26 @@ private:
      * The radius of the sphere in relative coordinates.
      */
     WPropDouble m_radius;
+
+    /**
+     * Clamp to 0 for all values below this one
+     */
+    WPropDouble m_lowerClamp;
+
+    /**
+     * Clamp to 0 for all values above
+     */
+    WPropDouble m_upperClamp;
+
+    /**
+     * To which value should be clamped?
+     */
+    WPropDouble m_lowerClampValue;
+
+    /**
+     * To which value should be clamped?
+     */
+    WPropDouble m_upperClampValue;
 };
 
 #endif  // WDATACREATORSPHERE_H

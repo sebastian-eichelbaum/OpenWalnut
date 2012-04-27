@@ -44,7 +44,7 @@ public:
     /**
      * Create the dataset. This needs to be implemented by all the creators you write. This method is designed to be applicable to all kinds of
      * WDataSetSingle that use WValueSetBase. Your implementation does not need to support all types. If you do not support any order/dimension
-     * combination, throw an exception (like by using \ref WAssert).
+     * combination, throw an exception (like by using WAssert).
      *
      * \param order the tensor order of the values stored in this WValueSet
      * \param dimension the tensor dimension of the values stored in this WValueSet
