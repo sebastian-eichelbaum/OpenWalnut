@@ -41,11 +41,10 @@
 
 WPropertyGroupBase::WPropertyGroupBase( std::string name, std::string description ):
     WPropertyBase( name, description ),
-    m_properties(),
-    m_childUpdateCondition( new WConditionSet() )
+    m_properties()
 {
+    // this groups update condition also fires upon group modification -> add WSharedObject condition
     m_updateCondition->add( m_properties.getChangeCondition() );
-    m_childUpdateCondition->subscribeSignal( boost::bind( &WPropertyGroupBase::onChildUpdate, this ) );
 }
 
 WPropertyGroupBase::~WPropertyGroupBase()
@@ -54,8 +53,7 @@ WPropertyGroupBase::~WPropertyGroupBase()
 
 WPropertyGroupBase::WPropertyGroupBase( const WPropertyGroupBase& from ):
     WPropertyBase( from ),
-    m_properties(),
-    m_childUpdateCondition( new WConditionSet() )
+    m_properties()
 {
     // copy the properties inside
 
@@ -72,14 +70,8 @@ WPropertyGroupBase::WPropertyGroupBase( const WPropertyGroupBase& from ):
     // unlock explicitly
     l.reset();
 
-    // add the change condition of the prop list
+    // this groups update condition also fires upon group modification -> add WSharedObject condition
     m_updateCondition->add( m_properties.getChangeCondition() );
-    m_childUpdateCondition->subscribeSignal( boost::bind( &WPropertyGroupBase::onChildUpdate, this ) );
-}
-
-boost::shared_ptr< WCondition > WPropertyGroupBase::getChildUpdateCondition() const
-{
-    return m_childUpdateCondition;
 }
 
 bool WPropertyGroupBase::propNamePredicate( boost::shared_ptr< WPropertyBase > prop1, boost::shared_ptr< WPropertyBase > prop2 ) const
@@ -196,7 +188,7 @@ void WPropertyGroupBase::addArbitraryProperty( WPropertyBase::SPtr prop )
     l->get().push_back( prop );
 
     // add the child's update condition to the list
-    m_childUpdateCondition->add( prop->getUpdateCondition() );
+    m_updateCondition->add( prop->getUpdateCondition() );
 }
 
 WPropertyGroupBase::PropertySharedContainerType::ReadTicket WPropertyGroupBase::getProperties() const
@@ -209,6 +201,3 @@ WPropertyGroupBase::PropertySharedContainerType::ReadTicket WPropertyGroupBase::
     return m_properties.getReadTicket();
 }
 
-void WPropertyGroupBase::onChildUpdate()
-{
-}

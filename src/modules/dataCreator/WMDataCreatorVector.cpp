@@ -117,7 +117,7 @@ void WMDataCreatorVector::moduleMain()
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
     // we need to wake up if some strategy prop changed
-    m_moduleState.add( m_strategy.getProperties()->getChildUpdateCondition() );
+    m_moduleState.add( m_strategy.getProperties()->getUpdateCondition() );
 
     // signal ready state
     ready();

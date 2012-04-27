@@ -183,7 +183,7 @@ void WPropertyGroup::removeProperty( boost::shared_ptr< WPropertyBase > prop )
     // lock, unlocked if l looses focus
     PropertySharedContainerType::WriteTicket l = m_properties.getWriteTicket();
     l->get().erase( std::remove( l->get().begin(), l->get().end(), prop ), l->get().end() );
-    m_childUpdateCondition->remove( prop->getUpdateCondition() );
+    m_updateCondition->remove( prop->getUpdateCondition() );
 }
 
 WPropGroup WPropertyGroup::addPropertyGroup( std::string name, std::string description, bool hide )
