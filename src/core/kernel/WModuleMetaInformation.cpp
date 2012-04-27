@@ -171,7 +171,30 @@ std::vector< WModuleMetaInformation::Online > WModuleMetaInformation::getOnlineR
         return r;
     }
 
-    // TODO(ebaum): implement me
+    // get the "online"-subtrees
+    typedef std::vector< WStructuredTextParser::StructuredValueTree > TreeList;
+    TreeList onlineInfos = m_metaData.getSubTrees( m_name + "/online" );
+    for( TreeList::const_iterator i = onlineInfos.begin(); i != onlineInfos.end(); ++i )
+    {
+        WModuleMetaInformation::Online o;
+
+        // get all info:
+
+        // these are required
+        o.m_name = ( *i ).getValue< std::string >( "name", "" );
+        o.m_url = ( *i ).getValue< std::string >( "url", "" );
+        if( o.m_name.empty() || o.m_url.empty() )
+        {
+            continue;
+        }
+
+        // optional
+        o.m_description = ( *i ).getValue< std::string >( "description", "" );
+
+        // add
+        r.push_back( o );
+    }
+
     return r;
 }
 
