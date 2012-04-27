@@ -77,6 +77,7 @@ void WQtNetworkEditorView::mousePressEvent( QMouseEvent* event )
     // for panning the view
     m_lastPanPoint = event->pos();
     setCursor( Qt::ClosedHandCursor );
+    QGraphicsView::mousePressEvent( event );
 }
 
 void WQtNetworkEditorView::mouseReleaseEvent( QMouseEvent* event )

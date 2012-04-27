@@ -102,6 +102,12 @@ public:
      */
     void selectByModule( WModule::SPtr module );
 
+    /**
+     * Returns the current scene.
+     *
+     * \return the scene
+     */
+    WQtNetworkScene* getScene();
 protected:
     /**
      * Reference to the main window of the application.

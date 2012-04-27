@@ -485,3 +485,7 @@ WQtNetworkItem* WQtNetworkEditor::findItemByModule( boost::shared_ptr< WModule >
     return NULL;
 }
 
+WQtNetworkScene* WQtNetworkEditor::getScene()
+{
+    return m_scene;
+}

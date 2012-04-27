@@ -206,8 +206,9 @@ void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 
 void WQtNetworkItem::mousePressEvent( QGraphicsSceneMouseEvent *event )
 {
-    QGraphicsItem::mousePressEvent( event );
+    m_networkEditor->getScene()->clearSelection();
     setSelected( true );
+    QGraphicsItem::mousePressEvent( event );
 }
 
 QVariant WQtNetworkItem::itemChange( GraphicsItemChange change, const QVariant &value )
