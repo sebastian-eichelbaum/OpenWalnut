@@ -364,7 +364,8 @@ void WMProbTractDisplaySP::checkProbabilityRanges( std::vector< boost::shared_pt
             otherRange = true;
         }
     }
-    ss << "which have probabilites > 1 are normalized by its maximum value. As the seed point should have the maximum value it is converted to 1.0 then.";
+    ss << "which have probabilities > 1 are normalized by its maximum value. As the seed point should have the maximum value it is converted " <<
+          "to 1.0 then.";
     if( otherRange )
     {
         warnLog() << ss.str();
