@@ -26,6 +26,7 @@
 #define WMODULEMETAINFORMATION_H
 
 #include <string>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/filesystem/path.hpp>

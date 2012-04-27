@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <string>
+#include <vector>
 
 #include "../common/WException.h"
 #include "../common/WLogger.h"

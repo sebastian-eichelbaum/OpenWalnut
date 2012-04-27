@@ -194,7 +194,7 @@ public:
 
         // get this object ("level0")
         StructuredValueTree level0;
-        TS_ASSERT_THROWS_NOTHING( level0 = *( t.getSubTrees ( "level0" ).begin() ) );
+        TS_ASSERT_THROWS_NOTHING( level0 = *( t.getSubTrees( "level0" ).begin() ) );
         TS_ASSERT( level0.count( "uniquekv", true ) == 1 );
 
         std::vector< StructuredValueTree > v = level0.getSubTrees( "notuniquelevel1" );
