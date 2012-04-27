@@ -25,6 +25,7 @@
 #ifndef WVALUESET_H
 #define WVALUESET_H
 
+#include <cmath>
 #include <cstddef>
 #include <vector>
 #include <boost/shared_ptr.hpp>
@@ -297,6 +298,16 @@ public:
         return m_maximum;
     }
 
+    /**
+     * Calculates the needed number of integral values for a valueset with specified order and dimension for one voxel. The whole dataset will
+     * then be as large as the number of voxels multiplied by this value.
+     *
+     * \param oder desired tensor order.
+     * \param dimension desired dimension.
+     *
+     * \return the number of values needed
+     */
+    static size_t getRequiredRawSizePerVoxel( size_t oder, size_t dimension );
 protected:
     /**
      * The smallest value in m_data.
@@ -347,6 +358,19 @@ template< typename T > WValue< T > WValueSet< T >::getWValue( size_t index ) con
         result[i] = ( *m_data )[offset+i];
 
     return result;
+}
+
+template< typename T >
+size_t WValueSet< T >::getRequiredRawSizePerVoxel( size_t oder, size_t dimension )
+{
+    // NOTE: std::pow works only for floating point types
+    size_t pow = 1;
+    for( size_t v = 0; v < oder; ++v )
+    {
+        pow *= dimension;
+    }
+
+    return pow;
 }
 
 #endif  // WVALUESET_H

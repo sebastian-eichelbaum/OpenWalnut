@@ -43,6 +43,16 @@ class WProgress // NOLINT
 friend class WProgressTest;
 public:
     /**
+     * Shared pointer on a WProgress
+     */
+    typedef boost::shared_ptr< WProgress > SPtr;
+
+    /**
+     * Const Shared pointer on a WProgress
+     */
+    typedef boost::shared_ptr< const WProgress > ConstSPtr;
+
+    /**
      * Creates a new progress instance as child of the specified progress. The instance is instantly marked "running".
      *
      * \param name   name of the progress, can be empty.
@@ -51,7 +61,7 @@ public:
      * \note Reaching the count does not automatically stop the progress. You still need to call finish().
      * \note An indetermined progress is just indicating a pending progress without progress information.
      */
-    WProgress( std::string name, unsigned int count = 0 );
+    WProgress( std::string name, size_t count = 0 );
 
     /**
      * Destructor.
@@ -79,7 +89,7 @@ public:
      *
      * \return the incremented WProgress instance.
      */
-    virtual WProgress& operator+( unsigned int steps );
+    virtual WProgress& operator+( size_t steps );
 
     /**
      * Returns the overall progress of this progress instance, including the child progress'.
@@ -116,6 +126,13 @@ public:
      */
     virtual bool isDetermined();
 
+    /**
+     * Increment the progress counter by the given amount.
+     *
+     * \param steps how much
+     */
+    virtual void increment( size_t steps );
+
 protected:
     /**
      * Progress name. Can be set only once (during construction).
@@ -125,12 +142,12 @@ protected:
     /**
      * The maximum count (which marks the 100%).
      */
-    unsigned int m_max;
+    size_t m_max;
 
     /**
      * The current counter.
      */
-    unsigned int m_count;
+    size_t m_count;
 
     /**
      * Flag denoting whether the progress is running or not.

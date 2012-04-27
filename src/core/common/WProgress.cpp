@@ -30,7 +30,7 @@
 
 #include "WProgress.h"
 
-WProgress::WProgress( std::string name, unsigned int count )
+WProgress::WProgress( std::string name, size_t count )
     : m_name( name ),
       m_max( count - 1 ),
       m_count( 0 ),
@@ -85,7 +85,7 @@ bool WProgress::isDetermined()
     return m_determined;
 }
 
-WProgress& WProgress::operator+( unsigned int steps )
+WProgress& WProgress::operator+( size_t steps )
 {
     if( isDetermined() )
     {
@@ -93,4 +93,9 @@ WProgress& WProgress::operator+( unsigned int steps )
     }
 
     return *this;
+}
+
+void WProgress::increment( size_t steps )
+{
+    operator+( steps );
 }

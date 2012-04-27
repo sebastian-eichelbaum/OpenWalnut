@@ -33,7 +33,7 @@
 #include "WDataCreatorRandom.h"
 
 WDataCreatorRandom::WDataCreatorRandom():
-    WObjectNDIP< WMDataCreatorScalar::DataCreatorInterface >( "Random", "Creates a noise volume." )
+    WObjectNDIP< WDataSetSingleCreatorInterface >( "Random", "Creates a noise volume." )
 {
     m_rangeMin = m_properties->addProperty( "Range Min", "The minimum value in the data.", 0.0 );
     m_rangeMax = m_properties->addProperty( "Range Max", "The maximum value in the data.", 1.0 );
@@ -43,7 +43,9 @@ WDataCreatorRandom::~WDataCreatorRandom()
 {
 }
 
-WValueSetBase::SPtr WDataCreatorRandom::operator()( WGridRegular3D::ConstSPtr grid, dataType /* type */ )
+WValueSetBase::SPtr WDataCreatorRandom::operator()( WProgress::SPtr progress,
+                                                    WGridRegular3D::ConstSPtr grid, unsigned char order, unsigned char dimension,
+                                                    dataType /*type*/ )
 {
     std::srand( time( 0 ) );
 
@@ -54,18 +56,33 @@ WValueSetBase::SPtr WDataCreatorRandom::operator()( WGridRegular3D::ConstSPtr gr
     // create some memory for the data
     boost::shared_ptr< std::vector< ValueType > > data( new std::vector< ValueType > );
     // for scalar data we need only as much space as we have voxels
-    data->reserve( grid->size() );
+    size_t valuesPerVoxel = ValueSetType::getRequiredRawSizePerVoxel( order, dimension );
+    data->resize( valuesPerVoxel * grid->size() );
 
     // iterate the data and fill in some random values
-    for( size_t i = 0; i < grid->size(); ++i )
+    for( size_t x = 0; x < grid->getNbCoordsX(); ++x )
     {
-        // NOLINT: because we do not want to use rand_r.
-        double randD = static_cast< double >( std::rand() ) / static_cast< double >( RAND_MAX ); // NOLINT
-        data->push_back( static_cast< ValueType >( m_rangeMin->get() + ( m_rangeMax->get() * randD ) ) );
+        for( size_t y = 0; y < grid->getNbCoordsY(); ++y )
+        {
+            for( size_t z = 0; z < grid->getNbCoordsZ(); ++z )
+            {
+                // each voxels might need multiple values
+                for( size_t v = 0; v < valuesPerVoxel; ++v )
+                {
+                    // NOLINT: because we do not want to use rand_r.
+                    double randD = static_cast< double >( std::rand() ) / static_cast< double >( RAND_MAX ); // NOLINT
+                    data->operator[]( ( valuesPerVoxel * grid->getVoxelNum( x, y, z ) ) + v ) =
+                        static_cast< ValueType >( m_rangeMin->get() + ( m_rangeMax->get() * randD ) );
+                }
+            }
+
+            // updating progress for each voxel is not needed. It is enough to update each slice
+            progress->increment( grid->getNbCoordsZ() );
+        }
     }
 
     // finally, create the value set and return it
     // We have scalar data (order = 0 ) in 3D
-    return ValueSetType::SPtr( new ValueSetType( 0, 1, data ) );
+    return ValueSetType::SPtr( new ValueSetType( order, dimension , data ) );
 }
 

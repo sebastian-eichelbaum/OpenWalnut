@@ -27,12 +27,12 @@
 
 #include <core/common/WObjectNDIP.h>
 
-#include "WMDataCreatorScalar.h"
+#include "WDataSetSingleCreatorInterface.h"
 
 /**
- * Creates a sphere inside a given grid.
+ * Creates a sphere inside a given grid. Only works on scalar fields.
  */
-class WDataCreatorSphere: public WObjectNDIP< WMDataCreatorScalar::DataCreatorInterface >
+class WDataCreatorSphere: public WObjectNDIP< WDataSetSingleCreatorInterface >
 {
 public:
     /**
@@ -46,14 +46,21 @@ public:
     virtual ~WDataCreatorSphere();
 
     /**
-     * Create the dataset. This needs to be implemented by all the creators you write.
+     * Create the dataset. This needs to be implemented by all the creators you write. This method is designed to be applicable to all kinds of
+     * WDataSetSingle that use WValueSetBase. Your implementation does not need to support all types. If you do not support any order/dimension
+     * combination, throw an exception (like by using \ref WAssert).
      *
+     * \param order the tensor order of the values stored in this WValueSet
+     * \param dimension the tensor dimension of the values stored in this WValueSet
+     * \param progress the progress instance you should increment each time you fill the value for one voxel.
      * \param grid the grid on which the value set has to be build
      * \param type the value type in the value set
      *
      * \return the value set for the given grid
      */
-    virtual WValueSetBase::SPtr operator()( WGridRegular3D::ConstSPtr grid, dataType type = W_DT_FLOAT );
+    virtual WValueSetBase::SPtr operator()( WProgress::SPtr progress,
+                                            WGridRegular3D::ConstSPtr grid, unsigned char order = 0, unsigned char dimension = 1,
+                                            dataType type = W_DT_FLOAT );
 
 protected:
 private:

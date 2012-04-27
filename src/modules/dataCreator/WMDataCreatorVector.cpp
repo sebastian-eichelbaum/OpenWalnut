@@ -29,61 +29,62 @@
 #include "core/common/WProgress.h"
 #include "core/common/WStrategyHelper.h"
 #include "core/dataHandler/WGridRegular3D.h"
-#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetVector.h"
 #include "core/kernel/WKernel.h"
 
 #include "WDataCreatorSphere.h"
 #include "WDataCreatorRandom.h"
 
 #include "WMDataCreator.xpm"
-#include "WMDataCreatorScalar.h"
+#include "WMDataCreatorVector.h"
 
-WMDataCreatorScalar::WMDataCreatorScalar():
+WMDataCreatorVector::WMDataCreatorVector():
     WModule(),
     m_strategy( "Dataset Creators", "Select one of the dataset creators and configure it to your needs.", NULL,
                 "Creator", "A list of all known creators." )
 {
     // add some strategies here
-    m_strategy.addStrategy( WDataCreatorSphere::SPtr( new WDataCreatorSphere() ) );
     m_strategy.addStrategy( WDataCreatorRandom::SPtr( new WDataCreatorRandom() ) );
+
+    // NOTE: the sphere strategy does not support vectors -> if you want them, create a scalar sphere and derive from it.
 }
 
-WMDataCreatorScalar::~WMDataCreatorScalar()
+WMDataCreatorVector::~WMDataCreatorVector()
 {
     // cleanup
     removeConnectors();
 }
 
-boost::shared_ptr< WModule > WMDataCreatorScalar::factory() const
+boost::shared_ptr< WModule > WMDataCreatorVector::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMDataCreatorScalar() );
+    return boost::shared_ptr< WModule >( new WMDataCreatorVector() );
 }
 
-const char** WMDataCreatorScalar::getXPMIcon() const
+const char** WMDataCreatorVector::getXPMIcon() const
 {
     return datacreator_xpm;
 }
 
-const std::string WMDataCreatorScalar::getName() const
+const std::string WMDataCreatorVector::getName() const
 {
-    return "Scalar Data Creator";
+    return "Vector Data Creator";
 }
 
-const std::string WMDataCreatorScalar::getDescription() const
+const std::string WMDataCreatorVector::getDescription() const
 {
-    return "Allows the user to create scalar data sets on a regular grid by providing a bunch of data creation schemes.";
+    return "Allows the user to create vector data sets on a regular grid by providing a bunch of data creation schemes.";
 }
 
-void WMDataCreatorScalar::connectors()
+void WMDataCreatorVector::connectors()
 {
     // initialize connectors
-    m_output = WModuleOutputData< WDataSetScalar >::createAndAdd( shared_from_this(), "out", "The data that has been created" );
+    m_output = WModuleOutputData< WDataSetVector >::createAndAdd( shared_from_this(), "out", "The data that has been created" );
 
     // call WModule's initialization
     WModule::connectors();
 }
 
-void WMDataCreatorScalar::properties()
+void WMDataCreatorVector::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
@@ -110,7 +111,7 @@ void WMDataCreatorScalar::properties()
     WModule::properties();
 }
 
-void WMDataCreatorScalar::moduleMain()
+void WMDataCreatorVector::moduleMain()
 {
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
@@ -140,12 +141,12 @@ void WMDataCreatorScalar::moduleMain()
         m_progress->addSubProgress( progress );
 
         // get the current strategy
-        WValueSetBase::SPtr valueSet = m_strategy()->operator()( progress, grid, 0, 1 );
+        WValueSetBase::SPtr valueSet = m_strategy()->operator()( progress, grid, 1, 3 );
 
         debugLog() << "Created dataset with " << grid->size() << " voxels.";
 
         // build dataset
-        WDataSetScalar::SPtr ds( new WDataSetScalar( valueSet, grid ) );
+        WDataSetVector::SPtr ds( new WDataSetVector( valueSet, grid ) );
 
         // done. Notify user.
         progress->finish();

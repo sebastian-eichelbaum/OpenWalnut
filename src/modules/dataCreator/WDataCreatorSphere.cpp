@@ -24,10 +24,12 @@
 
 #include <vector>
 
+#include "core/common/WAssert.h"
+
 #include "WDataCreatorSphere.h"
 
 WDataCreatorSphere::WDataCreatorSphere():
-    WObjectNDIP< WMDataCreatorScalar::DataCreatorInterface >( "Spherical", "Creates a spherical volume." )
+    WObjectNDIP< WDataSetSingleCreatorInterface >( "Spherical", "Creates a spherical volume." )
 {
     // add some properties
     m_center = m_properties->addProperty( "Center", "The center point in relative coordinates, where 0.5 is the center. At this point, "
@@ -42,8 +44,13 @@ WDataCreatorSphere::~WDataCreatorSphere()
 {
 }
 
-WValueSetBase::SPtr WDataCreatorSphere::operator()( WGridRegular3D::ConstSPtr grid, dataType /* type */ )
+WValueSetBase::SPtr WDataCreatorSphere::operator()( WProgress::SPtr progress,
+                                                    WGridRegular3D::ConstSPtr grid, unsigned char order, unsigned char dimension,
+                                                    dataType /*type*/ )
 {
+    // this creator only supports valuesets for scalar data.
+    WAssert( ( order == 0 ) && ( dimension == 1 ), "The sphere data creator only supports scalar data." );
+
     // currently, the type is fixed. This will come soon.
     typedef double ValueType;
     typedef WValueSet< ValueType > ValueSetType;
@@ -87,6 +94,9 @@ WValueSetBase::SPtr WDataCreatorSphere::operator()( WGridRegular3D::ConstSPtr gr
                                                                                                      ( yRel * yRel ) +
                                                                                                      ( zRel * zRel ) ) );
             }
+
+            // updating progress for each voxel is not needed. It is enough to update each slice
+            progress->increment( grid->getNbCoordsZ() );
         }
     }
 

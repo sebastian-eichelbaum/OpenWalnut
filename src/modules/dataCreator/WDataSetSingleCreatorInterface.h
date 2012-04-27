@@ -22,30 +22,25 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATACREATORRANDOM_H
-#define WDATACREATORRANDOM_H
+#ifndef WDATASETSINGLECREATORINTERFACE_H
+#define WDATASETSINGLECREATORINTERFACE_H
 
-#include "core/common/WObjectNDIP.h"
-#include "WDataSetSingleCreatorInterface.h"
-
-#include "WMDataCreatorScalar.h"
+#include <core/common/WProgress.h>
+#include <core/dataHandler/WValueSetBase.h>
+#include <core/dataHandler/WValueSet.h>
+#include <core/dataHandler/WGridRegular3D.h>
+#include <core/dataHandler/WDataHandlerEnums.h>
 
 /**
- * Creates random values inside a given grid. This works for all kinds of datasets using WValueSetBase.
+ * Define the interface which is injected into an \ref WObjectNDIP. Remember that \ref WObjectNDIP is a template class deriving from its
+ * template type. This way we can inject methods into the base class. It avoids derivation from \ref WObjectNDIP.
+ *
+ * This class is especially useful for all dataset types that are WDataSetSingle types. So, strategies written using this interface can be
+ * utilized for vector and scalar data for example.
  */
-class WDataCreatorRandom: public WObjectNDIP< WDataSetSingleCreatorInterface >
+class WDataSetSingleCreatorInterface
 {
 public:
-    /**
-     * Default constructor.
-     */
-    WDataCreatorRandom();
-
-    /**
-     * Destructor.
-     */
-    virtual ~WDataCreatorRandom();
-
     /**
      * Create the dataset. This needs to be implemented by all the creators you write. This method is designed to be applicable to all kinds of
      * WDataSetSingle that use WValueSetBase. Your implementation does not need to support all types. If you do not support any order/dimension
@@ -61,20 +56,13 @@ public:
      */
     virtual WValueSetBase::SPtr operator()( WProgress::SPtr progress,
                                             WGridRegular3D::ConstSPtr grid, unsigned char order = 0, unsigned char dimension = 1,
-                                            dataType type = W_DT_FLOAT );
-
-protected:
-private:
-    /**
-     * Minimum value in the dataset.
-     */
-    WPropDouble m_rangeMin;
+                                            dataType type = W_DT_FLOAT ) = 0;
 
     /**
-     * Maximum value in the dataset.
+     * Destructor
      */
-    WPropDouble m_rangeMax;
+    virtual ~WDataSetSingleCreatorInterface();
 };
 
-#endif  // WDATACREATORRANDOM_H
+#endif  // WDATASETSINGLECREATORINTERFACE_H
 
