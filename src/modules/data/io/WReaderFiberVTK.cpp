@@ -56,7 +56,7 @@ boost::shared_ptr< WDataSetFibers > WReaderFiberVTK::read()
     m_ifs->open( m_fname.c_str(), std::ifstream::in | std::ifstream::binary );
     if( !m_ifs || m_ifs->bad() )
     {
-        throw WDHIOFailure( std::string( "internal error while opening" ) );
+        throw WDHIOFailure( std::string( "internal error while opening file" ) );
     }
     readHeader();
     readPoints();
