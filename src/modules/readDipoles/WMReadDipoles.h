@@ -109,7 +109,6 @@ protected:
 
 
 private:
-    bool alex;
 };
 
 #endif  // WMREADDIPOLES_H

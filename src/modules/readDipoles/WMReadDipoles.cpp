@@ -71,7 +71,6 @@ void WMReadDipoles::connectors()
 void WMReadDipoles::properties()
 {
     // Put the code for your properties here. See "src/modules/template/" for an extensively documented example.
-    alex =true;
     WModule::properties();
 }
 
