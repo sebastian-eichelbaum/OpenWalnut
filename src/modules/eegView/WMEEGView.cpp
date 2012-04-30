@@ -29,6 +29,7 @@
 #include <osg/ShapeDrawable>
 #include <osgSim/ColorRange>
 
+#include "core/dataHandler/WDataSetDipole.h"
 #include "core/dataHandler/WEEG2.h"
 #include "core/dataHandler/WEEG2Segment.h"
 #include "core/dataHandler/WEEGChannelInfo.h"
@@ -92,12 +93,13 @@ const char** WMEEGView::getXPMIcon() const
 
 void WMEEGView::connectors()
 {
-    // initialize connectors
     m_input = boost::shared_ptr< WModuleInputData< WEEG2 > >( new WModuleInputData< WEEG2 >(
-        shared_from_this(), "in", "Loaded EEG-dataset." ) );
-
-    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
+        shared_from_this(), "EEG recording", "Loaded EEG-dataset." ) );
     addConnector( m_input );
+
+    m_dipoles = boost::shared_ptr< WModuleInputData< WDataSetDipole > >( new WModuleInputData< WDataSetDipole >(
+        shared_from_this(), "Dipoles", "The reconstructed dipoles for the EEG." ) );
+    addConnector( m_dipoles );
 
     // call WModules initialization
     WModule::connectors();

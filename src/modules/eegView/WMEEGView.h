@@ -34,11 +34,12 @@
 
 // forward declarations
 class WCustomWidget;
+class WDataSetDipole;
 class WEEG2;
+class WEEGSourceCalculator;
+class WEEGViewHandler;
 class WGEGroupNode;
 class WROIBox;
-class WEEGViewHandler;
-class WEEGSourceCalculator;
 template< class T > class WModuleInputData;
 
 /**
@@ -124,6 +125,11 @@ private:
      * Input connector for a EEG dataset
      */
     boost::shared_ptr< WModuleInputData< WEEG2 > > m_input;
+
+    /**
+     * Input connector for dipoles of EEG data
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetDipole > > m_dipoles;
 
     /**
      * A condition used to notify about changes in several properties.

@@ -33,6 +33,8 @@
 #include "core/kernel/WModuleInputData.h"
 #include "core/kernel/WModuleOutputData.h"
 
+class WDataSetDipole;
+
 /**
  * Someone should add some documentation here.
  * Probably the best person would be the module's
@@ -47,14 +49,13 @@
 class WMReadDipoles: public WModule
 {
 public:
-
     /**
-     *
+     * Simple constructor
      */
     WMReadDipoles();
 
     /**
-     *
+     * Destructs the reader.
      */
     virtual ~WMReadDipoles();
 
@@ -86,7 +87,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -107,8 +107,27 @@ protected:
      */
     virtual void requirements();
 
-
 private:
+    /**
+     * Function doing the actual reading
+     *
+     * \param filename Name and location of file to read.
+     * \return A pointer to the loaded dataset
+     */
+    boost::shared_ptr< WDataSetDipole > readData( std::string filename );
+
+    /**
+     * Output connector for dipoles of EEG data
+     */
+    boost::shared_ptr< WModuleOutputData< WDataSetDipole > > m_dipoles;
+
+    /**
+     * Pointer to the loaded dataset
+     */
+    boost::shared_ptr< WDataSetDipole > m_dataSet;
+
+    boost::shared_ptr< WCondition > m_propCondition;  //!< A condition used to notify about changes in several properties.
+    WPropFilename m_dataFile; //!< The data will be read from this file.
 };
 
 #endif  // WMREADDIPOLES_H

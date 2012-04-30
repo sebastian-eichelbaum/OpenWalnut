@@ -22,8 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
+#include <fstream>
 #include <string>
 
+#include "core/common/WPathHelper.h"
+#include "core/dataHandler/WDataSetDipole.h"
+#include "core/dataHandler/exceptions/WDHIOFailure.h"
 #include "core/kernel/WKernel.h"
 #include "modules/readDipoles/WMReadDipoles.xpm"
 
@@ -63,14 +67,19 @@ const std::string WMReadDipoles::getDescription() const
 
 void WMReadDipoles::connectors()
 {
-    // Put the code for your connectors here. See "src/modules/template/" for an extensively documented example.
+    m_dipoles = boost::shared_ptr< WModuleOutputData< WDataSetDipole > >( new WModuleOutputData< WDataSetDipole >(
+        shared_from_this(), "Dipoles", "The loaded dipoles reconstructed from EEG." ) );
+    addConnector( m_dipoles );
 
     WModule::connectors();
 }
 
 void WMReadDipoles::properties()
 {
-    // Put the code for your properties here. See "src/modules/template/" for an extensively documented example.
+    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_dataFile = m_properties->addProperty( "File", "", WPathHelper::getAppPath(), m_propCondition );
+    WPropertyHelper::PC_PATHEXISTS::addTo( m_dataFile );
+
     WModule::properties();
 }
 
@@ -81,4 +90,49 @@ void WMReadDipoles::requirements()
 
 void WMReadDipoles::moduleMain()
 {
+    m_moduleState.add( m_propCondition );
+    ready();
+    while( !m_shutdownFlag() )
+    {
+        m_moduleState.wait();
+
+        if( m_shutdownFlag() )
+        {
+            break;
+        }
+
+        boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Read Dipoles", 2 ) );
+        ++*progress;
+        m_dataSet = readData( m_dataFile->get().string() );
+        ++*progress;
+        m_dipoles->updateData( m_dataSet );
+        progress->finish();
+    }
+}
+
+
+boost::shared_ptr< WDataSetDipole > WMReadDipoles::readData( std::string filename )
+{
+    std::ifstream ifs;
+    ifs.open( filename.c_str(), std::ifstream::in );
+    if( !ifs || ifs.bad() )
+    {
+        throw WDHIOFailure( std::string( "Internal error while opening file" ) );
+    }
+
+    std::string line;
+    std::getline( ifs, line, '\n' );
+    while( line.find( "PositionsFixed" ) )
+    {
+       std::getline( ifs, line, '\n' );
+    }
+
+    WPosition pos;
+    ifs >> pos[0] >> pos[1] >> pos[2];
+
+    ifs.close();
+    boost::shared_ptr< WDataSetDipole > loadedData( new WDataSetDipole( pos ) );
+
+    std::cout << "BLAAAAAAA " << pos << std::endl;
+    return loadedData;
 }
