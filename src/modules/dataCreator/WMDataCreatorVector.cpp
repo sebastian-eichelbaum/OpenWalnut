@@ -35,7 +35,7 @@
 #include "WDataCreatorSphere.h"
 #include "WDataCreatorRandom.h"
 
-#include "WMDataCreator.xpm"
+#include "WMDataCreatorVector.xpm"
 #include "WMDataCreatorVector.h"
 
 WMDataCreatorVector::WMDataCreatorVector():
@@ -62,7 +62,7 @@ boost::shared_ptr< WModule > WMDataCreatorVector::factory() const
 
 const char** WMDataCreatorVector::getXPMIcon() const
 {
-    return datacreator_xpm;
+    return WMDataCreatorVector_xpm;
 }
 
 const std::string WMDataCreatorVector::getName() const
