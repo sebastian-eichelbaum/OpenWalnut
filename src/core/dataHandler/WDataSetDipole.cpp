@@ -51,3 +51,7 @@ boost::shared_ptr< WPrototyped > WDataSetDipole::getPrototype()
     return m_prototype;
 }
 
+WPosition WDataSetDipole::getPosition()
+{
+    return m_dipolePosition;
+}

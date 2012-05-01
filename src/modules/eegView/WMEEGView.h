@@ -157,6 +157,11 @@ private:
     WPropBool m_drawLabels;
 
     /**
+     * Property determining whetherwe only show the proof of concept or the real dipoles
+     */
+    WPropBool m_proofOfConcept;
+
+    /**
      * the width of the label display in pixel as property
      */
     WPropInt m_labelsWidth;

@@ -120,6 +120,10 @@ void WMEEGView::properties()
                                                     "Draw the labels of the electrodes at their 3D positions.",
                                                     true,
                                                     m_propCondition );
+    m_proofOfConcept   = m_properties->addProperty( "Enable POC",
+                                                    "Use proof of concept (POC) ROI positioning instead of real dipoles position.",
+                                                    true,
+                                                    m_propCondition );
     m_labelsWidth      = m_properties->addProperty( "Labels width",
                                                     "The width of the label display in pixel.",
                                                     24 );
@@ -288,10 +292,24 @@ void WMEEGView::moduleMain()
 
             if(  m_sourceCalculator )
             {
-                WPosition position = m_sourceCalculator->calculate( event );
-                m_roi = new WROIBox( position - WVector3d( 5.0, 5.0, 5.0 ),
-                                     position + WVector3d( 5.0, 5.0, 5.0 ) );
-                WKernel::getRunningKernel()->getRoiManager()->addRoi( m_roi );
+                if( m_proofOfConcept->get() )
+                {
+                    WPosition position = m_sourceCalculator->calculate( event );
+                    m_roi = new WROIBox( position - WVector3d( 5.0, 5.0, 5.0 ),
+                                         position + WVector3d( 5.0, 5.0, 5.0 ) );
+                    WKernel::getRunningKernel()->getRoiManager()->addRoi( m_roi );
+                }
+                else if( m_dipoles->getData() )
+                {
+                    WPosition position = m_dipoles->getData()->getPosition();
+                    m_roi = new WROIBox( position - WVector3d( 5.0, 5.0, 5.0 ),
+                                         position + WVector3d( 5.0, 5.0, 5.0 ) );
+                    WKernel::getRunningKernel()->getRoiManager()->addRoi( m_roi );
+                }
+                else
+                {
+                    debugLog() << "No dipoles found and not in POC mode: placing NO ROI.";
+                }
             }
             else
             {

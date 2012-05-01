@@ -60,6 +60,13 @@ public:
      */
     static boost::shared_ptr< WPrototyped > getPrototype();
 
+    /**
+     * Return position of dipole.
+     *
+     * \return Position of the dipole.
+     */
+    WPosition getPosition();
+
 protected:
     /**
      * The prototype as singleton.
