@@ -198,32 +198,8 @@ void WMEEGView::moduleMain()
     m_event = boost::shared_ptr< WFlag< boost::shared_ptr< WEEGEvent > > >( new WFlag< boost::shared_ptr< WEEGEvent > >(
             m_propCondition, boost::shared_ptr< WEEGEvent >() ) );
 
-    {
-        // create color map
-        std::vector< osg::Vec4 > colors;
-        colors.reserve( 3 );
-        colors.push_back( osg::Vec4( 0.0, 0.0, 1.0, 1.0 ) ); // blue
-        colors.push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) ); // white
-        colors.push_back( osg::Vec4( 1.0, 0.0, 0.0, 1.0 ) ); // red
-        m_colorMap = new osgSim::ColorRange( -1.0, 1.0, colors );
 
-        // create texture containing color map
-        const int size = 256;
-        osg::Image* image = new osg::Image;
-        // allocate the image data, size x 1 x 1 with 4 rgba floats - equivalent to a Vec4!
-        image->allocateImage( size, 1, 1, GL_RGBA, GL_FLOAT );
-        image->setInternalTextureFormat( GL_RGBA );
-
-        osg::Vec4* data = reinterpret_cast< osg::Vec4* >( image->data() );
-        for( int i = 0; i < size; ++i)
-        {
-            data[i] = m_colorMap->getColor( ( 2 * i + 1 - size ) / static_cast< float >( size - 1 ) );
-        }
-
-        m_colorMapTexture = new osg::Texture1D( image );
-        m_colorMapTexture->setWrap( osg::Texture1D::WRAP_S, osg::Texture1D::CLAMP_TO_EDGE );
-        m_colorMapTexture->setFilter( osg::Texture1D::MIN_FILTER, osg::Texture1D::LINEAR );
-    }
+    createColorMap();
 
     // signal ready
     ready();
@@ -365,6 +341,34 @@ void WMEEGView::moduleMain()
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode3d );
         }
     }
+}
+
+void WMEEGView::createColorMap()
+{
+    // create color map
+    std::vector< osg::Vec4 > colors;
+    colors.reserve( 3 );
+    colors.push_back( osg::Vec4( 0.0, 0.0, 1.0, 1.0 ) ); // blue
+    colors.push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) ); // white
+    colors.push_back( osg::Vec4( 1.0, 0.0, 0.0, 1.0 ) ); // red
+    m_colorMap = new osgSim::ColorRange( -1.0, 1.0, colors );
+
+    // create texture containing color map
+    const int size = 256;
+    osg::Image* image = new osg::Image;
+    // allocate the image data, size x 1 x 1 with 4 rgba floats - equivalent to a Vec4!
+    image->allocateImage( size, 1, 1, GL_RGBA, GL_FLOAT );
+    image->setInternalTextureFormat( GL_RGBA );
+
+    osg::Vec4* data = reinterpret_cast< osg::Vec4* >( image->data() );
+    for( int i = 0; i < size; ++i)
+    {
+        data[i] = m_colorMap->getColor( ( 2 * i + 1 - size ) / static_cast< float >( size - 1 ) );
+    }
+
+    m_colorMapTexture = new osg::Texture1D( image );
+    m_colorMapTexture->setWrap( osg::Texture1D::WRAP_S, osg::Texture1D::CLAMP_TO_EDGE );
+    m_colorMapTexture->setFilter( osg::Texture1D::MIN_FILTER, osg::Texture1D::LINEAR );
 }
 
 bool WMEEGView::openCustomWidget()

@@ -286,6 +286,11 @@ private:
     boost::shared_ptr< WEEGSourceCalculator > m_sourceCalculator;
 
     /**
+     * Prepare textures for colormapping EEG signal
+     */
+    void createColorMap();
+
+    /**
      * Opens a custom widget and connects the m_node with it.
      *
      * \returns whether the custom widget could be opened successfully
