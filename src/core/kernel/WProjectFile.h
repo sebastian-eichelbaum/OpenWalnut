@@ -43,6 +43,16 @@ class  WProjectFile: public WThreadedRunner,
 {
 public:
     /**
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WProjectFile > SPtr;
+
+    /**
+     * Abbreviation for const shared pointer.
+     */
+    typedef boost::shared_ptr< const WProjectFile > ConstSPtr;
+
+    /**
      * Default constructor. It does NOT parse the file. Parsing is done by apply().
      *
      * \param project the project file to load.

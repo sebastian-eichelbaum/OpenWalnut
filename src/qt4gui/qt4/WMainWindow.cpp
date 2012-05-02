@@ -29,6 +29,7 @@
 
 #include <boost/thread.hpp>
 #include <boost/regex.hpp>
+#include <boost/filesystem.hpp>
 
 #include <QtGui/QApplication>
 #include <QtGui/QCloseEvent>
@@ -274,20 +275,16 @@ void WMainWindow::setupGUI()
     QAction* roiButton = new QAction( m_iconManager.getIcon( "ROI icon" ), "ROI", m_permanentToolBar );
     QAction* resetButton = new QAction( m_iconManager.getIcon( "view" ), "Reset", m_permanentToolBar );
     resetButton->setShortcut( QKeySequence( Qt::Key_Escape ) );
-    QAction* projectLoadButton = new QAction( m_iconManager.getIcon( "loadProject" ), "Load Project", m_permanentToolBar );
     QAction* projectSaveButton = new QAction( m_iconManager.getIcon( "saveProject" ), "Save Project", m_permanentToolBar );
-    projectLoadButton->setShortcut( QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_O ) );
 
     connect( m_loadButton, SIGNAL(  triggered( bool ) ), this, SLOT( openLoadDialog() ) );
     connect( resetButton, SIGNAL(  triggered( bool ) ), m_mainGLWidget.get(), SLOT( reset() ) );
     connect( roiButton, SIGNAL(  triggered( bool ) ), this, SLOT( newRoi() ) );
-    connect( projectLoadButton, SIGNAL(  triggered( bool ) ), this, SLOT( projectLoad() ) );
     connect( projectSaveButton, SIGNAL( triggered( bool ) ), this, SLOT( projectSaveAll() ) );
 
     m_loadButton->setToolTip( "Load a dataset from file" );
     resetButton->setToolTip( "Reset main view" );
     roiButton->setToolTip( "Create new ROI" );
-    projectLoadButton->setToolTip( "Load a project from file" );
     projectSaveButton->setToolTip( "Save current project to file" );
 
     // we want the upper most tree item to be selected. This helps to make the always compatible modules
@@ -308,8 +305,6 @@ void WMainWindow::setupGUI()
     QMenu* fileMenu = m_menuBar->addMenu( "File" );
 
     fileMenu->addAction( m_loadButton );
-    fileMenu->addSeparator();
-    fileMenu->addAction( projectLoadButton );
     QMenu* saveMenu = fileMenu->addMenu( m_iconManager.getIcon( "saveProject" ), "Save Project" );
     saveMenu->addAction( "Save Project", this, SLOT( projectSaveAll() ), QKeySequence::Save );
     saveMenu->addAction( "Save Modules Only", this, SLOT( projectSaveModuleOnly() ) );
@@ -317,6 +312,7 @@ void WMainWindow::setupGUI()
     saveMenu->addAction( "Save ROIs Only", this, SLOT( projectSaveROIOnly() ) );
     projectSaveButton->setMenu( saveMenu );
 
+    fileMenu->addSeparator();
     // TODO(all): If all distributions provide a newer QT version we should use QKeySequence::Quit here
     //fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( QKeySequence::Quit ) );
     fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ),  QKeySequence( Qt::CTRL + Qt::Key_Q ) );
@@ -464,8 +460,6 @@ void WMainWindow::setupGUI()
 
     // setup permanent toolbar
     m_permanentToolBar->addAction( m_loadButton );
-    m_permanentToolBar->addSeparator();
-    m_permanentToolBar->addAction( projectLoadButton );
     m_permanentToolBar->addAction( projectSaveButton );
     m_permanentToolBar->addSeparator();
     m_permanentToolBar->addAction( m_mainGLWidgetScreenCapture->getScreenshotTrigger() );
@@ -670,41 +664,14 @@ bool WMainWindow::projectSaveModuleOnly()
     return projectSave( w );
 }
 
-void WMainWindow::projectLoad()
-{
-    QFileDialog fd;
-    fd.setFileMode( QFileDialog::ExistingFiles );
-
-    QStringList filters;
-    filters << "Simple Project File (*.owproj *.owp)"
-            << "Any files (*)";
-    fd.setNameFilters( filters );
-    fd.setViewMode( QFileDialog::Detail );
-    QStringList filenames;
-    if( fd.exec() )
-    {
-        filenames = fd.selectedFiles();
-    }
-
-    QStringList::const_iterator constIterator;
-    for( constIterator = filenames.constBegin(); constIterator != filenames.constEnd(); ++constIterator )
-    {
-        boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
-                new WProjectFile( ( *constIterator ).toStdString() )
-        );
-
-        // This call is asynchronous. It parses the file and the starts a thread to actually do all the stuff
-        proj->load();
-    }
-}
-
 void WMainWindow::openLoadDialog()
 {
     QFileDialog fd;
     fd.setFileMode( QFileDialog::ExistingFiles );
 
     QStringList filters;
-    filters << "Known file types (*.cnt *.edf *.asc *.nii *.nii.gz *.fib)"
+    filters << "Known file types (*.cnt *.edf *.asc *.nii *.nii.gz *.fib *.owproj *.owp)"
+            << "Simple Project File (*.owproj *.owp)"
             << "EEG files (*.cnt *.edf *.asc)"
             << "NIfTI (*.nii *.nii.gz)"
             << "Fibers (*.fib)"
@@ -717,15 +684,30 @@ void WMainWindow::openLoadDialog()
         filenames = fd.selectedFiles();
     }
 
-    std::vector< std::string > stdFilenames;
+    std::vector< std::string > loadDataFilenames;
 
     QStringList::const_iterator constIterator;
     for( constIterator = filenames.constBegin(); constIterator != filenames.constEnd(); ++constIterator )
     {
-        stdFilenames.push_back( ( *constIterator ).toLocal8Bit().constData() );
+        boost::filesystem::path fn( ( *constIterator ).toLocal8Bit().constData() );
+        std::string suffix = getSuffix( fn );
+
+        // is this a project file?
+        if( ( suffix == ".owp" ) || ( suffix == ".owproj" ) )
+        {
+            WProjectFile::SPtr proj( new WProjectFile( fn.string() ) );
+            // This call is asynchronous. It parses the file and the starts a thread to actually do all the stuff
+            proj->load();
+
+        }
+        else
+        {
+            // this is not a project. So we assume it is a data file
+            loadDataFilenames.push_back( fn.string() );
+        }
     }
 
-    m_loaderSignal( stdFilenames );
+    m_loaderSignal( loadDataFilenames );
 }
 
 void WMainWindow::openAboutQtDialog()
@@ -1153,8 +1135,7 @@ void WMainWindow::dropEvent( QDropEvent *event )
             }
             else
             {
-                if( suffix == "owp"
-                    || suffix == "owproj" )
+                if( suffix == "owp" || suffix == "owproj" )
                 {
                     projects.push_back( path.toStdString() );
                 }
