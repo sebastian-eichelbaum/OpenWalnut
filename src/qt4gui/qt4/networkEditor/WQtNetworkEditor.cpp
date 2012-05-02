@@ -48,6 +48,7 @@
 #include "../events/WModuleDisconnectEvent.h"
 #include "../events/WModuleReadyEvent.h"
 #include "../events/WModuleRemovedEvent.h"
+#include "../events/WModuleCrashEvent.h"
 
 #include "WQtNetworkEditor.h"
 #include "WQtNetworkEditor.moc"
@@ -124,56 +125,11 @@ void WQtNetworkEditor::selectItem()
     m_mainWindow->getControlPanel()->deactivateModuleSelection();
 }
 
-void WQtNetworkEditor::deleteSelectedItems()
-{
-    QList< WQtNetworkItem *> itemList;
-    QList< WQtNetworkArrow *> arrowList;
-    foreach( QGraphicsItem *item, m_scene->selectedItems() )
-    {
-        if( item->type() == WQtNetworkItem::Type )
-        {
-            WQtNetworkItem *netItem = qgraphicsitem_cast<WQtNetworkItem *>( item );
-            itemList.append( netItem );
-        }
-        else if( item->type() == WQtNetworkArrow::Type )
-        {
-            WQtNetworkArrow *netArrow = qgraphicsitem_cast<WQtNetworkArrow *>( item );
-            arrowList.append( netArrow );
-        }
-    }
-
-    foreach( WQtNetworkArrow *ar, arrowList )
-    {
-        if( ar != 0 )
-        {
-            boost::shared_ptr< WDisconnectCombiner > disconnectCombiner =
-                boost::shared_ptr< WDisconnectCombiner >( new WDisconnectCombiner(
-                            ar->getStartPort()->getConnector()->getModule(),
-                            ar->getStartPort()->getConnector()->getName(),
-                            ar->getEndPort()->getConnector()->getModule(),
-                            ar->getEndPort()->getConnector()->getName() ) );
-            disconnectCombiner->run();
-            disconnectCombiner->wait();
-        }
-    }
-
-    foreach( WQtNetworkItem *it, itemList )
-    {
-        if( it != 0 )
-        {
-            WKernel::getRunningKernel()->getRootContainer()->remove( it->getModule() );
-            m_scene->removeItem( it );
-        }
-    }
-    itemList.clear();
-    arrowList.clear();
-}
-
 void WQtNetworkEditor::updateCylce()
 {
     for( QList< WQtNetworkItem* >::const_iterator i = m_items.begin(); i != m_items.end(); ++i )
     {
-        ( *i )->update();
+        ( *i )->updater();
     }
 }
 
@@ -465,6 +421,28 @@ bool WQtNetworkEditor::event( QEvent* event )
             m_items.removeAll( item );
             delete item;
         }
+
+        return true;
+    }
+
+    if( event->type() == WQT_CRASH_EVENT )
+    {
+        // change module state
+        WModuleCrashEvent* e = dynamic_cast< WModuleCrashEvent* >( event );
+        if( !e )
+        {
+            // this should never happen, since the type is set to WQT_MODULE_REMOVE_EVENT.
+            WLogger::getLogger()->addLogMessage( "Event is not an WModuleCrashEvent although"
+                                                 "its type claims it. Ignoring event.",
+                                                 "NetworkEditor", LL_WARNING );
+            return true;
+        }
+
+        WLogger::getLogger()->addLogMessage( "Marking \"" + e->getModule()->getName() + "\" as crashed.",
+                                             "NetworkEditor", LL_DEBUG );
+
+        WQtNetworkItem *item = findItemByModule( e->getModule() );
+        item->setCrashed();
 
         return true;
     }

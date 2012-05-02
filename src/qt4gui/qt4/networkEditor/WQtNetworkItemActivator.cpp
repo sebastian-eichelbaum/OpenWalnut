@@ -38,7 +38,8 @@
 #include "WQtNetworkItemActivator.h"
 
 WQtNetworkItemActivator::WQtNetworkItemActivator( boost::shared_ptr< WModule > module )
-    : m_module( module ), m_activeColor( Qt::white ), m_inactiveColor( Qt::black )
+    : m_module( module ), m_activeColor( WQtNetworkColors::ActivatorActive ),
+                          m_inactiveColor( WQtNetworkColors::ActivatorInactive )
 {
     // create the shape using a polygon
     QPolygonF poly;
@@ -93,6 +94,13 @@ void WQtNetworkItemActivator::paint( QPainter* painter, const QStyleOptionGraphi
 
 void WQtNetworkItemActivator::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
+    // if module is crashed -> do not de-activate module
+    if( m_module->isCrashed() )
+    {
+        mouseEvent->accept();
+        return;
+    }
+
     QList<QGraphicsItem *> startItem = scene()->items( mouseEvent->scenePos() );
     if( !startItem.isEmpty() )
     {
@@ -111,6 +119,12 @@ void WQtNetworkItemActivator::mousePressEvent( QGraphicsSceneMouseEvent *mouseEv
 
 void WQtNetworkItemActivator::handleActiveState()
 {
+    // if module is crashed -> do not de-activate module
+    if( m_module->isCrashed() )
+    {
+        return;
+    }
+
     if( m_module->getProperties()->getProperty( "active" )->toPropBool()->get() )
     {
         setBrush( QBrush( m_activeColor ) );

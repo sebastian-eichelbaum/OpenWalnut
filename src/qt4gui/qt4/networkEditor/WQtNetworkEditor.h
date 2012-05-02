@@ -79,11 +79,6 @@ public:
     void connectSlots();
 
     /**
-     * Deletes all items in the scene who are selected.
-     **/
-    void deleteSelectedItems();
-
-    /**
      * Query a list of selected items.
      *
      * \return the list

@@ -828,7 +828,7 @@ void WQtControlPanel::setActiveModule( WModule::SPtr module, bool forceUpdate )
     m_ignoreSelectionChange = true;
 
     // is module NULL? remove everything
-    if( !module || module->isCrashed() )
+    if( !module )
     {
         deactivateModuleSelection();
         m_ignoreSelectionChange = false;
@@ -863,8 +863,11 @@ void WQtControlPanel::setActiveModule( WModule::SPtr module, bool forceUpdate )
 
     // remove property tabs
     clearAndDeleteTabs();
-    // set new property tabs
-    buildPropTab( module->getProperties(), module->getInformationProperties() );
+    // set new property tabs if module is not crashed
+    if( !module->isCrashed() )
+    {
+        buildPropTab( module->getProperties(), module->getInformationProperties() );
+    }
 
     // update compatibles toolbar
     createCompatibleButtons( module );
@@ -1133,6 +1136,12 @@ void WQtControlPanel::deleteModule()
             if( ( m_moduleTreeWidget->selectedItems().at( 0 )->type() == MODULE ) ||
                     ( m_moduleTreeWidget->selectedItems().at( 0 )->type() == DATASET ) )
             {
+                // deleting crashed modules is not really save as we do not know the internal state of it
+                if( static_cast< WQtTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) )->getModule()->isCrashed() )
+                {
+                    return;
+                }
+
                 // remove from the container. It will create a new event in the GUI after it has been removed which is then handled by the tree item.
                 // This method deep removes the module ( it also removes depending modules )
                 WKernel::getRunningKernel()->getRootContainer()->remove(
@@ -1146,10 +1155,18 @@ void WQtControlPanel::deleteModule()
     else if( m_mainWindow->getNetworkEditor()->hasFocus() )
     {
         if( m_mainWindow->getNetworkEditor()->selectedItems().count() > 0 )
+        {
+            // deleting crashed modules is not really save as we do not know the internal state of it
+            if( static_cast< WQtNetworkItem* >( m_mainWindow->getNetworkEditor()->selectedItems().at( 0 ) )->getModule()->isCrashed() )
+            {
+                return;
+            }
+
             // This method deep removes the module ( it also removes depending modules )
             WKernel::getRunningKernel()->getRootContainer()->remove(
                 static_cast< WQtNetworkItem* >( m_mainWindow->getNetworkEditor()->selectedItems().at( 0 ) )->getModule()
                 );
+        }
     }
 }
 

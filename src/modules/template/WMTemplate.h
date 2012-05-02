@@ -273,6 +273,11 @@ private:
     WPropTrigger m_hideButton;
 
     /**
+     * This causes an exception to be thrown on press to demonstrate how the GUI handles crashing modules.
+     */
+    WPropTrigger m_exceptionTrigger;
+
+    /**
      * The callback triggering the hide flag of m_aColor for demonstration.
      */
     void hideButtonPressed();

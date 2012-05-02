@@ -41,7 +41,9 @@
 #include "WQtNetworkEditorGlobals.h"
 
 WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WModule > module )
-    : QGraphicsRectItem()
+    : QGraphicsRectItem(),
+    m_isHovered( false ),
+    m_isSelected( false )
 {
     m_networkEditor = editor;
     m_module = module;
@@ -122,8 +124,6 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
     fitLook();
 
     m_layoutNode = NULL;
-
-    changeState( Disabled );
 }
 
 WQtNetworkItem::~WQtNetworkItem()
@@ -146,48 +146,77 @@ int WQtNetworkItem::type() const
     return Type;
 }
 
-void WQtNetworkItem::update()
+void WQtNetworkItem::updater()
 {
-    // check progress.
-    // TODO(ebaum): implement progress updates, crash handling and similar.
 }
 
 void WQtNetworkItem::hoverEnterEvent( QGraphicsSceneHoverEvent *event )
 {
     Q_UNUSED( event );
-
-    if( !isSelected() )
-    {
-        changeState( Hovered );
-    }
+    m_isHovered = true;
+    update();
 }
 
 void WQtNetworkItem::hoverLeaveEvent( QGraphicsSceneHoverEvent *event )
 {
     Q_UNUSED( event );
-
-    if( !isSelected() )
-    {
-        changeState( Idle );
-    }
+    m_isHovered = false;
+    update();
 }
 
 void WQtNetworkItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* w )
 {
-    if( isSelected() )
+    // This is the default appearance
+    QPen newPen = QPen( m_itemColor, 1, Qt::SolidLine, Qt::SquareCap, Qt::RoundJoin );
+    QColor fillColor = m_itemColor;
+    // change appearance due to state changes
+    switch( m_currentState )
     {
-        changeState( Selected );
+        case Disabled:
+            fillColor = m_itemColor.darker( 300 );
+            break;
+        case Crashed:
+            fillColor = WQtNetworkColors::ModuleCrashed;
+            break;
+        case Idle:
+        default:
+            // default behaviour
+            break;
+    }
+
+    // if hovered:
+    if( m_isHovered )
+    {
+        fillColor = fillColor.lighter();
+    }
+    // if selected:
+    if( m_isSelected )
+    {
+        newPen = QPen( Qt::black, 2, Qt::DotLine, Qt::SquareCap, Qt::RoundJoin );
+    }
+
+    // only set brush and pen if they have changed
+    QBrush newBrush = QBrush( fillColor );
+    if( newBrush != brush() )
+    {
+        setBrush( newBrush );
+    }
+    if( newPen != pen() )
+    {
+        setPen( newPen );
     }
 
     QStyleOptionGraphicsItem *o = const_cast<QStyleOptionGraphicsItem*>( option );
     o->state &= ~QStyle::State_Selected;
     QGraphicsRectItem::paint( painter, o, w );
 
-    painter->setBrush( QBrush( Qt::white ) );
-    painter->setPen( QPen( QBrush( Qt::white ), 0.01 ) );
-    painter->setOpacity( 0.30 );
-    QRectF rect( 0, 0, m_width, m_height/2.0 );
-    painter->drawRect( rect );
+    // strike through crashed modules
+    if( m_currentState == Crashed )
+    {
+        painter->setPen( QPen( Qt::black, 1, Qt::SolidLine, Qt::SquareCap, Qt::RoundJoin ) );
+        painter->drawLine( QPoint( 0.0, 0.0 ), QPoint( m_width, m_height ) );
+        painter->drawLine( QPoint( 0.0, m_height ), QPoint( m_width, 0.0 ) );
+    }
 }
 
 void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
@@ -216,7 +245,8 @@ QVariant WQtNetworkItem::itemChange( GraphicsItemChange change, const QVariant &
     switch( change )
     {
         case ItemSelectedHasChanged:
-            changeState( Idle );
+            m_isSelected = isSelected();
+            break;
         case ItemPositionHasChanged:
             foreach( WQtNetworkPort *port, m_inPorts )
             {
@@ -391,8 +421,6 @@ void WQtNetworkItem::fitLook()
         port->alignPosition( m_outPorts.size(), portNumber, m_rect, true );
         portNumber++;
     }
-
-    changeState( Idle );
 }
 
 void WQtNetworkItem::setTextItem( QGraphicsTextItem *text )
@@ -405,41 +433,15 @@ QString WQtNetworkItem::getText()
     return QString::fromStdString( m_textFull );
 }
 
+void WQtNetworkItem::setCrashed()
+{
+    changeState( Crashed );
+}
+
 void WQtNetworkItem::changeState( State state )
 {
     m_currentState = state;
-
-    // This is the default appearance
-    QPen pen = QPen( m_itemColor, 1, Qt::SolidLine, Qt::SquareCap, Qt::RoundJoin );
-    QLinearGradient gradient;
-    gradient.setStart( 0, 0 );
-    gradient.setFinalStop( 0, m_height );
-    gradient.setColorAt( 0.0, m_itemColor );
-    gradient.setColorAt( 1.0, m_itemColor );
-
-    // change appearance due to state changes
-    switch( state )
-    {
-        case Disabled:
-            gradient.setColorAt( 0.0, m_itemColor.darker( 300 ) );
-            gradient.setColorAt( 1.0, m_itemColor.darker( 300 ) );
-            break;
-        case Idle:
-            // default behaviour
-            break;
-        case Hovered:
-            gradient.setColorAt( 0.0, m_itemColor.lighter() );
-            gradient.setColorAt( 1.0, m_itemColor.lighter() );
-            break;
-        case Selected:
-            pen = QPen( Qt::black, 2, Qt::DotLine, Qt::SquareCap, Qt::RoundJoin );
-            break;
-        default:
-            break;
-    }
-
-    setBrush( gradient );
-    setPen( pen );
+    update();
 }
 
 boost::shared_ptr< WModule > WQtNetworkItem::getModule()
@@ -456,7 +458,7 @@ void WQtNetworkItem::activate( bool active )
         setAcceptsHoverEvents( true );
         setFlag( QGraphicsItem::ItemIsSelectable );
         setFlag( QGraphicsItem::ItemIsMovable );
-        changeState( Idle );
+        changeState( m_module->isCrashed() ? Crashed : Idle );
     }
     if( active == false )
     {

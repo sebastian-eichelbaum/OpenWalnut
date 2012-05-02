@@ -61,6 +61,7 @@
 #include <osg/StateAttribute>
 
 #include "core/kernel/WKernel.h"
+#include "core/common/exceptions/WFileNotFound.h"
 #include "core/common/WColor.h"
 #include "core/common/WPathHelper.h"
 #include "core/common/WPropertyHelper.h"
@@ -329,6 +330,11 @@ void WMTemplate::properties()
     // One important note regarding information properties. If a property gets added in a group which is an information property-group, then
     // each added property does NOT contain any constraints. If a property gets an information property AFTER its creation, like m_aStringOutput,
     // then it keeps its constraints!
+
+    // We now add another trigger. Pressing this button will cause an exception to be thrown. This demonstrates how the GUI and OpenWalnut
+    // handles modules which throw an exception without catching it.
+    m_exceptionTrigger = m_properties->addProperty( "Press to crash Module", "Pressing this button lets the module intentionally crash.",
+                                                    WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
 
     WModule::properties();
 }
@@ -646,6 +652,18 @@ void WMTemplate::moduleMain()
             {
                 infoLog() << "The user likes " << s.at( i )->getName();
             }
+        }
+
+        // Trigger an exception? We do this whenever the user pressed the exception-button
+        if( m_exceptionTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            // Throw an exception and do not catch it. Please note that OpenWalnut provides several exceptions which usually cover the most
+            // needs. If not, derive your own exceptions from WException. Using WExceptions has one nice advantage: it provides a backtrace on
+            // systems which support this.
+            throw WFileNotFound( "This is a demonstration of an exception being thrown from within a module." );
+            // OpenWalnut then automatically catches it and transports it to the kernel and the registered callbacks. This usually is the GUI
+            // which shows a dialog or something similar. Additionally, the m_isCrashed flag is set to true. Once a module is crahsed, it cannot
+            // be "restored".
         }
     }
 
