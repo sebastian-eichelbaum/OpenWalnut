@@ -84,7 +84,7 @@ public:
      *
      * \param module the module to add
      */
-    WApplyCombiner( WModule::SPtr module );
+    explicit WApplyCombiner( WModule::SPtr module );
 
     /**
      * Destructor.

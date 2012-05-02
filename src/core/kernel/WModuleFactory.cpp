@@ -291,6 +291,5 @@ WCombinerTypes::WCompatiblesList WModuleFactory::getAllPrototypes()
     std::sort( compatibles.begin(), compatibles.end(), WCombinerTypes::compatiblesSort );
 
     return compatibles;
-
 }
 
