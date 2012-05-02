@@ -29,6 +29,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QPaintEvent>
 #include <QtGui/QGraphicsSceneMouseEvent>
+#include <QtGui/QPolygonF>
 
 #include "WQtNetworkOutputPort.h"
 #include "WQtNetworkInputPort.h"
@@ -37,9 +38,13 @@
 #include "WQtNetworkItemActivator.h"
 
 WQtNetworkItemActivator::WQtNetworkItemActivator( boost::shared_ptr< WModule > module )
-    : m_module( module ), m_activeColor( Qt::darkYellow ), m_inactiveColor( Qt::gray )
+    : m_module( module ), m_activeColor( Qt::white ), m_inactiveColor( Qt::black )
 {
-    setRect( 0.0, 0.0, WNETWORKPORT_SIZEX, WNETWORKPORT_SIZEY );
+    // create the shape using a polygon
+    QPolygonF poly;
+    poly << QPointF( 1.0, 1.0 ) << QPointF( WNETWORKPORT_SIZEX, 1.0 ) << QPointF( 1.0, WNETWORKPORT_SIZEY );
+    setPolygon( poly );
+
     setPen( QPen( Qt::white, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
     setAcceptsHoverEvents( true );
 
@@ -83,7 +88,7 @@ void WQtNetworkItemActivator::paint( QPainter* painter, const QStyleOptionGraphi
         m_needStateUpdate = false;
         handleActiveState();
     }
-    QGraphicsEllipseItem::paint( painter, option, widget );
+    QGraphicsPolygonItem::paint( painter, option, widget );
 }
 
 void WQtNetworkItemActivator::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
@@ -109,11 +114,11 @@ void WQtNetworkItemActivator::handleActiveState()
     if( m_module->getProperties()->getProperty( "active" )->toPropBool()->get() )
     {
         setBrush( QBrush( m_activeColor ) );
-        setToolTip( "<b>Not</b> active<br> Click to activate." );
+        setToolTip( "<b>Active</b><br> Click to deactivate." );
     }
     else
     {
         setBrush( QBrush( m_inactiveColor ) );
-        setToolTip( "<b>Active</b><br> Click to deactivate." );
+        setToolTip( "<b>Not</b> active<br> Click to activate." );
     }
 }
