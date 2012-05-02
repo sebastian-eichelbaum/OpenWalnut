@@ -212,22 +212,28 @@ WCombinerTypes::WCompatiblesList WModuleFactory::getCompatiblePrototypes( boost:
     // for this a read lock is sufficient, gets unlocked if it looses scope
     PrototypeSharedContainerType::ReadTicket l = m_prototypes.getReadTicket();
 
-    // First, add all modules with no input connector.
-    for( PrototypeContainerConstIteratorType listIter = l->get().begin(); listIter != l->get().end();
-            ++listIter )
+    // has the module an output? If not, return.
+    bool addModulesWithoutInput = !module;
+
+    if( addModulesWithoutInput )
     {
-        // get connectors of this prototype
-        WModule::InputConnectorList pcons = ( *listIter )->getInputConnectors();
-        if(  pcons.size() == 0  )
+        // First, add all modules with no input connector.
+        for( PrototypeContainerConstIteratorType listIter = l->get().begin(); listIter != l->get().end();
+                ++listIter )
         {
-            // the modules which match every time need their own groups
-            WCombinerTypes::WOneToOneCombiners lComp;
+            // get connectors of this prototype
+            WModule::InputConnectorList pcons = ( *listIter )->getInputConnectors();
+            if(  pcons.size() == 0  )
+            {
+                // the modules which match every time need their own groups
+                WCombinerTypes::WOneToOneCombiners lComp;
 
-            // NOTE: it is OK here to use the variable module even if it is NULL as the combiner in this case only adds the specified module
-            lComp.push_back( boost::shared_ptr< WApplyCombiner >( new WApplyCombiner( module, "", *listIter, "" ) ) );
+                // NOTE: it is OK here to use the variable module even if it is NULL as the combiner in this case only adds the specified module
+                lComp.push_back( boost::shared_ptr< WApplyCombiner >( new WApplyCombiner( module, "", *listIter, "" ) ) );
 
-            // add this list
-            compatibles.push_back( WCombinerTypes::WCompatiblesGroup( ( *listIter ), lComp ) );
+                // add this list
+                compatibles.push_back( WCombinerTypes::WCompatiblesGroup( ( *listIter ), lComp ) );
+            }
         }
     }
 
@@ -256,3 +262,35 @@ WCombinerTypes::WCompatiblesList WModuleFactory::getCompatiblePrototypes( boost:
 
     return compatibles;
 }
+
+WCombinerTypes::WCompatiblesList WModuleFactory::getAllPrototypes()
+{
+    WCombinerTypes::WCompatiblesList compatibles;
+
+    // for this a read lock is sufficient, gets unlocked if it looses scope
+    PrototypeSharedContainerType::ReadTicket l = m_prototypes.getReadTicket();
+
+    // Add all modules.
+    for( PrototypeContainerConstIteratorType listIter = l->get().begin(); listIter != l->get().end();
+            ++listIter )
+    {
+        // the modules which match every time need their own groups
+        WCombinerTypes::WOneToOneCombiners lComp;
+
+        // NOTE: it is OK here to use the variable module even if it is NULL as the combiner in this case only adds the specified module
+        lComp.push_back( boost::shared_ptr< WApplyCombiner >( new WApplyCombiner( *listIter ) ) );
+
+        // add this list
+        compatibles.push_back( WCombinerTypes::WCompatiblesGroup( ( *listIter ), lComp ) );
+    }
+
+    // unlock. No locking needed for further steps.
+    l.reset();
+
+    // sort the compatibles
+    std::sort( compatibles.begin(), compatibles.end(), WCombinerTypes::compatiblesSort );
+
+    return compatibles;
+
+}
+

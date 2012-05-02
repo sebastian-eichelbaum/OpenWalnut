@@ -59,8 +59,8 @@ public:
      * \param targetConnector   the input connector of the prototype to connect with srcConnector.
      */
     WApplyCombiner( boost::shared_ptr< WModuleContainer > target,
-                    boost::shared_ptr< WModule > srcModule, std::string srcConnector,
-                    boost::shared_ptr< WModule > targetModule, std::string targetConnector );
+                    WModule::SPtr srcModule, std::string srcConnector,
+                    WModule::SPtr targetModule, std::string targetConnector );
 
     /**
      * Creates a combiner which sets up the specified modules and prototype combination. This constructor automatically uses the kernel's root
@@ -73,8 +73,18 @@ public:
      * \param targetModule      the module/prototype to use for connecting the module with
      * \param targetConnector   the input connector of the prototype to connect with srcConnector.
      */
-    WApplyCombiner( boost::shared_ptr< WModule > srcModule, std::string srcConnector,
-                    boost::shared_ptr< WModule > targetModule, std::string targetConnector );
+    WApplyCombiner( WModule::SPtr srcModule, std::string srcConnector,
+                    WModule::SPtr targetModule, std::string targetConnector );
+
+    /**
+     * Creates a combiner which only adds the given module. This constructor automatically uses the kernel's root
+     * container as target container. Specifying a NULL pointer to the srcModule parameter
+     * causes the combiner to only add the target module without any connections. This is especially useful for modules which do not provide any
+     * input which must be connected. It is possible to specify prototypes here. The will get created upon apply.
+     *
+     * \param module the module to add
+     */
+    WApplyCombiner( WModule::SPtr module );
 
     /**
      * Destructor.
@@ -88,7 +98,8 @@ public:
     virtual void apply();
 
     /**
-     * This method creates a list of possible combiners for connections between the specified modules. Both modules can be prototypes.
+     * This method creates a list of possible combiners for connections between the specified modules. Both modules can be prototypes. This
+     * method lists only connections from module1's outputs to module2's inputs.
      *
      * \param module1 the first module
      * \param module2 the second module
@@ -96,7 +107,7 @@ public:
      * \return the list of combiner for one-to-one connections
      */
     template < typename T >
-    static WCombinerTypes::WOneToOneCombiners createCombinerList( boost::shared_ptr< WModule > module1, boost::shared_ptr< WModule > module2 )
+    static WCombinerTypes::WOneToOneCombiners createCombinerList( WModule::SPtr module1, WModule::SPtr module2 )
     {
         // this list contains all connections for the current module with the other one
         WCombinerTypes::WOneToOneCombiners lComp;

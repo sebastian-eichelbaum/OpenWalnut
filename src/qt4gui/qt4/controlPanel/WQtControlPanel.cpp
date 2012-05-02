@@ -92,9 +92,11 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     separator->setSeparator( true );
     m_moduleTreeWidget->addAction( separator );
 
-    m_connectWithPrototypeAction = new QAction( "Connect with new module", m_moduleTreeWidget );
+    m_addModuleAction = new QAction( "Add Module", m_moduleTreeWidget );
+    m_moduleTreeWidget->addAction( m_addModuleAction );
+    m_connectWithPrototypeAction = new QAction( "Add Module and Connect", m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_connectWithPrototypeAction );
-    m_connectWithModuleAction = new QAction( "Connect with module", m_moduleTreeWidget );
+    m_connectWithModuleAction = new QAction( "Connect Existing Module", m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_connectWithModuleAction );
     m_disconnectAction = new QAction( "Disconnect", m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_disconnectAction );
@@ -128,6 +130,8 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     if( m_mainWindow->getNetworkEditor() )
     {
         m_mainWindow->getNetworkEditor()->setContextMenuPolicy( Qt::ActionsContextMenu );
+        m_mainWindow->getNetworkEditor()->addAction( m_addModuleAction );
+        m_mainWindow->getNetworkEditor()->addAction( separator );
         m_mainWindow->getNetworkEditor()->addAction( m_connectWithPrototypeAction );
         m_mainWindow->getNetworkEditor()->addAction( m_connectWithModuleAction );
         m_mainWindow->getNetworkEditor()->addAction( m_disconnectAction );
@@ -968,6 +972,7 @@ void deepDeleteActionList( QList< QAction* >& l )   // NOLINT   - we need the no
 void WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule > module )
 {
     // we need to clean up the action lists
+    deepDeleteActionList( m_addModuleActionList );
     deepDeleteActionList( m_connectWithPrototypeActionList );
     deepDeleteActionList( m_connectWithModuleActionList );
     deepDeleteActionList( m_disconnectActionList );
@@ -979,13 +984,24 @@ void WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule > modu
     m_connectWithModuleActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(),
                                                            WKernel::getRunningKernel()->getRootContainer()->getPossibleConnections( module ),
                                                            0, true );
+
+    m_addModuleActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(),
+                                                           WModuleFactory::getModuleFactory()->getAllPrototypes(),
+                                                           0, false );
     if( module )
     {
         m_disconnectActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(), module->getPossibleDisconnections() );
     }
 
-    // build the prototype menu
+    // build the add menu
     QMenu* m = new QMenu( m_moduleTreeWidget );
+    m->addActions( m_addModuleActionList );
+    m_addModuleAction->setDisabled( !m_addModuleActionList.size() || module );  // disable if no entry inside or a module was selected
+    delete( m_addModuleAction->menu() ); // ensure that combiners get free'd
+    m_addModuleAction->setMenu( m );
+
+    // build the prototype menu
+    m = new QMenu( m_moduleTreeWidget );
     m->addActions( m_connectWithPrototypeActionList );
     m_connectWithPrototypeAction->setDisabled( !m_connectWithPrototypeActionList.size() );  // disable if no entry inside
     delete( m_connectWithPrototypeAction->menu() ); // ensure that combiners get free'd
