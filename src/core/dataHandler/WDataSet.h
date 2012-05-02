@@ -53,7 +53,7 @@ class WDataSet: public WTransferable, public boost::enable_shared_from_this< WDa
 public:
     /**
      * This constructor should be used if a dataSet does not stem from a file.
-     * It presets the its correpsonding filename as empty string.
+     * It presets the correpsonding filename as empty string.
      */
     WDataSet();
 

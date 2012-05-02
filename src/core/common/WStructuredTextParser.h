@@ -49,8 +49,8 @@
 #include "exceptions/WNotFound.h"
 
 /**
- * This namespace contains the WStructuredTextParser data types and the parser. It builds up the AST for the given input
- * which later can be traversed.
+ * This namespace contains the WStructuredTextParser data types and the parser. It builds up the abstract syntax tree (AST) 
+ * for the given input which later can be traversed.
  */
 namespace WStructuredTextParser
 {

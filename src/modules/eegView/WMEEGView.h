@@ -34,11 +34,12 @@
 
 // forward declarations
 class WCustomWidget;
+class WDataSetDipole;
 class WEEG2;
+class WEEGSourceCalculator;
+class WEEGViewHandler;
 class WGEGroupNode;
 class WROIBox;
-class WEEGViewHandler;
-class WEEGSourceCalculator;
 template< class T > class WModuleInputData;
 
 /**
@@ -126,6 +127,11 @@ private:
     boost::shared_ptr< WModuleInputData< WEEG2 > > m_input;
 
     /**
+     * Input connector for dipoles of EEG data
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetDipole > > m_dipoles;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
@@ -149,6 +155,11 @@ private:
      * Property determining whether electrode labels should be drawn.
      */
     WPropBool m_drawLabels;
+
+    /**
+     * Property determining whetherwe only show the proof of concept or the real dipoles
+     */
+    WPropBool m_proofOfConcept;
 
     /**
      * the width of the label display in pixel as property
@@ -278,6 +289,11 @@ private:
      * calculates a source position at a given time position
      */
     boost::shared_ptr< WEEGSourceCalculator > m_sourceCalculator;
+
+    /**
+     * Prepare textures for colormapping EEG signal
+     */
+    void createColorMap();
 
     /**
      * Opens a custom widget and connects the m_node with it.

@@ -29,6 +29,7 @@
 #include <osg/ShapeDrawable>
 #include <osgSim/ColorRange>
 
+#include "core/dataHandler/WDataSetDipole.h"
 #include "core/dataHandler/WEEG2.h"
 #include "core/dataHandler/WEEG2Segment.h"
 #include "core/dataHandler/WEEGChannelInfo.h"
@@ -92,12 +93,13 @@ const char** WMEEGView::getXPMIcon() const
 
 void WMEEGView::connectors()
 {
-    // initialize connectors
     m_input = boost::shared_ptr< WModuleInputData< WEEG2 > >( new WModuleInputData< WEEG2 >(
-        shared_from_this(), "in", "Loaded EEG-dataset." ) );
-
-    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
+        shared_from_this(), "EEG recording", "Loaded EEG-dataset." ) );
     addConnector( m_input );
+
+    m_dipoles = boost::shared_ptr< WModuleInputData< WDataSetDipole > >( new WModuleInputData< WDataSetDipole >(
+        shared_from_this(), "Dipoles", "The reconstructed dipoles for the EEG." ) );
+    addConnector( m_dipoles );
 
     // call WModules initialization
     WModule::connectors();
@@ -116,6 +118,10 @@ void WMEEGView::properties()
                                                     m_propCondition );
     m_drawLabels       = m_properties->addProperty( "Draw labels",
                                                     "Draw the labels of the electrodes at their 3D positions.",
+                                                    true,
+                                                    m_propCondition );
+    m_proofOfConcept   = m_properties->addProperty( "Enable POC",
+                                                    "Use proof of concept (POC) ROI positioning instead of real dipoles position.",
                                                     true,
                                                     m_propCondition );
     m_labelsWidth      = m_properties->addProperty( "Labels width",
@@ -196,32 +202,8 @@ void WMEEGView::moduleMain()
     m_event = boost::shared_ptr< WFlag< boost::shared_ptr< WEEGEvent > > >( new WFlag< boost::shared_ptr< WEEGEvent > >(
             m_propCondition, boost::shared_ptr< WEEGEvent >() ) );
 
-    {
-        // create color map
-        std::vector< osg::Vec4 > colors;
-        colors.reserve( 3 );
-        colors.push_back( osg::Vec4( 0.0, 0.0, 1.0, 1.0 ) ); // blue
-        colors.push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) ); // white
-        colors.push_back( osg::Vec4( 1.0, 0.0, 0.0, 1.0 ) ); // red
-        m_colorMap = new osgSim::ColorRange( -1.0, 1.0, colors );
 
-        // create texture containing color map
-        const int size = 256;
-        osg::Image* image = new osg::Image;
-        // allocate the image data, size x 1 x 1 with 4 rgba floats - equivalent to a Vec4!
-        image->allocateImage( size, 1, 1, GL_RGBA, GL_FLOAT );
-        image->setInternalTextureFormat( GL_RGBA );
-
-        osg::Vec4* data = reinterpret_cast< osg::Vec4* >( image->data() );
-        for( int i = 0; i < size; ++i)
-        {
-            data[i] = m_colorMap->getColor( ( 2 * i + 1 - size ) / static_cast< float >( size - 1 ) );
-        }
-
-        m_colorMapTexture = new osg::Texture1D( image );
-        m_colorMapTexture->setWrap( osg::Texture1D::WRAP_S, osg::Texture1D::CLAMP_TO_EDGE );
-        m_colorMapTexture->setFilter( osg::Texture1D::MIN_FILTER, osg::Texture1D::LINEAR );
-    }
+    createColorMap();
 
     // signal ready
     ready();
@@ -310,10 +292,24 @@ void WMEEGView::moduleMain()
 
             if(  m_sourceCalculator )
             {
-                WPosition position = m_sourceCalculator->calculate( event );
-                m_roi = new WROIBox( position - WVector3d( 5.0, 5.0, 5.0 ),
-                                     position + WVector3d( 5.0, 5.0, 5.0 ) );
-                WKernel::getRunningKernel()->getRoiManager()->addRoi( m_roi );
+                if( m_proofOfConcept->get() )
+                {
+                    WPosition position = m_sourceCalculator->calculate( event );
+                    m_roi = new WROIBox( position - WVector3d( 5.0, 5.0, 5.0 ),
+                                         position + WVector3d( 5.0, 5.0, 5.0 ) );
+                    WKernel::getRunningKernel()->getRoiManager()->addRoi( m_roi );
+                }
+                else if( m_dipoles->getData() )
+                {
+                    WPosition position = m_dipoles->getData()->getPosition();
+                    m_roi = new WROIBox( position - WVector3d( 5.0, 5.0, 5.0 ),
+                                         position + WVector3d( 5.0, 5.0, 5.0 ) );
+                    WKernel::getRunningKernel()->getRoiManager()->addRoi( m_roi );
+                }
+                else
+                {
+                    debugLog() << "No dipoles found and not in POC mode: placing NO ROI.";
+                }
             }
             else
             {
@@ -363,6 +359,34 @@ void WMEEGView::moduleMain()
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode3d );
         }
     }
+}
+
+void WMEEGView::createColorMap()
+{
+    // create color map
+    std::vector< osg::Vec4 > colors;
+    colors.reserve( 3 );
+    colors.push_back( osg::Vec4( 0.0, 0.0, 1.0, 1.0 ) ); // blue
+    colors.push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) ); // white
+    colors.push_back( osg::Vec4( 1.0, 0.0, 0.0, 1.0 ) ); // red
+    m_colorMap = new osgSim::ColorRange( -1.0, 1.0, colors );
+
+    // create texture containing color map
+    const int size = 256;
+    osg::Image* image = new osg::Image;
+    // allocate the image data, size x 1 x 1 with 4 rgba floats - equivalent to a Vec4!
+    image->allocateImage( size, 1, 1, GL_RGBA, GL_FLOAT );
+    image->setInternalTextureFormat( GL_RGBA );
+
+    osg::Vec4* data = reinterpret_cast< osg::Vec4* >( image->data() );
+    for( int i = 0; i < size; ++i)
+    {
+        data[i] = m_colorMap->getColor( ( 2 * i + 1 - size ) / static_cast< float >( size - 1 ) );
+    }
+
+    m_colorMapTexture = new osg::Texture1D( image );
+    m_colorMapTexture->setWrap( osg::Texture1D::WRAP_S, osg::Texture1D::CLAMP_TO_EDGE );
+    m_colorMapTexture->setFilter( osg::Texture1D::MIN_FILTER, osg::Texture1D::LINEAR );
 }
 
 bool WMEEGView::openCustomWidget()
