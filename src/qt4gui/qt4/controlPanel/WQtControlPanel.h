@@ -312,9 +312,22 @@ private:
     QAction* m_connectWithPrototypeAction;
 
     /**
+     * Action which uses a list of all modules allowing them to be added without any connections.
+     */
+    QAction* m_addModuleAction;
+
+    /**
      * Action which disconnects a connector from the module.
      */
     QAction* m_disconnectAction;
+
+    /**
+     * List all actions created for applying a prototype. Is needed for m_addModuleAction.
+     *
+     * \note We need to store this action list here as Qt is not able to delete the actions if they get replaced. We need to handle this
+     * manually.
+     */
+    WQtCombinerActionList m_addModuleActionList;
 
     /**
      * List all actions created for applying a prototype. Is needed for m_connectWithPrototypeAction.

@@ -300,11 +300,6 @@ public slots:
     void newRoi();
 
     /**
-     * Gets called whenever the user presses the project button.
-     */
-    void projectLoad();
-
-    /**
      * Gets called whenever the user presses the project save button.
      */
     bool projectSaveAll();

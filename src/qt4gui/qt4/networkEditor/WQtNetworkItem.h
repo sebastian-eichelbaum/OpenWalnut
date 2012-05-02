@@ -154,7 +154,12 @@ public:
     /**
      * Can be used for polling the module states. It is called by a timer.
      */
-    virtual void update();
+    virtual void updater();
+
+    /**
+     * Mark this module as crashed.
+     */
+    void setCrashed();
 
 protected:
     /**
@@ -212,9 +217,8 @@ private:
     enum State
     {
         Disabled = 0,
-        Idle,
-        Hovered,
-        Selected
+        Normal,
+        Crashed
     };
 
     /**
@@ -252,5 +256,30 @@ private:
     State m_currentState; //!< denotes the state the item currently is in
 
     WQtNetworkItemActivator *m_hidden; //!< indicator showing if module's graphics are activated (allows to activate it)
+
+    /**
+     * If true, the item is hovered.
+     */
+    bool m_isHovered;
+
+    /**
+     * If true, the item is selected.
+     */
+    bool m_isSelected;
+
+    /**
+     * If true, a percentage is shown. If not, an animated bar walking around.
+     */
+    bool m_busyIsDetermined;
+
+    /**
+     * Counter used for busy indication.
+     */
+    float m_busyPercent;
+
+    /**
+     * If true, the busy indication is active.
+     */
+    bool m_busyIndicatorShow;
 };
 #endif  // WQTNETWORKITEM_H

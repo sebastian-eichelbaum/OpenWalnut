@@ -87,6 +87,7 @@ WQt4Gui::~WQt4Gui()
 void WQt4Gui::moduleError( boost::shared_ptr< WModule > module, const WException& exception )
 {
     QCoreApplication::postEvent( m_mainWindow, new WModuleCrashEvent( module, exception.what() ) );
+    QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleCrashEvent( module, exception.what() ) );
 }
 
 WMainWindow* WQt4Gui::getMainWindow()

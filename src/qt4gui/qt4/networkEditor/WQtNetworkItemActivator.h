@@ -27,7 +27,7 @@
 
 #include <boost/signals2.hpp>
 
-#include <QtGui/QGraphicsEllipseItem>
+#include <QtGui/QGraphicsPolygonItem>
 #include <QtGui/QGraphicsLineItem>
 
 #include "WQtNetworkArrow.h"
@@ -38,7 +38,7 @@
  * Small graphics item that respresents whether a module in the network editor
  * is active or not. Clicking on it can toggle the state.
  */
-class WQtNetworkItemActivator : public QGraphicsEllipseItem
+class WQtNetworkItemActivator : public QGraphicsPolygonItem
 {
 public:
     /**

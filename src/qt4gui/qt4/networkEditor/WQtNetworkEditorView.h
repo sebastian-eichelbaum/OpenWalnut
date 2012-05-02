@@ -42,6 +42,12 @@ public:
      */
     explicit WQtNetworkEditorView( QWidget* parent = NULL );
 
+signals:
+    /**
+     * Emitted whenever the user caused a load event.
+     */
+    void loadAction();
+
 protected:
     /**
      * Sets the current centerpoint.  Also updates the scene's center point.
@@ -60,6 +66,13 @@ protected:
      * \return
      */
     QPointF getCenter();
+
+    /**
+     * Double clicked into the view
+     *
+     * \param event contains event information.
+     */
+    virtual void mouseDoubleClickEvent( QMouseEvent* event );
 
     /**
      * Mouse button pressed.

@@ -92,9 +92,11 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     separator->setSeparator( true );
     m_moduleTreeWidget->addAction( separator );
 
-    m_connectWithPrototypeAction = new QAction( "Connect with new module", m_moduleTreeWidget );
+    m_addModuleAction = new QAction( "Add Module", m_moduleTreeWidget );
+    m_moduleTreeWidget->addAction( m_addModuleAction );
+    m_connectWithPrototypeAction = new QAction( "Add Module and Connect", m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_connectWithPrototypeAction );
-    m_connectWithModuleAction = new QAction( "Connect with module", m_moduleTreeWidget );
+    m_connectWithModuleAction = new QAction( "Connect Existing Module", m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_connectWithModuleAction );
     m_disconnectAction = new QAction( "Disconnect", m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_disconnectAction );
@@ -128,6 +130,8 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     if( m_mainWindow->getNetworkEditor() )
     {
         m_mainWindow->getNetworkEditor()->setContextMenuPolicy( Qt::ActionsContextMenu );
+        m_mainWindow->getNetworkEditor()->addAction( m_addModuleAction );
+        m_mainWindow->getNetworkEditor()->addAction( separator );
         m_mainWindow->getNetworkEditor()->addAction( m_connectWithPrototypeAction );
         m_mainWindow->getNetworkEditor()->addAction( m_connectWithModuleAction );
         m_mainWindow->getNetworkEditor()->addAction( m_disconnectAction );
@@ -824,7 +828,7 @@ void WQtControlPanel::setActiveModule( WModule::SPtr module, bool forceUpdate )
     m_ignoreSelectionChange = true;
 
     // is module NULL? remove everything
-    if( !module || module->isCrashed() )
+    if( !module )
     {
         deactivateModuleSelection();
         m_ignoreSelectionChange = false;
@@ -859,8 +863,11 @@ void WQtControlPanel::setActiveModule( WModule::SPtr module, bool forceUpdate )
 
     // remove property tabs
     clearAndDeleteTabs();
-    // set new property tabs
-    buildPropTab( module->getProperties(), module->getInformationProperties() );
+    // set new property tabs if module is not crashed
+    if( !module->isCrashed() )
+    {
+        buildPropTab( module->getProperties(), module->getInformationProperties() );
+    }
 
     // update compatibles toolbar
     createCompatibleButtons( module );
@@ -968,6 +975,7 @@ void deepDeleteActionList( QList< QAction* >& l )   // NOLINT   - we need the no
 void WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule > module )
 {
     // we need to clean up the action lists
+    deepDeleteActionList( m_addModuleActionList );
     deepDeleteActionList( m_connectWithPrototypeActionList );
     deepDeleteActionList( m_connectWithModuleActionList );
     deepDeleteActionList( m_disconnectActionList );
@@ -979,13 +987,24 @@ void WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule > modu
     m_connectWithModuleActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(),
                                                            WKernel::getRunningKernel()->getRootContainer()->getPossibleConnections( module ),
                                                            0, true );
+
+    m_addModuleActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(),
+                                                           WModuleFactory::getModuleFactory()->getAllPrototypes(),
+                                                           0, false );
     if( module )
     {
         m_disconnectActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(), module->getPossibleDisconnections() );
     }
 
-    // build the prototype menu
+    // build the add menu
     QMenu* m = new QMenu( m_moduleTreeWidget );
+    m->addActions( m_addModuleActionList );
+    m_addModuleAction->setDisabled( !m_addModuleActionList.size() || module );  // disable if no entry inside or a module was selected
+    delete( m_addModuleAction->menu() ); // ensure that combiners get free'd
+    m_addModuleAction->setMenu( m );
+
+    // build the prototype menu
+    m = new QMenu( m_moduleTreeWidget );
     m->addActions( m_connectWithPrototypeActionList );
     m_connectWithPrototypeAction->setDisabled( !m_connectWithPrototypeActionList.size() );  // disable if no entry inside
     delete( m_connectWithPrototypeAction->menu() ); // ensure that combiners get free'd
@@ -1117,6 +1136,12 @@ void WQtControlPanel::deleteModule()
             if( ( m_moduleTreeWidget->selectedItems().at( 0 )->type() == MODULE ) ||
                     ( m_moduleTreeWidget->selectedItems().at( 0 )->type() == DATASET ) )
             {
+                // deleting crashed modules is not really save as we do not know the internal state of it
+                if( static_cast< WQtTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) )->getModule()->isCrashed() )
+                {
+                    return;
+                }
+
                 // remove from the container. It will create a new event in the GUI after it has been removed which is then handled by the tree item.
                 // This method deep removes the module ( it also removes depending modules )
                 WKernel::getRunningKernel()->getRootContainer()->remove(
@@ -1130,10 +1155,18 @@ void WQtControlPanel::deleteModule()
     else if( m_mainWindow->getNetworkEditor()->hasFocus() )
     {
         if( m_mainWindow->getNetworkEditor()->selectedItems().count() > 0 )
+        {
+            // deleting crashed modules is not really save as we do not know the internal state of it
+            if( static_cast< WQtNetworkItem* >( m_mainWindow->getNetworkEditor()->selectedItems().at( 0 ) )->getModule()->isCrashed() )
+            {
+                return;
+            }
+
             // This method deep removes the module ( it also removes depending modules )
             WKernel::getRunningKernel()->getRootContainer()->remove(
                 static_cast< WQtNetworkItem* >( m_mainWindow->getNetworkEditor()->selectedItems().at( 0 ) )->getModule()
                 );
+        }
     }
 }
 

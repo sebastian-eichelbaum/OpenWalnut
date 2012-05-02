@@ -59,6 +59,31 @@ namespace WQtNetworkColors
      * Color used for input connectors
      */
     const QColor InputConnector = QColor( 255, 255, 255 );
+
+    /**
+     * Color for an active module's activator
+     */
+    const QColor ActivatorActive = QColor( 255, 255, 255 );
+
+    /**
+     * Color for an inactive module's activator
+     */
+    const QColor ActivatorInactive = QColor( 0, 0, 0 );
+
+    /**
+     * Color for crashed modules
+     */
+    const QColor ModuleCrashed = QColor( 215, 37, 46 );
+
+    /**
+     * Color of the busy indicator.
+     */
+    const QColor BusyIndicator = QColor( 255, 45, 45 );
+
+    /**
+     * Color of the busy indicator background.
+     */
+    const QColor BusyIndicatorBackground = QColor( 255, 255, 255 );
 }
 
 #endif  // WQTNETWORKCOLORS_H

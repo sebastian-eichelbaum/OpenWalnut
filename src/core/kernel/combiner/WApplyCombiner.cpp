@@ -29,15 +29,20 @@
 #include "WApplyCombiner.h"
 
 WApplyCombiner::WApplyCombiner( boost::shared_ptr< WModuleContainer > target,
-                                boost::shared_ptr< WModule > srcModule, std::string srcConnector,
-                                boost::shared_ptr< WModule > targetModule, std::string targetConnector ):
+                                WModule::SPtr srcModule, std::string srcConnector,
+                                WModule::SPtr targetModule, std::string targetConnector ):
     WModuleOneToOneCombiner( target, srcModule, srcConnector, targetModule, targetConnector )
 {
 }
 
-WApplyCombiner::WApplyCombiner( boost::shared_ptr< WModule > srcModule, std::string srcConnector,
-                                boost::shared_ptr< WModule > targetModule, std::string targetConnector ):
+WApplyCombiner::WApplyCombiner( WModule::SPtr srcModule, std::string srcConnector,
+                                WModule::SPtr targetModule, std::string targetConnector ):
     WModuleOneToOneCombiner( srcModule, srcConnector, targetModule, targetConnector )
+{
+}
+
+WApplyCombiner::WApplyCombiner( WModule::SPtr module ):
+    WModuleOneToOneCombiner( WModule::SPtr(), "", module, "" )
 {
 }
 
