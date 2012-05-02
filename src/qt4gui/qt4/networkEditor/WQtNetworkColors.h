@@ -74,6 +74,16 @@ namespace WQtNetworkColors
      * Color for crashed modules
      */
     const QColor ModuleCrashed = QColor( 215, 37, 46 );
+
+    /**
+     * Color of the busy indicator.
+     */
+    const QColor BusyIndicator = QColor( 255, 45, 45 );
+
+    /**
+     * Color of the busy indicator background.
+     */
+    const QColor BusyIndicatorBackground = QColor( 255, 255, 255 );
 }
 
 #endif  // WQTNETWORKCOLORS_H

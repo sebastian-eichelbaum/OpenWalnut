@@ -43,7 +43,10 @@
 WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WModule > module )
     : QGraphicsRectItem(),
     m_isHovered( false ),
-    m_isSelected( false )
+    m_isSelected( false ),
+    m_busyIsDetermined( false ),
+    m_busyPercent( 0.0 ),
+    m_busyIndicatorShow( false )
 {
     m_networkEditor = editor;
     m_module = module;
@@ -62,18 +65,19 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
     if( dataModule )
     {
         m_subtitleFull = dataModule->getFilename().filename().string();
-        m_subtitle = new QGraphicsTextItem( m_subtitleFull.c_str() );
-        m_subtitle->setParentItem( this );
-        m_subtitle->setDefaultTextColor( Qt::white );
-        QFont f = m_subtitle->font();
-        f.setPointSizeF( f.pointSizeF() * 0.75 );
-        f.setBold( true );
-        m_subtitle->setFont( f );
     }
     else
     {
-        m_subtitle = NULL;
+        m_subtitleFull = "Idle";
     }
+
+    m_subtitle = new QGraphicsTextItem( m_subtitleFull.c_str() );
+    m_subtitle->setParentItem( this );
+    m_subtitle->setDefaultTextColor( Qt::white );
+    QFont f = m_subtitle->font();
+    f.setPointSizeF( f.pointSizeF() * 0.75 );
+    f.setBold( true );
+    m_subtitle->setFont( f );
 
     m_inPorts = QList< WQtNetworkInputPort* > ();
     m_outPorts = QList< WQtNetworkOutputPort* > ();
@@ -148,6 +152,48 @@ int WQtNetworkItem::type() const
 
 void WQtNetworkItem::updater()
 {
+    bool needUpdate = false;
+    boost::shared_ptr< WProgressCombiner> p = m_module->getRootProgressCombiner();
+
+    // update the progress combiners internal state
+    p->update();
+
+    if( p->isPending() )
+    {
+        // update subtext
+        m_subtitleFull = "Busy"; // TODO(ebaum): use progress text here
+        fitLook();
+
+        // update indicator
+        m_busyIndicatorShow = true;
+        m_busyIsDetermined = p->isDetermined();
+        if( m_busyIsDetermined )
+        {
+            m_busyPercent = p->getProgress() / 100.0;
+        }
+        else
+        {
+            m_busyPercent += 0.025;
+            if( m_busyPercent > 1.0 )
+            {
+                m_busyPercent = 0.0;
+            }
+        }
+        needUpdate = true;
+    }
+    else
+    {
+        // if busy indication was active -> update to remove it again
+        needUpdate |= m_busyIndicatorShow;
+        m_busyIndicatorShow = false;
+        m_subtitleFull = "Idle";
+        fitLook();
+    }
+
+    if( needUpdate )
+    {
+        update();
+    }
 }
 
 void WQtNetworkItem::hoverEnterEvent( QGraphicsSceneHoverEvent *event )
@@ -178,7 +224,7 @@ void WQtNetworkItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* o
         case Crashed:
             fillColor = WQtNetworkColors::ModuleCrashed;
             break;
-        case Idle:
+        case Normal:
         default:
             // default behaviour
             break;
@@ -216,6 +262,27 @@ void WQtNetworkItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* o
         painter->setPen( QPen( Qt::black, 1, Qt::SolidLine, Qt::SquareCap, Qt::RoundJoin ) );
         painter->drawLine( QPoint( 0.0, 0.0 ), QPoint( m_width, m_height ) );
         painter->drawLine( QPoint( 0.0, m_height ), QPoint( m_width, 0.0 ) );
+    }
+
+    // draw busy indicator
+    if( m_busyIndicatorShow )
+    {
+        float busyBarMarginX = 5.0;
+        float busyIndicatorHeight = 2.0;
+        painter->setPen( QPen( WQtNetworkColors::BusyIndicatorBackground, busyIndicatorHeight, Qt::SolidLine, Qt::SquareCap, Qt::RoundJoin ) );
+        painter->drawLine( QPoint( busyBarMarginX, m_height / 2.0 ), QPoint( m_width - busyBarMarginX, m_height / 2.0 ) );
+        painter->setPen( QPen( WQtNetworkColors::BusyIndicator, busyIndicatorHeight, Qt::SolidLine, Qt::SquareCap, Qt::RoundJoin ) );
+        float pos = m_busyPercent * ( m_width - ( 2.0 * busyBarMarginX ) );
+
+        // if the progress indicator is determined (known percentage) -> draw line from 0 to pos
+        if( m_busyIsDetermined )
+        {
+            painter->drawLine( QPoint( busyBarMarginX, m_height / 2.0 ), QPoint( busyBarMarginX + pos, m_height / 2.0 ) );
+        }
+        else
+        {
+            painter->drawLine( QPoint( busyBarMarginX + pos, m_height / 2.0 ), QPoint( busyBarMarginX + pos + 5, m_height / 2.0 ) );
+        }
     }
 }
 
@@ -350,7 +417,7 @@ void WQtNetworkItem::fitLook()
     {
         subtextWidth = static_cast< float >( m_subtitle->boundingRect().width() );
         subtextHeight = static_cast< float >( m_subtitle->boundingRect().height() );
-        subtextMargin = 0.5f * WNETWORKITE_MARGINY;
+        subtextMargin = 1.0f * WNETWORKITE_MARGINY;
     }
 
     // and another height: the height of text and subtext
@@ -379,7 +446,6 @@ void WQtNetworkItem::fitLook()
     {
         subtextWidth = static_cast< float >( m_subtitle->boundingRect().width() );
         subtextHeight = static_cast< float >( m_subtitle->boundingRect().height() );
-        subtextMargin = 0.5f * WNETWORKITE_MARGINY;
     }
     float requiredWidth = std::max( portWidth, std::max( subtextWidth, textWidth ) + ( 2.0f * WNETWORKITE_MARGINX ) );
     float requiredHeight = wholeTextHeight + ( 2.0f * WNETWORKITE_MARGINY );
@@ -403,8 +469,8 @@ void WQtNetworkItem::fitLook()
     if( m_subtitle != 0)
     {
         qreal x = ( m_width / 2.0 ) - ( m_subtitle->boundingRect().width() / 2.0 );
-        qreal y = ( m_height / 2.0 ) - ( wholeTextHeight / 2.0 );
-        m_subtitle->setPos( x, y + textHeight );
+        qreal y = ( m_height / 2.0 ) - ( subtextMargin );
+        m_subtitle->setPos( x, y );
     }
 
     // 5: handle the ports
@@ -458,7 +524,7 @@ void WQtNetworkItem::activate( bool active )
         setAcceptsHoverEvents( true );
         setFlag( QGraphicsItem::ItemIsSelectable );
         setFlag( QGraphicsItem::ItemIsMovable );
-        changeState( m_module->isCrashed() ? Crashed : Idle );
+        changeState( m_module->isCrashed() ? Crashed : Normal );
     }
     if( active == false )
     {

@@ -217,7 +217,7 @@ private:
     enum State
     {
         Disabled = 0,
-        Idle,
+        Normal,
         Crashed
     };
 
@@ -263,8 +263,23 @@ private:
     bool m_isHovered;
 
     /**
-     * If true, the item is selected
+     * If true, the item is selected.
      */
     bool m_isSelected;
+
+    /**
+     * If true, a percentage is shown. If not, an animated bar walking around.
+     */
+    bool m_busyIsDetermined;
+
+    /**
+     * Counter used for busy indication.
+     */
+    float m_busyPercent;
+
+    /**
+     * If true, the busy indication is active.
+     */
+    bool m_busyIndicatorShow;
 };
 #endif  // WQTNETWORKITEM_H

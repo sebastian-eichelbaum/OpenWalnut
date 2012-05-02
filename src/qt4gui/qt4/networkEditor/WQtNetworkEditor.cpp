@@ -79,7 +79,7 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     // as the QGraphicsItems are not derived from QObject, they cannot utilize the event system. We need to provide some possibility to update
     // them regularly. We use a timer here.
     QTimer* updater = new QTimer( this );
-    updater->start( 50 );
+    updater->start( 100 );
     connect( updater, SIGNAL( timeout() ), this, SLOT( updateCylce() ) );
 }
 
