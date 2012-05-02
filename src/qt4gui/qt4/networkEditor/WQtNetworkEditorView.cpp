@@ -65,6 +65,18 @@ void WQtNetworkEditorView::leaveEvent( QEvent* event )
     QGraphicsView::leaveEvent( event );
 }
 
+void WQtNetworkEditorView::mouseDoubleClickEvent( QMouseEvent* event )
+{
+    // only apply if no item  is hit
+    if( items( event->pos() ).size() != 0 )
+    {
+        QGraphicsView::mouseDoubleClickEvent( event );
+        return;
+    }
+
+    emit loadAction();
+}
+
 void WQtNetworkEditorView::mousePressEvent( QMouseEvent* event )
 {
     // only pan if no element is hit

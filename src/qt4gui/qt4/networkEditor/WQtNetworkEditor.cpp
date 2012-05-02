@@ -71,6 +71,7 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     this->setFeatures( QDockWidget::DockWidgetClosable |QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
     setWidget( m_view );
     connect( m_scene, SIGNAL( selectionChanged() ), this, SLOT( selectItem() ) );
+    connect( m_view, SIGNAL( loadAction() ), m_mainWindow, SLOT( openLoadDialog() ) );
 
     m_layout = new WNetworkLayout();
 
@@ -489,3 +490,4 @@ WQtNetworkScene* WQtNetworkEditor::getScene()
 {
     return m_scene;
 }
+
