@@ -79,6 +79,11 @@ void WHeadSurfaceCallback::update( osg::NodeVisitor* /*nv*/, osg::Drawable* draw
             }
 
             geometry->setTexCoordArray( 0, texCoords );
+
+            osg::Vec4Array* colors = new osg::Vec4Array;
+            colors->push_back( osg::Vec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+            geometry->setColorArray( colors );
+            geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
         }
 
         m_currentColorSensitivity = colorSensitivity;
