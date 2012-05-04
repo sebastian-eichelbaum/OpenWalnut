@@ -173,6 +173,12 @@ public:
      */
     std::vector< Online > getOnlineResources() const;
 
+    /**
+     * A list of tags provided for the module.
+     *
+     * \return the tag list.
+     */
+    std::vector< std::string > getTags() const;
 protected:
 private:
     /**

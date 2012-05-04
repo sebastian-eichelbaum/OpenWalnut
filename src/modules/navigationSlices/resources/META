@@ -66,6 +66,12 @@
     what="Bug fixing";
   };
 
+  // Provide some tags to have modules nicely grouped and ordered.
+  // NOTE: tags are handled case insesitive.
+  // IMPORTANT: the order of appearance will be used by OW to classify your tags 
+  tag = "Navigation";
+  tag = "MRT";
+
   // You can provide online resources. They are shown in the GUI. You should
   // additionally provide a description to help the user know what this is.
   online
