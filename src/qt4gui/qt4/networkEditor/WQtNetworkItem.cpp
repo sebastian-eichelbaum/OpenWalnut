@@ -48,7 +48,8 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
     m_isSelected( false ),
     m_busyIsDetermined( false ),
     m_busyPercent( 0.0 ),
-    m_busyIndicatorShow( false )
+    m_busyIndicatorShow( false ),
+    m_forceUpdate( true )
 {
     m_networkEditor = editor;
     m_module = module;
@@ -155,63 +156,77 @@ int WQtNetworkItem::type() const
 void WQtNetworkItem::updater()
 {
     // it is very important to avoid unnecessary changes to pen/brush and similar stuff to avoid permanent updates of the graphics item.
-    bool needUpdate = false;
+    bool needUpdate = m_forceUpdate;
+    m_forceUpdate = false;
 
-    // handle progress indication
-    boost::shared_ptr< WProgressCombiner> p = m_module->getRootProgressCombiner();
-
-    // update the progress combiners internal state
-    p->update();
-
-    if( p->isPending() )
+    // progress indication is only needed for running modules
+    if( m_currentState != Crashed )
     {
-        m_busyIndicatorShow = true;
-        m_busyIsDetermined = p->isDetermined();
+        // handle progress indication
+        boost::shared_ptr< WProgressCombiner> p = m_module->getRootProgressCombiner();
 
-        // update subtext
-        m_subtitleFull = p->getCombinedNames( true );
+        // update the progress combiners internal state
+        p->update();
 
-        // we add the percent-counter to the front because the fitLook method shortens the subtext string if it is too long. This might clip out
-        // the percentage if the p->getCombinedNames string is quite long.
-        if(m_busyIsDetermined ) // <- of course only add if we have a known percentage
+        if( p->isPending() )
         {
-            // NOTE: Percentage of a WProgressCombiner always multiplicatively combines all percentages of the children
-            m_subtitleFull = string_utils::toString( static_cast< uint16_t >( p->getProgress() ) ) + "% - " + m_subtitleFull;
-        }
+            m_busyIndicatorShow = true;
+            m_busyIsDetermined = p->isDetermined();
 
+            // update subtext
+            m_subtitleFull = p->getCombinedNames( true );
+
+            // we add the percent-counter to the front because the fitLook method shortens the subtext string if it is too long. This might clip out
+            // the percentage if the p->getCombinedNames string is quite long.
+            if(m_busyIsDetermined ) // <- of course only add if we have a known percentage
+            {
+                // NOTE: Percentage of a WProgressCombiner always multiplicatively combines all percentages of the children
+                m_subtitleFull = string_utils::toString( static_cast< uint16_t >( p->getProgress() ) ) + "% - " + m_subtitleFull;
+            }
+
+            // this method ensures the text is shortened and correctly placed in the iem
+            fitLook();
+
+            // update indicator
+            if( m_busyIsDetermined )
+            {
+                m_busyPercent = p->getProgress() / 100.0;
+            }
+            else
+            {
+                m_busyPercent += 0.025;
+                if( m_busyPercent > 1.0 )
+                {
+                    m_busyPercent = 0.0;
+                }
+            }
+            needUpdate = true;
+        }
+        else
+        {
+            // if busy indication was active -> update to remove it again
+            needUpdate |= m_busyIndicatorShow;
+            m_busyIndicatorShow = false;
+            WDataModule::SPtr dataModule = boost::shared_dynamic_cast< WDataModule >( m_module );
+            if( dataModule )
+            {
+                m_subtitleFull = dataModule->getFilename().filename().string();
+            }
+            else
+            {
+                m_subtitleFull = "Idle";
+            }
+            fitLook();
+        }
+    }
+
+    // show crash state as text too
+    if( ( m_currentState == Crashed ) && ( m_subtitleFull != "Crashed" ) )
+    {
+        m_subtitleFull = "Crashed";
         // this method ensures the text is shortened and correctly placed in the iem
         fitLook();
-
-        // update indicator
-        if( m_busyIsDetermined )
-        {
-            m_busyPercent = p->getProgress() / 100.0;
-        }
-        else
-        {
-            m_busyPercent += 0.025;
-            if( m_busyPercent > 1.0 )
-            {
-                m_busyPercent = 0.0;
-            }
-        }
         needUpdate = true;
-    }
-    else
-    {
-        // if busy indication was active -> update to remove it again
-        needUpdate |= m_busyIndicatorShow;
-        m_busyIndicatorShow = false;
-        WDataModule::SPtr dataModule = boost::shared_dynamic_cast< WDataModule >( m_module );
-        if( dataModule )
-        {
-            m_subtitleFull = dataModule->getFilename().filename().string();
-        }
-        else
-        {
-            m_subtitleFull = "Idle";
-        }
-        fitLook();
     }
 
     if( needUpdate )
@@ -530,6 +545,7 @@ void WQtNetworkItem::setCrashed()
 
 void WQtNetworkItem::changeState( State state )
 {
+    m_forceUpdate = ( m_currentState != state );
     m_currentState = state;
     update();
 }

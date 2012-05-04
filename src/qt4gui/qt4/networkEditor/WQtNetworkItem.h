@@ -281,5 +281,10 @@ private:
      * If true, the busy indication is active.
      */
     bool m_busyIndicatorShow;
+
+    /**
+     * If true, the next call to update() will force a redraw. Avoid setting this to true permanently.
+     */
+    bool m_forceUpdate;
 };
 #endif  // WQTNETWORKITEM_H
