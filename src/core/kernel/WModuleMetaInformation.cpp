@@ -200,7 +200,7 @@ std::vector< WModuleMetaInformation::Online > WModuleMetaInformation::getOnlineR
 
 std::vector< std::string > WModuleMetaInformation::getTags() const
 {
-   // return a default if not meta data was loaded
+    // return a default if not meta data was loaded
     if( !m_loaded )
     {
         return std::vector< std::string >();
