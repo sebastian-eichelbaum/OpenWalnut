@@ -121,7 +121,36 @@ boost::shared_ptr< WDataSetDipole > WMReadDipoles::readData( std::string filenam
     }
 
     std::string line;
+    std::vector< std::string > tokens;
+
     std::getline( ifs, line, '\n' );
+
+    while( line.find( "NumberTimeSteps" ) )
+    {
+       std::getline( ifs, line, '\n' );
+    }
+    tokens = string_utils::tokenize( line );
+    size_t nbTimeSteps = string_utils::fromString< size_t >( tokens[1].c_str() );
+
+    std::getline( ifs, line, '\n' );
+
+    while( line.find( "TimeSteps" ) )
+    {
+       std::getline( ifs, line, '\n' );
+    }
+    tokens = string_utils::tokenize( line );
+    tokens = string_utils::tokenize( tokens[1], "()" );
+    float timeFirst = string_utils::fromString< float >( tokens[0].c_str() );
+    float timeDistance = string_utils::fromString< float >( tokens[1].c_str() );
+    float timeLast = string_utils::fromString< float >( tokens[2].c_str() );
+    std::vector< float > times( nbTimeSteps );
+    for( size_t timeStep = 0; timeStep < nbTimeSteps; ++timeStep )
+    {
+        times[timeStep] = timeFirst + timeStep * timeDistance;
+    }
+    std::cout<<times[nbTimeSteps-1]<< " " << timeLast << std::endl;
+    WAssert( std::abs( times[nbTimeSteps-1] - timeLast ) < 1e-4, "Error during filling times vector." );
+
     while( line.find( "PositionsFixed" ) )
     {
        std::getline( ifs, line, '\n' );
@@ -130,9 +159,26 @@ boost::shared_ptr< WDataSetDipole > WMReadDipoles::readData( std::string filenam
     WPosition pos;
     ifs >> pos[0] >> pos[1] >> pos[2];
 
-    ifs.close();
-    boost::shared_ptr< WDataSetDipole > loadedData( new WDataSetDipole( pos ) );
+    std::vector< float > magnitudes;
 
-    std::cout << "BLAAAAAAA " << pos << std::endl;
+    while( line.find( "Magnitudes" ) )
+    {
+       std::getline( ifs, line, '\n' );
+    }
+    std::getline( ifs, line, '\n' );
+
+    tokens = string_utils::tokenize( line );
+    for( unsigned int tokenId = 0; tokenId < tokens.size(); ++tokenId )
+    {
+        magnitudes.push_back( string_utils::fromString< float >( tokens[tokenId].c_str() ) );
+    }
+
+    WAssert( magnitudes.size() == nbTimeSteps, "Number of time steps and magnitudes must be equal" );
+    WAssert( times.size() == nbTimeSteps, "Number of time steps and times must be equal" );
+
+    ifs.close();
+
+    boost::shared_ptr< WDataSetDipole > loadedData( new WDataSetDipole( pos, magnitudes, times ) );
+
     return loadedData;
 }

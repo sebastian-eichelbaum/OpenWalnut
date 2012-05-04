@@ -301,10 +301,13 @@ void WMEEGView::moduleMain()
                 }
                 else if( m_dipoles->getData() )
                 {
-                    WPosition position = m_dipoles->getData()->getPosition();
-                    m_roi = new WROIBox( position - WVector3d( 5.0, 5.0, 5.0 ),
-                                         position + WVector3d( 5.0, 5.0, 5.0 ) );
-                    WKernel::getRunningKernel()->getRoiManager()->addRoi( m_roi );
+                    if( m_dipoles->getData()->getMagnitude( event->getTime() ) != 0 )
+                    {
+                        WPosition position = m_dipoles->getData()->getPosition();
+                        m_roi = new WROIBox( position - WVector3d( 5.0, 5.0, 5.0 ),
+                                             position + WVector3d( 5.0, 5.0, 5.0 ) );
+                        WKernel::getRunningKernel()->getRoiManager()->addRoi( m_roi );
+                    }
                 }
                 else
                 {

@@ -42,11 +42,13 @@ public:
     WDataSetDipole();
 
     /**
-     * Creates a new dipole with given location.
+     * Creates a new dipole with given information and checks consistency of the information.
      *
      * \param dipPos Spatial location of the dipole
+     * \param mags Magnitudes of dipole over time
+     * \param times Times for the dipole activity
      */
-    explicit WDataSetDipole( WPosition dipPos );
+    explicit WDataSetDipole( WPosition dipPos, std::vector<float> mags, std::vector<float> times );
 
     /**
      * Destructs this dataset.
@@ -67,6 +69,14 @@ public:
      */
     WPosition getPosition();
 
+    /**
+     * Return magnitude of dipole for a given time.
+     *
+     * \param time The selected time.
+     * \return Magnitude of the dipole.
+     */
+    float getMagnitude( float time );
+
 protected:
     /**
      * The prototype as singleton.
@@ -75,6 +85,8 @@ protected:
 
 private:
     WPosition m_dipolePosition; //!< The location of the dipole
+    std::vector<float> m_magnitudes; //!< The magnitude of the dipole
+    std::vector<float> m_times; //!< Times for the different magnitudes
 };
 
 #endif  // WDATASETDIPOLE_H
