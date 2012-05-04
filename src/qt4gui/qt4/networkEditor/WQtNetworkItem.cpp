@@ -175,6 +175,10 @@ void WQtNetworkItem::updater()
 
             // update subtext
             m_subtitleFull = p->getCombinedNames( true );
+            if( m_subtitleFull.empty() ) // if some lazy programmer did not provide names for the progress -> set one
+            {
+                m_subtitleFull = "Busy";
+            }
 
             // we add the percent-counter to the front because the fitLook method shortens the subtext string if it is too long. This might clip out
             // the percentage if the p->getCombinedNames string is quite long.
