@@ -81,23 +81,29 @@ void WProgressCombiner::update()
     rlock.unlock();
 }
 
-std::string WProgressCombiner::getCombinedNames() const
+std::string WProgressCombiner::getCombinedNames( bool excludeFinished ) const
 {
     // read lock combiner
     boost::shared_lock< boost::shared_mutex > rlock = boost::shared_lock< boost::shared_mutex >( m_updateLock );
 
     std::stringstream ss;
-    ss << "[";
+    bool addComma = false; // when true, a "," is appended before printing the next name. This is needed as we do not know if an element is the
+                           // last one if excludeFinished == true.
     for( std::set< boost::shared_ptr< WProgress > >::const_iterator i = m_children.begin(); i != m_children.end(); ++i )
     {
-        // enforce child to update
-        ss << ( *i )->getName();
-        if( boost::next( i ) != m_children.end() )
+        if( !( !( *i )->isPending() && excludeFinished ) )
         {
-            ss << ", ";
+            if( addComma )
+            {
+                ss << ", ";
+            }
+
+            // enforce child to update
+            ss << ( *i )->getName();
+            // in next step, add a comma
+            addComma = true;
         }
     }
-    ss << "]";
 
     // Done. Free lock.
     rlock.unlock();

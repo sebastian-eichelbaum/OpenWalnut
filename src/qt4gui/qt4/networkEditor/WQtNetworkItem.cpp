@@ -32,6 +32,8 @@
 #include <QtGui/QTextCharFormat>
 #include <QtGui/QTextCursor>
 
+#include "core/common/WStringUtils.h"
+
 #include "WQtNetworkArrow.h"
 #include "WQtNetworkItem.h"
 #include "WQtNetworkItemActivator.h"
@@ -152,7 +154,10 @@ int WQtNetworkItem::type() const
 
 void WQtNetworkItem::updater()
 {
+    // it is very important to avoid unnecessary changes to pen/brush and similar stuff to avoid permanent updates of the graphics item.
     bool needUpdate = false;
+
+    // handle progress indication
     boost::shared_ptr< WProgressCombiner> p = m_module->getRootProgressCombiner();
 
     // update the progress combiners internal state
@@ -160,13 +165,24 @@ void WQtNetworkItem::updater()
 
     if( p->isPending() )
     {
+        m_busyIndicatorShow = true;
+        m_busyIsDetermined = p->isDetermined();
+
         // update subtext
-        m_subtitleFull = "Busy"; // TODO(ebaum): use progress text here
+        m_subtitleFull = p->getCombinedNames( true );
+
+        // we add the percent-counter to the front because the fitLook method shortens the subtext string if it is too long. This might clip out
+        // the percentage if the p->getCombinedNames string is quite long.
+        if(m_busyIsDetermined ) // <- of course only add if we have a known percentage
+        {
+            // NOTE: Percentage of a WProgressCombiner always multiplicatively combines all percentages of the children
+            m_subtitleFull = string_utils::toString( static_cast< uint16_t >( p->getProgress() ) ) + "% - " + m_subtitleFull;
+        }
+
+        // this method ensures the text is shortened and correctly placed in the iem
         fitLook();
 
         // update indicator
-        m_busyIndicatorShow = true;
-        m_busyIsDetermined = p->isDetermined();
         if( m_busyIsDetermined )
         {
             m_busyPercent = p->getProgress() / 100.0;
@@ -186,7 +202,15 @@ void WQtNetworkItem::updater()
         // if busy indication was active -> update to remove it again
         needUpdate |= m_busyIndicatorShow;
         m_busyIndicatorShow = false;
-        m_subtitleFull = "Idle";
+        WDataModule::SPtr dataModule = boost::shared_dynamic_cast< WDataModule >( m_module );
+        if( dataModule )
+        {
+            m_subtitleFull = dataModule->getFilename().filename().string();
+        }
+        else
+        {
+            m_subtitleFull = "Idle";
+        }
         fitLook();
     }
 

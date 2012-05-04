@@ -74,6 +74,27 @@ namespace string_utils
     }
 
     /**
+     * Convert a given value to a string. The input value must provide a operator<< or be a standard scalar type. This method additionally allows
+     * setting width and precision flags of the used std::stringstream.
+     *
+     * \tparam T the source type. You do not need to specify this directly as it can be deducted from the given parameter
+     * \param value the value to cast to string
+     * \param precision the precision
+     * \param width the width
+     *
+     * \return the string.
+     */
+    template< typename T >
+    inline std::string toString( const T& value, const size_t width, const size_t precision )
+    {
+        std::stringstream ss;
+        ss.width( width );
+        ss.precision( precision );
+        ss << value;
+        return ss.str();
+    }
+
+    /**
      * Convert a given string to a value of a certain type. The target type must provide a operator>> to work or be a standard scalar type.
      *
      * \tparam T the source type.
