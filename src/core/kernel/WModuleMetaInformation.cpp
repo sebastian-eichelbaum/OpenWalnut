@@ -198,3 +198,15 @@ std::vector< WModuleMetaInformation::Online > WModuleMetaInformation::getOnlineR
     return r;
 }
 
+std::vector< std::string > WModuleMetaInformation::getTags() const
+{
+    // return a default if not meta data was loaded
+    if( !m_loaded )
+    {
+        return std::vector< std::string >();
+    }
+
+    // find key-value pair
+    return m_metaData.getValues< std::string >( m_name + "/tag" );
+}
+

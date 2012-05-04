@@ -45,6 +45,10 @@
 #include "core/kernel/WModuleContainer.h"
 #include "core/kernel/WModuleFactory.h"
 #include "core/kernel/WROIManager.h"
+#include "../WMainWindow.h"
+#include "../WQt4Gui.h"
+#include "../WQtCombinerActionList.h"
+#include "../WQtModuleConfig.h"
 #include "../events/WEventTypes.h"
 #include "../events/WModuleAssocEvent.h"
 #include "../events/WModuleConnectEvent.h"
@@ -55,11 +59,8 @@
 #include "../events/WModuleRemovedEvent.h"
 #include "../events/WRoiAssocEvent.h"
 #include "../events/WRoiRemoveEvent.h"
-#include "../WMainWindow.h"
+#include "../guiElements/WQtModuleMetaInfo.h"
 #include "../networkEditor/WQtNetworkEditor.h"
-#include "../WQt4Gui.h"
-#include "../WQtCombinerActionList.h"
-#include "../WQtModuleConfig.h"
 #include "WQtBranchTreeItem.h"
 #include "WQtColormapper.h"
 
@@ -863,6 +864,10 @@ void WQtControlPanel::setActiveModule( WModule::SPtr module, bool forceUpdate )
 
     // remove property tabs
     clearAndDeleteTabs();
+    // update module meta info tab also for crashed modules
+    WQtModuleMetaInfo* metaInfoWidget = new WQtModuleMetaInfo( module );
+    m_tabWidget->addTab( metaInfoWidget, "About && Help" );
+
     // set new property tabs if module is not crashed
     if( !module->isCrashed() )
     {
@@ -1237,7 +1242,7 @@ void WQtControlPanel::clearAndDeleteTabs()
 {
     m_tabWidget->setDisabled( true );
     QWidget *widget;
-    while( (  widget = m_tabWidget->widget( 0 ) ))
+    while( ( widget = m_tabWidget->widget( 0 ) ))
     {
         m_tabWidget->removeTab( 0 );
         delete widget;

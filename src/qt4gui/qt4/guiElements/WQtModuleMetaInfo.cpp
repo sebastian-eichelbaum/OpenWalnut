@@ -22,22 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTNETWORKEDITORGLOBALS_H
-#define WQTNETWORKEDITORGLOBALS_H
+#include "WQtModuleMetaInfo.h"
+#include "WQtModuleMetaInfo.moc"
 
-// The size of in/out ports
-#define WNETWORKPORT_SIZEX 10
-#define WNETWORKPORT_SIZEY 10
+WQtModuleMetaInfo::WQtModuleMetaInfo( WModule::SPtr module, QWidget* parent ):
+    QTextEdit( parent ),
+    m_module( module )
+{
+    // initialize members
+    setText( "Currently in development. Check back soon." );
+}
 
-// Distance to element border of sub elements
-#define WNETWORKITEM_MARGINX 3
-#define WNETWORKITEM_MARGINY 3
-
-// The minimum width and heigh of items inside the scene
-#define WNETWORKITEM_MINIMUM_WIDTH  125
-#define WNETWORKITEM_MINIMUM_HEIGHT  50
-#define WNETWORKITEM_MAXIMUM_WIDTH  200
-#define WNETWORKITEM_MAXIMUM_HEIGHT 100
-
-#endif  // WQTNETWORKEDITORGLOBALS_H
+WQtModuleMetaInfo::~WQtModuleMetaInfo()
+{
+    // cleanup
+}
 

@@ -22,22 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTNETWORKEDITORGLOBALS_H
-#define WQTNETWORKEDITORGLOBALS_H
+#ifndef WQTMODULEMETAINFO_H
+#define WQTMODULEMETAINFO_H
 
-// The size of in/out ports
-#define WNETWORKPORT_SIZEX 10
-#define WNETWORKPORT_SIZEY 10
+#include <QtGui/QTextEdit>
 
-// Distance to element border of sub elements
-#define WNETWORKITEM_MARGINX 3
-#define WNETWORKITEM_MARGINY 3
+#include "core/kernel/WModule.h"
 
-// The minimum width and heigh of items inside the scene
-#define WNETWORKITEM_MINIMUM_WIDTH  125
-#define WNETWORKITEM_MINIMUM_HEIGHT  50
-#define WNETWORKITEM_MAXIMUM_WIDTH  200
-#define WNETWORKITEM_MAXIMUM_HEIGHT 100
+/**
+ * Text widget showing the module meta data.
+ */
+class WQtModuleMetaInfo: public QTextEdit
+{
+    Q_OBJECT
+public:
+    /**
+     * Default constructor.
+     *
+     * \param parent the parent widget
+     * \param module the module for which to show the meta info
+     */
+    WQtModuleMetaInfo( WModule::SPtr module, QWidget* parent = 0 );
 
-#endif  // WQTNETWORKEDITORGLOBALS_H
+    /**
+     * Destructor.
+     */
+    virtual ~WQtModuleMetaInfo();
+
+protected:
+private:
+    /**
+     * The module.
+     */
+    WModule::SPtr m_module;
+};
+
+#endif  // WQTMODULEMETAINFO_H
 

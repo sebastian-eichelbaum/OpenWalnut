@@ -32,6 +32,8 @@
 #include <QtGui/QTextCharFormat>
 #include <QtGui/QTextCursor>
 
+#include "core/common/WStringUtils.h"
+
 #include "WQtNetworkArrow.h"
 #include "WQtNetworkItem.h"
 #include "WQtNetworkItemActivator.h"
@@ -46,7 +48,8 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
     m_isSelected( false ),
     m_busyIsDetermined( false ),
     m_busyPercent( 0.0 ),
-    m_busyIndicatorShow( false )
+    m_busyIndicatorShow( false ),
+    m_forceUpdate( true )
 {
     m_networkEditor = editor;
     m_module = module;
@@ -126,6 +129,8 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
     activate( false );
 
     fitLook();
+    // this now calculated the optimal size. We keep them for later use
+    m_itemBestWidth = boundingRect().width();
 
     m_layoutNode = NULL;
 }
@@ -152,42 +157,82 @@ int WQtNetworkItem::type() const
 
 void WQtNetworkItem::updater()
 {
-    bool needUpdate = false;
-    boost::shared_ptr< WProgressCombiner> p = m_module->getRootProgressCombiner();
+    // it is very important to avoid unnecessary changes to pen/brush and similar stuff to avoid permanent updates of the graphics item.
+    bool needUpdate = m_forceUpdate;
+    m_forceUpdate = false;
 
-    // update the progress combiners internal state
-    p->update();
-
-    if( p->isPending() )
+    // progress indication is only needed for running modules
+    if( m_currentState != Crashed )
     {
-        // update subtext
-        m_subtitleFull = "Busy"; // TODO(ebaum): use progress text here
-        fitLook();
+        // handle progress indication
+        boost::shared_ptr< WProgressCombiner> p = m_module->getRootProgressCombiner();
 
-        // update indicator
-        m_busyIndicatorShow = true;
-        m_busyIsDetermined = p->isDetermined();
-        if( m_busyIsDetermined )
+        // update the progress combiners internal state
+        p->update();
+
+        if( p->isPending() )
         {
-            m_busyPercent = p->getProgress() / 100.0;
+            m_busyIndicatorShow = true;
+            m_busyIsDetermined = p->isDetermined();
+
+            // update subtext
+            m_subtitleFull = p->getCombinedNames( true );
+            if( m_subtitleFull.empty() ) // if some lazy programmer did not provide names for the progress -> set one
+            {
+                m_subtitleFull = "Busy";
+            }
+
+            // we add the percent-counter to the front because the fitLook method shortens the subtext string if it is too long. This might clip out
+            // the percentage if the p->getCombinedNames string is quite long.
+            if(m_busyIsDetermined ) // <- of course only add if we have a known percentage
+            {
+                // NOTE: Percentage of a WProgressCombiner always multiplicatively combines all percentages of the children
+                m_subtitleFull = string_utils::toString( static_cast< uint16_t >( p->getProgress() ) ) + "% - " + m_subtitleFull;
+            }
+
+            // this method ensures the text is shortened and correctly placed in the iem
+            fitLook( m_itemBestWidth, m_itemBestWidth );
+
+            // update indicator
+            if( m_busyIsDetermined )
+            {
+                m_busyPercent = p->getProgress() / 100.0;
+            }
+            else
+            {
+                m_busyPercent += 0.025;
+                if( m_busyPercent > 1.0 )
+                {
+                    m_busyPercent = 0.0;
+                }
+            }
+            needUpdate = true;
         }
         else
         {
-            m_busyPercent += 0.025;
-            if( m_busyPercent > 1.0 )
+            // if busy indication was active -> update to remove it again
+            needUpdate |= m_busyIndicatorShow;
+            m_busyIndicatorShow = false;
+            WDataModule::SPtr dataModule = boost::shared_dynamic_cast< WDataModule >( m_module );
+            if( dataModule )
             {
-                m_busyPercent = 0.0;
+                m_subtitleFull = dataModule->getFilename().filename().string();
             }
+            else
+            {
+                m_subtitleFull = "Idle";
+            }
+            fitLook( m_itemBestWidth, m_itemBestWidth );
         }
-        needUpdate = true;
     }
-    else
+
+    // show crash state as text too
+    if( ( m_currentState == Crashed ) && ( m_subtitleFull != "Crashed" ) )
     {
-        // if busy indication was active -> update to remove it again
-        needUpdate |= m_busyIndicatorShow;
-        m_busyIndicatorShow = false;
-        m_subtitleFull = "Idle";
-        fitLook();
+        m_subtitleFull = "Crashed";
+        // this method ensures the text is shortened and correctly placed in the iem
+        fitLook( m_itemBestWidth, m_itemBestWidth );
+        needUpdate = true;
     }
 
     if( needUpdate )
@@ -382,13 +427,13 @@ void clipText( QGraphicsTextItem* item, float maxWidth, std::string fullText )
     }
 }
 
-void WQtNetworkItem::fitLook()
+void WQtNetworkItem::fitLook( float maximumWidth, float minimumWidth )
 {
     // The purpose of this method is to ensure proper dimensions of the item and the contained text. This method ensures:
     //  * an item maximum size is WNETWORKITEM_MINIMUM_WIDTH or the width of the connectors!
     //  * text exceeding size limits is cut
 
-    m_width = WNETWORKITEM_MINIMUM_WIDTH;
+    m_width = minimumWidth;
     m_height = WNETWORKITEM_MINIMUM_HEIGHT;
 
     // we need to respect the size minimally needed by ports
@@ -396,7 +441,7 @@ void WQtNetworkItem::fitLook()
 
     // the item needs a maximum size constraint to avoid enormously large items
     // NOTE: the specified size max can only be overwritten by the
-    float maxWidth = std::max( static_cast< float >( WNETWORKITEM_MAXIMUM_WIDTH ), portWidth );
+    float maxWidth = std::max( static_cast< float >( maximumWidth ), portWidth );
 
     // the width of the text elements
     float textWidth = 0.0;
@@ -417,14 +462,14 @@ void WQtNetworkItem::fitLook()
     {
         subtextWidth = static_cast< float >( m_subtitle->boundingRect().width() );
         subtextHeight = static_cast< float >( m_subtitle->boundingRect().height() );
-        subtextMargin = 1.0f * WNETWORKITE_MARGINY;
+        subtextMargin = 1.0f * WNETWORKITEM_MARGINY;
     }
 
     // and another height: the height of text and subtext
     float wholeTextHeight = textHeight + subtextHeight + subtextMargin;
 
     // get the required width and height
-    float maxTextWidth = maxWidth - ( 2.0f * WNETWORKITE_MARGINX );
+    float maxTextWidth = maxWidth - ( 2.0f * WNETWORKITEM_MARGINX );
 
     // 2: limit sizes of sub elements if needed (especially the subtext)
     if( ( m_text != 0 ) )
@@ -447,12 +492,12 @@ void WQtNetworkItem::fitLook()
         subtextWidth = static_cast< float >( m_subtitle->boundingRect().width() );
         subtextHeight = static_cast< float >( m_subtitle->boundingRect().height() );
     }
-    float requiredWidth = std::max( portWidth, std::max( subtextWidth, textWidth ) + ( 2.0f * WNETWORKITE_MARGINX ) );
-    float requiredHeight = wholeTextHeight + ( 2.0f * WNETWORKITE_MARGINY );
+    float requiredWidth = std::max( portWidth, std::max( subtextWidth, textWidth ) + ( 2.0f * WNETWORKITEM_MARGINX ) );
+    float requiredHeight = wholeTextHeight + ( 2.0f * WNETWORKITEM_MARGINY );
 
     // 3: set the final sizes
     m_height = std::max( requiredHeight, static_cast< float >( WNETWORKITEM_MINIMUM_HEIGHT ) );
-    m_width = std::min( std::max( requiredWidth, static_cast< float >( WNETWORKITEM_MINIMUM_WIDTH ) ), maxWidth );
+    m_width = std::min( std::max( requiredWidth, static_cast< float >( minimumWidth ) ), maxWidth );
 
     QRectF rect( 0, 0, m_width, m_height );
     m_rect = rect;
@@ -506,6 +551,7 @@ void WQtNetworkItem::setCrashed()
 
 void WQtNetworkItem::changeState( State state )
 {
+    m_forceUpdate = ( m_currentState != state );
     m_currentState = state;
     update();
 }

@@ -103,9 +103,11 @@ public:
     /**
      * Generates a string combined out of every child progress name.
      *
+     * \param excludeFinished  if true, the combined name list only contains unfinished progress'
+     *
      * \return One describing string for all child progress names.
      */
-    std::string getCombinedNames() const;
+    std::string getCombinedNames( bool excludeFinished = false ) const;
 
 protected:
     /**

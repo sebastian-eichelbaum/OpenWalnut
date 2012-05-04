@@ -107,8 +107,11 @@ public:
     /**
      * This method aligns the in- and outports as well as the modulename
      * in a regular way.
+     *
+     * \param maximumWidth the maximal width of the item.
+     * \param minimumWidth the minimal width of the item.
      */
-    void fitLook();
+    void fitLook( float maximumWidth = WNETWORKITEM_MAXIMUM_WIDTH, float minimumWidth = WNETWORKITEM_MINIMUM_WIDTH );
 
     /**
      * Set the QGraphicsTextItem ( the caption ) of the item
@@ -281,5 +284,15 @@ private:
      * If true, the busy indication is active.
      */
     bool m_busyIndicatorShow;
+
+    /**
+     * If true, the next call to update() will force a redraw. Avoid setting this to true permanently.
+     */
+    bool m_forceUpdate;
+
+    /**
+     * Optimal width for this module. Calculated during construction.
+     */
+    float m_itemBestWidth;
 };
 #endif  // WQTNETWORKITEM_H
