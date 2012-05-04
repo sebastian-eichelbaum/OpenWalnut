@@ -50,7 +50,6 @@ public:
     virtual ~WQtModuleMetaInfo();
 
 protected:
-
 private:
     /**
      * The module.
