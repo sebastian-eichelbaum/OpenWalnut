@@ -24,6 +24,7 @@
 
 #include <fstream>
 #include <string>
+#include <vector>
 
 #include "core/common/WPathHelper.h"
 #include "core/dataHandler/WDataSetDipole.h"
@@ -148,7 +149,7 @@ boost::shared_ptr< WDataSetDipole > WMReadDipoles::readData( std::string filenam
     {
         times[timeStep] = timeFirst + timeStep * timeDistance;
     }
-    std::cout<<times[nbTimeSteps-1]<< " " << timeLast << std::endl;
+
     WAssert( std::abs( times[nbTimeSteps-1] - timeLast ) < 1e-4, "Error during filling times vector." );
 
     while( line.find( "PositionsFixed" ) )

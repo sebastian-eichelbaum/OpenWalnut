@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <vector>
+
 #include "WDataSetDipole.h"
 
 // prototype instance as singleton

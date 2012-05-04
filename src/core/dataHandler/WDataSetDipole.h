@@ -25,6 +25,7 @@
 #ifndef WDATASETDIPOLE_H
 #define WDATASETDIPOLE_H
 
+#include <vector>
 #include <boost/shared_ptr.hpp>
 
 #include "WDataSet.h"
