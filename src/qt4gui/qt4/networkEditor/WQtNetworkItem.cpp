@@ -129,6 +129,8 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
     activate( false );
 
     fitLook();
+    // this now calculated the optimal size. We keep them for later use
+    m_itemBestWidth = boundingRect().width();
 
     m_layoutNode = NULL;
 }
@@ -189,7 +191,7 @@ void WQtNetworkItem::updater()
             }
 
             // this method ensures the text is shortened and correctly placed in the iem
-            fitLook();
+            fitLook( m_itemBestWidth, m_itemBestWidth );
 
             // update indicator
             if( m_busyIsDetermined )
@@ -220,7 +222,7 @@ void WQtNetworkItem::updater()
             {
                 m_subtitleFull = "Idle";
             }
-            fitLook();
+            fitLook( m_itemBestWidth, m_itemBestWidth );
         }
     }
 
@@ -229,7 +231,7 @@ void WQtNetworkItem::updater()
     {
         m_subtitleFull = "Crashed";
         // this method ensures the text is shortened and correctly placed in the iem
-        fitLook();
+        fitLook( m_itemBestWidth, m_itemBestWidth );
         needUpdate = true;
     }
 
@@ -425,13 +427,13 @@ void clipText( QGraphicsTextItem* item, float maxWidth, std::string fullText )
     }
 }
 
-void WQtNetworkItem::fitLook()
+void WQtNetworkItem::fitLook( float maximumWidth, float minimumWidth )
 {
     // The purpose of this method is to ensure proper dimensions of the item and the contained text. This method ensures:
     //  * an item maximum size is WNETWORKITEM_MINIMUM_WIDTH or the width of the connectors!
     //  * text exceeding size limits is cut
 
-    m_width = WNETWORKITEM_MINIMUM_WIDTH;
+    m_width = minimumWidth;
     m_height = WNETWORKITEM_MINIMUM_HEIGHT;
 
     // we need to respect the size minimally needed by ports
@@ -439,7 +441,7 @@ void WQtNetworkItem::fitLook()
 
     // the item needs a maximum size constraint to avoid enormously large items
     // NOTE: the specified size max can only be overwritten by the
-    float maxWidth = std::max( static_cast< float >( WNETWORKITEM_MAXIMUM_WIDTH ), portWidth );
+    float maxWidth = std::max( static_cast< float >( maximumWidth ), portWidth );
 
     // the width of the text elements
     float textWidth = 0.0;
@@ -460,14 +462,14 @@ void WQtNetworkItem::fitLook()
     {
         subtextWidth = static_cast< float >( m_subtitle->boundingRect().width() );
         subtextHeight = static_cast< float >( m_subtitle->boundingRect().height() );
-        subtextMargin = 1.0f * WNETWORKITE_MARGINY;
+        subtextMargin = 1.0f * WNETWORKITEM_MARGINY;
     }
 
     // and another height: the height of text and subtext
     float wholeTextHeight = textHeight + subtextHeight + subtextMargin;
 
     // get the required width and height
-    float maxTextWidth = maxWidth - ( 2.0f * WNETWORKITE_MARGINX );
+    float maxTextWidth = maxWidth - ( 2.0f * WNETWORKITEM_MARGINX );
 
     // 2: limit sizes of sub elements if needed (especially the subtext)
     if( ( m_text != 0 ) )
@@ -490,12 +492,12 @@ void WQtNetworkItem::fitLook()
         subtextWidth = static_cast< float >( m_subtitle->boundingRect().width() );
         subtextHeight = static_cast< float >( m_subtitle->boundingRect().height() );
     }
-    float requiredWidth = std::max( portWidth, std::max( subtextWidth, textWidth ) + ( 2.0f * WNETWORKITE_MARGINX ) );
-    float requiredHeight = wholeTextHeight + ( 2.0f * WNETWORKITE_MARGINY );
+    float requiredWidth = std::max( portWidth, std::max( subtextWidth, textWidth ) + ( 2.0f * WNETWORKITEM_MARGINX ) );
+    float requiredHeight = wholeTextHeight + ( 2.0f * WNETWORKITEM_MARGINY );
 
     // 3: set the final sizes
     m_height = std::max( requiredHeight, static_cast< float >( WNETWORKITEM_MINIMUM_HEIGHT ) );
-    m_width = std::min( std::max( requiredWidth, static_cast< float >( WNETWORKITEM_MINIMUM_WIDTH ) ), maxWidth );
+    m_width = std::min( std::max( requiredWidth, static_cast< float >( minimumWidth ) ), maxWidth );
 
     QRectF rect( 0, 0, m_width, m_height );
     m_rect = rect;
