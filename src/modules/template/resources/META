@@ -45,7 +45,7 @@
   //       one line.
   description = "This module is intended to be THE reference module. If you would like to program your own modules, you should look at this module's source.";
 
-  // Help file. This should be an HTML or TXT document
+  // Help file. This should be an HTML or TXT document. Only one document allowed.
   help ="help/index.html";
 
   // Provide a list of authors. These authors can have further information associated with them.

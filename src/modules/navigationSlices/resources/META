@@ -45,8 +45,9 @@
   //       one line.
   description = "This module shows all loaded datesets sliced using three, orthogonally oriented slices. It allows navigation through datasets to get a first impression of them. It supports all properties a data colormap allows and respects them during rendering.";
 
-  // Help file. This should be an HTML or TXT document
-  help ="help/index.html";
+  // Help file. This should be an HTML or TXT document. Only one help file is allowed.
+  // We currently have no help :-/
+  // help ="help/index.html";
 
   // Provide a list of authors. These authors can have further information associated with them.
   author = "OpenWalnut Project";
