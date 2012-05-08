@@ -54,7 +54,7 @@
 
   // Provide author information. Especially a contact address is very handy.
   // This associates some URL and Mail contact info to "OpenWalnut Project".
-  "OpenWalnut Project" 
+  "OpenWalnut Project"
   {
     url="http://www.openwalnut.org";
     email="contact@openwalnut.org";
@@ -68,7 +68,7 @@
 
   // Provide some tags to have modules nicely grouped and ordered.
   // NOTE: tags are handled case insesitive.
-  // IMPORTANT: the order of appearance will be used by OW to classify your tags 
+  // IMPORTANT: the order of appearance will be used by OW to classify your tags
   tag = "Navigation";
   tag = "MRT";
 
@@ -95,6 +95,13 @@
     name="Video Demonstration";
     description="Video demonstration showing basic working principoles.";
     url="http://www.youtube.com/watch?v=5Afw6P6wWSU&context=C375513dADOEgsToPDskJXOVbrVDAV5rydr7H173AT";
+  };
+
+  // You can also provide screenshots with an optional description. Multiple screenshots allowed.
+  screenshot
+  {
+      description = "Navigation Slices showing a scalar T1 Dataset.";
+      filename = "t1.png";
   };
 };
 

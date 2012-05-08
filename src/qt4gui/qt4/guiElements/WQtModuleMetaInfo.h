@@ -25,14 +25,17 @@
 #ifndef WQTMODULEMETAINFO_H
 #define WQTMODULEMETAINFO_H
 
-#include <QtGui/QTextEdit>
+#include <QtGui/QWidget>
+#ifndef QT4GUI_NOWEBKIT
+    #include <QtWebKit/QWebFrame>
+#endif
 
 #include "core/kernel/WModule.h"
 
 /**
  * Text widget showing the module meta data.
  */
-class WQtModuleMetaInfo: public QTextEdit
+class WQtModuleMetaInfo: public QWidget
 {
     Q_OBJECT
 public:
@@ -48,13 +51,23 @@ public:
      * Destructor.
      */
     virtual ~WQtModuleMetaInfo();
-
+public slots:
+    /**
+     * Resets the webview and provides the module info again.
+     */
+    void resetContent();
 protected:
 private:
     /**
      * The module.
      */
     WModule::SPtr m_module;
+    #ifndef QT4GUI_NOWEBKIT
+    /**
+     * the frame containing the module meta info
+     */
+    QWebFrame* m_frame;
+    #endif
 };
 
 #endif  // WQTMODULEMETAINFO_H

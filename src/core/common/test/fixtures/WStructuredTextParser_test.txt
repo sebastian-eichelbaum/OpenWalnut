@@ -31,7 +31,7 @@ level0
     // test whether the parser finds these key-value pairs (KV)
     uniquekv = "hello";
     // test if it is able to handle multile, equally named KV
-    notuniquekv = "hello";
+    notuniquekv = "hello hallo";
     notuniquekv = "world";
     
     // test whether it can handle sub-classes
