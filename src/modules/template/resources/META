@@ -1,0 +1,107 @@
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
+
+// Provide additional material and descriptions for your module. You can
+// provide this for multiple modules if you like.
+
+// NOTE: everything but the module name is optional, even if this makes no
+//       sense at all.
+
+// This defines some properties of the module "Template". This must
+// match the name specified in WMTemplate::getName().
+"Template"
+{
+  // Provide an icon. If the icon exists, it overrides the one provided by your
+  // getIcon method. This path is relative to your module's resource directory.
+  icon="WMTeamplate.png";
+
+  // Where to find the module?
+  website = "http://www.openwalnut.org";
+
+  // Provide a description, If you do so, this description overrides the one
+  // provided by your getDescription method.
+  // HINT: multi-line strings are not supported. Please provide long texts in
+  //       one line.
+  description = "This module is intended to be THE reference module. If you would like to program your own modules, you should look at this module's source.";
+
+  // Help file. This should be an HTML or TXT document
+  help ="help/index.html";
+
+  // Provide a list of authors. These authors can have further information associated with them.
+  author = "OpenWalnut Project";
+  author = "Students";
+
+  // Provide author information. Especially a contact address is very handy.
+  // This associates some URL and Mail contact info to "OpenWalnut Project".
+  "OpenWalnut Project"
+  {
+    url="http://www.openwalnut.org";
+    email="contact@openwalnut.org";
+    what="Design, Development and Bug fixing";
+  };
+  // These additional author information are optional.
+  Students
+  {
+    what="Bug fixing";
+  };
+
+  // Provide some tags to have modules nicely grouped and ordered.
+  // NOTE: tags are handled case insesitive.
+  // IMPORTANT: the order of appearance will be used by OW to classify your tags
+  tag = "MRI";
+  tag = "fMRI";
+
+  // You can provide online resources. They are shown in the GUI. You should
+  // additionally provide a description to help the user know what this is.
+  online
+  {
+    // Name that appears for this resource. Required.
+    name="First Steps";
+    // Optional description for a resource
+    description ="First Steps Tutorial, showing the first steps to take with OpenWalnut.";
+    // The URL. Required.
+    url="http://www.openwalnut.org/projects/openwalnut/wiki/FirstSteps";
+  };
+  // Multiple online resources allowed.
+  online
+  {
+    name="Visualization Article";
+    description="Description of the term visualization.";
+    url="http://en.wikipedia.org/wiki/Visualization_(computer_graphics)";
+  };
+  online
+  {
+    name="Video Demonstration";
+    description="Video demonstration showing basic working principoles.";
+    url="http://www.youtube.com/watch?v=5Afw6P6wWSU&context=C375513dADOEgsToPDskJXOVbrVDAV5rydr7H173AT";
+  };
+
+  // You can also provide screenshots with an optional description. Multiple screenshots allowed.
+  screenshot
+  {
+      description = "The rendering created by this module. It demonstrates simple OpenSceneGraph usage.";
+      filename = "template.png";
+  };
+};
+
