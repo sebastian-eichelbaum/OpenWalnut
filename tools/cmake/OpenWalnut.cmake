@@ -244,11 +244,19 @@ ADD_DEFINITIONS( "-DBOOST_FILESYSTEM_VERSION=3" )
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # OpenGL, at least 1.2
 # See http://www.opengl.org
-#
-FIND_PACKAGE( OpenGL REQUIRED )
 
-# include the OpenGL header paths
-INCLUDE_DIRECTORIES( ${OPENGL_INCLUDE_DIR} )
+# Find OpenGL or OpenGL ES on Android
+IF( ANDROID )
+  # on Android, we rely on the fact the the GLES headers reside in the correct NDK search paths
+  # -> so we do not add the include dir directly. We only set the variables needed to fake a found OpenGL:
+  SET( OPENGL_FOUND ON )
+  # link against GLES 2
+  SET( OPENGL_LIBRARIES "GLESv2" )
+ELSE()
+  FIND_PACKAGE( OpenGL REQUIRED )
+  # include the OpenGL header paths
+  INCLUDE_DIRECTORIES( ${OPENGL_INCLUDE_DIR} )
+ENDIF()
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # OpenSceneGraph, at least 2.8.0
