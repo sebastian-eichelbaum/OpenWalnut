@@ -29,7 +29,6 @@
 
 #include <boost/math/constants/constants.hpp>
 
-
 #include "WLine.h"
 #include "WPlane.h"
 #include "linearAlgebra/WLinearAlgebra.h"
@@ -50,22 +49,6 @@ const float piFloat = boost::math::constants::pi<float>();
  */
 const double piDouble = boost::math::constants::pi<double>();
 
-/**
- * Tests whether the number stored in the parameter is finite.
- * \param number the number to be tested
- */
-inline int myIsfinite( double number )
-{
-#if defined( __linux__ ) || defined( __APPLE__ )
-    // C99 defines isfinite() as a macro.
-    return std::isfinite(number);
-#elif defined( _WIN32 )
-    // Microsoft Visual C++ and Borland C++ Builder use _finite().
-    return _finite(number);
-#else
-    WAssert( false, "isfinite not provided on this platform or platform not known." );
-#endif
-}
 /**
  * Checks if the triangle intersects with the given plane. If you are interested in the points of
  * intersection if any \see intersection().
