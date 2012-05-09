@@ -49,7 +49,7 @@ namespace wtracking
 
         // find t such that job.first() + t * dir is a point on the boundary of the current voxel
         double t = getDistanceToBoundary( g, job.first, dir );
-        WAssert( !wlimits::isinf( t ) && !wlimits::isnan( t ), "Warning in WTrackingUtility::followToNextVoxel NaN's or INF's occured" );
+        WAssert( !wlimits::isInf( t ) && !wlimits::isNaN( t ), "Warning in WTrackingUtility::followToNextVoxel NaN's or INF's occured" );
         WAssert( t > 0.0, "" );
         WAssert( onBoundary( g, job.first + dir * t ), "" );
 

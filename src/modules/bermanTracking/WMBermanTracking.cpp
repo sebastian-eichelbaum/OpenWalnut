@@ -422,7 +422,7 @@ WSymmetricSphericalHarmonic WMBermanTracking::createRandomODF( std::size_t i )
         // "-", because the residuals in the input dataset have differing sign
         q( k, 0 ) = v( k, 0 ) - ( m_dataSetResidual->getValueAt( i * v.rows() + z ) / ( sqrt( 1.0 - m_HMat( k, k ) ) ) );
 
-        WAssert( !wlimits::isnan( q( k, 0 ) ), "" );
+        WAssert( !wlimits::isNaN( q( k, 0 ) ), "" );
     }
 
     // now calc new sh coeffs from the resampled hardi data

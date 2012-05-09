@@ -263,8 +263,8 @@ Data_T WDataSetTimeSeries::interpolate( WVector3d const& pos, float time, bool* 
 {
     static const float inf = std::numeric_limits< float >::infinity();
     WAssert( success, "" );
-    WAssert( !wlimits::isnan( length( pos ) ), "" );
-    WAssert( !wlimits::isnan( time ), "" );
+    WAssert( !wlimits::isNaN( length( pos ) ), "" );
+    WAssert( !wlimits::isNaN( time ), "" );
     if( time < getMinTime() || time > getMaxTime() )
     {
         *success = false;

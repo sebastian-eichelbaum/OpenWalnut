@@ -187,7 +187,7 @@ bool WMWriteMesh::saveVTKASCII() const
     for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
     {
         point = m_triMesh->getVertex( i );
-        if( !( !wlimits::isinf( point[0] ) && !wlimits::isinf( point[1] ) && !wlimits::isinf( point[2] ) ) )
+        if( !( !wlimits::isInf( point[0] ) && !wlimits::isInf( point[1] ) && !wlimits::isInf( point[2] ) ) )
         {
             WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Write Mesh", LL_ERROR );
             return false;
@@ -268,7 +268,7 @@ bool WMWriteMesh::saveJson()
         for( size_t i = 0; i < meshes[k]->vertSize() - 1; ++i )
         {
             point = meshes[k]->getVertex( i );
-            if( !( !wlimits::isinf( point[0] ) && !wlimits::isinf( point[1] ) && !wlimits::isinf( point[2] ) ) )
+            if( !( !wlimits::isInf( point[0] ) && !wlimits::isInf( point[1] ) && !wlimits::isInf( point[2] ) ) )
             {
                 WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Write Mesh", LL_ERROR );
                 return false;
@@ -283,7 +283,7 @@ bool WMWriteMesh::saveJson()
         for( size_t i = 0; i < meshes[k]->vertSize() - 1; ++i )
         {
             normal = meshes[k]->getNormal( i );
-            if( !( !wlimits::isinf( normal[0] ) && !wlimits::isinf( normal[1] ) && !wlimits::isinf( normal[2] ) ) )
+            if( !( !wlimits::isInf( normal[0] ) && !wlimits::isInf( normal[1] ) && !wlimits::isInf( normal[2] ) ) )
             {
                 WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Write Mesh", LL_ERROR );
                 return false;
