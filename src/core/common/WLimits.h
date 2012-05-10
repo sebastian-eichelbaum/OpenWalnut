@@ -65,7 +65,7 @@ namespace wlimits
      *
      * \return True if the value is a NaN, false otherwise.
      */
-    template< typename T > bool isnan( T value );
+    template< typename T > bool isNaN( T value );
 
     /**
      * Determines if a number is considered as infinity or not.
@@ -76,15 +76,15 @@ namespace wlimits
      *
      * \return True if the value is infinity, false otherwise.
      */
-    template< typename T > bool isinf( T value );
+    template< typename T > bool isInf( T value );
 }
 
-template< typename T > bool wlimits::isnan( T value )
+template< typename T > bool wlimits::isNaN( T value )
 {
     return boost::math::isnan( value );
 }
 
-template< typename T > bool wlimits::isinf( T value )
+template< typename T > bool wlimits::isInf( T value )
 {
     return boost::math::isinf( value );
 }

@@ -37,7 +37,6 @@
 #include <osg/Texture3D>
 
 #include "callbacks/WGEFunctorCallback.h"
-#include "../common/WLimits.h"
 #include "../common/WBoundingBox.h"
 #include "../common/WProperties.h"
 #include "../common/WPropertyHelper.h"

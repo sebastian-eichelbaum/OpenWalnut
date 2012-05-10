@@ -379,6 +379,12 @@ private:
      * The module currently active
      */
     WModule::SPtr m_activeModule;
+
+    /**
+     * The title of the last selected tab in the control panel. This needs to be done using the tab name as the tab index is not consistent(
+     * depending on the number of tabs. Sometimes, some tabs are not visible).
+     */
+    QString m_previousTab;
 private slots:
     /**
      * function that gets called when a tree item is selected, on a new select that tab widget
