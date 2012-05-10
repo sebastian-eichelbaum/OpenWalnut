@@ -35,13 +35,13 @@ WDataSetDipole::WDataSetDipole()
 }
 
 WDataSetDipole::WDataSetDipole( WPosition dipPos, std::vector<float> mags, std::vector<float> times )
-    : m_dipolePosition( dipPos ), m_magnitudes( mags ), m_times( times )
 {
     WAssert( mags.size() == times.size(), "There has to be a magnitude for every time and vice versa." );
     for( size_t id = 0; id < times.size() - 1; ++id )
     {
         WAssert( times[id] < times[id+1], "Times need to be ascending." );
     }
+    addDipole( dipPos, mags, times );
 }
 
 WDataSetDipole::~WDataSetDipole()
@@ -58,30 +58,48 @@ boost::shared_ptr< WPrototyped > WDataSetDipole::getPrototype()
     return m_prototype;
 }
 
-WPosition WDataSetDipole::getPosition()
+size_t WDataSetDipole::addDipole( WPosition dipPos, std::vector<float> mags, std::vector<float> times )
 {
-    return m_dipolePosition;
+    Dipole dipole;
+    dipole.m_dipolePosition = dipPos;
+    dipole.m_magnitudes = mags;
+    dipole.m_times = times;
+    m_dipoles.push_back( dipole );
+    return m_dipoles.size() - 1;
 }
 
-float WDataSetDipole::getMagnitude( float time )
+WPosition WDataSetDipole::getPosition( size_t dipoleId )
 {
-    if( time < m_times[0] || time > m_times.back() )
+    return m_dipoles[dipoleId].m_dipolePosition;
+}
+
+size_t WDataSetDipole::getNumberOfDipoles()
+{
+    return m_dipoles.size();
+}
+
+float WDataSetDipole::getMagnitude( float time, size_t dipoleId )
+{
+    std::vector<float>& times = m_dipoles[dipoleId].m_times;
+    std::vector<float>& magnitudes = m_dipoles[dipoleId].m_magnitudes;
+
+    if( time < times[0] || time > times.back() )
     {
         return 0;
     }
     else
     {
         size_t upperBoundId;
-        for( size_t id = 0; id < m_times.size(); ++id )
+        for( size_t id = 0; id < times.size(); ++id )
         {
-            if( time < m_times[id] )
+            if( time < times[id] )
             {
                 upperBoundId = id - 1;
                 break;
             }
         }
-        float scale = ( time - m_times[upperBoundId-1] ) / ( m_times[upperBoundId] - m_times[upperBoundId-1] );
-        float magnitude = m_magnitudes[upperBoundId-1] + scale * ( m_magnitudes[upperBoundId] - m_magnitudes[upperBoundId-1] );
+        float scale = ( time - times[upperBoundId-1] ) / ( times[upperBoundId] - times[upperBoundId-1] );
+        float magnitude = magnitudes[upperBoundId-1] + scale * ( magnitudes[upperBoundId] - magnitudes[upperBoundId-1] );
         return magnitude;
     }
 }

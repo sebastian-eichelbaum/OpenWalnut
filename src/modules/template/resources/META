@@ -28,13 +28,13 @@
 // NOTE: everything but the module name is optional, even if this makes no
 //       sense at all.
 
-// This defines some properties of the module "Navigation Slices". This must
-// match the name specified in WMNavigationSlices::getName().
-"Navigation Slices"
+// This defines some properties of the module "Template". This must
+// match the name specified in WMTemplate::getName().
+"Template"
 {
   // Provide an icon. If the icon exists, it overrides the one provided by your
   // getIcon method. This path is relative to your module's resource directory.
-  icon="navslices.png";
+  icon="WMTeamplate.png";
 
   // Where to find the module?
   website = "http://www.openwalnut.org";
@@ -43,11 +43,10 @@
   // provided by your getDescription method.
   // HINT: multi-line strings are not supported. Please provide long texts in
   //       one line.
-  description = "This module shows all loaded datesets sliced using three, orthogonally oriented slices. It allows navigation through datasets to get a first impression of them. It supports all properties a data colormap allows and respects them during rendering.";
+  description = "This module is intended to be THE reference module. If you would like to program your own modules, you should look at this module's source.";
 
-  // Help file. This should be an HTML or TXT document. Only one help file is allowed.
-  // We currently have no help :-/
-  // help ="help/index.html";
+  // Help file. This should be an HTML or TXT document. Only one document allowed.
+  help ="help/index.html";
 
   // Provide a list of authors. These authors can have further information associated with them.
   author = "OpenWalnut Project";
@@ -70,8 +69,8 @@
   // Provide some tags to have modules nicely grouped and ordered.
   // NOTE: tags are handled case insesitive.
   // IMPORTANT: the order of appearance will be used by OW to classify your tags
-  tag = "Navigation";
-  tag = "MRT";
+  tag = "MRI";
+  tag = "fMRI";
 
   // You can provide online resources. They are shown in the GUI. You should
   // additionally provide a description to help the user know what this is.
@@ -101,8 +100,8 @@
   // You can also provide screenshots with an optional description. Multiple screenshots allowed.
   screenshot
   {
-      description = "Navigation Slices showing a scalar T1 Dataset.";
-      filename = "t1.png";
+      description = "The rendering created by this module. It demonstrates simple OpenSceneGraph usage.";
+      filename = "template.png";
   };
 };
 

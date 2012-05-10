@@ -70,7 +70,8 @@
 WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     : QDockWidget( "Control Panel", parent ),
     m_ignoreSelectionChange( false ),
-    m_activeModule( WModule::SPtr() )
+    m_activeModule( WModule::SPtr() ),
+    m_previousTab()
 {
     setObjectName( "Control Panel Dock" );
 
@@ -874,6 +875,45 @@ void WQtControlPanel::setActiveModule( WModule::SPtr module, bool forceUpdate )
         buildPropTab( module->getProperties(), module->getInformationProperties() );
     }
 
+    // re-select the previous tab
+    bool foundTab = false;
+    std::map< QString, int > priorityList;
+    if( m_previousTab != "" )
+    {
+        // search the tab with the previous title
+        for( size_t idx = 0; idx < m_tabWidget->count(); ++idx )
+        {
+            if( m_tabWidget->tabText( idx ) == m_previousTab )
+            {
+                m_tabWidget->setCurrentIndex( idx );
+                foundTab = true;
+                break;
+            }
+
+            // keep track of the indices in the tab. we use this map later as priority list. Please not that we add 1 to the index. This ensures
+            // that the invalid index is 0, even if it is -1 in Qt.
+            priorityList[ m_tabWidget->tabText( idx ) ] = idx + 1;
+        }
+
+        if( !foundTab )
+        {
+            // the tab does not exist anymore. We need to use our priority list
+            if( priorityList[ "Settings" ] != 0 )
+            {
+                m_tabWidget->setCurrentIndex( priorityList[ "Settings" ] - 1 );
+            }
+            else if( priorityList[ "Information" ] != 0 )
+            {
+                m_tabWidget->setCurrentIndex( priorityList[ "Settings" ] - 1 );
+            }
+            else
+            {
+                // there is no info and no settings tab. Set the first tab.
+                m_tabWidget->setCurrentIndex( 0 );
+            }
+        }
+    }
+
     // update compatibles toolbar
     createCompatibleButtons( module );
 
@@ -943,13 +983,16 @@ void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boos
     int propIdx = addTabWidgetContent( tab );
 
     // select the property widget preferably
-    if( propIdx != -1 )
+    if( m_previousTab == "" )
     {
-        m_tabWidget->setCurrentIndex( propIdx );
-    }
-    else if( infoIdx != -1 )
-    {
-        m_tabWidget->setCurrentIndex( infoIdx );
+        if( propIdx != -1 )
+        {
+            m_tabWidget->setCurrentIndex( propIdx );
+        }
+        else if( infoIdx != -1 )
+        {
+            m_tabWidget->setCurrentIndex( infoIdx );
+        }
     }
 }
 
@@ -1240,6 +1283,11 @@ QAction* WQtControlPanel::getMissingModuleAction() const
 
 void WQtControlPanel::clearAndDeleteTabs()
 {
+    if( m_tabWidget->currentIndex() != -1 )
+    {
+        m_previousTab = m_tabWidget->tabText( m_tabWidget->currentIndex() );
+    }
+
     m_tabWidget->setDisabled( true );
     QWidget *widget;
     while( ( widget = m_tabWidget->widget( 0 ) ))

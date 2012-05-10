@@ -133,30 +133,34 @@ std::vector< WModuleMetaInformation::Author > WModuleMetaInformation::getAuthors
 {
     std::vector< WModuleMetaInformation::Author > r;
 
+    // did we find some author info? If not, add a nice default OpenWalnut author
+    WModuleMetaInformation::Author ow = { "OpenWalnut Project", "http://www.openwalnut.org", "", "Design, Development, and Bug Fixing" };
+
     // return a default if not meta data was loaded
     if( !m_loaded )
     {
+        r.push_back( ow );
         return r;
     }
 
     // how much author information is available?
     std::vector< std::string > authors = m_metaData.getValues< std::string >( m_name + "/author" );
-    // prepare some memory
-    r.resize( authors.size() );
+
+    if( authors.empty() )
+    {
+        r.push_back( ow );
+        return r;
+    }
 
     // for each author, get some associated data if available
+    // prepare some memory
+    r.resize( authors.size() );
     for( std::vector< std::string >::const_iterator i = authors.begin(); i != authors.end(); ++i )
     {
+        r[ i - authors.begin() ].m_name = *i;
         r[ i - authors.begin() ].m_email = m_metaData.getValue< std::string >( m_name + "/" + *i + "/email", "" );
         r[ i - authors.begin() ].m_what = m_metaData.getValue< std::string >( m_name + "/" + *i + "/what", "" );
         r[ i - authors.begin() ].m_url = m_metaData.getValue< std::string >( m_name + "/" + *i + "/url", "" );
-    }
-
-    // did we find some author info? If not, add a nice default OpenWalnut author
-    if( !r.size() )
-    {
-        WModuleMetaInformation::Author ow = { "OpenWalnut Project", "", "http://www.openwalnut.org", "Design, Development and Bug fixing" };
-        r.push_back( ow );
     }
 
     return r;
@@ -208,5 +212,40 @@ std::vector< std::string > WModuleMetaInformation::getTags() const
 
     // find key-value pair
     return m_metaData.getValues< std::string >( m_name + "/tag" );
+}
+
+std::vector< WModuleMetaInformation::Screenshot > WModuleMetaInformation::getScreenshots() const
+{
+    std::vector< WModuleMetaInformation::Screenshot > r;
+    // return a default if not meta data was loaded
+    if( !m_loaded )
+    {
+        return r;
+    }
+
+    // get the "screenshot"-subtrees
+    typedef std::vector< WStructuredTextParser::StructuredValueTree > TreeList;
+    TreeList screenshotInfos = m_metaData.getSubTrees( m_name + "/screenshot" );
+    for( TreeList::const_iterator i = screenshotInfos.begin(); i != screenshotInfos.end(); ++i )
+    {
+        WModuleMetaInformation::Screenshot s;
+
+        // get all info:
+
+        // these are required
+        s.m_filename = ( *i ).getValue< boost::filesystem::path >( "filename", "" );
+        if( s.m_filename.empty() )
+        {
+            continue;
+        }
+
+        // optional
+        s.m_description = ( *i ).getValue< std::string >( "description", "" );
+
+        // add
+        r.push_back( s );
+    }
+
+    return r;
 }
 

@@ -58,6 +58,57 @@
 namespace string_utils
 {
     /**
+     * Conversion class to convert a string to a given target type. We place this in separate classes as we are not allowed to specialize
+     * function templates. But we need specializations for certain cases.
+     *
+     * \tparam Target target type
+     */
+    template< typename Target >
+    struct fromStringImpl
+    {
+        /**
+         * Convert a given string to the target type. If this fails, a exception is thrown.
+         *
+         * \throw WTypeMismatch if source string cannot be converted to target type value.
+         *
+         * \param from source string
+         *
+         * \return target value
+         */
+        static Target fromString( const std::string& from )
+        {
+            std::stringstream ss( from );
+            Target value;
+            ss >> value;
+            if( ss.fail() )
+            {
+                throw WTypeMismatch( "Specified string could not be converted to target type." );
+            }
+
+            return value;
+        }
+    };
+
+    /**
+     * Conversion class to convert a string to a given target type. This is a specialization whenever a string is given as input type
+     */
+    template<>
+    struct fromStringImpl< std::string >
+    {
+        /**
+         * Convert a given string to the target type. Never fails.
+         *
+         * \param from source string
+         *
+         * \return copy of the source string
+         */
+        static std::string fromString( const std::string& from )
+        {
+            return from;
+        }
+    };
+
+    /**
      * Convert a given value to a string. The input value must provide a operator<< or be a standard scalar type.
      *
      * \tparam T the source type. You do not need to specify this directly as it can be deducted from the given parameter
@@ -106,14 +157,7 @@ namespace string_utils
     template< typename T >
     inline T fromString( const std::string& str )
     {
-        std::stringstream ss( str );
-        T value;
-        ss >> value;
-        if( ss.fail() )
-        {
-            throw WTypeMismatch( "Specified string could not be converted to target type." );
-        }
-        return value;
+        return fromStringImpl< T >::fromString( str );
     }
 
     /** We consider the following characters as whitespace:
@@ -185,8 +229,8 @@ namespace string_utils
      * \return A vector of strings containing the tokens.
      */
     std::vector< std::string > tokenize( const std::string& source,
-                                                       const std::string& delim = WHITESPACE,
-                                                       bool compress = true );
+                                         const std::string& delim = WHITESPACE,
+                                         bool compress = true );
 
     /**
      * Writes every vector to an output stream such as cout, if its elements

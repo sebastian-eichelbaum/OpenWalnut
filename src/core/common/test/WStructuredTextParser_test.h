@@ -25,6 +25,7 @@
 #ifndef WSTRUCTUREDTEXTPARSER_TEST_H
 #define WSTRUCTUREDTEXTPARSER_TEST_H
 
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -139,8 +140,10 @@ public:
         // query only values here.
 
         // this MUST return the first found value
-        TS_ASSERT( t.getValue< std::string >( "level0/notuniquekv", "default" ) == "hello" );
+        TS_ASSERT_EQUALS( t.getValue< std::string >( "level0/notuniquekv", "default" ), "hello hallo" );
+
         TS_ASSERT( t.getValue< std::string >( "level0/notuniquelevel1/somekv", "default" ) == "abc" );
+        TS_ASSERT_EQUALS( t.getValue< std::string >( "level0/uniquekv", "default" ), "hello" );
 
         // even if the object name is not unique, it needs to find the unique key value pair
         TS_ASSERT( t.getValue< std::string >( "level0/notuniquelevel1/unique", "default" ) == "yes" );

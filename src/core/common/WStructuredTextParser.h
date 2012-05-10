@@ -49,7 +49,7 @@
 #include "exceptions/WNotFound.h"
 
 /**
- * This namespace contains the WStructuredTextParser data types and the parser. It builds up the abstract syntax tree (AST) 
+ * This namespace contains the WStructuredTextParser data types and the parser. It builds up the abstract syntax tree (AST)
  * for the given input which later can be traversed.
  */
 namespace WStructuredTextParser
@@ -186,14 +186,14 @@ namespace WStructuredTextParser
         explicit Grammar( std::ostream& error ): Grammar::base_type( file, "WStructuredTextParser::Grammar" ) // NOLINT - non-const ref
         {
             // a key begins with a letter
-            key    %=  qi::char_( "a-zA-Z_" ) >> *qi::char_( "a-zA-Z_0-9" );
+            key    %= qi::char_( "a-zA-Z_" ) >> *qi::char_( "a-zA-Z_0-9" );
             // a value is a quoted string. Multi-line strings possible
-            value  %=  qi::lexeme[ '"' >> +( qi::char_ - '"' ) >> '"' ];
+            value  %= '"' >> *( ~qi::char_( "\"" ) | qi::char_( " " ) ) >> '"';
+
             // a pair is: key = value
-            kvpair %=  key >> '=' >> value >> ';';
+            kvpair %= key >> '=' >> value >> ';';
             // a comment is // + arbitrary symbols
-            comment %= qi::lexeme[ qi::char_( "/" ) >> qi::char_( "/" ) ] >>
-                       qi::lexeme[ *qi::char_( "a-zA-Z_0-9!\"#$%&'()*,:;<>?@\\^`{|}~/ .@=[]§!+-" ) ];
+            comment %= qi::lexeme[ qi::char_( "/" ) >> qi::char_( "/" ) >> *qi::char_( "a-zA-Z_0-9!\"#$%&'()*,:;<>?@\\^`{|}~/ .@=[]§!+-" ) ];
             // a object is a name, and a set of nested objects or key-value pairs
             object %= ( key | value ) >> '{' >> *( object | kvpair | comment ) >> '}' >> *qi::char_( ";" );
             // a file is basically an object without name.
@@ -247,7 +247,7 @@ namespace WStructuredTextParser
         /**
          * Value rule. See constructor for exact definition.
          */
-        qi::rule< Iterator, ValueType(), ascii::space_type > value;
+        qi::rule< Iterator, ValueType() > value;
     };
 
     /**

@@ -1,16 +1,31 @@
 #!/bin/sh
 
+
 # get path of this script
 BINDIR=`dirname "$0"`
+cd "$BINDIR/.."
 
-# assume that this script is in the bin dir
-# go there to ensure walnuts working directory is set correctly
-cd "$BINDIR"
+# We want to avoid that multiple system installations of OpenWalnut cause some weird loading of libs. We want ours (relative to our executable) to be loaded:  
+Libs="libopenwalnut_biosig.so.1 libopenwalnut_eep.so.1 libopenwalnut_niftiio.so.1 libopenwalnut_niftiznz.so.1"                                                 
+# Well, this one needs to be there! If not, your installation is wrong.
+Preloads="lib/libopenwalnut.so.1"
+# We need to ensure the libs are there. If not, do not add them to the preloads variable                                                                       
+for lib in $Libs
+do
+    if [ -e "lib/$lib" ]; then
+        Preloads=$Preloads:lib/$lib
+    fi
+done
+# Finally, export it
+export LD_PRELOAD=$Preloads
+
+# Force C locale. This fixes an issue with newer boost versions. See ticket #130.                                                                              
+export LC_ALL=C
 
 
 PARAMS="$*"
 echo "Parameters: $PARAMS"
 
 # run walnut
-kdbg -a "$PARAMS" openwalnut-qt4
+kdbg -a "$PARAMS" bin/openwalnut-qt4
 

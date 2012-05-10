@@ -29,6 +29,7 @@
 #include "core/common/WStringUtils.h"
 #include "core/common/math/WMath.h"
 #include "core/common/WPathHelper.h"
+#include "core/common/WLimits.h"
 #include "core/kernel/WKernel.h"
 #include "WMWriteMesh.xpm"
 #include "WMWriteMesh.h"
@@ -186,7 +187,7 @@ bool WMWriteMesh::saveVTKASCII() const
     for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
     {
         point = m_triMesh->getVertex( i );
-        if( !( myIsfinite( point[0] ) && myIsfinite( point[1] ) && myIsfinite( point[2] ) ) )
+        if( !( !wlimits::isInf( point[0] ) && !wlimits::isInf( point[1] ) && !wlimits::isInf( point[2] ) ) )
         {
             WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Write Mesh", LL_ERROR );
             return false;
@@ -267,7 +268,7 @@ bool WMWriteMesh::saveJson()
         for( size_t i = 0; i < meshes[k]->vertSize() - 1; ++i )
         {
             point = meshes[k]->getVertex( i );
-            if( !( myIsfinite( point[0] ) && myIsfinite( point[1] ) && myIsfinite( point[2] ) ) )
+            if( !( !wlimits::isInf( point[0] ) && !wlimits::isInf( point[1] ) && !wlimits::isInf( point[2] ) ) )
             {
                 WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Write Mesh", LL_ERROR );
                 return false;
@@ -282,7 +283,7 @@ bool WMWriteMesh::saveJson()
         for( size_t i = 0; i < meshes[k]->vertSize() - 1; ++i )
         {
             normal = meshes[k]->getNormal( i );
-            if( !( myIsfinite( normal[0] ) && myIsfinite( normal[1] ) && myIsfinite( normal[2] ) ) )
+            if( !( !wlimits::isInf( normal[0] ) && !wlimits::isInf( normal[1] ) && !wlimits::isInf( normal[2] ) ) )
             {
                 WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Write Mesh", LL_ERROR );
                 return false;

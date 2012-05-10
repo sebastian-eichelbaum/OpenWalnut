@@ -104,6 +104,22 @@ public:
     };
 
     /**
+     * Structure to encapsulate a screenshot info
+     */
+    struct Screenshot
+    {
+        /**
+         * The screenshot filename
+         */
+        boost::filesystem::path m_filename;
+
+        /**
+         * The description text shown for the screenshot.
+         */
+        std::string m_description;
+    };
+
+    /**
      * Constructor. The help object will be empty, meaning there is no further meta info available. The name is the only required value. Of
      * course, this is of limited use in most cases.
      *
@@ -179,6 +195,13 @@ public:
      * \return the tag list.
      */
     std::vector< std::string > getTags() const;
+
+    /**
+     * Returns the list of screenshots.
+     *
+     * \return the screenshot list.
+     */
+    std::vector< Screenshot > getScreenshots() const;
 protected:
 private:
     /**

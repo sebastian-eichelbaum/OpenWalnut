@@ -26,6 +26,7 @@
 #define WMREADDIPOLES_H
 
 #include <string>
+#include <vector>
 
 #include <osg/Geode>
 
@@ -109,12 +110,34 @@ protected:
 
 private:
     /**
-     * Function doing the actual reading
+     * Function that composes the data read by readFile() from the different files to one WDataSetDipole
      *
-     * \param filename Name and location of file to read.
+     * \param filenames Names and locations of files to read.
      * \return A pointer to the loaded dataset
      */
-    boost::shared_ptr< WDataSetDipole > readData( std::string filename );
+    boost::shared_ptr< WDataSetDipole > readFiles( std::vector< std::string > filenames );
+
+    /**
+     * Function doing the actual reading from one file
+     *
+     * \param filename Name and locations of file to read.
+     * \param pos position of the dipole
+     * \param times time values of the time steps
+     * \param magnitudes magnitudes of the dipole at the different time steps.
+     * \return A pointer to the loaded dataset
+     */
+    void readFile( std::string filename,
+                   WPosition* pos,
+                   std::vector< float >* times,
+                   std::vector< float >* magnitudes );
+
+    /**
+     * Function reading meta file with filenames of dipole files
+     *
+     * \param filename Name and location of meta file to read.
+     * \return A pointer to the loaded dataset
+     */
+    boost::shared_ptr< WDataSetDipole > readMetaData( std::string filename );
 
     /**
      * Output connector for dipoles of EEG data
@@ -128,6 +151,7 @@ private:
 
     boost::shared_ptr< WCondition > m_propCondition;  //!< A condition used to notify about changes in several properties.
     WPropFilename m_dataFile; //!< The data will be read from this file.
+    WPropBool m_metaFile; //!< Use meta file containing fileNames.
 };
 
 #endif  // WMREADDIPOLES_H

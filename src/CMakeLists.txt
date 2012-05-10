@@ -152,5 +152,8 @@ ENDIF()
 # Modules
 
 # build modules
-ADD_SUBDIRECTORY( modules )
+OPTION( OW_MODULE_BUILD "Enable this to build the modules." ON )
+IF( OW_MODULE_BUILD )
+  ADD_SUBDIRECTORY( modules )
+ENDIF()
 

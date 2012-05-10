@@ -291,7 +291,7 @@ bool WMSplineSurface::save() const
     //    for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
     //    {
     //        point = m_triMesh->getVertex( i );
-    //        if( !( myIsfinite( point[0] ) && myIsfinite( point[1] ) && myIsfinite( point[2] ) ) )
+    //        if( !( !wlimits::isInf( point[0] ) && !wlimits::isInf( point[1] ) && !wlimits::isInf( point[2] ) ) )
     //        {
     //            WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Marching Cubes", LL_ERROR );
     //            return false;
