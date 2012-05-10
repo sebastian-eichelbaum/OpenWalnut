@@ -81,6 +81,8 @@ void WMReadDipoles::properties()
     m_dataFile = m_properties->addProperty( "File", "", WPathHelper::getAppPath(), m_propCondition );
     WPropertyHelper::PC_PATHEXISTS::addTo( m_dataFile );
 
+    m_metaFile = m_properties->addProperty( "Use meta file", "File containing multiple filenames to load.", true );
+
     WModule::properties();
 }
 
@@ -104,7 +106,14 @@ void WMReadDipoles::moduleMain()
 
         boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Read Dipoles", 2 ) );
         ++*progress;
-        m_dataSet = readData( m_dataFile->get().string() );
+        if( !m_metaFile->get() )
+        {
+            m_dataSet = readFiles( std::vector< std::string >( 1, m_dataFile->get().string() ) );
+        }
+        else
+        {
+            m_dataSet = readMetaData( m_dataFile->get().string() );
+        }
         ++*progress;
         m_dipoles->updateData( m_dataSet );
         progress->finish();
@@ -112,7 +121,27 @@ void WMReadDipoles::moduleMain()
 }
 
 
-boost::shared_ptr< WDataSetDipole > WMReadDipoles::readData( std::string filename )
+boost::shared_ptr< WDataSetDipole > WMReadDipoles::readMetaData( std::string filename )
+{
+    std::vector< std::string > names;
+    std::ifstream ifs;
+    ifs.open( filename.c_str(), std::ifstream::in );
+    if( !ifs || ifs.bad() )
+    {
+        throw WDHIOFailure( std::string( "Internal error while opening file" ) );
+    }
+    std::string line;
+
+    while( std::getline( ifs, line ) )
+    {
+        names.push_back( line );
+    }
+    ifs.close();
+
+    return readFiles( names );
+}
+
+void WMReadDipoles::readFile( std::string filename, WPosition* pos, std::vector< float >* times, std::vector< float >* magnitudes )
 {
     std::ifstream ifs;
     ifs.open( filename.c_str(), std::ifstream::in );
@@ -144,23 +173,19 @@ boost::shared_ptr< WDataSetDipole > WMReadDipoles::readData( std::string filenam
     float timeFirst = string_utils::fromString< float >( tokens[0].c_str() );
     float timeDistance = string_utils::fromString< float >( tokens[1].c_str() );
     float timeLast = string_utils::fromString< float >( tokens[2].c_str() );
-    std::vector< float > times( nbTimeSteps );
+    times->resize( nbTimeSteps );
     for( size_t timeStep = 0; timeStep < nbTimeSteps; ++timeStep )
     {
-        times[timeStep] = timeFirst + timeStep * timeDistance;
+        (*times)[timeStep] = timeFirst + timeStep * timeDistance;
     }
-    std::cout << times[nbTimeSteps-1]<< " " << timeLast << std::endl;
-    WAssert( std::abs( times[nbTimeSteps-1] - timeLast ) < 1e-4, "Error during filling times vector." );
+    WAssert( std::abs( (*times)[nbTimeSteps-1] - timeLast ) < 1e-4, "Error during filling times vector." );
 
     while( line.find( "PositionsFixed" ) )
     {
        std::getline( ifs, line, '\n' );
     }
 
-    WPosition pos;
-    ifs >> pos[0] >> pos[1] >> pos[2];
-
-    std::vector< float > magnitudes;
+    ifs >> (*pos)[0] >> (*pos)[1] >> (*pos)[2];
 
     while( line.find( "Magnitudes" ) )
     {
@@ -168,18 +193,33 @@ boost::shared_ptr< WDataSetDipole > WMReadDipoles::readData( std::string filenam
     }
     std::getline( ifs, line, '\n' );
 
+    magnitudes->clear();
     tokens = string_utils::tokenize( line );
     for( unsigned int tokenId = 0; tokenId < tokens.size(); ++tokenId )
     {
-        magnitudes.push_back( string_utils::fromString< float >( tokens[tokenId].c_str() ) );
+        magnitudes->push_back( string_utils::fromString< float >( tokens[tokenId].c_str() ) );
     }
 
-    WAssert( magnitudes.size() == nbTimeSteps, "Number of time steps and magnitudes must be equal" );
-    WAssert( times.size() == nbTimeSteps, "Number of time steps and times must be equal" );
+    WAssert( magnitudes->size() == nbTimeSteps, "Number of time steps and magnitudes must be equal" );
+    WAssert( times->size() == nbTimeSteps, "Number of time steps and times must be equal" );
 
     ifs.close();
+}
 
+boost::shared_ptr< WDataSetDipole > WMReadDipoles::readFiles( std::vector< std::string > filenames )
+{
+    WPosition pos;
+    std::vector< float > times;
+    std::vector< float > magnitudes;
+
+    readFile( filenames[0], &pos, &times, &magnitudes );
     boost::shared_ptr< WDataSetDipole > loadedData( new WDataSetDipole( pos, magnitudes, times ) );
+
+    for( size_t fileId = 1; fileId < filenames.size(); ++fileId )
+    {
+        readFile( filenames[fileId], &pos, &times, &magnitudes );
+        loadedData->addDipole( pos, times, magnitudes );
+    }
 
     return loadedData;
 }

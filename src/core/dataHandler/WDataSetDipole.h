@@ -43,7 +43,8 @@ public:
     WDataSetDipole();
 
     /**
-     * Creates a new dipole with given information and checks consistency of the information.
+     * Creates a new dipole data set containing one dipole
+     * with the given information and checks consistency of the information.
      *
      * \param dipPos Spatial location of the dipole
      * \param mags Magnitudes of dipole over time
@@ -64,19 +65,39 @@ public:
     static boost::shared_ptr< WPrototyped > getPrototype();
 
     /**
+     * Adds a new dipole with given information and checks consistency of the information.
+     *
+     * \param dipPos Spatial location of the dipole
+     * \param mags Magnitudes of dipole over time
+     * \param times Times for the dipole activity
+     *
+     * \return Id of the added dipole.
+     */
+    size_t addDipole( WPosition dipPos, std::vector<float> mags, std::vector<float> times );
+
+    /**
      * Return position of dipole.
      *
+     * \param dipoleId Id number of dipole
      * \return Position of the dipole.
      */
-    WPosition getPosition();
+    WPosition getPosition( size_t dipoleId = 0 );
 
     /**
      * Return magnitude of dipole for a given time.
      *
      * \param time The selected time.
+     * \param dipoleId Id number of dipole
      * \return Magnitude of the dipole.
      */
-    float getMagnitude( float time );
+    float getMagnitude( float time, size_t dipoleId = 0 );
+
+    /**
+     * Return number of dipoles in this dataset
+     *
+     * \return number of dipoles in this dataset.
+     */
+    size_t getNumberOfDipoles();
 
 protected:
     /**
@@ -85,9 +106,18 @@ protected:
     static boost::shared_ptr< WPrototyped > m_prototype;
 
 private:
-    WPosition m_dipolePosition; //!< The location of the dipole
-    std::vector<float> m_magnitudes; //!< The magnitude of the dipole
-    std::vector<float> m_times; //!< Times for the different magnitudes
+    /**
+     * Internal class representing one dipole
+     */
+    class Dipole
+    {
+    public:
+        WPosition m_dipolePosition; //!< The location of the dipole
+        std::vector<float> m_magnitudes; //!< The magnitude of the dipole
+        std::vector<float> m_times; //!< Times for the different magnitudes
+    };
+
+    std::vector< Dipole > m_dipoles; //!< List of dipoles representeing this dipoles dataset
 };
 
 #endif  // WDATASETDIPOLE_H
