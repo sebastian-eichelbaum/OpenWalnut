@@ -29,7 +29,7 @@
 #include <osg/ShapeDrawable>
 #include <osgSim/ColorRange>
 
-#include "core/dataHandler/WDataSetDipole.h"
+#include "core/dataHandler/WDataSetDipoles.h"
 #include "core/dataHandler/WEEG2.h"
 #include "core/dataHandler/WEEG2Segment.h"
 #include "core/dataHandler/WEEGChannelInfo.h"
@@ -97,7 +97,7 @@ void WMEEGView::connectors()
         shared_from_this(), "EEG recording", "Loaded EEG-dataset." ) );
     addConnector( m_input );
 
-    m_dipoles = boost::shared_ptr< WModuleInputData< WDataSetDipole > >( new WModuleInputData< WDataSetDipole >(
+    m_dipoles = boost::shared_ptr< WModuleInputData< WDataSetDipoles > >( new WModuleInputData< WDataSetDipoles >(
         shared_from_this(), "Dipoles", "The reconstructed dipoles for the EEG." ) );
     addConnector( m_dipoles );
 

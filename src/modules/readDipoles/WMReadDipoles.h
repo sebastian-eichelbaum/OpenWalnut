@@ -34,7 +34,7 @@
 #include "core/kernel/WModuleInputData.h"
 #include "core/kernel/WModuleOutputData.h"
 
-class WDataSetDipole;
+class WDataSetDipoles;
 
 /**
  * Someone should add some documentation here.
@@ -110,12 +110,12 @@ protected:
 
 private:
     /**
-     * Function that composes the data read by readFile() from the different files to one WDataSetDipole
+     * Function that composes the data read by readFile() from the different files to one WDataSetDipoles
      *
      * \param filenames Names and locations of files to read.
      * \return A pointer to the loaded dataset
      */
-    boost::shared_ptr< WDataSetDipole > readFiles( std::vector< std::string > filenames );
+    boost::shared_ptr< WDataSetDipoles > readFiles( std::vector< std::string > filenames );
 
     /**
      * Function doing the actual reading from one file
@@ -137,17 +137,17 @@ private:
      * \param filename Name and location of meta file to read.
      * \return A pointer to the loaded dataset
      */
-    boost::shared_ptr< WDataSetDipole > readMetaData( std::string filename );
+    boost::shared_ptr< WDataSetDipoles > readMetaData( std::string filename );
 
     /**
      * Output connector for dipoles of EEG data
      */
-    boost::shared_ptr< WModuleOutputData< WDataSetDipole > > m_dipoles;
+    boost::shared_ptr< WModuleOutputData< WDataSetDipoles > > m_dipoles;
 
     /**
      * Pointer to the loaded dataset
      */
-    boost::shared_ptr< WDataSetDipole > m_dataSet;
+    boost::shared_ptr< WDataSetDipoles > m_dataSet;
 
     boost::shared_ptr< WCondition > m_propCondition;  //!< A condition used to notify about changes in several properties.
     WPropFilename m_dataFile; //!< The data will be read from this file.

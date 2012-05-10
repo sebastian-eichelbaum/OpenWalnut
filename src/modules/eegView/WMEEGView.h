@@ -129,7 +129,7 @@ private:
     /**
      * Input connector for dipoles of EEG data
      */
-    boost::shared_ptr< WModuleInputData< WDataSetDipole > > m_dipoles;
+    boost::shared_ptr< WModuleInputData< WDataSetDipoles > > m_dipoles;
 
     /**
      * A condition used to notify about changes in several properties.

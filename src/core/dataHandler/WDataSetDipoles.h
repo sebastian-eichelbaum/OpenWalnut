@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATASETDIPOLE_H
-#define WDATASETDIPOLE_H
+#ifndef WDATASETDIPOLES_H
+#define WDATASETDIPOLES_H
 
 #include <vector>
 
@@ -34,13 +34,13 @@
 /**
  * Represents a dipole dataset.
  */
-class WDataSetDipole : public WDataSet
+class WDataSetDipoles : public WDataSet
 {
 public:
     /**
      * Creates a new dipole dataset.
      */
-    WDataSetDipole();
+    WDataSetDipoles();
 
     /**
      * Creates a new dipole data set containing one dipole
@@ -50,12 +50,12 @@ public:
      * \param mags Magnitudes of dipole over time
      * \param times Times for the dipole activity
      */
-    explicit WDataSetDipole( WPosition dipPos, std::vector<float> mags, std::vector<float> times );
+    explicit WDataSetDipoles( WPosition dipPos, std::vector<float> mags, std::vector<float> times );
 
     /**
      * Destructs this dataset.
      */
-    ~WDataSetDipole();
+    ~WDataSetDipoles();
 
     /**
      * Returns a prototype instantiated with the true type of the deriving class.
@@ -120,4 +120,4 @@ private:
     std::vector< Dipole > m_dipoles; //!< List of dipoles representeing this dipoles dataset
 };
 
-#endif  // WDATASETDIPOLE_H
+#endif  // WDATASETDIPOLES_H

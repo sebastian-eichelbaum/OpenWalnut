@@ -24,17 +24,17 @@
 
 #include <vector>
 
-#include "WDataSetDipole.h"
+#include "WDataSetDipoles.h"
 
 // prototype instance as singleton
-boost::shared_ptr< WPrototyped > WDataSetDipole::m_prototype = boost::shared_ptr< WPrototyped >();
+boost::shared_ptr< WPrototyped > WDataSetDipoles::m_prototype = boost::shared_ptr< WPrototyped >();
 
 
-WDataSetDipole::WDataSetDipole()
+WDataSetDipoles::WDataSetDipoles()
 {
 }
 
-WDataSetDipole::WDataSetDipole( WPosition dipPos, std::vector<float> mags, std::vector<float> times )
+WDataSetDipoles::WDataSetDipoles( WPosition dipPos, std::vector<float> mags, std::vector<float> times )
 {
     WAssert( mags.size() == times.size(), "There has to be a magnitude for every time and vice versa." );
     for( size_t id = 0; id < times.size() - 1; ++id )
@@ -44,21 +44,21 @@ WDataSetDipole::WDataSetDipole( WPosition dipPos, std::vector<float> mags, std::
     addDipole( dipPos, mags, times );
 }
 
-WDataSetDipole::~WDataSetDipole()
+WDataSetDipoles::~WDataSetDipoles()
 {
 }
 
-boost::shared_ptr< WPrototyped > WDataSetDipole::getPrototype()
+boost::shared_ptr< WPrototyped > WDataSetDipoles::getPrototype()
 {
     if( !m_prototype )
     {
-        m_prototype = boost::shared_ptr< WPrototyped >( new WDataSetDipole() );
+        m_prototype = boost::shared_ptr< WPrototyped >( new WDataSetDipoles() );
     }
 
     return m_prototype;
 }
 
-size_t WDataSetDipole::addDipole( WPosition dipPos, std::vector<float> mags, std::vector<float> times )
+size_t WDataSetDipoles::addDipole( WPosition dipPos, std::vector<float> mags, std::vector<float> times )
 {
     Dipole dipole;
     dipole.m_dipolePosition = dipPos;
@@ -68,17 +68,17 @@ size_t WDataSetDipole::addDipole( WPosition dipPos, std::vector<float> mags, std
     return m_dipoles.size() - 1;
 }
 
-WPosition WDataSetDipole::getPosition( size_t dipoleId )
+WPosition WDataSetDipoles::getPosition( size_t dipoleId )
 {
     return m_dipoles[dipoleId].m_dipolePosition;
 }
 
-size_t WDataSetDipole::getNumberOfDipoles()
+size_t WDataSetDipoles::getNumberOfDipoles()
 {
     return m_dipoles.size();
 }
 
-float WDataSetDipole::getMagnitude( float time, size_t dipoleId )
+float WDataSetDipoles::getMagnitude( float time, size_t dipoleId )
 {
     std::vector<float>& times = m_dipoles[dipoleId].m_times;
     std::vector<float>& magnitudes = m_dipoles[dipoleId].m_magnitudes;
