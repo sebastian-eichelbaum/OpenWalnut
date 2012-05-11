@@ -41,7 +41,6 @@
 #include "WQtGLWidget.h"
 #include "WSettingAction.h"
 #include "networkEditor/WQtNetworkEditor.h"
-#include "commandPrompt/WQtCommandPromptToolbar.h"
 
 // forward declarations
 class QMenuBar;
@@ -348,8 +347,6 @@ private:
     WQtControlPanel* m_controlPanel; //!< control panel
 
     WQtNetworkEditor* m_networkEditor; //!< network editor
-
-    WQtCommandPromptToolbar* m_commandPrompt; //!< command prompt
 
     boost::shared_ptr< WQtGLWidget > m_mainGLWidget; //!< the main GL widget of the GUI
     WQtGLScreenCapture* m_mainGLWidgetScreenCapture; //!< screen recorder in m_mainGLWidget

@@ -90,8 +90,8 @@ WQtGLScreenCapture::WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* par
 
     m_customWidth = new QLineEdit( "1980", this );
     m_customHeight = new QLineEdit( "1080", this );
-    m_customWidth->setValidator( new QIntValidator( 0, 4096 ) );
-    m_customHeight->setValidator( new QIntValidator( 0, 4096 ) );
+    m_customWidth->setValidator( new QIntValidator( 0, 4096, m_customWidth ) );
+    m_customHeight->setValidator( new QIntValidator( 0, 4096, m_customHeight ) );
 
     QPushButton* resolutionButton = new QPushButton( "Set" );
     resolutionButton->setCheckable( true );
