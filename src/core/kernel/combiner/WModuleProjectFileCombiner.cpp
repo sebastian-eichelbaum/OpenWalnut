@@ -399,7 +399,6 @@ void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
         for( WModule::OutputConnectorList::const_iterator citer = outs.begin(); citer != outs.end(); ++citer )
         {
             // iterate over all connections:
-            // TODO(ebaum): iterating over a protected member variable? Thats ugly. This should be adopted to WSharedObject
             boost::unique_lock<boost::shared_mutex> lock( ( *citer )->m_connectionListLock );
             for( std::set<boost::shared_ptr<WModuleConnector> >::const_iterator iciter = ( *citer )->m_connected.begin();
                   iciter != ( *citer )->m_connected.end(); ++iciter )

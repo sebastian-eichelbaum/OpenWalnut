@@ -31,8 +31,6 @@
 #include "WVectorFixed.h"
 #include "WPosition.h"
 
-//TODO(ebaum): move this somewhere else
-
 /**
  * The new dynamic vector type. It is a heap-allocated double vector with dynamic size.
  *
