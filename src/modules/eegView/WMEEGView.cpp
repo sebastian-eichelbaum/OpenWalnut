@@ -124,20 +124,30 @@ void WMEEGView::properties()
                                                     "Use proof of concept (POC) ROI positioning instead of real dipoles position.",
                                                     true,
                                                     m_propCondition );
-    m_labelsWidth      = m_properties->addProperty( "Labels width",
+    m_butterfly        = m_properties->addProperty( "Butterfly plot",
+                                                    "Overlay all curves in one row.",
+                                                    false,
+                                                    m_propCondition );
+
+
+
+    m_appearanceGroup = m_properties->addPropertyGroup( "Appearance",
+                                                              "Modification of the appearance of the EEG View widget" );
+    m_labelsWidth      = m_appearanceGroup->addProperty( "Labels width",
                                                     "The width of the label display in pixel.",
                                                     24 );
 
-    m_graphWidth       = m_properties->addProperty( "Graph width",
+    m_graphWidth       = m_appearanceGroup->addProperty( "Graph width",
                                                     "The width of the graph in pixel.",
                                                     992 );
-    m_ySpacing         = m_properties->addProperty( "Spacing",
+    m_ySpacing         = m_appearanceGroup->addProperty( "Spacing",
                                                     "The distance between two curves of the graph in pixel.",
                                                     23.0 );
 
-    m_colorSensitivity = m_properties->addProperty( "Color sensitivity",
+    m_colorSensitivity = m_appearanceGroup->addProperty( "Color sensitivity",
             "The sensitivity of the color map. It ranges from -Color Sensitivity to +Color Sensitivity in microvolt.",
                                                     23.0 );
+
 
 
     m_manualNavigationGroup = m_properties->addPropertyGroup( "Manual Navigation",
@@ -211,7 +221,7 @@ void WMEEGView::moduleMain()
     while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
         // data changed?
-        if( m_dataChanged() )
+        if( m_dataChanged() || m_butterfly->changed( true ) )
         {
             debugLog() << "Data changed";
             m_dataChanged.set( false );
@@ -456,7 +466,7 @@ void WMEEGView::redraw()
     // reset event position
     m_event->set( boost::shared_ptr< WEEGEvent >( new WEEGEvent ) );
 
-    if( m_eeg.get() && 0 < m_eeg->getNumberOfSegments() )
+    if( m_eeg.get() && m_eeg->getNumberOfSegments() > 0 )
     {
         const float text2dOffset = 2.0f;
         const float text2dSize = 32.0f;
@@ -480,9 +490,18 @@ void WMEEGView::redraw()
         size_t nbSamples = segment->getNumberOfSamples();
         debugLog() << "    Number of Samples: " << nbSamples;
 
+        const float heightConstant = 736.0;
         // reset and adjust properties to given dataset
-        m_ySpacing->set( 736.0 / nbChannels );
-        m_yPos->set( 368.0 / nbChannels - 736.0 );
+        if( m_butterfly->get() )
+        {
+            m_ySpacing->set( 0 );
+            m_yPos->set( -heightConstant / nbChannels );
+        }
+        else
+        {
+            m_ySpacing->set( heightConstant / nbChannels );
+            m_yPos->set( ( heightConstant * 0.5 ) / nbChannels - heightConstant );
+        }
         m_timePos->set( 0.0 );
         m_timePos->setMax( nbSamples / rate );
 

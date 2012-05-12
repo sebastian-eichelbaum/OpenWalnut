@@ -142,6 +142,11 @@ private:
     WPropGroup m_manualNavigationGroup;
 
     /**
+     * Group for parameters that adjust the appearance of the EEG widget
+     */
+    WPropGroup m_appearanceGroup;
+
+    /**
      * Property determining whether electode positions should be drawn.
      */
     WPropBool m_drawElectrodes;
@@ -157,9 +162,14 @@ private:
     WPropBool m_drawLabels;
 
     /**
-     * Property determining whetherwe only show the proof of concept or the real dipoles
+     * Property determining whether we only show the proof of concept or the real dipoles
      */
     WPropBool m_proofOfConcept;
+
+    /**
+     * Property switching between standard and butterfly plot of curves (overlay of all curves in one row)
+     */
+    WPropBool m_butterfly;
 
     /**
      * the width of the label display in pixel as property
