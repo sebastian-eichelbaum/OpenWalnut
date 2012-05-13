@@ -128,7 +128,12 @@ void WMEEGView::properties()
                                                     "Overlay all curves in one row.",
                                                     false,
                                                     m_propCondition );
-
+    m_ROIsize          = m_properties->addProperty( "ROI size",
+                                                    "The width ROI box.",
+                                                    10.0,
+                                                    m_propCondition );
+    m_ROIsize->setMin( 0.0 );
+    m_ROIsize->setMax( 50.0 );
 
 
     m_appearanceGroup = m_properties->addPropertyGroup( "Appearance",
@@ -214,6 +219,7 @@ void WMEEGView::moduleMain()
 
 
     createColorMap();
+    m_ROIsize->get( true ); // reset changed state
 
     // signal ready
     ready();
@@ -291,7 +297,8 @@ void WMEEGView::moduleMain()
 
         // event position changed?
         boost::shared_ptr< WEEGEvent > event = m_event->get();
-        if( event && event->getTime() != m_currentEventTime )
+        if( ( event && event->getTime() != m_currentEventTime )
+            || m_ROIsize->changed() )
         {
             debugLog() << "New event position: " << event->getTime();
 
@@ -305,17 +312,19 @@ void WMEEGView::moduleMain()
                 if( m_proofOfConcept->get() )
                 {
                     WPosition position = m_sourceCalculator->calculate( event );
-                    m_roi = new WROIBox( position - WVector3d( 5.0, 5.0, 5.0 ),
-                                         position + WVector3d( 5.0, 5.0, 5.0 ) );
+                    float halfWidth = m_ROIsize->get( true ) * 0.5;
+                    m_roi = new WROIBox( position - WVector3d( halfWidth, halfWidth, halfWidth ),
+                                         position + WVector3d( halfWidth, halfWidth, halfWidth ) );
                     WKernel::getRunningKernel()->getRoiManager()->addRoi( m_roi );
                 }
                 else if( m_dipoles->getData() )
                 {
                     if( m_dipoles->getData()->getMagnitude( event->getTime() ) != 0 )
                     {
+                        float halfWidth = m_ROIsize->get( true ) * 0.5;
                         WPosition position = m_dipoles->getData()->getPosition();
-                        m_roi = new WROIBox( position - WVector3d( 5.0, 5.0, 5.0 ),
-                                             position + WVector3d( 5.0, 5.0, 5.0 ) );
+                        m_roi = new WROIBox( position - WVector3d( halfWidth, halfWidth, halfWidth ),
+                                             position + WVector3d( halfWidth, halfWidth, halfWidth ) );
                         WKernel::getRunningKernel()->getRoiManager()->addRoi( m_roi );
                     }
                 }
@@ -469,7 +478,7 @@ void WMEEGView::redraw()
     if( m_eeg.get() && m_eeg->getNumberOfSegments() > 0 )
     {
         const float text2dOffset = 2.0f;
-        const float text2dSize = 32.0f;
+        const float text2dSize = 12.0f;
         const osg::Vec4 text2dColor( 0.0, 0.0, 0.0, 1.0 );
         const osg::Vec4 linesColor( 0.0, 0.0, 0.0, 1.0 );
 
@@ -736,7 +745,7 @@ osg::ref_ptr< osg::Node > WMEEGView::drawLabels()
     // draw electrode labels in 3d
     const float sphereSize = 4.0f;
     const osg::Vec3 text3dOffset( 0.0, 0.0, sphereSize );
-    const double text3dSize = 32.0;
+    const double text3dSize = 14.0;
     const osg::Vec4 text3dColor( 0.0, 0.0, 0.0, 1.0 );
 
     osg::ref_ptr< osg::Group > labels( new osg::Group );

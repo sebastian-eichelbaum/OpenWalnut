@@ -172,6 +172,11 @@ private:
     WPropBool m_butterfly;
 
     /**
+     * Size of the region of interest
+     */
+    WPropDouble m_ROIsize;
+
+    /**
      * the width of the label display in pixel as property
      */
     WPropInt m_labelsWidth;
