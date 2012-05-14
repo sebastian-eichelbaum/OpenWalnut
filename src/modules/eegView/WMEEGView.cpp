@@ -227,7 +227,7 @@ void WMEEGView::moduleMain()
     while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
         // data changed?
-        if( m_dataChanged() || m_butterfly->changed( true ) )
+        if( m_dataChanged() || m_butterfly->changed() )
         {
             debugLog() << "Data changed";
             m_dataChanged.set( false );
@@ -450,6 +450,7 @@ void WMEEGView::closeCustomWidget()
         m_widget->getViewer()->getView()->getEventHandlers().remove( m_handler );
     }
 
+    // TODO(wiebel): use unique names here
     WKernel::getRunningKernel()->getGui()->closeCustomWidget( getName() );
     m_widget.reset(); // forces need call of destructor
 }
@@ -473,7 +474,10 @@ void WMEEGView::redraw()
     }
 
     // reset event position
-    m_event->set( boost::shared_ptr< WEEGEvent >( new WEEGEvent ) );
+    if( !m_butterfly->changed(true) )
+    {
+        m_event->set( boost::shared_ptr< WEEGEvent >( new WEEGEvent ) );
+    }
 
     if( m_eeg.get() && m_eeg->getNumberOfSegments() > 0 )
     {
