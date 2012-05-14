@@ -22,9 +22,13 @@
 //
 //---------------------------------------------------------------------------
 
+#include <vector>
+#include <string>
+
 #include "WProjectFileIO.h"
 
-WProjectFileIO::WProjectFileIO()
+WProjectFileIO::WProjectFileIO():
+    m_errors()
 {
     // initialize
 }
@@ -37,5 +41,15 @@ WProjectFileIO::~WProjectFileIO()
 void WProjectFileIO::done()
 {
     // do nothing here. Overwrite this method if your specific parser needs to do some post processing.
+}
+
+bool WProjectFileIO::hadErrors() const
+{
+    return m_errors.size();
+}
+
+const std::vector< std::string >& WProjectFileIO::getErrors() const
+{
+    return m_errors;
 }
 

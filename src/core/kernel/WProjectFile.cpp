@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -34,6 +35,7 @@
 #include "../graphicsEngine/WGEProjectFileIO.h"
 #include "../common/exceptions/WFileNotFound.h"
 #include "../common/exceptions/WFileOpenFailed.h"
+#include "../common/WStringUtils.h"
 
 #include "WProjectFile.h"
 
@@ -44,6 +46,22 @@ WProjectFile::WProjectFile( boost::filesystem::path project ):
 {
     // initialize members
 
+    // The module graph parser
+    m_parsers.push_back( boost::shared_ptr< WProjectFileIO >( new WModuleProjectFileCombiner() ) );
+
+    // The ROI parser
+    m_parsers.push_back( boost::shared_ptr< WProjectFileIO >( new WRoiProjectFileIO() ) );
+
+    // The Camera parser
+    m_parsers.push_back( boost::shared_ptr< WProjectFileIO >( new WGEProjectFileIO() ) );
+}
+
+WProjectFile::WProjectFile( boost::filesystem::path project, ProjectLoadCallback doneCallback ):
+    WThreadedRunner(),
+    boost::enable_shared_from_this< WProjectFile >(),
+    m_project( project ),
+    m_signalLoadDoneConnection( m_signalLoadDone.connect( doneCallback ) )
+{
     // The module graph parser
     m_parsers.push_back( boost::shared_ptr< WProjectFileIO >( new WModuleProjectFileCombiner() ) );
 
@@ -128,6 +146,7 @@ void WProjectFile::threadMain()
     static const boost::regex commentRe( "^ *//.*$" );
 
     // read it line by line
+    std::vector< std::string > errors;
     std::string line;       // the current line
     int i = 0;              // line counter
     bool match = false;     // true of a parser successfully parsed the line
@@ -152,14 +171,15 @@ void WProjectFile::threadMain()
             }
             catch( const std::exception& e )
             {
-                wlog::error( "Project Loader" ) << "Line " << i << ": Parsing caused an exception. Line Malformed? Skipping.";
+                errors.push_back( "Parse error on line " + string_utils::toString( i ) + ": " + e.what() );
+                wlog::error( "Project Loader" ) << errors.back();
             }
         }
 
         // did someone match this line? Or is it empty or a comment?
         if( !match && !line.empty() && !boost::regex_match( line, matches, commentRe ) )
         {
-            // no it is something else -> warning!
+            // no it is something else -> warning! Not a critical error.
             wlog::warn( "Project Loader" ) << "Line " << i << ": Malformed. Skipping.";
         }
     }
@@ -169,8 +189,22 @@ void WProjectFile::threadMain()
     // finally, let every one know that we have finished
     for( std::vector< boost::shared_ptr< WProjectFileIO > >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
     {
-        ( *iter )->done();
+        try
+        {
+            ( *iter )->done();
+            // append errors
+            std::copy( ( *iter )->getErrors().begin(), ( *iter )->getErrors().begin(), errors.begin() );
+        }
+        catch( const std::exception& e )
+        {
+            errors.push_back( "Exception while applying settings: " + std::string( e.what() ) );
+            wlog::error( "Project Loader" ) << errors.back();
+        }
     }
+
+    // give some feedback
+    m_signalLoadDone( m_project, errors );
+    m_signalLoadDoneConnection.disconnect();
 
     // remove from thread list
     WKernel::getRunningKernel()->getRootContainer()->finishedPendingThread( shared_from_this() );
