@@ -47,8 +47,6 @@ WThreadedRunner::WThreadedRunner():
 WThreadedRunner::~WThreadedRunner()
 {
     // cleanup
-    // XXX is this working if thread already has finished?
-    // wait( true ); <-- no
 }
 
 const WBoolFlag& WThreadedRunner::isCrashed() const

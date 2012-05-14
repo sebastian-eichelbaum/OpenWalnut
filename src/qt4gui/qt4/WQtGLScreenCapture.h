@@ -257,6 +257,16 @@ private:
      * Stores the resolution the user wants to have.
      */
     QComboBox* m_resolutionCombo;
+
+    /**
+     * Widget for entering a custom resolution width
+     */
+    QLineEdit* m_customWidth;
+
+    /**
+     * Widget for entering a custom resolution height
+     */
+    QLineEdit* m_customHeight;
 };
 
 #endif  // WQTGLSCREENCAPTURE_H
