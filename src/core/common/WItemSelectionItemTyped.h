@@ -22,86 +22,58 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WITEMSELECTIONITEM_H
-#define WITEMSELECTIONITEM_H
+#ifndef WITEMSELECTIONITEMTYPED_H
+#define WITEMSELECTIONITEMTYPED_H
 
+#include <cstddef>
 #include <string>
 
+#include "WItemSelectionItem.h"
+
 /**
- * Class for keeping a single named item in a WItemSelection.
+ * A derivation of WItemSelection which can store a value of any type.
  */
-class WItemSelectionItem // NOLINT
+template< typename T > class WItemSelectionItemTyped: public WItemSelectionItem // NOLINT
 {
 public:
     /**
      * Constructs a new item with the specified values.
      *
+     * \param value Value which is stored by the item.
      * \param name Name of item.
      * \param description Description, can be empty.
      * \param icon Icon, can be NULL.
      */
-    WItemSelectionItem( std::string name, std::string description = "", const char** icon = NULL );
+    WItemSelectionItemTyped( T value, std::string name, std::string description = "", const char** icon = NULL ) :
+                    WItemSelectionItem( name, description, icon ), m_value( value )
+    {
+    }
 
     /**
      * Destruction. Does NOT delete the icon!
      */
-    virtual ~WItemSelectionItem();
-
-    /**
-     * Returns the name of the item.
-     *
-     * \return the name
-     */
-    std::string getName() const;
-
-    /**
-     * The description of the item.
-     *
-     * \return the description
-     */
-    std::string getDescription() const;
-
-    /**
-     * The icon associated with this item. Can be NULL.
-     *
-     * \return the icon, might be NULL.
-     */
-    const char** getIcon() const;
-
-    /**
-     * Dynamic cast of the object, if a derivative of WItemSelectionItem was add to WItemSelection.
-     */
-    template< typename T > T* getAs()
+    virtual ~WItemSelectionItemTyped()
     {
-        return dynamic_cast< T* >( this );
     }
 
     /**
-     * Compares this and another item using their names only.
-     *
-     * \param other the second to compare the this one with
-     *
-     * \return true if the names are equal.
+     * Returns the value.
      */
-    bool operator==( const WItemSelectionItem& other ) const;
-
-protected:
-    /**
-     * Item name.
-     */
-    std::string m_name;
+    T getValue() const
+    {
+        return m_value;
+    }
 
     /**
-     * Item description.
+     * Sets a new value, which is associated with this item.
      */
-    std::string m_description;
-
-    /**
-     * Item icon.
-     */
-    const char** m_icon;
+    void setValue( T value )
+    {
+        m_value = value;
+    }
 
 private:
+    T m_value;
 };
 
-#endif  // WITEMSELECTIONITEM_H
+#endif  // WITEMSELECTIONITEMTYPED_H
