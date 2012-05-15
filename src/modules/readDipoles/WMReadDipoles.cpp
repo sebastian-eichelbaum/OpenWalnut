@@ -218,7 +218,7 @@ boost::shared_ptr< WDataSetDipoles > WMReadDipoles::readFiles( std::vector< std:
     for( size_t fileId = 1; fileId < filenames.size(); ++fileId )
     {
         readFile( filenames[fileId], &pos, &times, &magnitudes );
-        loadedData->addDipole( pos, times, magnitudes );
+        loadedData->addDipole( pos, magnitudes, times );
     }
 
     return loadedData;
