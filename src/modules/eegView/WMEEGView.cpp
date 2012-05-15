@@ -122,7 +122,7 @@ void WMEEGView::properties()
                                                     m_propCondition );
     m_proofOfConcept   = m_properties->addProperty( "Enable POC",
                                                     "Use proof of concept (POC) ROI positioning instead of real dipoles position.",
-                                                    true,
+                                                    false,
                                                     m_propCondition );
     m_butterfly        = m_properties->addProperty( "Butterfly plot",
                                                     "Overlay all curves in one row.",
@@ -302,10 +302,11 @@ void WMEEGView::moduleMain()
         {
             debugLog() << "New event position: " << event->getTime();
 
-            if( m_roi )
+            for ( std::vector< osg::ref_ptr< WROIBox > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter)
             {
-                WKernel::getRunningKernel()->getRoiManager()->removeRoi( m_roi );
+                WKernel::getRunningKernel()->getRoiManager()->removeRoi(*iter);
             }
+            m_rois.clear();
 
             if(  m_sourceCalculator )
             {
@@ -313,9 +314,9 @@ void WMEEGView::moduleMain()
                 {
                     WPosition position = m_sourceCalculator->calculate( event );
                     float halfWidth = m_ROIsize->get( true ) * 0.5;
-                    m_roi = new WROIBox( position - WVector3d( halfWidth, halfWidth, halfWidth ),
-                                         position + WVector3d( halfWidth, halfWidth, halfWidth ) );
-                    WKernel::getRunningKernel()->getRoiManager()->addRoi( m_roi );
+                    m_rois.push_back( new WROIBox( position - WVector3d( halfWidth, halfWidth, halfWidth ),
+                                                   position + WVector3d( halfWidth, halfWidth, halfWidth ) ) );
+                    WKernel::getRunningKernel()->getRoiManager()->addRoi( m_rois.back() );
                 }
                 else if( m_dipoles->getData() )
                 {
@@ -323,19 +324,15 @@ void WMEEGView::moduleMain()
                     {
                         float halfWidth = m_ROIsize->get( true ) * 0.5;
                         WPosition position = m_dipoles->getData()->getPosition();
-                        m_roi = new WROIBox( position - WVector3d( halfWidth, halfWidth, halfWidth ),
-                                             position + WVector3d( halfWidth, halfWidth, halfWidth ) );
-                        WKernel::getRunningKernel()->getRoiManager()->addRoi( m_roi );
+                        m_rois.push_back( new WROIBox( position - WVector3d( halfWidth, halfWidth, halfWidth ),
+                                                       position + WVector3d( halfWidth, halfWidth, halfWidth ) ) );
+                        WKernel::getRunningKernel()->getRoiManager()->addRoi( m_rois.back() );
                     }
                 }
                 else
                 {
                     debugLog() << "No dipoles found and not in POC mode: placing NO ROI.";
                 }
-            }
-            else
-            {
-                m_roi.release();
             }
 
             m_currentEventTime = event->getTime();
