@@ -58,6 +58,8 @@ public:
 
     /**
      * Returns the value.
+     *
+     * \return Value which is stored.
      */
     T getValue() const
     {
@@ -66,6 +68,8 @@ public:
 
     /**
      * Sets a new value, which is associated with this item.
+     *
+     * \param value new value which should be stored by this item.
      */
     void setValue( T value )
     {
@@ -73,6 +77,9 @@ public:
     }
 
 private:
+    /**
+     * Value which is stored by this item.
+     */
     T m_value;
 };
 

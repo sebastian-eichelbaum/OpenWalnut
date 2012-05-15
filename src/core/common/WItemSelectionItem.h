@@ -70,6 +70,8 @@ public:
 
     /**
      * Dynamic cast of the object, if a derivative of WItemSelectionItem was add to WItemSelection.
+     *
+     * \return Returns the converted item of new type T or 0 if a conversion is not possible.
      */
     template< typename T > T* getAs()
     {

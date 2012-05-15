@@ -135,6 +135,8 @@ public:
 
     /**
      * Method to add a new item, which can be derived from WItemSelectionItem.
+     *
+     * \param item WItemSelectionItem or derivation which should be add.
      */
     void addItem( boost::shared_ptr< WItemSelectionItem > item );
 

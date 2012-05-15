@@ -107,6 +107,6 @@ void WItemSelection::addItem( std::string name, std::string description, const c
 
 void WItemSelection::addItem( boost::shared_ptr< WItemSelectionItem > item )
 {
-    push_back (item);
+    push_back( item );
 }
 
