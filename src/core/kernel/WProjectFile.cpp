@@ -26,6 +26,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <iterator>
 
 #include <boost/regex.hpp>
 
@@ -76,6 +77,7 @@ WProjectFile::~WProjectFile()
 {
     // cleanup
     m_parsers.clear();
+    m_signalLoadDoneConnection.disconnect();
 }
 
 boost::shared_ptr< WProjectFileIO > WProjectFile::getCameraWriter()
@@ -193,7 +195,7 @@ void WProjectFile::threadMain()
         {
             ( *iter )->done();
             // append errors
-            std::copy( ( *iter )->getErrors().begin(), ( *iter )->getErrors().begin(), errors.begin() );
+            std::copy( ( *iter )->getErrors().begin(), ( *iter )->getErrors().end(), std::back_inserter( errors ) );
         }
         catch( const std::exception& e )
         {

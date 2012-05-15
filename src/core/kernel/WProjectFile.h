@@ -40,8 +40,8 @@
  * Class loading project files. This class opens an file and reads it line by line. It delegates the actual parsing to each of the known
  * WProjectFileIO instances which then do their job.
  */
-class  WProjectFile: public WThreadedRunner,
-                                      public boost::enable_shared_from_this< WProjectFile >
+class WProjectFile: public WThreadedRunner,
+                    public boost::enable_shared_from_this< WProjectFile >
 {
 public:
     /**

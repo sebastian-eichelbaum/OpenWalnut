@@ -142,7 +142,7 @@ public:
      */
     boost::signals2::signal1< void, std::vector< std::string > >* getLoadButtonSignal();
 
-/**
+    /**
      * Instruct to open a new custom widget. The specified condition should be the shutdown condition of the module, as the function returns only
      * if the widget was created. To ensure that the creation is aborted properly if the module shuts down in the meantime, this condition is
      * used.

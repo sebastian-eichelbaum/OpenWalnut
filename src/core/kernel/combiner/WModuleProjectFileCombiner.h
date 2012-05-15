@@ -44,7 +44,7 @@
  * WProjectFileIO to allow WProjectFile to fill this combiner.
  */
 class  WModuleProjectFileCombiner: public WModuleCombiner,
-                                                    public WProjectFileIO
+                                   public WProjectFileIO
 {
 public:
     /**

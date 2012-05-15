@@ -80,6 +80,7 @@
 #include "events/WModuleRemovedEvent.h"
 #include "events/WOpenCustomDockWidgetEvent.h"
 #include "events/WCloseCustomDockWidgetEvent.h"
+#include "events/WLoadFinishedEvent.h"
 #include "guiElements/WQtPropertyBoolAction.h"
 #include "WQt4Gui.h"
 #include "WQtCombinerToolbar.h"
@@ -690,9 +691,7 @@ void WMainWindow::openLoadDialog()
         // is this a project file?
         if( ( suffix == ".owp" ) || ( suffix == ".owproj" ) )
         {
-            WProjectFile::SPtr proj( new WProjectFile( fn.string() ) );
-            // This call is asynchronous. It parses the file and the starts a thread to actually do all the stuff
-            proj->load();
+            asyncProjectLoad( fn.string() );
         }
         else
         {
@@ -702,6 +701,23 @@ void WMainWindow::openLoadDialog()
     }
 
     m_loaderSignal( loadDataFilenames );
+}
+
+void WMainWindow::asyncProjectLoad( std::string filename )
+{
+    WProjectFile::SPtr proj( new WProjectFile( filename, boost::bind( &WMainWindow::slotLoadFinished, this, _1, _2 ) ) );
+    proj->load();
+}
+
+void WMainWindow::slotLoadFinished( boost::filesystem::path file, std::vector< std::string > errors )
+{
+    // as this function might be called from outside the gui thread, use an event:
+    QCoreApplication::postEvent( this, new WLoadFinishedEvent( file, errors ) );
+
+    if( errors.size() )
+    {
+        wlog::warn( "MainWindow" ) << "Async load error occurred. Informing user.";
+    }
 }
 
 void WMainWindow::openAboutQtDialog()
@@ -964,6 +980,40 @@ bool WMainWindow::event( QEvent* event )
         }
     }
 
+    if( event->type() == WQT_LOADFINISHED )
+    {
+        // convert event
+        WLoadFinishedEvent* e1 = dynamic_cast< WLoadFinishedEvent* >( event );
+        if( e1 )
+        {
+            if( e1->getErrors().size() )
+            {
+                size_t curErrCount = 0;
+                const size_t maxErrCount = 5;
+                std::string errors = "<ul>";
+                for( std::vector< std::string >::const_iterator iter = e1->getErrors().begin(); iter != e1->getErrors().end(); ++iter )
+                {
+                    errors += "<li> " + *iter;
+                    curErrCount++;
+
+                    if( ( curErrCount == maxErrCount ) && ( e1->getErrors().size() > maxErrCount ) )
+                    {
+                        size_t errDiff = e1->getErrors().size() - curErrCount;
+                        errors += "<li> ... and " + string_utils::toString( errDiff ) + " more errors.";
+                        break;
+                    }
+                }
+                errors += "</ul>";
+
+                QMessageBox::critical( this, "Error during load",
+                                             "Errors occurred during load of \"" + QString::fromStdString( e1->getFilename() ) + "\". "
+                                             "The loader tried to apply as much as possible, ignoring the erroneous data. The first errors where:"
+                                             "<br><br>"
+                                             "<font color=\"#f00\">" + QString::fromStdString( errors )+ "</font>" );
+            }
+        }
+    }
+
     return QMainWindow::event( event );
 }
 
@@ -1143,12 +1193,7 @@ void WMainWindow::dropEvent( QDropEvent *event )
         {
             for( size_t i = 0; i < projects.size(); ++i )
             {
-                boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
-                        new WProjectFile( projects[ i ] )
-                );
-
-                // This call is asynchronous. It parses the file and the starts a thread to actually do all the stuff
-                proj->load();
+                asyncProjectLoad( projects[ i ] );
             }
             event->accept();
         }
