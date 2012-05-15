@@ -64,7 +64,6 @@ WEEGSourceCalculator::WEEGSourceCalculator( const boost::shared_ptr< const WEEG2
 WPosition WEEGSourceCalculator::calculate( const boost::shared_ptr< const WEEGEvent > event ) const
 {
     const std::vector< double >& values = event->getValues();
-
     WAssert( values.size() == m_hasPosition.size(), "Event and loaded EEG dataset have to have the same number of channels" );
 
     double sum = 0.0;

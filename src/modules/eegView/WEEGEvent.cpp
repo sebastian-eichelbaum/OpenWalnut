@@ -71,7 +71,7 @@ WEEGEvent::WEEGEvent( double time,
 
             if( m_parentNode.valid() )
             {
-                const osg::Vec4 color( 0.75f, 0.0f, 0.0f, 1.0f );
+                const osg::Vec4 color( 1.0f, 0.5f, 0.5f, 1.0f );
 
                 // create geode to draw the event as line
                 osg::Geometry* geometry = new osg::Geometry;

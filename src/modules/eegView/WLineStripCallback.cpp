@@ -92,7 +92,7 @@ void WLineStripCallback::update( osg::NodeVisitor* /*nv*/, osg::Drawable* drawab
                 boost::shared_ptr< const WEEGValueMatrix > values = m_segment->getValues( start, length );
                 for( std::size_t i = 0; i < length; ++i )
                 {
-                    vertices->push_back( osg::Vec3( ( start + i ) / m_samplingRate, (*values)[m_channelID][i], 0.0 ) );
+                    vertices->push_back( osg::Vec3( ( start + i ) / m_samplingRate, (*values)[m_channelID][i], -0.001 ) );
                 }
             }
 
@@ -116,7 +116,7 @@ void WLineStripCallback::update( osg::NodeVisitor* /*nv*/, osg::Drawable* drawab
                 boost::shared_ptr< const WEEGValueMatrix > values = m_segment->getValues( start, length );
                 for( std::size_t i = 0; i < length; ++i )
                 {
-                    vertices->push_back( osg::Vec3( ( start + i ) / m_samplingRate, (*values)[m_channelID][i], 0.0 ) );
+                    vertices->push_back( osg::Vec3( ( start + i ) / m_samplingRate, (*values)[m_channelID][i], -0.001 ) );
                 }
             }
 
