@@ -881,7 +881,7 @@ void WQtControlPanel::setActiveModule( WModule::SPtr module, bool forceUpdate )
     if( m_previousTab != "" )
     {
         // search the tab with the previous title
-        for( size_t idx = 0; idx < m_tabWidget->count(); ++idx )
+        for( int idx = 0; idx < m_tabWidget->count(); ++idx )
         {
             if( m_tabWidget->tabText( idx ) == m_previousTab )
             {

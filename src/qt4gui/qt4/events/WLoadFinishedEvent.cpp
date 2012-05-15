@@ -25,39 +25,30 @@
 #include <vector>
 #include <string>
 
-#include "WLogger.h"
+#include "WEventTypes.h"
 
-#include "WProjectFileIO.h"
+#include "WLoadFinishedEvent.h"
 
-WProjectFileIO::WProjectFileIO():
-    m_errors()
+WLoadFinishedEvent::WLoadFinishedEvent( boost::filesystem::path filename, std::vector< std::string > errors )
+    : QEvent( static_cast< QEvent::Type >( WQT_LOADFINISHED ) ),
+    m_filename( filename ),
+    m_errors( errors )
 {
-    // initialize
+    // initialize members
 }
 
-WProjectFileIO::~WProjectFileIO()
+WLoadFinishedEvent::~WLoadFinishedEvent()
 {
-    // cleanup!
+    // cleanup
 }
 
-void WProjectFileIO::done()
-{
-    // do nothing here. Overwrite this method if your specific parser needs to do some post processing.
-}
-
-bool WProjectFileIO::hadErrors() const
-{
-    return m_errors.size();
-}
-
-const std::vector< std::string >& WProjectFileIO::getErrors() const
+const std::vector< std::string >& WLoadFinishedEvent::getErrors() const
 {
     return m_errors;
 }
 
-void WProjectFileIO::addError( std::string description )
+std::string WLoadFinishedEvent::getFilename() const
 {
-    wlog::error( "Project Loader" ) << description;
-    m_errors.push_back( description );
+    return m_filename.string();
 }
 

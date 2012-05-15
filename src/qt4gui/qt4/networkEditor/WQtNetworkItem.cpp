@@ -227,9 +227,9 @@ void WQtNetworkItem::updater()
     }
 
     // show crash state as text too
-    if( ( m_currentState == Crashed ) && ( m_subtitleFull != "Crashed" ) )
+    if( ( m_currentState == Crashed ) && ( m_subtitleFull != "Error" ) )
     {
-        m_subtitleFull = "Crashed";
+        m_subtitleFull = "Error";
         // this method ensures the text is shortened and correctly placed in the iem
         fitLook( m_itemBestWidth, m_itemBestWidth );
         needUpdate = true;

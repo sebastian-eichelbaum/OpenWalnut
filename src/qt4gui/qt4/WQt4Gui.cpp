@@ -114,12 +114,8 @@ void WQt4Gui::deferredLoad()
         {
             try
             {
-                boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
-                        new WProjectFile( m_optionsMap["project"].as< std::string >() )
-                );
-
                 // This call is asynchronous. It parses the file and the starts a thread to actually do all the stuff
-                proj->load();
+                m_mainWindow->asyncProjectLoad( m_optionsMap["project"].as< std::string >() );
             }
             catch( const WException& e )
             {

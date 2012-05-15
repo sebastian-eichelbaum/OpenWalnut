@@ -81,4 +81,7 @@
 // close an existing custom dock widget
 #define WQT_CLOSECUSTOMDOCKWIDGET QEvent::User + 16
 
+// A async load operation has finished
+#define WQT_LOADFINISHED QEvent::User + 17
+
 #endif  // WEVENTTYPES_H

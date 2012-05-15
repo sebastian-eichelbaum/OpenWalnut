@@ -92,12 +92,11 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
         // data modules are not allowed here
         if( !proto )
         {
-            wlog::error( "Project Loader" ) << "There is no prototype available for module \"" << matches[2] << "\". Skipping.";
+            addError( "There is no prototype available for module \"" + matches[2] + "\". Skipping." );
         }
         else if( proto->getType() == MODULE_DATA )
         {
-            wlog::error( "Project Loader" ) << "Data modules are not allowed to be specified in a \"MODULE\" Statement." <<
-                                               " Use the \"DATA\" statement instead. Skipping.";
+            addError( "Data modules are not allowed to be specified in a \"MODULE\" Statement. Use the \"DATA\" statement instead. Skipping." );
         }
         else
         {
@@ -116,8 +115,7 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
         boost::shared_ptr< WModule > proto = WModuleFactory::getModuleFactory()-> isPrototypeAvailable( "Data Module" );
         if( !proto )
         {
-            wlog::error( "Project Loader" ) << "There is no prototype available for module \"" << "Data Module" << "\"."
-                                            << " This should not happen!. Skipping.";
+            addError( "There is no prototype available for module \"Data Module\". This should not happen!. Skipping." );
         }
         else
         {
@@ -125,7 +123,7 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
             boost::shared_ptr< WModule > module = WModuleFactory::getModuleFactory()->create( proto );
             if( parameter.empty() )
             {
-                wlog::error( "Project Loader" ) << "Data modules need an additional filename parameter. Skipping.";
+                addError( "Data modules need an additional filename parameter. Skipping." );
             }
             else
             {
@@ -184,10 +182,8 @@ void WModuleProjectFileCombiner::apply()
         // if isReady now is false, the module has crashed before it got ready -> remove the module from the list
         if( ( *iter ).second->isCrashed()() )
         {
-            wlog::warn( "Project Loader" ) << "In the module with ID "
-                                           << ( *iter ).first
-                                           << " a problem occurred. Connections and properties relating to this"
-                                           << " module will fail.";
+            addError( "In the module with ID " + ( *iter ).first +
+                      std::string( " a problem occurred. Connections and properties relating to this module will fail." ) );
             m_modules.erase( iter );
         }
     }
@@ -198,8 +194,8 @@ void WModuleProjectFileCombiner::apply()
         // grab corresponding module
         if( !m_modules.count( ( *iter ).first.first ) )
         {
-            wlog::error( "Project Loader" ) << "There is no module with ID \"" << ( *iter ).first.first <<  "\" to set the property \"" <<
-                                               ( *iter ).first.second << "\" for. Skipping.";
+            addError( "There is no module with ID \"" + string_utils::toString( ( *iter ).first.first ) + "\" to set the property \"" +
+                                                        ( *iter ).first.second + std::string( "\" for. Skipping." ) );
             continue;
         }
         boost::shared_ptr< WModule > m = m_modules[ ( *iter ).first.first ];
@@ -208,8 +204,8 @@ void WModuleProjectFileCombiner::apply()
         boost::shared_ptr< WPropertyBase > prop = m->getProperties()->findProperty( ( *iter ).first.second );
         if( !prop )
         {
-            wlog::error( "Project Loader" ) << "The module \"" << m->getName() << "\" has no property named \"" <<
-                         ( *iter ).first.second << "\". Skipping.";
+            addError( "The module \"" + m->getName() + std::string( "\" has no property named \"" ) + ( *iter ).first.second +
+                      std::string( "\". Skipping." ) );
             continue;
         }
         else
@@ -220,14 +216,13 @@ void WModuleProjectFileCombiner::apply()
                 bool result = prop->setAsString( ( *iter ).second );
                 if( !result )
                 {
-                    wlog::error( "Project Loader" ) << "Failed to set property " << ( *iter ).first.second << " in module \"" <<
-                                                       m->getName() << "\".";
+                    addError( "Failed to set property " + ( *iter ).first.second + " in module \"" + m->getName() + "\"." );
                 }
             }
             else
             {
-                wlog::error( "Project Loader" ) << "The module \"" << m->getName() << "\" has a property named \"" <<
-                         ( *iter ).first.second << "\" which is an INFORMATION property. Skipping.";
+                addError( "The module \"" + m->getName() + "\" has a property named \"" +
+                         ( *iter ).first.second + "\" which is an INFORMATION property. Skipping." );
             }
         }
     }
@@ -244,9 +239,9 @@ void WModuleProjectFileCombiner::apply()
         boost::shared_ptr< WModule > m1;
         if( !m_modules.count( c1.first ) )
         {
-            wlog::error( "Project Loader" ) << "There is no module with ID \"" << c1.first <<  "\" for the connection "
-                                            << "(" << c1.first << "," << c1.second << ")->(" << c2.first << "," << c2.second << "). Skipping.";
-
+            addError( "There is no module with ID \"" + string_utils::toString( c1.first ) + "\" for the connection "
+                      + "(" + string_utils::toString( c1.first ) + "," + c1.second + ")->(" +  string_utils::toString( c2.first ) + "," +
+                      c2.second + "). Skipping." );
             continue;
         }
         m1 = m_modules[ c1.first ];
@@ -254,8 +249,9 @@ void WModuleProjectFileCombiner::apply()
         boost::shared_ptr< WModule > m2;
         if( !m_modules.count( c2.first ) )
         {
-            wlog::error( "Project Loader" ) << "There is no module with ID \"" << c2.first <<  "\" for the connection "
-                                            << "(" << c1.first << "," << c1.second << ")->(" << c2.first << "," << c2.second << "). Skipping.";
+            addError( "There is no module with ID \"" + string_utils::toString( c2.first ) +  "\" for the connection "
+                      + "(" + string_utils::toString( c1.first ) + "," + c1.second + ")->(" + string_utils::toString( c2.first ) +
+                      "," + c2.second + "). Skipping." );
 
             continue;
         }
@@ -271,7 +267,7 @@ void WModuleProjectFileCombiner::apply()
         }
         catch( const WModuleConnectorNotFound& e )
         {
-            wlog::error( "Project Loader" ) << "There is no output connector \"" << c1.second << "\" in module \"" << m1->getName() << "\"";
+            addError( "There is no output connector \"" + c1.second + "\" in module \"" + m1->getName() + "\"" );
             continue;
         }
         boost::shared_ptr< WModuleInputConnector > con2;
@@ -281,7 +277,7 @@ void WModuleProjectFileCombiner::apply()
         }
         catch( const WModuleConnectorNotFound& e )
         {
-            wlog::error( "Project Loader" ) << "There is no input connector \"" << c2.second << "\" in module \"" << m2->getName() << "\"";
+            addError( "There is no input connector \"" + c2.second + "\" in module \"" + m2->getName() + "\"" );
             continue;
         }
 
@@ -292,8 +288,9 @@ void WModuleProjectFileCombiner::apply()
         }
         catch( const WException& e )
         {
-            wlog::error( "Project Loader" ) << "Connection " << "(" << c1.first << "," << c1.second << ")->(" << c2.first << "," << c2.second <<
-                                                ") could not be created. Incompatible connectors?. Skipping.";
+            addError( "Connection (" + string_utils::toString( c1.first ) + "," + c1.second + ")->(" +
+                      string_utils::toString( c2.first ) + "," + c2.second +
+                      ") could not be created. Incompatible connectors?. Skipping." );
             continue;
         }
     }

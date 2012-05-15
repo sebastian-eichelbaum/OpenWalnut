@@ -39,6 +39,7 @@
     #include <QtGui/QPixmap>
     #include <QtGui/QIcon>
     #include <QtGui/QAction>
+    #include <QtCore/QUrl>
 #else
     #include <QtGui/QTextEdit>
 #endif
@@ -266,6 +267,7 @@ WQtModuleMetaInfo::~WQtModuleMetaInfo()
 
 void WQtModuleMetaInfo::resetContent()
 {
+#ifndef QT4GUI_NOWEBKIT
     // we use the module resource path as search URL
     std::string moduleLocation( m_module->getLocalPath().string() );
     QString locationURL( QString( "file://" ) + QString::fromStdString( moduleLocation ) + "/" );
@@ -273,4 +275,5 @@ void WQtModuleMetaInfo::resetContent()
     // set content
     std::string processedContent = htmlify( m_module->getMetaInformation() );
     m_frame->setHtml( processedContent.c_str(), QUrl( locationURL ) );
+#endif
 }

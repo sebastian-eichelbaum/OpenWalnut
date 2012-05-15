@@ -170,6 +170,13 @@ public:
      */
     QSplashScreen* getSplash() const;
 
+    /**
+     * Loads a given project asynchronously.
+     *
+     * \param filename the file to load.
+     */
+    void asyncProjectLoad( std::string filename );
+
 protected:
     /**
      * Setup the GUI by handling special modules. NavSlices for example setup several toolbar buttons.
@@ -392,6 +399,15 @@ private:
      * The action controlling the auto-display feature.
      */
     WSettingAction* m_autoDisplaySetting;
+
+    /**
+     * Called whenever a async load has finished. Used by \ref asyncProjectLoad. It might be called from outside the GUI thread.
+     *
+     * \param file the filename
+     * \param errors the list of errors
+     */
+    void slotLoadFinished( boost::filesystem::path file, std::vector< std::string > errors );
+
 
 private slots:
     /**
