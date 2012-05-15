@@ -45,6 +45,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
 #include <QtCore/QSettings>
+#include <QtCore/QUrl>
 #include <QtGui/QInputDialog>
 
 #ifndef QT4GUI_NOWEBKIT
