@@ -136,19 +136,27 @@ void WProjectFile::threadMain()
     // Parse the file
     wlog::info( "Project File" ) << "Loading project file \"" << m_project.string() << "\".";
 
+    // store some errors
+    std::vector< std::string > errors;
+
     // read the file
     std::ifstream input( m_project.string().c_str() );
     if( !input.is_open() )
     {
-        throw WFileNotFound( std::string( "The project file \"" ) + m_project.string() +
-                             std::string( "\" does not exist." ) );
+        errors.push_back( std::string( "The project file \"" ) + m_project.string() + std::string( "\" does not exist." ) );
+
+        // give some feedback
+        m_signalLoadDone( m_project, errors );
+        m_signalLoadDoneConnection.disconnect();
+
+        // also throw an exception
+        throw WFileNotFound( *errors.begin() );
     }
 
     // the comment
     static const boost::regex commentRe( "^ *//.*$" );
 
     // read it line by line
-    std::vector< std::string > errors;
     std::string line;       // the current line
     int i = 0;              // line counter
     bool match = false;     // true of a parser successfully parsed the line
