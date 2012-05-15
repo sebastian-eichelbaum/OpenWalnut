@@ -36,8 +36,10 @@
 #include <osg/Vec3>
 #include <osg/Vec4>
 #include <osg/ref_ptr>
+#include <osgText/Text>
 
 #include "core/common/exceptions/WOutOfBounds.h"
+#include "core/common/WStringUtils.h"
 #include "core/dataHandler/WEEG2.h"
 #include "core/dataHandler/WEEG2Segment.h"
 #include "core/dataHandler/WEEGValueMatrix.h"
@@ -46,6 +48,7 @@
 
 
 WEEGEvent::WEEGEvent( double time,
+                      double yPos,
                       boost::shared_ptr< WEEG2 > eeg,
                       std::size_t segmentID,
                       osg::ref_ptr< WGEGroupNode > parentNode ) throw( WOutOfBounds )
@@ -89,8 +92,23 @@ WEEGEvent::WEEGEvent( double time,
 
                 geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, 2 ) );
 
+                // create text for the time label
+                osgText::Text* text = new osgText::Text;
+                text->setText( string_utils::toString( time ).c_str() );
+                text->setPosition( osg::Vec3( time, yPos + 10.0, 0.0 ) );
+                text->setAlignment( osgText::Text::LEFT_CENTER );
+                text->setAxisAlignment( osgText::Text::SCREEN );
+                text->setCharacterSize( 12 );
+                text->setCharacterSizeMode( osgText::Text::SCREEN_COORDS );
+                text->setColor( osg::Vec4( 0.0, 0.0, 1.0, 1.0 ) );
+                text->setBackdropType( osgText::Text::OUTLINE );
+                text->setBackdropColor( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
+                text->setBackdropOffset( 0.1 );
+
                 osg::Geode* geode = new osg::Geode;
                 geode->addDrawable( geometry );
+                geode->addDrawable( text );
+
 
                 m_node = geode;
 

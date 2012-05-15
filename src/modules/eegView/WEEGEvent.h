@@ -49,11 +49,13 @@ public:
      * Constructor
      *
      * \param time       time position in seconds
+     * \param yPos       y position in pixels
      * \param eeg        pointer to the loaded EEG dataset
      * \param segmentID  number of the segment
      * \param parentNode node where m_node is inserted and removed from
      */
     WEEGEvent( double time,
+               double yPos,
                boost::shared_ptr< WEEG2 > eeg,
                std::size_t segmentID,
                osg::ref_ptr< WGEGroupNode > parentNode ) throw( WOutOfBounds );
