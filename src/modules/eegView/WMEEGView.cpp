@@ -302,9 +302,9 @@ void WMEEGView::moduleMain()
         {
             debugLog() << "New event position: " << event->getTime();
 
-            for ( std::vector< osg::ref_ptr< WROIBox > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter)
+            for( std::vector< osg::ref_ptr< WROIBox > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter)
             {
-                WKernel::getRunningKernel()->getRoiManager()->removeRoi(*iter);
+                WKernel::getRunningKernel()->getRoiManager()->removeRoi( *iter );
             }
             m_rois.clear();
 
@@ -320,13 +320,19 @@ void WMEEGView::moduleMain()
                 }
                 else if( m_dipoles->getData() )
                 {
-                    if( m_dipoles->getData()->getMagnitude( event->getTime() ) != 0 )
+                    boost::shared_ptr< WDataSetDipoles > dipoles = m_dipoles->getData();
+                    debugLog() << "Number of Dipoles: " << dipoles->getNumberOfDipoles();
+                    for( size_t dipoleId = 0; dipoleId < dipoles->getNumberOfDipoles(); ++dipoleId )
                     {
-                        float halfWidth = m_ROIsize->get( true ) * 0.5;
-                        WPosition position = m_dipoles->getData()->getPosition();
-                        m_rois.push_back( new WROIBox( position - WVector3d( halfWidth, halfWidth, halfWidth ),
-                                                       position + WVector3d( halfWidth, halfWidth, halfWidth ) ) );
-                        WKernel::getRunningKernel()->getRoiManager()->addRoi( m_rois.back() );
+                        debugLog() << "Dipole[" << dipoleId << "]: " << dipoles->getMagnitude( event->getTime(), dipoleId );
+                        if( dipoles->getMagnitude( event->getTime(), dipoleId ) != 0 )
+                        {
+                            float halfWidth = m_ROIsize->get( true ) * 0.5;
+                            WPosition position = dipoles->getPosition( dipoleId );
+                            m_rois.push_back( new WROIBox( position - WVector3d( halfWidth, halfWidth, halfWidth ),
+                                                           position + WVector3d( halfWidth, halfWidth, halfWidth ) ) );
+                            WKernel::getRunningKernel()->getRoiManager()->addRoi( m_rois.back() );
+                        }
                     }
                 }
                 else
