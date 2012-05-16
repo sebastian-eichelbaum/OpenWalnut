@@ -46,8 +46,8 @@ class WItemSelector;
  * not implement any function that might change the item list, use the provided ones. If the item list changes, existing selectors get invalid
  * automatically using the change condition of the inherited WSharedSequenceContainer.
  */
-class WItemSelection: public boost::enable_shared_from_this< WItemSelection >, public WSharedSequenceContainer<
-                std::vector< boost::shared_ptr< WItemSelectionItem > > >
+class WItemSelection: public boost::enable_shared_from_this< WItemSelection >,
+                      public WSharedSequenceContainer< std::vector< boost::shared_ptr< WItemSelectionItem > > >
 {
     friend class WItemSelector; // for proper locking and unlocking
 public:
@@ -117,8 +117,7 @@ public:
      *
      * \return the Item.
      */
-    static boost::shared_ptr< WItemSelectionItem > Item( std::string name, std::string description = "",
-                    const char** icon = NULL )
+    static boost::shared_ptr< WItemSelectionItem > Item( std::string name, std::string description = "", const char** icon = NULL )
     {
         return boost::shared_ptr< WItemSelectionItem >( new WItemSelectionItem( name, description, icon ) );
     }
@@ -144,3 +143,4 @@ private:
 };
 
 #endif  // WITEMSELECTION_H
+

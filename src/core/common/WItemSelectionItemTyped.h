@@ -32,8 +32,13 @@
 
 /**
  * A derivation of WItemSelection which can store a value of any type.
+ *
+ * \note you can specify a reference type too. When using MyType& as type in this class, you can avoid unnecessary copy operations.
+ *
+ * \tparam the type to encapsulate
  */
-template< typename T > class WItemSelectionItemTyped: public WItemSelectionItem // NOLINT
+template< typename T >
+class WItemSelectionItemTyped: public WItemSelectionItem // NOLINT
 {
 public:
     /**
@@ -45,7 +50,8 @@ public:
      * \param icon Icon, can be NULL.
      */
     WItemSelectionItemTyped( T value, std::string name, std::string description = "", const char** icon = NULL ) :
-                    WItemSelectionItem( name, description, icon ), m_value( value )
+        WItemSelectionItem( name, description, icon ),
+        m_value( value )
     {
     }
 
@@ -57,11 +63,21 @@ public:
     }
 
     /**
+     * Returns the value. This const version is especially useful when using reference types for T.
+     *
+     * \return Value which is stored.
+     */
+    const T getValue() const
+    {
+        return m_value;
+    }
+
+    /**
      * Returns the value.
      *
      * \return Value which is stored.
      */
-    T getValue() const
+    T getValue()
     {
         return m_value;
     }
