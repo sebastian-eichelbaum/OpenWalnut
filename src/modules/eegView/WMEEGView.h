@@ -26,6 +26,7 @@
 #define WMEEGVIEW_H
 
 #include <string>
+#include <vector>
 
 #include <osg/Texture1D>
 #include <osgSim/ScalarsToColors>
@@ -266,11 +267,11 @@ private:
     osg::ref_ptr< osg::Node > m_labelsNode;
 
     /**
-     * The ROI around the source dipole position at the time determined by
+     * The ROIs around the source dipole positions at the time determined by
      * m_event.
-     * Used to select the fibers around this dipole.
+     * Used to select the fibers around this dipoles.
      */
-    osg::ref_ptr< WROIBox > m_roi;
+    std::vector< osg::ref_ptr< WROIBox > > m_rois;
 
     /**
      * Bool flag which gets set when the data was changed.
