@@ -65,6 +65,10 @@
 #include "core/common/WColor.h"
 #include "core/common/WPathHelper.h"
 #include "core/common/WPropertyHelper.h"
+#include "core/common/WItemSelection.h"
+#include "core/common/WItemSelectionItem.h"
+#include "core/common/WItemSelectionItemTyped.h"
+#include "core/common/WItemSelector.h"
 #include "core/graphicsEngine/WGEUtils.h"
 #include "core/graphicsEngine/WGERequirement.h"
 
@@ -234,6 +238,29 @@ void WMTemplate::properties()
     m_aMultiSelection  = m_properties->addProperty( "I like", "What do you like.", m_possibleSelections->getSelectorAll(),
                                                     m_propCondition );
 
+    // The last examples showed you how to create more or less complex selections. You where able to define a name, description and some icon for
+    // each selectable item. But maybe you want to store additional information, a class implementing some function (like a strategy pattern),
+    // and similar. To achieve this, we provide a special item class called WItemSelectionItemTyped. It is a templatized class which allows you
+    // to add a value of an arbitrary type to each item. This value of an arbitrary type might be a pointer, string, int, or a custom class'
+    // instance.
+    m_possibleSelectionsUsingTypes = WItemSelection::SPtr( new WItemSelection() );
+    m_possibleSelectionsUsingTypes->addItem( MyItemType::create(
+                "The value 1",  // this is the value for the type we specified: std::string.
+                "Option 1",
+                "Description for the first option"
+        )
+    );
+    m_possibleSelectionsUsingTypes->addItem( MyItemType::create(
+                "The value 2",  // this is the value for the type we specified: std::string.
+                "Option 2",
+                "Description for the second option"
+        )
+    );
+    // This now created the selections. We store a string inside each item. But remember again: this can by ANY type.
+    // Finally, add a property by specifying the selector of the selection:
+    m_aSingleSelectionUsingTypes = m_properties->addProperty( "Choose one", "Choose on of these and watch the console output.",
+                                                              m_possibleSelectionsUsingTypes->getSelectorFirst(), m_propCondition );
+
     // Adding a lot of properties might confuse the user. Using WPropGroup, you have the possibility to group your properties together. A
     // WPropGroup needs a name and can provide a description. As with properties, the name should not contain any "/" and must be unique.
 
@@ -282,6 +309,8 @@ void WMTemplate::properties()
     // element to be selected:
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_aSingleSelection );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_aSingleSelection );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_aSingleSelectionUsingTypes );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_aSingleSelectionUsingTypes );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_aMultiSelection );
 
     // The most amazing feature is: custom constraints. Similar to OSG update callbacks, you just need to write your own PropertyConstraint class
@@ -652,6 +681,21 @@ void WMTemplate::moduleMain()
             {
                 infoLog() << "The user likes " << s.at( i )->getName();
             }
+        }
+
+        // This checks the selections with our additional value.
+        if( m_aSingleSelectionUsingTypes->changed() )
+        {
+            // The single selector allows only one selected item and requires one item to be selected all the time. So accessing it by index
+            // is trivial:
+            WItemSelector s = m_aSingleSelectionUsingTypes->get( true );
+            infoLog() << "The item value is: " << s.at( 0 )->getAs< MyItemType >()->getValue() <<
+                         ". Length: " << s.at( 0 )->getAs< MyItemType >()->getValue().length();
+
+            // This showed that you can add values of your arbitrary type into the selection. Assume this is an object providing a ()-operator.
+            // You can then use s.at( 0 )->getAs< MyItemType >()->getValue()() to call this operator. This< is very handy for implementing
+            // strategies. But before you get too excited about this, for strategies with automatic, complex property handling, you should have
+            // a look at WStrategyHelper!
         }
 
         // Trigger an exception? We do this whenever the user pressed the exception-button

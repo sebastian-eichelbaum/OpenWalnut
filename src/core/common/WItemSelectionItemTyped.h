@@ -28,6 +28,8 @@
 #include <cstddef>
 #include <string>
 
+#include <boost/shared_ptr.hpp>
+
 #include "WItemSelectionItem.h"
 
 /**
@@ -41,6 +43,21 @@ template< typename T >
 class WItemSelectionItemTyped: public WItemSelectionItem // NOLINT
 {
 public:
+    /**
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WItemSelectionItemTyped< T > > SPtr;
+
+    /**
+     * Abbreviation for a const shared pointer.
+     */
+    typedef boost::shared_ptr< const WItemSelectionItemTyped< T > > ConstSPtr;
+
+    /**
+     * The type of the value stored in here.
+     */
+    typedef T ValueType;
+
     /**
      * Constructs a new item with the specified values.
      *
@@ -60,6 +77,21 @@ public:
      */
     virtual ~WItemSelectionItemTyped()
     {
+    }
+
+    /**
+     * Create a instance of the item. This shortens the rather long call which would be needed to create a shared pointer of this class.
+     *
+     * \param value the value to store in the instance
+     * \param name the name of item
+     * \param description Description of the item. Can be empty.
+     * \param icon the icon of the item. Can be NULL.
+     *
+     * \return a new instance pointer
+     */
+    static SPtr create( T value, std::string name, std::string description = "", const char** icon = NULL )
+    {
+        return SPtr( new WItemSelectionItemTyped< T >( value, name, description, icon ) );
     }
 
     /**

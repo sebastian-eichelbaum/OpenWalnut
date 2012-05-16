@@ -25,6 +25,8 @@
 #ifndef WITEMSELECTIONITEM_H
 #define WITEMSELECTIONITEM_H
 
+#include <boost/shared_ptr.hpp>
+
 #include <string>
 
 /**
@@ -33,6 +35,16 @@
 class WItemSelectionItem // NOLINT
 {
 public:
+    /**
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WItemSelectionItem > SPtr;
+
+    /**
+     * Abbreviation for a const shared pointer.
+     */
+    typedef boost::shared_ptr< const WItemSelectionItem > ConstSPtr;
+
     /**
      * Constructs a new item with the specified values.
      *
