@@ -25,9 +25,9 @@
 #ifndef WITEMSELECTIONITEM_H
 #define WITEMSELECTIONITEM_H
 
-#include <boost/shared_ptr.hpp>
-
 #include <string>
+
+#include <boost/shared_ptr.hpp>
 
 /**
  * Class for keeping a single named item in a WItemSelection.
