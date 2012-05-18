@@ -34,6 +34,8 @@
 
 #include "core/common/WStringUtils.h"
 
+#include "../controlPanel/WQtTreeItem.h"
+
 #include "WQtNetworkArrow.h"
 #include "WQtNetworkItem.h"
 #include "WQtNetworkItemActivator.h"
@@ -235,6 +237,10 @@ void WQtNetworkItem::updater()
         needUpdate = true;
     }
 
+    // update tooltip
+    setToolTip( WQtTreeItem::createTooltip( m_module ).c_str() );
+
+    // if something has changed -> update
     if( needUpdate )
     {
         update();

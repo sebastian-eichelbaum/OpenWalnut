@@ -39,6 +39,7 @@
 WThreadedRunner::WThreadedRunner():
     m_shutdownFlag( new WConditionOneShot(), false ),
     m_isCrashed( new WConditionOneShot(), false ),
+    m_crashMessage( "" ),
     m_threadName( "" )
 {
     // initialize members
@@ -68,6 +69,7 @@ void WThreadedRunner::handleDeadlyException( const WException& e, std::string se
 
     // notify waiting threads
     m_isCrashed( true );
+    m_crashMessage = e.what();
 }
 
 void WThreadedRunner::run()
@@ -165,6 +167,11 @@ void WThreadedRunner::setThreadName( std::string name )
 std::string WThreadedRunner::getThreadName() const
 {
     return m_threadName;
+}
+
+const std::string& WThreadedRunner::getCrashMessage() const
+{
+    return m_crashMessage;
 }
 
 void WThreadedRunner::setThisThreadName( std::string name )
