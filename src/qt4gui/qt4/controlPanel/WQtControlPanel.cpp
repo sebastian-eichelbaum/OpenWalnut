@@ -60,6 +60,7 @@
 #include "../events/WRoiAssocEvent.h"
 #include "../events/WRoiRemoveEvent.h"
 #include "../guiElements/WQtModuleMetaInfo.h"
+#include "../guiElements/WQtMenuFiltered.h"
 #include "../networkEditor/WQtNetworkEditor.h"
 #include "WQtBranchTreeItem.h"
 #include "WQtColormapper.h"
@@ -1045,28 +1046,28 @@ void WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule > modu
     }
 
     // build the add menu
-    QMenu* m = new QMenu( m_moduleTreeWidget );
+    QMenu* m = new WQtMenuFiltered( m_moduleTreeWidget );
     m->addActions( m_addModuleActionList );
     m_addModuleAction->setDisabled( !m_addModuleActionList.size() || module );  // disable if no entry inside or a module was selected
     delete( m_addModuleAction->menu() ); // ensure that combiners get free'd
     m_addModuleAction->setMenu( m );
 
     // build the prototype menu
-    m = new QMenu( m_moduleTreeWidget );
+    m = new WQtMenuFiltered( m_moduleTreeWidget );
     m->addActions( m_connectWithPrototypeActionList );
     m_connectWithPrototypeAction->setDisabled( !m_connectWithPrototypeActionList.size() );  // disable if no entry inside
     delete( m_connectWithPrototypeAction->menu() ); // ensure that combiners get free'd
     m_connectWithPrototypeAction->setMenu( m );
 
     // build the module menu
-    m = new QMenu( m_moduleTreeWidget );
+    m = new WQtMenuFiltered( m_moduleTreeWidget );
     m->addActions( m_connectWithModuleActionList );
     m_connectWithModuleAction->setDisabled( !m_connectWithModuleActionList.size() );  // disable if no entry inside
     delete m_connectWithModuleAction->menu();
     m_connectWithModuleAction->setMenu( m );
 
     // build the disconnect menu
-    m = new QMenu( m_moduleTreeWidget );
+    m = new WQtMenuFiltered( m_moduleTreeWidget );
     m->addActions( m_disconnectActionList );
     m_disconnectAction->setDisabled( !m_disconnectActionList.size() );  // disable if no entry inside
     delete( m_disconnectAction->menu() ); // ensure that combiners get free'd
