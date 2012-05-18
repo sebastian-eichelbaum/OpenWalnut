@@ -45,7 +45,7 @@ public:
      *
      * \param parent parent widget
      */
-	explicit WQtMenuFiltered( QWidget* parent = 0 );
+    explicit WQtMenuFiltered( QWidget* parent = 0 );
 
     /**
      * Create filtered menu.
@@ -53,7 +53,7 @@ public:
      * \param title
      * \param parent
      */
-	WQtMenuFiltered( const QString& title, QWidget* parent = 0 );
+    WQtMenuFiltered( const QString& title, QWidget* parent = 0 );
 
     /**
      * Destructor.
