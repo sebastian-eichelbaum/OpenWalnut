@@ -997,37 +997,13 @@ void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boos
     }
 }
 
-/**
- * Clears a hierarchy of QActions in a list. This deeply clears and deletes the lists.
- *
- * \param l the list to clear and delete
- */
-void deepDeleteActionList( QList< QAction* >& l )   // NOLINT   - we need the non-const ref here.
-{
-    // traverse
-    for( QList< QAction* >::iterator it = l.begin(); it != l.end(); ++it )
-    {
-        if( ( *it )->menu() )
-        {
-            // recursively remove sub-menu items
-            QList< QAction* > subs = ( *it )->menu()->actions();
-            deepDeleteActionList( subs );
-        }
-
-        delete ( *it );
-    }
-
-    // remove items afterwards
-    l.clear();
-}
-
 void WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule > module )
 {
     // we need to clean up the action lists
-    deepDeleteActionList( m_addModuleActionList );
-    deepDeleteActionList( m_connectWithPrototypeActionList );
-    deepDeleteActionList( m_connectWithModuleActionList );
-    deepDeleteActionList( m_disconnectActionList );
+    WQtCombinerActionList::deepDeleteActionList( m_addModuleActionList );
+    WQtCombinerActionList::deepDeleteActionList( m_connectWithPrototypeActionList );
+    WQtCombinerActionList::deepDeleteActionList( m_connectWithModuleActionList );
+    WQtCombinerActionList::deepDeleteActionList( m_disconnectActionList );
 
     // acquire new action lists
     m_connectWithPrototypeActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(),

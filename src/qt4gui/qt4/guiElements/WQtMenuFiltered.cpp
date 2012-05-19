@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include "core/common/WLogger.h"
+#include "core/common/WStringUtils.h"
 
 #include "WQtMenuFiltered.h"
 #include "WQtMenuFiltered.moc"
@@ -113,7 +114,7 @@ void WQtMenuFiltered::hideEvent( QHideEvent* /* e */ )
 
 void WQtMenuFiltered::filterUpdate()
 {
-    QString filter = m_edit->text();
+    std::vector< std::string > filter = string_utils::tokenize( m_edit->text().toStdString() );
 
     // NOTE: we ignore the first element. It is the filter widget.
 
@@ -128,8 +129,16 @@ void WQtMenuFiltered::filterUpdate()
         if( ( *a ) != NULL )
         {
             QString s = ( *a )->text();
+
+            // check each token in the filter
+            bool match = true;
+            for( std::vector< std::string >::const_iterator iter = filter.begin(); iter != filter.end(); ++iter )
+            {
+                match = match && s.contains( QString::fromStdString( *iter ), Qt::CaseInsensitive );
+            }
+
             // match value against filter
-            if( s.contains( filter, Qt::CaseInsensitive ) )
+            if( match )
             {
                 ( *a )->setVisible( true );
                 nbLeft++;

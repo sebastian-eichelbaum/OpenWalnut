@@ -26,6 +26,11 @@
 #include <QtGui/QWheelEvent>
 
 #include "../../../core/common/WLogger.h"
+#include "../../../core/kernel/WModuleFactory.h"
+#include "../WQtCombinerActionList.h"
+#include "../WQt4Gui.h"
+#include "../WMainWindow.h"
+#include "../guiElements/WQtMenuFiltered.h"
 
 #include "WQtNetworkEditorView.h"
 #include "WQtNetworkEditorView.moc"
@@ -39,6 +44,13 @@ WQtNetworkEditorView::WQtNetworkEditorView( QWidget* parent ):
 
     setCenter( QPointF( 0.0, 0.0 ) );
     setResizeAnchor( QGraphicsView::AnchorUnderMouse );
+
+    // we need a list of all modules
+    m_addModuleActionList = WQtCombinerActionList( this, WQt4Gui::getMainWindow()->getIconManager(),
+                                                   WModuleFactory::getModuleFactory()->getAllPrototypes(),
+                                                   0, false );
+    m_addMenu = new WQtMenuFiltered( this );
+    m_addMenu->addActions( m_addModuleActionList );
 }
 
 void WQtNetworkEditorView::setCenter( const QPointF& centerPoint )
@@ -74,7 +86,18 @@ void WQtNetworkEditorView::mouseDoubleClickEvent( QMouseEvent* event )
         return;
     }
 
-    emit loadAction();
+    // open the add menu when a modifier was pressed
+    if( ( event->modifiers() == Qt::ShiftModifier ) ||
+        ( event->modifiers() == Qt::ControlModifier )
+      )
+    {
+        m_addMenu->popup( event->globalPos() );
+    }
+    else if ( event->modifiers() == Qt::NoModifier )
+    {
+        // plain double-click -> open file
+        emit loadAction();
+    }
 }
 
 void WQtNetworkEditorView::mousePressEvent( QMouseEvent* event )
@@ -86,6 +109,13 @@ void WQtNetworkEditorView::mousePressEvent( QMouseEvent* event )
         return;
     }
 
+    // also ignore middle mouse button
+    if( event->button() == Qt::MidButton )
+    {
+        m_addMenu->popup( event->globalPos() );
+        return;
+    }
+
     // for panning the view
     m_lastPanPoint = event->pos();
     setCursor( Qt::ClosedHandCursor );
@@ -94,6 +124,13 @@ void WQtNetworkEditorView::mousePressEvent( QMouseEvent* event )
 
 void WQtNetworkEditorView::mouseReleaseEvent( QMouseEvent* event )
 {
+    // middle mouse button release: open add-menu
+    if( event->button() == Qt::MidButton )
+    {
+
+        return;
+    }
+
     setCursor( Qt::ArrowCursor );
     m_lastPanPoint = QPoint();
     QGraphicsView::mouseReleaseEvent( event );
