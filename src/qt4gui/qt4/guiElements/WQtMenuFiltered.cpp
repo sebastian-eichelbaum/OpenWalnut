@@ -22,6 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
+#include <vector>
+#include <string>
+
 #include "core/common/WLogger.h"
 #include "core/common/WStringUtils.h"
 

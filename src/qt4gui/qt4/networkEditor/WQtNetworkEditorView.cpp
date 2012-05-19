@@ -93,7 +93,7 @@ void WQtNetworkEditorView::mouseDoubleClickEvent( QMouseEvent* event )
     {
         m_addMenu->popup( event->globalPos() );
     }
-    else if ( event->modifiers() == Qt::NoModifier )
+    else if( event->modifiers() == Qt::NoModifier )
     {
         // plain double-click -> open file
         emit loadAction();
@@ -112,7 +112,6 @@ void WQtNetworkEditorView::mousePressEvent( QMouseEvent* event )
     // also ignore middle mouse button
     if( event->button() == Qt::MidButton )
     {
-        m_addMenu->popup( event->globalPos() );
         return;
     }
 
@@ -127,7 +126,7 @@ void WQtNetworkEditorView::mouseReleaseEvent( QMouseEvent* event )
     // middle mouse button release: open add-menu
     if( event->button() == Qt::MidButton )
     {
-
+        m_addMenu->popup( event->globalPos() );
         return;
     }
 
