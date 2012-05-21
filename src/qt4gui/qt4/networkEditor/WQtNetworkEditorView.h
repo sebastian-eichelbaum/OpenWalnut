@@ -48,6 +48,13 @@ signals:
      */
     void loadAction();
 
+    /**
+     * Emitted whenever the user drops something into the widget
+     *
+     * \param event event containing further info on the dropped item.
+     */
+    void dragDrop( QDropEvent* event );
+
 protected:
     /**
      * Sets the current centerpoint.  Also updates the scene's center point.
@@ -122,6 +129,13 @@ protected:
      * \param event the event
      */
     void leaveEvent( QEvent* event );
+
+    /**
+     * Handles the drop event for a tree item.
+     *
+     * \param event the event.
+     */
+    virtual void dropEvent( QDropEvent *event );
 
 private:
     /**

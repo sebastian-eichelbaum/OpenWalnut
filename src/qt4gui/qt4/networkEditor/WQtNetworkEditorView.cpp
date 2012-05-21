@@ -39,6 +39,7 @@ WQtNetworkEditorView::WQtNetworkEditorView( QWidget* parent ):
 
     setCenter( QPointF( 0.0, 0.0 ) );
     setResizeAnchor( QGraphicsView::AnchorUnderMouse );
+    setAcceptDrops( true );
 }
 
 void WQtNetworkEditorView::setCenter( const QPointF& centerPoint )
@@ -180,3 +181,12 @@ void WQtNetworkEditorView::keyPressEvent( QKeyEvent *event )
     }
     QGraphicsView::keyPressEvent( event );
 }
+
+void WQtNetworkEditorView::dropEvent( QDropEvent* event )
+{
+    // strangely this does not communicate down to WMainWindow although all parents are set properly. Even more strange is the fact that the
+    // dropEvent does not get fired inside the WQtNetworkScene.
+    emit dragDrop( event );
+    QGraphicsView::dropEvent( event );
+}
+

@@ -103,6 +103,13 @@ public:
      * \return the scene
      */
     WQtNetworkScene* getScene();
+
+    /**
+     * Get the view handling the scene.
+     *
+     * \return the view.
+     */
+    WQtNetworkEditorView* getView();
 protected:
     /**
      * Reference to the main window of the application.

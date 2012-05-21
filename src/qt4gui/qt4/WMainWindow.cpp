@@ -208,6 +208,10 @@ void WMainWindow::setupGUI()
     {
         m_networkEditor = new WQtNetworkEditor( this );
         m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
+
+        // strangely, the QGraphics* objects do not properly forward drag/drop events. We need to explicitly handle them.
+        connect( m_networkEditor->getView(), SIGNAL( dragDrop( QDropEvent* ) ),
+                 this, SLOT( handleDrop( QDropEvent* ) ) );
     }
 
     // the control panel instance is needed for the menu
@@ -1154,9 +1158,7 @@ void WMainWindow::restoreMainGLWidgetSize()
     m_mainGLWidget->setMaximumWidth( QWIDGETSIZE_MAX );
 }
 
-// Drag and drop functionality
-
-void WMainWindow::dropEvent( QDropEvent *event )
+void WMainWindow::handleDrop( QDropEvent* event )
 {
     if( event->mimeData()->hasUrls() )
     {
@@ -1218,14 +1220,19 @@ void WMainWindow::dropEvent( QDropEvent *event )
                     );
         }
     }
+}
+
+void WMainWindow::dropEvent( QDropEvent* event )
+{
+    handleDrop( event );
     QMainWindow::dropEvent( event );
 }
 
-void WMainWindow::dragMoveEvent( QDragMoveEvent *event )
+bool WMainWindow::isDropAcceptable( const QMimeData* mimeData )
 {
-    if( event->mimeData()->hasUrls() )
+    if( mimeData->hasUrls() )
     {
-        foreach( QUrl url, event->mimeData()->urls() )
+        foreach( QUrl url, mimeData->urls() )
         {
             QString path =  url.toLocalFile();
             QFileInfo info( path );
@@ -1240,36 +1247,28 @@ void WMainWindow::dragMoveEvent( QDragMoveEvent *event )
               || suffix == "owp"
               || suffix == "owproj" )
             {
-                event->acceptProposedAction();
-                return;
+                return true;
             }
         }
+    }
+
+    return false;
+}
+
+void WMainWindow::dragMoveEvent( QDragMoveEvent* event )
+{
+    if( WMainWindow::isDropAcceptable( event->mimeData() ) )
+    {
+        event->acceptProposedAction();
     }
     QMainWindow::dragMoveEvent( event );
 }
 
-void WMainWindow::dragEnterEvent( QDragEnterEvent *event )
+void WMainWindow::dragEnterEvent( QDragEnterEvent* event )
 {
-    if( event->mimeData()->hasUrls() )
+    if( WMainWindow::isDropAcceptable( event->mimeData() ) )
     {
-        foreach( QUrl url, event->mimeData()->urls() )
-        {
-            QString path =  url.toLocalFile();
-            QFileInfo info( path );
-            QString suffix =  info.completeSuffix();
-            if( suffix == "cnt"
-              || suffix == "edf"
-              || suffix == "asc"
-              || suffix == "nii"
-              || suffix == "nii.gz"
-              || suffix == "fib"
-              || suffix == "owp"
-              || suffix == "owproj" )
-            {
-                event->acceptProposedAction();
-                return;
-            }
-        }
+        event->acceptProposedAction();
     }
     QMainWindow::dragEnterEvent( event );
 }

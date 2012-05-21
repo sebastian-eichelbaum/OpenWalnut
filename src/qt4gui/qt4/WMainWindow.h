@@ -177,6 +177,17 @@ public:
      */
     void asyncProjectLoad( std::string filename );
 
+    /**
+     * This method checks whether a given drop event is acceptable.
+     * Several widgets in the GUI should support drag and drop. Unfortunately, not all widgets automatically push these events to the MainWindow.
+     * This is especially the case for QGraphics* based classes.
+     *
+     * \param mimeData the mime info of the dragged thing
+     *
+     * \return true if acceptable.
+     */
+    static bool isDropAcceptable( const QMimeData* mimeData );
+
 protected:
     /**
      * Setup the GUI by handling special modules. NavSlices for example setup several toolbar buttons.
@@ -331,6 +342,13 @@ public slots:
      * \param logLevel the new loglevel to set
      */
     void handleLogLevelUpdate( unsigned int logLevel );
+
+    /**
+     * Handles the given drop. Use this in conjunction with \ref isDropAcceptable.
+     *
+     * \param event the event to handle
+     */
+    void handleDrop( QDropEvent* event );
 
 private:
     /**

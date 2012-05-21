@@ -209,7 +209,7 @@ void WQtControlPanel::connectSlots()
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), m_moduleTreeWidget, SLOT( clearSelection() ) );
     connect( m_colormapper, SIGNAL( textureSelectionChanged( osg::ref_ptr< WGETexture3D > ) ),
              this, SLOT( selectDataModule( osg::ref_ptr< WGETexture3D > ) ) );
-    connect( m_roiTreeWidget, SIGNAL( dragDrop() ), this, SLOT( handleDragDrop() ) );
+    connect( m_roiTreeWidget, SIGNAL( dragDrop() ), this, SLOT( handleRoiDragDrop() ) );
 }
 
 WQtSubjectTreeItem* WQtControlPanel::addSubject( std::string name )
@@ -1251,7 +1251,7 @@ void WQtControlPanel::selectUpperMostEntry()
     m_tiModules->setSelected( true );
 }
 
-void WQtControlPanel::handleDragDrop()
+void WQtControlPanel::handleRoiDragDrop()
 {
     WLogger::getLogger()->addLogMessage( "Drag and drop handler not implemented yet!", "ControlPanel", LL_DEBUG );
 }

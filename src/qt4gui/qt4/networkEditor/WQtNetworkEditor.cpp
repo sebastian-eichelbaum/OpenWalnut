@@ -59,11 +59,13 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     setObjectName( "Module Graph Dock" );
     m_mainWindow = parent;
 
-    m_view = new WQtNetworkEditorView();
+    setAcceptDrops( true ); // enable drag and drop events
+
+    m_view = new WQtNetworkEditorView( this );
     m_view->setMinimumSize( 20, 20 );
     this->setFocusProxy( m_view );
 
-    m_scene = new WQtNetworkScene();
+    m_scene = new WQtNetworkScene( this );
     m_scene->setSceneRect( m_scene->itemsBoundingRect() );
 
     m_view->setScene( m_scene );
@@ -469,3 +471,7 @@ WQtNetworkScene* WQtNetworkEditor::getScene()
     return m_scene;
 }
 
+WQtNetworkEditorView* WQtNetworkEditor::getView()
+{
+    return m_view;
+}
