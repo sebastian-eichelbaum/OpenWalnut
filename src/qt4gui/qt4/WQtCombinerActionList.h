@@ -81,6 +81,30 @@ public:
      */
     virtual ~WQtCombinerActionList();
 
+    /**
+     * Clears a hierarchy of QActions in a list. This deeply clears and deletes the lists.
+     *
+     * \param l the list to clear and delete
+     */
+    static void deepDeleteActionList( QList< QAction* >& l )   // NOLINT   - we need the non-const ref here.
+    {
+        // traverse
+        for( QList< QAction* >::iterator it = l.begin(); it != l.end(); ++it )
+        {
+            if( ( *it )->menu() )
+            {
+                // recursively remove sub-menu items
+                QList< QAction* > subs = ( *it )->menu()->actions();
+                deepDeleteActionList( subs );
+            }
+
+            delete ( *it );
+        }
+
+        // remove items afterwards
+        l.clear();
+    }
+
 protected:
 private:
 };

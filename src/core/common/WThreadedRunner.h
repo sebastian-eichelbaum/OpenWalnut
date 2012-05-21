@@ -104,6 +104,13 @@ public:
     const WBoolFlag& isCrashed() const;
 
     /**
+     * Get the message of the exception finally causing the crash.
+     *
+     * \return the message
+     */
+    const std::string& getCrashMessage() const;
+
+    /**
      * Set the name of the thread. This can be handy for debugging as it gets set on Linux as the pthread name. You MUST set this before starting
      * the thread.
      *
@@ -196,6 +203,11 @@ protected:
      * True whenever an exception is thrown during threadMain.
      */
     WBoolFlag m_isCrashed;
+
+    /**
+     * The crash message. Only filled if m_isCrashed is true.
+     */
+    std::string m_crashMessage;
 
 private:
     /**

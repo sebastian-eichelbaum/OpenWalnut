@@ -112,6 +112,14 @@ public:
      */
     virtual void handleCheckStateChange();
 
+    /**
+     * Create tooltip for a given module. This can be used by all the widgets needing a tooltip for a module.
+     *
+     * \param module the module to create the tooltip for
+     *
+     * \return the tooltip.
+     */
+    static std::string createTooltip( WModule::SPtr module );
 public slots:
 
     /**
@@ -134,13 +142,6 @@ protected:
      * Name of the tree item.
      */
     std::string m_name;
-
-    /**
-     * Method updates the tooltip of the tree item.
-     *
-     * \param progress the current progress as string.
-     */
-    void updateTooltip( std::string progress );
 
     /**
      * True if the treeitem and the module gets deleted currently.

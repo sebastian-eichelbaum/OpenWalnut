@@ -60,6 +60,7 @@
 #include "../events/WRoiAssocEvent.h"
 #include "../events/WRoiRemoveEvent.h"
 #include "../guiElements/WQtModuleMetaInfo.h"
+#include "../guiElements/WQtMenuFiltered.h"
 #include "../networkEditor/WQtNetworkEditor.h"
 #include "WQtBranchTreeItem.h"
 #include "WQtColormapper.h"
@@ -996,37 +997,13 @@ void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boos
     }
 }
 
-/**
- * Clears a hierarchy of QActions in a list. This deeply clears and deletes the lists.
- *
- * \param l the list to clear and delete
- */
-void deepDeleteActionList( QList< QAction* >& l )   // NOLINT   - we need the non-const ref here.
-{
-    // traverse
-    for( QList< QAction* >::iterator it = l.begin(); it != l.end(); ++it )
-    {
-        if( ( *it )->menu() )
-        {
-            // recursively remove sub-menu items
-            QList< QAction* > subs = ( *it )->menu()->actions();
-            deepDeleteActionList( subs );
-        }
-
-        delete ( *it );
-    }
-
-    // remove items afterwards
-    l.clear();
-}
-
 void WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule > module )
 {
     // we need to clean up the action lists
-    deepDeleteActionList( m_addModuleActionList );
-    deepDeleteActionList( m_connectWithPrototypeActionList );
-    deepDeleteActionList( m_connectWithModuleActionList );
-    deepDeleteActionList( m_disconnectActionList );
+    WQtCombinerActionList::deepDeleteActionList( m_addModuleActionList );
+    WQtCombinerActionList::deepDeleteActionList( m_connectWithPrototypeActionList );
+    WQtCombinerActionList::deepDeleteActionList( m_connectWithModuleActionList );
+    WQtCombinerActionList::deepDeleteActionList( m_disconnectActionList );
 
     // acquire new action lists
     m_connectWithPrototypeActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(),
@@ -1045,28 +1022,28 @@ void WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule > modu
     }
 
     // build the add menu
-    QMenu* m = new QMenu( m_moduleTreeWidget );
+    QMenu* m = new WQtMenuFiltered( m_moduleTreeWidget );
     m->addActions( m_addModuleActionList );
     m_addModuleAction->setDisabled( !m_addModuleActionList.size() || module );  // disable if no entry inside or a module was selected
     delete( m_addModuleAction->menu() ); // ensure that combiners get free'd
     m_addModuleAction->setMenu( m );
 
     // build the prototype menu
-    m = new QMenu( m_moduleTreeWidget );
+    m = new WQtMenuFiltered( m_moduleTreeWidget );
     m->addActions( m_connectWithPrototypeActionList );
     m_connectWithPrototypeAction->setDisabled( !m_connectWithPrototypeActionList.size() );  // disable if no entry inside
     delete( m_connectWithPrototypeAction->menu() ); // ensure that combiners get free'd
     m_connectWithPrototypeAction->setMenu( m );
 
     // build the module menu
-    m = new QMenu( m_moduleTreeWidget );
+    m = new WQtMenuFiltered( m_moduleTreeWidget );
     m->addActions( m_connectWithModuleActionList );
     m_connectWithModuleAction->setDisabled( !m_connectWithModuleActionList.size() );  // disable if no entry inside
     delete m_connectWithModuleAction->menu();
     m_connectWithModuleAction->setMenu( m );
 
     // build the disconnect menu
-    m = new QMenu( m_moduleTreeWidget );
+    m = new WQtMenuFiltered( m_moduleTreeWidget );
     m->addActions( m_disconnectActionList );
     m_disconnectAction->setDisabled( !m_disconnectActionList.size() );  // disable if no entry inside
     delete( m_disconnectAction->menu() ); // ensure that combiners get free'd

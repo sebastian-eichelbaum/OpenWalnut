@@ -147,6 +147,16 @@ private:
      * To keep track of mouse movement, cache last known mouse event point
      */
     QPoint m_lastPanPoint;
+
+    /**
+     * Action list
+     */
+    WQtCombinerActionList m_addModuleActionList;
+
+    /**
+     * The menu containing the add actions in m_addModuleActionList.
+     */
+    QMenu* m_addMenu;
 };
 
 #endif  // WQTNETWORKEDITORVIEW_H
