@@ -27,10 +27,10 @@
 #include <vector>
 #include <string>
 
-#include "../../kernel/WKernel.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../common/math/WMath.h"
-#include "../../dataHandler/WDataHandler.h"
+#include <core/kernel/WKernel.h>
+#include <core/common/WPropertyHelper.h>
+#include <core/common/math/WMath.h>
+#include <core/dataHandler/WDataHandler.h>
 
 #include "WMFiberCreator.h"
 #include "WMFiberCreator.xpm"

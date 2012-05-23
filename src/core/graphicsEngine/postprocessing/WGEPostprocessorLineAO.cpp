@@ -51,12 +51,12 @@ WGEPostprocessorLineAO::WGEPostprocessorLineAO( osg::ref_ptr< WGEOffscreenRender
     lineaoScalers->setMin( 1 );
     lineaoScalers->setMax( 8 );
 
-    WPropDouble lineaoRadiusSS = m_properties->addProperty( "Radius", "The radius around the pixel to sample for occluders in pixels.", 2.5 );
-    lineaoRadiusSS->setMin( 0.0 );
-    lineaoRadiusSS->setMax( 100.0 );
+    WPropDouble lineaoRadiusSS = m_properties->addProperty( "Radius", "The radius around the pixel to sample for occluders in pixels.", 2.0 );
+    lineaoRadiusSS->setMin( 0.01 );
+    lineaoRadiusSS->setMax( 10.0 );
 
     WPropDouble lineaoTotalStrength = m_properties->addProperty( "Total Strength", "The strength of the effect. Higher values emphasize the effect.",
-                                                                                 1.0 );
+                                                                                 0.5 );
     lineaoTotalStrength->setMin( 0.0 );
     lineaoTotalStrength->setMax( 5.0 );
 
