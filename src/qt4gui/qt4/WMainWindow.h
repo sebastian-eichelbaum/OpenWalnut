@@ -41,7 +41,6 @@
 #include "WQtGLWidget.h"
 #include "WSettingAction.h"
 #include "networkEditor/WQtNetworkEditor.h"
-#include "commandPrompt/WQtCommandPromptToolbar.h"
 
 // forward declarations
 class QMenuBar;
@@ -171,6 +170,24 @@ public:
      */
     QSplashScreen* getSplash() const;
 
+    /**
+     * Loads a given project asynchronously.
+     *
+     * \param filename the file to load.
+     */
+    void asyncProjectLoad( std::string filename );
+
+    /**
+     * This method checks whether a given drop event is acceptable.
+     * Several widgets in the GUI should support drag and drop. Unfortunately, not all widgets automatically push these events to the MainWindow.
+     * This is especially the case for QGraphics* based classes.
+     *
+     * \param mimeData the mime info of the dragged thing
+     *
+     * \return true if acceptable.
+     */
+    static bool isDropAcceptable( const QMimeData* mimeData );
+
 protected:
     /**
      * Setup the GUI by handling special modules. NavSlices for example setup several toolbar buttons.
@@ -295,14 +312,9 @@ public slots:
     void openNotImplementedDialog();
 
     /**
-     * gets called when the button new roi is pressed
+     * gets called when the button new ROI is pressed
      */
     void newRoi();
-
-    /**
-     * Gets called whenever the user presses the project button.
-     */
-    void projectLoad();
 
     /**
      * Gets called whenever the user presses the project save button.
@@ -331,6 +343,13 @@ public slots:
      */
     void handleLogLevelUpdate( unsigned int logLevel );
 
+    /**
+     * Handles the given drop. Use this in conjunction with \ref isDropAcceptable.
+     *
+     * \param event the event to handle
+     */
+    void handleDrop( QDropEvent* event );
+
 private:
     /**
      * The splash screen object opened on startup.
@@ -353,8 +372,6 @@ private:
     WQtControlPanel* m_controlPanel; //!< control panel
 
     WQtNetworkEditor* m_networkEditor; //!< network editor
-
-    WQtCommandPromptToolbar* m_commandPrompt; //!< command prompt
 
     boost::shared_ptr< WQtGLWidget > m_mainGLWidget; //!< the main GL widget of the GUI
     WQtGLScreenCapture* m_mainGLWidgetScreenCapture; //!< screen recorder in m_mainGLWidget
@@ -400,6 +417,15 @@ private:
      * The action controlling the auto-display feature.
      */
     WSettingAction* m_autoDisplaySetting;
+
+    /**
+     * Called whenever a async load has finished. Used by \ref asyncProjectLoad. It might be called from outside the GUI thread.
+     *
+     * \param file the filename
+     * \param errors the list of errors
+     */
+    void slotLoadFinished( boost::filesystem::path file, std::vector< std::string > errors );
+
 
 private slots:
     /**

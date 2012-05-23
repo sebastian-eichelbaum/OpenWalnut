@@ -24,7 +24,7 @@
 
 #include <string>
 
-
+#include "../common/WLogger.h"
 
 #include "WPickHandler.h"
 
@@ -35,7 +35,9 @@ WPickHandler::WPickHandler()
       m_ctrl( false ),
       m_viewerName( "" ),
       m_paintMode( 0 ),
-      m_mouseButton( WPickInfo::NOMOUSE )
+      m_mouseButton( WPickInfo::NOMOUSE ),
+      m_inPickMode( false ),
+      m_scrollWheel( 0 )
 {
 }
 
@@ -46,7 +48,9 @@ WPickHandler::WPickHandler( std::string viewerName )
       m_ctrl( false ),
       m_viewerName( viewerName ),
       m_paintMode( 0 ),
-      m_mouseButton( WPickInfo::NOMOUSE )
+      m_mouseButton( WPickInfo::NOMOUSE ),
+      m_inPickMode( false ),
+      m_scrollWheel( 0 )
 {
 }
 
@@ -102,6 +106,43 @@ bool WPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAda
             }
             return false;
         }
+        case osgGA::GUIEventAdapter::SCROLL : // Wheel
+        {
+            if( m_inPickMode )
+            {
+                switch( ea.getScrollingMotion() )
+                {
+                    case osgGA::GUIEventAdapter::SCROLL_UP:
+                        m_scrollWheel++;
+                        break;
+                    case osgGA::GUIEventAdapter::SCROLL_DOWN:
+                        m_scrollWheel--;
+                    case osgGA::GUIEventAdapter::SCROLL_2D:
+                        // FIXME: the osg doc tells us nothing about this value, but is seems to be always 120 or -120
+                        if( ea.getScrollingDeltaY() > 0 )
+                        {
+                            m_scrollWheel++;
+                        }
+                        else
+                        {
+                            m_scrollWheel--;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+                // handle as pick event
+                osgViewer::View* view = static_cast< osgViewer::View* >( &aa );
+                if( view )
+                {
+                    pick( view, ea );
+                }
+                ea.setHandled( true );
+                return true;
+            }
+            return false;
+        }
         case osgGA::GUIEventAdapter::KEYUP : // Key on keyboard released.
         {
             m_shift = false;
@@ -138,10 +179,12 @@ bool WPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAda
 
 void WPickHandler::unpick( )
 {
+    m_inPickMode = false;
     if( m_hitResult != WPickInfo() )
     {
         m_hitResult = WPickInfo( "unpick", m_viewerName, WPosition(), std::make_pair( 0, 0 ), WPickInfo::NONE );
         m_startPick = WPickInfo();
+        m_scrollWheel = 0;
     }
     m_pickSignal( getHitResult() );
 }
@@ -188,7 +231,7 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
     if( m_viewerName != "" && m_viewerName != "Main View" )
     {
         pickInfo = WPickInfo( "", m_viewerName, m_startPick.getPickPosition(), std::make_pair( x, y ),
-                              m_startPick.getModifierKey(), m_mouseButton, m_startPick.getPickNormal() );
+                              m_startPick.getModifierKey(), m_mouseButton, m_startPick.getPickNormal(), m_scrollWheel );
         m_hitResult = pickInfo;
 
         // if nothing was picked before remember the currently picked.
@@ -264,7 +307,7 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
         if(  m_startPick.getName() == "" )
         {
             pickInfo = WPickInfo( "nothing", m_viewerName, WPosition( 0.0, 0.0, 0.0 ), std::make_pair( x, y ),
-                                  m_startPick.getModifierKey(), m_mouseButton, WVector3d( 0.0, 0.0, 0.0 ) );
+                                  m_startPick.getModifierKey(), m_mouseButton, WVector3d( 0.0, 0.0, 0.0 ), m_scrollWheel );
 
             m_hitResult = pickInfo;
             m_pickSignal( getHitResult() );
@@ -286,20 +329,21 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
         pickNormal[1] = hitr->getWorldIntersectNormal()[1];
         pickNormal[2] = hitr->getWorldIntersectNormal()[2];
         pickInfo = WPickInfo( extractSuitableName( hitr ), m_viewerName, pickPos, std::make_pair( x, y ),
-                              pickInfo.getModifierKey(), m_mouseButton, pickNormal );
+                              pickInfo.getModifierKey(), m_mouseButton, pickNormal, m_scrollWheel );
     }
 
     // Use the old PickInfo with updated pixel info if we have previously picked something but the old is not in list anymore
     if( !startPickIsStillInList && m_startPick.getName() != ""  && m_startPick.getName() != "unpick" )
     {
         pickInfo = WPickInfo( m_startPick.getName(), m_viewerName, m_startPick.getPickPosition(), std::make_pair( x, y ),
-                              m_startPick.getModifierKey(), m_mouseButton, m_startPick.getPickNormal() );
+                              m_startPick.getModifierKey(), m_mouseButton, m_startPick.getPickNormal(), m_scrollWheel );
     }
 
     m_hitResult = pickInfo;
 
     // if nothing was picked before remember the currently picked.
     m_startPick = pickInfo;
+    m_inPickMode = true;
 
     m_pickSignal( getHitResult() );
 }

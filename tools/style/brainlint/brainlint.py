@@ -1766,7 +1766,10 @@ def CheckComment(comment, filename, linenum, error):
     if middle_whitespace != ' ' and middle_whitespace != '':
       error(filename, linenum, 'whitespace/todo', 2,
             'TODO(my_username) should be followed by a space')
-
+    if re.match(r'.*TODO', comment):
+      if re.match(r".*TODO\(\s", comment) or re.match(r".*TODO\(.\w*\s\)", comment) :
+        error(filename, linenum, 'whitespace/todo', 2,
+              'There should be no whitspaces surrounding the username in TODO')
 
 def CheckSpacing(filename, clean_lines, linenum, error):
   """Checks for the correctness of various spacing issues in the code.

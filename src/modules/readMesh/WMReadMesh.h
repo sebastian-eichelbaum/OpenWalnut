@@ -25,6 +25,7 @@
 #ifndef WMREADMESH_H
 #define WMREADMESH_H
 
+#include <fstream>
 #include <string>
 
 #include <osg/Geode>
@@ -35,13 +36,8 @@
 #include "core/graphicsEngine/WTriangleMesh.h"
 
 /**
- * Someone should add some documentation here.
- * Probably the best person would be the module's
- * creator, i.e. "wiebel".
- *
- * This is only an empty template for a new module. For
- * an example module containing many interesting concepts
- * and extensive documentation have a look at "src/modules/template"
+ * This module reads a file containing mesh data (several formats supported) and creates a mesh
+ * (or triangle mesh) object delivered through the output connector
  *
  * \ingroup modules
  */
@@ -103,6 +99,11 @@ protected:
 
 private:
     /**
+     * Handles chage of selected mesh type, e.g. show/hide other properties.
+     */
+    void meshTypeSelected();
+
+    /**
      * Reads a mesh file and creates a WTriangleMesh out of it.
      *
      * \return Reference to the dataset.
@@ -132,11 +133,29 @@ private:
     virtual boost::shared_ptr< WTriangleMesh > readBrainVISA();
 
     /**
+     * Reads a Freesurfer (.surf) file and creates a WTriangleMesh out of it.
+     *
+     * \return Reference to the dataset.
+     */
+    virtual boost::shared_ptr< WTriangleMesh > readFreesurfer();
+
+    /**
      * creates a color map for loaded dip file
      * \param value a value between 0.0 and 1.0
      * \return the color
      */
     osg::Vec4 blueGreenPurpleColorMap( float value );
+
+    /**
+     * Reads the next line from current position in stream of the fiber VTK file.
+     *
+     * \param ifs file stream of the mesh file to be loaded
+     * \param desc In case of trouble while reading, this gives information in
+     * the error message about what was tried to read
+     * \throws WDHIOFailure, WDHParseError
+     * \return Next line as string.
+     */
+    std::string getLine( boost::shared_ptr< std::ifstream > ifs, const std::string& desc );
 
     boost::shared_ptr< WTriangleMesh > m_triMesh; //!< This triangle mesh is provided as output through the connector.
     boost::shared_ptr< WModuleOutputData< WTriangleMesh > > m_output;  //!< Output connector provided by this module.
@@ -153,6 +172,10 @@ private:
      * Selection property for file types
      */
     WPropSelection m_fileTypeSelection;
+
+    WPropInt m_propDatasetSizeX; //!< Size of the dataset (X)
+    WPropInt m_propDatasetSizeY; //!< Size of the dataset (Y)
+    WPropInt m_propDatasetSizeZ; //!< Size of the dataset (Z)
 };
 
 #endif  // WMREADMESH_H

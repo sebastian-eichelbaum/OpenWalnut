@@ -83,7 +83,7 @@ float superquadric( vec3 viewDir, vec3 planePoint, float t, out vec3 ray, out ve
     // calculate squadric value for current t
 
     // if we get a hit we need those values for calculating the gradient at the hit point
-    // if we do not get a hit we use those values for calculating the derivation at the current point
+    // if we do not get a hit we use those values for calculating the derivative at the current point
     // for doing the next newton step
 
     /////////////////// HINT ///////////////////

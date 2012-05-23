@@ -229,6 +229,7 @@ bool WEEGViewHandler::markEvent( float x )
         {
             boost::shared_ptr< WEEGEvent > event( new WEEGEvent(
                     m_timePos->get() + ( x - labelsWidth ) * m_timeRange->get() / m_graphWidth->get(),
+                    m_yPos->get(),
                     m_eeg,
                     m_segmentID,
                     m_eventParentNode ) );

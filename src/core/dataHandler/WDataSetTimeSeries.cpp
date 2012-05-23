@@ -51,7 +51,7 @@ WDataSetTimeSeries::WDataSetTimeSeries( std::vector< boost::shared_ptr< WDataSet
     {
         WAssert( *dit, "" );
         WAssert( g == boost::shared_dynamic_cast< WGridRegular3D >( ( *dit )->getGrid() ), "" );
-        WAssert( !wlimits::isnan( *tit ), "" );
+        WAssert( !wlimits::isNaN( *tit ), "" );
         WAssert( d == ( *dit )->getValueSet()->getDataType(), "" );
         WAssert( ( *dit )->getValueSet()->dimension() == 1, "" );
         WAssert( ( *dit )->getValueSet()->order() == 0, "" );
@@ -107,7 +107,7 @@ bool WDataSetTimeSeries::isTimeSlice( float time ) const
 
 float WDataSetTimeSeries::findNearestTimeSlice( float time ) const
 {
-    WAssert( !wlimits::isnan( time ), "" );
+    WAssert( !wlimits::isNaN( time ), "" );
     if( time > getMaxTime() )
     {
         return getMaxTime();
@@ -129,7 +129,7 @@ boost::shared_ptr< WDataSetScalar const > WDataSetTimeSeries::getDataSetPtrAtTim
 
 boost::shared_ptr< WDataSetScalar const > WDataSetTimeSeries::calcDataSetAtTime( float time, std::string const& name ) const
 {
-    WAssert( !wlimits::isnan( time ), "" );
+    WAssert( !wlimits::isNaN( time ), "" );
     if( time < getMinTime() || time > getMaxTime() )
     {
         return boost::shared_ptr< WDataSetScalar const >();
@@ -180,7 +180,7 @@ boost::shared_ptr< WDataSetScalar const > WDataSetTimeSeries::calcDataSetAtTime(
         break;
     }
     boost::shared_ptr< WDataSetScalar > ds( new WDataSetScalar( vs, m_dataSets.front().first->getGrid() ) );
-    ds->setFileName( name );
+    ds->setFilename( name );
     return ds;
 }
 

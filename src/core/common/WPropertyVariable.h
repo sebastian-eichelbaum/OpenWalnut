@@ -381,10 +381,11 @@ public:
      * dynamic type of the property.
      *
      * \param value the new value.
+     * \param recommendedOnly if true, property types which support recommended values apply the given value as recommendation.
      *
      * \return true if the value has been accepted.
      */
-    virtual bool set( boost::shared_ptr< WPropertyBase > value );
+    virtual bool set( boost::shared_ptr< WPropertyBase > value, bool recommendedOnly = false );
 
     /**
      * Sets the new value for this flag. Also notifies waiting threads. After setting a value, changed() will be true.
@@ -616,13 +617,20 @@ std::string WPropertyVariable< T >::getAsString()
 }
 
 template < typename T >
-bool WPropertyVariable< T >::set( boost::shared_ptr< WPropertyBase > value )
+bool WPropertyVariable< T >::set( boost::shared_ptr< WPropertyBase > value, bool recommendedOnly )
 {
     // try to cast the given property to a WPropertyVariable of right type:
     boost::shared_ptr< WPropertyVariable< T > > v = boost::shared_dynamic_cast< WPropertyVariable< T > >( value );
     if( v )
     {
-        return set( v->get() );
+        if( recommendedOnly )
+        {
+            return setRecommendedValue( v->get() );
+        }
+        else
+        {
+            return set( v->get() );
+        }
     }
     else
     {

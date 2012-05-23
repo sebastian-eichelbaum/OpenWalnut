@@ -72,6 +72,17 @@ namespace wge
     osg::Vec3 unprojectFromScreen( const osg::Vec3 screen, osg::ref_ptr< osg::Camera > camera  );
 
     /**
+     * Converts screen coordinates into Camera coordinates.
+     * \note this method can be useful to work with vectors (w component 0)
+     *
+     * \param screen the screen coordinates
+     * \param camera The matrices of this camera will used for unprojecting.
+     *
+     * \return un-projects a screen coordinate back to world space
+     */
+    osg::Vec4 unprojectFromScreen( const osg::Vec4 screen, osg::ref_ptr< osg::Camera > camera  );
+
+    /**
      * creates the same color as the atlas colormap shader from the index
      *
      * \param index unsigned char that indexes the color

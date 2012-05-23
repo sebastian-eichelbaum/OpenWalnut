@@ -82,17 +82,25 @@ WQtGLScreenCapture::WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* par
     m_resolutionCombo = new QComboBox();
     m_resolutionCombo->addItem( "640x480" );
     m_resolutionCombo->addItem( "800x600" );
-    m_resolutionCombo->addItem( "850x650" );
     m_resolutionCombo->addItem( "1024x768" );
     m_resolutionCombo->addItem( "1280x1024" );
-    m_resolutionCombo->addItem( "1330x1074" );
     m_resolutionCombo->addItem( "1280x720 (720p)" );
     m_resolutionCombo->addItem( "1920x1080 (1080p)" );
+    m_resolutionCombo->addItem( "Custom" );
+
+    m_customWidth = new QLineEdit( "1980", this );
+    m_customHeight = new QLineEdit( "1080", this );
+    m_customWidth->setValidator( new QIntValidator( 0, 4096, m_customWidth ) );
+    m_customHeight->setValidator( new QIntValidator( 0, 4096, m_customHeight ) );
 
     QPushButton* resolutionButton = new QPushButton( "Set" );
     resolutionButton->setCheckable( true );
-    resolutionGroupLayout->addWidget( m_resolutionCombo, 0, 0 );
-    resolutionGroupLayout->addWidget( resolutionButton, 0, 1 );
+    resolutionGroupLayout->addWidget( m_resolutionCombo, 0, 0, 1, 2 );
+    resolutionGroupLayout->addWidget( resolutionButton, 0, 2 );
+    resolutionGroupLayout->addWidget( new QLabel( "Custom Resolution" ), 1, 0, 1, 3 );
+    resolutionGroupLayout->addWidget( m_customWidth, 2, 0 );
+    resolutionGroupLayout->addWidget( m_customHeight, 2, 1 );
+
     connect( resolutionButton, SIGNAL( toggled( bool ) ), this, SLOT( resolutionChange( bool ) ) );
 
     // filename config
@@ -392,7 +400,6 @@ void WQtGLScreenCapture::resolutionChange( bool force )
     {
         wlog::debug( "WQtGLScreenCapture" ) << "Forcing resolution";
 
-        // TODO(ebaum): this magic number stuff is ugly.
         switch( m_resolutionCombo->currentIndex() )
         {
         case 0:
@@ -401,23 +408,20 @@ void WQtGLScreenCapture::resolutionChange( bool force )
         case 1:
             m_mainWindow->forceMainGLWidgetSize( 800, 600 );
             break;
-        case 2: // TODO(ebaum): add offset edits
-            m_mainWindow->forceMainGLWidgetSize( 800 + 50, 600 + 50 );
-            break;
-        case 3:
+        case 2:
             m_mainWindow->forceMainGLWidgetSize( 1024, 768 );
             break;
-        case 4:
+        case 3:
             m_mainWindow->forceMainGLWidgetSize( 1280, 1024 );
             break;
-        case 5: // TODO(ebaum): add offset edits
-            m_mainWindow->forceMainGLWidgetSize( 1280 + 50, 1024 + 50 );
-            break;
-        case 6:
+        case 4:
             m_mainWindow->forceMainGLWidgetSize( 1280, 720 );
             break;
-        case 7:
+        case 5:
             m_mainWindow->forceMainGLWidgetSize( 1920, 1080 );
+            break;
+        case 6: // custom size
+            m_mainWindow->forceMainGLWidgetSize( m_customWidth->text().toInt(), m_customHeight->text().toInt() );
             break;
         }
     }

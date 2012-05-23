@@ -2135,7 +2135,8 @@ public:
 
             s[ idx ] = 3.0;
 
-            TS_ASSERT_THROWS_NOTHING( T24 t = T24( s ) );
+            TS_ASSERT_THROWS_NOTHING( T24 t = T24( s );
+                                      t.getOrder() );
             T24 t = T24( s );
 
             TS_ASSERT_EQUALS( t[ idx ], 3.0 );
@@ -2161,7 +2162,8 @@ public:
 
             s[ idx ] = 3.0;
 
-            TS_ASSERT_THROWS_NOTHING( T14 t = T14( s ) );
+            TS_ASSERT_THROWS_NOTHING( T14 t = T14( s );
+                                      t.getOrder() );
             T14 t = T14( s );
 
             TS_ASSERT_EQUALS( t[ idx ], 3.0 );
@@ -2179,7 +2181,8 @@ public:
             std::size_t* idx = NULL;
             s[ idx ] = 5.0;
 
-            TS_ASSERT_THROWS_NOTHING( T04 t = T04( s ) );
+            TS_ASSERT_THROWS_NOTHING( T04 t = T04( s );
+                                      t.getOrder() );
             T04 t = T04( s );
 
             TS_ASSERT_EQUALS( t[ idx ], 5.0 );

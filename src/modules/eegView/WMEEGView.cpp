@@ -29,6 +29,7 @@
 #include <osg/ShapeDrawable>
 #include <osgSim/ColorRange>
 
+#include "core/dataHandler/WDataSetDipoles.h"
 #include "core/dataHandler/WEEG2.h"
 #include "core/dataHandler/WEEG2Segment.h"
 #include "core/dataHandler/WEEGChannelInfo.h"
@@ -92,12 +93,13 @@ const char** WMEEGView::getXPMIcon() const
 
 void WMEEGView::connectors()
 {
-    // initialize connectors
     m_input = boost::shared_ptr< WModuleInputData< WEEG2 > >( new WModuleInputData< WEEG2 >(
-        shared_from_this(), "in", "Loaded EEG-dataset." ) );
-
-    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
+        shared_from_this(), "EEG recording", "Loaded EEG-dataset." ) );
     addConnector( m_input );
+
+    m_dipoles = boost::shared_ptr< WModuleInputData< WDataSetDipoles > >( new WModuleInputData< WDataSetDipoles >(
+        shared_from_this(), "Dipoles", "The reconstructed dipoles for the EEG." ) );
+    addConnector( m_dipoles );
 
     // call WModules initialization
     WModule::connectors();
@@ -118,30 +120,56 @@ void WMEEGView::properties()
                                                     "Draw the labels of the electrodes at their 3D positions.",
                                                     true,
                                                     m_propCondition );
-    m_labelsWidth      = m_properties->addProperty( "Labels width",
+    m_proofOfConcept   = m_properties->addProperty( "Enable POC",
+                                                    "Use proof of concept (POC) ROI positioning instead of real dipoles position.",
+                                                    false,
+                                                    m_propCondition );
+    m_butterfly        = m_properties->addProperty( "Butterfly plot",
+                                                    "Overlay all curves in one row.",
+                                                    false,
+                                                    m_propCondition );
+    m_ROIsize          = m_properties->addProperty( "ROI size",
+                                                    "The width ROI box.",
+                                                    10.0,
+                                                    m_propCondition );
+    m_ROIsize->setMin( 0.0 );
+    m_ROIsize->setMax( 50.0 );
+
+
+    m_appearanceGroup = m_properties->addPropertyGroup( "Appearance",
+                                                              "Modification of the appearance of the EEG View widget" );
+    m_labelsWidth      = m_appearanceGroup->addProperty( "Labels width",
                                                     "The width of the label display in pixel.",
                                                     24 );
-    m_timePos          = m_properties->addProperty( "Time position",
-                                                    "The time position in seconds where to start the graph at the left edge.",
-                                                    0.0 );
-    m_timeRange        = m_properties->addProperty( "Time range",
-                                                    "The width of the graph in seconds.",
-                                                    4.0 );
-    m_graphWidth       = m_properties->addProperty( "Graph width",
+
+    m_graphWidth       = m_appearanceGroup->addProperty( "Graph width",
                                                     "The width of the graph in pixel.",
                                                     992 );
-    m_yPos             = m_properties->addProperty( "Y position",
-                                                    "The y position in pixel at the lower edge.",
-                                                    -724.5 );
-    m_ySpacing         = m_properties->addProperty( "Spacing",
+    m_ySpacing         = m_appearanceGroup->addProperty( "Spacing",
                                                     "The distance between two curves of the graph in pixel.",
                                                     23.0 );
-    m_ySensitivity     = m_properties->addProperty( "Sensitivity",
-                                                    "The sensitivity of the graph in microvolt per pixel.",
-                                                    2.0 );
-    m_colorSensitivity = m_properties->addProperty( "Color sensitivity",
+
+    m_colorSensitivity = m_appearanceGroup->addProperty( "Color sensitivity",
             "The sensitivity of the color map. It ranges from -Color Sensitivity to +Color Sensitivity in microvolt.",
                                                     23.0 );
+
+
+
+    m_manualNavigationGroup = m_properties->addPropertyGroup( "Manual Navigation",
+                                                              "Manually modify the parameters that are usually changes by mouse"
+                                                              " actions in th EEG view." );
+    m_ySensitivity     = m_manualNavigationGroup->addProperty( "Sensitivity",
+                                                    "The sensitivity of the graph in microvolt per pixel.",
+                                                    2.0 );
+    m_timePos          = m_manualNavigationGroup->addProperty( "Time position",
+                                                    "The time position in seconds where to start the graph at the left edge.",
+                                                    0.0 );
+    m_timeRange        = m_manualNavigationGroup->addProperty( "Time range",
+                                                    "The width of the graph in seconds.",
+                                                    4.0 );
+    m_yPos             = m_manualNavigationGroup->addProperty( "Y position",
+                                                    "The y position in pixel at the lower edge.",
+                                                    -724.5 );
 
     m_labelsWidth->setMin( 0 );
     m_labelsWidth->setMax( 64 );
@@ -159,6 +187,7 @@ void WMEEGView::properties()
     m_ySensitivity->setMax( 100.0 );
     m_colorSensitivity->setMin( 0.01 );
     m_colorSensitivity->setMax( 10000.0 );
+
 
     WModule::properties();
 }
@@ -188,32 +217,9 @@ void WMEEGView::moduleMain()
     m_event = boost::shared_ptr< WFlag< boost::shared_ptr< WEEGEvent > > >( new WFlag< boost::shared_ptr< WEEGEvent > >(
             m_propCondition, boost::shared_ptr< WEEGEvent >() ) );
 
-    {
-        // create color map
-        std::vector< osg::Vec4 > colors;
-        colors.reserve( 3 );
-        colors.push_back( osg::Vec4( 0.0, 0.0, 1.0, 1.0 ) ); // blue
-        colors.push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) ); // white
-        colors.push_back( osg::Vec4( 1.0, 0.0, 0.0, 1.0 ) ); // red
-        m_colorMap = new osgSim::ColorRange( -1.0, 1.0, colors );
 
-        // create texture containing color map
-        const int size = 256;
-        osg::Image* image = new osg::Image;
-        // allocate the image data, size x 1 x 1 with 4 rgba floats - equivalent to a Vec4!
-        image->allocateImage( size, 1, 1, GL_RGBA, GL_FLOAT );
-        image->setInternalTextureFormat( GL_RGBA );
-
-        osg::Vec4* data = reinterpret_cast< osg::Vec4* >( image->data() );
-        for( int i = 0; i < size; ++i)
-        {
-            data[i] = m_colorMap->getColor( ( 2 * i + 1 - size ) / static_cast< float >( size - 1 ) );
-        }
-
-        m_colorMapTexture = new osg::Texture1D( image );
-        m_colorMapTexture->setWrap( osg::Texture1D::WRAP_S, osg::Texture1D::CLAMP_TO_EDGE );
-        m_colorMapTexture->setFilter( osg::Texture1D::MIN_FILTER, osg::Texture1D::LINEAR );
-    }
+    createColorMap();
+    m_ROIsize->get( true ); // reset changed state
 
     // signal ready
     ready();
@@ -221,7 +227,7 @@ void WMEEGView::moduleMain()
     while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
         // data changed?
-        if( m_dataChanged() )
+        if( m_dataChanged() || m_butterfly->changed() )
         {
             debugLog() << "Data changed";
             m_dataChanged.set( false );
@@ -291,25 +297,48 @@ void WMEEGView::moduleMain()
 
         // event position changed?
         boost::shared_ptr< WEEGEvent > event = m_event->get();
-        if( event && event->getTime() != m_currentEventTime )
+        if( ( event && event->getTime() != m_currentEventTime )
+            || m_ROIsize->changed() )
         {
             debugLog() << "New event position: " << event->getTime();
 
-            if( m_roi )
+            for( std::vector< osg::ref_ptr< WROIBox > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter)
             {
-                WKernel::getRunningKernel()->getRoiManager()->removeRoi( m_roi );
+                WKernel::getRunningKernel()->getRoiManager()->removeRoi( *iter );
             }
+            m_rois.clear();
 
             if(  m_sourceCalculator )
             {
-                WPosition position = m_sourceCalculator->calculate( event );
-                m_roi = new WROIBox( position - WVector3d( 5.0, 5.0, 5.0 ),
-                                     position + WVector3d( 5.0, 5.0, 5.0 ) );
-                WKernel::getRunningKernel()->getRoiManager()->addRoi( m_roi );
-            }
-            else
-            {
-                m_roi.release();
+                if( m_proofOfConcept->get() )
+                {
+                    WPosition position = m_sourceCalculator->calculate( event );
+                    float halfWidth = m_ROIsize->get( true ) * 0.5;
+                    m_rois.push_back( new WROIBox( position - WVector3d( halfWidth, halfWidth, halfWidth ),
+                                                   position + WVector3d( halfWidth, halfWidth, halfWidth ) ) );
+                    WKernel::getRunningKernel()->getRoiManager()->addRoi( m_rois.back() );
+                }
+                else if( m_dipoles->getData() )
+                {
+                    boost::shared_ptr< WDataSetDipoles > dipoles = m_dipoles->getData();
+                    debugLog() << "Number of Dipoles: " << dipoles->getNumberOfDipoles();
+                    for( size_t dipoleId = 0; dipoleId < dipoles->getNumberOfDipoles(); ++dipoleId )
+                    {
+                        debugLog() << "Dipole[" << dipoleId << "]: " << dipoles->getMagnitude( event->getTime(), dipoleId );
+                        if( dipoles->getMagnitude( event->getTime(), dipoleId ) != 0 )
+                        {
+                            float halfWidth = m_ROIsize->get( true ) * 0.5;
+                            WPosition position = dipoles->getPosition( dipoleId );
+                            m_rois.push_back( new WROIBox( position - WVector3d( halfWidth, halfWidth, halfWidth ),
+                                                           position + WVector3d( halfWidth, halfWidth, halfWidth ) ) );
+                            WKernel::getRunningKernel()->getRoiManager()->addRoi( m_rois.back() );
+                        }
+                    }
+                }
+                else
+                {
+                    debugLog() << "No dipoles found and not in POC mode: placing NO ROI.";
+                }
             }
 
             m_currentEventTime = event->getTime();
@@ -357,6 +386,34 @@ void WMEEGView::moduleMain()
     }
 }
 
+void WMEEGView::createColorMap()
+{
+    // create color map
+    std::vector< osg::Vec4 > colors;
+    colors.reserve( 3 );
+    colors.push_back( osg::Vec4( 0.0, 0.0, 1.0, 1.0 ) ); // blue
+    colors.push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) ); // white
+    colors.push_back( osg::Vec4( 1.0, 0.0, 0.0, 1.0 ) ); // red
+    m_colorMap = new osgSim::ColorRange( -1.0, 1.0, colors );
+
+    // create texture containing color map
+    const int size = 256;
+    osg::Image* image = new osg::Image;
+    // allocate the image data, size x 1 x 1 with 4 rgba floats - equivalent to a Vec4!
+    image->allocateImage( size, 1, 1, GL_RGBA, GL_FLOAT );
+    image->setInternalTextureFormat( GL_RGBA );
+
+    osg::Vec4* data = reinterpret_cast< osg::Vec4* >( image->data() );
+    for( int i = 0; i < size; ++i)
+    {
+        data[i] = m_colorMap->getColor( ( 2 * i + 1 - size ) / static_cast< float >( size - 1 ) );
+    }
+
+    m_colorMapTexture = new osg::Texture1D( image );
+    m_colorMapTexture->setWrap( osg::Texture1D::WRAP_S, osg::Texture1D::CLAMP_TO_EDGE );
+    m_colorMapTexture->setFilter( osg::Texture1D::MIN_FILTER, osg::Texture1D::LINEAR );
+}
+
 bool WMEEGView::openCustomWidget()
 {
     debugLog() << "Try to open EEG View widget...";
@@ -396,7 +453,9 @@ void WMEEGView::closeCustomWidget()
         m_widget->getViewer()->getView()->getEventHandlers().remove( m_handler );
     }
 
+    // TODO(wiebel): use unique names here
     WKernel::getRunningKernel()->getGui()->closeCustomWidget( getName() );
+    m_widget.reset(); // forces need call of destructor
 }
 
 void WMEEGView::redraw()
@@ -418,12 +477,15 @@ void WMEEGView::redraw()
     }
 
     // reset event position
-    m_event->set( boost::shared_ptr< WEEGEvent >( new WEEGEvent ) );
+    if( !m_butterfly->changed(true) )
+    {
+        m_event->set( boost::shared_ptr< WEEGEvent >( new WEEGEvent ) );
+    }
 
-    if( m_eeg.get() && 0 < m_eeg->getNumberOfSegments() )
+    if( m_eeg.get() && m_eeg->getNumberOfSegments() > 0 )
     {
         const float text2dOffset = 2.0f;
-        const float text2dSize = 32.0f;
+        const float text2dSize = 12.0f;
         const osg::Vec4 text2dColor( 0.0, 0.0, 0.0, 1.0 );
         const osg::Vec4 linesColor( 0.0, 0.0, 0.0, 1.0 );
 
@@ -433,7 +495,7 @@ void WMEEGView::redraw()
 
         m_rootNode3d = new WGEGroupNode;
 
-        debugLog() << "Displaying EEG " << m_eeg->getFileName();
+        debugLog() << "Displaying EEG " << m_eeg->getFilename();
         debugLog() << "  Number of segments: " << m_eeg->getNumberOfSegments();
         size_t nbChannels = m_eeg->getNumberOfChannels();
         debugLog() << "  Number of channels: " << nbChannels;
@@ -444,9 +506,18 @@ void WMEEGView::redraw()
         size_t nbSamples = segment->getNumberOfSamples();
         debugLog() << "    Number of Samples: " << nbSamples;
 
+        const float heightConstant = 736.0;
         // reset and adjust properties to given dataset
-        m_ySpacing->set( 736.0 / nbChannels );
-        m_yPos->set( 368.0 / nbChannels - 736.0 );
+        if( m_butterfly->get() )
+        {
+            m_ySpacing->set( 0 );
+            m_yPos->set( -heightConstant / nbChannels );
+        }
+        else
+        {
+            m_ySpacing->set( heightConstant / nbChannels );
+            m_yPos->set( ( heightConstant * 0.5 ) / nbChannels - heightConstant );
+        }
         m_timePos->set( 0.0 );
         m_timePos->setMax( nbSamples / rate );
 
@@ -681,7 +752,7 @@ osg::ref_ptr< osg::Node > WMEEGView::drawLabels()
     // draw electrode labels in 3d
     const float sphereSize = 4.0f;
     const osg::Vec3 text3dOffset( 0.0, 0.0, sphereSize );
-    const double text3dSize = 32.0;
+    const double text3dSize = 14.0;
     const osg::Vec4 text3dColor( 0.0, 0.0, 0.0, 1.0 );
 
     osg::ref_ptr< osg::Group > labels( new osg::Group );

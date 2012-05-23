@@ -29,13 +29,16 @@
 #include "WQtNetworkPort.h"
 #include "WQtNetworkOutputPort.h"
 #include "WQtNetworkInputPort.h"
+#include "WQtNetworkColors.h"
+
 #include "core/kernel/combiner/WApplyCombiner.h"
 
 WQtNetworkPort::WQtNetworkPort()
 {
     setRect( 0.0, 0.0, WNETWORKPORT_SIZEX, WNETWORKPORT_SIZEY );
-    setBrush( Qt::gray );
-    setPen( QPen( Qt::red, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
+    setPen( QPen( Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
+    setBrush( WQtNetworkColors::OutputConnector );
+    m_brushNotSet = true;
 
     setAcceptsHoverEvents( true );
     m_line = NULL;
@@ -44,6 +47,25 @@ WQtNetworkPort::WQtNetworkPort()
 WQtNetworkPort::~WQtNetworkPort()
 {
     removeArrows();
+}
+
+void WQtNetworkPort::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget )
+{
+    // as the command setBrush forces a re-paint, permanently calling setbrush causes the widget to permanently redraw itself.
+    if( m_brushNotSet )
+    {
+        m_brushNotSet = false;
+        if( isOutPort() )
+        {
+            setBrush( WQtNetworkColors::OutputConnector );
+        }
+        else
+        {
+            setBrush( WQtNetworkColors::InputConnector );
+        }
+    }
+
+    QGraphicsRectItem::paint( painter, option, widget );
 }
 
 void WQtNetworkPort::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
@@ -174,12 +196,17 @@ void WQtNetworkPort::alignPosition( int size, int portNumber, QRectF rect, bool 
 {
     if( outPort == false )
     {
-        setPos( rect.width() / ( size+1 ) * portNumber - 5.0, 0.0 );
+        setPos( rect.width() / ( size + 1 ) * portNumber - 5.0, 0.0 );
     }
     else if( outPort == true )
     {
-        setPos( rect.width() / ( size+1 ) * portNumber - 5.0, rect.height() - 5 );
+        setPos( rect.width() / ( size + 1 ) * portNumber - 5.0, rect.height() - this->rect().height() / 2 - 2 );
     }
+}
+
+float WQtNetworkPort::getMultiplePortWidth( size_t nbPorts )
+{
+    return ( 5 + WNETWORKPORT_SIZEX ) * nbPorts;
 }
 
 void WQtNetworkPort::removeArrow( WQtNetworkArrow *arrow )

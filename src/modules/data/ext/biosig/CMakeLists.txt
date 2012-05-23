@@ -12,7 +12,7 @@ ENDIF()
 
 FILE( GLOB BIOSIG_SRC "*.c" "*.cpp" "*.h" "XMLParser/*.cpp" "XMLParser/*.h" )
 
-ADD_LIBRARY( ${OWExtBioSigName} ${BIOSIG_SRC} )
+ADD_LIBRARY( ${OWExtBioSigName} SHARED ${BIOSIG_SRC} )
 
 IF( CMAKE_HOST_SYSTEM MATCHES Windows )
     TARGET_LINK_LIBRARIES( ${OWExtBioSigName} ws2_32 )

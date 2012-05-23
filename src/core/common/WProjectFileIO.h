@@ -27,11 +27,12 @@
 
 #include <ostream>
 #include <string>
-
+#include <vector>
 
 /**
  * A base class for all parts of OpenWalnut which can be serialized to a project file. It is used by WProjectFile to actually parse the file line
- * by line. Derive from this class if you write your own parser and use it to fill your internal data structures.
+ * by line. Derive from this class if you write your own parser and use it to fill your internal data structures. But write it in a very
+ * error-tolerant way. We want to avoid that small problems in the project file cause the whole file to be useless.
  */
 class WProjectFileIO // NOLINT
 {
@@ -47,7 +48,8 @@ public:
     virtual ~WProjectFileIO();
 
     /**
-     * This method parses the specified line and interprets it. It gets called line by line by WProjectFile.
+     * This method parses the specified line and interprets it. It gets called line by line by WProjectFile. You should avoid applying anything
+     * of the loaded information here. You should use \ref done for this.
      *
      * \param line the current line as string
      * \param lineNumber the current line number. Useful for error/warning/debugging output.
@@ -57,8 +59,9 @@ public:
     virtual bool parse( std::string line, unsigned int lineNumber ) = 0;
 
     /**
-     * Called whenever the end of the project file has been reached. This is useful if your specific parser class wants to do some post
-     * processing after parsing line by line.
+     * Called whenever the end of the project file has been reached. Use this to actually apply your loaded settings. Do this in a error-tolerant
+     * way and apply as most settings as possible even if some other settings are erroneous. Add errors with \ref addError. Try avoiding
+     * exceptions if possible.
      */
     virtual void done();
 
@@ -69,8 +72,34 @@ public:
      */
     virtual void save( std::ostream& output ) = 0;   // NOLINT
 
+    /**
+     * Checks whether there where errors during load or save.
+     *
+     * \return true if there where.
+     */
+    bool hadErrors() const;
+
+    /**
+     * Get error list.
+     *
+     * \return the list
+     */
+    const std::vector< std::string >& getErrors() const;
+
 protected:
+    /**
+     * Add an error. Use this when you encounter some difficulties during parsing or applying settings. Provide useful errors. They will be
+     * presented to the user.
+     *
+     * \param description the error description
+     */
+    void addError( std::string description );
+
 private:
+    /**
+     * List of errors if any.
+     */
+    std::vector< std::string > m_errors;
 };
 
 #endif  // WPROJECTFILEIO_H

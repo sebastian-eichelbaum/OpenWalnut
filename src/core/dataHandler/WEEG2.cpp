@@ -71,7 +71,7 @@ WEEG2::WEEG2( boost::shared_ptr< WPagerEEG > pager, boost::shared_ptr< WEEGPosit
         throw WDHException( std::string( "Couldn't construct new EEG: invalid sampling rate" ) );
     }
 
-    setFileName( pager->getFileName() );
+    setFilename( pager->getFilename() );
 
     m_segments.reserve( nbSegments );
     for( std::size_t segmentID = 0; segmentID < nbSegments; ++segmentID )

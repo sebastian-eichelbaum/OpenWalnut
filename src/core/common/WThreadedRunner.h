@@ -38,8 +38,6 @@
 #include "WFlag.h"
 #include "WThreadedRunnerSignals.h"
 
-
-
 /**
  * Base class for all classes needing to be executed in a separate thread.
  */
@@ -105,6 +103,34 @@ public:
      */
     const WBoolFlag& isCrashed() const;
 
+    /**
+     * Get the message of the exception finally causing the crash.
+     *
+     * \return the message
+     */
+    const std::string& getCrashMessage() const;
+
+    /**
+     * Set the name of the thread. This can be handy for debugging as it gets set on Linux as the pthread name. You MUST set this before starting
+     * the thread.
+     *
+     * \param name the name
+     */
+    void setThreadName( std::string name );
+
+    /**
+     * Returns the current thread name
+     *
+     * \return the name, empty if no name was specified.
+     */
+    std::string getThreadName() const;
+
+    /**
+     * Static function to set the name of the calling thread.
+     *
+     * \param name the name.
+     */
+    static void setThisThreadName( std::string name );
 protected:
     /**
      * Function that has to be overwritten for execution. It gets executed in a separate thread after run()
@@ -178,6 +204,11 @@ protected:
      */
     WBoolFlag m_isCrashed;
 
+    /**
+     * The crash message. Only filled if m_isCrashed is true.
+     */
+    std::string m_crashMessage;
+
 private:
     /**
      * Disallow copy construction.
@@ -203,6 +234,11 @@ private:
      * The is the thread entry point. It does exception handling and calls threadMain.
      */
     void threadMainSave();
+
+    /**
+     * This threads name.
+     */
+    std::string m_threadName;
 };
 
 #endif  // WTHREADEDRUNNER_H

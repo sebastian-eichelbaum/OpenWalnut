@@ -22,10 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#ifdef __linux__
-#include <sys/prctl.h>
-#endif
-
 #include <algorithm>
 #include <set>
 #include <string>
@@ -226,9 +222,9 @@ std::string WModule::deprecated() const
     return "";
 }
 
-WModuleMetaInformation WModule::getMetaInformation() const
+WModuleMetaInformation::ConstSPtr WModule::getMetaInformation() const
 {
-    return WModuleMetaInformation( getName() );
+    return m_meta;
 }
 
 void WModule::initialize()
@@ -243,6 +239,9 @@ void WModule::initialize()
     // set the module name as default runtime name
     m_runtimeName->set( getName() );
 
+    // initialize module meta information
+    m_meta = WModuleMetaInformation::SPtr( new WModuleMetaInformation( shared_from_this() ) );
+
     // initialize connectors and properties
     requirements();
     connectors();
@@ -251,6 +250,9 @@ void WModule::initialize()
     // now, the module is initialized but not necessarily usable (if not associated with a container)
     m_initialized( true );
     m_isUsable( m_initialized() && m_isAssociated() );
+
+    // also set thread name
+    setThreadName( getName() );
 }
 
 void WModule::cleanup()
@@ -519,11 +521,6 @@ const WRequirement* WModule::checkRequirements() const
 
 void WModule::threadMain()
 {
-#ifdef __linux__
-    // set the name of the thread. This name is shown by the "top", for example.
-    prctl( PR_SET_NAME, ( "openwalnut (" + getName() + ")" ).c_str() );
-#endif
-
     WLogger::getLogger()->addLogMessage( "Starting module main method.", "Module (" + getName() + ")", LL_INFO );
 
     // check requirements
@@ -589,6 +586,26 @@ void WModule::setLocalPath( boost::filesystem::path path )
 boost::filesystem::path WModule::getLocalPath() const
 {
     return m_localPath;
+}
+
+void WModule::setLibPath( boost::filesystem::path path )
+{
+    m_libPath = path;
+}
+
+boost::filesystem::path WModule::getLibPath() const
+{
+    return m_libPath;
+}
+
+void WModule::setPackageName( std::string name )
+{
+    m_packageName = name;
+}
+
+std::string WModule::getPackageName() const
+{
+    return m_packageName;
 }
 
 bool WModule::isDeprecated() const

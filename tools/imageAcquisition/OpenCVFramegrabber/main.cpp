@@ -157,7 +157,8 @@ void printHelp( int argc, char** argv )
             "                                     -pixel to indicate an offset to left or bottom, respectively\n"
             "                                     a value of 0 for right or top indicates the last pixel of the capured image\n"
             "                                     default=0 0 0 0, which captures the whole image\n" 
-            " -name YourNameForThisDevice         a name that is sent ofver OpenIGTLink to identify the device/the data.\n";
+            " -name YourNameForThisDevice         a name that is sent ofver OpenIGTLink to identify the device/the data.\n"
+            " -n nbOfFrames                       number of frames to send before quitting. 0 indicates infinite (default=0)\n";
 }
 
 int main( int argc, char** argv )
@@ -175,6 +176,7 @@ int main( int argc, char** argv )
     int bottom = -1;
     int top = 0;
 
+    int nbFrames = 0;
 
     std::string deviceName = "OpenWalnut Framegrabber";
 
@@ -248,14 +250,24 @@ int main( int argc, char** argv )
         }
         else if( strcmp( argv[ i ], "-name" ) == 0 )
         {
-             if( argc <= i+1 )
+            if( argc <= i+1 )
             {
                 printHelp( argc, argv );
                 return -1;
             }
-             deviceName = argv[ i+1 ];
-             i+= 2;
+            deviceName = argv[ i+1 ];
+            i += 2;
         }
+        else if( strcmp( argv[ i ], "-n" ) == 0 )
+        {
+            if( argc <= i+1 )
+            {
+                printHelp( argc, argv );
+                return -1;
+            }
+            nbFrames = atoi( argv[ i+1 ] );
+            i += 1;
+         }
         else
         {
             std::cerr << "Unknown argument " << argv[ i ] << std::endl;
@@ -333,7 +345,7 @@ int main( int argc, char** argv )
     unsigned char* data = new unsigned char[ resx*resy*4 ];
     int frame = 0;
 
-    while( true )
+    while( nbFrames == 0 || frame < nbFrames )
     {
         std::cout << "Frame " <<  ( ++frame ) <<  std::endl;
         bool success = device.getFrame( data, &resx, &resy, &channels );
@@ -358,7 +370,7 @@ int main( int argc, char** argv )
 
         std::vector < uint8_t > data2( ( top-bottom+1 )*( right-left+1 ) );
 
-        if( device.getDataOrder() ==  IPL_DATA_ORDER_PIXEL )
+        if( device.getDataOrder() == IPL_DATA_ORDER_PIXEL )
         {
             for( int j = 0; j <= top-bottom; ++j )
             {

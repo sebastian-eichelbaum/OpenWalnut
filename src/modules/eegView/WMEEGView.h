@@ -26,6 +26,7 @@
 #define WMEEGVIEW_H
 
 #include <string>
+#include <vector>
 
 #include <osg/Texture1D>
 #include <osgSim/ScalarsToColors>
@@ -34,11 +35,12 @@
 
 // forward declarations
 class WCustomWidget;
+class WDataSetDipole;
 class WEEG2;
+class WEEGSourceCalculator;
+class WEEGViewHandler;
 class WGEGroupNode;
 class WROIBox;
-class WEEGViewHandler;
-class WEEGSourceCalculator;
 template< class T > class WModuleInputData;
 
 /**
@@ -126,9 +128,24 @@ private:
     boost::shared_ptr< WModuleInputData< WEEG2 > > m_input;
 
     /**
+     * Input connector for dipoles of EEG data
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetDipoles > > m_dipoles;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * Group for parameters that are normally adjusted using mouse actions.
+     */
+    WPropGroup m_manualNavigationGroup;
+
+    /**
+     * Group for parameters that adjust the appearance of the EEG widget
+     */
+    WPropGroup m_appearanceGroup;
 
     /**
      * Property determining whether electode positions should be drawn.
@@ -144,6 +161,21 @@ private:
      * Property determining whether electrode labels should be drawn.
      */
     WPropBool m_drawLabels;
+
+    /**
+     * Property determining whether we only show the proof of concept or the real dipoles
+     */
+    WPropBool m_proofOfConcept;
+
+    /**
+     * Property switching between standard and butterfly plot of curves (overlay of all curves in one row)
+     */
+    WPropBool m_butterfly;
+
+    /**
+     * Size of the region of interest
+     */
+    WPropDouble m_ROIsize;
 
     /**
      * the width of the label display in pixel as property
@@ -235,11 +267,11 @@ private:
     osg::ref_ptr< osg::Node > m_labelsNode;
 
     /**
-     * The ROI around the source dipole position at the time determined by
+     * The ROIs around the source dipole positions at the time determined by
      * m_event.
-     * Used to select the fibers around this dipole.
+     * Used to select the fibers around this dipoles.
      */
-    osg::ref_ptr< WROIBox > m_roi;
+    std::vector< osg::ref_ptr< WROIBox > > m_rois;
 
     /**
      * Bool flag which gets set when the data was changed.
@@ -273,6 +305,11 @@ private:
      * calculates a source position at a given time position
      */
     boost::shared_ptr< WEEGSourceCalculator > m_sourceCalculator;
+
+    /**
+     * Prepare textures for colormapping EEG signal
+     */
+    void createColorMap();
 
     /**
      * Opens a custom widget and connects the m_node with it.

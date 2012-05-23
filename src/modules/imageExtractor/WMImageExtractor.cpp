@@ -159,7 +159,7 @@ void WMImageExtractor::moduleMain()
                 if( m_outData )
                 {
                     setOutputProps();
-                    m_outData->setFileName( makeImageName( i ) );
+                    m_outData->setFilename( makeImageName( i ) );
                     // provide the texture's properties as own properties
                     m_properties->addProperty( m_outData->getTexture()->getProperties() );
                     m_infoProperties->addProperty( m_outData->getTexture()->getInformationProperties() );
@@ -217,7 +217,7 @@ boost::shared_ptr< WDataSetScalar > WMImageExtractor::extract( std::size_t i ) c
 
     std::size_t dim = m_dataSet->getValueSet()->dimension();
 
-    // TODO( reichenbach ): use the new valueset function mechanism
+    // TODO(reichenbach): use the new valueset function mechanism
     switch( m_dataSet->getValueSet()->getDataType() )
     {
     case W_DT_FLOAT:
@@ -360,7 +360,7 @@ const std::string WMImageExtractor::makeImageName( std::size_t i )
     WAssert( m_dataSet, "" );
     WAssert( m_dataSet->getValueSet(), "" );
 
-    s << m_dataSet->getFileName() << " (" << i << " of " << m_dataSet->getValueSet()->dimension() << ")";
+    s << m_dataSet->getFilename() << " (" << i << " of " << m_dataSet->getValueSet()->dimension() << ")";
     return s.str();
 }
 

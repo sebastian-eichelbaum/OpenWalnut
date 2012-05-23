@@ -118,13 +118,6 @@ public:
     ///////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * This returns the condition fired whenever one children fires its update condition. Useful to get notified about all changes that happen.
-     *
-     * \return the condition fired if a child fires its update condition.
-     */
-    virtual boost::shared_ptr< WCondition > getChildUpdateCondition() const;
-
-    /**
      * Helper function that finds a property by its name. Use this method to find out whether the property exists or not, since
      * findProperty throws an exception.
      *
@@ -183,19 +176,6 @@ protected:
      * The set of proerties. This uses the operators ==,<,> WProperty to determine equalness.
      */
     PropertySharedContainerType m_properties;
-
-    /**
-     * Condition notified whenever a property inside this group fires its WPropertyBase::m_updateCondition. This is especially useful to get a
-     * notification if something updates without further knowledge what changed. Useful if you want to listen for updates in modules for example.
-     *
-     * \see getChildUpdateCondition
-     */
-    boost::shared_ptr< WConditionSet > m_childUpdateCondition;
-
-    /**
-     * Callback of m_childUpdateCondition. Overwrite this method to extend the default notification with some custom code.
-     */
-    virtual void onChildUpdate();
 
     /**
      * Compares the names of two properties and returns true if they are equal.

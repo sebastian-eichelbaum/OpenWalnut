@@ -106,7 +106,7 @@ void WSPSliceBuilder::checkAndExtractGrids()
 
 WColor WSPSliceBuilder::colorMap( size_t probTractNum ) const
 {
-    std::string dataSetFileName = m_probTracts[probTractNum]->getFileName();
+    std::string dataSetFileName = m_probTracts[probTractNum]->getFilename();
 
     for( size_t i = 0; i < m_colorMap.size(); ++i )
     {
@@ -131,9 +131,9 @@ WColor WSPSliceBuilder::lookUpColor( const WPosition& pos, size_t tractID ) cons
     WColor c = colorMap( tractID );
     bool success = false;
     double probability = m_probTracts.at( tractID )->interpolate( pos, &success );
-    if( m_probTracts.at( tractID )->getMax() > 10 )
+    if( m_probTracts.at( tractID )->getMax() > 1 )
     {
-        probability /= 255.0;
+        probability /= static_cast< double >( m_probTracts.at( tractID )->getMax() );
     }
     if( c[3] != 0.0 )
     {

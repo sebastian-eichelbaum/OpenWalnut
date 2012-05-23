@@ -37,7 +37,6 @@
 #include "WSharedSequenceContainer.h"
 #include "WItemSelectionItem.h"
 
-
 class WItemSelector;
 
 /**
@@ -48,9 +47,9 @@ class WItemSelector;
  * automatically using the change condition of the inherited WSharedSequenceContainer.
  */
 class WItemSelection: public boost::enable_shared_from_this< WItemSelection >,
-                                      public WSharedSequenceContainer< std::vector< boost::shared_ptr< WItemSelectionItem > > >
+                      public WSharedSequenceContainer< std::vector< boost::shared_ptr< WItemSelectionItem > > >
 {
-friend class WItemSelector; // for proper locking and unlocking
+    friend class WItemSelector; // for proper locking and unlocking
 public:
     /**
      * Convenience typedef for a boost::shared_ptr< WItemSelection >
@@ -132,6 +131,13 @@ public:
      *
      */
     void addItem( std::string name, std::string description = "", const char** icon = NULL );
+
+    /**
+     * Method to add a new item, which can be derived from WItemSelectionItem.
+     *
+     * \param item WItemSelectionItem or derivation which should be add.
+     */
+    void addItem( boost::shared_ptr< WItemSelectionItem > item );
 
 private:
 };

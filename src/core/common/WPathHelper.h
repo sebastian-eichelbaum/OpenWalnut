@@ -25,18 +25,17 @@
 #ifndef WPATHHELPER_H
 #define WPATHHELPER_H
 
+#include <string>
 #include <vector>
 
 #include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 
-
-
 /**
  * Singleton class helping to find files and paths. It is a useful to to search for resources and the central place to "hardcode" relative paths.
  * It contains global paths only. Modules have their OWN local paths.
  */
-class WPathHelper // NOLINT
+class WPathHelper
 {
 public:
     /**
@@ -192,6 +191,19 @@ public:
      */
     static boost::filesystem::path getConfigPath();
 
+    /**
+     * The path to a given module's resources. This should be used to get a share-like path for the module. The path is relative to the
+     * module's library path. This method is most useful for the module loader. You should not query your own resource path with this function.
+     * Use your module instance's m_localPath.
+     *
+     * \param moduleLibPath the path to the lib. Can be relative or absolute. This must be the directory the lib contains and NOT the path to the
+     * lib itself
+     * \param packageName the name of the resource. This is usually the package name.
+     *
+     * \return the absolute path for the given module path.
+     */
+    static boost::filesystem::path getModuleResourcePath( boost::filesystem::path moduleLibPath, std::string packageName );
+
 protected:
     /**
      * Constructors are protected because this is a Singleton.
@@ -234,6 +246,11 @@ private:
      * The path of a user specific OW directory.
      */
     boost::filesystem::path m_homePath;
+
+    /**
+     * The path to module resources, relative to the module libraries path.
+     */
+    boost::filesystem::path m_moduleResourcePathRelative;
 
     /**
      * A list of additional paths to search for modules. This does not contain the paths in the environment variable OW_MODULE_PATH. This method

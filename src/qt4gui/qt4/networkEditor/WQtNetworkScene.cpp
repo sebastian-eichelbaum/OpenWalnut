@@ -33,14 +33,15 @@
 #include <QtGui/QGraphicsItemGroup>
 #include <QtGui/QGraphicsSceneMouseEvent>
 
+#include "../WMainWindow.h"
 #include "WQtNetworkItem.h"
 #include "WQtNetworkPort.h"
 
 #include "WQtNetworkScene.h"
 #include "WQtNetworkScene.moc"
 
-WQtNetworkScene::WQtNetworkScene()
-    : QGraphicsScene()
+WQtNetworkScene::WQtNetworkScene( QObject* parent )
+    : QGraphicsScene( parent )
 {
     setItemIndexMethod( NoIndex );
     // this takes care of the segfault: QGraphicsSceneFindItemBspTreeVisitor::visit
@@ -49,5 +50,22 @@ WQtNetworkScene::WQtNetworkScene()
 
 WQtNetworkScene::~WQtNetworkScene()
 {
+}
+
+void WQtNetworkScene::dragEnterEvent( QGraphicsSceneDragDropEvent* event )
+{
+    // only ask the main window
+    if( WMainWindow::isDropAcceptable( event->mimeData() ) )
+    {
+        event->acceptProposedAction();
+    }
+}
+
+void WQtNetworkScene::dragMoveEvent( QGraphicsSceneDragDropEvent* event )
+{
+    if( WMainWindow::isDropAcceptable( event->mimeData() ) )
+    {
+        event->acceptProposedAction();
+    }
 }
 

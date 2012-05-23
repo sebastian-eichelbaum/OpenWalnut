@@ -25,6 +25,9 @@
 #ifndef WQTNETWORKITEM_H
 #define WQTNETWORKITEM_H
 
+#include <string>
+
+#include <QtCore/QTimer>
 #include <QtGui/QGraphicsRectItem>
 #include <QtGui/QGraphicsTextItem>
 #include <QtGui/QPainter>
@@ -38,6 +41,7 @@
 
 class WNetworkLayoutNode;
 class WQtNetworkEditor;
+class WQtNetworkItemActivator;
 
 /**
  * This class represents a WModule as QGraphicsRectItem and
@@ -103,8 +107,11 @@ public:
     /**
      * This method aligns the in- and outports as well as the modulename
      * in a regular way.
+     *
+     * \param maximumWidth the maximal width of the item.
+     * \param minimumWidth the minimal width of the item.
      */
-    void fitLook();
+    void fitLook( float maximumWidth = WNETWORKITEM_MAXIMUM_WIDTH, float minimumWidth = WNETWORKITEM_MINIMUM_WIDTH );
 
     /**
      * Set the QGraphicsTextItem ( the caption ) of the item
@@ -147,6 +154,16 @@ public:
      */
     bool advance();
 
+    /**
+     * Can be used for polling the module states. It is called by a timer.
+     */
+    virtual void updater();
+
+    /**
+     * Mark this module as crashed.
+     */
+    void setCrashed();
+
 protected:
     /**
      * If the item is changed we want to get notified.
@@ -188,13 +205,6 @@ protected:
     void hoverLeaveEvent( QGraphicsSceneHoverEvent* event );
 
     /**
-     * This method changes the coloration of gradient.
-     *
-     * \param color the choosen color
-     */
-    void changeColor( QColor color );
-
-    /**
      * Draw some customized stuff in the scene.
      *
      * \param painter
@@ -204,15 +214,28 @@ protected:
     void paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* w );
 
 private:
+    /**
+     * Denotes the current state this item is in.
+     */
+    enum State
+    {
+        Disabled = 0,
+        Normal,
+        Crashed
+    };
+
+    /**
+     * Update the visual state of the item. Draw the item according to the state specified.
+     *
+     * \param state the state
+     */
+    void changeState( State state );
+
     boost::shared_ptr< WModule > m_module; //!< the module
 
     QList< WQtNetworkInputPort* > m_inPorts; //!< the input ports of the item
 
     QList< WQtNetworkOutputPort* > m_outPorts; //!< the output ports of the item
-
-    QLinearGradient m_gradient; //!< the gradient for a nice coloring of the item
-
-    QColor m_color; //!< the current color
 
     QRectF m_rect; //!< the size of the items rect
 
@@ -220,14 +243,56 @@ private:
 
     float m_height; //!< the height of the rect
 
+    std::string m_textFull; //!< always contains the unclipped text of m_text
     QGraphicsTextItem* m_text; //!< the caption
-
-    QGraphicsTextItem *m_subtitle; //!< the caption
+    std::string m_subtitleFull; //!< always contains the unclipped text of m_subtitle
+    QGraphicsTextItem* m_subtitle; //!< the caption
 
     QPointF m_newPos; //!< the new position in the WQtNetworkScene
 
     WQtNetworkEditor* m_networkEditor; //!< the related WQtNetworkEditor
 
     WNetworkLayoutNode *m_layoutNode; //!< the layout item
+
+    QColor m_itemColor; //!< the color of the item. Depends on type (source, sink, ...).
+
+    State m_currentState; //!< denotes the state the item currently is in
+
+    WQtNetworkItemActivator *m_hidden; //!< indicator showing if module's graphics are activated (allows to activate it)
+
+    /**
+     * If true, the item is hovered.
+     */
+    bool m_isHovered;
+
+    /**
+     * If true, the item is selected.
+     */
+    bool m_isSelected;
+
+    /**
+     * If true, a percentage is shown. If not, an animated bar walking around.
+     */
+    bool m_busyIsDetermined;
+
+    /**
+     * Counter used for busy indication.
+     */
+    float m_busyPercent;
+
+    /**
+     * If true, the busy indication is active.
+     */
+    bool m_busyIndicatorShow;
+
+    /**
+     * If true, the next call to update() will force a redraw. Avoid setting this to true permanently.
+     */
+    bool m_forceUpdate;
+
+    /**
+     * Optimal width for this module. Calculated during construction.
+     */
+    float m_itemBestWidth;
 };
 #endif  // WQTNETWORKITEM_H

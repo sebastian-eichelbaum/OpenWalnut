@@ -90,6 +90,7 @@ private:
     WPosition m_pickedPosition; //!< Caches the old picked position to a allow for cmoparison
     WVector3d m_pickNormal; //!< Store the normal that occured when the pick action was started.
     WVector2d m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
+    int16_t m_oldScrollWheel; //!< caches scroll wheel value
     boost::shared_mutex m_updateLock; //!< Lock to prevent concurrent threads trying to update the osg node
     osg::ref_ptr< osg::Geometry > m_surfaceGeometry; //!< store this pointer for use in updates
 

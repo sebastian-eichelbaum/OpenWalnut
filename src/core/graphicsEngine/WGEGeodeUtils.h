@@ -129,6 +129,20 @@ namespace wge
                                                                    );
 
     /**
+     * Convert triangle mesh to lines representing it. Draws lines twice (ATM).
+     *
+     * \param mesh The WTriangleMesh used as input.
+     * \param defaultColor This color is used in case the useMeshColor parameter is false or no colors are defined in the mesh.
+     * \param useMeshColor If true, the mesh color is used. If false, the defaultColor is used.
+     *
+     * \return an osg::Geometry containing the mesh as lines
+     */
+    osg::ref_ptr< osg::Geometry > convertToOsgGeometryLines( WTriangleMesh::SPtr mesh,
+                                                             const WColor& defaultColor = WColor( 1.0, 1.0, 1.0, 1.0 ),
+                                                             bool useMeshColor = true );
+
+
+    /**
      * Generates a line geode with thickness and color as parameters.
      *
      * \param line sequence of points

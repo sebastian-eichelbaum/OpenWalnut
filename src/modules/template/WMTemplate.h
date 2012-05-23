@@ -211,6 +211,11 @@ private:
     WPropSelection m_aSingleSelection;
 
     /**
+     * A property allowing the user to select ONE item. This additionally demonstrates how to use your own types/classes in selections.
+     */
+    WPropSelection m_aSingleSelectionUsingTypes;
+
+    /**
      * A property allowing the user to select multiple elements of a list.
      */
     WPropSelection m_aMultiSelection;
@@ -268,9 +273,24 @@ private:
     boost::shared_ptr< WItemSelection > m_possibleSelections;
 
     /**
+     * You should typedef the item type you use. This shortens some code later. We encapsulate a string into an item.
+     */
+    typedef WItemSelectionItemTyped< std::string > MyItemType;
+
+    /**
+     * A list of items that can be selected using m_aSingleSelectionUsingTypes property.
+     */
+    boost::shared_ptr< WItemSelection > m_possibleSelectionsUsingTypes;
+
+    /**
      * A Property used to show the callback mechanism avoiding the thread wake up on change.
      */
     WPropTrigger m_hideButton;
+
+    /**
+     * This causes an exception to be thrown on press to demonstrate how the GUI handles crashing modules.
+     */
+    WPropTrigger m_exceptionTrigger;
 
     /**
      * The callback triggering the hide flag of m_aColor for demonstration.

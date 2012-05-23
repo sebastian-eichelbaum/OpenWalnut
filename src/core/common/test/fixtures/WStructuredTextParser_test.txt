@@ -1,0 +1,81 @@
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
+
+// this file can be seen as reference for the syntax compatible with WStructuredTextParser.
+
+// Keys are always constructed using a-z,A-Z,0-9 and begin with a non-numerical char.
+
+level0
+{
+    // test whether the parser finds these key-value pairs (KV)
+    uniquekv = "hello";
+    // test if it is able to handle multile, equally named KV
+    notuniquekv = "hello hallo";
+    notuniquekv = "world";
+    
+    // test whether it can handle sub-classes
+    level1
+    {
+        somekv = "123";
+        level2
+        {
+            hello = "you";
+        }
+    }
+    // test whether it can handle a class and KV pair which have the same name
+    level1 = "something";
+
+    // test with two equally named sublevels
+    notuniquelevel1
+    {
+        // the parser needs to find both "somekv" values
+        somekv = "abc";
+    }
+    notuniquelevel1
+    {
+        somekv = "def";
+        // and it needs to find this KV which only is inside this sublevel
+        unique = "yes";
+    };
+    // NOTE: the ; on the end of the previous class: is optional
+}
+
+// other level0 objects need to be allowed
+anotherlevel0
+{
+    avalue = "hey";
+}
+
+// even key-value pairs are possible on file level
+fileLevelValue = "hey";
+
+// case sensitivity!
+filelevelvalue = "you";
+
+// Even names with spaces are allowed. If you use spaces or any other chars 
+// besides a-z,A-Z,0-9, you need to enclose it with a pair of "
+"Name With Spaces"
+{
+    akey="value";
+}

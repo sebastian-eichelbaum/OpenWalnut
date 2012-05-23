@@ -26,7 +26,7 @@
 # Some common setup
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-SET( LibName ${OWCoreName} )
+SET( LibName ${OW_LIB_OPENWALNUT} )
 
 # Set the prefix and suffix of dynamically loadable modules to match
 # CMAKEs naming of them. The quotes are necessary so the shell doesn't mess
@@ -47,7 +47,7 @@ ADD_LIBRARY( ${LibName} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${OW_VERSIO
 TARGET_LINK_LIBRARIES( ${LibName} ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES}
                      )
 
-# Tell CMake that someone creates this file for us. See doc of SETUP_VERSION_HEADER in BuildUtils.cmake for details why this is needed.
+# Tell CMake that someone creates this file for us. See doc of SETUP_VERSION_HEADER for details why this is needed.
 # NOTE: this needs to be placed AFTER ADD_EXECUTABLE or ADD_LIBRARY
 SETUP_USE_VERSION_HEADER( ${LibName} )
 

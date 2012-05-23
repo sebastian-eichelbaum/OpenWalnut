@@ -185,7 +185,7 @@ struct WSharedLib::data
     explicit data( const std::string& path )
         : m_path( path ), m_dl( 0 )
     {
-        auto_lock lock();
+        auto_lock lock;
         m_dl = dlopen( m_path.c_str(), RTLD_LAZY );
         if( !m_dl )
         {
@@ -225,7 +225,7 @@ struct WSharedLib::data
      */
     void* findVariable( const std::string& name )
     {
-        auto_lock lock();
+        auto_lock lock;
         dlerror();
         void* variable_ptr = dlsym( m_dl, name.c_str() );
         const char *err = dlerror();

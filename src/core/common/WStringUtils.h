@@ -35,6 +35,8 @@
 #include <string>
 #include <vector>
 
+#include "exceptions/WTypeMismatch.h"
+
 /**
  * Some utilities for string manipulation and output operations. Please note
  * that the overloaded ostream output operators aren't in a separate namespace
@@ -56,6 +58,57 @@
 namespace string_utils
 {
     /**
+     * Conversion class to convert a string to a given target type. We place this in separate classes as we are not allowed to specialize
+     * function templates. But we need specializations for certain cases.
+     *
+     * \tparam Target target type
+     */
+    template< typename Target >
+    struct fromStringImpl
+    {
+        /**
+         * Convert a given string to the target type. If this fails, a exception is thrown.
+         *
+         * \throw WTypeMismatch if source string cannot be converted to target type value.
+         *
+         * \param from source string
+         *
+         * \return target value
+         */
+        static Target fromString( const std::string& from )
+        {
+            std::stringstream ss( from );
+            Target value;
+            ss >> value;
+            if( ss.fail() )
+            {
+                throw WTypeMismatch( "Specified string could not be converted to target type." );
+            }
+
+            return value;
+        }
+    };
+
+    /**
+     * Conversion class to convert a string to a given target type. This is a specialization whenever a string is given as input type
+     */
+    template<>
+    struct fromStringImpl< std::string >
+    {
+        /**
+         * Convert a given string to the target type. Never fails.
+         *
+         * \param from source string
+         *
+         * \return copy of the source string
+         */
+        static std::string fromString( const std::string& from )
+        {
+            return from;
+        }
+    };
+
+    /**
      * Convert a given value to a string. The input value must provide a operator<< or be a standard scalar type.
      *
      * \tparam T the source type. You do not need to specify this directly as it can be deducted from the given parameter
@@ -72,20 +125,39 @@ namespace string_utils
     }
 
     /**
+     * Convert a given value to a string. The input value must provide a operator<< or be a standard scalar type. This method additionally allows
+     * setting width and precision flags of the used std::stringstream.
+     *
+     * \tparam T the source type. You do not need to specify this directly as it can be deducted from the given parameter
+     * \param value the value to cast to string
+     * \param precision the precision
+     * \param width the width
+     *
+     * \return the string.
+     */
+    template< typename T >
+    inline std::string toString( const T& value, const size_t width, const size_t precision )
+    {
+        std::stringstream ss;
+        ss.width( width );
+        ss.precision( precision );
+        ss << value;
+        return ss.str();
+    }
+
+    /**
      * Convert a given string to a value of a certain type. The target type must provide a operator>> to work or be a standard scalar type.
      *
      * \tparam T the source type.
      * \param str the value to cast to string
      *
+     * \throw WTypeMismatch if the string cannot be converted properly.
      * \return the string.
      */
     template< typename T >
     inline T fromString( const std::string& str )
     {
-        std::stringstream ss( str );
-        T value;
-        ss >> value;
-        return value;
+        return fromStringImpl< T >::fromString( str );
     }
 
     /** We consider the following characters as whitespace:
@@ -150,15 +222,15 @@ namespace string_utils
      * Splits the given string into a vector of strings (so called tokens).
      *
      * \param source String to tokenize
-     * \param compress If true, charactes matching between two tokens are
+     * \param compress If true, characters matching between two tokens are
      * collapsed and handled as just one character.
-     * \param delim String representing a set containg all characters considered
+     * \param delim String representing a set containing all characters considered
      * as whitespace.
      * \return A vector of strings containing the tokens.
      */
     std::vector< std::string > tokenize( const std::string& source,
-                                                       const std::string& delim = WHITESPACE,
-                                                       bool compress = true );
+                                         const std::string& delim = WHITESPACE,
+                                         bool compress = true );
 
     /**
      * Writes every vector to an output stream such as cout, if its elements

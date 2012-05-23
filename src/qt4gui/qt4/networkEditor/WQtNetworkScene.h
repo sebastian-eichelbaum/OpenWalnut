@@ -36,9 +36,11 @@ class WQtNetworkScene: public QGraphicsScene
     Q_OBJECT
 public:
     /**
-     * Constructor
+     * Constructor.
+     *
+     * \param parent the parent which handles the scene
      */
-    explicit WQtNetworkScene();
+    explicit WQtNetworkScene( QObject* parent = NULL );
 
     /**
      * Destructor
@@ -46,6 +48,20 @@ public:
     virtual ~WQtNetworkScene();
 
 protected:
+    /**
+     * Event handler when pulling something inside the scene.
+     *
+     * \param event the event.
+     */
+    virtual void dragEnterEvent( QGraphicsSceneDragDropEvent* event );
+
+    /**
+     * Event handler when pulling something in the scene.
+     *
+     * \param event the event.
+     */
+    virtual void dragMoveEvent( QGraphicsSceneDragDropEvent* event );
+
 private:
 };
 #endif  // WQTNETWORKSCENE_H

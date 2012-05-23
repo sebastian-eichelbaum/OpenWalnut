@@ -33,7 +33,7 @@
 #include "WQtRoiTreeItem.h"
 
 /**
- * header item for rois
+ * Header item for ROIs
  */
 class WQtRoiHeaderTreeItem : public QTreeWidgetItem
 {

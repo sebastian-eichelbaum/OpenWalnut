@@ -250,7 +250,7 @@ void WMBermanTracking::moduleMain()
             boost::shared_ptr< WValueSet< float > > vs( new WValueSet< float >( 0, 1, m_hits, DataType< float >::type ) );
 
             m_result = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, m_dataSet->getGrid() ) );
-            m_result->setFileName( "Berman_prob_tracking_result" );
+            m_result->setFilename( "Berman_prob_tracking_result" );
 
             m_result->getTexture()->threshold()->set( 0.05f );
             m_result->getTexture()->colormap()->set( m_result->getTexture()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 2 ) ) );
@@ -422,7 +422,7 @@ WSymmetricSphericalHarmonic WMBermanTracking::createRandomODF( std::size_t i )
         // "-", because the residuals in the input dataset have differing sign
         q( k, 0 ) = v( k, 0 ) - ( m_dataSetResidual->getValueAt( i * v.rows() + z ) / ( sqrt( 1.0 - m_HMat( k, k ) ) ) );
 
-        WAssert( !wlimits::isnan( q( k, 0 ) ), "" );
+        WAssert( !wlimits::isNaN( q( k, 0 ) ), "" );
     }
 
     // now calc new sh coeffs from the resampled hardi data

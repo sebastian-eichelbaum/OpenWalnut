@@ -310,7 +310,7 @@ void WMAnisotropicFiltering::diffusion( std::vector< double > const& deriv, std:
                 // diffusion coeff
                 double const& c = coeff[ coordsToIndex( grid, x, y, z ) ];
 
-                // 2nd derivations in x, y, and z of the image intensity
+                // 2nd derivatives in x, y, and z of the image intensity
                 double ddIxx = ( deriv[ 3 * coordsToIndex( grid, ( x + 1 ) % s[ 0 ], y, z ) + 0 ]
                                - deriv[ 3 * coordsToIndex( grid, ( x + s[ 0 ] - 1 ) % s[ 0 ], y, z ) + 0 ] )
                                 / ( 2 * d[ 0 ] );

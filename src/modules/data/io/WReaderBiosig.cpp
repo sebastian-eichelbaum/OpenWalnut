@@ -148,7 +148,7 @@ boost::shared_ptr< WDataSet > WReaderBiosig::load()
     }
 
     boost::shared_ptr< WEEG > eeg = boost::shared_ptr< WEEG >( new WEEG( segments, lib, labels ) );
-    eeg->setFileName( m_fname );
+    eeg->setFilename( m_fname );
 
 
     wlog::info( "BIOSIG loading done." );

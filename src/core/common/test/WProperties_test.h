@@ -163,6 +163,46 @@ public:
         TS_ASSERT( p->m_properties.getReadTicket()->get().size() == 2 );
     }
 
+    /**
+     * Tests whether the properties children can be set by the WProperties::set call using a other WProperties instance
+     */
+    void testRecursiveSetByProperty( void )
+    {
+        WException::disableBacktrace(); // in tests, turn of backtrace globally
+
+        // some props we can use as target
+        boost::shared_ptr< WProperties > t = boost::shared_ptr< WProperties >( new WProperties( "hey", "you" ) );
+
+        // add some new properties
+        WPropBool tp1 = t->addProperty( "p1", "", true );
+        WPropInt tp2 = t->addProperty( "p2", "", 1 );
+        WPropGroup tg1 = t->addPropertyGroup( "g1", "" );
+        WPropDouble tp3 = tg1->addProperty( "p3", "", 1.0 );
+        WPropDouble tp4 = t->addProperty( "p4", "", 10.0 );
+
+        // create a group we can use as source
+        boost::shared_ptr< WProperties > s = boost::shared_ptr< WProperties >( new WProperties( "hey", "you" ) );
+
+        // add some new properties
+        WPropBool sp1 = s->addProperty( "p1", "", false );
+        WPropInt sp2 = s->addProperty( "p2__", "", 10 ); // NOTE: the name is different
+        WPropGroup sg1 = s->addPropertyGroup( "g1", "" );
+        WPropDouble sp3 = sg1->addProperty( "p3", "", 2.0 );
+        WPropInt sp4 = s->addProperty( "p4", "", 2 );
+
+        // let us set t using the values in s
+        t->set( s );
+
+        // lets check the values:
+        // tp1 should be set to the value of sp1
+        TS_ASSERT( tp1->get() == sp1->get() );
+        // tp2 should be untouched as no corresponding property exists in s
+        TS_ASSERT( tp2->get() == 1 );
+        // the child of the group g1 should be set to sp3
+        TS_ASSERT( tp3->get() == sp3->get() );
+        // tp4 must not be sp4 even if the names match. The type is a mismatch
+        TS_ASSERT( tp4->get() == 10.0 );
+    }
 
     /**
      * Test the features to find and get properties.

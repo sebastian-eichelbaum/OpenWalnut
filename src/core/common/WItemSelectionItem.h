@@ -27,7 +27,7 @@
 
 #include <string>
 
-
+#include <boost/shared_ptr.hpp>
 
 /**
  * Class for keeping a single named item in a WItemSelection.
@@ -35,6 +35,16 @@
 class WItemSelectionItem // NOLINT
 {
 public:
+    /**
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WItemSelectionItem > SPtr;
+
+    /**
+     * Abbreviation for a const shared pointer.
+     */
+    typedef boost::shared_ptr< const WItemSelectionItem > ConstSPtr;
+
     /**
      * Constructs a new item with the specified values.
      *
@@ -71,6 +81,28 @@ public:
     const char** getIcon() const;
 
     /**
+     * Dynamic cast of the object, if a derivative of WItemSelectionItem was add to WItemSelection.
+     *
+     * \return Returns the converted item of new type T or 0 if a conversion is not possible.
+     */
+    template< typename T >
+    T* getAs()
+    {
+        return dynamic_cast< T* >( this );
+    }
+
+    /**
+     * Dynamic cast of the object, if a derivative of WItemSelectionItem was add to WItemSelection.
+     *
+     * \return Returns the converted item of new type T or 0 if a conversion is not possible.
+     */
+    template< typename T >
+    const T* getAs() const
+    {
+        return dynamic_cast< T* >( this );
+    }
+
+    /**
      * Compares this and another item using their names only.
      *
      * \param other the second to compare the this one with
@@ -99,4 +131,3 @@ private:
 };
 
 #endif  // WITEMSELECTIONITEM_H
-

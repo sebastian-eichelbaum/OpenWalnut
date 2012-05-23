@@ -30,6 +30,8 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/function.hpp>
+#include <boost/signals2/signal.hpp>
 
 #include "../common/WProjectFileIO.h"
 
@@ -38,16 +40,44 @@
  * Class loading project files. This class opens an file and reads it line by line. It delegates the actual parsing to each of the known
  * WProjectFileIO instances which then do their job.
  */
-class  WProjectFile: public WThreadedRunner,
-                                      public boost::enable_shared_from_this< WProjectFile >
+class WProjectFile: public WThreadedRunner,
+                    public boost::enable_shared_from_this< WProjectFile >
 {
 public:
     /**
-     * Default constructor. It does NOT parse the file. Parsing is done by apply().
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WProjectFile > SPtr;
+
+    /**
+     * Abbreviation for const shared pointer.
+     */
+    typedef boost::shared_ptr< const WProjectFile > ConstSPtr;
+
+    /**
+     * A callback function type reporting bach a finished load job. The given string vector contains a list of errors if any.
+     */
+    typedef boost::function< void( boost::filesystem::path, std::vector< std::string >  ) > ProjectLoadCallback;
+
+    /**
+     * A callback function signal type reporting bach a finished load job. The given string vector contains a list of errors if any.
+     */
+    typedef boost::signals2::signal< void( boost::filesystem::path, std::vector< std::string >  ) > ProjectLoadCallbackSignal;
+
+    /**
+     * Default constructor. It does NOT parse the file. Parsing is done by using load.
      *
-     * \param project the project file to load.
+     * \param project the project file to load or save.
      */
     explicit WProjectFile( boost::filesystem::path project );
+
+    /**
+     * Default constructor. It does NOT parse the file. Parsing is done by using load.
+     *
+     * \param project the project file to load.
+     * \param doneCallback gets called whenever the load thread finishes.
+     */
+    WProjectFile( boost::filesystem::path project, ProjectLoadCallback doneCallback );
 
     /**
      * Destructor.
@@ -116,8 +146,17 @@ protected:
      * \param e the exception
      */
     virtual void onThreadException( const WException& e );
-
 private:
+    /**
+     * Signal used to callback someone that the loader was finished.
+     */
+    ProjectLoadCallbackSignal m_signalLoadDone;
+
+    /**
+     * Connection managing the signal m_signalLoadDone. This is the one and only connection allowed and will be disconnected upon thread has
+     * finished.
+     */
+    boost::signals2::connection m_signalLoadDoneConnection;
 };
 
 #endif  // WPROJECTFILE_H

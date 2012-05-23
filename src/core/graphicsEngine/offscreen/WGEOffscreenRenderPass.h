@@ -96,7 +96,7 @@ public:
     /**
      * This method attaches a texture to the given buffer. The texture gets created with the resolution of the FBO.
      *
-     * On Mac OSX, only GL_RGBA works as internal format, so all intput to internalFormat is ignored and overwritten by GL_RGBA internally.
+     * On Mac OSX, only GL_RGBA works as internal format, so all input to internalFormat is ignored and overwritten by GL_RGBA internally.
      *
      * \param buffer the buffer to attach the new texture to
      * \param internalFormat the format to use. By default, RGBA

@@ -56,9 +56,9 @@ WDataSetFiberVector::WDataSetFiberVector( boost::shared_ptr< const WDataSetFiber
         return;
     }
 
-    if( fiberDS->getFileName() != "" )
+    if( fiberDS->getFilename() != "" )
     {
-        setFileName( fiberDS->getFileName() );
+        setFilename( fiberDS->getFilename() );
     }
     size_t numLines = fiberDS->size();
     const std::vector< size_t >& lineLengths = *fiberDS->getLineLengths();

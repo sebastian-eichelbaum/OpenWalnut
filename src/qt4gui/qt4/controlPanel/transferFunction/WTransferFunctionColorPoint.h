@@ -39,8 +39,12 @@ class WTransferFunctionWidget;
  */
 class WTransferFunctionColorPoint : public QObject, public QGraphicsItem
 {
+    // \cond Suppress_Doxygen
     Q_OBJECT // NOLINT
     Q_INTERFACES( QGraphicsItem ) // NOLINT
+    // \endcond
+
+
 
 public:
     /** type of our base class */

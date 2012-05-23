@@ -116,21 +116,26 @@ std::string WQtTreeItem::getName()
     return m_name;
 }
 
-void WQtTreeItem::updateTooltip( std::string progress )
+std::string WQtTreeItem::createTooltip( WModule::SPtr module )
 {
+    // create the tooltip text
     std::string tooltip = "";
-    if( m_module->isCrashed()() )
+    tooltip += "<b>Module: </b>" + module->getName() + "<br/>";
+    if( module->isCrashed()() )
     {
-        tooltip += "<b>A problem occured. The module has been stopped. </b><br/><br/>";
+        tooltip += "<b>State: </b>crashed<br/>";
+        tooltip += "<b>Crash-Message: </b>" + module->getCrashMessage() + "<br/>";
     }
-    tooltip += "<b>Module: </b>" + m_module->getName() + "<br/>";
-    tooltip += "<b>Progress: </b>" + progress + "<br/>";
+    else
+    {
+        tooltip += "<b>State: </b>normal<br/>";
+    }
     tooltip += "<b>Connectors: </b>";
 
     // also list the connectors
     std::string conList = "";
-    WModule::InputConnectorList consIn = m_module->getInputConnectors();
-    WModule::OutputConnectorList consOut = m_module->getOutputConnectors();
+    WModule::InputConnectorList consIn = module->getInputConnectors();
+    WModule::OutputConnectorList consOut = module->getOutputConnectors();
     conList += "<table><tr><th>Name</th><th>Description</th><th>Type (I/O)</th><th>Connected</th></tr>";
     int conCount = 0;
     for( WModule::InputConnectorList::const_iterator it = consIn.begin(); it != consIn.end(); ++it )
@@ -152,9 +157,9 @@ void WQtTreeItem::updateTooltip( std::string progress )
     conList += "</table>";
 
     tooltip += conCount ? "Yes" + conList + "<br/><br/>" : "None<br/>";
-    tooltip += "<b>Module Description: </b><br/>" + m_module->getDescription();
+    tooltip += "<b>Module Description: </b><br/>" + module->getDescription();
 
-    setToolTip( 0, tooltip.c_str() );
+    return tooltip;
 }
 
 void WQtTreeItem::slotDataChanged( boost::shared_ptr<WModuleConnector> connector )
@@ -201,7 +206,7 @@ void WQtTreeItem::updateState()
     {
         progress = "Busy " + p->getCombinedNames();
         setIcon( 0, WQt4Gui::getMainWindow()->getIconManager()->getIcon( "moduleBusy" ) );
-        std::ostringstream title;
+        std::ostringstream progressText;
 
         // construct a name for the progress indicator
         std::string name = p->getName();
@@ -212,16 +217,16 @@ void WQtTreeItem::updateState()
 
         if( p->isDetermined() )
         {
-            title.setf( std::ios::fixed );
-            title.precision( 0 );
-            title << p->getProgress() << "%" << name;
+            progressText.setf( std::ios::fixed );
+            progressText.precision( 0 );
+            progressText << p->getProgress() << "%" << name;
         }
         else
         {
-            title << "Pending" << name;
+            progressText << "Pending" << name;
         }
 
-        setText( 0, ( m_name + " - " + title.str() + connInfo ).c_str() );
+        setText( 0, ( m_name + " - " + progressText.str() + connInfo ).c_str() );
     }
     else
     {
@@ -255,7 +260,7 @@ void WQtTreeItem::updateState()
     }
 
     // update tooltip
-    updateTooltip( progress );
+    setToolTip( 0, WQtTreeItem::createTooltip( m_module ).c_str() );
 }
 
 void WQtTreeItem::gotRemoved()

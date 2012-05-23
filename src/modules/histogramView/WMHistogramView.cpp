@@ -87,6 +87,8 @@ public:
 
     /**
      * Returns a pointer to the widget.
+     *
+     * \return Shared pointer to the widget.
      */
     WCustomWidget::SPtr get()
     {
@@ -1235,7 +1237,7 @@ void WMHistogramView::createInfo()
 
             m_markerNode->addDrawable( geometry );
 
-            // TODO( reichenbach ): only insert the info node if there is enough space to do so
+            // TODO(reichenbach): only insert the info node if there is enough space to do so
 
             m_mainNode->insert( m_infoNode );
             m_mainNode->insert( m_markerNode );

@@ -128,6 +128,24 @@ public:
      */
     virtual QList< WQtNetworkArrow* > getArrowList();
 
+    /**
+     * Actually paints the port.
+     *
+     * \param painter the painter
+     * \param option style options
+     * \param widget parent widget.
+     */
+    virtual void paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget );
+
+    /**
+     * Calculates the spaced needed for the given amount of ports.
+     *
+     * \param nbPorts width of this amount of ports
+     *
+     * \return the width
+     */
+    static float getMultiplePortWidth( size_t nbPorts );
+
 protected:
     /**
      * Start drawing an arrow temporary.
@@ -161,5 +179,7 @@ protected:
 
 private:
     QGraphicsLineItem * m_line; //!< the temporary line when you connect two ports
+
+    bool m_brushNotSet; //!< used to indicate that the correct brush was not yet set.
 };
 #endif  // WQTNETWORKPORT_H

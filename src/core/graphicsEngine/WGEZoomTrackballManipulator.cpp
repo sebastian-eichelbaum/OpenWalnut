@@ -77,8 +77,7 @@ bool WGEZoomTrackballManipulator::zoom( const osgGA::GUIEventAdapter& ea, osgGA:
         {
             zoomDelta = 0.05;
         }
-
-        if(zoomDelta != 0.0)
+        if( zoomDelta != 0.0 )
         {
             m_zoom *= 1.0 + zoomDelta;
             us.requestRedraw();
@@ -86,6 +85,11 @@ bool WGEZoomTrackballManipulator::zoom( const osgGA::GUIEventAdapter& ea, osgGA:
     }
     else
     {
+        if( ea.getHandled() )
+        {
+            return true;
+        }
+
         switch( ea.getScrollingMotion() )
         {
             case osgGA::GUIEventAdapter::SCROLL_UP:
@@ -107,7 +111,7 @@ bool WGEZoomTrackballManipulator::zoom( const osgGA::GUIEventAdapter& ea, osgGA:
         }
     }
 
-    if(zoomDelta != 0.0)
+    if( zoomDelta != 0.0 )
     {
         m_zoom *= 1.0 + zoomDelta;
         us.requestRedraw();

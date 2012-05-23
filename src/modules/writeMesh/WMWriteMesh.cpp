@@ -24,9 +24,12 @@
 
 #include <string>
 #include <fstream>
+#include <vector>
 
+#include "core/common/WStringUtils.h"
 #include "core/common/math/WMath.h"
 #include "core/common/WPathHelper.h"
+#include "core/common/WLimits.h"
 #include "core/kernel/WKernel.h"
 #include "WMWriteMesh.xpm"
 #include "WMWriteMesh.h"
@@ -92,7 +95,7 @@ void WMWriteMesh::properties()
     m_fileTypeSelection = m_properties->addProperty( "File type",  "file type.", m_fileTypeSelectionsList->getSelectorFirst() );
        WPropertyHelper::PC_SELECTONLYONE::addTo( m_fileTypeSelection );
 
-    m_writeColors = m_properties->addProperty( "Write colors", "", true, m_propCondition );
+    m_writeColors = m_properties->addProperty( "Write colors", "", true );
 
     WModule::properties();
 }
@@ -184,7 +187,7 @@ bool WMWriteMesh::saveVTKASCII() const
     for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
     {
         point = m_triMesh->getVertex( i );
-        if( !( myIsfinite( point[0] ) && myIsfinite( point[1] ) && myIsfinite( point[2] ) ) )
+        if( !( !wlimits::isInf( point[0] ) && !wlimits::isInf( point[1] ) && !wlimits::isInf( point[2] ) ) )
         {
             WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Write Mesh", LL_ERROR );
             return false;
@@ -216,7 +219,7 @@ bool WMWriteMesh::saveVTKASCII() const
     return true;
 }
 
-bool WMWriteMesh::saveJson() const
+bool WMWriteMesh::saveJson()
 {
     if( !m_triMesh )
     {
@@ -235,80 +238,141 @@ bool WMWriteMesh::saveJson() const
         return false;
     }
 
-    const char* c_file = m_meshFile->get().string().c_str();
-    std::ofstream dataFile( c_file, std::ios_base::binary );
+    std::vector< boost::shared_ptr< WTriangleMesh > >meshes;
+    meshes = splitMesh( m_triMesh, 65000 );
 
-    if( dataFile )
+    for( size_t k = 0; k < meshes.size(); ++k )
     {
-        WLogger::getLogger()->addLogMessage( "opening file", "Write Mesh", LL_DEBUG );
-    }
-    else
-    {
-        WLogger::getLogger()->addLogMessage( "open file failed" + m_meshFile->get().string() , "Write Mesh", LL_ERROR );
-        return false;
-    }
+        std::string fn = m_meshFile->get().string() + "_" + string_utils::toString( k );
+        const char* c_file = fn.c_str();
+        std::ofstream dataFile( c_file, std::ios_base::binary );
 
-    dataFile.precision( 7 );
-
-    WLogger::getLogger()->addLogMessage( "start writing file", "Write Mesh", LL_DEBUG );
-
-
-    dataFile << ( "{\n" );
-    dataFile << ( "    \"vertices\" : [" );
-    WPosition point;
-    for( size_t i = 0; i < m_triMesh->vertSize() - 1; ++i )
-    {
-        point = m_triMesh->getVertex( i );
-        if( !( myIsfinite( point[0] ) && myIsfinite( point[1] ) && myIsfinite( point[2] ) ) )
+        if( dataFile )
         {
-            WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Write Mesh", LL_ERROR );
+            WLogger::getLogger()->addLogMessage( "opening file", "Write Mesh", LL_DEBUG );
+        }
+        else
+        {
+            WLogger::getLogger()->addLogMessage( "open file failed" + m_meshFile->get().string() , "Write Mesh", LL_ERROR );
             return false;
         }
-        dataFile << point[0] << "," << point[1] << "," << point[2] << ",";
-    }
-    point = m_triMesh->getVertex( m_triMesh->vertSize() - 1 );
-    dataFile << point[0] << "," << point[1] << "," << point[2] << "],\n";
 
-    dataFile << ( "    \"normals\" : [" );
-    WPosition normal;
-    for( size_t i = 0; i < m_triMesh->vertSize() - 1; ++i )
-    {
-        normal = m_triMesh->getNormal( i );
-        if( !( myIsfinite( normal[0] ) && myIsfinite( normal[1] ) && myIsfinite( normal[2] ) ) )
+        dataFile.precision( 5 );
+
+        WLogger::getLogger()->addLogMessage( "start writing file", "Write Mesh", LL_DEBUG );
+
+        std::cout << meshes[k]->vertSize() << " vertices and " << meshes[k]->triangleSize() << " triangles" << std::endl;
+        dataFile << ( "{\n" );
+        dataFile << ( "    \"vertices\" : [" );
+        WPosition point;
+        for( size_t i = 0; i < meshes[k]->vertSize() - 1; ++i )
         {
-            WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Write Mesh", LL_ERROR );
-            return false;
+            point = meshes[k]->getVertex( i );
+            if( !( !wlimits::isInf( point[0] ) && !wlimits::isInf( point[1] ) && !wlimits::isInf( point[2] ) ) )
+            {
+                WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Write Mesh", LL_ERROR );
+                return false;
+            }
+            dataFile << point[0] << "," << point[1] << "," << point[2] << ",";
         }
-        dataFile << normal[0] << "," << normal[1] << "," << normal[2] << ",";
-    }
-    normal = m_triMesh->getNormal( m_triMesh->vertSize() - 1 );
-    dataFile << normal[0] << "," << normal[1] << "," << normal[2] << "],\n";
+        point = meshes[k]->getVertex( meshes[k]->vertSize() - 1 );
+        dataFile << point[0] << "," << point[1] << "," << point[2] << "],\n";
 
-    dataFile << ( "    \"indices\" : [" );
-    for( size_t i = 0; i < m_triMesh->triangleSize() - 1; ++i )
-    {
-        dataFile << m_triMesh->getTriVertId0( i ) << "," <<  m_triMesh->getTriVertId1( i ) << "," <<  m_triMesh->getTriVertId2( i ) << ",";
-    }
-    size_t i = m_triMesh->triangleSize() - 1;
-    dataFile << m_triMesh->getTriVertId0( i ) << "," <<  m_triMesh->getTriVertId1( i ) << "," <<  m_triMesh->getTriVertId2( i ) << "]";
-
-
-    if( m_writeColors->get() )
-    {
-        dataFile << ",\n";
-        dataFile << ( "    \"colors\" : [" );
-        for( size_t k = 0; k < m_triMesh->vertSize() - 1; ++k )
+        dataFile << ( "    \"normals\" : [" );
+        WPosition normal;
+        for( size_t i = 0; i < meshes[k]->vertSize() - 1; ++i )
         {
-            osg::Vec4 color = m_triMesh->getVertColor( k );
-
-            dataFile << color[0] << "," <<  color[1] << "," <<  color[2] << "," <<  color[3] << ",";
+            normal = meshes[k]->getNormal( i );
+            if( !( !wlimits::isInf( normal[0] ) && !wlimits::isInf( normal[1] ) && !wlimits::isInf( normal[2] ) ) )
+            {
+                WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Write Mesh", LL_ERROR );
+                return false;
+            }
+            dataFile << normal[0] << "," << normal[1] << "," << normal[2] << ",";
         }
-        osg::Vec4 color = m_triMesh->getVertColor( m_triMesh->vertSize() - 1 );
-        dataFile << color[0] << "," <<  color[1] << "," <<  color[2] << "," <<  color[3] << "]";
-    }
-    dataFile <<  "\n}";
+        normal = meshes[k]->getNormal( meshes[k]->vertSize() - 1 );
+        dataFile << normal[0] << "," << normal[1] << "," << normal[2] << "],\n";
 
-    dataFile.close();
+        dataFile << ( "    \"indices\" : [" );
+        for( size_t i = 0; i < meshes[k]->triangleSize() - 1; ++i )
+        {
+            dataFile << meshes[k]->getTriVertId0( i ) << "," <<  meshes[k]->getTriVertId1( i ) << "," <<  meshes[k]->getTriVertId2( i ) << ",";
+        }
+        size_t i = meshes[k]->triangleSize() - 1;
+        dataFile << meshes[k]->getTriVertId0( i ) << "," <<  meshes[k]->getTriVertId1( i ) << "," <<  meshes[k]->getTriVertId2( i ) << "]";
+
+
+        if( m_writeColors->get() )
+        {
+            dataFile << ",\n";
+            dataFile << ( "    \"colors\" : [" );
+            for( size_t j = 0; j < meshes[k]->vertSize() - 1; ++j )
+            {
+                osg::Vec4 color = meshes[k]->getVertColor( j );
+
+                dataFile << color[0] << "," <<  color[1] << "," <<  color[2] << "," <<  color[3] << ",";
+            }
+            osg::Vec4 color = meshes[k]->getVertColor( meshes[k]->vertSize() - 1 );
+            dataFile << color[0] << "," <<  color[1] << "," <<  color[2] << "," <<  color[3] << "]";
+        }
+        dataFile <<  "\n}";
+
+        dataFile.close();
+    }
     WLogger::getLogger()->addLogMessage( "saving done", "Write Mesh", LL_DEBUG );
     return true;
+}
+
+std::vector< boost::shared_ptr< WTriangleMesh > >WMWriteMesh::splitMesh( boost::shared_ptr< WTriangleMesh > triMesh, size_t targetSize )
+{
+    std::vector< boost::shared_ptr< WTriangleMesh > >meshes;
+    if( triMesh->vertSize() <= targetSize )
+    {
+        meshes.push_back( triMesh );
+        return meshes;
+    }
+    size_t currentTri( 0 );
+    size_t id0, id1, id2;
+
+    while( currentTri < triMesh->triangleSize() )
+    {
+        boost::shared_ptr< WTriangleMesh > newMesh = boost::shared_ptr< WTriangleMesh >( new WTriangleMesh( 0, 0 ) );
+        std::vector<int>newIds( triMesh->vertSize(), -1 );
+        while( newMesh->vertSize() < targetSize )
+        {
+            id0 = triMesh->getTriVertId0( currentTri );
+            id1 = triMesh->getTriVertId1( currentTri );
+            id2 = triMesh->getTriVertId2( currentTri );
+            if( newIds[id0] == -1 )
+            {
+                newIds[id0] = newMesh->vertSize();
+                osg::Vec3 vert = triMesh->getTriVert( currentTri, 0 );
+                newMesh->addVertex( vert.x(), vert.y(), vert.z() );
+                newMesh->setVertexColor( newMesh->vertSize() - 1, triMesh->getVertColor( id0 ) );
+            }
+            if( newIds[id1] == -1 )
+            {
+                newIds[id1] = newMesh->vertSize();
+                osg::Vec3 vert = triMesh->getTriVert( currentTri, 1 );
+                newMesh->addVertex( vert.x(), vert.y(), vert.z() );
+                newMesh->setVertexColor( newMesh->vertSize() - 1, triMesh->getVertColor( id1 ) );
+            }
+            if( newIds[id2] == -1 )
+            {
+                newIds[id2] = newMesh->vertSize();
+                osg::Vec3 vert = triMesh->getTriVert( currentTri, 2 );
+                newMesh->addVertex( vert.x(), vert.y(), vert.z() );
+                newMesh->setVertexColor( newMesh->vertSize() - 1, triMesh->getVertColor( id2 ) );
+            }
+            newMesh->addTriangle( newIds[id0], newIds[id1], newIds[id2] );
+            ++currentTri;
+            if( currentTri == triMesh->triangleSize() )
+            {
+                break;
+            }
+        }
+
+        meshes.push_back( newMesh );
+    }
+    return meshes;
 }

@@ -90,9 +90,6 @@ void WMColormapper::properties()
     m_defaultName = m_properties->addProperty( "Default Name", "This specifies the name to use for textures which are not yet named.",
             std::string( "Unnamed" ), true );
 
-    m_replace = m_properties->addProperty( "Keep position",
-                                           "If true, new texture on the input connector get placed in the list where the old one was.", true );
-
     WPropGroup colorBarGroup = m_properties->addPropertyGroup( "Colorbar", "The colorbar with several properties." );
     m_showColorbar = colorBarGroup->addProperty( "Show Colorbar", "If true, a colorbar is shown for the current colormap.", false );
     m_colorBarBorder = colorBarGroup->addProperty( "Show Border", "If true, a thin white border is shown around the colorbar.", true );
@@ -258,14 +255,21 @@ void WMColormapper::moduleMain()
             }
 
             // replace texture instead of removing it?
-            if( dataSet && dataSet->isTexture() && m_lastDataSet && m_replace->get( true ) )
+            if( dataSet && dataSet->isTexture() && m_lastDataSet )
             {
                 debugLog() << "Replacing texture \"" << m_lastDataSet->getTexture()->name()->get() << "\" with \"" <<
                                                         dataSet->getTexture()->name()->get() << "\".";
+
+                // set the _recommended_ values from the previous ones
+                dataSet->getTexture()->getProperties()->set( m_lastDataSet->getTexture()->getProperties(), true );
+
+                // finally, set the new properties (and remove the old props)
                 m_properties->removeProperty( m_lastDataSet->getTexture()->getProperties() );
                 m_infoProperties->removeProperty( m_lastDataSet->getTexture()->getInformationProperties() );
                 m_properties->addProperty( dataSet->getTexture()->getProperties() );
                 m_infoProperties->addProperty( dataSet->getTexture()->getInformationProperties() );
+
+                // tell the colormapper about it
                 WGEColormapping::replaceTexture( m_lastDataSet->getTexture(), dataSet->getTexture() );
                 m_lastDataSet = dataSet;
             }

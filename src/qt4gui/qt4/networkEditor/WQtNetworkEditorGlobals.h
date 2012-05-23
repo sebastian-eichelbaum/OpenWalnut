@@ -29,9 +29,15 @@
 #define WNETWORKPORT_SIZEX 10
 #define WNETWORKPORT_SIZEY 10
 
+// Distance to element border of sub elements
+#define WNETWORKITEM_MARGINX 3
+#define WNETWORKITEM_MARGINY 3
+
 // The minimum width and heigh of items inside the scene
-#define WNETWORKITEM_MINIMUM_WIDTH  100
+#define WNETWORKITEM_MINIMUM_WIDTH  125
 #define WNETWORKITEM_MINIMUM_HEIGHT  50
+#define WNETWORKITEM_MAXIMUM_WIDTH  200
+#define WNETWORKITEM_MAXIMUM_HEIGHT 100
 
 #endif  // WQTNETWORKEDITORGLOBALS_H
 

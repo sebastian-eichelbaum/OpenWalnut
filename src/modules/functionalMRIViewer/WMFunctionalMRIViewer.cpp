@@ -125,7 +125,7 @@ void WMFunctionalMRIViewer::moduleMain()
             float time = m_time->get( true );
 
             std::stringstream s;
-            s << m_dataSet->getFileName() << "_time" << time;
+            s << m_dataSet->getFilename() << "_time" << time;
             boost::shared_ptr< WDataSetScalar const > ds = m_dataSet->calcDataSetAtTime( time, s.str() );
             // get rid of the const
             m_dataSetAtTime = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( ds->getValueSet(), ds->getGrid() ) );

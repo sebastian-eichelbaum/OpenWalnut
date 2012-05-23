@@ -109,16 +109,16 @@ public:
     WQtModuleTreeItem* addModule( boost::shared_ptr< WModule > module );
 
     /**
-     * Adds a roi entry to the control panel
+     * Adds a ROI entry to the control panel
      *
-     * \param roi pointer to the roi representation object
+     * \param roi pointer to the ROI representation object
      */
     void addRoi( osg::ref_ptr< WROI > roi );
 
     /**
-     * Removes a roi entry from the control panel
+     * Removes a ROI entry from the control panel
      *
-     * \param roi pointer to the roi representation object
+     * \param roi pointer to the ROI representation object
      */
     void removeRoi( osg::ref_ptr< WROI > roi );
 
@@ -135,16 +135,16 @@ public:
     boost::shared_ptr< WModule > getSelectedModule();
 
     /**
-     * Returns the currently selected roi.
+     * Returns the currently selected ROI.
      *
-     * \return pointer to roi representation
+     * \return pointer to ROI representation
      */
     osg::ref_ptr< WROI > getSelectedRoi();
 
     /**
-     * Returns the first roi in the currently selected branch.
+     * Returns the first ROI in the currently selected branch.
      *
-     * \return pointer to roi representation
+     * \return pointer to ROI representation
      */
     osg::ref_ptr< WROI > getFirstRoiInSelectedBranch();
 
@@ -284,11 +284,11 @@ private:
 
     WQtModuleHeaderTreeItem* m_tiModules; //!< header for modules
 
-    WQtRoiHeaderTreeItem* m_tiRois; //!< header for rois
+    WQtRoiHeaderTreeItem* m_tiRois; //!< header for ROIs
 
     bool m_showToolBarText; //!< Show tool bar icons with text
 
-    QDockWidget* m_roiDock;     //!< the dock widget with the roi tree
+    QDockWidget* m_roiDock;     //!< the dock widget with the ROI tree
     QDockWidget* m_moduleDock;  //!< the dock widget with the module tree
 
     /**
@@ -312,9 +312,22 @@ private:
     QAction* m_connectWithPrototypeAction;
 
     /**
+     * Action which uses a list of all modules allowing them to be added without any connections.
+     */
+    QAction* m_addModuleAction;
+
+    /**
      * Action which disconnects a connector from the module.
      */
     QAction* m_disconnectAction;
+
+    /**
+     * List all actions created for applying a prototype. Is needed for m_addModuleAction.
+     *
+     * \note We need to store this action list here as Qt is not able to delete the actions if they get replaced. We need to handle this
+     * manually.
+     */
+    WQtCombinerActionList m_addModuleActionList;
 
     /**
      * List all actions created for applying a prototype. Is needed for m_connectWithPrototypeAction.
@@ -366,6 +379,12 @@ private:
      * The module currently active
      */
     WModule::SPtr m_activeModule;
+
+    /**
+     * The title of the last selected tab in the control panel. This needs to be done using the tab name as the tab index is not consistent(
+     * depending on the number of tabs. Sometimes, some tabs are not visible).
+     */
+    QString m_previousTab;
 private slots:
     /**
      * function that gets called when a tree item is selected, on a new select that tab widget
@@ -436,9 +455,9 @@ private slots:
     void deleteModule();
 
     /**
-     * function to notify the roi manager of any drag&drop action in the roi tree
+     * function to notify the ROI manager of any drag&drop action in the ROI tree
      */
-    void handleDragDrop();
+    void handleRoiDragDrop();
 };
 
 #endif  // WQTCONTROLPANEL_H

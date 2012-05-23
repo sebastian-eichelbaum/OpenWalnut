@@ -27,7 +27,7 @@
 
 #include <string>
 
-
+#include "../../common/WDefines.h"
 
 /**
  * Write some data to the given file. This base class is just for file
@@ -51,13 +51,21 @@ public:
      * non overwriting is specified.
      *
      * \param fname file name
+     * \deprecated use setFilename instead
      */
-    void setFileName( std::string fname );
+    OW_API_DEPRECATED void setFileName( std::string fname );
+
+    /**
+     * Reset file name and checks if the file already exists in case of
+     * non overwriting is specified.
+     *
+     * \param fname file name
+     */
+    void setFilename( std::string fname );
 
 protected:
     std::string m_fname; //!< Absolute path of the file to write to
     bool m_overwrite; //!< flag indicating if the file may be overwritten (true) or not (false)
-
 private:
 };
 

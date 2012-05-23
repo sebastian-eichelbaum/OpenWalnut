@@ -155,13 +155,21 @@ public:
      * \param module the module to find the compatibles for.
      *
      * \note as the default parameter denotes, providing a NULL pointer (or calling the method without a parameter) returns the list of modules
-     * which are compatible to every other module. In other words, it returns all modules without input connectors.
+     * which are compatible to every other module. In other words, it returns all modules without input connectors. If the specified module is
+     * not NULL, the modules without input are not listed.
      *
      * \return set of compatible combiners.
      */
     WCombinerTypes::WCompatiblesList getCompatiblePrototypes(
             boost::shared_ptr< WModule > module = boost::shared_ptr< WModule >()
     );
+
+    /**
+     * Creates a list of \ref WApplyCombiner for all modules known by the factory.
+     *
+     * \return list of apply combiner.
+     */
+    WCombinerTypes::WCompatiblesList getAllPrototypes();
 
     /**
      * This method uses a newly created instance of WModule and initializes it properly. After using this method, the module is

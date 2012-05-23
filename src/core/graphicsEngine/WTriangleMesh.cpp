@@ -201,9 +201,13 @@ osg::Vec4 WTriangleMesh::getVertColor( size_t index ) const
     return ( *m_vertColors )[index];
 }
 
-WVector3d WTriangleMesh::getNormal( size_t index ) const
+WVector3d WTriangleMesh::getNormal( size_t index )
 {
     WAssert( index < m_countVerts, "get normal as position: index out of range" );
+    if( m_meshDirty )
+    {
+        recalcVertNormals();
+    }
     return WPosition( ( *m_vertNormals )[index][0], ( *m_vertNormals )[index][1], ( *m_vertNormals )[index][2] );
 }
 

@@ -30,10 +30,15 @@
 
 WReader::WReader( std::string fname ) throw( WDHNoSuchFile )
 {
-    setFileName( fname ); // not in constructor list since fileExcsits check
+    setFilename( fname ); // not in constructor list since fileExcsits check
 }
 
 void WReader::setFileName( std::string fname ) throw( WDHNoSuchFile )
+{
+    setFilename( fname );
+}
+
+void WReader::setFilename( std::string fname ) throw( WDHNoSuchFile )
 {
     m_fname = fname;
     if( !fileExists( m_fname ) )

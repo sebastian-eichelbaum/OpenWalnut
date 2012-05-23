@@ -50,6 +50,11 @@ osg::Vec3 wge::unprojectFromScreen( const osg::Vec3 screen, osg::ref_ptr< osg::C
     return screen * osg::Matrix::inverse( camera->getViewMatrix() * camera->getProjectionMatrix() * camera->getViewport()->computeWindowMatrix() );
 }
 
+osg::Vec4 wge::unprojectFromScreen( const osg::Vec4 screen, osg::ref_ptr< osg::Camera > camera )
+{
+    return screen * osg::Matrix::inverse( camera->getViewMatrix() * camera->getProjectionMatrix() * camera->getViewport()->computeWindowMatrix() );
+}
+
 WColor wge::createColorFromIndex( int index )
 {
     float r = 0.0;

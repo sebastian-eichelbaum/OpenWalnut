@@ -38,6 +38,7 @@
 
 #include "../WQtCombinerToolbar.h"
 #include "layout/WNetworkLayout.h"
+#include "WQtNetworkEditorView.h"
 #include "WQtNetworkItem.h"
 #include "WQtNetworkScene.h"
 
@@ -78,11 +79,6 @@ public:
     void connectSlots();
 
     /**
-     * Deletes all items in the scene who are selected.
-     **/
-    void deleteSelectedItems();
-
-    /**
      * Query a list of selected items.
      *
      * \return the list
@@ -101,6 +97,19 @@ public:
      */
     void selectByModule( WModule::SPtr module );
 
+    /**
+     * Returns the current scene.
+     *
+     * \return the scene
+     */
+    WQtNetworkScene* getScene();
+
+    /**
+     * Get the view handling the scene.
+     *
+     * \return the view.
+     */
+    WQtNetworkEditorView* getView();
 protected:
     /**
      * Reference to the main window of the application.
@@ -138,12 +147,22 @@ private:
      */
     QAction* m_disconnectAction;
 
+    /**
+     * The view controlling several scene transformations.
+     */
+    WQtNetworkEditorView* m_view;
+
 private slots:
 
     /**
      * Determines possible Connections and the propertytab.
      */
     void selectItem();
+
+    /**
+     * Called by a timer to allow updates of all module items.
+     */
+    void updateCylce();
 };
 
 #endif  // WQTNETWORKEDITOR_H

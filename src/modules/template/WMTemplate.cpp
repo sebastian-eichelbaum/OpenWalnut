@@ -22,25 +22,27 @@
 //
 //---------------------------------------------------------------------------
 
-
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// How to run this module in OpenWalnut:
+//   * Download a sample Dataset (http://www.informatik.uni-leipzig.de/~wiebel/public_data/walnut/walnut_masked.nii.gz)
+//   * Load the dataset by dragging it into OpenWalnut
+//   * Click on it and add the template module
+//     * This can be done via right-click menu or the module toolbar below the menu
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // How to create your own module in OpenWalnut? Here are the steps to take:
+//   * Setup your module building framework
+//     * See http://www.openwalnut.org/projects/openwalnut/wiki/Module_ExternalDevelopment for details
 //   * copy the template module directory
 //   * think about a name for your module
 //   * rename the files from WMTemplate.cpp and WMTemplate.h to WMYourModuleName.cpp and WMYourModuleName.h
 //   * rename the class inside these files to WMYourModuleName
 //   * rename the class inside "W_LOADABLE_MODULE" to WMYourModuleName
 //   * change WMYourModuleName::getName() to a unique name, like "Your Module Name"
-//   * add a your module to src/modules/CMakeLists.txt
-//     * analogously to the other modules, add yours
-//   * run CMake and compile
 //   * read the documentation in this module and modify it to your needs
+//   * compile
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
 
 // Some rules to the inclusion of headers:
 //  * Ordering:
@@ -59,9 +61,14 @@
 #include <osg/StateAttribute>
 
 #include "core/kernel/WKernel.h"
+#include "core/common/exceptions/WFileNotFound.h"
 #include "core/common/WColor.h"
 #include "core/common/WPathHelper.h"
 #include "core/common/WPropertyHelper.h"
+#include "core/common/WItemSelection.h"
+#include "core/common/WItemSelectionItem.h"
+#include "core/common/WItemSelectionItemTyped.h"
+#include "core/common/WItemSelector.h"
 #include "core/graphicsEngine/WGEUtils.h"
 #include "core/graphicsEngine/WGERequirement.h"
 
@@ -159,34 +166,16 @@ void WMTemplate::connectors()
 
     // Here is an example of how to create connectors. This module wants to have an input connector. This connector is defined by the type of
     // data that should be transferred, an module-wide unique name and a proper description:
-    m_input = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
-        new WModuleInputData< WDataSetSingle >( shared_from_this(),
-                                                               "in", "The dataset to display" )
-        );
-    // Lazy Programmer's Alternative:
-    // m_input = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "in", "The dataset to display" );
+    m_input = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "in", "The dataset to display" );
 
     // This creates an input connector which can receive WDataSetSingle. It will never be able to connect to output connectors providing just a
     // WDataSet (which is the father class of WDataSetSingle), but it will be able to be connected to an output connector with a type derived
-    // from WDataSetSingle.
-
-    // As properties, every connector needs to be added to the list of connectors.
-    addConnector( m_input );
-
-    // For all the lazy programmers, the creation and addition of the connector can be simplified to one type-less-compatible step:
-    // m_input = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "in", "The dataset to display" );
-    // This is fully equivalent to the above calls and works for output connectors too.
+    // from WDataSetSingle (like WDataSetScalar or WDataSetVector)
 
     // Now, lets add an output connector. We want to provide data calculated here to other modules. The output connector is initialized the same
     // way as input connectors. You need the type, the module-wide unique name and the description. The type you specify here also determines
     // which input connectors can be connected to this output connector: only connectors with a type equal or lower in class hierarchy.
-    m_output = boost::shared_ptr< WModuleOutputData < WDataSetSingle  > >(
-        new WModuleOutputData< WDataSetSingle >( shared_from_this(),
-                                                               "out", "The calculated dataset" )
-        );
-
-    // As above: make it known.
-    addConnector( m_output );
+    m_output = WModuleOutputData < WDataSetSingle  >::createAndAdd( shared_from_this(), "out", "The calculated dataset" );
 
     // call WModule's initialization
     WModule::connectors();
@@ -249,6 +238,29 @@ void WMTemplate::properties()
     m_aMultiSelection  = m_properties->addProperty( "I like", "What do you like.", m_possibleSelections->getSelectorAll(),
                                                     m_propCondition );
 
+    // The last examples showed you how to create more or less complex selections. You where able to define a name, description and some icon for
+    // each selectable item. But maybe you want to store additional information, a class implementing some function (like a strategy pattern),
+    // and similar. To achieve this, we provide a special item class called WItemSelectionItemTyped. It is a templatized class which allows you
+    // to add a value of an arbitrary type to each item. This value of an arbitrary type might be a pointer, string, int, or a custom class'
+    // instance.
+    m_possibleSelectionsUsingTypes = WItemSelection::SPtr( new WItemSelection() );
+    m_possibleSelectionsUsingTypes->addItem( MyItemType::create(
+                "The value 1",  // this is the value for the type we specified: std::string.
+                "Option 1",
+                "Description for the first option"
+        )
+    );
+    m_possibleSelectionsUsingTypes->addItem( MyItemType::create(
+                "The value 2",  // this is the value for the type we specified: std::string.
+                "Option 2",
+                "Description for the second option"
+        )
+    );
+    // This now created the selections. We store a string inside each item. But remember again: this can by ANY type.
+    // Finally, add a property by specifying the selector of the selection:
+    m_aSingleSelectionUsingTypes = m_properties->addProperty( "Choose one", "Choose on of these and watch the console output.",
+                                                              m_possibleSelectionsUsingTypes->getSelectorFirst(), m_propCondition );
+
     // Adding a lot of properties might confuse the user. Using WPropGroup, you have the possibility to group your properties together. A
     // WPropGroup needs a name and can provide a description. As with properties, the name should not contain any "/" and must be unique.
 
@@ -297,6 +309,8 @@ void WMTemplate::properties()
     // element to be selected:
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_aSingleSelection );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_aSingleSelection );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_aSingleSelectionUsingTypes );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_aSingleSelectionUsingTypes );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_aMultiSelection );
 
     // The most amazing feature is: custom constraints. Similar to OSG update callbacks, you just need to write your own PropertyConstraint class
@@ -345,6 +359,11 @@ void WMTemplate::properties()
     // One important note regarding information properties. If a property gets added in a group which is an information property-group, then
     // each added property does NOT contain any constraints. If a property gets an information property AFTER its creation, like m_aStringOutput,
     // then it keeps its constraints!
+
+    // We now add another trigger. Pressing this button will cause an exception to be thrown. This demonstrates how the GUI and OpenWalnut
+    // handles modules which throw an exception without catching it.
+    m_exceptionTrigger = m_properties->addProperty( "Press to crash Module", "Pressing this button lets the module intentionally crash.",
+                                                    WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
 
     WModule::properties();
 }
@@ -526,7 +545,7 @@ void WMTemplate::moduleMain()
 
             debugLog() << "Number of Rows: " << rows;
             debugLog() << "Radii: " << radii;
-            debugLog() << "Current dataset: " << dataSet->getFileName() << " with name: " << dataSet->getName();
+            debugLog() << "Current dataset: " << dataSet->getFilename() << " with name: " << dataSet->getName();
 
             // This block will be executed whenever we have a new dataset or the m_anInteger property has changed. This example codes produces
             // some shapes and replaces the existing root node by a new (updated) one. Therefore, a new root node is needed:
@@ -662,6 +681,33 @@ void WMTemplate::moduleMain()
             {
                 infoLog() << "The user likes " << s.at( i )->getName();
             }
+        }
+
+        // This checks the selections with our additional value.
+        if( m_aSingleSelectionUsingTypes->changed() )
+        {
+            // The single selector allows only one selected item and requires one item to be selected all the time. So accessing it by index
+            // is trivial:
+            WItemSelector s = m_aSingleSelectionUsingTypes->get( true );
+            infoLog() << "The item value is: " << s.at( 0 )->getAs< MyItemType >()->getValue() <<
+                         ". Length: " << s.at( 0 )->getAs< MyItemType >()->getValue().length();
+
+            // This showed that you can add values of your arbitrary type into the selection. Assume this is an object providing a ()-operator.
+            // You can then use s.at( 0 )->getAs< MyItemType >()->getValue()() to call this operator. This< is very handy for implementing
+            // strategies. But before you get too excited about this, for strategies with automatic, complex property handling, you should have
+            // a look at WStrategyHelper!
+        }
+
+        // Trigger an exception? We do this whenever the user pressed the exception-button
+        if( m_exceptionTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            // Throw an exception and do not catch it. Please note that OpenWalnut provides several exceptions which usually cover the most
+            // needs. If not, derive your own exceptions from WException. Using WExceptions has one nice advantage: it provides a backtrace on
+            // systems which support this.
+            throw WFileNotFound( "This is a demonstration of an exception being thrown from within a module." );
+            // OpenWalnut then automatically catches it and transports it to the kernel and the registered callbacks. This usually is the GUI
+            // which shows a dialog or something similar. Additionally, the m_isCrashed flag is set to true. Once a module is crahsed, it cannot
+            // be "restored".
         }
     }
 

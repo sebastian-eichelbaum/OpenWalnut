@@ -36,6 +36,16 @@ class WDataSetVector : public WDataSetSingle // NOLINT
 {
 public:
     /**
+     * shared_ptr abbreviation
+     */
+    typedef boost::shared_ptr< WDataSetVector > SPtr;
+
+    /**
+     * const shared_ptr abbreviation
+     */
+    typedef boost::shared_ptr< const WDataSetVector > ConstSPtr;
+
+    /**
      * Constructs an instance out of an appropriate value set and a grid.
      *
      * \param newValueSet the vector value set to use

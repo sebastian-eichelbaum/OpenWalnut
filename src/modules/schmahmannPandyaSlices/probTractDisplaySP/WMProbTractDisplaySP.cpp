@@ -94,7 +94,7 @@ void WMProbTractDisplaySP::updateProperitesForTheInputConnectors( boost::shared_
             if( ( m_probICs[i]->getData( false ) ) && ( m_colorMap[i]->isHidden() ) )
             {
                 m_colorMap[i]->setHidden( false );
-                m_colorMap[i]->findProperty( "Filename" )->toPropString()->set( m_probICs[i]->getData( false )->getFileName() );
+                m_colorMap[i]->findProperty( "Filename" )->toPropString()->set( m_probICs[i]->getData( false )->getFilename() );
             }
             if( !m_probICs[i]->getData( false ) )
             {
@@ -358,13 +358,14 @@ void WMProbTractDisplaySP::checkProbabilityRanges( std::vector< boost::shared_pt
     size_t i = 0;
     for( std::vector< boost::shared_ptr< const WDataSetScalar > >::const_iterator p = probTracts.begin(); p != probTracts.end(); ++p, ++i )
     {
-        if( ( *p )->getMax() > 10 ) // Note: same check is made in the builder, later when colors are deterimined and alpha values depending on prob
+        if( ( *p )->getMax() > 1 ) // Note: same check is made in the builder, later when colors are deterimined and alpha values depending on prob
         {
-            ss << ( *p )->getFileName() << " ";
+            ss << ( *p )->getFilename() << " ";
             otherRange = true;
         }
     }
-    ss << "which have probabilites > 10 may be invalid => range 0..255 assumed instead";
+    ss << "which have probabilities > 1 are normalized by its maximum value. As the seed point should have the maximum value it is converted " <<
+          "to 1.0 then.";
     if( otherRange )
     {
         warnLog() << ss.str();

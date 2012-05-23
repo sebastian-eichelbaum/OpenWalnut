@@ -87,6 +87,7 @@ WQt4Gui::~WQt4Gui()
 void WQt4Gui::moduleError( boost::shared_ptr< WModule > module, const WException& exception )
 {
     QCoreApplication::postEvent( m_mainWindow, new WModuleCrashEvent( module, exception.what() ) );
+    QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleCrashEvent( module, exception.what() ) );
 }
 
 WMainWindow* WQt4Gui::getMainWindow()
@@ -113,12 +114,8 @@ void WQt4Gui::deferredLoad()
         {
             try
             {
-                boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
-                        new WProjectFile( m_optionsMap["project"].as< std::string >() )
-                );
-
                 // This call is asynchronous. It parses the file and the starts a thread to actually do all the stuff
-                proj->load();
+                m_mainWindow->asyncProjectLoad( m_optionsMap["project"].as< std::string >() );
             }
             catch( const WException& e )
             {
@@ -145,7 +142,7 @@ int WQt4Gui::run()
     //TODO(mario): this should run on all platforms but crashes at least on Linux right now. Therefore, I only use it on OSX
     WApplication appl( m_argc, m_argv, true );
 #else
-    // TODO( mario ): I want a WApplication here for session handling but that code crashes
+    // TODO(mario): I want a WApplication here for session handling but that code crashes
     QApplication appl( m_argc, m_argv, true );
 #endif
 

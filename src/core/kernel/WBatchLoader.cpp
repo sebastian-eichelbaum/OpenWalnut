@@ -31,10 +31,10 @@
 
 #include "WBatchLoader.h"
 
-WBatchLoader::WBatchLoader( std::vector< std::string > fileNames, boost::shared_ptr< WModuleContainer > targetContainer ):
+WBatchLoader::WBatchLoader( std::vector< std::string > filenames, boost::shared_ptr< WModuleContainer > targetContainer ):
     WThreadedRunner(),
     boost::enable_shared_from_this< WBatchLoader >(),
-    m_fileNamesToLoad( fileNames ),
+    m_filenamesToLoad( filenames ),
     m_targetContainer( targetContainer ),
     m_suppressColormaps( false )
 {
@@ -58,7 +58,7 @@ void WBatchLoader::run()
 void WBatchLoader::threadMain()
 {
     // add a new data module for each file to load
-    for( std::vector< std::string >::iterator iter = m_fileNamesToLoad.begin(); iter != m_fileNamesToLoad.end(); ++iter )
+    for( std::vector< std::string >::iterator iter = m_filenamesToLoad.begin(); iter != m_filenamesToLoad.end(); ++iter )
     {
         boost::shared_ptr< WModule > mod = WModuleFactory::getModuleFactory()->create(
                 WModuleFactory::getModuleFactory()->getPrototypeByName( "Data Module" )

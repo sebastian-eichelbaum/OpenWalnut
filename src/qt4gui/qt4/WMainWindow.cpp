@@ -29,6 +29,7 @@
 
 #include <boost/thread.hpp>
 #include <boost/regex.hpp>
+#include <boost/filesystem.hpp>
 
 #include <QtGui/QApplication>
 #include <QtGui/QCloseEvent>
@@ -44,6 +45,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
 #include <QtCore/QSettings>
+#include <QtCore/QUrl>
 #include <QtGui/QInputDialog>
 
 #ifndef QT4GUI_NOWEBKIT
@@ -78,6 +80,7 @@
 #include "events/WModuleRemovedEvent.h"
 #include "events/WOpenCustomDockWidgetEvent.h"
 #include "events/WCloseCustomDockWidgetEvent.h"
+#include "events/WLoadFinishedEvent.h"
 #include "guiElements/WQtPropertyBoolAction.h"
 #include "WQt4Gui.h"
 #include "WQtCombinerToolbar.h"
@@ -205,6 +208,10 @@ void WMainWindow::setupGUI()
     {
         m_networkEditor = new WQtNetworkEditor( this );
         m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
+
+        // strangely, the QGraphics* objects do not properly forward drag/drop events. We need to explicitly handle them.
+        connect( m_networkEditor->getView(), SIGNAL( dragDrop( QDropEvent* ) ),
+                 this, SLOT( handleDrop( QDropEvent* ) ) );
     }
 
     // the control panel instance is needed for the menu
@@ -247,7 +254,14 @@ void WMainWindow::setupGUI()
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
 
     // by default, the module editor should be in front
-    m_controlPanel->getModuleDock()->raise();
+    if( m_networkEditor )
+    {
+        m_networkEditor->raise();
+    }
+    else
+    {
+        m_controlPanel->getModuleDock()->raise();
+    }
 
     // NOTE: we abuse the gl widgets first frame event to handle startup news.
     connect( m_mainGLWidget.get(), SIGNAL( renderedFirstFrame() ), this, SLOT( handleStartMessages() ) );
@@ -267,20 +281,16 @@ void WMainWindow::setupGUI()
     QAction* roiButton = new QAction( m_iconManager.getIcon( "ROI icon" ), "ROI", m_permanentToolBar );
     QAction* resetButton = new QAction( m_iconManager.getIcon( "view" ), "Reset", m_permanentToolBar );
     resetButton->setShortcut( QKeySequence( Qt::Key_Escape ) );
-    QAction* projectLoadButton = new QAction( m_iconManager.getIcon( "loadProject" ), "Load Project", m_permanentToolBar );
     QAction* projectSaveButton = new QAction( m_iconManager.getIcon( "saveProject" ), "Save Project", m_permanentToolBar );
-    projectLoadButton->setShortcut( QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_O ) );
 
     connect( m_loadButton, SIGNAL(  triggered( bool ) ), this, SLOT( openLoadDialog() ) );
     connect( resetButton, SIGNAL(  triggered( bool ) ), m_mainGLWidget.get(), SLOT( reset() ) );
     connect( roiButton, SIGNAL(  triggered( bool ) ), this, SLOT( newRoi() ) );
-    connect( projectLoadButton, SIGNAL(  triggered( bool ) ), this, SLOT( projectLoad() ) );
     connect( projectSaveButton, SIGNAL( triggered( bool ) ), this, SLOT( projectSaveAll() ) );
 
     m_loadButton->setToolTip( "Load a dataset from file" );
     resetButton->setToolTip( "Reset main view" );
     roiButton->setToolTip( "Create new ROI" );
-    projectLoadButton->setToolTip( "Load a project from file" );
     projectSaveButton->setToolTip( "Save current project to file" );
 
     // we want the upper most tree item to be selected. This helps to make the always compatible modules
@@ -301,8 +311,6 @@ void WMainWindow::setupGUI()
     QMenu* fileMenu = m_menuBar->addMenu( "File" );
 
     fileMenu->addAction( m_loadButton );
-    fileMenu->addSeparator();
-    fileMenu->addAction( projectLoadButton );
     QMenu* saveMenu = fileMenu->addMenu( m_iconManager.getIcon( "saveProject" ), "Save Project" );
     saveMenu->addAction( "Save Project", this, SLOT( projectSaveAll() ), QKeySequence::Save );
     saveMenu->addAction( "Save Modules Only", this, SLOT( projectSaveModuleOnly() ) );
@@ -310,6 +318,7 @@ void WMainWindow::setupGUI()
     saveMenu->addAction( "Save ROIs Only", this, SLOT( projectSaveROIOnly() ) );
     projectSaveButton->setMenu( saveMenu );
 
+    fileMenu->addSeparator();
     // TODO(all): If all distributions provide a newer QT version we should use QKeySequence::Quit here
     //fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( QKeySequence::Quit ) );
     fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ),  QKeySequence( Qt::CTRL + Qt::Key_Q ) );
@@ -449,16 +458,8 @@ void WMainWindow::setupGUI()
     showSagittal->setText( "Toggle Sagittal Slice" );
     showSagittal->setIcon( m_iconManager.getIcon( "sagittal icon" ) );
 
-    // Temporarily disabled. We need a proper command prompt implementation first.
-    // create command prompt toolbar
-    // m_commandPrompt = new WQtCommandPromptToolbar( "Command Prompt", this );
-    // addToolBar( Qt::TopToolBarArea, m_commandPrompt );
-    // this->addAction( m_commandPrompt->toggleViewAction() );  // this enables the action even if the menu bar is invisible
-
     // setup permanent toolbar
     m_permanentToolBar->addAction( m_loadButton );
-    m_permanentToolBar->addSeparator();
-    m_permanentToolBar->addAction( projectLoadButton );
     m_permanentToolBar->addAction( projectSaveButton );
     m_permanentToolBar->addSeparator();
     m_permanentToolBar->addAction( m_mainGLWidgetScreenCapture->getScreenshotTrigger() );
@@ -584,10 +585,10 @@ bool WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
     filters << "Project File (*.owproj *.owp)";
     fd.setNameFilters( filters );
     fd.setViewMode( QFileDialog::Detail );
-    QStringList fileNames;
+    QStringList filenames;
     if( fd.exec() )
     {
-        fileNames = fd.selectedFiles();
+        filenames = fd.selectedFiles();
     }
     else
     {
@@ -596,7 +597,7 @@ bool WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
 
     bool success = true;
     QStringList::const_iterator constIterator;
-    for( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
+    for( constIterator = filenames.constBegin(); constIterator != filenames.constEnd(); ++constIterator )
     {
         std::string filename = ( *constIterator ).toStdString();
 
@@ -663,62 +664,64 @@ bool WMainWindow::projectSaveModuleOnly()
     return projectSave( w );
 }
 
-void WMainWindow::projectLoad()
-{
-    QFileDialog fd;
-    fd.setFileMode( QFileDialog::ExistingFiles );
-
-    QStringList filters;
-    filters << "Simple Project File (*.owproj *.owp)"
-            << "Any files (*)";
-    fd.setNameFilters( filters );
-    fd.setViewMode( QFileDialog::Detail );
-    QStringList fileNames;
-    if( fd.exec() )
-    {
-        fileNames = fd.selectedFiles();
-    }
-
-    QStringList::const_iterator constIterator;
-    for( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
-    {
-        boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
-                new WProjectFile( ( *constIterator ).toStdString() )
-        );
-
-        // This call is asynchronous. It parses the file and the starts a thread to actually do all the stuff
-        proj->load();
-    }
-}
-
 void WMainWindow::openLoadDialog()
 {
     QFileDialog fd;
     fd.setFileMode( QFileDialog::ExistingFiles );
 
     QStringList filters;
-    filters << "Known file types (*.cnt *.edf *.asc *.nii *.nii.gz *.fib)"
+    filters << "Known file types (*.cnt *.edf *.asc *.nii *.nii.gz *.fib *.owproj *.owp)"
+            << "Simple Project File (*.owproj *.owp)"
             << "EEG files (*.cnt *.edf *.asc)"
             << "NIfTI (*.nii *.nii.gz)"
             << "Fibers (*.fib)"
             << "Any files (*)";
     fd.setNameFilters( filters );
     fd.setViewMode( QFileDialog::Detail );
-    QStringList fileNames;
+    QStringList filenames;
     if( fd.exec() )
     {
-        fileNames = fd.selectedFiles();
+        filenames = fd.selectedFiles();
     }
 
-    std::vector< std::string > stdFileNames;
+    std::vector< std::string > loadDataFilenames;
 
     QStringList::const_iterator constIterator;
-    for( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
+    for( constIterator = filenames.constBegin(); constIterator != filenames.constEnd(); ++constIterator )
     {
-        stdFileNames.push_back( ( *constIterator ).toLocal8Bit().constData() );
+        boost::filesystem::path fn( ( *constIterator ).toLocal8Bit().constData() );
+        std::string suffix = getSuffix( fn );
+
+        // is this a project file?
+        if( ( suffix == ".owp" ) || ( suffix == ".owproj" ) )
+        {
+            asyncProjectLoad( fn.string() );
+        }
+        else
+        {
+            // this is not a project. So we assume it is a data file
+            loadDataFilenames.push_back( fn.string() );
+        }
     }
 
-    m_loaderSignal( stdFileNames );
+    m_loaderSignal( loadDataFilenames );
+}
+
+void WMainWindow::asyncProjectLoad( std::string filename )
+{
+    WProjectFile::SPtr proj( new WProjectFile( filename, boost::bind( &WMainWindow::slotLoadFinished, this, _1, _2 ) ) );
+    proj->load();
+}
+
+void WMainWindow::slotLoadFinished( boost::filesystem::path file, std::vector< std::string > errors )
+{
+    // as this function might be called from outside the gui thread, use an event:
+    QCoreApplication::postEvent( this, new WLoadFinishedEvent( file, errors ) );
+
+    if( errors.size() )
+    {
+        wlog::warn( "MainWindow" ) << "Async load error occurred. Informing user.";
+    }
 }
 
 void WMainWindow::openAboutQtDialog()
@@ -902,7 +905,7 @@ void WMainWindow::customEvent( QEvent* event )
             // create new custom dock widget
             widget = boost::shared_ptr< WQtCustomDockWidget >(
                 new WQtCustomDockWidget( title, m_glDock, ocdwEvent->getProjectionMode() ) );
-            // m_glDock->addDockWidget( Qt::BottomDockWidgetArea, widget.get() );
+            m_glDock->addDockWidget( Qt::BottomDockWidgetArea, widget.get() );
 
             // restore state and geometry
             m_glDock->restoreDockWidget( widget.get() );
@@ -918,6 +921,7 @@ void WMainWindow::customEvent( QEvent* event )
         }
 
         ocdwEvent->getFlag()->set( widget );
+        boost::shared_dynamic_cast< QDockWidget >( widget )->toggleViewAction()->activate( QAction::Trigger );
     }
     else if( event->type() == WCloseCustomDockWidgetEvent::CUSTOM_TYPE )
     {
@@ -977,6 +981,40 @@ bool WMainWindow::event( QEvent* event )
         if( e1 )
         {
             moduleSpecificCleanup( e1->getModule() );
+        }
+    }
+
+    if( event->type() == WQT_LOADFINISHED )
+    {
+        // convert event
+        WLoadFinishedEvent* e1 = dynamic_cast< WLoadFinishedEvent* >( event );
+        if( e1 )
+        {
+            if( e1->getErrors().size() )
+            {
+                size_t curErrCount = 0;
+                const size_t maxErrCount = 5;
+                std::string errors = "<ul>";
+                for( std::vector< std::string >::const_iterator iter = e1->getErrors().begin(); iter != e1->getErrors().end(); ++iter )
+                {
+                    errors += "<li> " + *iter;
+                    curErrCount++;
+
+                    if( ( curErrCount == maxErrCount ) && ( e1->getErrors().size() > maxErrCount ) )
+                    {
+                        size_t errDiff = e1->getErrors().size() - curErrCount;
+                        errors += "<li> ... and " + string_utils::toString( errDiff ) + " more errors.";
+                        break;
+                    }
+                }
+                errors += "</ul>";
+
+                QMessageBox::critical( this, "Error during load",
+                                             "Errors occurred during load of \"" + QString::fromStdString( e1->getFilename() ) + "\". "
+                                             "The loader tried to apply as much as possible, ignoring the erroneous data. The first errors where:"
+                                             "<br><br>"
+                                             "<font color=\"#f00\">" + QString::fromStdString( errors )+ "</font>" );
+            }
         }
     }
 
@@ -1120,9 +1158,7 @@ void WMainWindow::restoreMainGLWidgetSize()
     m_mainGLWidget->setMaximumWidth( QWIDGETSIZE_MAX );
 }
 
-// Drag and drop functionality
-
-void WMainWindow::dropEvent( QDropEvent *event )
+void WMainWindow::handleDrop( QDropEvent* event )
 {
     if( event->mimeData()->hasUrls() )
     {
@@ -1145,8 +1181,7 @@ void WMainWindow::dropEvent( QDropEvent *event )
             }
             else
             {
-                if( suffix == "owp"
-                    || suffix == "owproj" )
+                if( suffix == "owp" || suffix == "owproj" )
                 {
                     projects.push_back( path.toStdString() );
                 }
@@ -1160,12 +1195,7 @@ void WMainWindow::dropEvent( QDropEvent *event )
         {
             for( size_t i = 0; i < projects.size(); ++i )
             {
-                boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
-                        new WProjectFile( projects[ i ] )
-                );
-
-                // This call is asynchronous. It parses the file and the starts a thread to actually do all the stuff
-                proj->load();
+                asyncProjectLoad( projects[ i ] );
             }
             event->accept();
         }
@@ -1190,14 +1220,19 @@ void WMainWindow::dropEvent( QDropEvent *event )
                     );
         }
     }
+}
+
+void WMainWindow::dropEvent( QDropEvent* event )
+{
+    handleDrop( event );
     QMainWindow::dropEvent( event );
 }
 
-void WMainWindow::dragMoveEvent( QDragMoveEvent *event )
+bool WMainWindow::isDropAcceptable( const QMimeData* mimeData )
 {
-    if( event->mimeData()->hasUrls() )
+    if( mimeData->hasUrls() )
     {
-        foreach( QUrl url, event->mimeData()->urls() )
+        foreach( QUrl url, mimeData->urls() )
         {
             QString path =  url.toLocalFile();
             QFileInfo info( path );
@@ -1212,36 +1247,28 @@ void WMainWindow::dragMoveEvent( QDragMoveEvent *event )
               || suffix == "owp"
               || suffix == "owproj" )
             {
-                event->acceptProposedAction();
-                return;
+                return true;
             }
         }
+    }
+
+    return false;
+}
+
+void WMainWindow::dragMoveEvent( QDragMoveEvent* event )
+{
+    if( WMainWindow::isDropAcceptable( event->mimeData() ) )
+    {
+        event->acceptProposedAction();
     }
     QMainWindow::dragMoveEvent( event );
 }
 
-void WMainWindow::dragEnterEvent( QDragEnterEvent *event )
+void WMainWindow::dragEnterEvent( QDragEnterEvent* event )
 {
-    if( event->mimeData()->hasUrls() )
+    if( WMainWindow::isDropAcceptable( event->mimeData() ) )
     {
-        foreach( QUrl url, event->mimeData()->urls() )
-        {
-            QString path =  url.toLocalFile();
-            QFileInfo info( path );
-            QString suffix =  info.completeSuffix();
-            if( suffix == "cnt"
-              || suffix == "edf"
-              || suffix == "asc"
-              || suffix == "nii"
-              || suffix == "nii.gz"
-              || suffix == "fib"
-              || suffix == "owp"
-              || suffix == "owproj" )
-            {
-                event->acceptProposedAction();
-                return;
-            }
-        }
+        event->acceptProposedAction();
     }
     QMainWindow::dragEnterEvent( event );
 }

@@ -33,33 +33,33 @@
 
 
 /**
- * Event signalling a new roi has been associated with the roi manager in the kernel.
+ * Event signalling a new ROI has been associated with the ROI manager in the kernel.
  */
 class WRoiAssocEvent: public QEvent
 {
 public:
     /**
-     * constructor
-     * \param roi
+     * Constructor
+     * \param roi Pointer to the associated ROI
      */
     explicit WRoiAssocEvent( osg::ref_ptr< WROI > roi );
 
     /**
-     * destructor
+     * Destructor
      */
     virtual ~WRoiAssocEvent();
 
     /**
-     * Getter for the roi that got associated.
+     * Getter for the ROI that got associated.
      *
-     * \return the roi.
+     * \return the ROI.
      */
     osg::ref_ptr< WROI > getRoi();
 
 
 protected:
     /**
-     * The roi that got associated.
+     * The ROI that got associated.
      */
     osg::ref_ptr< WROI > m_roi;
 private:

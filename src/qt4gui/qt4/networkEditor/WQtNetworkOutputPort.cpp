@@ -47,7 +47,8 @@ WQtNetworkOutputPort::WQtNetworkOutputPort( boost::shared_ptr<WModuleOutputConne
     }
 
     QString str = "<b>Name: </b> " + getPortName() +
-                  "<br/><b>PortType: </b>" + tmp;
+                  "<br/><b>PortType: </b>" + tmp +
+                  "<br/><b>Description: </b>" + connector->getDescription().c_str();
     if( toolTip() != str )
     {
         setToolTip( str );

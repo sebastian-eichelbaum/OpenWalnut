@@ -45,6 +45,10 @@
 #include "core/kernel/WModuleContainer.h"
 #include "core/kernel/WModuleFactory.h"
 #include "core/kernel/WROIManager.h"
+#include "../WMainWindow.h"
+#include "../WQt4Gui.h"
+#include "../WQtCombinerActionList.h"
+#include "../WQtModuleConfig.h"
 #include "../events/WEventTypes.h"
 #include "../events/WModuleAssocEvent.h"
 #include "../events/WModuleConnectEvent.h"
@@ -55,11 +59,9 @@
 #include "../events/WModuleRemovedEvent.h"
 #include "../events/WRoiAssocEvent.h"
 #include "../events/WRoiRemoveEvent.h"
-#include "../WMainWindow.h"
+#include "../guiElements/WQtModuleMetaInfo.h"
+#include "../guiElements/WQtMenuFiltered.h"
 #include "../networkEditor/WQtNetworkEditor.h"
-#include "../WQt4Gui.h"
-#include "../WQtCombinerActionList.h"
-#include "../WQtModuleConfig.h"
 #include "WQtBranchTreeItem.h"
 #include "WQtColormapper.h"
 
@@ -69,7 +71,8 @@
 WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     : QDockWidget( "Control Panel", parent ),
     m_ignoreSelectionChange( false ),
-    m_activeModule( WModule::SPtr() )
+    m_activeModule( WModule::SPtr() ),
+    m_previousTab()
 {
     setObjectName( "Control Panel Dock" );
 
@@ -92,9 +95,11 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     separator->setSeparator( true );
     m_moduleTreeWidget->addAction( separator );
 
-    m_connectWithPrototypeAction = new QAction( "Connect with new module", m_moduleTreeWidget );
+    m_addModuleAction = new QAction( "Add Module", m_moduleTreeWidget );
+    m_moduleTreeWidget->addAction( m_addModuleAction );
+    m_connectWithPrototypeAction = new QAction( "Add Module and Connect", m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_connectWithPrototypeAction );
-    m_connectWithModuleAction = new QAction( "Connect with module", m_moduleTreeWidget );
+    m_connectWithModuleAction = new QAction( "Connect Existing Module", m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_connectWithModuleAction );
     m_disconnectAction = new QAction( "Disconnect", m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_disconnectAction );
@@ -128,6 +133,8 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     if( m_mainWindow->getNetworkEditor() )
     {
         m_mainWindow->getNetworkEditor()->setContextMenuPolicy( Qt::ActionsContextMenu );
+        m_mainWindow->getNetworkEditor()->addAction( m_addModuleAction );
+        m_mainWindow->getNetworkEditor()->addAction( separator );
         m_mainWindow->getNetworkEditor()->addAction( m_connectWithPrototypeAction );
         m_mainWindow->getNetworkEditor()->addAction( m_connectWithModuleAction );
         m_mainWindow->getNetworkEditor()->addAction( m_disconnectAction );
@@ -203,7 +210,7 @@ void WQtControlPanel::connectSlots()
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), m_moduleTreeWidget, SLOT( clearSelection() ) );
     connect( m_colormapper, SIGNAL( textureSelectionChanged( osg::ref_ptr< WGETexture3D > ) ),
              this, SLOT( selectDataModule( osg::ref_ptr< WGETexture3D > ) ) );
-    connect( m_roiTreeWidget, SIGNAL( dragDrop() ), this, SLOT( handleDragDrop() ) );
+    connect( m_roiTreeWidget, SIGNAL( dragDrop() ), this, SLOT( handleRoiDragDrop() ) );
 }
 
 WQtSubjectTreeItem* WQtControlPanel::addSubject( std::string name )
@@ -824,7 +831,7 @@ void WQtControlPanel::setActiveModule( WModule::SPtr module, bool forceUpdate )
     m_ignoreSelectionChange = true;
 
     // is module NULL? remove everything
-    if( !module || module->isCrashed() )
+    if( !module )
     {
         deactivateModuleSelection();
         m_ignoreSelectionChange = false;
@@ -859,8 +866,54 @@ void WQtControlPanel::setActiveModule( WModule::SPtr module, bool forceUpdate )
 
     // remove property tabs
     clearAndDeleteTabs();
-    // set new property tabs
-    buildPropTab( module->getProperties(), module->getInformationProperties() );
+    // update module meta info tab also for crashed modules
+    WQtModuleMetaInfo* metaInfoWidget = new WQtModuleMetaInfo( module );
+    m_tabWidget->addTab( metaInfoWidget, "About && Help" );
+
+    // set new property tabs if module is not crashed
+    if( !module->isCrashed() )
+    {
+        buildPropTab( module->getProperties(), module->getInformationProperties() );
+    }
+
+    // re-select the previous tab
+    bool foundTab = false;
+    std::map< QString, int > priorityList;
+    if( m_previousTab != "" )
+    {
+        // search the tab with the previous title
+        for( int idx = 0; idx < m_tabWidget->count(); ++idx )
+        {
+            if( m_tabWidget->tabText( idx ) == m_previousTab )
+            {
+                m_tabWidget->setCurrentIndex( idx );
+                foundTab = true;
+                break;
+            }
+
+            // keep track of the indices in the tab. we use this map later as priority list. Please not that we add 1 to the index. This ensures
+            // that the invalid index is 0, even if it is -1 in Qt.
+            priorityList[ m_tabWidget->tabText( idx ) ] = idx + 1;
+        }
+
+        if( !foundTab )
+        {
+            // the tab does not exist anymore. We need to use our priority list
+            if( priorityList[ "Settings" ] != 0 )
+            {
+                m_tabWidget->setCurrentIndex( priorityList[ "Settings" ] - 1 );
+            }
+            else if( priorityList[ "Information" ] != 0 )
+            {
+                m_tabWidget->setCurrentIndex( priorityList[ "Settings" ] - 1 );
+            }
+            else
+            {
+                // there is no info and no settings tab. Set the first tab.
+                m_tabWidget->setCurrentIndex( 0 );
+            }
+        }
+    }
 
     // update compatibles toolbar
     createCompatibleButtons( module );
@@ -931,46 +984,26 @@ void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boos
     int propIdx = addTabWidgetContent( tab );
 
     // select the property widget preferably
-    if( propIdx != -1 )
+    if( m_previousTab == "" )
     {
-        m_tabWidget->setCurrentIndex( propIdx );
-    }
-    else if( infoIdx != -1 )
-    {
-        m_tabWidget->setCurrentIndex( infoIdx );
-    }
-}
-
-/**
- * Clears a hierarchy of QActions in a list. This deeply clears and deletes the lists.
- *
- * \param l the list to clear and delete
- */
-void deepDeleteActionList( QList< QAction* >& l )   // NOLINT   - we need the non-const ref here.
-{
-    // traverse
-    for( QList< QAction* >::iterator it = l.begin(); it != l.end(); ++it )
-    {
-        if( ( *it )->menu() )
+        if( propIdx != -1 )
         {
-            // recursively remove sub-menu items
-            QList< QAction* > subs = ( *it )->menu()->actions();
-            deepDeleteActionList( subs );
+            m_tabWidget->setCurrentIndex( propIdx );
         }
-
-        delete ( *it );
+        else if( infoIdx != -1 )
+        {
+            m_tabWidget->setCurrentIndex( infoIdx );
+        }
     }
-
-    // remove items afterwards
-    l.clear();
 }
 
 void WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule > module )
 {
     // we need to clean up the action lists
-    deepDeleteActionList( m_connectWithPrototypeActionList );
-    deepDeleteActionList( m_connectWithModuleActionList );
-    deepDeleteActionList( m_disconnectActionList );
+    WQtCombinerActionList::deepDeleteActionList( m_addModuleActionList );
+    WQtCombinerActionList::deepDeleteActionList( m_connectWithPrototypeActionList );
+    WQtCombinerActionList::deepDeleteActionList( m_connectWithModuleActionList );
+    WQtCombinerActionList::deepDeleteActionList( m_disconnectActionList );
 
     // acquire new action lists
     m_connectWithPrototypeActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(),
@@ -979,27 +1012,38 @@ void WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule > modu
     m_connectWithModuleActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(),
                                                            WKernel::getRunningKernel()->getRootContainer()->getPossibleConnections( module ),
                                                            0, true );
+
+    m_addModuleActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(),
+                                                           WModuleFactory::getModuleFactory()->getAllPrototypes(),
+                                                           0, false );
     if( module )
     {
         m_disconnectActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(), module->getPossibleDisconnections() );
     }
 
+    // build the add menu
+    QMenu* m = new WQtMenuFiltered( m_moduleTreeWidget );
+    m->addActions( m_addModuleActionList );
+    m_addModuleAction->setDisabled( !m_addModuleActionList.size() || module );  // disable if no entry inside or a module was selected
+    delete( m_addModuleAction->menu() ); // ensure that combiners get free'd
+    m_addModuleAction->setMenu( m );
+
     // build the prototype menu
-    QMenu* m = new QMenu( m_moduleTreeWidget );
+    m = new WQtMenuFiltered( m_moduleTreeWidget );
     m->addActions( m_connectWithPrototypeActionList );
     m_connectWithPrototypeAction->setDisabled( !m_connectWithPrototypeActionList.size() );  // disable if no entry inside
     delete( m_connectWithPrototypeAction->menu() ); // ensure that combiners get free'd
     m_connectWithPrototypeAction->setMenu( m );
 
     // build the module menu
-    m = new QMenu( m_moduleTreeWidget );
+    m = new WQtMenuFiltered( m_moduleTreeWidget );
     m->addActions( m_connectWithModuleActionList );
     m_connectWithModuleAction->setDisabled( !m_connectWithModuleActionList.size() );  // disable if no entry inside
     delete m_connectWithModuleAction->menu();
     m_connectWithModuleAction->setMenu( m );
 
     // build the disconnect menu
-    m = new QMenu( m_moduleTreeWidget );
+    m = new WQtMenuFiltered( m_moduleTreeWidget );
     m->addActions( m_disconnectActionList );
     m_disconnectAction->setDisabled( !m_disconnectActionList.size() );  // disable if no entry inside
     delete( m_disconnectAction->menu() ); // ensure that combiners get free'd
@@ -1117,6 +1161,12 @@ void WQtControlPanel::deleteModule()
             if( ( m_moduleTreeWidget->selectedItems().at( 0 )->type() == MODULE ) ||
                     ( m_moduleTreeWidget->selectedItems().at( 0 )->type() == DATASET ) )
             {
+                // deleting crashed modules is not really save as we do not know the internal state of it
+                if( static_cast< WQtTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) )->getModule()->isCrashed() )
+                {
+                    return;
+                }
+
                 // remove from the container. It will create a new event in the GUI after it has been removed which is then handled by the tree item.
                 // This method deep removes the module ( it also removes depending modules )
                 WKernel::getRunningKernel()->getRootContainer()->remove(
@@ -1130,10 +1180,18 @@ void WQtControlPanel::deleteModule()
     else if( m_mainWindow->getNetworkEditor()->hasFocus() )
     {
         if( m_mainWindow->getNetworkEditor()->selectedItems().count() > 0 )
+        {
+            // deleting crashed modules is not really save as we do not know the internal state of it
+            if( static_cast< WQtNetworkItem* >( m_mainWindow->getNetworkEditor()->selectedItems().at( 0 ) )->getModule()->isCrashed() )
+            {
+                return;
+            }
+
             // This method deep removes the module ( it also removes depending modules )
             WKernel::getRunningKernel()->getRootContainer()->remove(
                 static_cast< WQtNetworkItem* >( m_mainWindow->getNetworkEditor()->selectedItems().at( 0 ) )->getModule()
                 );
+        }
     }
 }
 
@@ -1170,7 +1228,7 @@ void WQtControlPanel::selectUpperMostEntry()
     m_tiModules->setSelected( true );
 }
 
-void WQtControlPanel::handleDragDrop()
+void WQtControlPanel::handleRoiDragDrop()
 {
     WLogger::getLogger()->addLogMessage( "Drag and drop handler not implemented yet!", "ControlPanel", LL_DEBUG );
 }
@@ -1202,9 +1260,14 @@ QAction* WQtControlPanel::getMissingModuleAction() const
 
 void WQtControlPanel::clearAndDeleteTabs()
 {
+    if( m_tabWidget->currentIndex() != -1 )
+    {
+        m_previousTab = m_tabWidget->tabText( m_tabWidget->currentIndex() );
+    }
+
     m_tabWidget->setDisabled( true );
     QWidget *widget;
-    while( (  widget = m_tabWidget->widget( 0 ) ))
+    while( ( widget = m_tabWidget->widget( 0 ) ))
     {
         m_tabWidget->removeTab( 0 );
         delete widget;

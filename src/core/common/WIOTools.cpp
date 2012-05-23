@@ -77,11 +77,11 @@ void writeStringIntoFile( const boost::filesystem::path& path, const std::string
 
 boost::filesystem::path tempFileName()
 {
-    // REGARDING THE COMPILER WARNING
-    // 1. mkstemp is only available for POSIX systems
-    // 2. reason: the warning generated here is due to a race condition
-    //    while tmpnam invents the fileName it may be created by another process
-    // 3. file names like "/tmp/pansen" or "C:\pansen" are platform dependent
-    return boost::filesystem::path( std::string( std::tmpnam( NULL ) ) );
+    return tempFilename();
+}
+
+boost::filesystem::path tempFilename( boost::filesystem::path model )
+{
+    return boost::filesystem::temp_directory_path() / boost::filesystem::unique_path( model );
 }
 

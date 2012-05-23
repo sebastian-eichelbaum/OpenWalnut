@@ -35,14 +35,19 @@ WPagerEEG::~WPagerEEG()
 
 std::string WPagerEEG::getFileName() const
 {
-    return m_fileName;
+    return getFilename();
 }
 
-WPagerEEG::WPagerEEG( std::string fileName )
-    : m_fileName( fileName )
+std::string WPagerEEG::getFilename() const
 {
-    if( !fileExists( m_fileName ) )
+    return m_filename;
+}
+
+WPagerEEG::WPagerEEG( std::string filename )
+    : m_filename( filename )
+{
+    if( !fileExists( m_filename ) )
     {
-        throw WDHNoSuchFile( m_fileName + " doesn't exist" );
+        throw WDHNoSuchFile( m_filename + " doesn't exist" );
     }
 }

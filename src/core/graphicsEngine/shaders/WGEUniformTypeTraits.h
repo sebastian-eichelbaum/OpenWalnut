@@ -38,7 +38,7 @@ namespace wge
      * Class helping to adapt types specified as template parameter into the best matching osg::Uniform (GLSL) type. This is useful especially for
      * property-types to uniform type conversion.
      * \note: bool map to bool, int to int, unsigned int to unsigned int. Unallowed types like std::string will then cause compilation errors as
-     * osg::uniform does not offer proper constructors/setters for these types.
+     * osg::Uniform does not offer proper constructors/setters for these types.
      */
     template< typename T >
     class UniformType
