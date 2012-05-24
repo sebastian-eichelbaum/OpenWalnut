@@ -128,80 +128,79 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
     {
         switch( filedata->datatype )
         {
-        case DT_UINT8:
+            case DT_UINT8:
             {
                 boost::shared_ptr< std::vector< uint8_t > > data = copyArray( reinterpret_cast< uint8_t* >( filedata->data ), countVoxels, vDim );
                 newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< uint8_t >( order, vDim, data, W_DT_UINT8 ) );
                 break;
             }
-        case DT_INT8:
+            case DT_INT8:
             {
                 boost::shared_ptr< std::vector< int8_t > > data = copyArray( reinterpret_cast< int8_t* >( filedata->data ), countVoxels, vDim );
                 newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int8_t >( order, vDim, data, W_DT_INT8 ) );
                 break;
             }
-        case DT_INT16:
+            case DT_INT16:
             {
                 boost::shared_ptr< std::vector< int16_t > > data = copyArray( reinterpret_cast< int16_t* >( filedata->data ), countVoxels, vDim );
                 newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int16_t >( order, vDim, data, W_DT_INT16 ) );
                 break;
             }
-        case DT_UINT16:
+            case DT_UINT16:
             {
                 boost::shared_ptr< std::vector< uint16_t > > data
                     = copyArray( reinterpret_cast< uint16_t* >( filedata->data ), countVoxels, vDim );
                 newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< uint16_t >( order, vDim, data, W_DT_UINT16 ) );
                 break;
             }
-        case DT_SIGNED_INT:
+            case DT_SIGNED_INT:
             {
                 boost::shared_ptr< std::vector< int32_t > > data = copyArray( reinterpret_cast< int32_t* >( filedata->data ), countVoxels, vDim );
                 newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int32_t >( order, vDim, data, W_DT_SIGNED_INT ) );
                 break;
             }
-        case DT_UINT32:
+            case DT_UINT32:
             {
                 boost::shared_ptr< std::vector< uint32_t > > data
                     = copyArray( reinterpret_cast< uint32_t* >( filedata->data ), countVoxels, vDim );
                 newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< uint32_t >( order, vDim, data, W_DT_UINT32 ) );
                 break;
             }
-        case DT_INT64:
+            case DT_INT64:
             {
                 boost::shared_ptr< std::vector< int64_t > > data = copyArray( reinterpret_cast< int64_t* >( filedata->data ), countVoxels, vDim );
                 newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int64_t >( order, vDim, data, W_DT_INT64 ) );
                 break;
             }
-        case DT_UINT64:
+            case DT_UINT64:
             {
                 boost::shared_ptr< std::vector< uint64_t > > data =
                     copyArray( reinterpret_cast< uint64_t* >( filedata->data ), countVoxels, vDim );
                 newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< uint64_t >( order, vDim, data, W_DT_UINT64 ) );
                 break;
             }
-        case DT_FLOAT:
+            case DT_FLOAT:
             {
                 boost::shared_ptr< std::vector< float > > data = copyArray( reinterpret_cast< float* >( filedata->data ), countVoxels, vDim );
                 newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< float >( order, vDim, data, W_DT_FLOAT ) );
                 break;
             }
-
-        case DT_DOUBLE:
+            case DT_DOUBLE:
             {
                 boost::shared_ptr< std::vector< double > > data = copyArray( reinterpret_cast< double* >( filedata->data ), countVoxels, vDim );
                 newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< double >( order, vDim, data, W_DT_DOUBLE ) );
                 break;
             }
-        case DT_FLOAT128:
+            case DT_FLOAT128:
             {
                 boost::shared_ptr< std::vector< long double > > data =
                     copyArray( reinterpret_cast< long double* >( filedata->data ), countVoxels, vDim );
                 newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< long double >( order, vDim, data, W_DT_FLOAT128 ) );
                 break;
             }
-        default:
-            wlog::error( "WReaderNIfTI" ) << "unknown data type " << filedata->datatype << std::endl;
-            newValueSet = boost::shared_ptr< WValueSetBase >();
+            default:
+                wlog::error( "WReaderNIfTI" ) << "unknown data type " << filedata->datatype << std::endl;
+                newValueSet = boost::shared_ptr< WValueSetBase >();
         }
     }
 
@@ -244,7 +243,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
             boost::shared_ptr< WValueSetBase > vs;
             switch( filedata->datatype )
             {
-            case DT_UINT8:
+                case DT_UINT8:
                 {
                     uint8_t* ptr = reinterpret_cast< uint8_t* >( filedata->data );
                     boost::shared_ptr< std::vector< uint8_t > > values =
@@ -253,7 +252,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
                     vs = boost::shared_ptr< WValueSetBase >( new WValueSet< uint8_t >( 0, 1, values, W_DT_UINT8 ) );
                 }
                 break;
-            case DT_INT8:
+                case DT_INT8:
                 {
                     int8_t* ptr = reinterpret_cast< int8_t* >( filedata->data );
                     boost::shared_ptr< std::vector< int8_t > > values =
@@ -262,7 +261,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
                     vs = boost::shared_ptr< WValueSetBase >( new WValueSet< int8_t >( 0, 1, values, W_DT_INT8 ) );
                 }
                 break;
-            case DT_UINT16:
+                case DT_UINT16:
                 {
                     uint16_t* ptr = reinterpret_cast< uint16_t* >( filedata->data );
                     boost::shared_ptr< std::vector< uint16_t > >values =
@@ -271,7 +270,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
                     vs = boost::shared_ptr< WValueSetBase >( new WValueSet< uint16_t >( 0, 1, values, W_DT_UINT16 ) );
                 }
                 break;
-            case DT_INT16:
+                case DT_INT16:
                 {
                     int16_t* ptr = reinterpret_cast< int16_t* >( filedata->data );
                     boost::shared_ptr< std::vector< int16_t > > values =
@@ -280,7 +279,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
                     vs = boost::shared_ptr< WValueSetBase >( new WValueSet< int16_t >( 0, 1, values, W_DT_INT16 ) );
                 }
                 break;
-            case DT_UINT32:
+                case DT_UINT32:
                 {
                     uint32_t* ptr = reinterpret_cast< uint32_t* >( filedata->data );
                     boost::shared_ptr< std::vector< uint32_t > > values =
@@ -289,7 +288,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
                     vs = boost::shared_ptr< WValueSetBase >( new WValueSet< uint32_t >( 0, 1, values, W_DT_UINT32 ) );
                 }
                 break;
-            case DT_SIGNED_INT:
+                case DT_SIGNED_INT:
                 {
                     int32_t* ptr = reinterpret_cast< int32_t* >( filedata->data );
                     boost::shared_ptr< std::vector< int32_t > > values =
@@ -298,7 +297,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
                     vs = boost::shared_ptr< WValueSetBase >( new WValueSet< int32_t >( 0, 1, values, W_DT_SIGNED_INT ) );
                 }
                 break;
-            case DT_UINT64:
+                case DT_UINT64:
                 {
                     uint64_t* ptr = reinterpret_cast< uint64_t* >( filedata->data );
                     boost::shared_ptr< std::vector< uint64_t > > values =
@@ -307,7 +306,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
                     vs = boost::shared_ptr< WValueSetBase >( new WValueSet< uint64_t >( 0, 1, values, W_DT_UINT64 ) );
                 }
                 break;
-            case DT_INT64:
+                case DT_INT64:
                 {
                     int64_t* ptr = reinterpret_cast< int64_t* >( filedata->data );
                     boost::shared_ptr< std::vector< int64_t > > values =
@@ -316,7 +315,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
                     vs = boost::shared_ptr< WValueSetBase >( new WValueSet< int64_t >( 0, 1, values, W_DT_INT64 ) );
                 }
                 break;
-            case DT_FLOAT:
+                case DT_FLOAT:
                 {
                     float* ptr = reinterpret_cast< float* >( filedata->data );
                     boost::shared_ptr< std::vector< float > > values =
@@ -325,7 +324,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
                     vs = boost::shared_ptr< WValueSetBase >( new WValueSet< float >( 0, 1, values, W_DT_FLOAT ) );
                 }
                 break;
-            case DT_DOUBLE:
+                case DT_DOUBLE:
                 {
                     double* ptr = reinterpret_cast< double* >( filedata->data );
                     boost::shared_ptr< std::vector< double > > values =
@@ -334,9 +333,9 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
                     vs = boost::shared_ptr< WValueSetBase >( new WValueSet< double >( 0, 1, values, W_DT_DOUBLE ) );
                 }
                 break;
-            default:
-                throw WException( std::string( "Unsupported datatype in WReaderNIfTI" ) );
-                break;
+                default:
+                    throw WException( std::string( "Unsupported datatype in WReaderNIfTI" ) );
+                    break;
             }
             ds.push_back( boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, newGrid ) ) );
         }
