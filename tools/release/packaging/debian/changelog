@@ -1,10 +1,17 @@
 openwalnut (OWPACK_VERSION-1) unstable; urgency=low
 
-  * Compilation issue with newer GCC fixed
+  * A lot of fixes and added functionality. See http://www.openwalnut.org/versions/1
 
- -- Sebastian Eichelbaum <eichelbaum@informatik.uni-leipzig.de>  Fri, 25 May 2012 13:54:15 +0200
+ -- Sebastian Eichelbaum <eichelbaum@informatik.uni-leipzig.de>  Fri, 25 May 2012 14:32:13 +0200
 
-openwalnut (1.2.5) unstable; urgency=low
+openwalnut (1.2.5-2) unstable; urgency=low
+
+  * Fixed comoilation bug (Closes: #674343)
+  * Added hardening options
+
+ -- Sebastian Eichelbaum <eichelbaum@informatik.uni-leipzig.de>  Fri, 25 May 2012 14:31:33 +0200
+
+openwalnut (1.2.5-1) unstable; urgency=low
 
   * Initial release (Closes: #613419)
 
