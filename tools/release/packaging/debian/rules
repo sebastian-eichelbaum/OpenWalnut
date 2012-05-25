@@ -33,6 +33,7 @@ override_dh_auto_configure:
 							-DOW_MODULE_TOOLBOX_IO=ON\
 							-DOW_MODULE_TOOLBOX_IMAGEPROCESSING=ON\
 							-DOW_MODULE_TOOLBOX_OTHERS=ON\
+							-DOW_C_FLAGS_INJECT="$(shell dpkg-buildflags --get CFLAGS)"\
 							-DOW_CXX_FLAGS_INJECT="$(shell dpkg-buildflags --get CXXFLAGS)"\
 							-DOW_LD_FLAGS_INJECT="$(shell dpkg-buildflags --get LDFLAGS)"\
 							-DOW_CPP_FLAGS_INJECT="$(shell dpkg-buildflags --get CPPFLAGS)"

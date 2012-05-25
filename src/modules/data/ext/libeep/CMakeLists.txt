@@ -5,7 +5,7 @@
 IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
     SET( CMAKE_C_FLAGS "/TC /DWIN32")
 ELSE()
-    SET( CMAKE_C_FLAGS "-w")
+    SET( CMAKE_C_FLAGS "-w ${OW_C_FLAGS_INJECT}" )
 ENDIF()
 
 FILE( GLOB LIBEEP_SRC "libavr/*.c" "libcnt/*.c" "libeep/*.c" )
