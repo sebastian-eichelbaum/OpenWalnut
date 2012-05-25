@@ -32,7 +32,10 @@ override_dh_auto_configure:
 							-DOW_MODULE_TOOLBOX_EEG=ON\
 							-DOW_MODULE_TOOLBOX_IO=ON\
 							-DOW_MODULE_TOOLBOX_IMAGEPROCESSING=ON\
-							-DOW_MODULE_TOOLBOX_OTHERS=ON
+							-DOW_MODULE_TOOLBOX_OTHERS=ON\
+							-DOW_CXX_FLAGS_INJECT="$(shell dpkg-buildflags --get CXXFLAGS)"\
+							-DOW_LD_FLAGS_INJECT="$(shell dpkg-buildflags --get LDFLAGS)"\
+							-DOW_CPP_FLAGS_INJECT="$(shell dpkg-buildflags --get CPPFLAGS)"
 
 override_dh_auto_install:
 	# libopenwalnut1
@@ -40,6 +43,7 @@ override_dh_auto_install:
 	cmake -DCOMPONENT=EXT       -DCMAKE_INSTALL_PREFIX=debian/libopenwalnut1/usr -P build/cmake_install.cmake
 	# libopenwalnut1-dev
 	cmake -DCOMPONENT=CORE_DEV  -DCMAKE_INSTALL_PREFIX=debian/libopenwalnut1-dev/usr -P build/cmake_install.cmake
+	cmake -DCOMPONENT=EXT_DEV  -DCMAKE_INSTALL_PREFIX=debian/libopenwalnut1-dev/usr -P build/cmake_install.cmake
 	# libopenwalnut1-doc
 	# Use jquery from Debian package, so prune shipped one. Taken from https://github.com/neurodebian/statsmodels/tree/debian/debian
 	-rm ./doc/core/html/jquery.js
