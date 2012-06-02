@@ -146,10 +146,16 @@ void WKernel::threadMain()
     WLogger::getLogger()->addLogMessage( "Starting Kernel", "Kernel", LL_INFO );
 
     // wait for GUI to be initialized properly
-    m_gui->isInitialized().wait();
+    if( m_gui )
+    {
+        m_gui->isInitialized().wait();
+    }
 
     // start GE
-    m_graphicsEngine->run();
+    if( m_graphicsEngine )
+    {
+        m_graphicsEngine->run();
+    }
 
     // actually there is nothing more to do here
     waitForStop();

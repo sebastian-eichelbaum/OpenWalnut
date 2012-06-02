@@ -148,6 +148,12 @@ IF( OW_GUI_QT4 )
     ADD_SUBDIRECTORY( qt4gui )
 ENDIF()
 
+OPTION( OW_GUI_SCRIPT "Enable this to build the script-based OpenWalnut NOGUI." ON )
+IF( OW_GUI_SCRIPT )
+    # build
+    ADD_SUBDIRECTORY( scriptGui )
+ENDIF()
+
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # Modules
 

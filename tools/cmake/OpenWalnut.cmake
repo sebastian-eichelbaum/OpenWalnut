@@ -243,7 +243,7 @@ SET( OW_SOVERSION ${OW_VERSION_MAJOR} )
 SET( Boost_USE_MULTITHREAD ON )
 
 # find the boost packages
-FIND_PACKAGE( Boost 1.46.0 REQUIRED program_options thread filesystem date_time system signals regex )
+FIND_PACKAGE( Boost 1.46.0 REQUIRED program_options thread filesystem date_time system signals regex python )
 
 # include the boost headers
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )

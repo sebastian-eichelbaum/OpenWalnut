@@ -39,12 +39,17 @@ ADD_DEFINITIONS( '-DW_LIB_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}"' )
 # Add sources as target
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
+FIND_PACKAGE( PythonLibs REQUIRED )
+INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS} )
+
 # Collect the compile-files for this target
 COLLECT_COMPILE_FILES( "${CMAKE_CURRENT_SOURCE_DIR}" TARGET_CPP_FILES TARGET_H_FILES TARGET_TEST_FILES )
 
 # Setup the target
+
 ADD_LIBRARY( ${LibName} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${OW_VERSION_HEADER} )
 TARGET_LINK_LIBRARIES( ${LibName} ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES}
+                       ${PYTHON_LIBRARIES} 
                      )
 
 # Tell CMake that someone creates this file for us. See doc of SETUP_VERSION_HEADER for details why this is needed.
@@ -144,4 +149,3 @@ SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${OW_SHARE_DIR_RELATIVE}/shaders" "CORE" 
 SETUP_STYLECHECKER( "${LibName}"
                     "${TARGET_CPP_FILES};${TARGET_H_FILES};${TARGET_TEST_FILES};${TARGET_GLSL_FILES}"  # add all these files to the stylechecker
                     "" )                                        # exlude some ugly files
-
