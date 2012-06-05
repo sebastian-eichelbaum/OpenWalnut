@@ -130,7 +130,7 @@ void WMEEGView::properties()
                                                     m_propCondition );
     m_ROIsize          = m_properties->addProperty( "ROI size",
                                                     "The width ROI box.",
-                                                    10.0,
+                                                    30.0,
                                                     m_propCondition );
     m_ROIsize->setMin( 0.0 );
     m_ROIsize->setMax( 50.0 );
