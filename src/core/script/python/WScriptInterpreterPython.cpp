@@ -90,6 +90,7 @@ void WScriptInterpreterPython::initBindings()
                                      .def( "getName", &WModuleWrapper::getName )
                                      .def( "getDescription", &WModuleWrapper::getDescription )
                                      .def( "getProperties", &WModuleWrapper::getProperties )
+                                     .def( "getInformationProperties", &WModuleWrapper::getInformationProperties )
                                      .def( "getInputConnector", &WModuleWrapper::getInputConnector )
                                      .def( "getOutputConnector", &WModuleWrapper::getOutputConnector );
 

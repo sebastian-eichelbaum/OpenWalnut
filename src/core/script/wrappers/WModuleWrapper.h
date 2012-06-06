@@ -85,6 +85,13 @@ public:
     WPropertyGroupWrapper getProperties();
 
     /**
+     * Returns a WPropertyGroupWrapper containing the module's info properties. To be used in scripts.
+     *
+     * \return The module's properties.
+     */
+    WPropertyGroupWrapper getInformationProperties();
+
+    /**
      * Get an input connector by name.
      *
      * \param name The name of the connector.

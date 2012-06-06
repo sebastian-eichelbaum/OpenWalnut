@@ -58,6 +58,11 @@ WPropertyGroupWrapper WModuleWrapper::getProperties()
     return WPropertyGroupWrapper( m_module->getProperties() );
 }
 
+WPropertyGroupWrapper WModuleWrapper::getInformationProperties()
+{
+    return WPropertyGroupWrapper( m_module->getInformationProperties() );
+}
+
 WInputConnectorWrapper WModuleWrapper::getInputConnector( std::string const& name )
 {
     return WInputConnectorWrapper( m_module->getInputConnector( name ) );
