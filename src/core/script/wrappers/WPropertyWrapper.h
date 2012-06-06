@@ -120,6 +120,11 @@ public:
      */
     void setDouble( double d );
 
+    /**
+     * Wait for the property to update its value.
+     */
+    void waitForUpdate();
+
 private:
     //! The property.
     boost::shared_ptr< WPropertyBase > m_prop;

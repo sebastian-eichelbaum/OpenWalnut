@@ -83,3 +83,8 @@ void WPropertyWrapper::setDouble( double d )
 {
     m_prop->toPropDouble()->set( d, true );
 }
+
+void WPropertyWrapper::waitForUpdate()
+{
+    m_prop->getUpdateCondition()->wait();
+}

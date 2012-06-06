@@ -65,7 +65,8 @@ void WScriptInterpreterPython::initBindings()
                                        .def( "setString", &WPropertyWrapper::setString )
                                        .def( "setDouble", &WPropertyWrapper::setDouble )
                                        .def( "getName", &WPropertyWrapper::getName )
-                                       .def( "getDescription", &WPropertyWrapper::getDescription );
+                                       .def( "getDescription", &WPropertyWrapper::getDescription )
+                                       .def( "waitForUpdate", &WPropertyWrapper::waitForUpdate );
 
     m_pyMainNamespace[ "WPropertyGroup" ] = pb::class_< WPropertyGroupWrapper >( "WPropertyGroup", pb::no_init )
                                             .def( "getProperty", &WPropertyGroupWrapper::getProperty )
