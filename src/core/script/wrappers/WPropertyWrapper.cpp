@@ -66,22 +66,22 @@ double WPropertyWrapper::getDouble( bool notify ) const
 
 void WPropertyWrapper::setBool( bool b )
 {
-    m_prop->toPropBool()->set( b, true );
+    m_prop->toPropBool()->set( b, false );
 }
 
 void WPropertyWrapper::setInt( int i )
 {
-    m_prop->toPropInt()->set( i, true );
+    m_prop->toPropInt()->set( i, false );
 }
 
 void WPropertyWrapper::setString( std::string const& s )
 {
-    m_prop->toPropString()->set( s, true );
+    m_prop->toPropString()->set( s, false );
 }
 
 void WPropertyWrapper::setDouble( double d )
 {
-    m_prop->toPropDouble()->set( d, true );
+    m_prop->toPropDouble()->set( d, false );
 }
 
 void WPropertyWrapper::waitForUpdate()
