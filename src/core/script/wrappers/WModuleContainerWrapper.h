@@ -70,13 +70,14 @@ public:
      * Creates a data module and load the file given via filename.
      *
      * \param filename The name of the file to load.
+     * \return The module.
      */
     WModuleWrapper createDataModule( std::string const& filename );
 
     /**
      * Remove a module from the container.
      *
-     * \param The module to remove.
+     * \param module The module to remove.
      */
     void remove( WModuleWrapper module );
 

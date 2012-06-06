@@ -49,7 +49,7 @@ public:
     /**
      * Create a script interpreter via language name (for example "python").
      *
-     * \param ext The filename.
+     * \param name The filename.
      * \return A matching script interpreter instance or NULL if no such instance could be created.
      */
     static boost::shared_ptr< WScriptInterpreter > constructByName( std::string const& name );
