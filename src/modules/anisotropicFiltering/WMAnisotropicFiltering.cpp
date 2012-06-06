@@ -231,7 +231,7 @@ void WMAnisotropicFiltering::calcDeriv( std::vector< double >& deriv,  // NOLINT
                                         boost::shared_ptr< WGridRegular3D > const& grid, std::size_t image, std::size_t numImages )
 {
     std::size_t s[] = { grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ() };
-    std::size_t d[] = { fabs( grid->getOffsetX() ), fabs( grid->getOffsetY() ), fabs( grid->getOffsetZ() ) };
+    double d[] = { fabs( grid->getOffsetX() ), fabs( grid->getOffsetY() ), fabs( grid->getOffsetZ() ) };
 
     for( std::size_t x = 0; x < grid->getNbCoordsX(); ++x )
     {
@@ -283,7 +283,7 @@ void WMAnisotropicFiltering::diffusion( std::vector< double > const& deriv, std:
                                         boost::shared_ptr< WGridRegular3D > const& grid, std::size_t image, std::size_t numImages )
 {
     std::size_t s[] = { grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ() };
-    std::size_t d[] = { fabs( grid->getOffsetX() ), fabs( grid->getOffsetY() ), fabs( grid->getOffsetZ() ) };
+    double d[] = { fabs( grid->getOffsetX() ), fabs( grid->getOffsetY() ), fabs( grid->getOffsetZ() ) };
 
     for( std::size_t x = 0; x < grid->getNbCoordsX(); ++x )
     {
