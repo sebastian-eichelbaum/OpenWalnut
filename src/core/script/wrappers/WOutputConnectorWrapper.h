@@ -22,48 +22,43 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#ifndef WOUTPUTCONNECTORWRAPPER_H
+#define WOUTPUTCONNECTORWRAPPER_H
 
-#include "../../kernel/WModuleInputConnector.h"
+#include <boost/shared_ptr.hpp>
+
 #include "../../kernel/WModuleOutputConnector.h"
 
-#include "WModuleWrapper.h"
-
-WModuleWrapper::WModuleWrapper( boost::shared_ptr< WModule > module )
-    : m_module( module )
+/**
+ * \class WOutputConnectorWrapper
+ *
+ * A wrapper for output connectors.
+ */
+class WOutputConnectorWrapper
 {
-}
+public:
+    /**
+     * Constructor.
+     *
+     * \param conn The input connector.
+     */
+    explicit WOutputConnectorWrapper( boost::shared_ptr< WModuleOutputConnector > conn );
 
-WModuleWrapper::~WModuleWrapper()
-{
-}
+    /**
+     * Disconnect this connector.
+     */
+    void disconnect();
 
-std::string WModuleWrapper::getName() const
-{
-    return m_module->getName();
-}
+    /**
+     * Get the pointer to the actual connector.
+     *
+     * \return The pointer to the connector.
+     */
+    boost::shared_ptr< WModuleOutputConnector > getConnectorPtr();
 
-std::string WModuleWrapper::getDescription() const
-{
-    return m_module->getDescription();
-}
+private:
+    //! The actual input connector.
+    boost::shared_ptr< WModuleOutputConnector > m_conn;
+};
 
-boost::shared_ptr< WModule > WModuleWrapper::getModulePtr()
-{
-    return m_module;
-}
-
-WPropertyGroupWrapper WModuleWrapper::getProperties()
-{
-    return WPropertyGroupWrapper( m_module->getProperties() );
-}
-
-WInputConnectorWrapper WModuleWrapper::getInputConnector( std::string const& name )
-{
-    return WInputConnectorWrapper( m_module->getInputConnector( name ) );
-}
-
-WOutputConnectorWrapper WModuleWrapper::getOutputConnector( std::string const& name )
-{
-    return WOutputConnectorWrapper( m_module->getOutputConnector( name ) );
-}
+#endif  // WOUTPUTCONNECTORWRAPPER_H

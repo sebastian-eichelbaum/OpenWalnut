@@ -32,6 +32,8 @@
 #include "../../kernel/WModule.h"
 
 #include "WPropertyGroupWrapper.h"
+#include "WInputConnectorWrapper.h"
+#include "WOutputConnectorWrapper.h"
 
 /**
  * \class WModuleWrapper
@@ -69,15 +71,6 @@ public:
     std::string getDescription() const;
 
     /**
-     * Connect one of the modules input connectors with an output connector of another module.
-     *
-     * \param module The module to connect to.
-     * \param iConnName The name of this module's input connector that is to be connected.
-     * \param oConnName The name of the other module's output connector to connect to.
-     */
-    void connect( WModuleWrapper module, std::string const& iConnName, std::string const& oConnName );
-
-    /**
      * Returns the module pointer. Useful to other wrapper classes.
      *
      * \return The module pointer.
@@ -90,6 +83,22 @@ public:
      * \return The module's properties.
      */
     WPropertyGroupWrapper getProperties();
+
+    /**
+     * Get an input connector by name.
+     *
+     * \param name The name of the connector.
+     * \return The retrieved connector.
+     */
+    WInputConnectorWrapper getInputConnector( std::string const& name );
+
+    /**
+     * Get an output connector by name.
+     *
+     * \param name The name of the connector.
+     * \return The retrieved connector.
+     */
+    WOutputConnectorWrapper getOutputConnector( std::string const& name );
 
 private:
     //! A pointer to the module.

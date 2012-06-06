@@ -22,48 +22,50 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#ifndef WINPUTCONNECTORWRAPPER_H
+#define WINPUTCONNECTORWRAPPER_H
+
+#include <boost/shared_ptr.hpp>
 
 #include "../../kernel/WModuleInputConnector.h"
-#include "../../kernel/WModuleOutputConnector.h"
 
-#include "WModuleWrapper.h"
+#include "WOutputConnectorWrapper.h"
 
-WModuleWrapper::WModuleWrapper( boost::shared_ptr< WModule > module )
-    : m_module( module )
+/**
+ * \class WInputConnectorWrapper
+ *
+ * A wrapper for input connectors.
+ */
+class WInputConnectorWrapper
 {
-}
+public:
+    /**
+     * Constructor.
+     *
+     * \param conn The input connector.
+     */
+    explicit WInputConnectorWrapper( boost::shared_ptr< WModuleInputConnector > conn );
 
-WModuleWrapper::~WModuleWrapper()
-{
-}
+    /**
+     * Connect this input connector to an output connector.
+     *
+     * \param conn The output connector to connect to.
+     */
+    void connect( WOutputConnectorWrapper conn );
 
-std::string WModuleWrapper::getName() const
-{
-    return m_module->getName();
-}
+    /**
+     * Disconnect this connector.
+     */
+    void disconnect();
 
-std::string WModuleWrapper::getDescription() const
-{
-    return m_module->getDescription();
-}
+    /**
+     * Wait for new input.
+     */
+    void waitForInput();
 
-boost::shared_ptr< WModule > WModuleWrapper::getModulePtr()
-{
-    return m_module;
-}
+private:
+    //! The actual input connector.
+    boost::shared_ptr< WModuleInputConnector > m_conn;
+};
 
-WPropertyGroupWrapper WModuleWrapper::getProperties()
-{
-    return WPropertyGroupWrapper( m_module->getProperties() );
-}
-
-WInputConnectorWrapper WModuleWrapper::getInputConnector( std::string const& name )
-{
-    return WInputConnectorWrapper( m_module->getInputConnector( name ) );
-}
-
-WOutputConnectorWrapper WModuleWrapper::getOutputConnector( std::string const& name )
-{
-    return WOutputConnectorWrapper( m_module->getOutputConnector( name ) );
-}
+#endif  // WINPUTCONNECTORWRAPPER_H

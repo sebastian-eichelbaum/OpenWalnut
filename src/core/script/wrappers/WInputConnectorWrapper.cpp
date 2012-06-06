@@ -22,48 +22,24 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#include "WInputConnectorWrapper.h"
 
-#include "../../kernel/WModuleInputConnector.h"
-#include "../../kernel/WModuleOutputConnector.h"
-
-#include "WModuleWrapper.h"
-
-WModuleWrapper::WModuleWrapper( boost::shared_ptr< WModule > module )
-    : m_module( module )
+WInputConnectorWrapper::WInputConnectorWrapper( boost::shared_ptr< WModuleInputConnector > conn )
+    : m_conn( conn )
 {
 }
 
-WModuleWrapper::~WModuleWrapper()
+void WInputConnectorWrapper::connect( WOutputConnectorWrapper conn )
 {
+    m_conn->connect( conn.getConnectorPtr() );
 }
 
-std::string WModuleWrapper::getName() const
+void WInputConnectorWrapper::disconnect()
 {
-    return m_module->getName();
+    m_conn->disconnectAll();
 }
 
-std::string WModuleWrapper::getDescription() const
+void WInputConnectorWrapper::waitForInput()
 {
-    return m_module->getDescription();
-}
-
-boost::shared_ptr< WModule > WModuleWrapper::getModulePtr()
-{
-    return m_module;
-}
-
-WPropertyGroupWrapper WModuleWrapper::getProperties()
-{
-    return WPropertyGroupWrapper( m_module->getProperties() );
-}
-
-WInputConnectorWrapper WModuleWrapper::getInputConnector( std::string const& name )
-{
-    return WInputConnectorWrapper( m_module->getInputConnector( name ) );
-}
-
-WOutputConnectorWrapper WModuleWrapper::getOutputConnector( std::string const& name )
-{
-    return WOutputConnectorWrapper( m_module->getOutputConnector( name ) );
+    m_conn->getDataChangedCondition()->wait();
 }

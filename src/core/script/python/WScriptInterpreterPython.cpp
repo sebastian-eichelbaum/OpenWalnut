@@ -78,11 +78,20 @@ void WScriptInterpreterPython::initBindings()
                                               .def( "remove", &WModuleContainerWrapper::remove )
                                               .def( "createDataModule", &WModuleContainerWrapper::createDataModule );
 
+    m_pyMainNamespace[ "WOutputConnector" ] = pb::class_< WOutputConnectorWrapper >( "WOutputConnectorWrapper", pb::no_init )
+                                             .def( "disconnect", &WOutputConnectorWrapper::disconnect );
+
+    m_pyMainNamespace[ "WInputConnectorWrapper" ] = pb::class_< WInputConnectorWrapper >( "WInputConnectorWrapper", pb::no_init )
+                                                    .def( "connect", &WInputConnectorWrapper::connect )
+                                                    .def( "disconnect", &WInputConnectorWrapper::disconnect )
+                                                    .def( "waitForInput", &WInputConnectorWrapper::waitForInput );
+
     m_pyMainNamespace[ "WModule" ] = pb::class_< WModuleWrapper >( "WModule", pb::no_init )
                                      .def( "getName", &WModuleWrapper::getName )
                                      .def( "getDescription", &WModuleWrapper::getDescription )
-                                     .def( "connect", &WModuleWrapper::connect )
-                                     .def( "getProperties", &WModuleWrapper::getProperties );
+                                     .def( "getProperties", &WModuleWrapper::getProperties )
+                                     .def( "getInputConnector", &WModuleWrapper::getInputConnector )
+                                     .def( "getOutputConnector", &WModuleWrapper::getOutputConnector );
 
     // bind the kernel's root container to the "rootContainer" variable in the python namespace
     // this allows access to the modules via this variable
