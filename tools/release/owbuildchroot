@@ -311,6 +311,13 @@ chroot_build()
             chroot_umount
             exit 1
         fi
+        # avoid starting services to fail
+        chroot_do ln -sf /bin/true /sbin/initctl
+        if [ $? -ne 0 ]; then
+            echo "  * Failed. Could not use chroot."
+            chroot_umount
+            exit 1
+        fi
 
         echo " * Configure proper locale settings."
         # do locale configuration
