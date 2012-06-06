@@ -68,7 +68,10 @@ void WScriptInterpreterPython::initBindings()
                                        .def( "getDescription", &WPropertyWrapper::getDescription );
 
     m_pyMainNamespace[ "WPropertyGroup" ] = pb::class_< WPropertyGroupWrapper >( "WPropertyGroup", pb::no_init )
-                                            .def( "getProperty", &WPropertyGroupWrapper::getProperty );
+                                            .def( "getProperty", &WPropertyGroupWrapper::getProperty )
+                                            .def( "getGroup", &WPropertyGroupWrapper::getGroup )
+                                            .def( "getName", &WPropertyGroupWrapper::getName )
+                                            .def( "getDescription", &WPropertyGroupWrapper::getDescription );
 
     m_pyMainNamespace[ "WModuleContainer" ] = pb::class_< WModuleContainerWrapper >( "WModuleContainer", pb::no_init )
                                               .def( "create", &WModuleContainerWrapper::create )

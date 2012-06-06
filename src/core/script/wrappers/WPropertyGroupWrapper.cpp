@@ -31,7 +31,22 @@ WPropertyGroupWrapper::WPropertyGroupWrapper( boost::shared_ptr< WPropertyGroup 
 {
 }
 
+std::string WPropertyGroupWrapper::getName() const
+{
+    return m_group->getName();
+}
+
+std::string WPropertyGroupWrapper::getDescription() const
+{
+    return m_group->getDescription();
+}
+
 WPropertyWrapper WPropertyGroupWrapper::getProperty( std::string const& name )
 {
     return WPropertyWrapper( m_group->getProperty( name ) );
+}
+
+WPropertyGroupWrapper WPropertyGroupWrapper::getGroup( std::string const& name )
+{
+    return WPropertyGroupWrapper( m_group->getProperty( name )->toPropGroup() );
 }

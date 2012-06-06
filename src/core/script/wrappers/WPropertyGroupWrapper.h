@@ -47,12 +47,34 @@ public:
     explicit WPropertyGroupWrapper( boost::shared_ptr< WPropertyGroup > group );
 
     /**
+     * Return the name of the property group.
+     *
+     * \return The name of the property group.
+     */
+    std::string getName() const;
+
+    /**
+     * Return the description of the property group.
+     *
+     * \return The description of the property group.
+     */
+    std::string getDescription() const;
+
+    /**
      * Retrieve a property by name.
      *
-     * \param The name of the property.
+     * \param name The name of the property.
      * \return The property with the given name.
      */
     WPropertyWrapper getProperty( std::string const& name );
+
+    /**
+     * Retrieve a property group by name.
+     *
+     * \param name The name of the group to look for.
+     * \return The property group with the given name.
+     */
+    WPropertyGroupWrapper getGroup( std::string const& name );
 
 private:
     //! The property group.
