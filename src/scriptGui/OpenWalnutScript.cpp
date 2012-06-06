@@ -279,13 +279,11 @@ int main( int argc, char** argv )
         // load file content into string
         std::ifstream in( optionsMap[ "file" ].as< std::string >().c_str() );
         std::string script;
-
         std::string line;
         while( std::getline( in, line ) )
         {
-            script += line;
+            script += line + "\n";
         }
-
         in.close();
 
         // execute
