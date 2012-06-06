@@ -257,10 +257,9 @@ FUNCTION( SETUP_STYLECHECKER _TargetName _CheckFiles _Excludes )
 
     # Export our filtered file list to a file in build dir
     SET( BrainLinterListFile "${PROJECT_BINARY_DIR}/brainlint/brainlintlist_${_TargetName}" )
-    FILE( WRITE ${BrainLinterListFile} "" )
-    FOREACH( filename ${_CheckFiles} )
-        FILE( APPEND ${BrainLinterListFile} "${filename}\n" )
-    ENDFOREACH( filename )
+    LIST( REMOVE_ITEM _CheckFiles "" )
+    STRING( REPLACE ";" "\n" _CheckFiles "${_CheckFiles}" )
+    FILE( WRITE ${BrainLinterListFile} "${_CheckFiles}\n" )
 
     # add a new target for this lib
     ADD_CUSTOM_TARGET( stylecheck_${_TargetName}
