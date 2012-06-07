@@ -82,10 +82,10 @@ void WScriptInterpreterPython::initBindings()
     m_pyMainNamespace[ "WOutputConnector" ] = pb::class_< WOutputConnectorWrapper >( "WOutputConnectorWrapper", pb::no_init )
                                              .def( "disconnect", &WOutputConnectorWrapper::disconnect );
 
-    m_pyMainNamespace[ "WInputConnectorWrapper" ] = pb::class_< WInputConnectorWrapper >( "WInputConnectorWrapper", pb::no_init )
-                                                    .def( "connect", &WInputConnectorWrapper::connect )
-                                                    .def( "disconnect", &WInputConnectorWrapper::disconnect )
-                                                    .def( "waitForInput", &WInputConnectorWrapper::waitForInput );
+    m_pyMainNamespace[ "WInputConnector" ] = pb::class_< WInputConnectorWrapper >( "WInputConnectorWrapper", pb::no_init )
+                                             .def( "connect", &WInputConnectorWrapper::connect )
+                                             .def( "disconnect", &WInputConnectorWrapper::disconnect )
+                                             .def( "waitForInput", &WInputConnectorWrapper::waitForInput );
 
     m_pyMainNamespace[ "WModule" ] = pb::class_< WModuleWrapper >( "WModule", pb::no_init )
                                      .def( "getName", &WModuleWrapper::getName )

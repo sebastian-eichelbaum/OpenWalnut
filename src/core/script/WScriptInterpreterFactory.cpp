@@ -24,6 +24,7 @@
 
 #include <string>
 
+#include "lua/WScriptInterpreterLUA.h"
 #include "python/WScriptInterpreterPython.h"
 
 #include "WScriptInterpreterFactory.h"
@@ -35,6 +36,10 @@ boost::shared_ptr< WScriptInterpreter > WScriptInterpreterFactory::constructByFi
     if( ext == ".py" )
     {
         interp = boost::shared_ptr< WScriptInterpreter >( new WScriptInterpreterPython() );
+    }
+    else if( ext == ".lua" )
+    {
+        interp = boost::shared_ptr< WScriptInterpreter >( new WScriptInterpreterLUA() );
     }
 
     return interp;
@@ -48,11 +53,16 @@ boost::shared_ptr< WScriptInterpreter > WScriptInterpreterFactory::constructByNa
     {
         interp = boost::shared_ptr< WScriptInterpreter >( new WScriptInterpreterPython() );
     }
+    else if( name == "lua" )
+    {
+        interp = boost::shared_ptr< WScriptInterpreter >( new WScriptInterpreterLUA() );
+    }
 
     return interp;
 }
 
 std::string WScriptInterpreterFactory::getSupportedInterpreterList()
 {
-    return "\tpython (.py)";
+    return "\tpython \t(.py)\n"
+           "\tlua \t(.lua)\n";
 }

@@ -39,8 +39,15 @@ ADD_DEFINITIONS( '-DW_LIB_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}"' )
 # Add sources as target
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
+# python
 FIND_PACKAGE( PythonLibs REQUIRED )
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS} )
+
+# lua
+FIND_PACKAGE( Lua51 REQUIRED )
+INCLUDE_DIRECTORIES( ${LUA_INCLUDE_DIR} )
+FIND_PACKAGE( Luabind REQUIRED )
+INCLUDE_DIRECTORIES( ${LUABIND_INCLUDE_DIR} )
 
 # Collect the compile-files for this target
 COLLECT_COMPILE_FILES( "${CMAKE_CURRENT_SOURCE_DIR}" TARGET_CPP_FILES TARGET_H_FILES TARGET_TEST_FILES )
@@ -49,7 +56,7 @@ COLLECT_COMPILE_FILES( "${CMAKE_CURRENT_SOURCE_DIR}" TARGET_CPP_FILES TARGET_H_F
 
 ADD_LIBRARY( ${LibName} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${OW_VERSION_HEADER} )
 TARGET_LINK_LIBRARIES( ${LibName} ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES}
-                       ${PYTHON_LIBRARIES} 
+                       ${PYTHON_LIBRARIES} ${LUA_LIBRARIES} ${LUABIND_LIBRARIES}
                      )
 
 # Tell CMake that someone creates this file for us. See doc of SETUP_VERSION_HEADER for details why this is needed.
