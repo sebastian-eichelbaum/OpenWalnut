@@ -52,6 +52,9 @@ namespace wge
      * - u_textureXSizeY: height of the texture in pixels
      * - u_textureXSizeZ: depth of the texture in pixels
      *
+     * \warning this is not OSG-thread-safe. This method bind the texture immediately. So please use this only for nodes which are not yet used
+     * in the scene graph. For safely binding textures to a node already in the scene, utilize \ref bindTextureSafe.
+     *
      * \param node where to bind
      * \param unit the unit to use
      * \param texture the texture to use.
@@ -69,6 +72,9 @@ namespace wge
      * - u_textureXSizeY: height of the texture in pixels
      * - u_textureXSizeZ: depth of the texture in pixels
      * If the specified texture is a WGETexture, it additionally adds u_textureXMin and u_textureXScale for unscaling.
+     *
+     * \warning this is not OSG-thread-safe. This method bind the texture immediately. So please use this only for nodes which are not yet used
+     * in the scene graph. For safely binding textures to a node already in the scene, utilize \ref bindTextureSafe.
      *
      * \param node where to bind
      * \param unit the unit to use
