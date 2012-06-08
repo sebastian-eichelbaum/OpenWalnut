@@ -261,7 +261,7 @@ void WTransferFunctionWidget::drawBackground( QPainter *painter, const QRectF &r
 
 void WTransferFunctionWidget::setHistogram( const std::vector< double > &newHistogram )
 {
-    histogram->data = newHistogram;
+    histogram->getData() = newHistogram;
     histogram->update();
     forceRedraw();
 }
@@ -586,7 +586,7 @@ void WTransferFunctionWidget::updateTransferFunction()
     WTransferFunction tf;
     {
         // this part does not trigger qt rendering updates
-        std::vector < double > hist( histogram->data ); //< copy data, this will be deleted
+        std::vector < double > hist( histogram->getData() ); //< copy data, this will be deleted
         tf.setHistogram( hist ); // get the data back because we need this for comparison
 
         QRectF bb = scene->sceneRect();
