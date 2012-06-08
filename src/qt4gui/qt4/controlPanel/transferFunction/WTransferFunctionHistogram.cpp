@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <iostream>
 #include <cmath>
+#include <vector>
 
 #include "WTransferFunctionHistogram.h"
 #include "WTransferFunctionWidget.h"
