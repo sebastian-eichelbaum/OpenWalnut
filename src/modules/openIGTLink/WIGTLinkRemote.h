@@ -185,6 +185,7 @@ protected:
     /** the port for listening connections */
     uint32_t port;
 private:
+
     /**
      * Points to the socket used by this connection.
      */
