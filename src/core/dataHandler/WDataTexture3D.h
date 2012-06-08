@@ -40,8 +40,6 @@
 #include "WValueSetBase.h"
 #include "WGridRegular3D.h"
 
-
-
 /**
  * Namespace provides some scaling functions for scaling data values to meet the OpenGL requirements.
  */
