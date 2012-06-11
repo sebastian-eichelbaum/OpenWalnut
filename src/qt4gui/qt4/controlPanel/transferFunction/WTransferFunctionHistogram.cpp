@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <iostream>
 #include <cmath>
+#include <vector>
 
 #include "WTransferFunctionHistogram.h"
 #include "WTransferFunctionWidget.h"
@@ -51,10 +52,10 @@ QRectF WTransferFunctionHistogram::boundingRect() const
 
 void WTransferFunctionHistogram::paint( QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget* )
 {
-    const int steps = data.size();
+    const int steps = m_data.size();
     if( steps > 0 )
     {
-        double maxval = *std::max_element( data.begin(), data.end() );
+        double maxval = *std::max_element( m_data.begin(), m_data.end() );
         if( maxval > 0.0 )
         {
             QRadialGradient gradient( 0.0, 0.0, 10 );
@@ -74,9 +75,20 @@ void WTransferFunctionHistogram::paint( QPainter *painter, const QStyleOptionGra
                 // logarithmic mapping of histogram to values
                 // the added 1.001 is to avoid numerical problems but should work for most data sets
                 histogram << QPoint( bb.left()+ ( double )bb.width()*( double )i/( double )steps,
-                          bb.bottom() - ( double )bb.height() * std::log( data[ i ]+1 )/std::log( maxval+1.001 ) );
+                          bb.bottom() - ( double )bb.height() * std::log( m_data[ i ]+1 )/std::log( maxval+1.001 ) );
             }
             painter->drawPolygon( histogram );
         }
     }
 }
+
+const std::vector< double >& WTransferFunctionHistogram::getData() const
+{
+    return m_data;
+}
+
+std::vector< double >& WTransferFunctionHistogram::getData()
+{
+    return m_data;
+}
+

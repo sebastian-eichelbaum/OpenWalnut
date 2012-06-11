@@ -34,6 +34,7 @@
 
 #include "WDataCreatorSphere.h"
 #include "WDataCreatorRandom.h"
+#include "WDataCreatorSingleDirection.h"
 
 #include "WMDataCreatorVector.xpm"
 #include "WMDataCreatorVector.h"
@@ -45,6 +46,7 @@ WMDataCreatorVector::WMDataCreatorVector():
 {
     // add some strategies here
     m_strategy.addStrategy( WDataCreatorRandom::SPtr( new WDataCreatorRandom() ) );
+    m_strategy.addStrategy( WDataCreatorSingleDirection::SPtr( new WDataCreatorSingleDirection() ) );
 
     // NOTE: the sphere strategy does not support vectors -> if you want them, create a scalar sphere and derive from it.
 }
