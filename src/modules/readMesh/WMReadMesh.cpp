@@ -89,12 +89,16 @@ void WMReadMesh::connectors()
 
 void WMReadMesh::properties()
 {
-    // Put the code for your properties here. See "src/modules/template/" for an extensively documented example.
+    m_nbTriangles = m_infoProperties->addProperty( "Triangles", "The number of triangles in the loaded mesh.", 0 );
+    m_nbTriangles->setMax( std::numeric_limits< int >::max() );
+
+    m_nbVertices = m_infoProperties->addProperty( "Vertices", "The number of vertices in the loaded mesh.", 0 );
+    m_nbVertices->setMax( std::numeric_limits< int >::max() );
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
     m_meshFile = m_properties->addProperty( "Mesh file", "", WPathHelper::getAppPath() );
     m_fileTypeSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_fileTypeSelectionsList->addItem( "Mesh", "" );
+    m_fileTypeSelectionsList->addItem( "Mesh (VTK)", "" );
     m_fileTypeSelectionsList->addItem( "Mesh fibernavigator", "" );
     m_fileTypeSelectionsList->addItem( "DIP", "" );
     m_fileTypeSelectionsList->addItem( "BrainVISA", "" );
@@ -159,6 +163,9 @@ void WMReadMesh::moduleMain()
             debugLog() << "this shouldn't be reached";
             break;
         }
+        m_nbTriangles->set( m_triMesh->triangleSize() );
+        m_nbVertices->set( m_triMesh->vertSize() );
+
         m_output->updateData( m_triMesh );
 
         m_readTriggerProp->set( WPVBaseTypes::PV_TRIGGER_READY, true );

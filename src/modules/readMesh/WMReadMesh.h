@@ -176,6 +176,10 @@ private:
     WPropInt m_propDatasetSizeX; //!< Size of the dataset (X)
     WPropInt m_propDatasetSizeY; //!< Size of the dataset (Y)
     WPropInt m_propDatasetSizeZ; //!< Size of the dataset (Z)
+
+    WPropInt m_nbTriangles; //!< Info-property showing the number of triangles in the mesh.
+    WPropInt m_nbVertices; //!< Info-property showing the number of vertices in the mesh.
+
 };
 
 #endif  // WMREADMESH_H
