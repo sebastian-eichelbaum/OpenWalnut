@@ -176,6 +176,7 @@ private:
     WPropInt m_propDatasetSizeX; //!< Size of the dataset (X)
     WPropInt m_propDatasetSizeY; //!< Size of the dataset (Y)
     WPropInt m_propDatasetSizeZ; //!< Size of the dataset (Z)
+    WPropBool m_propVectorAsColor; //!< Use vectors from file as color of surface.
 
     WPropInt m_nbTriangles; //!< Info-property showing the number of triangles in the mesh.
     WPropInt m_nbVertices; //!< Info-property showing the number of vertices in the mesh.

@@ -119,6 +119,12 @@ void WMReadMesh::properties()
     m_propDatasetSizeZ->setHidden( true );
 
 
+    m_propVectorAsColor = m_properties->addProperty( "Read vectors as color",
+                                                     "If the module can load vectors from the file "
+                                                     "it will interpret them as colors of the surface.",
+                                                     true );
+    m_propVectorAsColor->setHidden( false );
+
     m_readTriggerProp = m_properties->addProperty( "Do read",  "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
     WPropertyHelper::PC_PATHEXISTS::addTo( m_meshFile );
 
@@ -426,6 +432,32 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readMesh()
             WLogger::getLogger()->addLogMessage( "Invalid cell type: " + cellType, "Read Mesh", LL_ERROR );
             progress->finish();
             return boost::shared_ptr< WTriangleMesh >();
+        }
+    }
+
+    char* marker = new char[30];
+    size_t nbVectors;
+    ifs >> marker >> nbVectors;
+    if( std::string( marker ) == "POINT_DATA" && nbVectors == numPoints )
+    {
+        // ----- Vector as color ---------
+        char* vectorMarker = new char[30];
+        char* vectorName = new char[30];
+        char* vectorDataType = new char[30];
+        ifs >> vectorMarker >> vectorName >> vectorDataType;
+
+        if( std::string( vectorMarker ) == "VECTORS"
+            && m_propVectorAsColor->get()
+            &&  std::string( vectorDataType ) == "float" )
+        {
+            WColor vectorComp;
+            for( unsigned int i = 0; i < nbVectors; ++i )
+            {
+                std::string line;
+                std::getline( ifs, line, '\n' );
+                ifs >> vectorComp[0] >> vectorComp[1] >> vectorComp[2];
+                triMesh->setVertexColor( i, vectorComp );
+            }
         }
     }
 
@@ -815,6 +847,8 @@ std::string WMReadMesh::getLine( boost::shared_ptr< std::ifstream > ifs, const s
 
 void WMReadMesh::meshTypeSelected()
 {
+    m_propVectorAsColor->setHidden( m_fileTypeSelection->get( true ).getItemIndexOfSelected( 0 ) != 0 );
+
     if( m_fileTypeSelection->get().getItemIndexOfSelected( 0 )  == 2 ||
         m_fileTypeSelection->get().getItemIndexOfSelected( 0 )  == 3 ||
         m_fileTypeSelection->get().getItemIndexOfSelected( 0 )  == 4 )
