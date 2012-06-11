@@ -196,15 +196,15 @@ void WMTriangleMeshRenderer::properties()
 
     m_scaleX = m_groupTransformation->addProperty( "Scale X", "Scaling X of surface.", 1.0 );
     m_scaleX->setMin( -10.0 );
-    m_scaleX->setMax( 10.0 );
+    m_scaleX->setMax( 100.0 );
 
     m_scaleY = m_groupTransformation->addProperty( "Scale Y", "Scaling Y of surface.", 1.0 );
     m_scaleY->setMin( -10.0 );
-    m_scaleY->setMax( 10.0 );
+    m_scaleY->setMax( 100.0 );
 
     m_scaleZ = m_groupTransformation->addProperty( "Scale Z", "Scaling Z of surface.", 1.0 );
     m_scaleZ->setMin( -10.0 );
-    m_scaleZ->setMax( 10.0 );
+    m_scaleZ->setMax( 100.0 );
 
     //Rotating
     m_rotateX = m_groupTransformation->addProperty( "Rotate X", "Rotate X in °", 0.0 );
