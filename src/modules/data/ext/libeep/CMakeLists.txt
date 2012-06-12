@@ -5,7 +5,7 @@
 IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
     SET( CMAKE_C_FLAGS "/TC /DWIN32")
 ELSE()
-    SET( CMAKE_C_FLAGS "-w")
+    SET( CMAKE_C_FLAGS "-w ${OW_C_FLAGS_INJECT}" )
 ENDIF()
 
 FILE( GLOB LIBEEP_SRC "libavr/*.c" "libcnt/*.c" "libeep/*.c" )
@@ -47,3 +47,20 @@ INSTALL( TARGETS ${OWExtEEPName}
                 NAMELINK_SKIP
          COMPONENT "EXT"
 )
+
+# provide an namelink-only target for dev install
+INSTALL( TARGETS ${OWExtEEPName}
+            ARCHIVE # NOTE: this is needed on windows
+                DESTINATION ${OW_LIBRARY_DIR_RELATIVE}
+                PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                            GROUP_READ GROUP_EXECUTE
+                            WORLD_READ WORLD_EXECUTE
+            LIBRARY # NOTE: this is needed for all the others
+                DESTINATION ${OW_LIBRARY_DIR_RELATIVE}
+                PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                            GROUP_READ GROUP_EXECUTE
+                            WORLD_READ WORLD_EXECUTE
+                NAMELINK_ONLY
+            COMPONENT "EXT_DEV"
+)
+

@@ -180,7 +180,6 @@ osg::ref_ptr< osg::Image > genWhiteNoise( size_t resX )
 void WMDirectVolumeRendering::moduleMain()
 {
     m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMDirectVolumeRendering", m_localPath ) );
-
     // setup all the defines needed
 
     // local illumination model
@@ -200,6 +199,7 @@ void WMDirectVolumeRendering::moduleMain()
     // jitter
     WGEShaderDefine< std::string >::SPtr jitterSamplerDefine = m_shader->setDefine( "JITTERTEXTURE_SAMPLER", std::string( "tex3" ) );
     WGEShaderDefine< int >::SPtr jitterSizeXDefine = m_shader->setDefine( "JITTERTEXTURE_SIZEX", 0 );
+    WGEShaderDefineSwitch::SPtr jitterEnable = m_shader->setDefine( "JITTERTEXTURE_ENABLED" );
 
     // opacity correction enabled?
     WGEShaderDefineSwitch::SPtr opacityCorrectionEnableDefine = m_shader->setDefine( "OPACITYCORRECTION_ENABLED" );
@@ -207,6 +207,10 @@ void WMDirectVolumeRendering::moduleMain()
     WGEShaderDefineSwitch::SPtr maximumIntensityProjectionEnabledDefine = m_shader->setDefine( "MIP_ENABLED" );
     WGEShaderDefineSwitch::SPtr depthProjectionEnabledDefine = m_shader->setDefine( "DEPTH_PROJECTION_ENABLED" );
 
+    // the texture used for the transfer function
+    osg::ref_ptr< osg::Texture1D > tfTexture = new osg::Texture1D();
+    osg::ref_ptr< osg::Image > tfImage = new osg::Image();
+    bool updateTF = false;  // if true, update of TF is enforced
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
@@ -229,7 +233,6 @@ void WMDirectVolumeRendering::moduleMain()
     {
         // Now, the moduleState variable comes into play. The module can wait for the condition, which gets fired whenever the input receives data
         // or an property changes. The main loop now waits until something happens.
-        debugLog() << "Waiting ...";
         m_moduleState.wait();
 
         // quit if requested
@@ -319,16 +322,44 @@ void WMDirectVolumeRendering::moduleMain()
 
             // create some random noise
             jitterSamplerDefine->setActive( false );
+            jitterEnable->setActive( false );
             if( m_stochasticJitterEnabled->get( true ) )
             {
                 const size_t size = 64;
                 osg::ref_ptr< WGETexture2D > randTexture = new WGETexture2D( genWhiteNoise( size ) );
                 randTexture->setFilterMinMag( osg::Texture2D::NEAREST );
                 randTexture->setWrapSTR( osg::Texture2D::REPEAT );
-                wge::bindTexture( cube, randTexture, 3, "u_jitter" );
+                wge::bindTexture( cube, randTexture, 2, "u_jitter" );
                 jitterSamplerDefine->setActive( true );
+                jitterEnable->setActive( true );
                 jitterSizeXDefine->setValue( size );
             }
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // transfer function texture
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            osg::ref_ptr< osg::Texture1D > tfTexture = new osg::Texture1D();
+            tfTexture->setDataVariance( osg::Object::DYNAMIC );
+            // create some ramp as default
+            {
+                int resX = 32;
+                tfImage->allocateImage( resX, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE );
+                unsigned char *data = tfImage->data();  // should be 4 megs
+                for( int x = 0; x < resX; x++ )
+                {
+                    unsigned char r = ( unsigned char )( 0.1 * 255.0 * static_cast< float >( x ) / static_cast< float >( resX ) );
+                    data[ 4 * x + 0 ] = 255;
+                    data[ 4 * x + 1 ] = 255;
+                    data[ 4 * x + 2 ] = 255;
+                    data[ 4 * x + 3 ] = r;
+                }
+            }
+
+            tfTexture->setImage( tfImage );
+            wge::bindTexture( cube, tfTexture, 3, "u_transferFunction" );
+            // permanently enable the TF texture. As we have no alternative way to set the TF, always use a TF texture
+            tfTexEnableDefine->setActive( true );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // opacity correction
@@ -392,15 +423,17 @@ void WMDirectVolumeRendering::moduleMain()
                 rootInserted = true;
                 WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( rootNode );
             }
+
+            updateTF = true;
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         // load transfer function
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        if( ( propUpdated || m_transferFunction->updated() ) && dataValid && cube )
+        if( ( updateTF || propUpdated || m_transferFunction->updated() ) && dataValid && cube )
         {
-            debugLog() << "updated transfer function";
+            updateTF = false;
             boost::shared_ptr< WDataSetSingle > dataSet = m_transferFunction->getData();
             if( !dataSet )
             {
@@ -418,35 +451,18 @@ void WMDirectVolumeRendering::moduleMain()
                 }
                 else
                 {
-                    //debugLog() << "creating transfer function texture";
                     size_t tfsize = cvalueSet->rawSize();
-                    //debugLog() << "Texture raw size" << tfsize;
 
-                    const unsigned char* orig = cvalueSet->rawData();
-                    unsigned char* data = new unsigned char[ tfsize ];
-                    std::copy( orig, &orig[ tfsize ], data );
+                    // create image and copy the TF
+                    tfImage->allocateImage( tfsize/4, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE );
+                    tfImage->setInternalTextureFormat( GL_RGBA );
+                    unsigned char* data = reinterpret_cast< unsigned char* >( tfImage->data() );
+                    std::copy( cvalueSet->rawData(), &cvalueSet->rawData()[ tfsize ], data );
 
-                    // for ( size_t i = 0; i< 30 && i < tfsize/4; ++i )
-                    // {
-                    //     debugLog() << i << ":" << ( int )data[ 4*i ] << ' ' << ( int )data[ 4*i+1 ] << ' '<< ( int )data[ 4*i+2 ]
-                    //     << ' '<< ( int ) data[ 4*i+3 ];
-                    // }
-
-                    osg::ref_ptr< osg::Image > tfImg( new osg::Image() );
-                    //debugLog() << "set image";
-                    tfImg->setImage( tfsize/4, 1, 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE,
-                            data, osg::Image::USE_NEW_DELETE ); // FIXME: check allocation mode
-                    //debugLog() << "activate";
-                    tfTexEnableDefine->setActive( false );
-                    osg::ref_ptr< osg::Texture1D > tfTexture = new osg::Texture1D();
-                    tfTexture->setImage( tfImg );
-
-                    wge::bindTexture( cube, tfTexture, 2, "u_transferFunction" );
-                    tfTexEnableDefine->setActive( true );
-                    //debugLog() << "done creating transfer function texture";
+                    // force OpenGl to use the new texture
+                    tfTexture->dirtyTextureObject();
                 }
             }
-            debugLog() << "end updated transfer function";
         }
     }
 

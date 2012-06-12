@@ -38,32 +38,36 @@ class WTransferFunctionWidget;
  */
 class WTransferFunctionBackground : public QGraphicsPixmapItem
 {
-    public:
-        /** type of base class */
-        typedef QGraphicsPixmapItem BaseClass;
+public:
+    /** type of base class */
+    typedef QGraphicsPixmapItem BaseClass;
 
-        /** default constructor
-         * \param parent pointer to parent widget
-         */
-        explicit WTransferFunctionBackground( WTransferFunctionWidget* parent = 0x0 );
+    /**
+     * Default constructor.
+     *
+     * \param parent pointer to parent widget
+     */
+    explicit WTransferFunctionBackground( WTransferFunctionWidget* parent = 0x0 );
 
-        /**
-         * default destructor
-         */
-        virtual ~WTransferFunctionBackground();
+    /**
+     * Default destructor.
+     */
+    virtual ~WTransferFunctionBackground();
 
-        /**
-         * get the bounding rectangle
-         * \returns the bounding rectangle
-         */
-        QRectF boundingRect() const;
+    /**
+     * Get the bounding rectangle.
+     *
+     * \returns the bounding rectangle
+     */
+    QRectF boundingRect() const;
 
-        /**
-         * Set the background pixmap that will be displayed.
-         * In our case, this is the transfer function
-         * \param pixmap the pixmap to display
-         */
-        void setMyPixmap( const QPixmap& pixmap );
+    /**
+     * Set the background pixmap that will be displayed.
+     * In our case, this is the transfer function
+     *
+     * \param pixmap the pixmap to display
+     */
+    void setMyPixmap( const QPixmap& pixmap );
 };
 
 #endif  // WTRANSFERFUNCTIONBACKGROUND_H

@@ -111,7 +111,7 @@ public:
      *
      * \param dataSetScalar Pointer to the dataset we want to send
      */
-    void sendImageData( WDataSetScalarSPtr  dataSetScalar );
+    void sendImageData( WDataSetScalarSPtr dataSetScalar );
 
     /**
      * send a matrix as an igtl transform

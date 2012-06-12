@@ -89,12 +89,16 @@ void WMReadMesh::connectors()
 
 void WMReadMesh::properties()
 {
-    // Put the code for your properties here. See "src/modules/template/" for an extensively documented example.
+    m_nbTriangles = m_infoProperties->addProperty( "Triangles", "The number of triangles in the loaded mesh.", 0 );
+    m_nbTriangles->setMax( std::numeric_limits< int >::max() );
+
+    m_nbVertices = m_infoProperties->addProperty( "Vertices", "The number of vertices in the loaded mesh.", 0 );
+    m_nbVertices->setMax( std::numeric_limits< int >::max() );
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
     m_meshFile = m_properties->addProperty( "Mesh file", "", WPathHelper::getAppPath() );
     m_fileTypeSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_fileTypeSelectionsList->addItem( "Mesh", "" );
+    m_fileTypeSelectionsList->addItem( "Mesh (VTK)", "" );
     m_fileTypeSelectionsList->addItem( "Mesh fibernavigator", "" );
     m_fileTypeSelectionsList->addItem( "DIP", "" );
     m_fileTypeSelectionsList->addItem( "BrainVISA", "" );
@@ -114,6 +118,12 @@ void WMReadMesh::properties()
     m_propDatasetSizeY->setHidden( true );
     m_propDatasetSizeZ->setHidden( true );
 
+
+    m_propVectorAsColor = m_properties->addProperty( "Read vectors as color",
+                                                     "If the module can load vectors from the file "
+                                                     "it will interpret them as colors of the surface.",
+                                                     true );
+    m_propVectorAsColor->setHidden( false );
 
     m_readTriggerProp = m_properties->addProperty( "Do read",  "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
     WPropertyHelper::PC_PATHEXISTS::addTo( m_meshFile );
@@ -159,6 +169,9 @@ void WMReadMesh::moduleMain()
             debugLog() << "this shouldn't be reached";
             break;
         }
+        m_nbTriangles->set( m_triMesh->triangleSize() );
+        m_nbVertices->set( m_triMesh->vertSize() );
+
         m_output->updateData( m_triMesh );
 
         m_readTriggerProp->set( WPVBaseTypes::PV_TRIGGER_READY, true );
@@ -419,6 +432,32 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readMesh()
             WLogger::getLogger()->addLogMessage( "Invalid cell type: " + cellType, "Read Mesh", LL_ERROR );
             progress->finish();
             return boost::shared_ptr< WTriangleMesh >();
+        }
+    }
+
+    char* marker = new char[30];
+    size_t nbVectors;
+    ifs >> marker >> nbVectors;
+    if( std::string( marker ) == "POINT_DATA" && nbVectors == numPoints )
+    {
+        // ----- Vector as color ---------
+        char* vectorMarker = new char[30];
+        char* vectorName = new char[30];
+        char* vectorDataType = new char[30];
+        ifs >> vectorMarker >> vectorName >> vectorDataType;
+
+        if( std::string( vectorMarker ) == "VECTORS"
+            && m_propVectorAsColor->get()
+            &&  std::string( vectorDataType ) == "float" )
+        {
+            WColor vectorComp;
+            for( unsigned int i = 0; i < nbVectors; ++i )
+            {
+                std::string line;
+                std::getline( ifs, line, '\n' );
+                ifs >> vectorComp[0] >> vectorComp[1] >> vectorComp[2];
+                triMesh->setVertexColor( i, vectorComp );
+            }
         }
     }
 
@@ -808,6 +847,8 @@ std::string WMReadMesh::getLine( boost::shared_ptr< std::ifstream > ifs, const s
 
 void WMReadMesh::meshTypeSelected()
 {
+    m_propVectorAsColor->setHidden( m_fileTypeSelection->get( true ).getItemIndexOfSelected( 0 ) != 0 );
+
     if( m_fileTypeSelection->get().getItemIndexOfSelected( 0 )  == 2 ||
         m_fileTypeSelection->get().getItemIndexOfSelected( 0 )  == 3 ||
         m_fileTypeSelection->get().getItemIndexOfSelected( 0 )  == 4 )
