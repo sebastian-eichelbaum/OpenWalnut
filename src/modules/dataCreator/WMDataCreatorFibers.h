@@ -22,34 +22,36 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMFIBERCREATOR_H
-#define WMFIBERCREATOR_H
+#ifndef WMDATACREATORFIBERS_H
+#define WMDATACREATORFIBERS_H
 
 #include <string>
 
-#include <core/dataHandler/WDataSetFibers.h>
-#include <core/kernel/WModule.h>
-#include <core/kernel/WModuleOutputData.h>
+#include "core/common/WStrategyHelper.h"
+#include "core/common/WObjectNDIP.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleOutputData.h"
+#include "core/dataHandler/WDataSetFibers.h"
+
+#include "WDataSetFibersCreatorInterface.h"
 
 /**
- * This module creates fiber datasets using some scheme, like spirals. This is very useful tool for papers where artificial data is needed
- * sometimes to create images showing some certain strength or weakness.
+ * Module which utilizes the strategy pattern to provide a multitude of dataset creation algorithms for fiber data.
  *
  * \ingroup modules
  */
-class WMFiberCreator: public WModule
+class WMDataCreatorFibers: public WModule
 {
 public:
-
     /**
-     * Default constructor.
+     * Standard constructor.
      */
-    WMFiberCreator();
+    WMDataCreatorFibers();
 
     /**
      * Destructor.
      */
-    virtual ~WMFiberCreator();
+    ~WMDataCreatorFibers();
 
     /**
      * Gives back the name of this module.
@@ -59,7 +61,7 @@ public:
 
     /**
      * Gives back a description of this module.
-     * \return description to module.
+     * \return description of module.
      */
     virtual const std::string getDescription() const;
 
@@ -73,13 +75,11 @@ public:
 
     /**
      * Get the icon for this module in XPM format.
-     *
-     * \return icon in XPM format
+     * \return The icon.
      */
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -96,16 +96,12 @@ protected:
     virtual void properties();
 
 private:
-
-    /**
-     * The output connector used to provide the calculated data to other modules.
-     */
-    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_fiberOutput;
-
     /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
+
+    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_output; //!< The only output of this module.
 
     /**
      * Number of fibers.
@@ -123,41 +119,16 @@ private:
     WPropColor m_fibColor;
 
     /**
-     * Creates a crossing fiber bundle.
-     *
-     * \param numFibers the number of fibers to create
-     * \param numVertsPerFiber the number of vertices per fiber
-     * \param vertices vertices of the line strips
-     * \param fibIdx fibIdx the indices to the vertices
-     * \param lengths lengths of each fiber
-     * \param fibIdxVertexMap index of fiber for each vertex
-     * \param colors colors for each vertex. RGB only.
+     * Size of the fiber bounding box.
      */
-    void crossing( size_t numFibers, size_t numVertsPerFiber,
-            WDataSetFibers::VertexArray vertices,
-            WDataSetFibers::IndexArray fibIdx,
-            WDataSetFibers::LengthArray lengths,
-            WDataSetFibers::IndexArray fibIdxVertexMap,
-            WDataSetFibers::ColorArray colors );
+    WPropPosition m_size;
 
     /**
-     * Creates a spiral fiber bundle.
-     *
-     * \param numFibers the number of fibers to create
-     * \param numVertsPerFiber the number of vertices per fiber
-     * \param vertices vertices of the line strips
-     * \param fibIdx fibIdx the indices to the vertices
-     * \param lengths lengths of each fiber
-     * \param fibIdxVertexMap index of fiber for each vertex
-     * \param colors colors for each vertex. RGB only.
+     * Origin of the bounding box.
      */
-    void spiral( size_t numFibers, size_t numVertsPerFiber,
-            WDataSetFibers::VertexArray vertices,
-            WDataSetFibers::IndexArray fibIdx,
-            WDataSetFibers::LengthArray lengths,
-            WDataSetFibers::IndexArray fibIdxVertexMap,
-            WDataSetFibers::ColorArray colors );
+    WPropPosition m_origin;
+
+    WStrategyHelper< WObjectNDIP< WDataSetFibersCreatorInterface > > m_strategy; //!< the strategy currently active.
 };
 
-#endif  // WMFIBERCREATOR_H
-
+#endif  // WMDATACREATORFIBERS_H

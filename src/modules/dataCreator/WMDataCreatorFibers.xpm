@@ -1,5 +1,5 @@
 /* XPM */
-static const char * WMFiberCreator_xpm[] = {
+static const char * datacreator_xpm[] = {
 "16 16 58 1",
 " 	c None",
 ".	c #8162D6",
