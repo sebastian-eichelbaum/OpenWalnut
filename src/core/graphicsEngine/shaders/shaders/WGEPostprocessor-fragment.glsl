@@ -289,6 +289,15 @@ float getSSAO()
 
 #ifdef WGE_POSTPROCESSOR_LINEAO
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// This implements the LineAO algorithm from http://doi.ieeecomputersociety.org/10.1109/TVCG.2012.142
+//
+//  - This implementation matches the paper in most cases. We made some additional improvements and
+//    simplifications here. This simply is due to the time-lag between first submission and final acceptance.
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #ifndef WGE_POSTPROCESSOR_LINEAO_SAMPLES
     #define WGE_POSTPROCESSOR_LINEAO_SAMPLES 32
 #endif
@@ -299,32 +308,18 @@ float getSSAO()
 /**
  * The total influence of SSAO.
  */
-//uniform float u_lineaoTotalStrength = 2.5;     // lines
-uniform float u_lineaoTotalStrength = 2.5;     // brain lines
-//uniform float u_lineaoTotalStrength = 2.25;     // brain lines video
-//uniform float u_lineaoTotalStrength = 1.5;   // smallfibs
-//uniform float u_lineaoTotalStrength =2.0;   // smallfibs-corticospinal-tubes
-//uniform float u_lineaoTotalStrength =2.5;   // smallfibs-corticospinal-lines
-//uniform float u_lineaoTotalStrength = 2.0;   // deltawing tube
-//uniform float u_lineaoTotalStrength = 3.0;   // deltawing lines
+uniform float u_lineaoTotalStrength = 1.0;     // Should be the same default as in WGEPostprocessorLineAO.cpp
 
 /**
  * The radius of the hemispshere in screen-space which gets scaled.
  */
-//uniform float u_lineaoRadiusSS = 2.0;   // lines
-uniform float u_lineaoRadiusSS = 2.5;   // brain lines
-//uniform float u_lineaoRadiusSS = 2.0;   // brain lines-video
-//uniform float u_lineaoRadiusSS = 2.5; // smallfibs
-//uniform float u_lineaoRadiusSS = 2.5;   // brain lines -corticospinal
-//uniform float u_lineaoRadiusSS = 1.0; // deltawing tube
-//uniform float u_lineaoRadiusSS = 2.5; // deltawing lines
+uniform float u_lineaoRadiusSS = 2.0;          // Should be the same default as in WGEPostprocessorLineAO.cpp
 
 /**
  * The strength of the occluder influence in relation to the geometry density. The higher the value, the larger the influence. Low values remove
  * the drop-shadow effect.
  */
-//uniform float u_lineaoDensityWeight = 2.0;    // video
-uniform float u_lineaoDensityWeight = 1.0;
+uniform float u_lineaoDensityWeight = 1.0;     // Should be the same default as in WGEPostprocessorLineAO.cpp
 
 /**
  * Calculate the screen-space ambient occlusion LineAO for the given pixel.
@@ -379,11 +374,15 @@ float getLineAO( vec2 where )
 
         // this allows an adaptive radius
         // NOTE: we do not exactly use the linear scaling from the paper here. Although they look very similar, the non-linear radius, which
-        // increases non-linearly with the level l, improves visual quality a bit.
+        // increases non-linearly with the level l, improves visual quality a bit. The drawback of this method is that increasing SCALERS causes
+        // larger structures to become more important than local structures.
         #define radScaleMin 1.5
-        radiusScaler += radScaleMin + l;    // increment radius each time.
+        radiusScaler += radScaleMin + l;
+        // Alternatvie, linear way -- more coherent AO when changing the number of hemispheres:
+        // radiusScaler = radScaleMin + l;    // increment radius each time.
 
         // Get SAMPLES-times samples on the hemisphere and check for occluders
+        int numSamplesAdded = 0;    // used to count how many samples really got added to the occlusion term
         for( int i = 0; i < SAMPLES; ++i )
         {
             // grab a rand normal from the noise texture
@@ -395,18 +394,21 @@ float getLineAO( vec2 where )
             ray = radiusScaler * radius * hemisphereVector;
             ray = sign( dot( ray, normal ) ) * ray;
 
-            // if the ray is outside the hemisphere then change direction
+            // get the point in texture space on the hemisphere
             hemispherePoint = ray + ep;
 
-            // HACK! Somehow handle borders
-            //if ( ( hemispherePoint.x < 0.0 ) || ( hemispherePoint.x > 0.65 ) )
-            //{
-            //    hemispherePoint.x *= -1.0;
-            //}
-            //if ( ( hemispherePoint.y < 0.0 ) || ( hemispherePoint.y > 0.575 ) )
-            //{
-            //    hemispherePoint.y *= -1.0;
-            //}
+            // we need to handle the case where a hemisphere point is outside the texture space. The correct solution would be to ensure that
+            // no hemisphere point ever gets outside the texture space. This can be achieved by rendering the scene to a larger texture and than
+            // process only the required viewport in this texture. Unfortunately OpenWalnut does not provide an easy to use mechanism for this.
+            // So, we skip hemispherePoints outside the texture. This yields nearly no or only small artifacts at the borders if zoomed in.
+            if( ( hemispherePoint.x < 0.0 ) || ( hemispherePoint.x > 1.0 ) ||
+                ( hemispherePoint.y < 0.0 ) || ( hemispherePoint.y > 1.0 )
+              )
+            {
+                continue;
+            }
+            // Count the samples we really use.
+            numSamplesAdded++;
 
             // get the depth of the occluder fragment
             occluderDepth = getDepth( hemispherePoint.xy );
@@ -418,22 +420,20 @@ float getLineAO( vec2 where )
             depthDifference = currentPixelDepth - occluderDepth;
 
             // calculate the difference between the normals as a weight. This weight determines how much the occluder occludes the fragment
-            // TODO(ebaum): evaluate these alternatives: the first one is the surface direction and occluder surface direction
             float pointDiffuse = max( dot( hemisphereVector, normal ), 0.0 ); // this equals the diffuse term in Phong if lightDir is the
                                                                               // occluder's surface
 
-            // TODO(ebaum): check normal again with another light
             vec3 t = getTangent( hemispherePoint.xy ).xyz;
             vec3 newnorm = normalize( cross( normalize( cross( t, normalize( hemisphereVector ) ) ), t ) );
             float occluderDiffuse = max( dot( newnorm, gl_LightSource[0].position.xyz ), 0.0 );
 
-            // TODO(ebaum): better incorporate specular reflection
+            // incorporate specular reflection
             vec3 H = normalize( gl_LightSource[0].position.xyz + normalize( hemisphereVector ) );
             float occluderSpecular = pow( max( dot( H, occluderNormal ), 0.0 ), 100.0 );
 
             // this second is as proposed for AO, the omega (hemisphere vector) and surface normal
-            normalDifference = pointDiffuse * ( occluderSpecular + occluderDiffuse );
-            normalDifference = 1.0 - normalDifference;
+            normalDifference =  pointDiffuse * ( occluderSpecular + occluderDiffuse );
+            normalDifference = 1.5 - normalDifference;  // we use 2 here as occluderSpecular + occluderDiffuse might get larger than 1
 
             // the higher the depth difference, the less it should influence the occlusion value since large space between geometry normally allows
             // many light. It somehow can be described with "shadowiness". In other words, it describes the density of geometry and its influence to
@@ -452,15 +452,23 @@ float getLineAO( vec2 where )
             // the following step function ensures that negative depthDifference values get clamped to 0, meaning that this occluder should have NO
             // influence on the occlusion value. A positive value (fragment is behind the occluder) increases the occlusion factor according to the
             // normal weight and density weight
-            occlusionStep += invSamples * normalDifference * densityWeight * step( falloff, depthDifference );
+            occlusionStep += normalDifference * densityWeight * step( falloff, depthDifference );
         }
 
-        // for this radius, add to total occlusion
-        occlusion += occlusionStep;
+        // for this radius, add to total occlusion. Keep in mind to normalize the occlusion term according to the number of samples taken
+        occlusion += ( 1.0 / float( numSamplesAdded ) ) * occlusionStep;
     }
 
+    // we need to take care when the number of hemispheres is increased. This is done indirectly by calculation of the densityInfluence variable.
+    // But we need some additional scaling to keep the overall image intensity (overall energy) when changing the numbr of hemispheres.
+    // This usually would be done by using 1/SCALERS.
+    float occlusionScalerFactor = 1.0 / ( SCALERS );
+
+    // also allow the user to modify the strength if he likes
+    occlusionScalerFactor *= u_lineaoTotalStrength;
+
     // output the result
-    return clamp( ( 1.0 - ( u_lineaoTotalStrength * occlusion ) ), 0, 1 );
+    return clamp( ( 1.0 - ( occlusionScalerFactor * occlusion ) ), 0, 1 );
 }
 
 /**

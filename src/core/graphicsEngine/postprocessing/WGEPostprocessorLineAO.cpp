@@ -56,7 +56,7 @@ WGEPostprocessorLineAO::WGEPostprocessorLineAO( osg::ref_ptr< WGEOffscreenRender
     lineaoRadiusSS->setMax( 10.0 );
 
     WPropDouble lineaoTotalStrength = m_properties->addProperty( "Total Strength", "The strength of the effect. Higher values emphasize the effect.",
-                                                                                 0.5 );
+                                                                                 1.0 );
     lineaoTotalStrength->setMin( 0.0 );
     lineaoTotalStrength->setMax( 5.0 );
 
@@ -81,7 +81,9 @@ WGEPostprocessorLineAO::WGEPostprocessorLineAO( osg::ref_ptr< WGEOffscreenRender
         new WGEShaderPropertyDefine< WPropInt >( "WGE_POSTPROCESSOR_LINEAO_SAMPLES", lineaoSamples ) )
     );
 
-    // create the rendering pass
+
+
+    // create the LineAO rendering pass
     osg::ref_ptr< WGEOffscreenTexturePass > pass = offscreen->addTextureProcessingPass( s, "LineAO" );
     pass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_lineaoDensityWeight", lineaoDensityWeight ) );
     pass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_lineaoTotalStrength", lineaoTotalStrength ) );
