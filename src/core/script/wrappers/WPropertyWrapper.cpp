@@ -64,6 +64,11 @@ double WPropertyWrapper::getDouble( bool notify ) const
     return m_prop->toPropDouble()->get( notify );
 }
 
+std::string WPropertyWrapper::getFilename( bool notify ) const
+{
+    return m_prop->toPropFilename()->get( notify ).string();
+}
+
 void WPropertyWrapper::setBool( bool b )
 {
     m_prop->toPropBool()->set( b, false );
@@ -82,6 +87,16 @@ void WPropertyWrapper::setString( std::string const& s )
 void WPropertyWrapper::setDouble( double d )
 {
     m_prop->toPropDouble()->set( d, false );
+}
+
+void WPropertyWrapper::setFilename( std::string const& fn )
+{
+    m_prop->toPropFilename()->set( boost::filesystem::path( fn ), false );
+}
+
+void WPropertyWrapper::click()
+{
+    m_prop->toPropTrigger()->set( WPVBaseTypes::PV_TRIGGER_TRIGGERED, false );
 }
 
 void WPropertyWrapper::waitForUpdate()

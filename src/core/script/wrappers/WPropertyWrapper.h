@@ -93,6 +93,14 @@ public:
     double getDouble( bool notify = false ) const;
 
     /**
+     * Get the filename of a filename property.
+     *
+     * \param notify If true, informs the property that it was read.
+     * \return The current value of the property.
+     */
+    std::string getFilename( bool notify = false ) const;
+
+    /**
      * Set the value of a boolean property.
      *
      * \param b The new value.
@@ -119,6 +127,18 @@ public:
      * \param d The new value.
      */
     void setDouble( double d );
+
+    /**
+     * Set the filename of the filename property.
+     *
+     * \param fn The new value.
+     */
+    void setFilename( std::string const& fn );
+
+    /**
+     * Trigger a trigger property.
+     */
+    void click();
 
     /**
      * Wait for the property to update its value.
