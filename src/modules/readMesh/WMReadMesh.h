@@ -180,7 +180,6 @@ private:
 
     WPropInt m_nbTriangles; //!< Info-property showing the number of triangles in the mesh.
     WPropInt m_nbVertices; //!< Info-property showing the number of vertices in the mesh.
-
 };
 
 #endif  // WMREADMESH_H
