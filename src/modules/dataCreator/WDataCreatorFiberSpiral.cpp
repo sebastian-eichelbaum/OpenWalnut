@@ -24,7 +24,7 @@
 
 #include <algorithm>
 
-#include <core/common/math/WMath.h>
+#include "core/common/math/WMath.h"
 
 #include "WDataCreatorFiberSpiral.h"
 
@@ -73,8 +73,8 @@ void WDataCreatorFiberSpiral::operator()( WProgress::SPtr progress,
         fibIdx->push_back( vertOffset );
         lengths->push_back( numVertsPerFiber );
 
-        double a1 = static_cast< double >( std::rand() % 255 ) / 255.0;
-        double a2 = static_cast< double >( std::rand() % 255 ) / 255.0;
+        double a1 = static_cast< double >( std::rand() % 255 ) / 255.0; // NOLINT - rand_r has portability issues.
+        double a2 = static_cast< double >( std::rand() % 255 ) / 255.0; // NOLINT - rand_r has portability issues.
 
         double seedX = cos( 2.0 * piDouble * a1 ) * tubeRadius;
         double seedY = sin( 2.0 * piDouble * a2 ) * tubeRadius;
