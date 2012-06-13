@@ -26,6 +26,8 @@
 
 #include "../shaders/WGEPropertyUniform.h"
 #include "../shaders/WGEShaderPropertyDefine.h"
+#include "WGEPostprocessorGauss.h"
+#include "WGEPostprocessorMergeOp.h"
 
 #include "WGEPostprocessorLineAO.h"
 
@@ -68,6 +70,9 @@ WGEPostprocessorLineAO::WGEPostprocessorLineAO( osg::ref_ptr< WGEOffscreenRender
     lineaoDensityWeight->setMin( 0.001 );
     lineaoDensityWeight->setMax( 2.0 );
 
+    // NOTE: The paper proposes to use a gaussian pyramid of the depth and normal maps. We skip this step. Skipping this causes the AO to look
+    // more crispy and more detailed at local scope.
+
     // use the standard postprocessor uber-shader
     WGEShader::RefPtr s = new WGEShader( "WGEPostprocessor" );
     s->setDefine( "WGE_POSTPROCESSOR_LINEAO" );
@@ -81,24 +86,22 @@ WGEPostprocessorLineAO::WGEPostprocessorLineAO( osg::ref_ptr< WGEOffscreenRender
         new WGEShaderPropertyDefine< WPropInt >( "WGE_POSTPROCESSOR_LINEAO_SAMPLES", lineaoSamples ) )
     );
 
-
-
     // create the LineAO rendering pass
-    osg::ref_ptr< WGEOffscreenTexturePass > pass = offscreen->addTextureProcessingPass( s, "LineAO" );
-    pass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_lineaoDensityWeight", lineaoDensityWeight ) );
-    pass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_lineaoTotalStrength", lineaoTotalStrength ) );
-    pass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_lineaoRadiusSS", lineaoRadiusSS ) );
+    osg::ref_ptr< WGEOffscreenTexturePass > lineAOPass = offscreen->addTextureProcessingPass( s, "LineAO" );
+    lineAOPass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_lineaoDensityWeight", lineaoDensityWeight ) );
+    lineAOPass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_lineaoTotalStrength", lineaoTotalStrength ) );
+    lineAOPass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_lineaoRadiusSS", lineaoRadiusSS ) );
 
     // attach color0 output
-    m_resultTextures.push_back( pass->attach( osg::Camera::COLOR_BUFFER0, GL_RGB ) );
+    m_resultTextures.push_back( lineAOPass->attach( osg::Camera::COLOR_BUFFER0, GL_RGB ) );
 
     // provide the Gbuffer input
-    size_t gBufUnitOffset = gbuffer.bind( pass );
+    size_t gBufUnitOffset = gbuffer.bind( lineAOPass );
 
     // this effect needs some additional noise texture:
     const size_t size = 64;
     osg::ref_ptr< WGETexture2D > randTex = wge::genWhiteNoiseTexture( size, size, 3 );
-    pass->bind( randTex, gBufUnitOffset );
+    lineAOPass->bind( randTex, gBufUnitOffset );
 }
 
 WGEPostprocessorLineAO::~WGEPostprocessorLineAO()

@@ -295,6 +295,8 @@ float getSSAO()
 //
 //  - This implementation matches the paper in most cases. We made some additional improvements and
 //    simplifications here. This simply is due to the time-lag between first submission and final acceptance.
+//  - The paper proposes to use a gaussed version of the depth and normal maps. We skip this step here. This way,
+//    the images look more crispy and provide more _local_ detail.
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
