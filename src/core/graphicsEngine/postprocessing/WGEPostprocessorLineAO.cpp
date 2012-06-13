@@ -68,8 +68,7 @@ WGEPostprocessorLineAO::WGEPostprocessorLineAO( osg::ref_ptr< WGEOffscreenRender
     lineaoDensityWeight->setMin( 0.001 );
     lineaoDensityWeight->setMax( 2.0 );
 
-
-    // Use the standard postprocessor uber-shader
+    // use the standard postprocessor uber-shader
     WGEShader::RefPtr s = new WGEShader( "WGEPostprocessor" );
     s->setDefine( "WGE_POSTPROCESSOR_LINEAO" );
 

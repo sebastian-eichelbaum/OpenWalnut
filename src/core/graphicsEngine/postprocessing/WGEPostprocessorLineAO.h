@@ -30,7 +30,7 @@
 #include "WGEPostprocessor.h"
 
 /**
- * LineAO implementation.
+ * LineAO implementation. This is an implementation of the paper http://doi.ieeecomputersociety.org/10.1109/TVCG.2012.142.
  */
 class WGEPostprocessorLineAO: public WGEPostprocessor
 {
