@@ -22,20 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include <boost/shared_ptr.hpp>
+#include "WDataSetFibersCreatorInterface.h"
 
-#include "core/kernel/WModule.h"
-
-#include "WMDataCreatorScalar.h"
-#include "WMDataCreatorVector.h"
-#include "WMDataCreatorFibers.h"
-
-#include "WMDataCreator.h"
-
-extern "C" void WLoadModule( WModuleList& m )  // NOLINT
+WDataSetFibersCreatorInterface::~WDataSetFibersCreatorInterface()
 {
-    m.push_back( boost::shared_ptr< WModule >( new WMDataCreatorScalar ) );
-    m.push_back( boost::shared_ptr< WModule >( new WMDataCreatorVector ) );
-    m.push_back( boost::shared_ptr< WModule >( new WMDataCreatorFibers ) );
+    // cleanup
 }
-

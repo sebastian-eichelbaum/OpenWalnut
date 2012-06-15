@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <list>
+#include <limits>
 #include <map>
 #include <string>
 #include <vector>
@@ -150,6 +151,12 @@ void WMTriangleMeshRenderer::connectors()
 
 void WMTriangleMeshRenderer::properties()
 {
+    m_nbTriangles = m_infoProperties->addProperty( "Triangles", "The number of triangles in the mesh.", 0 );
+    m_nbTriangles->setMax( std::numeric_limits< int >::max() );
+
+    m_nbVertices = m_infoProperties->addProperty( "Vertices", "The number of vertices in the mesh.", 0 );
+    m_nbVertices->setMax( std::numeric_limits< int >::max() );
+
     // some properties need to trigger an update
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
@@ -190,15 +197,15 @@ void WMTriangleMeshRenderer::properties()
 
     m_scaleX = m_groupTransformation->addProperty( "Scale X", "Scaling X of surface.", 1.0 );
     m_scaleX->setMin( -10.0 );
-    m_scaleX->setMax( 10.0 );
+    m_scaleX->setMax( 100.0 );
 
     m_scaleY = m_groupTransformation->addProperty( "Scale Y", "Scaling Y of surface.", 1.0 );
     m_scaleY->setMin( -10.0 );
-    m_scaleY->setMax( 10.0 );
+    m_scaleY->setMax( 100.0 );
 
     m_scaleZ = m_groupTransformation->addProperty( "Scale Z", "Scaling Z of surface.", 1.0 );
     m_scaleZ->setMin( -10.0 );
-    m_scaleZ->setMax( 10.0 );
+    m_scaleZ->setMax( 100.0 );
 
     //Rotating
     m_rotateX = m_groupTransformation->addProperty( "Rotate X", "Rotate X in °", 0.0 );
@@ -312,6 +319,9 @@ void WMTriangleMeshRenderer::moduleMain()
             debugLog() << "Invalid Data. Disabling.";
             continue;
         }
+
+        m_nbTriangles->set( mesh->triangleSize() );
+        m_nbVertices->set( mesh->vertSize() );
 
           // prepare the geometry node
         debugLog() << "Start rendering Mesh";

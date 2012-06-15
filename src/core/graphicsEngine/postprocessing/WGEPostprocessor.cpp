@@ -28,6 +28,8 @@
 #include "WGEPostprocessorEdgeEnhance.h"
 #include "WGEPostprocessorCelShading.h"
 #include "WGEPostprocessorGauss.h"
+#include "WGEPostprocessorSSAO.h"
+#include "WGEPostprocessorLineAO.h"
 
 #include "WGEPostprocessor.h"
 
@@ -145,6 +147,8 @@ WGEPostprocessor::ProcessorList WGEPostprocessor::getPostprocessors()
     postprocs.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorEdgeEnhance() ) );
     postprocs.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorCelShading() ) );
     postprocs.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorGauss() ) );
+    postprocs.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorSSAO() ) );
+    postprocs.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorLineAO() ) );
     return postprocs;
 }
 
