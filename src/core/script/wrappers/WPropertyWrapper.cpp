@@ -69,6 +69,11 @@ std::string WPropertyWrapper::getFilename( bool notify ) const
     return m_prop->toPropFilename()->get( notify ).string();
 }
 
+int WPropertyWrapper::getSelection( bool notify ) const
+{
+    return static_cast< int >( m_prop->toPropSelection()->get( notify ).getItemIndexOfSelected( 0 ) );
+}
+
 void WPropertyWrapper::setBool( bool b )
 {
     m_prop->toPropBool()->set( b, false );
@@ -92,6 +97,14 @@ void WPropertyWrapper::setDouble( double d )
 void WPropertyWrapper::setFilename( std::string const& fn )
 {
     m_prop->toPropFilename()->set( boost::filesystem::path( fn ), false );
+}
+
+void WPropertyWrapper::setSelection( int s )
+{
+    WItemSelector::IndexList it;
+    it.push_back( static_cast< std::size_t >( s ) );
+    WItemSelector sel = m_prop->toPropSelection()->get().newSelector( it );
+    m_prop->toPropSelection()->set( sel, false );
 }
 
 void WPropertyWrapper::click()

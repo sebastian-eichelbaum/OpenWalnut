@@ -101,6 +101,14 @@ public:
     std::string getFilename( bool notify = false ) const;
 
     /**
+     * Get the (first) selected item of a selection property.
+     *
+     * \param notify If true, informs the property that it was read.
+     * \return The first of the currently selected items.
+     */
+    int getSelection( bool notify = false ) const;
+
+    /**
      * Set the value of a boolean property.
      *
      * \param b The new value.
@@ -134,6 +142,13 @@ public:
      * \param fn The new value.
      */
     void setFilename( std::string const& fn );
+
+    /**
+     * Sets the selected item of a selection. All other items will be deselected.
+     *
+     * \param s The index of the selected item.
+     */
+    void setSelection( int s );
 
     /**
      * Trigger a trigger property.
