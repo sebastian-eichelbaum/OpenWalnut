@@ -35,6 +35,7 @@
 #include <osg/ref_ptr>
 
 #include "core/common/exceptions/WOutOfBounds.h"
+#include "core/dataHandler/WDataSetDipoles.h"
 #include "core/dataHandler/WEEG2.h"
 #include "core/graphicsEngine/WGEGroupNode.h"
 
@@ -48,17 +49,23 @@ public:
     /**
      * Constructor
      *
-     * \param time       time position in seconds
-     * \param yPos       y position in pixels
-     * \param eeg        pointer to the loaded EEG dataset
-     * \param segmentID  number of the segment
-     * \param parentNode node where m_node is inserted and removed from
+     * \param time           time position in seconds
+     * \param yPos           y position in pixels
+     * \param eeg            pointer to the loaded EEG dataset
+     * \param segmentID      number of the segment
+     * \param parentNode     node where m_node is inserted and removed from
+     * \param snapToDipole   whether the selected time position should be snapped to an active dipole
+     * \param proofOfConcept whether we only show the proof of concept or the real dipoles
+     * \param dipoles        pointer to the loaded dipoles dataset
      */
     WEEGEvent( double time,
                double yPos,
                boost::shared_ptr< WEEG2 > eeg,
                std::size_t segmentID,
-               osg::ref_ptr< WGEGroupNode > parentNode ) throw( WOutOfBounds );
+               osg::ref_ptr< WGEGroupNode > parentNode,
+               bool snapToDipole,
+               bool proofOfConcept,
+               boost::shared_ptr< WDataSetDipoles > dipoles ) throw( WOutOfBounds );
 
     /**
      * Constructor for an empty event
@@ -86,7 +93,7 @@ public:
 
 protected:
 private:
-    const double m_time; //!< time position in seconds
+    double m_time; //!< time position in seconds
 
     std::vector< double > m_values; //!< the value of each channel at the given time position
 

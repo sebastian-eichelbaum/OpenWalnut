@@ -25,6 +25,7 @@
 #include <string>
 #include <vector>
 
+#include <osg/BlendFunc>
 #include <osg/LightModel>
 #include <osg/ShapeDrawable>
 #include <osgSim/ColorRange>
@@ -93,13 +94,13 @@ const char** WMEEGView::getXPMIcon() const
 
 void WMEEGView::connectors()
 {
-    m_input = boost::shared_ptr< WModuleInputData< WEEG2 > >( new WModuleInputData< WEEG2 >(
+    m_eeg_input = boost::shared_ptr< WModuleInputData< WEEG2 > >( new WModuleInputData< WEEG2 >(
         shared_from_this(), "EEG recording", "Loaded EEG-dataset." ) );
-    addConnector( m_input );
+    addConnector( m_eeg_input );
 
-    m_dipoles = boost::shared_ptr< WModuleInputData< WDataSetDipoles > >( new WModuleInputData< WDataSetDipoles >(
+    m_dipoles_input = boost::shared_ptr< WModuleInputData< WDataSetDipoles > >( new WModuleInputData< WDataSetDipoles >(
         shared_from_this(), "Dipoles", "The reconstructed dipoles for the EEG." ) );
-    addConnector( m_dipoles );
+    addConnector( m_dipoles_input );
 
     // call WModules initialization
     WModule::connectors();
@@ -123,6 +124,10 @@ void WMEEGView::properties()
     m_proofOfConcept   = m_properties->addProperty( "Enable POC",
                                                     "Use proof of concept (POC) ROI positioning instead of real dipoles position.",
                                                     false,
+                                                    m_propCondition );
+    m_snapToDipole     = m_properties->addProperty( "Snap to dipole",
+                                         "If a time is selected, snap to the nearest time position with an active dipole.",
+                                                    true,
                                                     m_propCondition );
     m_butterfly        = m_properties->addProperty( "Butterfly plot",
                                                     "Overlay all curves in one row.",
@@ -231,9 +236,13 @@ void WMEEGView::moduleMain()
         {
             debugLog() << "Data changed";
             m_dataChanged.set( false );
-            if( m_input.get() )
+            if( m_eeg_input.get() )
             {
-                m_eeg = m_input->getData();
+                m_eeg = m_eeg_input->getData();
+            }
+            if( m_dipoles_input.get() )
+            {
+                m_dipoles = m_dipoles_input->getData();
             }
             redraw();
         }
@@ -318,17 +327,16 @@ void WMEEGView::moduleMain()
                                                    position + WVector3d( halfWidth, halfWidth, halfWidth ) ) );
                     WKernel::getRunningKernel()->getRoiManager()->addRoi( m_rois.back() );
                 }
-                else if( m_dipoles->getData() )
+                else if( m_dipoles.get() )
                 {
-                    boost::shared_ptr< WDataSetDipoles > dipoles = m_dipoles->getData();
-                    debugLog() << "Number of Dipoles: " << dipoles->getNumberOfDipoles();
-                    for( size_t dipoleId = 0; dipoleId < dipoles->getNumberOfDipoles(); ++dipoleId )
+                    debugLog() << "Number of Dipoles: " << m_dipoles->getNumberOfDipoles();
+                    for( size_t dipoleId = 0u; dipoleId < m_dipoles->getNumberOfDipoles(); ++dipoleId )
                     {
-                        debugLog() << "Dipole[" << dipoleId << "]: " << dipoles->getMagnitude( event->getTime(), dipoleId );
-                        if( dipoles->getMagnitude( event->getTime(), dipoleId ) != 0 )
+                        debugLog() << "Dipole[" << dipoleId << "]: " << m_dipoles->getMagnitude( event->getTime(), dipoleId );
+                        if( m_dipoles->getMagnitude( event->getTime(), dipoleId ) != 0 )
                         {
                             float halfWidth = m_ROIsize->get( true ) * 0.5;
-                            WPosition position = dipoles->getPosition( dipoleId );
+                            WPosition position = m_dipoles->getPosition( dipoleId );
                             m_rois.push_back( new WROIBox( position - WVector3d( halfWidth, halfWidth, halfWidth ),
                                                            position + WVector3d( halfWidth, halfWidth, halfWidth ) ) );
                             WKernel::getRunningKernel()->getRoiManager()->addRoi( m_rois.back() );
@@ -585,6 +593,59 @@ void WMEEGView::redraw()
         WGEGroupNode* eventParentNode = new WGEGroupNode;
         panTransform->addChild( eventParentNode );
 
+        // create geode to draw the area were the dipole is active
+        if( m_dipoles.get() )
+        {
+            for( size_t dipoleId = 0u; dipoleId < m_dipoles->getNumberOfDipoles(); ++dipoleId )
+            {
+                debugLog() << "Dipole[" << dipoleId << "]: " << m_dipoles->getStartTime( dipoleId )
+                           << " to " << m_dipoles->getEndTime( dipoleId );
+
+                const osg::Vec4 color_min( 1.0f, 1.0f, 1.0f, 0.0f );
+                const osg::Vec4 color_max( 1.0f, 0.0f, 0.0f, 1.0f );
+
+                const std::vector<float> times = m_dipoles->getTimes( dipoleId );
+                const std::vector<float> magnitudes = m_dipoles->getMagnitudes( dipoleId );
+
+                osg::Geometry* geometry = new osg::Geometry;
+
+                osg::Vec3Array* vertices = new osg::Vec3Array;
+                vertices->reserve( 2u * times.size() );
+                for( size_t id = 0u; id < times.size(); ++id )
+                {
+                    vertices->push_back( osg::Vec3( times[id], -1048576.0f, -1.0f - id ) );
+                    vertices->push_back( osg::Vec3( times[id], 1024.0f, -1.0f - id ) );
+                }
+                geometry->setVertexArray( vertices );
+
+                osg::Vec4Array* colors = new osg::Vec4Array;
+                colors->reserve( 2u * magnitudes.size() );
+                for( size_t id = 0u; id < magnitudes.size(); ++id )
+                {
+                    const float scale = magnitudes[id] / m_dipoles->getMaxMagnitude();
+                    const osg::Vec4 color = color_min * ( 1.0f - scale ) + color_max * scale;
+                    colors->push_back( color );
+                    colors->push_back( color );
+                }
+                geometry->setColorArray( colors );
+                geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+
+                geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUAD_STRIP, 0, 2u * times.size() ) );
+
+                osg::StateSet* state = geometry->getOrCreateStateSet();
+                state->setMode( GL_BLEND, osg::StateAttribute::ON );
+                state->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
+                state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+                state->setAttributeAndModes( new osg::BlendFunc( osg::BlendFunc::SRC_ALPHA,
+                                                                 osg::BlendFunc::ONE_MINUS_SRC_ALPHA ) );
+
+                osg::Geode* geode = new osg::Geode;
+                geode->addDrawable( geometry );
+
+                panTransform->addChild( geode );
+           }
+        }
+
         // add labels and graph to the root node
         m_rootNode2d->addChild( labelsTransform );
         m_rootNode2d->addChild( panTransform );
@@ -601,7 +662,10 @@ void WMEEGView::redraw()
                                          m_event,
                                          eventParentNode,
                                          m_eeg,
-                                         0 );
+                                         0,
+                                         m_snapToDipole,
+                                         m_proofOfConcept,
+                                         m_dipoles );
 
         // draw the electrode positions in 3D
         if( m_drawElectrodes->get( true ) )
