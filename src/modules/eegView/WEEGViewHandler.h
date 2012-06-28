@@ -36,6 +36,7 @@
 
 #include "core/common/WFlag.h"
 #include "core/common/WPropertyTypes.h"
+#include "core/dataHandler/WDataSetDipoles.h"
 #include "core/dataHandler/WEEG2.h"
 #include "core/graphicsEngine/WGEGroupNode.h"
 #include "WEEGEvent.h"
@@ -70,6 +71,12 @@ public:
      *                             inserted and removed from
      * \param eeg              pointer to the loaded EEG dataset
      * \param segmentID        number of the segment
+     * \param snapToDipole     Property determining whether the selected time
+     *                             position should be snapped to an active
+     *                             dipole
+     * \param proofOfConcept   Property determining whether we only show the
+     *                             proof of concept or the real dipoles
+     * \param dipoles          pointer to the loaded dipoles dataset
      */
     WEEGViewHandler( WPropInt labelsWidth,
                      WPropDouble timePos,
@@ -82,7 +89,10 @@ public:
                      boost::shared_ptr< WFlag< boost::shared_ptr< WEEGEvent > > > event,
                      osg::ref_ptr< WGEGroupNode > eventParentNode,
                      boost::shared_ptr< WEEG2 > eeg,
-                     std::size_t segmentID );
+                     std::size_t segmentID,
+                     WPropBool snapToDipole,
+                     WPropBool proofOfConcept,
+                     boost::shared_ptr< WDataSetDipoles > dipoles );
 
     /**
      * Handle events.
@@ -155,6 +165,21 @@ private:
      * number of the segment
      */
     std::size_t m_segmentID;
+
+    /**
+     * Property determining whether the selected time position should be snapped to an active dipole
+     */
+    WPropBool m_snapToDipole;
+
+    /**
+     * Property determining whether we only show the proof of concept or the real dipoles
+     */
+    WPropBool m_proofOfConcept;
+
+    /**
+     * Pointer to the loaded dipoles dataset
+     */
+    boost::shared_ptr< WDataSetDipoles > m_dipoles;
 
     float m_oldX; //!< previous mouse x position
     float m_oldY; //!< previous mouse y position
