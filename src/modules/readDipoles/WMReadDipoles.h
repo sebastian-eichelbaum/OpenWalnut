@@ -124,12 +124,15 @@ private:
      * \param pos position of the dipole
      * \param times time values of the time steps
      * \param magnitudes magnitudes of the dipole at the different time steps.
-     * \return A pointer to the loaded dataset
+     * \param firstTimeStep First time where the magnitude is not 0
+     * \param lastTimeStep Last time where the magnitude is not 0
      */
     void readFile( std::string filename,
                    WPosition* pos,
                    std::vector< float >* times,
-                   std::vector< float >* magnitudes );
+                   std::vector< float >* magnitudes,
+                   size_t* firstTimeStep,
+                   size_t* lastTimeStep );
 
     /**
      * Function reading meta file with filenames of dipole files
