@@ -118,6 +118,11 @@ void WLogger::addStream( WLogStream::SharedPtr s )
     m_outputs.push_back( s );
 }
 
+void WLogger::removeStream( WLogStream::SharedPtr s )
+{
+    m_outputs.remove( s );
+}
+
 wlog::WStreamedLogger::Buffer::~Buffer()
 {
     WLogger::getLogger()->addLogMessage( m_logString.str(), m_source, m_level );
