@@ -110,9 +110,18 @@ void WScriptInterpreterLUA::initBindings()
     luabind::globals( m_lua )[ "logger" ] = &m_logger;
 }
 
-void WScriptInterpreterLUA::execute( std::string const& line )
+void WScriptInterpreterLUA::execute( std::string const& p_code )
 {
-    if( luaL_dostring( m_lua, line.c_str() ) != 0 )
+    std::string code( p_code );
+    // look for shebang
+    size_t shebangIndex = code.rfind( "#!" );
+    if ( shebangIndex == 0 && code.size() != 0 )
+    {
+        // comment out shebang line
+        code[0] = '-';
+        code[1] = '-';
+    }
+    if( luaL_dostring( m_lua, code.c_str() ) != 0 )
     {
         WLogger::getLogger()->addLogMessage( lua_tostring( m_lua, -1 ), "WScriptInterpreterLUA", LL_ERROR );
     }

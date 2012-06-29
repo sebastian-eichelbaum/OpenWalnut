@@ -63,7 +63,7 @@ public:
      *
      * \param line The code to execute.
      */
-    virtual void execute( std::string const& line );
+    virtual void execute( std::string const& p_code );
 
 private:
     //! The lua state.
