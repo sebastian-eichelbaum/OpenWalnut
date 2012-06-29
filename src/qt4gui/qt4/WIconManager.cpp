@@ -34,8 +34,6 @@
 
 void WIconManager::addIcon( std::string name, boost::filesystem::path filename )
 {
-    assert( ( m_iconList.count( name ) == 0 ) );
-
     QPixmap img;
     bool failed = !img.load( QString::fromStdString( filename.string() ) );
     if( failed )
@@ -49,9 +47,13 @@ void WIconManager::addIcon( std::string name, boost::filesystem::path filename )
 
 void WIconManager::addIcon( std::string name, const char* const xpm[] )
 {
-    assert( ( m_iconList.count( name ) == 0 ) );
-
     QIcon* icon = new QIcon( QPixmap( xpm ) );
+    m_iconList[name] = icon;
+}
+
+void WIconManager::addIcon( std::string name, const QPixmap& pixmap )
+{
+    QIcon* icon = new QIcon( QPixmap( pixmap ) );
     m_iconList[name] = icon;
 }
 
