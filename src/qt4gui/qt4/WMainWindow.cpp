@@ -174,7 +174,7 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "load" ), fileopen_xpm );
     m_iconManager.addIcon( std::string( "loadProject" ), projOpen_xpm );
     m_iconManager.addIcon( std::string( "saveProject" ), projSave_xpm );
-    m_iconManager.addIcon( std::string( "logo" ), openwalnut_32x32_xpm );
+    m_iconManager.addIcon( std::string( "logo" ), WPathHelper::getPathHelper()->getSharePath() / "pixmaps" / "openwalnut_32x32.png" );
     m_iconManager.addIcon( std::string( "help" ), question_xpm );
     m_iconManager.addIcon( std::string( "quit" ), quit_xpm );
     m_iconManager.addIcon( std::string( "moduleBusy" ), moduleBusy_xpm );

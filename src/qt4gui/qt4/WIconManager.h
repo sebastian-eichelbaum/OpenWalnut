@@ -28,6 +28,8 @@
 #include <map>
 #include <string>
 
+#include <boost/filesystem/path.hpp>
+
 #include <QtGui/QIcon>
 
 /**
@@ -42,6 +44,16 @@ public:
      * \param xpm The icon itself in XPM format
      */
     void addIcon( std::string name, const char* const xpm[] );
+
+    /**
+     * Adds an Icon to the icon store. Use this to load an icon from a file.
+     *
+     * \throw WFileNotFound if file could not be loaded or found.
+     *
+     * \param name The icon's name
+     * \param filename The path to the file.
+     */
+    void addIcon( std::string name, boost::filesystem::path filename );
 
     /**
      * Searches icons in the internal map and all modules for the given icon name.

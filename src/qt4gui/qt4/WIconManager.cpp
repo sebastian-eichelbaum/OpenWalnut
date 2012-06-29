@@ -25,9 +25,27 @@
 #include <cassert>
 #include <string>
 
+#include <QtGui/QPixmap>
+
 #include "core/common/WAssert.h"
+#include "core/common/exceptions/WFileNotFound.h"
 #include "core/kernel/WModuleFactory.h"
 #include "WIconManager.h"
+
+void WIconManager::addIcon( std::string name, boost::filesystem::path filename )
+{
+    assert( ( m_iconList.count( name ) == 0 ) );
+
+    QPixmap img;
+    bool failed = !img.load( QString::fromStdString( filename.string() ) );
+    if( failed )
+    {
+        throw WFileNotFound( "Image file for icon in \"" + filename.string() + "\" could not be loaded." );
+    }
+
+    QIcon* icon = new QIcon( img );
+    m_iconList[name] = icon;
+}
 
 void WIconManager::addIcon( std::string name, const char* const xpm[] )
 {
