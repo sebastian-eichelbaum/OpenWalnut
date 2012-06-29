@@ -28,6 +28,7 @@
 
 #include "../../kernel/WKernel.h"
 
+#include "../wrappers/WLoggerWrapper.h"
 #include "../wrappers/WModuleWrapper.h"
 #include "../wrappers/WPropertyGroupWrapper.h"
 #include "../wrappers/WPropertyWrapper.h"
@@ -99,6 +100,14 @@ void WScriptInterpreterLUA::initBindings()
     // this allows access to the modules via this global
     m_rootContainer = WModuleContainerWrapper( WKernel::getRunningKernel()->getRootContainer() );
     luabind::globals( m_lua )[ "rootContainer" ] = &m_rootContainer;
+
+    luabind::module( m_lua )[ luabind::class_< WLoggerWrapper >( "WLogger" )
+                              .def( "addFileStream", &WLoggerWrapper::addFileStream )
+                              .def( "removeFileStream", &WLoggerWrapper::removeFileStream )
+                              .def( "removeAllFileStreams", &WLoggerWrapper::removeAllFileStreams ) ];
+
+    m_logger = WLoggerWrapper( WLogger::getLogger() );
+    luabind::globals( m_lua )[ "logger" ] = &m_logger;
 }
 
 void WScriptInterpreterLUA::execute( std::string const& line )
