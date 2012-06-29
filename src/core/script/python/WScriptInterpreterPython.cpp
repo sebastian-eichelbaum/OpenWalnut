@@ -26,6 +26,7 @@
 
 #include "../../kernel/WKernel.h"
 
+#include "../wrappers/WLoggerWrapper.h"
 #include "../wrappers/WModuleWrapper.h"
 #include "../wrappers/WPropertyGroupWrapper.h"
 #include "../wrappers/WPropertyWrapper.h"
@@ -104,6 +105,14 @@ void WScriptInterpreterPython::initBindings()
     // this allows access to the modules via this variable
     m_rootContainer = WModuleContainerWrapper( WKernel::getRunningKernel()->getRootContainer() );
     m_pyMainNamespace[ "rootContainer" ] = &m_rootContainer;
+
+    m_pyMainNamespace[ "logger" ]  = pb::class_< WLoggerWrapper >( "WLogger", pb::no_init )
+                                     .def( "addFileStream", &WLoggerWrapper::addFileStream )
+                                     .def( "removeFileStream", &WLoggerWrapper::removeFileStream )
+                                     .def( "removeAllFileStreams", &WLoggerWrapper::removeAllFileStreams );
+
+    m_logger = WLoggerWrapper( WLogger::getLogger() );
+    m_pyMainNamespace[ "logger" ] = &m_logger;
 }
 
 void WScriptInterpreterPython::execute( std::string const& line )

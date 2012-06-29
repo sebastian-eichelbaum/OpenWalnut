@@ -29,6 +29,7 @@
 
 #include <boost/python.hpp>
 
+#include "../wrappers/WLoggerWrapper.h"
 #include "../wrappers/WModuleContainerWrapper.h"
 
 #include "../WScriptInterpreter.h"
@@ -74,6 +75,9 @@ private:
 
     //! A pointer to the kernel's root container. We can use this to manipulate modules.
     WModuleContainerWrapper m_rootContainer;
+
+    //! The logger.
+    WLoggerWrapper m_logger;
 };
 
 #endif  // WSCRIPTINTERPRETERPYTHON_H
