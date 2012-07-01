@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMMARCHINGCUBES_H
-#define WMMARCHINGCUBES_H
+#ifndef WMISOSURFACE_H
+#define WMISOSURFACE_H
 
 #include <map>
 #include <string>
@@ -47,23 +47,23 @@
  * given on regular grids with axis-aligned cells.
  * \ingroup modules
  */
-class WMMarchingCubes : public WModule
+class WMIsosurface : public WModule
 {
 /**
  * Only UnitTests may be friends.
  */
-friend class WMMarchingCubesTest;
+friend class WMIsosurfaceTest;
 
 public:
     /**
      * Standard constructor.
      */
-    WMMarchingCubes();
+    WMIsosurface();
 
     /**
      * Destructor.
      */
-    ~WMMarchingCubes();
+    ~WMIsosurface();
 
     /**
      * Gives back the name of this module.
@@ -162,4 +162,4 @@ private:
     osg::ref_ptr< osg::Geode > m_surfaceGeode; //!< Pointer to geode containing the surface.
 };
 
-#endif  // WMMARCHINGCUBES_H
+#endif  // WMISOSURFACE_H

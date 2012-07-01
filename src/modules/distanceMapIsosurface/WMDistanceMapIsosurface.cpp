@@ -71,18 +71,18 @@ const char** WMDistanceMapIsosurface::getXPMIcon() const
 void WMDistanceMapIsosurface::moduleMain()
 {
     //////////////////////////////////////////////////////////////////////////////////
-    // Marching Cubes
+    // Isosurface
     //////////////////////////////////////////////////////////////////////////////////
 
     // create an instance using the prototypes
-    m_marchingCubesModule = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Isosurface" ) );
+    m_isosurfaceModule = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Isosurface" ) );
 
-    // add the marching cubes to the container
-    add( m_marchingCubesModule );
+    // add the isosurface to the container
+    add( m_isosurfaceModule );
 
     // now wait for it to be ready
-    m_marchingCubesModule->isReady().wait();
-    boost::shared_ptr< WProperties >  mcProps = m_marchingCubesModule->getProperties();
+    m_isosurfaceModule->isReady().wait();
+    boost::shared_ptr< WProperties >  mcProps = m_isosurfaceModule->getProperties();
     m_isoValueProp = mcProps->getProperty( "Iso value" )->toPropDouble();
     m_isoValueProp->set( 0.2 );
     m_isoValueProp->setMin( 0.0 );
@@ -120,9 +120,9 @@ void WMDistanceMapIsosurface::moduleMain()
 
     // NOTE: you can use the WModuleContainer::applyModule functions here, which, in this case, is possible, since the connectors
     // can be connected unambiguously (one to one connection). But to show how hard wiring works, we do it manually here.
-    m_marchingCubesModule->getInputConnector( "values" )->connect( m_distanceMapModule->getOutputConnector( "out" ) );
+    m_isosurfaceModule->getInputConnector( "values" )->connect( m_distanceMapModule->getOutputConnector( "out" ) );
     // this is the same as doing it the other way around.
-    // m_distanceMapModule->getOutputConnector( "out" )->connect( m_marchingCubesModule->getInputConnector( "values" ) );
+    // m_distanceMapModule->getOutputConnector( "out" )->connect( m_isosurfaceModule->getInputConnector( "values" ) );
     // simple, isn't it? ;-)
 
     //////////////////////////////////////////////////////////////////////////////////
@@ -182,6 +182,6 @@ void WMDistanceMapIsosurface::requirements()
 
 void WMDistanceMapIsosurface::activate()
 {
-    m_marchingCubesModule->getProperties()->getProperty( "active" )->toPropBool()->set( m_active->get() );
+    m_isosurfaceModule->getProperties()->getProperty( "active" )->toPropBool()->set( m_active->get() );
 }
 
