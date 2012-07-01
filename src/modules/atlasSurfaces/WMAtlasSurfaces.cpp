@@ -253,7 +253,7 @@ void WMAtlasSurfaces::createSurfaces()
         case W_DT_FLOAT:
         case W_DT_DOUBLE:
         default:
-            WAssert( false, "Unknown data type in MarchingCubes module" );
+            WAssert( false, "Unknown data type in AtlasSurfaces module" );
     }
 
     WThreadedFunction< WThreadedJobs<WDataSetScalar, size_t> >threadPool( 4, job );
