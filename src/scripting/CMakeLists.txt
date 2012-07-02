@@ -36,23 +36,71 @@ SET( LibName ${OW_LIB_OPENWALNUTSCRIPT} )
 FIND_PACKAGE( PythonLibs REQUIRED )
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS} )
 
+# these lists contain the compile files if the appropriate interpreter was found
+SET( INTERPRETER_CPP_FILES )
+SET( INTERPRETER_H_FILES )
+
+# the libs to link against
+SET( INTERPRETER_LINK_LIBRARIES )
+                        
+# Python found?
+IF( PYTHONLIBS_FOUND )
+    ADD_DEFINITIONS( -DPYTHON_FOUND )
+
+    # also get all compile  files 
+    FILE( GLOB PYTHON_CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/python/*.cpp )
+    FILE( GLOB PYTHON_H_FILES   ${CMAKE_CURRENT_SOURCE_DIR}/python/*.h )
+
+    # extend the information about available interpreters
+    SET( INTERPRETER_CPP_FILES ${INTERPRETER_CPP_FILES} ${PYTHON_CPP_FILES} )
+    SET( INTERPRETER_H_FILES ${INTERPRETER_H_FILES} ${PYTHON_H_FILES} )
+    SET( INTERPRETER_LINK_LIBRARIES ${INTERPRETER_LINK_LIBRARIES} ${PYTHON_LIBRARIES} )
+ENDIF()
+
 # Lua
 FIND_PACKAGE( Lua51 REQUIRED )
 INCLUDE_DIRECTORIES( ${LUA_INCLUDE_DIR} )
 FIND_PACKAGE( Luabind REQUIRED )
 INCLUDE_DIRECTORIES( ${LUABIND_INCLUDE_DIR} )
 
+# Lua found?
+IF( LUABIND_FOUND AND LUA51_FOUND )
+    ADD_DEFINITIONS( -DLUA_FOUND )
+
+    # also get all compile  files 
+    FILE( GLOB LUA_CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/lua/*.cpp )
+    FILE( GLOB LUA_H_FILES   ${CMAKE_CURRENT_SOURCE_DIR}/lua/*.h )
+
+    # extend the information about available interpreters
+    SET( INTERPRETER_CPP_FILES ${INTERPRETER_CPP_FILES} ${LUA_CPP_FILES} )
+    SET( INTERPRETER_H_FILES ${INTERPRETER_H_FILES} ${LUA_H_FILES} )
+    SET( INTERPRETER_LINK_LIBRARIES ${INTERPRETER_LINK_LIBRARIES} ${LUA_LIBRARIES} ${LUABIND_LIBRARIES} )
+ENDIF()
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Add sources as target
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Collect the compile-files for this target
-COLLECT_COMPILE_FILES( "${CMAKE_CURRENT_SOURCE_DIR}" TARGET_CPP_FILES TARGET_H_FILES TARGET_TEST_FILES )
+
+# NOTE: we do not use COLLECT_COMPILE_FILES as this searches recursively. W do it the old style
+# COLLECT_COMPILE_FILES( "${CMAKE_CURRENT_SOURCE_DIR}" TARGET_CPP_FILES TARGET_H_FILES TARGET_TEST_FILES )
+
+# Search common compile files:
+FILE( GLOB CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp )
+FILE( GLOB H_FILES   ${CMAKE_CURRENT_SOURCE_DIR}/*.h )
+FILE( GLOB WRAPPER_CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/wrappers/*.cpp )
+FILE( GLOB WRAPPER_H_FILES   ${CMAKE_CURRENT_SOURCE_DIR}/wrappers/*.h )
+
+# Add the interpreter sources. Please note that these variables are empty if the interpreters where not found
+SET( TARGET_CPP_FILES ${CPP_FILES} ${WRAPPER_CPP_FILES} ${INTERPRETER_CPP_FILES} )
+SET( TARGET_H_FILES ${H_FILES} ${WRAPPER_H_FILES} ${INTERPRETER_H_FILES} )
 
 # Setup the target
 ADD_LIBRARY( ${LibName} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${OW_VERSION_HEADER} )
 TARGET_LINK_LIBRARIES( ${LibName} ${OW_LIB_OPENWALNUT}
-                       ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} ${LUA_LIBRARIES} ${LUABIND_LIBRARIES}
+                       ${Boost_LIBRARIES}
+                       ${INTERPRETER_LINK_LIBRARIES}                      
                      )
 
 # Tell CMake that someone creates this file for us. See doc of SETUP_VERSION_HEADER for details why this is needed.
@@ -99,5 +147,5 @@ SETUP_TESTS( "${TARGET_TEST_FILES}" "${LibName}" "" )
 
 # setup the stylechecker. Ignore the platform specific stuff.
 SETUP_STYLECHECKER( "${LibName}"
-                    "${TARGET_CPP_FILES};${TARGET_H_FILES};${TARGET_TEST_FILES};${TARGET_GLSL_FILES}"  # add all these files to the stylechecker
+                    "${TARGET_CPP_FILES};${TARGET_H_FILES};${TARGET_TEST_FILES}"  # add all these files to the stylechecker
                     "" )                                        # exlude some ugly files
