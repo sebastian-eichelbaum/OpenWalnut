@@ -106,7 +106,7 @@ void WScriptInterpreterPython::initBindings()
     m_rootContainer = WModuleContainerWrapper( WKernel::getRunningKernel()->getRootContainer() );
     m_pyMainNamespace[ "rootContainer" ] = &m_rootContainer;
 
-    m_pyMainNamespace[ "logger" ]  = pb::class_< WLoggerWrapper >( "WLogger", pb::no_init )
+    m_pyMainNamespace[ "WLogger" ]  = pb::class_< WLoggerWrapper >( "WLogger", pb::no_init )
                                      .def( "addFileStream", &WLoggerWrapper::addFileStream )
                                      .def( "removeFileStream", &WLoggerWrapper::removeFileStream )
                                      .def( "removeAllFileStreams", &WLoggerWrapper::removeAllFileStreams );
