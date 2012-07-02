@@ -26,6 +26,7 @@
 #define WLOGGERWRAPPER_H
 
 #include <string>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/tuple/tuple.hpp>
@@ -42,12 +43,22 @@
  */
 class WLoggerWrapper
 {
-    struct fileStreamEntry
+    /**
+     * A helper class for storing information about file streams that we added to
+     * the logger.
+     */
+    struct FileStreamEntry
     {
+        //! The name of the log file.
         std::string m_filename;
+
+        //! The actual stream.
         boost::shared_ptr< std::ofstream > m_fileStream;
+
+        //! The logstream instance.
         WLogStream::SharedPtr m_WLogStream;
     };
+
 public:
     /**
      * Constructor. Creates an empty wrapper.
@@ -57,9 +68,10 @@ public:
     /**
      * Constructor.
      *
-     * \param module The actual module.
+     * \param logger A pointer to a logger instance.
      */
     explicit WLoggerWrapper( WLogger* logger );
+
     /**
      * Destructor.
      */
@@ -67,12 +79,19 @@ public:
 
     /**
      * Add a file to which the logger output will be written.
+     *
+     * \param filename The name of the file to write logging stuff into.
+     *
+     * \return true, if a stream to that file could be created and added successfully.
      */
     bool addFileStream( std::string filename );
 
-
     /**
      * Remove a file to which the logger writes.
+     *
+     * \param filename The name of the file to remove.
+     *
+     * \return true, if a stream to that file existed and was removed successfully.
      */
     bool removeFileStream( std::string filename );
 
@@ -81,16 +100,19 @@ public:
      */
     void removeAllFileStreams();
 
-
 private:
-    //! Helper function that removes the file stream with the given index
+    /**
+     * Helper function that removes the file stream with the given index.
+     *
+     * \param i The index of the stream to remove.
+     */
     void removeFileStreamNumber( size_t i );
 
     //! A pointer to the logger.
     WLogger* m_logger;
 
-    //! list of file streams
-    std::vector< fileStreamEntry > m_fileStreamList;
+    //! List of file streams.
+    std::vector< FileStreamEntry > m_fileStreamList;
 };
 
-#endif  // WMODULEWRAPPER_H
+#endif  // WLOGGERWRAPPER_H

@@ -61,7 +61,7 @@ public:
     /**
      * Execute some LUA code.
      *
-     * \param line The code to execute.
+     * \param p_code The code to execute.
      */
     virtual void execute( std::string const& p_code );
 

@@ -56,11 +56,11 @@ void WLoggerWrapper::removeFileStreamNumber( size_t i )
 bool WLoggerWrapper::addFileStream( std::string filename )
 {
     boost::shared_ptr< std::ofstream > fileStream( new std::ofstream( filename.c_str() ) );
-    if ( !fileStream )
+    if( !fileStream )
     {
         return false;
     }
-    fileStreamEntry newEntry;
+    FileStreamEntry newEntry;
     newEntry.m_filename = filename;
     newEntry.m_fileStream = fileStream;
     newEntry.m_WLogStream = WLogStream::SharedPtr( new WLogStream( *fileStream ) );
@@ -71,9 +71,9 @@ bool WLoggerWrapper::addFileStream( std::string filename )
 
 bool WLoggerWrapper::removeFileStream( std::string filename )
 {
-    for ( size_t i = 0; i < m_fileStreamList.size(); ++i )
+    for( size_t i = 0; i < m_fileStreamList.size(); ++i )
     {
-        if ( filename == m_fileStreamList[ i ].m_filename )
+        if( filename == m_fileStreamList[ i ].m_filename )
         {
             removeFileStreamNumber( i );
             return true;
@@ -84,7 +84,7 @@ bool WLoggerWrapper::removeFileStream( std::string filename )
 
 void WLoggerWrapper::removeAllFileStreams()
 {
-    for ( size_t i = 0; i < m_fileStreamList.size(); ++i )
+    for( size_t i = 0; i < m_fileStreamList.size(); ++i )
     {
         removeFileStreamNumber( i );
     }

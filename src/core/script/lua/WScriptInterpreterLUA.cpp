@@ -115,7 +115,7 @@ void WScriptInterpreterLUA::execute( std::string const& p_code )
     std::string code( p_code );
     // look for shebang
     size_t shebangIndex = code.rfind( "#!" );
-    if ( shebangIndex == 0 && code.size() != 0 )
+    if( shebangIndex == 0 && code.size() != 0 )
     {
         // comment out shebang line
         code[0] = '-';
