@@ -254,7 +254,7 @@ void WMArbitraryROIs::createCutDataset()
             break;
         }
         default:
-            WAssert( false, "Unknown data type in MarchingCubes module" );
+            WAssert( false, "Unknown data type in ArbitraryROIs module" );
     }
     m_newValueSet = boost::shared_ptr< WValueSet< float > >( new WValueSet< float >( order, vDim, data, W_DT_FLOAT ) );
     WMarchingLegoAlgorithm mlAlgo;

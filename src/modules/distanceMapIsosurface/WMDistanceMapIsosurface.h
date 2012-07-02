@@ -34,7 +34,7 @@
 #include "core/kernel/WModuleOutputForwardData.h"
 
 /**
- * Computes a distance map from an anatomy dataset and renders it as isosurface. It is a composition of marching cubes and the
+ * Computes a distance map from an anatomy dataset and renders it as isosurface. It is a composition of isosurface and the
  * distance map module.
  * \ingroup modules
  */
@@ -100,7 +100,7 @@ private:
     boost::shared_ptr< WModuleInputForwardData< WDataSetScalar > > m_input;  //!< Input connector required by this module.
     boost::shared_ptr< WModuleOutputForwardData< WDataSetScalar > > m_output; //!< Connector to provide the distance map to other modules.
 
-    boost::shared_ptr< WModule > m_marchingCubesModule; //!< The marching cubes module used in this container.
+    boost::shared_ptr< WModule > m_isosurfaceModule; //!< The isosurface module used in this container.
     boost::shared_ptr< WModule > m_distanceMapModule; //!< The distance map module used in this container.
 };
 

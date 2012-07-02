@@ -28,6 +28,8 @@
 #include <map>
 #include <string>
 
+#include <boost/filesystem/path.hpp>
+
 #include <QtGui/QIcon>
 
 /**
@@ -37,11 +39,35 @@ class WIconManager
 {
 public:
     /**
-     * Adds an Icon to the icon store
+     * Adds an Icon to the icon store.
+     *
+     * \note This method replaces icons with the same name.
+     *
      * \param name The icon's name
      * \param xpm The icon itself in XPM format
      */
     void addIcon( std::string name, const char* const xpm[] );
+
+    /**
+     * Adds an Icon to the icon store. Use this to load an icon from a file.
+     *
+     * \throw WFileNotFound if file could not be loaded or found.
+     * \note This method replaces icons with the same name.
+     *
+     * \param name The icon's name
+     * \param filename The path to the file.
+     */
+    void addIcon( std::string name, boost::filesystem::path filename );
+
+    /**
+     * Adds an Icon to the icon store. Use this to add some arbitrary pixmap.
+     *
+     * \note This method replaces icons with the same name.
+     *
+     * \param name The icon's name
+     * \param pixmap the pixmap to add.
+     */
+    void addIcon( std::string name, const QPixmap& pixmap );
 
     /**
      * Searches icons in the internal map and all modules for the given icon name.

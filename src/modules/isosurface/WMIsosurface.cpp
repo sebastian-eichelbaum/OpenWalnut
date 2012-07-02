@@ -56,13 +56,13 @@
 #include "core/graphicsEngine/WGEUtils.h"
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WSelectionManager.h"
-#include "WMMarchingCubes.h"
-#include "WMMarchingCubes.xpm"
+#include "WMIsosurface.h"
+#include "WMIsosurface.xpm"
 
 // This line is needed by the module loader to actually find your module.
-W_LOADABLE_MODULE( WMMarchingCubes )
+W_LOADABLE_MODULE( WMIsosurface )
 
-WMMarchingCubes::WMMarchingCubes():
+WMIsosurface::WMIsosurface():
     WModule(),
     m_recompute( boost::shared_ptr< WCondition >( new WCondition() ) ),
     m_dataSet(),
@@ -73,28 +73,28 @@ WMMarchingCubes::WMMarchingCubes():
     // Implement WModule::initializeConnectors instead.
 }
 
-WMMarchingCubes::~WMMarchingCubes()
+WMIsosurface::~WMIsosurface()
 {
     // cleanup
     removeConnectors();
 }
 
-boost::shared_ptr< WModule > WMMarchingCubes::factory() const
+boost::shared_ptr< WModule > WMIsosurface::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMMarchingCubes() );
+    return boost::shared_ptr< WModule >( new WMIsosurface() );
 }
 
-const char** WMMarchingCubes::getXPMIcon() const
+const char** WMIsosurface::getXPMIcon() const
 {
     return iso_surface_xpm;
 }
 
-const std::string WMMarchingCubes::getName() const
+const std::string WMIsosurface::getName() const
 {
     return "Isosurface";
 }
 
-const std::string WMMarchingCubes::getDescription() const
+const std::string WMIsosurface::getDescription() const
 {
     return "This module implements the marching cubes"
 " algorithm with a consistent triangulation. It allows to compute isosurfaces"
@@ -102,7 +102,7 @@ const std::string WMMarchingCubes::getDescription() const
 " the surface as triangle soup.";
 }
 
-void WMMarchingCubes::moduleMain()
+void WMIsosurface::moduleMain()
 {
     // use the m_input "data changed" flag
     m_moduleState.setResetable( true, true );
@@ -180,7 +180,7 @@ void WMMarchingCubes::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getScene()->remove( m_moduleNode );
 }
 
-void WMMarchingCubes::connectors()
+void WMIsosurface::connectors()
 {
     // initialize connectors
     m_input = boost::shared_ptr< WModuleInputData < WDataSetScalar > >(
@@ -200,7 +200,7 @@ void WMMarchingCubes::connectors()
     WModule::connectors();
 }
 
-void WMMarchingCubes::properties()
+void WMIsosurface::properties()
 {
     m_nbTriangles = m_infoProperties->addProperty( "Triangles", "The number of triangles in the produced mesh.", 0 );
     m_nbTriangles->setMax( std::numeric_limits< int >::max() );
@@ -326,7 +326,7 @@ namespace
     }
 }  // namespace
 
-void WMMarchingCubes::generateSurfacePre( double isoValue )
+void WMIsosurface::generateSurfacePre( double isoValue )
 {
     debugLog() << "Isovalue: " << isoValue;
     WAssert( ( *m_dataSet ).getValueSet()->order() == 0, "This module only works on scalars." );
@@ -362,7 +362,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
     }
 }
 
-void WMMarchingCubes::renderMesh()
+void WMIsosurface::renderMesh()
 {
     {
         // Remove the previous node in a thread safe way.
@@ -434,7 +434,7 @@ void WMMarchingCubes::renderMesh()
     // ------------------------------------------------
     // Shader stuff
 
-    osg::ref_ptr< WGEShader > shader = osg::ref_ptr< WGEShader >( new WGEShader( "WMMarchingCubes", m_localPath ) );
+    osg::ref_ptr< WGEShader > shader = osg::ref_ptr< WGEShader >( new WGEShader( "WMIsosurface", m_localPath ) );
     shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
         new WGEShaderPropertyDefineOptions< WPropBool >( m_useTextureProp, "COLORMAPPING_DISABLED", "COLORMAPPING_ENABLED" ) )
     );
@@ -451,10 +451,10 @@ void WMMarchingCubes::renderMesh()
         m_moduleNodeInserted = true;
     }
 
-    m_moduleNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMMarchingCubes::updateGraphicsCallback, this ) ) );
+    m_moduleNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMIsosurface::updateGraphicsCallback, this ) ) );
 }
 
-void WMMarchingCubes::updateGraphicsCallback()
+void WMIsosurface::updateGraphicsCallback()
 {
     boost::unique_lock< boost::shared_mutex > lock;
     lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );

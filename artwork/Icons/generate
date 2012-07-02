@@ -1,0 +1,16 @@
+#!/bin/sh
+
+echo "Creating miniaturized logos as icons"
+
+# NOTE: the thumbnail feature of ImageMagick scales the image to a quadratic size even if the input image is not
+# width=height.
+
+convert ../Logo/Logo.png -thumbnail '128x128>' \
+          -background transparent -gravity center -extent 128x128 openwalnut_128x128.png
+convert ../Logo/Logo.png -thumbnail '64x64>' \
+          -background transparent -gravity center -extent 64x64 openwalnut_64x64.png
+convert ../Logo/Logo.png -thumbnail '32x32>' \
+          -background transparent -gravity center -extent 32x32 openwalnut_32x32.png
+convert ../Logo/Logo.png -thumbnail '16x16>' \
+          -background transparent -gravity center -extent 16x16 openwalnut_16x16.png
+
