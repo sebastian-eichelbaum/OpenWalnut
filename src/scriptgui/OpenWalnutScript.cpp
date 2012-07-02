@@ -36,7 +36,7 @@
 #include "core/common/WThreadedRunner.h"
 #include "core/common/WSegmentationFault.h"
 #include "core/common/WPathHelper.h"
-#include "core/script/WScriptInterpreterFactory.h"
+#include "scripting/WScriptInterpreterFactory.h"
 
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WModuleFactory.h"
