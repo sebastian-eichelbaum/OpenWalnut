@@ -24,9 +24,9 @@
 
 #include <string>
 
-#include "../../common/WLogger.h"
+#include "core/common/WLogger.h"
 
-#include "../../kernel/WKernel.h"
+#include "core/kernel/WKernel.h"
 
 #include "../wrappers/WLoggerWrapper.h"
 #include "../wrappers/WModuleWrapper.h"

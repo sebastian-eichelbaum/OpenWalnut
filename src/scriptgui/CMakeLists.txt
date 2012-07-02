@@ -26,12 +26,14 @@
 # Some common setup
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-# Setup QT4
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# NOTE: to ensure a uniqze script gui name, add gui to the script lib name. This is used as target name in cmake and is NOT the name of the
+# binary.
+SET( LibName "${OW_LIB_OPENWALNUTSCRIPT}-gui" )
+# NOTE: ensure that this  name is uniqe. It must not match the scripting lib's name
+SET( BinaryName "openwalnut-script" )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-# GUI compilation options
+# Search additional dependencies
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -45,37 +47,43 @@ COLLECT_COMPILE_FILES( "${CMAKE_CURRENT_SOURCE_DIR}" TARGET_CPP_FILES TARGET_H_F
 INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 
 # Setup the target
-ADD_EXECUTABLE( openwalnut-script OpenWalnutScript.cpp ${OW_VERSION_HEADER} )
-
-# Some linux distributions need to explicitily link against X11. We add this lib here.
-IF( CMAKE_HOST_SYSTEM MATCHES "Linux" )
-    SET( ADDITIONAL_TARGET_LINK_LIBRARIES "X11" )
-ENDIF()
-TARGET_LINK_LIBRARIES( openwalnut-script ${OW_LIB_OPENWALNUT} ${QT_LIBS} ${Boost_LIBRARIES} ${ADDITIONAL_TARGET_LINK_LIBRARIES} )
+ADD_EXECUTABLE( ${BinaryName} OpenWalnutScript.cpp ${OW_VERSION_HEADER} )
+TARGET_LINK_LIBRARIES( ${BinaryName} ${OW_LIB_OPENWALNUT} ${OW_LIB_OPENWALNUTSCRIPT} ${Boost_LIBRARIES} )
 
 # Tell CMake that someone creates this file for us. See doc of SETUP_VERSION_HEADER for details why this is needed.
 # NOTE: this needs to be placed AFTER ADD_EXECUTABLE or ADD_LIBRARY
-SETUP_USE_VERSION_HEADER( openwalnut-script )
+SETUP_USE_VERSION_HEADER( ${BinaryName} )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Test Setup
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Setup tests of this target
-SETUP_TESTS( "${TARGET_TEST_FILES}" "openwalnut-script" "" )
+SETUP_TESTS( "${TARGET_TEST_FILES}" "${LibName}" "" )
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# Doxygen Release documentation
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# included in standard developer doc
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Copy local resources
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-# where to put doc files?
-SET( OW_DOC_DIR_RELATIVE "share/doc/openwalnut-script" )
+# no local resources yet
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# Copy Shaders
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# no shaders
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Style Checker
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # setup the stylechecker. Ignore the platform specific stuff.
-SETUP_STYLECHECKER( "openwalnut-script"
+SETUP_STYLECHECKER( "${LibName}"
                     "${TARGET_CPP_FILES};${TARGET_H_FILES};${TARGET_TEST_FILES};${TARGET_GLSL_FILES}"  # add all these files to the stylechecker
                     "" )                                                                               # exlude some ugly files

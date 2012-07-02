@@ -22,63 +22,68 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPROPERTYGROUPWRAPPER_H
-#define WPROPERTYGROUPWRAPPER_H
+#ifndef WMODULECONTAINERWRAPPER_H
+#define WMODULECONTAINERWRAPPER_H
 
 #include <string>
 
-#include "../../common/WPropertyGroup.h"
+#include <boost/shared_ptr.hpp>
 
-#include "WPropertyWrapper.h"
+#include "core/kernel/WModuleContainer.h"
+
+#include "WModuleWrapper.h"
 
 /**
- * \class WPropertyGroupWrapper
+ * \class WModuleContainerWrapper
  *
- * Encapsulates a property group.
+ * Encapsulates a module container. This class is exposed to scripts.
  */
-class WPropertyGroupWrapper
+class WModuleContainerWrapper
 {
 public:
     /**
+     * Constructor. Creates an empty wrapper.
+     */
+    WModuleContainerWrapper();
+
+    /**
      * Constructor.
      *
-     * \param group The group.
+     * \param mc The module container.
      */
-    explicit WPropertyGroupWrapper( boost::shared_ptr< WPropertyGroup > group );
+    explicit WModuleContainerWrapper( boost::shared_ptr< WModuleContainer > mc );
 
     /**
-     * Return the name of the property group.
-     *
-     * \return The name of the property group.
+     * Destructor.
      */
-    std::string getName() const;
+    ~WModuleContainerWrapper();
 
     /**
-     * Return the description of the property group.
+     * Creates a module from the prototype with the given name.
      *
-     * \return The description of the property group.
+     * \param name The name of the module prototype.
+     * \return The module.
      */
-    std::string getDescription() const;
+    WModuleWrapper create( std::string const& name );
 
     /**
-     * Retrieve a property by name.
+     * Creates a data module and load the file given via filename.
      *
-     * \param name The name of the property.
-     * \return The property with the given name.
+     * \param filename The name of the file to load.
+     * \return The module.
      */
-    WPropertyWrapper getProperty( std::string const& name );
+    WModuleWrapper createDataModule( std::string const& filename );
 
     /**
-     * Retrieve a property group by name.
+     * Remove a module from the container.
      *
-     * \param name The name of the group to look for.
-     * \return The property group with the given name.
+     * \param module The module to remove.
      */
-    WPropertyGroupWrapper getGroup( std::string const& name );
+    void remove( WModuleWrapper module );
 
 private:
-    //! The property group.
-    boost::shared_ptr< WPropertyGroup > m_group;
+    //! The module container.
+    boost::shared_ptr< WModuleContainer > m_mc;
 };
 
-#endif  // WPROPERTYGROUPWRAPPER_H
+#endif  // WMODULECONTAINERWRAPPER_H

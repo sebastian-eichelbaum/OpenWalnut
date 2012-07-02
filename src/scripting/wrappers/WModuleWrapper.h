@@ -29,7 +29,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../kernel/WModule.h"
+#include "core/kernel/WModule.h"
 
 #include "WPropertyGroupWrapper.h"
 #include "WInputConnectorWrapper.h"

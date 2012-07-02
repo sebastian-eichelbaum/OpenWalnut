@@ -24,8 +24,8 @@
 
 #include <string>
 
-#include "../../kernel/WModuleInputConnector.h"
-#include "../../kernel/WModuleOutputConnector.h"
+#include "core/kernel/WModuleInputConnector.h"
+#include "core/kernel/WModuleOutputConnector.h"
 
 #include "WModuleWrapper.h"
 

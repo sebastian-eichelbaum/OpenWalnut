@@ -26,9 +26,9 @@
 #include <fstream>
 #include <string>
 
-#include "../../common/WAssert.h"
-#include "../../common/WLogger.h"
-#include "../../common/WLogStream.h"
+#include "core/common/WAssert.h"
+#include "core/common/WLogger.h"
+#include "core/common/WLogStream.h"
 
 #include "WLoggerWrapper.h"
 

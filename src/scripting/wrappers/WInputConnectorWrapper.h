@@ -27,7 +27,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../kernel/WModuleInputConnector.h"
+#include "core/kernel/WModuleInputConnector.h"
 
 #include "WOutputConnectorWrapper.h"
 

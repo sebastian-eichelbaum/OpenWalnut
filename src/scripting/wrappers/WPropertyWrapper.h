@@ -29,7 +29,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/WPropertyBase.h"
+#include "core/common/WPropertyBase.h"
 
 /**
  * \class WPropertyWrapper

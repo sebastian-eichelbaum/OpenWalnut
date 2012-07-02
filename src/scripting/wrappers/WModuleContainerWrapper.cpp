@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include "../../kernel/WModuleFactory.h"
+#include "core/kernel/WModuleFactory.h"
 
 #include "WModuleContainerWrapper.h"
 

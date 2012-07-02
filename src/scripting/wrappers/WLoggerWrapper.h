@@ -32,8 +32,8 @@
 #include <boost/tuple/tuple.hpp>
 
 
-#include "../../common/WLogger.h"
-#include "../../common/WLogStream.h"
+#include "core/common/WLogger.h"
+#include "core/common/WLogStream.h"
 
 /**
  * \class WLoggerWrapper

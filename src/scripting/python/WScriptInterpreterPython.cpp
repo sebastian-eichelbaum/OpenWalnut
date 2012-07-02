@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include "../../kernel/WKernel.h"
+#include "core/kernel/WKernel.h"
 
 #include "../wrappers/WLoggerWrapper.h"
 #include "../wrappers/WModuleWrapper.h"
