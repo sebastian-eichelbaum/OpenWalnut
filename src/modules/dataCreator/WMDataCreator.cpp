@@ -28,6 +28,7 @@
 
 #include "WMDataCreatorScalar.h"
 #include "WMDataCreatorVector.h"
+#include "WMDataCreatorFibers.h"
 
 #include "WMDataCreator.h"
 
@@ -35,5 +36,6 @@ extern "C" void WLoadModule( WModuleList& m )  // NOLINT
 {
     m.push_back( boost::shared_ptr< WModule >( new WMDataCreatorScalar ) );
     m.push_back( boost::shared_ptr< WModule >( new WMDataCreatorVector ) );
+    m.push_back( boost::shared_ptr< WModule >( new WMDataCreatorFibers ) );
 }
 

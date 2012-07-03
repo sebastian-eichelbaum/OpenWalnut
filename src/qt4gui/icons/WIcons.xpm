@@ -28,7 +28,6 @@
 /**
  * This file is provided to allow to get access to all used icons by one include.
  */
-#include "../../../resources/qt4gui/share/pixmaps/openwalnut_32x32.xpm"
 #include "disc.xpm"
 #include "fileopen.xpm"
 #include "projOpen.xpm"

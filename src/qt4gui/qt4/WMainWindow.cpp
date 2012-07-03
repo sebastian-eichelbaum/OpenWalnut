@@ -174,7 +174,6 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "load" ), fileopen_xpm );
     m_iconManager.addIcon( std::string( "loadProject" ), projOpen_xpm );
     m_iconManager.addIcon( std::string( "saveProject" ), projSave_xpm );
-    m_iconManager.addIcon( std::string( "logo" ), openwalnut_32x32_xpm );
     m_iconManager.addIcon( std::string( "help" ), question_xpm );
     m_iconManager.addIcon( std::string( "quit" ), quit_xpm );
     m_iconManager.addIcon( std::string( "moduleBusy" ), moduleBusy_xpm );
@@ -188,6 +187,16 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "video" ), video_xpm );
     m_iconManager.addIcon( std::string( "image" ), image_xpm );
     m_iconManager.addIcon( std::string( "preferences" ), preferences_xpm );
+
+    try
+    {
+        m_iconManager.addIcon( std::string( "logo" ), WPathHelper::getPathHelper()->getSharePath() / ".." / "pixmaps" / "openwalnut.png" );
+    }
+    catch( const WException& e )
+    {
+        // ignore this. add a default pixmap
+        m_iconManager.addIcon( std::string( "logo" ), QPixmap() );
+    }
 
     if( objectName().isEmpty() )
     {

@@ -151,11 +151,29 @@ void WMAtlasSurfaces::moduleMain()
             if( m_labelFile->get( true ) == boost::filesystem::path( "" ) )
             {
                 std::string fn = m_dataSet->getFilename();
-                std::string ext( ".nii.gz" );
+
+                std::string ext( "" );
+                if( fn.find( ".nii.gz" ) != std::string::npos )
+                {
+                    ext = ".nii.gz";
+                }
+                else if( fn.find( ".nii" ) != std::string::npos )
+                {
+                    ext = ".nii";
+                }
+
                 std::string csvExt( ".csv" );
-                fn.replace( fn.find( ext ), ext.size(), csvExt );
+                if( ext != "" )
+                {
+                    //                    fn.replace( fn.find( ext ), ext.size(), csvExt );
+                }
+                else
+                {
+                    fn.append( csvExt );
+                }
                 m_labelFile->set( fn );
             }
+
             if( !boost::filesystem::exists( m_labelFile->get() ) )
             {
                 wlog::warn( "Atlas Surfaces" ) << "Expected label file does not exist! (" <<  m_labelFile->get().string() << ")";
@@ -225,13 +243,17 @@ void WMAtlasSurfaces::createSurfaces()
                     new WCreateSurfaceJob<unsigned char>( m_dataSet, m_regionMeshes2, newProgress, pro ) );
             break;
         case W_DT_INT16:
+            job = boost::shared_ptr<WCreateSurfaceJob<int16_t> >(
+                    new WCreateSurfaceJob<int16_t>( m_dataSet, m_regionMeshes2, newProgress, pro ) );
             break;
         case W_DT_SIGNED_INT:
+            job = boost::shared_ptr<WCreateSurfaceJob<int> >(
+                    new WCreateSurfaceJob<int>( m_dataSet, m_regionMeshes2, newProgress, pro ) );
             break;
         case W_DT_FLOAT:
         case W_DT_DOUBLE:
         default:
-            WAssert( false, "Unknown data type in MarchingCubes module" );
+            WAssert( false, "Unknown data type in AtlasSurfaces module" );
     }
 
     WThreadedFunction< WThreadedJobs<WDataSetScalar, size_t> >threadPool( 4, job );

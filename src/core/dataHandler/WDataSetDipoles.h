@@ -49,8 +49,11 @@ public:
      * \param dipPos Spatial location of the dipole
      * \param mags Magnitudes of dipole over time
      * \param times Times for the dipole activity
+     * \param firstTimeStep First time where the magnitude is not 0
+     * \param lastTimeStep Last time where the magnitude is not 0
      */
-    explicit WDataSetDipoles( WPosition dipPos, std::vector<float> mags, std::vector<float> times );
+    explicit WDataSetDipoles( WPosition dipPos, std::vector<float> mags, std::vector<float> times,
+                              size_t firstTimeStep, size_t lastTimeStep );
 
     /**
      * Destructs this dataset.
@@ -70,10 +73,13 @@ public:
      * \param dipPos Spatial location of the dipole
      * \param mags Magnitudes of dipole over time
      * \param times Times for the dipole activity
+     * \param firstTimeStep First time where the magnitude is not 0
+     * \param lastTimeStep Last time where the magnitude is not 0
      *
      * \return Id of the added dipole.
      */
-    size_t addDipole( WPosition dipPos, std::vector<float> mags, std::vector<float> times );
+    size_t addDipole( WPosition dipPos, std::vector<float> mags, std::vector<float> times,
+                      size_t firstTimeStep, size_t lastTimeStep );
 
     /**
      * Return position of dipole.
@@ -93,11 +99,50 @@ public:
     float getMagnitude( float time, size_t dipoleId = 0 );
 
     /**
+     * Return first time where the magnitude is not 0.
+     *
+     * \param dipoleId Id number of dipole
+     * \return First time where the magnitude is not 0.
+     */
+    float getStartTime( size_t dipoleId = 0u ) const;
+
+    /**
+     * Return last time where the magnitude is not 0.
+     *
+     * \param dipoleId Id number of dipole
+     * \return Last time where the magnitude is not 0.
+     */
+    float getEndTime( size_t dipoleId = 0u ) const;
+
+    /**
+     * Return the times where the magnitude is not 0.
+     *
+     * \param dipoleId Id number of dipole
+     * \return Times where the magnitude is not 0.
+     */
+    std::vector<float> getTimes( size_t dipoleId = 0u ) const;
+
+    /**
+     * Return the magnitudes where the magnitude is not 0.
+     *
+     * \param dipoleId Id number of dipole
+     * \return Magnitudes where the magnitude is not 0.
+     */
+    std::vector<float> getMagnitudes( size_t dipoleId = 0u ) const;
+
+    /**
      * Return number of dipoles in this dataset
      *
      * \return number of dipoles in this dataset.
      */
     size_t getNumberOfDipoles();
+
+    /**
+     * Return the biggest magnitude of all dipoles.
+     *
+     * \return Biggest magnitude of all dipoles.
+     */
+    float getMaxMagnitude() const;
 
 protected:
     /**
@@ -115,9 +160,12 @@ private:
         WPosition m_dipolePosition; //!< The location of the dipole
         std::vector<float> m_magnitudes; //!< The magnitude of the dipole
         std::vector<float> m_times; //!< Times for the different magnitudes
+        size_t m_firstTimeStep; //!< First time where the magnitude is not 0
+        size_t m_lastTimeStep; //!< Last time where the magnitude is not 0
     };
 
     std::vector< Dipole > m_dipoles; //!< List of dipoles representeing this dipoles dataset
+    float m_maxMagnitude; //!< Biggest magnitude of all dipoles
 };
 
 #endif  // WDATASETDIPOLES_H

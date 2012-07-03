@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <list>
+#include <limits>
 #include <map>
 #include <string>
 #include <vector>
@@ -150,6 +151,12 @@ void WMTriangleMeshRenderer::connectors()
 
 void WMTriangleMeshRenderer::properties()
 {
+    m_nbTriangles = m_infoProperties->addProperty( "Triangles", "The number of triangles in the mesh.", 0 );
+    m_nbTriangles->setMax( std::numeric_limits< int >::max() );
+
+    m_nbVertices = m_infoProperties->addProperty( "Vertices", "The number of vertices in the mesh.", 0 );
+    m_nbVertices->setMax( std::numeric_limits< int >::max() );
+
     // some properties need to trigger an update
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
@@ -190,15 +197,15 @@ void WMTriangleMeshRenderer::properties()
 
     m_scaleX = m_groupTransformation->addProperty( "Scale X", "Scaling X of surface.", 1.0 );
     m_scaleX->setMin( -10.0 );
-    m_scaleX->setMax( 10.0 );
+    m_scaleX->setMax( 100.0 );
 
     m_scaleY = m_groupTransformation->addProperty( "Scale Y", "Scaling Y of surface.", 1.0 );
     m_scaleY->setMin( -10.0 );
-    m_scaleY->setMax( 10.0 );
+    m_scaleY->setMax( 100.0 );
 
     m_scaleZ = m_groupTransformation->addProperty( "Scale Z", "Scaling Z of surface.", 1.0 );
     m_scaleZ->setMin( -10.0 );
-    m_scaleZ->setMax( 10.0 );
+    m_scaleZ->setMax( 100.0 );
 
     //Rotating
     m_rotateX = m_groupTransformation->addProperty( "Rotate X", "Rotate X in °", 0.0 );
@@ -280,9 +287,9 @@ void WMTriangleMeshRenderer::moduleMain()
     m_moduleNode->addUpdateCallback( transformationCallback );
 
     // load the GLSL shader:
-    osg::ref_ptr< WGEShader > shader( new WGEShader( "WMTriangleMeshRenderer", m_localPath ) );
+    m_shader = new WGEShader( "WMTriangleMeshRenderer", m_localPath );
     m_colorMapTransformation = new osg::Uniform( "u_colorMapTransformation", osg::Matrixd::identity() );
-    shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+    m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
         new WGEShaderPropertyDefineOptions< WPropBool >( m_colormap, "COLORMAPPING_DISABLED", "COLORMAPPING_ENABLED" ) )
     );
 
@@ -306,118 +313,125 @@ void WMTriangleMeshRenderer::moduleMain()
 
         // Get data and check for invalid data.
         boost::shared_ptr< WTriangleMesh > mesh = m_meshInput->getData();
-        boost::shared_ptr< WColoredVertices > colorMap = m_colorMapInput->getData();
         if( !mesh )
         {
             debugLog() << "Invalid Data. Disabling.";
             continue;
         }
 
-          // prepare the geometry node
-        debugLog() << "Start rendering Mesh";
-        osg::ref_ptr< osg::Geometry > geometry;
-        osg::ref_ptr< osg::Geode > geode( new osg::Geode );
-        geode->getOrCreateStateSet()->addUniform( m_colorMapTransformation );
-        geode->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_colormapRatio", m_colormapRatio ) );
-
-        // apply shader only to mesh
-        shader->apply( geode );
-
-        // get the middle point of the mesh
-        std::vector< size_t >triangles = mesh->getTriangles();
-        std::vector< size_t >::const_iterator trianglesIterator;
-        double minX = wlimits::MAX_DOUBLE;
-        double minY = wlimits::MAX_DOUBLE;
-        double minZ = wlimits::MAX_DOUBLE;
-
-        double maxX = wlimits::MIN_DOUBLE;
-        double maxY = wlimits::MIN_DOUBLE;
-        double maxZ = wlimits::MIN_DOUBLE;
-
-        for( trianglesIterator = triangles.begin();
-                trianglesIterator != triangles.end();
-                trianglesIterator++ )
-        {
-            osg::Vec3d vectorX = mesh->getVertex( *trianglesIterator );
-            updateMinMax( minX, maxX, minY, maxY, minZ, maxZ, vectorX );
-        }
-
-        m_meshCenter = WVector3d( getIntervallCenterMiddle( minX, maxX ),
-                                  getIntervallCenterMiddle( minY, maxY ),
-                                  getIntervallCenterMiddle( minZ, maxZ ) );
-
-        // start rendering
-        boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Rendering", 3 ) );
-        m_progress->addSubProgress( progress );
-
-        if( m_mainComponentOnly->get( true ) )
-        {
-            // component decomposition
-            debugLog() << "Start mesh decomposition";
-            boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > m_components = tm_utils::componentDecomposition( *mesh );
-            mesh = *std::max_element( m_components->begin(), m_components->end(), WMeshSizeComp() );
-            debugLog() << "Decomposing mesh done";
-        }
-        ++*progress;
-
-        // now create the mesh but handle the color mode properly
-        if( m_showOutline->get( true ) )
-        {
-            geometry = wge::convertToOsgGeometryLines( mesh, m_color->get(), false );
-        }
-        else
-        {
-            WItemSelector s = m_colorMode->get( true );
-            if( s.getItemIndexOfSelected( 0 ) == 0 )
-            {
-                // use single color
-                geometry = wge::convertToOsgGeometry( mesh, m_color->get(), true, true, false );
-            }
-            else if( s.getItemIndexOfSelected( 0 ) == 1 )
-            {
-                // take color from mesh
-                geometry = wge::convertToOsgGeometry( mesh, m_color->get(), true, true, true );
-            }
-            else
-            {
-                // take color from map
-                if( colorMap )
-                {
-                    geometry = wge::convertToOsgGeometry( mesh, *colorMap, m_color->get(), true, true );
-                }
-                else
-                {
-                    warnLog() << "External colormap not connected. Using default color.";
-                    geometry = wge::convertToOsgGeometry( mesh, m_color->get(), true, true, false );
-                }
-            }
-        }
-        ++*progress;
-
-        WGEColormapping::apply( geode, shader );
-
-        // done. Set the new drawable
-        geode->addDrawable( geometry );
-        m_moduleNode->clear();
-        m_moduleNode->insert( geode );
-        if( m_showCoordinateSystem->get() )
-        {
-            m_moduleNode->insert(
-                wge::creatCoordinateSystem(
-                    m_meshCenter,
-                    maxX-minX,
-                    maxY-minY,
-                    maxZ-minZ
-                )
-             );
-        }
-        debugLog() << "Rendering Mesh done";
-        ++*progress;
-        progress->finish();
+        renderMesh( mesh );
     }
 
     // it is important to always remove the modules again
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
+}
+
+
+
+void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh )
+{
+    boost::shared_ptr< WColoredVertices > colorMap = m_colorMapInput->getData();
+
+    m_nbTriangles->set( mesh->triangleSize() );
+    m_nbVertices->set( mesh->vertSize() );
+
+    // prepare the geometry node
+    debugLog() << "Start rendering Mesh";
+    osg::ref_ptr< osg::Geometry > geometry;
+    osg::ref_ptr< osg::Geode > geode( new osg::Geode );
+    geode->getOrCreateStateSet()->addUniform( m_colorMapTransformation );
+    geode->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_colormapRatio", m_colormapRatio ) );
+
+    // apply shader only to mesh
+    m_shader->apply( geode );
+
+    // get the middle point of the mesh
+    std::vector< size_t >triangles = mesh->getTriangles();
+    std::vector< size_t >::const_iterator trianglesIterator;
+    double minX = wlimits::MAX_DOUBLE;
+    double minY = wlimits::MAX_DOUBLE;
+    double minZ = wlimits::MAX_DOUBLE;
+
+    double maxX = wlimits::MIN_DOUBLE;
+    double maxY = wlimits::MIN_DOUBLE;
+    double maxZ = wlimits::MIN_DOUBLE;
+
+    for( trianglesIterator = triangles.begin();
+         trianglesIterator != triangles.end();
+         trianglesIterator++ )
+    {
+        osg::Vec3d vectorX = mesh->getVertex( *trianglesIterator );
+        updateMinMax( minX, maxX, minY, maxY, minZ, maxZ, vectorX );
+    }
+
+    m_meshCenter = WVector3d( getIntervallCenterMiddle( minX, maxX ),
+                              getIntervallCenterMiddle( minY, maxY ),
+                              getIntervallCenterMiddle( minZ, maxZ ) );
+
+    // start rendering
+    boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Rendering", 3 ) );
+    m_progress->addSubProgress( progress );
+
+    if( m_mainComponentOnly->get( true ) )
+    {
+        // component decomposition
+        debugLog() << "Start mesh decomposition";
+        boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > m_components = tm_utils::componentDecomposition( *mesh );
+        mesh = *std::max_element( m_components->begin(), m_components->end(), WMeshSizeComp() );
+        debugLog() << "Decomposing mesh done";
+    }
+    ++*progress;
+
+    // now create the mesh but handle the color mode properly
+    if( m_showOutline->get( true ) )
+    {
+        geometry = wge::convertToOsgGeometryLines( mesh, m_color->get(), false );
+    }
+    else
+    {
+        WItemSelector colorModeSelector = m_colorMode->get( true );
+        if( colorModeSelector.getItemIndexOfSelected( 0 ) == 0 )
+        {
+            // use single color
+            geometry = wge::convertToOsgGeometry( mesh, m_color->get(), true, true, false );
+        }
+        else if( colorModeSelector.getItemIndexOfSelected( 0 ) == 1 )
+        {
+            // take color from mesh
+            geometry = wge::convertToOsgGeometry( mesh, m_color->get(), true, true, true );
+        }
+        else
+        {
+            // take color from map
+            if( colorMap )
+            {
+                geometry = wge::convertToOsgGeometry( mesh, *colorMap, m_color->get(), true, true );
+            }
+            else
+            {
+                warnLog() << "External colormap not connected. Using default color.";
+                geometry = wge::convertToOsgGeometry( mesh, m_color->get(), true, true, false );
+            }
+        }
+    }
+
+    WGEColormapping::apply( geode, m_shader );
+
+    // done. Set the new drawable
+    geode->addDrawable( geometry );
+    m_moduleNode->clear();
+    m_moduleNode->insert( geode );
+    if( m_showCoordinateSystem->get() )
+    {
+        m_moduleNode->insert( wge::creatCoordinateSystem( m_meshCenter,
+                                                          maxX-minX,
+                                                          maxY-minY,
+                                                          maxZ-minZ
+                                                          )
+                              );
+    }
+    debugLog() << "Rendering Mesh done";
+    progress->finish();
 }
 
 void WMTriangleMeshRenderer::updateTransformation()

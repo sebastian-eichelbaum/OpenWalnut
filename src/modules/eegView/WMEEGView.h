@@ -125,12 +125,12 @@ private:
     /**
      * Input connector for a EEG dataset
      */
-    boost::shared_ptr< WModuleInputData< WEEG2 > > m_input;
+    boost::shared_ptr< WModuleInputData< WEEG2 > > m_eeg_input;
 
     /**
      * Input connector for dipoles of EEG data
      */
-    boost::shared_ptr< WModuleInputData< WDataSetDipoles > > m_dipoles;
+    boost::shared_ptr< WModuleInputData< WDataSetDipoles > > m_dipoles_input;
 
     /**
      * A condition used to notify about changes in several properties.
@@ -166,6 +166,11 @@ private:
      * Property determining whether we only show the proof of concept or the real dipoles
      */
     WPropBool m_proofOfConcept;
+
+    /**
+     * Property determining whether the selected time position should be snapped to an active dipole
+     */
+    WPropBool m_snapToDipole;
 
     /**
      * Property switching between standard and butterfly plot of curves (overlay of all curves in one row)
@@ -228,6 +233,11 @@ private:
      * Pointer to the loaded EEG dataset
      */
     boost::shared_ptr< WEEG2 > m_eeg;
+
+    /**
+     * Pointer to the loaded dipoles dataset
+     */
+    boost::shared_ptr< WDataSetDipoles > m_dipoles;
 
     /**
      * Custom widget which is used by this module to display its data.

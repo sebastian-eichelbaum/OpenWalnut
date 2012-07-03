@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -141,7 +142,8 @@ boost::shared_ptr< WDataSetDipoles > WMReadDipoles::readMetaData( std::string fi
     return readFiles( names );
 }
 
-void WMReadDipoles::readFile( std::string filename, WPosition* pos, std::vector< float >* times, std::vector< float >* magnitudes )
+void WMReadDipoles::readFile( std::string filename, WPosition* pos, std::vector< float >* times, std::vector< float >* magnitudes,
+                              size_t* firstTimeStep, size_t* lastTimeStep )
 {
     std::ifstream ifs;
     ifs.open( filename.c_str(), std::ifstream::in );
@@ -180,6 +182,20 @@ void WMReadDipoles::readFile( std::string filename, WPosition* pos, std::vector<
     }
     WAssert( std::abs( (*times)[nbTimeSteps-1] - timeLast ) < 1e-4, "Error during filling times vector." );
 
+    while( line.find( "FirstTimeStep" ) )
+    {
+       std::getline( ifs, line, '\n' );
+    }
+    tokens = string_utils::tokenize( line );
+    *firstTimeStep = std::max( string_utils::fromString< size_t >( tokens[1].c_str() ) - 1u, size_t( 0u ) );
+
+    while( line.find( "LastTimeStep" ) )
+    {
+       std::getline( ifs, line, '\n' );
+    }
+    tokens = string_utils::tokenize( line );
+    *lastTimeStep = std::min( string_utils::fromString< size_t >( tokens[1].c_str() ) + 1u, nbTimeSteps - 1u );
+
     while( line.find( "PositionsFixed" ) )
     {
        std::getline( ifs, line, '\n' );
@@ -211,14 +227,16 @@ boost::shared_ptr< WDataSetDipoles > WMReadDipoles::readFiles( std::vector< std:
     WPosition pos;
     std::vector< float > times;
     std::vector< float > magnitudes;
+    size_t firstTimeStep;
+    size_t lastTimeStep;
 
-    readFile( filenames[0], &pos, &times, &magnitudes );
-    boost::shared_ptr< WDataSetDipoles > loadedData( new WDataSetDipoles( pos, magnitudes, times ) );
+    readFile( filenames[0], &pos, &times, &magnitudes, &firstTimeStep, &lastTimeStep );
+    boost::shared_ptr< WDataSetDipoles > loadedData( new WDataSetDipoles( pos, magnitudes, times, firstTimeStep, lastTimeStep ) );
 
     for( size_t fileId = 1; fileId < filenames.size(); ++fileId )
     {
-        readFile( filenames[fileId], &pos, &times, &magnitudes );
-        loadedData->addDipole( pos, magnitudes, times );
+        readFile( filenames[fileId], &pos, &times, &magnitudes, &firstTimeStep, &lastTimeStep );
+        loadedData->addDipole( pos, magnitudes, times, firstTimeStep, lastTimeStep );
     }
 
     return loadedData;

@@ -35,35 +35,55 @@ class WTransferFunctionWidget;
  */
 class WTransferFunctionHistogram : public QGraphicsItem
 {
-    public:
-        /** type of the base class */
-        typedef QGraphicsItem BaseClass;
+public:
+    /** type of the base class */
+    typedef QGraphicsItem BaseClass;
 
-        /**
-         * default constructor
-         * \param parent the parent widget
-         */
-        explicit WTransferFunctionHistogram( WTransferFunctionWidget* parent = 0x0 );
+    /**
+     * Default constructor.
+     *
+     * \param parent the parent widget
+     */
+    explicit WTransferFunctionHistogram( WTransferFunctionWidget* parent = 0x0 );
 
-        /**
-         * default destructor
-         */
-        virtual ~WTransferFunctionHistogram();
+    /**
+     * Default destructor.
+     */
+    virtual ~WTransferFunctionHistogram();
 
-        /** \returns the bounding rectange */
-        QRectF boundingRect() const;
+    /**
+     * Get the bounding rect of the histogram.
+     *
+     * \returns the bounding rectangle
+     **/
+    QRectF boundingRect() const;
 
-        /**
-         * Paint a semi-transparent histogram on top of the transfer function but below the
-         * input handles.
-         *
-         * \param painter Painter that does the low-level painting of the histogram item
-         * \param option Style of the graphics histogram graphics item (currently not used in the function)
-         */
-        virtual void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget* );
+    /**
+     * Paint a semi-transparent histogram on top of the transfer function but below the
+     * input handles.
+     *
+     * \param painter Painter that does the low-level painting of the histogram item
+     * \param option Style of the graphics histogram graphics item (currently not used in the function)
+     */
+    virtual void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget* );
 
-        /** the histogram data */
-        std::vector< double > data;
+    /**
+     * Get histogram data.
+     *
+     * \return histogram data as double vector.
+     */
+    const std::vector< double >& getData() const;
+
+    /**
+     * Get histogram data.
+     *
+     * \return histogram data as double vector.
+     */
+    std::vector< double >& getData();
+
+private:
+    /** the histogram data */
+    std::vector< double > m_data;
 };
 
 #endif  // WTRANSFERFUNCTIONHISTOGRAM_H

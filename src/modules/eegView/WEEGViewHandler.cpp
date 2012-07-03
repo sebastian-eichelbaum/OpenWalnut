@@ -35,6 +35,7 @@
 #include "core/common/WFlag.h"
 #include "core/common/WPropertyTypes.h"
 #include "core/common/WPropertyVariable.h"
+#include "core/dataHandler/WDataSetDipoles.h"
 #include "core/dataHandler/WEEG2.h"
 #include "core/graphicsEngine/WGEGroupNode.h"
 #include "WEEGEvent.h"
@@ -52,7 +53,10 @@ WEEGViewHandler::WEEGViewHandler( WPropInt labelsWidth,
                                   boost::shared_ptr< WFlag< boost::shared_ptr< WEEGEvent > > > event,
                                   osg::ref_ptr< WGEGroupNode > eventParentNode,
                                   boost::shared_ptr< WEEG2 > eeg,
-                                  std::size_t segmentID )
+                                  std::size_t segmentID,
+                                  WPropBool snapToDipole,
+                                  WPropBool proofOfConcept,
+                                  boost::shared_ptr< WDataSetDipoles > dipoles )
     : m_labelsWidth( labelsWidth ),
       m_timePos( timePos ),
       m_timeRange( timeRange ),
@@ -64,7 +68,10 @@ WEEGViewHandler::WEEGViewHandler( WPropInt labelsWidth,
       m_event( event ),
       m_eventParentNode( eventParentNode ),
       m_eeg( eeg ),
-      m_segmentID( segmentID )
+      m_segmentID( segmentID ),
+      m_snapToDipole( snapToDipole ),
+      m_proofOfConcept( proofOfConcept ),
+      m_dipoles( dipoles )
 {
     WAssert( eventParentNode.valid(), "No Event Parent Node" );
     WAssert( eeg, "No EEG data" );
@@ -232,7 +239,10 @@ bool WEEGViewHandler::markEvent( float x )
                     m_yPos->get(),
                     m_eeg,
                     m_segmentID,
-                    m_eventParentNode ) );
+                    m_eventParentNode,
+                    m_snapToDipole->get(),
+                    m_proofOfConcept->get(),
+                    m_dipoles ) );
             m_event->set( event );
             handled = true;
         }

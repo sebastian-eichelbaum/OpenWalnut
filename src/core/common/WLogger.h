@@ -75,6 +75,13 @@ public:
     void addStream( WLogStream::SharedPtr s );
 
     /**
+     * Remove the given stream.
+     *
+     * \param s the stream to remove
+     */
+    void removeStream( WLogStream::SharedPtr s );
+
+    /**
      * Set the default format used for log entries.
      *
      * \param format the format string. See WLogEntry for details.

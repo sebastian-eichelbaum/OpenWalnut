@@ -1,5 +1,19 @@
 openwalnut (OWPACK_VERSION-1) unstable; urgency=low
 
+  * A lot of fixes and added functionality. 
+  * See http://www.openwalnut.org/versions/1
+
+ -- Sebastian Eichelbaum <eichelbaum@informatik.uni-leipzig.de>  Tue, 5 Jun 2012 15:38:32 +0200
+
+openwalnut (1.2.5-1.1) unstable; urgency=low
+
+  * Non maintainer upload.
+  * Fix build failure with GCC 4.7. Closes: #674343
+
+ -- Matthias Klose <doko@debian.org>  Wed, 30 May 2012 14:19:31 +0000
+
+openwalnut (1.2.5-1) unstable; urgency=low
+
   * Initial release (Closes: #613419)
 
  -- Sebastian Eichelbaum <eichelbaum@informatik.uni-leipzig.de>  Tue, 21 Jun 2011 10:26:54 +0200

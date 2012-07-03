@@ -22,33 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WROIBOX_TEST_H
-#define WROIBOX_TEST_H
+#include "WDataSetFibersCreatorInterface.h"
 
-#include <cxxtest/TestSuite.h>
-
-#include "../WROIBox.h"
-
-/**
- * Test for WROIBox
- */
-class WROIBoxTest : public CxxTest::TestSuite
+WDataSetFibersCreatorInterface::~WDataSetFibersCreatorInterface()
 {
-public:
-    /**
-     * I would like to test instantiation here, but WROIBox needs nearly a complete
-     * running GUI and GE with the "Main View" viewer. This seemed to much effort for
-     * this small test to me.
-     */
-    void testInstantiation( void )
-    {
-//         WPosition maxPos;
-//         WPosition minPos;
-//         WLogger logger;
-//         boost::shared_ptr< WGUI > gui = boost::shared_ptr< WGUI >( new WQt4Gui( 0, 0 ) );
-//         boost::shared_ptr< WGraphicsEngine > ge = boost::shared_ptr< WGraphicsEngine >( new WGraphicsEngine );
-//         TS_ASSERT_THROWS_NOTHING( WROIBox( minPos, maxPos ) );
-    }
-};
-
-#endif  // WROIBOX_TEST_H
+    // cleanup
+}

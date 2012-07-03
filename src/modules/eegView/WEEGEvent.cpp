@@ -24,6 +24,7 @@
 
 #include <cstddef>
 
+#include <limits>
 #include <sstream>
 #include <vector>
 
@@ -40,6 +41,7 @@
 
 #include "core/common/exceptions/WOutOfBounds.h"
 #include "core/common/WStringUtils.h"
+#include "core/dataHandler/WDataSetDipoles.h"
 #include "core/dataHandler/WEEG2.h"
 #include "core/dataHandler/WEEG2Segment.h"
 #include "core/dataHandler/WEEGValueMatrix.h"
@@ -51,14 +53,50 @@ WEEGEvent::WEEGEvent( double time,
                       double yPos,
                       boost::shared_ptr< WEEG2 > eeg,
                       std::size_t segmentID,
-                      osg::ref_ptr< WGEGroupNode > parentNode ) throw( WOutOfBounds )
+                      osg::ref_ptr< WGEGroupNode > parentNode,
+                      bool snapToDipole,
+                      bool proofOfConcept,
+                      boost::shared_ptr< WDataSetDipoles > dipoles ) throw( WOutOfBounds )
     : m_time( time ),
       m_parentNode( parentNode )
 {
     if( segmentID < eeg->getNumberOfSegments() )
     {
-        boost::shared_ptr< WEEG2Segment > segment = eeg->getSegment( segmentID );
+        // snap to dipole
+        if( snapToDipole && !proofOfConcept && dipoles.get() )
+        {
+            const double epsilon = 1e-4;
+            double error = std::numeric_limits<double>::infinity();
+            for( size_t dipoleId = 0u; dipoleId < dipoles->getNumberOfDipoles(); ++dipoleId )
+            {
+                if( time < dipoles->getStartTime( dipoleId ) )
+                {
+                    if( dipoles->getStartTime( dipoleId ) - time < error )
+                    {
+                        m_time = dipoles->getStartTime( dipoleId ) + epsilon;
+                        error = dipoles->getStartTime( dipoleId ) - time;
+                    }
+                }
+                else if( time > dipoles->getEndTime( dipoleId ) )
+                {
+                    if( time - dipoles->getEndTime( dipoleId ) < error )
+                    {
+                        m_time = dipoles->getEndTime( dipoleId ) - epsilon;
+                        error = time - dipoles->getEndTime( dipoleId );
+                    }
+                }
+                else
+                {
+                    m_time = time;
+                    // error = 0.0;
+                    break;
+                }
+            }
+        }
+
         const double sampleIDAsDouble = m_time * eeg->getSamplingRate();
+
+        boost::shared_ptr< WEEG2Segment > segment = eeg->getSegment( segmentID );
         if( 0.0 <= sampleIDAsDouble && sampleIDAsDouble < segment->getNumberOfSamples() - 1 )
         {
             // calculate value of each channel at the given time position using
@@ -81,8 +119,8 @@ WEEGEvent::WEEGEvent( double time,
 
                 osg::Vec3Array* vertices = new osg::Vec3Array();
                 vertices->reserve( 2 );
-                vertices->push_back( osg::Vec3( time, -1048576.0f, 0.0f ) );
-                vertices->push_back( osg::Vec3( time, 1024.0f, 0.0f ) );
+                vertices->push_back( osg::Vec3( m_time, -1048576.0f, 0.0f ) );
+                vertices->push_back( osg::Vec3( m_time, 1024.0f, 0.0f ) );
                 geometry->setVertexArray( vertices );
 
                 osg::Vec4Array* colors = new osg::Vec4Array;
@@ -94,8 +132,8 @@ WEEGEvent::WEEGEvent( double time,
 
                 // create text for the time label
                 osgText::Text* text = new osgText::Text;
-                text->setText( string_utils::toString( time ).c_str() );
-                text->setPosition( osg::Vec3( time, yPos + 10.0, 0.0 ) );
+                text->setText( string_utils::toString( m_time ).c_str() );
+                text->setPosition( osg::Vec3( m_time, yPos + 10.0, 0.0 ) );
                 text->setAlignment( osgText::Text::LEFT_CENTER );
                 text->setAxisAlignment( osgText::Text::SCREEN );
                 text->setCharacterSize( 12 );

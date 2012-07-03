@@ -30,18 +30,21 @@
 boost::shared_ptr< WPrototyped > WDataSetDipoles::m_prototype = boost::shared_ptr< WPrototyped >();
 
 
-WDataSetDipoles::WDataSetDipoles()
+WDataSetDipoles::WDataSetDipoles() :
+    m_maxMagnitude( 0.0f )
 {
 }
 
-WDataSetDipoles::WDataSetDipoles( WPosition dipPos, std::vector<float> mags, std::vector<float> times )
+WDataSetDipoles::WDataSetDipoles( WPosition dipPos, std::vector<float> mags, std::vector<float> times,
+                                  size_t firstTimeStep, size_t lastTimeStep ) :
+    m_maxMagnitude( 0.0f )
 {
     WAssert( mags.size() == times.size(), "There has to be a magnitude for every time and vice versa." );
     for( size_t id = 0; id < times.size() - 1; ++id )
     {
         WAssert( times[id] < times[id+1], "Times need to be ascending." );
     }
-    addDipole( dipPos, mags, times );
+    addDipole( dipPos, mags, times, firstTimeStep, lastTimeStep );
 }
 
 WDataSetDipoles::~WDataSetDipoles()
@@ -58,13 +61,25 @@ boost::shared_ptr< WPrototyped > WDataSetDipoles::getPrototype()
     return m_prototype;
 }
 
-size_t WDataSetDipoles::addDipole( WPosition dipPos, std::vector<float> mags, std::vector<float> times )
+size_t WDataSetDipoles::addDipole( WPosition dipPos, std::vector<float> mags, std::vector<float> times,
+                                   size_t firstTimeStep, size_t lastTimeStep )
 {
     Dipole dipole;
     dipole.m_dipolePosition = dipPos;
     dipole.m_magnitudes = mags;
     dipole.m_times = times;
+    dipole.m_firstTimeStep = firstTimeStep;
+    dipole.m_lastTimeStep = lastTimeStep;
     m_dipoles.push_back( dipole );
+
+    for( size_t id = 0u; id < mags.size(); ++id )
+    {
+        if( mags[id] > m_maxMagnitude )
+        {
+            m_maxMagnitude = mags[id];
+        }
+    }
+
     return m_dipoles.size() - 1;
 }
 
@@ -73,9 +88,40 @@ WPosition WDataSetDipoles::getPosition( size_t dipoleId )
     return m_dipoles[dipoleId].m_dipolePosition;
 }
 
+float WDataSetDipoles::getStartTime( size_t dipoleId ) const
+{
+    return m_dipoles[dipoleId].m_times[m_dipoles[dipoleId].m_firstTimeStep];
+}
+
+float WDataSetDipoles::getEndTime( size_t dipoleId ) const
+{
+    return m_dipoles[dipoleId].m_times[m_dipoles[dipoleId].m_lastTimeStep];
+}
+
+std::vector<float> WDataSetDipoles::getTimes( size_t dipoleId ) const
+{
+    const Dipole& dipole = m_dipoles[dipoleId];
+    const std::vector<float>::const_iterator& begin = dipole.m_times.begin();
+
+    return std::vector<float>( begin + dipole.m_firstTimeStep, begin + ( dipole.m_lastTimeStep + 1u ) );
+}
+
+std::vector<float> WDataSetDipoles::getMagnitudes( size_t dipoleId ) const
+{
+    const Dipole& dipole = m_dipoles[dipoleId];
+    const std::vector<float>::const_iterator& begin = dipole.m_magnitudes.begin();
+
+    return std::vector<float>( begin + dipole.m_firstTimeStep, begin + ( dipole.m_lastTimeStep + 1u ) );
+}
+
 size_t WDataSetDipoles::getNumberOfDipoles()
 {
     return m_dipoles.size();
+}
+
+float WDataSetDipoles::getMaxMagnitude() const
+{
+    return m_maxMagnitude;
 }
 
 float WDataSetDipoles::getMagnitude( float time, size_t dipoleId )
@@ -89,12 +135,11 @@ float WDataSetDipoles::getMagnitude( float time, size_t dipoleId )
     }
     else
     {
-        size_t upperBoundId;
-        for( size_t id = 0; id < times.size(); ++id )
+        size_t upperBoundId = 1u;
+        for( ; upperBoundId < times.size() - 1u; ++upperBoundId )
         {
-            if( time < times[id] )
+            if( time < times[upperBoundId] )
             {
-                upperBoundId = id - 1;
                 break;
             }
         }

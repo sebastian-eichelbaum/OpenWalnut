@@ -178,17 +178,24 @@ private:
 
     /**
      * A group wich contains all transformation tools.
-    */
+     */
     WPropGroup m_groupTransformation;
 
     /**
      * Set the transformation tool to default
-    */
+     */
     WPropTrigger  m_setDefault;
 
     /**
+     * Render the mesh
+     *
+     * \param mesh The mesh to be rendered.
+     */
+    void renderMesh( boost::shared_ptr< WTriangleMesh > mesh );
+
+    /**
      * Set the transformation tool to default
-    */
+     */
     void setToDefault();
 
     /**
@@ -271,6 +278,9 @@ private:
      */
     WPropSelection m_colorMode;
 
+    WPropInt m_nbTriangles; //!< Info-property showing the number of triangles in the mesh.
+    WPropInt m_nbVertices; //!< Info-property showing the number of vertices in the mesh.
+
     /**
      * Updates the transformation matrix of the main node. Called every frame.
      */
@@ -280,6 +290,11 @@ private:
      * The node containing all geometry nodes.
      */
     WGEManagedGroupNode::SPtr m_moduleNode;
+
+    /**
+     * The shader for the mesh
+     */
+    osg::ref_ptr< WGEShader > m_shader;
 };
 
 #endif  // WMTRIANGLEMESHRENDERER_H

@@ -39,115 +39,132 @@ class WTransferFunctionLine;
  */
 class WTransferFunctionPoint : public QGraphicsItem
 {
-    public:
-        /** type of the base class */
-        typedef QGraphicsItem BaseClass;
+public:
+    /** type of the base class */
+    typedef QGraphicsItem BaseClass;
 
-        /** default constructor
-         *
-         * \param parent pointer to parent widget
-         */
-        explicit WTransferFunctionPoint( WTransferFunctionWidget* parent = 0x0 );
+    /**
+     * Default constructor.
+     *
+     * \param parent pointer to parent widget
+     */
+    explicit WTransferFunctionPoint( WTransferFunctionWidget* parent = NULL );
 
-        /**
-         * default destructor
-         */
-        virtual ~WTransferFunctionPoint();
+    /**
+     * Default destructor.
+     */
+    virtual ~WTransferFunctionPoint();
 
-        /**
-         * set point to the left
-         * \param left new point to the left
-         */
-        void setLeft( WTransferFunctionPoint* left );
+    /**
+     * Set point to the left.
+     *
+     * \param left new point to the left
+     */
+    void setLeft( WTransferFunctionPoint* left );
 
-        /**
-         * get point to the left
-         * \returns point to the left
-         */
-        WTransferFunctionPoint *getLeft() const;
+    /**
+     * Get point to the left.
+     *
+     * \returns point to the left
+     */
+    WTransferFunctionPoint *getLeft() const;
 
-        /**
-         * set point to the right
-         * \param right new point to the right
-         */
-         void setRight( WTransferFunctionPoint* right );
+    /**
+     * Set point to the right.
+     *
+     * \param right new point to the right
+     */
+    void setRight( WTransferFunctionPoint* right );
 
-         /**
-         * get point to the right
-         * \returns point to the right
-         */
-         WTransferFunctionPoint *getRight() const;
+     /**
+     * Get point to the right.
+     *
+     * \returns point to the right
+     */
+    WTransferFunctionPoint *getRight() const;
 
-         /**
-          * set the line pointing to the right
-          * \param line the new line
-          */
-         void setLine( WTransferFunctionLine* line );
+     /**
+      * Set the line pointing to the right.
+      *
+      * \param line the new line
+      */
+    void setLine( WTransferFunctionLine* line );
 
-         /**
-          * \returns the line if any has been set (i.e., may be 0)
-          */
-         WTransferFunctionLine* getLine() const;
+     /**
+      * The current line if there is one. NULL if not.
+      *
+      * \returns the line if any has been set (i.e., may be 0)
+      */
+    WTransferFunctionLine* getLine() const;
 
-         /**
-          * get the bounding rectangle
-          * \returns the bounding rect of this object
-          */
-        QRectF boundingRect() const;
+     /**
+      * Get the bounding rectangle.
+      *
+      * \returns the bounding rect of this object
+      */
+    QRectF boundingRect() const;
 
-        /**
-         * paint the object
-         * \param painter the painter to use
-         * \param option the options for painting
-         */
-        virtual void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget* );
+    /**
+     * Paint the object.
+     *
+     * \param painter the painter to use
+     * \param option the options for painting
+     */
+    virtual void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget* );
 
-        //! overloaded form base class for debugging
-        //! \param point the point that should be set
-        virtual void setPos( QPointF point );
+    /**
+     * Overloaded form base class for debugging.
+     *
+     * \param point the point that should be set
+     */
+    virtual void setPos( QPointF point );
 
-    protected:
-        /**
-         * helper to itemChange
-         * \param pos position that is clamped to rectangle
-         * \param rectangle the rectangle
-         */
-        void clampToRectangle( QPointF* const pos, const QRectF& rectangle ) const;
+protected:
+    /**
+     * Helper to itemChange.
+     *
+     * \param pos position that is clamped to rectangle
+     * \param rectangle the rectangle
+     */
+    void clampToRectangle( QPointF* const pos, const QRectF& rectangle ) const;
 
-        /**
-         * helper to itemChange
-         * \param pos the position that is clamped between the left and right neighbors
-         */
-        void clampToLeftAndRight( QPointF* const pos ) const;
+    /**
+     * Helper to itemChange.
+     *
+     * \param pos the position that is clamped between the left and right neighbors
+     */
+    void clampToLeftAndRight( QPointF* const pos ) const;
 
-        /**
-         * handle item changes and change requests
-         * \param change the proposed change
-         * \param value the proposed value
-         * \returns the requested change
-         */
-        QVariant itemChange( GraphicsItemChange change, const QVariant &value );
+    /**
+     * Handle item changes and change requests.
+     *
+     * \param change the proposed change
+     * \param value the proposed value
+     * \returns the requested change
+     */
+    QVariant itemChange( GraphicsItemChange change, const QVariant &value );
 
-        /**
-         * handle mouse press events for selections and highlighting
-         * \param event the handled event
-         */
-        void mousePressEvent( QGraphicsSceneMouseEvent *event );
+    /**
+     * Handle mouse press events for selections and highlighting.
+     *
+     * \param event the handled event
+     */
+    void mousePressEvent( QGraphicsSceneMouseEvent *event );
 
-    private:
-        /** the radius of the object */
-        double radius;
+private:
+    /** the radius of the object */
+    double radius;
 
-        /** pointer to point to the left*/
-        WTransferFunctionPoint *left;
-        /** pointer to point to the right*/
-        WTransferFunctionPoint *right;
+    /** pointer to point to the left*/
+    WTransferFunctionPoint *left;
+    /** pointer to point to the right*/
+    WTransferFunctionPoint *right;
 
-        /** pointer to line to the right */
-        WTransferFunctionLine *line;
+    /** pointer to line to the right */
+    WTransferFunctionLine *line;
 
-        /** reference to the parent widget */
-        WTransferFunctionWidget* _parent;
+    /** reference to the parent widget */
+    WTransferFunctionWidget* _parent;
 };
 
 #endif  // WTRANSFERFUNCTIONPOINT_H
