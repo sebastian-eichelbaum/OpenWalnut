@@ -95,7 +95,6 @@ double WDataSetScalar::interpolate( const WPosition& pos, bool* success ) const
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
 
     WAssert( grid, "This data set has a grid whose type is not yet supported for interpolation." );
-    WAssert( grid->isNotRotated(), "Only feasible for grids that are only translated or scaled so far." );
     WAssert( ( m_valueSet->order() == 0 &&  m_valueSet->dimension() == 1 ),
              "Only implemented for scalar values so far." );
 
@@ -110,11 +109,11 @@ double WDataSetScalar::interpolate( const WPosition& pos, bool* success ) const
 
     WGridRegular3D::CellVertexArray vertexIds = grid->getCellVertexIds( cellId );
 
-    WPosition localPos = pos - grid->getPosition( vertexIds[0] );
+    WPosition localPos = grid->getTransform().positionToGridSpace( pos - grid->getPosition( vertexIds[0] ) );
 
-    double lambdaX = localPos[0] / grid->getOffsetX();
-    double lambdaY = localPos[1] / grid->getOffsetY();
-    double lambdaZ = localPos[2] / grid->getOffsetZ();
+    double lambdaX = localPos[0];
+    double lambdaY = localPos[1];
+    double lambdaZ = localPos[2];
     std::vector< double > h( 8 );
 //         lZ     lY
 //         |      /

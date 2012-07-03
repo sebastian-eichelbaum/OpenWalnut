@@ -722,13 +722,11 @@ inline WVector3i WGridRegular3D::getVoxelCoord( const WPosition& pos ) const
 
 inline size_t WGridRegular3D::getCellId( const WPosition& pos, bool* success ) const
 {
-    WAssert( isNotRotated(), "Only feasible for grids that are only translated or scaled so far." );
+    WPosition v = m_transform.positionToGridSpace( pos );
 
-    WPosition posRelativeToOrigin = pos - getOrigin();
-
-    double xCellId = floor( posRelativeToOrigin[0] / getOffsetX() );
-    double yCellId = floor( posRelativeToOrigin[1] / getOffsetY() );
-    double zCellId = floor( posRelativeToOrigin[2] / getOffsetZ() );
+    double xCellId = floor( v[0] );
+    double yCellId = floor( v[1] );
+    double zCellId = floor( v[2] );
 
     *success = xCellId >= 0 && yCellId >=0 && zCellId >= 0 && xCellId < m_nbPosX - 1 && yCellId < m_nbPosY -1 && zCellId < m_nbPosZ -1;
 
