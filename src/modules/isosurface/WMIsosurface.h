@@ -25,9 +25,7 @@
 #ifndef WMISOSURFACE_H
 #define WMISOSURFACE_H
 
-#include <map>
 #include <string>
-#include <vector>
 
 #include <osg/Node>
 #include <osg/Geode>
