@@ -33,8 +33,8 @@
 #include "WCrosshair.h"
 
 
-
-class WGridRegular3D;
+template< typename T>
+class WGridRegular3DTemplate;
 
 typedef enum
 {

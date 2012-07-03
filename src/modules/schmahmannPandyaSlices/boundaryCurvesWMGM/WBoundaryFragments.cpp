@@ -63,7 +63,7 @@ void WBoundaryFragments::run( osg::ref_ptr< WGEManagedGroupNode > output, const 
         ss->addUniform( u_gmColor );
         ss->addUniform( u_wmColor );
         ss->addUniform( new WGEPropertyUniform< WPropDouble >( "u_vertexShift", m_slicePos[i] ) );
-        ss->addUniform( new osg::Uniform( "u_vertexShiftDirection", static_cast< osg::Vec3f >( getDirections( grid )[i] ) ) );
+        ss->addUniform( new osg::Uniform( "u_vertexShiftDirection", static_cast< osg::Vec3f >( getDirections< double >( grid )[i] ) ) );
         output->insert( m_slices[i] );
     }
 }

@@ -198,8 +198,8 @@ void WMBoundaryCurvesWMGM::moduleMain()
 
             for( char i = 0; i < 3; ++i )
             {
-                m_slicePos[i]->setMax( getNbCoords( grid )[i] - 1 );
-                m_slicePos[i]->ensureValidity( ( getNbCoords( grid )[i] - 1 ) / 2, true );
+                m_slicePos[i]->setMax( getNbCoords< double >( grid )[i] - 1 );
+                m_slicePos[i]->ensureValidity( ( getNbCoords< double >( grid )[i] - 1 ) / 2, true );
                 m_slices[i] = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showSlice[i] ) );
             }
 

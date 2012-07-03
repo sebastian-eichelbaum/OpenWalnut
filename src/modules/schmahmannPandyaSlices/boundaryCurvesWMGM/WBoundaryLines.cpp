@@ -82,9 +82,9 @@ boost::shared_ptr< WGridRegular3D > WBoundaryLines::generateSliceGrid( const uns
     size_t x = otherDims[sliceNum].first;
     size_t y = otherDims[sliceNum].second;
 
-    boost::array< WVector3d, 3 > directions = getDirections( m_grid );
-    boost::array< unsigned int, 3 > numCoords = getNbCoords( m_grid );
-    boost::array< double, 3 > offsets = getOffsets( m_grid );
+    boost::array< WVector3d, 3 > directions = getDirections< double >( m_grid );
+    boost::array< unsigned int, 3 > numCoords = getNbCoords< double >( m_grid );
+    boost::array< double, 3 > offsets = getOffsets< double >( m_grid );
 
     double delta = 1e-3; // since the positions at the boundaries of the result must lie withing m_grid in order to get the interpolation working.
     size_t nbPosX = static_cast< size_t >( ( ( numCoords[x] - 1 ) * offsets[x] - delta ) / resolution );

@@ -79,12 +79,12 @@ public:
     {
         boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( 3, 3, 3 ) );
         boost::array< unsigned int, 3 > expectedNbCoords = { { 3, 3, 3 } }; // NOLINT curly braces
-        TS_ASSERT_EQUALS( expectedNbCoords, getNbCoords( grid ) );
+        TS_ASSERT_EQUALS( expectedNbCoords, getNbCoords< double >( grid ) );
         boost::array< double, 3 > expectedOffsets = { { 1.0, 1.0, 1.0 } }; // NOLINT curly braces
-        TS_ASSERT_EQUALS( expectedOffsets, getOffsets( grid ) );
+        TS_ASSERT_EQUALS( expectedOffsets, getOffsets< double >( grid ) );
         boost::array< WVector3d, 3 > expectedDirections = { { WVector3d( 1.0, 0.0, 0.0 ), WVector3d( 0.0, 1.0, 0.0 ), WVector3d( 0.0, 0.0, 1.0 ) } }; // NOLINT curly braces line length
-        TS_ASSERT_EQUALS( expectedDirections, getDirections( grid ) );
-        TS_ASSERT_EQUALS( expectedDirections, getUnitDirections( grid ) );
+        TS_ASSERT_EQUALS( expectedDirections, getDirections< double >( grid ) );
+        TS_ASSERT_EQUALS( expectedDirections, getUnitDirections< double >( grid ) );
     }
 
     /**
