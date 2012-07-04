@@ -195,32 +195,41 @@ ENDFUNCTION( SETUP_TESTS )
 # break the install targets
 # _Component the name of the install component
 FUNCTION( SETUP_SHADERS _Shaders _TargetDir _Component )
-    # only if we are allowed to
-    IF( OW_HANDLE_SHADERS )
-        EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E make_directory ${_TargetDir} )
+    EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E make_directory ${_TargetDir} )
 
-        # should we copy or link them?
-        SET( ShaderOperation "copy_if_different" )
-        IF ( OW_LINK_SHADERS ) # link
-             SET( ShaderOperation "create_symlink" )
-        ENDIF( OW_LINK_SHADERS )
+    # should we copy or link them?
+    SET( ShaderOperation "copy_if_different" )
+    IF ( OW_LINK_SHADERS ) # link
+         SET( ShaderOperation "create_symlink" )
+    ENDIF( OW_LINK_SHADERS )
 
-        # now do the operation for each shader into build dir
-        FOREACH( fname ${_Shaders} )
-            # We need the plain filename (create_symlink needs it)
-            STRING( REGEX REPLACE "^.*/" "" StrippedFileName "${fname}" )
+    # now do the operation for each shader into build dir
+    FOREACH( fname ${_Shaders} )
+        # We need the plain filename (create_symlink needs it)
+        STRING( REGEX REPLACE "^.*/" "" StrippedFileName "${fname}" )
 
-            # let cmake do it
-            EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E ${ShaderOperation} ${fname} "${PROJECT_BINARY_DIR}/${_TargetDir}/${StrippedFileName}" )
-        ENDFOREACH( fname )
+        # construct final filename
+        SET( targetFile "${PROJECT_BINARY_DIR}/${_TargetDir}/${StrippedFileName}" )
 
-        # now add install targets for each shader. All paths are relative to the current source dir.
-        FOREACH( fname ${_Shaders} )
-            INSTALL( FILES ${fname} DESTINATION ${_TargetDir} 
-                                    COMPONENT ${_Component}
-                   )
-        ENDFOREACH( fname )
-    ENDIF( OW_HANDLE_SHADERS )
+        # if the file already exists as non-symlink and we use the "create_symlink" command, we first need to remove the files
+        IF( NOT IS_SYMLINK ${targetFile} AND OW_LINK_SHADERS )
+            # before creating the symlink, remove the old files or cmake will not create the symlinks (as intended)
+            EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E remove -f ${targetFile} )
+        ELSEIF( IS_SYMLINK ${targetFile} AND NOT OW_LINK_SHADERS )
+            # also handle the inverse case. The files exist as symlinks but copies should be used. Remove symlinks!
+            EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E remove -f ${targetFile} )
+        ENDIF()
+
+        # let cmake do it
+        EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E ${ShaderOperation} ${fname} ${targetFile} )
+    ENDFOREACH( fname )
+
+    # now add install targets for each shader. All paths are relative to the current source dir.
+    FOREACH( fname ${_Shaders} )
+        INSTALL( FILES ${fname} DESTINATION ${_TargetDir} 
+                                COMPONENT ${_Component}
+               )
+    ENDFOREACH( fname )
 ENDFUNCTION( SETUP_SHADERS )
 
 # Sets up the stylecheck mechanism. Use this to add your codes to the stylecheck mechanism.
