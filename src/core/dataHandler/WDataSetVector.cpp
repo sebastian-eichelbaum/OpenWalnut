@@ -91,7 +91,6 @@ namespace
         boost::shared_ptr< const WGridRegular3D > grid = boost::shared_dynamic_cast< const WGridRegular3D >( i_grid );
 
         WAssert( grid,  "This data set has a grid whose type is not yet supported for interpolation." );
-        WAssert( grid->isNotRotated(), "Only feasible for grids that are only translated or scaled so far." );
         WAssert( ( i_valueSet->order() == 1 &&  i_valueSet->dimension() == 3 ),
                 "Only implemented for 3D Vectors so far." );
         boost::array< double, 8 > h;
@@ -108,11 +107,11 @@ namespace
 
         *vertexIds = grid->getCellVertexIds( cellId );
 
-        WPosition localPos = pos - grid->getPosition( ( *vertexIds )[0] );
+        WPosition localPos = grid->getTransform().positionToGridSpace( pos - grid->getPosition( ( *vertexIds )[0] ) );
 
-        double lambdaX = localPos[0] / grid->getOffsetX();
-        double lambdaY = localPos[1] / grid->getOffsetY();
-        double lambdaZ = localPos[2] / grid->getOffsetZ();
+        double lambdaX = localPos[0];
+        double lambdaY = localPos[1];
+        double lambdaZ = localPos[2];
 
         //         lZ     lY
         //         |      /
