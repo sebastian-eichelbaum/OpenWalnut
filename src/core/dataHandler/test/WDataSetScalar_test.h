@@ -86,6 +86,55 @@ public:
         TS_ASSERT_DELTA( ds.interpolate( WPosition( 0.5, 0.5, 0.5 ), &success ), 10.5, 1e-9 );
         TS_ASSERT( success );
     }
+
+    /**
+     * Test if the interpolate function works also for rotated grids reasonable.
+     */
+    void testInterpolateInRotatedGrid( void )
+    {
+        // rotation around z with 45 degrees
+        WMatrix< double > mat( 4, 4 );
+        mat.makeIdentity();
+        mat( 0, 0 ) =  1.0 / sqrt( 2.0 );
+        mat( 0, 1 ) =  1.0 / sqrt( 2.0 );
+        mat( 1, 0 ) = -1.0 / sqrt( 2.0 );
+        mat( 1, 1 ) =  1.0 / sqrt( 2.0 );
+
+        WGridTransformOrtho v( mat );
+
+        boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( 5, 3, 3, v ) );
+        boost::shared_ptr< std::vector< double > > data = boost::shared_ptr< std::vector< double > >( new std::vector< double >( grid->size() ) );
+        for( size_t i = 0; i < grid->size(); ++i )
+        {
+            ( *data )[i] = i;
+        }
+        boost::shared_ptr< WValueSet< double > > valueSet( new WValueSet< double >( 0, 1, data, W_DT_DOUBLE ) );
+        WDataSetScalar ds( valueSet, grid );
+
+        bool success = false;
+
+        TS_ASSERT_EQUALS( ds.interpolate( WPosition::zero(), &success ), ( *data )[0] );
+        TS_ASSERT( success );
+        TS_ASSERT_DELTA( ds.interpolate( grid->getTransform().positionToWorldSpace( WPosition( 1, 0, 0 ) ), &success ), ( *data )[1], 1e-9 );
+        TS_ASSERT( success );
+        TS_ASSERT_DELTA( ds.interpolate( grid->getTransform().positionToWorldSpace( WPosition( 0, 1, 0 ) ), &success ), ( *data )[5], 1e-9 );
+        TS_ASSERT( success );
+        TS_ASSERT_DELTA( ds.interpolate( grid->getTransform().positionToWorldSpace( WPosition( 1, 1, 0 ) ), &success ), ( *data )[6], 1e-9 );
+        TS_ASSERT( success );
+        TS_ASSERT_DELTA( ds.interpolate( grid->getTransform().positionToWorldSpace( WPosition( 0, 0, 1 ) ), &success ), ( *data )[15], 1e-9 );
+        TS_ASSERT( success );
+        TS_ASSERT_DELTA( ds.interpolate( grid->getTransform().positionToWorldSpace( WPosition( 1, 0, 1 ) ), &success ), ( *data )[16], 1e-9 );
+        TS_ASSERT( success );
+        TS_ASSERT_DELTA( ds.interpolate( grid->getTransform().positionToWorldSpace( WPosition( 0, 1, 1 ) ), &success ), ( *data )[20], 1e-9 );
+        TS_ASSERT( success );
+        TS_ASSERT_DELTA( ds.interpolate( grid->getTransform().positionToWorldSpace( WPosition( 1, 1, 1 ) ), &success ), ( *data )[21], 1e-9 );
+        TS_ASSERT( success );
+
+        TS_ASSERT_DELTA( ds.interpolate( grid->getTransform().positionToWorldSpace( WPosition( 0.3, 0.4, 0.5 ) ), &success ), 9.8, 1e-9 );
+        TS_ASSERT( success );
+        TS_ASSERT_DELTA( ds.interpolate( grid->getTransform().positionToWorldSpace( WPosition( 0.5, 0.5, 0.5 ) ), &success ), 10.5, 1e-9 );
+        TS_ASSERT( success );
+    }
 };
 
 #endif  // WDATASETSCALAR_TEST_H

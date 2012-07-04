@@ -35,9 +35,11 @@
 #include "core/common/WProperties.h"
 #include "core/common/WPropertyTypes.h"
 
+// forward declarations
 class WDataSetScalar;
 class WGEGroupNode;
-class WGridRegular3D;
+template< typename T >
+class WGridRegular3DTemplate;
 
 /**
  * This Builder is used to generate views of probabilistic tractograms ala Schmahmann and Pandya.
@@ -128,7 +130,7 @@ protected:
     /**
      * The grid of the first tractogram. It is assumed that all given probablilisitc tractograms operate on the same grid.
      */
-    boost::shared_ptr< const WGridRegular3D > m_grid;
+    boost::shared_ptr< const WGridRegular3DTemplate< double > > m_grid;
 
     /**
      * Hold the current position of each slice given from the properties

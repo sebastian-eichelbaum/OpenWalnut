@@ -25,6 +25,8 @@
 #ifndef WGRIDREGULAR3D_H
 #define WGRIDREGULAR3D_H
 
+#include <cmath>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -34,11 +36,15 @@
 #include <osg/Matrix>
 #include <osg/Vec3>
 
+#include "../common/exceptions/WOutOfBounds.h"
+#include "../common/exceptions/WPreconditionNotMet.h"
+#include "../common/math/WLinearAlgebraFunctions.h"
 #include "../common/math/WMatrix.h"
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../common/WBoundingBox.h"
 #include "../common/WCondition.h"
 #include "../common/WDefines.h"
+#include "../common/WProperties.h"
 
 #include "WGrid.h"
 #include "WGridTransformOrtho.h"
@@ -51,27 +57,39 @@
  * \warning Positions on the upper bounddaries in x, y and z are considered outside the grid.
  * \ingroup dataHandler
  */
-class WGridRegular3D : public WGrid // NOLINT
+template< typename T >
+class WGridRegular3DTemplate : public WGrid // NOLINT
 {
+    // this (friend) is necessary to allow casting
+    template <class U>
+    friend class WGridRegular3DTemplate;
     /**
      * Only test are allowed as friends.
      */
     friend class WGridRegular3DTest;
 public:
+    typedef WMatrixFixed< T, 3, 1 > Vector3Type;
     /**
-     * Convenience typedef for a boost::shared_ptr< WGridRegular3D >.
+     * Convenience typedef for a boost::shared_ptr< WGridRegular3DTemplate >.
      */
-    typedef boost::shared_ptr< WGridRegular3D > SPtr;
+    typedef boost::shared_ptr< WGridRegular3DTemplate > SPtr;
 
     /**
-     * Convenience typedef for a boost::shared_ptr< const WGridRegular3D >.
+     * Convenience typedef for a boost::shared_ptr< const WGridRegular3DTemplate >.
      */
-    typedef boost::shared_ptr< const WGridRegular3D > ConstSPtr;
+    typedef boost::shared_ptr< const WGridRegular3DTemplate > ConstSPtr;
 
     /**
      * Convenience typedef for a boost::array< size_t, 8 >. Return type of getCellVertexIds.
      */
     typedef boost::array< size_t, 8 > CellVertexArray;
+
+    /**
+     * Copy constructor.
+     * Copies the data from an WGridRegular3DTemplate object with arbitary numerical type.
+     */
+    template< typename InputType >
+    WGridRegular3DTemplate( WGridRegular3DTemplate< InputType > const& rhs ); // NOLINT -- no explicit, this allows casts
 
     /**
      * Defines the number of samples in each coordinate direction as ints,
@@ -82,8 +100,8 @@ public:
      * \param nbPosZ number of positions along third axis
      * \param transform a grid transformation
      */
-    WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
-                    WGridTransformOrtho const transform = WGridTransformOrtho() );
+    WGridRegular3DTemplate( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
+                            WGridTransformOrthoTemplate< T > const transform = WGridTransformOrthoTemplate< T >() );
 
     /**
      * Returns the number of samples in x direction.
@@ -107,19 +125,19 @@ public:
      * Returns the distance between samples in x direction.
      * \return The distance between samples in x direction.
      */
-    double getOffsetX() const;
+    T getOffsetX() const;
 
     /**
      * Returns the distance between samples in y direction.
      * \return The distance between samples in y direction.
      */
-    double getOffsetY() const;
+    T getOffsetY() const;
 
     /**
      * Returns the distance between samples in z direction.
      * \return The distance between samples in z direction.
      */
-    double getOffsetZ() const;
+    T getOffsetZ() const;
 
     /**
      * Returns the vector determining the direction of samples in x direction.
@@ -127,7 +145,7 @@ public:
      * along the grids (world coordinate) x-axis.
      * \return The vector determining the direction of samples in x direction.
      */
-    WVector3d getDirectionX() const;
+    Vector3Type getDirectionX() const;
 
     /**
      * Returns the vector determining the direction of samples in y direction.
@@ -135,7 +153,7 @@ public:
      * along the grids (world coordinate) y-axis.
      * \return The vector determining the direction of samples in y direction.
      */
-    WVector3d getDirectionY() const;
+    Vector3Type getDirectionY() const;
 
     /**
      * Returns the vector determining the direction of samples in z direction.
@@ -143,37 +161,37 @@ public:
      * along the grids (world coordinate) z-axis.
      * \return The vector determining the direction of samples in z direction.
      */
-    WVector3d getDirectionZ() const;
+    Vector3Type getDirectionZ() const;
 
     /**
      * Returns the vector determining the unit (normalized) direction of samples in x direction.
      * \return The vector determining the unit (normalized) direction of samples in x direction.
      */
-    WVector3d getUnitDirectionX() const;
+    Vector3Type getUnitDirectionX() const;
 
     /**
      * Returns the vector determining the unit (normalized) direction of samples in y direction.
      * \return The vector determining the unit (normalized) direction of samples in y direction.
      */
-    WVector3d getUnitDirectionY() const;
+    Vector3Type getUnitDirectionY() const;
 
     /**
      * Returns the vector determining the unit (normalized) direction of samples in z direction.
      * \return The vector determining the unit (normalized) direction of samples in z direction.
      */
-    WVector3d getUnitDirectionZ() const;
+    Vector3Type getUnitDirectionZ() const;
 
     /**
      * Returns the position of the origin of the grid.
      * \return The position of the origin of the grid.
      */
-    WPosition getOrigin() const;
+    Vector3Type getOrigin() const;
 
     /**
      * Returns a 4x4 matrix that represents the grid's transformation.
      * \return The grid's transformation.
      */
-    WMatrix< double > getTransformationMatrix() const;
+    WMatrix< T > getTransformationMatrix() const;
 
     /**
      * \copybrief WGrid::getBoundingBox()
@@ -186,7 +204,7 @@ public:
      * \param i id of position to be obtained
      * \return i-th position of the grid.
      */
-    WPosition getPosition( unsigned int i ) const;
+    Vector3Type getPosition( unsigned int i ) const;
 
     /**
      * Returns the position that is the iX-th in x direction, the iY-th in
@@ -196,14 +214,14 @@ public:
      * \param iZ id along third axis of position to be obtained
      * \return Position (iX,iY,iZ)
      */
-    WPosition getPosition( unsigned int iX, unsigned int iY, unsigned int iZ ) const;
+    Vector3Type getPosition( unsigned int iX, unsigned int iY, unsigned int iZ ) const;
 
     /**
      * Transforms world coordinates to texture coordinates.
      * \param point The point with these coordinates will be transformed.
      * \return point transformed into texture coordinate system
      */
-    WVector3d worldCoordToTexCoord( WPosition point );
+    Vector3Type worldCoordToTexCoord( Vector3Type point );
 
     /**
      * Returns the i'th voxel where the given position belongs too.
@@ -239,7 +257,7 @@ public:
      * \return Voxel number or -1 if the position refers to a point outside of
      * the grid.
      */
-    int getVoxelNum( const WPosition& pos ) const;
+    int getVoxelNum( const Vector3Type& pos ) const;
 
     /**
      * returns the voxel index for a given discrete position in the grid
@@ -262,7 +280,7 @@ public:
      * \return The X coordinate or -1 if pos refers to point outside of the
      * grid.
      */
-    int getXVoxelCoord( const WPosition& pos ) const;
+    int getXVoxelCoord( const Vector3Type& pos ) const;
 
     /**
      * Computes the Y coordinate of that voxel that contains the
@@ -274,7 +292,7 @@ public:
      * \return The Y coordinate or -1 if pos refers to point outside of the
      * grid.
      */
-    int getYVoxelCoord( const WPosition& pos ) const;
+    int getYVoxelCoord( const Vector3Type& pos ) const;
 
     /**
      * Computes the Z coordinate of that voxel that contains the
@@ -286,7 +304,7 @@ public:
      * \return The Z coordinate or -1 if pos refers to point outside of the
      * grid.
      */
-    int getZVoxelCoord( const WPosition& pos ) const;
+    int getZVoxelCoord( const Vector3Type& pos ) const;
 
     /**
      * Computes the voxel coordinates of that voxel which contains
@@ -299,7 +317,7 @@ public:
      * Z component of the voxel coordinate. If the selecting position is
      * outside of the grid then -1 -1 -1 is returned.
      */
-    WVector3i getVoxelCoord( const WPosition& pos ) const;
+    WVector3i getVoxelCoord( const Vector3Type& pos ) const;
 
     /**
      * Computes the id of the cell containing the position pos. Note that the upper
@@ -310,7 +328,7 @@ public:
      *
      * \return id of the containing the position.
      */
-    size_t getCellId( const WPosition& pos, bool* success ) const;
+    size_t getCellId( const Vector3Type& pos, bool* success ) const;
 
     /**
      * Computes the ids of the vertices of a cell given by its id.
@@ -360,8 +378,8 @@ public:
      * voxel. If you need voxels at grid positions fill this function with
      * voxel center positions aka grid points.
      */
-    boost::shared_ptr< std::vector< WPosition > > getVoxelVertices( const WPosition& point,
-                                                                           const double margin = 0.0 ) const;
+    boost::shared_ptr< std::vector< Vector3Type > > getVoxelVertices( const Vector3Type& point,
+                                                                      const T margin = 0.0 ) const;
 
     /**
      * Return the list of neighbour voxels.
@@ -438,7 +456,7 @@ public:
      *
      * \return True if and only if the given point is inside or on boundary of this grid, otherwise false.
      */
-    bool encloses( const WPosition& pos ) const;
+    bool encloses( const Vector3Type& pos ) const;
 
     /**
      * Return whether the transformations of the grid are only translation and/or scaling
@@ -450,7 +468,7 @@ public:
      * Returns the transformation used by this grid.
      * \return The transformation.
      */
-    WGridTransformOrtho const getTransform() const;
+    WGridTransformOrthoTemplate< T > const getTransform() const;
 
 protected:
 private:
@@ -464,7 +482,7 @@ private:
      *
      * \return The n'th component of the voxel coordinate
      */
-    int getNVoxelCoord( const WPosition& pos, size_t axis ) const;
+    int getNVoxelCoord( const Vector3Type& pos, size_t axis ) const;
 
     /**
      * Adds the specific information of this grid type to the
@@ -477,159 +495,156 @@ private:
     unsigned int m_nbPosZ; //!< Number of positions in z direction
 
     //! The grid's transformation.
-    WGridTransformOrtho const m_transform;
+    WGridTransformOrthoTemplate< T > const m_transform;
 };
 
-/**
- * Convinience function returning all offsets per axis.
- * 0 : xAxis, 1 : yAxis, 2 : zAxis
- * \param grid The grid having the information.
- * \note Implementing this as NonMemberNonFriend was intentional.
- * \return Array of number of samples per axis.
- */
-inline boost::array< double, 3 > getOffsets( boost::shared_ptr< const WGridRegular3D > grid )
+// Convenience typedefs
+typedef WGridRegular3DTemplate< double > WGridRegular3D;
+typedef WGridRegular3DTemplate< double > WGridRegular3DDouble;
+typedef WGridRegular3DTemplate< float > WGridRegular3DFloat;
+
+template< typename T >
+template< typename InputType >
+WGridRegular3DTemplate< T >::WGridRegular3DTemplate( WGridRegular3DTemplate< InputType > const& rhs ) :
+    WGrid( rhs.m_nbPosX * rhs.m_nbPosY * rhs.m_nbPosZ ),
+    m_nbPosX( rhs.m_nbPosX ),
+    m_nbPosY( rhs.m_nbPosY ),
+    m_nbPosZ( rhs.m_nbPosZ ),
+    m_transform( rhs.m_transform )
 {
-    boost::array< double, 3 > result = { { grid->getOffsetX(), grid->getOffsetY(), grid->getOffsetZ() } }; // NOLINT curly braces
-    return result;
+    initInformationProperties();
 }
 
-/**
- * Convinience function returning all number coords per axis.
- * 0 : xAxis, 1 : yAxis, 2 : zAxis
- * \param grid The grid having the information.
- * \note Implementing this as NonMemberNonFriend was intentional.
- * \return Array of number of samples per axis.
- */
-inline boost::array< unsigned int, 3 > getNbCoords( boost::shared_ptr< const WGridRegular3D > grid )
+template< typename T >
+WGridRegular3DTemplate< T >::WGridRegular3DTemplate( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
+                                     WGridTransformOrthoTemplate< T > const transform )
+    : WGrid( nbPosX * nbPosY * nbPosZ ),
+      m_nbPosX( nbPosX ),
+      m_nbPosY( nbPosY ),
+      m_nbPosZ( nbPosZ ),
+      m_transform( transform )
 {
-    boost::array< unsigned int, 3 > result = { { grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ() } }; // NOLINT curly braces
-    return result;
+    initInformationProperties();
 }
 
-/**
- * Convinience function returning all axis directions.
- * 0 : xAxis, 1 : yAxis, 2 : zAxis
- * \param grid The grid having the information.
- * \note Implementing this as NonMemberNonFriend was intentional.
- * \return The direction of each axis as array
- */
-inline boost::array< WVector3d, 3 > getDirections( boost::shared_ptr< const WGridRegular3D > grid )
-{
-    boost::array< WVector3d, 3 > result = { { grid->getDirectionX(), grid->getDirectionY(), grid->getDirectionZ() } }; // NOLINT curly braces
-    return result;
-}
-
-/**
- * Convinience function returning all axis unit directions.
- * 0 : xAxis, 1 : yAxis, 2 : zAxis
- * \param grid The grid having the information.
- * \note Implementing this as NonMemberNonFriend was intentional.
- * \return The direction of each axis as array
- */
-inline boost::array< WVector3d, 3 > getUnitDirections( boost::shared_ptr< const WGridRegular3D > grid )
-{
-    boost::array< WVector3d, 3 > result = { { grid->getUnitDirectionX(), grid->getUnitDirectionY(), grid->getUnitDirectionZ() } }; // NOLINT curly braces
-    return result;
-}
-
-inline unsigned int WGridRegular3D::getNbCoordsX() const
+template< typename T >
+inline unsigned int WGridRegular3DTemplate< T >::getNbCoordsX() const
 {
     return m_nbPosX;
 }
 
-inline unsigned int WGridRegular3D::getNbCoordsY() const
+template< typename T >
+inline unsigned int WGridRegular3DTemplate< T >::getNbCoordsY() const
 {
     return m_nbPosY;
 }
 
-inline unsigned int WGridRegular3D::getNbCoordsZ() const
+template< typename T >
+inline unsigned int WGridRegular3DTemplate< T >::getNbCoordsZ() const
 {
     return m_nbPosZ;
 }
 
-inline double WGridRegular3D::getOffsetX() const
+template< typename T >
+inline T WGridRegular3DTemplate< T >::getOffsetX() const
 {
     return m_transform.getOffsetX();
 }
 
-inline double WGridRegular3D::getOffsetY() const
+template< typename T >
+inline T WGridRegular3DTemplate< T >::getOffsetY() const
 {
     return m_transform.getOffsetY();
 }
 
-inline double WGridRegular3D::getOffsetZ() const
+template< typename T >
+inline T WGridRegular3DTemplate< T >::getOffsetZ() const
 {
     return m_transform.getOffsetZ();
 }
 
-inline WVector3d WGridRegular3D::getDirectionX() const
+template< typename T >
+inline typename WGridRegular3DTemplate< T >::Vector3Type WGridRegular3DTemplate< T >::getDirectionX() const
 {
     return m_transform.getDirectionX();
 }
 
-inline WVector3d WGridRegular3D::getDirectionY() const
+template< typename T >
+inline typename WGridRegular3DTemplate< T >::Vector3Type WGridRegular3DTemplate< T >::getDirectionY() const
 {
     return m_transform.getDirectionY();
 }
 
-inline WVector3d WGridRegular3D::getDirectionZ() const
+template< typename T >
+inline typename WGridRegular3DTemplate< T >::Vector3Type WGridRegular3DTemplate< T >::getDirectionZ() const
 {
     return m_transform.getDirectionZ();
 }
 
-inline WVector3d WGridRegular3D::getUnitDirectionX() const
+template< typename T >
+inline typename WGridRegular3DTemplate< T >::Vector3Type WGridRegular3DTemplate< T >::getUnitDirectionX() const
 {
     return m_transform.getUnitDirectionX();
 }
 
-inline WVector3d WGridRegular3D::getUnitDirectionY() const
+template< typename T >
+inline typename WGridRegular3DTemplate< T >::Vector3Type WGridRegular3DTemplate< T >::getUnitDirectionY() const
 {
     return m_transform.getUnitDirectionY();
 }
 
-inline WVector3d WGridRegular3D::getUnitDirectionZ() const
+template< typename T >
+inline typename WGridRegular3DTemplate< T >::Vector3Type WGridRegular3DTemplate< T >::getUnitDirectionZ() const
 {
     return m_transform.getUnitDirectionZ();
 }
 
-inline WPosition WGridRegular3D::getOrigin() const
+template< typename T >
+inline typename WGridRegular3DTemplate< T >::Vector3Type WGridRegular3DTemplate< T >::getOrigin() const
 {
     return m_transform.getOrigin();
 }
 
-inline WMatrix< double > WGridRegular3D::getTransformationMatrix() const
+template< typename T >
+inline WMatrix< T > WGridRegular3DTemplate< T >::getTransformationMatrix() const
 {
     return m_transform.getTransformationMatrix();
 }
 
-inline WBoundingBox WGridRegular3D::getBoundingBox() const
+template< typename T >
+inline WBoundingBox WGridRegular3DTemplate< T >::getBoundingBox() const
 {
     WBoundingBox result;
-    result.expandBy( m_transform.positionToWorldSpace( WPosition( 0.0,                0.0,                0.0            ) ) );
-    result.expandBy( m_transform.positionToWorldSpace( WPosition( getNbCoordsX() - 1, 0.0,                0.0            ) ) );
-    result.expandBy( m_transform.positionToWorldSpace( WPosition( 0.0,                getNbCoordsY() - 1, 0.0            ) ) );
-    result.expandBy( m_transform.positionToWorldSpace( WPosition( getNbCoordsX() - 1, getNbCoordsY() - 1, 0.0            ) ) );
-    result.expandBy( m_transform.positionToWorldSpace( WPosition( 0.0,                0.0,                getNbCoordsZ() - 1 ) ) );
-    result.expandBy( m_transform.positionToWorldSpace( WPosition( getNbCoordsX() - 1, 0.0,                getNbCoordsZ() - 1 ) ) );
-    result.expandBy( m_transform.positionToWorldSpace( WPosition( 0.0,                getNbCoordsY() - 1, getNbCoordsZ() - 1 ) ) );
-    result.expandBy( m_transform.positionToWorldSpace( WPosition( getNbCoordsX() - 1, getNbCoordsY() - 1, getNbCoordsZ() - 1 ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( 0.0,                0.0,                0.0            ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( getNbCoordsX() - 1, 0.0,                0.0            ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( 0.0,                getNbCoordsY() - 1, 0.0            ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( getNbCoordsX() - 1, getNbCoordsY() - 1, 0.0            ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( 0.0,                0.0,                getNbCoordsZ() - 1 ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( getNbCoordsX() - 1, 0.0,                getNbCoordsZ() - 1 ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( 0.0,                getNbCoordsY() - 1, getNbCoordsZ() - 1 ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( getNbCoordsX() - 1, getNbCoordsY() - 1, getNbCoordsZ() - 1 ) ) );
     return result;
 }
 
-inline WPosition WGridRegular3D::getPosition( unsigned int i ) const
+template< typename T >
+inline typename WGridRegular3DTemplate< T >::Vector3Type WGridRegular3DTemplate< T >::getPosition( unsigned int i ) const
 {
     return getPosition( i % m_nbPosX, ( i / m_nbPosX ) % m_nbPosY, i / ( m_nbPosX * m_nbPosY ) );
 }
 
-inline WPosition WGridRegular3D::getPosition( unsigned int iX, unsigned int iY, unsigned int iZ ) const
+template< typename T >
+inline typename WGridRegular3DTemplate< T >::Vector3Type WGridRegular3DTemplate< T >::getPosition( unsigned int iX,
+                                                                                                   unsigned int iY,
+                                                                                                   unsigned int iZ ) const
 {
-    WVector3d i( iX, iY, iZ );
+    Vector3Type i( iX, iY, iZ );
     return m_transform.positionToWorldSpace( i );
 }
 
-inline WVector3d WGridRegular3D::worldCoordToTexCoord( WPosition point )
+template< typename T >
+inline typename WGridRegular3DTemplate< T >::Vector3Type WGridRegular3DTemplate< T >::worldCoordToTexCoord( WGridRegular3DTemplate< T >::Vector3Type point ) // NOLINT -- too long line
 {
-    WVector3d r( m_transform.positionToGridSpace( point ) );
+    Vector3Type r( m_transform.positionToGridSpace( point ) );
 
     // Scale to [0,1]
     r[0] = r[0] / m_nbPosX;
@@ -644,7 +659,8 @@ inline WVector3d WGridRegular3D::worldCoordToTexCoord( WPosition point )
     return r;
 }
 
-inline int WGridRegular3D::getVoxelNum( const WPosition& pos ) const
+template< typename T >
+inline int WGridRegular3DTemplate< T >::getVoxelNum( const WGridRegular3DTemplate< T >::Vector3Type& pos ) const
 {
     // Note: the reason for the +1 is that the first and last Voxel in a x-axis
     // row are cut.
@@ -669,7 +685,8 @@ inline int WGridRegular3D::getVoxelNum( const WPosition& pos ) const
          + zVoxelCoord * ( m_nbPosX ) * ( m_nbPosY );
 }
 
-inline int WGridRegular3D::getVoxelNum( const size_t x, const size_t y, const size_t z ) const
+template< typename T >
+inline int WGridRegular3DTemplate< T >::getVoxelNum( const size_t x, const size_t y, const size_t z ) const
 {
     // since we use size_t here only a check for the upper bounds is needed
     if( x > m_nbPosX || y > m_nbPosY || z > m_nbPosZ )
@@ -679,39 +696,43 @@ inline int WGridRegular3D::getVoxelNum( const size_t x, const size_t y, const si
     return x + y * ( m_nbPosX ) + z * ( m_nbPosX ) * ( m_nbPosY );
 }
 
-inline int WGridRegular3D::getXVoxelCoord( const WPosition& pos ) const
+template< typename T >
+inline int WGridRegular3DTemplate< T >::getXVoxelCoord( const WGridRegular3DTemplate< T >::Vector3Type& pos ) const
 {
     // the current get*Voxel stuff is too complicated anyway
-    WPosition v = m_transform.positionToGridSpace( pos );
+    Vector3Type v = m_transform.positionToGridSpace( pos );
 
     // this part could be refactored into an inline function
-    double d;
-    v[ 2 ] = modf( v[ 0 ] + 0.5, &d );
-    int i = static_cast< int >( v[ 0 ] >= 0.0 && v[ 0 ] < m_nbPosX - 1.0 );
-    return -1 + i * static_cast< int >( 1.0 + d );
+    T d;
+    v[ 2 ] = std::modf( v[ 0 ] + T( 0.5 ), &d );
+    int i = static_cast< int >( v[ 0 ] >= T( 0.0 ) && v[ 0 ] < m_nbPosX - T( 1.0 ) );
+    return -1 + i * static_cast< int >( T( 1.0 ) + d );
 }
 
-inline int WGridRegular3D::getYVoxelCoord( const WPosition& pos ) const
+template< typename T >
+inline int WGridRegular3DTemplate< T >::getYVoxelCoord( const WGridRegular3DTemplate< T >::Vector3Type& pos ) const
 {
-    WPosition v = m_transform.positionToGridSpace( pos );
+    Vector3Type v = m_transform.positionToGridSpace( pos );
 
-    double d;
-    v[ 0 ] = modf( v[ 1 ] + 0.5, &d );
-    int i = static_cast< int >( v[ 1 ] >= 0.0 && v[ 1 ] < m_nbPosY - 1.0 );
-    return -1 + i * static_cast< int >( 1.0 + d );
+    T d;
+    v[ 0 ] = std::modf( v[ 1 ] + T( 0.5 ), &d );
+    int i = static_cast< int >( v[ 1 ] >= T( 0.0 ) && v[ 1 ] < m_nbPosY - T( 1.0 ) );
+    return -1 + i * static_cast< int >( T( 1.0 ) + d );
 }
 
-inline int WGridRegular3D::getZVoxelCoord( const WPosition& pos ) const
+template< typename T >
+inline int WGridRegular3DTemplate< T >::getZVoxelCoord( const WGridRegular3DTemplate< T >::Vector3Type& pos ) const
 {
-    WPosition v = m_transform.positionToGridSpace( pos );
+    Vector3Type v = m_transform.positionToGridSpace( pos );
 
-    double d;
-    v[ 0 ] = modf( v[ 2 ] + 0.5, &d );
-    int i = static_cast< int >( v[ 2 ] >= 0.0 && v[ 2 ] < m_nbPosZ - 1.0 );
-    return -1 + i * static_cast< int >( 1.0 + d );
+    T d;
+    v[ 0 ] = std::modf( v[ 2 ] + T( 0.5 ), &d );
+    int i = static_cast< int >( v[ 2 ] >= T( 0.0 ) && v[ 2 ] < m_nbPosZ - T( 1.0 ) );
+    return -1 + i * static_cast< int >( T( 1.0 ) + d );
 }
 
-inline WVector3i WGridRegular3D::getVoxelCoord( const WPosition& pos ) const
+template< typename T >
+inline WVector3i WGridRegular3DTemplate< T >::getVoxelCoord( const WGridRegular3DTemplate< T >::Vector3Type& pos ) const
 {
     WVector3i result;
     result[0] = getXVoxelCoord( pos );
@@ -720,24 +741,24 @@ inline WVector3i WGridRegular3D::getVoxelCoord( const WPosition& pos ) const
     return result;
 }
 
-inline size_t WGridRegular3D::getCellId( const WPosition& pos, bool* success ) const
+template< typename T >
+inline size_t WGridRegular3DTemplate< T >::getCellId( const WGridRegular3DTemplate< T >::Vector3Type& pos, bool* success ) const
 {
-    WAssert( isNotRotated(), "Only feasible for grids that are only translated or scaled so far." );
+    Vector3Type v = m_transform.positionToGridSpace( pos );
 
-    WPosition posRelativeToOrigin = pos - getOrigin();
-
-    double xCellId = floor( posRelativeToOrigin[0] / getOffsetX() );
-    double yCellId = floor( posRelativeToOrigin[1] / getOffsetY() );
-    double zCellId = floor( posRelativeToOrigin[2] / getOffsetZ() );
+    T xCellId = floor( v[0] );
+    T yCellId = floor( v[1] );
+    T zCellId = floor( v[2] );
 
     *success = xCellId >= 0 && yCellId >=0 && zCellId >= 0 && xCellId < m_nbPosX - 1 && yCellId < m_nbPosY -1 && zCellId < m_nbPosZ -1;
 
     return xCellId + yCellId * ( m_nbPosX - 1 ) + zCellId * ( m_nbPosX - 1 ) * ( m_nbPosY - 1 );
 }
 
-inline WGridRegular3D::CellVertexArray WGridRegular3D::getCellVertexIds( size_t cellId ) const
+template< typename T >
+inline typename WGridRegular3DTemplate< T >::CellVertexArray WGridRegular3DTemplate< T >::getCellVertexIds( size_t cellId ) const
 {
-    WGridRegular3D::CellVertexArray vertices;
+    WGridRegular3DTemplate< T >::CellVertexArray vertices;
     size_t minVertexIdZ =  cellId / ( ( m_nbPosX - 1 ) * ( m_nbPosY - 1 ) );
     size_t remainderXY = cellId - minVertexIdZ * ( ( m_nbPosX - 1 ) * ( m_nbPosY - 1 ) );
     size_t minVertexIdY = remainderXY  / ( m_nbPosX - 1 );
@@ -746,43 +767,491 @@ inline WGridRegular3D::CellVertexArray WGridRegular3D::getCellVertexIds( size_t 
     size_t minVertexId = minVertexIdX + minVertexIdY * m_nbPosX + minVertexIdZ * m_nbPosX * m_nbPosY;
 
     vertices[0] = minVertexId;
-    vertices[1] = minVertexId + 1;
+    vertices[1] = vertices[0] + 1;
     vertices[2] = minVertexId + m_nbPosX;
-    vertices[3] = minVertexId + m_nbPosX +1;
+    vertices[3] = vertices[2] + 1;
     vertices[4] = minVertexId + m_nbPosX * m_nbPosY;
-    vertices[5] = minVertexId + m_nbPosX * m_nbPosY + 1;
-    vertices[6] = minVertexId + m_nbPosX * m_nbPosY + m_nbPosX;
-    vertices[7] = minVertexId + m_nbPosX * m_nbPosY + m_nbPosX +1;
+    vertices[5] = vertices[4] + 1;
+    vertices[6] = vertices[4] + m_nbPosX;
+    vertices[7] = vertices[6] + 1;
     return vertices;
 }
 
-inline bool WGridRegular3D::encloses( WPosition const& pos ) const
+template< typename T >
+boost::shared_ptr< std::vector< typename WGridRegular3DTemplate< T >::Vector3Type > > WGridRegular3DTemplate< T >::getVoxelVertices( const WGridRegular3DTemplate< T >::Vector3Type& point, const T margin ) const // NOLINT -- too long line
 {
-    WVector3d v = m_transform.positionToGridSpace( pos );
+    typedef boost::shared_ptr< std::vector< Vector3Type > > ReturnType;
+    ReturnType result = ReturnType( new std::vector< Vector3Type > );
+    result->reserve( 8 );
+    T halfMarginX = getOffsetX() / 2.0 - std::abs( margin );
+    T halfMarginY = getOffsetY() / 2.0 - std::abs( margin );
+    T halfMarginZ = getOffsetZ() / 2.0 - std::abs( margin );
+    result->push_back( Vector3Type( point[0] - halfMarginX, point[1] - halfMarginY, point[2] - halfMarginZ ) ); // a
+    result->push_back( Vector3Type( point[0] + halfMarginX, point[1] - halfMarginY, point[2] - halfMarginZ ) ); // b
+    result->push_back( Vector3Type( point[0] + halfMarginX, point[1] - halfMarginY, point[2] + halfMarginZ ) ); // c
+    result->push_back( Vector3Type( point[0] - halfMarginX, point[1] - halfMarginY, point[2] + halfMarginZ ) ); // d
+    result->push_back( Vector3Type( point[0] - halfMarginX, point[1] + halfMarginY, point[2] - halfMarginZ ) ); // e
+    result->push_back( Vector3Type( point[0] + halfMarginX, point[1] + halfMarginY, point[2] - halfMarginZ ) ); // f
+    result->push_back( Vector3Type( point[0] + halfMarginX, point[1] + halfMarginY, point[2] + halfMarginZ ) ); // g
+    result->push_back( Vector3Type( point[0] - halfMarginX, point[1] + halfMarginY, point[2] + halfMarginZ ) ); // h
+    return result;
+}
 
-    if( v[ 0 ] < 0.0 || v[ 0 ] >= m_nbPosX - 1 )
+template< typename T >
+std::vector< size_t > WGridRegular3DTemplate< T >::getNeighbours( size_t id ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
+    {
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
+    }
+    // for every neighbour we must check if its not on the boundary, it will be skipped otherwise
+    if( x > 0 )
+    {
+        neighbours.push_back( id - 1 );
+    }
+    if( x < m_nbPosX - 1 )
+    {
+        neighbours.push_back( id + 1 );
+    }
+    if( y > 0 )
+    {
+        neighbours.push_back( id - m_nbPosX );
+    }
+    if( y < m_nbPosY - 1 )
+    {
+        neighbours.push_back( id + m_nbPosX );
+    }
+    if( z > 0 )
+    {
+        neighbours.push_back( id - ( m_nbPosX * m_nbPosY ) );
+    }
+    if( z < m_nbPosZ - 1 )
+    {
+         neighbours.push_back( id + ( m_nbPosX * m_nbPosY ) );
+    }
+    return neighbours;
+}
+
+template< typename T >
+std::vector< size_t > WGridRegular3DTemplate< T >::getNeighbours27( size_t id ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
+    {
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
+    }
+    // for every neighbour we must check if its not on the boundary, it will be skipped otherwise
+    std::vector< int >tempResult;
+
+    tempResult.push_back( getVoxelNum( x    , y    , z ) );
+    tempResult.push_back( getVoxelNum( x    , y - 1, z ) );
+    tempResult.push_back( getVoxelNum( x    , y + 1, z ) );
+    tempResult.push_back( getVoxelNum( x - 1, y    , z ) );
+    tempResult.push_back( getVoxelNum( x - 1, y - 1, z ) );
+    tempResult.push_back( getVoxelNum( x - 1, y + 1, z ) );
+    tempResult.push_back( getVoxelNum( x + 1, y    , z ) );
+    tempResult.push_back( getVoxelNum( x + 1, y - 1, z ) );
+    tempResult.push_back( getVoxelNum( x + 1, y + 1, z ) );
+
+    tempResult.push_back( getVoxelNum( x    , y    , z - 1 ) );
+    tempResult.push_back( getVoxelNum( x    , y - 1, z - 1 ) );
+    tempResult.push_back( getVoxelNum( x    , y + 1, z - 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y    , z - 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y - 1, z - 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y + 1, z - 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y    , z - 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y - 1, z - 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y + 1, z - 1 ) );
+
+    tempResult.push_back( getVoxelNum( x    , y    , z + 1 ) );
+    tempResult.push_back( getVoxelNum( x    , y - 1, z + 1 ) );
+    tempResult.push_back( getVoxelNum( x    , y + 1, z + 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y    , z + 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y - 1, z + 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y + 1, z + 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y    , z + 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y - 1, z + 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y + 1, z + 1 ) );
+
+    for( size_t k = 0; k < tempResult.size(); ++k )
+    {
+        if( tempResult[k] != -1 )
+        {
+            neighbours.push_back( tempResult[k] );
+        }
+    }
+    return neighbours;
+}
+
+template< typename T >
+std::vector< size_t > WGridRegular3DTemplate< T >::getNeighboursRange( size_t id, size_t range ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
+    {
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
+    }
+    // for every neighbour we must check if its not on the boundary, it will be skipped otherwise
+    std::vector< int >tempResult;
+
+    for( size_t xx = x - range; xx < x + range + 1; ++xx )
+    {
+        for( size_t yy = y - range; yy < y + range + 1; ++yy )
+        {
+            for( size_t zz = z - range; zz < z + range + 1; ++zz )
+            {
+                tempResult.push_back( getVoxelNum( xx, yy, zz ) );
+            }
+        }
+    }
+
+    for( size_t k = 0; k < tempResult.size(); ++k )
+    {
+        if( tempResult[k] != -1 )
+        {
+            neighbours.push_back( tempResult[k] );
+        }
+    }
+    return neighbours;
+}
+
+template< typename T >
+std::vector< size_t > WGridRegular3DTemplate< T >::getNeighbours9XY( size_t id ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
+    {
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
+    }
+    // boundary check now happens in the getVoxelNum function
+    int vNum;
+
+    vNum = getVoxelNum( x - 1, y, z );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y - 1, z );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y - 1, z );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y - 1, z );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y, z );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y + 1, z );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y + 1, z );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y + 1, z );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    return neighbours;
+}
+
+template< typename T >
+std::vector< size_t > WGridRegular3DTemplate< T >::getNeighbours9YZ( size_t id ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
+    {
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
+    }
+    // boundary check now happens in the getVoxelNum function
+    int vNum;
+
+    vNum = getVoxelNum( x, y, z - 1 );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y - 1, z - 1 );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y - 1, z );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y - 1, z + 1 );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y, z + 1 );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y + 1, z + 1 );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y + 1, z );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y + 1, z - 1 );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+
+    return neighbours;
+}
+
+template< typename T >
+std::vector< size_t > WGridRegular3DTemplate< T >::getNeighbours9XZ( size_t id ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
+    {
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
+    }
+    // boundary check now happens in the getVoxelNum function
+    int vNum;
+
+    vNum = getVoxelNum( x, y, z - 1 );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y, z - 1 );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y, z );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y, z + 1 );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y, z + 1 );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y, z + 1 );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y, z );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y, z - 1 );
+    if( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+
+    return neighbours;
+}
+
+template< typename T >
+inline bool WGridRegular3DTemplate< T >::encloses( WGridRegular3DTemplate< T >::Vector3Type const& pos ) const
+{
+    Vector3Type v = m_transform.positionToGridSpace( pos );
+
+    if( v[ 0 ] < T( 0.0 ) || v[ 0 ] >= static_cast< T >( m_nbPosX - 1 ) )
     {
         return false;
     }
-    if( v[ 1 ] < 0.0 || v[ 1 ] >= m_nbPosY - 1 )
+    if( v[ 1 ] < T( 0.0 ) || v[ 1 ] >= static_cast< T >( m_nbPosY - 1 ) )
     {
         return false;
     }
-    if( v[ 2 ] < 0.0 || v[ 2 ] >= m_nbPosZ - 1 )
+    if( v[ 2 ] < T( 0.0 ) || v[ 2 ] >= static_cast< T >( m_nbPosZ - 1 ) )
     {
         return false;
     }
     return true;
 }
 
-inline bool WGridRegular3D::isNotRotated() const
+template< typename T >
+inline bool WGridRegular3DTemplate< T >::isNotRotated() const
 {
     return m_transform.isNotRotated();
 }
 
-inline WGridTransformOrtho const WGridRegular3D::getTransform() const
+template< typename T >
+inline WGridTransformOrthoTemplate< T > const WGridRegular3DTemplate< T >::getTransform() const
 {
     return m_transform;
+}
+
+template< typename T >
+void WGridRegular3DTemplate< T >::initInformationProperties()
+{
+    WPropInt xDim = m_infoProperties->addProperty( "X dimension: ",
+                                                   "The x dimension of the grid.",
+                                                   static_cast<int>( getNbCoordsX() ) );
+    WPropInt yDim = m_infoProperties->addProperty( "Y dimension: ",
+                                                   "The y dimension of the grid.",
+                                                   static_cast<int>( getNbCoordsY() ) );
+    WPropInt zDim = m_infoProperties->addProperty( "Z dimension: ",
+                                                   "The z dimension of the grid.",
+                                                   static_cast<int>( getNbCoordsZ() ) );
+
+    WPropDouble xOffset = m_infoProperties->addProperty( "X offset: ",
+                                                         "The distance between samples in x direction",
+                                                         static_cast< double >( getOffsetX() ) );
+    WPropDouble yOffset = m_infoProperties->addProperty( "Y offset: ",
+                                                         "The distance between samples in y direction",
+                                                         static_cast< double >( getOffsetY() ) );
+    WPropDouble zOffset = m_infoProperties->addProperty( "Z offset: ",
+                                                         "The distance between samples in z direction",
+                                                         static_cast< double >( getOffsetZ() ) );
+
+    WPropMatrix4X4 transformation = m_infoProperties->addProperty( "Transformation",
+                                                                   "The transformation of this grid.",
+                                                                   static_cast< WMatrix4d >( getTransform() ) );
+}
+
+// +----------------------+
+// | non-member functions |
+// +----------------------+
+
+/**
+ * Convinience function returning all offsets per axis.
+ * 0 : xAxis, 1 : yAxis, 2 : zAxis
+ * \param grid The grid having the information.
+ * \note Implementing this as NonMemberNonFriend was intentional.
+ * \return Array of number of samples per axis.
+ */
+template< typename T >
+inline boost::array< T, 3 > getOffsets( boost::shared_ptr< const WGridRegular3DTemplate< T > > grid )
+{
+    boost::array< T, 3 > result = { { grid->getOffsetX(), grid->getOffsetY(), grid->getOffsetZ() } }; // NOLINT curly braces
+    return result;
+}
+
+/**
+ * Convinience function returning all number coords per axis.
+ * 0 : xAxis, 1 : yAxis, 2 : zAxis
+ * \param grid The grid having the information.
+ * \note Implementing this as NonMemberNonFriend was intentional.
+ * \return Array of number of samples per axis.
+ */
+template< typename T >
+inline boost::array< unsigned int, 3 > getNbCoords( boost::shared_ptr< const WGridRegular3DTemplate< T > > grid )
+{
+    boost::array< unsigned int, 3 > result = { { grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ() } }; // NOLINT curly braces
+    return result;
+}
+
+/**
+ * Convinience function returning all axis directions.
+ * 0 : xAxis, 1 : yAxis, 2 : zAxis
+ * \param grid The grid having the information.
+ * \note Implementing this as NonMemberNonFriend was intentional.
+ * \return The direction of each axis as array
+ */
+template< typename T >
+inline boost::array< typename WGridRegular3DTemplate< T >::Vector3Type, 3 > getDirections( boost::shared_ptr< const WGridRegular3DTemplate< T > > grid ) // NOLINT -- too long line
+{
+    boost::array< typename WGridRegular3DTemplate< T >::Vector3Type, 3 > result = { { grid->getDirectionX(), grid->getDirectionY(), grid->getDirectionZ() } }; // NOLINT curly braces
+    return result;
+}
+
+/**
+ * Convinience function returning all axis unit directions.
+ * 0 : xAxis, 1 : yAxis, 2 : zAxis
+ * \param grid The grid having the information.
+ * \note Implementing this as NonMemberNonFriend was intentional.
+ * \return The direction of each axis as array
+ */
+template< typename T >
+inline boost::array< typename WGridRegular3DTemplate< T >::Vector3Type, 3 > getUnitDirections( boost::shared_ptr< const WGridRegular3DTemplate< T > > grid ) // NOLINT -- too long line
+{
+    boost::array< typename WGridRegular3DTemplate< T >::Vector3Type, 3 > result = { { grid->getUnitDirectionX(), grid->getUnitDirectionY(), grid->getUnitDirectionZ() } }; // NOLINT curly braces
+    return result;
 }
 
 #endif  // WGRIDREGULAR3D_H

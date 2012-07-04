@@ -38,7 +38,8 @@
 #include "WBoundaryBuilder.h"
 
 // forward declarations
-class WGridRegular3D;
+template< typename T >
+class WGridRegular3DTemplate;
 class WDataSetScalar;
 
 /**
@@ -110,7 +111,7 @@ private:
      *
      * \return The 2D grid for the given slice.
      */
-    boost::shared_ptr< WGridRegular3D > generateSliceGrid( const unsigned char sliceNum, const double resolution ) const;
+    boost::shared_ptr< WGridRegular3DTemplate< double > > generateSliceGrid( const unsigned char sliceNum, const double resolution ) const;
 
     /**
      * Extracts the sequence of edges representing a line strip, where the first element in the hash map is a member of.
@@ -143,7 +144,7 @@ private:
      */
     osg::ref_ptr< osg::Geometry > traverseEdgeHashMap( double isoValue, boost::shared_ptr< WBoundaryLines::EdgeNeighbourMap > map,
             const std::vector< Edge >& edgeIDToPointIDs, const std::vector< double > &interpolates,
-            boost::shared_ptr< const WGridRegular3D > sliceGrid ) const;
+            boost::shared_ptr< const WGridRegular3DTemplate< double > > sliceGrid ) const;
 
     /**
      * Generates the bounding boxes for all three slices.
@@ -159,7 +160,7 @@ private:
     /**
      * Shortcut for the WRegularGrid3D given via the m_texture dataset.
      */
-    boost::shared_ptr< WGridRegular3D > m_grid;
+    boost::shared_ptr< WGridRegular3DTemplate< double > > m_grid;
 
     /**
      * Defines the size of quads to be processed for the iso curve computation.

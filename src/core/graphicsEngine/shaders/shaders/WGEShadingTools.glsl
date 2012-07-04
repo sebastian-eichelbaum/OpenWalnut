@@ -112,6 +112,8 @@ vec4 blinnPhongIllumination( vec3 ambient, vec3 diffuse, vec3 specular, float sh
                              vec3 lightColor, vec3 ambientLight,
                              vec3 normalDir, vec3 viewDir, vec3 lightDir )
 {
+    normalDir *= sign( dot( normalDir, viewDir ) );
+
     vec3 H =  normalize( lightDir + viewDir );
 
     // compute ambient term
@@ -150,6 +152,8 @@ float blinnPhongIlluminationIntensity( float ambient, float diffuse, float specu
                                        float lightIntensity, float ambientIntensity,
                                        vec3 normalDir, vec3 viewDir, vec3 lightDir )
 {
+    normalDir *= sign( dot( normalDir, viewDir ) );
+
     vec3 H =  normalize( lightDir + viewDir );
 
     // compute ambient term

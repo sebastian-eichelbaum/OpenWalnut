@@ -188,8 +188,6 @@ BUILD_SYSTEM_COMPILER()
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # OpenWalnut specific options
-# other options
-OPTION( OW_HANDLE_SHADERS "This ensures that shaders are available in build directory after build." ON )
 
 # sorry, linking not available properly on windows, Cygwin supports this but we do not want special rules for thousands of environments.
 # ==> keep it clean
