@@ -47,7 +47,7 @@ COLLECT_COMPILE_FILES( "${CMAKE_CURRENT_SOURCE_DIR}" TARGET_CPP_FILES TARGET_H_F
 INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 
 # Setup the target
-ADD_EXECUTABLE( ${BinaryName} OpenWalnutScript.cpp ${OW_VERSION_HEADER} )
+ADD_EXECUTABLE( ${BinaryName} OpenWalnutScript.cpp ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${OW_VERSION_HEADER} )
 TARGET_LINK_LIBRARIES( ${BinaryName} ${OW_LIB_OPENWALNUT} ${OW_LIB_OPENWALNUTSCRIPT} ${Boost_LIBRARIES} )
 
 # Tell CMake that someone creates this file for us. See doc of SETUP_VERSION_HEADER for details why this is needed.
