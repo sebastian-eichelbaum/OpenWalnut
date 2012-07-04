@@ -374,6 +374,11 @@ public:
      */
     bool operator==( const WTriangleMesh& rhs ) const;
 
+    /**
+     * Rescale the vertex colors so that the maximum of all r, g and b values is 1
+     */
+    void rescaleVertexColors();
+
 protected:
     static boost::shared_ptr< WPrototyped > m_prototype; //!< The prototype as singleton.
 private:
