@@ -63,6 +63,8 @@ class WMatrixFixedTest;
  * A data store with the specified dimensions and type. The possibilities are endless. This way, you can optimize data storage for certain kinds
  * of matrices, like sparse or symmetric ones. It even allows the definition of a whole data block containing many matrices.
  *
+ * \note storage is done row-major
+ *
  * \tparam ValueT   the integral type
  * \tparam Rows     the number of rows
  * \tparam Cols     the number of cols

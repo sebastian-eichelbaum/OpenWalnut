@@ -33,7 +33,7 @@
 #include "core/kernel/WModuleInputData.h"
 #include "core/kernel/WModuleOutputData.h"
 
-/** 
+/**
  * A module to provide 1D transfer functions, e.g., for volume rendering.
  *
  * \ingroup modules
@@ -122,8 +122,8 @@ nnectors must not be handled by the module.
     WPropInt m_binSize;
 
     /**
-    * the transfer function property
-    */
+     * the transfer function property
+     */
     WPropTransferFunction m_transferFunction;
 };
 
