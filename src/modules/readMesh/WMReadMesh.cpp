@@ -489,11 +489,19 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readMeshVTK()
             }
         }
         triMesh->rescaleVertexColors();
+        delete[] vectorMarker;
+        delete[] vectorName;
+        delete[] vectorInfo1;
+        delete[] vectorInfo2;
     }
 
     ifs.close();
 
     progress->finish();
+
+    delete[] cellsMarker;
+    delete[] cells_typesMarker;
+    delete[] marker;
 
     return triMesh;
 }
