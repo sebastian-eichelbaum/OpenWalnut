@@ -616,6 +616,34 @@ void WTriangleMesh::zoomMesh( float zoom )
     }
 }
 
+void WTriangleMesh::rescaleVertexColors()
+{
+    float maxR = 0;
+    float maxG = 0;
+    float maxB = 0;
+    for( size_t vertId = 0; vertId < m_vertColors->size(); ++vertId )
+    {
+        if( ( *m_vertColors )[vertId][0] > maxR )
+        {
+            maxR = ( *m_vertColors )[vertId][0];
+        }
+        if( ( *m_vertColors )[vertId][1] > maxG )
+        {
+            maxG = ( *m_vertColors )[vertId][1];
+        }
+        if( ( *m_vertColors )[vertId][2] > maxB )
+        {
+            maxB = ( *m_vertColors )[vertId][2];
+        }
+    }
+    for( size_t vertId = 0; vertId < m_vertColors->size(); ++vertId )
+    {
+        ( *m_vertColors )[vertId][0] /= maxR;
+        ( *m_vertColors )[vertId][1] /= maxG;
+        ( *m_vertColors )[vertId][2] /= maxB;
+    }
+}
+
 std::ostream& tm_utils::operator<<( std::ostream& os, const WTriangleMesh& rhs )
 {
     std::stringstream ss;
