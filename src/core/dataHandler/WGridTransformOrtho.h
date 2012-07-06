@@ -274,11 +274,7 @@ template< typename T >
 template< typename InputType >
 WGridTransformOrthoTemplate< T >::WGridTransformOrthoTemplate( WGridTransformOrthoTemplate< InputType > const& rhs  )
 {
-    this->m_unitDirectionX = static_cast< Vector3Type >( rhs.m_unitDirectionX );
-    this->m_unitDirectionY = static_cast< Vector3Type >( rhs.m_unitDirectionY );
-    this->m_unitDirectionZ = static_cast< Vector3Type >( rhs.m_unitDirectionZ );
-    this->m_scaling = static_cast< Vector3Type >( rhs.m_scaling );
-    this->m_origin = static_cast< Vector3Type >( rhs.m_origin );
+    copyFrom( rhs );
 }
 
 template< typename T >
