@@ -660,7 +660,7 @@ inline typename WGridRegular3DTemplate< T >::Vector3Type WGridRegular3DTemplate<
 }
 
 template< typename T >
-inline int WGridRegular3DTemplate< T >::getVoxelNum( const WGridRegular3DTemplate< T >::Vector3Type& pos ) const
+inline int WGridRegular3DTemplate< T >::getVoxelNum( const Vector3Type& pos ) const
 {
     // Note: the reason for the +1 is that the first and last Voxel in a x-axis
     // row are cut.
