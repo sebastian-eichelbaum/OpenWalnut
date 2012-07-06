@@ -764,7 +764,7 @@ inline size_t WGridRegular3DTemplate< T >::getCellId( const WGridRegular3DTempla
 template< typename T >
 inline typename WGridRegular3DTemplate< T >::CellVertexArray WGridRegular3DTemplate< T >::getCellVertexIds( size_t cellId ) const
 {
-    WGridRegular3DTemplate< T >::CellVertexArray vertices;
+    typename WGridRegular3DTemplate< T >::CellVertexArray vertices;
     size_t minVertexIdZ =  cellId / ( ( m_nbPosX - 1 ) * ( m_nbPosY - 1 ) );
     size_t remainderXY = cellId - minVertexIdZ * ( ( m_nbPosX - 1 ) * ( m_nbPosY - 1 ) );
     size_t minVertexIdY = remainderXY  / ( m_nbPosX - 1 );
