@@ -43,7 +43,11 @@ class WGridTransformOrthoTemplate
     template <class U>
     friend class WGridTransformOrthoTemplate;
 public:
+    /**
+     * Convenience typedef for 3d vectors of the appropriate numerical type.
+     */
     typedef WMatrixFixed< T, 3, 1 > Vector3Type;
+
     /**
      * Constructs an identity transform.
      */
@@ -52,6 +56,8 @@ public:
     /**
      * Copy constructor.
      * Copies the data from an WGridTransformOrthoTemplate object with arbitary numerical type.
+     *
+     * \param rhs A WGridTransformOrthoTemplate object, which mustn't have the same numerical type.
      */
     template< typename InputType >
     WGridTransformOrthoTemplate( WGridTransformOrthoTemplate< InputType > const& rhs ); // NOLINT -- no explicit, this allows casts
@@ -81,6 +87,10 @@ public:
     /**
      * Assignment operator.
      * Copies the data from an WGridTransformOrthoTemplate object with arbitary numerical type.
+     *
+     * \param rhs A WGridTransformOrthoTemplate object, which mustn't have the same numerical type.
+     *
+     * \return this
      */
     template< typename InputType >
     WGridTransformOrthoTemplate< T >& operator=( WGridTransformOrthoTemplate< InputType > const& rhs );
@@ -223,6 +233,11 @@ public:
     void scale( VecType const& scale );
 
 private:
+    /**
+     * This is a helper function which copies the parameter of another instance to its own.
+     *
+     * \param input A WGridTransformOrthoTemplate object with the numerical type InputType.
+     */
     template< typename InputType >
     void copyFrom( WGridTransformOrthoTemplate< InputType > const& input );
 

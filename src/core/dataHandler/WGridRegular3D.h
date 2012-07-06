@@ -68,7 +68,11 @@ class WGridRegular3DTemplate : public WGrid // NOLINT
      */
     friend class WGridRegular3DTest;
 public:
+    /**
+     * Convenience typedef for 3d vectors of the appropriate numerical type.
+     */
     typedef WMatrixFixed< T, 3, 1 > Vector3Type;
+
     /**
      * Convenience typedef for a boost::shared_ptr< WGridRegular3DTemplate >.
      */
@@ -87,6 +91,8 @@ public:
     /**
      * Copy constructor.
      * Copies the data from an WGridRegular3DTemplate object with arbitary numerical type.
+     *
+     * \param rhs A WGridRegular3DTemplate object, which mustn't have the same numerical type.
      */
     template< typename InputType >
     WGridRegular3DTemplate( WGridRegular3DTemplate< InputType > const& rhs ); // NOLINT -- no explicit, this allows casts
