@@ -84,7 +84,7 @@ int main( int argc, char** argv )
 
     // process user parameter
     namespace po = boost::program_options; // since the namespace is far to big we use a shortcut here
-    po::options_description desc( "Options:" );
+    po::options_description desc( "Options" );
 
     // NOTE: if you modify this, also modify the manual pages! (use help2man or do it manually) But be careful. There need
     // to be several manual changes to be done in the manual after help2man has done its job.
@@ -93,7 +93,7 @@ int main( int argc, char** argv )
         ( "version,v", "Prints the version information" )
         ( "log,l", po::value< std::string >(), ( std::string( "The log-file to use. If not specified, \"" ) + logFile +
                                                  std::string( "\" is used in the current directory." ) ).c_str() )
-        ( "interp,i", po::value< std::string >(), "The interpreter to use. Currently only \"python\" is supported." )
+        ( "interp,i", po::value< std::string >(), "The interpreter to use." )
         ( "file,f", po::value< std::string >(), "The script file to load." );
 
     boost::program_options::variables_map optionsMap;
@@ -110,7 +110,7 @@ int main( int argc, char** argv )
     po::notify( optionsMap );
 
     // print usage information if command line asks for help.
-    if( optionsMap.count( "help" ) )
+    if( optionsMap.count( "help" ) || ( optionsMap.count( "interp" ) == 0 && optionsMap.count( "file" ) == 0 ) )
     {
         // NOTE: if you modify this, check that help2man still works properly! (http://www.gnu.org/software/help2man) But be careful. There need
         // to be several manual changes to be done in the manual after help2man has done its job.
@@ -121,9 +121,8 @@ int main( int argc, char** argv )
                   << desc << std::endl
                   << std::endl
                   << "Examples:" << std::endl
-                  << "  openwalnut\t\t\t\tStartup OpenWalnut." << std::endl
-                  << "  openwalnut -p myproject.owp\t\tStart OpenWalnut and load the project." << std::endl
-                  << "  openwalnut t1.nii.gz fibers.fib\tStart OpenWalnut and load the two datasets." << std::endl
+                  << "  openwalnut-script -i lua \t\tStartup OpenWalnut in lua interpreter mode." << std::endl
+                  << "  openwalnut-script -f doSth.py\t\tStart OpenWalnut and execute the doSth.py python script." << std::endl
                   << std::endl;
         return 0;
     }
