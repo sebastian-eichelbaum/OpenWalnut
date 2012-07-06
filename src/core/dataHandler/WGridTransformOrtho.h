@@ -34,7 +34,7 @@
 /**
  * Implements an orthogonal grid transformation.
  *
- * \class WGridTransformOrtho
+ * \class WGridTransformOrthoTemplate
  */
 template< typename T >
 class WGridTransformOrthoTemplate
