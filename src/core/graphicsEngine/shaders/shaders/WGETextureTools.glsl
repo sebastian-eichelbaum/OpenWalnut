@@ -31,14 +31,14 @@
 
 /**
  * Grabs and unscales the value inside the texture and returns it.
- * 
+ *
  * \param texture the texture unit to use
  * \param point   the texture coordinates
  * \param minimum the minumum value of all values inside the texture
  * \param scale   the scaling value for all values inside the texture
  *
  * \note The minimum and scale values are normally transferred to the shader using uniforms, as the CPU scales the textures
- * 
+ *
  * \return the value at the given point
  */
 vec4 texture3DUnscaled( sampler3D texture, vec3 point, float minimum, float scale )
@@ -48,14 +48,14 @@ vec4 texture3DUnscaled( sampler3D texture, vec3 point, float minimum, float scal
 
 /**
  * Grabs and unscales the value inside the texture and returns it.
- * 
+ *
  * \param texture the texture unit to use
  * \param point   the texture coordinates
  * \param minimum the minumum value of all values inside the texture
  * \param scale   the scaling value for all values inside the texture
  *
  * \note The minimum and scale values are normally transferred to the shader using uniforms, as the CPU scales the textures
- * 
+ *
  * \return the value at the given point
  */
 vec4 texture2DUnscaled( sampler2D texture, vec2 point, float minimum, float scale )
@@ -83,9 +83,9 @@ vec4 texture1DUnscaled( sampler1D texture, float point, float minimum, float sca
 /**
  * This method normalizes a given point/vector in a special way. It scales it so that the largest component is exactly 1.
  * This way the other components can profit from the whole precision in textures (where all values are clamped if >1).
- * 
+ *
  * \param point the point to scale
- * 
+ *
  * \return the scaled point, where max( { point.x, point.y, point.z, point.w } ) = 1
  */
 vec4 textureNormalize( vec4 point )
@@ -96,9 +96,9 @@ vec4 textureNormalize( vec4 point )
 /**
  * This method normalizes a given point/vector in a special way. It scales it so that the largest component is exactly 1.
  * This way the other components can profit from the whole precision in textures (where all values are clamped if >1).
- * 
+ *
  * \param point the point to scale
- * 
+ *
  * \return the scaled point, where max( { point.x, point.y, point.z } ) = 1
  */
 vec3 textureNormalize( vec3 point )
@@ -109,14 +109,54 @@ vec3 textureNormalize( vec3 point )
 /**
  * This method normalizes a given point/vector in a special way. It scales it so that the largest component is exactly 1.
  * This way the other components can profit from the whole precision in textures (where all values are clamped if >1).
- * 
+ *
  * \param point the point to scale
- * 
+ *
  * \return the scaled point, where max( { point.x, point.y, point.z } ) = 1
  */
 vec2 textureNormalize( vec2 point )
 {
     return 0.5 + ( 0.5 * scaleMaxToOne( point ) );
+}
+
+/**
+ * Returns the discrete voxel coordinate in texture space. This is useful to get the nearest pixel/voxel for a given coordinate in [0,1].
+ *
+ * \param vSize the normalized size of the texture (usually this is a vec3( 1.0 / sizeX, 1.0 / sizeY, 1.0 / sizeZ ).
+ * \param coord the coordinate to get the discrete coordinate for
+ *
+ * \return the coordinate
+ */
+vec3 getDiscreteVoxelCoordinate( in vec3 vSize, in vec3 coord )
+{
+    coord.x -= mod( coord.x, vSize.x );
+    coord.y -= mod( coord.y, vSize.y );
+    coord.z -= mod( coord.z, vSize.z );
+
+    coord.x += 0.5 * vSize.x;
+    coord.y += 0.5 * vSize.y;
+    coord.z += 0.5 * vSize.z;
+
+    return coord;
+}
+
+/**
+ * Get the discrete coordinate of a neighbour coordinate relative to the given one. Useful for manual implementations of interpolation
+ * algorithms.
+ *
+ * \param vSize the normalized size of the texture (usually this is a vec3( 1.0 / sizeX, 1.0 / sizeY, 1.0 / sizeZ ).
+ * \param coord the coordinate to which the neighbour is relative
+ * \param direction the direction. vec3( 1.0, 0.0, 0.0 ) returns the right neighbour.
+ *
+ * \return the neighbour coordinate.
+ */
+vec3 getNeighbourVoxel( in vec3 vSize, in vec3 coord, in vec3 direction )
+{
+    vec3 me = getDiscreteVoxelCoordinate( vSize, coord );
+    return me + vec3( direction.x * vSize.x,
+                      direction.y * vSize.y,
+                      direction.z * vSize.z
+                    );
 }
 
 #endif // WGETEXTURETOOLS_GLSL
