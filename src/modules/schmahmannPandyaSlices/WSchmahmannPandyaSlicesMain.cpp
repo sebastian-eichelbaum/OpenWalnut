@@ -22,15 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
-#include "boundaryCurvesWMGM/WMBoundaryCurvesWMGM.h"
-#include "core/kernel/WModule.h"
-#include "probTractDisplaySP/WMProbTractDisplaySP.h"
-#include "slices/WMSlices.h"
-#include "WSchmahmannPandyaSlicesMain.h"
-
-extern "C" void WLoadModule( WModuleList& m ) // NOLINT const ref
-{
-    m.push_back( boost::shared_ptr< WModule >( new WMBoundaryCurvesWMGM ) );
-    m.push_back( boost::shared_ptr< WModule >( new WMProbTractDisplaySP ) );
-    m.push_back( boost::shared_ptr< WModule >( new WMSlices ) );
-}
+// #include "boundaryCurvesWMGM/WMBoundaryCurvesWMGM.h"
+// #include "core/kernel/WModule.h"
+// #include "probTractDisplaySP/WMProbTractDisplaySP.h"
+// #include "slices/WMSlices.h"
+// #include "WSchmahmannPandyaSlicesMain.h"
+//
+// extern "C" void WLoadModule( WModuleList& m ) // NOLINT const ref
+// {
+//     m.push_back( boost::shared_ptr< WModule >( new WMBoundaryCurvesWMGM ) );
+//     m.push_back( boost::shared_ptr< WModule >( new WMProbTractDisplaySP ) );
+//     m.push_back( boost::shared_ptr< WModule >( new WMSlices ) );
+// }
