@@ -1180,7 +1180,7 @@ typedef WMatrixFixed< float, 4, 4 > WMatrix4f;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Cale the given matrix by the value. This is needed for having * to be commutative. For more details, see  \ref WMatrixFixed::operator*.
+ * Scale the given matrix by the value. This is needed for having * to be commutative. For more details, see  \ref WMatrixFixed::operator*.
  *
  * \tparam ScalarT Integral type of scaler
  * \tparam MatrixValueT Value type of matrix
