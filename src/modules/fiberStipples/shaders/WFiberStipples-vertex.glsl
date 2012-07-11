@@ -24,18 +24,23 @@
 
 #version 120
 
-uniform float u_glyphSize;
-varying vec4 v_middlePoint;
+/**
+ * The matrix describes the transformation of gl_Vertex to OpenWalnut Scene Space
+ */
+uniform mat4 u_WorldTransform;
 
+
+uniform int u_probTractSizeY;
+
+/**
+ * Vertex Main. Simply transforms the geometry. The work is done per fragment.
+ */
 void main()
 {
-    gl_TexCoord[0] = u_glyphSize * gl_MultiTexCoord0;
-    gl_TexCoord[1] = u_glyphSize * gl_MultiTexCoord1;
-    gl_TexCoord[2] = u_glyphSize * gl_MultiTexCoord2;
-    vec4 v = gl_Vertex + vec4( gl_TexCoord[0].xyz, 0.0 );
-    v_middlePoint =  gl_Vertex;
+    gl_TexCoord[0] = gl_MultiTexCoord0;
+    gl_TexCoord[0].y = ( u_WorldTransform[3] / u_probTractSizeY ).y;
+    // transform position
+    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+//    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_Vertex;
 
-    gl_FrontColor = gl_Color;
-
-    gl_Position = gl_ModelViewProjectionMatrix * v;
 }

@@ -25,6 +25,8 @@
 #include <string>
 
 #include <osg/Geometry>
+#include <osg/MatrixTransform>
+// #include <osg/Vec3>
 
 #include "core/dataHandler/WDataSetFibers.h"
 #include "core/dataHandler/WDataSetScalar.h"
@@ -36,11 +38,27 @@
 #include "WMFiberStipples.h"
 #include "WMFiberStipples.xpm"
 
+#include "core/common/math/WMath.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/graphicsEngine/callbacks/WGELinearTranslationCallback.h"
+#include "core/graphicsEngine/callbacks/WGENodeMaskCallback.h"
+#include "core/graphicsEngine/callbacks/WGEPropertyUniformCallback.h"
+#include "core/graphicsEngine/shaders/WGEPropertyUniform.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
+#include "core/graphicsEngine/shaders/WGEShaderDefineOptions.h"
+#include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
+#include "core/graphicsEngine/WGEColormapping.h"
+#include "core/graphicsEngine/WGEGeodeUtils.h"
+#include "core/graphicsEngine/WGraphicsEngine.h"
+#include "core/kernel/WSelectionManager.h"
+
+
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMFiberStipples )
 
 WMFiberStipples::WMFiberStipples()
-    : WModule()
+    : WModule(),
+      m_first( true )
 {
 }
 
@@ -82,7 +100,7 @@ void WMFiberStipples::properties()
 {
 //    m_sliceGroup     = m_properties->addPropertyGroup( "Slices",  "Slice based probabilistic tractogram display." );
 //
-//    m_slicePos[ 0 ] = m_sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 0.0, m_sliceChanged );
+    m_Pos = m_properties->addProperty( "Slice position", "Slice position.", 0.0 );
 //    m_slicePos[ 1 ] = m_sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0.0, m_sliceChanged );
 //    m_slicePos[ 2 ] = m_sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0.0, m_sliceChanged );
 //
@@ -144,14 +162,61 @@ void WMFiberStipples::properties()
     WModule::properties();
 }
 
-osg::ref_ptr< WGEManagedGroupNode > WMFiberStipples::initOSG()
+void WMFiberStipples::initOSG()
 {
     debugLog() << "Init OSG";
-    osg::ref_ptr< WGEManagedGroupNode > rootNode( new WGEManagedGroupNode( m_active ) );
-    rootNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( rootNode );
 
-    return rootNode;
+    m_output->clear();
+
+    // no colormaps -> no slices
+    bool empty = !WGEColormapping::instance()->size();
+    if( empty )
+    {
+        // hide the slider properties.
+        m_Pos->setHidden();
+        return;
+    }
+
+    // grab the current bounding box for computing the size of the slice
+    WBoundingBox bb = WGEColormapping::instance()->getBoundingBox();
+    WVector3d minV = bb.getMin();
+    WVector3d maxV = bb.getMax();
+    WVector3d sizes = ( maxV - minV );
+    WVector3d midBB = minV + ( sizes * 0.5 );
+
+    // update the properties
+    m_Pos->setMin( minV[1] );
+    m_Pos->setMax( maxV[1] );
+    m_Pos->setHidden( false );
+
+    // if this is done the first time, set the slices to the center of the dataset
+    if( m_first )
+    {
+        m_first = false;
+        m_Pos->set( midBB[1] );
+    }
+
+    // create a new geode containing the slices
+    osg::ref_ptr< osg::Node > slice = wge::genFinitePlane( minV, osg::Vec3( sizes[0], 0.0, 0.0 ),
+                                                                 osg::Vec3( 0.0, 0.0, sizes[2] ) );
+    slice->setName( "Coronal Slice" );
+    osg::Uniform* sliceUniform = new osg::Uniform( "u_WorldTransform", osg::Matrix::identity() );
+    slice->getOrCreateStateSet()->addUniform( sliceUniform );
+    slice->setCullingActive( false );
+
+    // each slice is child of an transformation node
+    osg::ref_ptr< osg::MatrixTransform > mT = new osg::MatrixTransform();
+    mT->addChild( slice );
+
+    // Control transformation node by properties. We use an additional uniform here to provide the shader
+    // the transformation matrix used to translate the slice.
+    mT->addUpdateCallback( new WGELinearTranslationCallback< WPropDouble >( osg::Vec3( 0.0, 1.0, 0.0 ), m_Pos, sliceUniform ) );
+
+    m_output->getOrCreateStateSet()->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+    m_output->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
+    m_output->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    m_output->insert( mT );
+    m_output->dirtyBound();
 }
 
 void WMFiberStipples::moduleMain()
@@ -163,7 +228,12 @@ void WMFiberStipples::moduleMain()
 
     ready();
 
-    m_output = initOSG();
+    // graphics setup
+    m_output = osg::ref_ptr< WGEManagedGroupNode >( new WGEManagedGroupNode( m_active ) );
+    initOSG();
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
+    osg::ref_ptr< WGEShader > shader = new WGEShader( "WFiberStipples", m_localPath );
+    WGEColormapping::apply( m_output, shader ); // this automatically applies the shader
 
     // main loop
     while( !m_shutdownFlag() )
@@ -177,98 +247,22 @@ void WMFiberStipples::moduleMain()
             break;
         }
 
-//        bool dataUpdated = m_vectorIC->handledUpdate() || m_tractsIC->handledUpdate(); // this call must be made befor getData() on the ICs
-//        bool probDataValid = false;
-//
-//        boost::shared_ptr< WDataSetVector > vectors = m_vectorIC->getData();
-//        boost::shared_ptr< WDataSetFibers > detTracts = m_tractsIC->getData();
-//        boost::shared_ptr< WGridRegular3D > grid;
-//        probTracts.clear(); // discard all prob tracts so far
-//
-//        for( size_t i = 0; i < NUM_ICS; ++i )
-//        {
-//            dataUpdated = dataUpdated || m_probICs[i]->handledUpdate();
-//            probDataValid = probDataValid || m_probICs[i]->getData(); // at least one probabilistic tract must be there
-//            if( m_probICs[i]->getData() )
-//            {
-//                probTracts.push_back( m_probICs[i]->getData() );
-//            }
-//        }
-//        bool dataValid = ( detTracts || vectors ) && probDataValid;
-//
-//        if( dataValid )
-//        {
-//            grid = boost::shared_dynamic_cast< WGridRegular3D >( probTracts.front()->getGrid() ); // assume all grids are the same and get the first
-//            if( !grid )
-//            {
-//                errorLog() << "A grid beside WGridRegular3D was used, aborting...";
-//                continue;
-//            }
-//        }
-//        else
-//        {
-//            m_output->clear();
-//            builder.reset();
-//            continue;
-//        }
-//
-//        if( dataUpdated || m_drawAlgorithm->changed() )
-//        {
-//            infoLog() << "Handling data update..";
-//            checkProbabilityRanges( probTracts );
-//
-//            if( grid->getNbCoordsX() > 0 && grid->getNbCoordsY() > 0 &&  grid->getNbCoordsZ() > 0 )
-//            {
-//                resetSlicePos( grid );
-//            }
-//            else
-//            {
-//                warnLog() << "Invalid grid: at least one dimension is not greater zero.";
-//                continue;
-//            }
-//
-//            WItemSelector algo = m_drawAlgorithm->get( true );
-//            if( algo.at( 0 )->getName() == std::string( "With largest eigen vectors" ) )
-//            {
-//                m_vectorGroup->setHidden( false );
-//                m_tractGroup->setHidden( true );
-//                if( !vectors )
-//                {
-//                    errorLog() << "No vector dataset available, but selected method needs one. Please connect one!";
-//                    continue;
-//                }
-//                else
-//                {
-//                    builder = boost::shared_ptr< WSPSliceBuilderVectors >( new WSPSliceBuilderVectors( probTracts, m_sliceGroup, m_colorMap,
-//                                vectors, m_vectorGroup, m_localPath ) );
-//                }
-//            }
-//            else if( algo.at( 0 )->getName() == std::string( "With deterministic tracts" ) )
-//            {
-//                m_vectorGroup->setHidden( true );
-//                m_tractGroup->setHidden( false );
-//                if( !detTracts )
-//                {
-//                    errorLog() << "No deterministic tracts on the connector present, but selected method needs one. Please connect one!";
-//                    continue;
-//                }
-//                else
-//                {
-//                    builder = boost::shared_ptr< WSPSliceBuilderTracts >( new WSPSliceBuilderTracts( probTracts, m_sliceGroup, m_colorMap, detTracts,
-//                                m_tractGroup ) );
-//                }
-//            }
-//            else
-//            {
-//                throw WNotImplemented( "Invalid method: Either \"With largest eigen vectors\" or \"With deterministic tracts\" expected." );
-//            }
-//        }
-//
-//        // NOTE: we know that we could arrange much more specific updates here, just update the slice that has changed, but this is too complex to
-//        // consider also color, m_delta, etc. changes..., and ofcourse: we have the time to calc that every loop-cycle again and again, it does
-//        // not really matter
-//        debugLog() << "Building the geodes...";
-//        updateSlices( builder );
+        // save data behind connectors since it might change during processing
+        boost::shared_ptr< WDataSetVector > vectors = m_vectorIC->getData();
+        boost::shared_ptr< WDataSetScalar > probTract = m_probIC->getData();
+        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( probTract->getGrid() );
+
+        if( !( vectors && probTract ) || !grid )// if data valid
+        {
+            continue;
+        }
+
+        initOSG();
+
+        wge::bindTexture( m_output, vectors->getTexture(), 0, "u_vectors" );
+        wge::bindTexture( m_output, probTract->getTexture(), 1, "u_probTract" );
+
+        // TODO(math): unbind textures, so we have a clean OSG root node for this module again
     }
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_output );

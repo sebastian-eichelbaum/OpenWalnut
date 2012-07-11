@@ -100,10 +100,8 @@ protected:
 private:
     /**
      * Initialize OSG root node for this module. All other nodes from this module should be attached to this root node.
-     *
-     * \return Pointer to the root node.
      */
-    osg::ref_ptr< WGEManagedGroupNode > initOSG();
+    void initOSG();
 
     /**
      * The probabilistic tractogram input connector.
@@ -119,6 +117,16 @@ private:
      * The OSG root node for this module. All other geodes or OSG nodes will be attached on this single node.
      */
     osg::ref_ptr< WGEManagedGroupNode > m_output;
+
+    /**
+     * Controls the slice position, only back and forth will be possible.
+     */
+    WPropDouble m_Pos;
+
+    /**
+     * For initial slice positioning we need to control if the module is in intial state or not.
+     */
+    bool m_first;
 };
 
 #endif  // WMFIBERSTIPPLES_H
