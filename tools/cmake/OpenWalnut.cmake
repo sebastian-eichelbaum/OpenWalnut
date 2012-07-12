@@ -167,6 +167,10 @@ FUNCTION( BUILD_SYSTEM_COMPILER )
     SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
 ENDFUNCTION( BUILD_SYSTEM_COMPILER )
 
+# GCC 4.7 requires us to explicitly link against libstdc++ and libm. CMake offers a variable for this called "CMAKE_STANDARD_LIBRARIES".
+# Unfortunately, this variable is empty. We fill it here and hopefully this is fixed in the near future.
+LIST( APPEND CMAKE_STANDARD_LIBRARIES "stdc++" "m" )
+
 # Allow injection of other flags
 # NOTE: do not set these variables somewhere in cmake. They are intended to be used when calling CMake from the command line.
 # Utilize this to append build flags from external systems (like dpkg-buildflags).
