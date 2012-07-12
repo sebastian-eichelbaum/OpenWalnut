@@ -37,7 +37,7 @@
 
 WTransferFunctionHistogram::WTransferFunctionHistogram( WTransferFunctionWidget * /*parent*/ ) : BaseClass()
 {
-    setOpacity( 0.3 );
+    setOpacity( 0.4 );
     setZValue( 2 );
 }
 
@@ -65,19 +65,45 @@ void WTransferFunctionHistogram::paint( QPainter *painter, const QStyleOptionGra
 
             painter->setBrush( gradient );
 
-            QPolygon histogram;
-            QRectF bb( this->scene()->sceneRect() );
-            histogram << QPoint( bb.right(), bb.bottom() );
-            histogram << QPoint( bb.left(), bb.bottom() );
-
-            for( int i = 0; i < steps; ++i )
+            // polygon for logarithmic mapping ( background )
             {
-                // logarithmic mapping of histogram to values
-                // the added 1.001 is to avoid numerical problems but should work for most data sets
-                histogram << QPoint( bb.left()+ ( double )bb.width()*( double )i/( double )steps,
-                          bb.bottom() - ( double )bb.height() * std::log( m_data[ i ]+1 )/std::log( maxval+1.001 ) );
+                QPolygon histogram;
+                QRectF bb( this->scene()->sceneRect() );
+                histogram << QPoint( bb.right(), bb.bottom() );
+                histogram << QPoint( bb.left(), bb.bottom() );
+
+                for( int i = 0; i < steps; ++i )
+                {
+                    // logarithmic mapping of histogram to values
+                    // the added 0.001 is to avoid numerical problems but should work for most data sets
+                    // when changing this value, keep in mind that the value has to work for a wide range of
+                    // numbers ( i.e. maxval close to 0 and maxval close to infty )
+                    histogram << QPoint( bb.left()+ ( double )bb.width()*( double )i/( double )steps,
+                              bb.bottom() - ( double )bb.height() * std::log( m_data[ i ]+1 )/std::log( maxval+1+0.001 ) );
+                }
+                painter->drawPolygon( histogram );
             }
-            painter->drawPolygon( histogram );
+            // The paper "Multi-Dimensional Transfer Functions for Interactive Volume Rendering"
+            // by Joe Kniss, Gordon Kindlmann and Charles Hansen
+            // brought the idea of overlaying the logarithmic plot with a non-logarithmic plot
+            // which may help to understand the data a bit better. Maybe this should be a config option,
+            // but for now it is there for whoever likes to see it.
+            //
+            // polygon for non-logarithmic mapping
+            {
+                QPolygon histogram;
+                QRectF bb( this->scene()->sceneRect() );
+                histogram << QPoint( bb.right(), bb.bottom() );
+                histogram << QPoint( bb.left(), bb.bottom() );
+
+                for( int i = 0; i < steps; ++i )
+                {
+                    // linear mapping of histogram to values
+                    histogram << QPoint( bb.left()+ ( double )bb.width()*( double )i/( double )steps,
+                              bb.bottom() - ( double )bb.height() * m_data[ i ]/maxval );
+                }
+                painter->drawPolygon( histogram );
+            }
         }
     }
 }

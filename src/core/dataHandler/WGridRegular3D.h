@@ -68,7 +68,11 @@ class WGridRegular3DTemplate : public WGrid // NOLINT
      */
     friend class WGridRegular3DTest;
 public:
+    /**
+     * Convenience typedef for 3d vectors of the appropriate numerical type.
+     */
     typedef WMatrixFixed< T, 3, 1 > Vector3Type;
+
     /**
      * Convenience typedef for a boost::shared_ptr< WGridRegular3DTemplate >.
      */
@@ -87,6 +91,8 @@ public:
     /**
      * Copy constructor.
      * Copies the data from an WGridRegular3DTemplate object with arbitary numerical type.
+     *
+     * \param rhs A WGridRegular3DTemplate object, which mustn't have the same numerical type.
      */
     template< typename InputType >
     WGridRegular3DTemplate( WGridRegular3DTemplate< InputType > const& rhs ); // NOLINT -- no explicit, this allows casts
@@ -660,7 +666,7 @@ inline typename WGridRegular3DTemplate< T >::Vector3Type WGridRegular3DTemplate<
 }
 
 template< typename T >
-inline int WGridRegular3DTemplate< T >::getVoxelNum( const WGridRegular3DTemplate< T >::Vector3Type& pos ) const
+inline int WGridRegular3DTemplate< T >::getVoxelNum( const Vector3Type& pos ) const
 {
     // Note: the reason for the +1 is that the first and last Voxel in a x-axis
     // row are cut.
@@ -758,7 +764,7 @@ inline size_t WGridRegular3DTemplate< T >::getCellId( const WGridRegular3DTempla
 template< typename T >
 inline typename WGridRegular3DTemplate< T >::CellVertexArray WGridRegular3DTemplate< T >::getCellVertexIds( size_t cellId ) const
 {
-    WGridRegular3DTemplate< T >::CellVertexArray vertices;
+    typename WGridRegular3DTemplate< T >::CellVertexArray vertices;
     size_t minVertexIdZ =  cellId / ( ( m_nbPosX - 1 ) * ( m_nbPosY - 1 ) );
     size_t remainderXY = cellId - minVertexIdZ * ( ( m_nbPosX - 1 ) * ( m_nbPosY - 1 ) );
     size_t minVertexIdY = remainderXY  / ( m_nbPosX - 1 );

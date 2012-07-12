@@ -29,6 +29,7 @@
 
 // All the uniforms needed. These uniforms get set by the WGEColormapping class for your Node.
 
+
 /////////////////////////////////////////////////////////////////////////////
 // Colormap 0
 /////////////////////////////////////////////////////////////////////////////
@@ -56,6 +57,11 @@ uniform bool u_colormap0Active;
 
 //!< The sampler for texture access.
 uniform sampler3D u_colormap0Sampler;
+
+//!< The size in voxel dimensions
+uniform int u_colormap0SizeX;
+uniform int u_colormap0SizeY;
+uniform int u_colormap0SizeZ;
 
 /////////////////////////////////////////////////////////////////////////////
 // Colormap 1
@@ -85,6 +91,11 @@ uniform bool u_colormap1Active;
 //!< The sampler for texture access.
 uniform sampler3D u_colormap1Sampler;
 
+//!< The size in voxel dimensions
+uniform int u_colormap1SizeX;
+uniform int u_colormap1SizeY;
+uniform int u_colormap1SizeZ;
+
 /////////////////////////////////////////////////////////////////////////////
 // Colormap 2
 /////////////////////////////////////////////////////////////////////////////
@@ -112,6 +123,11 @@ uniform bool u_colormap2Active;
 
 //!< The sampler for texture access.
 uniform sampler3D u_colormap2Sampler;
+
+//!< The size in voxel dimensions
+uniform int u_colormap2SizeX;
+uniform int u_colormap2SizeY;
+uniform int u_colormap2SizeZ;
 
 /////////////////////////////////////////////////////////////////////////////
 // Colormap 3
@@ -141,6 +157,11 @@ uniform bool u_colormap3Active;
 //!< The sampler for texture access.
 uniform sampler3D u_colormap3Sampler;
 
+//!< The size in voxel dimensions
+uniform int u_colormap3SizeX;
+uniform int u_colormap3SizeY;
+uniform int u_colormap3SizeZ;
+
 /////////////////////////////////////////////////////////////////////////////
 // Colormap 4
 /////////////////////////////////////////////////////////////////////////////
@@ -168,6 +189,11 @@ uniform bool u_colormap4Active;
 
 //!< The sampler for texture access.
 uniform sampler3D u_colormap4Sampler;
+
+//!< The size in voxel dimensions
+uniform int u_colormap4SizeX;
+uniform int u_colormap4SizeY;
+uniform int u_colormap4SizeZ;
 
 /////////////////////////////////////////////////////////////////////////////
 // Colormap 5
@@ -197,6 +223,11 @@ uniform bool u_colormap5Active;
 //!< The sampler for texture access.
 uniform sampler3D u_colormap5Sampler;
 
+//!< The size in voxel dimensions
+uniform int u_colormap5SizeX;
+uniform int u_colormap5SizeY;
+uniform int u_colormap5SizeZ;
+
 /////////////////////////////////////////////////////////////////////////////
 // Colormap 6
 /////////////////////////////////////////////////////////////////////////////
@@ -225,6 +256,11 @@ uniform bool u_colormap6Active;
 //!< The sampler for texture access.
 uniform sampler3D u_colormap6Sampler;
 
+//!< The size in voxel dimensions
+uniform int u_colormap6SizeX;
+uniform int u_colormap6SizeY;
+uniform int u_colormap6SizeZ;
+
 /////////////////////////////////////////////////////////////////////////////
 // Colormap 7
 /////////////////////////////////////////////////////////////////////////////
@@ -252,6 +288,11 @@ uniform bool u_colormap7Active;
 
 //!< The sampler for texture access.
 uniform sampler3D u_colormap7Sampler;
+
+//!< The size in voxel dimensions
+uniform int u_colormap7SizeX;
+uniform int u_colormap7SizeY;
+uniform int u_colormap7SizeZ;
 
 #endif // WGECOLORMAPPING_UNIFORMS_GLSL
 
