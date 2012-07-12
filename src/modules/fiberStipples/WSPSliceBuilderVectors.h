@@ -95,7 +95,7 @@
 //      *
 //      * \return A array of direction to add to the center point to get the new centerpoints around in clockwise manner.
 //      */
-//     boost::shared_ptr< std::vector< WVector3d > > generateClockwiseDir( std::pair< unsigned char, unsigned char > activeDims, double distance ) const;
+// boost::shared_ptr< std::vector< WVector3d > > generateClockwiseDir( std::pair< unsigned char, unsigned char > activeDims, double distance ) const;
 //
 //     /**
 //      * Compute the origin and the base vectors of each slice, and returns the other opposite indices.

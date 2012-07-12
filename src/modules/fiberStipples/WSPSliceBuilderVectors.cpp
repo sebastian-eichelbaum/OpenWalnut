@@ -155,8 +155,8 @@
 //                                 secondFocalPoint->push_back( focalPoints.second );
 //                             }
 //
-//                             // for each primitive copy the same texture coordinates, misused as the vertex transformation information to make a real
-//                             // quad out of the four center points
+//                             // for each primitive copy the same texture coordinates, misused as the vertex transformation information to make a
+//                             // real quad out of the four center points
 //                             quadSpanning->insert( quadSpanning->end(), texCoordsPerPrimitive->begin(), texCoordsPerPrimitive->end() );
 //                         }
 //                     }

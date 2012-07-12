@@ -46,8 +46,8 @@
  * \param alpha the alpha blending value
  * \param cmap the colormap index to use
  */
-void colormap( inout vec4 color, in sampler3D sampler, in vec3 coord, in vec3 size, float minV, float scaleV, float thresholdV, bool thresholdEnabled, float alpha,
-               int cmap, bool active )
+void colormap( inout vec4 color, in sampler3D sampler, in vec3 coord, in vec3 size, float minV, float scaleV, float thresholdV,
+        bool thresholdEnabled, float alpha, int cmap, bool active )
 {
     // This implements a manual trilinear interpolation. Include WGETextureutils.glsl to use this
     // vec3 vSize = vec3( 1.0 / float( size.x ),

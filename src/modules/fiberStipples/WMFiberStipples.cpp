@@ -134,7 +134,8 @@ void WMFiberStipples::properties()
 
 //    // properties only relevant if the method is: "With deterministic tracts" was selected
 //    m_tractGroup     = m_properties->addPropertyGroup( "Tract Group", "Parameters for drawing via deterministic tracts." );
-//    m_probThreshold    = m_tractGroup->addProperty( "Prob Threshold", "Only vertices with probabil. greater this contribute.", 0.1, m_sliceChanged );
+//    m_probThreshold    = m_tractGroup->addProperty( "Prob Threshold", "Only vertices with probabil. greater this contribute.", 0.1,
+//                                             m_sliceChanged );
 //    m_probThreshold->setMin( 0.0 );
 //    m_probThreshold->setMax( 1.0 );
 //    m_showIntersection = m_tractGroup->addProperty( "Show Intersections", "Show intersecition stipplets", false );
@@ -252,7 +253,7 @@ void WMFiberStipples::moduleMain()
         boost::shared_ptr< WDataSetScalar > probTract = m_probIC->getData();
         boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( probTract->getGrid() );
 
-        if( !( vectors && probTract ) || !grid )// if data valid
+        if( !( vectors && probTract ) || !grid ) // if data valid
         {
             continue;
         }
