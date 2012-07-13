@@ -36,6 +36,7 @@ ADD_MODULE( schmahmannPandyaSlices )
 ADD_MODULE( splineSurface )
 ADD_MODULE( surfaceParameterAnimator )
 ADD_MODULE( webglSupport )
+ADD_MODULE( surfaceIllustrator )
 
 IF( Teem_FOUND )
     ADD_MODULE( teemGlyphs ${Teem_LIBRARIES} )

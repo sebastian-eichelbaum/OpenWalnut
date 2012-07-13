@@ -168,8 +168,15 @@ void WMEigenSystem::updateOCs( boost::shared_ptr< const WDataSetSingle > es )
     boost::shared_ptr< WGrid > grid = es->getGrid();
 
     typedef boost::shared_ptr< std::vector< double > > DataPointer;
-    std::vector< DataPointer > vecdata( 4, DataPointer( new std::vector< double >( vs->size() * 3 ) ) );
-    std::vector< DataPointer > valdata( 3, DataPointer( new std::vector< double >( vs->size() ) ) );
+    std::vector< DataPointer > vecdata;
+    vecdata.push_back( DataPointer( new std::vector< double >( vs->size() * 3 ) ) );
+    vecdata.push_back( DataPointer( new std::vector< double >( vs->size() * 3 ) ) );
+    vecdata.push_back( DataPointer( new std::vector< double >( vs->size() * 3 ) ) );
+    vecdata.push_back( DataPointer( new std::vector< double >( vs->size() * 3 ) ) );
+    std::vector< DataPointer > valdata;
+    valdata.push_back( DataPointer( new std::vector< double >( vs->size() ) ) );
+    valdata.push_back( DataPointer( new std::vector< double >( vs->size() ) ) );
+    valdata.push_back( DataPointer( new std::vector< double >( vs->size() ) ) );
 
     for( size_t i = 0; i < vs->size(); ++i )
     {
@@ -199,10 +206,10 @@ void WMEigenSystem::updateOCs( boost::shared_ptr< const WDataSetSingle > es )
     typedef WValueSet< double > WVSDBL;
     typedef boost::shared_ptr< WVSDBL > PWVSDBL;
 
-    m_evecOutputs[0]->updateData( PDSV( new WDataSetVector( PWVSDBL( new WVSDBL( 1, 3, vecdata[0], W_DT_DOUBLE ) ), grid ) ) );
-    m_evecOutputs[1]->updateData( PDSV( new WDataSetVector( PWVSDBL( new WVSDBL( 1, 3, vecdata[1], W_DT_DOUBLE ) ), grid ) ) );
-    m_evecOutputs[2]->updateData( PDSV( new WDataSetVector( PWVSDBL( new WVSDBL( 1, 3, vecdata[2], W_DT_DOUBLE ) ), grid ) ) );
-    m_evecOutputs[3]->updateData( PDSV( new WDataSetVector( PWVSDBL( new WVSDBL( 1, 3, vecdata[3], W_DT_DOUBLE ) ), grid ) ) );
+    m_evecOutputs[0]->updateData( PDSV( new WDataSetVector( PWVSDBL( new WVSDBL( 1, 3, vecdata[1], W_DT_DOUBLE ) ), grid ) ) );
+    m_evecOutputs[1]->updateData( PDSV( new WDataSetVector( PWVSDBL( new WVSDBL( 1, 3, vecdata[2], W_DT_DOUBLE ) ), grid ) ) );
+    m_evecOutputs[2]->updateData( PDSV( new WDataSetVector( PWVSDBL( new WVSDBL( 1, 3, vecdata[3], W_DT_DOUBLE ) ), grid ) ) );
+    m_evecOutputs[3]->updateData( PDSV( new WDataSetVector( PWVSDBL( new WVSDBL( 1, 3, vecdata[0], W_DT_DOUBLE ) ), grid ) ) );
     m_evalOutputs[0]->updateData( PDSS( new WDataSetScalar( PWVSDBL( new WVSDBL( 0, 1, valdata[0], W_DT_DOUBLE ) ), grid ) ) );
     m_evalOutputs[1]->updateData( PDSS( new WDataSetScalar( PWVSDBL( new WVSDBL( 0, 1, valdata[1], W_DT_DOUBLE ) ), grid ) ) );
     m_evalOutputs[2]->updateData( PDSS( new WDataSetScalar( PWVSDBL( new WVSDBL( 0, 1, valdata[2], W_DT_DOUBLE ) ), grid ) ) );
