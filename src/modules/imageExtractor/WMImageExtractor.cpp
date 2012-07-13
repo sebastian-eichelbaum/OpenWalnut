@@ -144,11 +144,11 @@ void WMImageExtractor::moduleMain()
                     m_selectedImage->ensureValidity( 0 );
                 }
 
+                // remove the old dataset's properties and de-register from colormapper
                 if( m_outData )
                 {
                     m_properties->removeProperty( m_outData->getTexture()->getProperties() );
                     m_infoProperties->removeProperty( m_outData->getTexture()->getInformationProperties() );
-                    WGEColormapping::deregisterTexture( m_outData->getTexture() );
                 }
 
                 std::size_t i = static_cast< std::size_t >( m_selectedImage->get( true ) );
@@ -163,7 +163,26 @@ void WMImageExtractor::moduleMain()
                     // provide the texture's properties as own properties
                     m_properties->addProperty( m_outData->getTexture()->getProperties() );
                     m_infoProperties->addProperty( m_outData->getTexture()->getInformationProperties() );
-                    WGEColormapping::registerTexture( m_outData->getTexture() );
+                }
+
+                // update colormapper
+                // 1: there was some texture and there is a new texture:
+                if( oldOut && m_outData )
+                {
+                    // according to WGEColormapper::replaceTexture, an non-existing old texture causes the new one to be inserted at the end.
+                    WGEColormapping::replaceTexture( oldOut->getTexture(), m_outData->getTexture(), makeImageName( i ) );
+                }
+                // 2: there is no new texture. Remove old one.
+                else if( oldOut )
+                {
+                    // no new texture. Remove old one.
+                    WGEColormapping::deregisterTexture( oldOut->getTexture() );
+                }
+                // 3: there was no texture. Add new one.
+                else if( m_outData )
+                {
+                    // no new texture. Remove old one.
+                    WGEColormapping::registerTexture( m_outData->getTexture(), makeImageName( i ) );
                 }
 
                 m_output->updateData( m_outData );
