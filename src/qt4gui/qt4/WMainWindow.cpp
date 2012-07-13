@@ -285,7 +285,7 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "coronal icon" ), cor_xpm );
     m_iconManager.addIcon( std::string( "sagittal icon" ), sag_xpm );
 
-    m_loadButton = new QAction( m_iconManager.getIcon( "load" ), "Load Dataset", m_permanentToolBar );
+    m_loadButton = new QAction( m_iconManager.getIcon( "load" ), "Load Dataset or Project", m_permanentToolBar );
     m_loadButton->setShortcut( QKeySequence(  QKeySequence::Open ) );
     QAction* roiButton = new QAction( m_iconManager.getIcon( "ROI icon" ), "ROI", m_permanentToolBar );
     QAction* resetButton = new QAction( m_iconManager.getIcon( "view" ), "Reset", m_permanentToolBar );
@@ -297,7 +297,7 @@ void WMainWindow::setupGUI()
     connect( roiButton, SIGNAL(  triggered( bool ) ), this, SLOT( newRoi() ) );
     connect( projectSaveButton, SIGNAL( triggered( bool ) ), this, SLOT( projectSaveAll() ) );
 
-    m_loadButton->setToolTip( "Load a dataset from file" );
+    m_loadButton->setToolTip( "Load a dataset or project from file" );
     resetButton->setToolTip( "Reset main view" );
     roiButton->setToolTip( "Create new ROI" );
     projectSaveButton->setToolTip( "Save current project to file" );

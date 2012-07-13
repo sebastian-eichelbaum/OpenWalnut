@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2009 OpenWalnut Community, BSV-Leipzig and CNCF-CBS
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -24,18 +24,20 @@
 
 #version 120
 
-uniform float u_glyphSize;
-varying vec4 v_middlePoint;
+/**
+ * The normal.
+ */
+varying vec3 v_normal;
+
+varying vec4 verpos;
 
 void main()
 {
-    gl_TexCoord[0] = u_glyphSize * gl_MultiTexCoord0;
-    gl_TexCoord[1] = u_glyphSize * gl_MultiTexCoord1;
-    gl_TexCoord[2] = u_glyphSize * gl_MultiTexCoord2;
-    vec4 v = gl_Vertex + vec4( gl_TexCoord[0].xyz, 0.0 );
-    v_middlePoint =  gl_Vertex;
+    // get normal
+    v_normal = gl_NormalMatrix * gl_Normal;
 
+    // apply standard pipeline
     gl_FrontColor = gl_Color;
-
-    gl_Position = gl_ModelViewProjectionMatrix * v;
+    verpos = gl_Vertex;
+    gl_Position = ftransform();
 }
