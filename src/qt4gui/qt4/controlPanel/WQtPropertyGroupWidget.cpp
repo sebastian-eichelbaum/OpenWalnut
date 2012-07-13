@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <algorithm>
 
 #include <QtGui/QApplication>
 #include <QtGui/QGroupBox>
@@ -33,6 +34,7 @@
 #include "../events/WPropertyChangedEvent.h"
 
 #include "core/common/WPropertyGroupBase.h"
+#include "core/common/WLogger.h"
 
 #include "../WGuiConsts.h"
 
@@ -42,7 +44,6 @@
 WQtPropertyGroupWidget::WQtPropertyGroupWidget( WPropertyGroupBase::SPtr group, QWidget* parent )
     : QWidget( parent ),
     m_name( group->getName().c_str() ),
-    m_numberOfWidgets( 0 ),
     m_group( group )
 {
     // note: never do layouts as none pointers
@@ -56,6 +57,18 @@ WQtPropertyGroupWidget::WQtPropertyGroupWidget( WPropertyGroupBase::SPtr group, 
     m_controlLayout->setSpacing( WGLOBAL_SPACING );
 
     m_pageLayout->addLayout( m_controlLayout );
+
+    // add the groups children
+    // read lock, gets unlocked upon destruction (out of scope)
+    WPropertyGroupBase::PropertySharedContainerType::ReadTicket propAccess = group->getProperties();
+    setName( QString::fromStdString( group->getName() ) );
+
+    // iterate all properties.
+    for( WPropertyGroupBase::PropertyConstIterator iter = propAccess->get().begin(); iter != propAccess->get().end(); ++iter )
+    {
+        addProp( *iter );
+    }
+    addSpacer();
 
     // empty groups are hidden too
     // NOTE: the WPropertyGroupBase class fires the update condition if a prop gets added. So it automatically un-hides if a prop is added.
@@ -89,29 +102,64 @@ bool WQtPropertyGroupWidget::event( QEvent* event )
     if( event->type() == WQT_PROPERTY_CHANGED_EVENT )
     {
         WPropertyGroupBase::PropertySharedContainerType::ReadTicket r = m_group->getReadTicket();
+
+        // handle the case of a hidden property
         setHidden( r->get().empty() | m_group->isHidden() );
         emit hideSignal( m_group->isHidden() );
+
+        // Remove all items we have a widget for but which is not in the property group anymore
+        for( PropertyWidgets::iterator i = m_propWidgets.begin(); i != m_propWidgets.end(); ++i )
+        {
+            // element in the group?
+            WPropertyGroupBase::PropertyContainerType::const_iterator found = std::find( r->get().begin(), r->get().end(), i->first );
+            if( found == r->get().end() )
+            {
+                // NO! Remove the widget. But not yet.
+                delete( i->second );
+                i->second = NULL;
+            }
+        }
+
+        // Add all properties as widget of not yet there
+        for( WPropertyGroupBase::PropertyContainerType::const_iterator i = r->get().begin(); i != r->get().end(); ++i )
+        {
+            // is there a widget for this prop?
+            if( !m_propWidgets.count( *i ) )
+            {
+                // NO. Add it.
+                addProp( *i );
+            }
+        }
+
         return true;
     }
 
     return QWidget::event( event );
 }
 
-WPropertyWidget* WQtPropertyGroupWidget::addProp( WPropertyBase::SPtr property )
+void WQtPropertyGroupWidget::addProp( WPropertyBase::SPtr property )
 {
+    if( property->getType() == PV_GROUP )
+    {
+        addGroup( property->toPropGroupBase() );
+        return;
+    }
+
     // create a widget and increase counter if successful
     WPropertyWidget* widget = WPropertyWidget::construct( property, m_controlLayout, this );
     if( widget )
     {
-        ++m_numberOfWidgets;
+        m_propWidgets[ property ] = widget;
     }
-    return widget;
+}
+
+void WQtPropertyGroupWidget::addGroup( WPropertyGroupBase::SPtr prop )
+{
+    addGroup( new WQtPropertyGroupWidget( prop ) );
 }
 
 void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asScrollArea )
 {
-    ++m_numberOfWidgets;
-
     // create a scrollbox and group box containing the widget
     QWidget* group = new QWidget( this );
 
@@ -174,6 +222,9 @@ void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asSc
     // hide the box too if the property gets hidden
     box->setHidden( widget->isHidden() );
     connect( widget, SIGNAL( hideSignal( bool ) ), box, SLOT( setHidden( bool ) ) );
+
+    // also keep track of group widgets
+    m_propWidgets[ widget->getPropertyGroup() ] = box;
 }
 
 void WQtPropertyGroupWidget::addSpacer()
@@ -194,5 +245,10 @@ void WQtPropertyGroupWidget::setName( QString name )
 
 bool WQtPropertyGroupWidget::isEmpty() const
 {
-    return !m_numberOfWidgets;
+    return m_propWidgets.empty();
+}
+
+WPropertyGroupBase::SPtr WQtPropertyGroupWidget::getPropertyGroup()
+{
+    return m_group;
 }
