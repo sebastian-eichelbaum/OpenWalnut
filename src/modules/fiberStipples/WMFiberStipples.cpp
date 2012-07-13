@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <cstdlib>
 #include <string>
 
 #include <osg/Geometry>
@@ -163,6 +164,69 @@ void WMFiberStipples::properties()
     WModule::properties();
 }
 
+namespace {
+    osg::ref_ptr< osg::Geode > genScatteredDegeneratedQuads( size_t numSamples, osg::Vec3 const& base, osg::Vec3 const& a, osg::Vec3 const& b )
+    {
+        // the stuff needed by the OSG to create a geometry instance
+        osg::ref_ptr< osg::Vec3Array > vertices = new osg::Vec3Array( numSamples * 4 );
+        osg::ref_ptr< osg::Vec3Array > texcoords0 = new osg::Vec3Array( numSamples * 4 );
+        osg::ref_ptr< osg::Vec3Array > texcoords1 = new osg::Vec3Array( numSamples * 4 );
+        osg::ref_ptr< osg::Vec3Array > normals = new osg::Vec3Array;
+        osg::ref_ptr< osg::Vec4Array > colors = new osg::Vec4Array;
+
+        osg::Vec3 aCrossB = a ^ b;
+        aCrossB.normalize();
+        osg::Vec3 aNorm = a;
+        aNorm.normalize();
+        osg::Vec3 bNorm = b;
+        bNorm.normalize();
+
+        std::srand( time( NULL ) );
+        double lambda0, lambda1;
+        const double rndMax = RAND_MAX;
+
+        for( size_t i = 0; i < numSamples; ++i )
+        {
+            // The degenerated QUAD should have all points in its center
+            lambda0 = rand() / rndMax;
+            lambda1 = rand() / rndMax;
+            osg::Vec3 quadCenter = base + a * lambda0 + b * lambda1;
+            for( int j = 0; j < 4; ++j )
+            {
+                vertices->push_back( quadCenter );
+            }
+
+            texcoords0->push_back( ( -aNorm + -bNorm ) );
+            texcoords0->push_back( (  aNorm + -bNorm ) );
+            texcoords0->push_back( (  aNorm +  bNorm ) );
+            texcoords0->push_back( ( -aNorm +  bNorm ) );
+
+            texcoords1->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
+            texcoords1->push_back( osg::Vec3( 1.0, 0.0, 0.0 ) );
+            texcoords1->push_back( osg::Vec3( 1.0, 1.0, 0.0 ) );
+            texcoords1->push_back( osg::Vec3( 0.0, 1.0, 0.0 ) );
+        }
+
+        normals->push_back( aCrossB );
+        colors->push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
+
+        // put it all together
+        osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry();
+        geometry->setVertexArray( vertices );
+        geometry->setTexCoordArray( 0, texcoords0 );
+        geometry->setTexCoordArray( 1, texcoords1 );
+        geometry->setNormalBinding( osg::Geometry::BIND_OVERALL );
+        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+        geometry->setNormalArray( normals );
+        geometry->setColorArray( colors );
+        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, vertices->size() ) );
+
+        osg::ref_ptr< osg::Geode > geode = new osg::Geode();
+        geode->addDrawable( geometry );
+        return geode;
+    }
+}
+
 void WMFiberStipples::initOSG()
 {
     debugLog() << "Init OSG";
@@ -198,9 +262,13 @@ void WMFiberStipples::initOSG()
     }
 
     // create a new geode containing the slices
-    osg::ref_ptr< osg::Node > slice = wge::genFinitePlane( minV, osg::Vec3( sizes[0], 0.0, 0.0 ),
-                                                                 osg::Vec3( 0.0, 0.0, sizes[2] ) );
+    osg::ref_ptr< osg::Node > slice = genScatteredDegeneratedQuads( 1000, minV, osg::Vec3( sizes[0], 0.0, 0.0 ),
+                                                                    osg::Vec3( 0.0, 0.0, sizes[2] ) );
     slice->setName( "Coronal Slice" );
+    osg::Uniform* aVec = new osg::Uniform( "u_aVec", osg::Vec3( sizes[0], 0.0, 0.0 ) );
+    slice->getOrCreateStateSet()->addUniform( aVec );
+    osg::Uniform* bVec = new osg::Uniform( "u_bVec", osg::Vec3( 0.0, 0.0, sizes[2] ) );
+    slice->getOrCreateStateSet()->addUniform( bVec );
     osg::Uniform* sliceUniform = new osg::Uniform( "u_WorldTransform", osg::Matrix::identity() );
     slice->getOrCreateStateSet()->addUniform( sliceUniform );
     slice->setCullingActive( false );
@@ -234,7 +302,7 @@ void WMFiberStipples::moduleMain()
     initOSG();
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
     osg::ref_ptr< WGEShader > shader = new WGEShader( "WFiberStipples", m_localPath );
-    WGEColormapping::apply( m_output, shader ); // this automatically applies the shader
+    shader->apply( m_output ); // this automatically applies the shader
 
     // main loop
     while( !m_shutdownFlag() )

@@ -37,36 +37,35 @@ uniform sampler3D u_probTractSampler;
 uniform float u_vectorsMin;
 uniform float u_vectorsScale;
 
+varying vec4 diffusionDirection;
 
 //uniform float u_glyphThickness;
 //uniform float u_glyphSize;
-//
-//varying vec4 v_middlePoint;
-//
-//float minimum_distance( vec3 v, vec3 w, vec3 p )
-//{
-//  // Return minimum distance between line segment vw and point p
-//  float len = length( v - w );
-//  if( len == 0.0 )   // v == w case
-//  {
-//      return distance( p, v );
-//  }
-//  // Consider the line extending the segment, parameterized as v + t (w - v).
-//  // We find projection of point p onto the line.
-//  // It falls where t = [(p-v) . (w-v)] / |w-v|^2
-//  float t = dot( p - v, w - v ) / ( len * len );
-//
-//  if( t < 0.0 )      // Beyond the 'v' end of the segment
-//  {
-//      return distance( p, v );
-//  }
-//  else if( t > 1.0 ) // Beyond the 'w' end of the segment
-//  {
-//      return distance( p, w );
-//  }
-//  vec3 projection = v + t * ( w - v );  // Projection falls on the segment
-//  return distance( p, projection );
-//}
+
+float minimum_distance( vec3 v, vec3 w, vec3 p )
+{
+  // Return minimum distance between line segment vw and point p
+  float len = length( v - w );
+  if( len == 0.0 )   // v == w case
+  {
+      return distance( p, v );
+  }
+  // Consider the line extending the segment, parameterized as v + t (w - v).
+  // We find projection of point p onto the line.
+  // It falls where t = [(p-v) . (w-v)] / |w-v|^2
+  float t = dot( p - v, w - v ) / ( len * len );
+
+  if( t < 0.0 )      // Beyond the 'v' end of the segment
+  {
+      return distance( p, v );
+  }
+  else if( t > 1.0 ) // Beyond the 'w' end of the segment
+  {
+      return distance( p, w );
+  }
+  vec3 projection = v + t * ( w - v );  // Projection falls on the segment
+  return distance( p, projection );
+}
 
 
 
@@ -133,14 +132,16 @@ void main()
 //     float f_r2 = p2 - sqrt( p2 * p2 + q );
 //     float f_radius = max( r1, r2 );
 
-    vec4 direction = abs( texture3DUnscaled( u_vectorsSampler, gl_TexCoord[0].xyz, u_vectorsMin, u_vectorsScale ) );
-    vec4 probRGBA = texture3D( u_probTractSampler, gl_TexCoord[0].xyz );
-    probRGBA.a = 1.0; // set alpha explicity to 1
+//    vec4 direction = abs( texture3DUnscaled( u_vectorsSampler, gl_TexCoord[0].xyz, u_vectorsMin, u_vectorsScale ) );
+//    vec4 probRGBA = texture3D( u_probTractSampler, gl_TexCoord[0].xyz );
+//    probRGBA.a = 1.0; // set alpha explicity to 1
 
     // vec4 value = texture3D( u_probTractSampler, vec3(gl_TexCoord[0].x, gl_TexCoord[0].y, gl_TexCoord[0].z) );
     // gl_FragColor = vec4( gl_TexCoord[0].xyz, 1.0 ); // vec4( value, 1.0, 0.0, 1.0 );
 //    gl_FragColor = vec4( value, 0.0, 0.0, 1.0 );
-    gl_FragColor = 0.8 * probRGBA + 0.2 * direction;
+//    gl_FragColor = vec4( texture3D( u_probTractSampler, pansen.xyz ).rgb, 1.0 );//vec4( 1.0, 0.0, 0.0, 1.0 );
+    gl_FragColor = vec4( gl_TexCoord[1].xyz, 1.0 );
+    // gl_FragColor = 0.8 * probRGBA + 0.2 * direction;
 
 
 //    // if( minimum_distance( gl_TexCoord[1].xyz, gl_TexCoord[2].xyz, gl_TexCoord[0].xyz ) < radius )
