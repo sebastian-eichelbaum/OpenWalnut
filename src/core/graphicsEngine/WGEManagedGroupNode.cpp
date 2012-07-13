@@ -41,4 +41,3 @@ WGEManagedGroupNode::~WGEManagedGroupNode()
     // cleanup
 }
 
-

@@ -32,8 +32,6 @@
 
 #include "../../common/WFlag.h"
 
-
-
 /**
  * This callback is useful to en-/disable nodes using the node mask based on properties. In contrast to WGEManagedGroupNode, this callback can be
  * added to every kind of node.
