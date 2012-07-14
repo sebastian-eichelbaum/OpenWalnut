@@ -69,7 +69,7 @@ void main()
     texturePosition.y = ( u_WorldTransform[3] / u_probTractSizeY ).y;
     if( texture3D( u_probTractSampler, texturePosition ).r > 0.01 ) // rgb are the same
     {
-        // transform position, the 4th component must be explicitly set, as otherwise they would have been scaled
+         // transform position, the 4th component must be explicitly set, as otherwise they would have been scaled
          gl_Position = gl_ModelViewProjectionMatrix * ( vec4( gl_TexCoord[0].xyz + gl_Vertex.xyz, 1.0 ) );
     }
     else
@@ -79,4 +79,13 @@ void main()
 
     // get principal diffusion direction
     diffusionDirection = abs( texture3DUnscaled( u_vectorsSampler, texturePosition, u_vectorsMin, u_vectorsScale ) ).xyz;
+    diffusionDirection = normalize( diffusionDirection );
+
+    // project into plane (given by two vectors aVec and bVec)
+    vec3 normal = normalize( cross( aVec, bVec ) );
+    vec3 projectedDirection = diffusionDirection - dot( diffusionDirection, normal ) * normal;
+
+    vec3 middlePoint = vec3( 0.5, 0.5, 0.0 ); // in texture coordinates
+    focalPoint1 = middlePoint + projectedDirection;
+    focalPoint2 = middlePoint - projectedDirection;
 }
