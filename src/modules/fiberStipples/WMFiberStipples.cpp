@@ -48,6 +48,7 @@
 #include "core/graphicsEngine/shaders/WGEShader.h"
 #include "core/graphicsEngine/shaders/WGEShaderDefineOptions.h"
 #include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
+#include "core/graphicsEngine/shaders/WGEPropertyUniform.h"
 #include "core/graphicsEngine/WGEColormapping.h"
 #include "core/graphicsEngine/WGEGeodeUtils.h"
 #include "core/graphicsEngine/WGraphicsEngine.h"
@@ -102,63 +103,27 @@ void WMFiberStipples::properties()
 //    m_sliceGroup     = m_properties->addPropertyGroup( "Slices",  "Slice based probabilistic tractogram display." );
 //
     m_Pos = m_properties->addProperty( "Slice position", "Slice position.", 0.0 );
-//    m_slicePos[ 1 ] = m_sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0.0, m_sliceChanged );
-//    m_slicePos[ 2 ] = m_sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0.0, m_sliceChanged );
-//
-//    // since we don't know anything yet => make them unusable
-//    for( size_t i = 0; i < 3; ++i )
-//    {
-//        m_slicePos[i]->setMax( 0 );
-//        m_slicePos[i]->setMin( 0 );
-//    }
+    // we don't know anything about data dimensions yet => make slide unusable
+    m_Pos->setMax( 0 );
+    m_Pos->setMin( 0 );
 
-//    boost::shared_ptr< WItemSelection > drawAlgorithmList( new WItemSelection() );
-//    drawAlgorithmList->addItem( "With largest eigen vectors", "A WDataSetVectors is needed." );
-//    drawAlgorithmList->addItem( "With deterministic tracts", "A WDataSetFibers is needed." );
-//    m_drawAlgorithm = m_properties->addProperty( "Method:", "Method which you want to use for the visualization.",
-//            drawAlgorithmList->getSelectorFirst(), m_sliceChanged );
-//    WPropertyHelper::PC_SELECTONLYONE::addTo( m_drawAlgorithm );
-//    WPropertyHelper::PC_NOTEMPTY::addTo( m_drawAlgorithm );
-//
-//    double hue_increment = 1.0 / NUM_ICS;
-//    for( size_t i = 0; i < NUM_ICS; ++i )
-//    {
-//        std::stringstream ss;
-//        ss << "Color for " << i << "InputConnector";
-//        m_colorMap[i] = m_properties->addPropertyGroup( ss.str(), "String and color properties for an input connector" );
-//        WPropString label = m_colorMap[i]->addProperty( "Filename", "The file name this group is connected with", std::string( "/no/such/file" ) );
-//        label->setPurpose( PV_PURPOSE_INFORMATION );
-//        WColor color = convertHSVtoRGBA( i * hue_increment, 1.0, 0.75 );
-//        m_colorMap[i]->addProperty( "Color", "The color for the probabilistic tractogram this group is associated with", color, m_colorChanged );
-//        m_colorMap[i]->setHidden(); // per default for each unconnected input the property group is hidden
-//    }
+    m_color = m_properties->addProperty( "Color", "Color for the fiber stipples", WColor( 1.0, 0.0, 0.0, 1.0 );
+    m_threshold = m_properties->addProperty( "Threshold", "Connectivity scores below this threshold will be discarded.", 0.01 );
+    m_threshold->setMin( 0.0 );
+    m_threshold->setMax( 1.0 );
 
-//    // properties only relevant if the method is: "With deterministic tracts" was selected
-//    m_tractGroup     = m_properties->addPropertyGroup( "Tract Group", "Parameters for drawing via deterministic tracts." );
-//    m_probThreshold    = m_tractGroup->addProperty( "Prob Threshold", "Only vertices with probabil. greater this contribute.", 0.1,
-//                                             m_sliceChanged );
-//    m_probThreshold->setMin( 0.0 );
-//    m_probThreshold->setMax( 1.0 );
-//    m_showIntersection = m_tractGroup->addProperty( "Show Intersections", "Show intersecition stipplets", false );
-//    m_showProjection   = m_tractGroup->addProperty( "Show Projections", "Show projection stipplets", true );
-//    m_delta            = m_tractGroup->addProperty( "Slices Environment", "Cut off the tracts after this distance.", 1.0, m_sliceChanged );
-//
-//    m_vectorGroup     = m_properties->addPropertyGroup( "Vector Group", "Parameters for drawing via eigen vectors." );
-//    m_vectorGroup->addProperty( m_probThreshold ); // this is also needed in this property group
 //    WPropDouble spacing = m_vectorGroup->addProperty( "Spacing", "Spacing of the sprites", 1.0, m_sliceChanged );
 //    spacing->setMin( 0.25 );
 //    spacing->setMax( 5.0 );
-////    WPropDouble glyphSize = m_vectorGroup->addProperty( "Glyph size", "Size of the quads transformed to the glyphs", 1.0 );
-////    glyphSize->setMin( 0.25 );
-////    glyphSize->setMax( 5.0 );
-////    WPropDouble glyphSpacing = m_vectorGroup->addProperty( "Glyph Spacing", "Spacing ", 0.4, m_sliceChanged );
-////    glyphSpacing->setMin( 0.0 );
-////    glyphSpacing->setMax( 5.0 );
+//    WPropDouble glyphSize = m_vectorGroup->addProperty( "Glyph size", "Size of the quads transformed to the glyphs", 1.0 );
+//    glyphSize->setMin( 0.25 );
+//    glyphSize->setMax( 5.0 );
+//    WPropDouble glyphSpacing = m_vectorGroup->addProperty( "Glyph Spacing", "Spacing ", 0.4, m_sliceChanged );
+//    glyphSpacing->setMin( 0.0 );
+//    glyphSpacing->setMax( 5.0 );
 //    WPropDouble glyphThickness = m_vectorGroup->addProperty( "Glyph Thickness", "Line thickness of the glyphs", 1.0 );
 //    glyphThickness->setMin( 0.01 );
 //    glyphThickness->setMax( 2.0 );
-//
-//    WPropBool showGrid = m_vectorGroup->addProperty( "Show Grid", "Shows the grid", false );
 
     // call WModule's initialization
     WModule::properties();
@@ -265,12 +230,19 @@ void WMFiberStipples::initOSG()
     osg::ref_ptr< osg::Node > slice = genScatteredDegeneratedQuads( 1000, minV, osg::Vec3( sizes[0], 0.0, 0.0 ),
                                                                     osg::Vec3( 0.0, 0.0, sizes[2] ) );
     slice->setName( "Coronal Slice" );
-    osg::Uniform* aVec = new osg::Uniform( "u_aVec", osg::Vec3( sizes[0], 0.0, 0.0 ) );
-    slice->getOrCreateStateSet()->addUniform( aVec );
-    osg::Uniform* bVec = new osg::Uniform( "u_bVec", osg::Vec3( 0.0, 0.0, sizes[2] ) );
-    slice->getOrCreateStateSet()->addUniform( bVec );
-    osg::Uniform* sliceUniform = new osg::Uniform( "u_WorldTransform", osg::Matrix::identity() );
-    slice->getOrCreateStateSet()->addUniform( sliceUniform );
+
+    osg::ref_ptr< osg::Uniform > u_aVec = new osg::Uniform( "u_aVec", osg::Vec3( sizes[0], 0.0, 0.0 ) );
+    osg::ref_ptr< osg::Uniform > u_bVec = new osg::Uniform( "u_bVec", osg::Vec3( 0.0, 0.0, sizes[2] ) );
+    osg::ref_ptr< osg::Uniform > u_WorldTransform = new osg::Uniform( "u_WorldTransform", osg::Matrix::identity() );
+    osg::ref_ptr< osg::Uniform > u_color = new WGEPropertyUniform< WPropColor >( "u_color", m_color );
+    osg::ref_ptr< osg::Uniform > u_threshold = new WGEPropertyUniform< WPropDouble >( "u_threshold", m_threshold );
+
+    osg::StateSet *states = slice->getOrCreateStateSet();
+    states->addUniform( u_aVec );
+    states->addUniform( u_bVec );
+    states->addUniform( u_WorldTransform );
+    states->addUniform( u_color );
+    states->addUniform( u_threshold );
     slice->setCullingActive( false );
 
     // each slice is child of an transformation node

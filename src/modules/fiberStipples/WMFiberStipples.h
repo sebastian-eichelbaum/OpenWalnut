@@ -123,6 +123,10 @@ private:
      */
     WPropDouble m_Pos;
 
+    WPropColor m_color;
+
+    WPropDouble m_threshold;
+
     /**
      * For initial slice positioning we need to control if the module is in intial state or not.
      */
