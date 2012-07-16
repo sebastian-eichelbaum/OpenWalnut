@@ -100,8 +100,12 @@ protected:
 private:
     /**
      * Initialize OSG root node for this module. All other nodes from this module should be attached to this root node.
+     *
+     * \param probTract Pointer to dataset containing the connectivity scores or probabilities. We need this for two things:
+     * First, determine the maxium of connectivity scores to, scale the tracts between 0.0...1.0 and secondly to determine the
+     * boundingbox for the scene. (Furthermore it is assumed that the vectors are also available within this BB.)
      */
-    void initOSG();
+    void initOSG( boost::shared_ptr< WDataSetScalar > probTract );
 
     /**
      * The probabilistic tractogram input connector.
@@ -123,8 +127,14 @@ private:
      */
     WPropDouble m_Pos;
 
+    /**
+     * Color for the fiber stipples.
+     */
     WPropColor m_color;
 
+    /**
+     * Connectivity scores below that threshold will not be rendered.
+     */
     WPropDouble m_threshold;
 
     /**

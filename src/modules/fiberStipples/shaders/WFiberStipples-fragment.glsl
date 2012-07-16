@@ -24,24 +24,50 @@
 
 #version 120
 
-#include "WGETextureTools.glsl"
-
-uniform sampler3D u_vectorsSampler;
-uniform sampler3D u_probTractSampler;
+/**
+ * Color of the fiber stipples. This will be further combined with tract probability.
+ */
+uniform vec4 u_color;
 
 /**
- * These two uniforms are needed to transform the vectors out of their texture back to their original form
- * as they are stored in RBGA (for example allowing only values between 0..1 for components but no negative
- * ones).
+ * First focal point, which is one of the endings of the projected diffusion direction.
  */
-uniform float u_vectorsMin;
-uniform float u_vectorsScale;
+varying vec3 focalPoint1;
 
-varying vec4 diffusionDirection;
+/**
+ * Second focal point, which is one of the endings of the projected diffusion direction.
+ */
+varying vec3 focalPoint2;
 
-//uniform float u_glyphThickness;
-//uniform float u_glyphSize;
+/**
+ * First focal point, scaled.
+ */
+varying vec3 scaledFocalPoint1;
 
+/**
+ * Second focal point, scaled.
+ */
+varying vec3 scaledFocalPoint2;
+
+/**
+ * Middle point of the quad in texture coordinates, needed for scaling the projection of the principal diffusion direction to fit inside quad.
+ */
+uniform vec3 middlePoint_tex = vec3( 0.5, 0.5, 0.0 );
+
+/**
+ * Probability of the tract, used for further color mapping.
+ */
+varying float probability;
+
+/**
+ * Computes the minimal distance from segment vw and point p.
+ *
+ * \param v start point of the segment
+ * \param w end point of the segment
+ * \param p point for which the minimal distance should be computed
+ *
+ * \return minimal distance from segment vw to point p.
+ */
 float minimum_distance( vec3 v, vec3 w, vec3 p )
 {
     // Return minimum distance between line segment vw and point p
@@ -69,9 +95,6 @@ float minimum_distance( vec3 v, vec3 w, vec3 p )
 
 void main()
 {
-    // u_glyphSize controls the area each line stipple must use, radius is then derived from that.
-    float area =  u_glyphSize * u_glyphSize / 10.0;
-
     // generally the area of a line stipple is a circle with radius R (each half for the endings of the line stipple) plus
     // a quad with height 2R and width length of the focalPoints v and w. hence we have this equation in R to solve:
     //
@@ -79,35 +102,21 @@ void main()
     //
     // where A is the area to fill.
 
-    focalPoint1 = 0.8 * focalPoint1;
-    focalPoint2 = 0.8 * focalPoint1;
-
-    float l = distance( focalPoint1, focalPoint2 );
+    float area =  0.1; // this is arbitrarily set
+    float l = distance( scaledFocalPoint1, scaledFocalPoint2 );
     float p2 = -l / 3.14159265;
     float q = area / 3.14159265;
     float r1 = p2 + sqrt( p2 * p2 + q );
     float r2 = p2 - sqrt( p2 * p2 + q );
     float radius = max( r1, r2 );
 
-//    vec4 direction = abs( texture3DUnscaled( u_vectorsSampler, gl_TexCoord[0].xyz, u_vectorsMin, u_vectorsScale ) );
-//    vec4 probRGBA = texture3D( u_probTractSampler, gl_TexCoord[0].xyz );
-//    probRGBA.a = 1.0; // set alpha explicity to 1
-
-    // vec4 value = texture3D( u_probTractSampler, vec3(gl_TexCoord[0].x, gl_TexCoord[0].y, gl_TexCoord[0].z) );
-    // gl_FragColor = vec4( gl_TexCoord[0].xyz, 1.0 ); // vec4( value, 1.0, 0.0, 1.0 );
-//    gl_FragColor = vec4( value, 0.0, 0.0, 1.0 );
-//    gl_FragColor = vec4( texture3D( u_probTractSampler, pansen.xyz ).rgb, 1.0 );//vec4( 1.0, 0.0, 0.0, 1.0 );
-    gl_FragColor = vec4( gl_TexCoord[1].xyz, 1.0 );
-    // gl_FragColor = 0.8 * probRGBA + 0.2 * direction;
-
-
-    if( minimum_distance( focalPoint1, focalPoint2, gl_TexCoord[1].xyz ) < u_glyphThickness * radius )
+    if( minimum_distance( scaledFocalPoint1, scaledFocalPoint2, gl_TexCoord[1].xyz ) < radius )
     {
-        gl_FragColor = gl_Color;
+        gl_FragColor = u_color * probability;
     }
     else
     {
-        // if( minimum_distance( focalPoint1, focalPoint2, gl_TexCoord[0].xyz ) < u_glyphThickness * ( radius + 0.01 ) )
+        // if( minimum_distance( scaledFocalPoint1, scaledFocalPoint2, gl_TexCoord[1].xyz ) < ( radius + 0.01 ) )
         // {
         //     gl_FragColor = vec4( 1.0, 1.0, 1.0, gl_Color.w );
         // }
@@ -115,46 +124,17 @@ void main()
         discard;
 
         // // Draw quad and inner cricle
-        //
         // gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 );
-        // float lp = length( gl_TexCoord[0].xyz );
-        // if( lp >= ( u_glyphSize / 2.0 ) )
+        // float lp = distance( gl_TexCoord[1].xyz, middlePoint_tex );
+        // if( lp >= 0.5 )
         // {
         //     gl_FragColor = vec4( 0.7, 0.7, 1.0, 1.0 ); // discard;
         // }
     }
 
-    // // display middle point
-    // if( length( gl_TexCoord[0].xyz ) <=  0.01 )
-    // {
-    //     gl_FragColor = vec4( 1.0, 0.1, 0.1, 1.0 ); // discard;
-    // }
-
-    // // display evec end points
-    //
-    // if( ( distance( gl_TexCoord[0].xyz, gl_TexCoord[1].xyz ) < 0.01 ) )
-    // {
-    //     gl_FragColor = vec4( 1.0, 1.0, 0.0, 1.0 ); // yellow
-    // }
-
-    // if( ( distance( gl_TexCoord[0].xyz, gl_TexCoord[2].xyz ) < 0.01 ) )
-    // {
-    //     gl_FragColor = vec4( 0.0, 1.0, 0.0, 1.0 ); // green
-    // }
-
-    // // display new focal points
-    //
-    // if( ( distance( gl_TexCoord[0].xyz, focalPoint1 ) < 0.01 ) )
-    // {
-    //     gl_FragColor = vec4( 0.0, 1.0, 1.0, 1.0 ); // cyan
-    // }
-    // if( ( distance( gl_TexCoord[0].xyz, focalPoint2 ) < 0.01 ) )
-    // {
-    //     gl_FragColor = vec4( 0.0, 0.0, 1.0, 1.0 ); // blue
-    // }
 
     // // Color debugging facilities
-    // if(  minimum_distance( gl_TexCoord[1].xyz, gl_TexCoord[2].xyz, gl_TexCoord[0].xyz ) < 0.01 )
+    // if(  minimum_distance( focalPoint1, focalPoint2, gl_TexCoord[1].xyz ) < 0.01 )
     // {
     //     if( l <= 1.1 )
     //     {
@@ -168,5 +148,31 @@ void main()
     //     {
     //         gl_FragColor = vec4( 0.0, 0.0, 1.0, 1.0 );
     //     }
+    // }
+    // // display middle point
+    // if( distance( gl_TexCoord[1].xyz, middlePoint_tex ) <=  0.01 )
+    // {
+    //     gl_FragColor = vec4( 0.0, 1.0, 0.0, 1.0 ); // green
+    // }
+
+    // // display new focal points
+    // if( ( distance( gl_TexCoord[1].xyz, scaledFocalPoint1 ) < 0.01 ) )
+    // {
+    //     gl_FragColor = vec4( 0.0, 1.0, 1.0, 1.0 ); // cyan
+    // }
+    // if( ( distance( gl_TexCoord[1].xyz, scaledFocalPoint2 ) < 0.01 ) )
+    // {
+    //     gl_FragColor = vec4( 0.0, 0.0, 1.0, 1.0 ); // blue
+    // }
+
+    // // display evec end points
+    // if( ( distance( gl_TexCoord[1].xyz, focalPoint1 ) < 0.01 ) )
+    // {
+    //     gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 ); // red
+    // }
+
+    // if( ( distance( gl_TexCoord[1].xyz, focalPoint2 ) < 0.01 ) )
+    // {
+    //     gl_FragColor = vec4( 1.0, 1.0, 0.0, 1.0 ); // yellow
     // }
 }

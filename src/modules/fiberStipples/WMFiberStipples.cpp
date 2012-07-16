@@ -107,7 +107,7 @@ void WMFiberStipples::properties()
     m_Pos->setMax( 0 );
     m_Pos->setMin( 0 );
 
-    m_color = m_properties->addProperty( "Color", "Color for the fiber stipples", WColor( 1.0, 0.0, 0.0, 1.0 );
+    m_color = m_properties->addProperty( "Color", "Color for the fiber stipples", WColor( 1.0, 0.0, 0.0, 1.0 ) );
     m_threshold = m_properties->addProperty( "Threshold", "Connectivity scores below this threshold will be discarded.", 0.01 );
     m_threshold->setMin( 0.0 );
     m_threshold->setMax( 1.0 );
@@ -192,7 +192,7 @@ namespace {
     }
 }
 
-void WMFiberStipples::initOSG()
+void WMFiberStipples::initOSG( boost::shared_ptr< WDataSetScalar > probTract )
 {
     debugLog() << "Init OSG";
 
@@ -208,7 +208,7 @@ void WMFiberStipples::initOSG()
     }
 
     // grab the current bounding box for computing the size of the slice
-    WBoundingBox bb = WGEColormapping::instance()->getBoundingBox();
+    WBoundingBox bb = probTract->getGrid()->getBoundingBox();
     WVector3d minV = bb.getMin();
     WVector3d maxV = bb.getMax();
     WVector3d sizes = ( maxV - minV );
@@ -236,6 +236,7 @@ void WMFiberStipples::initOSG()
     osg::ref_ptr< osg::Uniform > u_WorldTransform = new osg::Uniform( "u_WorldTransform", osg::Matrix::identity() );
     osg::ref_ptr< osg::Uniform > u_color = new WGEPropertyUniform< WPropColor >( "u_color", m_color );
     osg::ref_ptr< osg::Uniform > u_threshold = new WGEPropertyUniform< WPropDouble >( "u_threshold", m_threshold );
+    osg::ref_ptr< osg::Uniform > u_maxConnectivityScore = new osg::Uniform( "u_maxConnectivityScore", static_cast< float >( probTract->getMax() ) );
 
     osg::StateSet *states = slice->getOrCreateStateSet();
     states->addUniform( u_aVec );
@@ -243,6 +244,7 @@ void WMFiberStipples::initOSG()
     states->addUniform( u_WorldTransform );
     states->addUniform( u_color );
     states->addUniform( u_threshold );
+    states->addUniform( u_maxConnectivityScore );
     slice->setCullingActive( false );
 
     // each slice is child of an transformation node
@@ -251,7 +253,7 @@ void WMFiberStipples::initOSG()
 
     // Control transformation node by properties. We use an additional uniform here to provide the shader
     // the transformation matrix used to translate the slice.
-    mT->addUpdateCallback( new WGELinearTranslationCallback< WPropDouble >( osg::Vec3( 0.0, 1.0, 0.0 ), m_Pos, sliceUniform ) );
+    mT->addUpdateCallback( new WGELinearTranslationCallback< WPropDouble >( osg::Vec3( 0.0, 1.0, 0.0 ), m_Pos, u_WorldTransform ) );
 
     m_output->getOrCreateStateSet()->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
     m_output->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
@@ -271,7 +273,6 @@ void WMFiberStipples::moduleMain()
 
     // graphics setup
     m_output = osg::ref_ptr< WGEManagedGroupNode >( new WGEManagedGroupNode( m_active ) );
-    initOSG();
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
     osg::ref_ptr< WGEShader > shader = new WGEShader( "WFiberStipples", m_localPath );
     shader->apply( m_output ); // this automatically applies the shader
@@ -298,7 +299,7 @@ void WMFiberStipples::moduleMain()
             continue;
         }
 
-        initOSG();
+        initOSG( probTract );
 
         wge::bindTexture( m_output, vectors->getTexture(), 0, "u_vectors" );
         wge::bindTexture( m_output, probTract->getTexture(), 1, "u_probTract" );
