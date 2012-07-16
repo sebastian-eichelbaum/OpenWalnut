@@ -205,7 +205,10 @@ void WQtGLWidget::resizeGL( int width, int height )
 void WQtGLWidget::paintGL()
 {
     // m_Viewer->paint();
+#ifdef IS_A_QGLWIDGET
+    // if the parent is a GL widget, issue parent method.
     WQtGLWidgetParent::paintGL();
+#endif
 }
 
 void WQtGLWidget::resizeEvent( QResizeEvent* event )
@@ -218,7 +221,10 @@ void WQtGLWidget::resizeEvent( QResizeEvent* event )
 void WQtGLWidget::resizeGL( int width, int height )
 {
     // m_Viewer->resize( width, height );
+#ifdef IS_A_QGLWIDGET
+    // if the parent is a GL widget, issue parent method.
     WQtGLWidgetParent::resizeGL( width, height );
+#endif
 }
 #endif
 

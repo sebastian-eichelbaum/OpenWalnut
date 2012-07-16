@@ -44,6 +44,7 @@
 class WSettingAction;
 
 #ifndef _WIN32
+    #define IS_A_QGLWIDGET
     typedef QGLWidget WQtGLWidgetParent;
 #else
     typedef QWidget WQtGLWidgetParent;
