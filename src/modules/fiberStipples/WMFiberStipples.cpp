@@ -227,13 +227,22 @@ void WMFiberStipples::initOSG( boost::shared_ptr< WDataSetScalar > probTract )
     }
 
     // create a new geode containing the slices
-    osg::ref_ptr< osg::Node > slice = genScatteredDegeneratedQuads( 1000, minV, osg::Vec3( sizes[0], 0.0, 0.0 ),
+    osg::ref_ptr< osg::Node > slice = genScatteredDegeneratedQuads( 100000, minV, osg::Vec3( sizes[0], 0.0, 0.0 ),
                                                                     osg::Vec3( 0.0, 0.0, sizes[2] ) );
     slice->setName( "Coronal Slice" );
 
     osg::ref_ptr< osg::Uniform > u_aVec = new osg::Uniform( "u_aVec", osg::Vec3( sizes[0], 0.0, 0.0 ) );
     osg::ref_ptr< osg::Uniform > u_bVec = new osg::Uniform( "u_bVec", osg::Vec3( 0.0, 0.0, sizes[2] ) );
     osg::ref_ptr< osg::Uniform > u_WorldTransform = new osg::Uniform( "u_WorldTransform", osg::Matrix::identity() );
+    boost::shared_ptr< const WGridRegular3D > grid = boost::shared_dynamic_cast< const WGridRegular3D >( probTract->getGrid() );
+    if( !grid )
+    {
+        errorLog() << "This module can only process probabilistic Tracts with regular 3D grids, Hence you may see garbage from now on.";
+    }
+    boost::array< double, 3 > offsets = getOffsets( grid );
+    osg::ref_ptr< osg::Uniform > u_pixelSizeX = new osg::Uniform( "u_pixelSizeX", static_cast< float >( offsets[0] ) );
+    osg::ref_ptr< osg::Uniform > u_pixelSizeY = new osg::Uniform( "u_pixelSizeY", static_cast< float >( offsets[1] ) );
+    osg::ref_ptr< osg::Uniform > u_pixelSizeZ = new osg::Uniform( "u_pixelSizeZ", static_cast< float >( offsets[2] ) );
     osg::ref_ptr< osg::Uniform > u_color = new WGEPropertyUniform< WPropColor >( "u_color", m_color );
     osg::ref_ptr< osg::Uniform > u_threshold = new WGEPropertyUniform< WPropDouble >( "u_threshold", m_threshold );
     osg::ref_ptr< osg::Uniform > u_maxConnectivityScore = new osg::Uniform( "u_maxConnectivityScore", static_cast< float >( probTract->getMax() ) );
@@ -242,6 +251,9 @@ void WMFiberStipples::initOSG( boost::shared_ptr< WDataSetScalar > probTract )
     states->addUniform( u_aVec );
     states->addUniform( u_bVec );
     states->addUniform( u_WorldTransform );
+    states->addUniform( u_pixelSizeX );
+    states->addUniform( u_pixelSizeY );
+    states->addUniform( u_pixelSizeZ );
     states->addUniform( u_color );
     states->addUniform( u_threshold );
     states->addUniform( u_maxConnectivityScore );

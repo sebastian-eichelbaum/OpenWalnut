@@ -48,9 +48,36 @@ uniform sampler3D u_vectorsSampler;
  */
 uniform sampler3D u_probTractSampler;
 
+/**
+ * Number of voxels in X direction.
+ */
 uniform int u_probTractSizeX;
+
+/**
+ * Number of voxels in Y direction.
+ */
 uniform int u_probTractSizeY;
+
+/**
+ * Number of voxels in Z direction.
+ */
 uniform int u_probTractSizeZ;
+
+// For correct transformation into texture space we also need the size of each voxel.
+/**
+ * Voxel size in X direction.
+ */
+uniform float u_pixelSizeX;
+
+/**
+ * Voxel size in Y direction.
+ */
+uniform float u_pixelSizeY;
+
+/**
+ * Voxel size in Z direction.
+ */
+uniform float u_pixelSizeZ;
 
 // vectors spanning the plane of the quad
 uniform vec3 u_aVec;
@@ -114,9 +141,9 @@ void main()
 
     // compute texture coordinates from worldspace coordinates for texture access
     vec3 texturePosition = ( u_WorldTransform * gl_Vertex ).xyz;
-    texturePosition.x /= u_probTractSizeX;
-    texturePosition.y /= u_probTractSizeY;
-    texturePosition.z /= u_probTractSizeZ;
+    texturePosition.x /= u_pixelSizeX * u_probTractSizeX;
+    texturePosition.y /= u_pixelSizeY * u_probTractSizeY;
+    texturePosition.z /= u_pixelSizeZ * u_probTractSizeZ;
 
     // get connectivity score from probTract and with maximum value scale it between 0.0..1.0. from now on we call it probability
     probability = texture3D( u_probTractSampler, texturePosition ).r / float( u_maxConnectivityScore );
