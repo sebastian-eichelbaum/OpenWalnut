@@ -391,20 +391,24 @@ ENDFUNCTION( SETUP_CONFIGURED_FILE )
 # _OTHERS you can add an arbitrary list of additional arguments which represent the files to copy.
 FUNCTION( SETUP_ADDITIONAL_FILES _destination _component )
     FOREACH( _file ${ARGN} )
-        FILE_TO_TARGETSTRING( ${_file} fileTarget )
+        # only do if it exists
+        IF( EXISTS ${OW_VERSION_FILENAME} )
+            # create useful target name
+            FILE_TO_TARGETSTRING( ${_file} fileTarget )
 
-        # add a copy target
-        ADD_CUSTOM_TARGET( CopyAdditionalFile_${fileTarget}_${_component}
-            ALL
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/${_destination}/"
-            COMMAND ${CMAKE_COMMAND} -E copy "${_file}" "${PROJECT_BINARY_DIR}/${_destination}/"
-            COMMENT "Copying file ${_file}"
-        )
+            # add a copy target
+            ADD_CUSTOM_TARGET( CopyAdditionalFile_${fileTarget}_${_component}
+                ALL
+                COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/${_destination}/"
+                COMMAND ${CMAKE_COMMAND} -E copy "${_file}" "${PROJECT_BINARY_DIR}/${_destination}/"
+                COMMENT "Copying file ${_file}"
+            )
 
-        # add a INSTALL operation for this file
-        INSTALL( FILES ${_file} DESTINATION ${_destination}
-                                COMPONENT ${_component}
-               )
+            # add a INSTALL operation for this file
+            INSTALL( FILES ${_file} DESTINATION ${_destination}
+                                    COMPONENT ${_component}
+                   )
+        ENDIF()
     ENDFOREACH() 
 ENDFUNCTION( SETUP_ADDITIONAL_FILES )
 
