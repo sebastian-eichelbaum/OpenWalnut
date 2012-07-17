@@ -20,4 +20,4 @@
 #   VERSION=1.2.0_RC1_PreRelease_SomeText+hgX -> You can add arbitrary tags to the version string. But be careful. Usually only one tag is useful.
 
 # The current version string:
-VERSION=1.3.0+hgX
+VERSION=1.3.0_RC1+hgX
