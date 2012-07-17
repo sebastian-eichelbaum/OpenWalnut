@@ -29,7 +29,7 @@
 #############################################################################################################
 
 # Which version?
-VERSION_BASE=1.3.0_RC1
+VERSION_BASE=1.3.0
 
 # Any additonal tags?
 VERSION_TAGS=rc1
