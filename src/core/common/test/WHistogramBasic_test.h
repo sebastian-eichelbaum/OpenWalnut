@@ -64,7 +64,7 @@ public:
         h.insert( 0.7234 );
         TS_ASSERT_EQUALS( h.size(), 1000 );
         TS_ASSERT_EQUALS( h.valuesSize(), 1 );
-        TS_ASSERT_EQUALS( h[723], 1 );
+        TS_ASSERT_EQUALS( h[722], 1 );
     }
 
     /**
@@ -74,11 +74,11 @@ public:
     {
         WHistogramBasic h( 0.0, 1.0 );
         h.insert( 0.001 );
-        TS_ASSERT_EQUALS( h[1], 1 );
+        TS_ASSERT_EQUALS( h[0], 1 );
         h.insert( 0.0039999 );
         TS_ASSERT_EQUALS( h[3], 1 );
         h.insert( 0.0070001 );
-        TS_ASSERT_EQUALS( h[7], 1 );
+        TS_ASSERT_EQUALS( h[6], 1 );
     }
 
     /**
@@ -132,6 +132,19 @@ public:
         h.insert( 0.0 );
         TS_ASSERT_EQUALS( h.valuesSize(), 2 );
     }
+
+    /**
+     * Also for values near the maxium. You may also see #186 for further details.
+     */
+    void testInsertAlmostMax( void )
+    {
+        double max = 10000.000000010001;
+        WHistogramBasic h( -2147483648, max );
+        h.insert( 10000 );
+        h.insert( max - 2.0 * wlimits::FLT_EPS );
+        TS_ASSERT_EQUALS( h[999], 2 );
+    }
+
 };
 
 #endif  // WHISTOGRAMBASIC_TEST_H
