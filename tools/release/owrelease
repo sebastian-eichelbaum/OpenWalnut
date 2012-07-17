@@ -57,9 +57,9 @@ DISTRIBUTIONS_TGZ=""
 
 # Architectures to build for
 # NOTE: we need the debsrc package.
-ARCHITECTURES_DEB="amd64 i386"
+ARCHITECTURES_DEB="amd64"
 # Build binary tgz for 386 and amd64
-ARCHITECTURES_TGZ="amd64 i386"
+ARCHITECTURES_TGZ="amd64"
 
 # where to put the created stuff?
 RELEASE_DIR="OpenWalnut-Release"
