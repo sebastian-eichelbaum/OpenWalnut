@@ -48,7 +48,6 @@
 #include "core/graphicsEngine/shaders/WGEShader.h"
 #include "core/graphicsEngine/shaders/WGEShaderDefineOptions.h"
 #include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
-#include "core/graphicsEngine/shaders/WGEPropertyUniform.h"
 #include "core/graphicsEngine/WGEColormapping.h"
 #include "core/graphicsEngine/WGEGeodeUtils.h"
 #include "core/graphicsEngine/WGraphicsEngine.h"
@@ -129,7 +128,8 @@ void WMFiberStipples::properties()
     WModule::properties();
 }
 
-namespace {
+namespace
+{
     osg::ref_ptr< osg::Geode > genScatteredDegeneratedQuads( size_t numSamples, osg::Vec3 const& base, osg::Vec3 const& a, osg::Vec3 const& b )
     {
         // the stuff needed by the OSG to create a geometry instance
