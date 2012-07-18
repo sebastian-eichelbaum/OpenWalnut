@@ -65,6 +65,8 @@ COLLECT_COMPILE_FILES( "${CMAKE_CURRENT_SOURCE_DIR}" TARGET_CPP_FILES TARGET_H_F
 # Qt4 Requires all classes with a QWidget stuff inside to be put into the MOC mechanism. We utilize the automoc mechanism here.
 SET( GUI_QT4_MOC_HDRS ${TARGET_H_FILES} )
 QT4_AUTOMOC( ${TARGET_CPP_FILES} )
+SET( AUTOMOC_MOC_OPTIONS "${OW_CPP_FLAGS_INJECT}" )
+
 # This is needed since the mocs will be generated there
 INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 

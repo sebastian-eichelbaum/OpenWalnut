@@ -2,12 +2,12 @@
 # used and parsed. This file has to be here every time. The VERSION needs to be
 # set properly or CMake will fail.
 #
-# SYNTAX: The version string always is 1.2.3 with an optional postfix of "+hg1234".
-#         This is useful if building is done by scripts. If you want to automatically
-#         add the correct HG revision, use only +hgX without number.
-#         You can optionally add underscore separated tags. The allowed characters in
-#         these tags are letters and numbers and you must begin with a letter.
-#         See examples below.
+# SYNTAX: * The version string always is 1.2.3
+#         * With an optional postfix of "+hg1234".
+#           This is useful if building is done by scripts. If you want to automatically
+#           add the correct HG revision, use only +hgX without number.
+#         * You can add beta or release candidate flags by appending b123 or rc123 directly
+#           after the version number.
 #
 # IMPORTANT: If you modify the file, cmake re-creates the version header. But
 #            it is not able to set all library version. Please re-run cmake if
@@ -17,7 +17,10 @@
 #   VERSION=1.2.0
 #   VERSION=1.2.0+hgX  -> replaces the X with the current revision number
 #   VERSION=1.2.0+hg1234 -> here, revision number was set by the build scripts for example.
-#   VERSION=1.2.0_RC1_PreRelease_SomeText+hgX -> You can add arbitrary tags to the version string. But be careful. Usually only one tag is useful.
+#   VERSION=1.2.0b1+hgX -> first beta version
+#   VERSION=1.2.0rc1+hgX -> first release candidate version
+#   VERSION=1.2.0sometext1+hgX -> even arbitrary texts are allowd. Be careful as many packaging
+#                                 systems refuse to accept these arbitrary version strings.
 
 # The current version string:
-VERSION=1.3.0+hgX
+VERSION=1.3.0~rc1+hgX

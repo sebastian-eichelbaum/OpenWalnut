@@ -40,7 +40,7 @@ public:
     /**
      * Default constructor of a meaningless transfer function
      */
-    WTransferFunction() : isomin( 0. ), isomax( 0. )
+    WTransferFunction() : m_isomin( 0. ), m_isomax( 0. )
     {
     }
 
@@ -50,7 +50,7 @@ public:
      * \param rhs the value to histogram
      */
     WTransferFunction( const WTransferFunction &rhs )
-        : colors( rhs.colors ), alphas( rhs.alphas ), isomin( rhs.isomin ), isomax( rhs.isomax ), histogram( rhs.histogram )
+        : m_colors( rhs.m_colors ), m_alphas( rhs.m_alphas ), m_isomin( rhs.m_isomin ), m_isomax( rhs.m_isomax ), m_histogram( rhs.m_histogram )
     {
     }
 
@@ -63,11 +63,11 @@ public:
      */
     WTransferFunction& operator=( const WTransferFunction &rhs )
     {
-        this->colors = rhs.colors;
-        this->alphas = rhs.alphas;
-        this->isomin = rhs.isomin;
-        this->isomax = rhs.isomax;
-        this->histogram = rhs.histogram;
+        this->m_colors = rhs.m_colors;
+        this->m_alphas = rhs.m_alphas;
+        this->m_isomin = rhs.m_isomin;
+        this->m_isomax = rhs.m_isomax;
+        this->m_histogram = rhs.m_histogram;
         return ( *this );
     }
 
@@ -102,7 +102,7 @@ public:
      */
     size_t numAlphas() const
     {
-        return alphas.size();
+        return m_alphas.size();
     }
 
     /**
@@ -112,7 +112,7 @@ public:
      */
     size_t numColors() const
     {
-        return colors.size();
+        return m_colors.size();
     }
 
     /**
@@ -123,7 +123,7 @@ public:
      */
     double getAlphaIsovalue( size_t i ) const
     {
-        return alphas.at( i ).iso;
+        return m_alphas.at( i ).iso;
     }
 
     /**
@@ -134,7 +134,7 @@ public:
      */
     double getColorIsovalue( size_t i ) const
     {
-        return colors.at( i ).iso;
+        return m_colors.at( i ).iso;
     }
 
     /**
@@ -145,7 +145,7 @@ public:
      */
     double getAlpha( size_t i ) const
     {
-        return alphas.at( i ).alpha;
+        return m_alphas.at( i ).alpha;
     }
 
     /**
@@ -156,7 +156,7 @@ public:
      */
     const WColor& getColor( size_t i ) const
     {
-        return colors.at( i ).color;
+        return m_colors.at( i ).color;
     }
 
     /**
@@ -182,11 +182,11 @@ public:
      * way. A good option would be to introduce an object encapsulating
      * a transfer function and histogram information.
      *
-     * \param data the histogram data between isomin and isomax
+     * \param data the histogram data between m_isomin and m_isomax
      */
     void setHistogram( std::vector< double > & data )
     {
-        histogram.swap( data );
+        m_histogram.swap( data );
     }
 
     /**
@@ -194,7 +194,7 @@ public:
      */
     void removeHistogram()
     {
-        histogram.clear();
+        m_histogram.clear();
     }
 
     /**
@@ -204,7 +204,7 @@ public:
      */
     const std::vector< double >& getHistogram() const
     {
-        return histogram;
+        return m_histogram;
     }
 
     /**
@@ -340,28 +340,28 @@ private:
     /**
      * Sorted list of colors
      */
-    std::vector<ColorEntry> colors;
+    std::vector<ColorEntry> m_colors;
 
     /**
      * Sorted list of alpha values.
      */
-    std::vector<AlphaEntry> alphas;
+    std::vector<AlphaEntry> m_alphas;
 
     /**
      * The smallest used iso value.
      */
-    double isomin;
+    double m_isomin;
 
     /**
      * The largest used iso value.
      */
-    double isomax;
+    double m_isomax;
 
     /**
      * Sores a histogram. This is used for property-handling only
      * and does not change the transfer function at all.
      */
-    std::vector< double > histogram;
+    std::vector< double > m_histogram;
 
     friend std::ostream& operator << ( std::ostream& out, const WTransferFunction& tf );
 };

@@ -2,5 +2,6 @@
 openwalnut-modules: postinst-has-useless-call-to-ldconfig
 openwalnut-modules: postrm-has-useless-call-to-ldconfig
 # Although the hardening options are enabled and verified to be active during compilation, lintian complains about missing hardening options.
+# The lintian doc states that there might be many false positives. So we ignore these warnings now.
 openwalnut-modules: hardening-no-fortify-functions
 openwalnut-modules: hardening-no-stackprotector
