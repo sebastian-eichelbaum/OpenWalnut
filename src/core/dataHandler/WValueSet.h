@@ -27,6 +27,7 @@
 
 #include <cmath>
 #include <cstddef>
+#include <limits>
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
