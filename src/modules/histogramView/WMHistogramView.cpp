@@ -398,7 +398,7 @@ void WMHistogramView::calculateHistograms()
     {
         // create new histogram
         // we do not use WDataSetScalar's getHistogram here as we want to set the min and max of the histogram ourselves
-        m_histograms[ k ] = boost::shared_ptr< WHistogramBasic >( new WHistogramBasic( min, max + 0.00000001, histoBins ) );
+        m_histograms[ k ] = boost::shared_ptr< WHistogramBasic >( new WHistogramBasic( min, max, histoBins ) );
 
         if( m_data[ k ] )
         {
