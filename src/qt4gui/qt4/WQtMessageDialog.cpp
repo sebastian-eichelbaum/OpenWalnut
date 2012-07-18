@@ -44,8 +44,8 @@ WQtMessageDialog::WQtMessageDialog( QString msgID, QString title, QWidget* conte
     // setup contents
     QVBoxLayout* mainLayout = new QVBoxLayout();
 
-    // text widget
-    mainLayout->addWidget( m_content );
+    // text widget. Force stretching the content instead of the button bar
+    mainLayout->addWidget( m_content, 100 );
 
     // dialog buttons and checkbox to bottom layout
     QHBoxLayout* bottomLayout = new QHBoxLayout();

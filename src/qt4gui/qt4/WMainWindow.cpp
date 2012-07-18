@@ -1149,10 +1149,21 @@ void WMainWindow::showWelcomeDialog( bool force )
     content = boost::regex_replace( content, reg1, std::string( W_LIB_VERSION ) );
     content = boost::regex_replace( content, reg2, std::string( W_VERSION ) );
 
+    QWidget* w = NULL;
+#ifndef QT4GUI_NOWEBKIT
+    QWebView* view = new QWebView( this );
+    view->setHtml( QString::fromStdString( content ) );
+    view->setMinimumWidth( 640 );
+    view->page()->setLinkDelegationPolicy( QWebPage::DelegateExternalLinks );
+    w = view;
+#else
     QLabel* l = new QLabel( QString::fromStdString( content ) );
     l->setWordWrap( true );
     l->setMinimumWidth( 640 );
-    WQtMessageDialog* msgDia = new WQtMessageDialog( msgID, "Welcome to OpenWalnut", l, getSettings(), this );
+    w = l;
+#endif
+
+    WQtMessageDialog* msgDia = new WQtMessageDialog( msgID, "Welcome to OpenWalnut", w, getSettings(), this );
     msgDia->show( force );
 }
 

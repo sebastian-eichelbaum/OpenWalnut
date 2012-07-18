@@ -51,7 +51,7 @@ PACKAGES="deb src"
 
 # As we only need a source DEB, we do not build the deb for all supported distributions. The NeuroDebian project is doing this.
 # DISTRIBUTIONS_DEB="sid wheezy squeeze lucid maverick natty"
-DISTRIBUTIONS_DEB="sid precise"
+DISTRIBUTIONS_DEB="sid wheezy precise oneiric"
 
 # use these distributions to build binary tgz
 #DISTRIBUTIONS_TGZ="sid wheezy squeeze lucid maverick natty"
@@ -60,7 +60,7 @@ DISTRIBUTIONS_TGZ=""
 
 # Architectures to build for
 # NOTE: we need the debsrc package.
-ARCHITECTURES_DEB="amd64"
+ARCHITECTURES_DEB="i386 amd64"
 # Build binary tgz for 386 and amd64
 ARCHITECTURES_TGZ="amd64"
 
