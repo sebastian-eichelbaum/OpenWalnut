@@ -323,6 +323,16 @@ Builder_DEB()
         exit 1
     fi
 
+    # copy binary packages to release dir
+    BUILDER_DEB_PACKAGE_DIR=$RELEASE_DIR/$WORKING_DIR_POSTFIX
+    mkdir -p ../$BUILDER_DEB_PACKAGE_DIR
+    echo "* Copy binary packages to release dir \"$BUILDER_DEB_PACKAGE_DIR\"."
+    cp *.deb ../$BUILDER_DEB_PACKAGE_DIR
+    if [ $? -ne 0 ]; then
+        echo " * Failed to copy to release dir."
+        exit 1
+    fi
+
     # hint
     echo "* Please do not forget to sign the package."
 }
