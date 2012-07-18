@@ -165,27 +165,34 @@ FUNCTION( BUILD_SYSTEM_COMPILER )
     SET( CMAKE_CXX_FLAGS_RELEASE "-O3" CACHE STRING "" FORCE )
     SET( CMAKE_CXX_FLAGS_DEBUG "-g -DDEBUG -O0" CACHE STRING "" FORCE )
     SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
+
+    # Allow injection of other flags
+    # NOTE: do not set these variables somewhere in cmake. They are intended to be used when calling CMake from the command line.
+    # Utilize this to append build flags from external systems (like dpkg-buildflags).
+    SET( CMAKE_EXE_LINKER_FLAGS "${OW_LD_FLAGS_INJECT} ${CMAKE_EXE_LINKER_FLAGS}" CACHE STRING "" FORCE )
+    SET( CMAKE_MODULE_LINKER_FLAGS "${OW_LD_FLAGS_INJECT} ${CMAKE_MODULE_LINKER_FLAGS}" CACHE STRING "" FORCE )
+    SET( CMAKE_SHARED_LINKER_FLAGS "${OW_LD_FLAGS_INJECT} ${CMAKE_SHARED_LINKER_FLAGS}" CACHE STRING "" FORCE )
+    SET( CMAKE_CXX_FLAGS "${OW_CXX_FLAGS_INJECT} ${CMAKE_CXX_FLAGS}" CACHE STRING "" FORCE )
+    SET( CMAKE_C_FLAGS "${OW_C_FLAGS_INJECT} ${CMAKE_C_FLAGS}" CACHE STRING "" FORCE )
+
+    MESSAGE( STATUS "CMAKE_EXE_LINKER_FLAGS = ${CMAKE_EXE_LINKER_FLAGS}" )
+    MESSAGE( STATUS "CMAKE_MODULE_LINKER_FLAGS = ${CMAKE_MODULE_LINKER_FLAGS}" )
+    MESSAGE( STATUS "CMAKE_SHARED_LINKER_FLAGS = ${CMAKE_SHARED_LINKER_FLAGS}" )
+    MESSAGE( STATUS "CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}" )
+    MESSAGE( STATUS "CMAKE_C_FLAGS = ${CMAKE_C_FLAGS}" )
+
 ENDFUNCTION( BUILD_SYSTEM_COMPILER )
 
 # GCC 4.7 requires us to explicitly link against libstdc++ and libm. CMake offers a variable for this called "CMAKE_STANDARD_LIBRARIES".
 # Unfortunately, this variable is empty. We fill it here and hopefully this is fixed in the near future.
 LIST( APPEND CMAKE_STANDARD_LIBRARIES "stdc++" "m" )
 
-# Allow injection of other flags
-# NOTE: do not set these variables somewhere in cmake. They are intended to be used when calling CMake from the command line.
-# Utilize this to append build flags from external systems (like dpkg-buildflags).
-SET( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OW_LD_FLAGS_INJECT}" CACHE STRING "" FORCE )
-SET( CMAKE_MODULE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OW_LD_FLAGS_INJECT}" CACHE STRING "" FORCE )
-SET( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OW_LD_FLAGS_INJECT}" CACHE STRING "" FORCE )
-SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OW_CXX_FLAGS_INJECT}" CACHE STRING "" FORCE )
-SET( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OW_C_FLAGS_INJECT}" CACHE STRING "" FORCE )
-ADD_DEFINITIONS( ${OW_CPP_FLAGS_INJECT} )
-
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Compiler setup
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 BUILD_SYSTEM_COMPILER()
+ADD_DEFINITIONS( ${OW_CPP_FLAGS_INJECT} )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # OpenWalnut specific options

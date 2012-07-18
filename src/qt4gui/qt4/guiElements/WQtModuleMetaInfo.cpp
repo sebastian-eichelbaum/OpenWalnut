@@ -256,7 +256,7 @@ WQtModuleMetaInfo::WQtModuleMetaInfo( WModule::SPtr module, QWidget* parent ):
     // no webview. Use a text widget.
     QTextEdit* view = new QTextEdit( this );
     layout->addWidget( view );
-    view->setText( "This feature is not supported in your OpenWalnut build. Solution: Build OpenWalnut with Qt Webkit." );
+    view->setText( "This feature is not supported in your OpenWalnut build. Please build OpenWalnut with Qt Webkit." );
 #endif
 }
 

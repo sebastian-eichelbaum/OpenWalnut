@@ -243,8 +243,8 @@ Builder_SRC()
     fi
 
     # simply tar the stuff
-    echo "* Create source tar \"$BUILDER_SRC_UPSTREAM_SRC_TAR\"."
-    tar -cfz $BUILDER_SRC_UPSTREAM_SRC_TAR $BUILDER_SRC_UPSTREAM_SRC_DIR
+    echo "* Create source tar \"$BUILDER_SRC_UPSTREAM_SRC_TAR\" for \"$BUILDER_SRC_UPSTREAM_SRC_DIR\"."
+    tar cvfz $BUILDER_SRC_UPSTREAM_SRC_TAR $BUILDER_SRC_UPSTREAM_SRC_DIR/
     if [ $? -ne 0 ]; then
         echo " * Failed to create tar archive."
         exit 1
@@ -318,6 +318,16 @@ Builder_DEB()
     # copy archive to release dir
     echo "* Copy files to release dir \"$RELEASE_DIR\"."
     cp $BUILDER_DEB_UPSTREAM_SRC_TAR *.changes *.dsc *.debian.tar.gz ../$RELEASE_DIR
+    if [ $? -ne 0 ]; then
+        echo " * Failed to copy to release dir."
+        exit 1
+    fi
+
+    # copy binary packages to release dir
+    BUILDER_DEB_PACKAGE_DIR=$RELEASE_DIR/$WORKING_DIR_POSTFIX
+    mkdir -p ../$BUILDER_DEB_PACKAGE_DIR
+    echo "* Copy binary packages to release dir \"$BUILDER_DEB_PACKAGE_DIR\"."
+    cp *.deb ../$BUILDER_DEB_PACKAGE_DIR
     if [ $? -ne 0 ]; then
         echo " * Failed to copy to release dir."
         exit 1
