@@ -29,30 +29,28 @@
 #include <osg/MatrixTransform>
 // #include <osg/Vec3>
 
-#include "core/dataHandler/WDataSetFibers.h"
+#include "core/common/math/WMath.h"
+//#include "core/common/WPropertyHelper.h"
+//#include "core/dataHandler/WDataSetFibers.h"
 #include "core/dataHandler/WDataSetScalar.h"
 #include "core/dataHandler/WDataSetVector.h"
 #include "core/dataHandler/WGridRegular3D.h"
-#include "core/graphicsEngine/WGEManagedGroupNode.h"
-#include "core/kernel/WKernel.h"
-#include "core/kernel/WModuleInputData.h"
-#include "WMFiberStipples.h"
-#include "WMFiberStipples.xpm"
-
-#include "core/common/math/WMath.h"
-#include "core/common/WPropertyHelper.h"
 #include "core/graphicsEngine/callbacks/WGELinearTranslationCallback.h"
-#include "core/graphicsEngine/callbacks/WGENodeMaskCallback.h"
+//#include "core/graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "core/graphicsEngine/callbacks/WGEPropertyUniformCallback.h"
 #include "core/graphicsEngine/shaders/WGEPropertyUniform.h"
 #include "core/graphicsEngine/shaders/WGEShader.h"
-#include "core/graphicsEngine/shaders/WGEShaderDefineOptions.h"
-#include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
-#include "core/graphicsEngine/shaders/WGEPropertyUniform.h"
-#include "core/graphicsEngine/WGEColormapping.h"
+//#include "core/graphicsEngine/shaders/WGEShaderDefineOptions.h"
+//#include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
+//#include "core/graphicsEngine/WGEColormapping.h"
 #include "core/graphicsEngine/WGEGeodeUtils.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
 #include "core/graphicsEngine/WGraphicsEngine.h"
-#include "core/kernel/WSelectionManager.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WModuleInputData.h"
+//#include "core/kernel/WSelectionManager.h"
+#include "WMFiberStipples.h"
+#include "WMFiberStipples.xpm"
 
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
@@ -129,7 +127,8 @@ void WMFiberStipples::properties()
     WModule::properties();
 }
 
-namespace {
+namespace
+{
     osg::ref_ptr< osg::Geode > genScatteredDegeneratedQuads( size_t numSamples, osg::Vec3 const& base, osg::Vec3 const& a,
             osg::Vec3 const& b, size_t sliceNum )
     {
@@ -154,8 +153,8 @@ namespace {
         for( size_t i = 0; i < numSamples; ++i )
         {
             // The degenerated QUAD should have all points in its center
-            lambda0 = rand() / rndMax;
-            lambda1 = rand() / rndMax;
+            lambda0 = rand() / rndMax; // NOLINT, we do not need thread safety here
+            lambda1 = rand() / rndMax; // NOLINT, we do not need thread safety here
             osg::Vec3 quadCenter = base + a * lambda0 + b * lambda1;
             for( int j = 0; j < 4; ++j )
             {
@@ -201,15 +200,6 @@ void WMFiberStipples::initOSG( boost::shared_ptr< WDataSetScalar > probTract )
 
     m_output->clear();
 
-    // no colormaps -> no slices
-    bool empty = !WGEColormapping::instance()->size();
-    if( empty )
-    {
-        // hide the slider properties.
-        m_Pos->setHidden();
-        return;
-    }
-
     // grab the current bounding box for computing the size of the slice
     WBoundingBox bb = probTract->getGrid()->getBoundingBox();
     WVector3d minV = bb.getMin();
@@ -220,7 +210,6 @@ void WMFiberStipples::initOSG( boost::shared_ptr< WDataSetScalar > probTract )
     // update the properties
     m_Pos->setMin( minV[1] );
     m_Pos->setMax( maxV[1] );
-    m_Pos->setHidden( false );
 
     // if this is done the first time, set the slices to the center of the dataset
     if( m_first )
