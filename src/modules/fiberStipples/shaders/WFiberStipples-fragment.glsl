@@ -59,6 +59,8 @@ uniform vec3 middlePoint_tex = vec3( 0.5, 0.5, 0.0 );
  */
 varying float probability;
 
+uniform float u_glyphThickness;
+
 /**
  * Computes the minimal distance from segment vw and point p.
  *
@@ -108,7 +110,7 @@ void main()
     float q = area / 3.14159265;
     float r1 = p2 + sqrt( p2 * p2 + q );
     float r2 = p2 - sqrt( p2 * p2 + q );
-    float radius = max( r1, r2 );
+    float radius = max( r1, r2 ) * u_glyphThickness;
 
     if( minimum_distance( scaledFocalPoint1, scaledFocalPoint2, gl_TexCoord[1].xyz ) < radius )
     {

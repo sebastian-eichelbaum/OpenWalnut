@@ -138,6 +138,11 @@ private:
     WPropDouble m_threshold;
 
     /**
+     * For scale the thickness of the stipples.
+     */
+    WPropDouble m_glyphThickness;
+
+    /**
      * For initial slice positioning we need to control if the module is in intial state or not.
      */
     bool m_first;

@@ -132,12 +132,18 @@ uniform float u_threshold;
 uniform vec3 middlePoint_tex = vec3( 0.5, 0.5, 0.0 );
 
 /**
+ * How much slices with random quads are used.
+ */
+uniform int u_numSlices;
+
+/**
  * Vertex Main. Simply transforms the geometry. The work is done per fragment.
  */
 void main()
 {
     gl_TexCoord[0] = gl_MultiTexCoord0; // for distinguishing the verties of the quad
     gl_TexCoord[1] = gl_MultiTexCoord1; // for coordinate system within fragment shader (enable unit quad coordinates)
+    gl_TexCoord[2] = gl_MultiTexCoord2; // for selecting the noisy vertex slice
 
     // compute texture coordinates from worldspace coordinates for texture access
     vec3 texturePosition = ( u_WorldTransform * gl_Vertex ).xyz;
@@ -145,11 +151,11 @@ void main()
     texturePosition.y /= u_pixelSizeY * u_probTractSizeY;
     texturePosition.z /= u_pixelSizeZ * u_probTractSizeZ;
 
-    // get connectivity score from probTract and with maximum value scale it between 0.0..1.0. from now on we call it probability
-    probability = texture3D( u_probTractSampler, texturePosition ).r / float( u_maxConnectivityScore );
+    // get connectivity score from probTract (please not, it is already scaled between 0.0...1.0 from WDataTexture3D::createTexture
+    probability = texture3D( u_probTractSampler, texturePosition ).r;
 
     // span quad incase of regions with high probablility
-    if( probability > u_threshold ) // rgb are the same
+    if( probability > u_threshold && probability * u_numSlices >= gl_TexCoord[2].x )
     {
          // transform position, the 4th component must be explicitly set, as otherwise they would have been scaled
          gl_Position = gl_ModelViewProjectionMatrix * ( vec4( gl_TexCoord[0].xyz + gl_Vertex.xyz, 1.0 ) );

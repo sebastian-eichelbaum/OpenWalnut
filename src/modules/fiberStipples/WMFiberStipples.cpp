@@ -116,26 +116,28 @@ void WMFiberStipples::properties()
 //    spacing->setMin( 0.25 );
 //    spacing->setMax( 5.0 );
 //    WPropDouble glyphSize = m_vectorGroup->addProperty( "Glyph size", "Size of the quads transformed to the glyphs", 1.0 );
-//    glyphSize->setMin( 0.25 );
-//    glyphSize->setMax( 5.0 );
+//    glyphSize->setMin( 0.0 );
+//    glyphSize->setMax( 2.0 );
 //    WPropDouble glyphSpacing = m_vectorGroup->addProperty( "Glyph Spacing", "Spacing ", 0.4, m_sliceChanged );
 //    glyphSpacing->setMin( 0.0 );
 //    glyphSpacing->setMax( 5.0 );
-//    WPropDouble glyphThickness = m_vectorGroup->addProperty( "Glyph Thickness", "Line thickness of the glyphs", 1.0 );
-//    glyphThickness->setMin( 0.01 );
-//    glyphThickness->setMax( 2.0 );
+    m_glyphThickness = m_properties->addProperty( "Glyph Thickness", "Line thickness of the glyphs", 1.0 );
+    m_glyphThickness->setMin( 0.01 );
+    m_glyphThickness->setMax( 2.0 );
 
     // call WModule's initialization
     WModule::properties();
 }
 
 namespace {
-    osg::ref_ptr< osg::Geode > genScatteredDegeneratedQuads( size_t numSamples, osg::Vec3 const& base, osg::Vec3 const& a, osg::Vec3 const& b )
+    osg::ref_ptr< osg::Geode > genScatteredDegeneratedQuads( size_t numSamples, osg::Vec3 const& base, osg::Vec3 const& a,
+            osg::Vec3 const& b, size_t sliceNum )
     {
         // the stuff needed by the OSG to create a geometry instance
         osg::ref_ptr< osg::Vec3Array > vertices = new osg::Vec3Array( numSamples * 4 );
         osg::ref_ptr< osg::Vec3Array > texcoords0 = new osg::Vec3Array( numSamples * 4 );
         osg::ref_ptr< osg::Vec3Array > texcoords1 = new osg::Vec3Array( numSamples * 4 );
+        osg::ref_ptr< osg::Vec3Array > texcoords2 = new osg::Vec3Array( numSamples * 4 );
         osg::ref_ptr< osg::Vec3Array > normals = new osg::Vec3Array;
         osg::ref_ptr< osg::Vec4Array > colors = new osg::Vec4Array;
 
@@ -146,7 +148,6 @@ namespace {
         osg::Vec3 bNorm = b;
         bNorm.normalize();
 
-        std::srand( time( NULL ) );
         double lambda0, lambda1;
         const double rndMax = RAND_MAX;
 
@@ -159,6 +160,7 @@ namespace {
             for( int j = 0; j < 4; ++j )
             {
                 vertices->push_back( quadCenter );
+                texcoords2->push_back( osg::Vec3( static_cast< double >( sliceNum ), 0.0, 0.0 ) );
             }
 
             texcoords0->push_back( ( -aNorm + -bNorm ) );
@@ -180,6 +182,7 @@ namespace {
         geometry->setVertexArray( vertices );
         geometry->setTexCoordArray( 0, texcoords0 );
         geometry->setTexCoordArray( 1, texcoords1 );
+        geometry->setTexCoordArray( 2, texcoords2 );
         geometry->setNormalBinding( osg::Geometry::BIND_OVERALL );
         geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
         geometry->setNormalArray( normals );
@@ -226,10 +229,20 @@ void WMFiberStipples::initOSG( boost::shared_ptr< WDataSetScalar > probTract )
         m_Pos->set( midBB[1] );
     }
 
+    // each slice is child of an transformation node
+    osg::ref_ptr< osg::MatrixTransform > mT = new osg::MatrixTransform();
+
+    size_t numSlices = 10;
+    std::srand( time( NULL ) ); // start random number generator here, as seeding within one second might not produce different vertices
+
     // create a new geode containing the slices
-    osg::ref_ptr< osg::Node > slice = genScatteredDegeneratedQuads( 100000, minV, osg::Vec3( sizes[0], 0.0, 0.0 ),
-                                                                    osg::Vec3( 0.0, 0.0, sizes[2] ) );
-    slice->setName( "Coronal Slice" );
+    for( size_t i = 0; i < numSlices; ++i )
+    {
+        osg::ref_ptr< osg::Node > slice = genScatteredDegeneratedQuads( 3000, minV, osg::Vec3( sizes[0], 0.0, 0.0 ),
+                                                                        osg::Vec3( 0.0, 0.0, sizes[2] ), i );
+        slice->setCullingActive( false );
+        mT->addChild( slice );
+    }
 
     osg::ref_ptr< osg::Uniform > u_aVec = new osg::Uniform( "u_aVec", osg::Vec3( sizes[0], 0.0, 0.0 ) );
     osg::ref_ptr< osg::Uniform > u_bVec = new osg::Uniform( "u_bVec", osg::Vec3( 0.0, 0.0, sizes[2] ) );
@@ -246,8 +259,10 @@ void WMFiberStipples::initOSG( boost::shared_ptr< WDataSetScalar > probTract )
     osg::ref_ptr< osg::Uniform > u_color = new WGEPropertyUniform< WPropColor >( "u_color", m_color );
     osg::ref_ptr< osg::Uniform > u_threshold = new WGEPropertyUniform< WPropDouble >( "u_threshold", m_threshold );
     osg::ref_ptr< osg::Uniform > u_maxConnectivityScore = new osg::Uniform( "u_maxConnectivityScore", static_cast< float >( probTract->getMax() ) );
+    osg::ref_ptr< osg::Uniform > u_numSlices = new osg::Uniform( "u_numSlices", static_cast< int >( numSlices ) );
+    osg::ref_ptr< osg::Uniform > u_glyphThickness = new WGEPropertyUniform< WPropDouble >( "u_glyphThickness", m_glyphThickness );
 
-    osg::StateSet *states = slice->getOrCreateStateSet();
+    osg::StateSet *states = m_output->getOrCreateStateSet();
     states->addUniform( u_aVec );
     states->addUniform( u_bVec );
     states->addUniform( u_WorldTransform );
@@ -257,11 +272,8 @@ void WMFiberStipples::initOSG( boost::shared_ptr< WDataSetScalar > probTract )
     states->addUniform( u_color );
     states->addUniform( u_threshold );
     states->addUniform( u_maxConnectivityScore );
-    slice->setCullingActive( false );
-
-    // each slice is child of an transformation node
-    osg::ref_ptr< osg::MatrixTransform > mT = new osg::MatrixTransform();
-    mT->addChild( slice );
+    states->addUniform( u_numSlices );
+    states->addUniform( u_glyphThickness );
 
     // Control transformation node by properties. We use an additional uniform here to provide the shader
     // the transformation matrix used to translate the slice.
