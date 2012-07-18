@@ -1,0 +1,3 @@
+# Although the hardening options are enabled and verified to be active during compilation, lintian complains about missing hardening options.
+openwalnut-modules: hardening-no-fortify-functions
+
