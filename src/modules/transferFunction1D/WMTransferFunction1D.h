@@ -101,7 +101,7 @@ protected:
 
 
 private:
-       /**
+    /**
      * An input connector used to get datasets from other modules. The connection management between co
 nnectors must not be handled by the module.
      */
@@ -112,17 +112,23 @@ nnectors must not be handled by the module.
      */
     boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output;
 
-    /** A condition used to notify about changes in several properties.*/
+    /**
+     * A condition used to notify about changes in several properties.
+     */
     boost::shared_ptr< WCondition > m_propCondition;
 
-    /** resolution of the transfer function */
+    /**
+     * Resolution of the transfer function.
+     */
     WPropInt m_resolution;
 
-    /** histogram bin size */
+    /**
+     * Histogram bin size
+     */
     WPropInt m_binSize;
 
     /**
-     * the transfer function property
+     * The transfer function property
      */
     WPropTransferFunction m_transferFunction;
 };
