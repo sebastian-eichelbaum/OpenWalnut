@@ -73,6 +73,11 @@ public:
     virtual ~WQtControlPanel();
 
     /**
+     * Complete own GUI setup. This is useful when not all the information is available during construction. Called by the WMainWindow.
+     */
+    void completeGuiSetup();
+
+    /**
      * Adds a page to the context widget
      *
      * \param content A widget with controls

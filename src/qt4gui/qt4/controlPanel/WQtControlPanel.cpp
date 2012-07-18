@@ -134,11 +134,9 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     {
         m_mainWindow->getNetworkEditor()->setContextMenuPolicy( Qt::ActionsContextMenu );
         m_mainWindow->getNetworkEditor()->addAction( m_addModuleAction );
-        m_mainWindow->getNetworkEditor()->addAction( separator );
         m_mainWindow->getNetworkEditor()->addAction( m_connectWithPrototypeAction );
         m_mainWindow->getNetworkEditor()->addAction( m_connectWithModuleAction );
         m_mainWindow->getNetworkEditor()->addAction( m_disconnectAction );
-        m_mainWindow->getNetworkEditor()->addAction( separator );
         m_mainWindow->getNetworkEditor()->addAction( m_deleteModuleAction );
         m_mainWindow->getNetworkEditor()->addAction( separator );
         m_mainWindow->getNetworkEditor()->addAction( m_missingModuleAction );
@@ -197,6 +195,11 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
 
 WQtControlPanel::~WQtControlPanel()
 {
+}
+
+void WQtControlPanel::completeGuiSetup()
+{
+    m_mainWindow->addGlobalMenu( m_mainWindow->getNetworkEditor() );
 }
 
 void WQtControlPanel::connectSlots()

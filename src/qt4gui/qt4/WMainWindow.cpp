@@ -131,12 +131,6 @@ void WMainWindow::setupGUI()
                                                                true,
                                                                true    // this requires a restart
                                                        );
-    WSettingAction* showNetworkEditor = new WSettingAction( this, "qt4gui/showNetworkEditor",
-                                                               "Show Network Editor",
-                                                               "Show the network editor allowing you to manipulate the module graph graphically?",
-                                                               true,
-                                                               true    // this requires a restart
-                                                       );
     m_autoDisplaySetting = new WSettingAction( this, "qt4gui/useAutoDisplay",
                                                      "Auto-Display",
                                                      "If enabled, the best matching module is automatically added if some data was loaded.",
@@ -213,15 +207,12 @@ void WMainWindow::setupGUI()
 
     //network Editor
     m_networkEditor = NULL;
-    if( showNetworkEditor->get() )
-    {
-        m_networkEditor = new WQtNetworkEditor( this );
-        m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
+    m_networkEditor = new WQtNetworkEditor( this );
+    m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
 
-        // strangely, the QGraphics* objects do not properly forward drag/drop events. We need to explicitly handle them.
-        connect( m_networkEditor->getView(), SIGNAL( dragDrop( QDropEvent* ) ),
-                 this, SLOT( handleDrop( QDropEvent* ) ) );
-    }
+    // strangely, the QGraphics* objects do not properly forward drag/drop events. We need to explicitly handle them.
+    connect( m_networkEditor->getView(), SIGNAL( dragDrop( QDropEvent* ) ),
+             this, SLOT( handleDrop( QDropEvent* ) ) );
 
     // the control panel instance is needed for the menu
     m_controlPanel = new WQtControlPanel( this );
@@ -290,17 +281,17 @@ void WMainWindow::setupGUI()
     QAction* roiButton = new QAction( m_iconManager.getIcon( "ROI icon" ), "ROI", m_permanentToolBar );
     QAction* resetButton = new QAction( m_iconManager.getIcon( "view" ), "Reset", m_permanentToolBar );
     resetButton->setShortcut( QKeySequence( Qt::Key_Escape ) );
-    QAction* projectSaveButton = new QAction( m_iconManager.getIcon( "saveProject" ), "Save Project", m_permanentToolBar );
+    m_saveAction = new QAction( m_iconManager.getIcon( "saveProject" ), "Save Project", m_permanentToolBar );
 
     connect( m_loadButton, SIGNAL(  triggered( bool ) ), this, SLOT( openLoadDialog() ) );
     connect( resetButton, SIGNAL(  triggered( bool ) ), m_mainGLWidget.get(), SLOT( reset() ) );
     connect( roiButton, SIGNAL(  triggered( bool ) ), this, SLOT( newRoi() ) );
-    connect( projectSaveButton, SIGNAL( triggered( bool ) ), this, SLOT( projectSaveAll() ) );
+    connect( m_saveAction, SIGNAL( triggered( bool ) ), this, SLOT( projectSaveAll() ) );
 
     m_loadButton->setToolTip( "Load a dataset or project from file" );
     resetButton->setToolTip( "Reset main view" );
     roiButton->setToolTip( "Create new ROI" );
-    projectSaveButton->setToolTip( "Save current project to file" );
+    m_saveAction->setToolTip( "Save current project to file" );
 
     // we want the upper most tree item to be selected. This helps to make the always compatible modules
     // show up in the tool bar from the beginning. And ... it doesn't hurt.
@@ -320,47 +311,52 @@ void WMainWindow::setupGUI()
     QMenu* fileMenu = m_menuBar->addMenu( "File" );
 
     fileMenu->addAction( m_loadButton );
-    QMenu* saveMenu = fileMenu->addMenu( m_iconManager.getIcon( "saveProject" ), "Save Project" );
-    saveMenu->addAction( "Save Project", this, SLOT( projectSaveAll() ), QKeySequence::Save );
-    saveMenu->addAction( "Save Modules Only", this, SLOT( projectSaveModuleOnly() ) );
-    saveMenu->addAction( "Save Camera Only", this, SLOT( projectSaveCameraOnly() ) );
-    saveMenu->addAction( "Save ROIs Only", this, SLOT( projectSaveROIOnly() ) );
-    projectSaveButton->setMenu( saveMenu );
+    m_saveMenu = fileMenu->addMenu( m_iconManager.getIcon( "saveProject" ), "Save Project" );
+    m_saveMenu->addAction( "Save Project", this, SLOT( projectSaveAll() ), QKeySequence::Save );
+    m_saveMenu->addAction( "Save Modules Only", this, SLOT( projectSaveModuleOnly() ) );
+    m_saveMenu->addAction( "Save Camera Only", this, SLOT( projectSaveCameraOnly() ) );
+    // saveMenu->addAction( "Save ROIs Only", this, SLOT( projectSaveROIOnly() ) );
+    m_saveAction->setMenu( m_saveMenu );
 
     fileMenu->addSeparator();
     // TODO(all): If all distributions provide a newer QT version we should use QKeySequence::Quit here
     //fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( QKeySequence::Quit ) );
-    fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ),  QKeySequence( Qt::CTRL + Qt::Key_Q ) );
+    m_quitAction = fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ),  QKeySequence( Qt::CTRL + Qt::Key_Q ) );
 
     // This QAction stuff is quite ugly and complicated some times ... There is no nice constructor which takes name, slot keysequence and so on
     // directly -> set shortcuts, and some further properties using QAction's interface
-    QMenu* viewMenu = m_menuBar->addMenu( "View" );
-    viewMenu->addAction( hideMenuAction );
-    viewMenu->addSeparator();
-    viewMenu->addAction( showNavWidgets );
-    viewMenu->addAction( showNetworkEditor );
-    viewMenu->addSeparator();
-    viewMenu->addMenu( m_permanentToolBar->getStyleMenu() );
+    m_viewAction = new QAction( "View", this );
+    m_viewMenu = m_menuBar->addMenu( "View" );
+    m_viewMenu->addAction( hideMenuAction );
+    m_viewMenu->addSeparator();
+    m_viewMenu->addAction( showNavWidgets );
+    m_viewMenu->addSeparator();
+    m_viewMenu->addMenu( m_permanentToolBar->getStyleMenu() );
+    m_viewAction->setMenu( m_viewMenu );
 
     // Camera menu
     QMenu* bgColorMenu = new QMenu( "Background Colors" );
     bgColorMenu->addAction( mainGLDock->getGLWidget()->getBackgroundColorAction() );
 
-    QMenu* cameraMenu = m_menuBar->addMenu( "Camera" );
-    cameraMenu->addAction( mainGLDock->getGLWidget()->getThrowingSetting() );
-    cameraMenu->addMenu( bgColorMenu );
-    cameraMenu->addSeparator();
+    m_cameraAction = new QAction( "Camera", this );
+    m_cameraMenu = m_menuBar->addMenu( "Camera" );
+    m_cameraMenu->addAction( mainGLDock->getGLWidget()->getThrowingSetting() );
+    m_cameraMenu->addMenu( bgColorMenu );
+    m_cameraMenu->addSeparator();
+    m_cameraAction->setMenu( m_cameraMenu );
 
-    QMenu* settingsMenu = m_menuBar->addMenu( "Settings" );
-    settingsMenu->addAction( m_autoDisplaySetting );
-    settingsMenu->addAction( m_controlPanel->getModuleConfig().getConfigureAction() );
-    settingsMenu->addSeparator();
-    settingsMenu->addAction( mtViews );
-    settingsMenu->addSeparator();
-    settingsMenu->addMenu( logLevels );
+    m_settingsAction = new QAction( "Settings", this );
+    m_settingsMenu = m_menuBar->addMenu( "Settings" );
+    m_settingsMenu->addAction( m_autoDisplaySetting );
+    m_settingsMenu->addAction( m_controlPanel->getModuleConfig().getConfigureAction() );
+    m_settingsMenu->addSeparator();
+    m_settingsMenu->addAction( mtViews );
+    m_settingsMenu->addSeparator();
+    m_settingsMenu->addMenu( logLevels );
+    m_settingsAction->setMenu( m_settingsMenu );
 
     // a separate menu for some presets
-    QMenu* cameraPresetMenu = cameraMenu->addMenu( "Presets" );
+    QMenu* cameraPresetMenu = m_cameraMenu->addMenu( "Presets" );
 
     QAction* controlPanelTrigger = m_controlPanel->toggleViewAction();
     QList< QKeySequence > controlPanelShortcut;
@@ -404,12 +400,15 @@ void WMainWindow::setupGUI()
 
     resetButton->setMenu( cameraPresetMenu );
 
-    QMenu* helpMenu = m_menuBar->addMenu( "Help" );
-    helpMenu->addAction( m_iconManager.getIcon( "help" ), "OpenWalnut Help", this, SLOT( openOpenWalnutHelpDialog() ),
-                         QKeySequence( QKeySequence::HelpContents ) );
-    helpMenu->addSeparator();
-    helpMenu->addAction( m_iconManager.getIcon( "logo" ), "About OpenWalnut", this, SLOT( openAboutDialog() ) );
-    helpMenu->addAction( "About Qt", this, SLOT( openAboutQtDialog() ) );
+    m_helpAction = new QAction( "Help", this );
+    m_helpMenu = m_menuBar->addMenu( "Help" );
+    m_helpMenu->addAction( m_iconManager.getIcon( "help" ), "OpenWalnut Help", this, SLOT( openOpenWalnutHelpDialog() ),
+                           QKeySequence( QKeySequence::HelpContents ) );
+    m_helpMenu->addAction( m_iconManager.getIcon( "logo" ), "Welcome to OpenWalnut", this, SLOT( showWelcomeDialog() ) );
+    m_helpMenu->addSeparator();
+    m_helpMenu->addAction( m_iconManager.getIcon( "logo" ), "About OpenWalnut", this, SLOT( openAboutDialog() ) );
+    m_helpMenu->addAction( "About Qt", this, SLOT( openAboutQtDialog() ) );
+    m_helpAction->setMenu( m_helpMenu );
 
     setMenuBar( m_menuBar );
 
@@ -469,7 +468,7 @@ void WMainWindow::setupGUI()
 
     // setup permanent toolbar
     m_permanentToolBar->addAction( m_loadButton );
-    m_permanentToolBar->addAction( projectSaveButton );
+    m_permanentToolBar->addAction( m_saveAction );
     m_permanentToolBar->addSeparator();
     m_permanentToolBar->addAction( m_mainGLWidgetScreenCapture->getScreenshotTrigger() );
     m_permanentToolBar->addSeparator();
@@ -480,6 +479,9 @@ void WMainWindow::setupGUI()
     m_permanentToolBar->addAction( showCoronal );
     m_permanentToolBar->addAction( showSagittal );
     m_permanentToolBar->addSeparator();
+
+    // allow the control panel to complete setup
+    m_controlPanel->completeGuiSetup();
 
     // after creating the GUI, restore its saved state
     restoreSavedState();
@@ -1132,7 +1134,7 @@ void WMainWindow::handleGLVendor()
     }
 }
 
-void WMainWindow::handleStartMessages()
+void WMainWindow::showWelcomeDialog( bool force )
 {
     // Load welcome file
     std::string filename( WPathHelper::getDocPath().string() + "/openwalnut-qt4/OpenWalnutWelcome.html" );
@@ -1151,7 +1153,13 @@ void WMainWindow::handleStartMessages()
     l->setWordWrap( true );
     l->setMinimumWidth( 640 );
     WQtMessageDialog* msgDia = new WQtMessageDialog( msgID, "Welcome to OpenWalnut", l, getSettings(), this );
-    msgDia->show();
+    msgDia->show( force );
+}
+
+void WMainWindow::handleStartMessages()
+{
+    // only show welcome dialog for now
+    showWelcomeDialog( false );
 }
 
 void WMainWindow::forceMainGLWidgetSize( size_t w, size_t h )
@@ -1290,5 +1298,34 @@ void WMainWindow::closeSplash()
 QSplashScreen* WMainWindow::getSplash() const
 {
     return m_splash;
+}
+
+/**
+ * Create a distinct separator.
+ *
+ * \param parent the parent
+ *
+ * \return the separator
+ */
+QAction* createSeperator( QWidget* parent )
+{
+    QAction* separator = new QAction( parent );
+    separator->setSeparator( true );
+    return separator;
+}
+
+void WMainWindow::addGlobalMenu( QWidget* widget )
+{
+    widget->addAction( createSeperator( this ) );
+    widget->addAction( m_loadButton );
+    widget->addAction( m_saveAction );
+    widget->addAction( createSeperator( this ) );
+    widget->addAction( m_viewAction );
+    widget->addAction( m_cameraAction );
+    widget->addAction( m_settingsAction );
+    widget->addAction( createSeperator( this ) );
+    widget->addAction( m_helpAction );
+    widget->addAction( createSeperator( this ) );
+    widget->addAction( m_quitAction );
 }
 

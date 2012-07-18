@@ -74,9 +74,18 @@ WQtMessageDialog::~WQtMessageDialog()
 
 void WQtMessageDialog::show()
 {
+    show( false );  // NOTE: this also calls QDialog::show.
+}
+
+void WQtMessageDialog::show( bool force )
+{
     // check if message is allowed
     bool show = m_settings.value( m_msgID + "_showAgain", true ).toBool();
     m_checkBox->setCheckState( show ? Qt::Unchecked : Qt::Checked );
+
+    // forced to show?
+    // NOTE: we set the m_checkBox earlier to keep the old showAgain state
+    show = show || force;
 
     // only show if wanted by user
     if( !show )
