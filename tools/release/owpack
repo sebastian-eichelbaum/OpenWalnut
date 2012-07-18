@@ -243,8 +243,8 @@ Builder_SRC()
     fi
 
     # simply tar the stuff
-    echo "* Create source tar \"$BUILDER_SRC_UPSTREAM_SRC_TAR\"."
-    tar -cfz $BUILDER_SRC_UPSTREAM_SRC_TAR $BUILDER_SRC_UPSTREAM_SRC_DIR
+    echo "* Create source tar \"$BUILDER_SRC_UPSTREAM_SRC_TAR\" for \"$BUILDER_SRC_UPSTREAM_SRC_DIR\"."
+    tar cvfz $BUILDER_SRC_UPSTREAM_SRC_TAR $BUILDER_SRC_UPSTREAM_SRC_DIR/
     if [ $? -ne 0 ]; then
         echo " * Failed to create tar archive."
         exit 1
