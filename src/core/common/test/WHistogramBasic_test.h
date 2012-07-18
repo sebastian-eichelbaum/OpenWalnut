@@ -144,7 +144,6 @@ public:
         h.insert( max - 2.0 * wlimits::FLT_EPS );
         TS_ASSERT_EQUALS( h[999], 2 );
     }
-
 };
 
 #endif  // WHISTOGRAMBASIC_TEST_H

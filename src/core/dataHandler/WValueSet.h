@@ -27,11 +27,13 @@
 
 #include <cmath>
 #include <cstddef>
+#include <limits>
 #include <vector>
+
 #include <boost/shared_ptr.hpp>
 
-#include "../common/math/WValue.h"
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../common/math/WValue.h"
 #include "../common/WAssert.h"
 #include "../common/WLimits.h"
 #include "WDataHandlerEnums.h"

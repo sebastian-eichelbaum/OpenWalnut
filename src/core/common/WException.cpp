@@ -23,7 +23,7 @@
 //---------------------------------------------------------------------------
 
 #if (( defined( __linux__ ) && defined( __GNUC__ )) || defined( __APPLE__ ))
-	#define BACKTRACE_SUPPORTED
+    #define BACKTRACE_SUPPORTED
 #endif
 
 #ifdef BACKTRACE_SUPPORTED
@@ -109,7 +109,7 @@ std::string WException::getBacktrace() const
     // print trace here
     std::ostringstream o;
 
-#ifdef BACKTRACE_SUPPORTED 
+#ifdef BACKTRACE_SUPPORTED
     // This is highly platform dependent. It MIGHT also work on BSD and other unix.
 
     // Automatic callstack backtrace
