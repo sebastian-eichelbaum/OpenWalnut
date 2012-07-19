@@ -28,41 +28,41 @@
 #include "core/dataHandler/WDataSetVector.h"
 #include "core/kernel/WKernel.h"
 #include "modules/emptyIcon.xpm" // Please put a real icon here.
-#include "WMUnifyEvecs.h"
+#include "WMVectorAlign.h"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
-W_LOADABLE_MODULE( WMUnifyEvecs )
+W_LOADABLE_MODULE( WMVectorAlign )
 
-WMUnifyEvecs::WMUnifyEvecs():
+WMVectorAlign::WMVectorAlign():
     WModule()
 {
 }
 
-WMUnifyEvecs::~WMUnifyEvecs()
+WMVectorAlign::~WMVectorAlign()
 {
 }
 
-boost::shared_ptr< WModule > WMUnifyEvecs::factory() const
+boost::shared_ptr< WModule > WMVectorAlign::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMUnifyEvecs() );
+    return boost::shared_ptr< WModule >( new WMVectorAlign() );
 }
 
-const char** WMUnifyEvecs::getXPMIcon() const
+const char** WMVectorAlign::getXPMIcon() const
 {
     return emptyIcon_xpm; // Please put a real icon here.
 }
 
-const std::string WMUnifyEvecs::getName() const
+const std::string WMVectorAlign::getName() const
 {
-    return "Unify Evecs";
+    return "Vector Align";
 }
 
-const std::string WMUnifyEvecs::getDescription() const
+const std::string WMVectorAlign::getDescription() const
 {
-    return "This module may switch orientation of vectors, so they are aligned in some halfspace as best as possible.";
+    return "Aligns vectors of each grid cell, so they are aligned in same halfspace.";
 }
 
-void WMUnifyEvecs::connectors()
+void WMVectorAlign::connectors()
 {
     m_vectorIC = WModuleInputData< WDataSetVector >::createAndAdd( shared_from_this(), "vectors", "Some vector dataset." );
     m_vectorOC = WModuleOutputData< WDataSetVector >::createAndAdd( shared_from_this(), "alignedVectors",
@@ -71,12 +71,12 @@ void WMUnifyEvecs::connectors()
     WModule::connectors();
 }
 
-void WMUnifyEvecs::properties()
+void WMVectorAlign::properties()
 {
     WModule::properties();
 }
 
-void WMUnifyEvecs::requirements()
+void WMVectorAlign::requirements()
 {
 }
 
@@ -125,7 +125,7 @@ namespace
     }
 }
 
-void WMUnifyEvecs::moduleMain()
+void WMVectorAlign::moduleMain()
 {
     // get notified about data changes
     m_moduleState.setResetable( true, true );
