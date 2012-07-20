@@ -32,73 +32,93 @@ uniform float u_isovalue;
 
 void main()
 {
-    vec4 col = vec4( texture3D( u_scalarDataSampler, gl_TexCoord[0].xyz ).xyz, 1.0 );
-
-    float s = 0.001;
+    float s = 1.0 / 160.0;
     vec3 curPoint = gl_TexCoord[0].xyz;
+    vec3 v1 = vec3(  -s,  -s, 0.0 );
+    vec3 v2 = vec3( 0.0,  -s, 0.0 );
+    vec3 v3 = vec3(   s,  -s, 0.0 );
+    vec3 v4 = vec3(  -s, 0.0, 0.0 );
+    vec3 v5 = vec3( 0.0, 0.0, 0.0 );
+    vec3 v6 = vec3(   s, 0.0, 0.0 );
+    vec3 v7 = vec3(  -s,   s, 0.0 );
+    vec3 v8 = vec3( 0.0,   s, 0.0 );
+    vec3 v9 = vec3(   s,   s, 0.0 );
 
-    float valueX1    = texture3D( u_scalarDataSampler, curPoint + vec3(   s, 0.0, 0.0 ) ).r;
-    float valueX2    = texture3D( u_scalarDataSampler, curPoint - vec3(   s, 0.0, 0.0 ) ).r;
-    float valueXY1   = texture3D( u_scalarDataSampler, curPoint + vec3(   s,   s, 0.0 ) ).r;
-    float valueXY2   = texture3D( u_scalarDataSampler, curPoint - vec3(   s,   s, 0.0 ) ).r;
-    float valueXY3   = texture3D( u_scalarDataSampler, curPoint + vec3(   s,  -s, 0.0 ) ).r;
-    float valueXY4   = texture3D( u_scalarDataSampler, curPoint - vec3(   s,  -s, 0.0 ) ).r;
-    float valueY1    = texture3D( u_scalarDataSampler, curPoint + vec3( 0.0,   s, 0.0 ) ).r;
-    float valueY2    = texture3D( u_scalarDataSampler, curPoint - vec3( 0.0,   s, 0.0 ) ).r;
-    float valueZ1X1  = texture3D( u_scalarDataSampler, curPoint + vec3(   s, 0.0,   s ) ).r;
-    float valueZ1X2  = texture3D( u_scalarDataSampler, curPoint - vec3(   s, 0.0,   s ) ).r;
-    float valueZ1XY1 = texture3D( u_scalarDataSampler, curPoint + vec3(   s,   s,   s ) ).r;
-    float valueZ1XY2 = texture3D( u_scalarDataSampler, curPoint - vec3(   s,   s,   s ) ).r;
-    float valueZ1XY3 = texture3D( u_scalarDataSampler, curPoint + vec3(   s,  -s,   s ) ).r;
-    float valueZ1XY4 = texture3D( u_scalarDataSampler, curPoint - vec3(   s,  -s,   s ) ).r;
-    float valueZ1Y1  = texture3D( u_scalarDataSampler, curPoint + vec3( 0.0,   s,   s ) ).r;
-    float valueZ1Y2  = texture3D( u_scalarDataSampler, curPoint - vec3( 0.0,   s,   s ) ).r;
-    float valueZ2X1  = texture3D( u_scalarDataSampler, curPoint + vec3(   s, 0.0,  -s ) ).r;
-    float valueZ2X2  = texture3D( u_scalarDataSampler, curPoint - vec3(   s, 0.0,  -s ) ).r;
-    float valueZ2XY1 = texture3D( u_scalarDataSampler, curPoint + vec3(   s,   s,  -s ) ).r;
-    float valueZ2XY2 = texture3D( u_scalarDataSampler, curPoint - vec3(   s,   s,  -s ) ).r;
-    float valueZ2XY3 = texture3D( u_scalarDataSampler, curPoint + vec3(   s,  -s,  -s ) ).r;
-    float valueZ2XY4 = texture3D( u_scalarDataSampler, curPoint - vec3(   s,  -s,  -s ) ).r;
-    float valueZ2Y1  = texture3D( u_scalarDataSampler, curPoint + vec3( 0.0,   s,  -s ) ).r;
-    float valueZ2Y2  = texture3D( u_scalarDataSampler, curPoint - vec3( 0.0,   s,  -s ) ).r;
+    float d1  = texture3D( u_scalarDataSampler, curPoint + v1 ).r;
+    float d2  = texture3D( u_scalarDataSampler, curPoint + v2 ).r;
+    float d3  = texture3D( u_scalarDataSampler, curPoint + v3 ).r;
+    float d4  = texture3D( u_scalarDataSampler, curPoint + v4 ).r;
+    float d5  = texture3D( u_scalarDataSampler, curPoint + v5 ).r;
+    float d6  = texture3D( u_scalarDataSampler, curPoint + v6 ).r;
+    float d7  = texture3D( u_scalarDataSampler, curPoint + v7 ).r;
+    float d8  = texture3D( u_scalarDataSampler, curPoint + v8 ).r;
+    float d9  = texture3D( u_scalarDataSampler, curPoint + v9 ).r;
 
-    int u1  = int( valueX1    < u_isovalue );
-    int u2  = int( valueX2    < u_isovalue );
-    int u3  = int( valueXY1   < u_isovalue );
-    int u4  = int( valueXY2   < u_isovalue );
-    int u5  = int( valueXY3   < u_isovalue );
-    int u6  = int( valueXY4   < u_isovalue );
-    int u7  = int( valueY1    < u_isovalue );
-    int u8  = int( valueY2    < u_isovalue );
-    int u9  = int( valueZ1X1  < u_isovalue );
-    int u10 = int( valueZ1X2  < u_isovalue );
-    int u11 = int( valueZ1XY1 < u_isovalue );
-    int u12 = int( valueZ1XY2 < u_isovalue );
-    int u13 = int( valueZ1XY3 < u_isovalue );
-    int u14 = int( valueZ1XY4 < u_isovalue );
-    int u15 = int( valueZ1Y1  < u_isovalue );
-    int u16 = int( valueZ1Y2  < u_isovalue );
-    int u17 = int( valueZ2X1  < u_isovalue );
-    int u18 = int( valueZ2X2  < u_isovalue );
-    int u19 = int( valueZ2XY1 < u_isovalue );
-    int u20 = int( valueZ2XY2 < u_isovalue );
-    int u21 = int( valueZ2XY3 < u_isovalue );
-    int u22 = int( valueZ2XY4 < u_isovalue );
-    int u23 = int( valueZ2Y1  < u_isovalue );
-    int u24 = int( valueZ2Y2  < u_isovalue );
+    float max_flt = 9.9e+20;
+    vec3 infPoint = vec3( max_flt, max_flt, max_flt );
 
-    int sum = u1 + u2 + u3 + u4 + u5 + u6 + u7 + u8 + u9 +
-              u10 + u11 + u12 + u13 + u14 + u15 + u16 + u17 + u18 + u19 +
-              u20 + u21 + u22 + u23 + u24;
+    // we may use the step(..) function here, but then the expressions wouldn't be so clear
+    int isoHitEdge1  = int( u_isovalue <= d1 && u_isovalue >= d2 || u_isovalue >= d1 && u_isovalue <= d2 );
+    int isoHitEdge2  = int( u_isovalue <= d2 && u_isovalue >= d3 || u_isovalue >= d2 && u_isovalue <= d3 );
+    int isoHitEdge3  = int( u_isovalue <= d1 && u_isovalue >= d4 || u_isovalue >= d1 && u_isovalue <= d4 );
+    int isoHitEdge4  = int( u_isovalue <= d2 && u_isovalue >= d5 || u_isovalue >= d2 && u_isovalue <= d5 );
+    int isoHitEdge5  = int( u_isovalue <= d3 && u_isovalue >= d6 || u_isovalue >= d3 && u_isovalue <= d6 );
+    int isoHitEdge6  = int( u_isovalue <= d4 && u_isovalue >= d5 || u_isovalue >= d4 && u_isovalue <= d5 );
+    int isoHitEdge7  = int( u_isovalue <= d5 && u_isovalue >= d6 || u_isovalue >= d5 && u_isovalue <= d6 );
+    int isoHitEdge8  = int( u_isovalue <= d4 && u_isovalue >= d7 || u_isovalue >= d4 && u_isovalue <= d7 );
+    int isoHitEdge9  = int( u_isovalue <= d5 && u_isovalue >= d8 || u_isovalue >= d5 && u_isovalue <= d8 );
+    int isoHitEdge10 = int( u_isovalue <= d6 && u_isovalue >= d9 || u_isovalue >= d6 && u_isovalue <= d9 );
+    int isoHitEdge11 = int( u_isovalue <= d7 && u_isovalue >= d8 || u_isovalue >= d7 && u_isovalue <= d8 );
+    int isoHitEdge12 = int( u_isovalue <= d8 && u_isovalue >= d9 || u_isovalue >= d8 && u_isovalue <= d9 );
 
-    // BOTH LAYERS
-    float eps = 0.05; // * length( grad );
+    vec3 isoPoint1  = infPoint * ( 1 - isoHitEdge1  ) + ( isoHitEdge1  ) * ( curPoint + v1 + clamp( abs( d1 - u_isovalue ) / abs( d1 - d2 ), 0.0, 1.0 ) * vec3(   s, 0.0, 0.0 ) ); // NOLINT, line length
+    vec3 isoPoint2  = infPoint * ( 1 - isoHitEdge2  ) + ( isoHitEdge2  ) * ( curPoint + v2 + clamp( abs( d2 - u_isovalue ) / abs( d2 - d3 ), 0.0, 1.0 ) * vec3(   s, 0.0, 0.0 ) ); // NOLINT, line length
+    vec3 isoPoint3  = infPoint * ( 1 - isoHitEdge3  ) + ( isoHitEdge3  ) * ( curPoint + v1 + clamp( abs( d1 - u_isovalue ) / abs( d1 - d4 ), 0.0, 1.0 ) * vec3( 0.0,   s, 0.0 ) ); // NOLINT, line length
+    vec3 isoPoint4  = infPoint * ( 1 - isoHitEdge4  ) + ( isoHitEdge4  ) * ( curPoint + v2 + clamp( abs( d2 - u_isovalue ) / abs( d2 - d5 ), 0.0, 1.0 ) * vec3( 0.0,   s, 0.0 ) ); // NOLINT, line length
+    vec3 isoPoint5  = infPoint * ( 1 - isoHitEdge5  ) + ( isoHitEdge5  ) * ( curPoint + v3 + clamp( abs( d3 - u_isovalue ) / abs( d3 - d6 ), 0.0, 1.0 ) * vec3( 0.0,   s, 0.0 ) ); // NOLINT, line length
+    vec3 isoPoint6  = infPoint * ( 1 - isoHitEdge6  ) + ( isoHitEdge6  ) * ( curPoint + v4 + clamp( abs( d4 - u_isovalue ) / abs( d4 - d5 ), 0.0, 1.0 ) * vec3(   s, 0.0, 0.0 ) ); // NOLINT, line length
+    vec3 isoPoint7  = infPoint * ( 1 - isoHitEdge7  ) + ( isoHitEdge7  ) * ( curPoint + v5 + clamp( abs( d5 - u_isovalue ) / abs( d5 - d6 ), 0.0, 1.0 ) * vec3(   s, 0.0, 0.0 ) ); // NOLINT, line length
+    vec3 isoPoint8  = infPoint * ( 1 - isoHitEdge8  ) + ( isoHitEdge8  ) * ( curPoint + v4 + clamp( abs( d4 - u_isovalue ) / abs( d4 - d7 ), 0.0, 1.0 ) * vec3( 0.0,   s, 0.0 ) ); // NOLINT, line length
+    vec3 isoPoint9  = infPoint * ( 1 - isoHitEdge9  ) + ( isoHitEdge9  ) * ( curPoint + v5 + clamp( abs( d5 - u_isovalue ) / abs( d5 - d8 ), 0.0, 1.0 ) * vec3( 0.0,   s, 0.0 ) ); // NOLINT, line length
+    vec3 isoPoint10 = infPoint * ( 1 - isoHitEdge10 ) + ( isoHitEdge10 ) * ( curPoint + v6 + clamp( abs( d6 - u_isovalue ) / abs( d6 - d9 ), 0.0, 1.0 ) * vec3( 0.0,   s, 0.0 ) ); // NOLINT, line length
+    vec3 isoPoint11 = infPoint * ( 1 - isoHitEdge11 ) + ( isoHitEdge11 ) * ( curPoint + v7 + clamp( abs( d7 - u_isovalue ) / abs( d7 - d8 ), 0.0, 1.0 ) * vec3(   s, 0.0, 0.0 ) ); // NOLINT, line length
+    vec3 isoPoint12 = infPoint * ( 1 - isoHitEdge12 ) + ( isoHitEdge12 ) * ( curPoint + v8 + clamp( abs( d8 - u_isovalue ) / abs( d8 - d9 ), 0.0, 1.0 ) * vec3(   s, 0.0, 0.0 ) ); // NOLINT, line length
 
-//    if( abs( col.r - u_isovalue ) > eps )
-    if( sum >= 22 || sum <= 2 )
+    float minDistance = 9.9e+3;
+    float distance;
+    float newMinimum;
+
+    distance = length( isoPoint1 - curPoint );
+    minDistance = min( distance, minDistance );
+    distance = length( isoPoint2 - curPoint );
+    minDistance = min( distance, minDistance );
+    distance = length( isoPoint3 - curPoint );
+    minDistance = min( distance, minDistance );
+    distance = length( isoPoint4 - curPoint );
+    minDistance = min( distance, minDistance );
+    distance = length( isoPoint5 - curPoint );
+    minDistance = min( distance, minDistance );
+    distance = length( isoPoint6 - curPoint );
+    minDistance = min( distance, minDistance );
+    distance = length( isoPoint7 - curPoint );
+    minDistance = min( distance, minDistance );
+    distance = length( isoPoint8 - curPoint );
+    minDistance = min( distance, minDistance );
+    distance = length( isoPoint9 - curPoint );
+    minDistance = min( distance, minDistance );
+    distance = length( isoPoint10 - curPoint );
+    minDistance = min( distance, minDistance );
+    distance = length( isoPoint11 - curPoint );
+    minDistance = min( distance, minDistance );
+    distance = length( isoPoint12 - curPoint );
+    minDistance = min( distance, minDistance );
+
+    if( minDistance < s )
+    {
+        gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
+    }
+    else
     {
         discard;
     }
-
-    gl_FragColor = vec4( 0.0, 0.0, 1.0, 1.0 );
 }

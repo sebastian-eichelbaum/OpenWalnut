@@ -32,11 +32,11 @@ uniform vec3 u_vertexShiftDirection;
  */
 void main()
 {
-    // Calculate the real vertex coordinate in openwalnut-scene-space
-    vec4 vertex = ( vec4( u_vertexShiftDirection.xyz, 0.0 ) * u_vertexShift ) + gl_Vertex;
+    // // Calculate the real vertex coordinate in openwalnut-scene-space
+    // vec4 vertex = ( vec4( u_vertexShiftDirection.xyz, 0.0 ) * u_vertexShift ) + gl_Vertex;
 
-    // for easy access to texture coordinates
-    gl_TexCoord[0] = gl_TextureMatrix[0] * vertex;
+    // // for easy access to texture coordinates
+    // gl_TexCoord[0] = gl_TextureMatrix[0] * vertex;
 
-    gl_Position = gl_ModelViewProjectionMatrix * vertex;
+    // gl_Position = gl_ModelViewProjectionMatrix * vertex;
 }

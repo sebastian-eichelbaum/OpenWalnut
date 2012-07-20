@@ -36,37 +36,37 @@ uniform vec4 u_wmColor;
 
 void main()
 {
-    vec4 col = clamp( texture3D( u_texture0Sampler, gl_TexCoord[0].xyz ), 0.0, 1.0 );
+    // vec4 col = clamp( texture3D( u_texture0Sampler, gl_TexCoord[0].xyz ), 0.0, 1.0 );
 
-    vec3 grad;
-    {
-        float s = 0.01;
-        vec3 curPoint = gl_TexCoord[0].xyz;
-        float valueXP = texture3D( u_texture0Sampler, curPoint + vec3( s, 0.0, 0.0 ) ).r;
-        float valueXM = texture3D( u_texture0Sampler, curPoint - vec3( s, 0.0, 0.0 ) ).r;
-        float valueYP = texture3D( u_texture0Sampler, curPoint + vec3( 0.0, s, 0.0 ) ).r;
-        float valueYM = texture3D( u_texture0Sampler, curPoint - vec3( 0.0, s, 0.0 ) ).r;
-        float valueZP = texture3D( u_texture0Sampler, curPoint + vec3( 0.0, 0.0, s ) ).r;
-        float valueZM = texture3D( u_texture0Sampler, curPoint - vec3( 0.0, 0.0, s ) ).r;
+    // vec3 grad;
+    // {
+    //     float s = 0.01;
+    //     vec3 curPoint = gl_TexCoord[0].xyz;
+    //     float valueXP = texture3D( u_texture0Sampler, curPoint + vec3( s, 0.0, 0.0 ) ).r;
+    //     float valueXM = texture3D( u_texture0Sampler, curPoint - vec3( s, 0.0, 0.0 ) ).r;
+    //     float valueYP = texture3D( u_texture0Sampler, curPoint + vec3( 0.0, s, 0.0 ) ).r;
+    //     float valueYM = texture3D( u_texture0Sampler, curPoint - vec3( 0.0, s, 0.0 ) ).r;
+    //     float valueZP = texture3D( u_texture0Sampler, curPoint + vec3( 0.0, 0.0, s ) ).r;
+    //     float valueZM = texture3D( u_texture0Sampler, curPoint - vec3( 0.0, 0.0, s ) ).r;
 
-        grad = vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM ); //v_ray;
-    }
+    //     grad = vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM ); //v_ray;
+    // }
 
-    // BOTH LAYERS
-    float eps = 0.05 * length( grad );
+    // // BOTH LAYERS
+    // float eps = 0.05 * length( grad );
 
-    if( abs( col.r - u_grayMatter ) > eps && abs( col.r - u_whiteMatter ) > eps )
-    {
-        discard;
-    }
-    if( abs( col.r - u_grayMatter ) < eps )
-    {
-        col = u_gmColor;
-    }
-    else // if( abs( col.r - u_whiteMatter ) < eps )
-    {
-        col = u_wmColor;
-    }
+    // if( abs( col.r - u_grayMatter ) > eps && abs( col.r - u_whiteMatter ) > eps )
+    // {
+    //     discard;
+    // }
+    // if( abs( col.r - u_grayMatter ) < eps )
+    // {
+    //     col = u_gmColor;
+    // }
+    // else // if( abs( col.r - u_whiteMatter ) < eps )
+    // {
+    //     col = u_wmColor;
+    // }
 
-    gl_FragColor = col;
+    // gl_FragColor = col;
 }
