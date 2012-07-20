@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMUNIFYEVECS_H
-#define WMUNIFYEVECS_H
+#ifndef WMVECTORALIGN_H
+#define WMVECTORALIGN_H
 
 #include <string>
 
@@ -34,22 +34,22 @@
 #include "core/kernel/WModuleOutputData.h"
 
 /**
- * This module aligns diffusion directions so that they are inside of the same halfspace.
+ * This module aligns vectors so that they are inside of the same halfspace by just mirroring their directions if necessary.
  * This is done mainly for trilinear interpolation which would produce artifacts otherwise.
  * \ingroup modules
  */
-class WMUnifyEvecs: public WModule
+class WMVectorAlign: public WModule
 {
 public:
     /**
      *
      */
-    WMUnifyEvecs();
+    WMVectorAlign();
 
     /**
      *
      */
-    virtual ~WMUnifyEvecs();
+    virtual ~WMVectorAlign();
 
     /**
      * Gives back the name of this module.
@@ -112,4 +112,4 @@ private:
     boost::shared_ptr< WModuleOutputData< WDataSetVector > > m_vectorOC;
 };
 
-#endif  // WMUNIFYEVECS_H
+#endif  // WMVECTORALIGN_H

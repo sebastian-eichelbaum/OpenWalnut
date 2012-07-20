@@ -36,7 +36,7 @@ ADD_MODULE( schmahmannPandyaSlices )
 ADD_MODULE( splineSurface )
 ADD_MODULE( surfaceIllustrator )
 ADD_MODULE( surfaceParameterAnimator )
-ADD_MODULE( unifyEvecs )
+ADD_MODULE( vectorAlign )
 ADD_MODULE( webglSupport )
 
 IF( Teem_FOUND )
