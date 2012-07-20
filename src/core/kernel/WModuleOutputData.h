@@ -53,6 +53,16 @@ public:
     typedef boost::shared_ptr< WModuleOutputData< T > > PtrType;
 
     /**
+     * Pointer to this. For convenience.
+     */
+    typedef boost::shared_ptr< WModuleOutputData< T > > SPtr;
+
+    /**
+     * Pointer to this. For convenience.
+     */
+    typedef boost::shared_ptr< const WModuleOutputData< T > > ConstSPtr;
+
+    /**
      * Reference to this type.
      */
     typedef WModuleOutputData< T >& RefType;

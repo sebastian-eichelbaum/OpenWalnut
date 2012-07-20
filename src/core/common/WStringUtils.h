@@ -125,6 +125,21 @@ namespace string_utils
     }
 
     /**
+     * Convert a given value to a string. The input value must provide a operator<< or be a standard scalar type.
+     *
+     * \param value the value to cast to string
+     *
+     * \return the string.
+     */
+    inline std::string toString( const unsigned char& value )   // NOLINT: stylechecker complains about non const ref!?
+    {
+        std::stringstream ss;
+        // NOTE: unsigned chars are interpreted as ASCII chars. We want it to be used as number.
+        ss << static_cast< int >( value );
+        return ss.str();
+    }
+
+    /**
      * Convert a given value to a string. The input value must provide a operator<< or be a standard scalar type. This method additionally allows
      * setting width and precision flags of the used std::stringstream.
      *

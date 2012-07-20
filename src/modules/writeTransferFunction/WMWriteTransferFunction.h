@@ -22,34 +22,33 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMTRANSFERFUNCTION1D_H
-#define WMTRANSFERFUNCTION1D_H
+#ifndef WMMYNEWMODULE_H
+#define WMMYNEWMODULE_H
 
 #include <string>
 
-#include <osg/Geode>
-
-#include "core/kernel/WModule.h"
-#include "core/kernel/WModuleInputData.h"
-#include "core/kernel/WModuleOutputData.h"
+#include <core/kernel/WModule.h>
+#include <core/kernel/WModuleOutputData.h>
+#include <core/kernel/WModuleInputData.h>
+#include <core/common/WProperties.h>
 
 /**
- * A module to provide 1D transfer functions, e.g., for volume rendering.
+ * Module to export transferfunctions
  *
  * \ingroup modules
  */
-class WMTransferFunction1D: public WModule
+class WMWriteTransferFunction: public WModule
 {
 public:
     /**
-     *
+     * Constructor.
      */
-    WMTransferFunction1D();
+    WMWriteTransferFunction();
 
     /**
-     *
+     * Destructor
      */
-    virtual ~WMTransferFunction1D();
+    virtual ~WMWriteTransferFunction();
 
     /**
      * Gives back the name of this module.
@@ -71,13 +70,6 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
-    /**
-     * Get the icon for this module in XPM format.
-     *
-     * \return The icon.
-     */
-    virtual const char** getXPMIcon() const;
-
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -94,43 +86,26 @@ protected:
      */
     virtual void properties();
 
-    /**
-     * Initialize requirements for this module.
-     */
-    virtual void requirements();
-
-
 private:
     /**
-     * An input connector used to get datasets from other modules. The connection management between co
-nnectors must not be handled by the module.
-     */
-    WModuleInputData< WDataSetSingle >::SPtr m_input;
-
-    /**
-     * The output connector used to provide the calculated data to other modules.
-     */
-    WModuleOutputData< WDataSetSingle >::SPtr m_output;
-
-    /**
-     * A condition used to notify about changes in several properties.
+     * Condition used throughout the module to notify the thread if some changes happened (like properties have changed and similar).
      */
     boost::shared_ptr< WCondition > m_propCondition;
 
     /**
-     * Resolution of the transfer function.
+     * The connector used to get the TF.
      */
-    WPropInt m_resolution;
+    WModuleInputData< WDataSetSingle >::SPtr m_input;
 
     /**
-     * Histogram bin size
+     * Where to save the file to
      */
-    WPropInt m_binSize;
+    WPropFilename m_savePath;
 
     /**
-     * The transfer function property
+     * DO the save operation
      */
-    WPropTransferFunction m_transferFunction;
+    WPropTrigger m_saveTrigger;
 };
 
-#endif  // WMTRANSFERFUNCTION1D_H
+#endif  // WMMYNEWMODULE_H
