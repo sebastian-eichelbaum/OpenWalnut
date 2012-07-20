@@ -25,7 +25,6 @@
 #include <string>
 
 #include "core/kernel/WKernel.h"
-#include "modules/emptyIcon.xpm" // Please put a real icon here.
 
 #include "core/dataHandler/WDataSetScalar.h"
 #include "core/kernel/WSelectionManager.h"
@@ -56,7 +55,7 @@ boost::shared_ptr< WModule > WMOpenIGTLinkSender::factory() const
 
 const char** WMOpenIGTLinkSender::getXPMIcon() const
 {
-    return emptyIcon_xpm; // Please put a real icon here.
+    return NULL; // Please put a real icon here.
 }
 const std::string WMOpenIGTLinkSender::getName() const
 {

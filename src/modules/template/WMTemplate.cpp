@@ -128,7 +128,7 @@ boost::shared_ptr< WModule > WMTemplate::factory() const
 
 const char** WMTemplate::getXPMIcon() const
 {
-    // This is deprecated! You can still use it as fallback if you do not specify a META file. If you return NULL here, a default icon is used.
+    // This is deprecated! You can still use it as fallback if you do not specify a META file.
     //
     // This was used to provide an icon for your module. You should use the META file in your resource directory. This file is commented and
     // explains each entry in detail.
