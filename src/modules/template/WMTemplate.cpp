@@ -72,7 +72,6 @@
 #include "core/graphicsEngine/WGEUtils.h"
 #include "core/graphicsEngine/WGERequirement.h"
 
-#include "WMTemplate.xpm"
 #include "icons/bier.xpm"
 #include "icons/wurst.xpm"
 #include "icons/steak.xpm"
@@ -129,13 +128,11 @@ boost::shared_ptr< WModule > WMTemplate::factory() const
 
 const char** WMTemplate::getXPMIcon() const
 {
-    // The template_xpm char array comes from the template.xpm file as included above.
-    // Such char arrays, i.e. files, can be easily created using an image manipulation program
-    // like GIMP. Be aware that the xpm file is a simple header file. Thus it contains real
-    // code. This code can be manipulated by hand. Unfortunately, you really have to fix the
-    // xpm files produced by gimp. You need to make the char array const in order to prevent
-    // compiler warnings or even errors.
-    return template_xpm;
+    // This is deprecated! You can still use it as fallback if you do not specify a META file. If you return NULL here, a default icon is used.
+    //
+    // This was used to provide an icon for your module. You should use the META file in your resource directory. This file is commented and
+    // explains each entry in detail.
+    return NULL;
 }
 
 const std::string WMTemplate::getName() const

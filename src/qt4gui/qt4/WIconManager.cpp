@@ -66,7 +66,23 @@ QIcon WIconManager::getIcon( const std::string name )
     }
     else if( WModuleFactory::getModuleFactory()->getPrototypeByName( name ) )
     {
-        icon = QIcon( QPixmap( WModuleFactory::getModuleFactory()->getPrototypeByName( name )->getXPMIcon() ) );
+        // get module icon from meta info if available
+        WModuleMetaInformation::ConstSPtr meta = WModuleFactory::getModuleFactory()->getPrototypeByName( name )->getMetaInformation();
+        if( meta->isIconAvailable() && boost::filesystem::exists( meta->getIcon() ) )
+        {
+            try
+            {
+                icon = QIcon( QPixmap( QString::fromStdString( meta->getIcon().string() ) ) );
+            }
+            catch( ... )
+            {
+                icon = QIcon( QPixmap( WModuleFactory::getModuleFactory()->getPrototypeByName( name )->getXPMIcon() ) );
+            }
+        }
+        else
+        {
+            icon = QIcon( QPixmap( WModuleFactory::getModuleFactory()->getPrototypeByName( name )->getXPMIcon() ) );
+        }
     }
     else
     {
@@ -84,7 +100,23 @@ QIcon WIconManager::getIcon( const std::string name, const QIcon& defaultIcon )
     }
     else if( WModuleFactory::getModuleFactory()->getPrototypeByName( name ) )
     {
-        return QIcon( QPixmap( WModuleFactory::getModuleFactory()->getPrototypeByName( name )->getXPMIcon() ) );
+        // get module icon from meta info if available
+        WModuleMetaInformation::ConstSPtr meta = WModuleFactory::getModuleFactory()->getPrototypeByName( name )->getMetaInformation();
+        if( meta->isIconAvailable() && boost::filesystem::exists( meta->getIcon() ) )
+        {
+            try
+            {
+                return QIcon( QPixmap( QString::fromStdString( meta->getIcon().string() ) ) );
+            }
+            catch( ... )
+            {
+                return QIcon( QPixmap( WModuleFactory::getModuleFactory()->getPrototypeByName( name )->getXPMIcon() ) );
+            }
+        }
+        else
+        {
+            return QIcon( QPixmap( WModuleFactory::getModuleFactory()->getPrototypeByName( name )->getXPMIcon() ) );
+        }
     }
     else
     {

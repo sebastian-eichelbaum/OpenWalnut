@@ -33,8 +33,8 @@
 "Template"
 {
   // Provide an icon. If the icon exists, it overrides the one provided by your
-  // getIcon method. This path is relative to your module's resource directory.
-  icon="WMTeamplate.png";
+  // getXPMIcon method. This path is relative to your module's resource directory.
+  icon="WMTeamplate.xpm";
 
   // Where to find the module?
   website = "http://www.openwalnut.org";
