@@ -124,10 +124,6 @@ QIcon WIconManager::getIcon( const std::string name, const QIcon& defaultIcon )
         {
             try
             {
-                wlog::error( "hhhhhhhhhhhhhhhhhhHaaaaaaaaaaaaasssssssssssssssa" ) << meta->getIcon().string() << " " << name;
-
-
-
                 return QIcon( QPixmap( QString::fromStdString( meta->getIcon().string() ) ) );
             }
             catch( ... )
