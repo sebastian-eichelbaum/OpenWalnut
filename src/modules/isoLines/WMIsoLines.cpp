@@ -24,6 +24,8 @@
 
 #include <string>
 
+#include <osg/Geometry>
+
 #include "core/dataHandler/WDataSetScalar.h"
 #include "core/graphicsEngine/callbacks/WGELinearTranslationCallback.h"
 #include "core/graphicsEngine/shaders/WGEPropertyUniform.h"
@@ -88,12 +90,81 @@ void WMIsoLines::requirements()
 {
 }
 
-void WMIsoLines::initOSG( const WBoundingBox& bb )
+namespace
+{
+    osg::ref_ptr< osg::Geode > genQuadsPerCell( osg::Vec3 const& base, osg::Vec3 const& a, osg::Vec3 const& b,
+            boost::shared_ptr< WDataSetScalar > data )
+    {
+        double step = 0.5; // TODO(math): provide reasonable preset here + property + uniform
+        size_t maxA = a.length() / step;
+        size_t maxB = b.length() / step;
+        // the stuff needed by the OSG to create a geometry instance
+        osg::ref_ptr< osg::Vec3Array > vertices = new osg::Vec3Array( maxA * maxB * 4 );
+        osg::ref_ptr< osg::Vec3Array > texcoords0 = new osg::Vec3Array( maxA * maxB * 4 );
+        osg::ref_ptr< osg::Vec3Array > texcoords1 = new osg::Vec3Array( maxA * maxB * 4 );
+        osg::ref_ptr< osg::Vec3Array > normals = new osg::Vec3Array;
+        osg::ref_ptr< osg::Vec4Array > colors = new osg::Vec4Array;
+
+        osg::Vec3 aCrossB = a ^ b;
+        aCrossB.normalize();
+        osg::Vec3 aNorm = a;
+        aNorm.normalize();
+        osg::Vec3 bNorm = b;
+        bNorm.normalize();
+
+        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( data->getGrid() );
+
+        if( grid )
+        {
+            for( size_t i = 0; i < maxA; ++i )
+            {
+                for( size_t j = 0; j < maxB; ++j )
+                {
+                    for( int k = 0; k < 4; ++k )
+                    {
+                        vertices->push_back( base + aNorm * i * step + bNorm * j * step );
+                    }
+
+                    texcoords0->push_back( ( -aNorm + -bNorm ) * 0.5 * step );
+                    texcoords0->push_back( (  aNorm + -bNorm ) * 0.5 * step );
+                    texcoords0->push_back( (  aNorm +  bNorm ) * 0.5 * step );
+                    texcoords0->push_back( ( -aNorm +  bNorm ) * 0.5 * step );
+
+                    texcoords1->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
+                    texcoords1->push_back( osg::Vec3( 1.0, 0.0, 0.0 ) );
+                    texcoords1->push_back( osg::Vec3( 1.0, 1.0, 0.0 ) );
+                    texcoords1->push_back( osg::Vec3( 0.0, 1.0, 0.0 ) );
+                }
+            }
+        }
+
+        normals->push_back( aCrossB );
+        colors->push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
+
+        // put it all together
+        osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry();
+        geometry->setVertexArray( vertices );
+        geometry->setTexCoordArray( 0, texcoords0 );
+        geometry->setTexCoordArray( 1, texcoords1 );
+        geometry->setNormalBinding( osg::Geometry::BIND_OVERALL );
+        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+        geometry->setNormalArray( normals );
+        geometry->setColorArray( colors );
+        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, vertices->size() ) );
+
+        osg::ref_ptr< osg::Geode > geode = new osg::Geode();
+        geode->addDrawable( geometry );
+        return geode;
+    }
+}
+
+void WMIsoLines::initOSG( boost::shared_ptr< WDataSetScalar > scalars )
 {
     debugLog() << "Init OSG";
     m_output->clear();
 
     // grab the current bounding box for computing the size of the slice
+    WBoundingBox bb = scalars->getGrid()->getBoundingBox();
     WVector3d minV = bb.getMin();
     WVector3d maxV = bb.getMax();
     WVector3d sizes = ( maxV - minV );
@@ -107,8 +178,8 @@ void WMIsoLines::initOSG( const WBoundingBox& bb )
     // each slice is child of an transformation node
     osg::ref_ptr< osg::MatrixTransform > mT = new osg::MatrixTransform();
 
-    osg::ref_ptr< osg::Node > slice = wge::genFinitePlane( minV, osg::Vec3( sizes[0], 0.0, 0.0 ),
-                                                                 osg::Vec3( 0.0, 0.0, sizes[2] ) );
+    osg::ref_ptr< osg::Node > slice = genQuadsPerCell( minV, osg::Vec3( sizes[0], 0.0, 0.0 ),
+                                                             osg::Vec3( 0.0, 0.0, sizes[2] ), scalars );
     slice->setCullingActive( false );
     mT->addChild( slice );
 
@@ -169,7 +240,7 @@ void WMIsoLines::moduleMain()
         // m_isovalue->setMin( scalarData->getMin() );
         // m_isovalue->setMax( scalarData->getMax() );
 
-        initOSG( scalarData->getGrid()->getBoundingBox() );
+        initOSG( scalarData );
 
         wge::bindTexture( m_output, scalarData->getTexture(), 0, "u_scalarData" );
 

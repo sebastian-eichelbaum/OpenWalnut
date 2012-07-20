@@ -103,9 +103,9 @@ private:
     /**
      * Initialize OSG root node for this module. All other nodes from this module should be attached to this root node.
      *
-     * \param bb The boundingbox of the data.
+     * \param scalars The scalar data with grid giving bounding box and other information.
      */
-    void initOSG( const WBoundingBox& bb );
+    void initOSG( boost::shared_ptr< WDataSetScalar > scalars );
 
     /**
      * Input connector for scalar data.

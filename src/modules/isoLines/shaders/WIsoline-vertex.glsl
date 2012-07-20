@@ -34,7 +34,20 @@ uniform mat4 u_WorldTransform;
  */
 uniform sampler3D u_scalarDataSampler;
 
+uniform int u_scalarDataSizeX;
 uniform int u_scalarDataSizeY;
+uniform int u_scalarDataSizeZ;
+
+vec3 textPos( vec3 p )
+{
+    // compute texture coordinates from worldspace coordinates for texture access
+    vec3 texturePosition = ( u_WorldTransform * vec4( p, 1.0 ) ).xyz;
+    texturePosition.x /= u_scalarDataSizeX;
+    texturePosition.y /= u_scalarDataSizeY;
+    texturePosition.z /= u_scalarDataSizeZ;
+
+    return texturePosition;
+}
 
 /**
  * Vertex Main. Simply transforms the geometry.
@@ -42,7 +55,8 @@ uniform int u_scalarDataSizeY;
 void main()
 {
     gl_TexCoord[0] = gl_MultiTexCoord0; // for distinguishing the verties of the quad
-    gl_TexCoord[0].y = ( u_WorldTransform[3] / u_scalarDataSizeY ).y;
 
-    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+    float probability = texture3D( u_scalarDataSampler, textPos( gl_Vertex.xyz ) ).r;
+
+    gl_Position = gl_ModelViewProjectionMatrix * ( vec4( 0.95 * gl_TexCoord[0].xyz + gl_Vertex.xyz, 1.0 ) );
 }
