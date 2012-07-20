@@ -33,10 +33,10 @@
 #include <boost/shared_ptr.hpp>
 
 // OW core headers
-#include <core/common/WAssert.h>
-#include <core/common/WPropertyHelper.h>
-#include <core/common/WPathHelper.h>
-#include <core/common/WStringUtils.h>
+#include "core/common/WAssert.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/common/WPathHelper.h"
+#include "core/common/WStringUtils.h"
 
 // own, local headers
 #include "WMWriteTransferFunction.h"

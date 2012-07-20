@@ -22,15 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMMYNEWMODULE_H
-#define WMMYNEWMODULE_H
+#ifndef WMWRITETRANSFERFUNCTION_H
+#define WMWRITETRANSFERFUNCTION_H
 
 #include <string>
 
-#include <core/kernel/WModule.h>
-#include <core/kernel/WModuleOutputData.h>
-#include <core/kernel/WModuleInputData.h>
-#include <core/common/WProperties.h>
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleOutputData.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/common/WProperties.h"
 
 /**
  * Module to export transferfunctions
@@ -108,4 +108,4 @@ private:
     WPropTrigger m_saveTrigger;
 };
 
-#endif  // WMMYNEWMODULE_H
+#endif  // WMWRITETRANSFERFUNCTION_H
