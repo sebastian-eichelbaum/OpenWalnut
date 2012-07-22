@@ -93,11 +93,10 @@ void WMIsoLines::requirements()
 namespace
 {
     osg::ref_ptr< osg::Geode > genQuadsPerCell( osg::Vec3 const& base, osg::Vec3 const& a, osg::Vec3 const& b,
-            boost::shared_ptr< WDataSetScalar > data )
+            boost::shared_ptr< WDataSetScalar > data, const double stepSize )
     {
-        double step = 0.5; // TODO(math): provide reasonable preset here + property + uniform
-        size_t maxA = a.length() / step;
-        size_t maxB = b.length() / step;
+        size_t maxA = a.length() / stepSize;
+        size_t maxB = b.length() / stepSize;
         // the stuff needed by the OSG to create a geometry instance
         osg::ref_ptr< osg::Vec3Array > vertices = new osg::Vec3Array( maxA * maxB * 4 );
         osg::ref_ptr< osg::Vec3Array > texcoords0 = new osg::Vec3Array( maxA * maxB * 4 );
@@ -122,13 +121,13 @@ namespace
                 {
                     for( int k = 0; k < 4; ++k )
                     {
-                        vertices->push_back( base + aNorm * i * step + bNorm * j * step );
+                        vertices->push_back( base + aNorm * i * stepSize + bNorm * j * stepSize );
                     }
 
-                    texcoords0->push_back( ( -aNorm + -bNorm ) * 0.5 * step );
-                    texcoords0->push_back( (  aNorm + -bNorm ) * 0.5 * step );
-                    texcoords0->push_back( (  aNorm +  bNorm ) * 0.5 * step );
-                    texcoords0->push_back( ( -aNorm +  bNorm ) * 0.5 * step );
+                    texcoords0->push_back( ( -aNorm + -bNorm ) * 0.5 * stepSize );
+                    texcoords0->push_back( (  aNorm + -bNorm ) * 0.5 * stepSize );
+                    texcoords0->push_back( (  aNorm +  bNorm ) * 0.5 * stepSize );
+                    texcoords0->push_back( ( -aNorm +  bNorm ) * 0.5 * stepSize );
 
                     texcoords1->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
                     texcoords1->push_back( osg::Vec3( 1.0, 0.0, 0.0 ) );
@@ -178,17 +177,27 @@ void WMIsoLines::initOSG( boost::shared_ptr< WDataSetScalar > scalars )
     // each slice is child of an transformation node
     osg::ref_ptr< osg::MatrixTransform > mT = new osg::MatrixTransform();
 
-    osg::ref_ptr< osg::Node > slice = genQuadsPerCell( minV, osg::Vec3( sizes[0], 0.0, 0.0 ),
-                                                             osg::Vec3( 0.0, 0.0, sizes[2] ), scalars );
+    osg::Vec3 aVec( sizes[0], 0.0, 0.0 );
+    osg::Vec3 bVec( 0.0, 0.0, sizes[2] );
+
+    double stepSize = 2; // TODO(math): Make this resaonable default and changable via property
+
+    osg::ref_ptr< osg::Node > slice = genQuadsPerCell( minV, aVec, bVec, scalars, stepSize );
     slice->setCullingActive( false );
     mT->addChild( slice );
 
     osg::ref_ptr< osg::Uniform > u_WorldTransform = new osg::Uniform( "u_WorldTransform", osg::Matrix::identity() );
     osg::ref_ptr< osg::Uniform > u_isovalue = new WGEPropertyUniform< WPropDouble >( "u_isovalue", m_isovalue );
+    osg::ref_ptr< osg::Uniform > u_aVec = new osg::Uniform( "u_aVec", aVec );
+    osg::ref_ptr< osg::Uniform > u_bVec = new osg::Uniform( "u_bVec", bVec );
+    osg::ref_ptr< osg::Uniform > u_stepSize = new osg::Uniform( "u_stepSize", static_cast< float >( stepSize ) );
 
     osg::StateSet *states = m_output->getOrCreateStateSet();
     states->addUniform( u_WorldTransform );
     states->addUniform( u_isovalue );
+    states->addUniform( u_aVec );
+    states->addUniform( u_bVec );
+    states->addUniform( u_stepSize );
 
     // Control transformation node by properties. We use an additional uniform here to provide the shader
     // the transformation matrix used to translate the slice.
