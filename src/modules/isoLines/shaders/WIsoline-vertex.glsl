@@ -34,6 +34,11 @@ uniform mat4 u_WorldTransform;
  */
 uniform sampler3D u_scalarDataSampler;
 
+/**
+ * Isovalue
+ */
+uniform float u_isovalue;
+
 uniform int u_scalarDataSizeX;
 uniform int u_scalarDataSizeY;
 uniform int u_scalarDataSizeZ;
@@ -41,6 +46,13 @@ uniform int u_scalarDataSizeZ;
 uniform vec3 u_aVec;
 uniform vec3 u_bVec;
 uniform float u_stepSize;
+
+varying vec3 hit0Pos;
+varying vec3 hit1Pos;
+varying vec3 hit2Pos;
+varying vec3 hit3Pos;
+
+varying float sumHits;
 
 vec3 textPos( vec3 p )
 {
@@ -53,12 +65,10 @@ vec3 textPos( vec3 p )
     return texturePosition;
 }
 
-varying float d0;
-varying float d1;
-varying float d2;
-varying float d3;
-
-varying vec4 col;
+varying float edge0Hit_f;
+varying float edge1Hit_f;
+varying float edge2Hit_f;
+varying float edge3Hit_f;
 
 /**
  * Vertex Main. Simply transforms the geometry.
@@ -71,21 +81,24 @@ void main()
     vec3 u_normA = normalize( u_aVec );
     vec3 u_normB = normalize( u_bVec );
 
-    d0 = texture3D( u_scalarDataSampler, textPos( gl_Vertex.xyz + ( u_normA * -1.0 + -u_normB ) * 0.5 * u_stepSize ) ).r;
-    d1 = texture3D( u_scalarDataSampler, textPos( gl_Vertex.xyz + ( u_normA + -u_normB ) * 0.5 * u_stepSize ) ).r;
-    d2 = texture3D( u_scalarDataSampler, textPos( gl_Vertex.xyz + ( u_normA +  u_normB ) * 0.5 * u_stepSize ) ).r;
-    d3 = texture3D( u_scalarDataSampler, textPos( gl_Vertex.xyz + ( u_normA * -1.0 +  u_normB ) * 0.5 * u_stepSize ) ).r;
+    float d0 = texture3D( u_scalarDataSampler, textPos( gl_Vertex.xyz + ( u_normA * -1.0 + -u_normB ) * 0.5 * u_stepSize ) ).r;
+    float d1 = texture3D( u_scalarDataSampler, textPos( gl_Vertex.xyz + ( u_normA + -u_normB ) * 0.5 * u_stepSize ) ).r;
+    float d2 = texture3D( u_scalarDataSampler, textPos( gl_Vertex.xyz + ( u_normA +  u_normB ) * 0.5 * u_stepSize ) ).r;
+    float d3 = texture3D( u_scalarDataSampler, textPos( gl_Vertex.xyz + ( u_normA * -1.0 +  u_normB ) * 0.5 * u_stepSize ) ).r;
 
-    if( d0 > 1.0 || d1 > 1.0 || d2 > 1.0 || d3 > 1.0 )
-    {
-        col = vec4( 1.0, 0.0, 0.0 ,1.0 );
-    }
-    else
-    {
-        col = vec4( 0.0, 0.0, 1.0 ,1.0 );
-    }
+    // check which edges of the quad were hit
+    edge0Hit_f = float( d0 >= u_isovalue && d1 <= u_isovalue || d0 <= u_isovalue && d1 >= u_isovalue );
+    edge1Hit_f = float( d1 >= u_isovalue && d2 <= u_isovalue || d1 <= u_isovalue && d2 >= u_isovalue );
+    edge2Hit_f = float( d2 >= u_isovalue && d3 <= u_isovalue || d2 <= u_isovalue && d3 >= u_isovalue );
+    edge3Hit_f = float( d3 >= u_isovalue && d0 <= u_isovalue || d3 <= u_isovalue && d0 >= u_isovalue );
 
-    float probability = texture3D( u_scalarDataSampler, textPos( gl_Vertex.xyz ) ).r;
+    // determine the position where the corresponding edge was hitten (in 0,1 clamped relative coordinates)
+    hit0Pos = vec3( clamp( abs( d0 - u_isovalue ) / abs( d0 - d1 ), 0.0, 1.0 ), 0.0, 0.0 );
+    hit1Pos = vec3( 1.0, clamp( abs( d1 - u_isovalue ) / abs( d1 - d2 ), 0.0, 1.0 ), 0.0 );
+    hit2Pos = vec3( 1.0 - clamp( abs( d2 - u_isovalue ) / abs( d2 - d3 ), 0.0, 1.0 ), 1.0, 0.0 );
+    hit3Pos = vec3( 0.0, 1.0 - clamp( abs( d3 - u_isovalue ) / abs( d0 - d3 ), 0.0, 1.0 ), 0.0 );
+
+    sumHits = float( int( edge0Hit_f ) + int( edge1Hit_f ) * 2 + int( edge2Hit_f ) * 4 + int( edge3Hit_f ) * 8 );
 
     gl_Position = gl_ModelViewProjectionMatrix * ( vec4( 1.0 * gl_TexCoord[0].xyz + gl_Vertex.xyz, 1.0 ) );
 }

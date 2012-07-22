@@ -24,10 +24,6 @@
 
 #version 120
 
-/**
- * Isovalue
- */
-uniform float u_isovalue;
 
 /**
  * Line width.
@@ -37,12 +33,19 @@ uniform float u_width = 0.1;
 /**
  * Line Color.
  */
-uniform vec4 u_color;
+uniform vec4 u_color = vec4( 1.0 ,0.0, 0.0, 1.0 );
 
-varying float d0; // data value for left lower corner
-varying float d1; // data value for right lower corner
-varying float d2; // data value for right upper corner
-varying float d3; // data value for left upper corner
+varying vec3 hit0Pos;
+varying vec3 hit1Pos;
+varying vec3 hit2Pos;
+varying vec3 hit3Pos;
+
+varying float sumHits;
+
+varying float edge0Hit_f;
+varying float edge1Hit_f;
+varying float edge2Hit_f;
+varying float edge3Hit_f;
 
 // TODO(math): this function was copyied over from fiberStipple fragment shader. So please either replace it with
 // a library function: look in GLSL as well as WGE! Or make it a WGE shader helper function or similar. Last but
@@ -109,27 +112,17 @@ void drawLine( vec3 p1, vec3 p2, float width, vec4 color )
 
 void main()
 {
-    // check which edges of the quad were hit
-    bool edge0Hit = ( d0 >= u_isovalue && d1 <= u_isovalue || d0 <= u_isovalue && d1 >= u_isovalue );
-    bool edge1Hit = ( d1 >= u_isovalue && d2 <= u_isovalue || d1 <= u_isovalue && d2 >= u_isovalue );
-    bool edge2Hit = ( d2 >= u_isovalue && d3 <= u_isovalue || d2 <= u_isovalue && d3 >= u_isovalue );
-    bool edge3Hit = ( d3 >= u_isovalue && d0 <= u_isovalue || d3 <= u_isovalue && d0 >= u_isovalue );
-
-    // determine the position where the corresponding edge was hitten (in 0,1 clamped relative coordinates)
-    vec3 hit0Pos = vec3( clamp( abs( d0 - u_isovalue ) / abs( d0 - d1 ), 0.0, 1.0 ), 0.0, 0.0 );
-    vec3 hit1Pos = vec3( 1.0, clamp( abs( d1 - u_isovalue ) / abs( d1 - d2 ), 0.0, 1.0 ), 0.0 );
-    vec3 hit2Pos = vec3( 1.0 - clamp( abs( d2 - u_isovalue ) / abs( d2 - d3 ), 0.0, 1.0 ), 1.0, 0.0 );
-    vec3 hit3Pos = vec3( 0.0, 1.0 - clamp( abs( d3 - u_isovalue ) / abs( d0 - d3 ), 0.0, 1.0 ), 0.0 );
-
-    int sumHits = int( edge0Hit ) + int( edge1Hit ) * 2 + int( edge2Hit ) * 4 + int( edge3Hit ) * 8;
-
-    if( sumHits == 0 )
+    bool edge0Hit = bool( edge0Hit_f ); // OpenGL does not allow bool varyings
+    bool edge1Hit = bool( edge1Hit_f ); // OpenGL does not allow bool varyings
+    bool edge2Hit = bool( edge2Hit_f ); // OpenGL does not allow bool varyings
+    bool edge3Hit = bool( edge3Hit_f ); // OpenGL does not allow bool varyings
+    if( sumHits == 0.0 )
     {
         discard;
     }
     else
     {
-        if( sumHits < 15 )
+        if( sumHits < 15.0 )
         {
             if( edge0Hit && edge1Hit )
             {
