@@ -24,28 +24,17 @@
 
 #version 120
 
+#include "WIsoline-varyings.glsl"
 
 /**
  * Line width.
  */
-uniform float u_width = 0.1;
+uniform float u_lineWidth;
 
 /**
  * Line Color.
  */
-uniform vec4 u_color = vec4( 1.0 ,0.0, 0.0, 1.0 );
-
-varying vec3 hit0Pos;
-varying vec3 hit1Pos;
-varying vec3 hit2Pos;
-varying vec3 hit3Pos;
-
-varying float sumHits;
-
-varying float edge0Hit_f;
-varying float edge1Hit_f;
-varying float edge2Hit_f;
-varying float edge3Hit_f;
+uniform vec4 u_color = vec4( 1.0, 0.0, 0.0, 1.0 );
 
 // TODO(math): this function was copyied over from fiberStipple fragment shader. So please either replace it with
 // a library function: look in GLSL as well as WGE! Or make it a WGE shader helper function or similar. Last but
@@ -100,7 +89,7 @@ void drawLine( vec3 p1, vec3 p2, float width, vec4 color )
     // draw actually the line
     if( minimum_distance( p1, p2, gl_TexCoord[1].xyz ) < width )
     {
-        gl_FragColor = vec4( 0.0, 0.0, 0.0, 1.0 );
+        gl_FragColor = u_color;
     }
 
     // debug: enable to draw hit (where the isovalue hits the edge, exactly) point in blue
@@ -116,43 +105,36 @@ void main()
     bool edge1Hit = bool( edge1Hit_f ); // OpenGL does not allow bool varyings
     bool edge2Hit = bool( edge2Hit_f ); // OpenGL does not allow bool varyings
     bool edge3Hit = bool( edge3Hit_f ); // OpenGL does not allow bool varyings
-    if( sumHits == 0.0 )
+    if( sumHits < 15.0 )
     {
-        discard;
+        if( edge0Hit && edge1Hit )
+        {
+            drawLine( hit0Pos, hit1Pos, u_lineWidth, u_color );
+        }
+        else if( edge1Hit && edge2Hit )
+        {
+            drawLine( hit1Pos, hit2Pos, u_lineWidth, u_color );
+        }
+        else if( edge2Hit && edge3Hit )
+        {
+            drawLine( hit2Pos, hit3Pos, u_lineWidth, u_color );
+        }
+        else if( edge3Hit && edge0Hit )
+        {
+            drawLine( hit3Pos, hit0Pos, u_lineWidth, u_color );
+        }
+        else if( edge3Hit && edge1Hit )
+        {
+            drawLine( hit3Pos, hit1Pos, u_lineWidth, u_color );
+        }
+        else if( edge0Hit && edge2Hit )
+        {
+            drawLine( hit0Pos, hit2Pos, u_lineWidth, u_color );
+        }
     }
-    else
+    else // if( sumHits == 15 ) // Yes, this is topological INCORRECT but fast as hell and good looking too
     {
-        if( sumHits < 15.0 )
-        {
-            if( edge0Hit && edge1Hit )
-            {
-                drawLine( hit0Pos, hit1Pos, u_width, u_color );
-            }
-            else if( edge1Hit && edge2Hit )
-            {
-                drawLine( hit1Pos, hit2Pos, u_width, u_color );
-            }
-            else if( edge2Hit && edge3Hit )
-            {
-                drawLine( hit2Pos, hit3Pos, u_width, u_color );
-            }
-            else if( edge3Hit && edge0Hit )
-            {
-                drawLine( hit3Pos, hit0Pos, u_width, u_color );
-            }
-            else if( edge3Hit && edge1Hit )
-            {
-                drawLine( hit3Pos, hit1Pos, u_width, u_color );
-            }
-            else if( edge0Hit && edge2Hit )
-            {
-                drawLine( hit0Pos, hit2Pos, u_width, u_color );
-            }
-        }
-        else // if( sumHits == 15 ) // Yes, this is topological INCORRECT but fast as hell and good looking too
-        {
-            drawLine( hit0Pos, hit1Pos, u_width, u_color );
-            drawLine( hit2Pos, hit3Pos, u_width, u_color );
-        }
+        drawLine( hit0Pos, hit1Pos, u_lineWidth, u_color );
+        drawLine( hit2Pos, hit3Pos, u_lineWidth, u_color );
     }
 }

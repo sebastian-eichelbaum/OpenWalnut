@@ -24,6 +24,8 @@
 
 #version 120
 
+#include "WIsoline-varyings.glsl"
+
 /**
  * The matrix describes the transformation of gl_Vertex to OpenWalnut Scene Space
  */
@@ -39,21 +41,46 @@ uniform sampler3D u_scalarDataSampler;
  */
 uniform float u_isovalue;
 
+
+// Dimensions of the dataset, given by wge::bindTexture
+/**
+ * Dimension in X
+ */
 uniform int u_scalarDataSizeX;
+
+/**
+ * Dimension in Y
+ */
 uniform int u_scalarDataSizeY;
+
+/**
+ * Dimension in Z
+ */
 uniform int u_scalarDataSizeZ;
 
+/**
+ * First direction of the slice.
+ */
 uniform vec3 u_aVec;
+
+/**
+ * Second direction of the slice
+ */
 uniform vec3 u_bVec;
-uniform float u_stepSize;
 
-varying vec3 hit0Pos;
-varying vec3 hit1Pos;
-varying vec3 hit2Pos;
-varying vec3 hit3Pos;
+/**
+ * Quad size
+ */
+uniform float u_resolution; // could be calculated from gl_TexCoord[1], but for better readability
 
-varying float sumHits;
 
+/**
+ * Computes the texture coordinates out of world coordinates.
+ *
+ * \param p Position in Worldspace.
+ *
+ * \return Position in Texture space.
+ */
 vec3 textPos( vec3 p )
 {
     // compute texture coordinates from worldspace coordinates for texture access
@@ -65,26 +92,22 @@ vec3 textPos( vec3 p )
     return texturePosition;
 }
 
-varying float edge0Hit_f;
-varying float edge1Hit_f;
-varying float edge2Hit_f;
-varying float edge3Hit_f;
-
 /**
- * Vertex Main. Simply transforms the geometry.
+ * Vertex Main.
  */
 void main()
 {
-    gl_TexCoord[0] = gl_MultiTexCoord0; // for distinguishing the verties of the quad
-    gl_TexCoord[1] = gl_MultiTexCoord1; // for distinguishing the verties of the quad
+    gl_TexCoord[0] = gl_MultiTexCoord0; // for distinguishing the verties of the quad,
+    gl_TexCoord[1] = gl_MultiTexCoord1; // providing coordinates for the fragment shader
 
     vec3 u_normA = normalize( u_aVec );
     vec3 u_normB = normalize( u_bVec );
 
-    float d0 = texture3D( u_scalarDataSampler, textPos( gl_Vertex.xyz + ( u_normA * -1.0 + -u_normB ) * 0.5 * u_stepSize ) ).r;
-    float d1 = texture3D( u_scalarDataSampler, textPos( gl_Vertex.xyz + ( u_normA + -u_normB ) * 0.5 * u_stepSize ) ).r;
-    float d2 = texture3D( u_scalarDataSampler, textPos( gl_Vertex.xyz + ( u_normA +  u_normB ) * 0.5 * u_stepSize ) ).r;
-    float d3 = texture3D( u_scalarDataSampler, textPos( gl_Vertex.xyz + ( u_normA * -1.0 +  u_normB ) * 0.5 * u_stepSize ) ).r;
+    // gather data from all corners
+    float d0 = texture3D( u_scalarDataSampler, textPos( gl_Vertex.xyz + ( u_normA * -1.0 + -u_normB ) * 0.5 * u_resolution ) ).r;
+    float d1 = texture3D( u_scalarDataSampler, textPos( gl_Vertex.xyz + ( u_normA + -u_normB ) * 0.5 * u_resolution ) ).r;
+    float d2 = texture3D( u_scalarDataSampler, textPos( gl_Vertex.xyz + ( u_normA +  u_normB ) * 0.5 * u_resolution ) ).r;
+    float d3 = texture3D( u_scalarDataSampler, textPos( gl_Vertex.xyz + ( u_normA * -1.0 +  u_normB ) * 0.5 * u_resolution ) ).r;
 
     // check which edges of the quad were hit
     edge0Hit_f = float( d0 >= u_isovalue && d1 <= u_isovalue || d0 <= u_isovalue && d1 >= u_isovalue );
@@ -100,5 +123,12 @@ void main()
 
     sumHits = float( int( edge0Hit_f ) + int( edge1Hit_f ) * 2 + int( edge2Hit_f ) * 4 + int( edge3Hit_f ) * 8 );
 
-    gl_Position = gl_ModelViewProjectionMatrix * ( vec4( 1.0 * gl_TexCoord[0].xyz + gl_Vertex.xyz, 1.0 ) );
+    if( sumHits > 0.0 ) // only render quads when there is an isovalue nearby
+    {
+        gl_Position = gl_ModelViewProjectionMatrix * ( vec4( 1.0 * gl_TexCoord[0].xyz + gl_Vertex.xyz, 1.0 ) );
+    }
+    else
+    {
+        gl_Position = ftransform();
+    }
 }

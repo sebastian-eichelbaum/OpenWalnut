@@ -40,7 +40,8 @@
 W_LOADABLE_MODULE( WMIsoLines )
 
 WMIsoLines::WMIsoLines():
-    WModule()
+    WModule(),
+    m_propCondition( new WCondition() )
 {
 }
 
@@ -83,6 +84,15 @@ void WMIsoLines::properties()
     m_isovalue->setMin( 0.0 );
     m_isovalue->setMax( 0.0 ); // make it unusable at first
 
+    m_color = m_properties->addProperty( "Line color", "The color for the isoline", WColor( 0.0, 0.0, 0.0, 1.0 ) );
+    m_resolution = m_properties->addProperty( "Resolution", "Quad size used for generating line segments", 1.0, m_propCondition );
+    m_resolution->setMin( 0.01 );
+    m_resolution->setMax( 10.0 );
+
+    m_lineWidth = m_properties->addProperty( "Line Width", "The width of the isoline.", 0.1 );
+    m_lineWidth->setMin( 0.0 );
+    m_lineWidth->setMax( 1.0 );
+
     WModule::properties();
 }
 
@@ -93,10 +103,10 @@ void WMIsoLines::requirements()
 namespace
 {
     osg::ref_ptr< osg::Geode > genQuadsPerCell( osg::Vec3 const& base, osg::Vec3 const& a, osg::Vec3 const& b,
-            boost::shared_ptr< WDataSetScalar > data, const double stepSize )
+            boost::shared_ptr< WDataSetScalar > data, const double resolution )
     {
-        size_t maxA = a.length() / stepSize;
-        size_t maxB = b.length() / stepSize;
+        size_t maxA = a.length() / resolution;
+        size_t maxB = b.length() / resolution;
         // the stuff needed by the OSG to create a geometry instance
         osg::ref_ptr< osg::Vec3Array > vertices = new osg::Vec3Array( maxA * maxB * 4 );
         osg::ref_ptr< osg::Vec3Array > texcoords0 = new osg::Vec3Array( maxA * maxB * 4 );
@@ -121,13 +131,13 @@ namespace
                 {
                     for( int k = 0; k < 4; ++k )
                     {
-                        vertices->push_back( base + aNorm * i * stepSize + bNorm * j * stepSize );
+                        vertices->push_back( base + aNorm * i * resolution + bNorm * j * resolution );
                     }
 
-                    texcoords0->push_back( ( -aNorm + -bNorm ) * 0.5 * stepSize );
-                    texcoords0->push_back( (  aNorm + -bNorm ) * 0.5 * stepSize );
-                    texcoords0->push_back( (  aNorm +  bNorm ) * 0.5 * stepSize );
-                    texcoords0->push_back( ( -aNorm +  bNorm ) * 0.5 * stepSize );
+                    texcoords0->push_back( ( -aNorm + -bNorm ) * 0.5 * resolution );
+                    texcoords0->push_back( (  aNorm + -bNorm ) * 0.5 * resolution );
+                    texcoords0->push_back( (  aNorm +  bNorm ) * 0.5 * resolution );
+                    texcoords0->push_back( ( -aNorm +  bNorm ) * 0.5 * resolution );
 
                     texcoords1->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
                     texcoords1->push_back( osg::Vec3( 1.0, 0.0, 0.0 ) );
@@ -157,7 +167,7 @@ namespace
     }
 }
 
-void WMIsoLines::initOSG( boost::shared_ptr< WDataSetScalar > scalars )
+void WMIsoLines::initOSG( boost::shared_ptr< WDataSetScalar > scalars, const double resolution )
 {
     debugLog() << "Init OSG";
     m_output->clear();
@@ -180,24 +190,26 @@ void WMIsoLines::initOSG( boost::shared_ptr< WDataSetScalar > scalars )
     osg::Vec3 aVec( sizes[0], 0.0, 0.0 );
     osg::Vec3 bVec( 0.0, 0.0, sizes[2] );
 
-    double stepSize = 2; // TODO(math): Make this resaonable default and changable via property
-
-    osg::ref_ptr< osg::Node > slice = genQuadsPerCell( minV, aVec, bVec, scalars, stepSize );
+    osg::ref_ptr< osg::Node > slice = genQuadsPerCell( minV, aVec, bVec, scalars, resolution );
     slice->setCullingActive( false );
     mT->addChild( slice );
 
     osg::ref_ptr< osg::Uniform > u_WorldTransform = new osg::Uniform( "u_WorldTransform", osg::Matrix::identity() );
     osg::ref_ptr< osg::Uniform > u_isovalue = new WGEPropertyUniform< WPropDouble >( "u_isovalue", m_isovalue );
+    osg::ref_ptr< osg::Uniform > u_lineWidth = new WGEPropertyUniform< WPropDouble >( "u_lineWidth", m_lineWidth );
+    osg::ref_ptr< osg::Uniform > u_color = new WGEPropertyUniform< WPropColor >( "u_color", m_color );
     osg::ref_ptr< osg::Uniform > u_aVec = new osg::Uniform( "u_aVec", aVec );
     osg::ref_ptr< osg::Uniform > u_bVec = new osg::Uniform( "u_bVec", bVec );
-    osg::ref_ptr< osg::Uniform > u_stepSize = new osg::Uniform( "u_stepSize", static_cast< float >( stepSize ) );
+    osg::ref_ptr< osg::Uniform > u_resolution = new osg::Uniform( "u_resolution", static_cast< float >( resolution ) );
 
     osg::StateSet *states = m_output->getOrCreateStateSet();
     states->addUniform( u_WorldTransform );
     states->addUniform( u_isovalue );
+    states->addUniform( u_lineWidth );
+    states->addUniform( u_color );
     states->addUniform( u_aVec );
     states->addUniform( u_bVec );
-    states->addUniform( u_stepSize );
+    states->addUniform( u_resolution );
 
     // Control transformation node by properties. We use an additional uniform here to provide the shader
     // the transformation matrix used to translate the slice.
@@ -215,6 +227,7 @@ void WMIsoLines::moduleMain()
     // get notified about data changes
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_scalarIC->getDataChangedCondition() );
+    m_moduleState.add( m_propCondition );
 
     ready();
 
@@ -249,7 +262,7 @@ void WMIsoLines::moduleMain()
         // m_isovalue->setMin( scalarData->getMin() );
         // m_isovalue->setMax( scalarData->getMax() );
 
-        initOSG( scalarData );
+        initOSG( scalarData, m_resolution->get() );
 
         wge::bindTexture( m_output, scalarData->getTexture(), 0, "u_scalarData" );
 
