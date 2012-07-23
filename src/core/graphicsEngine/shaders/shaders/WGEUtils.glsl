@@ -111,5 +111,41 @@ vec4 scaleMaxToOne( vec4 point )
     return point / maxC;
 }
 
+/**
+ * Computes the distance from a line segment and a point.
+ *
+ * \param start Definig the start of the line segment.
+ * \param end Defining the end of the line segment.
+ * \param point For which the distance should be computed.
+ *
+ * \return Distance from given line segment (start,end) and point.
+ */
+float distancePointLineSegment( vec3 point, vec3 start, vec3 end )
+{
+    float segmentLength = length( start - end );
+    if( segmentLength == 0.0 )
+    {
+        return distance( point, start );
+    }
+
+    // Consider the line extending the segment, parameterized as start + t (end - start):
+    // We find projection of point p onto the line: t = [(p-v) . (w-v)] / |w-v|^2
+    float t = dot( point - start, end - start ) / ( segmentLength * segmentLength );
+
+    if( t < 0.0 )      // Beyond the 'v' end of the segment
+    {
+        return distance( point, start );
+    }
+    else if( t > 1.0 ) // Beyond the 'w' end of the segment
+    {
+        return distance( point, end );
+    }
+    else
+    {
+        vec3 projection = start + t * ( end - start );  // Projection falls on the segment
+        return distance( point, projection );
+    }
+}
+
 #endif  // WGEUTILS_GLSL
 

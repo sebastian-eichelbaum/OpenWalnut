@@ -25,6 +25,7 @@
 #version 120
 
 #include "WIsoline-varyings.glsl"
+#include "WGEUtils.glsl" // for distancePointLineSegment
 
 /**
  * Line width.
@@ -35,43 +36,6 @@ uniform float u_lineWidth;
  * Line Color.
  */
 uniform vec4 u_color = vec4( 1.0, 0.0, 0.0, 1.0 );
-
-// TODO(math): this function was copyied over from fiberStipple fragment shader. So please either replace it with
-// a library function: look in GLSL as well as WGE! Or make it a WGE shader helper function or similar. Last but
-// not least ask Seb about it!
-/**
- * Computes the minimal distance from segment vw and point p.
- *
- * \param v start point of the segment
- * \param w end point of the segment
- * \param p point for which the minimal distance should be computed
- *
- * \return minimal distance from segment vw to point p.
- */
-float minimum_distance( vec3 v, vec3 w, vec3 p )
-{
-    // Return minimum distance between line segment vw and point p
-    float len = length( v - w );
-    if( len == 0.0 )   // v == w case
-    {
-        return distance( p, v );
-    }
-    // Consider the line extending the segment, parameterized as v + t (w - v).
-    // We find projection of point p onto the line.
-    // It falls where t = [(p-v) . (w-v)] / |w-v|^2
-    float t = dot( p - v, w - v ) / ( len * len );
-
-    if( t < 0.0 )      // Beyond the 'v' end of the segment
-    {
-        return distance( p, v );
-    }
-    else if( t > 1.0 ) // Beyond the 'w' end of the segment
-    {
-        return distance( p, w );
-    }
-    vec3 projection = v + t * ( w - v );  // Projection falls on the segment
-    return distance( p, projection );
-}
 
 /**
  * Draws a line from point p1 to point p2 with the given width and color.
@@ -87,7 +51,7 @@ void drawLine( vec3 p1, vec3 p2, float width, vec4 color )
     // gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
 
     // draw actually the line
-    if( minimum_distance( p1, p2, gl_TexCoord[1].xyz ) < width )
+    if( distancePointLineSegment( gl_TexCoord[1].xyz, p1, p2 ) < width )
     {
         gl_FragColor = u_color;
     }

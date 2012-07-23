@@ -24,6 +24,8 @@
 
 #version 120
 
+#include "WGEUtils.glsl"
+
 /**
  * Color of the fiber stipples. This will be further combined with tract probability.
  */
@@ -59,41 +61,10 @@ uniform vec3 middlePoint_tex = vec3( 0.5, 0.5, 0.0 );
  */
 varying float probability;
 
-uniform float u_glyphThickness;
-
 /**
- * Computes the minimal distance from segment vw and point p.
- *
- * \param v start point of the segment
- * \param w end point of the segment
- * \param p point for which the minimal distance should be computed
- *
- * \return minimal distance from segment vw to point p.
+ * Scale the radius of the glyphs (aka stipples).
  */
-float minimum_distance( vec3 v, vec3 w, vec3 p )
-{
-    // Return minimum distance between line segment vw and point p
-    float len = length( v - w );
-    if( len == 0.0 )   // v == w case
-    {
-        return distance( p, v );
-    }
-    // Consider the line extending the segment, parameterized as v + t (w - v).
-    // We find projection of point p onto the line.
-    // It falls where t = [(p-v) . (w-v)] / |w-v|^2
-    float t = dot( p - v, w - v ) / ( len * len );
-
-    if( t < 0.0 )      // Beyond the 'v' end of the segment
-    {
-        return distance( p, v );
-    }
-    else if( t > 1.0 ) // Beyond the 'w' end of the segment
-    {
-        return distance( p, w );
-    }
-    vec3 projection = v + t * ( w - v );  // Projection falls on the segment
-    return distance( p, projection );
-}
+uniform float u_glyphThickness;
 
 void main()
 {
@@ -112,13 +83,13 @@ void main()
     float r2 = p2 - sqrt( p2 * p2 + q );
     float radius = max( r1, r2 ) * u_glyphThickness;
 
-    if( minimum_distance( scaledFocalPoint1, scaledFocalPoint2, gl_TexCoord[1].xyz ) < radius )
+    if( distancePointLineSegment( gl_TexCoord[1].xyz, scaledFocalPoint1, scaledFocalPoint2 ) < radius )
     {
         gl_FragColor = u_color * probability;
     }
     else
     {
-        // if( minimum_distance( scaledFocalPoint1, scaledFocalPoint2, gl_TexCoord[1].xyz ) < ( radius + 0.01 ) )
+        // if( distancePointLineSegment( gl_TexCoord[1].xyz, scaledFocalPoint1, scaledFocalPoint2 ) < ( radius + 0.01 ) )
         // {
         //     gl_FragColor = vec4( 1.0, 1.0, 1.0, gl_Color.w );
         // }
@@ -136,7 +107,7 @@ void main()
 
 
     // // Color debugging facilities
-    // if(  minimum_distance( focalPoint1, focalPoint2, gl_TexCoord[1].xyz ) < 0.01 )
+    // if( distancePointLineSegment( gl_TexCoord[1].xyz, focalPoint1, focalPoint2 ) < 0.01 )
     // {
     //     if( l <= 1.1 )
     //     {
