@@ -24,7 +24,7 @@
 
 #version 120
 
-#include "WIsoline-varyings.glsl"
+#include "WIsolines-varyings.glsl"
 #include "WGEUtils.glsl" // for distancePointLineSegment
 
 /**

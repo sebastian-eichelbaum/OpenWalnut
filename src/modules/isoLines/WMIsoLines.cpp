@@ -234,7 +234,7 @@ void WMIsoLines::moduleMain()
     // graphics setup
     m_output = osg::ref_ptr< WGEManagedGroupNode >( new WGEManagedGroupNode( m_active ) );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
-    osg::ref_ptr< WGEShader > shader = new WGEShader( "WIsoline", m_localPath );
+    osg::ref_ptr< WGEShader > shader = new WGEShader( "WIsolines", m_localPath );
     shader->apply( m_output ); // this automatically applies the shader
 
     // main loop

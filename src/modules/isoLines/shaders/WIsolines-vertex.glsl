@@ -24,7 +24,7 @@
 
 #version 120
 
-#include "WIsoline-varyings.glsl"
+#include "WIsolines-varyings.glsl"
 
 /**
  * The matrix describes the transformation of gl_Vertex to OpenWalnut Scene Space
