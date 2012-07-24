@@ -293,7 +293,7 @@ void WMFiberStipples::moduleMain()
     // main loop
     while( !m_shutdownFlag() )
     {
-        infoLog() << "Waiting ...";
+        infoLog() << "Waitings ...";
         m_moduleState.wait();
 
         // woke up since the module is requested to finish?
@@ -305,9 +305,8 @@ void WMFiberStipples::moduleMain()
         // save data behind connectors since it might change during processing
         boost::shared_ptr< WDataSetVector > vectors = m_vectorIC->getData();
         boost::shared_ptr< WDataSetScalar > probTract = m_probIC->getData();
-        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( probTract->getGrid() );
 
-        if( !( vectors && probTract ) || !grid ) // if data valid
+        if( !( vectors && probTract ) || !boost::shared_dynamic_cast< WGridRegular3D >( probTract->getGrid() ) ) // if data valid
         {
             continue;
         }
@@ -320,5 +319,6 @@ void WMFiberStipples::moduleMain()
         // TODO(math): unbind textures, so we have a clean OSG root node for this module again
     }
 
+    m_output->clear();
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_output );
 }
