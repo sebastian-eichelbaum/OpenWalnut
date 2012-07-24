@@ -25,6 +25,7 @@
 #version 120
 
 #include "WGETextureTools.glsl"
+#include "WFiberStipples-varyings.glsl"
 
 /**
  * These two uniforms are needed to transform the vectors out of their texture
@@ -79,46 +80,26 @@ uniform float u_pixelSizeY;
  */
 uniform float u_pixelSizeZ;
 
-// vectors spanning the plane of the quad
+/**
+ * First plane vector spanning the plane of the quad.
+ */
 uniform vec3 u_aVec;
+
+/**
+ * Second plane vector spanning the plane of the quad.
+ */
 uniform vec3 u_bVec;
 
 /**
- * First focal point, which is one of the endings of the projected diffusion direction.
- */
-varying vec3 focalPoint1;
-
-/**
- * Second focal point, which is one of the endings of the projected diffusion direction.
- */
-varying vec3 focalPoint2;
-
-// Scaled focal points, as otherwise the the stipple endings may not fit inside quad.
-/**
- * Fixed factor for scaling.
+ * Used for scaling the focal points, as otherwise the the stipple endings may not fit inside quad.
  */
 uniform float scale = 0.8;
-
-/**
- * First focal point, scaled.
- */
-varying vec3 scaledFocalPoint1;
-
-/**
- * Second focal poin, scaled.
- */
-varying vec3 scaledFocalPoint2;
 
 /**
  * Maximum connectivity score withing the probabilistic tract dataset. This is
  * needed for scaling the connectivities between 0.0 and 1.0.
  */
 uniform float u_maxConnectivityScore;
-
-/**
- * Scaled connectivity score; now between 0.0...1.0.
- */
-varying float probability;
 
 /**
  * Probabilities below this threshold are ignored and discarded.

@@ -24,7 +24,8 @@
 
 #version 120
 
-#include "WGEUtils.glsl"
+#include "WGEUtils.glsl" // for distancePointLineSegment(...)
+#include "WFiberStipples-varyings.glsl"
 
 /**
  * Color of the fiber stipples. This will be further combined with tract probability.
@@ -32,34 +33,9 @@
 uniform vec4 u_color;
 
 /**
- * First focal point, which is one of the endings of the projected diffusion direction.
- */
-varying vec3 focalPoint1;
-
-/**
- * Second focal point, which is one of the endings of the projected diffusion direction.
- */
-varying vec3 focalPoint2;
-
-/**
- * First focal point, scaled.
- */
-varying vec3 scaledFocalPoint1;
-
-/**
- * Second focal point, scaled.
- */
-varying vec3 scaledFocalPoint2;
-
-/**
  * Middle point of the quad in texture coordinates, needed for scaling the projection of the principal diffusion direction to fit inside quad.
  */
 uniform vec3 middlePoint_tex = vec3( 0.5, 0.5, 0.0 );
-
-/**
- * Probability of the tract, used for further color mapping.
- */
-varying float probability;
 
 /**
  * Scale the radius of the glyphs (aka stipples).
