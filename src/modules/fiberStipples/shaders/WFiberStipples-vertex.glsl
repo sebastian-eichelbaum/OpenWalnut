@@ -118,7 +118,7 @@ uniform vec3 middlePoint_tex = vec3( 0.5, 0.5, 0.0 );
 uniform int u_numSlices;
 
 /**
- * Vertex Main. Simply transforms the geometry. The work is done per fragment.
+ * Vertex Main. Simply transforms the geometry and computes the projected diffusion direction.
  */
 void main()
 {
