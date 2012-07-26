@@ -245,7 +245,7 @@ int WQtGLWidget::translateButton( QMouseEvent* event )
 
 void WQtGLWidget::keyPressEvent( QKeyEvent* event )
 {
-    // we ignore auto-repeated keys independant of the window manager settings 
+    // we ignore auto-repeated keys independent of the window manager settings
     if( event->isAutoRepeat() )
     {
         return;
@@ -272,7 +272,7 @@ void WQtGLWidget::keyPressEvent( QKeyEvent* event )
 
 void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
 {
-    // we ignore auto-repeated keys independant of the window manager settings 
+    // we ignore auto-repeated keys independent of the window manager settings
     if( event->isAutoRepeat() )
     {
         return;
