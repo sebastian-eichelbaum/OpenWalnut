@@ -245,7 +245,12 @@ int WQtGLWidget::translateButton( QMouseEvent* event )
 
 void WQtGLWidget::keyPressEvent( QKeyEvent* event )
 {
-    if(  event->text() != "" )
+    // we ignore auto-repeated keys independent of the window manager settings
+    if( event->isAutoRepeat() )
+    {
+        return;
+    }
+    if( event->text() != "" )
     {
         m_Viewer->keyEvent( WGEViewer::KEYPRESS, *event->text().toAscii().data() );
     }
@@ -267,6 +272,11 @@ void WQtGLWidget::keyPressEvent( QKeyEvent* event )
 
 void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
 {
+    // we ignore auto-repeated keys independent of the window manager settings
+    if( event->isAutoRepeat() )
+    {
+        return;
+    }
     switch( event->key() )
     {
         case Qt::Key_Period:
