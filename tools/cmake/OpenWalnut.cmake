@@ -271,6 +271,7 @@ IF( ANDROID )
   SET( OPENGL_FOUND ON )
   # link against GLES 2
   SET( OPENGL_LIBRARIES "GLESv2" )
+  SET( OPENGL_gl_LIBRARY "GLESv2" )
 ELSE()
   FIND_PACKAGE( OpenGL REQUIRED )
   # include the OpenGL header paths
