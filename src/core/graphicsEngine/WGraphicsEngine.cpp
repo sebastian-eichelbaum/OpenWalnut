@@ -48,6 +48,8 @@
 #include "exceptions/WGESignalSubscriptionFailed.h"
 #include "WGraphicsEngineMode.h"
 
+#include "WStaticOSGSetup.h"
+
 #include "WGraphicsEngine.h"
 
 // graphics engine instance as singleton
