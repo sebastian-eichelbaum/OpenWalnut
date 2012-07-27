@@ -35,6 +35,8 @@ SET( LibName ${OW_LIB_OPENWALNUT} )
 ADD_DEFINITIONS( '-DW_LIB_PREFIX="${CMAKE_SHARED_LIBRARY_PREFIX}"' )
 ADD_DEFINITIONS( '-DW_LIB_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}"' )
 
+OPTION( OW_STATIC_BUILD "Enable this to build the core library as static library." OFF )
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Add sources as target
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -43,7 +45,12 @@ ADD_DEFINITIONS( '-DW_LIB_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}"' )
 COLLECT_COMPILE_FILES( "${CMAKE_CURRENT_SOURCE_DIR}" TARGET_CPP_FILES TARGET_H_FILES TARGET_TEST_FILES )
 
 # Setup the target
-ADD_LIBRARY( ${LibName} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${OW_VERSION_HEADER} )
+IF( OW_STATIC_BUILD )
+    ADD_LIBRARY( ${LibName} STATIC ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${OW_VERSION_HEADER} )
+ELSE()
+    ADD_LIBRARY( ${LibName} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${OW_VERSION_HEADER} )
+ENDIF()
+
 TARGET_LINK_LIBRARIES( ${LibName} ${Boost_LIBRARIES} ${CMAKE_STANDARD_LIBRARIES} ${CMAKE_DL_LIBS} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES}
                      )
 

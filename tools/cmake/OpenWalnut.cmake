@@ -283,9 +283,31 @@ ENDIF()
 
 # find the needed packages
 SET( MIN_OSG_VERSION 2.8.0 )
-FIND_PACKAGE( OpenSceneGraph ${MIN_OSG_VERSION} REQUIRED osgDB osgUtil osgGA osgViewer osgSim osgWidget osgText )
+FIND_PACKAGE( OpenSceneGraph ${MIN_OSG_VERSION} REQUIRED osgWidget osgViewer osgText osgSim osgGA osgDB osgUtil )
 IF( OPENSCENEGRAPH_FOUND )
     INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
+
+    # is the OSG linked statically? If yes, we need to take care that all the osgdb plugins are linked too.
+    STRING( REGEX MATCH "osgDB\\.a" OPENSCENEGRAPH_STATIC "${OPENSCENEGRAPH_LIBRARIES}" )
+    IF( OPENSCENEGRAPH_STATIC )
+      MESSAGE( STATUS "Found static OpenSceneGraph! Adding all osgDB plugins." )
+      ADD_DEFINITIONS( -DOSG_LIBRARY_STATIC )
+
+      # we need to find the path. Unfortunately, the OSG find scripts do not provide these info
+      LIST( GET OPENSCENEGRAPH_LIBRARIES 0, firstElement )
+      GET_FILENAME_COMPONENT( firstElementPath ${firstElement} PATH )
+
+      # hopefully all static osgdb plugins reside in this directory
+      FILE( GLOB plugInLibs "${firstElementPath}/*osgdb_*.a" )
+      LIST( SORT plugInLibs )
+      SET( OPENSCENEGRAPH_OSGDB_LIBS "" )
+      FOREACH( plugIn ${plugInLibs} )
+        LIST( APPEND OPENSCENEGRAPH_OSGDB_LIBS ${plugIn} )
+      ENDFOREACH()
+
+      # The osgDB plugins need to be linked BEFORE osg and osgDB
+      LIST( INSERT OPENSCENEGRAPH_LIBRARIES 0 ${OPENSCENEGRAPH_OSGDB_LIBS} )
+    ENDIF()
 ENDIF()
 
 # NOTE: sorry but this is needed since those vars spam the ccmake. The user should find the important options fast!

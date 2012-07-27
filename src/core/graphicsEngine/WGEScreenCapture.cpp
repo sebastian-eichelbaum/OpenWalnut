@@ -104,7 +104,9 @@ void WGEScreenCapture::operator()( osg::RenderInfo& renderInfo ) const  // NOLIN
     frameCounter.m_framesLeft--;
 
     // read back buffer
+#ifndef GL_ES_VERSION_2_0
     glReadBuffer( GL_BACK );
+#endif
 
     // The following code uses PBO to grab the framebuffer. This sometimes causes errors. I am not sure why. glReadPixels
     // osg::ref_ptr< osg::Image > imagePBO = new osg::Image();

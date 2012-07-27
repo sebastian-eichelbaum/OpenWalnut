@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#if (( defined( __linux__ ) && defined( __GNUC__ )) || defined( __APPLE__ ))
+#if (( defined( __linux__ ) && defined( __GNUC__ )) && !defined( __ANDROID__) || defined ( __APPLE__ ))
     #define BACKTRACE_SUPPORTED
 #endif
 
