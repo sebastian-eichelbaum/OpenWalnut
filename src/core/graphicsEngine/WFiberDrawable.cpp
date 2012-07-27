@@ -103,6 +103,8 @@ void WFiberDrawable::drawFibers( osg::RenderInfo& renderInfo ) const //NOLINT
 
 void WFiberDrawable::drawTubes() const
 {
+    // This does not work if GLES is used
+    #ifndef GL_ES_VERSION_2_0
     for( size_t i = 0; i < m_active->size(); ++i )
     {
         if( (*m_active)[i] )
@@ -123,5 +125,6 @@ void WFiberDrawable::drawTubes() const
             glEnd();
         }
     }
+    #endif
 }
 

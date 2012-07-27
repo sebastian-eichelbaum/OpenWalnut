@@ -81,12 +81,12 @@ namespace wlimits
 
 template< typename T > bool wlimits::isNaN( T value )
 {
-    return boost::math::isnan( value );
+    return ( boost::math::isnan )( value );
 }
 
 template< typename T > bool wlimits::isInf( T value )
 {
-    return boost::math::isinf( value );
+    return ( boost::math::isinf )( value );
 }
 
 #endif  // WLIMITS_H
