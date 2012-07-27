@@ -1194,10 +1194,6 @@ void WGridRegular3DTemplate< T >::initInformationProperties()
     WPropDouble zOffset = m_infoProperties->addProperty( "Z offset: ",
                                                          "The distance between samples in z direction",
                                                          static_cast< double >( getOffsetZ() ) );
-
-    WPropMatrix4X4 transformation = m_infoProperties->addProperty( "Transformation",
-                                                                   "The transformation of this grid.",
-                                                                   static_cast< WMatrix4d >( getTransform() ) );
 }
 
 // +----------------------+
