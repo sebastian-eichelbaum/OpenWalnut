@@ -442,6 +442,11 @@ private:
     WSettingAction* m_autoDisplaySetting;
 
     /**
+     * The action for allowing editing min and max of sliders.
+     */
+    WSettingAction* m_sliderMinMaxEditSetting;
+
+    /**
      * Called whenever a async load has finished. Used by \ref asyncProjectLoad. It might be called from outside the GUI thread.
      *
      * \param file the filename

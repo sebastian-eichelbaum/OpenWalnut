@@ -135,6 +135,10 @@ void WMainWindow::setupGUI()
                                                      "Auto-Display",
                                                      "If enabled, the best matching module is automatically added if some data was loaded.",
                                                      true );
+    m_sliderMinMaxEditSetting = new WSettingAction( this, std::string( "qt4gui/" ) +  std::string( "sliderMinMaxEdit" ),
+                                                    "Slider Min/Max Editing",
+                                                    "If enabled, the maximum and minimum values of slider can be edited.",
+                                                    false );
 
     WSettingAction* mtViews = new WSettingAction( this, "qt4gui/ge/multiThreadedViewer",
                                                         "Multi-Threaded Views",
@@ -348,6 +352,7 @@ void WMainWindow::setupGUI()
     m_settingsAction = new QAction( "Settings", this );
     m_settingsMenu = m_menuBar->addMenu( "Settings" );
     m_settingsMenu->addAction( m_autoDisplaySetting );
+    m_settingsMenu->addAction( m_sliderMinMaxEditSetting );
     m_settingsMenu->addAction( m_controlPanel->getModuleConfig().getConfigureAction() );
     m_settingsMenu->addSeparator();
     m_settingsMenu->addAction( mtViews );
