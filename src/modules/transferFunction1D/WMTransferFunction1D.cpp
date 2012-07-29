@@ -58,6 +58,7 @@ const char** WMTransferFunction1D::getXPMIcon() const
 {
     return WMTransferFunction1D_xpm;
 }
+
 const std::string WMTransferFunction1D::getName() const
 {
     return "Transfer Function 1D";
