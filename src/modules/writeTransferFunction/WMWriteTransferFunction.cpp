@@ -39,6 +39,7 @@
 #include "core/common/WStringUtils.h"
 
 // own, local headers
+#include "WMWriteTransferFunction.xpm"
 #include "WMWriteTransferFunction.h"
 
 W_LOADABLE_MODULE( WMWriteTransferFunction )
@@ -57,6 +58,11 @@ boost::shared_ptr< WModule > WMWriteTransferFunction::factory() const
 {
     // See "src/modules/template/" for an extensively documented example.
     return boost::shared_ptr< WModule >( new WMWriteTransferFunction() );
+}
+
+const char** WMWriteTransferFunction::getXPMIcon() const
+{
+    return WMWriteTransferFunction_xpm;
 }
 
 const std::string WMWriteTransferFunction::getName() const

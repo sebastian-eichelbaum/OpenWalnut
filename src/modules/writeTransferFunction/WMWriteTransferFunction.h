@@ -51,6 +51,13 @@ public:
     virtual ~WMWriteTransferFunction();
 
     /**
+     * Get the icon for this module in XPM format.
+     *
+     * \return The icon.
+     */
+    const char** getXPMIcon() const;
+
+    /**
      * Gives back the name of this module.
      * \return the module's name.
      */
