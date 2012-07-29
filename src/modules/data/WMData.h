@@ -177,7 +177,11 @@ protected:
     WMatrix< double > m_transformQForm;
 
 private:
-    //! returns info property group with the three availabe transformation matrixes
+    /**
+     * Returns info property group with the three availabe transformation matrixes
+     *
+     * \return info property group with the three availabe transformation matrixes
+     */
     boost::shared_ptr< WProperties > getTransformationProperties() const;
 
     //! a condition for the matrix selection
