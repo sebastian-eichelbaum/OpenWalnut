@@ -289,7 +289,7 @@ void WMData::moduleMain()
     m_properties->addProperty( m_dataSet->getProperties() );
     m_infoProperties->addProperty( m_dataSet->getInformationProperties() );
     m_infoProperties->addProperty( getTransformationProperties() );
- 
+
     // I am interested in the active property ( manually subscribe signal )
     m_active->getCondition()->subscribeSignal( boost::bind( &WMData::propertyChanged, this, m_active ) );
 
