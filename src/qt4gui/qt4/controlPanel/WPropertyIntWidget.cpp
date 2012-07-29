@@ -22,13 +22,16 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
-#include <cmath>
-#include <string>
 #include <algorithm>
+#include <cmath>
+#include <iostream>
+#include <limits>
+#include <string>
 
+#include <QtGui/QInputDialog>
 
 #include "../WGuiConsts.h"
+#include "../WQt4Gui.h"
 #include "core/common/WLogger.h"
 #include "core/common/WPropertyVariable.h"
 
@@ -40,12 +43,39 @@ WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* property
     m_intProperty( property ),
     m_slider( Qt::Horizontal, &m_parameterWidgets ),
     m_edit( &m_parameterWidgets ),
+    m_minButton( &m_parameterWidgets ),
+    m_maxButton( &m_parameterWidgets ),
     m_layout( &m_parameterWidgets ),
     m_asText( &m_informationWidgets ),
     m_infoLayout( &m_informationWidgets )
 {
     // layout both against each other
+    if( WQt4Gui::getSettings().value( "qt4gui/sliderMinMaxEdit", false ).toBool() )
+    {
+        m_layout.addWidget( &m_minButton );
+        m_minButton.setToolTip( "Set minimum of slider.\n Be aware that strange values can cause errors." );
+        m_minButton.setMinimumWidth( 5 );
+        m_minButton.setMaximumWidth( 5 );
+    }
+    else
+    {
+        m_minButton.hide();
+    }
+
     m_layout.addWidget( &m_slider );
+
+    if( WQt4Gui::getSettings().value( "qt4gui/sliderMinMaxEdit", false ).toBool() )
+    {
+        m_layout.addWidget( &m_maxButton );
+        m_maxButton.setToolTip( "Set maximum of slider.\n Be aware that strange values can cause errors." );
+        m_maxButton.setMinimumWidth( 5 );
+        m_maxButton.setMaximumWidth( 5 );
+    }
+    else
+    {
+        m_maxButton.hide();
+    }
+
     m_layout.addWidget( &m_edit );
     m_layout.setMargin( WGLOBAL_MARGIN );
     m_layout.setSpacing( WGLOBAL_SPACING );
@@ -65,6 +95,8 @@ WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* property
     connect( &m_slider, SIGNAL( valueChanged( int ) ), this, SLOT( sliderChanged( int ) ) );
     connect( &m_edit, SIGNAL( editingFinished() ), this, SLOT( editChanged() ) );
     connect( &m_edit, SIGNAL( textEdited( const QString& ) ), this, SLOT( textEdited( const QString& ) ) );
+    connect( &m_maxButton, SIGNAL( pressed() ), this, SLOT( maxPressed() ) );
+    connect( &m_minButton, SIGNAL( pressed() ), this, SLOT( minPressed() ) );
 }
 
 WPropertyIntWidget::~WPropertyIntWidget()
@@ -149,3 +181,40 @@ void WPropertyIntWidget::textEdited( const QString& text )
     invalidate( !m_intProperty->accept( value ) );
 }
 
+void WPropertyIntWidget::maxPressed()
+{
+    bool ok;
+    int min = m_intProperty->getMin()->getMin();
+    int max = m_intProperty->getMax()->getMax();
+    int newMax = QInputDialog::getInt( this, "Setting Maximum of Slider",
+                                             "Maximum", max, min, std::numeric_limits< int >::max(), 1, &ok );
+    if( ok )
+    {
+        if( m_intProperty->get() > newMax )
+        {
+            m_intProperty->set( newMax );
+            m_slider.setValue( newMax );
+        }
+        m_slider.setMaximum( newMax );
+        m_intProperty->setMax( newMax );
+    }
+}
+
+void WPropertyIntWidget::minPressed()
+{
+    bool ok;
+    int min = m_intProperty->getMin()->getMin();
+    int max = m_intProperty->getMax()->getMax();
+    int newMin = QInputDialog::getInt( this, "Setting Minimum of Slider",
+                                             "Minimum", min, -std::numeric_limits< int >::max(), max, 1, &ok );
+    if( ok )
+    {
+        if( m_intProperty->get() < newMin )
+        {
+            m_intProperty->set( newMin );
+            m_slider.setValue( newMin );
+        }
+        m_slider.setMinimum( newMin );
+        m_intProperty->setMin( newMin );
+    }
+}

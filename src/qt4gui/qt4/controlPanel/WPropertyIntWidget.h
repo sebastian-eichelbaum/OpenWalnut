@@ -27,9 +27,10 @@
 
 #include <string>
 
+#include <QtGui/QHBoxLayout>
 #include <QtGui/QLineEdit>
 #include <QtGui/QSlider>
-#include <QtGui/QHBoxLayout>
+#include <QtGui/QToolButton>
 
 #include "WPropertyWidget.h"
 
@@ -76,6 +77,16 @@ protected:
     QLineEdit m_edit;
 
     /**
+     * The button bringing up the dialog for modifying min of the slider
+     */
+    QToolButton m_minButton;
+
+    /**
+     * The button bringing up the dialog for modifying max of the slider
+     */
+    QToolButton m_maxButton;
+
+    /**
      * Layout used to position the label and the checkbox
      */
     QHBoxLayout m_layout;
@@ -111,6 +122,16 @@ public slots:
      * \param text
      */
     void textEdited( const QString& text );
+
+    /**
+     * Called when the maxMin button is pressed to open maxMinDialog.
+     */
+    void maxPressed();
+
+    /**
+     * Called when the maxMin button is pressed to open maxMinDialog.
+     */
+    void minPressed();
 };
 
 #endif  // WPROPERTYINTWIDGET_H
