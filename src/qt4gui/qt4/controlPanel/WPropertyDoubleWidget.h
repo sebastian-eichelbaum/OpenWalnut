@@ -32,6 +32,7 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QToolButton>
 
+#include "../guiElements/WQtIntervalEdit.h"
 #include "WPropertyWidget.h"
 
 /**
@@ -62,9 +63,9 @@ protected:
     virtual void update();
 
     /**
-     * The integer property represented by this widget.
+     * The property represented by this widget.
      */
-    WPropDouble m_doubleProperty;
+    WPropDouble m_integralProperty;
 
     /**
      * The slider allowing modification of the integer value
@@ -77,37 +78,32 @@ protected:
     QLineEdit m_edit;
 
     /**
-     * The button bringing up the dialog for modifying min of the slider
-     */
-    QToolButton m_minButton;
-
-    /**
-     * The button bringing up the dialog for modifying max of the slider
-     */
-    QToolButton m_maxButton;
-
-    /**
      * Layout used to position the label and the checkbox
      */
     QHBoxLayout m_layout;
 
     /**
-     * Converts a given value to a percentage between m_min and m_max.
+     * Layout used to combine the property widgets with the WQtIntervalEdit.
+     */
+    QVBoxLayout m_vLayout;
+
+    /**
+     * Converts a given value to a slider value between m_min and m_max.
      *
      * \param value the value.
      *
      * \return the percentage.
      */
-    int toPercent( double value );
+    int toSliderValue( double value );
 
     /**
-     * Converts the given percentage to the real double value using m_min and m_max.
+     * Converts the given slider value to the real double value using m_min and m_max.
      *
      * \param perc the percentage.
      *
      * \return the real double value.
      */
-    double fromPercent( int perc );
+    double fromSliderValue( int perc );
 
     /**
      * The current minimum value.
@@ -128,6 +124,16 @@ protected:
      * The layout used for the pure output (information properties)
      */
     QHBoxLayout m_infoLayout;
+
+    /**
+     * The edit for the interval.
+     */
+    WQtIntervalEdit< double, double > m_intervalEdit;
+
+    /**
+     * Resolution of the slider.
+     */
+    const static int SliderResolution;
 
 private:
 public slots:
@@ -152,14 +158,9 @@ public slots:
     void textEdited( const QString& text );
 
     /**
-     * Called when the maxMin button is pressed to open maxMinDialog.
+     * Called whenever the interval edit changes.
      */
-    void maxPressed();
-
-    /**
-     * Called when the maxMin button is pressed to open maxMinDialog.
-     */
-    void minPressed();
+    void minMaxUpdated();
 };
 
 #endif  // WPROPERTYDOUBLEWIDGET_H
