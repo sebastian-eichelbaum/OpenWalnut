@@ -198,21 +198,21 @@ void WMNavigationSlices::initOSG()
     osg::ref_ptr< osg::Node > xSlice = wge::genFinitePlane( minV, osg::Vec3( 0.0, sizes[1], 0.0 ),
                                                                   osg::Vec3( 0.0, 0.0, sizes[2] ) );
     xSlice->setName( "Sagittal Slice" );
-    osg::Uniform* xSliceUniform = new osg::Uniform( "u_WorldTransform", osg::Matrix::identity() );
+    osg::Uniform* xSliceUniform = new osg::Uniform( "u_WorldTransform", osg::Matrixf::identity() );
     xSlice->getOrCreateStateSet()->addUniform( xSliceUniform );
 
     // Y Slice
     osg::ref_ptr< osg::Node > ySlice = wge::genFinitePlane( minV, osg::Vec3( sizes[0], 0.0, 0.0 ),
                                                                   osg::Vec3( 0.0, 0.0, sizes[2] ) );
     ySlice->setName( "Coronal Slice" );
-    osg::Uniform* ySliceUniform = new osg::Uniform( "u_WorldTransform", osg::Matrix::identity() );
+    osg::Uniform* ySliceUniform = new osg::Uniform( "u_WorldTransform", osg::Matrixf::identity() );
     ySlice->getOrCreateStateSet()->addUniform( ySliceUniform );
 
     // Z Slice
     osg::ref_ptr< osg::Node > zSlice = wge::genFinitePlane( minV, osg::Vec3( sizes[0], 0.0, 0.0 ),
                                                                   osg::Vec3( 0.0, sizes[1], 0.0 ) );
     zSlice->setName( "Axial Slice" );
-    osg::Uniform* zSliceUniform = new osg::Uniform( "u_WorldTransform", osg::Matrix::identity() );
+    osg::Uniform* zSliceUniform = new osg::Uniform( "u_WorldTransform", osg::Matrixf::identity() );
     zSlice->getOrCreateStateSet()->addUniform( zSliceUniform );
 
     // disable culling.
