@@ -135,7 +135,7 @@ protected:
     /**
      * Resolution of the slider.
      */
-    const static int SliderResolution;
+    static int SliderResolution;
 
 private:
 public slots:

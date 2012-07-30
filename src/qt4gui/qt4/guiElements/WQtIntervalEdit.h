@@ -52,7 +52,7 @@ public:
      *
      * \param parent the parent widget
      */
-    WQtIntervalEditBase( QWidget* parent );
+    explicit WQtIntervalEditBase( QWidget* parent );
 
     /**
      * Destructor.
@@ -66,12 +66,12 @@ public:
 
 signals:
     /**
-     * Called whenever the user changes the current minimum OR \ref setMin was called.
+     * Called whenever the user changes the current minimum OR setMin was called.
      */
     void minimumChanged();
 
     /**
-     * Called whenever the user changes the current ,aximum OR \ref setMax was called.
+     * Called whenever the user changes the current ,aximum OR setMax was called.
      */
     void maximumChanged();
 
@@ -101,7 +101,7 @@ protected:
     /**
      * Resolution of the sliders.
      */
-    const static int SliderResolution;
+    static int SliderResolution;
 
     /**
      * The slider for the minimum.
@@ -155,7 +155,7 @@ public:
      *
      * \param parent the parent widget
      */
-    WQtIntervalEdit( QWidget* parent );
+    explicit WQtIntervalEdit( QWidget* parent );
 
     /**
      * Destructor.

@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <sstream>
@@ -39,7 +40,7 @@
 #include "WPropertyIntWidget.h"
 #include "WPropertyIntWidget.moc"
 
-const int WPropertyIntWidget::SliderResolution = 10000;
+int WPropertyIntWidget::SliderResolution = 10000;
 
 WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),
@@ -123,7 +124,7 @@ void WPropertyIntWidget::update()
 
         // updating the interval edit causes the proper values to be set in m_min and m_max
         m_slider.setHidden( false );
-        m_intervalEdit.setHidden( false );
+        m_intervalEdit.setHidden( !WQt4Gui::getSettings().value( "qt4gui/sliderMinMaxEdit", false ).toBool() );
         m_slider.setValue( toSliderValue( m_integralProperty->get() ) );
     }
     else

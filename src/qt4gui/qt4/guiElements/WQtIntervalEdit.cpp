@@ -27,7 +27,7 @@
 #include "WQtIntervalEdit.h"
 #include "WQtIntervalEdit.moc"
 
-const int WQtIntervalEditBase::SliderResolution = 10000;
+int WQtIntervalEditBase::SliderResolution = 10000;
 
 WQtIntervalEditBase::WQtIntervalEditBase( QWidget* parent ):
     QWidget( parent ),
