@@ -61,13 +61,15 @@ ENDIF()
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
+MESSAGE( STATUS "----------------------------------------------------------------------" )
+MESSAGE( STATUS "Welcome! This is OpenWalnut Build System." )
+
 # if this is included for external module building, find OpenWalnut.
 IF( NOT ${OW_EXTERNAL_MODULE} )
     # to allow non-core code to access core and ext absolutely
-    MESSAGE( STATUS "This is OpenWalnut Build System." )   
     INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR} )
 ELSE()
-    MESSAGE( STATUS "This is OpenWalnut Build System configured for external use." )   
+    MESSAGE( STATUS "NOTE: configuring for external use." )   
 
     FIND_PATH( OPENWALNUT_INCLUDE_DIR core/kernel/WKernel.h ${OPENWALNUT_INCLUDEDIR} $ENV{OPENWALNUT_INCLUDEDIR} /usr/include/openwalnut /usr/local/include/openwalnut )
     FIND_LIBRARY( OPENWALNUT_LIBRARIES NAMES ${OW_LIB_OPENWALNUT} lib${OW_LIB_OPENWALNUT} HINTS 
@@ -108,6 +110,48 @@ ELSE()
     INCLUDE_DIRECTORIES( ${OPENWALNUT_INCLUDE_DIR} )
     SET( OW_LIB_OPENWALNUT ${OPENWALNUT_LIBRARIES} )
 ENDIF()
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# The openwalnut executable should print the revision/tag
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Generate needed headers
+# NOTE: add a line ADD_DEPENDENCIES( XYZ OW_generate_version_header ) to your target XYZ if you need the header!
+
+# where to put the header
+SET( OW_VERSION_HEADER_DIRECTORY ${PROJECT_BINARY_DIR}/versionHeader )
+
+# Call the file differently depending on internal or external build
+IF( NOT ${OW_EXTERNAL_MODULE} )
+    # if we build OW, we want the version header to be placed in core later on
+    SET( OW_VERSION_HEADER_FILENAME "core/WVersion.h" )
+ELSE()
+    # if this is for external use, the module might want to use its own version header
+    # if we build OW, we want the version header to be placed in core later on
+    SET( OW_VERSION_HEADER_FILENAME "WToolboxVersion.h" )
+ENDIF()
+
+# the complete header filename:
+SET( OW_VERSION_HEADER ${OW_VERSION_HEADER_DIRECTORY}/${OW_VERSION_HEADER_FILENAME} )
+
+# to allow all those targets to find the header:
+INCLUDE_DIRECTORIES( ${OW_VERSION_HEADER_DIRECTORY} )
+# Setup the target
+SETUP_VERSION_HEADER( ${OW_VERSION_HEADER} )
+
+# Set the OW version string. This can be used by others for setting target versions during compilation.
+GET_VERSION_STRING( OW_VERSION OW_LIB_VERSION )
+IF( NOT ${OW_EXTERNAL_MODULE} )
+    MESSAGE( STATUS "OW Version: \"${OW_VERSION}\"; OW Lib Version: \"${OW_LIB_VERSION}\"." )
+ELSE()
+    MESSAGE( STATUS "OW Toolbox Version: \"${OW_VERSION}\"; OW Toolbox Lib Version: \"${OW_LIB_VERSION}\"." )
+ENDIF()
+
+# We need a SOVERSION too. This somehow describes the API compatibility. We use the major number here.
+SPLIT_VERSION_STRING( ${OW_LIB_VERSION} OW_VERSION_MAJOR OW_VERSION_MINOR OW_VERSION_PATCH )
+SET( OW_SOVERSION ${OW_VERSION_MAJOR} )
+
+MESSAGE( STATUS "----------------------------------------------------------------------" )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
@@ -175,11 +219,12 @@ FUNCTION( BUILD_SYSTEM_COMPILER )
     SET( CMAKE_CXX_FLAGS "${OW_CXX_FLAGS_INJECT} ${CMAKE_CXX_FLAGS}" CACHE STRING "" FORCE )
     SET( CMAKE_C_FLAGS "${OW_C_FLAGS_INJECT} ${CMAKE_C_FLAGS}" CACHE STRING "" FORCE )
 
-    MESSAGE( STATUS "CMAKE_EXE_LINKER_FLAGS = ${CMAKE_EXE_LINKER_FLAGS}" )
-    MESSAGE( STATUS "CMAKE_MODULE_LINKER_FLAGS = ${CMAKE_MODULE_LINKER_FLAGS}" )
-    MESSAGE( STATUS "CMAKE_SHARED_LINKER_FLAGS = ${CMAKE_SHARED_LINKER_FLAGS}" )
-    MESSAGE( STATUS "CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}" )
-    MESSAGE( STATUS "CMAKE_C_FLAGS = ${CMAKE_C_FLAGS}" )
+    # This can be useful for debugging
+    # MESSAGE( STATUS "CMAKE_EXE_LINKER_FLAGS = ${CMAKE_EXE_LINKER_FLAGS}" )
+    # MESSAGE( STATUS "CMAKE_MODULE_LINKER_FLAGS = ${CMAKE_MODULE_LINKER_FLAGS}" )
+    # MESSAGE( STATUS "CMAKE_SHARED_LINKER_FLAGS = ${CMAKE_SHARED_LINKER_FLAGS}" )
+    # MESSAGE( STATUS "CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}" )
+    # MESSAGE( STATUS "CMAKE_C_FLAGS = ${CMAKE_C_FLAGS}" )
 
 ENDFUNCTION( BUILD_SYSTEM_COMPILER )
 
@@ -214,27 +259,6 @@ IF( OW_PACKAGE_BUILD )
     OPTION( OW_PACKAGE_NOCOPY_LICENSE "Disable to copy our licensing information. Enabling this can be useful for package maintainer since several packaging systems have their own licence mechanism (i.e. Debian)." OFF )
     OPTION( OW_PACKAGE_NOCOPY_COREFONTS "Enable this if you have liberation fonts installed on your system. They will be linked. If disabled, our fonts are copied." OFF )
 ENDIF()
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-# The openwalnut executable should print the revision/tag
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Generate needed headers
-# NOTE: add a line ADD_DEPENDENCIES( XYZ OW_generate_version_header ) to your target XYZ if you need the header!
-SET( OW_VERSION_HEADER_DIRECTORY ${PROJECT_BINARY_DIR}/versionHeader )
-SET( OW_VERSION_HEADER ${OW_VERSION_HEADER_DIRECTORY}/WVersion.h )
-# to allow all those targets to find the header:
-INCLUDE_DIRECTORIES( ${OW_VERSION_HEADER_DIRECTORY} )
-# Setup the target
-SETUP_VERSION_HEADER( ${OW_VERSION_HEADER} )
-
-# Set the OW version string. This can be used by others for setting target versions during compilation.
-GET_VERSION_STRING( OW_VERSION OW_LIB_VERSION )
-MESSAGE( STATUS "OW Version: \"${OW_VERSION}\"; OW Lib Version: \"${OW_LIB_VERSION}\"." )
-
-# We need a SOVERSION too. This somehow describes the API compatibility. We use the major number here.
-SPLIT_VERSION_STRING( ${OW_LIB_VERSION} OW_VERSION_MAJOR OW_VERSION_MINOR OW_VERSION_PATCH )
-SET( OW_SOVERSION ${OW_VERSION_MAJOR} )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
