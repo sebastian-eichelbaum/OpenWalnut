@@ -585,7 +585,8 @@ ENDFUNCTION( GET_VERSION_STRING )
 # as the target is. If not, an additional target needs to be defined and CMake needs information about generated files.
 #
 # _OW_VERSION_HEADER the filename where to store the header. Should be absolute.
-FUNCTION( SETUP_VERSION_HEADER _OW_VERSION_HEADER )
+# _PREFIX the string used as prefix in the header. Useful if you have multiple version headers.
+FUNCTION( SETUP_VERSION_HEADER _OW_VERSION_HEADER _PREFIX )
     # This ensures that an nonexisting .hg/dirstate file won't cause a compile error (do not know how to make target)
     SET( HG_DEP "" )
     IF( EXISTS ${PROJECT_SOURCE_DIR}/../.hg/dirstate )
@@ -595,7 +596,7 @@ FUNCTION( SETUP_VERSION_HEADER _OW_VERSION_HEADER )
     # The file WVersion.* needs the version definition.
     ADD_CUSTOM_COMMAND( OUTPUT ${_OW_VERSION_HEADER}
                         DEPENDS ${PROJECT_SOURCE_DIR}/../VERSION ${HG_DEP}
-                        COMMAND ${CMAKE_COMMAND} -D PROJECT_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -D HEADER_FILENAME:STRING=${_OW_VERSION_HEADER} -P OpenWalnutVersion.cmake
+                        COMMAND ${CMAKE_COMMAND} -D PROJECT_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -D HEADER_FILENAME:STRING=${_OW_VERSION_HEADER} -D PREFIX:STRING=${_PREFIX} -P OpenWalnutVersion.cmake
                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../tools/cmake/
                         COMMENT "Creating Version Header ${_OW_VERSION_HEADER}."
     )
