@@ -28,17 +28,17 @@
 #include <string>
 #include <vector>
 
-
 #include <osg/Array>
 #include <osg/Vec3>
 #include <osg/Vec4>
 #include <osg/Camera>
+#include <osg/Uniform>
 
 #include "../common/WColor.h"
 #include "../common/WAssert.h"
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
-
-
+#include "../common/WPropertyVariable.h"
+#include "../graphicsEngine/shaders/WGEPropertyUniform.h"
 
 namespace wge
 {
@@ -106,6 +106,18 @@ namespace wge
      * \return the color
      */
     WColor getNthHSVColor( int n );
+
+    /**
+     * Creates a osg::Uniform with given type and name and applies it to the given node.
+     *
+     * \tparam T This is the data used for the uniform. It may be a PropertyType, an integral or an osg::Uniform.
+     *
+     * \param node Node where the uniform should be bound to.
+     * \param prop The type of the uniform.
+     * \param name The name of the uniform.
+     */
+    template< typename T >
+    void bindAsUniform( osg::Node* node, T prop, std::string name );
 }
 
 inline WColor wge::getRGBAColorFromDirection( const WPosition &pos1, const WPosition &pos2 )
@@ -114,5 +126,88 @@ inline WColor wge::getRGBAColorFromDirection( const WPosition &pos1, const WPosi
     return WColor( std::abs( direction[0] ), std::abs( direction[1] ), std::abs( direction[2] ), 1.0f );
 }
 
+namespace wge
+{
+    template< typename T >
+    inline void bindAsUniform( osg::Node* node, T prop, std::string name )
+    {
+        osg::ref_ptr< osg::Uniform > uniform = new osg::Uniform( name.c_str(), prop );
+        osg::StateSet *states = node->getOrCreateStateSet();
+        states->addUniform( uniform );
+    }
+
+    /**
+     * Template specialization for double values.
+     *
+     * \param node Node where the uniform should be bound to.
+     * \param prop The type of the uniform.
+     * \param name The name of the uniform.
+     */
+    template<>
+    inline void bindAsUniform< double >( osg::Node* node, double prop, std::string name )
+    {
+        osg::ref_ptr< osg::Uniform > uniform( new osg::Uniform( name.c_str(), static_cast< float >( prop ) ) );
+        osg::StateSet *states = node->getOrCreateStateSet();
+        states->addUniform( uniform );
+    }
+
+    /**
+     * Template specialization for size_t values.
+     *
+     * \param node Node where the uniform should be bound to.
+     * \param prop The type of the uniform.
+     * \param name The name of the uniform.
+     */
+    template<>
+    inline void bindAsUniform< size_t >( osg::Node* node, size_t prop, std::string name )
+    {
+        osg::ref_ptr< osg::Uniform > uniform( new osg::Uniform( name.c_str(), static_cast< int >( prop ) ) );
+        osg::StateSet *states = node->getOrCreateStateSet();
+        states->addUniform( uniform );
+    }
+
+    /**
+     * Template specialization for WPropDouble values.
+     *
+     * \param node Node where the uniform should be bound to.
+     * \param prop The type of the uniform.
+     * \param name The name of the uniform.
+     */
+    template<>
+    inline void bindAsUniform< WPropDouble >( osg::Node* node, WPropDouble prop, std::string name )
+    {
+        osg::ref_ptr< osg::Uniform > uniform( new WGEPropertyUniform< WPropDouble >( name, prop ) );
+        osg::StateSet *states = node->getOrCreateStateSet();
+        states->addUniform( uniform );
+    }
+
+    /**
+     * Template specialization for WPropColor values.
+     *
+     * \param node Node where the uniform should be bound to.
+     * \param prop The type of the uniform.
+     * \param name The name of the uniform.
+     */
+    template<>
+    inline void bindAsUniform< WPropColor >( osg::Node* node, WPropColor prop, std::string name )
+    {
+        osg::ref_ptr< osg::Uniform > uniform( new WGEPropertyUniform< WPropColor >( name, prop ) );
+        osg::StateSet *states = node->getOrCreateStateSet();
+        states->addUniform( uniform );
+    }
+
+    /**
+     * Template specialization for osg::Uniform values.
+     *
+     * \param node Node where the uniform should be bound to.
+     * \param uniform The type of the uniform.
+     */
+    template<>
+    inline void bindAsUniform< osg::ref_ptr< osg::Uniform > >( osg::Node* node, osg::ref_ptr< osg::Uniform > uniform, std::string /* name */ )
+    {
+        osg::StateSet *states = node->getOrCreateStateSet();
+        states->addUniform( uniform );
+    }
+}
 #endif  // WGEUTILS_H
 
