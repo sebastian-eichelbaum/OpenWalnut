@@ -24,8 +24,13 @@
 
 #include <string>
 
-#include "lua/WScriptInterpreterLUA.h"
-#include "python/WScriptInterpreterPython.h"
+#ifdef LUA_FOUND
+    #include "lua/WScriptInterpreterLUA.h"
+#endif
+
+#ifdef PYTHON_FOUND
+    #include "python/WScriptInterpreterPython.h"
+#endif
 
 #include "WScriptInterpreterFactory.h"
 
@@ -33,15 +38,18 @@ boost::shared_ptr< WScriptInterpreter > WScriptInterpreterFactory::constructByFi
 {
     boost::shared_ptr< WScriptInterpreter > interp;
 
+#ifdef PYTHON_FOUND
     if( ext == ".py" )
     {
         interp = boost::shared_ptr< WScriptInterpreter >( new WScriptInterpreterPython() );
     }
-    else if( ext == ".lua" )
+#endif
+#ifdef LUA_FOUND
+    if( ext == ".lua" )
     {
         interp = boost::shared_ptr< WScriptInterpreter >( new WScriptInterpreterLUA() );
     }
-
+#endif
     return interp;
 }
 
@@ -49,20 +57,29 @@ boost::shared_ptr< WScriptInterpreter > WScriptInterpreterFactory::constructByNa
 {
     boost::shared_ptr< WScriptInterpreter > interp;
 
+#ifdef PYTHON_FOUND
     if( name == "python" )
     {
         interp = boost::shared_ptr< WScriptInterpreter >( new WScriptInterpreterPython() );
     }
-    else if( name == "lua" )
+#endif
+#ifdef LUA_FOUND
+    if( name == "lua" )
     {
         interp = boost::shared_ptr< WScriptInterpreter >( new WScriptInterpreterLUA() );
     }
-
+#endif
     return interp;
 }
 
 std::string WScriptInterpreterFactory::getSupportedInterpreterList()
 {
-    return "\tpython \t(.py)\n"
-           "\tlua \t(.lua)\n";
+    std::string s;
+#ifdef PYTHON_FOUND
+    s += "\tpython \t(.py)\n";
+#endif
+#ifdef LUA_FOUND
+    s += "\tlua \t(.lua)\n";
+#endif
+    return s;
 }
