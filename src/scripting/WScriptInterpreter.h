@@ -26,6 +26,7 @@
 #define WSCRIPTINTERPRETER_H
 
 #include <string>
+#include <vector>
 
 /**
  * \class WScriptInterpreter
@@ -44,6 +45,14 @@ public:
      * Initialize OpenWalnut-bindings. These allow OW-classes to be used via the script interpreter.
      */
     virtual void initBindings() = 0;
+
+    /**
+     * Sets the script parameters. These are the parameters you would normally call your script with, e.g.
+     * "./myscript.py param 1 param2".
+     *
+     * \param params The parameters to the script. In our example, they would be "./myscript.py", "param", "1" and "param2".
+     */
+    virtual void setParameters( std::vector< std::string > const& params ) = 0;
 
     /**
      * Execute some code.

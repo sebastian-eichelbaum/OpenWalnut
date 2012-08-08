@@ -23,6 +23,8 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <sstream>
+#include <vector>
 
 #include "core/common/WLogger.h"
 
@@ -108,6 +110,24 @@ void WScriptInterpreterLUA::initBindings()
 
     m_logger = WLoggerWrapper( WLogger::getLogger() );
     luabind::globals( m_lua )[ "logger" ] = &m_logger;
+}
+
+void WScriptInterpreterLUA::setParameters( std::vector< std::string > const& params )
+{
+    if( params.size() == 0 )
+    {
+        return;
+    }
+
+    std::stringstream s;
+    s << "arg = { ";
+    for( std::size_t k = 0; k < params.size() - 1; ++k )
+    {
+        s << "[ " << k << " ] = \"" << params[ k ] << "\", ";
+    }
+    s << "[ " << params.size() - 1 << " ] = \"" << params[ params.size() - 1 ] << "\" }";
+
+    execute( s.str() );
 }
 
 void WScriptInterpreterLUA::execute( std::string const& p_code )

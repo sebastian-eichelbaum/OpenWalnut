@@ -24,6 +24,7 @@
 
 #include <fstream>
 #include <string>
+#include <vector>
 
 #include "core/common/WLogger.h"
 #include "core/common/WIOTools.h"
@@ -86,7 +87,8 @@ int WScriptGui::run()
     // first check if a script file is to be executed
     if( m_programOptions.count( "file" ) )
     {
-        boost::filesystem::path scriptFile( m_programOptions[ "file" ].as< std::string >() );
+        boost::filesystem::path scriptFile( m_programOptions[ "file" ].as< std::vector< std::string > >()[ 0 ] );
+
         if( !boost::filesystem::exists( scriptFile ) )
         {
             wlog::error( "Walnut" ) << std::string( "Could not find script file: " ) + scriptFile.string();
@@ -98,6 +100,12 @@ int WScriptGui::run()
 
         scriptInterpreter = WScriptInterpreterFactory::constructByFileExtension( ext );
         executeScriptFile = ( scriptInterpreter != NULL );
+
+        if( executeScriptFile )
+        {
+            // set command line parameters
+            scriptInterpreter->setParameters( m_programOptions[ "file" ].as< std::vector< std::string > >() );
+        }
     }
     // then check for interp parameter
     else if( m_programOptions.count( "interp" ) )
@@ -136,7 +144,7 @@ int WScriptGui::run()
         // execute provided script file
 
         // load file content into string
-        std::ifstream in( m_programOptions[ "file" ].as< std::string >().c_str() );
+        std::ifstream in( m_programOptions[ "file" ].as< std::vector< std::string > >()[ 0 ].c_str() );
         std::string script;
         std::string line;
         while( std::getline( in, line ) )

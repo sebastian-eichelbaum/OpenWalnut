@@ -29,6 +29,7 @@
 #include <luabind/luabind.hpp>
 
 #include <string>
+#include <vector>
 
 #include "../wrappers/WLoggerWrapper.h"
 #include "../wrappers/WModuleContainerWrapper.h"
@@ -57,6 +58,14 @@ public:
      * Initializes bindings for OpenWalnut classes. Call this after starting the kernel.
      */
     virtual void initBindings();
+
+    /**
+     * Sets the script parameters. These are the parameters you would normally call your script with, e.g.
+     * "./myscript.py param 1 param2".
+     *
+     * \param params The parameters to the script. In our example, they would be "./myscript.py", "param", "1" and "param2".
+     */
+    virtual void setParameters( std::vector< std::string > const& params );
 
     /**
      * Execute some LUA code.

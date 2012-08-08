@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <vector>
 
 #include "core/kernel/WKernel.h"
 
@@ -34,6 +35,8 @@
 #include "WScriptInterpreterPython.h"
 
 WScriptInterpreterPython::WScriptInterpreterPython()
+    : m_argc( 0 ),
+      m_argv( 0 )
 {
     try
     {
@@ -50,6 +53,15 @@ WScriptInterpreterPython::WScriptInterpreterPython()
 WScriptInterpreterPython::~WScriptInterpreterPython()
 {
     Py_Finalize();
+
+    if( m_argv )
+    {
+        for( int k = 0; k < m_argc; ++k )
+        {
+            delete[] m_argv[ k ];
+        }
+        delete[] m_argv;
+    }
 }
 
 void WScriptInterpreterPython::initBindings()
@@ -113,6 +125,26 @@ void WScriptInterpreterPython::initBindings()
 
     m_logger = WLoggerWrapper( WLogger::getLogger() );
     m_pyMainNamespace[ "logger" ] = &m_logger;
+}
+
+void WScriptInterpreterPython::setParameters( std::vector< std::string > const& params )
+{
+    if( params.size() == 0 )
+    {
+        return;
+    }
+
+    m_argc = params.size();
+    m_argv = new char*[ params.size() ];
+
+    for( std::size_t k = 0; k < params.size(); ++k )
+    {
+        m_argv[ k ] = new char[ params[ k ].length() + 1 ];
+        std::snprintf( m_argv[ k ], params[ k ].length() + 1, "%s", params[ k ].c_str() );
+        m_argv[ k ][ params[ k ].length() ] = '\0';
+    }
+
+    PySys_SetArgv( m_argc, m_argv );
 }
 
 void WScriptInterpreterPython::execute( std::string const& line )

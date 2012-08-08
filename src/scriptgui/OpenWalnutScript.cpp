@@ -94,7 +94,7 @@ int main( int argc, char** argv )
         ( "log,l", po::value< std::string >(), ( std::string( "The log-file to use. If not specified, \"" ) + logFile +
                                                  std::string( "\" is used in the current directory." ) ).c_str() )
         ( "interp,i", po::value< std::string >(), "The interpreter to use." )
-        ( "file,f", po::value< std::string >(), "The script file to load." );
+        ( "file,f", po::value< std::vector< std::string > >()->multitoken(), "The script file to load and its parameters." );
 
     boost::program_options::variables_map optionsMap;
     try
