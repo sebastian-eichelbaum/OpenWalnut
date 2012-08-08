@@ -148,6 +148,11 @@ protected:
     WPropString m_dataType;
 
     /**
+     * The name of the dataset type created from the data (e.g. WDataSetScalar, WDataSetVector ...)
+     */
+    WPropString m_dataSetType;
+
+    /**
      * A list of color map selection types
      */
     boost::shared_ptr< WItemSelection > m_matrixSelectionsList;

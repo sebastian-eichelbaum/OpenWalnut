@@ -127,7 +127,8 @@ void WMData::properties()
 
     // properties
     m_dataName = m_infoProperties->addProperty( "Filename", "The filename of the dataset.", std::string( "" ) );
-    m_dataType = m_infoProperties->addProperty( "Data type", "The type of the the single data values.", std::string( "" ) );
+    m_dataType = m_infoProperties->addProperty( "Data type", "The type of the single data values.", std::string( "" ) );
+    m_dataSetType = m_infoProperties->addProperty( "Dataset type", "The name of the dataset type.", std::string( "" ) );
 
     m_matrixSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_matrixSelectionsList->addItem( "No matrix", "" );
@@ -288,6 +289,9 @@ void WMData::moduleMain()
     // register the dataset properties
     m_properties->addProperty( m_dataSet->getProperties() );
     m_infoProperties->addProperty( m_dataSet->getInformationProperties() );
+
+    // set the dataset name
+    m_dataSetType->set( m_dataSet->getName() );
 
     // I am interested in the active property ( manually subscribe signal )
     m_active->getCondition()->subscribeSignal( boost::bind( &WMData::propertyChanged, this, m_active ) );
