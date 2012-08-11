@@ -1203,12 +1203,12 @@ void WMainWindow::handleDrop( QDropEvent* event )
             QString path =  url.toLocalFile();
             QFileInfo info( path );
             QString suffix =  info.completeSuffix();
-            if( suffix == "cnt"
-              || suffix == "edf"
-              || suffix == "asc"
-              || suffix == "nii"
-              || suffix == "nii.gz"
-              || suffix == "fib" )
+            if( suffix.endsWith( "cnt" )
+              || suffix.endsWith( "edf" )
+              || suffix.endsWith( "asc" )
+              || suffix.endsWith( "nii" )
+              || suffix.endsWith( "nii.gz" )
+              || suffix.endsWith( "fib" ) )
             {
                 filenames.push_back( path.toStdString() );
             }
@@ -1269,16 +1269,15 @@ bool WMainWindow::isDropAcceptable( const QMimeData* mimeData )
         {
             QString path =  url.toLocalFile();
             QFileInfo info( path );
-            // TODO(mario): check when this fails, I assume we have problems with files with multiple dots such as session.1.nii
             QString suffix =  info.completeSuffix();
-            if( suffix == "cnt"
-              || suffix == "edf"
-              || suffix == "asc"
-              || suffix == "nii"
-              || suffix == "nii.gz"
-              || suffix == "fib"
-              || suffix == "owp"
-              || suffix == "owproj" )
+            if( suffix.endsWith( "cnt" )
+              || suffix.endsWith( "edf" )
+              || suffix.endsWith( "asc" )
+              || suffix.endsWith( "nii" )
+              || suffix.endsWith( "nii.gz" )
+              || suffix.endsWith( "fib" )
+              || suffix.endsWith("owp" )
+              || suffix.endsWith( "owproj" ) )
             {
                 return true;
             }
