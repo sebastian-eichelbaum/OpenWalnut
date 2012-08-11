@@ -87,9 +87,9 @@ void WMTransferFunction1D::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
     WTransferFunction tf;
     tf.addAlpha( 0.0, 0.0 );
-    tf.addColor( 0.0, WColor( 0.0, 0.0, 0.0, 0.0 ) );
+    tf.addColor( 0.0, WColor( 0.0, 0.0, 0.0, 1.0 ) );
     tf.addAlpha( 1.0, 0.5 );
-    tf.addColor( 1.0, WColor( 1.0, 0.0, 0.0, 0.0 ) );
+    tf.addColor( 1.0, WColor( 1.0, 0.0, 0.0, 1.0 ) );
     m_transferFunction = m_properties->addProperty( "Transfer Function", "The transfer function editor.", tf, m_propCondition, false );
 
     m_binSize = m_properties->addProperty( "Histogram Resolution", "Number of bins in histogram.", 64, m_propCondition );
