@@ -190,6 +190,7 @@ void WTransferFunctionColorPoint::mouseDoubleClickEvent( QGraphicsSceneMouseEven
 void WTransferFunctionColorPoint::colorSelected( const QColor &newcolor )
 {
     color = newcolor;
+    color.setAlpha( 255 ); //< force opacity
     //this->update();
     if( _parent )
     {
@@ -295,6 +296,7 @@ void WTransferFunctionColorPoint::dropEvent( QGraphicsSceneDragDropEvent* event 
     if( event->mimeData()->hasColor() )
     {
         color = qvariant_cast<QColor>( event->mimeData()->colorData() );
+        color.setAlpha( 255 ); //< force opacity
         //this->update();
         if( _parent )
             _parent->dataChanged();
