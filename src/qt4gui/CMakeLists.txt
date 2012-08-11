@@ -34,6 +34,9 @@ SET( BinName ${OWBinaryName} )
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Package dependencies:
+SET( QT_USE_QTSQL FALSE )
+SET( QT_USE_QTNETWORK FALSE )
+SET( QT_USE_QT3SUPPORT FALSE )
 FIND_PACKAGE( Qt4 REQUIRED )
 MARK_AS_ADVANCED( FORCE QT_QMAKE_EXECUTABLE )
 
