@@ -329,24 +329,24 @@ void WMainWindow::setupGUI()
 
     // This QAction stuff is quite ugly and complicated some times ... There is no nice constructor which takes name, slot keysequence and so on
     // directly -> set shortcuts, and some further properties using QAction's interface
+
+    QMenu* bgColorMenu = new QMenu( "Background Colors" );
+    bgColorMenu->addAction( mainGLDock->getGLWidget()->getBackgroundColorAction() );
+
     m_viewAction = new QAction( "View", this );
     m_viewMenu = m_menuBar->addMenu( "View" );
     m_viewMenu->addAction( hideMenuAction );
     m_viewMenu->addSeparator();
     m_viewMenu->addAction( showNavWidgets );
+    m_viewMenu->addMenu( bgColorMenu );
     m_viewMenu->addSeparator();
     m_viewMenu->addMenu( m_permanentToolBar->getStyleMenu() );
     m_viewAction->setMenu( m_viewMenu );
 
     // Camera menu
-    QMenu* bgColorMenu = new QMenu( "Background Colors" );
-    bgColorMenu->addAction( mainGLDock->getGLWidget()->getBackgroundColorAction() );
-
     m_cameraAction = new QAction( "Camera", this );
     m_cameraMenu = m_menuBar->addMenu( "Camera" );
     m_cameraMenu->addAction( mainGLDock->getGLWidget()->getThrowingSetting() );
-    m_cameraMenu->addMenu( bgColorMenu );
-    m_cameraMenu->addSeparator();
     m_cameraAction->setMenu( m_cameraMenu );
 
     m_settingsAction = new QAction( "Settings", this );
