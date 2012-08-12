@@ -33,7 +33,7 @@
 #include "core/kernel/WModuleInputData.h"
 #include "core/kernel/WModuleOutputData.h"
 
-/** 
+/**
  * A module to provide 1D transfer functions, e.g., for volume rendering.
  *
  * \ingroup modules
@@ -101,29 +101,35 @@ protected:
 
 
 private:
-       /**
+    /**
      * An input connector used to get datasets from other modules. The connection management between co
 nnectors must not be handled by the module.
      */
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;
+    WModuleInputData< WDataSetSingle >::SPtr m_input;
 
     /**
      * The output connector used to provide the calculated data to other modules.
      */
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output;
+    WModuleOutputData< WDataSetSingle >::SPtr m_output;
 
-    /** A condition used to notify about changes in several properties.*/
+    /**
+     * A condition used to notify about changes in several properties.
+     */
     boost::shared_ptr< WCondition > m_propCondition;
 
-    /** resolution of the transfer function */
+    /**
+     * Resolution of the transfer function.
+     */
     WPropInt m_resolution;
 
-    /** histogram bin size */
+    /**
+     * Histogram bin size
+     */
     WPropInt m_binSize;
 
     /**
-    * the transfer function property
-    */
+     * The transfer function property
+     */
     WPropTransferFunction m_transferFunction;
 };
 

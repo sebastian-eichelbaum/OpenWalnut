@@ -87,12 +87,14 @@ void WHistogramBasic::insert( double value )
         return; // value = ( value > m_maximum ? m_maximum : m_minimum );
     }
 
-    if( value == m_maximum )
+    if( std::abs( m_minimum - m_maximum ) <= 2.0 * wlimits::DBL_EPS )
     {
-        value = m_maximum - wlimits::DBL_EPS;
+        m_bins.at( m_nbBuckets - 1 )++;
     }
-
-    m_bins.at( static_cast< size_t >( std::abs( value - m_minimum ) / m_intervalWidth ) )++;
+    else
+    {
+        m_bins.at( static_cast< size_t >( ( value - m_minimum ) / std::abs( m_maximum - m_minimum ) * ( m_nbBuckets - 1 ) ) )++;
+    }
 }
 
 size_t WHistogramBasic::valuesSize() const

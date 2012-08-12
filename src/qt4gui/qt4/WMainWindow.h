@@ -188,6 +188,13 @@ public:
      */
     static bool isDropAcceptable( const QMimeData* mimeData );
 
+    /**
+     * Add the default OW menu to the given widget using addAction.
+     *
+     * \param widget the widget to add the menu to
+     */
+    void addGlobalMenu( QWidget* widget );
+
 protected:
     /**
      * Setup the GUI by handling special modules. NavSlices for example setup several toolbar buttons.
@@ -367,7 +374,23 @@ private:
 
     WQtToolBar* m_permanentToolBar; //!< The permanent toolbar of the main window.
 
+    // several menu items
     QAction* m_loadButton; //!< the load Data Button
+    QAction* m_quitAction; //!< quit ow
+    QAction* m_saveAction; //!< the save menu
+    QMenu* m_saveMenu; //!< the menu using m_saveAction
+
+    QAction* m_viewAction; //!< the view controls
+    QMenu* m_viewMenu; //!< view and camera control menu
+
+    QAction* m_cameraAction; //!< the camera controls
+    QMenu* m_cameraMenu; //!< the camera menu
+
+    QAction* m_settingsAction; //!< the settings
+    QMenu* m_settingsMenu; //!< the settings
+
+    QAction* m_helpAction; //!< the help menu
+    QMenu* m_helpMenu; //!< the help menu
 
     WQtControlPanel* m_controlPanel; //!< control panel
 
@@ -419,6 +442,11 @@ private:
     WSettingAction* m_autoDisplaySetting;
 
     /**
+     * The action for allowing editing min and max of sliders.
+     */
+    WSettingAction* m_sliderMinMaxEditSetting;
+
+    /**
      * Called whenever a async load has finished. Used by \ref asyncProjectLoad. It might be called from outside the GUI thread.
      *
      * \param file the filename
@@ -437,6 +465,13 @@ private slots:
      * Shows startup info messages
      */
     void handleStartMessages();
+
+    /**
+     * Shows the welcome message.
+     *
+     * \param force if true, the dialog is shown even if the user said "do not show again".
+     */
+    void showWelcomeDialog( bool force = true );
 
     /**
      * Finally closes the splash screen.

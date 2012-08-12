@@ -27,11 +27,13 @@
 
 #include <cmath>
 #include <cstddef>
+#include <limits>
 #include <vector>
+
 #include <boost/shared_ptr.hpp>
 
-#include "../common/math/WValue.h"
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../common/math/WValue.h"
 #include "../common/WAssert.h"
 #include "../common/WLimits.h"
 #include "WDataHandlerEnums.h"
@@ -123,8 +125,8 @@ public:
     {
         // calculate min and max
         // Calculating this once simply ensures that it does not need to be recalculated in textures, histograms ...
-        m_minimum = wlimits::MAX_DOUBLE;
-        m_maximum = wlimits::MIN_DOUBLE;
+        m_minimum = std::numeric_limits< T >::max();
+        m_maximum = std::numeric_limits< T >::min();
         for( typename std::vector< T >::const_iterator iter = data->begin(); iter != data->end(); ++iter )
         {
             m_minimum = m_minimum > *iter ? *iter : m_minimum;
@@ -145,8 +147,8 @@ public:
     {
         // calculate min and max
         // Calculating this once simply ensures that it does not need to be recalculated in textures, histograms ...
-        m_minimum = wlimits::MAX_DOUBLE;
-        m_maximum = wlimits::MIN_DOUBLE;
+        m_minimum = std::numeric_limits< T >::max();
+        m_maximum = std::numeric_limits< T >::min();
         for( typename std::vector< T >::const_iterator iter = data->begin(); iter != data->end(); ++iter )
         {
             m_minimum = m_minimum > *iter ? *iter : m_minimum;

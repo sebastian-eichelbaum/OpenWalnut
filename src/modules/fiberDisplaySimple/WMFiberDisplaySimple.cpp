@@ -343,7 +343,7 @@ void WMFiberDisplaySimple::moduleMain()
             m_fiberClusteringUpdate = true;
         }
 
-        if( ( fibersUpdated && ( fibers != m_fibers ) ) ||  m_tubeEnable->changed() )
+        if( fibersUpdated || dataPropertiesUpdated || m_tubeEnable->changed() )
         {
             debugLog() << "Fibers updated." << m_tubeEnable->changed() << " ---" << fibersUpdated<< " -- " << fibers << " " << m_fibers;
             m_fibers = fibers;

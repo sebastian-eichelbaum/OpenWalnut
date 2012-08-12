@@ -323,7 +323,7 @@ protected:
     void replaceTextureInst( osg::ref_ptr< WGETexture3D > old, osg::ref_ptr< WGETexture3D > newTex, std::string name = "" );
 
     /**
-     * This callback handles all the updates needed. It is called by the m_callback instance every update cycle for each node using this
+     * This callback handles all the updates needed. It is called by the callback instance every update cycle for each node using this
      * WGEColormapping instance.
      *
      * \param node
@@ -345,11 +345,6 @@ private:
      * The textures managed by this instance.
      */
     TextureContainerType m_textures;
-
-    /**
-     * The callback used for all the texture update handling on several nodes.
-     */
-    osg::ref_ptr< WGEFunctorCallback< osg::Node > > m_callback;
 
     /**
      * Simple structure to store some additional node-related info like texture units and so on.

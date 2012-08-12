@@ -150,7 +150,7 @@ FUNCTION( SETUP_TESTS _TEST_FILES _TEST_TARGET )
 
             # create the test-target
             CXXTEST_ADD_TEST( ${UnitTestName} "${UnitTestName}.cc" ${testfile} )
-            TARGET_LINK_LIBRARIES( ${UnitTestName} ${_TEST_TARGET} ${_DEPENDENCIES} )
+            TARGET_LINK_LIBRARIES( ${UnitTestName} ${_TEST_TARGET} ${CMAKE_STANDARD_LIBRARIES} ${_DEPENDENCIES} )
 
             # unfortunately, the tests search their fixtures relative to their working directory. So we add a preprocessor define containing the
             # path to the fixtures. This is quite ugly but I do not know how to ensure that the working directory of tests can be modified.
@@ -391,20 +391,24 @@ ENDFUNCTION( SETUP_CONFIGURED_FILE )
 # _OTHERS you can add an arbitrary list of additional arguments which represent the files to copy.
 FUNCTION( SETUP_ADDITIONAL_FILES _destination _component )
     FOREACH( _file ${ARGN} )
-        FILE_TO_TARGETSTRING( ${_file} fileTarget )
+        # only do if it exists
+        IF( EXISTS ${OW_VERSION_FILENAME} )
+            # create useful target name
+            FILE_TO_TARGETSTRING( ${_file} fileTarget )
 
-        # add a copy target
-        ADD_CUSTOM_TARGET( CopyAdditionalFile_${fileTarget}_${_component}
-            ALL
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/${_destination}/"
-            COMMAND ${CMAKE_COMMAND} -E copy "${_file}" "${PROJECT_BINARY_DIR}/${_destination}/"
-            COMMENT "Copying file ${_file}"
-        )
+            # add a copy target
+            ADD_CUSTOM_TARGET( CopyAdditionalFile_${fileTarget}_${_component}
+                ALL
+                COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/${_destination}/"
+                COMMAND ${CMAKE_COMMAND} -E copy "${_file}" "${PROJECT_BINARY_DIR}/${_destination}/"
+                COMMENT "Copying file ${_file}"
+            )
 
-        # add a INSTALL operation for this file
-        INSTALL( FILES ${_file} DESTINATION ${_destination}
-                                COMPONENT ${_component}
-               )
+            # add a INSTALL operation for this file
+            INSTALL( FILES ${_file} DESTINATION ${_destination}
+                                    COMPONENT ${_component}
+                   )
+        ENDIF()
     ENDFOREACH() 
 ENDFUNCTION( SETUP_ADDITIONAL_FILES )
 
@@ -531,7 +535,7 @@ FUNCTION( GET_VERSION_STRING _version _api_version )
         # Read the version file
         FILE( READ ${OW_VERSION_FILENAME} OW_VERSION_FILE_CONTENT )
         # The first regex will mathc 
-        STRING( REGEX REPLACE ".*[^#]VERSION=([0-9]+\\.[0-9]+\\.[0-9]+(\\+hgX?[0-9]*)?).*" "\\1"  OW_VERSION_FILE  ${OW_VERSION_FILE_CONTENT} ) 
+        STRING( REGEX REPLACE ".*[^#]VERSION=([0-9]+\\.[0-9]+\\.[0-9]+[_~a-z,A-Z,0-9]*(\\+hgX?[0-9]*)?).*" "\\1"  OW_VERSION_FILE  ${OW_VERSION_FILE_CONTENT} ) 
         STRING( COMPARE EQUAL ${OW_VERSION_FILE} ${OW_VERSION_FILE_CONTENT}  OW_VERSION_FILE_INVALID )
         IF( OW_VERSION_FILE_INVALID )
             UNSET( OW_VERSION_FILE )
@@ -581,7 +585,8 @@ ENDFUNCTION( GET_VERSION_STRING )
 # as the target is. If not, an additional target needs to be defined and CMake needs information about generated files.
 #
 # _OW_VERSION_HEADER the filename where to store the header. Should be absolute.
-FUNCTION( SETUP_VERSION_HEADER _OW_VERSION_HEADER )
+# _PREFIX the string used as prefix in the header. Useful if you have multiple version headers.
+FUNCTION( SETUP_VERSION_HEADER _OW_VERSION_HEADER _PREFIX )
     # This ensures that an nonexisting .hg/dirstate file won't cause a compile error (do not know how to make target)
     SET( HG_DEP "" )
     IF( EXISTS ${PROJECT_SOURCE_DIR}/../.hg/dirstate )
@@ -591,7 +596,7 @@ FUNCTION( SETUP_VERSION_HEADER _OW_VERSION_HEADER )
     # The file WVersion.* needs the version definition.
     ADD_CUSTOM_COMMAND( OUTPUT ${_OW_VERSION_HEADER}
                         DEPENDS ${PROJECT_SOURCE_DIR}/../VERSION ${HG_DEP}
-                        COMMAND ${CMAKE_COMMAND} -D PROJECT_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -D HEADER_FILENAME:STRING=${_OW_VERSION_HEADER} -P OpenWalnutVersion.cmake
+                        COMMAND ${CMAKE_COMMAND} -D PROJECT_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -D HEADER_FILENAME:STRING=${_OW_VERSION_HEADER} -D PREFIX:STRING=${_PREFIX} -P OpenWalnutVersion.cmake
                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../tools/cmake/
                         COMMENT "Creating Version Header ${_OW_VERSION_HEADER}."
     )
@@ -670,7 +675,7 @@ FUNCTION( SETUP_MODULE _MODULE_NAME _MODULE_SOURCE_DIR _MODULE_DEPENDENCIES _MOD
 
     # Setup the target
     ADD_LIBRARY( ${MODULE_NAME} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} )
-    TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${OW_LIB_OPENWALNUT} ${Boost_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES} ${_MODULE_DEPENDENCIES} )
+    TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${CMAKE_STANDARD_LIBRARIES} ${OW_LIB_OPENWALNUT} ${Boost_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES} ${_MODULE_DEPENDENCIES} )
 
     # Set the version of the library.
     SET_TARGET_PROPERTIES( ${MODULE_NAME} PROPERTIES

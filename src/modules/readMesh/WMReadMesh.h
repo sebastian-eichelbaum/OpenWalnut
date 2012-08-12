@@ -104,11 +104,11 @@ private:
     void meshTypeSelected();
 
     /**
-     * Reads a mesh file and creates a WTriangleMesh out of it.
+     * Reads a VTK mesh file and creates a WTriangleMesh out of it.
      *
      * \return Reference to the dataset.
      */
-    virtual boost::shared_ptr< WTriangleMesh > readMesh();
+    virtual boost::shared_ptr< WTriangleMesh > readMeshVTK();
 
     /**
      * Reads a mesh file and creates a WTriangleMesh out of it.
@@ -124,7 +124,6 @@ private:
      * \return Reference to the dataset.
      */
     virtual boost::shared_ptr< WTriangleMesh > readDip();
-
     /**
      * Reads a BrainVISA (.mesh) file and creates a WTriangleMesh out of it.
      *

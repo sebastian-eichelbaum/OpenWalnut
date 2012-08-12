@@ -73,6 +73,11 @@ public:
     virtual ~WQtControlPanel();
 
     /**
+     * Complete own GUI setup. This is useful when not all the information is available during construction. Called by the WMainWindow.
+     */
+    void completeGuiSetup();
+
+    /**
      * Adds a page to the context widget
      *
      * \param content A widget with controls
@@ -426,16 +431,6 @@ private slots:
      */
     void buildPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps );
 
-    /**
-     * Method builds a widgets containing all properties in props. It recursively calls itself to build group widgets for WPropertyGroupBase properties.
-     *
-     * \param props the properties.
-     */
-    WQtPropertyGroupWidget* buildPropWidget( WPropertyGroupBase::SPtr props );
-
-    /**
-     * function gets called when a change to a tree item, eg. check box status, occurs
-     */
     /**
      * Function gets change when a change to a tree item occurs.
      *

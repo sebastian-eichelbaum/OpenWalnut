@@ -134,11 +134,9 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     {
         m_mainWindow->getNetworkEditor()->setContextMenuPolicy( Qt::ActionsContextMenu );
         m_mainWindow->getNetworkEditor()->addAction( m_addModuleAction );
-        m_mainWindow->getNetworkEditor()->addAction( separator );
         m_mainWindow->getNetworkEditor()->addAction( m_connectWithPrototypeAction );
         m_mainWindow->getNetworkEditor()->addAction( m_connectWithModuleAction );
         m_mainWindow->getNetworkEditor()->addAction( m_disconnectAction );
-        m_mainWindow->getNetworkEditor()->addAction( separator );
         m_mainWindow->getNetworkEditor()->addAction( m_deleteModuleAction );
         m_mainWindow->getNetworkEditor()->addAction( separator );
         m_mainWindow->getNetworkEditor()->addAction( m_missingModuleAction );
@@ -197,6 +195,11 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
 
 WQtControlPanel::~WQtControlPanel()
 {
+}
+
+void WQtControlPanel::completeGuiSetup()
+{
+    m_mainWindow->addGlobalMenu( m_mainWindow->getNetworkEditor() );
 }
 
 void WQtControlPanel::connectSlots()
@@ -931,41 +934,13 @@ void WQtControlPanel::setActiveModule( WModule::SPtr module, bool forceUpdate )
     m_ignoreSelectionChange = false;
 }
 
-WQtPropertyGroupWidget*  WQtControlPanel::buildPropWidget( WPropertyGroupBase::SPtr props )
-{
-    WQtPropertyGroupWidget* tab = new WQtPropertyGroupWidget( props );
-    if( props.get() )
-    {
-        // read lock, gets unlocked upon destruction (out of scope)
-        WPropertyGroupBase::PropertySharedContainerType::ReadTicket propAccess = props->getProperties();
-
-        tab->setName( QString::fromStdString( props->getName() ) );
-
-        // iterate all properties.
-        for( WPropertyGroupBase::PropertyConstIterator iter = propAccess->get().begin(); iter != propAccess->get().end(); ++iter )
-        {
-            if( ( *iter )->getType() == PV_GROUP )
-            {
-                tab->addGroup( buildPropWidget( ( *iter )->toPropGroupBase() ) );
-            }
-            else
-            {
-                tab->addProp( *iter );
-            }
-        }
-    }
-
-    tab->addSpacer();
-    return tab;
-}
-
 void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps )
 {
     WQtPropertyGroupWidget* tab = NULL;
     WQtPropertyGroupWidget* infoTab = NULL;
     if( props )
     {
-        tab = buildPropWidget( props );
+        tab = new WQtPropertyGroupWidget( props );
         if( tab )
         {
             tab->setName( "Settings" );
@@ -973,7 +948,7 @@ void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boos
     }
     if( infoProps )
     {
-        infoTab = buildPropWidget( infoProps );
+        infoTab = new WQtPropertyGroupWidget( infoProps );
         if( infoTab )
         {
             infoTab->setName( "Information" );

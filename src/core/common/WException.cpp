@@ -22,7 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
-#if (( defined( __linux__ ) && defined( __GNUC__ )) || defined ( __APPLE__ ))
+#if (( defined( __linux__ ) && defined( __GNUC__ )) && !defined( __ANDROID__) || defined ( __APPLE__ ))
+    #define BACKTRACE_SUPPORTED
+#endif
+
+#ifdef BACKTRACE_SUPPORTED
 // This is highly platform dependent. Used for backtrace functionality.
 #include <execinfo.h>
 #include <cxxabi.h>
@@ -105,7 +109,7 @@ std::string WException::getBacktrace() const
     // print trace here
     std::ostringstream o;
 
-#if (( defined( __linux__ ) && defined( __GNUC__ )) || defined( __APPLE__))
+#ifdef BACKTRACE_SUPPORTED
     // This is highly platform dependent. It MIGHT also work on BSD and other unix.
 
     // Automatic callstack backtrace
@@ -186,7 +190,8 @@ std::string WException::getBacktrace() const
     // backtrace_symbols malloc()ed some mem -> we NEED to use free()
     free( stackSymbols );
 #else
-    o << "Backtrace not supported on your platform. Currently just works on Linux with GCC. Sorry!";
+    o << "Backtrace not supported on your platform. Currently just works on Linux and MacOS with GCC. Sorry!" << std::endl
+      << "Message was: " << what();
 #endif
 
     return o.str();

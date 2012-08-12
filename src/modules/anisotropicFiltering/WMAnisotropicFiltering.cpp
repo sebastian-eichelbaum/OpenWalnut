@@ -64,7 +64,7 @@ const std::string WMAnisotropicFiltering::getDescription() const
 
 const char** WMAnisotropicFiltering::getXPMIcon() const
 {
-    return anisotropicFiltering_xpm;
+    return WMAnisotropicFiltering_xpm;
 }
 
 void WMAnisotropicFiltering::connectors()

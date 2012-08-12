@@ -35,6 +35,8 @@ SET( LibName ${OW_LIB_OPENWALNUT} )
 ADD_DEFINITIONS( '-DW_LIB_PREFIX="${CMAKE_SHARED_LIBRARY_PREFIX}"' )
 ADD_DEFINITIONS( '-DW_LIB_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}"' )
 
+OPTION( OW_STATIC_BUILD "Enable this to build the core library as static library." OFF )
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Add sources as target
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -43,8 +45,14 @@ ADD_DEFINITIONS( '-DW_LIB_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}"' )
 COLLECT_COMPILE_FILES( "${CMAKE_CURRENT_SOURCE_DIR}" TARGET_CPP_FILES TARGET_H_FILES TARGET_TEST_FILES )
 
 # Setup the target
-ADD_LIBRARY( ${LibName} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${OW_VERSION_HEADER} )
-TARGET_LINK_LIBRARIES( ${LibName} ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES} )
+IF( OW_STATIC_BUILD )
+    ADD_LIBRARY( ${LibName} STATIC ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${OW_VERSION_HEADER} )
+ELSE()
+    ADD_LIBRARY( ${LibName} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${OW_VERSION_HEADER} )
+ENDIF()
+
+TARGET_LINK_LIBRARIES( ${LibName} ${Boost_LIBRARIES} ${CMAKE_STANDARD_LIBRARIES} ${CMAKE_DL_LIBS} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES}
+                     )
 
 # Tell CMake that someone creates this file for us. See doc of SETUP_VERSION_HEADER for details why this is needed.
 # NOTE: this needs to be placed AFTER ADD_EXECUTABLE or ADD_LIBRARY
@@ -62,6 +70,11 @@ SETUP_LIB_INSTALL( ${LibName} ${OW_LIBRARY_DIR_RELATIVE} "CORE" )
 # Core contains the headers which are needed for any developer release. Install them.
 # NOTE: do not use ${TARGET_H_FILES}. The command requires a list
 SETUP_DEV_INSTALL( ${LibName} ${OW_LIBRARY_DIR_RELATIVE} TARGET_H_FILES "include/openwalnut/core" "CORE_DEV" )
+# Install the header too
+INSTALL( FILES ${OW_VERSION_HEADER} 
+         DESTINATION "include/openwalnut/core"
+         COMPONENT "CORE_DEV"
+)
 
 # The core does also provide some nice pkg-config file. Set this up and configure it to contain the correct install prefix
 SETUP_CONFIGURED_FILE( "core-dev" "lib/pkgconfig/openwalnut.pc" "CORE_DEV" )

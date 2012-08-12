@@ -61,6 +61,13 @@ public:
      */
     virtual void show();
 
+    /**
+     * Force showing the dialog.
+     *
+     * \param force true if forced to show (even if the user marked the do not show again flag).
+     */
+    virtual void show( bool force );
+
 protected:
 private slots:
 

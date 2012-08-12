@@ -107,6 +107,9 @@ public:
     static boost::shared_ptr< WPrototyped > getPrototype();
 
 protected:
+    /**
+     * Prototype needed to allow the EEG dataset to be transferred.
+     */
     static boost::shared_ptr< WPrototyped > m_prototype;
 
 private:

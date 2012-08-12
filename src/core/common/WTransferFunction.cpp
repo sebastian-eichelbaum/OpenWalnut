@@ -32,15 +32,15 @@
 
 bool WTransferFunction::operator==( const WTransferFunction &rhs ) const
 {
-    if( histogram.size() != rhs.histogram.size() )
+    if( m_histogram.size() != rhs.m_histogram.size() )
     {
         return false;
     }
     {
-        std::vector< double >::const_iterator ait1 = histogram.begin();
-        std::vector< double >::const_iterator ait2 = rhs.histogram.begin();
+        std::vector< double >::const_iterator ait1 = m_histogram.begin();
+        std::vector< double >::const_iterator ait2 = rhs.m_histogram.begin();
         for( ;
-                ait1 != histogram.end();
+                ait1 != m_histogram.end();
                 ++ait1, ++ait2 )
         {
             if( *ait1 != *ait2 )
@@ -51,20 +51,20 @@ bool WTransferFunction::operator==( const WTransferFunction &rhs ) const
     }
 
 
-    if( colors.size() != rhs.colors.size() || alphas.size() != rhs.alphas.size() )
+    if( m_colors.size() != rhs.m_colors.size() || m_alphas.size() != rhs.m_alphas.size() )
     {
         return false;
     }
 
-    if( isomin != rhs.isomin && isomax != rhs.isomax )
+    if( m_isomin != rhs.m_isomin && m_isomax != rhs.m_isomax )
     {
         return false;
     }
 
-    std::vector< ColorEntry >::const_iterator it1 = colors.begin();
-    std::vector< ColorEntry >::const_iterator it2 = rhs.colors.begin();
+    std::vector< ColorEntry >::const_iterator it1 = m_colors.begin();
+    std::vector< ColorEntry >::const_iterator it2 = rhs.m_colors.begin();
     for( ;
-            it1 != colors.end();
+            it1 != m_colors.end();
             ++it1, ++it2 )
     {
         if( !( *it1 == *it2 ) )
@@ -73,10 +73,10 @@ bool WTransferFunction::operator==( const WTransferFunction &rhs ) const
         }
     }
 
-    std::vector< AlphaEntry >::const_iterator ait1 = alphas.begin();
-    std::vector< AlphaEntry >::const_iterator ait2 = rhs.alphas.begin();
+    std::vector< AlphaEntry >::const_iterator ait1 = m_alphas.begin();
+    std::vector< AlphaEntry >::const_iterator ait2 = rhs.m_alphas.begin();
     for( ;
-            ait1 != alphas.end();
+            ait1 != m_alphas.end();
             ++ait1, ++ait2 )
     {
         if( !( *ait1 == *ait2 ) )
@@ -114,13 +114,13 @@ namespace
 
 void WTransferFunction::sample1DTransferFunction( unsigned char*array, int width, double min, double max ) const
 {
-    if( colors.size() < 1 ) return;
-    if( alphas.size() < 1 ) return;
+    if( m_colors.size() < 1 ) return;
+    if( m_alphas.size() < 1 ) return;
 
-    std::vector< ColorEntry >::const_iterator c1 = colors.begin();
+    std::vector< ColorEntry >::const_iterator c1 = m_colors.begin();
     std::vector< ColorEntry >::const_iterator c2 = c1+1;
 
-    std::vector< AlphaEntry >::const_iterator a1 = alphas.begin();
+    std::vector< AlphaEntry >::const_iterator a1 = m_alphas.begin();
     std::vector< AlphaEntry >::const_iterator a2 = a1+1;
 
     for( int i = 0; i < width; ++i )
@@ -128,35 +128,35 @@ void WTransferFunction::sample1DTransferFunction( unsigned char*array, int width
         WColor color;
         double iso = ( double )i/( double )width * ( max-min ) + min;
 
-        if( iso <= isomin )
+        if( iso <= m_isomin )
         {
-            color = colors.begin()->color;
-            color[ 3 ] = alphas.begin()->alpha;
+            color = m_colors.begin()->color;
+            color[ 3 ] = m_alphas.begin()->alpha;
         }
-        else if( iso >= isomax )
+        else if( iso >= m_isomax )
         {
-            color = colors.back().color;
-            color[ 3 ] = alphas.back().alpha;
+            color = m_colors.back().color;
+            color[ 3 ] = m_alphas.back().alpha;
         }
         else
         {
-            while( c2 != colors.end() && iso > c2->iso )
+            while( c2 != m_colors.end() && iso > c2->iso )
             {
-                WAssert( c2 != colors.end(), "Corruption of internal data structure." );
+                WAssert( c2 != m_colors.end(), "Corruption of internal data structure." );
                 c1++;
                 c2++;
-                WAssert( c1 != colors.end(), "Corruption of internal data structure." );
+                WAssert( c1 != m_colors.end(), "Corruption of internal data structure." );
             }
 
-            while( a2 != alphas.end() && iso > a2->iso )
+            while( a2 != m_alphas.end() && iso > a2->iso )
             {
-                WAssert( a2 != alphas.end(), "Corruption of internal data structure." );
+                WAssert( a2 != m_alphas.end(), "Corruption of internal data structure." );
                 a1++;
                 a2++;
-                WAssert( a1 != alphas.end(), "Corruption of internal data structure." );
+                WAssert( a1 != m_alphas.end(), "Corruption of internal data structure." );
             }
 
-            if( c2 == colors.end() )
+            if( c2 == m_colors.end() )
             {
                 color = c1->color;
             }
@@ -165,7 +165,7 @@ void WTransferFunction::sample1DTransferFunction( unsigned char*array, int width
                 double colorParameter = ( iso - c1->iso )/( c2->iso - c1->iso );
                 color = blend( c1->color, 1.-colorParameter, c2->color, colorParameter );
             }
-            if( a2 == alphas.end() )
+            if( a2 == m_alphas.end() )
             {
                 color[ 3 ] = a1->alpha;
             }
@@ -185,49 +185,49 @@ void WTransferFunction::sample1DTransferFunction( unsigned char*array, int width
 
 void WTransferFunction::addColor( double iso, const WColor& color )
 {
-    if( colors.size() == 0 )
+    if( m_colors.size() == 0 )
     {
-        colors.push_back( ColorEntry( iso, color ) );
+        m_colors.push_back( ColorEntry( iso, color ) );
     }
     else
     {
-        std::vector<ColorEntry>::iterator e = find_if( colors.begin(), colors.end(), LessPred<ColorEntry>( iso ) );
-        colors.insert( e, ColorEntry( iso, color ) );
+        std::vector<ColorEntry>::iterator e = find_if( m_colors.begin(), m_colors.end(), LessPred<ColorEntry>( iso ) );
+        m_colors.insert( e, ColorEntry( iso, color ) );
     }
 
-    if( alphas.size() >= 1 )
+    if( m_alphas.size() >= 1 )
     {
-        isomin = std::min( colors.front().iso, alphas.front().iso );
-        isomax = std::max( colors.back().iso, alphas.back().iso );
+        m_isomin = std::min( m_colors.front().iso, m_alphas.front().iso );
+        m_isomax = std::max( m_colors.back().iso, m_alphas.back().iso );
     }
     else
     {
-        isomin = colors.front().iso;
-        isomax = colors.back().iso;
+        m_isomin = m_colors.front().iso;
+        m_isomax = m_colors.back().iso;
     }
 }
 
 void WTransferFunction::addAlpha( double iso, double alpha )
 {
-    if( alphas.size() == 0 )
+    if( m_alphas.size() == 0 )
     {
-        alphas.push_back( AlphaEntry( iso, alpha ) );
+        m_alphas.push_back( AlphaEntry( iso, alpha ) );
     }
     else
     {
-        std::vector<AlphaEntry>::iterator e = find_if( alphas.begin(), alphas.end(), LessPred<AlphaEntry>( iso ) );
-        alphas.insert( e, AlphaEntry( iso, alpha ) );
+        std::vector<AlphaEntry>::iterator e = find_if( m_alphas.begin(), m_alphas.end(), LessPred<AlphaEntry>( iso ) );
+        m_alphas.insert( e, AlphaEntry( iso, alpha ) );
     }
 
-    if( colors.size() >= 1 )
+    if( m_colors.size() >= 1 )
     {
-        isomin = std::min( colors.front().iso, alphas.front().iso );
-        isomax = std::max( colors.back().iso, alphas.back().iso );
+        m_isomin = std::min( m_colors.front().iso, m_alphas.front().iso );
+        m_isomax = std::max( m_colors.back().iso, m_alphas.back().iso );
     }
     else
     {
-        isomin = alphas.front().iso;
-        isomax = alphas.back().iso;
+        m_isomin = m_alphas.front().iso;
+        m_isomax = m_alphas.back().iso;
     }
 }
 

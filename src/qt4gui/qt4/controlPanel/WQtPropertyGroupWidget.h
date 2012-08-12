@@ -26,10 +26,10 @@
 #define WQTPROPERTYGROUPWIDGET_H
 
 #include <string>
+#include <map>
 
 #include <QtGui/QGridLayout>
 #include <QtGui/QWidget>
-
 
 #include "WPropertyBoolWidget.h"
 #include "WPropertyIntWidget.h"
@@ -84,13 +84,11 @@ public:
     QPushButton* addPushButton( QString label );
 
     /**
-     * Adds a new property widget to the PropertyGroup. Returns NULL if property not supported.
+     * Adds a new property widget to the PropertyGroup. Returns NULL if property not supported. This also supports groups.
      *
      * \param property the property to add.
-     *
-     * \return the widget that has been added.
      */
-    WPropertyWidget* addProp( WPropertyBase::SPtr property );
+    void addProp( WPropertyBase::SPtr property );
 
     /**
      * Adds an widget containing another property group to this widget. It encloses it with a GroupBox.
@@ -99,6 +97,13 @@ public:
      * \param asScrollArea true if the group should be embedded into a scroll area
      */
     void addGroup( WQtPropertyGroupWidget* widget, bool asScrollArea = false );
+
+    /**
+     * Add the given prop group to this widget.
+     *
+     * \param prop the property group
+     */
+    void addGroup( WPropertyGroupBase::SPtr prop );
 
     /**
      * helper function to add a spacer at the end
@@ -118,6 +123,13 @@ public:
      * \param name the name.
      */
     void setName( QString name );
+
+    /**
+     * Get the managed group of this widget.
+     *
+     * \return the group
+     */
+    WPropertyGroupBase::SPtr getPropertyGroup();
 
 signals:
 
@@ -170,6 +182,16 @@ private:
      * The property group handled here.
      */
     WPropertyGroupBase::SPtr m_group;
+
+    /**
+     * The map between a prop and the widget handling it.
+     */
+    typedef std::map< WPropertyBase::SPtr, QWidget* > PropertyWidgets;
+
+    /**
+     * The map if property pointer to actual property widget.
+     */
+    PropertyWidgets m_propWidgets;
 
     /**
      * The connection for propertyChangeNotifier().

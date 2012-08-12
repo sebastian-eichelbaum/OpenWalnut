@@ -205,7 +205,10 @@ void WQtGLWidget::resizeGL( int width, int height )
 void WQtGLWidget::paintGL()
 {
     // m_Viewer->paint();
+#ifdef IS_A_QGLWIDGET
+    // if the parent is a GL widget, issue parent method.
     WQtGLWidgetParent::paintGL();
+#endif
 }
 
 void WQtGLWidget::resizeEvent( QResizeEvent* event )
@@ -218,7 +221,10 @@ void WQtGLWidget::resizeEvent( QResizeEvent* event )
 void WQtGLWidget::resizeGL( int width, int height )
 {
     // m_Viewer->resize( width, height );
+#ifdef IS_A_QGLWIDGET
+    // if the parent is a GL widget, issue parent method.
     WQtGLWidgetParent::resizeGL( width, height );
+#endif
 }
 #endif
 
@@ -239,7 +245,12 @@ int WQtGLWidget::translateButton( QMouseEvent* event )
 
 void WQtGLWidget::keyPressEvent( QKeyEvent* event )
 {
-    if(  event->text() != "" )
+    // we ignore auto-repeated keys independent of the window manager settings
+    if( event->isAutoRepeat() )
+    {
+        return;
+    }
+    if( event->text() != "" )
     {
         m_Viewer->keyEvent( WGEViewer::KEYPRESS, *event->text().toAscii().data() );
     }
@@ -261,6 +272,11 @@ void WQtGLWidget::keyPressEvent( QKeyEvent* event )
 
 void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
 {
+    // we ignore auto-repeated keys independent of the window manager settings
+    if( event->isAutoRepeat() )
+    {
+        return;
+    }
     switch( event->key() )
     {
         case Qt::Key_Period:

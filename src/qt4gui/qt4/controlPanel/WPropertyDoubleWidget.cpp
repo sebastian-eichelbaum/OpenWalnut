@@ -22,34 +22,58 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <cmath>
+#include <limits>
 #include <sstream>
+#include <iostream>
 #include <string>
 
+#include <QtGui/QInputDialog>
 
+#include "../WGuiConsts.h"
+#include "../WQt4Gui.h"
+#include "../guiElements/WQtIntervalEdit.h"
 #include "core/common/WLogger.h"
 #include "core/common/WPropertyVariable.h"
-#include "../WGuiConsts.h"
 
 #include "WPropertyDoubleWidget.h"
 #include "WPropertyDoubleWidget.moc"
 
+int WPropertyDoubleWidget::SliderResolution = 10000;
+
 WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),
-    m_doubleProperty( property ),
+    m_integralProperty( property ),
     m_slider( Qt::Horizontal, &m_parameterWidgets ),
     m_edit( &m_parameterWidgets ),
-    m_layout( &m_parameterWidgets ),
+    m_layout(),
+    m_vLayout( &m_parameterWidgets ),
     m_asText( &m_informationWidgets ),
-    m_infoLayout( &m_informationWidgets )
+    m_infoLayout( &m_informationWidgets ),
+    m_intervalEdit( &m_parameterWidgets )
 {
-    // layout both against each other
     m_layout.addWidget( &m_slider );
+
     m_layout.addWidget( &m_edit );
     m_layout.setMargin( WGLOBAL_MARGIN );
     m_layout.setSpacing( WGLOBAL_SPACING );
+    m_vLayout.setMargin( WGLOBAL_MARGIN );
+    m_vLayout.setSpacing( WGLOBAL_SPACING );
 
-    m_parameterWidgets.setLayout( &m_layout );
+    // add the m_layout to the vlayout
+    QWidget* layoutContainer = new QWidget();
+    layoutContainer->setLayout( &m_layout );
+    m_vLayout.addWidget( layoutContainer );
+
+    // configure the interval edit
+    m_vLayout.addWidget( &m_intervalEdit );
+    if( !WQt4Gui::getSettings().value( "qt4gui/sliderMinMaxEdit", false ).toBool() )
+    {
+        m_intervalEdit.hide();
+    }
+
+    m_parameterWidgets.setLayout( &m_vLayout );
 
     // Information Output ( Property Purpose = PV_PURPOSE_INFORMATION )
     m_infoLayout.addWidget( &m_asText );
@@ -65,6 +89,8 @@ WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout*
     connect( &m_slider, SIGNAL( valueChanged( int ) ), this, SLOT( sliderChanged( int ) ) );
     connect( &m_edit, SIGNAL( editingFinished() ), this, SLOT( editChanged() ) );
     connect( &m_edit, SIGNAL( textEdited( const QString& ) ), this, SLOT( textEdited( const QString& ) ) );
+    connect( &m_intervalEdit, SIGNAL( minimumChanged() ), this, SLOT( minMaxUpdated() ) );
+    connect( &m_intervalEdit, SIGNAL( maximumChanged() ), this, SLOT( minMaxUpdated() ) );
 }
 
 WPropertyDoubleWidget::~WPropertyDoubleWidget()
@@ -77,52 +103,60 @@ void WPropertyDoubleWidget::update()
     // // calculate maximum size of the text widget.
     // // XXX: this is not the optimal way but works for now
     // NO, it doesn't work on Mac OS X: You won't be able to any digits in it!, So I reset it to default which should work on other platforms too
-    QString valStr = QString::number( m_doubleProperty->get() );
+    QString valStr = QString::number( m_integralProperty->get() );
     m_edit.setText( valStr );
 
        // get the min constraint
-    WPVDouble::PropertyConstraintMin minC = m_doubleProperty->getMin();
-    WPVDouble::PropertyConstraintMax maxC = m_doubleProperty->getMax();
+    WPVDouble::PropertyConstraintMin minC = m_integralProperty->getMin();
+    WPVDouble::PropertyConstraintMax maxC = m_integralProperty->getMax();
     bool minMaxConstrained = minC && maxC;
     if( minMaxConstrained )
     {
         // setup the slider
         m_slider.setMinimum( 0 );
-        m_slider.setMaximum( 100 );
-        m_min = minC->getMin();
-        m_max = maxC->getMax();
+        m_slider.setMaximum( SliderResolution );
 
+        // update the interval edit too
+        m_intervalEdit.setAllowedMin( minC->getMin() );
+        m_intervalEdit.setAllowedMax( maxC->getMax() );
+        m_min = m_intervalEdit.getMin();
+        m_max = m_intervalEdit.getMax();
+
+        // updating the interval edit causes the proper values to be set in m_min and m_max
         m_slider.setHidden( false );
-        m_slider.setValue( toPercent( m_doubleProperty->get() ) );
+        m_intervalEdit.setHidden( !WQt4Gui::getSettings().value( "qt4gui/sliderMinMaxEdit", false ).toBool() );
+        m_slider.setValue( toSliderValue( m_integralProperty->get() ) );
     }
     else
     {
         m_slider.setHidden( true );
+        m_intervalEdit.setHidden( true );
     }
 
     // do not forget to update the label
     m_asText.setText( valStr );
 }
 
-int WPropertyDoubleWidget::toPercent( double value )
+int WPropertyDoubleWidget::toSliderValue( double value )
 {
-    return 100.0 * ( ( value - m_min ) / ( m_max - m_min ) );
+    int perc = static_cast< double >( SliderResolution ) * ( ( value - m_min ) / ( m_max - m_min ) );
+    return std::min( std::max( perc, 0 ), SliderResolution );
 }
 
-double WPropertyDoubleWidget::fromPercent( int perc )
+double WPropertyDoubleWidget::fromSliderValue( int perc )
 {
-    return ( static_cast< double >( perc ) / 100.0 ) * ( m_max - m_min ) + m_min;
+    return ( static_cast< double >( perc ) / static_cast< double >( SliderResolution ) ) * ( m_max - m_min ) + m_min;
 }
 
 void WPropertyDoubleWidget::sliderChanged( int value )
 {
-    if( !m_slider.isHidden() && toPercent( m_doubleProperty->get() ) != value )
+    if( !m_slider.isHidden() && toSliderValue( m_integralProperty->get() ) != value )
     {
         // set to the property
-        invalidate( !m_doubleProperty->set( fromPercent( value ) ) );    // NOTE: set automatically checks the validity of the value
+        invalidate( !m_integralProperty->set( fromSliderValue( value ) ) );    // NOTE: set automatically checks the validity of the value
 
         // set the value in the line edit
-        m_edit.setText( QString::number( m_doubleProperty->get() ) );
+        m_edit.setText( QString::number( m_integralProperty->get() ) );
     }
 }
 
@@ -138,10 +172,10 @@ void WPropertyDoubleWidget::editChanged()
         return;
     }
     // set to the property
-    invalidate( !m_doubleProperty->set( value ) );    // NOTE: set automatically checks the validity of the value
+    invalidate( !m_integralProperty->set( value ) );    // NOTE: set automatically checks the validity of the value
 
     // update slider
-    m_slider.setValue( toPercent( value ) );
+    m_slider.setValue( toSliderValue( value ) );
 }
 
 void WPropertyDoubleWidget::textEdited( const QString& text )
@@ -157,6 +191,23 @@ void WPropertyDoubleWidget::textEdited( const QString& text )
     }
 
     // simply check validity
-    invalidate( !m_doubleProperty->accept( value ) );
+    invalidate( !m_integralProperty->accept( value ) );
+}
+
+void WPropertyDoubleWidget::minMaxUpdated()
+{
+    m_min = m_intervalEdit.getMin();
+    m_max = m_intervalEdit.getMax();
+
+    if( m_min > m_integralProperty->get() )
+    {
+        m_integralProperty->set( m_min );
+    }
+    if( m_max < m_integralProperty->get() )
+    {
+        m_integralProperty->set( m_max );
+    }
+
+    m_slider.setValue( toSliderValue( m_integralProperty->get() ) );
 }
 

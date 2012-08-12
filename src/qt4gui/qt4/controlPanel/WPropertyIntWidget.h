@@ -30,7 +30,9 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QSlider>
 #include <QtGui/QHBoxLayout>
+#include <QtGui/QToolButton>
 
+#include "../guiElements/WQtIntervalEdit.h"
 #include "WPropertyWidget.h"
 
 /**
@@ -61,9 +63,9 @@ protected:
     virtual void update();
 
     /**
-     * The integer property represented by this widget.
+     * The property represented by this widget.
      */
-    WPropInt m_intProperty;
+    WPropInt m_integralProperty;
 
     /**
      * The slider allowing modification of the integer value
@@ -81,6 +83,39 @@ protected:
     QHBoxLayout m_layout;
 
     /**
+     * Layout used to combine the property widgets with the WQtIntervalEdit.
+     */
+    QVBoxLayout m_vLayout;
+
+    /**
+     * Converts a given value to a slider value between m_min and m_max.
+     *
+     * \param value the value.
+     *
+     * \return the percentage.
+     */
+    int toSliderValue( double value );
+
+    /**
+     * Converts the given slider value to the real double value using m_min and m_max.
+     *
+     * \param perc the percentage.
+     *
+     * \return the real double value.
+     */
+    double fromSliderValue( int perc );
+
+    /**
+     * The current minimum value.
+     */
+    double m_min;
+
+    /**
+     * The current maximum value.
+     */
+    double m_max;
+
+    /**
      * Used to show the property as text.
      */
     QLabel m_asText;
@@ -89,6 +124,18 @@ protected:
      * The layout used for the pure output (information properties)
      */
     QHBoxLayout m_infoLayout;
+
+    /**
+     * The edit for the interval.
+     *
+     * \note we use double here. This is due to the need for discrete values in the sliders.
+     */
+    WQtIntervalEdit< double, int32_t > m_intervalEdit;
+
+    /**
+     * Resolution of the slider.
+     */
+    static int SliderResolution;
 
 private:
 public slots:
@@ -111,6 +158,11 @@ public slots:
      * \param text
      */
     void textEdited( const QString& text );
+
+    /**
+     * Called whenever the interval edit changes.
+     */
+    void minMaxUpdated();
 };
 
 #endif  // WPROPERTYINTWIDGET_H

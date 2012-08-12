@@ -85,8 +85,7 @@ void setPreTransform( osg::ref_ptr< WGEShader > shader, osg::Matrixd preTransfor
     shader->setDefine( "ColormapPreTransform", out.str() );
 }
 
-WGEColormapping::WGEColormapping():
-    m_callback( new WGEFunctorCallback< osg::Node >( boost::bind( &WGEColormapping::callback, this, _1 ) ) )
+WGEColormapping::WGEColormapping()
 {
     // initialize members
     m_textures.getChangeCondition()->subscribeSignal( boost::bind( &WGEColormapping::textureUpdate, this ) );
@@ -167,7 +166,7 @@ void WGEColormapping::applyInst( NodeList nodes, WMatrix4d preTransform, osg::re
         info->m_preTransform = preTransform;
         m_nodeInfo.insert( std::make_pair( *i, info ) );
 
-        ( *i )->addUpdateCallback( m_callback );
+        ( *i )->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WGEColormapping::callback, this, _1 ) ) );
 
         // add the default shader if no other shader has been specified.
         s->apply( *i );

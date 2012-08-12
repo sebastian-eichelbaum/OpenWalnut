@@ -152,7 +152,7 @@ void WMReadMesh::moduleMain()
         switch( m_fileTypeSelection->get( true ).getItemIndexOfSelected( 0 ) )
         {
         case 0:
-            m_triMesh = readMesh();
+            m_triMesh = readMeshVTK();
             break;
         case 1:
             m_triMesh = readMeshFnav();
@@ -306,7 +306,7 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readMeshFnav()
 }
 
 
-boost::shared_ptr< WTriangleMesh > WMReadMesh::readMesh()
+boost::shared_ptr< WTriangleMesh > WMReadMesh::readMeshVTK()
 {
     namespace su = string_utils;
 
@@ -444,13 +444,15 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readMesh()
         // ----- Vector as color ---------
         char* vectorMarker = new char[30];
         char* vectorName = new char[30];
-        char* vectorDataType = new char[30];
-        ifs >> vectorMarker >> vectorName >> vectorDataType;
+        char* vectorInfo1 = new char[30];
+        char* vectorInfo2 = new char[30];
+        ifs >> vectorMarker >> vectorName >> vectorInfo1 >> vectorInfo2;
 
         if( std::string( vectorMarker ) == "VECTORS"
             && m_propVectorAsColor->get()
-            &&  std::string( vectorDataType ) == "float" )
+            &&  std::string( vectorInfo1 ) == "float" )
         {
+            WLogger::getLogger()->addLogMessage( "Reading colors from vectors", "Read Mesh", LL_DEBUG );
             WColor vectorComp;
             for( unsigned int i = 0; i < nbVectors; ++i )
             {
@@ -460,11 +462,46 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readMesh()
                 triMesh->setVertexColor( i, vectorComp );
             }
         }
+        if( std::string( vectorMarker ) == "ARRAYS" )
+        {
+            //WLogger::getLogger()->addLogMessage( std::string( vectorInfo1[0] ), "Read Mesh", LL_DEBUG );
+            WAssert( vectorInfo1[0] == '2' || vectorInfo1[0] == '3', "Can only deal with 2D or 3D arrays." );
+            if( m_propVectorAsColor->get()
+                && std::string( vectorInfo2 ) == "float" )
+            {
+                WLogger::getLogger()->addLogMessage( "Reading colors from arrays", "Read Mesh", LL_DEBUG );
+                WColor vectorComp;
+                for( unsigned int i = 0; i < nbVectors; ++i )
+                    {
+                        std::string line;
+                        std::getline( ifs, line, '\n' );
+                        if( vectorInfo1[0] == '2' )
+                            {
+                                ifs >> vectorComp[0] >> vectorComp[1];
+                                vectorComp[2] = 0;
+                            }
+                        if( vectorInfo1[0] == '3' )
+                            {
+                                ifs >> vectorComp[0] >> vectorComp[1] >> vectorComp[2];
+                            }
+                        triMesh->setVertexColor( i, vectorComp );
+                    }
+            }
+        }
+        triMesh->rescaleVertexColors();
+        delete[] vectorMarker;
+        delete[] vectorName;
+        delete[] vectorInfo1;
+        delete[] vectorInfo2;
     }
 
     ifs.close();
 
     progress->finish();
+
+    delete[] cellsMarker;
+    delete[] cells_typesMarker;
+    delete[] marker;
 
     return triMesh;
 }

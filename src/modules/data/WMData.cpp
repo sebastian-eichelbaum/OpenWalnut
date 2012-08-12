@@ -289,6 +289,7 @@ void WMData::moduleMain()
     // register the dataset properties
     m_properties->addProperty( m_dataSet->getProperties() );
     m_infoProperties->addProperty( m_dataSet->getInformationProperties() );
+    m_infoProperties->addProperty( getTransformationProperties() );
 
     // set the dataset name
     m_dataSetType->set( m_dataSet->getName() );
@@ -454,3 +455,38 @@ std::string WMData::getDataTypeString( boost::shared_ptr< WDataSetSingle > dss )
     return result;
 }
 
+namespace
+{
+    // helper which gets a WMatrix< double > and returns a WMatrix4d
+    WMatrix4d WMatrixDoubleToWMatrix4d( const WMatrix< double >& matrix )
+    {
+        WAssert( matrix.getNbRows() == 4, "" );
+        WAssert( matrix.getNbCols() == 4, "" );
+        WMatrix4d result;
+        for( size_t i = 0; i < 4; ++i )
+        {
+            for( size_t j = 0; j < 4; ++j )
+            {
+                result( i, j ) = matrix( i, j );
+            }
+        }
+        return result;
+    }
+}
+
+boost::shared_ptr< WProperties > WMData::getTransformationProperties() const
+{
+    boost::shared_ptr< WProperties > result( new WProperties( "Transformations", "Availabe transformation matrices for data-set " ) );
+    WPropGroup transformation = result->addPropertyGroup( "Transformation",
+                                                          "The transformation of this grid." );
+    WPropMatrix4X4 noMatrixTransformation = result->addProperty( "No matrix transformation",
+                                                                 "The no matrix transformation for this data set.",
+                                                                 WMatrixDoubleToWMatrix4d( m_transformNoMatrix ) );
+    WPropMatrix4X4 sformMatrixTransformation = result->addProperty( "sform matrix transformation",
+                                                                    "The sform matrix transformation for this data set.",
+                                                                    WMatrixDoubleToWMatrix4d( m_transformSForm ) );
+    WPropMatrix4X4 qformMatrixTransformation = result->addProperty( "qform matrix transformation",
+                                                                    "The qform matrix transformation for this data set.",
+                                                                    WMatrixDoubleToWMatrix4d( m_transformQForm ) );
+    return result;
+}

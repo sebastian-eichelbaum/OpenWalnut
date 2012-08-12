@@ -374,6 +374,7 @@ void WTransferFunctionWidget::insertColorNormalized( const QPointF& pos, QColor 
 void WTransferFunctionWidget::insertColor( const QPointF& pos, QColor const *const color  )
 {
     WTransferFunctionColorPoint *point( new WTransferFunctionColorPoint( this ) );
+    point->setPos( QPointF( pos.x(), 0 ) );
     scene->addItem( point );
 
     WTransferFunctionColorPoint* left( this->findCPointOnLeft( pos ) );
@@ -433,7 +434,6 @@ void WTransferFunctionWidget::insertColor( const QPointF& pos, QColor const *con
         }
     }
 
-    point->setPos( QPointF( pos.x(), 0 ) );
     point->update();
 }
 
