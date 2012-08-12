@@ -2,9 +2,9 @@
 
 # 1. Introduction
 #
-# This is an example on how to use the script interpreter that comes with OpenWalnut
+# This is an example on how to use the script interpreter that comes with OpenWalnut.
 # We will be loading all NIfTI datasets in a directory given via script parameter, apply a
-# gaussian blur and then save the data to another directory also given via scrript parameter.
+# gaussian blur and then save the data to another directory also given via script parameter.
 #
 # However, before we start, let's have a look at OpenWalnut's script interpreter.
 
@@ -51,7 +51,7 @@
 #
 # openwalnut-script -f template.py
 #
-# Depending on wheter you installed OpenWalnut or build it yourself, you might need to change the path to
+# Depending on whether you installed OpenWalnut or built it yourself, you might need to change the path to
 # something like:
 #
 # openwalnut-script -f ../resources/scripting/template.py
