@@ -48,6 +48,9 @@ WScriptInterpreterPython::WScriptInterpreterPython()
     {
         PyErr_Print();
     }
+    // Make ctrl+c key available for killing interpeter
+    execute( "import signal" );
+    execute( "signal.signal( signal.SIGINT, signal.SIG_DFL )" );
 }
 
 WScriptInterpreterPython::~WScriptInterpreterPython()

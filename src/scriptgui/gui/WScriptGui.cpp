@@ -180,6 +180,12 @@ int WScriptGui::run()
             {
                 in += "()";
             }
+            else if( in == "help" )
+            {
+                in += "()";
+            }
+
+            //std::cout
 
             try
             {
