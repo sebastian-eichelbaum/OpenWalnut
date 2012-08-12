@@ -34,7 +34,6 @@ SET( LibName ${OW_LIB_OPENWALNUTSCRIPT} )
 
 # Python
 FIND_PACKAGE( PythonLibs )
-INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS} )
 
 # these lists contain the compile files if the appropriate interpreter was found
 SET( INTERPRETER_CPP_FILES )
@@ -45,6 +44,7 @@ SET( INTERPRETER_LINK_LIBRARIES )
                         
 # Python found?
 IF( PYTHONLIBS_FOUND )
+    INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS} )
     ADD_DEFINITIONS( -DPYTHON_FOUND )
 
     # also get all compile  files 
@@ -59,12 +59,12 @@ ENDIF()
 
 # Lua
 FIND_PACKAGE( Lua51 )
-INCLUDE_DIRECTORIES( ${LUA_INCLUDE_DIR} )
 FIND_PACKAGE( Luabind )
-INCLUDE_DIRECTORIES( ${LUABIND_INCLUDE_DIR} )
 
 # Lua found?
 IF( LUABIND_FOUND AND LUA51_FOUND )
+    INCLUDE_DIRECTORIES( ${LUA_INCLUDE_DIR} )
+    INCLUDE_DIRECTORIES( ${LUABIND_INCLUDE_DIR} )
     ADD_DEFINITIONS( -DLUA_FOUND )
 
     # also get all compile  files 
