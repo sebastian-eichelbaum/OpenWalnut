@@ -1276,7 +1276,7 @@ bool WMainWindow::isDropAcceptable( const QMimeData* mimeData )
               || suffix.endsWith( "nii" )
               || suffix.endsWith( "nii.gz" )
               || suffix.endsWith( "fib" )
-              || suffix.endsWith("owp" )
+              || suffix.endsWith( "owp" )
               || suffix.endsWith( "owproj" ) )
             {
                 return true;
