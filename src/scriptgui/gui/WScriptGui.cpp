@@ -176,6 +176,10 @@ int WScriptGui::run()
             {
                 break;
             }
+            else if( in == "help" )
+            {
+                in += "()";
+            }
 
             try
             {
