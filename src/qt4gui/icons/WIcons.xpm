@@ -29,6 +29,7 @@
  * This file is provided to allow to get access to all used icons by one include.
  */
 #include "disc.xpm"
+#include "new.xpm"
 #include "fileopen.xpm"
 #include "projOpen.xpm"
 #include "projSave.xpm"

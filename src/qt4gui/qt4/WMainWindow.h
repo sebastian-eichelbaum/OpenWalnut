@@ -264,6 +264,10 @@ protected:
 
 public slots:
     /**
+     * Slot handling the pressed new project button.
+     */
+    void newProject();
+    /**
      * gets called when menu option or toolbar button load is activated
      */
     void openLoadDialog();
@@ -375,8 +379,9 @@ private:
     WQtToolBar* m_permanentToolBar; //!< The permanent toolbar of the main window.
 
     // several menu items
-    QAction* m_loadButton; //!< the load Data Button
-    QAction* m_quitAction; //!< quit ow
+    QAction* m_newAction; //!< the new project button
+    QAction* m_loadButton; //!< the load button
+    QAction* m_quitAction; //!< quit OpenWalnut
     QAction* m_saveAction; //!< the save menu
     QMenu* m_saveMenu; //!< the menu using m_saveAction
 

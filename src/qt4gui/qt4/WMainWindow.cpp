@@ -61,6 +61,7 @@
 #include "core/common/WIOTools.h"
 #include "core/common/WPathHelper.h"
 #include "core/common/WProjectFileIO.h"
+#include "core/dataHandler/WDataHandler.h"
 #include "core/dataHandler/WDataSetFibers.h"
 #include "core/dataHandler/WDataSetSingle.h"
 #include "core/dataHandler/WEEG2.h"
@@ -169,6 +170,7 @@ void WMainWindow::setupGUI()
     // GUI setup
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    m_iconManager.addIcon( std::string( "newProject" ), new_xpm );
     m_iconManager.addIcon( std::string( "load" ), fileopen_xpm );
     m_iconManager.addIcon( std::string( "loadProject" ), projOpen_xpm );
     m_iconManager.addIcon( std::string( "saveProject" ), projSave_xpm );
@@ -321,6 +323,11 @@ void WMainWindow::setupGUI()
     m_saveMenu->addAction( "Save Camera Only", this, SLOT( projectSaveCameraOnly() ) );
     // saveMenu->addAction( "Save ROIs Only", this, SLOT( projectSaveROIOnly() ) );
     m_saveAction->setMenu( m_saveMenu );
+    m_newAction = fileMenu->addAction( m_iconManager.getIcon( "newProject" ),
+                                       "New Project",
+                                       this,
+                                       SLOT( newProject() ),
+                                       QKeySequence( Qt::CTRL + Qt::Key_N ) );
 
     fileMenu->addSeparator();
     // TODO(all): If all distributions provide a newer QT version we should use QKeySequence::Quit here
@@ -474,6 +481,7 @@ void WMainWindow::setupGUI()
     // setup permanent toolbar
     m_permanentToolBar->addAction( m_loadButton );
     m_permanentToolBar->addAction( m_saveAction );
+    m_permanentToolBar->addAction( m_newAction );
     m_permanentToolBar->addSeparator();
     m_permanentToolBar->addAction( m_mainGLWidgetScreenCapture->getScreenshotTrigger() );
     m_permanentToolBar->addSeparator();
@@ -678,6 +686,12 @@ bool WMainWindow::projectSaveModuleOnly()
     std::vector< boost::shared_ptr< WProjectFileIO > > w;
     w.push_back( WProjectFile::getModuleWriter() );
     return projectSave( w );
+}
+
+void WMainWindow::newProject()
+{
+    WKernel::getRunningKernel()->getRootContainer()->removeAll();
+    WDataHandler::getDataHandler()->clear();
 }
 
 void WMainWindow::openLoadDialog()
