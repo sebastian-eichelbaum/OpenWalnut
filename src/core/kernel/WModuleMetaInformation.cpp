@@ -93,6 +93,18 @@ boost::filesystem::path WModuleMetaInformation::getIcon() const
     return m_localPath / m_metaData.getValue< boost::filesystem::path >( m_name + "/icon", boost::filesystem::path( "icon.png" ) );
 }
 
+bool WModuleMetaInformation::isIconAvailable() const
+{
+    if( m_loaded )
+    {
+        return m_metaData.exists( m_name + "/icon", true );
+    }
+    else
+    {
+        return false;
+    }
+}
+
 std::string WModuleMetaInformation::getWebsite() const
 {
     // return a default if not meta data was loaded
