@@ -104,6 +104,7 @@ QIcon WIconManager::getIcon( const std::string name )
     else
     {
         WAssert( 0, "Found no icon named: " + name );
+        return QIcon();
     }
 }
 
