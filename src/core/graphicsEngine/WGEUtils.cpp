@@ -208,3 +208,24 @@ WColor wge::getNthHSVColor( int n )
     return createColorFromHSV( h, s, v );
 }
 
+void wge::enableTransparency( osg::ref_ptr< osg::Node > node )
+{
+    osg::StateSet* state = node->getOrCreateStateSet();
+
+    // NOTE: this does not en/disable blending. This is always on.
+    state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+
+    // Enable depth test so that an opaque polygon will occlude a transparent one behind it.
+    state->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
+
+    // Conversely, disable writing to depth buffer so that a transparent polygon will allow polygons behind it to shine through.
+    // OSG renders transparent polygons after opaque ones.
+    // NOTE: USEFUL?
+    // osg::Depth* depth = new osg::Depth;
+    // depth->setWriteMask( false );
+    // state->setAttributeAndModes( depth, osg::StateAttribute::ON );
+
+    // blending. Without this, setting alpha does not cause anything
+    state->setMode( GL_BLEND, osg::StateAttribute::ON );
+}
+
