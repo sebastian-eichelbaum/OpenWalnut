@@ -316,6 +316,11 @@ void WMainWindow::setupGUI()
 
     QMenu* fileMenu = m_menuBar->addMenu( "File" );
 
+    m_newAction = fileMenu->addAction( m_iconManager.getIcon( "newProject" ),
+                                       "New Project",
+                                       this,
+                                       SLOT( newProject() ),
+                                       QKeySequence( Qt::CTRL + Qt::Key_N ) );
     fileMenu->addAction( m_loadButton );
     m_saveMenu = fileMenu->addMenu( m_iconManager.getIcon( "saveProject" ), "Save Project" );
     m_saveMenu->addAction( "Save Project", this, SLOT( projectSaveAll() ), QKeySequence::Save );
@@ -323,11 +328,6 @@ void WMainWindow::setupGUI()
     m_saveMenu->addAction( "Save Camera Only", this, SLOT( projectSaveCameraOnly() ) );
     // saveMenu->addAction( "Save ROIs Only", this, SLOT( projectSaveROIOnly() ) );
     m_saveAction->setMenu( m_saveMenu );
-    m_newAction = fileMenu->addAction( m_iconManager.getIcon( "newProject" ),
-                                       "New Project",
-                                       this,
-                                       SLOT( newProject() ),
-                                       QKeySequence( Qt::CTRL + Qt::Key_N ) );
 
     fileMenu->addSeparator();
     // TODO(all): If all distributions provide a newer QT version we should use QKeySequence::Quit here
@@ -479,9 +479,9 @@ void WMainWindow::setupGUI()
     showSagittal->setIcon( m_iconManager.getIcon( "sagittal icon" ) );
 
     // setup permanent toolbar
+    m_permanentToolBar->addAction( m_newAction );
     m_permanentToolBar->addAction( m_loadButton );
     m_permanentToolBar->addAction( m_saveAction );
-    m_permanentToolBar->addAction( m_newAction );
     m_permanentToolBar->addSeparator();
     m_permanentToolBar->addAction( m_mainGLWidgetScreenCapture->getScreenshotTrigger() );
     m_permanentToolBar->addSeparator();
@@ -1346,6 +1346,7 @@ QAction* createSeperator( QWidget* parent )
 void WMainWindow::addGlobalMenu( QWidget* widget )
 {
     widget->addAction( createSeperator( this ) );
+    widget->addAction( m_newAction );
     widget->addAction( m_loadButton );
     widget->addAction( m_saveAction );
     widget->addAction( createSeperator( this ) );

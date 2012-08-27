@@ -155,6 +155,13 @@ public:
     boost::filesystem::path getIcon() const;
 
     /**
+     * Check whether the meta info contained an icon.
+     *
+     * \return true if icon is available. Does not check existence or validity of image file.
+     */
+    bool isIconAvailable() const;
+
+    /**
      * The URL to a module website. Can be empty.
      *
      * \return URL to website
