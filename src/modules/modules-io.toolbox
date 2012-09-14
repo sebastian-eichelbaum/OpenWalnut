@@ -1,5 +1,6 @@
 ADD_MODULE( data )
 ADD_MODULE( fiberTranslator )
+ADD_MODULE( readAmiraMesh )
 ADD_MODULE( readMesh )
 ADD_MODULE( readRawData )
 ADD_MODULE( writeDendrogram )
