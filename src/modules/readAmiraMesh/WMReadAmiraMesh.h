@@ -111,9 +111,16 @@ protected:
 private:
     /**
      * Very prelimiary and specialized way of reading a spatial graph from an amira mesh
+     *
+     * \param fileName The name of the file containing the data that wil be read.
+     * \return Indicates whether reading has been successful.
      */
     bool readAmiraMesh( std::string fileName );
 
+    /**
+     * This function prepares the resulting dataset for being provided
+     * at the connector by construting it from the basic data that has been read.
+     */
     void prepareResult();
 
     WPropFilename m_dataFile; //!< The data will be read from this file.
@@ -124,11 +131,8 @@ private:
     std::vector< size_t > m_numEdgePoints; //!< Number "points" per edge.
     std::vector< WPosition > m_edgePoints; //!< The positions of the points building the edges between the vertices.
 
-    /**
-     * The only output of this data module.
-     */
-    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_output;
-    boost::shared_ptr< WDataSetFibers > m_graph;
+    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_output; //!< The only output of this data module.
+    boost::shared_ptr< WDataSetFibers > m_graph; //!< The resulting fiber dataset respresenting the spatial graph
 };
 
 #endif  // WMREADAMIRAMESH_H
