@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 
+#include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -103,19 +104,37 @@ void WQt4Gui::deferredLoad()
         m_loadDeferredOnce = false;
         wlog::debug( "OpenWalnut" ) << "Deferred loading of data and project files.";
 
-       // check if we want to load data due to command line and call the respective function
+        bool useInputFileNameAsProject = false;
+        // check if we want to load data due to command line and call the respective function
         if( m_optionsMap.count( "input" ) )
         {
-            m_kernel->loadDataSets( m_optionsMap["input"].as< std::vector< std::string > >() );
+            std::vector< std::string > dataFileNames = m_optionsMap["input"].as< std::vector< std::string > >();
+            useInputFileNameAsProject = ( dataFileNames.size() == 1
+                                          && ( boost::algorithm::ends_with( dataFileNames[0], ".owp" )
+                                               || boost::algorithm::ends_with( dataFileNames[0], ".owproj" ) ) );
+            if( !useInputFileNameAsProject )
+            {
+                m_kernel->loadDataSets( dataFileNames );
+            }
         }
 
         // Load project file
-        if( m_optionsMap.count( "project" ) )
+        if( m_optionsMap.count( "project" ) || useInputFileNameAsProject )
         {
+            std::string projectFileName;
+            if( useInputFileNameAsProject )
+            {
+                projectFileName = m_optionsMap["input"].as< std::vector< std::string > >()[0];
+            }
+            else
+            {
+                projectFileName = m_optionsMap["project"].as< std::string >();
+            }
+
             try
             {
                 // This call is asynchronous. It parses the file and the starts a thread to actually do all the stuff
-                m_mainWindow->asyncProjectLoad( m_optionsMap["project"].as< std::string >() );
+                m_mainWindow->asyncProjectLoad( projectFileName );
             }
             catch( const WException& e )
             {
