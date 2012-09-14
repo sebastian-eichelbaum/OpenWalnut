@@ -169,7 +169,7 @@ void WReaderFiberVTK::readLines()
         ++pos;
         for( size_t i = 0; i < fiberLength; ++i, ++pos, ++posInVerts )
         {
-            m_pointFiberMapping->push_back( linesSoFar ); // space was reserved in the readPoints memeber function
+            m_pointFiberMapping->push_back( linesSoFar ); // space was reserved in the readPoints member function
         }
         ++linesSoFar;
     }
