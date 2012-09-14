@@ -24,6 +24,8 @@
 
 #include <fstream>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "WMReadAmiraMesh.xpm"
 #include "core/common/WIOTools.h"
@@ -144,27 +146,27 @@ size_t parseDefine( std::string line )
     return string_utils::fromString< double >( tokens[2] );
 }
 
-void skipEmptyAndCommentLines( std::ifstream& data, std::string& line )
+void skipEmptyAndCommentLines( std::ifstream* data, std::string* line )
 {
-    getline( data, line );
-    while( line == std::string("") || line[0] == '#' )
+    getline( *data, *line );
+    while( *line == std::string("") || (*line)[0] == '#' )
     {
-        getline( data, line );
+        getline( *data, *line );
     }
 }
 
-bool parseParameters( std::ifstream& data, std::string& line )
+bool parseParameters( std::ifstream* data, std::string* line )
 {
     bool contenTypeIsHxSpatialGraph = false;
-    while( line != std::string("}") )
+    while( *line != std::string("}") )
     {
-        if( line.find( "ContentType" ) != std::string::npos
-            && line.find( "HxSpatialGraph" ) != std::string::npos )
+        if( line->find( "ContentType" ) != std::string::npos
+            && line->find( "HxSpatialGraph" ) != std::string::npos )
         {
             contenTypeIsHxSpatialGraph = true;
         }
 
-        getline( data, line );
+        getline( *data, *line );
     }
     return contenTypeIsHxSpatialGraph;
 }
@@ -190,7 +192,7 @@ bool WMReadAmiraMesh::readAmiraMesh( std::string fileName )
         return false;
     }
 
-    skipEmptyAndCommentLines( dataFile, tmp );
+    skipEmptyAndCommentLines( &dataFile, &tmp );
 
     std::vector< size_t > dimensions;
     while( tmp.find( "define " ) == 0 )
@@ -199,11 +201,11 @@ bool WMReadAmiraMesh::readAmiraMesh( std::string fileName )
         getline( dataFile, tmp );
     }
 
-    skipEmptyAndCommentLines( dataFile, tmp );
+    skipEmptyAndCommentLines( &dataFile, &tmp );
 
     if( tmp.find( "Parameters {" ) == 0 )
     {
-        if( !parseParameters( dataFile, tmp ) )
+        if( !parseParameters( &dataFile, &tmp ) )
         {
             return false;
         }

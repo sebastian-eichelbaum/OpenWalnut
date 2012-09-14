@@ -26,6 +26,8 @@
 #define WMREADAMIRAMESH_H
 
 #include <string>
+#include <utility>
+#include <vector>
 
 #include <osg/Geode>
 
@@ -47,7 +49,6 @@ class WMReadAmiraMesh: public WModule
 friend class WMReadAmiraMeshTest;
 
 public:
-
     /**
      * Standard constructor
      */
@@ -86,7 +87,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
