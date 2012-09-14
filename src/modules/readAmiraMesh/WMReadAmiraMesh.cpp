@@ -116,13 +116,17 @@ void WMReadAmiraMesh::moduleMain()
 void WMReadAmiraMesh::prepareResult()
 {
     boost::shared_ptr< std::vector< WFiber > > fibs( new std::vector< WFiber > );
+    size_t globalPointId = 0;
     for( size_t edgeId = 0; edgeId < m_edges.size(); ++edgeId )
     {
-        std::vector< WPosition > points;
-        points.push_back( m_vertices[m_edges[edgeId].first] );
-        points.push_back( m_vertices[m_edges[edgeId].second] );
+        std::vector< WPosition > fiberPoints;
+        for( size_t localPointId = 0; localPointId < m_numEdgePoints[edgeId]; ++localPointId )
+        {
+            fiberPoints.push_back( m_edgePoints[globalPointId] );
+            ++globalPointId;
+        }
 
-        fibs->push_back( WFiber( points ) );
+        fibs->push_back( WFiber( fiberPoints ) );
     }
     WDataSetFiberVector fibersVector( fibs );
     m_graph = boost::shared_ptr< WDataSetFibers >( fibersVector.toWDataSetFibers() );
@@ -239,6 +243,30 @@ bool WMReadAmiraMesh::readAmiraMesh( std::string fileName )
     {
         dataFile >> edge.first >> edge.second;
         m_edges.push_back( edge );
+    }
+
+//#warning use information about defines
+    while( tmp.find( "@3" ) != 0 )
+    {
+        getline( dataFile, tmp );
+    }
+
+    m_numEdgePoints.resize( dimensions[1] );
+    for( size_t edgeId = 0; edgeId < dimensions[1]; ++edgeId )
+    {
+        dataFile >> m_numEdgePoints[edgeId];
+    }
+
+//#warning use information about defines
+    while( tmp.find( "@4" ) != 0 )
+    {
+        getline( dataFile, tmp );
+    }
+
+    m_edgePoints.resize( dimensions[2] );
+    for( size_t pointId = 0; pointId < dimensions[2]; ++pointId )
+    {
+        dataFile >> m_edgePoints[pointId][0] >> m_edgePoints[pointId][1] >>  m_edgePoints[pointId][2];
     }
 
     return true;

@@ -35,13 +35,7 @@
 #include "core/kernel/WModuleOutputData.h"
 
 /**
- * Someone should add some documentation here.
- * Probably the best person would be the module's
- * creator, i.e. "wiebel".
- *
- * This is only an empty template for a new module. For
- * an example module containing many interesting concepts
- * and extensive documentation have a look at "src/modules/template"
+ * Reader for amiraMesh (.am) files.
  *
  * \ingroup modules
  */
@@ -55,12 +49,12 @@ friend class WMReadAmiraMeshTest;
 public:
 
     /**
-     *
+     * Standard constructor
      */
     WMReadAmiraMesh();
 
     /**
-     *
+     * Destructor for cleaning up resources.
      */
     virtual ~WMReadAmiraMesh();
 
@@ -127,6 +121,8 @@ private:
 
     std::vector< WPosition > m_vertices; //!< vertices of the spatial graph
     std::vector< std::pair< size_t, size_t > > m_edges; //!< Edge connectivity of the spatial graph.
+    std::vector< size_t > m_numEdgePoints; //!< Number "points" per edge.
+    std::vector< WPosition > m_edgePoints; //!< The positions of the points building the edges between the vertices.
 
     /**
      * The only output of this data module.
