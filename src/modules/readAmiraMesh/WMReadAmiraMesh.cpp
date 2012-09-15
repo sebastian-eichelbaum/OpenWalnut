@@ -168,14 +168,19 @@ bool parseParameters( std::ifstream* data, std::string* line )
     return contenTypeIsHxSpatialGraph;
 }
 
-void WMReadAmiraMesh::findAndReadEdgePoints( std::string startLabel, size_t numPoints, std::string fileName )
+void findStartLabel( const std::string& startLabel, std::ifstream* dataStream )
 {
-    std::ifstream dataStream( fileName.c_str() );
     std::string tmp;
     while( tmp.find( startLabel ) != 0 )
     {
-        getline( dataStream, tmp );
+        getline( *dataStream, tmp );
     }
+}
+
+void WMReadAmiraMesh::findAndReadEdgePoints( std::string startLabel, size_t numPoints, std::string fileName )
+{
+    std::ifstream dataStream( fileName.c_str() );
+    findStartLabel( startLabel, &dataStream );
 
     m_edgePoints.resize( numPoints );
     for( size_t pointId = 0; pointId < numPoints; ++pointId )
@@ -187,12 +192,7 @@ void WMReadAmiraMesh::findAndReadEdgePoints( std::string startLabel, size_t numP
 void WMReadAmiraMesh::findAndReadNumEdgePoints( std::string startLabel, size_t numEdges, std::string fileName )
 {
     std::ifstream dataStream( fileName.c_str() );
-    std::string tmp;
-
-    while( tmp.find( startLabel ) != 0 )
-    {
-        getline( dataStream, tmp );
-    }
+    findStartLabel( startLabel, &dataStream );
 
     m_numEdgePoints.resize( numEdges );
     for( size_t edgeId = 0; edgeId < numEdges; ++edgeId )
@@ -205,11 +205,7 @@ void WMReadAmiraMesh::findAndReadNumEdgePoints( std::string startLabel, size_t n
 void WMReadAmiraMesh::findAndReadEdgeConnectivity( std::string startLabel, size_t numConnections, std::string fileName )
 {
     std::ifstream dataStream( fileName.c_str() );
-    std::string tmp;
-    while( tmp.find( startLabel ) != 0 )
-    {
-        getline( dataStream, tmp );
-    }
+    findStartLabel( startLabel, &dataStream );
 
     std::pair< size_t, size_t > edge;
     m_edges.clear();
@@ -223,12 +219,7 @@ void WMReadAmiraMesh::findAndReadEdgeConnectivity( std::string startLabel, size_
 void WMReadAmiraMesh::findAndReadVertices( std::string startLabel, size_t numVertices, std::string fileName )
 {
     std::ifstream dataStream( fileName.c_str() );
-    std::string tmp;
-
-    while( tmp.find( startLabel ) != 0 )
-    {
-        getline( dataStream, tmp );
-    }
+    findStartLabel( startLabel, &dataStream );
 
     WPosition vertex;
     m_vertices.clear();
