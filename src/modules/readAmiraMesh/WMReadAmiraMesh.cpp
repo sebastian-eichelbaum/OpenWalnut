@@ -201,6 +201,25 @@ void WMReadAmiraMesh::findAndReadNumEdgePoints( std::string startLabel, size_t n
     }
 }
 
+
+void WMReadAmiraMesh::findAndReadEdgeConnectivity( std::string startLabel, size_t numConnections, std::string fileName )
+{
+    std::ifstream dataStream( fileName.c_str() );
+    std::string tmp;
+    while( tmp.find( startLabel ) != 0 )
+    {
+        getline( dataStream, tmp );
+    }
+
+    std::pair< size_t, size_t > edge;
+    m_edges.clear();
+    for( size_t edgeId = 0; edgeId < numConnections; ++edgeId )
+    {
+        dataStream >> edge.first >> edge.second;
+        m_edges.push_back( edge );
+    }
+}
+
 bool WMReadAmiraMesh::readAmiraMesh( std::string fileName )
 {
     std::ifstream dataFile( fileName.c_str() );
@@ -263,19 +282,8 @@ bool WMReadAmiraMesh::readAmiraMesh( std::string fileName )
 
 
 //#warning use information about defines
-    while( tmp.find( "@2" ) != 0 )
-    {
-        getline( dataFile, tmp );
-    }
-
-
-    std::pair< size_t, size_t > edge;
-    m_edges.clear();
-    for( size_t edgeId = 0; edgeId < dimensions[1]; ++edgeId )
-    {
-        dataFile >> edge.first >> edge.second;
-        m_edges.push_back( edge );
-    }
+    std::string startLabelEdgeConnectivity = "@2";
+    findAndReadEdgeConnectivity( startLabelEdgeConnectivity, dimensions[1], fileName );
 
 //#warning use information about defines
     std::string startLabelNumEdgePoints = "@3";

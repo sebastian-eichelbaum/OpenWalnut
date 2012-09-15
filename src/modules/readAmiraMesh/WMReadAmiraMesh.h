@@ -118,10 +118,19 @@ private:
     bool readAmiraMesh( std::string fileName );
 
     /**
+     * Function for reading connectivity of edges.
+     *
+     * \param startLabel This label marks the location in the file where the data starts.
+     * \param numConnections The number ofconnections that are being read.
+     * \param fileName File containing the data to be read.
+     */
+    void findAndReadEdgeConnectivity( std::string startLabel, size_t numConnections, std::string fileName );
+
+    /**
      * Function for reading number of edgepoints per edge.
      *
-     * \param startLabel This label marks the location in the file where the edgepoits data starts.
-     * \param numEdges The number of edges for which number of Points are being read.
+     * \param startLabel This label marks the location in the file where the data starts.
+     * \param numEdges The number of edges for which number of points are being read.
      * \param fileName File containing the data to be read.
      */
     void findAndReadNumEdgePoints( std::string startLabel, size_t numEdges, std::string fileName );
@@ -129,8 +138,8 @@ private:
     /**
      * Function for reading edgepoints.
      *
-     * \param startLabel This label marks the location in the file where the edgepoits data starts.
-     * \param numPoints The number of points for which cpoordinates are being read.
+     * \param startLabel This label marks the location in the file where the data starts.
+     * \param numPoints The number of points for which coordinates are being read.
      * \param fileName File containing the data to be read.
      */
     void findAndReadEdgePoints( std::string startLabel, size_t numPoints, std::string fileName );
