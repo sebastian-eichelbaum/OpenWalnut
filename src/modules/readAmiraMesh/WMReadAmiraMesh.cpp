@@ -70,12 +70,9 @@ const std::string WMReadAmiraMesh::getDescription() const
 
 void WMReadAmiraMesh::connectors()
 {
-    // initialize connectors
     m_output = boost::shared_ptr< WModuleOutputData< WDataSetFibers > >( new WModuleOutputData< WDataSetFibers >(
-                shared_from_this(), "out", "A loaded dataset." )
-            );
+                shared_from_this(), "out", "A loaded dataset." ) );
 
-    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
     addConnector( m_output );
 
     WModule::connectors();
@@ -171,6 +168,22 @@ bool parseParameters( std::ifstream* data, std::string* line )
     return contenTypeIsHxSpatialGraph;
 }
 
+void WMReadAmiraMesh::findAndReadEdgePoints( std::string startLabel, size_t numPoints, std::string fileName )
+{
+    std::ifstream dataStream( fileName.c_str() );
+    std::string tmp;
+    while( tmp.find( startLabel ) != 0 )
+    {
+        getline( dataStream, tmp );
+    }
+
+    m_edgePoints.resize( numPoints );
+    for( size_t pointId = 0; pointId < numPoints; ++pointId )
+    {
+        dataStream >> m_edgePoints[pointId][0] >> m_edgePoints[pointId][1] >>  m_edgePoints[pointId][2];
+    }
+}
+
 bool WMReadAmiraMesh::readAmiraMesh( std::string fileName )
 {
     std::ifstream dataFile( fileName.c_str() );
@@ -260,16 +273,8 @@ bool WMReadAmiraMesh::readAmiraMesh( std::string fileName )
     }
 
 //#warning use information about defines
-    while( tmp.find( "@4" ) != 0 )
-    {
-        getline( dataFile, tmp );
-    }
-
-    m_edgePoints.resize( dimensions[2] );
-    for( size_t pointId = 0; pointId < dimensions[2]; ++pointId )
-    {
-        dataFile >> m_edgePoints[pointId][0] >> m_edgePoints[pointId][1] >>  m_edgePoints[pointId][2];
-    }
+    std::string startLabel = "@4";
+    findAndReadEdgePoints( startLabel, dimensions[2], fileName );
 
     return true;
 }

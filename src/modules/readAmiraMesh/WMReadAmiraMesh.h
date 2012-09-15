@@ -118,6 +118,15 @@ private:
     bool readAmiraMesh( std::string fileName );
 
     /**
+     * Function for reading edgepoints.
+     *
+     * \param startLabel This label marks the location in the file where the edgepoits data starts.
+     * \param numPoints The number of points for which cpoordinates are being read.
+     * \param fileName File containing the data to be read.
+     */
+    void findAndReadEdgePoints( std::string startLabel, size_t numPoints, std::string fileName );
+
+    /**
      * This function prepares the resulting dataset for being provided
      * at the connector by construting it from the basic data that has been read.
      */
