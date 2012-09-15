@@ -220,6 +220,26 @@ void WMReadAmiraMesh::findAndReadEdgeConnectivity( std::string startLabel, size_
     }
 }
 
+void WMReadAmiraMesh::findAndReadVertices( std::string startLabel, size_t numVertices, std::string fileName )
+{
+    std::ifstream dataStream( fileName.c_str() );
+    std::string tmp;
+
+    while( tmp.find( startLabel ) != 0 )
+    {
+        getline( dataStream, tmp );
+    }
+
+    WPosition vertex;
+    m_vertices.clear();
+    for( size_t vertexId = 0; vertexId < numVertices; ++vertexId )
+    {
+        dataStream >> vertex[0] >> vertex[1] >> vertex[2];
+        m_vertices.push_back( vertex );
+    }
+}
+
+
 bool WMReadAmiraMesh::readAmiraMesh( std::string fileName )
 {
     std::ifstream dataFile( fileName.c_str() );
@@ -265,21 +285,8 @@ bool WMReadAmiraMesh::readAmiraMesh( std::string fileName )
     }
 
 //#warning use information about defines
-    while( tmp.find( "@1" ) != 0 )
-    {
-        getline( dataFile, tmp );
-    }
-
-
-    WPosition vertex;
-    m_vertices.clear();
-    for( size_t vertexId = 0; vertexId < dimensions[0]; ++vertexId )
-    {
-        dataFile >> vertex[0] >> vertex[1] >> vertex[2];
-        m_vertices.push_back( vertex );
-    }
-
-
+    std::string startLabelVertices = "@1";
+    findAndReadVertices( startLabelVertices, dimensions[0], fileName );
 
 //#warning use information about defines
     std::string startLabelEdgeConnectivity = "@2";

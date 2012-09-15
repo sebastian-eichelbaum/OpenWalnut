@@ -107,7 +107,6 @@ protected:
      */
     virtual void requirements();
 
-
 private:
     /**
      * Very prelimiary and specialized way of reading a spatial graph from an amira mesh
@@ -118,10 +117,19 @@ private:
     bool readAmiraMesh( std::string fileName );
 
     /**
+     * Function for reading coordinates of vertices.
+     *
+     * \param startLabel This label marks the location in the file where the data starts.
+     * \param numVertices The number of vertices that are being read.
+     * \param fileName File containing the data to be read.
+     */
+    void findAndReadVertices( std::string startLabel, size_t numVertices, std::string fileName );
+
+    /**
      * Function for reading connectivity of edges.
      *
      * \param startLabel This label marks the location in the file where the data starts.
-     * \param numConnections The number ofconnections that are being read.
+     * \param numConnections The number of connections that are being read.
      * \param fileName File containing the data to be read.
      */
     void findAndReadEdgeConnectivity( std::string startLabel, size_t numConnections, std::string fileName );
