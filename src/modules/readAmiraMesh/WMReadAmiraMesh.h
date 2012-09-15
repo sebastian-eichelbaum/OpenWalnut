@@ -118,6 +118,7 @@ private:
 
     /**
      * Function for reading coordinates of vertices.
+     * It searches for the startLabel and starts reading from there
      *
      * \param startLabel This label marks the location in the file where the data starts.
      * \param numVertices The number of vertices that are being read.
@@ -127,6 +128,7 @@ private:
 
     /**
      * Function for reading connectivity of edges.
+     * It searches for the startLabel and starts reading from there
      *
      * \param startLabel This label marks the location in the file where the data starts.
      * \param numConnections The number of connections that are being read.
@@ -136,6 +138,7 @@ private:
 
     /**
      * Function for reading number of edgepoints per edge.
+     * It searches for the startLabel and starts reading from there
      *
      * \param startLabel This label marks the location in the file where the data starts.
      * \param numEdges The number of edges for which number of points are being read.
@@ -145,6 +148,7 @@ private:
 
     /**
      * Function for reading edgepoints.
+     * It searches for the startLabel and starts reading from there
      *
      * \param startLabel This label marks the location in the file where the data starts.
      * \param numPoints The number of points for which coordinates are being read.
