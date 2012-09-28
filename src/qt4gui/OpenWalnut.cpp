@@ -44,7 +44,7 @@
  * \par
  * http://www.openwalnut.org
  * \par
- * Copyright 2009-2010 OpenWalnut Community, BSV\@Uni-Leipzig and CNCF\@MPI-CBS.
+ * Copyright 2009-2012 OpenWalnut Community, BSV\@Uni-Leipzig and CNCF\@MPI-CBS.
  * For more information see http://www.openwalnut.org/copying
  */
 
@@ -55,7 +55,7 @@ void printVersion()
               << std::endl;
 
     std::cout <<
-    "Copyright 2009-2010 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS\n"
+    "Copyright 2009-2012 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS\n"
     "For more information see http://www.openwalnut.org/copying\n"
     "This program comes with ABSOLUTELY NO WARRANTY.\n"
     "This is free software, and you are welcome to redistribute it\n"
