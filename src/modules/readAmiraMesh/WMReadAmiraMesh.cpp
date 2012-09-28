@@ -60,7 +60,7 @@ const char** WMReadAmiraMesh::getXPMIcon() const
 }
 const std::string WMReadAmiraMesh::getName() const
 {
-    return "[IN DEVELOPMENT] Read Amira Mesh";
+    return "Read Amira Mesh";
 }
 
 const std::string WMReadAmiraMesh::getDescription() const
