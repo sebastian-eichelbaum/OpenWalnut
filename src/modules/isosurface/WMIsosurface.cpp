@@ -441,6 +441,9 @@ void WMIsosurface::renderMesh()
     state->addUniform( new WGEPropertyUniform< WPropInt >( "u_opacity", m_opacityProp ) );
     shader->apply( m_surfaceGeode );
 
+    // enable transparency
+    wge::enableTransparency( m_surfaceGeode );
+
     // Colormapping
     WGEColormapping::apply( m_surfaceGeode, shader );
 

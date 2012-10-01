@@ -474,7 +474,7 @@ public:
     explicit WTensorBase( WTensorBaseSym< 0, dim, Data_T > const& t )
         : m_data()
     {
-        m_data = t.operator[]< std::size_t >( NULL );
+        m_data = t.template operator[]< std::size_t >( NULL );
     }
 
     /**
@@ -499,7 +499,7 @@ public:
      */
     WTensorBase const& operator = ( WTensorBaseSym< 0, dim, Data_T > const& t )
     {
-        m_data = t.operator[]< std::size_t >( NULL );
+        m_data = t.template operator[]< std::size_t >( NULL );
         return *this;
     }
 

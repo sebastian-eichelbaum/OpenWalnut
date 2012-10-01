@@ -43,6 +43,13 @@
 namespace wge
 {
     /**
+     * Enable transparency for the given node. This enabled blending and sets the node to the transparency bin.
+     *
+     * \param node the node
+     */
+    void enableTransparency( osg::ref_ptr< osg::Node > node );
+
+    /**
      * Transforms a direction given via two points into a RGB color.
      *
      * \param pos1 First point
