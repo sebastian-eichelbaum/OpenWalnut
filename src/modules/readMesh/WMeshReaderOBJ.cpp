@@ -22,6 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+#include <vector>
+
 #include "WMeshReaderOBJ.h"
 
 WMeshReaderOBJ::WMeshReaderOBJ():

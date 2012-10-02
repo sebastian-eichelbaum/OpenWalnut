@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WMeshReaderInterface.h"
 
 WMeshReaderInterface::~WMeshReaderInterface()

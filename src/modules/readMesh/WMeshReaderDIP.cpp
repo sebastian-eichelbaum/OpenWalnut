@@ -22,6 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+#include <vector>
+
 #include "WMeshReaderDIP.h"
 
 WMeshReaderDIP::WMeshReaderDIP():
@@ -41,7 +44,7 @@ WMeshReaderDIP::~WMeshReaderDIP()
 WTriangleMesh::SPtr WMeshReaderDIP::operator()( WProgressCombiner::SPtr parentProgress,
                                                 boost::filesystem::path file )
 {
-   namespace su = string_utils;
+    namespace su = string_utils;
 
     std::string fileName = file.string();
     WAssert( !fileName.empty(), "No filename specified." );
