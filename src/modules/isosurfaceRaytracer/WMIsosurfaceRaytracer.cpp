@@ -266,6 +266,11 @@ void WMIsosurfaceRaytracer::moduleMain()
 
             // bind the texture to the node
             osg::StateSet* rootState = cube->getOrCreateStateSet();
+
+            // enable transparency
+            wge::enableTransparency( cube );
+
+            // bind the data texture
             osg::ref_ptr< WGETexture3D > texture3D = dataSet->getTexture();
             texture3D->bind( cube );
 
