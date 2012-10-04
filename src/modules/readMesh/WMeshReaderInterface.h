@@ -75,6 +75,16 @@ public:
      * \return the line
      */
     std::string getLine( boost::shared_ptr< std::ifstream > ifs, const std::string& desc ) const;
+
+    /**
+     * Read a line from the given input stream and throw an exception on error.
+     *
+     * \param ifs the stream to read from
+     * \param desc the description for the exception. Provide some useful info here.
+     *
+     * \return the line
+     */
+    std::string getLine( std::ifstream& ifs, const std::string& desc ) const;
 };
 
 #endif  // WMESHREADERINTERFACE_H

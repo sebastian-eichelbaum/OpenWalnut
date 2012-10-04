@@ -131,6 +131,7 @@ WTriangleMesh::SPtr WMeshReaderBrainVISA::operator()( WProgressCombiner::SPtr pa
 
     ifs.close();
     progress->finish();
+    parentProgress->removeSubProgress( progress );
 
     return triMesh;
 }

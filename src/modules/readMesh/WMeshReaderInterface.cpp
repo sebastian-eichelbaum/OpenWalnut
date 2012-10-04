@@ -33,18 +33,23 @@ WMeshReaderInterface::~WMeshReaderInterface()
 
 std::string WMeshReaderInterface::getLine( boost::shared_ptr< std::ifstream > ifs, const std::string& desc ) const
 {
+    return getLine( *( ifs ), desc );
+}
+
+std::string WMeshReaderInterface::getLine( std::ifstream& ifs, const std::string& desc ) const
+{
     std::string line;
     try
     {
         // we use '\n' as line termination under every platform so our files (which are most likely to be generated on Unix systems)
         // can be read from all platforms not having those line termination symbols like e.g. windows ('\r\n').
-        std::getline( *ifs, line, '\n' );
+        std::getline( ifs, line, '\n' );
     }
     catch( const std::ios_base::failure &e )
     {
         throw WDHIOFailure( std::string( "IO error while " + desc + " of mesh file: , " + e.what() ) );
     }
-    if( !ifs->good() )
+    if( !ifs.good() )
     {
         throw WDHParseError( std::string( "Unexpected end of mesh file." ) );
     }
