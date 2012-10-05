@@ -86,6 +86,11 @@ protected:
     void readPoints();
 
     /**
+     * Read VTK VALUES field from input stream.
+     */
+    void readValues();
+
+    /**
      * Read VTK LINES field from input stream.
      */
     void readLines();
@@ -102,6 +107,8 @@ protected:
     boost::shared_ptr< std::vector< size_t > > m_fiberStartIndices; //!< Stores the start indices (in the point array) for every fiber
 
     boost::shared_ptr< std::vector< size_t > > m_fiberLengths; //!< Stores the length of every fiber
+
+    WDataSetFibers::VertexParemeterArray m_fiberParameters; //!< additional colors if found in file.
 
     /**
      * Stores for every point the fiber where it belongs to.
