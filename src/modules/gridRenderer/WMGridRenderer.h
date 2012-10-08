@@ -38,6 +38,7 @@
 #include "core/graphicsEngine/geodes/WGEGridNode.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
+#include "core/dataHandler/WDataSet.h"
 
 /**
  * Show the bounding box and grid of a WDataSetSingle
@@ -105,7 +106,7 @@ protected:
     virtual void properties();
 
 private:
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
+    boost::shared_ptr< WModuleInputData< WDataSet > > m_input;  //!< Input connector required by this module.
 
     WItemSelection::SPtr m_possibleModes; //!< the modes available.
 
@@ -124,6 +125,11 @@ private:
      * The node actually drawing the grid.
      */
     WGEGridNode::SPtr m_gridNode;
+
+    /**
+     * The currently handled data.
+     */
+    WDataSet::SPtr m_dataSet;
 
     /**
      * Handles updates in properties.
