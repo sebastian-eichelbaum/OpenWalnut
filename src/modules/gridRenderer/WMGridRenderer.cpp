@@ -140,9 +140,9 @@ void WMGridRenderer::moduleMain()
 
             WBoundingBox bb = dsFibers->getBoundingBox();
             // this basically is a fake but we need a grid for WGEGridNode. So we construct one using the BBox
-            WGridTransformOrtho transform( bb.xMax() - bb.xMin(), bb.yMax() - bb.yMin(), bb.zMax() - bb.zMin() );
-            transform.translate( WVector3d( bb.xMin(), bb.yMin(), bb.zMin() ) );
-            regGrid = WGridRegular3D::SPtr( new WGridRegular3D( 2, 2, 2, transform ) );
+            WGridTransformOrtho gridTransform( bb.xMax() - bb.xMin(), bb.yMax() - bb.yMin(), bb.zMax() - bb.zMin() );
+            gridTransform.translate( WVector3d( bb.xMin(), bb.yMin(), bb.zMin() ) );
+            regGrid = WGridRegular3D::SPtr( new WGridRegular3D( 2, 2, 2, gridTransform ) );
         }
 
         // create the new grid node if it not exists

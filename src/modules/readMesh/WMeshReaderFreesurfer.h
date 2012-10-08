@@ -53,7 +53,7 @@ public:
      *
      * \return the loaded mesh
      */
-    virtual WTriangleMesh::SPtr operator()( WProgressCombiner::SPtr progress,
+    virtual WTriangleMesh::SPtr operator()( WProgressCombiner::SPtr parentProgress,
                                             boost::filesystem::path file );
 private:
     WPropInt m_propDatasetSizeX; //!< Size of the dataset (X)
