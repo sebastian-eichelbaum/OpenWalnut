@@ -234,9 +234,5 @@ std::string WReaderFiberVTK::getLine( const std::string& desc )
     {
         throw WDHIOFailure( std::string( "IO error while " + desc + " of VTK fiber file: " + m_fname + ", " + e.what() ) );
     }
-    if( !m_ifs->good() )
-    {
-        throw WDHParseError( std::string( "Unexpected end of VTK fiber file: " + m_fname ) );
-    }
     return line;
 }
