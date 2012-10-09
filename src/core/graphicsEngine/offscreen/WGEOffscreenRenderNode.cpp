@@ -115,3 +115,12 @@ osg::ref_ptr< WGETextureHud > WGEOffscreenRenderNode::getTextureHUD() const
     return m_hud;
 }
 
+size_t WGEOffscreenRenderNode::getTextureWidth() const
+{
+    return m_textureWidth;
+}
+
+size_t WGEOffscreenRenderNode::getTextureHeight() const
+{
+    return m_textureHeight;
+}

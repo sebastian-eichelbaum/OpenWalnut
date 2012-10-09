@@ -119,6 +119,12 @@ public:
      */
     void clear();
 
+    /**
+     * The post processor currently in use.
+     *
+     * \return the current post processor
+     */
+    WGEPostprocessor::SPtr getCurrentPostprocessor() const;
 protected:
 private:
     /**

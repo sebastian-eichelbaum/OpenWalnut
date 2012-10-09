@@ -169,6 +169,11 @@ void WGEPostprocessingNode::clear()
     m_childs->clear();
 }
 
+WGEPostprocessor::SPtr WGEPostprocessingNode::getCurrentPostprocessor() const
+{
+    return m_postprocs[ m_activePostprocessor->get() - 1 ];
+}
+
 void WGEPostprocessingNode::postprocessorSelected()
 {
     if( m_postprocs.size() == 0 )

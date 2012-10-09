@@ -177,6 +177,20 @@ public:
     template < typename T >
     osg::ref_ptr< T >  addRenderPass( std::string name = "Unnamed" );
 
+    /**
+     * Get FBO texture width.
+     *
+     * \return the width
+     */
+    size_t getTextureWidth() const;
+
+    /**
+     * Get FBO texture height.
+     *
+     * \return the height
+     */
+    size_t getTextureHeight() const;
+
 protected:
 private:
     /**

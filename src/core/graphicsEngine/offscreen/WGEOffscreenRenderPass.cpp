@@ -82,6 +82,11 @@ void WGEOffscreenRenderPass::attach( BufferComponent buffer, osg::ref_ptr< osg::
     osg::Camera::attach( buffer, texture );
 }
 
+void WGEOffscreenRenderPass::attach( BufferComponent buffer, osg::ref_ptr< osg::Image > image )
+{
+    osg::Camera::attach( buffer, image );
+}
+
 osg::ref_ptr< osg::Texture2D > WGEOffscreenRenderPass::attach( BufferComponent buffer, GLint internalFormat )
 {
     osg::ref_ptr< osg::Texture2D > tex;
