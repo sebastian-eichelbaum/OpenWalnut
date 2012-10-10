@@ -87,6 +87,46 @@ WDataSetFibers::WDataSetFibers( WDataSetFibers::VertexArray vertices,
     init();
 }
 
+WDataSetFibers::WDataSetFibers( WDataSetFibers::VertexArray vertices,
+                WDataSetFibers::IndexArray lineStartIndexes,
+                WDataSetFibers::LengthArray lineLengths,
+                WDataSetFibers::IndexArray verticesReverse,
+                WBoundingBox boundingBox,
+                WDataSetFibers::VertexParemeterArray vertexParameters )
+    : WDataSet(),
+      m_vertices( vertices ),
+      m_lineStartIndexes( lineStartIndexes ),
+      m_lineLengths( lineLengths ),
+      m_verticesReverse( verticesReverse ),
+      m_bb( boundingBox ),
+      m_vertexParameters( vertexParameters )
+{
+    WAssert( m_vertices->size() % 3 == 0,  "Invalid vertex array."  );
+    init();
+}
+
+WDataSetFibers::WDataSetFibers( WDataSetFibers::VertexArray vertices,
+                WDataSetFibers::IndexArray lineStartIndexes,
+                WDataSetFibers::LengthArray lineLengths,
+                WDataSetFibers::IndexArray verticesReverse,
+                WDataSetFibers::VertexParemeterArray vertexParameters )
+    : WDataSet(),
+      m_vertices( vertices ),
+      m_lineStartIndexes( lineStartIndexes ),
+      m_lineLengths( lineLengths ),
+      m_verticesReverse( verticesReverse ),
+      m_vertexParameters( vertexParameters )
+{
+    WAssert( m_vertices->size() % 3 == 0,  "Invalid vertex array."  );
+    // determine bounding box
+    for( size_t i = 0; i < vertices->size()/3; ++i )
+    {
+        m_bb.expandBy( (*vertices)[ 3 * i + 0 ], (*vertices)[ 3 * i + 1 ], (*vertices)[ 3 * i + 2 ] );
+    }
+    // remaining initilisation
+    init();
+}
+
 void WDataSetFibers::init()
 {
     size_t size = m_vertices->size();
@@ -296,6 +336,11 @@ const boost::shared_ptr< WDataSetFibers::ColorScheme > WDataSetFibers::getColorS
 const WPropSelection WDataSetFibers::getColorSchemeProperty() const
 {
     return m_colorProp;
+}
+
+WDataSetFibers::VertexParemeterArray WDataSetFibers::getVertexParameters() const
+{
+    return m_vertexParameters;
 }
 
 WPosition WDataSetFibers::getPosition( size_t fiber, size_t vertex ) const

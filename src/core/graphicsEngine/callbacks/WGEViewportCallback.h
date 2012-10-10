@@ -28,8 +28,6 @@
 #include <osg/Camera>
 #include <osg/Node>
 
-
-
 /**
  * This callback is useful to update viewport information on several nodes supporting it. The specified type must support an setViewport method.
  * This is especially useful to keep offscreen render cameras in sync with the scene cam or to update HUD viewport information. Note that the
@@ -91,6 +89,8 @@ void WGEViewportCallback< T, Source >::operator()( osg::Node* node, osg::NodeVis
     if( t )
     {
         t->setViewport( m_reference->getViewport() );
+        // NOTE: you want to use a fixed size for the offscreen textures? Try this:
+        // t->setViewport( new osg::Viewport( 0, 0, 3840, 2160 ) );
     }
     traverse( node, nv );
 }

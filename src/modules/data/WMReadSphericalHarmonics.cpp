@@ -103,7 +103,7 @@ void WMReadSphericalHarmonics::moduleMain()
         std::string fileName = m_dataFile->get().string();
 
         boost::shared_ptr< WProgress > progress;
-        progress = boost::shared_ptr< WProgress >( new WProgress( "Glyph Generation", 2 ) );
+        progress = boost::shared_ptr< WProgress >( new WProgress( "Reading ...", 2 ) );
         m_progress->addSubProgress( progress );
 
         WReaderNIfTI niiLoader( fileName );

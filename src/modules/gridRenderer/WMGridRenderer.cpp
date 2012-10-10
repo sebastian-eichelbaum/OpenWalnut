@@ -38,6 +38,8 @@
 #include "core/common/WBoundingBox.h"
 #include "core/common/WStringUtils.h"
 #include "core/dataHandler/WGridRegular3D.h"
+#include "core/dataHandler/WDataSetSingle.h"
+#include "core/dataHandler/WDataSetFibers.h"
 #include "core/graphicsEngine/WGEGeodeUtils.h"
 #include "core/graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "core/kernel/WKernel.h"
@@ -100,8 +102,10 @@ void WMGridRenderer::moduleMain()
         debugLog() << "Waiting for data ...";
         m_moduleState.wait();
 
-        boost::shared_ptr< WDataSetSingle > dataSet = m_input->getData();
+        boost::shared_ptr< WDataSet > dataSet = m_input->getData();
         bool dataValid = ( dataSet );
+        bool dataChanged = ( dataSet != m_dataSet );
+        m_dataSet = dataSet;
 
         if( !dataValid )
         {
@@ -112,22 +116,49 @@ void WMGridRenderer::moduleMain()
             continue;
         }
 
-        WGridRegular3D::SPtr regGrid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
-        if( !regGrid )
+        // do nothing if these are still the same data
+        if( !dataChanged )
         {
-            // the data has no regular 3d grid.
-            errorLog() << "Dataset does not contain a regular 3D grid.";
-            WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_gridNode );
             continue;
         }
 
+        // the grid to show
+        WGridRegular3D::SPtr regGrid;
+
+        // is this a DS with a regular grid?
+        WDataSetSingle::SPtr dsSingle = boost::shared_dynamic_cast< WDataSetSingle >( dataSet );
+        if( dsSingle )
+        {
+            regGrid = boost::shared_dynamic_cast< WGridRegular3D >( dsSingle->getGrid() );
+        }
+
+        // is this a fiber dataset?
+        WDataSetFibers::SPtr dsFibers = boost::shared_dynamic_cast< WDataSetFibers >( dataSet );
+        if( dsFibers )
+        {
+            debugLog() << "Fiber Data.";
+
+            WBoundingBox bb = dsFibers->getBoundingBox();
+            // this basically is a fake but we need a grid for WGEGridNode. So we construct one using the BBox
+            WGridTransformOrtho gridTransform( bb.xMax() - bb.xMin(), bb.yMax() - bb.yMin(), bb.zMax() - bb.zMin() );
+            gridTransform.translate( WVector3d( bb.xMin(), bb.yMin(), bb.zMin() ) );
+            regGrid = WGridRegular3D::SPtr( new WGridRegular3D( 2, 2, 2, gridTransform ) );
+        }
+
         // create the new grid node if it not exists
-        if( !m_gridNode )
+        if( !m_gridNode && regGrid )
         {
             debugLog() << "Creating grid geode.";
             m_gridNode = new WGEGridNode( regGrid );
             m_gridNode->addUpdateCallback( new WGENodeMaskCallback( m_active ) );
             WGraphicsEngine::getGraphicsEngine()->getScene()->insert( m_gridNode );
+        }
+        else if( m_gridNode && !regGrid )
+        {
+            debugLog() << "Removing grid geode.";
+            // there is a grid node which needs to be removed as we do NOT have a valid regular grid.
+            WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_gridNode );
+            m_gridNode = NULL;
         }
 
         m_gridNode->setBBoxColor( *m_bboxColor );
@@ -142,9 +173,9 @@ void WMGridRenderer::moduleMain()
 void WMGridRenderer::connectors()
 {
     // initialize connectors
-    m_input = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
-        new WModuleInputData< WDataSetSingle >( shared_from_this(),
-                                                               "in", "The dataset to filter" )
+    m_input = boost::shared_ptr< WModuleInputData < WDataSet  > >(
+        new WModuleInputData< WDataSet >( shared_from_this(),
+                                                               "in", "The dataset to show" )
         );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.

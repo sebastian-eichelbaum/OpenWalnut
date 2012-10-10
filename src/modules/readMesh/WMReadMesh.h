@@ -30,10 +30,14 @@
 
 #include <osg/Geode>
 
+#include "core/common/WStrategyHelper.h"
+#include "core/common/WObjectNDIP.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
 #include "core/kernel/WModuleOutputData.h"
 #include "core/graphicsEngine/WTriangleMesh.h"
+
+#include "WMeshReaderInterface.h"
 
 /**
  * This module reads a file containing mesh data (several formats supported) and creates a mesh
@@ -96,69 +100,11 @@ protected:
      */
     virtual void properties();
 
-
 private:
-    /**
-     * Handles chage of selected mesh type, e.g. show/hide other properties.
-     */
-    void meshTypeSelected();
-
-    /**
-     * Reads a VTK mesh file and creates a WTriangleMesh out of it.
-     *
-     * \return Reference to the dataset.
-     */
-    virtual boost::shared_ptr< WTriangleMesh > readMeshVTK();
-
-    /**
-     * Reads a mesh file and creates a WTriangleMesh out of it.
-     *
-     * \return Reference to the dataset.
-     */
-    virtual boost::shared_ptr< WTriangleMesh > readMeshFnav();
-
-
-    /**
-     * Reads a dip file and creates a WTriangleMesh out of it.
-     *
-     * \return Reference to the dataset.
-     */
-    virtual boost::shared_ptr< WTriangleMesh > readDip();
-    /**
-     * Reads a BrainVISA (.mesh) file and creates a WTriangleMesh out of it.
-     *
-     * \return Reference to the dataset.
-     */
-    virtual boost::shared_ptr< WTriangleMesh > readBrainVISA();
-
-    /**
-     * Reads a Freesurfer (.surf) file and creates a WTriangleMesh out of it.
-     *
-     * \return Reference to the dataset.
-     */
-    virtual boost::shared_ptr< WTriangleMesh > readFreesurfer();
-
-    /**
-     * creates a color map for loaded dip file
-     * \param value a value between 0.0 and 1.0
-     * \return the color
-     */
-    osg::Vec4 blueGreenPurpleColorMap( float value );
-
-    /**
-     * Reads the next line from current position in stream of the fiber VTK file.
-     *
-     * \param ifs file stream of the mesh file to be loaded
-     * \param desc In case of trouble while reading, this gives information in
-     * the error message about what was tried to read
-     * \throws WDHIOFailure, WDHParseError
-     * \return Next line as string.
-     */
-    std::string getLine( boost::shared_ptr< std::ifstream > ifs, const std::string& desc );
-
     boost::shared_ptr< WTriangleMesh > m_triMesh; //!< This triangle mesh is provided as output through the connector.
     boost::shared_ptr< WModuleOutputData< WTriangleMesh > > m_output;  //!< Output connector provided by this module.
     boost::shared_ptr< WCondition > m_propCondition;  //!< A condition used to notify about changes in several properties.
+
     WPropTrigger  m_readTriggerProp; //!< This property triggers the actual reading,
     WPropFilename m_meshFile; //!< The mesh will be read from this file.
 
@@ -172,13 +118,13 @@ private:
      */
     WPropSelection m_fileTypeSelection;
 
-    WPropInt m_propDatasetSizeX; //!< Size of the dataset (X)
-    WPropInt m_propDatasetSizeY; //!< Size of the dataset (Y)
-    WPropInt m_propDatasetSizeZ; //!< Size of the dataset (Z)
-    WPropBool m_propVectorAsColor; //!< Use vectors from file as color of surface.
-
     WPropInt m_nbTriangles; //!< Info-property showing the number of triangles in the mesh.
     WPropInt m_nbVertices; //!< Info-property showing the number of vertices in the mesh.
+
+    /**
+     * Handle each loader as strategy.
+     */
+    WStrategyHelper< WObjectNDIP< WMeshReaderInterface > > m_strategy;
 };
 
 #endif  // WMREADMESH_H

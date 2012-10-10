@@ -29,9 +29,9 @@
 #include <string>
 
 #include <boost/thread.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "WProgress.h"
-
 
 /**
  * Base class for all kinds of progress combinations. You might want to derive from this class to implement some special progress
@@ -41,6 +41,16 @@ class WProgressCombiner: public WProgress
 {
 friend class WProgressCombinerTest;
 public:
+    /**
+     * Abbreviate shared_ptr for this class.
+     */
+    typedef boost::shared_ptr< WProgressCombiner > SPtr;
+
+    /**
+     * Abbreviate shared_ptr for this class.
+     */
+    typedef boost::shared_ptr< const  WProgressCombiner > ConstSPtr;
+
     /**
      * Default constructor. It creates a empty combiner.
      *

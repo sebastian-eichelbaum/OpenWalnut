@@ -52,6 +52,16 @@ class WDataSet: public WTransferable, public boost::enable_shared_from_this< WDa
 {
 public:
     /**
+     * Shared pointer abbreviation to a instance of this class.
+     */
+    typedef boost::shared_ptr< WDataSet > SPtr;
+
+    /**
+     * Shared pointer abbreviation to a const instance of this class.
+     */
+    typedef boost::shared_ptr< const WDataSet > ConstSPtr;
+
+    /**
      * This constructor should be used if a dataSet does not stem from a file.
      * It presets the correpsonding filename as empty string.
      */

@@ -174,6 +174,7 @@ find_path(CXXTEST_INCLUDE_DIR cxxtest/TestSuite.h)
 find_program(CXXTEST_PERL_TESTGEN_EXECUTABLE cxxtestgen.pl
     PATHS ${CXXTEST_INCLUDE_DIR})
 find_program(CXXTEST_PYTHON_TESTGEN_EXECUTABLE cxxtestgen.py
+    NAMES cxxtestgen
     PATHS ${CXXTEST_INCLUDE_DIR})
 
 include(FindPackageHandleStandardArgs)
