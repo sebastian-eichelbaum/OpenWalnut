@@ -37,7 +37,7 @@ bool isPowerOfTwo( size_t x )
 
 bool checkTextureSize( size_t size )
 {
-    return !( ( size > 4096 ) || ( size < 8 ) || !isPowerOfTwo( size ) );
+    return !( ( size > 8192 ) || ( size < 8 ) );
 }
 
 WGEOffscreenRenderNode::WGEOffscreenRenderNode( osg::ref_ptr< osg::Camera > reference, size_t width, size_t height, bool noHud ):
@@ -115,3 +115,12 @@ osg::ref_ptr< WGETextureHud > WGEOffscreenRenderNode::getTextureHUD() const
     return m_hud;
 }
 
+size_t WGEOffscreenRenderNode::getTextureWidth() const
+{
+    return m_textureWidth;
+}
+
+size_t WGEOffscreenRenderNode::getTextureHeight() const
+{
+    return m_textureHeight;
+}

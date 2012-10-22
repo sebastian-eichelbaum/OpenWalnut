@@ -131,6 +131,12 @@ public:
     virtual void remove( boost::shared_ptr< WModule > module );
 
     /**
+     * Removes all modules from this container. It uses a relatively laborious iterative approach
+     * becausewe can not delete modules recursively so far.
+     */
+    virtual void removeAll();
+
+    /**
      * Stops all modules inside this container. Note that this function could take some time, since it waits until the last module
      * has quit.
      */

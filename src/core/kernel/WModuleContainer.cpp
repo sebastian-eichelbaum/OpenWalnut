@@ -269,6 +269,33 @@ WModuleContainer::DataModuleListType WModuleContainer::getDataModules()
     return l;
 }
 
+void WModuleContainer::removeAll()
+{
+    const size_t nonZero = 1;
+    size_t numberOfModules = nonZero;
+    std::vector< boost::shared_ptr< WModule > > modulesToRemove;
+
+    while( numberOfModules != 0 )
+    {
+        modulesToRemove.clear();
+        // get names of all remaining modules to try to remove them
+        {
+            WModuleContainer::ModuleSharedContainerType::ReadTicket lock = getModules();
+            numberOfModules = lock->get().size();
+            for( ModuleConstIterator listIter = lock->get().begin(); listIter != lock->get().end(); ++listIter )
+            {
+                modulesToRemove.push_back( *listIter );
+            }
+        }
+        for( std::vector<  boost::shared_ptr< WModule > >::iterator nameIter = modulesToRemove.begin();
+             nameIter != modulesToRemove.end();
+             ++nameIter )
+        {
+            remove( *nameIter );
+        }
+    }
+}
+
 void WModuleContainer::stop()
 {
     WLogger::getLogger()->addLogMessage( "Stopping pending threads." , "ModuleContainer (" + getName() + ")", LL_INFO );

@@ -204,8 +204,8 @@ void WModuleProjectFileCombiner::apply()
         boost::shared_ptr< WPropertyBase > prop = m->getProperties()->findProperty( ( *iter ).first.second );
         if( !prop )
         {
-            addError( "The module \"" + m->getName() + std::string( "\" has no property named \"" ) + ( *iter ).first.second +
-                      std::string( "\". Skipping." ) );
+            // addError( "The module \"" + m->getName() + std::string( "\" has no property named \"" ) + ( *iter ).first.second +
+            //          std::string( "\". Skipping." ) );
             continue;
         }
         else

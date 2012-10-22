@@ -84,6 +84,11 @@ public:
     typedef boost::shared_ptr< std::vector< float > > ColorArray;
 
     /**
+     * Parameter storage for each vertex.
+     */
+    typedef boost::shared_ptr< std::vector< float > > VertexParemeterArray;
+
+    /**
      * Item used in the selection below also containing color info.
      */
     class ColorScheme: public WItemSelectionItem
@@ -191,6 +196,38 @@ public:
                     boost::shared_ptr< std::vector< size_t > > verticesReverse );
 
     /**
+     * Constructs a new set of fibers.
+     *
+     * \param vertices the vertices of the fibers, stored in x1,y1,z1,x2,y2,z2, ..., xn,yn,zn scheme
+     * \param lineStartIndexes the index in which the fiber start (index of the 3D-vertex, not the index of the float in the vertices vector)
+     * \param lineLengths how many vertices belong to a fiber
+     * \param verticesReverse stores for each vertex the index of the corresponding fiber
+     * \param boundingBox The bounding box of the fibers (first minimum, second maximum).
+     * \param vertexParameters optional per-vertex scalar.
+     */
+    WDataSetFibers( boost::shared_ptr< std::vector< float > >vertices,
+                    boost::shared_ptr< std::vector< size_t > > lineStartIndexes,
+                    boost::shared_ptr< std::vector< size_t > > lineLengths,
+                    boost::shared_ptr< std::vector< size_t > > verticesReverse,
+                    WBoundingBox boundingBox,
+                    VertexParemeterArray vertexParameters );
+
+    /**
+     * Constructs a new set of fibers. This constructor determines the bounding box by using the coordinates of the vertices.
+     *
+     * \param vertices the vertices of the fibers, stored in x1,y1,z1,x2,y2,z2, ..., xn,yn,zn scheme
+     * \param lineStartIndexes the index in which the fiber start (index of the 3D-vertex, not the index of the float in the vertices vector)
+     * \param lineLengths how many vertices belong to a fiber
+     * \param verticesReverse stores for each vertex the index of the corresponding fiber
+     * \param vertexParameters optional per-vertex scalar.
+     */
+    WDataSetFibers( boost::shared_ptr< std::vector< float > >vertices,
+                    boost::shared_ptr< std::vector< size_t > > lineStartIndexes,
+                    boost::shared_ptr< std::vector< size_t > > lineLengths,
+                    boost::shared_ptr< std::vector< size_t > > verticesReverse,
+                    VertexParemeterArray vertexParameters );
+
+    /**
      * Constructs a new set of tracts. The constructed instance is not usable but needed for prototype mechanism.
      */
     WDataSetFibers();
@@ -272,6 +309,13 @@ public:
      * \return Pointer to the float array. This always is RGB.
      */
     ColorArray getLocalColors() const;
+
+    /**
+     * Get the parameter values for each vertex. Same indexing as vertices. Used to store additional scalar values for each vertex.
+     *
+     * \return the array. Can be NULL.
+     */
+    VertexParemeterArray getVertexParameters() const;
 
     /**
      * This method adds a new color scheme to the list of available colors. The color scheme needs to have a name and description to allow the
@@ -390,8 +434,6 @@ private:
      */
     TangentArray m_tangents;
 
-    // the following typedefs are for convenience.
-
     /**
      * An array of color arrays. The first two elements are: 0: global color, 1: local color
      */
@@ -423,6 +465,11 @@ private:
      * Axis aligned bounding box for all tract-vertices of this dataset.
      */
     WBoundingBox m_bb;
+
+    /**
+     * Parameter array. Used to store additional scalar values for each vertex.
+     */
+    VertexParemeterArray m_vertexParameters;
 };
 
 #endif  // WDATASETFIBERS_H

@@ -3,13 +3,13 @@ Upstream-Name: openwalnut
 Source: <http://www.openwalnut.org>
 
 Files: *
-Copyright: 2009-2011 The OpenWalnut Community
-           2009-2011 Abteilung für Bild- und Signalverarbeitung, Universität Leipzig
-           2009-2011 Max-Planck Institute of Cognitive Neuroscience, Leipzig, Germany
+Copyright: 2009-2012 The OpenWalnut Community
+           2009-2012 Abteilung für Bild- und Signalverarbeitung, Universität Leipzig
+           2009-2012 Max-Planck Institute of Cognitive Neuroscience, Leipzig, Germany
 License: LGPL-3.0+
 
 Files: debian/*
-Copyright: 2011 Sebastian Eichelbaum <eichelbaum@informatik.uni-leipzig.de>
+Copyright: 2011-2012 Sebastian Eichelbaum <eichelbaum@informatik.uni-leipzig.de>
 License: GPL-3.0+
 
 Files: tools/style/brainlint/*

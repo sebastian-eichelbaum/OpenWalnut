@@ -61,6 +61,7 @@
 #include "core/common/WIOTools.h"
 #include "core/common/WPathHelper.h"
 #include "core/common/WProjectFileIO.h"
+#include "core/dataHandler/WDataHandler.h"
 #include "core/dataHandler/WDataSetFibers.h"
 #include "core/dataHandler/WDataSetSingle.h"
 #include "core/dataHandler/WEEG2.h"
@@ -169,6 +170,7 @@ void WMainWindow::setupGUI()
     // GUI setup
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    m_iconManager.addIcon( std::string( "newProject" ), new_xpm );
     m_iconManager.addIcon( std::string( "load" ), fileopen_xpm );
     m_iconManager.addIcon( std::string( "loadProject" ), projOpen_xpm );
     m_iconManager.addIcon( std::string( "saveProject" ), projSave_xpm );
@@ -314,6 +316,11 @@ void WMainWindow::setupGUI()
 
     QMenu* fileMenu = m_menuBar->addMenu( "File" );
 
+    m_newAction = fileMenu->addAction( m_iconManager.getIcon( "newProject" ),
+                                       "New Project",
+                                       this,
+                                       SLOT( newProject() ),
+                                       QKeySequence( Qt::CTRL + Qt::Key_N ) );
     fileMenu->addAction( m_loadButton );
     m_saveMenu = fileMenu->addMenu( m_iconManager.getIcon( "saveProject" ), "Save Project" );
     m_saveMenu->addAction( "Save Project", this, SLOT( projectSaveAll() ), QKeySequence::Save );
@@ -472,6 +479,7 @@ void WMainWindow::setupGUI()
     showSagittal->setIcon( m_iconManager.getIcon( "sagittal icon" ) );
 
     // setup permanent toolbar
+    m_permanentToolBar->addAction( m_newAction );
     m_permanentToolBar->addAction( m_loadButton );
     m_permanentToolBar->addAction( m_saveAction );
     m_permanentToolBar->addSeparator();
@@ -678,6 +686,12 @@ bool WMainWindow::projectSaveModuleOnly()
     std::vector< boost::shared_ptr< WProjectFileIO > > w;
     w.push_back( WProjectFile::getModuleWriter() );
     return projectSave( w );
+}
+
+void WMainWindow::newProject()
+{
+    WKernel::getRunningKernel()->getRootContainer()->removeAll();
+    WDataHandler::getDataHandler()->clear();
 }
 
 void WMainWindow::openLoadDialog()
@@ -1332,6 +1346,7 @@ QAction* createSeperator( QWidget* parent )
 void WMainWindow::addGlobalMenu( QWidget* widget )
 {
     widget->addAction( createSeperator( this ) );
+    widget->addAction( m_newAction );
     widget->addAction( m_loadButton );
     widget->addAction( m_saveAction );
     widget->addAction( createSeperator( this ) );

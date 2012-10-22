@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <cstdlib>
 #include <stdint.h>
 #include <fstream>
 #include <string>
@@ -61,11 +62,14 @@ boost::shared_ptr< WDataSetFibers > WReaderFiberVTK::read()
     readHeader();
     readPoints();
     readLines();
+    readValues();
 
     boost::shared_ptr< WDataSetFibers > fibers = boost::shared_ptr< WDataSetFibers >( new WDataSetFibers( m_points,
                                                                                                           m_fiberStartIndices,
                                                                                                           m_fiberLengths,
-                                                                                                          m_pointFiberMapping ) );
+                                                                                                          m_pointFiberMapping,
+                                                                                                          m_fiberParameters ) );
+
     fibers->setFilename( m_fname );
 
     m_ifs->close();
@@ -169,7 +173,7 @@ void WReaderFiberVTK::readLines()
         ++pos;
         for( size_t i = 0; i < fiberLength; ++i, ++pos, ++posInVerts )
         {
-            m_pointFiberMapping->push_back( linesSoFar ); // space was reserved in the readPoints memeber function
+            m_pointFiberMapping->push_back( linesSoFar ); // space was reserved in the readPoints member function
         }
         ++linesSoFar;
     }
@@ -177,6 +181,43 @@ void WReaderFiberVTK::readLines()
     delete[] lineData;
 
     line = getLine( "also eat the remaining newline after lines declaration" );
+    WAssert( std::string( "" ) == line, "Found characters in file where nothing was expected." );
+}
+
+void WReaderFiberVTK::readValues()
+{
+    if( !m_ifs->good() )
+    {
+        return;
+    }
+    std::string line = getLine( "reading VALUES declaration" );
+
+    std::vector< std::string > tokens = string_utils::tokenize( line );
+    if( tokens.size() != 3 || string_utils::toLower( tokens.at( 2 ) ) != "float" )
+    {
+        // do not throw an error. this is a custom extension.
+        return;
+    }
+
+    size_t numValues = getLexicalCast< size_t >( tokens.at( 1 ), "Invalid number of values" );
+
+    wlog::debug( "ReaderFiberVTK" ) << "Found " << numValues << " values.";
+
+    float *valueData = new float[ numValues ];
+    m_ifs->read( reinterpret_cast< char* >( valueData ), sizeof( float ) * numValues );
+
+    switchByteOrderOfArray( valueData, numValues ); // all 4 bytes of each float are in wrong order we need to reorder them
+
+    m_fiberParameters = WDataSetFibers::VertexParemeterArray( new std::vector< float > );
+    m_fiberParameters->reserve( numValues );
+    for( size_t i = 0; i < numValues; ++i )
+    {
+        m_fiberParameters->push_back( valueData[i] );
+     }
+
+    delete[] valueData;
+
+    line = getLine( "also eat the remaining newline after values declaration" );
     WAssert( std::string( "" ) == line, "Found characters in file where nothing was expected." );
 }
 
@@ -192,10 +233,6 @@ std::string WReaderFiberVTK::getLine( const std::string& desc )
     catch( const std::ios_base::failure &e )
     {
         throw WDHIOFailure( std::string( "IO error while " + desc + " of VTK fiber file: " + m_fname + ", " + e.what() ) );
-    }
-    if( !m_ifs->good() )
-    {
-        throw WDHParseError( std::string( "Unexpected end of VTK fiber file: " + m_fname ) );
     }
     return line;
 }

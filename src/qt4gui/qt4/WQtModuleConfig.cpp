@@ -120,6 +120,11 @@ private:
     bool m_isRecommended;
 };
 
+bool nameSort( WModule::ConstSPtr i, WModule::ConstSPtr j )
+{
+    return ( i->getName() < j->getName() );
+}
+
 WQtModuleConfig::WQtModuleConfig( QWidget* parent, Qt::WindowFlags f ):
     QDialog( parent, f )
 {
@@ -139,6 +144,7 @@ WQtModuleConfig::WQtModuleConfig( QWidget* parent, Qt::WindowFlags f ):
     {
         m_moduleList.push_back( *iter );
     }
+    std::sort( m_moduleList.begin(), m_moduleList.end(), nameSort );
 
     // initialize members
     QVBoxLayout* layoutAllowedModules = new QVBoxLayout;
@@ -245,18 +251,11 @@ WQtModuleConfig::WQtModuleConfig( QWidget* parent, Qt::WindowFlags f ):
             QLabel* icon = new QLabel();
             icon->setSizePolicy( sizePolicy );
 
-            // if there is an icon -> show it
-            if( ( *iter )->getXPMIcon() )
-            {
-                // we need to enforce some size
-                QPixmap qicon( ( *iter )->getXPMIcon() );
-                qicon = qicon.scaled( 32, 32, Qt::KeepAspectRatio );
-                icon->setPixmap( qicon );
-            }
-            else
-            {
-                icon->setPixmap( noIcon.pixmap( 32, 32 ) );
-            }
+            // we need to enforce some size
+            QIcon modIco = WQt4Gui::getMainWindow()->getIconManager()->getIcon( ( *iter )->getName(), noIcon );
+            QPixmap qicon( modIco.pixmap( 32, 32 ) );
+            qicon = qicon.scaled( 32, 32, Qt::KeepAspectRatio );
+            icon->setPixmap( qicon );
 
             layoutWidget->addWidget( icon, 0, column, 2, 1 );
             ++column;

@@ -94,6 +94,17 @@ public:
     void attach( BufferComponent buffer, osg::ref_ptr< osg::Texture2D > texture );
 
     /**
+     * Attach a given image to a buffer. Use this if you want to read back your rendered textures. This does not replace the attach call for
+     * textures. This only utilizes the multiple render target extension and allows you to read back your buffers.
+     *
+     * \param buffer the buffer to attach the texture to
+     * \param image the image to attach
+     *
+     * \note if the node is added to the graph, these functions should only be called from within an update callback.
+     */
+    void attach( BufferComponent buffer, osg::ref_ptr< osg::Image > image );
+
+    /**
      * This method attaches a texture to the given buffer. The texture gets created with the resolution of the FBO.
      *
      * On Mac OSX, only GL_RGBA works as internal format, so all input to internalFormat is ignored and overwritten by GL_RGBA internally.

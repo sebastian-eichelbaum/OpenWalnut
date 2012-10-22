@@ -153,6 +153,20 @@ public:
     static ProcessorList getPostprocessors();
 
     /**
+     * Needs to be called prior to any "getPostprocessors" call. Needed for initialization. This is done by WGraphicsEngine.
+     */
+    static void initPostprocessors();
+
+    /**
+     * Allows adding a postprocessor. After this call, everyone using the WGEPostprocessor can utilize your addded postproc.
+     *
+     * \param processor the postprocessor to add
+     *
+     * \return the index of the newly added postprocessor.
+     */
+    static size_t addPostprocessor( SPtr processor );
+
+    /**
      * Create named prototype. You should call this in your prototype constructor.
      *
      * \param name name of processor
@@ -253,6 +267,11 @@ private:
      * Description string. Set by the constructor.
      */
     std::string m_description;
+
+    /**
+     * List of all postprocessors. Handled as singleton.
+     */
+    static ProcessorList m_postProcessors;
 };
 
 #endif  // WGEPOSTPROCESSOR_H

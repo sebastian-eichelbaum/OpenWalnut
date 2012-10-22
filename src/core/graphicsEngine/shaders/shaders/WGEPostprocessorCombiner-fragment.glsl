@@ -57,6 +57,13 @@ uniform sampler2D u_texture1Sampler;
  */
 vec2 pixelCoord = gl_TexCoord[0].st;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions.
+//  * Get color at certain point
+//  * Get normal and depth at certain point
+//  * Blending utilities
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * Returns the original unprocessed color value at the specified point
  *
@@ -82,13 +89,6 @@ float getDepth( in vec2 where )
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Utility functions.
-//  * Get color at certain point
-//  * Get normal and depth at certain point
-//  * Blending utilities
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -97,16 +97,44 @@ float getDepth( in vec2 where )
  */
 void main()
 {
-    // don't do this stuff for background pixel
-    float depth = getDepth( pixelCoord );
-    gl_FragDepth = depth;
+    vec2 coord = pixelCoord;
+    float depth = getDepth( coord );
+
+    // interested in rendering only a part of the final texture?
+#ifdef TILED
+    // modify the pixel coordinate and assume a 3x3 tiled texture you want to use
+    // -> pick the tiles accordingly by
+    coord +=
+        vec2( 0./3., 0./3. );
+        //vec2( 1./3., 0./3. );
+        //vec2( 2./3., 0./3. );
+        //vec2( 0./3., 1./3. );
+        //vec2( 1./3., 1./3. );
+        //vec2( 2./3., 1./3. );
+        //vec2( 0./3., 2./3. );
+        //vec2( 1./3., 2./3. );
+        //vec2( 2./3., 2./3. );
+#endif
+
+    // interested in having a color gradient in your final image?
+#ifdef BG_GRADIENT
+    if( depth > 0.99 )
+    {
+        vec3 colorBottom = vec3( 0.0 );
+        vec3 colorTop  = vec3( 0.2, 0.2, 0.2 );
+        gl_FragColor = vec4( mix( colorBottom, colorTop, coord.y ), 1.0 );
+        return;
+    }
+#else
+    // avoid drawing any pixels which are "empty" in the source data
     if( depth > 0.99 )
     {
         discard;
     }
+#endif
 
     // output the depth and final color.
-    gl_FragColor = getColor( pixelCoord );
+    gl_FragColor = getColor( coord );
 }
 
 #endif // WGEPOSTPROCESSORCOMBINER_FRAGMENT_GLSL

@@ -33,6 +33,8 @@
 
 #include "WGEPostprocessor.h"
 
+WGEPostprocessor::ProcessorList WGEPostprocessor::m_postProcessors;
+
 WGEPostprocessor::WGEPostprocessor( std::string name, std::string description ):
     WPrototyped(),
     m_resultTextures(),
@@ -103,6 +105,7 @@ WGEPostprocessor::PostprocessorInput::PostprocessorInput( std::vector< osg::ref_
         m_depthTexture = from[4];
     }
 }
+
 WGEPostprocessor::PostprocessorInput::PostprocessorInput( osg::ref_ptr< osg::Texture2D > color,
                                                           osg::ref_ptr< osg::Texture2D > normal,
                                                           osg::ref_ptr< osg::Texture2D > parameter,
@@ -141,15 +144,23 @@ size_t WGEPostprocessor::PostprocessorInput::bind( osg::ref_ptr< WGEOffscreenRen
 
 WGEPostprocessor::ProcessorList WGEPostprocessor::getPostprocessors()
 {
-    WGEPostprocessor::ProcessorList postprocs;
+    return m_postProcessors;
+}
 
-    // create prototypes of the postprocessors OW knows about
-    postprocs.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorEdgeEnhance() ) );
-    postprocs.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorCelShading() ) );
-    postprocs.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorGauss() ) );
-    postprocs.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorSSAO() ) );
-    postprocs.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorLineAO() ) );
-    return postprocs;
+void WGEPostprocessor::initPostprocessors()
+{
+    // create prototypes of the postprocessors we know.
+    m_postProcessors.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorEdgeEnhance() ) );
+    m_postProcessors.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorCelShading() ) );
+    m_postProcessors.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorGauss() ) );
+    m_postProcessors.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorSSAO() ) );
+    m_postProcessors.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorLineAO() ) );
+}
+
+size_t WGEPostprocessor::addPostprocessor( SPtr processor )
+{
+    m_postProcessors.push_back( processor );
+    return m_postProcessors.size() - 1;
 }
 
 const std::string WGEPostprocessor::getName() const

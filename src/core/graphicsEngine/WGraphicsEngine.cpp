@@ -47,6 +47,7 @@
 #include "exceptions/WGEInitFailed.h"
 #include "exceptions/WGESignalSubscriptionFailed.h"
 #include "WGraphicsEngineMode.h"
+#include "postprocessing/WGEPostprocessor.h"
 
 #include "WStaticOSGSetup.h"
 
@@ -208,6 +209,9 @@ bool WGraphicsEngine::waitForStartupComplete()
 void WGraphicsEngine::threadMain()
 {
     WLogger::getLogger()->addLogMessage( "Starting Graphics Engine", "GE", LL_INFO );
+
+    // initialize all available postprocessors
+    WGEPostprocessor::initPostprocessors();
 
 #ifdef WGEMODE_MULTITHREADED
     // NOTE: this is needed here since the viewer might start without any widgets being initialized properly.

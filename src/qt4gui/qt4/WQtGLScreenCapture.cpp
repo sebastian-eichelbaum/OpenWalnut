@@ -26,7 +26,6 @@
 #include <sstream>
 #include <string>
 
-
 #include <osgDB/WriteFile>
 
 #include <QtCore/QDir>
