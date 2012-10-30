@@ -193,8 +193,7 @@ void WMData::moduleMain()
     // load it now
     std::string suffix = getSuffix( fileName );
 
-    if( suffix == ".nii"
-        || ( suffix == ".gz" && ::nifti_compiled_with_zlib() ) )
+    if( suffix == ".nii" || ( suffix == ".gz" && ::nifti_compiled_with_zlib() ) )
     {
         if( suffix == ".gz" )  // it may be a NIfTI file too
         {
@@ -205,7 +204,7 @@ void WMData::moduleMain()
             {
                 warnLog() << "Loading file " << fileName << " and a file with the name " << p << " was found. This may lead to problems loading the data due to an issue with the niftiio-lib.";
             }
-            
+
             suffix = getSuffix( p.string() );
             WAssert( suffix == ".nii", "Currently only nii files may be gzipped." );
         }
