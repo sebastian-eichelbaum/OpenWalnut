@@ -187,6 +187,12 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "video" ), video_xpm );
     m_iconManager.addIcon( std::string( "image" ), image_xpm );
     m_iconManager.addIcon( std::string( "preferences" ), preferences_xpm );
+    m_iconManager.addIcon( std::string( "colorwheel" ), ColorWheel_xpm );
+    m_iconManager.addIcon( std::string( "ROI icon" ), box_xpm );
+    m_iconManager.addIcon( std::string( "Reset icon" ), o_xpm );
+    m_iconManager.addIcon( std::string( "axial icon" ), axial_xpm );
+    m_iconManager.addIcon( std::string( "coronal icon" ), cor_xpm );
+    m_iconManager.addIcon( std::string( "sagittal icon" ), sag_xpm );
 
     try
     {
@@ -276,17 +282,10 @@ void WMainWindow::setupGUI()
     m_permanentToolBar = new WQtToolBar( "Standard Toolbar", this );
     addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
 
-    m_iconManager.addIcon( std::string( "ROI icon" ), box_xpm );
-    m_iconManager.addIcon( std::string( "Reset icon" ), o_xpm );
-    m_iconManager.addIcon( std::string( "axial icon" ), axial_xpm );
-    m_iconManager.addIcon( std::string( "coronal icon" ), cor_xpm );
-    m_iconManager.addIcon( std::string( "sagittal icon" ), sag_xpm );
-
     m_loadButton = new QAction( m_iconManager.getIcon( "load" ), "Load Dataset or Project", m_permanentToolBar );
     m_loadButton->setShortcut( QKeySequence(  QKeySequence::Open ) );
     QAction* roiButton = new QAction( m_iconManager.getIcon( "ROI icon" ), "ROI", m_permanentToolBar );
     QAction* resetButton = new QAction( m_iconManager.getIcon( "view" ), "Reset", m_permanentToolBar );
-    resetButton->setShortcut( QKeySequence( Qt::Key_Escape ) );
     m_saveAction = new QAction( m_iconManager.getIcon( "saveProject" ), "Save Project", m_permanentToolBar );
 
     connect( m_loadButton, SIGNAL(  triggered( bool ) ), this, SLOT( openLoadDialog() ) );
@@ -337,15 +336,11 @@ void WMainWindow::setupGUI()
     // This QAction stuff is quite ugly and complicated some times ... There is no nice constructor which takes name, slot keysequence and so on
     // directly -> set shortcuts, and some further properties using QAction's interface
 
-    QMenu* bgColorMenu = new QMenu( "Background Colors" );
-    bgColorMenu->addAction( mainGLDock->getGLWidget()->getBackgroundColorAction() );
-
     m_viewAction = new QAction( "View", this );
     m_viewMenu = m_menuBar->addMenu( "View" );
     m_viewMenu->addAction( hideMenuAction );
     m_viewMenu->addSeparator();
     m_viewMenu->addAction( showNavWidgets );
-    m_viewMenu->addMenu( bgColorMenu );
     m_viewMenu->addSeparator();
     m_viewMenu->addMenu( m_permanentToolBar->getStyleMenu() );
     m_viewAction->setMenu( m_viewMenu );
@@ -367,50 +362,14 @@ void WMainWindow::setupGUI()
     m_settingsMenu->addMenu( logLevels );
     m_settingsAction->setMenu( m_settingsMenu );
 
-    // a separate menu for some presets
-    QMenu* cameraPresetMenu = m_cameraMenu->addMenu( "Presets" );
-
     QAction* controlPanelTrigger = m_controlPanel->toggleViewAction();
     QList< QKeySequence > controlPanelShortcut;
     controlPanelShortcut.append( QKeySequence( Qt::Key_F9 ) );
     controlPanelTrigger->setShortcuts( controlPanelShortcut );
     this->addAction( controlPanelTrigger );  // this enables the action even if the menu bar is invisible
 
-    // NOTE: the shortcuts for these view presets should be chosen carefully. Most keysequences have another meaning in the most applications
-    // so the user may get confused. It is also not a good idea to take letters as they might be used by OpenSceneGraph widget ( like "S" for
-    // statistics ).
-    // By additionally adding the action to the main window, we ensure the action can be triggered even if the menu bar is hidden.
-    QAction* tmpAction = cameraPresetMenu->addAction( m_iconManager.getIcon( "sagittal icon" ), "Left", this, SLOT( setPresetViewLeft() ),
-                                             QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_L ) );
-    tmpAction->setIconVisibleInMenu( true );
-    this->addAction( tmpAction );
-
-    tmpAction = cameraPresetMenu->addAction( m_iconManager.getIcon( "sagittal icon" ), "Right", this, SLOT( setPresetViewRight() ),
-                                       QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_R ) );
-    tmpAction->setIconVisibleInMenu( true );
-    this->addAction( tmpAction );
-
-    tmpAction = cameraPresetMenu->addAction( m_iconManager.getIcon( "axial icon" ), "Superior", this, SLOT( setPresetViewSuperior() ),
-                                       QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_S ) );
-    tmpAction->setIconVisibleInMenu( true );
-    this->addAction( tmpAction );
-
-    tmpAction = cameraPresetMenu->addAction( m_iconManager.getIcon( "axial icon" ), "Inferior", this, SLOT( setPresetViewInferior() ),
-                                       QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_I ) );
-    tmpAction->setIconVisibleInMenu( true );
-    this->addAction( tmpAction );
-
-    tmpAction = cameraPresetMenu->addAction( m_iconManager.getIcon( "coronal icon" ), "Anterior", this, SLOT( setPresetViewAnterior() ),
-                                       QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_A ) );
-    tmpAction->setIconVisibleInMenu( true );
-    this->addAction( tmpAction );
-
-    tmpAction = cameraPresetMenu->addAction( m_iconManager.getIcon( "coronal icon" ), "Posterior", this, SLOT( setPresetViewPosterior() ),
-                                       QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) );
-    tmpAction->setIconVisibleInMenu( true );
-    this->addAction( tmpAction );
-
-    resetButton->setMenu( cameraPresetMenu );
+    resetButton->setMenu( m_mainGLWidget->getCameraPresetsMenu() );
+    m_cameraMenu->addMenu( m_mainGLWidget->getCameraPresetsMenu() );
 
     m_helpAction = new QAction( "Help", this );
     m_helpMenu = m_menuBar->addMenu( "Help" );
@@ -452,10 +411,6 @@ void WMainWindow::setupGUI()
             m_navSagittal->getGLWidget()->setCameraManipulator( WQtGLWidget::NO_OP );
 
             m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
-
-            bgColorMenu->addAction( m_navAxial->getGLWidget()->getBackgroundColorAction() );
-            bgColorMenu->addAction( m_navCoronal->getGLWidget()->getBackgroundColorAction() );
-            bgColorMenu->addAction( m_navSagittal->getGLWidget()->getBackgroundColorAction() );
         }
     }
 
@@ -793,60 +748,6 @@ void WMainWindow::openOpenWalnutHelpDialog()
                                                                     "To open the help pages in your browser, use this link: <a href=" +
                                                                     filename + ">Help</a>." ) );
 #endif
-}
-
-void WMainWindow::setPresetViewLeft()
-{
-    boost::shared_ptr< WGEViewer > viewer;
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Main View" );
-    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
-    osg::Quat q( 0.5, -0.5, -0.5, 0.5 );
-    cm->setRotation( q );
-}
-
-void WMainWindow::setPresetViewRight()
-{
-    boost::shared_ptr< WGEViewer > viewer;
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Main View" );
-    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
-    osg::Quat q( -0.5, -0.5, -0.5, -0.5 );
-    cm->setRotation( q );
-}
-
-void WMainWindow::setPresetViewSuperior()
-{
-    boost::shared_ptr< WGEViewer > viewer;
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Main View" );
-    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
-    osg::Quat q( 0., 0., 0., 1 );
-    cm->setRotation( q );
-}
-
-void WMainWindow::setPresetViewInferior()
-{
-    boost::shared_ptr< WGEViewer > viewer;
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Main View" );
-    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
-    osg::Quat q( 0., -1., 0., 0. );
-    cm->setRotation( q );
-}
-
-void WMainWindow::setPresetViewAnterior()
-{
-    boost::shared_ptr< WGEViewer > viewer;
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Main View" );
-    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
-    osg::Quat q( 0., -0.707107, -0.707107, 0. );
-    cm->setRotation( q );
-}
-
-void WMainWindow::setPresetViewPosterior()
-{
-    boost::shared_ptr< WGEViewer > viewer;
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Main View" );
-    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( viewer->getCameraManipulator() );
-    osg::Quat q( 0.707107, 0., 0., 0.707107 );
-    cm->setRotation( q );
 }
 
 void WMainWindow::openNotImplementedDialog()

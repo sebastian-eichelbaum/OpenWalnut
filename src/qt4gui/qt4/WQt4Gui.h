@@ -41,6 +41,8 @@
 
 #include "core/gui/WGUI.h"
 
+#include "WIconManager.h"
+
 class WMainWindow;
 class WKernel;
 
@@ -185,6 +187,13 @@ public:
      * \return settings object.
      */
     static QSettings& getSettings();
+
+    /**
+     * Get the icon manager of this gui instance.
+     *
+     * \return the icon manager.
+     */
+    static WIconManager* getIconManager();
 
     /**
      * Returns the option map for the current instance of this GUI. This can be useful to parse further commandline parameters
