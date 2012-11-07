@@ -284,36 +284,6 @@ public slots:
     void openOpenWalnutHelpDialog();
 
     /**
-     * Sets the left preset view of the main viewer.
-     */
-    void setPresetViewLeft();
-
-    /**
-     * Sets the right preset view of the main viewer.
-     */
-    void setPresetViewRight();
-
-    /**
-     * Sets the superior preset view of the main viewer.
-     */
-    void setPresetViewSuperior();
-
-    /**
-     * Sets the inferior preset view of the main viewer.
-     */
-    void setPresetViewInferior();
-
-    /**
-     * Sets the anterior preset view of the main viewer.
-     */
-    void setPresetViewAnterior();
-
-    /**
-     * Sets the posterior preset view of the main viewer.
-     */
-    void setPresetViewPosterior();
-
-    /**
      * Gets called when a menu entry that has no functionality yet is activated.
      */
     void openNotImplementedDialog();

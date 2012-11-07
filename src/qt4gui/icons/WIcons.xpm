@@ -60,4 +60,6 @@
 
 #include "moduleDefault.xpm"
 
+#include "ColorWheel.xpm"
+
 #endif  // WICONS_H

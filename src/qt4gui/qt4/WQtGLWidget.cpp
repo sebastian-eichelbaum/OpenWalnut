@@ -46,6 +46,7 @@
 #include "core/graphicsEngine/WGraphicsEngineMode.h"
 #include "core/kernel/WKernel.h"
 
+#include "WQt4Gui.h"
 #include "WQtGLScreenCapture.h"
 #include "events/WRenderedFrameEvent.h"
 #include "events/WEventTypes.h"
@@ -106,7 +107,7 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
     // set bg color
     updateViewerBackground();
     // this action manages the above settings
-    m_changeBGColorAction = new QAction( QString::fromStdString( nameOfViewer ), parent );
+    m_changeBGColorAction = new QAction( WQt4Gui::getIconManager()->getIcon( "colorwheel" ), "Change Background Color", parent );
     connect( m_changeBGColorAction, SIGNAL( triggered( bool ) ), this, SLOT( changeBGColor() ) );
 
     // enable throwing of wanted
@@ -117,6 +118,31 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
                                                       false );
     connect( m_allowThrowSetting, SIGNAL( change( bool ) ), this, SLOT( updateThrowing() ) );
     updateThrowing();
+
+    // a separate menu for some presets
+    m_cameraPresetMenu = new QMenu( "Camera Presets" );
+    // NOTE: the shortcuts for these view presets should be chosen carefully. Most keysequences have another meaning in the most applications
+    // so the user may get confused. It is also not a good idea to take letters as they might be used by OpenSceneGraph widget ( like "S" for
+    // statistics ).
+    // By additionally adding the action to the main window, we ensure the action can be triggered even if the menu bar is hidden.
+    QAction* tmpAction = m_cameraPresetMenu->addAction( WQt4Gui::getIconManager()->getIcon( "sagittal icon" ), "Left", this, SLOT( setPresetViewLeft() ),
+                                             QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_L ) );
+    tmpAction->setIconVisibleInMenu( true );
+    tmpAction = m_cameraPresetMenu->addAction( WQt4Gui::getIconManager()->getIcon( "sagittal icon" ), "Right", this, SLOT( setPresetViewRight() ),
+                                       QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_R ) );
+    tmpAction->setIconVisibleInMenu( true );
+    tmpAction = m_cameraPresetMenu->addAction( WQt4Gui::getIconManager()->getIcon( "axial icon" ), "Superior", this, SLOT( setPresetViewSuperior() ),
+                                       QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_S ) );
+    tmpAction->setIconVisibleInMenu( true );
+    tmpAction = m_cameraPresetMenu->addAction( WQt4Gui::getIconManager()->getIcon( "axial icon" ), "Inferior", this, SLOT( setPresetViewInferior() ),
+                                       QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_I ) );
+    tmpAction->setIconVisibleInMenu( true );
+    tmpAction = m_cameraPresetMenu->addAction( WQt4Gui::getIconManager()->getIcon( "coronal icon" ), "Anterior", this, SLOT( setPresetViewAnterior() ),
+                                       QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_A ) );
+    tmpAction->setIconVisibleInMenu( true );
+    tmpAction = m_cameraPresetMenu->addAction( WQt4Gui::getIconManager()->getIcon( "coronal icon" ), "Posterior", this, SLOT( setPresetViewPosterior() ),
+                                       QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) );
+    tmpAction->setIconVisibleInMenu( true );
 }
 
 WQtGLWidget::~WQtGLWidget()
@@ -400,3 +426,97 @@ WQtGLScreenCapture* WQtGLWidget::getScreenCapture( WMainWindow* parent ) const
     return sc;
 }
 
+void WQtGLWidget::setPresetViewLeft()
+{
+    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( m_Viewer->getCameraManipulator() );
+    osg::Quat q( 0.5, -0.5, -0.5, 0.5 );
+    // is it a trackball manipulator?
+    if( cm )
+    {
+        cm->setRotation( q );
+    }
+    else
+    {
+        wlog::warn( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "GL Widget does not use a TrackballManipulator. Preset cannot be used.";
+    }
+}
+
+void WQtGLWidget::setPresetViewRight()
+{
+    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( m_Viewer->getCameraManipulator() );
+    osg::Quat q( -0.5, -0.5, -0.5, -0.5 );
+    // is it a trackball manipulator?
+    if( cm )
+    {
+        cm->setRotation( q );
+    }
+    else
+    {
+        wlog::warn( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "GL Widget does not use a TrackballManipulator. Preset cannot be used.";
+    }
+}
+
+void WQtGLWidget::setPresetViewSuperior()
+{
+    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( m_Viewer->getCameraManipulator() );
+    osg::Quat q( 0., 0., 0., 1 );
+    // is it a trackball manipulator?
+    if( cm )
+    {
+        cm->setRotation( q );
+    }
+    else
+    {
+        wlog::warn( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "GL Widget does not use a TrackballManipulator. Preset cannot be used.";
+    }
+}
+
+void WQtGLWidget::setPresetViewInferior()
+{
+    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( m_Viewer->getCameraManipulator() );
+    osg::Quat q( 0., -1., 0., 0. );
+    // is it a trackball manipulator?
+    if( cm )
+    {
+        cm->setRotation( q );
+    }
+    else
+    {
+        wlog::warn( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "GL Widget does not use a TrackballManipulator. Preset cannot be used.";
+    }
+}
+
+void WQtGLWidget::setPresetViewAnterior()
+{
+    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( m_Viewer->getCameraManipulator() );
+    osg::Quat q( 0., -0.707107, -0.707107, 0. );
+    // is it a trackball manipulator?
+    if( cm )
+    {
+        cm->setRotation( q );
+    }
+    else
+    {
+        wlog::warn( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "GL Widget does not use a TrackballManipulator. Preset cannot be used.";
+    }
+}
+
+void WQtGLWidget::setPresetViewPosterior()
+{
+    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( m_Viewer->getCameraManipulator() );
+    osg::Quat q( 0.707107, 0., 0., 0.707107 );
+    // is it a trackball manipulator?
+    if( cm )
+    {
+        cm->setRotation( q );
+    }
+    else
+    {
+        wlog::warn( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "GL Widget does not use a TrackballManipulator. Preset cannot be used.";
+    }
+}
+
+QMenu* WQtGLWidget::getCameraPresetsMenu()
+{
+    return m_cameraPresetMenu;
+}

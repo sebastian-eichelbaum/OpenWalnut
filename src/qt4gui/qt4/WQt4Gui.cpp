@@ -95,6 +95,11 @@ WMainWindow* WQt4Gui::getMainWindow()
     return m_mainWindow;
 }
 
+WIconManager* WQt4Gui::getIconManager()
+{
+    return getMainWindow()->getIconManager();
+}
+
 void WQt4Gui::deferredLoad()
 {
     m_deferredLoadMutex.lock();

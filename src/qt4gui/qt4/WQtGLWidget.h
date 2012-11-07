@@ -32,6 +32,7 @@
 
 #include <QtCore/QTimer>
 #include <QtGui/QWidget>
+#include <QtGui/QMenu>
 #include <QtOpenGL/QGLWidget>
 #include <QtOpenGL/QGLFormat>
 
@@ -145,6 +146,13 @@ public:
      */
     WQtGLScreenCapture* getScreenCapture( WMainWindow* parent ) const;
 
+    /**
+     * The presets menu.
+     *
+     * \return the menu
+     */
+    QMenu* getCameraPresetsMenu();
+
 signals:
 
     /**
@@ -157,6 +165,36 @@ public slots:
      * Resets the contained view using the installed manipulator.
      */
     void reset();
+
+    /**
+     * Sets the left preset view of the main viewer.
+     */
+    void setPresetViewLeft();
+
+    /**
+     * Sets the right preset view of the main viewer.
+     */
+    void setPresetViewRight();
+
+    /**
+     * Sets the superior preset view of the main viewer.
+     */
+    void setPresetViewSuperior();
+
+    /**
+     * Sets the inferior preset view of the main viewer.
+     */
+    void setPresetViewInferior();
+
+    /**
+     * Sets the anterior preset view of the main viewer.
+     */
+    void setPresetViewAnterior();
+
+    /**
+     * Sets the posterior preset view of the main viewer.
+     */
+    void setPresetViewPosterior();
 
 protected:
     /**
@@ -307,6 +345,11 @@ private:
      * Called by the WGEViewer to notify about the first frame rendered
      */
     void notifyFirstRenderedFrame();
+
+    /**
+     * Camera menu
+     */
+    QMenu* m_cameraPresetMenu;
 
 private slots:
     /**
