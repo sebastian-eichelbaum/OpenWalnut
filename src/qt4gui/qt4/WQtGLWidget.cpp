@@ -143,6 +143,10 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
     tmpAction = m_cameraPresetMenu->addAction( WQt4Gui::getIconManager()->getIcon( "coronal icon" ), "Posterior", this, SLOT( setPresetViewPosterior() ),
                                        QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) );
     tmpAction->setIconVisibleInMenu( true );
+
+    m_cameraResetAction = new QAction( WQt4Gui::getIconManager()->getIcon( "view" ), "Reset", this );
+    connect( m_cameraResetAction, SIGNAL(  triggered( bool ) ), this, SLOT( reset() ) );
+    m_cameraResetAction->setToolTip( "Reset view" );
 }
 
 WQtGLWidget::~WQtGLWidget()
@@ -519,4 +523,9 @@ void WQtGLWidget::setPresetViewPosterior()
 QMenu* WQtGLWidget::getCameraPresetsMenu()
 {
     return m_cameraPresetMenu;
+}
+
+QAction* WQtGLWidget::getCameraResetAction()
+{
+    return m_cameraResetAction;
 }

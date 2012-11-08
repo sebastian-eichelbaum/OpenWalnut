@@ -356,8 +356,9 @@ void WMainWindow::setupGUI()
     controlPanelTrigger->setShortcuts( controlPanelShortcut );
     this->addAction( controlPanelTrigger );  // this enables the action even if the menu bar is invisible
 
-    resetButton->setMenu( m_mainGLWidget->getCameraPresetsMenu() );
+    m_cameraMenu->addAction( m_mainGLWidget->getCameraResetAction() );
     m_cameraMenu->addMenu( m_mainGLWidget->getCameraPresetsMenu() );
+    resetButton->setMenu( m_mainGLWidget->getCameraPresetsMenu() );
 
     m_helpAction = new QAction( "Help", this );
     m_helpMenu = m_menuBar->addMenu( "Help" );
