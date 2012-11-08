@@ -160,6 +160,16 @@ public:
     WPosition operator[]( const size_t pointIdx ) const;
 
     /**
+     * Query coordinates of a given point.
+     *
+     * \throw WOutOfBounds if invalid index is used.
+     * \param pointIdx the point index.
+     *
+     * \return the coordinates
+     */
+    WPosition getPosition( const size_t pointIdx ) const;
+
+    /**
      * The color of a given point.
      *
      * \throw WOutOfBounds if invalid index is used.

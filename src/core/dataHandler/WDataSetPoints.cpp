@@ -167,7 +167,7 @@ WBoundingBox WDataSetPoints::getBoundingBox() const
 
 WPosition WDataSetPoints::operator[]( const size_t pointIdx ) const
 {
-    if( isValidPointIdx( pointIdx ) )
+    if( !isValidPointIdx( pointIdx ) )
     {
         throw WOutOfBounds( "The specified index is invalid." );
     }
@@ -177,9 +177,14 @@ WPosition WDataSetPoints::operator[]( const size_t pointIdx ) const
                       m_vertices->operator[]( pointIdx * 3 + 2 ) );
 }
 
+WPosition WDataSetPoints::getPosition( const size_t pointIdx ) const
+{
+    return operator[]( pointIdx );
+}
+
 WColor WDataSetPoints::getColor( const size_t pointIdx ) const
 {
-    if( isValidPointIdx( pointIdx ) )
+    if( !isValidPointIdx( pointIdx ) )
     {
         throw WOutOfBounds( "The specified index is invalid." );
     }
