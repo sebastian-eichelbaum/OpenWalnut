@@ -45,7 +45,11 @@ WDataSetPoints::WDataSetPoints( WDataSetPoints::VertexArray vertices,
     WAssert( vertices->size() % 3 == 0, "Number of floats in the vertex array must be a multiple of 3" );
     if( colors )
     {
-        WAssert( colors->size() / 4 == vertices->size() / 3, "Number of floats in the color array must be 4 per vertex" );
+        size_t numPoints = vertices->size() / 3;
+        WAssert( ( colors->size() / 4 == numPoints ) ||
+                 ( colors->size() / 3 == numPoints ) ||
+                 ( colors->size() / 1 == numPoints )
+                , "Number of floats in the color array must be 1,3, or 4 per vertex" );
     }
 
     init();
@@ -59,7 +63,11 @@ WDataSetPoints::WDataSetPoints( WDataSetPoints::VertexArray vertices,
     WAssert( vertices->size() % 3 == 0, "Number of floats in the vertex array must be a multiple of 3" );
     if( colors )
     {
-        WAssert( colors->size() / 4 == vertices->size() / 3, "Number of floats in the color array must be 4 per vertex" );
+        size_t numPoints = vertices->size() / 3;
+        WAssert( ( colors->size() / 4 == numPoints ) ||
+                 ( colors->size() / 3 == numPoints ) ||
+                 ( colors->size() / 1 == numPoints )
+                , "Number of floats in the color array must be 1,3, or 4 per vertex" );
     }
 
     init( true );
@@ -80,8 +88,8 @@ void WDataSetPoints::init( bool calcBB )
     // no colors specified? Use white as default
     if( !m_colors )
     {
-        // Store 4 values for each point
-        m_colors = ColorArray( new ColorArray::element_type( m_vertices->size() / 3 * 4, 1.0 ) );
+        // Store 1 value for each point (gray scale colors)
+        m_colors = ColorArray( new ColorArray::element_type( m_vertices->size() / 3, 1.0 ) );
     }
 
     // calculate the bounding box if needed
@@ -107,6 +115,9 @@ void WDataSetPoints::init( bool calcBB )
 
         m_bb = WBoundingBox( minX, minY, minZ, maxX, maxY, maxZ );
     }
+
+    // which colortype do we have?
+    m_colorType = static_cast< ColorType >( m_colors->size() / ( m_vertices->size() / 3 ) );
 }
 
 size_t WDataSetPoints::size() const
@@ -156,7 +167,7 @@ WBoundingBox WDataSetPoints::getBoundingBox() const
 
 WPosition WDataSetPoints::operator[]( const size_t pointIdx ) const
 {
-    if( pointIdx * 3 > m_vertices->size() - 3 )
+    if( isValidPointIdx( pointIdx ) )
     {
         throw WOutOfBounds( "The specified index is invalid." );
     }
@@ -168,13 +179,40 @@ WPosition WDataSetPoints::operator[]( const size_t pointIdx ) const
 
 WColor WDataSetPoints::getColor( const size_t pointIdx ) const
 {
-    if( pointIdx * 4 > m_colors->size() - 4 )
+    if( isValidPointIdx( pointIdx ) )
     {
         throw WOutOfBounds( "The specified index is invalid." );
     }
 
-    return WColor( m_colors->operator[]( pointIdx * 4 + 0 ),
-                   m_colors->operator[]( pointIdx * 4 + 1 ),
-                   m_colors->operator[]( pointIdx * 4 + 2 ),
-                   m_colors->operator[]( pointIdx * 4 + 3 ) );
+    switch( getColorType() )
+    {
+        case GRAY:
+            return WColor( m_colors->operator[]( pointIdx * 1 + 0 ),
+                           m_colors->operator[]( pointIdx * 1 + 0 ),
+                           m_colors->operator[]( pointIdx * 1 + 0 ),
+                           1.0 );
+        case RGB:
+            return WColor( m_colors->operator[]( pointIdx * 3 + 0 ),
+                           m_colors->operator[]( pointIdx * 3 + 1 ),
+                           m_colors->operator[]( pointIdx * 3 + 2 ),
+                           1.0 );
+        case RGBA:
+            return WColor( m_colors->operator[]( pointIdx * 4 + 0 ),
+                           m_colors->operator[]( pointIdx * 4 + 1 ),
+                           m_colors->operator[]( pointIdx * 4 + 2 ),
+                           m_colors->operator[]( pointIdx * 4 + 3 ) );
+        default:
+            return WColor( 1.0, 1.0, 1.0, 1.0 );
+    }
+}
+
+bool WDataSetPoints::isValidPointIdx( const size_t pointIdx ) const
+{
+    return ( pointIdx < m_vertices->size() / 3 );
+
+}
+
+WDataSetPoints::ColorType WDataSetPoints::getColorType() const
+{
+    return m_colorType;
 }

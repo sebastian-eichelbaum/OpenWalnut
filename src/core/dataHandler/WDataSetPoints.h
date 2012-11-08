@@ -65,7 +65,7 @@ public:
      * Constructs a new set of points. If no color is specified, white is used for all points.
      *
      * \note the number of floats in vertices must be a multiple of 3
-     * \note the number of floats in colors (if not NULL) must be vertices->size() / 3 * 4
+     * \note the number of floats in colors (if not NULL) must be vertices->size() / 3  times one of 1,3, or 4
      *
      * \param vertices the vertices of the points, stored in x1,y1,z1,x2,y2,z2, ..., xn,yn,zn scheme
      * \param colors the colors of each vertex. Can be NULL.. Stored as R1,G1,B1,A1, ... Rn,Gn,Bn,An
@@ -79,10 +79,10 @@ public:
      * points.
      *
      * \note the number of floats in vertices must be a multiple of 3
-     * \note the number of floats in colors (if not NULL) must be vertices->size() / 3 * 4
+     * \note the number of floats in colors (if not NULL) must be vertices->size() / 3  times one of 1,3, or 4
      *
      * \param vertices the vertices of the points, stored in x1,y1,z1,x2,y2,z2, ..., xn,yn,zn scheme
-     * \param colors the colors of each vertex. Can be NULL.. Stored as R1,G1,B1,A1, ... Rn,Gn,Bn,An
+     * \param colors the colors of each vertex. Can be NULL.. Stored as R1,[G1,B1,[A1,]] ... Rn,[Gn,Bn,[An]]
      */
     WDataSetPoints( VertexArray vertices, ColorArray colors );
 
@@ -169,6 +169,31 @@ public:
      */
     WColor getColor( const size_t pointIdx ) const;
 
+    /**
+     * Is this a valid point index?
+     *
+     * \param pointIdx the index to check
+     *
+     * \return true if yes.
+     */
+    bool isValidPointIdx( const size_t pointIdx ) const;
+
+    /**
+     * The type of colors we have for each point.
+     */
+    enum ColorType
+    {
+        GRAY = 1,
+        RGB = 3,
+        RGBA =4
+    };
+
+    /**
+     * Check the type of color.
+     *
+     * \return the type
+     */
+    ColorType getColorType() const;
 protected:
     /**
      * The prototype as singleton.
@@ -185,6 +210,11 @@ private:
      * An array of the colors per vertex.
      */
     ColorArray m_colors;
+
+    /**
+     * Which colortype do we use in m_colors.
+     */
+    ColorType m_colorType;
 
     /**
      * Axis aligned bounding box for all point-vertices of this dataset.
