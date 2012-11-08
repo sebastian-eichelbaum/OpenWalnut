@@ -73,28 +73,20 @@ void WGEGraphicsWindow::createContext( int x, int y, int width, int height )
     osg::ref_ptr<osg::DisplaySettings> ds = osg::DisplaySettings::instance();
     osg::ref_ptr<osg::GraphicsContext::Traits> traits = new osg::GraphicsContext::Traits;
 
-    // ensure correct $DISPLAY variable
-    traits->readDISPLAY();
-    if( traits->displayNum < 0 )
-    {
-        traits->displayNum = 0;
-    }
-
     // set a lot of values
     traits->windowName = "OpenWalnut";
-    traits->screenNum = 0;      // XXX is this a good idea?
     traits->x = x;
     traits->y = y;
     traits->width = width;
     traits->height = height;
     traits->alpha = ds->getMinimumNumAlphaBits();
     traits->stencil = ds->getMinimumNumStencilBits();
-    // traits->windowDecoration = false;
     traits->doubleBuffer = true;
     traits->sharedContext = 0;
     traits->sampleBuffers = ds->getMultiSamples();
     traits->samples = ds->getNumMultiSamples();
     traits->inheritedWindowData = m_WindowData;
+    traits->vsync = true;
 
     // finally create graphics context and window
     m_GraphicsContext = osg::GraphicsContext::createGraphicsContext( traits.get() );
