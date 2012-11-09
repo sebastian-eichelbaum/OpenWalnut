@@ -32,6 +32,7 @@
 #include "core/graphicsEngine/WGEColormapping.h"
 #include "core/graphicsEngine/WGEGeodeUtils.h"
 #include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/graphicsEngine/postprocessing/WGEPostprocessingNode.h"
 #include "core/graphicsEngine/WGEUtils.h"
 #include "core/kernel/WKernel.h"
 
@@ -143,13 +144,22 @@ void WMPointRenderer::moduleMain()
     // setup the main graphics-node:
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // create a OSG node, which will contain the triangle data and allows easy transformations:
-    m_moduleNode = new WGEManagedGroupNode( m_active );
-    osg::StateSet* moduleNodeState = m_moduleNode->getOrCreateStateSet();
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
+    // create the post-processing node which actually does the nice stuff to the rendered image
+    osg::ref_ptr< WGEPostprocessingNode > postNode = new WGEPostprocessingNode(
+        WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera()
+    );
+    postNode->addUpdateCallback( new WGENodeMaskCallback( m_active ) ); // disable the postNode with m_active
+    // provide the properties of the post-processor to the user
+    m_properties->addProperty( postNode->getProperties() );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( postNode );
 
     // load the GLSL shader:
-//    m_shader = new WGEShader( "WMPointRenderer", m_localPath );
+    m_shader = new WGEShader( "WMPointRenderer", m_localPath );
+    // set geometry shader options
+    m_shader->setParameter( GL_GEOMETRY_VERTICES_OUT_EXT, 4 );
+    m_shader->setParameter( GL_GEOMETRY_INPUT_TYPE_EXT, GL_POINTS );
+    m_shader->setParameter( GL_GEOMETRY_OUTPUT_TYPE_EXT, GL_TRIANGLE_STRIP );
+
 
     // loop until the module container requests the module to quit
     while( !m_shutdownFlag() )
@@ -170,6 +180,7 @@ void WMPointRenderer::moduleMain()
         if( !points )
         {
             debugLog() << "Invalid Data. Disabling.";
+            postNode->clear();
             continue;
         }
 
@@ -204,12 +215,16 @@ void WMPointRenderer::moduleMain()
 
         // add geometry to geode
         geode->addDrawable( geometry );
+
+        // shader and colormapping
+        m_shader->apply( geode );
+
         // add geode to group
-        m_moduleNode->clear();
-        m_moduleNode->insert( geode );
+        postNode->clear();
+        postNode->insert( geode, m_shader );
     }
 
     // it is important to always remove the modules again
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( postNode );
 }
 

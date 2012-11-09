@@ -108,11 +108,6 @@ private:
     boost::shared_ptr< WModuleInputData< WDataSetPoints > > m_pointInput;
 
     /**
-     * The node containing all geometry nodes.
-     */
-    WGEManagedGroupNode::SPtr m_moduleNode;
-
-    /**
      * The shader for the points
      */
     osg::ref_ptr< WGEShader > m_shader;
