@@ -214,7 +214,6 @@ WColor WDataSetPoints::getColor( const size_t pointIdx ) const
 bool WDataSetPoints::isValidPointIdx( const size_t pointIdx ) const
 {
     return ( pointIdx < m_vertices->size() / 3 );
-
 }
 
 WDataSetPoints::ColorType WDataSetPoints::getColorType() const
