@@ -24,5 +24,12 @@ export LD_PRELOAD=$Preloads
 # Force C locale. This fixes an issue with newer boost versions. See ticket #130.
 export LC_ALL=C
 
+# Check if the user has set $OPENWALNUT_USEOPTIMUS to an executable
+runner=
+if [ -x "$OPENWALNUT_USEOPTIMUS" ]; then
+    echo "Optimus implementation found. Using "$OPENWALNUT_USEOPTIMUS""
+    runner=/$OPENWALNUT_USEOPTIMUS
+fi
+
 # Run OpenWalnut
-$BINDIR/openwalnut-qt4 $@
+$runner $BINDIR/openwalnut-qt4 $@

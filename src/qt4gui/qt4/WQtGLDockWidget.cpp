@@ -28,6 +28,8 @@
 
 #include "WQt4Gui.h"
 
+#include "WSettingAction.h"
+
 #include "WQtGLDockWidget.h"
 #include "WQtGLDockWidget.moc"
 
@@ -75,6 +77,9 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     QAction* camPresets = new QAction( WQt4Gui::getIconManager()->getIcon( "view" ), "Camera Presets", this );
     camPresets->setMenu( getGLWidget()->getCameraPresetsMenu() );
     addAction( camPresets );
+
+    // throwing
+    addAction( getGLWidget()->getThrowingSetting() );
 
     // change background color
     addAction( getGLWidget()->getBackgroundColorAction() );

@@ -153,6 +153,12 @@ public:
      */
     QMenu* getCameraPresetsMenu();
 
+    /**
+     * The action to trigger a camera reset.
+     *
+     * \return the action
+     */
+    QAction* getCameraResetAction();
 signals:
 
     /**
@@ -350,6 +356,11 @@ private:
      * Camera menu
      */
     QMenu* m_cameraPresetMenu;
+
+    /**
+     * Camera reset.
+     */
+    QAction* m_cameraResetAction;
 
 private slots:
     /**
