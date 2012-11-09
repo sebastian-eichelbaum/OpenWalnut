@@ -199,7 +199,6 @@ void WMPointRenderer::moduleMain()
         WDataSetPoints::ColorArray pointColors = points->getColors();
         for( size_t pointIdx = 0; pointIdx < points->size(); ++pointIdx )
         {
-
             osg::Vec3 vert = points->operator[]( pointIdx );
             osg::Vec4 color = points->getColor( pointIdx );
 
