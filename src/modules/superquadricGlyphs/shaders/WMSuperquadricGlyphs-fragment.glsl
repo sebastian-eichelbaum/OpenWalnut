@@ -25,6 +25,8 @@
 #version 120
 
 #include "WGEShadingTools.glsl"
+#include "WGETextureTools.glsl"
+#include "WGEPostprocessing.glsl"
 
 // commonly used variables
 #include "WMSuperquadricGlyphs-varyings.glsl"
@@ -256,8 +258,17 @@ void main( void )
 
     if( hit )
     {
+        // get a normal in world space again: use v_glyphToWorld
+        vec3 normal = normalize( ( v_glyphToWorld * vec4( grad, 0.0 ) ).xyz );
+
+        // finally set the color and depth
+        wgeInitGBuffer();
+        wge_FragNormal = textureNormalize( normal );
+        wge_FragZoom = 0.1 * v_worldScale;
+        wge_FragTangent = textureNormalize( vec3( 0.0, 1.0, 0.0 ) );
+
         // draw shaded pixel
-        gl_FragColor = blinnPhongIllumination(
+        wge_FragColor = blinnPhongIllumination(
             // material properties
             gl_Color.rgb * 0.2,                    // ambient color
             gl_Color.rgb * 2.0,                    // diffuse color
