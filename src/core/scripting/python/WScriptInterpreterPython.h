@@ -28,6 +28,7 @@
 #include <string>
 #include <vector>
 
+#include <boost/thread/mutex.hpp>
 #include <boost/python.hpp>
 
 #include "../wrappers/WLoggerWrapper.h"
@@ -116,6 +117,9 @@ private:
 
     //! The args passed to the script.
     char** m_argv;
+
+    //! A mutex for thread-safe script execution.
+    boost::mutex m_mutex;
 };
 
 #endif  // PYTHON_FOUND

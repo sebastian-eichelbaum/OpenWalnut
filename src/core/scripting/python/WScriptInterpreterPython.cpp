@@ -73,6 +73,8 @@ WScriptInterpreterPython::~WScriptInterpreterPython()
 
 void WScriptInterpreterPython::initBindings()
 {
+    boost::unique_lock< boost::mutex > lock( m_mutex );
+
     // bind WPropertyWrapper class to "WProperty" in the python namespace
     // no constructor in python for now
     m_pyMainNamespace[ "WProperty" ] = pb::class_< WPropertyWrapper >( "WProperty", pb::no_init )
@@ -135,6 +137,8 @@ void WScriptInterpreterPython::initBindings()
 
 void WScriptInterpreterPython::setParameters( std::vector< std::string > const& params )
 {
+    boost::unique_lock< boost::mutex > lock( m_mutex );
+
     if( params.size() == 0 )
     {
         return;
@@ -155,6 +159,8 @@ void WScriptInterpreterPython::setParameters( std::vector< std::string > const& 
 
 void WScriptInterpreterPython::execute( std::string const& line )
 {
+    boost::unique_lock< boost::mutex > lock( m_mutex );
+
     try
     {
         pb::exec( line.c_str(), m_pyMainNamespace );
