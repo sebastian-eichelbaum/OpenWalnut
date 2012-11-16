@@ -57,12 +57,7 @@ void WCreateColorArraysThread::threadMain()
         return;
     }
 
-    if( !m_vertices->size() ||
-         !m_tangents->size() ||
-         !m_globalColors->size() ||
-         !m_localColors->size() ||
-         !m_lineStartIndexes->size() ||
-         !m_lineLengths->size() )
+    if( !m_vertices->size() || !m_tangents->size() || !m_globalColors->size() || !m_localColors->size() || !m_lineStartIndexes->size() || !m_lineLengths->size() )
     {
         return;
     }
