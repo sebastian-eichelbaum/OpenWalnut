@@ -28,7 +28,6 @@
 
 
 WCreateColorArraysThread::WCreateColorArraysThread(  int left, int right, boost::shared_ptr< std::vector< float > >vertices,
-        boost::shared_ptr< std::vector< size_t > > lineStartIndexes,
         boost::shared_ptr< std::vector< size_t > > lineLengths,
         boost::shared_ptr< std::vector< float > > globalColors,
         boost::shared_ptr< std::vector< float > > localColors,
@@ -41,7 +40,6 @@ WCreateColorArraysThread::WCreateColorArraysThread(  int left, int right, boost:
     m_tangents( tangents ),
     m_globalColors( globalColors ),
     m_localColors( localColors ),
-    m_lineStartIndexes( lineStartIndexes ),
     m_lineLengths( lineLengths )
 {
 }
@@ -52,12 +50,12 @@ WCreateColorArraysThread::~WCreateColorArraysThread()
 
 void WCreateColorArraysThread::threadMain()
 {
-    if( !m_vertices || !m_tangents || !m_globalColors || !m_localColors || !m_lineStartIndexes || !m_lineLengths )
+    if( !m_vertices || !m_tangents || !m_globalColors || !m_localColors || !m_lineLengths )
     {
         return;
     }
 
-    if( !m_vertices->size() || !m_tangents->size() || !m_globalColors->size() || !m_localColors->size() || !m_lineStartIndexes->size() || !m_lineLengths->size() )
+    if( !m_vertices->size() || !m_tangents->size() || !m_globalColors->size() || !m_localColors->size() || !m_lineLengths->size() )
     {
         return;
     }

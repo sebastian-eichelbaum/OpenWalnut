@@ -231,7 +231,7 @@ bool WMWriteTracts::saveJson() const
     dataFile << fValue << "],\n";
 
     dataFile << ( "    \"colors\" : [" );
-    boost::shared_ptr<std::vector<float> > colors = ds->getGlobalColors();
+    boost::shared_ptr< std::vector< float > > colors = ds->getColorScheme( "Global Color" )->getColor();
     for( size_t i = 0; i < colors->size() - 3; i += 3 )
     {
         fValue = colors->at( i );
@@ -311,7 +311,7 @@ bool WMWriteTracts::saveJson2() const
 
     boost::shared_ptr<std::vector<float> > verts = ds->getVertices();
     boost::shared_ptr<std::vector<float> > tangents = ds->getTangents();
-    boost::shared_ptr<std::vector<float> > colors = ds->getGlobalColors();
+    boost::shared_ptr< std::vector< float > > colors = ds->getColorScheme( "Global Color" )->getColor();
 
     for( size_t k = 0; k < lengths->size(); ++k )
     {

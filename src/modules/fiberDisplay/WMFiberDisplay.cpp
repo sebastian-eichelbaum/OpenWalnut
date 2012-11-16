@@ -283,7 +283,7 @@ void WMFiberDisplay::create()
     m_fiberDrawable->setPointsPerLine( m_dataset->getLineLengths() );
     m_fiberDrawable->setVerts( m_dataset->getVertices() );
     m_fiberDrawable->setTangents( m_dataset->getTangents() );
-    m_fiberDrawable->setColor( m_dataset->getGlobalColors() );
+    m_fiberDrawable->setColor( m_dataset->getColorScheme( "Global Color" )->getColor() );
     m_fiberDrawable->setBitfield( m_fiberSelector->getBitfield() );
 
     m_fiberDrawable->setUseDisplayList( false );

@@ -297,20 +297,6 @@ public:
     TangentArray getTangents() const;
 
     /**
-     * Reference to the vector storing the global colors.
-     *
-     * \return Pointer to the float array. This always is RGB.
-     */
-    ColorArray getGlobalColors() const;
-
-    /**
-     * Reference to the vector storing the local colors.
-     *
-     * \return Pointer to the float array. This always is RGB.
-     */
-    ColorArray getLocalColors() const;
-
-    /**
      * Get the parameter values for each vertex. Same indexing as vertices. Used to store additional scalar values for each vertex.
      *
      * \return the array. Can be NULL.

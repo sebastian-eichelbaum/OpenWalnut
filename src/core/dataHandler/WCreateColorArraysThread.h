@@ -48,7 +48,6 @@ public:
      * \param tangents
      */
     WCreateColorArraysThread( int left, int right, boost::shared_ptr< std::vector< float > >vertices,
-                                                   boost::shared_ptr< std::vector< size_t > > lineStartIndexes,
                                                    boost::shared_ptr< std::vector< size_t > > lineLengths,
                                                    boost::shared_ptr< std::vector< float > > globalColors,
                                                    boost::shared_ptr< std::vector< float > > localColors,
@@ -98,14 +97,7 @@ private:
      * Storing the local color value of the fibers for each point.
      * \note it is mutable to allow getLocalColors creating it on demand.
      */
-    mutable boost::shared_ptr< std::vector< float > > m_localColors;
-
-    /**
-     * Line vector that contains the start index of its first point for each line.
-     * \warning The index returned cannot be used in the vertices array until
-     * the number of components for each point is multiplied.
-     */
-    boost::shared_ptr< const std::vector< size_t > > m_lineStartIndexes;
+    boost::shared_ptr< std::vector< float > > m_localColors;
 
     /**
      * Line vector that contains the number of vertices for each line
