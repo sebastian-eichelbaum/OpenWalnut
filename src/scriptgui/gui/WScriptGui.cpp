@@ -22,7 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include <fstream>
 #include <string>
 #include <vector>
 
@@ -141,26 +140,7 @@ int WScriptGui::run()
     if( executeScriptFile )
     {
         // execute provided script file
-
-        // load file content into string
-        std::ifstream in( m_programOptions[ "file" ].as< std::vector< std::string > >()[ 0 ].c_str() );
-        std::string script;
-        std::string line;
-        while( std::getline( in, line ) )
-        {
-            script += line + "\n";
-        }
-        in.close();
-
-        // execute
-        try
-        {
-            scriptInterpreter->execute( script );
-        }
-        catch( WException const& e )
-        {
-            wlog::error( "Walnut" ) << "Error while executing script: " << e.what();
-        }
+        scriptInterpreter->executeFile( m_programOptions[ "file" ].as< std::vector< std::string > >()[ 0 ] );
     }
     else
     {

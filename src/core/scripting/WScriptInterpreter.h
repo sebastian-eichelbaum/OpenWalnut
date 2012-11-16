@@ -62,6 +62,13 @@ public:
     virtual void execute( std::string const& line ) = 0;
 
     /**
+     * Execute a file.
+     *
+     * \param filename The script file to execute.
+     */
+    virtual void executeFile( std::string const& filename ) = 0;
+
+    /**
      * Get the name of the language interpreted by this interpreter.
      *
      * \return The name of the script language.

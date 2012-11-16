@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -161,6 +162,29 @@ void WScriptInterpreterPython::execute( std::string const& line )
     catch( pb::error_already_set const& )
     {
         PyErr_Print();
+    }
+}
+
+void WScriptInterpreterPython::executeFile( std::string const& filename )
+{
+    // load file content into string
+    std::ifstream in( filename.c_str() );
+    std::string script;
+    std::string line;
+    while( std::getline( in, line ) )
+    {
+        script += line + "\n";
+    }
+    in.close();
+
+    // execute
+    try
+    {
+        execute( script );
+    }
+    catch( WException const& e )
+    {
+        wlog::error( "Walnut" ) << "Error while executing script: " << e.what();
     }
 }
 
