@@ -37,6 +37,8 @@
 
 namespace pb = boost::python;
 
+#ifdef PYTHON_FOUND
+
 /**
  * \class WScriptInterpreterPython
  *
@@ -48,7 +50,7 @@ public:
     /**
      * Constructor. Creates the interpreter.
      */
-    WScriptInterpreterPython();
+    explicit WScriptInterpreterPython( boost::shared_ptr< WModuleContainer > const& rootContainer );
 
     /**
      * Destructor. Destroys the interpreter.
@@ -75,6 +77,20 @@ public:
      */
     virtual void execute( std::string const& line );
 
+    /**
+     * Get the name of the language interpreted by this interpreter.
+     *
+     * \return The name of the script language.
+     */
+    virtual std::string const getName() const;
+
+    /**
+     * Get the default extension for script file belonging to the script interpreter's language.
+     *
+     * \return The default file extension.
+     */
+    virtual std::string const getExtension() const;
+
 private:
     //! The python module.
     pb::object m_pyModule;
@@ -94,5 +110,7 @@ private:
     //! The args passed to the script.
     char** m_argv;
 };
+
+#endif  // PYTHON_FOUND
 
 #endif  // WSCRIPTINTERPRETERPYTHON_H

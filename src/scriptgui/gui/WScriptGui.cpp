@@ -32,7 +32,6 @@
 #include "core/common/WThreadedRunner.h"
 #include "core/common/WSegmentationFault.h"
 #include "core/common/WPathHelper.h"
-#include "core/scripting/WScriptInterpreterFactory.h"
 
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WModuleFactory.h"
@@ -78,6 +77,14 @@ int WScriptGui::run()
     WPathHelper::getPathHelper()->setBasePaths( walnutBin, homePath / ".OpenWalnut" );
 #endif
 
+    //----------------------------
+    // startup
+    //----------------------------
+
+    // start the kernel
+    boost::shared_ptr< WKernel > kernel( WKernel::instance( WGraphicsEngine::getGraphicsEngine(), shared_from_this() ) );
+    kernel->run();
+
     //--------------------------------
     // choose interpreter to use
     //--------------------------------
@@ -98,7 +105,7 @@ int WScriptGui::run()
 
         std::string ext = scriptFile.extension().string();
 
-        scriptInterpreter = WScriptInterpreterFactory::constructByFileExtension( ext );
+        scriptInterpreter = WKernel::getRunningKernel()->getScriptEngine()->getInterpreterByFileExtension( ext );
         executeScriptFile = ( scriptInterpreter != NULL );
 
         if( executeScriptFile )
@@ -110,30 +117,22 @@ int WScriptGui::run()
     // then check for interp parameter
     else if( m_programOptions.count( "interp" ) )
     {
-        scriptInterpreter = WScriptInterpreterFactory::constructByName( m_programOptions[ "interp" ].as< std::string >() );
+        scriptInterpreter = WKernel::getRunningKernel()->getScriptEngine()->getInterpreter( m_programOptions[ "interp" ].as< std::string >() );
     }
 
     if( !scriptInterpreter )
     {
         wlog::error( "Walnut" ) << "Could not create a script interpreter.";
         wlog::error( "Walnut" ) << "Only the following interpreters are supported in this build:";
-        wlog::error( "Walnut" ) << WScriptInterpreterFactory::getSupportedInterpreterList();
+        for( std::size_t k = 0; k < WKernel::getRunningKernel()->getScriptEngine()->getNumInterpreters(); ++k )
+        {
+            wlog::error( "Walnut" ) << WKernel::getRunningKernel()->getScriptEngine()->getInterpreter( k )->getName()
+                                    << " (" << WKernel::getRunningKernel()->getScriptEngine()->getInterpreter( k )->getExtension() << ")";
+        }
         wlog::error( "Walnut" ) << "If the interpreter you want to use is not listed, it is either not implemented yet"
                                 << " or dependencies are missing.";
         return 1;
     }
-
-    //----------------------------
-    // startup
-    //----------------------------
-
-    // now we successfully chose a script interpreter to use
-    // start the kernel
-    boost::shared_ptr< WKernel > kernel( WKernel::instance( WGraphicsEngine::getGraphicsEngine(), shared_from_this() ) );
-    kernel->run();
-
-    // initialize walnut bindings for the interpreter
-    scriptInterpreter->initBindings();
 
     // now we are initialized
     m_isInitialized( true );
@@ -184,8 +183,6 @@ int WScriptGui::run()
             {
                 in += "()";
             }
-
-            //std::cout
 
             try
             {

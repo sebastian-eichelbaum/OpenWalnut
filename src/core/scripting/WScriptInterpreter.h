@@ -60,6 +60,20 @@ public:
      * \param line The code to interpret.
      */
     virtual void execute( std::string const& line ) = 0;
+
+    /**
+     * Get the name of the language interpreted by this interpreter.
+     *
+     * \return The name of the script language.
+     */
+    virtual std::string const getName() const = 0;
+
+    /**
+     * Get the default extension for script file belonging to the script interpreter's language.
+     *
+     * \return The default file extension.
+     */
+    virtual std::string const getExtension() const = 0;
 };
 
 #endif  // WSCRIPTINTERPRETER_H

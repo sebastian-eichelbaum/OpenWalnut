@@ -108,6 +108,8 @@ void WKernel::init()
 
     // load all modules
     m_moduleFactory->load();
+
+    m_scriptEngine = boost::shared_ptr< WScriptEngine >( new WScriptEngine( m_moduleContainer ) );
 }
 
 WKernel* WKernel::getRunningKernel()
@@ -191,6 +193,11 @@ boost::shared_ptr< WROIManager > WKernel::getRoiManager()
 boost::shared_ptr< WSelectionManager>WKernel::getSelectionManager()
 {
     return m_selectionManager;
+}
+
+boost::shared_ptr<WScriptEngine> WKernel::getScriptEngine()
+{
+    return m_scriptEngine;
 }
 
 WTimer::ConstSPtr WKernel::getTimer() const

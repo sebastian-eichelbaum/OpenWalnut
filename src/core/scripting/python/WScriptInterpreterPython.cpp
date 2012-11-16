@@ -34,8 +34,11 @@
 
 #include "WScriptInterpreterPython.h"
 
-WScriptInterpreterPython::WScriptInterpreterPython()
-    : m_argc( 0 ),
+#ifdef PYTHON_FOUND
+
+WScriptInterpreterPython::WScriptInterpreterPython( boost::shared_ptr< WModuleContainer > const& rootContainer )
+    : m_rootContainer( rootContainer ),
+      m_argc( 0 ),
       m_argv( 0 )
 {
     try
@@ -118,7 +121,6 @@ void WScriptInterpreterPython::initBindings()
 
     // bind the kernel's root container to the "rootContainer" variable in the python namespace
     // this allows access to the modules via this variable
-    m_rootContainer = WModuleContainerWrapper( WKernel::getRunningKernel()->getRootContainer() );
     m_pyMainNamespace[ "rootContainer" ] = &m_rootContainer;
 
     m_pyMainNamespace[ "WLogger" ]  = pb::class_< WLoggerWrapper >( "WLogger", pb::no_init )
@@ -161,3 +163,15 @@ void WScriptInterpreterPython::execute( std::string const& line )
         PyErr_Print();
     }
 }
+
+std::string const WScriptInterpreterPython::getName() const
+{
+    return "python";
+}
+
+std::string const WScriptInterpreterPython::getExtension() const
+{
+    return ".py";
+}
+
+#endif  // PYTHON_FOUND
