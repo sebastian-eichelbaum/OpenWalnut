@@ -37,6 +37,19 @@ ADD_DEFINITIONS( '-DW_LIB_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}"' )
 
 OPTION( OW_STATIC_BUILD "Enable this to build the core library as static library." OFF )
 
+# the files to link against if we found the necessary libs for a script interpreter
+SET( INTERPRETER_LINK_LIBRARIES )
+
+# Python
+FIND_PACKAGE( PythonLibs )
+
+# Python found?
+IF( PYTHONLIBS_FOUND )
+    INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS} )
+    ADD_DEFINITIONS( -DPYTHON_FOUND )
+    SET( INTERPRETER_LINK_LIBRARIES ${INTERPRETER_LINK_LIBRARIES} ${PYTHON_LIBRARIES} )
+ENDIF()
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Add sources as target
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -51,7 +64,7 @@ ELSE()
     ADD_LIBRARY( ${LibName} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${OW_VERSION_HEADER} )
 ENDIF()
 
-TARGET_LINK_LIBRARIES( ${LibName} ${Boost_LIBRARIES} ${CMAKE_STANDARD_LIBRARIES} ${CMAKE_DL_LIBS} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES}
+TARGET_LINK_LIBRARIES( ${LibName} ${Boost_LIBRARIES} ${CMAKE_STANDARD_LIBRARIES} ${CMAKE_DL_LIBS} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES} ${INTERPRETER_LINK_LIBRARIES}
                      )
 
 # Tell CMake that someone creates this file for us. See doc of SETUP_VERSION_HEADER for details why this is needed.

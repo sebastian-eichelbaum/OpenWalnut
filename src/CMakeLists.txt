@@ -137,15 +137,6 @@ ADD_DEPENDENCIES( install_devdoc core_devdoc )
 ADD_SUBDIRECTORY( core )
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
-# scripting library
-
-# we need a name we can use for other GUI and libs if they want to link against the script lib
-SET( OW_LIB_OPENWALNUTSCRIPT "openwalnut-scripting" )
-
-# build scripting subsystem
-ADD_SUBDIRECTORY( scripting )
-
-# -----------------------------------------------------------------------------------------------------------------------------------------------
 # QT4 GUI
 
 OPTION( OW_GUI_QT4 "Enable this to build the QT4-based OpenWalnut GUI." ON )
