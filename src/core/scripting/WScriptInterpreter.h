@@ -62,11 +62,25 @@ public:
     virtual void execute( std::string const& line ) = 0;
 
     /**
+     * Execute a script in a seperate thread. This function returns immediately.
+     *
+     * \param script The script to execute.
+     */
+    virtual void executeAsync( std::string const& script ) = 0;
+
+    /**
      * Execute a file.
      *
      * \param filename The script file to execute.
      */
     virtual void executeFile( std::string const& filename ) = 0;
+
+    /**
+     * Execute a script file in a seperate thread. This function returns immediately.
+     *
+     * \param filename The script file to execute.
+     */
+    virtual void executeFileAsync( std::string const& filename ) = 0;
 
     /**
      * Get the name of the language interpreted by this interpreter.

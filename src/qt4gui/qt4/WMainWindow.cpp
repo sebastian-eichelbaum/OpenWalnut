@@ -697,7 +697,7 @@ void WMainWindow::openLoadDialog()
 
             if( scriptInterpreter )
             {
-                scriptInterpreter->executeFile( fn.string() );
+                scriptInterpreter->executeFileAsync( fn.string() );
             }
             else
             {

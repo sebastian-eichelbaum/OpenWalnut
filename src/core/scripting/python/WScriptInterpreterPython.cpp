@@ -40,7 +40,8 @@
 WScriptInterpreterPython::WScriptInterpreterPython( boost::shared_ptr< WModuleContainer > const& rootContainer )
     : m_rootContainer( rootContainer ),
       m_argc( 0 ),
-      m_argv( 0 )
+      m_argv( 0 ),
+      m_scriptThread( *this )
 {
     try
     {
@@ -55,10 +56,15 @@ WScriptInterpreterPython::WScriptInterpreterPython( boost::shared_ptr< WModuleCo
     // Make ctrl+c key available for killing interpeter
     execute( "import signal" );
     execute( "signal.signal( signal.SIGINT, signal.SIG_DFL )" );
+
+    m_scriptThread.run();
 }
 
 WScriptInterpreterPython::~WScriptInterpreterPython()
 {
+    m_scriptThread.requestStop();
+    m_scriptThread.wait();
+
     Py_Finalize();
 
     if( m_argv )
@@ -171,6 +177,11 @@ void WScriptInterpreterPython::execute( std::string const& line )
     }
 }
 
+void WScriptInterpreterPython::executeAsync( std::string const& script )
+{
+    m_scriptThread.addToExecuteQueue( script );
+}
+
 void WScriptInterpreterPython::executeFile( std::string const& filename )
 {
     // load file content into string
@@ -194,6 +205,22 @@ void WScriptInterpreterPython::executeFile( std::string const& filename )
     }
 }
 
+void WScriptInterpreterPython::executeFileAsync( std::string const& filename )
+{
+    // load file content into string
+    std::ifstream in( filename.c_str() );
+    std::string script;
+    std::string line;
+    while( std::getline( in, line ) )
+    {
+        script += line + "\n";
+    }
+    in.close();
+
+    // execute
+    executeAsync( script );
+}
+
 std::string const WScriptInterpreterPython::getName() const
 {
     return "python";
@@ -202,6 +229,72 @@ std::string const WScriptInterpreterPython::getName() const
 std::string const WScriptInterpreterPython::getExtension() const
 {
     return ".py";
+}
+
+WScriptInterpreterPython::ScriptThread::ScriptThread( WScriptInterpreterPython& interpreter ) // NOLINT reference
+    : WThreadedRunner(),
+      m_scriptQueue(),
+      m_queueMutex(),
+      m_condition( new WCondition() ),
+      m_conditionSet(),
+      m_interpreter( interpreter )
+{
+    m_conditionSet.setResetable( true, true );
+    m_conditionSet.add( m_condition );
+}
+
+WScriptInterpreterPython::ScriptThread::~ScriptThread()
+{
+}
+
+void WScriptInterpreterPython::ScriptThread::threadMain()
+{
+    while( !m_shutdownFlag )
+    {
+        m_conditionSet.wait();
+
+        if( m_shutdownFlag )
+            break;
+
+        std::size_t numScripts = 0;
+        {
+            boost::unique_lock< boost::mutex > lock( m_queueMutex );
+            numScripts = m_scriptQueue.size();
+        }
+
+        while( numScripts > 0 )
+        {
+            std::string script;
+
+            // only getting the script content must be locked
+            {
+                boost::unique_lock< boost::mutex > lock( m_queueMutex );
+                script = m_scriptQueue.front();
+                m_scriptQueue.pop();
+            }
+
+            if( script.length() != 0 )
+            {
+                wlog::info( "WScriptInterpreterPython::ScriptThread" ) << "Executing script asyncronously.";
+                // note that this may block if the interpreter is currently executing another script
+                m_interpreter.execute( script );
+                wlog::info( "WScriptInterpreterPython::ScriptThread" ) << "Done executing script.";
+            }
+            {
+                boost::unique_lock< boost::mutex > lock( m_queueMutex );
+                numScripts = m_scriptQueue.size();
+            }
+        }
+    }
+}
+
+void WScriptInterpreterPython::ScriptThread::addToExecuteQueue( std::string const& script )
+{
+    wlog::info( "WScriptInterpreterPython::ScriptThread" ) << "Queueing script for asyncronous execution.";
+
+    boost::unique_lock< boost::mutex > lock( m_queueMutex );
+    m_scriptQueue.push( script );
+    m_condition->notify();
 }
 
 #endif  // PYTHON_FOUND
