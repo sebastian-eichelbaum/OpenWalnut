@@ -79,7 +79,12 @@ void WGEOffscreenRenderPass::attach( BufferComponent buffer, osg::ref_ptr< osg::
         m_hud->addTexture( new WGETextureHud::WGETextureHudEntry( texture, m_name + " - " + getBufferName( buffer ) ) );
     }
 
-    osg::Camera::attach( buffer, texture );
+    // allow mipmap generation, but set desired levels to 0. Allow the user to set this higher
+    texture->setUseHardwareMipMapGeneration( true );
+    texture->setNumMipmapLevels( 0 );
+
+    // attach
+    osg::Camera::attach( buffer, texture, 0, 0, true );
 }
 
 void WGEOffscreenRenderPass::attach( BufferComponent buffer, osg::ref_ptr< osg::Image > image )

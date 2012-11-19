@@ -70,6 +70,12 @@ WGEPostprocessorLineAO::WGEPostprocessorLineAO( osg::ref_ptr< WGEOffscreenRender
     lineaoDensityWeight->setMin( 0.001 );
     lineaoDensityWeight->setMax( 2.0 );
 
+    WPropBool lineaoUseGaussedNDMap = m_properties->addProperty( "Use Gaussed ND-Map", "When enabling, the LineAO algorithm uses a scale-base "
+                                                                                       "pyramid for sampling the depth and normal maps. Unlike "
+                                                                                       "described in the paper, this is turned off by default to "
+                                                                                       "ensure that details of far occluders are retained (the "
+                                                                                       "images look crispier).", false );
+
     // NOTE: The paper proposes to use a gaussian pyramid of the depth and normal maps. We skip this step. Skipping this causes the AO to look
     // more crispy and more detailed at local scope.
 
@@ -86,6 +92,11 @@ WGEPostprocessorLineAO::WGEPostprocessorLineAO( osg::ref_ptr< WGEOffscreenRender
         new WGEShaderPropertyDefine< WPropInt >( "WGE_POSTPROCESSOR_LINEAO_SAMPLES", lineaoSamples ) )
     );
 
+    s->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( lineaoUseGaussedNDMap, "WGE_POSTPROCESSOR_LINEAO_USEDIRECTNDMAP",
+                                                                                "WGE_POSTPROCESSOR_LINEAO_USEGAUSSPYRAMID" ) )
+    );
+
     // create the LineAO rendering pass
     osg::ref_ptr< WGEOffscreenTexturePass > lineAOPass = offscreen->addTextureProcessingPass( s, "LineAO" );
     lineAOPass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_lineaoDensityWeight", lineaoDensityWeight ) );
@@ -95,7 +106,11 @@ WGEPostprocessorLineAO::WGEPostprocessorLineAO( osg::ref_ptr< WGEOffscreenRender
     // attach color0 output
     m_resultTextures.push_back( lineAOPass->attach( osg::Camera::COLOR_BUFFER0, GL_RGB ) );
 
-    // provide the Gbuffer input
+    // provide the Gbuffer input, with several mipmap levels
+    gbuffer.m_depthTexture->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR );
+    gbuffer.m_normalTexture->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR );
+    gbuffer.m_tangentTexture->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR );
+
     size_t gBufUnitOffset = gbuffer.bind( lineAOPass );
 
     // this effect needs some additional noise texture:
