@@ -22,8 +22,13 @@
 //
 //---------------------------------------------------------------------------
 
+#include <QtGui/QAction>
 #include <QtGui/QDockWidget>
 #include <QtGui/QVBoxLayout>
+
+#include "WQt4Gui.h"
+
+#include "WSettingAction.h"
 
 #include "WQtGLDockWidget.h"
 #include "WQtGLDockWidget.moc"
@@ -56,6 +61,28 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
 
     // we need to know whether the dock is visible or not
     connect( this, SIGNAL( visibilityChanged( bool ) ), this, SLOT( handleVisibilityChange( bool ) ) );
+
+    // create the dock widget context menu
+
+    // important: do not use this menu for the m_panel widget but ensure the right click event to be sent to the widget
+    m_panel->setContextMenuPolicy( Qt::PreventContextMenu );
+    setContextMenuPolicy( Qt::ActionsContextMenu );
+
+    // reset the scene
+    QAction* resetButton = new QAction( WQt4Gui::getIconManager()->getIcon( "view" ), "Reset", this );
+    connect( resetButton, SIGNAL(  triggered( bool ) ), m_glWidget.get(), SLOT( reset() ) );
+    addAction( resetButton );
+
+    // camera presets
+    QAction* camPresets = new QAction( WQt4Gui::getIconManager()->getIcon( "view" ), "Camera Presets", this );
+    camPresets->setMenu( getGLWidget()->getCameraPresetsMenu() );
+    addAction( camPresets );
+
+    // throwing
+    addAction( getGLWidget()->getThrowingSetting() );
+
+    // change background color
+    addAction( getGLWidget()->getBackgroundColorAction() );
 }
 
 WQtGLDockWidget::~WQtGLDockWidget()

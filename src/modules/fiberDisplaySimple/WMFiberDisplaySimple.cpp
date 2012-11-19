@@ -32,6 +32,7 @@
 #include <osg/Hint>
 #include <osg/LineWidth>
 #include <osg/Point>
+#include <osg/PointSprite>
 
 #include "core/common/WPropertyHelper.h"
 #include "core/common/WPropertyObserver.h"

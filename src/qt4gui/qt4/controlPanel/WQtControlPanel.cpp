@@ -132,14 +132,14 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     // the network editor also needs the context menu
     if( m_mainWindow->getNetworkEditor() )
     {
-        m_mainWindow->getNetworkEditor()->setContextMenuPolicy( Qt::ActionsContextMenu );
-        m_mainWindow->getNetworkEditor()->addAction( m_addModuleAction );
-        m_mainWindow->getNetworkEditor()->addAction( m_connectWithPrototypeAction );
-        m_mainWindow->getNetworkEditor()->addAction( m_connectWithModuleAction );
-        m_mainWindow->getNetworkEditor()->addAction( m_disconnectAction );
-        m_mainWindow->getNetworkEditor()->addAction( m_deleteModuleAction );
-        m_mainWindow->getNetworkEditor()->addAction( separator );
-        m_mainWindow->getNetworkEditor()->addAction( m_missingModuleAction );
+        m_mainWindow->getNetworkEditor()->getView()->setContextMenuPolicy( Qt::ActionsContextMenu );
+        m_mainWindow->getNetworkEditor()->getView()->addAction( m_addModuleAction );
+        m_mainWindow->getNetworkEditor()->getView()->addAction( m_connectWithPrototypeAction );
+        m_mainWindow->getNetworkEditor()->getView()->addAction( m_connectWithModuleAction );
+        m_mainWindow->getNetworkEditor()->getView()->addAction( m_disconnectAction );
+        m_mainWindow->getNetworkEditor()->getView()->addAction( m_deleteModuleAction );
+        m_mainWindow->getNetworkEditor()->getView()->addAction( separator );
+        m_mainWindow->getNetworkEditor()->getView()->addAction( m_missingModuleAction );
     }
 
     m_colormapper = new WQtColormapper( m_mainWindow );
@@ -199,7 +199,7 @@ WQtControlPanel::~WQtControlPanel()
 
 void WQtControlPanel::completeGuiSetup()
 {
-    m_mainWindow->addGlobalMenu( m_mainWindow->getNetworkEditor() );
+    m_mainWindow->addGlobalMenu( m_mainWindow->getNetworkEditor()->getView() );
 }
 
 void WQtControlPanel::connectSlots()

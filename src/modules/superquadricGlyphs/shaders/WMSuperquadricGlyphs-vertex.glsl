@@ -23,9 +23,11 @@
 //---------------------------------------------------------------------------
 
 #version 120
+#extension GL_ARB_gpu_shader5 : enable
 
 // include some utility functions
 #include "WGETensorTools.glsl"
+#include "WGETransformationTools.glsl"
 
 // commonly used variables
 #include "WMSuperquadricGlyphs-varyings.glsl"
@@ -164,15 +166,23 @@ void main()
     // 5: Transform light and plane as well as ray back to glyph space
     /////////////////////////////////////////////////////////////////////////////////////////////
 
-    mat4 glyphToWorld = glyphScaleInverse * transpose( glyphSystem ) * gl_ModelViewMatrixInverse;
+    // transform a vector from world space to glyph space
+    mat4 worldToGlyph = glyphScaleInverse * transpose( glyphSystem ) * gl_ModelViewMatrixInverse;
+    // also build its inverse, Remember:
+    //  * (AB)^-1 = B^-1 * A^-1
+    //  * (A^T)^-1 = (A^-1)^T
+    v_glyphToWorld = gl_ModelViewMatrix * transpose( inverse( glyphSystem ) ) * glyphScale;
 
     // calculate light direction once per quadric
-    v_lightDir.xyz = normalize( ( glyphToWorld * gl_LightSource[0].position ).xyz );
+    v_lightDir.xyz = normalize( ( worldToGlyph * gl_LightSource[0].position ).xyz );
 
     // the viewing direction for this vertex:
-    v_viewDir = ( glyphToWorld * vec4( 0.0, 0.0, 1.0, 0.0 ) );
+    v_viewDir = ( worldToGlyph * vec4( 0.0, 0.0, 1.0, 0.0 ) );
     v_viewDir.w = 1.0;
 
     v_planePoint.xyz = gl_TexCoord[0].xyz;
+
+    // get scaling from modelview matrix
+    v_worldScale = getModelViewScale();
 }
 

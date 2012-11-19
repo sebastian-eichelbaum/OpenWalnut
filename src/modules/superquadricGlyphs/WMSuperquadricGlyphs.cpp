@@ -36,6 +36,7 @@
 
 #include "core/graphicsEngine/WGEUtils.h"
 #include "core/graphicsEngine/shaders/WGEPropertyUniform.h"
+#include "core/graphicsEngine/postprocessing/WGEPostprocessingNode.h"
 
 #include "WMSuperquadricGlyphs.h"
 #include "WMSuperquadricGlyphs.xpm"
@@ -380,15 +381,25 @@ void WMSuperquadricGlyphs::moduleMain()
     // signal ready state
     ready();
 
+    // postproc node
+    osg::ref_ptr< WGEPostprocessingNode > postNode = new WGEPostprocessingNode(
+        WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera()
+    );
+    postNode->addUpdateCallback( new WGENodeMaskCallback( m_active ) ); // disable the postNode with m_active
+    // provide the properties of the post-processor to the user
+    m_properties->addProperty( postNode->getProperties() );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( postNode );
+
     // create all these geodes we need
     m_output = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
     osg::ref_ptr< osg::StateSet > sset = m_output->getOrCreateStateSet();
     sset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
 
-    // add shader
+
+    // add shader and postproc
     m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMSuperquadricGlyphs", m_localPath ) );
     m_shader->apply( m_output );
+    postNode->insert( m_output, m_shader );
 
     // set uniform callbacks and uniforms
     osg::ref_ptr< osg::Uniform > evThreshold = new WGEPropertyUniform< WPropDouble >( "u_evThreshold", m_evThreshold );
@@ -572,6 +583,6 @@ void WMSuperquadricGlyphs::moduleMain()
 
     // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove
     // allocated memory and remove all OSG nodes.
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_output );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( postNode );
 }
 
