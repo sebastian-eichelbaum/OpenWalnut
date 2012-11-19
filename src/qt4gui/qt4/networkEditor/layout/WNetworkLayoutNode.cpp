@@ -92,7 +92,7 @@ void WNetworkLayoutNode::remove( WNetworkLayoutNode *node )
     else
     {
         iter = std::find( m_parents.begin(), m_parents.end(), node );
-        if( iter != m_children.end() )
+        if( iter != m_parents.end() )
         {
             m_parents.erase( iter );
         }
