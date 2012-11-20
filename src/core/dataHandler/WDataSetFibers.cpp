@@ -185,6 +185,8 @@ void WDataSetFibers::init()
     m_colorProp = m_properties->addProperty( "Color Scheme", "Determines the coloring scheme to use for this data.", m_colors->getSelectorFirst() );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorProp );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_colorProp );
+    m_infoProperties->addProperty( "#Fibers", "The number of fibers", static_cast< WPVBaseTypes::PV_INT >( m_lineLengths->size() ) );
+    m_infoProperties->addProperty( "#Vertices", "The number of vertices", static_cast< WPVBaseTypes::PV_INT >( m_vertices->size() ) );
 }
 
 bool WDataSetFibers::isTexture() const
