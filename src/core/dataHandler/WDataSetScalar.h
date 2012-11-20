@@ -26,6 +26,7 @@
 #define WDATASETSCALAR_H
 
 #include <map>
+#include <string>
 
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
@@ -113,6 +114,20 @@ public:
      * \return minimum value in dataset
      */
     double getMin() const;
+
+    /**
+     * Gets the name of this prototype.
+     *
+     * \return the name.
+     */
+    virtual const std::string getName() const;
+
+    /**
+     * Gets the description for this prototype.
+     *
+     * \return the description
+     */
+    virtual const std::string getDescription() const;
 
     /**
      * Returns the histogram of this dataset's valueset. If it does not exist yet, it will be created and cached. It does NOT make use of the

@@ -32,6 +32,7 @@
 
 #include "../common/WTimer.h"
 #include "../common/WLogger.h"
+#include "../scripting/WScriptEngine.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
 
 #include "WBatchLoader.h"
@@ -60,7 +61,7 @@ class WThreadedRunner;
  * GUI, GE and DataHandler
  * \ingroup kernel
  */
-class  WKernel: public WThreadedRunner
+class WKernel: public WThreadedRunner
 {
 public:
     /**
@@ -170,6 +171,13 @@ public:
     boost::shared_ptr< WSelectionManager> getSelectionManager();
 
     /**
+     * Get the script engine of this kernel.
+     *
+     * \return A pointer to the script engine.
+     */
+    boost::shared_ptr< WScriptEngine > getScriptEngine();
+
+    /**
      * Returns the system timer. If you need timing for animations and similar, use this one. This timer can change to frame based timing if the
      * user plays back some animation. So, everything which uses this timer can always do accurate per-frame animations even if frame time and
      * real-time differ.
@@ -222,6 +230,11 @@ protected:
      * The container containing the modules.
      */
     boost::shared_ptr< WModuleContainer > m_moduleContainer;
+
+    /**
+     * The script engine to use.
+     */
+    boost::shared_ptr< WScriptEngine > m_scriptEngine;
 
 private:
     /**
