@@ -25,6 +25,8 @@
 #ifndef WSCRIPTINTERPRETERPYTHON_H
 #define WSCRIPTINTERPRETERPYTHON_H
 
+#ifdef PYTHON_FOUND
+
 #include <queue>
 #include <string>
 #include <vector>
@@ -40,8 +42,6 @@
 #include "../WScriptInterpreter.h"
 
 namespace pb = boost::python;
-
-#ifdef PYTHON_FOUND
 
 /**
  * \class WScriptInterpreterPython

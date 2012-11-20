@@ -40,15 +40,17 @@ OPTION( OW_STATIC_BUILD "Enable this to build the core library as static library
 # the files to link against if we found the necessary libs for a script interpreter
 SET( INTERPRETER_LINK_LIBRARIES )
 
-# Python
-FIND_PACKAGE( PythonLibs )
-
-# Python found?
-IF( PYTHONLIBS_FOUND )
-    INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS} )
-    ADD_DEFINITIONS( -DPYTHON_FOUND )
-    SET( INTERPRETER_LINK_LIBRARIES ${INTERPRETER_LINK_LIBRARIES} ${PYTHON_LIBRARIES} )
-ENDIF()
+IF( BUILD_PYTHON_INTERPRETER )
+    # Python
+    FIND_PACKAGE( PythonLibs REQUIRED )
+    
+    # Python found?
+    IF( PYTHONLIBS_FOUND AND Boost_FOUND )
+        INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS} )
+        ADD_DEFINITIONS( -DPYTHON_FOUND )
+        SET( INTERPRETER_LINK_LIBRARIES ${INTERPRETER_LINK_LIBRARIES} ${PYTHON_LIBRARIES} )
+    ENDIF()
+ENDIF() # BUILD_SCRIPTENGINE
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Add sources as target
