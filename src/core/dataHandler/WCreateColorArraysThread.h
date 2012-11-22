@@ -41,7 +41,6 @@ public:
      * \param left start position of the first line to comput colors for
      * \param right last line for which the color is computed
      * \param vertices vertices of all lines
-     * \param lineStartIndexes line start indices in vertex array
      * \param lineLengths line length in vertex array
      * \param globalColors where to write global coloring
      * \param localColors where to write local coloring
