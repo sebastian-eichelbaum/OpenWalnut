@@ -146,6 +146,11 @@ private:
          */
         void addToExecuteQueue( std::string const& script );
 
+        /**
+         * Request this script thread to stop. Returns immediatly.
+         */
+        void requestStop();
+
     private:
         //! A queue for scripts to be executed.
         std::queue< std::string > m_scriptQueue;

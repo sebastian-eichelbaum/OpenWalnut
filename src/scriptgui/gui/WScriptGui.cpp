@@ -176,7 +176,7 @@ int WScriptGui::run()
         }
     }
 
-    // delete interpreter
+    // delete interpreter pointer
     scriptInterpreter.reset();
 
     // signal everybody to shut down properly.

@@ -38,7 +38,8 @@
 #ifdef PYTHON_FOUND
 
 WScriptInterpreterPython::WScriptInterpreterPython( boost::shared_ptr< WModuleContainer > const& rootContainer )
-    : m_rootContainer( rootContainer ),
+    : WScriptInterpreter(),
+      m_rootContainer( rootContainer ),
       m_argc( 0 ),
       m_argv( 0 ),
       m_scriptThread( *this )
@@ -245,6 +246,12 @@ WScriptInterpreterPython::ScriptThread::ScriptThread( WScriptInterpreterPython& 
 
 WScriptInterpreterPython::ScriptThread::~ScriptThread()
 {
+}
+
+void WScriptInterpreterPython::ScriptThread::requestStop()
+{
+    WThreadedRunner::requestStop();
+    m_condition->notify();
 }
 
 void WScriptInterpreterPython::ScriptThread::threadMain()
