@@ -42,6 +42,11 @@ class WDataSetFiberVector : public WMixinVector< WFiber >, public WDataSet // NO
 {
 public:
     /**
+     * Short hand for a boost::shared_ptr on such classes.
+     */
+    typedef boost::shared_ptr< WDataSetFiberVector > SPtr;
+
+    /**
      * Default constructor for creating an empty fiber vector.
      */
     WDataSetFiberVector();
