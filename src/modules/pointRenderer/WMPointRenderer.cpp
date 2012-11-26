@@ -90,42 +90,14 @@ void WMPointRenderer::properties()
     // some properties need to trigger an update
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-/*    m_nbTriangles = m_infoProperties->addProperty( "Triangles", "The number of triangles in the mesh.", 0 );
-    m_nbTriangles->setMax( std::numeric_limits< int >::max() );
-
-    m_nbVertices = m_infoProperties->addProperty( "Vertices", "The number of vertices in the mesh.", 0 );
-    m_nbVertices->setMax( std::numeric_limits< int >::max() );
-
     // setup all the properties. See header file for their meaning and purpose.
-    m_showOutline = m_properties->addProperty( "Outline", "Show all edges of the trinagulation as lines.", false, m_propCondition );
-    m_mainComponentOnly = m_properties->addProperty( "Main component", "Main component only", false, m_propCondition );
-    m_showCoordinateSystem = m_properties->addProperty( "Coordinate system", "If enabled, the coordinate system of the mesh will be shown.",
-                                                        false, m_propCondition );
+    m_size = m_properties->addProperty( "Point Size", "The size of the points.", 0.25 );
+    m_size->setMin( 0.0001 );
+    m_size->setMax( 10.0 );
 
-    m_coloringGroup = m_properties->addPropertyGroup( "Coloring", "Coloring options and colormap options." );
+    m_useCorrectDepth = m_properties->addProperty( "Correct Depth", "If set, the depths of the sprites are calculated correctly. You can disable "
+                                                                    "this to get higher framerates at the cost of visual correctness.", true );
 
-    m_opacity = m_coloringGroup->addProperty( "Opacity %", "Opaqueness of surface.", 100.0 );
-    m_opacity->setMin( 0.0 );
-    m_opacity->setMax( 100.0 );
-
-    // Allow the user to select different colormodes
-    boost::shared_ptr< WItemSelection > colorModes( boost::shared_ptr< WItemSelection >( new WItemSelection() ) );
-    colorModes->addItem( "Single Color", "The whole surface is colored using the default color." );
-    colorModes->addItem( "From Mesh", "The surface is colored according to the mesh." );
-    colorModes->addItem( "From colormap connector", "The surface is colored using the colormap on colorMap connector." );
-    m_colorMode = m_coloringGroup->addProperty( "Color mode", "Choose one of the available colorings.", colorModes->getSelectorFirst(),
-                                             m_propCondition );
-    WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMode );
-
-    // this is the color used if single color is selected
-    m_color = m_coloringGroup->addProperty( "Default color", "The color of of the surface.",
-                                         WColor( .9f, .9f, 0.9f, 1.0f ), m_propCondition );
-
-    m_colormap = m_coloringGroup->addProperty( "Enable colormapping", "Turn colormapping on", false );
-    m_colormapRatio = m_coloringGroup->addProperty( "Colormap ratio", "Set the colormap Ratio", 0.5 );
-    m_colormapRatio->setMin( 0.0 );
-    m_colormapRatio->setMax( 1.0 );
-*/
     // call WModule's initialization
     WModule::properties();
 }
@@ -160,6 +132,11 @@ void WMPointRenderer::moduleMain()
     m_shader->setParameter( GL_GEOMETRY_INPUT_TYPE_EXT, GL_POINTS );
     m_shader->setParameter( GL_GEOMETRY_OUTPUT_TYPE_EXT, GL_TRIANGLE_STRIP );
 
+    // insert some uniforms and defines
+    postNode->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_pointSize", m_size ) );
+    m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_useCorrectDepth, "DEPTHWRITE_DISABLED", "DEPTHWRITE_ENABLED" ) )
+    );
 
     // loop until the module container requests the module to quit
     while( !m_shutdownFlag() )

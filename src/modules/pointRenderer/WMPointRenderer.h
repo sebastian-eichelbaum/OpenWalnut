@@ -111,6 +111,16 @@ private:
      * The shader for the points
      */
     osg::ref_ptr< WGEShader > m_shader;
+
+    /**
+     * The size of a point on screen.
+     */
+    WPropDouble m_size;
+
+    /**
+     * Slower but correct depth calculation.
+     */
+    WPropBool m_useCorrectDepth;
 };
 
 #endif  // WMPOINTRENDERER_H

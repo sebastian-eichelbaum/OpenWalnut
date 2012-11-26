@@ -110,6 +110,7 @@ void main()
     sphereSurf = normalize( sphereSurf );
 
     // lighting
+    // NOTE: this is disabled as usually, we use a headlight, causing a specular highlight in the middle of each splat.
     // float light = blinnPhongIlluminationIntensity( wge_DefaultLightIntensity, sphereSurf );
 
     // finally set the color and depth
@@ -118,6 +119,9 @@ void main()
     wge_FragNormal = textureNormalize( sphereSurf );
     wge_FragZoom = 0.1 * v_worldScale;
     wge_FragTangent = textureNormalize( vec3( 0.0, 1.0, 0.0 ) );
+#ifdef DEPTHWRITE_ENABLED
+    // we allow to disable depth write. This allows the GPU to disacard pixels before applying the fragment shader -> speedup
     gl_FragDepth = ( r * v_vertexDepthDiff ) + v_centerVertexDepth;
+#endif
 }
 

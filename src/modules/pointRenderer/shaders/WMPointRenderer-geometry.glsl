@@ -35,7 +35,7 @@
 /**
  * The size of the sprite
  */
-uniform float u_pointSize = 0.05;
+uniform float u_pointSize = 1.0;
 
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
