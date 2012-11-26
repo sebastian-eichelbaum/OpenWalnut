@@ -64,6 +64,7 @@
 #include "core/dataHandler/WDataHandler.h"
 #include "core/dataHandler/WDataSetFibers.h"
 #include "core/dataHandler/WDataSetSingle.h"
+#include "core/dataHandler/WDataSetPoints.h"
 #include "core/dataHandler/WEEG2.h"
 #include "core/graphicsEngine/WGEZoomTrackballManipulator.h"
 #include "core/graphicsEngine/WROIBox.h"
@@ -509,6 +510,11 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             // it is a eeg dataset -> add the eegView module
             autoAdd( module, "EEG View" );
+        }
+        else if( dataModule->getDataSet()->isA< WDataSetPoints >() )
+        {
+            // it is a point dataset -> add the point render module
+            autoAdd( module, "Point Renderer" );
         }
     }
 }
