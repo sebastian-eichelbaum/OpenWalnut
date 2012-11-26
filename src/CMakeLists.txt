@@ -141,11 +141,17 @@ ADD_SUBDIRECTORY( core )
 
 OPTION( OW_GUI_QT4 "Enable this to build the QT4-based OpenWalnut GUI." ON )
 IF( OW_GUI_QT4 )
-    SET( OWQt4GuiName "qt4gui" )
-    SET( OWBinaryName "openwalnut-qt4" )
-
     # build
     ADD_SUBDIRECTORY( qt4gui )
+ENDIF()
+
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# Scripting GUI
+
+OPTION( OW_GUI_SCRIPT "Enable this to build the script-based OpenWalnut interface for commandline-only use." ON )
+IF( OW_GUI_SCRIPT )
+    # build
+    ADD_SUBDIRECTORY( scriptgui )
 ENDIF()
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------

@@ -666,8 +666,14 @@ void WMainWindow::openLoadDialog()
             << "Simple Project File (*.owproj *.owp)"
             << "EEG files (*.cnt *.edf *.asc)"
             << "NIfTI (*.nii *.nii.gz)"
-            << "Fibers (*.fib)"
-            << "Any files (*)";
+            << "Fibers (*.fib)";
+    for( std::size_t k = 0; k < WKernel::getRunningKernel()->getScriptEngine()->getNumInterpreters(); ++k )
+    {
+        filters << ( WKernel::getRunningKernel()->getScriptEngine()->getInterpreter( k )->getName() + " (*"
+                   + WKernel::getRunningKernel()->getScriptEngine()->getInterpreter( k )->getExtension() + ")" ).c_str();
+    }
+    filters << "Any files (*)";
+
     fd.setNameFilters( filters );
     fd.setViewMode( QFileDialog::Detail );
     QStringList filenames;
@@ -691,8 +697,18 @@ void WMainWindow::openLoadDialog()
         }
         else
         {
-            // this is not a project. So we assume it is a data file
-            loadDataFilenames.push_back( fn.string() );
+            // this is not a project. So we assume it is a data file or script
+            boost::shared_ptr< WScriptInterpreter > scriptInterpreter =
+                    WKernel::getRunningKernel()->getScriptEngine()->getInterpreterByFileExtension( suffix );
+
+            if( scriptInterpreter )
+            {
+                scriptInterpreter->executeFileAsync( fn.string() );
+            }
+            else
+            {
+                loadDataFilenames.push_back( fn.string() );
+            }
         }
     }
 

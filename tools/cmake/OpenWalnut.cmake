@@ -305,9 +305,14 @@ ENDIF()
 
 # Setup boost options
 SET( Boost_USE_MULTITHREAD ON )
+OPTION( BUILD_PYTHON_INTERPRETER OFF )
 
 # find the boost packages
-FIND_PACKAGE( Boost 1.46.0 REQUIRED program_options thread filesystem date_time system signals regex )
+IF( BUILD_PYTHON_INTERPRETER )
+    FIND_PACKAGE( Boost 1.46.0 REQUIRED program_options thread filesystem date_time system signals regex python )
+ELSE()
+    FIND_PACKAGE( Boost 1.46.0 REQUIRED program_options thread filesystem date_time system signals regex )
+ENDIF() #BUILD_SCRIPTENGINE
 
 # include the boost headers
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )

@@ -29,9 +29,8 @@
 
 #include "../common/WThreadedRunner.h"
 
-
 /**
- * implements a thread that updates the fiber selection bit field
+ * Thread for computing directional color coding of fibers.
  */
 class WCreateColorArraysThread: public WThreadedRunner // NOLINT
 {
@@ -39,17 +38,15 @@ public:
     /**
      * default constructor
      *
-     * \param left
-     * \param right
-     * \param vertices
-     * \param lineStartIndexes
-     * \param lineLengths
-     * \param globalColors
-     * \param localColors
+     * \param left start position of the first line to comput colors for
+     * \param right last line for which the color is computed
+     * \param vertices vertices of all lines
+     * \param lineLengths line length in vertex array
+     * \param globalColors where to write global coloring
+     * \param localColors where to write local coloring
      * \param tangents
      */
     WCreateColorArraysThread( int left, int right, boost::shared_ptr< std::vector< float > >vertices,
-                                                   boost::shared_ptr< std::vector< size_t > > lineStartIndexes,
                                                    boost::shared_ptr< std::vector< size_t > > lineLengths,
                                                    boost::shared_ptr< std::vector< float > > globalColors,
                                                    boost::shared_ptr< std::vector< float > > localColors,
@@ -83,7 +80,7 @@ private:
     /**
      * Point vector for all fibers
      */
-    boost::shared_ptr< std::vector< float > > m_vertices;
+    boost::shared_ptr< const std::vector< float > > m_vertices;
 
     /**
      * Point vector for tangents at each vertex, used for fake tubes
@@ -99,19 +96,12 @@ private:
      * Storing the local color value of the fibers for each point.
      * \note it is mutable to allow getLocalColors creating it on demand.
      */
-    mutable boost::shared_ptr< std::vector< float > > m_localColors;
-
-    /**
-     * Line vector that contains the start index of its first point for each line.
-     * \warning The index returned cannot be used in the vertices array until
-     * the number of components for each point is multiplied.
-     */
-    boost::shared_ptr< std::vector< size_t > > m_lineStartIndexes;
+    boost::shared_ptr< std::vector< float > > m_localColors;
 
     /**
      * Line vector that contains the number of vertices for each line
      */
-    boost::shared_ptr< std::vector< size_t > > m_lineLengths;
+    boost::shared_ptr< const std::vector< size_t > > m_lineLengths;
 };
 
 #endif  // WCREATECOLORARRAYSTHREAD_H
