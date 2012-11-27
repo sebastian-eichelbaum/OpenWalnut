@@ -133,7 +133,7 @@ void main()
     // let it point towards the camera
     v_normalWorld *= sign( dot( normalize( v_normalWorld ), vec3( 0.0, 0.0, 1.0 ) ) );
 
-    v_worldScale = 0.1 * getModelViewScale();
+    v_worldScale = getModelViewScale();
 
     // vertex 1
     gl_TexCoord[0] = vec4( -1.0, -1.0, 0.0, angle );

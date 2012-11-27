@@ -264,7 +264,7 @@ void main( void )
         // finally set the color and depth
         wgeInitGBuffer();
         wge_FragNormal = textureNormalize( normal );
-        wge_FragZoom = 0.1 * v_worldScale;
+        wge_FragZoom = v_worldScale;
         wge_FragTangent = textureNormalize( vec3( 0.0, 1.0, 0.0 ) );
 
         // draw shaded pixel

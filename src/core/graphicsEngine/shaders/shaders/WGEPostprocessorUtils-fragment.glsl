@@ -165,12 +165,13 @@ vec4 getColor( in vec2 where, in float lod = 0.0 )
  * Returns the original unprocessed color value at the current pixel.
  *
  * \note GLSL does not officially allow default values for function arguments which is why we need this additional function.
+ * \param lod the LOD level if using mip-maps.
  *
  * \return the color
  */
-vec4 getColor()
+vec4 getColor( in float lod = 0.0 )
 {
-    return getColor( pixelCoord );
+    return getColor( pixelCoord, lod );
 }
 
 /**
@@ -190,12 +191,13 @@ vec4 getNormal( in vec2 where, in float lod = 0.0 )
  * Grabs the normal at the current pixel. The returned normal has been de-scaled to [-1,1]. The w component is 1.
  *
  * \note GLSL does not officially allow default values for function arguments which is why we need this additional function.
+ * \param lod the LOD level if using mip-maps.
  *
  * \return the normal
  */
-vec4 getNormal()
+vec4 getNormal( in float lod = 0.0 )
 {
-    return getNormal( pixelCoord );
+    return getNormal( pixelCoord, lod );
 }
 
 /**
@@ -216,11 +218,13 @@ vec4 getTangent( in vec2 where, in float lod = 0.0 )
  *
  * \note GLSL does not officially allow default values for function arguments which is why we need this additional function.
  *
+ * \param lod the LOD level if using mip-maps.
+ *
  * \return the normal
  */
-vec4 getTangent()
+vec4 getTangent( in float lod = 0.0 )
 {
-    return getNormal( pixelCoord );
+    return getTangent( pixelCoord, lod );
 }
 
 /**
@@ -241,11 +245,13 @@ float getDepth( in vec2 where, in float lod = 0.0 )
  *
  * \note GLSL does not officially allow default values for function arguments which is why we need this additional function.
  *
+ * \param lod the LOD level if using mip-maps.
+ *
  * \return the depth
  */
-float getDepth()
+float getDepth( in float lod = 0.0 )
 {
-    return getDepth( pixelCoord );
+    return getDepth( pixelCoord, lod );
 }
 
 /**
@@ -257,8 +263,7 @@ float getDepth()
  */
 float getZoom( in vec2 where )
 {
-    // TODO(ebaum): somehow remove this scaler
-    return texture2D( u_parameterSampler, pixelCoord ).r * 10.0;
+    return texture2D( u_parameterSampler, pixelCoord ).r;
 }
 
 /**

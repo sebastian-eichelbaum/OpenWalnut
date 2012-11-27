@@ -135,6 +135,37 @@ osg::ref_ptr< osg::Texture2D > WGEOffscreenRenderPass::createTexture( GLint inte
     tex->setTextureSize( m_width, m_height );
     tex->setInternalFormat( internalFormat );
 
+    switch( internalFormat )
+    {
+    case GL_R16F:
+        tex->setSourceType( GL_HALF_FLOAT );
+        tex->setSourceFormat( GL_RED );
+        break;
+    case GL_R32F:
+        tex->setSourceType( GL_FLOAT );
+        tex->setSourceFormat( GL_RED );
+        break;
+    case GL_RGB16F:
+        tex->setSourceType( GL_HALF_FLOAT );
+        tex->setSourceFormat( GL_RGB );
+        break;
+    case GL_RGBA16F:
+        tex->setSourceType( GL_HALF_FLOAT );
+        tex->setSourceFormat( GL_RGBA );
+        break;
+    case GL_RGB32F:
+        tex->setSourceType( GL_FLOAT );
+        tex->setSourceFormat( GL_RGB );
+        break;
+    case GL_RGBA32F:
+        tex->setSourceType( GL_FLOAT );
+        tex->setSourceFormat( GL_RGBA );
+        break;
+    default:
+        // keep default format and type
+        break;
+    }
+
     // setup interpolation
     tex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR );
     tex->setFilter( osg::Texture::MAG_FILTER, osg::Texture::LINEAR );

@@ -138,7 +138,7 @@ void main()
     wgeInitGBuffer();
     wge_FragColor = vec4( vec3( light * finalColor.xyz * colorScaler ), finalColor.a );
     wge_FragNormal = textureNormalize( normal );
-    wge_FragZoom = 0.1 * v_worldScale;
+    wge_FragZoom = v_worldScale;
     wge_FragTangent = textureNormalize( v_tangent );
     gl_FragDepth = depth;
 }

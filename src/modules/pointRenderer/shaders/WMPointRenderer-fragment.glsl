@@ -117,7 +117,7 @@ void main()
     wgeInitGBuffer();
     wge_FragColor = vec4( gl_Color.rgb * r, 1.0 );
     wge_FragNormal = textureNormalize( sphereSurf );
-    wge_FragZoom = 0.1 * v_worldScale;
+    wge_FragZoom = v_worldScale;
     wge_FragTangent = textureNormalize( vec3( 0.0, 1.0, 0.0 ) );
 #ifdef DEPTHWRITE_ENABLED
     // we allow to disable depth write. This allows the GPU to disacard pixels before applying the fragment shader -> speedup
