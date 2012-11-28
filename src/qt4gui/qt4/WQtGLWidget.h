@@ -213,7 +213,6 @@ protected:
      */
     std::string m_nameOfViewer;
 
-
     /**
      * Event handler for double clicks.
      *

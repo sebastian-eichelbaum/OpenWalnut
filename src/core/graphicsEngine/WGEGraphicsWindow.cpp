@@ -36,7 +36,8 @@ WGEGraphicsWindow::WGEGraphicsWindow( osg::ref_ptr<osg::Referenced>
                                             int x,
                                             int y,
                                             int width,
-                                            int height )
+                                            int height ):
+    m_closed( false )
 {
 #ifdef WGEMODE_MULTITHREADED
     // initialize context
@@ -154,5 +155,15 @@ void WGEGraphicsWindow::mouseEvent( MouseEvents eventType, int x, int y, int but
             m_GraphicsWindow->getEventQueue()->mouseScroll2D( x, y );
             break;
     }
+}
+
+bool WGEGraphicsWindow::isClosed() const
+{
+    return m_closed;
+}
+
+void WGEGraphicsWindow::setClosed( bool closed )
+{
+    m_closed = closed;
 }
 

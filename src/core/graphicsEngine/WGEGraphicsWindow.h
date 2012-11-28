@@ -109,6 +109,20 @@ public:
      */
     virtual void mouseEvent( MouseEvents eventType, int x, int y, int button );
 
+    /**
+     * Check if the windows is open.
+     *
+     * \return false if the window is not open anymore.
+     */
+    virtual bool isClosed() const;
+
+    /**
+     * Set closed state.
+     *
+     * \param closed true if widget should be marked as closed.
+     *
+     */
+    virtual void setClosed( bool closed = true );
 protected:
     /**
      * OpenSceneGraph render window.
@@ -137,6 +151,10 @@ protected:
     osg::ref_ptr<osg::Referenced> m_WindowData;
 #endif
 private:
+    /**
+     * Mark the window opened or closed.
+     */
+    bool m_closed;
 };
 
 #endif  // WGEGRAPHICSWINDOW_H

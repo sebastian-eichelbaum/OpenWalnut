@@ -75,6 +75,20 @@ protected:
      */
     QWidget* m_panel;
 
+    /**
+     * Called whenever a close event is received.
+     *
+     * \param event the event.
+     */
+    void closeEvent( QCloseEvent *event );
+
+    /**
+     * Called whenever the widget gets opened
+     *
+     * \param event the event
+     */
+    void showEvent( QShowEvent* event );
+
 private slots:
     /**
      * If the dock widget changes its visibility.

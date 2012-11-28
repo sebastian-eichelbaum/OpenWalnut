@@ -101,3 +101,15 @@ void WQtGLDockWidget::handleVisibilityChange( bool visible )
     m_glWidget->getViewer()->getView()->getScene()->getSceneData()->setNodeMask( visible * 0xFFFFFFFF );
 }
 
+void WQtGLDockWidget::closeEvent( QCloseEvent *event )
+{
+    getGLWidget()->getViewer()->setClosed( true );
+    QDockWidget::closeEvent( event );
+}
+
+void WQtGLDockWidget::showEvent( QShowEvent* event )
+{
+    getGLWidget()->getViewer()->setClosed( false );
+    QDockWidget::showEvent( event );
+}
+
