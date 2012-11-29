@@ -146,7 +146,12 @@ enum FileFormat {
 EXTERN_C int   B4C_ERRNUM;
 EXTERN_C const char *B4C_ERRMSG;
 
-#define BIOSIG_VERSION 0.80
+#define BIOSIG_VERSION_MAJOR 0
+#define BIOSIG_VERSION_MINOR 8
+#define BIOSIG_PATCHLEVEL 1
+// for backward compatibility
+#define BIOSIG_VERSION_STEPPING BIOSIG_PATCHLEVEL
+#define BIOSIG_VERSION (BIOSIG_VERSION_MAJOR * 10000 + BIOSIG_VERSION_MINOR * 100 + BIOSIG_PATCHLEVEL)
 
 //EXTERN_C int   VERBOSE_LEVEL; 	// used for debugging
 //#define VERBOSE_LEVEL 0	// turn off debugging information

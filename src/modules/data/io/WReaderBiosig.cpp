@@ -76,7 +76,7 @@ boost::shared_ptr< WDataSet > WReaderBiosig::load()
 
     hd =  sopen( m_fname.c_str(), "r", 0 );
 
-#if (BIOSIG_VERSION >= 10400)
+#if( BIOSIG_VERSION >= 10400 )
     switch( serror2( hd ) )
 #else
     switch( B4C_ERRNUM )
