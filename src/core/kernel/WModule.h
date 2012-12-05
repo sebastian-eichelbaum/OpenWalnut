@@ -247,6 +247,8 @@ public:
     /**
      * This method waits for the module to be restored completely. Use this instead of m_isLoadFinished->wait() as this is not properly defined
      * when adding modules without using the project file loader.
+     *
+     * \note you have to use this after your \ref ready call (or it will cause a freeze)
      */
     void waitRestored();
 
