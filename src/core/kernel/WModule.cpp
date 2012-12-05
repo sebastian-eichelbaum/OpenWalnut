@@ -64,6 +64,8 @@ WModule::WModule():
     m_isReady( new WConditionOneShot(), false ),
     m_isReadyOrCrashed( new WConditionSet(), false ),
     m_isRunning( new WCondition(), false ),
+    m_isLoadFinished( new WConditionOneShot(), false ),
+    m_restoreMode( false ),
     m_readyProgress( boost::shared_ptr< WProgress >( new WProgress( "Initializing Module" ) ) ),
     m_moduleState(),
     m_localPath( WPathHelper::getSharePath() )
@@ -618,3 +620,28 @@ std::string WModule::getDeprecationMessage() const
     return deprecated();
 }
 
+void WModule::waitRestored()
+{
+    if( m_restoreMode )
+    {
+        // this returns if the flag was set in the past since it uses a OneShot Condition.
+        m_isLoadFinished.wait();
+        // after load has finished, the module is not in restore mode anymore
+        m_restoreMode = false;
+    }
+}
+
+bool WModule::isRestoreNeeded() const
+{
+    return m_restoreMode;
+}
+
+void WModule::setRestoreNeeded( bool restore )
+{
+    m_restoreMode = restore;
+}
+
+void WModule::reportRestoreComplete()
+{
+    m_isLoadFinished.set( true );
+}

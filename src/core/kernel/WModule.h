@@ -244,11 +244,39 @@ public:
      */
     const WBoolFlag& isRunning() const;
 
-     /**
-      * The container this module is associated with.
-      *
-      * \return the container.
-      */
+    /**
+     * This method waits for the module to be restored completely. Use this instead of m_isLoadFinished->wait() as this is not properly defined
+     * when adding modules without using the project file loader.
+     */
+    void waitRestored();
+
+    /**
+     * Check whether this module is in restore mode. This means that some loader is currently handling the module. You are allowed to ignore this
+     * flag. But be aware that the loader can set connections and properties even if you do not expect this.
+     *
+     * \return true if the module is currently being restored.
+     */
+    bool isRestoreNeeded() const;
+
+    /**
+     * Change the restore mode. \see isRestoreNeeded for details.
+     *
+     * \note loaders need to set this flag before the module is associated with a container.
+     *
+     * \param restore the mode.
+     */
+    void setRestoreNeeded( bool restore = true );
+
+    /**
+     * Called by loaders to tell the module that loading has been completed.
+     */
+    void reportRestoreComplete();
+
+    /**
+     * The container this module is associated with.
+     *
+     * \return the container.
+    */
     boost::shared_ptr< WModuleContainer > getAssociatedContainer() const;
 
     /**
@@ -620,6 +648,16 @@ protected:
      * True if the module currently is running.
      */
     WBoolFlag m_isRunning;
+
+    /**
+     * Flag to denote whether the module container and the project loader have finished their work. \see isLoadFinished.
+     */
+    WBoolFlag m_isLoadFinished;
+
+    /**
+     * Flag denoting the current restore mode. \see setRestoreNeeded
+     */
+    bool m_restoreMode;
 
     /**
      * Progress indicator for the "ready" state.
