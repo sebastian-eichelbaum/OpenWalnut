@@ -1280,7 +1280,7 @@ WMatrixFixed< typename WTypeTraits::TypePromotion< AValueT, BValueT >::Result, 3
  * \tparam Rows number of rows in this colums-vector
  * \param a the vector
  *
- * \return the length of the vector
+ * \return the squared length of the vector
  */
 template< typename ValueT, ValueStoreTemplate ValueStoreT, size_t Rows >
 ValueT length2( const WMatrixFixed< ValueT, Rows, 1, ValueStoreT >& a )
@@ -1301,7 +1301,7 @@ ValueT length2( const WMatrixFixed< ValueT, Rows, 1, ValueStoreT >& a )
  * \tparam Cols number of columns in this row-vector
  * \param a the vector
  *
- * \return length of the vector
+ * \return squared length of the vector
  */
 template< typename ValueT, ValueStoreTemplate ValueStoreT, size_t Cols >
 ValueT length2( const WMatrixFixed< ValueT, 1, Cols, ValueStoreT >& a )
