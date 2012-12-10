@@ -1347,6 +1347,53 @@ ValueT length( const WMatrixFixed< ValueT, 1, Cols, ValueStoreT >& a )
 }
 
 /**
+ * Calculates the <b>squared</b> distance between two vectors.
+ *
+ * \tparam ValueT Value type
+ * \tparam ValueStoreT Value store to use
+ * \tparam Rows number of rows in this vector, either this or Cols should be 1
+ * \tparam Cols number of cols in this vector, either this or Rows should be 1
+ * \param a the first vector
+ * \param b the second vector
+ *
+ * \return the squared distance between the two vectors
+ */
+template< typename ValueT, ValueStoreTemplate ValueStoreT, size_t Rows, size_t Cols >
+ValueT distance2( const WMatrixFixed< ValueT, Rows, Cols, ValueStoreT >& a, const WMatrixFixed< ValueT, Rows, Cols, ValueStoreT >& b )
+{
+    BOOST_STATIC_ASSERT( Rows == 1 || Cols == 1 );
+    ValueT r = ValueT();
+    ValueT t = ValueT();
+    for( size_t row = 0; row < Rows; ++row )
+    {
+        for( size_t col = 0; col < Cols; ++col )
+        {
+            t = a( row, col ) - b( row, col );
+            r += t*t;
+        }
+    }
+    return r;
+}
+
+/**
+ * Calculates the <b>squared</b> distance between two vectors.
+ *
+ * \tparam ValueT Value type
+ * \tparam ValueStoreT Value store to use
+ * \tparam Rows number of rows in this vector, either this or Cols should be 1
+ * \tparam Cols number of cols in this vector, either this or Rows should be 1
+ * \param a the first vector
+ * \param b the second vector
+ *
+ * \return the distance between the two vectors
+ */
+template< typename ValueT, ValueStoreTemplate ValueStoreT, size_t Rows, size_t Cols >
+ValueT distance( const WMatrixFixed< ValueT, Rows, Cols, ValueStoreT >& a, const WMatrixFixed< ValueT, Rows, Cols, ValueStoreT >& b )
+{
+    return sqrt( distance2( a, b ) );
+}
+
+/**
  * Normalizes the given vector.
  *
  * \tparam RHSValueT given matrix value type
