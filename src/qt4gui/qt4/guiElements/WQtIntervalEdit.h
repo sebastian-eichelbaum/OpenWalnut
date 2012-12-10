@@ -292,8 +292,10 @@ void WQtIntervalEdit< DataType, DisplayType >::setAllowedMin( DataType min )
         return;
     }
 
-    // if the new allowed min is larger than the currently set min -> change m_min too
-    if( min > m_min )
+    // check two cases:
+    // 1: if the new allowed min is larger than the currently set min -> change m_min too
+    // 2: the new min is smaller then the allowed one and the slider is still at 0 -> keep slider there
+    if( ( min > m_min ) || ( ( min < m_min ) && ( m_minSlider.value() == 0 ) ) )
     {
         m_min = min;
         emit minimumChanged();
@@ -309,8 +311,11 @@ void WQtIntervalEdit< DataType, DisplayType >::setAllowedMax( DataType max )
     {
         return;
     }
-    // if the new allowed max is smaller than the currently set max -> change m_max too
-    if( max < m_max )
+
+    // check two cases:
+    // 1: if the new allowed max is smaller than the currently set max -> change m_max too
+    // 2: the new max is larger then the allowed one and the slider is still at the max -> keep slider at 100
+    if( ( max < m_max ) || ( ( max > m_max ) && ( m_maxSlider.value() == SliderResolution ) ) )
     {
         m_max = max;
         emit maximumChanged();
