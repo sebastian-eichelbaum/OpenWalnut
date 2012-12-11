@@ -32,6 +32,8 @@ WScriptEngine::WScriptEngine( boost::shared_ptr<WModuleContainer> const& rootCon
 {
 #ifdef PYTHON_FOUND // this is defined in the CMake scripts
     m_interpreters.push_back( boost::shared_ptr< WScriptInterpreter >( new WScriptInterpreterPython( rootContainer ) ) );
+#else
+    ( void ) rootContainer; // avoid compiler warning: unused parameter ‘rootContainer’
 #endif
     for( std::size_t k = 0; k < m_interpreters.size(); ++k )
     {
