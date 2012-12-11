@@ -67,14 +67,14 @@ public:
      *
      * \param c the pair to use
      */
-    WInterval( const StoreType& c );
+    explicit WInterval( const StoreType& c );
 
     /**
      * Copy constructor.
      *
      * \param c the interval to copy
      */
-    WInterval( const Type& c );
+    WInterval( const Type& c );  // NOLINT
 
     /**
      * Create a new interval instance using the given values.
@@ -120,7 +120,6 @@ public:
     bool operator==( Type interval ) const;
 
 protected:
-
 private:
     /**
      * The interval itself.
