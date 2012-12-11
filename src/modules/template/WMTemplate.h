@@ -293,6 +293,11 @@ private:
     WPropTrigger m_exceptionTrigger;
 
     /**
+     * A property allowing you to define whole intervals.
+     */
+    WPropInterval m_anInterval;
+
+    /**
      * The callback triggering the hide flag of m_aColor for demonstration.
      */
     void hideButtonPressed();

@@ -258,6 +258,11 @@ void WMTemplate::properties()
     m_aSingleSelectionUsingTypes = m_properties->addProperty( "Choose one", "Choose on of these and watch the console output.",
                                                               m_possibleSelectionsUsingTypes->getSelectorFirst(), m_propCondition );
 
+    // There are more property types available. Check out core/common/WPropertyTypes.h. One last to mention here is the WPropInterval. This
+    // property type allows you to define intervals. You can create one in the same way you created the other properties:
+    m_anInterval = m_properties->addProperty( "Interval", "Choose some interval please", WIntervalDouble( -1.0, 100.0 ), m_propCondition );
+    // Important to know is that you can only use WIntervalDouble. You can also use make_interval, which works similar to std::make_pair.
+
     // Adding a lot of properties might confuse the user. Using WPropGroup, you have the possibility to group your properties together. A
     // WPropGroup needs a name and can provide a description. As with properties, the name should not contain any "/" and must be unique.
 
@@ -712,6 +717,15 @@ void WMTemplate::moduleMain()
             // OpenWalnut then automatically catches it and transports it to the kernel and the registered callbacks. This usually is the GUI
             // which shows a dialog or something similar. Additionally, the m_isCrashed flag is set to true. Once a module is crahsed, it cannot
             // be "restored".
+        }
+
+        // Check if the interval was modified.
+        if( m_anInterval->changed() )
+        {
+            // Grab the value as you have learned above:
+            WIntervalDouble i = m_anInterval->get( true );
+            // And use it somehow:
+            infoLog() << "You have selected this interval: [" << i.getLower() << ", " << i.getUpper() << "].";
         }
     }
 

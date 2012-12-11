@@ -87,7 +87,7 @@ private:
 
 template < typename T >
 WGEPropertyUniform< T >::WGEPropertyUniform( std::string name, T property ):
-    osg::Uniform( name.c_str(), static_cast< typename WGEPropertyUniform< T >::UniformType >( property->get() ) ),
+    osg::Uniform( name.c_str(), typename WGEPropertyUniform< T >::UniformType() ),
     m_property( property ),
     m_name( name )
 {

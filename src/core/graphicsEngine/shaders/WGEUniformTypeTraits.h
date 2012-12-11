@@ -26,9 +26,10 @@
 #define WGEUNIFORMTYPETRAITS_H
 
 #include <osg/Vec3>
+#include <osg/Vec2>
+
 #include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-
-
+#include "../../common/math/WInterval.h"
 
 class WItemSelector;
 
@@ -88,6 +89,42 @@ namespace wge
          */
         typedef int Type;
     };
+
+    /**
+     * Maps Selection Properties to ints.
+     */
+    template<>
+    class UniformType< WIntervalDouble >
+    {
+    public:
+        /**
+         * The best matching GLSL uniform type for the specified template parameter.
+         */
+        typedef osg::Vec2 Type;
+    };
+
+    /**
+     * Create an instance of the uniform target type given some input type.
+     *
+     * \tparam InType the input type
+     * \param in the input value
+     *
+     * \return the resulting uniform type
+     */
+    template< typename InType >
+    typename UniformType< InType >::Type toUniformType( const InType& in )
+    {
+        return static_cast< typename UniformType< InType >::Type >( in );
+    }
+
+    /**
+     * Creates an OSG vec2 when an interval is inserted.
+     *
+     * \param in the interval to convert
+     *
+     * \return the vector
+     */
+    osg::Vec2 toUniformType( const WIntervalDouble& in );
 }
 
 #endif  // WGEUNIFORMTYPETRAITS_H

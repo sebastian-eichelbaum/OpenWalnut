@@ -154,6 +154,13 @@ public:
     WPropBool active() const;
 
     /**
+     * Returns the window level definition for the colormap. The property can be changed. A change affects all colormaps using this texture.
+     *
+    * \return window colormap
+     */
+    WPropInterval window() const;
+
+    /**
      * Returns the texture transformation matrix. The property can be changed. A change affects all colormaps using this texture. This matrix
      * converts an world-space coordinate to an texture coordinate! This can be seen as a scaled inverse matrix of the grid's transformation.
      *
@@ -351,6 +358,11 @@ private:
      * The texture transformation matrix.
      */
     WPropMatrix4X4 m_texMatrix;
+
+    /**
+     * Window level setting for the current colormap
+     */
+    WPropInterval m_window;
 };
 
 // Some convenience typedefs
@@ -446,6 +458,9 @@ void WGETexture< TextureType >::setupProperties( double scale, double min )
 
     m_active = m_properties->addProperty( "Active", "Can dis-enable a texture.", true );
 
+    m_window = m_properties->addProperty( "Window Level", "Define the interval in the data which is mapped to the colormap.",
+                                          make_interval( 0.0, 1.0 ) );
+
     WMatrix4d m = WMatrix4d::identity();
     m_texMatrix = m_properties->addProperty( "Texture Transformation", "Usable to transform the texture.", m );
     m_texMatrix->setPurpose( PV_PURPOSE_INFORMATION );
@@ -533,6 +548,12 @@ inline WPropBool WGETexture< TextureType >::active() const
 }
 
 template < typename TextureType >
+inline WPropInterval WGETexture< TextureType >::window() const
+{
+    return m_window;
+}
+
+template < typename TextureType >
 inline WPropMatrix4X4 WGETexture< TextureType >::transformation() const
 {
     return m_texMatrix;
@@ -558,6 +579,7 @@ void  WGETexture< TextureType >::applyUniforms( std::string prefix, osg::StateSe
     states->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Threshold", threshold() ) );
     states->addUniform( new WGEPropertyUniform< WPropSelection >( prefix + "Colormap", colormap() ) );
     states->addUniform( new WGEPropertyUniform< WPropBool >( prefix + "Active", active() ) );
+    states->addUniform( new WGEPropertyUniform< WPropInterval >( prefix + "Window", window() ) );
 }
 
 template < typename TextureType >

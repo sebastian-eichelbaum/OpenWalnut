@@ -22,12 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WGEUniformTypeTraits.h"
+#include "WInterval.h"
 
-namespace wge
-{
-    osg::Vec2 toUniformType( const WIntervalDouble& in )
-    {
-        return osg::Vec2( in.getLower(), in.getUpper() );
-    }
-}
