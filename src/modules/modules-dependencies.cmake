@@ -17,7 +17,7 @@
 # Teem: http://teem.sourceforge.org
 #  - NOTE: you need the SVN version
 
-FIND_PACKAGE( Teem PATHS /usr/local/lib /opt/teem/lib QUIET )
+FIND_PACKAGE( Teem PATHS /usr/local/lib /opt/teem/lib $ENV{TEEM_LIB_DIR}  QUIET )
 IF( Teem_FOUND )    # we need to add the include path and lib path to allow the compiler and linker to find teem even if it was not installed to
                     # /usr/local
     INCLUDE_DIRECTORIES( ${Teem_INCLUDE_DIRS} )
