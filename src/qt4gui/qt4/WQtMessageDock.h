@@ -22,74 +22,36 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTMESSAGEPOPUP_H
-#define WQTMESSAGEPOPUP_H
+#ifndef WQTMESSAGEDOCK_H
+#define WQTMESSAGEDOCK_H
 
-#include <QtGui/QWidget>
-#include <QtGui/QDialog>
-#include <QtCore/QString>
-#include <QtCore/QTimer>
+#include <QtGui/QDockWidget>
+#include <QtGui/QVBoxLayout>
 
 /**
- * Nice looking message popup.
+ * Dock widget for showing messages and logs
  */
-class WQtMessagePopup: public QDialog
+class WQtMessageDock: public QDockWidget
 {
     Q_OBJECT
 public:
     /**
-     * Describe the kind of message
-     */
-    enum MessageType
-    {
-        ERROR,          //!< error messgae
-        WARNING,        //!< warning
-        INFO            //!< info only
-    };
-
-    /**
      * Constructor
      *
+     * \param dockTitle the title
      * \param parent parent widget
-     * \param title title
-     * \param message message
-     * \param type the message type
      */
-    WQtMessagePopup( QWidget* parent, const QString& title, const QString& message, MessageType type );
+    WQtMessageDock( QString dockTitle, QWidget* parent );
 
     /**
      * Destructor.
      */
-    virtual ~WQtMessagePopup();
+    virtual ~WQtMessageDock();
 
-public slots:
-    /**
-     * Shows the message
-     */
-    void showMessage();
 protected:
-    /**
-     * On show. Called when opening the widget.
-     *
-     * \param event
-     */
-    virtual void showEvent( QShowEvent* event );
+
 private:
-    /**
-     * Title Text
-     */
-    QString m_title;
-
-    /**
-     * The message text.
-     */
-    QString m_message;
-
-    /**
-     * What kind of message is this.
-     */
-    MessageType m_type;
 };
 
-#endif  // WQTMESSAGEPOPUP_H
+#endif  // WQTMESSAGEDOCK_H
 

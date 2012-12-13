@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
+
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
@@ -43,6 +45,7 @@
 #define OUTERMARGIN 10
 #define BORDERWIDTH 2
 #define CONTENTHEIGHT 16
+#define MAXWIDTH 600
 
 WQtMessagePopup::WQtMessagePopup( QWidget* parent, const QString& title, const QString& message, MessageType type ):
     QDialog( parent, Qt::Popup | Qt::FramelessWindowHint ),
@@ -54,18 +57,12 @@ WQtMessagePopup::WQtMessagePopup( QWidget* parent, const QString& title, const Q
     setWindowModality( Qt::NonModal );
     setModal( false );
 
-    // get top left corner
-    QPoint p = parent->mapToGlobal( QPoint( 0, 0 ) );
-
     // determine a width and height for the popup
-    unsigned int w = parent->width() - ( 2.0 * OUTERMARGIN );
+    unsigned int w = std::min( parent->width() - ( 2 * OUTERMARGIN ), MAXWIDTH );
     unsigned int h = CONTENTHEIGHT + BORDERWIDTH + BORDERWIDTH;
 
     // change size of popup
     resize( w, h );
-
-    // set position, include margins
-    move( p.x() + OUTERMARGIN, p.y() + OUTERMARGIN );
 
     QString borderColor = "red";
     QString titlePrefix = "";
@@ -167,6 +164,18 @@ WQtMessagePopup::WQtMessagePopup( QWidget* parent, const QString& title, const Q
     messageLabel->setObjectName( "popupDialogMessage" );
     closeBtn->setObjectName( "popupDialogButton" );
     detailsBtn->setObjectName( "popupDialogButton" );
+}
+
+void WQtMessagePopup::showEvent( QShowEvent* event )
+{
+    // move widget to correct position
+    // get top left corner
+    QPoint p = parentWidget()->mapToGlobal( QPoint( parentWidget()->width() / 2, parentWidget()->height() ) );
+
+    // set position, include margins
+    move( p.x() - width() / 2 - OUTERMARGIN / 2, p.y() - height()- OUTERMARGIN );
+
+    QDialog::showEvent( event );
 }
 
 WQtMessagePopup::~WQtMessagePopup()

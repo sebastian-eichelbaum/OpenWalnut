@@ -41,6 +41,7 @@
 #include "WQtGLWidget.h"
 #include "WSettingAction.h"
 #include "networkEditor/WQtNetworkEditor.h"
+#include "WQtMessageDock.h"
 
 // forward declarations
 class QMenuBar;
@@ -221,6 +222,20 @@ public:
      * \param message the message
      */
     void reportInfo( QWidget* parent, QString title, QString message );
+
+    /**
+     * Return the message dock widget
+     *
+     * \return the message dock
+     */
+    const WQtMessageDock* getMessageDock() const;
+
+    /**
+     * Return the message dock widget
+     *
+     * \return the message dock
+     */
+    WQtMessageDock* getMessageDock();
 protected:
     /**
      * Setup the GUI by handling special modules. NavSlices for example setup several toolbar buttons.
@@ -373,6 +388,11 @@ private:
     QMenuBar* m_menuBar; //!< The main menu bar of the GUI.
 
     WQtToolBar* m_permanentToolBar; //!< The permanent toolbar of the main window.
+
+    /**
+     * Message and log window
+     */
+    WQtMessageDock* m_messageDock;
 
     // several menu items
     QAction* m_newAction; //!< the new project button

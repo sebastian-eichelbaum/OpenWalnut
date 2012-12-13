@@ -245,6 +245,10 @@ void WMainWindow::setupGUI()
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getColormapperDock() );
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getRoiDock() );
 
+    // the message dock:
+    m_messageDock = new WQtMessageDock( "Messages", this );
+    addDockWidget( Qt::RightDockWidgetArea, m_messageDock );
+
     // tabify those panels by default
     if( m_networkEditor )
     {
@@ -252,6 +256,7 @@ void WMainWindow::setupGUI()
     }
     tabifyDockWidget( m_controlPanel->getModuleDock(), m_controlPanel->getColormapperDock() );
     tabifyDockWidget( m_controlPanel->getColormapperDock(), m_controlPanel->getRoiDock() );
+    tabifyDockWidget( m_controlPanel->getRoiDock(), m_messageDock );
 
     m_glDock = new QMainWindow();
     m_glDock->setObjectName( "GLDock" );
@@ -939,7 +944,7 @@ bool WMainWindow::event( QEvent* event )
         {
             QString title = "Module \"" + QString::fromStdString( e1->getModule()->getName() ) + "\" caused a problem.";
             QString message = QString::fromStdString( e1->getMessage() );
-            reportError( m_networkEditor->getView(), title, message );
+            reportError( this, title, message );
         }
     }
 
@@ -997,7 +1002,7 @@ bool WMainWindow::event( QEvent* event )
 
                 if( curWarnCount && curErrCount )   // Errors and warnings
                 {
-                    reportError( m_networkEditor->getView(), "There where errors and warnings during load.",
+                    reportError( this, "There where errors and warnings during load.",
                                              "Errors occurred during load of \"" + QString::fromStdString( e1->getFilename() ) + "\". "
                                              "The loader tried to apply as much as possible, ignoring the erroneous data. The first errors where:"
                                              + QString::fromStdString( errors ) +
@@ -1007,14 +1012,14 @@ bool WMainWindow::event( QEvent* event )
                 }
                 else if( curWarnCount && !curErrCount ) // only warnings
                 {
-                    reportWarning( m_networkEditor->getView(), "There where warnings during load.",
+                    reportWarning( this, "There where warnings during load.",
                                              "Warnings occurred during load of \"" + QString::fromStdString( e1->getFilename() ) + "\". "
                                              + QString::fromStdString( warnings )
                                  );
                 }
                 else if( !curWarnCount && curErrCount ) // only errors
                 {
-                    reportError( m_networkEditor->getView(), "There where errors during load.",
+                    reportError( this, "There where errors during load.",
                                              "Errors occurred during load of \"" + QString::fromStdString( e1->getFilename() ) + "\". "
                                              "The loader tried to apply as much as possible, ignoring the erroneous data. The first errors where:"
                                              + QString::fromStdString( errors )
@@ -1335,3 +1340,12 @@ void WMainWindow::addGlobalMenu( QWidget* widget )
     widget->addAction( m_quitAction );
 }
 
+const WQtMessageDock* WMainWindow::getMessageDock() const
+{
+    return m_messageDock;
+}
+
+WQtMessageDock* WMainWindow::getMessageDock()
+{
+    return m_messageDock;
+}
