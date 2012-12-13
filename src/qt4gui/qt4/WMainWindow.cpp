@@ -1005,14 +1005,14 @@ bool WMainWindow::event( QEvent* event )
                                              + QString::fromStdString( warnings )
                                );
                 }
-                else if ( curWarnCount && !curErrCount ) // only warnings
+                else if( curWarnCount && !curErrCount ) // only warnings
                 {
                     reportWarning( m_networkEditor->getView(), "There where warnings during load.",
                                              "Warnings occurred during load of \"" + QString::fromStdString( e1->getFilename() ) + "\". "
                                              + QString::fromStdString( warnings )
                                  );
                 }
-                else if ( !curWarnCount && curErrCount ) // only errors
+                else if( !curWarnCount && curErrCount ) // only errors
                 {
                     reportError( m_networkEditor->getView(), "There where errors during load.",
                                              "Errors occurred during load of \"" + QString::fromStdString( e1->getFilename() ) + "\". "
