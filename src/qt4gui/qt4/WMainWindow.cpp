@@ -84,6 +84,7 @@
 #include "events/WCloseCustomDockWidgetEvent.h"
 #include "events/WLoadFinishedEvent.h"
 #include "guiElements/WQtPropertyBoolAction.h"
+#include "guiElements/WQtMessagePopup.h"
 #include "WQt4Gui.h"
 #include "WQtCombinerToolbar.h"
 #include "WQtCustomDockWidget.h"
@@ -194,6 +195,8 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "axial icon" ), axial_xpm );
     m_iconManager.addIcon( std::string( "coronal icon" ), cor_xpm );
     m_iconManager.addIcon( std::string( "sagittal icon" ), sag_xpm );
+    m_iconManager.addIcon( std::string( "popup_more" ), popup_more_xpm );
+    m_iconManager.addIcon( std::string( "popup_close" ), popup_close_xpm );
 
     try
     {
@@ -717,14 +720,14 @@ void WMainWindow::openLoadDialog()
 
 void WMainWindow::asyncProjectLoad( std::string filename )
 {
-    WProjectFile::SPtr proj( new WProjectFile( filename, boost::bind( &WMainWindow::slotLoadFinished, this, _1, _2 ) ) );
+    WProjectFile::SPtr proj( new WProjectFile( filename, boost::bind( &WMainWindow::slotLoadFinished, this, _1, _2, _3 ) ) );
     proj->load();
 }
 
-void WMainWindow::slotLoadFinished( boost::filesystem::path file, std::vector< std::string > errors )
+void WMainWindow::slotLoadFinished( boost::filesystem::path file, std::vector< std::string > errors, std::vector< std::string > warnings )
 {
     // as this function might be called from outside the gui thread, use an event:
-    QCoreApplication::postEvent( this, new WLoadFinishedEvent( file, errors ) );
+    QCoreApplication::postEvent( this, new WLoadFinishedEvent( file, errors, warnings ) );
 
     if( errors.size() )
     {
@@ -897,6 +900,24 @@ void WMainWindow::customEvent( QEvent* event )
     }
 }
 
+void WMainWindow::reportError( QWidget* parent, QString title, QString message )
+{
+    WQtMessagePopup* m = new WQtMessagePopup( parent, title, message, WQtMessagePopup::ERROR );
+    m->show();
+}
+
+void WMainWindow::reportWarning( QWidget* parent, QString title, QString message )
+{
+    WQtMessagePopup* m = new WQtMessagePopup( parent, title, message, WQtMessagePopup::WARNING );
+    m->show();
+}
+
+void WMainWindow::reportInfo( QWidget* parent, QString title, QString message )
+{
+    WQtMessagePopup* m = new WQtMessagePopup( parent, title, message, WQtMessagePopup::INFO );
+    m->show();
+}
+
 bool WMainWindow::event( QEvent* event )
 {
     // a module got associated with the root container -> add it to the list
@@ -916,15 +937,9 @@ bool WMainWindow::event( QEvent* event )
         WModuleCrashEvent* e1 = dynamic_cast< WModuleCrashEvent* >( event );     // NOLINT
         if( e1 )
         {
-            QString title = "Problem in module: " + QString::fromStdString( e1->getModule()->getName() );
-            QString description = "<b>Module Problem</b><br/><br/><b>Module:  </b>" + QString::fromStdString( e1->getModule()->getName() );
-
+            QString title = "Module \"" + QString::fromStdString( e1->getModule()->getName() ) + "\" caused a problem.";
             QString message = QString::fromStdString( e1->getMessage() );
-            QMessageBox msgBox;
-            msgBox.setText( description );
-            msgBox.setInformativeText( message  );
-            msgBox.setStandardButtons( QMessageBox::Ok );
-            msgBox.exec();
+            reportError( m_networkEditor->getView(), title, message );
         }
     }
 
@@ -944,7 +959,7 @@ bool WMainWindow::event( QEvent* event )
         WLoadFinishedEvent* e1 = dynamic_cast< WLoadFinishedEvent* >( event );
         if( e1 )
         {
-            if( e1->getErrors().size() )
+            if( e1->getErrors().size() || e1->getWarnings().size() )
             {
                 size_t curErrCount = 0;
                 const size_t maxErrCount = 5;
@@ -963,11 +978,48 @@ bool WMainWindow::event( QEvent* event )
                 }
                 errors += "</ul>";
 
-                QMessageBox::critical( this, "Error during load",
+                size_t curWarnCount = 0;
+                const size_t maxWarnCount = 5;
+                std::string warnings = "<ul>";
+                for( std::vector< std::string >::const_iterator iter = e1->getWarnings().begin(); iter != e1->getWarnings().end(); ++iter )
+                {
+                    warnings += "<li> " + *iter;
+                    curWarnCount++;
+
+                    if( ( curWarnCount == maxWarnCount ) && ( e1->getWarnings().size() > maxWarnCount ) )
+                    {
+                        size_t warnDiff = e1->getWarnings().size() - curWarnCount;
+                        warnings += "<li> ... and " + string_utils::toString( warnDiff ) + " more warnings.";
+                        break;
+                    }
+                }
+                warnings += "</ul>";
+
+                if( curWarnCount && curErrCount )   // Errors and warnings
+                {
+                    reportError( m_networkEditor->getView(), "There where errors and warnings during load.",
                                              "Errors occurred during load of \"" + QString::fromStdString( e1->getFilename() ) + "\". "
                                              "The loader tried to apply as much as possible, ignoring the erroneous data. The first errors where:"
-                                             "<br><br>"
-                                             "<font color=\"#f00\">" + QString::fromStdString( errors )+ "</font>" );
+                                             + QString::fromStdString( errors ) +
+                                             "Warnings occurred during load of \"" + QString::fromStdString( e1->getFilename() ) + "\". "
+                                             + QString::fromStdString( warnings )
+                               );
+                }
+                else if ( curWarnCount && !curErrCount ) // only warnings
+                {
+                    reportWarning( m_networkEditor->getView(), "There where warnings during load.",
+                                             "Warnings occurred during load of \"" + QString::fromStdString( e1->getFilename() ) + "\". "
+                                             + QString::fromStdString( warnings )
+                                 );
+                }
+                else if ( !curWarnCount && curErrCount ) // only errors
+                {
+                    reportError( m_networkEditor->getView(), "There where errors during load.",
+                                             "Errors occurred during load of \"" + QString::fromStdString( e1->getFilename() ) + "\". "
+                                             "The loader tried to apply as much as possible, ignoring the erroneous data. The first errors where:"
+                                             + QString::fromStdString( errors )
+                               );
+                }
             }
         }
     }

@@ -29,10 +29,11 @@
 
 #include "WLoadFinishedEvent.h"
 
-WLoadFinishedEvent::WLoadFinishedEvent( boost::filesystem::path filename, std::vector< std::string > errors )
+WLoadFinishedEvent::WLoadFinishedEvent( boost::filesystem::path filename, std::vector< std::string > errors, std::vector< std::string > warnings )
     : QEvent( static_cast< QEvent::Type >( WQT_LOADFINISHED ) ),
     m_filename( filename ),
-    m_errors( errors )
+    m_errors( errors ),
+    m_warnings( warnings )
 {
     // initialize members
 }
@@ -45,6 +46,11 @@ WLoadFinishedEvent::~WLoadFinishedEvent()
 const std::vector< std::string >& WLoadFinishedEvent::getErrors() const
 {
     return m_errors;
+}
+
+const std::vector< std::string >& WLoadFinishedEvent::getWarnings() const
+{
+    return m_warnings;
 }
 
 std::string WLoadFinishedEvent::getFilename() const

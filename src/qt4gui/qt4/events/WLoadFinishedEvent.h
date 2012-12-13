@@ -43,8 +43,9 @@ public:
      *
      * \param filename the filename of the file that was loaded
      * \param errors the list of errors. Can be empty.
+     * \param warnings the list of warnings. Can be empty.
      */
-    WLoadFinishedEvent( boost::filesystem::path filename, std::vector< std::string > errors );
+    WLoadFinishedEvent( boost::filesystem::path filename, std::vector< std::string > errors, std::vector< std::string > warnings );
 
     /**
      * Destructor.
@@ -57,6 +58,13 @@ public:
      * \return the errors.
      */
     const std::vector< std::string >& getErrors() const;
+
+    /**
+     * Returns the list of warnings
+     *
+     * \return the warnings.
+     */
+    const std::vector< std::string >& getWarnings() const;
 
     /**
      * The filename of the file loaded.
@@ -76,6 +84,11 @@ private:
      * The error list.
      */
     std::vector< std::string > m_errors;
+
+    /**
+     * The warnings list.
+     */
+    std::vector< std::string > m_warnings;
 };
 
 #endif  // WLOADFINISHEDEVENT_H

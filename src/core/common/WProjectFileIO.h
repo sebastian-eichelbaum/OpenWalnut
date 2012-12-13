@@ -86,6 +86,20 @@ public:
      */
     const std::vector< std::string >& getErrors() const;
 
+    /**
+     * Checks whether there where warnings during load or save.
+     *
+     * \return true if there where.
+     */
+    bool hadWarnings() const;
+
+    /**
+     * Get warnings list.
+     *
+     * \return the list
+     */
+    const std::vector< std::string >& getWarnings() const;
+
 protected:
     /**
      * Add an error. Use this when you encounter some difficulties during parsing or applying settings. Provide useful errors. They will be
@@ -95,11 +109,24 @@ protected:
      */
     void addError( std::string description );
 
+    /**
+     * Add an warning. Use this when you encounter some difficulties during parsing or applying settings. Provide useful warnings. They will be
+     * presented to the user.
+     *
+     * \param description the error description
+     */
+    void addWarning( std::string description );
+
 private:
     /**
      * List of errors if any.
      */
     std::vector< std::string > m_errors;
+
+    /**
+     * List of warnings if any.
+     */
+    std::vector< std::string > m_warnings;
 };
 
 #endif  // WPROJECTFILEIO_H

@@ -57,12 +57,13 @@ public:
     /**
      * A callback function type reporting bach a finished load job. The given string vector contains a list of errors if any.
      */
-    typedef boost::function< void( boost::filesystem::path, std::vector< std::string >  ) > ProjectLoadCallback;
+    typedef boost::function< void( boost::filesystem::path, std::vector< std::string >, std::vector< std::string > ) > ProjectLoadCallback;
 
     /**
      * A callback function signal type reporting bach a finished load job. The given string vector contains a list of errors if any.
      */
-    typedef boost::signals2::signal< void( boost::filesystem::path, std::vector< std::string >  ) > ProjectLoadCallbackSignal;
+    typedef boost::signals2::signal< void( boost::filesystem::path, std::vector< std::string >, std::vector< std::string > ) >
+            ProjectLoadCallbackSignal;
 
     /**
      * Default constructor. It does NOT parse the file. Parsing is done by using load.

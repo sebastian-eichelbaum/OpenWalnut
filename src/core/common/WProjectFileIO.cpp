@@ -55,9 +55,25 @@ const std::vector< std::string >& WProjectFileIO::getErrors() const
     return m_errors;
 }
 
+bool WProjectFileIO::hadWarnings() const
+{
+    return m_warnings.size();
+}
+
+const std::vector< std::string >& WProjectFileIO::getWarnings() const
+{
+    return m_warnings;
+}
+
 void WProjectFileIO::addError( std::string description )
 {
     wlog::error( "Project Loader" ) << description;
     m_errors.push_back( description );
+}
+
+void WProjectFileIO::addWarning( std::string description )
+{
+    wlog::warn( "Project Loader" ) << description;
+    m_warnings.push_back( description );
 }
 

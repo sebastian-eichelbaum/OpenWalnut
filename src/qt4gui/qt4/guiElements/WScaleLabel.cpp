@@ -78,5 +78,7 @@ void WScaleLabel::fitTextToSize()
         QLabel::setText( useText + tr( ".." ) );
     }
     else
+    {
         QLabel::setText( m_orgText );
+    }
 }
