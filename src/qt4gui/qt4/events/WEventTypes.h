@@ -84,4 +84,6 @@
 // A async load operation has finished
 #define WQT_LOADFINISHED QEvent::User + 17
 
+// Log entry added
+#define WQT_LOG_EVENT QEvent::User + 18
 #endif  // WEVENTTYPES_H

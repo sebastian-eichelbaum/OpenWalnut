@@ -30,6 +30,8 @@
 #include <QtCore/QString>
 #include <QtCore/QTimer>
 
+#include "core/common/WLogEntry.h"
+
 /**
  * Nice looking message popup.
  */
@@ -40,12 +42,7 @@ public:
     /**
      * Describe the kind of message
      */
-    enum MessageType
-    {
-        ERROR,          //!< error messgae
-        WARNING,        //!< warning
-        INFO            //!< info only
-    };
+    typedef LogLevel MessageType;
 
     /**
      * Constructor
@@ -62,11 +59,38 @@ public:
      */
     virtual ~WQtMessagePopup();
 
+    /**
+     * When set to true, the widget gets closed when loosing focus or when clicking the detail button. If not, the widget needs to be closed
+     * manually.
+     *
+     * \param autoClose close flag
+     */
+     void setAutoClose( bool autoClose = true );
+
+     /**
+      * Show or hide the close button
+      *
+      * \param showCloseButton true to show
+      */
+     void setShowCloseButton( bool showCloseButton = true );
+signals:
+    /**
+     * Called when closing the popup
+     *
+     * \param me the pointer to the widget getting close
+     */
+    void onClose( WQtMessagePopup* me );
+
 public slots:
     /**
      * Shows the message
      */
     void showMessage();
+
+    /**
+     * Cloes this popup. Use instead of close() slot.
+     */
+    void closePopup();
 protected:
     /**
      * On show. Called when opening the widget.
@@ -89,6 +113,16 @@ private:
      * What kind of message is this.
      */
     MessageType m_type;
+
+    /**
+     * Close button
+     */
+    QPushButton* m_closeBtn;
+
+    /**
+     * See \ref setAutoClose
+     */
+    bool m_autoClose;
 };
 
 #endif  // WQTMESSAGEPOPUP_H

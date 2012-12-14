@@ -26,7 +26,12 @@
 #define WQTMESSAGEDOCK_H
 
 #include <QtGui/QDockWidget>
-#include <QtGui/QVBoxLayout>
+#include <QtGui/QListWidget>
+#include <QtGui/QComboBox>
+
+#include "core/common/WLogEntry.h"
+
+#include "WQtMessagePopup.h"
 
 /**
  * Dock widget for showing messages and logs
@@ -48,9 +53,40 @@ public:
      */
     virtual ~WQtMessageDock();
 
-protected:
+    /**
+     * Add a message to the dock
+     *
+     * \param title the title
+     * \param message the message
+     * \param type the type
+     */
+    void addMessage( QString title, QString message, WQtMessagePopup::MessageType type );
 
+    /**
+     * Add a message to the dock
+     *
+     * \param sender who sent the message
+     * \param message the message
+     * \param type the type
+     */
+    void addLogMessage( QString sender, QString message, WQtMessagePopup::MessageType type );
+
+    /**
+     * Add message to the dock
+     *
+     * \param entry use this log entry
+     */
+    void addLogMessage( const WLogEntry& entry );
 private:
+    /**
+     * The list
+     */
+    QListWidget* m_logList;
+
+    /**
+     * The message filter
+     */
+    QComboBox* m_filterCombo;
 };
 
 #endif  // WQTMESSAGEDOCK_H

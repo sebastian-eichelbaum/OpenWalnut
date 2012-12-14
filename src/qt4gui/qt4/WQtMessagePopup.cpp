@@ -53,6 +53,8 @@ WQtMessagePopup::WQtMessagePopup( QWidget* parent, const QString& title, const Q
     m_message( message ),
     m_type( type )
 {
+    setAutoClose( true );
+
     // these settings seem to be ignored somehow
     setWindowModality( Qt::NonModal );
     setModal( false );
@@ -69,18 +71,22 @@ WQtMessagePopup::WQtMessagePopup( QWidget* parent, const QString& title, const Q
 
     switch( m_type )
     {
-        case ERROR:
+        case LL_ERROR:
             borderColor = "#f44141";
             titlePrefix = "Error: ";
             break;
-        case WARNING:
+        case LL_WARNING:
             borderColor = "#ffa200";
             titlePrefix = "Warning: ";
             break;
-        case INFO:
-        default:
+        case LL_INFO:
             borderColor = "#40aca0";
             titlePrefix = "Info: ";
+            break;
+        case LL_DEBUG:
+        default:
+            borderColor = "#7d729c";
+            titlePrefix = "Debug: ";
             break;
     }
 
@@ -136,14 +142,14 @@ WQtMessagePopup::WQtMessagePopup( QWidget* parent, const QString& title, const Q
     topLayout->addWidget( detailsBtn );
     connect( detailsBtn, SIGNAL( released() ), this, SLOT( showMessage() ) );
 
-    QPushButton* closeBtn = new QPushButton( "", this );
-    closeBtn->setContentsMargins( 0, 0, 0, 0 );
-    closeBtn->setIcon( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "popup_close" ) );
-    closeBtn->setFixedWidth( CONTENTHEIGHT );
-    closeBtn->setFixedHeight( CONTENTHEIGHT );
-    closeBtn->setToolTip( "Close this message" );
-    topLayout->addWidget( closeBtn );
-    connect( closeBtn, SIGNAL( released() ), this, SLOT( close() ) );
+    m_closeBtn = new QPushButton( "", this );
+    m_closeBtn->setContentsMargins( 0, 0, 0, 0 );
+    m_closeBtn->setIcon( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "popup_close" ) );
+    m_closeBtn->setFixedWidth( CONTENTHEIGHT );
+    m_closeBtn->setFixedHeight( CONTENTHEIGHT );
+    m_closeBtn->setToolTip( "Close this message" );
+    topLayout->addWidget( m_closeBtn );
+    connect( m_closeBtn, SIGNAL( released() ), this, SLOT( closePopup() ) );
 
     QVBoxLayout* popupLayout = new QVBoxLayout( this );
     popupLayout->setSpacing( 0 );
@@ -162,7 +168,7 @@ WQtMessagePopup::WQtMessagePopup( QWidget* parent, const QString& title, const Q
     titleLabel->setObjectName( "popupDialogTitle" );
     titleWidget->setObjectName( "popupDialogTitle" );
     messageLabel->setObjectName( "popupDialogMessage" );
-    closeBtn->setObjectName( "popupDialogButton" );
+    m_closeBtn->setObjectName( "popupDialogButton" );
     detailsBtn->setObjectName( "popupDialogButton" );
 }
 
@@ -185,18 +191,48 @@ WQtMessagePopup::~WQtMessagePopup()
 
 void WQtMessagePopup::showMessage()
 {
-    close();
+    if( m_autoClose )
+    {
+        closePopup();
+    }
     switch( m_type )
     {
-        case ERROR:
+        case LL_ERROR:
             QMessageBox::critical( this, m_title, m_message );
             break;
-        case WARNING:
+        case LL_WARNING:
             QMessageBox::warning( this, m_title, m_message );
             break;
-        case INFO:
+        case LL_INFO:
+        case LL_DEBUG:
         default:
             QMessageBox::information( this, m_title, m_message );
             break;
     }
+}
+
+void WQtMessagePopup::setAutoClose( bool autoClose )
+{
+    m_autoClose = autoClose;
+
+    // use popup type of window if auto close is enabled
+    if( autoClose )
+    {
+        setWindowFlags( Qt::Popup | Qt::FramelessWindowHint );
+    }
+    else
+    {
+        setWindowFlags( Qt::Widget | Qt::FramelessWindowHint );
+    }
+}
+
+void WQtMessagePopup::closePopup()
+{
+    emit onClose( this );
+    close();
+}
+
+void WQtMessagePopup::setShowCloseButton( bool showCloseButton )
+{
+    m_closeBtn->setHidden( !showCloseButton );
 }

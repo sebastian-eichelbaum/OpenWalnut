@@ -83,6 +83,7 @@
 #include "events/WOpenCustomDockWidgetEvent.h"
 #include "events/WCloseCustomDockWidgetEvent.h"
 #include "events/WLoadFinishedEvent.h"
+#include "events/WLogEvent.h"
 #include "guiElements/WQtPropertyBoolAction.h"
 #include "WQtMessagePopup.h"
 #include "WQt4Gui.h"
@@ -907,20 +908,23 @@ void WMainWindow::customEvent( QEvent* event )
 
 void WMainWindow::reportError( QWidget* parent, QString title, QString message )
 {
-    WQtMessagePopup* m = new WQtMessagePopup( parent, title, message, WQtMessagePopup::ERROR );
+    WQtMessagePopup* m = new WQtMessagePopup( parent, title, message, LL_ERROR );
     m->show();
+    m_messageDock->addMessage( title, message, LL_ERROR );
 }
 
 void WMainWindow::reportWarning( QWidget* parent, QString title, QString message )
 {
-    WQtMessagePopup* m = new WQtMessagePopup( parent, title, message, WQtMessagePopup::WARNING );
+    WQtMessagePopup* m = new WQtMessagePopup( parent, title, message, LL_WARNING );
     m->show();
+    m_messageDock->addMessage( title, message, LL_WARNING );
 }
 
 void WMainWindow::reportInfo( QWidget* parent, QString title, QString message )
 {
-    WQtMessagePopup* m = new WQtMessagePopup( parent, title, message, WQtMessagePopup::INFO );
+    WQtMessagePopup* m = new WQtMessagePopup( parent, title, message, LL_INFO );
     m->show();
+    m_messageDock->addMessage( title, message, LL_INFO );
 }
 
 bool WMainWindow::event( QEvent* event )
@@ -933,6 +937,16 @@ bool WMainWindow::event( QEvent* event )
         if( e1 )
         {
             moduleSpecificSetup( e1->getModule() );
+        }
+    }
+
+    // push the log message to the message dock
+    if( event->type() == WQT_LOG_EVENT )
+    {
+        WLogEvent* e1 = dynamic_cast< WLogEvent* >( event );     // NOLINT
+        if( e1 && getMessageDock() )
+        {
+            getMessageDock()->addLogMessage( e1->getEntry() );
         }
     }
 

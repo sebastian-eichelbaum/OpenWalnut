@@ -60,6 +60,7 @@
 #include "events/WRoiAssocEvent.h"
 #include "events/WRoiRemoveEvent.h"
 #include "events/WUpdateTextureSorterEvent.h"
+#include "events/WLogEvent.h"
 #include "WQtModuleConfig.h"
 
 #include "WQt4Gui.h"
@@ -295,9 +296,10 @@ void WQt4Gui::slotUpdateTextureSorter()
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WUpdateTextureSorterEvent() );
 }
 
-void WQt4Gui::slotAddLog( const WLogEntry& /*entry*/ )
+void WQt4Gui::slotAddLog( const WLogEntry& entry )
 {
     // emit event?
+    QCoreApplication::postEvent( m_mainWindow, new WLogEvent( entry ) );
 }
 
 void WQt4Gui::slotAddDatasetOrModuleToTree( boost::shared_ptr< WModule > module )
