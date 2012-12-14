@@ -34,10 +34,10 @@
 
 #include "core/common/WLogger.h"
 
-#include "WScaleLabel.h"
+#include "guiElements/WScaleLabel.h"
 
-#include "../WMainWindow.h"
-#include "../WIconManager.h"
+#include "WMainWindow.h"
+#include "WIconManager.h"
 
 #include "WQtMessagePopup.h"
 #include "WQtMessagePopup.moc"

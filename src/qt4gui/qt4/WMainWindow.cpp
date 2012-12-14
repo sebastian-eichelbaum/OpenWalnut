@@ -84,7 +84,7 @@
 #include "events/WCloseCustomDockWidgetEvent.h"
 #include "events/WLoadFinishedEvent.h"
 #include "guiElements/WQtPropertyBoolAction.h"
-#include "guiElements/WQtMessagePopup.h"
+#include "WQtMessagePopup.h"
 #include "WQt4Gui.h"
 #include "WQtCombinerToolbar.h"
 #include "WQtCustomDockWidget.h"

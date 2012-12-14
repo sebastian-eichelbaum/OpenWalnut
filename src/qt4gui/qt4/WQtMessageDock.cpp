@@ -44,3 +44,4 @@ WQtMessageDock::~WQtMessageDock()
     // cleanup
 }
 
+
