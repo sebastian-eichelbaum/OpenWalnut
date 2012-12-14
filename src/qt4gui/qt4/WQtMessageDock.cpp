@@ -39,6 +39,8 @@
 #include "WQtMessageDock.h"
 #include "WQtMessageDock.moc"
 
+#define MAXITEMS 1000
+
 WQtMessageDock::WQtMessageDock( QString dockTitle, QWidget* parent ):
     QDockWidget( dockTitle, parent )
 {
@@ -114,6 +116,17 @@ void WQtMessageDock::addMessage( QString title, QString message, WQtMessagePopup
 
     // hide messages not matching the filter
     item->setHidden( type < m_filterCombo->currentIndex() );
+
+    // ensure we only have MAXITEMS ite
+    if( m_logList->count() > MAXITEMS )
+    {
+        // clean up the oldest items
+        for( int i = 0; i < m_logList->count() - MAXITEMS; ++i )
+        {
+            QListWidgetItem* li = m_logList->item( i );
+            delete li;
+        }
+    }
 }
 
 void WQtMessageDock::saveSettings()
@@ -123,8 +136,7 @@ void WQtMessageDock::saveSettings()
 
 void WQtMessageDock::handleFilterUpdate()
 {
-    size_t i = 0;
-    for( size_t i = 0; i < m_logList->count(); ++i )
+    for( int i = 0; i < m_logList->count(); ++i )
     {
         QListWidgetItem* li = m_logList->item( i );
         QWidget* w = m_logList->itemWidget( li );
