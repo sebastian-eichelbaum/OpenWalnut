@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <iostream>
+
 #include <QtGui/QAction>
 #include <QtGui/QDockWidget>
 #include <QtGui/QVBoxLayout>
@@ -31,6 +33,7 @@
 #include <QtGui/QComboBox>
 
 #include "WQt4Gui.h"
+#include "WMainWindow.h"
 #include "WQtMessagePopup.h"
 
 #include "WQtMessageDock.h"
@@ -54,13 +57,15 @@ WQtMessageDock::WQtMessageDock( QString dockTitle, QWidget* parent ):
     m_logList = new QListWidget( this );
 
     // filter list
-    /* QLabel* filterLabel = new QLabel( "Filter Messages" );
+    QLabel* filterLabel = new QLabel( "Filter Messages" );
     m_filterCombo = new QComboBox();
     m_filterCombo->addItem( "Debug" );
     m_filterCombo->addItem( "Info" );
     m_filterCombo->addItem( "Warning" );
     m_filterCombo->addItem( "Error" );
-    m_filterCombo->setCurrentIndex( 2  ); // warning is the default
+    m_filterCombo->setCurrentIndex(
+        WMainWindow::getSettings().value( "MessageDockFilterIndex", 2 ).toInt()
+    ); // warning is the default
 
     // the filter widgets reside in a common layout:
     QHBoxLayout* filterLayout = new QHBoxLayout();
@@ -71,8 +76,10 @@ WQtMessageDock::WQtMessageDock( QString dockTitle, QWidget* parent ):
 
     // compose them together into the panel
     panelLayout->addWidget( filterWidget );
-    */
     panelLayout->addWidget( m_logList );
+
+    // connect filter combo
+    connect( m_filterCombo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( handleFilterUpdate() ) );
 }
 
 WQtMessageDock::~WQtMessageDock()
@@ -97,9 +104,34 @@ void WQtMessageDock::addMessage( QString title, QString message, WQtMessagePopup
     WQtMessagePopup* w = new WQtMessagePopup( m_logList, title, message, type );
     w->setAutoClose( false );
     w->setShowCloseButton( false );
+    w->setAutoPosition( false );
 
     QListWidgetItem* item = new QListWidgetItem( m_logList );
     item->setSizeHint( QSize( 0, w->sizeHint().height() ) );
     m_logList->addItem( item );
     m_logList->setItemWidget( item, w );
+    m_logList->scrollToItem( item, QAbstractItemView::PositionAtBottom );
+
+    // hide messages not matching the filter
+    item->setHidden( type < m_filterCombo->currentIndex() );
+}
+
+void WQtMessageDock::saveSettings()
+{
+    WMainWindow::getSettings().setValue( "MessageDockFilterIndex", m_filterCombo->currentIndex() );
+}
+
+void WQtMessageDock::handleFilterUpdate()
+{
+    size_t i = 0;
+    for( size_t i = 0; i < m_logList->count(); ++i )
+    {
+        QListWidgetItem* li = m_logList->item( i );
+        QWidget* w = m_logList->itemWidget( li );
+        WQtMessagePopup* popup = dynamic_cast< WQtMessagePopup* >( w );
+        if( popup )
+        {
+            li->setHidden( popup->getType() < m_filterCombo->currentIndex() );
+        }
+    }
 }

@@ -1102,6 +1102,8 @@ void WMainWindow::saveWindowState()
     // NOTE: Qt Doc says that saveState also saves geometry. But this somehow is wrong (at least for 4.6.3)
     WQt4Gui::getSettings().setValue( "MainWindowGeometry", saveGeometry() );
     WQt4Gui::getSettings().setValue( "GLDockWindowGeometry", m_glDock->saveGeometry() );
+
+    m_messageDock->saveSettings();
 }
 
 QSettings& WMainWindow::getSettings()

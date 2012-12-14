@@ -65,14 +65,30 @@ public:
      *
      * \param autoClose close flag
      */
-     void setAutoClose( bool autoClose = true );
+    void setAutoClose( bool autoClose = true );
 
-     /**
-      * Show or hide the close button
-      *
-      * \param showCloseButton true to show
-      */
-     void setShowCloseButton( bool showCloseButton = true );
+    /**
+     * Show or hide the close button
+     *
+     * \param showCloseButton true to show
+     */
+    void setShowCloseButton( bool showCloseButton = true );
+
+    /**
+     * If true, the widget moves itself to the bottom of its parent widget. As this is not useful sometimes, you can disable this by using
+     * false here.
+     *
+     * \param autoPosition false if widget should not move automatically
+     */
+    void setAutoPosition( bool autoPosition = true );
+
+    /**
+     * Get this popups message type.
+     *
+     * \return the type
+     */
+    MessageType getType() const;
+
 signals:
     /**
      * Called when closing the popup
@@ -120,9 +136,14 @@ private:
     QPushButton* m_closeBtn;
 
     /**
-     * See \ref setAutoClose
+     * See \ref setAutoClose.
      */
     bool m_autoClose;
+
+    /**
+     * See \ref setAutoPosition.
+     */
+    bool m_autoMove;
 };
 
 #endif  // WQTMESSAGEPOPUP_H

@@ -51,13 +51,14 @@ WQtMessagePopup::WQtMessagePopup( QWidget* parent, const QString& title, const Q
     QDialog( parent, Qt::Popup | Qt::FramelessWindowHint ),
     m_title( title ),
     m_message( message ),
-    m_type( type )
+    m_type( type ),
+    m_autoClose( true ),
+    m_autoMove( true )
 {
     setAutoClose( true );
 
     // these settings seem to be ignored somehow
     setWindowModality( Qt::NonModal );
-    setModal( false );
 
     // determine a width and height for the popup
     unsigned int w = std::min( parent->width() - ( 2 * OUTERMARGIN ), MAXWIDTH );
@@ -175,11 +176,14 @@ WQtMessagePopup::WQtMessagePopup( QWidget* parent, const QString& title, const Q
 void WQtMessagePopup::showEvent( QShowEvent* event )
 {
     // move widget to correct position
-    // get top left corner
-    QPoint p = parentWidget()->mapToGlobal( QPoint( parentWidget()->width() / 2, parentWidget()->height() ) );
+    if( m_autoMove )
+    {
+        // get top left corner
+        QPoint p = parentWidget()->mapToGlobal( QPoint( parentWidget()->width() / 2, parentWidget()->height() ) );
 
-    // set position, include margins
-    move( p.x() - width() / 2 - OUTERMARGIN / 2, p.y() - height()- OUTERMARGIN );
+        // set position, include margins
+        move( p.x() - width() / 2 - OUTERMARGIN / 2, p.y() - height()- OUTERMARGIN );
+    }
 
     QDialog::showEvent( event );
 }
@@ -218,11 +222,11 @@ void WQtMessagePopup::setAutoClose( bool autoClose )
     // use popup type of window if auto close is enabled
     if( autoClose )
     {
-        setWindowFlags( Qt::Popup | Qt::FramelessWindowHint );
+        setWindowFlags( Qt::Popup );
     }
     else
     {
-        setWindowFlags( Qt::Widget | Qt::FramelessWindowHint );
+        setWindowFlags( Qt::Widget );
     }
 }
 
@@ -235,4 +239,14 @@ void WQtMessagePopup::closePopup()
 void WQtMessagePopup::setShowCloseButton( bool showCloseButton )
 {
     m_closeBtn->setHidden( !showCloseButton );
+}
+
+void WQtMessagePopup::setAutoPosition( bool autoPosition )
+{
+    m_autoMove = autoPosition;
+}
+
+WQtMessagePopup::MessageType WQtMessagePopup::getType() const
+{
+    return m_type;
 }

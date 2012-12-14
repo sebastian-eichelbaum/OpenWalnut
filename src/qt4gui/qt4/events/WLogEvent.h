@@ -45,7 +45,7 @@ public:
     /**
      * destructor
      **/
-    ~WLogEvent();
+    virtual ~WLogEvent();
 
     /**
      * To access the WLogEntry of associated with the event.
@@ -55,7 +55,6 @@ public:
     const WLogEntry& getEntry() const;
 
 protected:
-
 private:
     /**
      * The associated WLogEntry to the event.

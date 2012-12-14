@@ -280,6 +280,7 @@ int WQt4Gui::run()
     int qtRetCode = appl.exec();
 
     delete m_mainWindow;
+    m_mainWindow = NULL; // the log slot needs this to be null now
 
     // signal everybody to shut down properly.
     WKernel::getRunningKernel()->wait( true );
@@ -298,8 +299,11 @@ void WQt4Gui::slotUpdateTextureSorter()
 
 void WQt4Gui::slotAddLog( const WLogEntry& entry )
 {
-    // emit event?
-    QCoreApplication::postEvent( m_mainWindow, new WLogEvent( entry ) );
+    // emit event but the main window might not be available. Chick this.
+    if( m_mainWindow )
+    {
+        QCoreApplication::postEvent( m_mainWindow, new WLogEvent( entry ) );
+    }
 }
 
 void WQt4Gui::slotAddDatasetOrModuleToTree( boost::shared_ptr< WModule > module )

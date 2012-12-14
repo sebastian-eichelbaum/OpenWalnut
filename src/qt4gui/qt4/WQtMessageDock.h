@@ -77,6 +77,17 @@ public:
      * \param entry use this log entry
      */
     void addLogMessage( const WLogEntry& entry );
+
+    /**
+     * Save state to settings
+     */
+    void saveSettings();
+
+protected slots:
+    /**
+     * Handles changes in the filter combo
+     */
+    void handleFilterUpdate();
 private:
     /**
      * The list
