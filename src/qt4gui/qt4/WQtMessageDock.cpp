@@ -80,6 +80,11 @@ WQtMessageDock::WQtMessageDock( QString dockTitle, QWidget* parent ):
     panelLayout->addWidget( filterWidget );
     panelLayout->addWidget( m_logList );
 
+    panelLayout->setSpacing( 0 );
+    filterLayout->setSpacing( 0 );
+    panelLayout->setContentsMargins( 0, 0, 0, 0 );
+    filterLayout->setContentsMargins( 0, 0, 0, 2 );
+
     // connect filter combo
     connect( m_filterCombo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( handleFilterUpdate() ) );
 }
