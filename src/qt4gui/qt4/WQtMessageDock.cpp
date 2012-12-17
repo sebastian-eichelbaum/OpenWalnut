@@ -117,12 +117,19 @@ void WQtMessageDock::addMessage( QString title, QString message, WQtMessagePopup
     item->setSizeHint( QSize( 0, w->sizeHint().height() ) );
     m_logList->addItem( item );
     m_logList->setItemWidget( item, w );
-    m_logList->scrollToItem( item, QAbstractItemView::PositionAtBottom );
 
     // hide messages not matching the filter
-    item->setHidden( type < m_filterCombo->currentIndex() );
+    if( type < m_filterCombo->currentIndex() )
+    {
+        item->setHidden( true );
+    }
+    else
+    {
+        // if visible, jump to item
+        m_logList->scrollToBottom();
+    }
 
-    // ensure we only have MAXITEMS ite
+    // ensure we only have MAXITEMS items
     if( m_logList->count() > MAXITEMS )
     {
         // clean up the oldest items
