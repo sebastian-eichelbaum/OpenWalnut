@@ -29,7 +29,7 @@
 #############################################################################################################
 
 # Which version?
-VERSION_BASE=1.3.0
+VERSION_BASE=1.3.1
 
 # Any additonal tags?
 VERSION_TAGS=""
@@ -51,7 +51,7 @@ PACKAGES="deb src"
 
 # As we only need a source DEB, we do not build the deb for all supported distributions. The NeuroDebian project is doing this.
 # DISTRIBUTIONS_DEB="sid wheezy squeeze lucid maverick natty"
-DISTRIBUTIONS_DEB="sid wheezy precise oneiric"
+DISTRIBUTIONS_DEB="sid wheezy quantal precise oneiric"
 
 # use these distributions to build binary tgz
 #DISTRIBUTIONS_TGZ="sid wheezy squeeze lucid maverick natty"
