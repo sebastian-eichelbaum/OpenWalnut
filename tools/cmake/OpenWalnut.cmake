@@ -258,7 +258,7 @@ FUNCTION( BUILD_SYSTEM_COMPILER )
     # MESSAGE( STATUS "CMAKE_C_FLAGS = ${CMAKE_C_FLAGS}" )
 
     # Supress compilation warnings from includes residing in system paths, see #230 for further details.
-    SET( CMAKE_INCLUDE_SYSTEM_FLAG_CXX "isystem" )
+    SET( CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem" CACHE STRING "" FORCE )
 
 ENDFUNCTION( BUILD_SYSTEM_COMPILER )
 
@@ -338,7 +338,7 @@ IF( ANDROID )
 ELSE()
   FIND_PACKAGE( OpenGL REQUIRED )
   # include the OpenGL header paths
-  INCLUDE_DIRECTORIES( ${OPENGL_INCLUDE_DIR} )
+  INCLUDE_DIRECTORIES( SYSTEM ${OPENGL_INCLUDE_DIR} )
 ENDIF()
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
