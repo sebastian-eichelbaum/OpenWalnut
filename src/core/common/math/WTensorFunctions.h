@@ -54,22 +54,24 @@ typedef boost::array< std::pair< std::complex< double >, WVector3d >, 3 > EigenS
 
 std::ostream& operator<<( std::ostream& os, const RealEigenSystem& sys );
 
-namespace
+/**
+ * Helper function to sort eigen values on their size. As each eigenvalues has an eigenvector they must be twiddled the same.
+ *
+ * \param es Eigensystem consisting of eigenvalues and eigenvectors.
+ */
+void sortRealEigenSystem( RealEigenSystem* es )
 {
-    void sortRealEigenSystem( RealEigenSystem* es )
+    if( ( *es )[0].first > ( *es )[2].first )
     {
-        if( ( *es )[0].first > ( *es )[2].first )
-        {
-            std::swap( ( *es )[0], ( *es )[2] );
-        }
-        if( ( *es )[0].first > ( *es )[1].first )
-        {
-            std::swap( ( *es )[0], ( *es )[1] );
-        }
-        if( ( *es )[1].first > ( *es )[2].first )
-        {
-            std::swap( ( *es )[1], ( *es )[2] );
-        }
+        std::swap( ( *es )[0], ( *es )[2] );
+    }
+    if( ( *es )[0].first > ( *es )[1].first )
+    {
+        std::swap( ( *es )[0], ( *es )[1] );
+    }
+    if( ( *es )[1].first > ( *es )[2].first )
+    {
+        std::swap( ( *es )[1], ( *es )[2] );
     }
 }
 
