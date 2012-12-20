@@ -146,22 +146,27 @@ osg::ref_ptr< osg::Texture2D > WGEOffscreenRenderPass::createTexture( GLint inte
         tex->setSourceFormat( GL_RED );
         break;
 
-// On older MAC books pro, the opengl cannot be upgraded even when its running under under OS 10.8, hence
-// I will disable this.
-#ifndef __APPLE__
+// Those ifdef's where introduced, as otherwise OW would not compile on older platforms where no newer OpenGL is available.
+#ifdef GL_RGB16F
     case GL_RGB16F:
         tex->setSourceType( GL_HALF_FLOAT );
         tex->setSourceFormat( GL_RGB );
         break;
+#endif
+#ifdef GL_RGBA16F
     case GL_RGBA16F:
         tex->setSourceType( GL_HALF_FLOAT );
         tex->setSourceFormat( GL_RGBA );
         break;
-    case GL_RGB32F:
+#endif
+#ifdef GL_RGB32F
+     case GL_RGB32F:
         tex->setSourceType( GL_FLOAT );
         tex->setSourceFormat( GL_RGB );
         break;
-    case GL_RGBA32F:
+#endif
+#ifdef GL_RGBA32F
+     case GL_RGBA32F:
         tex->setSourceType( GL_FLOAT );
         tex->setSourceFormat( GL_RGBA );
         break;
