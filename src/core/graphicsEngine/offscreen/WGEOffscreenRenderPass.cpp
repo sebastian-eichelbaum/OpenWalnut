@@ -174,7 +174,6 @@ osg::ref_ptr< osg::Texture2D > WGEOffscreenRenderPass::createTexture( GLint inte
 
     default:
         // keep default format and type
-        wlog::warn( "WGEOffscreenRenderPass" ) << "Unsupported OpenGL internal format used, this is not available on your platform: " << internalFormat;
         break;
     }
 

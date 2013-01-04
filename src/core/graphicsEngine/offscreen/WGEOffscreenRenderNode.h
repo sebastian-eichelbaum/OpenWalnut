@@ -200,7 +200,7 @@ public:
     void setLinkViewportToTextureSize( bool vp = true );
 
     /**
-     * The flag denotes whether the viewport is linked to the texture size or the reference camera. See \ref setViewportToTextureSize for
+     * The flag denotes whether the viewport is linked to the texture size or the reference camera. See \ref setLinkViewportToTextureSize for
      * details.
      *
      * \return the flag.
