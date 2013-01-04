@@ -173,3 +173,7 @@ const std::string WGEPostprocessor::getDescription() const
     return m_description;
 }
 
+bool WGEPostprocessor::getFixedViewportSize() const
+{
+    return false;
+}

@@ -191,6 +191,21 @@ public:
      */
     size_t getTextureHeight() const;
 
+    /**
+     * If true, the viewport has the size of the resulting texture. This is very interesting if you want to force large scale renderings and want
+     * to decouple your offscreen pass from the reference camera viewport.
+     *
+     * \param vp if true, viewport is forced to be the whole texture size
+     */
+    void setLinkViewportToTextureSize( bool vp = true );
+
+    /**
+     * The flag denotes whether the viewport is linked to the texture size or the reference camera. See \ref setViewportToTextureSize for
+     * details.
+     *
+     * \return the flag.
+     */
+    bool getLinkViewportToTextureSize() const;
 protected:
 private:
     /**
@@ -218,6 +233,11 @@ private:
      * The number of the next pass getting added.
      */
     size_t m_nextPassNum;
+
+    /**
+     * Flag denotes whether the viewport is coupled to the reference camera or the texture size
+     */
+    bool m_forceViewportTextureSize;
 };
 
 template < typename T >
@@ -232,7 +252,14 @@ osg::ref_ptr< T > WGEOffscreenRenderNode::addRenderPass( std::string name )
     insert( pass );   // insert into this group
 
     // ensure proper propagation of viewport changes
-    pass->addUpdateCallback( new WGEViewportCallback< T >( m_referenceCamera ) );
+    if( m_forceViewportTextureSize )
+    {
+        pass->addUpdateCallback( new WGEViewportCallback< T >( m_textureWidth, m_textureHeight ) );
+    }
+    else
+    {
+        pass->addUpdateCallback( new WGEViewportCallback< T >( m_referenceCamera ) );
+    }
 
     // set clear mask and color according to reference cam
     pass->setClearMask( m_referenceCamera->getClearMask() );

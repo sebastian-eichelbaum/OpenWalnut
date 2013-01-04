@@ -33,6 +33,9 @@
 #include <osg/LineWidth>
 #include <osg/Point>
 #include <osg/PointSprite>
+#include <osgDB/Export>
+#include <osgDB/Registry>
+#include <osgDB/WriteFile>
 
 #include "core/common/WPropertyHelper.h"
 #include "core/common/WPropertyObserver.h"
@@ -40,6 +43,8 @@
 #include "core/dataHandler/WDataSetFiberClustering.h"
 #include "core/dataHandler/WDataSetFibers.h"
 #include "core/graphicsEngine/WGEColormapping.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/graphicsEngine/WGEGeodeUtils.h"
 #include "core/graphicsEngine/callbacks/WGEFunctorCallback.h"
 #include "core/graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "core/graphicsEngine/postprocessing/WGEPostprocessingNode.h"
@@ -256,8 +261,6 @@ void WMFiberDisplaySimple::moduleMain()
     // Remember the condition provided to some properties in properties()? The condition can now be used with this condition set.
     m_moduleState.add( m_propCondition );
 
-    ready();
-
     // create the post-processing node which actually does the nice stuff to the rendered image
     osg::ref_ptr< WGEPostprocessingNode > postNode = new WGEPostprocessingNode(
         WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera()
@@ -274,6 +277,8 @@ void WMFiberDisplaySimple::moduleMain()
     rootState->addUniform( clipPlaneDistanceUniform );
     rootState->addUniform( tubeSizeUniform );
     rootState->addUniform( colormapRationUniform );
+
+    ready();
 
     // needed to observe the properties of the input connector data
     boost::shared_ptr< WPropertyObserver > propObserver = WPropertyObserver::create();

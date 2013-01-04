@@ -31,9 +31,10 @@
 #include "core/kernel/WModuleInputData.h"
 #include "core/kernel/WModuleOutputData.h"
 
+#include "core/dataHandler/WDataSetFiberClustering.h"
+#include "core/dataHandler/WDataSetFibers.h"
+
 // forward declarations
-class WDataSetFibers;
-class WDataSetFiberClustering;
 class WGEShader;
 
 /**

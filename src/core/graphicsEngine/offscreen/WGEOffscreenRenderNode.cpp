@@ -46,7 +46,8 @@ WGEOffscreenRenderNode::WGEOffscreenRenderNode( osg::ref_ptr< osg::Camera > refe
     m_hud(),
     m_textureWidth( width ),
     m_textureHeight( height ),
-    m_nextPassNum( 0 )
+    m_nextPassNum( 0 ),
+    m_forceViewportTextureSize( false )
 {
     WAssert( checkTextureSize( width ) && checkTextureSize( height ), "Invalid offscreen texture size. Must be power of two and in [8,4096]." );
 
@@ -124,3 +125,14 @@ size_t WGEOffscreenRenderNode::getTextureHeight() const
 {
     return m_textureHeight;
 }
+
+void WGEOffscreenRenderNode::setLinkViewportToTextureSize( bool vp )
+{
+    m_forceViewportTextureSize = vp;
+}
+
+bool WGEOffscreenRenderNode::getLinkViewportToTextureSize() const
+{
+    return m_forceViewportTextureSize;
+}
+
