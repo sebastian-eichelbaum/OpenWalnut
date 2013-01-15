@@ -198,6 +198,7 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "sagittal icon" ), sag_xpm );
     m_iconManager.addIcon( std::string( "popup_more" ), popup_more_xpm );
     m_iconManager.addIcon( std::string( "popup_close" ), popup_close_xpm );
+    m_iconManager.addIcon( std::string( "undo" ), undo_xpm );
 
     try
     {

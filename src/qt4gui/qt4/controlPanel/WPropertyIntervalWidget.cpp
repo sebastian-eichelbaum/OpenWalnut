@@ -30,6 +30,7 @@
 #include <string>
 
 #include <QtGui/QInputDialog>
+#include <QtGui/QAction>
 
 #include "../WGuiConsts.h"
 #include "../WQt4Gui.h"
@@ -47,10 +48,24 @@ WPropertyIntervalWidget::WPropertyIntervalWidget( WPropInterval property, QGridL
     m_vLayout( &m_parameterWidgets ),
     m_asText( &m_informationWidgets ),
     m_infoLayout( &m_informationWidgets ),
-    m_intervalEdit( &m_parameterWidgets )
+    m_minEdit( &m_parameterWidgets ),
+    m_maxEdit( &m_parameterWidgets ),
+    m_resetBtn( &m_parameterWidgets )
 {
     // layout all the elements
-    m_layout.addWidget( &m_intervalEdit );
+    m_layout.addWidget( new QLabel( "[") );
+    m_layout.addWidget( &m_minEdit );
+    m_layout.addWidget( new QLabel( ",") );
+    m_layout.addWidget( &m_maxEdit );
+    m_layout.addWidget( new QLabel( "]") );
+
+    m_layout.addWidget( &m_resetBtn );
+    // WPropertyVartiable does not yet provide a default value mechanism.
+    m_resetBtn.setHidden( true );
+
+    // create resetButton action
+    QAction* reset = new QAction( WQt4Gui::getIconManager()->getIcon( "undo" ), "Reset to defaults", &m_resetBtn );
+    m_resetBtn.setDefaultAction( reset );
 
     m_layout.setMargin( WGLOBAL_MARGIN );
     m_layout.setSpacing( WGLOBAL_SPACING );
@@ -74,8 +89,9 @@ WPropertyIntervalWidget::WPropertyIntervalWidget( WPropInterval property, QGridL
     update();
 
     // connect the modification signal of the edit and slider with our callback
-    connect( &m_intervalEdit, SIGNAL( minimumChanged() ), this, SLOT( minMaxUpdated() ) );
-    connect( &m_intervalEdit, SIGNAL( maximumChanged() ), this, SLOT( minMaxUpdated() ) );
+    connect( &m_minEdit, SIGNAL( textEdited( const QString& ) ), this, SLOT( minMaxUpdated() ) );
+    connect( &m_maxEdit, SIGNAL( textEdited( const QString& ) ), this, SLOT( minMaxUpdated() ) );
+    connect( reset, SIGNAL( triggered( bool ) ), this, SLOT( reset() ) );
 }
 
 WPropertyIntervalWidget::~WPropertyIntervalWidget()
@@ -85,57 +101,34 @@ WPropertyIntervalWidget::~WPropertyIntervalWidget()
 
 void WPropertyIntervalWidget::update()
 {
- /*   // // calculate maximum size of the text widget.
-    // // XXX: this is not the optimal way but works for now
-    // NO, it doesn't work on Mac OS X: You won't be able to any digits in it!, So I reset it to default which should work on other platforms too
-    QString valStr = QString::number( m_integralProperty->get() );
-    m_edit.setText( valStr );
-
-       // get the min constraint
-    WPVDouble::PropertyConstraintMin minC = m_integralProperty->getMin();
-    WPVDouble::PropertyConstraintMax maxC = m_integralProperty->getMax();
-    bool minMaxConstrained = minC && maxC;
-    if( minMaxConstrained )
-    {
-        // setup the slider
-        m_slider.setMinimum( 0 );
-        m_slider.setMaximum( SliderResolution );
-
-        // update the interval edit too
-        m_intervalEdit.setAllowedMin( minC->getMin() );
-        m_intervalEdit.setAllowedMax( maxC->getMax() );
-        m_min = m_intervalEdit.getMin();
-        m_max = m_intervalEdit.getMax();
-
-        // updating the interval edit causes the proper values to be set in m_min and m_max
-        m_slider.setHidden( false );
-        m_intervalEdit.setHidden( !WQt4Gui::getSettings().value( "qt4gui/sliderMinMaxEdit", false ).toBool() );
-        m_slider.setValue( toSliderValue( m_integralProperty->get() ) );
-    }
-    else
-    {
-        m_slider.setHidden( true );
-        m_intervalEdit.setHidden( true );
-    }
+    QString lowValStr = QString::number( m_intervalProperty->get().getLower() );
+    QString upValStr = QString::number( m_intervalProperty->get().getUpper() );
+    m_minEdit.setText( lowValStr );
+    m_maxEdit.setText( upValStr );
 
     // do not forget to update the label
-    m_asText.setText( valStr );*/
+    m_asText.setText( "[" + lowValStr + ", " + upValStr + "]" );
 }
 
 void WPropertyIntervalWidget::minMaxUpdated()
 {
-    /*m_min = m_intervalEdit.getMin();
-    m_max = m_intervalEdit.getMax();
+    bool validMin;
+    double minValue = m_minEdit.text().toDouble( &validMin );
+    bool validMax;
+    double maxValue = m_maxEdit.text().toDouble( &validMax );
 
-    if( m_min > m_integralProperty->get() )
+    if( !( validMin && validMax ) )
     {
-        m_integralProperty->set( m_min );
-    }
-    if( m_max < m_integralProperty->get() )
-    {
-        m_integralProperty->set( m_max );
+        invalidate();
+        return;
     }
 
-    m_slider.setValue( toSliderValue( m_integralProperty->get() ) );*/
+    // set to the property
+    invalidate( !m_intervalProperty->set( WIntervalDouble( minValue, maxValue ) ) );    // NOTE: set automatically checks the validity of the value
+}
+
+void WPropertyIntervalWidget::reset()
+{
+    // WProperties does not really provide a default value mechanism.
 }
 

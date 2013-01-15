@@ -88,10 +88,19 @@ protected:
     QHBoxLayout m_infoLayout;
 
     /**
-     * The edit for the interval.
+     * Minimum Value.
      */
-    WQtIntervalEdit< double, double > m_intervalEdit;
+    QLineEdit m_minEdit;
 
+    /**
+     * Maximum Value.
+     */
+    QLineEdit m_maxEdit;
+
+    /**
+     * Reset button
+     */
+    QToolButton m_resetBtn;
 private:
 public slots:
 
@@ -99,6 +108,11 @@ public slots:
      * Called whenever the interval edit changes.
      */
     void minMaxUpdated();
+
+    /**
+     * Reset to default
+     */
+    void reset();
 };
 
 #endif  // WPROPERTYINTERVALWIDGET_H
