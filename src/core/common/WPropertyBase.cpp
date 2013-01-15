@@ -183,3 +183,8 @@ boost::shared_ptr< WCondition > WPropertyBase::getUpdateCondition() const
     return m_updateCondition;
 }
 
+WPropInterval WPropertyBase::toPropInterval()
+{
+    return boost::shared_static_cast< WPVInterval >( shared_from_this() );
+}
+

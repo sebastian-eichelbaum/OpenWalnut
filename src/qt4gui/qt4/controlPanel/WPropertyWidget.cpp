@@ -41,6 +41,7 @@
 #include "WPropertyStructWidget.h"
 #include "WPropertyTransferFunctionWidget.h"
 #include "WPropertyTriggerWidget.h"
+#include "WPropertyIntervalWidget.h"
 #include "WPropertyWidget.h"
 #include "WPropertyWidget.moc"
 #include "WQtPropertyGroupWidget.h"
@@ -198,6 +199,9 @@ WPropertyWidget* WPropertyWidget::construct( WPropertyBase::SPtr property, QGrid
             break;
         case PV_TRANSFERFUNCTION:
             return new WPropertyTransferFunctionWidget( property->toPropTransferFunction(), propertyGrid, parent  );
+            break;
+        case PV_INTERVAL:
+            return new WPropertyIntervalWidget( property->toPropInterval(), propertyGrid, parent );
             break;
         default:    // NOTE:: WPropGroup will be handled in WQtConrolPanel::buildPropWidget
             WLogger::getLogger()->addLogMessage( "This property type is not yet supported.", "WPropertyWidget", LL_WARNING );
