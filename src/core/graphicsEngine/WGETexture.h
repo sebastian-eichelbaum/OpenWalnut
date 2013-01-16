@@ -123,7 +123,14 @@ public:
      *
      * \return threshold property
      */
-    WPropDouble threshold() const;
+    WPropDouble thresholdLower() const;
+
+    /**
+     * Returns the threshold property. The property can be changed. A change affects all colormaps using this texture.
+     *
+     * \return threshold property
+     */
+    WPropDouble thresholdUpper() const;
 
     /**
      * Returns the property responsible for enabling threshold based clipping. If this is false, the threshold is ignored.
@@ -344,7 +351,12 @@ private:
     /**
      * Threshold for clipping areas.
      */
-    WPropDouble m_threshold;
+    WPropDouble m_thresholdLower;
+
+    /**
+     * Threshold for clipping areas.
+     */
+    WPropDouble m_thresholdUpper;
 
     /**
      * Threshold-enable flag.
@@ -450,9 +462,13 @@ void WGETexture< TextureType >::setupProperties( double scale, double min )
     m_thresholdEnabled = m_properties->addProperty( "Enable Threshold",
                                                     "If enabled, threshold based clipping is used. If not, threshold is ignored.", false );
 
-    m_threshold = m_properties->addProperty( "Threshold", "The threshold used to clip areas.", 0.0 );
-    m_threshold->setMin( min );
-    m_threshold->setMax( min + scale );
+    m_thresholdLower = m_properties->addProperty( "Lower Threshold", "The threshold used to clip areas below the specified value.", 0.0 );
+    m_thresholdLower->setMin( min );
+    m_thresholdLower->setMax( min + scale );
+
+    m_thresholdUpper = m_properties->addProperty( "Upper Threshold", "The threshold used to clip areas above the specified value.", 1.0 );
+    m_thresholdUpper->setMin( min );
+    m_thresholdUpper->setMax( min + scale );
 
     m_windowEnabled = m_properties->addProperty( "Enable Windowing", "If enabled, window level settings are applied.", false );
     m_window = m_properties->addProperty( "Window Level", "Define the interval in the data which is mapped to the colormap.",
@@ -531,9 +547,15 @@ inline WPropDouble WGETexture< TextureType >::alpha() const
 }
 
 template < typename TextureType >
-inline WPropDouble WGETexture< TextureType >::threshold() const
+inline WPropDouble WGETexture< TextureType >::thresholdLower() const
 {
-    return m_threshold;
+    return m_thresholdLower;
+}
+
+template < typename TextureType >
+inline WPropDouble WGETexture< TextureType >::thresholdUpper() const
+{
+    return m_thresholdUpper;
 }
 
 template < typename TextureType >
@@ -595,7 +617,8 @@ void  WGETexture< TextureType >::applyUniforms( std::string prefix, osg::StateSe
     states->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Scale", scale() ) );
     states->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Alpha", alpha() ) );
     states->addUniform( new WGEPropertyUniform< WPropBool >( prefix + "ThresholdEnabled", thresholdEnabled() ) );
-    states->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Threshold", threshold() ) );
+    states->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "ThresholdLower", thresholdLower() ) );
+    states->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "ThresholdUpper", thresholdUpper() ) );
     states->addUniform( new WGEPropertyUniform< WPropSelection >( prefix + "Colormap", colormap() ) );
     states->addUniform( new WGEPropertyUniform< WPropBool >( prefix + "Active", active() ) );
     states->addUniform( new WGEPropertyUniform< WPropBool >( prefix + "WindowEnabled", windowEnabled() ) );

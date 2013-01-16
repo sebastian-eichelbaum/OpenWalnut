@@ -82,19 +82,26 @@ float clipZero( in vec3 valueDescaled )
  *
  * \param valueDescaled the descaled data. Scalar or vector.
  * \param colormap if this is a vector colormap, thresholding is done using vector length.
- * \param thresholdV the descaled threshold value
+ * \param thresholdVLower the descaled threshold value
+ * \param thresholdVUpper the descaled threshold value
  * \param thresholdEnabled flag denoting whether to use thresholding or not
  *
  * \return 0.0 if clipped
  */
-float clipThreshold( in vec3 valueDescaled, in int colormap, in float thresholdV, in bool thresholdEnabled )
+float clipThreshold( in vec3 valueDescaled, in int colormap, in float thresholdVLower, in float thresholdVUpper, in bool thresholdEnabled )
 {
     float isVec = float( colormap == 6 );
 
+
+
     return max( 1.0 - float( thresholdEnabled ),
-            isVec * clamp( sign( length( valueDescaled ) - thresholdV ), 0.0, 1.0 )
+            isVec * clamp( sign( length( valueDescaled ) - thresholdVLower ) +
+                           sign( 1.0 - ( length( valueDescaled ) - thresholdVUpper ) ),
+                           0.0, 1.0 )
                 +
-          ( 1.0 - isVec ) * clamp( sign( valueDescaled.r - ( thresholdV - 0.001 ) ), 0.0, 1.0 ) );
+          ( 1.0 - isVec ) * clamp( sign( valueDescaled.r - ( thresholdVLower - 0.001 ) ) + // or
+                                   sign( 1.0 - ( valueDescaled.r - ( thresholdVUpper - 0.001 ) ) ),
+                                   0.0, 1.0 ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -431,7 +438,8 @@ vec4 atlas( in float value )
  * \param value the value to map, <b>scaled</b>
  * \param minV the minimum of the original value
  * \param scaleV the scaler used to downscale the original value to [0-1]
- * \param thresholdV a threshold in original space (you need to downscale it to [0-1] if you want to use it to scaled values.
+ * \param thresholdVLower a threshold in original space (you need to downscale it to [0-1] if you want to use it to scaled values.
+ * \param thresholdVUpper a threshold in original space (you need to downscale it to [0-1] if you want to use it to scaled values.
  * \param thresholdEnabled a flag denoting whether threshold-based clipping should be done or not
  * \param window a window level scaling in the descaled value
  * \param windowEnabled if true, the window level scaling is applied
@@ -439,7 +447,7 @@ vec4 atlas( in float value )
  * \param colormap the colormap index to use
  */
 vec4 colormap( in vec4 value, float minV, float scaleV,
-               float thresholdV, bool thresholdEnabled,
+               float thresholdVLower, float thresholdVUpper, bool thresholdEnabled,
                vec2  window, bool windowEnabled,
                float alpha, int colormap, bool active )
 {
@@ -479,7 +487,7 @@ vec4 colormap( in vec4 value, float minV, float scaleV,
 
     // use threshold to clip away fragments.
     // NOTE: thresholding is applied to the original interval in valueDescaled, NOT the window interval
-    float clipTh = clipThreshold( valueDescaled, colormap, thresholdV, thresholdEnabled );
+    float clipTh = clipThreshold( valueDescaled, colormap, thresholdVLower, thresholdVUpper, thresholdEnabled );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Do colormapping

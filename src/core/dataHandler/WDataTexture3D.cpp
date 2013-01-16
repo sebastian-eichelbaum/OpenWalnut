@@ -43,9 +43,15 @@ WDataTexture3D::WDataTexture3D( boost::shared_ptr< WValueSetBase > valueSet, boo
     setWrap( osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_BORDER );
     setWrap( osg::Texture::WRAP_R, osg::Texture::CLAMP_TO_BORDER );
 
-    threshold()->setMin( valueSet->getMinimumValue() );
-    threshold()->setMax( valueSet->getMaximumValue() );
-    threshold()->set( valueSet->getMinimumValue() );
+    thresholdLower()->setMin( valueSet->getMinimumValue() );
+    thresholdLower()->setMax( valueSet->getMaximumValue() );
+    thresholdLower()->set( valueSet->getMinimumValue() );
+    thresholdUpper()->setMin( valueSet->getMinimumValue() );
+    thresholdUpper()->setMax( valueSet->getMaximumValue() );
+    thresholdUpper()->set( valueSet->getMaximumValue() );
+
+    window()->set( make_interval( valueSet->getMinimumValue(),
+                                  valueSet->getMaximumValue() ) );
 
     // Scale according to bbox. This scaling is NOT included in the grid's transform, so we need to add it here
     WMatrix4d scale = WMatrix4d::zero();
