@@ -433,52 +433,98 @@ vec4 atlas( in float value )
  * \param scaleV the scaler used to downscale the original value to [0-1]
  * \param thresholdV a threshold in original space (you need to downscale it to [0-1] if you want to use it to scaled values.
  * \param thresholdEnabled a flag denoting whether threshold-based clipping should be done or not
+ * \param window a window level scaling in the descaled value
+ * \param windowEnabled if true, the window level scaling is applied
  * \param alpha the alpha blending value
  * \param colormap the colormap index to use
  */
-vec4 colormap( in vec4 value, float minV, float scaleV, float thresholdV, bool thresholdEnabled, float alpha, int colormap, bool active )
+vec4 colormap( in vec4 value, float minV, float scaleV,
+               float thresholdV, bool thresholdEnabled,
+               vec2  window, bool windowEnabled,
+               float alpha, int colormap, bool active )
 {
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Scale the input data to original space, and apply windowing
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     // descale value
     vec3 valueDescaled = vec3( minV ) + ( value.rgb * scaleV );
+
+    // apply window scaling. If windowing is disabled, the window is the same as the original data interval
+    float winLo = ( window.x  * float( windowEnabled ) ) + // OR
+                  ( minV * ( 1.0 - float( windowEnabled ) ) );
+    float winUp = ( window.y  * float( windowEnabled ) ) + // OR
+                  ( ( minV + scaleV ) * ( 1.0 - float( windowEnabled ) ) );
+    float winLen = winUp - winLo;
+
+    // this is the descaled value, scaled using the window interval to be mapped to [0,1]
+    vec3 valueWindowedNormalized = ( valueDescaled - vec3( winLo ) ) / winLen;
+
+    // clip values outside the window level
+    valueWindowedNormalized = min( vec3( 1.0 ), valueWindowedNormalized );
+    valueWindowedNormalized = max( vec3( 0.0 ), valueWindowedNormalized );
+
+    // scale it back to original data space
+    vec3 valueWindowedOriginal = vec3( minV ) + ( valueWindowedNormalized * scaleV );
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Do clippings
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // is this a border pixel marked by a 0 alpha value?
     float isNotBorder = float( value.a >= 0.75 );
 
+    // make "zero" values transarent
+    float clip = clipZero( valueWindowedOriginal.r, minV );
+
+    // use threshold to clip away fragments.
+    // NOTE: thresholding is applied to the original interval in valueDescaled, NOT the window interval
+    float clipTh = clipThreshold( valueDescaled, colormap, thresholdV, thresholdEnabled );
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Do colormapping
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     // this is the final color returned by the colormapping algorithm. This is the correct value for the gray colormap
-    vec4 cmapped = grayscale( value.rgb );
-    float clip = clipZero( valueDescaled.r, minV );
+    vec4 cmapped = grayscale( valueWindowedNormalized.rgb );
 
     // negative to positive shading in red-blue
     if( colormap == 1 )
     {
-        cmapped = rainbow( value.r );
+        cmapped = rainbow( valueWindowedNormalized.r );
     }
     else if( colormap == 2 )
     {
-        cmapped = hotIron( value.r );
+        cmapped = hotIron( valueWindowedNormalized.r );
     }
     else if( colormap == 3 )
     {
-        cmapped = negative2positive( valueDescaled.r, minV, scaleV );
+        cmapped = negative2positive( valueWindowedOriginal.r, minV, scaleV );
     }
     else if( colormap == 4 )
     {
-        cmapped = atlas( value.r );
+        cmapped = atlas( valueWindowedNormalized.r );
     }
     else if( colormap == 5 )
     {
-        cmapped = blueGreenPurple( value.r );
+        cmapped = blueGreenPurple( valueWindowedNormalized.r );
     }
     else if( colormap == 6 )
     {
-        cmapped = vector( valueDescaled, minV, scaleV );
+        cmapped = vector( valueWindowedOriginal, minV, scaleV );
         clip = clipZero( valueDescaled );   // vectors get clipped by their length
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Compose
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // build final color
     return vec4( cmapped.rgb, cmapped.a *           // did the colormap use a alpha value?
                               isNotBorder *         // is this a border pixel?
                               alpha *               // did the user specified an alpha?
                               clip *                // value clip?
-                              clipThreshold( valueDescaled, colormap, thresholdV, thresholdEnabled ) * // clip due to threshold?
+                              clipTh *              // clip due to threshold?
                               float( active ) );    // is it active?
 }
 

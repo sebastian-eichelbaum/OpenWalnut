@@ -35,10 +35,10 @@
 /////////////////////////////////////////////////////////////////////////////
 
 //!< For unscaling the data: the minimum.
-uniform float u_colormap0Min;
+uniform float u_colormap0Min = 0;
 
 //!< For unscaling the data: the scaling factor.
-uniform float u_colormap0Scale;
+uniform float u_colormap0Scale = 1;
 
 //!< The alpha value for this colormap. Is in [0,1].
 uniform float u_colormap0Alpha;
@@ -47,13 +47,19 @@ uniform float u_colormap0Alpha;
 uniform float u_colormap0Threshold;
 
 //!< Flag denoting whether to use the threshold value for clipping or not.
-uniform bool u_colormap0ThresholdEnabled;
+uniform bool u_colormap0ThresholdEnabled = false;
+
+//!< Flag denoting whether to use the windowing values for scaling or not.
+uniform bool u_colormap0WindowEnabled = false;
+
+//!< Contains the lower and upper window level.
+uniform vec2 u_colormap0Window = vec2( 0.0, 1.0 );
 
 //!< The index of the colormap to use
 uniform int u_colormap0Colormap;
 
 //!< True if the colormap is active.
-uniform bool u_colormap0Active;
+uniform bool u_colormap0Active = false;
 
 //!< The sampler for texture access.
 uniform sampler3D u_colormap0Sampler;
@@ -68,10 +74,10 @@ uniform int u_colormap0SizeZ;
 /////////////////////////////////////////////////////////////////////////////
 
 //!< For unscaling the data: the minimum.
-uniform float u_colormap1Min;
+uniform float u_colormap1Min = 0;
 
 //!< For unscaling the data: the scaling factor.
-uniform float u_colormap1Scale;
+uniform float u_colormap1Scale = 1;
 
 //!< The alpha value for this colormap. Is in [0,1].
 uniform float u_colormap1Alpha;
@@ -80,13 +86,19 @@ uniform float u_colormap1Alpha;
 uniform float u_colormap1Threshold;
 
 //!< Flag denoting whether to use the threshold value for clipping or not.
-uniform bool u_colormap1ThresholdEnabled;
+uniform bool u_colormap1ThresholdEnabled = false;
+
+//!< Flag denoting whether to use the windowing values for scaling or not.
+uniform bool u_colormap1WindowEnabled = false;
+
+//!< Contains the lower and upper window level.
+uniform vec2 u_colormap1Window = vec2( 0.0, 1.0 );
 
 //!< The index of the colormap to use
 uniform int u_colormap1Colormap;
 
 //!< True if the colormap is active.
-uniform bool u_colormap1Active;
+uniform bool u_colormap1Active = false;
 
 //!< The sampler for texture access.
 uniform sampler3D u_colormap1Sampler;
@@ -101,10 +113,10 @@ uniform int u_colormap1SizeZ;
 /////////////////////////////////////////////////////////////////////////////
 
 //!< For unscaling the data: the minimum.
-uniform float u_colormap2Min;
+uniform float u_colormap2Min = 0;
 
 //!< For unscaling the data: the scaling factor.
-uniform float u_colormap2Scale;
+uniform float u_colormap2Scale = 1;
 
 //!< The alpha value for this colormap. Is in [0,1].
 uniform float u_colormap2Alpha;
@@ -113,13 +125,19 @@ uniform float u_colormap2Alpha;
 uniform float u_colormap2Threshold;
 
 //!< Flag denoting whether to use the threshold value for clipping or not.
-uniform bool u_colormap2ThresholdEnabled;
+uniform bool u_colormap2ThresholdEnabled = false;
+
+//!< Flag denoting whether to use the windowing values for scaling or not.
+uniform bool u_colormap2WindowEnabled = false;
+
+//!< Contains the lower and upper window level.
+uniform vec2 u_colormap2Window = vec2( 0.0, 1.0 );
 
 //!< The index of the colormap to use
 uniform int u_colormap2Colormap;
 
 //!< True if the colormap is active.
-uniform bool u_colormap2Active;
+uniform bool u_colormap2Active = false;
 
 //!< The sampler for texture access.
 uniform sampler3D u_colormap2Sampler;
@@ -134,10 +152,10 @@ uniform int u_colormap2SizeZ;
 /////////////////////////////////////////////////////////////////////////////
 
 //!< For unscaling the data: the minimum.
-uniform float u_colormap3Min;
+uniform float u_colormap3Min = 0;
 
 //!< For unscaling the data: the scaling factor.
-uniform float u_colormap3Scale;
+uniform float u_colormap3Scale = 1;
 
 //!< The alpha value for this colormap. Is in [0,1].
 uniform float u_colormap3Alpha;
@@ -146,13 +164,19 @@ uniform float u_colormap3Alpha;
 uniform float u_colormap3Threshold;
 
 //!< Flag denoting whether to use the threshold value for clipping or not.
-uniform bool u_colormap3ThresholdEnabled;
+uniform bool u_colormap3ThresholdEnabled = false;
+
+//!< Flag denoting whether to use the windowing values for scaling or not.
+uniform bool u_colormap3WindowEnabled = false;
+
+//!< Contains the lower and upper window level.
+uniform vec2 u_colormap3Window = vec2( 0.0, 1.0 );
 
 //!< The index of the colormap to use
 uniform int u_colormap3Colormap;
 
 //!< True if the colormap is active.
-uniform bool u_colormap3Active;
+uniform bool u_colormap3Active = false;
 
 //!< The sampler for texture access.
 uniform sampler3D u_colormap3Sampler;
@@ -167,10 +191,10 @@ uniform int u_colormap3SizeZ;
 /////////////////////////////////////////////////////////////////////////////
 
 //!< For unscaling the data: the minimum.
-uniform float u_colormap4Min;
+uniform float u_colormap4Min = 0;
 
 //!< For unscaling the data: the scaling factor.
-uniform float u_colormap4Scale;
+uniform float u_colormap4Scale = 1;
 
 //!< The alpha value for this colormap. Is in [0,1].
 uniform float u_colormap4Alpha;
@@ -179,13 +203,19 @@ uniform float u_colormap4Alpha;
 uniform float u_colormap4Threshold;
 
 //!< Flag denoting whether to use the threshold value for clipping or not.
-uniform bool u_colormap4ThresholdEnabled;
+uniform bool u_colormap4ThresholdEnabled = false;
+
+//!< Flag denoting whether to use the windowing values for scaling or not.
+uniform bool u_colormap4WindowEnabled = false;
+
+//!< Contains the lower and upper window level.
+uniform vec2 u_colormap4Window = vec2( 0.0, 1.0 );
 
 //!< The index of the colormap to use
 uniform int u_colormap4Colormap;
 
 //!< True if the colormap is active.
-uniform bool u_colormap4Active;
+uniform bool u_colormap4Active = false;
 
 //!< The sampler for texture access.
 uniform sampler3D u_colormap4Sampler;
@@ -200,10 +230,10 @@ uniform int u_colormap4SizeZ;
 /////////////////////////////////////////////////////////////////////////////
 
 //!< For unscaling the data: the minimum.
-uniform float u_colormap5Min;
+uniform float u_colormap5Min = 0;
 
 //!< For unscaling the data: the scaling factor.
-uniform float u_colormap5Scale;
+uniform float u_colormap5Scale = 1;
 
 //!< The alpha value for this colormap. Is in [0,1].
 uniform float u_colormap5Alpha;
@@ -212,13 +242,19 @@ uniform float u_colormap5Alpha;
 uniform float u_colormap5Threshold;
 
 //!< Flag denoting whether to use the threshold value for clipping or not.
-uniform bool u_colormap5ThresholdEnabled;
+uniform bool u_colormap5ThresholdEnabled = false;
+
+//!< Flag denoting whether to use the windowing values for scaling or not.
+uniform bool u_colormap5WindowEnabled = false;
+
+//!< Contains the lower and upper window level.
+uniform vec2 u_colormap5Window = vec2( 0.0, 1.0 );
 
 //!< The index of the colormap to use
 uniform int u_colormap5Colormap;
 
 //!< True if the colormap is active.
-uniform bool u_colormap5Active;
+uniform bool u_colormap5Active = false;
 
 //!< The sampler for texture access.
 uniform sampler3D u_colormap5Sampler;
@@ -233,10 +269,10 @@ uniform int u_colormap5SizeZ;
 /////////////////////////////////////////////////////////////////////////////
 
 //!< For unscaling the data: the minimum.
-uniform float u_colormap6Min;
+uniform float u_colormap6Min = 0;
 
 //!< For unscaling the data: the scaling factor.
-uniform float u_colormap6Scale;
+uniform float u_colormap6Scale = 1;
 
 //!< The alpha value for this colormap. Is in [0,1].
 uniform float u_colormap6Alpha;
@@ -245,13 +281,19 @@ uniform float u_colormap6Alpha;
 uniform float u_colormap6Threshold;
 
 //!< Flag denoting whether to use the threshold value for clipping or not.
-uniform bool u_colormap6ThresholdEnabled;
+uniform bool u_colormap6ThresholdEnabled = false;
+
+//!< Flag denoting whether to use the windowing values for scaling or not.
+uniform bool u_colormap6WindowEnabled = false;
+
+//!< Contains the lower and upper window level.
+uniform vec2 u_colormap6Window = vec2( 0.0, 1.0 );
 
 //!< The index of the colormap to use
 uniform int u_colormap6Colormap;
 
 //!< True if the colormap is active.
-uniform bool u_colormap6Active;
+uniform bool u_colormap6Active = false;
 
 //!< The sampler for texture access.
 uniform sampler3D u_colormap6Sampler;
@@ -266,10 +308,10 @@ uniform int u_colormap6SizeZ;
 /////////////////////////////////////////////////////////////////////////////
 
 //!< For unscaling the data: the minimum.
-uniform float u_colormap7Min;
+uniform float u_colormap7Min = 0;
 
 //!< For unscaling the data: the scaling factor.
-uniform float u_colormap7Scale;
+uniform float u_colormap7Scale = 1;
 
 //!< The alpha value for this colormap. Is in [0,1].
 uniform float u_colormap7Alpha;
@@ -278,13 +320,19 @@ uniform float u_colormap7Alpha;
 uniform float u_colormap7Threshold;
 
 //!< Flag denoting whether to use the threshold value for clipping or not.
-uniform bool u_colormap7ThresholdEnabled;
+uniform bool u_colormap7ThresholdEnabled = false;
+
+//!< Flag denoting whether to use the windowing values for scaling or not.
+uniform bool u_colormap7WindowEnabled = false;
+
+//!< Contains the lower and upper window level.
+uniform vec2 u_colormap7Window = vec2( 0.0, 1.0 );
 
 //!< The index of the colormap to use
 uniform int u_colormap7Colormap;
 
 //!< True if the colormap is active.
-uniform bool u_colormap7Active;
+uniform bool u_colormap7Active = false;
 
 //!< The sampler for texture access.
 uniform sampler3D u_colormap7Sampler;

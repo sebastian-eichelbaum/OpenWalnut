@@ -53,11 +53,11 @@ WPropertyIntervalWidget::WPropertyIntervalWidget( WPropInterval property, QGridL
     m_resetBtn( &m_parameterWidgets )
 {
     // layout all the elements
-    m_layout.addWidget( new QLabel( "[") );
+    m_layout.addWidget( new QLabel( "[" ) );
     m_layout.addWidget( &m_minEdit );
-    m_layout.addWidget( new QLabel( ",") );
+    m_layout.addWidget( new QLabel( "," ) );
     m_layout.addWidget( &m_maxEdit );
-    m_layout.addWidget( new QLabel( "]") );
+    m_layout.addWidget( new QLabel( "]" ) );
 
     m_layout.addWidget( &m_resetBtn );
     // WPropertyVartiable does not yet provide a default value mechanism.

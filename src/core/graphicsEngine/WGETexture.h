@@ -156,9 +156,16 @@ public:
     /**
      * Returns the window level definition for the colormap. The property can be changed. A change affects all colormaps using this texture.
      *
-    * \return window colormap
+     * \return window colormap
      */
     WPropInterval window() const;
+
+    /**
+     * Returns the property responsible for enabling window based interval scaling. If this is false, the window setting is ignored.
+     *
+     * \return windowing-enable property.
+     */
+    WPropBool windowEnabled() const;
 
     /**
      * Returns the texture transformation matrix. The property can be changed. A change affects all colormaps using this texture. This matrix
@@ -363,6 +370,11 @@ private:
      * Window level setting for the current colormap
      */
     WPropInterval m_window;
+
+    /**
+     * Window-Level-Setting-enable flag.
+     */
+    WPropBool m_windowEnabled;
 };
 
 // Some convenience typedefs
@@ -442,6 +454,10 @@ void WGETexture< TextureType >::setupProperties( double scale, double min )
     m_threshold->setMin( min );
     m_threshold->setMax( min + scale );
 
+    m_windowEnabled = m_properties->addProperty( "Enable Windowing", "If enabled, window level settings are applied.", false );
+    m_window = m_properties->addProperty( "Window Level", "Define the interval in the data which is mapped to the colormap.",
+                                          make_interval( 0.0, 1.0 ) );
+
     m_interpolation = m_properties->addProperty( "Interpolate", "Interpolation of the volume data.", true, m_propCondition );
 
     m_colorMapSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
@@ -457,9 +473,6 @@ void WGETexture< TextureType >::setupProperties( double scale, double min )
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMap );
 
     m_active = m_properties->addProperty( "Active", "Can dis-enable a texture.", true );
-
-    m_window = m_properties->addProperty( "Window Level", "Define the interval in the data which is mapped to the colormap.",
-                                          make_interval( 0.0, 1.0 ) );
 
     WMatrix4d m = WMatrix4d::identity();
     m_texMatrix = m_properties->addProperty( "Texture Transformation", "Usable to transform the texture.", m );
@@ -548,6 +561,12 @@ inline WPropBool WGETexture< TextureType >::active() const
 }
 
 template < typename TextureType >
+inline WPropBool WGETexture< TextureType >::windowEnabled() const
+{
+    return m_windowEnabled;
+}
+
+template < typename TextureType >
 inline WPropInterval WGETexture< TextureType >::window() const
 {
     return m_window;
@@ -579,6 +598,7 @@ void  WGETexture< TextureType >::applyUniforms( std::string prefix, osg::StateSe
     states->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Threshold", threshold() ) );
     states->addUniform( new WGEPropertyUniform< WPropSelection >( prefix + "Colormap", colormap() ) );
     states->addUniform( new WGEPropertyUniform< WPropBool >( prefix + "Active", active() ) );
+    states->addUniform( new WGEPropertyUniform< WPropBool >( prefix + "WindowEnabled", windowEnabled() ) );
     states->addUniform( new WGEPropertyUniform< WPropInterval >( prefix + "Window", window() ) );
 }
 
