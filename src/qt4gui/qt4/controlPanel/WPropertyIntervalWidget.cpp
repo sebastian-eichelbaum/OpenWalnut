@@ -117,7 +117,8 @@ void WPropertyIntervalWidget::minMaxUpdated()
     bool validMax;
     double maxValue = m_maxEdit.text().toDouble( &validMax );
 
-    if( !( validMin && validMax ) )
+    // mark the prop invalid if the user specifies some strange values
+    if( !( validMin && validMax ) || ( minValue > maxValue ) )
     {
         invalidate();
         return;
@@ -129,6 +130,6 @@ void WPropertyIntervalWidget::minMaxUpdated()
 
 void WPropertyIntervalWidget::reset()
 {
-    // WProperties does not really provide a default value mechanism.
+    // WProperties does not really provide a default value mechanism yet.
 }
 
