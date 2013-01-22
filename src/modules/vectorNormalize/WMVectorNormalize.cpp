@@ -106,9 +106,9 @@ public:
     /**
      * Create visitor instance.
      *
-     * \param zeroZol zero tollerance
+     * \param zeroTol zero tollerance
      */
-    VisitorVSetA( double zeroTol = 0.0000001 ):
+    explicit VisitorVSetA( double zeroTol ):
         boost::static_visitor< result_type >(),
         m_zeroTol( zeroTol )
     {
