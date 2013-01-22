@@ -231,7 +231,7 @@ public:
     void scale( VecType const& scale );
 
     /**
-     * Compares two grid transforms..
+     * Compares two grid transforms.
      *
      * \param other the one to compare against
      *
