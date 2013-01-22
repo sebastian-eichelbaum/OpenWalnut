@@ -104,6 +104,11 @@ private:
     boost::shared_ptr< WModuleInputData< WDataSetVector > > m_inputA;  //!< Input connector required by this module.
 
     boost::shared_ptr< WModuleOutputData< WDataSetVector > > m_output; //!< The only output of this filter module.
+
+    /**
+     * Zero Tollerance.
+     */
+    WPropDouble m_zeroTol;
 };
 #endif  // WMVECTORNORMALIZE_H
 

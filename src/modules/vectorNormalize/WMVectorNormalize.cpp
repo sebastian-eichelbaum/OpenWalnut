@@ -90,6 +90,10 @@ void WMVectorNormalize::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
+    m_zeroTol = m_properties->addProperty( "Zero Tolerance", "Vector lengths smaller than this are assumed as being 0.", 0.000001, m_propCondition );
+    m_zeroTol->setMin( 0.0 );
+    m_zeroTol->setMax( 1.0 );
+
     WModule::properties();
 }
 
@@ -101,8 +105,12 @@ class VisitorVSetA: public boost::static_visitor< boost::shared_ptr< WValueSetBa
 public:
     /**
      * Create visitor instance.
+     *
+     * \param zeroZol zero tollerance
      */
-    VisitorVSetA(): boost::static_visitor< result_type >()
+    VisitorVSetA( double zeroTol = 0.0000001 ):
+        boost::static_visitor< result_type >(),
+        m_zeroTol( zeroTol )
     {
     }
 
@@ -131,6 +139,14 @@ public:
             double z = vsetA->getScalar( ( i * 3 ) + 2 );
 
             double len = sqrt( ( x * x ) + ( y * y ) + ( z * z ) );
+            if( len < m_zeroTol )
+            {
+                data[ ( i * 3 ) + 0 ] = 0;
+                data[ ( i * 3 ) + 1 ] = 0;
+                data[ ( i * 3 ) + 2 ] = 0;
+
+                continue;
+            }
 
             data[ ( i * 3 ) + 0 ] = static_cast< T >( x / len );
             data[ ( i * 3 ) + 1 ] = static_cast< T >( y / len );
@@ -144,6 +160,11 @@ public:
                                                                             new std::vector< T >( data ) ),
                                                                         DataType< T >::type ) );
     }
+
+    /**
+     * Zero tollerance. Values smaller than this are interpreted as zero
+     */
+    double m_zeroTol;
 };
 
 void WMVectorNormalize::moduleMain()
@@ -171,7 +192,7 @@ void WMVectorNormalize::moduleMain()
         }
 
         // has the data changed?
-        if( m_inputA->handledUpdate() )
+        if( m_zeroTol->changed() || m_inputA->handledUpdate() )
         {
             boost::shared_ptr< WDataSetVector > dataSetA = m_inputA->getData();
 
@@ -187,7 +208,7 @@ void WMVectorNormalize::moduleMain()
 
                 // apply the operation to each voxel
                 debugLog() << "Processing ...";
-                boost::shared_ptr< WValueSetBase > newValueSet = valueSetA->applyFunction( VisitorVSetA() );
+                boost::shared_ptr< WValueSetBase > newValueSet = valueSetA->applyFunction( VisitorVSetA( m_zeroTol->get( true ) ) );
 
                 // Create the new dataset and export it
                 m_output->updateData( boost::shared_ptr<WDataSetVector>( new WDataSetVector( newValueSet, m_inputA->getData()->getGrid() ) ) );
