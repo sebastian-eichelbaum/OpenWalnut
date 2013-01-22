@@ -29,8 +29,6 @@
 #include "../common/math/WMatrix.h"
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
-
-
 /**
  * Implements an orthogonal grid transformation.
  *
@@ -231,6 +229,15 @@ public:
      */
     template< typename VecType >
     void scale( VecType const& scale );
+
+    /**
+     * Compares two grid transforms..
+     *
+     * \param other the one to compare against
+     *
+     * \return true if transform matches
+     */
+    bool operator==( const WGridTransformOrthoTemplate< T >& other ) const;
 
 private:
     /**
@@ -521,6 +528,16 @@ void WGridTransformOrthoTemplate< T >::copyFrom( WGridTransformOrthoTemplate< In
     this->m_unitDirectionZ = static_cast< Vector3Type >( input.m_unitDirectionZ );
     this->m_scaling = static_cast< Vector3Type >( input.m_scaling );
     this->m_origin = static_cast< Vector3Type >( input.m_origin );
+}
+
+template< typename T >
+bool WGridTransformOrthoTemplate< T >::operator==( const WGridTransformOrthoTemplate< T >& other ) const
+{
+    return ( m_unitDirectionX == other.m_unitDirectionX ) &&
+           ( m_unitDirectionY == other.m_unitDirectionY ) &&
+           ( m_unitDirectionZ == other.m_unitDirectionZ ) &&
+           ( m_scaling == other.m_scaling ) &&
+           ( m_origin == other.m_origin );
 }
 
 #endif  // WGRIDTRANSFORMORTHO_H
