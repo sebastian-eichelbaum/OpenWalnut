@@ -44,7 +44,8 @@
  * Currently only a subset of the legacy format is supported.
  *
  * Formats read: Original ASCII and BINARY. The xml format is not supported.
- * Grids read are: STRUCTURED_POINTS
+ * Grids read are: STRUCTURED_POINTS, RECTILINEAR_GRID is interpreted as a grid with
+ *                 equal spacing per coordinate axis
  * Data types read: SCALARS, VECTORS, TENSORS
  *
  * Endianess is kept as on the platform, so for intel hosts, most files,
@@ -55,8 +56,10 @@
  */
 class WReaderVTK : public WReader // NOLINT
 {
+    //! allow member access by the test class
     friend class WReaderVTKTest;
-    public:
+
+public:
     /**
      * Constructs and makes a new VTK reader for separate thread start.
      *
@@ -71,30 +74,42 @@ class WReaderVTK : public WReader // NOLINT
     virtual ~WReaderVTK() throw();
 
     /**
-     * Reads the fiber file and creates a dataset out of it.
+     * Reads the data file and creates a dataset out of it.
      *
      * \return Reference to the dataset.
      */
     virtual boost::shared_ptr< WDataSet > read();
 
-    protected:
+protected:
     /**
-     * Read VTK header from file.
+     * Read VTK header from file. Sets the m_isASCII member accordingly.
      *
-     * \return The offset where header ends, so we may skip this next operation.
-     * \throws WDHIOFailure, WDHParseError
+     * \return true, if the header was valid
      */
-    void readHeader();
+    bool readHeader();
 
     /**
-     * Read VTK POINT_DATA field from input stream.
+     * Read VTK Domain specification and create a matching grid.
+     *
+     * \return The constructed grid or an invalid pointer if any problem occurred.
      */
-    void readPointData();
+    boost::shared_ptr< WGridRegular3D > readStructuredPoints();
 
     /**
-     * Read VTK STRUCTURED_POINTS field
+     * Read VTK Domain specification and create a matching grid.
+     *
+     * \return The constructed grid or an invalid pointer if any problem occurred.
      */
-    void readStructuredPoints();
+    boost::shared_ptr< WGridRegular3D > readRectilinearGrid();
+
+    /**
+     * Read domain information for structured points.
+     *
+     * \param grid The grid constructed from the domain information.
+     *
+     * \return The value set containing the values read from the file or an invalid pointer if anything went wrong.
+     */
+    boost::shared_ptr< WValueSetBase > readData( boost::shared_ptr< WGridRegular3D > const& grid );
 
     /**
      * Read VTK SCALARS field
@@ -104,8 +119,10 @@ class WReaderVTK : public WReader // NOLINT
      *      the number of scalars to read
      * \param name
      *      the name of the data set that may be overwritten by information in the scalars line
+     *
+     * \return The resulting value set.
      */
-    void readScalars( size_t nbScalars, const std::string & name );
+    boost::shared_ptr< WValueSetBase > readScalars( size_t nbScalars, const std::string & name );
 
     /**
      * Read VTK SCALARS field
@@ -115,8 +132,10 @@ class WReaderVTK : public WReader // NOLINT
      *      the number of vectors to read
      * \param name
      *      the name of the data set that may be overwritten by information in the vectors line
-      */
-    void readVectors( size_t nbVectors, const std::string & name );
+     *
+     * \return The resulting value set.
+     */
+    boost::shared_ptr< WValueSetBase > readVectors( size_t nbVectors, const std::string & name );
 
     /**
      * Read VTK TENSORS field
@@ -126,33 +145,49 @@ class WReaderVTK : public WReader // NOLINT
      *      the number of tensors to read
      * \param name
      *      the name of the data set that may be overwritten by information in the tensors line
-      */
-    void readTensors( size_t nbTensors, const std::string & name );
-
+     *
+     * \return The resulting value set.
+     */
+    boost::shared_ptr< WValueSetBase > readTensors( size_t nbTensors, const std::string & name );
 
     std::vector< std::string > m_header; //!< VTK header of the read file
 
-    /**
-     * Stores for every point its x,y and z float value successivley.
-     * \note The i'th point starts at the 3*i index since every point consumes
-     * 3 elements.
-     */
-    boost::shared_ptr< std::vector< float > > m_points;
-
-    //boost::shared_ptr< std::vector< size_t > > m_fiberStartIndices; //!< Stores the start indices (in the point array) for every fiber
-
-    //boost::shared_ptr< std::vector< size_t > > m_fiberLengths; //!< Stores the length of every fiber
-
-    /**
-     * Stores for every point the fiber where it belongs to.
-     * \note This vector has as many components as there are points, hence its
-     * length is just a third of the length of the points vector.
-     */
-    //boost::shared_ptr< std::vector< size_t > > m_pointFiberMapping;
-
     boost::shared_ptr< std::ifstream > m_ifs; //!< Pointer to the input file stream reader.
 
-    private:
+private:
+
+    //! The types of domains supported so far.
+    enum DomainType
+    {
+        //! structured points
+        STRUCTURED_POINTS,
+
+        //! rectilinear grid
+        RECTILINEAR_GRID,
+
+        //! anything else
+        UNSUPPORTED_DOMAIN
+    };
+
+    //! The types of attributes supported so far.
+    enum AttributeType
+    {
+        //! scalar data
+        SCALARS,
+
+        //! vector data
+        VECTORS,
+
+        //! tensor data
+        TENSORS,
+
+        //! array data
+        ARRAYS,
+
+        //! anything else
+        UNSUPPORTED_ATTRIBUTE
+    };
+
     /**
      * Reads the next line from current position in stream of the fiber VTK file.
      *
@@ -162,6 +197,23 @@ class WReaderVTK : public WReader // NOLINT
      * \return Next line as string.
      */
     std::string getLine( const std::string& desc );
+
+    /**
+     * Read the coordinates of the dataset's domain.
+     *
+     * \param name The name to look for in the first line.
+     * \param dim The number of coordinates.
+     * \param coords The resulting vector of coordinates.
+     */
+    void readCoords( std::string const& name, std::size_t dim, std::vector< float >& coords );
+
+    /**
+     * Read values from the file. The m_isASCII flag must be initialized accordingly.
+     *
+     * \param values The values read from the file.
+     * \param numValues The number of values to read.
+     */
+    void readValuesFromFile( std::vector< float >& values, std::size_t numValues );
 
     /**
      * Try to cast from the given string to the template value T. If the cast fails a
@@ -174,22 +226,26 @@ class WReaderVTK : public WReader // NOLINT
      */
     template< typename T > T getLexicalCast( std::string stringValue, const std::string& errMsg ) const;
 
-
-
     /**
      * reference to the currently loading data set
      */
-    boost::shared_ptr< WDataSet > newDataSet;
+    boost::shared_ptr< WDataSet > m_newDataSet;
 
     /**
      * reference to the currently loading grid
      */
-    boost::shared_ptr< WGridRegular3D > newGrid;
+    boost::shared_ptr< WGridRegular3D > m_newGrid;
 
     /**
      * internal flag whether we read ascii or binary
      */
-    bool isAscii;
+    bool m_isASCII;
+
+    //! The type of domain specified in the file.
+    DomainType m_domainType;
+
+    //! The type of the attributes first read from the file.
+    AttributeType m_attributeType;
 };
 
 template< typename T > inline T WReaderVTK::getLexicalCast( std::string stringValue, const std::string& errMsg ) const
@@ -206,4 +262,5 @@ template< typename T > inline T WReaderVTK::getLexicalCast( std::string stringVa
 
     return result;
 }
+
 #endif  // WREADERVTK_H
