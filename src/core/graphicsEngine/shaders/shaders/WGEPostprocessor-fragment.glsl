@@ -25,7 +25,7 @@
 #ifndef WGEPOSTPROCESSOR_FRAGMENT_GLSL
 #define WGEPOSTPROCESSOR_FRAGMENT_GLSL
 
-#version 120
+#version 130
 
 #include "WGEShadingTools.glsl"
 #include "WGETextureTools.glsl"
@@ -295,8 +295,6 @@ float getSSAO()
 //
 //  - This implementation matches the paper in most cases. We made some additional improvements and
 //    simplifications here. This simply is due to the time-lag between first submission and final acceptance.
-//  - The paper proposes to use a gaussed version of the depth and normal maps. We skip this step here. This way,
-//    the images look more crispy and provide more _local_ detail.
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -412,11 +410,19 @@ float getLineAO( vec2 where )
             // Count the samples we really use.
             numSamplesAdded++;
 
+            // use LOD based on current hemisphere?
+            float lod = 0.0;
+            #ifdef WGE_POSTPROCESSOR_LINEAO_USEGAUSSPYRAMID
+            // select the Level in the gaussian pyramid of the normal, depth and tangent map. When NOT using this, you retain more local detail
+            // at more far away occluders which creates crispier images.
+            lod = float( l );
+            #endif
+
             // get the depth of the occluder fragment
-            occluderDepth = getDepth( hemispherePoint.xy );
+            occluderDepth = getDepth( hemispherePoint.xy, lod );
 
             // get the normal of the occluder fragment
-            occluderNormal = getNormal( hemispherePoint.xy ).xyz;
+            occluderNormal = getNormal( hemispherePoint.xy, lod ).xyz;
 
             // if depthDifference is negative = occluder is behind the current fragment -> occluding this fragment
             depthDifference = currentPixelDepth - occluderDepth;
@@ -425,7 +431,7 @@ float getLineAO( vec2 where )
             float pointDiffuse = max( dot( hemisphereVector, normal ), 0.0 ); // this equals the diffuse term in Phong if lightDir is the
                                                                               // occluder's surface
 
-            vec3 t = getTangent( hemispherePoint.xy ).xyz;
+            vec3 t = getTangent( hemispherePoint.xy, lod ).xyz;
             vec3 newnorm = normalize( cross( normalize( cross( t, normalize( hemisphereVector ) ) ), t ) );
             float occluderDiffuse = max( dot( newnorm, gl_LightSource[0].position.xyz ), 0.0 );
 

@@ -40,6 +40,7 @@
 #include "core/dataHandler/WGridRegular3D.h"
 #include "core/dataHandler/WDataSetSingle.h"
 #include "core/dataHandler/WDataSetFibers.h"
+#include "core/dataHandler/WDataSetPoints.h"
 #include "core/graphicsEngine/WGEGeodeUtils.h"
 #include "core/graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "core/kernel/WKernel.h"
@@ -139,6 +140,20 @@ void WMGridRenderer::moduleMain()
             debugLog() << "Fiber Data.";
 
             WBoundingBox bb = dsFibers->getBoundingBox();
+            // this basically is a fake but we need a grid for WGEGridNode. So we construct one using the BBox
+            WGridTransformOrtho gridTransform( bb.xMax() - bb.xMin(), bb.yMax() - bb.yMin(), bb.zMax() - bb.zMin() );
+            gridTransform.translate( WVector3d( bb.xMin(), bb.yMin(), bb.zMin() ) );
+            regGrid = WGridRegular3D::SPtr( new WGridRegular3D( 2, 2, 2, gridTransform ) );
+        }
+
+        // is this a point dataset?
+        WDataSetPoints::SPtr dsPoints = boost::shared_dynamic_cast< WDataSetPoints >( dataSet );
+        if( dsPoints )
+        {
+            debugLog() << "Points Data.";
+
+            WBoundingBox bb = dsPoints->getBoundingBox();
+
             // this basically is a fake but we need a grid for WGEGridNode. So we construct one using the BBox
             WGridTransformOrtho gridTransform( bb.xMax() - bb.xMin(), bb.yMax() - bb.yMin(), bb.zMax() - bb.zMin() );
             gridTransform.translate( WVector3d( bb.xMin(), bb.yMin(), bb.zMin() ) );

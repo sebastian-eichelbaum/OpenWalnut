@@ -37,6 +37,7 @@
 #include "math/linearAlgebra/WLinearAlgebra.h"
 #include "math/linearAlgebra/WMatrixFixed.h"
 #include "math/linearAlgebra/WVectorFixed.h"
+#include "math/WInterval.h"
 #include "WAssert.h"
 #include "WColor.h"
 #include "WItemSelector.h"
@@ -74,7 +75,8 @@ typedef enum
     PV_MATRIX4X4,        //!< for 4x4 matrices
     PV_TRANSFERFUNCTION, //!< for transfer function textures
     PV_STRUCT,           //!< for complex, structured properties (used by \ref WPropertyStruct)
-    PV_LIST              //!< for a dynamic list of properties of the same type (see \ref WPropertyList)
+    PV_LIST,             //!< for a dynamic list of properties of the same type (see \ref WPropertyList)
+    PV_INTERVAL          //!< for defining intervals (min and max values)
 }
 PROPERTY_TYPE;
 
@@ -109,6 +111,7 @@ namespace WPVBaseTypes
     typedef WColor                                          PV_COLOR;            //!< base type used for every WPVColor
     typedef WMatrix4d                                       PV_MATRIX4X4;        //!< base type used for every WPVMatrix4X4
     typedef WTransferFunction                               PV_TRANSFERFUNCTION; //!< base type for every transfer function
+    typedef WIntervalDouble                                 PV_INTERVAL;         //!< base type used for every PV_INTERVAL
 
     /**
      * Enum denoting the possible trigger states. It is used for trigger properties.
@@ -217,6 +220,11 @@ typedef WPropertyVariable< WPVBaseTypes::PV_MATRIX4X4 > WPVMatrix4X4;
 typedef WPropertyVariable< WPVBaseTypes::PV_TRANSFERFUNCTION > WPVTransferFunction;
 
 /**
+ * Interval properties
+ */
+typedef WPropertyVariable< WPVBaseTypes::PV_INTERVAL > WPVInterval;
+
+/**
  * Some convenience type alias for a even more easy usage of WPropertyVariable.
  * These typdefs define some pointer alias.
  */
@@ -280,6 +288,11 @@ typedef boost::shared_ptr< WPVMatrix4X4 > WPropMatrix4X4;
  * Alias for the transfer function properties
  */
 typedef boost::shared_ptr< WPVTransferFunction > WPropTransferFunction;
+
+/**
+ * Alias for the interval properties
+ */
+typedef boost::shared_ptr< WPVInterval > WPropInterval;
 
 /**
  * This namespace contains several helper classes which translate their template type to an enum.
@@ -553,6 +566,24 @@ namespace PROPERTY_TYPE_HELPER
     };
 
     /**
+     * Class helping to adapt types specified as template parameter into an enum.
+     */
+    template<>
+    class WTypeIdentifier< WPVBaseTypes::PV_INTERVAL >
+    {
+    public:
+        /**
+         * Get type identifier of the template type T.
+         *
+         * \return type identifier-
+         */
+        PROPERTY_TYPE getType()
+        {
+            return PV_INTERVAL;
+        }
+    };
+
+    /**
      * Class helping to create a new instance of the property content from an old one. Selections need this special care since they contain not
      * serializable content which needs to be acquired from its predecessor instance.
      */
@@ -698,6 +729,48 @@ namespace PROPERTY_TYPE_HELPER
             {
                 out << v[ col ] << ";";
             }
+            return out.str();
+        }
+    };
+
+   /**
+     * Class helping to create a new instance of the property content from an old one. Selections need this special care since they contain not
+     * serializable content which needs to be acquired from its predecessor instance.
+     */
+    template<>
+    class WStringConversion< WPVBaseTypes::PV_INTERVAL >
+    {
+    public:
+        /**
+         * Creates a new instance of the type from a given string. Some classes need a predecessor which is also specified here.
+         *
+         * \param str the new value as string
+         *
+         * \return the new instance
+         */
+        WPVBaseTypes::PV_INTERVAL create( const WPVBaseTypes::PV_INTERVAL& /*old*/, const std::string str )
+        {
+            std::vector< std::string > tokens;
+            tokens = string_utils::tokenize( str, ";" );
+            WAssert( tokens.size() >= 2, "There weren't 2 values for an interval" );
+
+            WPVBaseTypes::PV_INTERVAL c( string_utils::fromString< double >( tokens[ 0 ] ),
+                                         string_utils::fromString< double >( tokens[ 1 ] ) );
+
+            return c;
+        }
+
+        /**
+         * Creates a string from the specified value.
+         *
+         * \param v the value to convert
+         *
+         * \return the string representation
+         */
+        std::string asString( const WPVBaseTypes::PV_INTERVAL& v )
+        {
+            std::ostringstream out;
+            out << v.getLower() << ";" << v.getUpper();
             return out.str();
         }
     };

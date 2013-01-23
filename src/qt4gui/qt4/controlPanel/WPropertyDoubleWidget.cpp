@@ -116,17 +116,9 @@ void WPropertyDoubleWidget::update()
         m_slider.setMinimum( 0 );
         m_slider.setMaximum( SliderResolution );
 
-        bool allowedValuesUpdated = m_intervalEdit.getAllowedMin() != minC->getMin()
-            || m_intervalEdit.getAllowedMax() != maxC->getMax();
-
         // update the interval edit too
         m_intervalEdit.setAllowedMin( minC->getMin() );
         m_intervalEdit.setAllowedMax( maxC->getMax() );
-        if( allowedValuesUpdated )
-        {
-            m_intervalEdit.setMin( minC->getMin() );
-            m_intervalEdit.setMax( maxC->getMax() );
-        }
         m_min = m_intervalEdit.getMin();
         m_max = m_intervalEdit.getMax();
 

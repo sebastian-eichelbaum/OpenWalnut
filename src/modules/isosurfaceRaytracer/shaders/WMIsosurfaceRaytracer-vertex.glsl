@@ -83,8 +83,7 @@ void main()
 
 #ifdef WGE_POSTPROCESSING_ENABLED
     // Keep track of scaling information. This is needed by some postprocessors.
-    // TODO(ebaum): I do not yet understand this factor! Fix this.
-    v_worldScale = 0.015 * getModelViewScale();
+    v_worldScale = getModelViewScale();
 #endif
 
     // Simply project the vertex

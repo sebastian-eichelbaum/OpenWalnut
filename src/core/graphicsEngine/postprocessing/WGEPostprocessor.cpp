@@ -124,7 +124,7 @@ WGEPostprocessor::PostprocessorInput WGEPostprocessor::PostprocessorInput::attac
     PostprocessorInput buf;
     buf.m_colorTexture = from->attach( osg::Camera::COLOR_BUFFER0 );
     buf.m_normalTexture = from->attach( osg::Camera::COLOR_BUFFER1, GL_RGB );
-    buf.m_parameterTexture = from->attach( osg::Camera::COLOR_BUFFER2, GL_LUMINANCE );
+    buf.m_parameterTexture = from->attach( osg::Camera::COLOR_BUFFER2, GL_R32F );
     buf.m_tangentTexture = from->attach( osg::Camera::COLOR_BUFFER3, GL_RGB );
     buf.m_depthTexture = from->attach( osg::Camera::DEPTH_BUFFER );
 
@@ -173,3 +173,7 @@ const std::string WGEPostprocessor::getDescription() const
     return m_description;
 }
 
+bool WGEPostprocessor::getFixedViewportSize() const
+{
+    return false;
+}

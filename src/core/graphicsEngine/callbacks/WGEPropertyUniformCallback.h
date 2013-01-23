@@ -94,7 +94,7 @@ WGEPropertyUniformCallback< T >::~WGEPropertyUniformCallback()
 template< typename T >
 void WGEPropertyUniformCallback< T >::operator()( osg::Uniform* uniform, osg::NodeVisitor* /*nv*/ )
 {
-    uniform->set( static_cast< typename WGEPropertyUniformCallback< T >::UniformType >( m_property->get() ) );
+    uniform->set( wge::toUniformType( m_property->get() ) );
 }
 
 #endif  // WGEPROPERTYUNIFORMCALLBACK_H

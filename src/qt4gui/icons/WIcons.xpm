@@ -63,4 +63,9 @@
 
 #include "ColorWheel.xpm"
 
+#include "popup_more.xpm"
+#include "popup_close.xpm"
+
+#include "undo.xpm"
+
 #endif  // WICONS_H

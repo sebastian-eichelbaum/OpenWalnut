@@ -168,6 +168,17 @@ public:
 
 protected:
 private:
+    /**
+     * Checks if the two given intervals intersect and computes the distance between them.
+     *
+     * \param a0 lower bound of the first interval
+     * \param a1 upper bound of the first interval
+     * \param b0 lower bound of the second interval
+     * \param b1 upper bound if the second interval
+     *
+     * \return The distance between those intervals if they don't overlap, zero otherwise
+     */
+    double intervalDistance( double a0, double a1, double b0, double b1 ) const;
 };
 
 template< class VT >
@@ -223,33 +234,18 @@ inline bool WBoundingBoxImpl< VT >::intersects( const WBoundingBoxImpl< VT > &bb
     return osg::BoundingBoxImpl< VT >::intersects( bb );
 }
 
-/**
- * Anonymous namespace, just to be DRY in minDistance.
- */
-namespace
+template< class VT >
+inline double WBoundingBoxImpl< VT >::intervalDistance( double a0, double a1, double b0, double b1 ) const
 {
-    /**
-     * Checks if the two given intervals intersect and computes the distance between them.
-     *
-     * \param a0 lower bound of the first interval
-     * \param a1 upper bound of the first interval
-     * \param b0 lower bound of the second interval
-     * \param b1 upper bound if the second interval
-     *
-     * \return The distance between those intervals if they don't overlap, zero otherwise
-     */
-    inline double intervalDistance( double a0, double a1, double b0, double b1 )
+    if( a1 < b0 )
     {
-        if( a1 < b0 )
-        {
-            return b0 - a1;
-        }
-        else if( b1 < a0 )
-        {
-            return a0 - b1;
-        }
-        return 0.0;
+        return b0 - a1;
     }
+    else if( b1 < a0 )
+    {
+        return a0 - b1;
+    }
+    return 0.0;
 }
 
 template< class VT >

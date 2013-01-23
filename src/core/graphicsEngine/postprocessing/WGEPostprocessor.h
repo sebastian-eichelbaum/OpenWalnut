@@ -232,6 +232,17 @@ public:
      * \return the description
      */
     virtual const std::string getDescription() const;
+
+    /**
+     * When this returns true, the viewport size is fixed to the size of the target texture. This is very useful if you want to process high resolution
+     * images offscreen. You can implement this function in your postprocessor to modify this. Please be aware that this does not modify the
+     * camera's projection matrix. This is especially important for correct aspect ratios. You can modify the camera dynamically by using
+     * callbacks.
+     *
+     * \return true if fixed.
+     */
+    virtual bool getFixedViewportSize() const;
+
 protected:
     /**
      * The textures contain the result. Add at least one result texture

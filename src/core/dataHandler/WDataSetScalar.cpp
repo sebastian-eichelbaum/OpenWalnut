@@ -70,6 +70,16 @@ WDataSetSingle::SPtr WDataSetScalar::clone() const
     return WDataSetSingle::SPtr( new WDataSetScalar( getValueSet(), getGrid() ) );
 }
 
+std::string const WDataSetScalar::getName() const
+{
+    return "WDataSetScalar";
+}
+
+std::string const WDataSetScalar::getDescription() const
+{
+    return "A scalar dataset, i.e. one scalar value per voxel.";
+}
+
 double WDataSetScalar::getMax() const
 {
     return m_valueSet->getMaximumValue();

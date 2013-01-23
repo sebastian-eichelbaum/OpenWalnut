@@ -158,7 +158,7 @@ void main()
     float dotS = dot( v_normal, vec.xyz );
     vec2 dotScaled = ( 1.0 + sign( dotS ) ) * scaleMaxToOne( vecProjected ).xy;
     // MPI Paper Hack;
-    // dotScaled = 40.0*vecProjected.xy;
+    // dotScaled = 90.0 * vecProjected.xy;
     gl_FragData[0] = vec4( vec2( 0.5 ) + ( 0.5  * dotScaled ), light, noise3D );
 
     // MPI PAper Hack:

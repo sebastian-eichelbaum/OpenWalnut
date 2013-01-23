@@ -26,8 +26,8 @@
 # Some common setup
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-SET( LibName ${OWQt4GuiName} )
-SET( BinName ${OWBinaryName} )
+SET( LibName "qt4gui" )
+SET( BinName "openwalnut-qt4" )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Setup QT4
@@ -41,7 +41,7 @@ FIND_PACKAGE( Qt4 REQUIRED )
 MARK_AS_ADVANCED( FORCE QT_QMAKE_EXECUTABLE )
 
 # Includes:
-INCLUDE_DIRECTORIES( ${QT_INCLUDE_DIR} )
+INCLUDE_DIRECTORIES( SYSTEM ${QT_INCLUDE_DIR} )
 
 # Libraries for linking:
 SET( QT_LIBS ${QT_QTCORE_LIBRARY}

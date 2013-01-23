@@ -41,11 +41,19 @@ class WGEViewportCallback: public osg::NodeCallback
 {
 public:
     /**
-     * Creates new instance of viewport callback.
+     * Creates new instance of viewport callback and sets the viewport size to the reference camera size
      *
      * \param reference set the viewport to the one of the reference camera.
      */
     explicit WGEViewportCallback( osg::ref_ptr< Source > reference );
+
+    /**
+     * Creates new instance of viewport callback and sets the viewport size to the specified size
+     *
+     * \param width viewport width
+     * \param height viewport height
+     */
+    WGEViewportCallback( size_t width, size_t height );
 
     /**
      * Destructor.
@@ -66,12 +74,34 @@ private:
      * The reference camera to use.
      */
     osg::ref_ptr< Source > m_reference;
+
+    /**
+     * Forced viewport width
+     */
+    size_t m_width;
+
+    /**
+     * Forced viewport height
+     */
+    size_t m_height;
 };
 
 template < typename T, typename Source >
 WGEViewportCallback< T, Source >::WGEViewportCallback( osg::ref_ptr< Source > reference ):
     osg::NodeCallback(),
-    m_reference( reference )
+    m_reference( reference ),
+    m_width( 0 ),
+    m_height( 0 )
+{
+    // initialize members
+}
+
+template < typename T, typename Source >
+WGEViewportCallback< T, Source >::WGEViewportCallback( size_t width, size_t height ):
+    osg::NodeCallback(),
+    m_reference( NULL ),
+    m_width( width ),
+    m_height( height )
 {
     // initialize members
 }
@@ -88,9 +118,14 @@ void WGEViewportCallback< T, Source >::operator()( osg::Node* node, osg::NodeVis
     osg::ref_ptr< T > t = dynamic_cast< T* >( node );
     if( t )
     {
-        t->setViewport( m_reference->getViewport() );
-        // NOTE: you want to use a fixed size for the offscreen textures? Try this:
-        // t->setViewport( new osg::Viewport( 0, 0, 3840, 2160 ) );
+        if( m_reference )
+        {
+            t->setViewport( m_reference->getViewport() );
+        }
+        else
+        {
+            t->setViewport( new osg::Viewport( 0, 0, m_width, m_height ) );
+        }
     }
     traverse( node, nv );
 }

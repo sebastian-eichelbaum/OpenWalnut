@@ -162,7 +162,7 @@ void WMImageSpaceLIC::properties()
     m_numIters     = m_advancedLicGroup->addProperty( "Number of Iterations", "How much iterations along a streamline should be done per frame.",
                                                       30 );
     m_numIters->setMin( 1 );
-    m_numIters->setMax( 100 );
+    m_numIters->setMax( 1000 );
 
     // call WModule's initialization
     WModule::properties();

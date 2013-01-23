@@ -28,6 +28,8 @@
 
 #include "WQt4Gui.h"
 
+#include "WSettingAction.h"
+
 #include "WQtGLDockWidget.h"
 #include "WQtGLDockWidget.moc"
 
@@ -76,6 +78,9 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     camPresets->setMenu( getGLWidget()->getCameraPresetsMenu() );
     addAction( camPresets );
 
+    // throwing
+    addAction( getGLWidget()->getThrowingSetting() );
+
     // change background color
     addAction( getGLWidget()->getBackgroundColorAction() );
 }
@@ -94,5 +99,17 @@ void WQtGLDockWidget::handleVisibilityChange( bool visible )
 {
     // this can help to reduce CPU load. Especially if multithreading viewers are used with cull thread per context.
     m_glWidget->getViewer()->getView()->getScene()->getSceneData()->setNodeMask( visible * 0xFFFFFFFF );
+}
+
+void WQtGLDockWidget::closeEvent( QCloseEvent *event )
+{
+    getGLWidget()->getViewer()->setClosed( true );
+    QDockWidget::closeEvent( event );
+}
+
+void WQtGLDockWidget::showEvent( QShowEvent* event )
+{
+    getGLWidget()->getViewer()->setClosed( false );
+    QDockWidget::showEvent( event );
 }
 

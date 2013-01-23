@@ -101,6 +101,9 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
         else
         {
             boost::shared_ptr< WModule > module = WModuleFactory::getModuleFactory()->create( proto );
+            // set restore mode
+            module->setRestoreNeeded();
+
             m_modules.insert( ModuleID( string_utils::fromString< unsigned int >( matches[1] ), module ) );
         }
     }
@@ -121,6 +124,9 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
         {
             std::string parameter = std::string( matches[2] );
             boost::shared_ptr< WModule > module = WModuleFactory::getModuleFactory()->create( proto );
+
+            // set restore mode
+            module->setRestoreNeeded();
             if( parameter.empty() )
             {
                 addError( "Data modules need an additional filename parameter. Skipping." );
@@ -204,8 +210,8 @@ void WModuleProjectFileCombiner::apply()
         boost::shared_ptr< WPropertyBase > prop = m->getProperties()->findProperty( ( *iter ).first.second );
         if( !prop )
         {
-            // addError( "The module \"" + m->getName() + std::string( "\" has no property named \"" ) + ( *iter ).first.second +
-            //          std::string( "\". Skipping." ) );
+            addWarning( "The module \"" + m->getName() + std::string( "\" has no property named \"" ) + ( *iter ).first.second +
+                        std::string( "\". Skipping." ) );
             continue;
         }
         else
@@ -221,8 +227,8 @@ void WModuleProjectFileCombiner::apply()
             }
             else
             {
-                addError( "The module \"" + m->getName() + "\" has a property named \"" +
-                         ( *iter ).first.second + "\" which is an INFORMATION property. Skipping." );
+                addWarning( "The module \"" + m->getName() + "\" has a property named \"" +
+                            ( *iter ).first.second + "\" which is an INFORMATION property. Skipping." );
             }
         }
     }
@@ -293,6 +299,12 @@ void WModuleProjectFileCombiner::apply()
                       ") could not be created. Incompatible connectors?. Skipping." );
             continue;
         }
+    }
+
+    // notify modules about the loaded set properties
+    for( std::map< unsigned int, boost::shared_ptr< WModule > >::iterator iter = m_modules.begin(); iter != m_modules.end(); ++iter )
+    {
+        ( *iter ).second->reportRestoreComplete();
     }
 
     // clear all our lists (deref all contained pointers)

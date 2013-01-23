@@ -64,6 +64,7 @@
 #include "core/dataHandler/WDataHandler.h"
 #include "core/dataHandler/WDataSetFibers.h"
 #include "core/dataHandler/WDataSetSingle.h"
+#include "core/dataHandler/WDataSetPoints.h"
 #include "core/dataHandler/WEEG2.h"
 #include "core/graphicsEngine/WGEZoomTrackballManipulator.h"
 #include "core/graphicsEngine/WROIBox.h"
@@ -82,7 +83,9 @@
 #include "events/WOpenCustomDockWidgetEvent.h"
 #include "events/WCloseCustomDockWidgetEvent.h"
 #include "events/WLoadFinishedEvent.h"
+#include "events/WLogEvent.h"
 #include "guiElements/WQtPropertyBoolAction.h"
+#include "WQtMessagePopup.h"
 #include "WQt4Gui.h"
 #include "WQtCombinerToolbar.h"
 #include "WQtCustomDockWidget.h"
@@ -193,6 +196,9 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "axial icon" ), axial_xpm );
     m_iconManager.addIcon( std::string( "coronal icon" ), cor_xpm );
     m_iconManager.addIcon( std::string( "sagittal icon" ), sag_xpm );
+    m_iconManager.addIcon( std::string( "popup_more" ), popup_more_xpm );
+    m_iconManager.addIcon( std::string( "popup_close" ), popup_close_xpm );
+    m_iconManager.addIcon( std::string( "undo" ), undo_xpm );
 
     try
     {
@@ -241,6 +247,10 @@ void WMainWindow::setupGUI()
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getColormapperDock() );
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getRoiDock() );
 
+    // the message dock:
+    m_messageDock = new WQtMessageDock( "Messages", this );
+    addDockWidget( Qt::RightDockWidgetArea, m_messageDock );
+
     // tabify those panels by default
     if( m_networkEditor )
     {
@@ -248,6 +258,7 @@ void WMainWindow::setupGUI()
     }
     tabifyDockWidget( m_controlPanel->getModuleDock(), m_controlPanel->getColormapperDock() );
     tabifyDockWidget( m_controlPanel->getColormapperDock(), m_controlPanel->getRoiDock() );
+    tabifyDockWidget( m_controlPanel->getRoiDock(), m_messageDock );
 
     m_glDock = new QMainWindow();
     m_glDock->setObjectName( "GLDock" );
@@ -368,8 +379,9 @@ void WMainWindow::setupGUI()
     controlPanelTrigger->setShortcuts( controlPanelShortcut );
     this->addAction( controlPanelTrigger );  // this enables the action even if the menu bar is invisible
 
-    resetButton->setMenu( m_mainGLWidget->getCameraPresetsMenu() );
+    m_cameraMenu->addAction( m_mainGLWidget->getCameraResetAction() );
     m_cameraMenu->addMenu( m_mainGLWidget->getCameraPresetsMenu() );
+    resetButton->setMenu( m_mainGLWidget->getCameraPresetsMenu() );
 
     m_helpAction = new QAction( "Help", this );
     m_helpMenu = m_menuBar->addMenu( "Help" );
@@ -508,6 +520,11 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             // it is a eeg dataset -> add the eegView module
             autoAdd( module, "EEG View" );
+        }
+        else if( dataModule->getDataSet()->isA< WDataSetPoints >() )
+        {
+            // it is a point dataset -> add the point render module
+            autoAdd( module, "Point Renderer" );
         }
     }
 }
@@ -659,8 +676,14 @@ void WMainWindow::openLoadDialog()
             << "Simple Project File (*.owproj *.owp)"
             << "EEG files (*.cnt *.edf *.asc)"
             << "NIfTI (*.nii *.nii.gz)"
-            << "Fibers (*.fib)"
-            << "Any files (*)";
+            << "Fibers (*.fib)";
+    for( std::size_t k = 0; k < WKernel::getRunningKernel()->getScriptEngine()->getNumInterpreters(); ++k )
+    {
+        filters << ( WKernel::getRunningKernel()->getScriptEngine()->getInterpreter( k )->getName() + " (*"
+                   + WKernel::getRunningKernel()->getScriptEngine()->getInterpreter( k )->getExtension() + ")" ).c_str();
+    }
+    filters << "Any files (*)";
+
     fd.setNameFilters( filters );
     fd.setViewMode( QFileDialog::Detail );
     QStringList filenames;
@@ -684,8 +707,18 @@ void WMainWindow::openLoadDialog()
         }
         else
         {
-            // this is not a project. So we assume it is a data file
-            loadDataFilenames.push_back( fn.string() );
+            // this is not a project. So we assume it is a data file or script
+            boost::shared_ptr< WScriptInterpreter > scriptInterpreter =
+                    WKernel::getRunningKernel()->getScriptEngine()->getInterpreterByFileExtension( suffix );
+
+            if( scriptInterpreter )
+            {
+                scriptInterpreter->executeFileAsync( fn.string() );
+            }
+            else
+            {
+                loadDataFilenames.push_back( fn.string() );
+            }
         }
     }
 
@@ -694,14 +727,14 @@ void WMainWindow::openLoadDialog()
 
 void WMainWindow::asyncProjectLoad( std::string filename )
 {
-    WProjectFile::SPtr proj( new WProjectFile( filename, boost::bind( &WMainWindow::slotLoadFinished, this, _1, _2 ) ) );
+    WProjectFile::SPtr proj( new WProjectFile( filename, boost::bind( &WMainWindow::slotLoadFinished, this, _1, _2, _3 ) ) );
     proj->load();
 }
 
-void WMainWindow::slotLoadFinished( boost::filesystem::path file, std::vector< std::string > errors )
+void WMainWindow::slotLoadFinished( boost::filesystem::path file, std::vector< std::string > errors, std::vector< std::string > warnings )
 {
     // as this function might be called from outside the gui thread, use an event:
-    QCoreApplication::postEvent( this, new WLoadFinishedEvent( file, errors ) );
+    QCoreApplication::postEvent( this, new WLoadFinishedEvent( file, errors, warnings ) );
 
     if( errors.size() )
     {
@@ -874,6 +907,27 @@ void WMainWindow::customEvent( QEvent* event )
     }
 }
 
+void WMainWindow::reportError( QWidget* parent, QString title, QString message )
+{
+    WQtMessagePopup* m = new WQtMessagePopup( parent, title, message, LL_ERROR );
+    m->show();
+    m_messageDock->addMessage( title, message, LL_ERROR );
+}
+
+void WMainWindow::reportWarning( QWidget* parent, QString title, QString message )
+{
+    WQtMessagePopup* m = new WQtMessagePopup( parent, title, message, LL_WARNING );
+    m->show();
+    m_messageDock->addMessage( title, message, LL_WARNING );
+}
+
+void WMainWindow::reportInfo( QWidget* parent, QString title, QString message )
+{
+    WQtMessagePopup* m = new WQtMessagePopup( parent, title, message, LL_INFO );
+    m->show();
+    m_messageDock->addMessage( title, message, LL_INFO );
+}
+
 bool WMainWindow::event( QEvent* event )
 {
     // a module got associated with the root container -> add it to the list
@@ -887,21 +941,25 @@ bool WMainWindow::event( QEvent* event )
         }
     }
 
+    // push the log message to the message dock
+    if( event->type() == WQT_LOG_EVENT )
+    {
+        WLogEvent* e1 = dynamic_cast< WLogEvent* >( event );     // NOLINT
+        if( e1 && getMessageDock() )
+        {
+            getMessageDock()->addLogMessage( e1->getEntry() );
+        }
+    }
+
     if( event->type() == WQT_CRASH_EVENT )
     {
         // convert event to ready event
         WModuleCrashEvent* e1 = dynamic_cast< WModuleCrashEvent* >( event );     // NOLINT
         if( e1 )
         {
-            QString title = "Problem in module: " + QString::fromStdString( e1->getModule()->getName() );
-            QString description = "<b>Module Problem</b><br/><br/><b>Module:  </b>" + QString::fromStdString( e1->getModule()->getName() );
-
+            QString title = "Module \"" + QString::fromStdString( e1->getModule()->getName() ) + "\" caused a problem.";
             QString message = QString::fromStdString( e1->getMessage() );
-            QMessageBox msgBox;
-            msgBox.setText( description );
-            msgBox.setInformativeText( message  );
-            msgBox.setStandardButtons( QMessageBox::Ok );
-            msgBox.exec();
+            reportError( this, title, message );
         }
     }
 
@@ -921,7 +979,7 @@ bool WMainWindow::event( QEvent* event )
         WLoadFinishedEvent* e1 = dynamic_cast< WLoadFinishedEvent* >( event );
         if( e1 )
         {
-            if( e1->getErrors().size() )
+            if( e1->getErrors().size() || e1->getWarnings().size() )
             {
                 size_t curErrCount = 0;
                 const size_t maxErrCount = 5;
@@ -940,11 +998,48 @@ bool WMainWindow::event( QEvent* event )
                 }
                 errors += "</ul>";
 
-                QMessageBox::critical( this, "Error during load",
+                size_t curWarnCount = 0;
+                const size_t maxWarnCount = 5;
+                std::string warnings = "<ul>";
+                for( std::vector< std::string >::const_iterator iter = e1->getWarnings().begin(); iter != e1->getWarnings().end(); ++iter )
+                {
+                    warnings += "<li> " + *iter;
+                    curWarnCount++;
+
+                    if( ( curWarnCount == maxWarnCount ) && ( e1->getWarnings().size() > maxWarnCount ) )
+                    {
+                        size_t warnDiff = e1->getWarnings().size() - curWarnCount;
+                        warnings += "<li> ... and " + string_utils::toString( warnDiff ) + " more warnings.";
+                        break;
+                    }
+                }
+                warnings += "</ul>";
+
+                if( curWarnCount && curErrCount )   // Errors and warnings
+                {
+                    reportError( this, "There where errors and warnings during load.",
                                              "Errors occurred during load of \"" + QString::fromStdString( e1->getFilename() ) + "\". "
                                              "The loader tried to apply as much as possible, ignoring the erroneous data. The first errors where:"
-                                             "<br><br>"
-                                             "<font color=\"#f00\">" + QString::fromStdString( errors )+ "</font>" );
+                                             + QString::fromStdString( errors ) +
+                                             "Warnings occurred during load of \"" + QString::fromStdString( e1->getFilename() ) + "\". "
+                                             + QString::fromStdString( warnings )
+                               );
+                }
+                else if( curWarnCount && !curErrCount ) // only warnings
+                {
+                    reportWarning( this, "There where warnings during load.",
+                                             "Warnings occurred during load of \"" + QString::fromStdString( e1->getFilename() ) + "\". "
+                                             + QString::fromStdString( warnings )
+                                 );
+                }
+                else if( !curWarnCount && curErrCount ) // only errors
+                {
+                    reportError( this, "There where errors during load.",
+                                             "Errors occurred during load of \"" + QString::fromStdString( e1->getFilename() ) + "\". "
+                                             "The loader tried to apply as much as possible, ignoring the erroneous data. The first errors where:"
+                                             + QString::fromStdString( errors )
+                               );
+                }
             }
         }
     }
@@ -1008,6 +1103,8 @@ void WMainWindow::saveWindowState()
     // NOTE: Qt Doc says that saveState also saves geometry. But this somehow is wrong (at least for 4.6.3)
     WQt4Gui::getSettings().setValue( "MainWindowGeometry", saveGeometry() );
     WQt4Gui::getSettings().setValue( "GLDockWindowGeometry", m_glDock->saveGeometry() );
+
+    m_messageDock->saveSettings();
 }
 
 QSettings& WMainWindow::getSettings()
@@ -1260,3 +1357,12 @@ void WMainWindow::addGlobalMenu( QWidget* widget )
     widget->addAction( m_quitAction );
 }
 
+const WQtMessageDock* WMainWindow::getMessageDock() const
+{
+    return m_messageDock;
+}
+
+WQtMessageDock* WMainWindow::getMessageDock()
+{
+    return m_messageDock;
+}

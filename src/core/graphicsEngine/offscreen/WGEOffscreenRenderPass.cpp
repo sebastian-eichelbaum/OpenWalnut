@@ -79,7 +79,12 @@ void WGEOffscreenRenderPass::attach( BufferComponent buffer, osg::ref_ptr< osg::
         m_hud->addTexture( new WGETextureHud::WGETextureHudEntry( texture, m_name + " - " + getBufferName( buffer ) ) );
     }
 
-    osg::Camera::attach( buffer, texture );
+    // allow mipmap generation, but set desired levels to 0. Allow the user to set this higher
+    texture->setUseHardwareMipMapGeneration( true );
+    texture->setNumMipmapLevels( 0 );
+
+    // attach
+    osg::Camera::attach( buffer, texture, 0, 0, true );
 }
 
 void WGEOffscreenRenderPass::attach( BufferComponent buffer, osg::ref_ptr< osg::Image > image )
@@ -129,6 +134,48 @@ osg::ref_ptr< osg::Texture2D > WGEOffscreenRenderPass::createTexture( GLint inte
     osg::ref_ptr< osg::Texture2D > tex = new osg::Texture2D;
     tex->setTextureSize( m_width, m_height );
     tex->setInternalFormat( internalFormat );
+
+    switch( internalFormat )
+    {
+    case GL_R16F:
+        tex->setSourceType( GL_HALF_FLOAT );
+        tex->setSourceFormat( GL_RED );
+        break;
+    case GL_R32F:
+        tex->setSourceType( GL_FLOAT );
+        tex->setSourceFormat( GL_RED );
+        break;
+
+// Those ifdef's where introduced, as otherwise OW would not compile on older platforms where no newer OpenGL is available.
+#ifdef GL_RGB16F
+    case GL_RGB16F:
+        tex->setSourceType( GL_HALF_FLOAT );
+        tex->setSourceFormat( GL_RGB );
+        break;
+#endif
+#ifdef GL_RGBA16F
+    case GL_RGBA16F:
+        tex->setSourceType( GL_HALF_FLOAT );
+        tex->setSourceFormat( GL_RGBA );
+        break;
+#endif
+#ifdef GL_RGB32F
+     case GL_RGB32F:
+        tex->setSourceType( GL_FLOAT );
+        tex->setSourceFormat( GL_RGB );
+        break;
+#endif
+#ifdef GL_RGBA32F
+     case GL_RGBA32F:
+        tex->setSourceType( GL_FLOAT );
+        tex->setSourceFormat( GL_RGBA );
+        break;
+#endif
+
+    default:
+        // keep default format and type
+        break;
+    }
 
     // setup interpolation
     tex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR );

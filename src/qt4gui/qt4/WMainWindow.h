@@ -41,6 +41,7 @@
 #include "WQtGLWidget.h"
 #include "WSettingAction.h"
 #include "networkEditor/WQtNetworkEditor.h"
+#include "WQtMessageDock.h"
 
 // forward declarations
 class QMenuBar;
@@ -195,6 +196,46 @@ public:
      */
     void addGlobalMenu( QWidget* widget );
 
+    /**
+     * Allows comfortable error reporting using popups.
+     *
+     * \param parent the parent widget for this popup
+     * \param title the title
+     * \param message the message
+     */
+    void reportError( QWidget* parent, QString title, QString message );
+
+    /**
+     * Allows comfortable warning reporting using popups.
+     *
+     * \param parent the parent widget for this popup
+     * \param title the title
+     * \param message the message
+     */
+    void reportWarning( QWidget* parent, QString title, QString message );
+
+    /**
+     * Allows comfortable info reporting using popups.
+     *
+     * \param parent the parent widget for this popup
+     * \param title the title
+     * \param message the message
+     */
+    void reportInfo( QWidget* parent, QString title, QString message );
+
+    /**
+     * Return the message dock widget
+     *
+     * \return the message dock
+     */
+    const WQtMessageDock* getMessageDock() const;
+
+    /**
+     * Return the message dock widget
+     *
+     * \return the message dock
+     */
+    WQtMessageDock* getMessageDock();
 protected:
     /**
      * Setup the GUI by handling special modules. NavSlices for example setup several toolbar buttons.
@@ -348,6 +389,11 @@ private:
 
     WQtToolBar* m_permanentToolBar; //!< The permanent toolbar of the main window.
 
+    /**
+     * Message and log window
+     */
+    WQtMessageDock* m_messageDock;
+
     // several menu items
     QAction* m_newAction; //!< the new project button
     QAction* m_loadButton; //!< the load button
@@ -426,9 +472,9 @@ private:
      *
      * \param file the filename
      * \param errors the list of errors
+     * \param warnings the list of warnings
      */
-    void slotLoadFinished( boost::filesystem::path file, std::vector< std::string > errors );
-
+    void slotLoadFinished( boost::filesystem::path file, std::vector< std::string > errors, std::vector< std::string > warnings );
 
 private slots:
     /**

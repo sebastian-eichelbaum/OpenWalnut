@@ -476,6 +476,15 @@ public:
      */
     WGridTransformOrthoTemplate< T > const getTransform() const;
 
+    /**
+     * Compares two grids. Matches the transform and x,y,z resolution.
+     *
+     * \param other the one to compare against
+     *
+     * \return true if transform and resolution matches
+     */
+    bool operator==( const WGridRegular3DTemplate< T >& other ) const;
+
 protected:
 private:
     /**
@@ -1194,6 +1203,15 @@ void WGridRegular3DTemplate< T >::initInformationProperties()
     WPropDouble zOffset = m_infoProperties->addProperty( "Z offset: ",
                                                          "The distance between samples in z direction",
                                                          static_cast< double >( getOffsetZ() ) );
+}
+
+template< typename T >
+bool WGridRegular3DTemplate< T >::operator==( const WGridRegular3DTemplate< T >& other ) const
+{
+    return ( getNbCoordsX() == other.getNbCoordsX() ) &&
+           ( getNbCoordsY() == other.getNbCoordsY() ) &&
+           ( getNbCoordsZ() == other.getNbCoordsZ() ) &&
+           ( m_transform == other.m_transform );
 }
 
 // +----------------------+

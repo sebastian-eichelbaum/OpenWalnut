@@ -25,7 +25,7 @@
 #ifndef WGEPOSTPROCESSORUTILS_FRAGMENT_GLSL
 #define WGEPOSTPROCESSORUTILS_FRAGMENT_GLSL
 
-#version 120
+#version 130
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Input-Texture Uniforms
@@ -129,39 +129,88 @@ const vec2 zeroOneList = vec2( 1.0, 0.0 );
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * Grabs and unscales the value inside the texture and returns it. Although this is implemented in WGETextureTools, we re-implement it
+ * for having mip-map support
+ *
+ * \param texture the texture unit to use
+ * \param point   the texture coordinates
+ * \param minimum the minumum value of all values inside the texture
+ * \param scale   the scaling value for all values inside the texture
+ * \param lod the LOD level if using mip-maps.
+ *
+ * \note The minimum and scale values are normally transferred to the shader using uniforms, as the CPU scales the textures
+ *
+ * \return the value at the given point
+ */
+vec4 texture2DUnscaledLOD( sampler2D texture, vec2 point, float minimum, float scale, float lod = 0.0 )
+{
+    return ( scale * texture2DLod( texture, point, lod ) ) + vec4( minimum );
+}
+
+
+/**
  * Returns the original unprocessed color value at the specified point
  *
  * \param where the pixel to grab
+ * \param lod the LOD level if using mip-maps.
  *
  * \return the color
  */
-vec4 getColor( in vec2 where )
+vec4 getColor( in vec2 where, in float lod = 0.0 )
 {
-    return texture2D( u_colorSampler, where );
+    return texture2DLod( u_colorSampler, where, lod );
 }
 
 /**
  * Returns the original unprocessed color value at the current pixel.
  *
  * \note GLSL does not officially allow default values for function arguments which is why we need this additional function.
+ * \param lod the LOD level if using mip-maps.
  *
  * \return the color
  */
-vec4 getColor()
+vec4 getColor( in float lod = 0.0 )
 {
-    return getColor( pixelCoord );
+    return getColor( pixelCoord, lod );
 }
 
 /**
  * Grabs the normal at the specified point. The returned normal has been de-scaled to [-1,1] and normalized The w component is 1.
  *
  * \param where the pixel to grab
+ * \param lod the LOD level if using mip-maps.
  *
  * \return the normal
  */
-vec4 getNormal( in vec2 where )
+vec4 getNormal( in vec2 where, in float lod = 0.0 )
 {
-    return normalize( texture2DUnscaled( u_normalSampler, where, -1.0, 2.0 ).xyz ).xyzz * zeroOneList.xxxy + zeroOneList.yyyx;
+    return normalize( texture2DUnscaledLOD( u_normalSampler, where, -1.0, 2.0, lod ).xyz ).xyzz * zeroOneList.xxxy + zeroOneList.yyyx;
+}
+
+/**
+ * Grabs the normal at the current pixel. The returned normal has been de-scaled to [-1,1]. The w component is 1.
+ *
+ * \note GLSL does not officially allow default values for function arguments which is why we need this additional function.
+ * \param lod the LOD level if using mip-maps.
+ *
+ * \return the normal
+ */
+vec4 getNormal( in float lod = 0.0 )
+{
+    return getNormal( pixelCoord, lod );
+}
+
+/**
+ * Grabs the normal at the specified point. The returned normal has been de-scaled to [-1,1] and normalized The w component is 1.
+ *
+ * \param where the pixel to grab
+ * \param lod the LOD level if using mip-maps.
+ *
+ * \return the normal
+ */
+vec4 getTangent( in vec2 where, in float lod = 0.0 )
+{
+    return normalize( texture2DUnscaledLOD( u_tangentSampler, where, -1.0, 2.0, lod ).xyz ).xyzz * zeroOneList.xxxy + zeroOneList.yyyx;
 }
 
 /**
@@ -169,47 +218,26 @@ vec4 getNormal( in vec2 where )
  *
  * \note GLSL does not officially allow default values for function arguments which is why we need this additional function.
  *
- * \return the normal
- */
-vec4 getNormal()
-{
-    return getNormal( pixelCoord );
-}
-
-/**
- * Grabs the normal at the specified point. The returned normal has been de-scaled to [-1,1] and normalized The w component is 1.
- *
- * \param where the pixel to grab
+ * \param lod the LOD level if using mip-maps.
  *
  * \return the normal
  */
-vec4 getTangent( in vec2 where )
+vec4 getTangent( in float lod = 0.0 )
 {
-    return normalize( texture2DUnscaled( u_tangentSampler, where, -1.0, 2.0 ).xyz ).xyzz * zeroOneList.xxxy + zeroOneList.yyyx;
-}
-
-/**
- * Grabs the normal at the current pixel. The returned normal has been de-scaled to [-1,1]. The w component is 1.
- *
- * \note GLSL does not officially allow default values for function arguments which is why we need this additional function.
- *
- * \return the normal
- */
-vec4 getTangent()
-{
-    return getNormal( pixelCoord );
+    return getTangent( pixelCoord, lod );
 }
 
 /**
  * Grabs the depth at the specified point.
  *
  * \param where the position where to grab it.
+ * \param lod the LOD level if using mip-maps.
  *
  * \return the depth
  */
-float getDepth( in vec2 where )
+float getDepth( in vec2 where, in float lod = 0.0 )
 {
-    return texture2D( u_depthSampler, where ).r;
+    return texture2DLod( u_depthSampler, where, lod ).r;
 }
 
 /**
@@ -217,11 +245,13 @@ float getDepth( in vec2 where )
  *
  * \note GLSL does not officially allow default values for function arguments which is why we need this additional function.
  *
+ * \param lod the LOD level if using mip-maps.
+ *
  * \return the depth
  */
-float getDepth()
+float getDepth( in float lod = 0.0 )
 {
-    return getDepth( pixelCoord );
+    return getDepth( pixelCoord, lod );
 }
 
 /**
@@ -233,8 +263,7 @@ float getDepth()
  */
 float getZoom( in vec2 where )
 {
-    // TODO(ebaum): somehow remove this scaler
-    return texture2D( u_parameterSampler, pixelCoord ).r * 10.0;
+    return texture2D( u_parameterSampler, pixelCoord ).r;
 }
 
 /**

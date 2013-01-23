@@ -42,12 +42,18 @@
  * \param size the size in voxels
  * \param minV the minimum of the original value
  * \param scaleV the scaler used to downscale the original value to [0-1]
- * \param thresholdV a threshold in original space (you need to downscale it to [0-1] if you want to use it to scaled values.
+ * \param thresholdVLower a threshold in original space (you need to downscale it to [0-1] if you want to use it to scaled values.
+ * \param thresholdVUpper a threshold in original space (you need to downscale it to [0-1] if you want to use it to scaled values.
+ * \param window a window level scaling
+ * \param windowEnabled if true, the window level scaling is applied
  * \param alpha the alpha blending value
  * \param cmap the colormap index to use
  */
-void colormap( inout vec4 color, in sampler3D sampler, in vec3 coord, in vec3 size, float minV, float scaleV, float thresholdV,
-        bool thresholdEnabled, float alpha, int cmap, bool active )
+void colormap( inout vec4 color, in sampler3D sampler, in vec3 coord, in vec3 size,
+               float minV, float scaleV,
+               float thresholdVLower, float thresholdVUpper, bool thresholdEnabled,
+               bool windowEnabled, vec2  window,
+               float alpha, int cmap, bool active )
 {
     // This implements a manual trilinear interpolation. Include WGETextureutils.glsl to use this
     // vec3 vSize = vec3( 1.0 / float( size.x ),
@@ -83,7 +89,7 @@ void colormap( inout vec4 color, in sampler3D sampler, in vec3 coord, in vec3 si
     vec4 value = texture3D( sampler, coord ).rgba;
 
     // let someone else apply the colormap
-    vec4 src = colormap( value, minV, scaleV, thresholdV, thresholdEnabled, alpha, cmap, active );
+    vec4 src = colormap( value, minV, scaleV, thresholdVLower, thresholdVUpper, thresholdEnabled, window, windowEnabled, alpha, cmap, active );
 
     // compositing:
     // associated colors needed
@@ -113,49 +119,57 @@ vec4 colormapping( vec4 texcoord )
 #ifdef Colormap7Enabled
     colormap( finalColor, u_colormap7Sampler, ( gl_TextureMatrix[ Colormap7Unit ] * t ).xyz,
               vec3( u_colormap7SizeX, u_colormap7SizeY, u_colormap7SizeZ ),
-              u_colormap7Min, u_colormap7Scale, u_colormap7Threshold, u_colormap7ThresholdEnabled,
+              u_colormap7Min, u_colormap7Scale, u_colormap7ThresholdLower, u_colormap7ThresholdUpper, u_colormap7ThresholdEnabled,
+              u_colormap7WindowEnabled, u_colormap7Window,
               u_colormap7Alpha, u_colormap7Colormap, u_colormap7Active );
 #endif
 #ifdef Colormap6Enabled
     colormap( finalColor, u_colormap6Sampler, ( gl_TextureMatrix[ Colormap6Unit ] * t ).xyz,
               vec3( u_colormap6SizeX, u_colormap6SizeY, u_colormap6SizeZ ),
-              u_colormap6Min, u_colormap6Scale, u_colormap6Threshold, u_colormap6ThresholdEnabled,
+              u_colormap6Min, u_colormap6Scale, u_colormap6ThresholdLower, u_colormap6ThresholdUpper, u_colormap6ThresholdEnabled,
+              u_colormap6WindowEnabled, u_colormap6Window,
               u_colormap6Alpha, u_colormap6Colormap, u_colormap6Active );
 #endif
 #ifdef Colormap5Enabled
     colormap( finalColor, u_colormap5Sampler, ( gl_TextureMatrix[ Colormap5Unit ] * t ).xyz,
               vec3( u_colormap5SizeX, u_colormap5SizeY, u_colormap5SizeZ ),
-              u_colormap5Min, u_colormap5Scale, u_colormap5Threshold, u_colormap5ThresholdEnabled,
+              u_colormap5Min, u_colormap5Scale, u_colormap5ThresholdLower, u_colormap5ThresholdUpper, u_colormap5ThresholdEnabled,
+              u_colormap5WindowEnabled, u_colormap5Window,
               u_colormap5Alpha, u_colormap5Colormap, u_colormap5Active );
 #endif
 #ifdef Colormap4Enabled
     colormap( finalColor, u_colormap4Sampler, ( gl_TextureMatrix[ Colormap4Unit ] * t ).xyz,
               vec3( u_colormap4SizeX, u_colormap4SizeY, u_colormap4SizeZ ),
-              u_colormap4Min, u_colormap4Scale, u_colormap4Threshold, u_colormap4ThresholdEnabled,
+              u_colormap4Min, u_colormap4Scale, u_colormap4ThresholdLower, u_colormap4ThresholdUpper, u_colormap4ThresholdEnabled,
+              u_colormap4WindowEnabled, u_colormap4Window,
               u_colormap4Alpha, u_colormap4Colormap, u_colormap4Active );
 #endif
 #ifdef Colormap3Enabled
     colormap( finalColor, u_colormap3Sampler, ( gl_TextureMatrix[ Colormap3Unit ] * t ).xyz,
               vec3( u_colormap3SizeX, u_colormap3SizeY, u_colormap3SizeZ ),
-              u_colormap3Min, u_colormap3Scale, u_colormap3Threshold, u_colormap3ThresholdEnabled,
+              u_colormap3Min, u_colormap3Scale, u_colormap3ThresholdLower, u_colormap3ThresholdUpper, u_colormap3ThresholdEnabled,
+              u_colormap3WindowEnabled, u_colormap3Window,
               u_colormap3Alpha, u_colormap3Colormap, u_colormap3Active );
 #endif
 #ifdef Colormap2Enabled
     colormap( finalColor, u_colormap2Sampler, ( gl_TextureMatrix[ Colormap2Unit ] * t ).xyz,
               vec3( u_colormap2SizeX, u_colormap2SizeY, u_colormap2SizeZ ),
-              u_colormap2Min, u_colormap2Scale, u_colormap2Threshold, u_colormap2ThresholdEnabled,
+              u_colormap2Min, u_colormap2Scale, u_colormap2ThresholdLower, u_colormap2ThresholdUpper, u_colormap2ThresholdEnabled,
+              u_colormap2WindowEnabled, u_colormap2Window,
               u_colormap2Alpha, u_colormap2Colormap, u_colormap2Active );
 #endif
 #ifdef Colormap1Enabled
     colormap( finalColor, u_colormap1Sampler, ( gl_TextureMatrix[ Colormap1Unit ] * t ).xyz,
               vec3( u_colormap1SizeX, u_colormap1SizeY, u_colormap1SizeZ ),
-              u_colormap1Min, u_colormap1Scale, u_colormap1Threshold, u_colormap1ThresholdEnabled,
+              u_colormap1Min, u_colormap1Scale, u_colormap1ThresholdLower, u_colormap1ThresholdUpper, u_colormap1ThresholdEnabled,
+              u_colormap1WindowEnabled, u_colormap1Window,
               u_colormap1Alpha, u_colormap1Colormap, u_colormap1Active );
 #endif
 #ifdef Colormap0Enabled
     colormap( finalColor, u_colormap0Sampler, ( gl_TextureMatrix[ Colormap0Unit ] * t ).xyz,
               vec3( u_colormap0SizeX, u_colormap0SizeY, u_colormap0SizeZ ),
-              u_colormap0Min, u_colormap0Scale, u_colormap0Threshold, u_colormap0ThresholdEnabled,
+              u_colormap0Min, u_colormap0Scale, u_colormap0ThresholdLower, u_colormap0ThresholdUpper, u_colormap0ThresholdEnabled,
+              u_colormap0WindowEnabled, u_colormap0Window,
               u_colormap0Alpha, u_colormap0Colormap, u_colormap0Active );
 #endif
 
@@ -178,50 +192,66 @@ vec4 colormapping()
 #ifdef Colormap7Enabled
     colormap( finalColor, u_colormap7Sampler, v_colormap7TexCoord.xyz,
                           vec3( u_colormap7SizeX, u_colormap7SizeY, u_colormap7SizeZ ),
-                          u_colormap7Min, u_colormap7Scale, u_colormap7Threshold,
-                          u_colormap7ThresholdEnabled, u_colormap7Alpha, u_colormap7Colormap, u_colormap7Active );
+                          u_colormap7Min, u_colormap7Scale, u_colormap7ThresholdLower, u_colormap7ThresholdUpper,
+                          u_colormap7ThresholdEnabled,
+                          u_colormap7WindowEnabled, u_colormap7Window,
+                          u_colormap7Alpha, u_colormap7Colormap, u_colormap7Active );
 #endif
 #ifdef Colormap6Enabled
     colormap( finalColor, u_colormap6Sampler, v_colormap6TexCoord.xyz,
                           vec3( u_colormap6SizeX, u_colormap6SizeY, u_colormap6SizeZ ),
-                          u_colormap6Min, u_colormap6Scale, u_colormap6Threshold,
-                          u_colormap6ThresholdEnabled, u_colormap6Alpha, u_colormap6Colormap, u_colormap6Active );
+                          u_colormap6Min, u_colormap6Scale, u_colormap6ThresholdLower, u_colormap6ThresholdUpper,
+                          u_colormap6ThresholdEnabled,
+                          u_colormap6WindowEnabled, u_colormap6Window,
+                          u_colormap6Alpha, u_colormap6Colormap, u_colormap6Active );
 #endif
 #ifdef Colormap5Enabled
     colormap( finalColor, u_colormap5Sampler, v_colormap5TexCoord.xyz,
                           vec3( u_colormap5SizeX, u_colormap5SizeY, u_colormap5SizeZ ),
-                          u_colormap5Min, u_colormap5Scale, u_colormap5Threshold,
-                          u_colormap5ThresholdEnabled, u_colormap5Alpha, u_colormap5Colormap, u_colormap5Active );
+                          u_colormap5Min, u_colormap5Scale, u_colormap5ThresholdLower, u_colormap5ThresholdUpper,
+                          u_colormap5ThresholdEnabled,
+                          u_colormap5WindowEnabled, u_colormap5Window,
+                          u_colormap5Alpha, u_colormap5Colormap, u_colormap5Active );
 #endif
 #ifdef Colormap4Enabled
     colormap( finalColor, u_colormap4Sampler, v_colormap4TexCoord.xyz,
                           vec3( u_colormap4SizeX, u_colormap4SizeY, u_colormap4SizeZ ),
-                          u_colormap4Min, u_colormap4Scale, u_colormap4Threshold,
-                          u_colormap4ThresholdEnabled, u_colormap4Alpha, u_colormap4Colormap, u_colormap4Active );
+                          u_colormap4Min, u_colormap4Scale, u_colormap4ThresholdLower, u_colormap4ThresholdUpper,
+                          u_colormap4ThresholdEnabled,
+                          u_colormap4WindowEnabled, u_colormap4Window,
+                          u_colormap4Alpha, u_colormap4Colormap, u_colormap4Active );
 #endif
 #ifdef Colormap3Enabled
     colormap( finalColor, u_colormap3Sampler, v_colormap3TexCoord.xyz,
                           vec3( u_colormap3SizeX, u_colormap3SizeY, u_colormap3SizeZ ),
-                          u_colormap3Min, u_colormap3Scale, u_colormap3Threshold,
-                          u_colormap3ThresholdEnabled, u_colormap3Alpha, u_colormap3Colormap, u_colormap3Active );
+                          u_colormap3Min, u_colormap3Scale, u_colormap3ThresholdLower, u_colormap3ThresholdUpper,
+                          u_colormap3ThresholdEnabled,
+                          u_colormap3WindowEnabled, u_colormap3Window,
+                          u_colormap3Alpha, u_colormap3Colormap, u_colormap3Active );
 #endif
 #ifdef Colormap2Enabled
     colormap( finalColor, u_colormap2Sampler, v_colormap2TexCoord.xyz,
                           vec3( u_colormap2SizeX, u_colormap2SizeY, u_colormap2SizeZ ),
-                          u_colormap2Min, u_colormap2Scale, u_colormap2Threshold,
-                          u_colormap2ThresholdEnabled, u_colormap2Alpha, u_colormap2Colormap, u_colormap2Active );
+                          u_colormap2Min, u_colormap2Scale, u_colormap2ThresholdLower, u_colormap2ThresholdUpper,
+                          u_colormap2ThresholdEnabled,
+                          u_colormap2WindowEnabled, u_colormap2Window,
+                          u_colormap2Alpha, u_colormap2Colormap, u_colormap2Active );
 #endif
 #ifdef Colormap1Enabled
     colormap( finalColor, u_colormap1Sampler, v_colormap1TexCoord.xyz,
                           vec3( u_colormap1SizeX, u_colormap1SizeY, u_colormap1SizeZ ),
-                          u_colormap1Min, u_colormap1Scale, u_colormap1Threshold,
-                          u_colormap1ThresholdEnabled, u_colormap1Alpha, u_colormap1Colormap, u_colormap1Active );
+                          u_colormap1Min, u_colormap1Scale, u_colormap1ThresholdLower, u_colormap1ThresholdUpper,
+                          u_colormap1ThresholdEnabled,
+                          u_colormap1WindowEnabled, u_colormap1Window,
+                          u_colormap1Alpha, u_colormap1Colormap, u_colormap1Active );
 #endif
 #ifdef Colormap0Enabled
     colormap( finalColor, u_colormap0Sampler, v_colormap0TexCoord.xyz,
                           vec3( u_colormap0SizeX, u_colormap0SizeY, u_colormap0SizeZ ),
-                          u_colormap0Min, u_colormap0Scale, u_colormap0Threshold,
-                          u_colormap0ThresholdEnabled, u_colormap0Alpha, u_colormap0Colormap, u_colormap0Active );
+                          u_colormap0Min, u_colormap0Scale, u_colormap0ThresholdLower, u_colormap0ThresholdUpper,
+                          u_colormap0ThresholdEnabled,
+                          u_colormap0WindowEnabled, u_colormap0Window,
+                          u_colormap0Alpha, u_colormap0Colormap, u_colormap0Active );
 #endif
 
     return finalColor;

@@ -258,6 +258,11 @@ void WMTemplate::properties()
     m_aSingleSelectionUsingTypes = m_properties->addProperty( "Choose one", "Choose on of these and watch the console output.",
                                                               m_possibleSelectionsUsingTypes->getSelectorFirst(), m_propCondition );
 
+    // There are more property types available. Check out core/common/WPropertyTypes.h. One last to mention here is the WPropInterval. This
+    // property type allows you to define intervals. You can create one in the same way you created the other properties:
+    m_anInterval = m_properties->addProperty( "Interval", "Choose some interval please", WIntervalDouble( -1.0, 100.0 ), m_propCondition );
+    // Important to know is that you can only use WIntervalDouble. You can also use make_interval, which works similar to std::make_pair.
+
     // Adding a lot of properties might confuse the user. Using WPropGroup, you have the possibility to group your properties together. A
     // WPropGroup needs a name and can provide a description. As with properties, the name should not contain any "/" and must be unique.
 
@@ -408,6 +413,13 @@ void WMTemplate::moduleMain()
     // Signal ready state. Now your module can be connected by the container, which owns the module.
     ready();
     debugLog() << "Module is now ready.";
+
+    // After your module has signalled that it is ready, OpenWalnut allows the project loader to set the restored properties and connections. For
+    // you this means that your module now runs but WHILE running, the project loader might change properties and connections. Usually, this is
+    // no problem as you write interactive modules, handling these changes fast. But if you need to ensure that you do not continue your module
+    // until the project file loader has completely restored your module, you will need to call this:
+    waitRestored();
+    // This always returns if you manually add your module and no project file loader or something similar has to restore any values.
 
     // Most probably, your module will be a module providing some kind of visual output. In this case, the WGEManagedGroupNode is very handy.
     // It allows you to insert several nodes and transform them as the WGEGroupNode (from which WGEManagedGroupNode is derived from) is also
@@ -705,6 +717,15 @@ void WMTemplate::moduleMain()
             // OpenWalnut then automatically catches it and transports it to the kernel and the registered callbacks. This usually is the GUI
             // which shows a dialog or something similar. Additionally, the m_isCrashed flag is set to true. Once a module is crahsed, it cannot
             // be "restored".
+        }
+
+        // Check if the interval was modified.
+        if( m_anInterval->changed() )
+        {
+            // Grab the value as you have learned above:
+            WIntervalDouble i = m_anInterval->get( true );
+            // And use it somehow:
+            infoLog() << "You have selected this interval: [" << i.getLower() << ", " << i.getUpper() << "].";
         }
     }
 

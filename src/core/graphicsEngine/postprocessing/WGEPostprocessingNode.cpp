@@ -64,6 +64,9 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > refere
         osg::ref_ptr< WGEOffscreenRenderNode > offscreen( new WGEOffscreenRenderNode( reference, width, height, noHud ) );
         offscreen->getTextureHUD()->addUpdateCallback( textureHudCallback );
 
+        // if the specific postprocessor requires us to fix the viewport size to the result-texture size:
+        offscreen->setLinkViewportToTextureSize( ( *iter )->getFixedViewportSize() );
+
         // the geometry render step
         osg::ref_ptr< WGEOffscreenRenderPass > render = offscreen->addGeometryRenderPass(
             m_childs,

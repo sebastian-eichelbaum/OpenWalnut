@@ -144,7 +144,7 @@ void main()
     gl_FragDepth = 1.0;
 
 #ifdef WGE_POSTPROCESSING_ENABLED
-    wge_FragZoom = 0.1 * v_worldScale;
+    wge_FragZoom = v_worldScale;
 #endif
 
     // please do not laugh, it is a very very very simple "isosurface" shader

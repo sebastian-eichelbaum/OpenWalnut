@@ -683,6 +683,36 @@ public:
     }
 
     /**
+     * Test vector distance.
+     */
+    void testDistance()
+    {
+        WVector3d vec1;
+        vec1[ 0 ] = 0.0;
+        vec1[ 1 ] = 4.0;
+        vec1[ 2 ] = 3.0;
+
+        WVector3d vec2;
+        vec2[ 0 ] = 0.0;
+        vec2[ 1 ] = 0.0;
+        vec2[ 2 ] = 0.0;
+
+        TS_ASSERT_DELTA( distance( vec1, vec2 ), 5.0, 1e-10 );
+        TS_ASSERT_DELTA( distance( transpose( vec1 ), transpose( vec2 ) ), 5.0, 1e-10 );
+
+        vec1[ 0 ] = 0.0;
+        vec1[ 1 ] = 4.0;
+        vec1[ 2 ] = 3.0;
+
+        vec2[ 0 ] = 0.0;
+        vec2[ 1 ] = 1.0;
+        vec2[ 2 ] = 4.0;
+
+        TS_ASSERT_DELTA( distance( vec1, vec2 ), sqrt( 10.0 ), 1e-10 );
+        TS_ASSERT_DELTA( distance( transpose( vec1 ), transpose( vec2 ) ), sqrt( 10.0 ), 1e-10 );
+    }
+
+    /**
      * Test vector normalization.
      */
     void testNormalize()

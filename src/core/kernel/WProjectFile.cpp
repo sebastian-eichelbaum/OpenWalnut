@@ -136,8 +136,9 @@ void WProjectFile::threadMain()
     // Parse the file
     wlog::info( "Project File" ) << "Loading project file \"" << m_project.string() << "\".";
 
-    // store some errors
+    // store some errors and warnings
     std::vector< std::string > errors;
+    std::vector< std::string > warnings;
 
     // read the file
     std::ifstream input( m_project.string().c_str() );
@@ -146,7 +147,7 @@ void WProjectFile::threadMain()
         errors.push_back( std::string( "The project file \"" ) + m_project.string() + std::string( "\" does not exist." ) );
 
         // give some feedback
-        m_signalLoadDone( m_project, errors );
+        m_signalLoadDone( m_project, errors, warnings );
         m_signalLoadDoneConnection.disconnect();
 
         // also throw an exception
@@ -202,8 +203,9 @@ void WProjectFile::threadMain()
         try
         {
             ( *iter )->done();
-            // append errors
+            // append errors and warnings
             std::copy( ( *iter )->getErrors().begin(), ( *iter )->getErrors().end(), std::back_inserter( errors ) );
+            std::copy( ( *iter )->getWarnings().begin(), ( *iter )->getWarnings().end(), std::back_inserter( warnings ) );
         }
         catch( const std::exception& e )
         {
@@ -213,7 +215,7 @@ void WProjectFile::threadMain()
     }
 
     // give some feedback
-    m_signalLoadDone( m_project, errors );
+    m_signalLoadDone( m_project, errors, warnings );
     m_signalLoadDoneConnection.disconnect();
 
     // remove from thread list

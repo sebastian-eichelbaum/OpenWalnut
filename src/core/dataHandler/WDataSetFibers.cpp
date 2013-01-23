@@ -136,16 +136,15 @@ void WDataSetFibers::init()
     boost::shared_ptr< std::vector< float > > localColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>( size ) );
     boost::shared_ptr< std::vector< float > > customColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>( size ) );
 
-
     // TODO(all): use the new WThreadedJobs functionality
     WCreateColorArraysThread* t1 = new WCreateColorArraysThread( 0, m_lineLengths->size()/4, m_vertices,
-            m_lineStartIndexes, m_lineLengths, globalColors, localColors, m_tangents );
+            m_lineLengths, globalColors, localColors, m_tangents );
     WCreateColorArraysThread* t2 = new WCreateColorArraysThread( m_lineLengths->size()/4+1, m_lineLengths->size()/2, m_vertices,
-            m_lineStartIndexes, m_lineLengths, globalColors, localColors, m_tangents );
+            m_lineLengths, globalColors, localColors, m_tangents );
     WCreateColorArraysThread* t3 = new WCreateColorArraysThread( m_lineLengths->size()/2+1, m_lineLengths->size()/4*3, m_vertices,
-            m_lineStartIndexes, m_lineLengths, globalColors, localColors, m_tangents );
+            m_lineLengths, globalColors, localColors, m_tangents );
     WCreateColorArraysThread* t4 = new WCreateColorArraysThread( m_lineLengths->size()/4*3+1, m_lineLengths->size()-1, m_vertices,
-            m_lineStartIndexes, m_lineLengths, globalColors, localColors, m_tangents );
+            m_lineLengths, globalColors, localColors, m_tangents );
     t1->run();
     t2->run();
     t3->run();
@@ -186,6 +185,8 @@ void WDataSetFibers::init()
     m_colorProp = m_properties->addProperty( "Color Scheme", "Determines the coloring scheme to use for this data.", m_colors->getSelectorFirst() );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorProp );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_colorProp );
+    m_infoProperties->addProperty( "#Fibers", "The number of fibers", static_cast< WPVBaseTypes::PV_INT >( m_lineLengths->size() ) );
+    m_infoProperties->addProperty( "#Vertices", "The number of vertices", static_cast< WPVBaseTypes::PV_INT >( m_vertices->size() ) );
 }
 
 bool WDataSetFibers::isTexture() const
@@ -241,16 +242,6 @@ WDataSetFibers::IndexArray WDataSetFibers::getVerticesReverse() const
 WDataSetFibers::TangentArray WDataSetFibers::getTangents() const
 {
     return m_tangents;
-}
-
-WDataSetFibers::ColorArray WDataSetFibers::getGlobalColors() const
-{
-    return boost::shared_static_cast< const ColorScheme >( ( *m_colors )[0] )->getColor();
-}
-
-WDataSetFibers::ColorArray WDataSetFibers::getLocalColors() const
-{
-    return boost::shared_static_cast< const ColorScheme >( ( *m_colors )[1] )->getColor();
 }
 
 void WDataSetFibers::addColorScheme( WDataSetFibers::ColorArray colors, std::string name, std::string description )
