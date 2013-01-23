@@ -40,6 +40,9 @@ SERVER=http://ftp.de.debian.org/debian
 # the prefix-name of each build chroot dir
 CHROOTDIR=owbuildchroot-$SUITE-$ARCH
 
+# if set to 1, the chroot gets archived after creation
+ARCHIVECHROOT=0
+
 #############################################################################################################
 # Functions
 #############################################################################################################
@@ -366,11 +369,13 @@ chroot_build()
             exit 1
         fi
 
-        echo " * Archiving chroot."
-        tar czf $CHROOTDIR.tar.gz ./$CHROOTDIR
-        if [ $? -ne 0 ]; then
-            echo "  * Failed archving. Not enough space?"
-            exit 1
+        if [ $ARCHIVECHROOT -ne 0 ]; then
+            echo " * Archiving chroot."
+            tar czf $CHROOTDIR.tar.gz ./$CHROOTDIR
+            if [ $? -ne 0 ]; then
+                echo "  * Failed archving. Not enough space?"
+                exit 1
+            fi
         fi
     fi
 }
