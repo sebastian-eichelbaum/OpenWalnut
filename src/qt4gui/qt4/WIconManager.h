@@ -39,37 +39,6 @@ class WIconManager
 {
 public:
     /**
-     * Adds an Icon to the icon store.
-     *
-     * \note This method replaces icons with the same name.
-     *
-     * \param name The icon's name
-     * \param xpm The icon itself in XPM format
-     */
-    void addIcon( std::string name, const char* const xpm[] );
-
-    /**
-     * Adds an Icon to the icon store. Use this to load an icon from a file.
-     *
-     * \throw WFileNotFound if file could not be loaded or found.
-     * \note This method replaces icons with the same name.
-     *
-     * \param name The icon's name
-     * \param filename The path to the file.
-     */
-    void addIcon( std::string name, boost::filesystem::path filename );
-
-    /**
-     * Adds an Icon to the icon store. Use this to add some arbitrary pixmap.
-     *
-     * \note This method replaces icons with the same name.
-     *
-     * \param name The icon's name
-     * \param pixmap the pixmap to add.
-     */
-    void addIcon( std::string name, const QPixmap& pixmap );
-
-    /**
      * Searches icons in the internal map and all modules for the given icon name.
      * \param name Name of the requested icon
      * \return A QIcon copy if the icon name was found otherwise a WAssert will fail.
@@ -84,9 +53,19 @@ public:
      * \return A QIcon copy if the icon name was found otherwise, the default is returned
      */
     QIcon getIcon( const std::string name, const QIcon& defaultIcon );
+
+    /**
+     * Add a mapping for icons. This is useful if you want to use "telling" icons names in your code but want to map these names to some standard
+     * icon. The mapping of the new name needs to be unique. Adding multiple mappings for the newName will be ignored. You can overwrite a
+     * mapping.
+     *
+     * \param newName the name getting mapped
+     * \param mapToThis the icon to use when calling \ref getIcon( newName ). Never add a file anding as png or jpg!
+     */
+    void addMapping( const std::string& newName, const std::string& mapToThis );
 protected:
 private:
-    std::map< std::string, QIcon* > m_iconList; //!< A map storing icons and the names used to identify them
+    std::map< std::string, std::string > m_iconMappingList; //!< A map storing icons and the names used to identify them
 };
 
 #endif  // WICONMANAGER_H

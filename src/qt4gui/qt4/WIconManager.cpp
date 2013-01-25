@@ -28,93 +28,57 @@
 #include <QtGui/QPixmap>
 
 #include "core/common/WAssert.h"
+#include "core/common/WPathHelper.h"
 #include "core/common/WLogger.h"
 #include "core/common/exceptions/WFileNotFound.h"
 #include "core/kernel/WModuleFactory.h"
+
 #include "WIconManager.h"
 
-void WIconManager::addIcon( std::string name, boost::filesystem::path filename )
+void WIconManager::addMapping( const std::string& newName, const std::string& mapToThis )
 {
-    QPixmap img;
-    bool failed = !img.load( QString::fromStdString( filename.string() ) );
-    if( failed )
+    if( m_iconMappingList.count( newName ) == 0 )
     {
-        throw WFileNotFound( "Image file for icon in \"" + filename.string() + "\" could not be loaded." );
+        m_iconMappingList.insert( std::make_pair( newName, mapToThis ) );
     }
-
-    QIcon* icon = new QIcon( img );
-    m_iconList[name] = icon;
-}
-
-void WIconManager::addIcon( std::string name, const char* const xpm[] )
-{
-    QIcon* icon = new QIcon( QPixmap( xpm ) );
-    m_iconList[name] = icon;
-}
-
-void WIconManager::addIcon( std::string name, const QPixmap& pixmap )
-{
-    QIcon* icon = new QIcon( QPixmap( pixmap ) );
-    m_iconList[name] = icon;
+    else
+    {
+        m_iconMappingList[ newName ] = mapToThis;
+    }
 }
 
 QIcon WIconManager::getIcon( const std::string name )
 {
-    if( m_iconList.count( name ) != 0 )
-    {
-        return *m_iconList[name];
-    }
-    else if( WModuleFactory::getModuleFactory()->getPrototypeByName( name ) )
-    {
-        // get module icon from meta info if available
-        WModuleMetaInformation::ConstSPtr meta = WModuleFactory::getModuleFactory()->getPrototypeByName( name )->getMetaInformation();
-        const char** xpm = WModuleFactory::getModuleFactory()->getPrototypeByName( name )->getXPMIcon();
-
-        // prefer meta info icon
-        if( meta->isIconAvailable() && boost::filesystem::exists( meta->getIcon() ) )
-        {
-            try
-            {
-                return QIcon( QPixmap( QString::fromStdString( meta->getIcon().string() ) ) );
-            }
-            catch( ... )
-            {
-                if( xpm )
-                {
-                    return QIcon( QPixmap( xpm ) );
-                }
-                else
-                {
-                    return QIcon();
-                }
-            }
-        }
-        else
-        {
-            if( xpm )
-            {
-                return QIcon( QPixmap( xpm ) );
-            }
-            else
-            {
-                return QIcon();
-            }
-        }
-    }
-    else
-    {
-        WAssert( 0, "Found no icon named: " + name );
-        return QIcon();
-    }
+    // ensure we have a fallback icon
+    boost::filesystem::path fallback = WPathHelper::getPathHelper()->getSharePath() / ".." / "pixmaps" / "default.png";
+    WAssert( boost::filesystem::exists( fallback ), "Found no icon named: " + name + " and no fallback icon. Installation broken?" );
+    return getIcon( name, QIcon( QPixmap( QString::fromStdString( fallback.string() ) ) ) );
 }
 
 QIcon WIconManager::getIcon( const std::string name, const QIcon& defaultIcon )
 {
-    if( m_iconList.count( name ) != 0 )
+    std::string iconFile = name;
+
+    // is there a mapping for this icon name?
+    if( m_iconMappingList.count( name ) > 0 )
     {
-        return *m_iconList[name];
+        iconFile = m_iconMappingList[ name ];
     }
-    else if( WModuleFactory::getModuleFactory()->getPrototypeByName( name ) )
+
+    // search file
+    boost::filesystem::path p = WPathHelper::getPathHelper()->getSharePath() / ".." / "pixmaps" / std::string( iconFile + ".png" );
+    if( boost::filesystem::exists( p ) )
+    {
+        try
+        {
+            return QIcon( QPixmap( QString::fromStdString( p.string() ) ) );
+        }
+        catch( ... )
+        {
+            return defaultIcon;
+        }
+    }
+    else if( WModuleFactory::getModuleFactory()->isPrototypeAvailable( name ) )
     {
         // get module icon from meta info if available
         WModuleMetaInformation::ConstSPtr meta = WModuleFactory::getModuleFactory()->getPrototypeByName( name )->getMetaInformation();
@@ -153,6 +117,7 @@ QIcon WIconManager::getIcon( const std::string name, const QIcon& defaultIcon )
     }
     else
     {
+        wlog::debug( "WIconManager" ) << "Icon \"" << name << "\" not found. Falling back to default.";
         return defaultIcon;
     }
 }
