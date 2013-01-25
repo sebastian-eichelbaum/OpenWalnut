@@ -60,7 +60,7 @@ public:
      * mapping.
      *
      * \param newName the name getting mapped
-     * \param mapToThis the icon to use when calling \ref getIcon( newName ). Never add a file anding as png or jpg!
+     * \param mapToThis the icon to use when calling getIcon( newName ). Never add a file anding as png or jpg!
      */
     void addMapping( const std::string& newName, const std::string& mapToThis );
 protected:
