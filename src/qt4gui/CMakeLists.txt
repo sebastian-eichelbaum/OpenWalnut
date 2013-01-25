@@ -126,13 +126,6 @@ SETUP_ADDITIONAL_DIRECTORY( ${OW_MAN_DIR_RELATIVE}
                             TRUE    # this denotes that the contents of doc/man should be copied instead of user directly
                           )
 
-# Our user-help needs the icons too. Copy them.
-SETUP_ADDITIONAL_DIRECTORY( "${OW_DOC_DIR_RELATIVE}/icons"
-                            "${CMAKE_CURRENT_SOURCE_DIR}/icons"
-                            "QT4GUI"
-                            FALSE   # this denoted that the whole directory icons should be copied instead of its contents
-                          )
-
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Style Checker
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
