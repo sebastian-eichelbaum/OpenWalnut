@@ -92,7 +92,7 @@ const std::string WMSplineSurface::getName() const
 const std::string WMSplineSurface::getDescription() const
 {
     return "<font color=\"#0000ff\"><b>[Unfinished Status]</b></font> This module implements the marching cubes"
-        " algorithm with a consistent triangulation. It allows to compute isosurfaces"
+        " algorithm with a consistent triangulation. It allows one to compute isosurfaces"
         " for a given isovalue on data given on a grid only consisting of cubes. It yields"
         " the surface as triangle soup.";
 }
