@@ -1,8 +1,8 @@
 # The modules package does not provide shared libs in /usr/lib but an ldconfig call is added to postrm and postinst.
 openwalnut-modules: postinst-has-useless-call-to-ldconfig
+# The modules package does not provide shared libs in /usr/lib but an ldconfig call is added to postrm and postinst.
 openwalnut-modules: postrm-has-useless-call-to-ldconfig
 # Although the hardening options are enabled and verified to be active during compilation, lintian complains about missing hardening options.
 # The lintian doc states that there might be many false positives. So we ignore these warnings now.
 # For details, see http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=685299 and http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=673112
 openwalnut-modules: hardening-no-fortify-functions
-openwalnut-modules: hardening-no-stackprotector
