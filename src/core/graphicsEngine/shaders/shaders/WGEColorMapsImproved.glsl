@@ -150,7 +150,7 @@ vec4 negative2positive( in float valueDescaled, in float minV, in float scaleV )
 
     // use neg color for shares < 0.0 and pos color for the others
     return vec4( zeroColor - ( abs( clamp( share, -1.0 , 0.0 ) * negColor ) + ( clamp( share, 0.0 , 1.0 ) * posColor ) ),
-                 clipIfValue( valueDescaled, mid ) ); // clip near mid-point
+                 1.0 ); // clip zeros is done in colormapping function
 }
 
 /**
