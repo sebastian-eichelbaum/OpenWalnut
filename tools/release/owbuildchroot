@@ -188,7 +188,7 @@ chroot_setup_suite()
 {
     # to be on the safe side: add NeuroDebian to all the suites
     # add the neurodebian repository as well as the eigen3 ppa. It is needed for eigen3, nifti and biosig
-    chroot_do wget -O /etc/apt/sources.list.d/neurodebian.sources.list http://neuro.debian.net/lists/$SUITE.de
+    chroot_do wget -O /etc/apt/sources.list.d/neurodebian.sources.list http://neuro.debian.net/lists/$SUITE.de-md
     chroot_do apt-key adv --recv-keys --keyserver pgp.mit.edu 2649A5A9
 
     # handle some special suites

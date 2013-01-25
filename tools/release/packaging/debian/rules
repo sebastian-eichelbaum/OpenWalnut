@@ -11,9 +11,9 @@
 
 override_dh_auto_build:
 	# Invoke standard build mechanism.
-	# dh_auto_build
+	dh_auto_build
 	# Enable this if you have a multi-core machine and are debugging the debian packages. Disable again for upload.
-	dh_auto_build -- -j10
+	# dh_auto_build -- -j10
 	# build the core api documentation too
 	dh_auto_build -- core_devdoc
 

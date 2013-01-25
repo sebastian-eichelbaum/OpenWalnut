@@ -74,7 +74,7 @@ const std::string WMDataTypeConversion::getName() const
 const std::string WMDataTypeConversion::getDescription() const
 {
     return "This module is intended for development use only. Modules for general use should not depend on it.<br><br> "
-        "Allows to change the data type of the provided WDataSetSingle to another type. "
+        "Allows one to change the data type of the provided WDataSetSingle to another type. "
         "E.g., double to float. At the moment only conversion to float is supported.";
 }
 

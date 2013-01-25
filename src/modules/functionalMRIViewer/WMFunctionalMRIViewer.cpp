@@ -61,7 +61,7 @@ const std::string WMFunctionalMRIViewer::getName() const
 
 const std::string WMFunctionalMRIViewer::getDescription() const
 {
-    return "Allows to select a point of time and to show the dataset at that point of time.";
+    return "Allows one to select a point of time and to show the dataset at that point of time.";
 }
 
 void WMFunctionalMRIViewer::connectors()
