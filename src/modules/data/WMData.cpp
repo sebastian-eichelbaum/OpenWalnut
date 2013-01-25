@@ -47,6 +47,7 @@
 #include "io/WReaderELC.h"
 #include "io/WReaderFiberVTK.h"
 #include "io/WReaderLibeep.h"
+#include "io/WReaderVTK.h"
 #include "io/WPagerEEGLibeep.h"
 
 #include "WMData.h"
@@ -284,6 +285,11 @@ void WMData::moduleMain()
     {
         WReaderFiberVTK fibReader( fileName );
         m_dataSet = fibReader.read();
+    }
+    else if ( suffix == ".vtk" )
+    {
+        WReaderVTK vtkReader( fileName );
+        m_dataSet = vtkReader.read();
     }
     else
     {
