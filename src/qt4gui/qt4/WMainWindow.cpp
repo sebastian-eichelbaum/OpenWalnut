@@ -165,7 +165,7 @@ void WMainWindow::setupGUI()
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // We need several icons later in the GUI. Build some mappings:
-    m_iconManager.addMapping( "logo", "sopenwalnut" );
+    m_iconManager.addMapping( "logo", "openwalnut" );
     m_iconManager.addMapping( "axial icon", "orientation_axial" );
     m_iconManager.addMapping( "coronal icon", "orientation_coronal" );
     m_iconManager.addMapping( "sagittal icon", "orientation_sagittal" );
