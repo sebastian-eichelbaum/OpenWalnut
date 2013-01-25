@@ -173,7 +173,7 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "moduleBusy" ), moduleBusy_xpm );
     m_iconManager.addIcon( std::string( "moduleCrashed" ), moduleCrashed_xpm );
     m_iconManager.addIcon( std::string( "remove" ), remove_xpm );
-    m_iconManager.addIcon( std::string( "config" ), preferences_system_xpm );
+    m_iconManager.addIcon( std::string( "config" ), preferences_xpm );
     m_iconManager.addIcon( std::string( "view" ), camera_xpm );
     m_iconManager.addIcon( std::string( "missingModule" ), QuestionMarks_xpm );
     m_iconManager.addIcon( std::string( "none" ), empty_xpm );

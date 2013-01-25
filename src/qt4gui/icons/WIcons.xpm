@@ -47,8 +47,6 @@
 #include "moduleBusy.xpm"
 #include "moduleCrashed.xpm"
 
-#include "tango/preferences-system.xpm"
-
 #include "video.xpm"
 #include "image.xpm"
 
