@@ -95,13 +95,15 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     separator->setSeparator( true );
     m_moduleTreeWidget->addAction( separator );
 
-    m_addModuleAction = new QAction( "Add Module", m_moduleTreeWidget );
+    m_addModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "add" ), "Add Module", m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_addModuleAction );
-    m_connectWithPrototypeAction = new QAction( "Add Module and Connect", m_moduleTreeWidget );
+    m_connectWithPrototypeAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "addAndLink" ), "Add Module and Connect",
+                                                m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_connectWithPrototypeAction );
-    m_connectWithModuleAction = new QAction( "Connect Existing Module", m_moduleTreeWidget );
+    m_connectWithModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "link" ), "Connect Existing Module",
+                                            m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_connectWithModuleAction );
-    m_disconnectAction = new QAction( "Disconnect", m_moduleTreeWidget );
+    m_disconnectAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "unlink" ), "Disconnect", m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_disconnectAction );
 
     // a separator to clean up the tree widget's context menu
