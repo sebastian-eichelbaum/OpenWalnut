@@ -25,8 +25,8 @@
 #include <QtGui/QMouseEvent>
 #include <QtGui/QWheelEvent>
 
-#include "../../../core/common/WLogger.h"
-#include "../../../core/kernel/WModuleFactory.h"
+#include "core/common/WLogger.h"
+#include "core/kernel/WModuleFactory.h"
 #include "../WQtCombinerActionList.h"
 #include "../WQt4Gui.h"
 #include "../WMainWindow.h"
