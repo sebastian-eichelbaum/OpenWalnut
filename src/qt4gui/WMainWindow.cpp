@@ -366,7 +366,7 @@ void WMainWindow::setupGUI()
     m_helpMenu->addAction( m_iconManager.getIcon( "logo" ), "Welcome to OpenWalnut", this, SLOT( showWelcomeDialog() ) );
     m_helpMenu->addSeparator();
     m_helpMenu->addAction( m_iconManager.getIcon( "logo" ), "About OpenWalnut", this, SLOT( openAboutDialog() ) );
-    m_helpMenu->addAction( "About Qt", this, SLOT( openAboutQtDialog() ) );
+    m_helpMenu->addAction(  m_iconManager.getIcon( "qt" ), "About Qt", this, SLOT( openAboutQtDialog() ) );
     m_helpAction->setMenu( m_helpMenu );
 
     setMenuBar( m_menuBar );
