@@ -178,8 +178,8 @@ void WMSurfaceIllustrator::properties()
 
     m_colormap = m_coloringGroup->addProperty( "Enable colormapping", "Turn colormapping on", false );
     m_parameterCenter = m_coloringGroup->addProperty( "Parameter center", "Parameter center selection", 0.5 );
-    m_parameterCenter->setMin( -1.0 );
-    m_parameterCenter->setMax( 1.0 );
+    m_parameterCenter->setMin( -2.0 );
+    m_parameterCenter->setMax( 2.0 );
     m_parameterWidth = m_coloringGroup->addProperty( "Parameter width", "Parameter width selection", 0.1 );
     m_parameterWidth->setMin( 0.0 );
     m_parameterWidth->setMax( 2.0 );
