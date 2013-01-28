@@ -436,8 +436,9 @@ vec4 atlas( in float value )
  *
  * \return this color gets mixed using alpha value with the new colormap color
  * \param value the value to map, <b>scaled</b>
- * \param minV the minimum of the original value
+ * \param minV the minimum of the original value *
  * \param scaleV the scaler used to downscale the original value to [0-1]
+ * \param clipZeroEnabled if true, zero values get clipped; based on descaled value.
  * \param thresholdVLower a threshold in original space (you need to downscale it to [0-1] if you want to use it to scaled values.
  * \param thresholdVUpper a threshold in original space (you need to downscale it to [0-1] if you want to use it to scaled values.
  * \param thresholdEnabled a flag denoting whether threshold-based clipping should be done or not
@@ -447,6 +448,7 @@ vec4 atlas( in float value )
  * \param colormap the colormap index to use
  */
 vec4 colormap( in vec4 value, float minV, float scaleV,
+               bool clipZeroEnabled,
                float thresholdVLower, float thresholdVUpper, bool thresholdEnabled,
                vec2  window, bool windowEnabled,
                float alpha, int colormap, bool active )
@@ -483,7 +485,7 @@ vec4 colormap( in vec4 value, float minV, float scaleV,
     float isNotBorder = float( value.a >= 0.75 );
 
     // make "zero" values transarent
-    float clip = clipZero( valueWindowedOriginal.r, minV );
+    float clip = max( float( !clipZeroEnabled ), clipZero( valueWindowedOriginal.r, minV ) );
 
     // use threshold to clip away fragments.
     // NOTE: thresholding is applied to the original interval in valueDescaled, NOT the window interval

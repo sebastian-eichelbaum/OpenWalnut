@@ -43,6 +43,9 @@ uniform float u_colormap0Scale = 1;
 //!< The alpha value for this colormap. Is in [0,1].
 uniform float u_colormap0Alpha;
 
+//!< Flag denoting whether to clip the zero value.
+uniform bool u_colormap0ClipZeroEnabled = false;
+
 //!< The threshold value for this colormap. Is in [Min,Scale+Min]
 uniform float u_colormap0ThresholdLower;
 
@@ -84,6 +87,9 @@ uniform float u_colormap1Scale = 1;
 
 //!< The alpha value for this colormap. Is in [0,1].
 uniform float u_colormap1Alpha;
+
+//!< Flag denoting whether to clip the zero value.
+uniform bool u_colormap1ClipZeroEnabled = false;
 
 //!< The threshold value for this colormap. Is in [Min,Scale+Min]
 uniform float u_colormap1ThresholdLower;
@@ -127,6 +133,9 @@ uniform float u_colormap2Scale = 1;
 //!< The alpha value for this colormap. Is in [0,1].
 uniform float u_colormap2Alpha;
 
+//!< Flag denoting whether to clip the zero value.
+uniform bool u_colormap2ClipZeroEnabled = false;
+
 //!< The threshold value for this colormap. Is in [Min,Scale+Min]
 uniform float u_colormap2ThresholdLower;
 
@@ -168,6 +177,9 @@ uniform float u_colormap3Scale = 1;
 
 //!< The alpha value for this colormap. Is in [0,1].
 uniform float u_colormap3Alpha;
+
+//!< Flag denoting whether to clip the zero value.
+uniform bool u_colormap3ClipZeroEnabled = false;
 
 //!< The threshold value for this colormap. Is in [Min,Scale+Min]
 uniform float u_colormap3ThresholdLower;
@@ -211,6 +223,9 @@ uniform float u_colormap4Scale = 1;
 //!< The alpha value for this colormap. Is in [0,1].
 uniform float u_colormap4Alpha;
 
+//!< Flag denoting whether to clip the zero value.
+uniform bool u_colormap4ClipZeroEnabled = false;
+
 //!< The threshold value for this colormap. Is in [Min,Scale+Min]
 uniform float u_colormap4ThresholdLower;
 
@@ -252,6 +267,9 @@ uniform float u_colormap5Scale = 1;
 
 //!< The alpha value for this colormap. Is in [0,1].
 uniform float u_colormap5Alpha;
+
+//!< Flag denoting whether to clip the zero value.
+uniform bool u_colormap5ClipZeroEnabled = false;
 
 //!< The threshold value for this colormap. Is in [Min,Scale+Min]
 uniform float u_colormap5ThresholdLower;
@@ -295,6 +313,9 @@ uniform float u_colormap6Scale = 1;
 //!< The alpha value for this colormap. Is in [0,1].
 uniform float u_colormap6Alpha;
 
+//!< Flag denoting whether to clip the zero value.
+uniform bool u_colormap6ClipZeroEnabled = false;
+
 //!< The threshold value for this colormap. Is in [Min,Scale+Min]
 uniform float u_colormap6ThresholdLower;
 
@@ -336,6 +357,9 @@ uniform float u_colormap7Scale = 1;
 
 //!< The alpha value for this colormap. Is in [0,1].
 uniform float u_colormap7Alpha;
+
+//!< Flag denoting whether to clip the zero value.
+uniform bool u_colormap7ClipZeroEnabled = false;
 
 //!< The threshold value for this colormap. Is in [Min,Scale+Min]
 uniform float u_colormap7ThresholdLower;

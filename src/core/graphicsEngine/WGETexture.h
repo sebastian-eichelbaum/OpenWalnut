@@ -119,6 +119,13 @@ public:
     WPropDouble alpha() const;
 
     /**
+     * Clip the values assumed to be zero.
+     *
+     * \return true to clip.
+     */
+    WPropBool clipZero() const;
+
+    /**
      * Returns the threshold property. The property can be changed. A change affects all colormaps using this texture.
      *
      * \return threshold property
@@ -349,6 +356,11 @@ private:
     WPropDouble m_alpha;
 
     /**
+     * If set to true, zero values are clipped by making them transparent
+     */
+    WPropBool m_clipZero;
+
+    /**
      * Threshold for clipping areas.
      */
     WPropDouble m_thresholdLower;
@@ -459,6 +471,8 @@ void WGETexture< TextureType >::setupProperties( double scale, double min )
     m_alpha->setMin( 0.0 );
     m_alpha->setMax( 1.0 );
 
+    m_clipZero = m_properties->addProperty( "Enable Zero Clip", "If enabled, zero values are clipped.", true );
+
     m_thresholdEnabled = m_properties->addProperty( "Enable Threshold",
                                                     "If enabled, threshold based clipping is used. If not, threshold is ignored.", false );
 
@@ -547,6 +561,12 @@ inline WPropDouble WGETexture< TextureType >::alpha() const
 }
 
 template < typename TextureType >
+inline WPropBool WGETexture< TextureType >::clipZero() const
+{
+    return m_clipZero;
+}
+
+template < typename TextureType >
 inline WPropDouble WGETexture< TextureType >::thresholdLower() const
 {
     return m_thresholdLower;
@@ -616,6 +636,7 @@ void  WGETexture< TextureType >::applyUniforms( std::string prefix, osg::StateSe
     states->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Min", minimum() ) );
     states->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Scale", scale() ) );
     states->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Alpha", alpha() ) );
+    states->addUniform( new WGEPropertyUniform< WPropBool >( prefix + "ClipZeroEnabled", clipZero() ) );
     states->addUniform( new WGEPropertyUniform< WPropBool >( prefix + "ThresholdEnabled", thresholdEnabled() ) );
     states->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "ThresholdLower", thresholdLower() ) );
     states->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "ThresholdUpper", thresholdUpper() ) );
