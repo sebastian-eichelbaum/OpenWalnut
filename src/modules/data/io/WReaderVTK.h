@@ -155,7 +155,6 @@ protected:
     boost::shared_ptr< std::ifstream > m_ifs; //!< Pointer to the input file stream reader.
 
 private:
-
     //! The types of domains supported so far.
     enum DomainType
     {
@@ -213,7 +212,7 @@ private:
      * \param values The values read from the file.
      * \param numValues The number of values to read.
      */
-    void readValuesFromFile( std::vector< float >& values, std::size_t numValues );
+    void readValuesFromFile( std::vector< float >& values, std::size_t numValues ); // NOLINT: is non-const ref since we write results to this vector
 
     /**
      * Try to cast from the given string to the template value T. If the cast fails a

@@ -247,7 +247,7 @@ boost::shared_ptr< WGridRegular3D > WReaderVTK::readRectilinearGrid()
 
     wlog::warn( "WReaderVTK" ) << "Assuming evenly spaced rectilinear grid! This may not adhere to the domain data in the file!";
 
-    WGridTransformOrtho transform( xcoords.at( 1 ) - xcoords.at( 0 ), ycoords.at( 1 ) - ycoords.at( 0 ), zcoords.at( 1 ) - zcoords.at( 0 ) );
+    WGridTransformOrtho transform( xcoords.at( 1 ) - xcoords.at( 0 ), ycoords.at( 1 ) - ycoords.at( 0 ), zcoords.at( 1 ) - zcoords.at( 0 ) ); // NOLINT
     return boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( dimensions[ 0 ], dimensions[ 1 ], dimensions[ 2 ], transform ) );
 }
 
@@ -257,13 +257,13 @@ void WReaderVTK::readCoords( std::string const& name, std::size_t dim, std::vect
     std::vector< std::string > l = string_utils::tokenize( line );
     if( ( l.size() != 3 ) && string_utils::toLower( l.at( 0 ) ) != name )
     {
-        throw WDHParseError( std::string( "invalid ") + name + " token: " + line + ", expected " + name + "!" );
+        throw WDHParseError( std::string( "invalid " ) + name + " token: " + line + ", expected " + name + "!" );
     }
 
     readValuesFromFile( coords, dim );
 }
 
-void WReaderVTK::readValuesFromFile( std::vector< float >& values, std::size_t numValues )
+void WReaderVTK::readValuesFromFile( std::vector< float >& values, std::size_t numValues )  // NOLINT - non-const ref
 {
     values.clear();
 
@@ -298,7 +298,7 @@ void WReaderVTK::readValuesFromFile( std::vector< float >& values, std::size_t n
         wlog::debug( "WReaderVTK" ) << "Reading BINARY";
         m_ifs->read( reinterpret_cast<char*>(  &values[ 0 ] ), values.size() * sizeof( values[ 0 ] ) );
 
-        // TODO( hlawitschka ): do endianess stuff!!! switchByteOrderOfArray(  data, data->size() );
+        // TODO(hlawitschka): do endianess stuff!!! switchByteOrderOfArray(  data, data->size() );
     }
 }
 

@@ -286,7 +286,7 @@ void WMData::moduleMain()
         WReaderFiberVTK fibReader( fileName );
         m_dataSet = fibReader.read();
     }
-    else if ( suffix == ".vtk" )
+    else if( suffix == ".vtk" )
     {
         WReaderVTK vtkReader( fileName );
         m_dataSet = vtkReader.read();
