@@ -90,7 +90,7 @@ void WMWriteTracts::properties()
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_fileTypeSelection );
 
     m_povrayOptions = m_properties->addPropertyGroup( "POVRay Options", "Options for the POVRay Exporter." );
-    //m_povrayOptions->setHidden( true );
+    m_povrayOptions->setHidden( true );
     m_povrayTubeDiameter = m_povrayOptions->addProperty( "Tube Diameter",
                                   "The tube diameter. Each fibers is represented as a tube with spheres as connections between them",
                                   0.25 );
