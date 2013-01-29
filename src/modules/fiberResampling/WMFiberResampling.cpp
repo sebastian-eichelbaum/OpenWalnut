@@ -91,7 +91,6 @@ void WMFiberResampling::properties()
 {
     m_newSamples = m_properties->addProperty( "#Sample Points", "The is the new number of which the tracts are resampled to", 20 );
     m_newSamples->setMin( 2 );
-    m_newSamples->setMax( 200 );
     WModule::properties();
 }
 
