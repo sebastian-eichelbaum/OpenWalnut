@@ -546,64 +546,51 @@ WQtNetworkEditor* WMainWindow::getNetworkEditor()
 
 bool WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer )
 {
-    QFileDialog fd;
-    fd.setWindowTitle( "Save Project as" );
-    fd.setFileMode( QFileDialog::AnyFile );
-    fd.setAcceptMode( QFileDialog::AcceptSave );
+    QString lastPath = WQt4Gui::getSettings().value( "LastProjectSavePath", "" ).toString();
+    QString selected = QFileDialog::getSaveFileName ( this, "Save Project as", lastPath,
+                                                     "Project File (*.owproj *.owp)" );
+    if( selected == "" )
+    {
+        return false;
+    }
 
-    // My Mac OSX Lion automatically appends .owproj to the file name
-    // if no extension is given.
-    QStringList filters;
-    filters << "Project File (*.owproj *.owp)";
-    fd.setNameFilters( filters );
-    fd.setViewMode( QFileDialog::Detail );
-    QStringList filenames;
-    if( fd.exec() )
-    {
-        filenames = fd.selectedFiles();
-    }
-    else
-    {
-        return false; // the user canceled, no files, so nothing saved
-    }
+    // extract path and save to settings
+    boost::filesystem::path p( selected.toStdString() );
+    WQt4Gui::getSettings().setValue( "LastProjectSavePath", QString::fromStdString( p.parent_path().string() ) );
 
     bool success = true;
-    QStringList::const_iterator constIterator;
-    for( constIterator = filenames.constBegin(); constIterator != filenames.constEnd(); ++constIterator )
+    std::string filename = ( selected ).toStdString();
+
+    // append owp if suffix is not present, yet
+    if( filename.rfind( ".owp" ) != filename.size() - 4
+     && filename.rfind( ".owproj" ) != filename.size() - 7 )
     {
-        std::string filename = ( *constIterator ).toStdString();
+        filename += ".owp";
+    }
 
-        // append owp if suffix is not present, yet
-        if( filename.rfind( ".owp" ) != filename.size() - 4
-         && filename.rfind( ".owproj" ) != filename.size() - 7 )
-        {
-            filename += ".owp";
-        }
+    boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
+            new WProjectFile( filename )
+    );
 
-        boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
-                new WProjectFile( filename )
-        );
-
-        try
+    try
+    {
+        // This call is synchronous.
+        if( writer.empty() )
         {
-            // This call is synchronous.
-            if( writer.empty() )
-            {
-                proj->save();
-            }
-            else
-            {
-                proj->save( writer );
-            }
+            proj->save();
         }
-        catch( const std::exception& e )
+        else
         {
-            QString title = "Problem while saving project file.";
-            QString message = "<b>Problem while saving project file.</b><br/><br/><b>File:  </b>" + ( *constIterator ) +
-                              "<br/><b>Message:  </b>" + QString::fromStdString( e.what() );
-            QMessageBox::critical( this, title, message );
-            success = false;
+            proj->save( writer );
         }
+    }
+    catch( const std::exception& e )
+    {
+        QString title = "Problem while saving project file.";
+        QString message = "<b>Problem while saving project file.</b><br/><br/><b>File:  </b>" + selected +
+                          "<br/><b>Message:  </b>" + QString::fromStdString( e.what() );
+        QMessageBox::critical( this, title, message );
+        success = false;
     }
     return success;
 }
@@ -644,32 +631,35 @@ void WMainWindow::newProject()
 
 void WMainWindow::openLoadDialog()
 {
-    QFileDialog fd;
-    fd.setFileMode( QFileDialog::ExistingFiles );
+    QString lastPath = WQt4Gui::getSettings().value( "LastOpenPath", "" ).toString();
 
-    QStringList filters;
-    filters << "Known file types (*.cnt *.edf *.asc *.nii *.nii.gz *.vtk *.fib *.owproj *.owp)"
-            << "Simple Project File (*.owproj *.owp)"
-            << "EEG files (*.cnt *.edf *.asc)"
-            << "NIfTI (*.nii *.nii.gz)"
-            << "Fibers (*.fib)";
+    // build filter list
+    // NOTE: Qt Doc says we need to separate multiple filters by ";;"
+    QString filters;
+    filters = QString( "Known file types (*.cnt *.edf *.asc *.nii *.nii.gz *.vtk *.fib *.owproj *.owp);;" )
+            + QString( "Simple Project File (*.owproj *.owp);;" )
+            + QString( "EEG files (*.cnt *.edf *.asc);;" )
+            + QString( "NIfTI (*.nii *.nii.gz);;" )
+            + QString( "Fibers (*.fib);;" );
     for( std::size_t k = 0; k < WKernel::getRunningKernel()->getScriptEngine()->getNumInterpreters(); ++k )
     {
-        filters << ( WKernel::getRunningKernel()->getScriptEngine()->getInterpreter( k )->getName() + " (*"
-                   + WKernel::getRunningKernel()->getScriptEngine()->getInterpreter( k )->getExtension() + ")" ).c_str();
+        filters += QString::fromStdString( WKernel::getRunningKernel()->getScriptEngine()->getInterpreter( k )->getName() + " (*"
+                   + WKernel::getRunningKernel()->getScriptEngine()->getInterpreter( k )->getExtension() + ")" );
+        filters += QString( ";;" );
     }
-    filters << "Any files (*)";
+    filters += QString( "Any files (*)" );
 
-    fd.setNameFilters( filters );
-    fd.setViewMode( QFileDialog::Detail );
-    QStringList filenames;
-    if( fd.exec() )
+    QStringList	filenames = QFileDialog::getOpenFileNames ( this, "Open Data, Project or Script", lastPath, filters );
+    if( filenames.empty() )
     {
-        filenames = fd.selectedFiles();
+        return;
     }
+
+    // extract path and save to settings
+    boost::filesystem::path p( filenames[0].toStdString() );
+    WQt4Gui::getSettings().setValue( "LastOpenPath", QString::fromStdString( p.parent_path().string() ) );
 
     std::vector< std::string > loadDataFilenames;
-
     QStringList::const_iterator constIterator;
     for( constIterator = filenames.constBegin(); constIterator != filenames.constEnd(); ++constIterator )
     {
