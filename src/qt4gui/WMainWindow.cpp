@@ -547,7 +547,7 @@ WQtNetworkEditor* WMainWindow::getNetworkEditor()
 bool WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer )
 {
     QString lastPath = WQt4Gui::getSettings().value( "LastProjectSavePath", "" ).toString();
-    QString selected = QFileDialog::getSaveFileName ( this, "Save Project as", lastPath,
+    QString selected = QFileDialog::getSaveFileName( this, "Save Project as", lastPath,
                                                      "Project File (*.owproj *.owp)" );
     if( selected == "" )
     {
@@ -649,7 +649,7 @@ void WMainWindow::openLoadDialog()
     }
     filters += QString( "Any files (*)" );
 
-    QStringList	filenames = QFileDialog::getOpenFileNames ( this, "Open Data, Project or Script", lastPath, filters );
+    QStringList filenames = QFileDialog::getOpenFileNames( this, "Open Data, Project or Script", lastPath, filters );
     if( filenames.empty() )
     {
         return;
