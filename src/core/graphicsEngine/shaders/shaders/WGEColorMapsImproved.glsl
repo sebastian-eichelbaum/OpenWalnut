@@ -479,6 +479,9 @@ vec4 colormap( in vec4 value, float minV, float scaleV,
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Do clippings
+    //
+    // It is important to note that the clip values actually define the pixels alpha value. This means a clip value of 1 means
+    // the pixel is not clipped. A clip value of 0 means it gets fully transparent (=clipped in this context).
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // is this a border pixel marked by a 0 alpha value?
