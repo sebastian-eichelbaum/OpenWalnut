@@ -84,19 +84,6 @@ void main()
     float noise3D = 1.0;
 #endif
 
-    // calculate lighting for the surface
-    // TODO(ebaum): material properties should be used instead
-    float light = blinnPhongIlluminationIntensity(
-            0.2,
-            1.0,
-            1.3,
-            10.0,
-            1.0,
-            0.3,
-            -normalize( v_normal ),
-            normalize( v_viewDir ),
-            normalize( v_lightSource ) );
-
 #ifdef VECTORDATA
     // get the current vector at this position
     vec3 vec = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz, u_texture0Min, u_texture0Scale ).rgb;
@@ -138,6 +125,9 @@ void main()
     }
 
 #endif
+
+    // calculate lighting for the surface
+    float light = blinnPhongIlluminationIntensity( normalize( v_normalProjected ) );
 
     // MPI PAper Hack: {
     // vec4 cmap = colormapping();
