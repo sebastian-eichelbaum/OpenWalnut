@@ -135,6 +135,9 @@ void WMImageSpaceLIC::properties()
     m_licGroup      = m_properties->addPropertyGroup( "LIC",  "LIC properties." );
 
     m_useLight       = m_licGroup->addProperty( "Use Light", "Check to enable lightning using the Phong model.", false );
+    m_lightIntensity = m_licGroup->addProperty( "Light Intensity", "Define how intense the light should be.", 1.0 );
+    m_lightIntensity->setMin( 0.0 );
+    m_lightIntensity->setMax( 10.0 );
 
     m_useEdges       = m_licGroup->addProperty( "Edges", "Check to enable blending in edges.", true );
     m_useHighContrast = m_licGroup->addProperty( "High Contrast", "Use an extremely increased contrast.", false );
@@ -369,6 +372,7 @@ void WMImageSpaceLIC::moduleMain()
     // final pass needs some uniforms controlled by properties
     clipBlend->addUniform( new WGEPropertyUniform< WPropBool >( "u_useEdges", m_useEdges ) );
     clipBlend->addUniform( new WGEPropertyUniform< WPropBool >( "u_useLight", m_useLight ) );
+    clipBlend->addUniform( new WGEPropertyUniform< WPropDouble >( "u_lightIntensity", m_lightIntensity ) );
     clipBlend->addUniform( new WGEPropertyUniform< WPropBool >( "u_useDepthCueing", m_useDepthCueing ) );
     clipBlend->addUniform( new WGEPropertyUniform< WPropBool >( "u_useHighContrast", m_useHighContrast ) );
     clipBlend->addUniform( new WGEPropertyUniform< WPropDouble >( "u_cmapRatio", m_cmapRatio ) );

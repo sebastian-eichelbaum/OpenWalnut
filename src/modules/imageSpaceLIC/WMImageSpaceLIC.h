@@ -168,6 +168,8 @@ private:
 
     WPropBool     m_useLight; //!< indicates whether to use Phong
 
+    WPropDouble   m_lightIntensity; //!< light intensity
+
     WPropBool     m_useDepthCueing; //!< indicates whether to use depth cueing in the shader
 
     WPropBool     m_useHighContrast; //!< use the high contrast version?
