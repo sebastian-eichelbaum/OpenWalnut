@@ -152,9 +152,9 @@ void WMImageSpaceLIC::properties()
     m_useDepthCueing = m_advancedLicGroup->addProperty( "Depth Cueing", "Use depth as additional cue? Mostly useful for isosurfaces.",
                                                 false );
     m_3dNoise        = m_advancedLicGroup->addProperty( "Use 3D noise", "Use 3D noise? This provides better coherence during transformation of "
-                                                        "the geometry but might introduce resolution problems.", false );
+                                                        "the geometry but might introduce resolution problems.", true );
     m_3dNoiseRes     = m_advancedLicGroup->addProperty( "3D Noise Resolution", "The 3D noise is of 128^3 pixels size. This scaler allows "
-                                                        "modification of this size.", 3.0 );
+                                                        "modification of this size.", 1.5 );
     m_3dNoiseRes->setMin( 1 );
     m_3dNoiseRes->setMax( 10 );
 

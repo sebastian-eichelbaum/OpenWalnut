@@ -147,7 +147,7 @@ void main()
     // is the vector very orthogonal to the surface? We scale our advection according to this.
     float dotS = abs( dot( v_normalObject, vec.xyz ) );
     // scale down the vector -> the more it "comes out of the surface, the shorter the vector".
-    vec2 dotScaled = ( 1.0 - dotS ) * scaleMaxToOne( vecProjected ).xy;
+    vec2 dotScaled = smoothstep( 0.0, 1.0 , 1.0 - dotS ) * scaleMaxToOne( vecProjected ).xy;
 
     gl_FragData[0] = vec4( vec2( 0.5 ) + ( 0.5  * dotScaled ), light, noise3D );
 }
