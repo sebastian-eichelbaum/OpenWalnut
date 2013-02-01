@@ -127,7 +127,7 @@ void main()
 #endif
 
     // calculate lighting for the surface
-    float light = blinnPhongIlluminationIntensity( normalize( v_normalProjected ) );
+    float light = blinnPhongIlluminationIntensity( normalize( v_normal ) );
 
     // MPI PAper Hack: {
     // vec4 cmap = colormapping();
