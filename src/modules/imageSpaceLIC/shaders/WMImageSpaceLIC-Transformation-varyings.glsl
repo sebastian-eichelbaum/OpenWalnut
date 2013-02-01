@@ -28,6 +28,11 @@
 varying vec3 v_normal;
 
 /**
+ * Normal in object space
+ */
+varying vec3 v_normalObject;
+
+/**
  * The normal interpolated and projected to screenspace
  */
 varying vec3 v_normalProjected;

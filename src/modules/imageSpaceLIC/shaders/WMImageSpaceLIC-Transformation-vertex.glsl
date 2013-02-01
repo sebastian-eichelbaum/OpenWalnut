@@ -95,10 +95,11 @@ void main()
 
     // some light precalculations
     v_normal = gl_NormalMatrix * gl_Normal;
+    v_normalObject = gl_Normal;
 
     // NOTE: we normalize the vec here although we need to normalize it again in the fragment shader since the projected vector might be very
     // small and we want to avoid numerical issues when interpolating.
-    v_normalProjected = normalize( projectVector( vec4( gl_Normal.xyz, 0.0 ) ) );
+    v_normalProjected = normalize( projectVector( vec4( v_normal, 0.0 ) ) );
 
     // if we use 3d noise textures and auto resolution feature:
 #ifdef NOISE3D_ENABLED
