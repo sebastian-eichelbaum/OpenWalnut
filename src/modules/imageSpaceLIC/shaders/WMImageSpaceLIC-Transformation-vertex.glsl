@@ -94,7 +94,7 @@ void main()
     gl_TexCoord[0] = gl_TextureMatrix[0] * vertex;
 
     // some light precalculations
-    v_normal = gl_Normal;
+    v_normal = gl_NormalMatrix * gl_Normal;
 
     // NOTE: we normalize the vec here although we need to normalize it again in the fragment shader since the projected vector might be very
     // small and we want to avoid numerical issues when interpolating.
