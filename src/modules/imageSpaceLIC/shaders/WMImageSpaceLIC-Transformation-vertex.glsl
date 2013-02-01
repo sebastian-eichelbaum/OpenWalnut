@@ -33,12 +33,12 @@
 /**
  * How much should the slice be moved along u_vertexShiftDirection?
  */
-uniform int u_vertexShift;
+uniform int u_vertexShift = 0;
 
 /**
  * The direction along which the slice gets moved
  */
-uniform vec3 u_vertexShiftDirection;
+uniform vec3 u_vertexShiftDirection = vec3( 0.0, 0.0, 0.0 );
 
 /**
  * Size of input texture in pixels
@@ -95,6 +95,10 @@ void main()
 
     // some light precalculations
     v_normal = gl_Normal;
+
+    // NOTE: we normalize the vec here although we need to normalize it again in the fragment shader since the projected vector might be very
+    // small and we want to avoid numerical issues when interpolating.
+    v_normalProjected = normalize( projectVector( vec4( gl_Normal.xyz, 0.0 ) ) );
 
     // if we use 3d noise textures and auto resolution feature:
 #ifdef NOISE3D_ENABLED

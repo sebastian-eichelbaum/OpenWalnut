@@ -28,6 +28,11 @@
 varying vec3 v_normal;
 
 /**
+ * The normal interpolated and projected to screenspace
+ */
+varying vec3 v_normalProjected;
+
+/**
  * The light source in local coordinates
  */
 varying vec3 v_lightSource;

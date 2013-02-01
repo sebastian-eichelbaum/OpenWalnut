@@ -108,7 +108,7 @@ void main()
         discard;
     }
 
-    // project the vectors to image space
+    // project the vectors to image space as the input vector is in the tangent space
     vecProjected = projectVector( vec ).xyz;
 
 #endif
@@ -152,19 +152,12 @@ void main()
     // if( isZero( cmap.r - 1.0, 0.15 ) )
     //     gl_FragData[1] = vec4( 1.0, 0.0, 0.0, 1.0 );
     // }
-
-    // is the vector very orthogonal to the surface?
-
-    float dotS = dot( v_normal, vec.xyz );
-    vec2 dotScaled = ( 1.0 + sign( dotS ) ) * scaleMaxToOne( vecProjected ).xy;
-    // MPI Paper Hack;
-    // dotScaled = 40.0*vecProjected.xy;
-    gl_FragData[0] = vec4( vec2( 0.5 ) + ( 0.5  * dotScaled ), light, noise3D );
-
-    // MPI PAper Hack:
-    // {
-    // //gl_FragData[1] = colormapping();
-    // }
     gl_FragData[1] = colormapping();
+
+    // is the vector very orthogonal to the surface? We scale our advection according to this.
+    float dotS = abs( dot( v_normal, vec.xyz ) );
+    vec2 dotScaled = ( 1.0 - dotS ) * scaleMaxToOne( vecProjected ).xy;
+
+    gl_FragData[0] = vec4( vec2( 0.5 ) + ( 0.5  * dotScaled ), light, noise3D );
 }
 
