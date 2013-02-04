@@ -139,8 +139,15 @@ void WMImageSpaceLIC::properties()
     m_lightIntensity->setMin( 0.0 );
     m_lightIntensity->setMax( 10.0 );
 
-    m_useEdges       = m_licGroup->addProperty( "Edges", "Check to enable blending in edges.", true );
+    m_useEdges        = m_licGroup->addProperty( "Edges", "Check to enable blending in edges.", true );
+    m_useEdgesColor   = m_licGroup->addProperty( "Edge Color", "Define the color of the edges.", defaultColor::WHITE );
+    m_useEdgesStep    = m_licGroup->addProperty( "Edge Step", "Define the steepness of the blend function between color and edge color.", 1.0 );
+    m_useEdgesStep->setMin( 0.0 );
+    m_useEdgesStep->setMax( 10.0 );
+
     m_useHighContrast = m_licGroup->addProperty( "High Contrast", "Use an extremely increased contrast.", false );
+    m_useDepthCueing  = m_licGroup->addProperty( "Depth Cueing", "Use depth as additional cue? Mostly useful for isosurfaces.",
+                                                false );
 
     m_cmapRatio    = m_licGroup->addProperty( "Ratio Colormap to LIC", "Blending ratio between LIC and colormap.", 0.5 );
     m_cmapRatio->setMin( 0.0 );
@@ -149,13 +156,11 @@ void WMImageSpaceLIC::properties()
     m_advancedLicGroup      = m_properties->addPropertyGroup( "Advanced",  "More advanced LIC properties." );
     // show hud?
     m_showHUD        = m_advancedLicGroup->addProperty( "Show HUD", "Check to enable the debugging texture HUD.", false );
-    m_useDepthCueing = m_advancedLicGroup->addProperty( "Depth Cueing", "Use depth as additional cue? Mostly useful for isosurfaces.",
-                                                false );
     m_3dNoise        = m_advancedLicGroup->addProperty( "Use 3D noise", "Use 3D noise? This provides better coherence during transformation of "
                                                         "the geometry but might introduce resolution problems.", true );
     m_3dNoiseRes     = m_advancedLicGroup->addProperty( "3D Noise Resolution", "The 3D noise is of 128^3 pixels size. This scaler allows "
                                                         "modification of this size.", 1.5 );
-    m_3dNoiseRes->setMin( 1 );
+    m_3dNoiseRes->setMin( 0 );
     m_3dNoiseRes->setMax( 10 );
 
     m_3dNoiseAutoRes = m_advancedLicGroup->addProperty( "3D Noise Auto-Resolution", "If checked, the resolution of the 3D noise gets calculated "
@@ -166,6 +171,14 @@ void WMImageSpaceLIC::properties()
                                                       30 );
     m_numIters->setMin( 1 );
     m_numIters->setMax( 1000 );
+
+    m_projectionAngleThreshold = m_advancedLicGroup->addProperty( "Projection Angle Threshold", "This defines the threshold of the angle between tangential "
+            "plane of the surface and the vector which is going to be projected. You can adjust how steep a vector can be before it is clipped and NOT "
+            "projected. Note: all vectors with an angle below this threshold are projected but linearly reduced in influence depending on the "
+            "angle.", 90.0 );
+    m_projectionAngleThreshold->setMin( 0.0 );
+    m_projectionAngleThreshold->setMax( 90.0 );
+
 
     // call WModule's initialization
     WModule::properties();
@@ -345,6 +358,7 @@ void WMImageSpaceLIC::moduleMain()
     osg::ref_ptr< osg::Texture2D > transformationDepth = transformation->attach( osg::Camera::DEPTH_BUFFER );
     // and some uniforms
     transformation->addUniform( new WGEPropertyUniform< WPropDouble >( "u_noise3DResoultuion", m_3dNoiseRes ) );
+    transformation->addUniform( new WGEPropertyUniform< WPropDouble >( "u_projectionAngleThreshold", m_projectionAngleThreshold ) );
 
     // Edge Detection Pass, needs Depth as input
     //  * Edges in R
@@ -365,12 +379,20 @@ void WMImageSpaceLIC::moduleMain()
     osg::ref_ptr< osg::Uniform > numIters = new WGEPropertyUniform< WPropInt >( "u_numIter", m_numIters );
     advection->addUniform( numIters );
 
+    // provide the Gbuffer input, with several mipmap levels
+    advectionOutA->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR );
+    edgeDetectionOut1->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR );
+    transformationColormapped->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR );
+
     // Final clipping and blending phase, needs Advected Noise, Edges, Depth and Light
     clipBlend->bind( advectionOutA, 0 );
     clipBlend->bind( edgeDetectionOut1, 1 );
     clipBlend->bind( transformationColormapped, 2 );
+
     // final pass needs some uniforms controlled by properties
     clipBlend->addUniform( new WGEPropertyUniform< WPropBool >( "u_useEdges", m_useEdges ) );
+    clipBlend->addUniform( new WGEPropertyUniform< WPropColor >( "u_useEdgesColor", m_useEdgesColor ) );
+    clipBlend->addUniform( new WGEPropertyUniform< WPropDouble >( "u_useEdgesStep", m_useEdgesStep ) );
     clipBlend->addUniform( new WGEPropertyUniform< WPropBool >( "u_useLight", m_useLight ) );
     clipBlend->addUniform( new WGEPropertyUniform< WPropDouble >( "u_lightIntensity", m_lightIntensity ) );
     clipBlend->addUniform( new WGEPropertyUniform< WPropBool >( "u_useDepthCueing", m_useDepthCueing ) );

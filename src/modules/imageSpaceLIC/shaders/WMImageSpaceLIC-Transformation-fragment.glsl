@@ -71,6 +71,11 @@ uniform int u_texture0SizeY = 255;
 uniform int u_texture0SizeZ = 255;
 
 /**
+ * Projection angle cutoff
+ */
+uniform float u_projectionAngleThreshold;
+
+/**
  * Transforms each vector on each pixel to image space.
  */
 void main()
@@ -144,11 +149,33 @@ void main()
     // }
     gl_FragData[1] = colormapping();
 
-    // is the vector very orthogonal to the surface? We scale our advection according to this.
-    float dotS = abs( dot( v_normalObject, vec.xyz ) );
-    // scale down the vector -> the more it "comes out of the surface, the shorter the vector".
-    vec2 dotScaled = smoothstep( 0.0, 1.0 , 1.0 - dotS ) * scaleMaxToOne( vecProjected ).xy;
+    const float piHalf = 3.14159265 / 2.0;
+    const float pi = 3.14159265;
 
-    gl_FragData[0] = vec4( vec2( 0.5 ) + ( 0.5  * dotScaled ), light, noise3D );
+    // is the vector very orthogonal to the surface? We scale our advection according to this. We use the angle between normal and vector but use
+    // 1 - dot to get the angle between vector and surface which is 90 degree shifted against the dot of the normal and the vector.
+    float geometryVecAngle = ( acos(
+                                     abs(
+                                          dot( normalize( v_normalObject ),
+                                               normalize(vec.xyz)
+                                             )
+                                        )
+                                   ) / piHalf
+                             );
+    // we measured the angle between normal and vector, but we want the angle between surface tangent and vector, which is a shift of half PI /
+    // halfPi = 1
+    geometryVecAngle = 1.0 - geometryVecAngle;
+
+    // the user defines an angle in degrees used as cutoff value. Angles above this one should be clipped
+    float cutoffAngle = u_projectionAngleThreshold / 90.0;
+
+    // scale down the vector -> the more it "comes out of the surface, the shorter the vector".
+    float dotScale = cutoffAngle -  geometryVecAngle;
+    if( dotScale < 0 )
+        dotScale = 0;
+
+    // scale our vector according to the above metric and output
+    vec2 dotScaledVector = dotScale * scaleMaxToOne( vecProjected ).xy;
+    gl_FragData[0] = vec4( vec2( 0.5 ) + ( 0.5  * dotScaledVector ), light, noise3D );
 }
 

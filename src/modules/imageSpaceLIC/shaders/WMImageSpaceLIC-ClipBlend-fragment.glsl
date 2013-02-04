@@ -22,9 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
-#version 120
+#version 130
 
 #include "WGEUtils.glsl"
+#include "WGEShadingTools.glsl"
 
 /**
  * The texture Unit for the advection texture
@@ -57,6 +58,16 @@ uniform float u_lightIntensity;
 uniform bool u_useEdges;
 
 /**
+ * Edge color to use
+ */
+uniform vec4 u_useEdgesColor;
+
+/**
+ * Step function border for blending in the edges.
+ */
+uniform float u_useEdgesStep;
+
+/**
  * If true, the depth is blended in
  */
 uniform bool u_useDepthCueing;
@@ -87,25 +98,12 @@ void main()
     float u_contrastingP = u_useHighContrast ? 8 : 2.5;
     vec3 plainColor = u_cmapRatio * cmap + ( 1.0 - u_cmapRatio ) * vec3( u_contrastingS * pow( advected, u_contrastingP ) );
 
-    // MPI Paper Hack: {
-    // plainColor = u_cmapRatio * cmap;
-    // plainColor += 1.5*( 1.0 - u_cmapRatio ) * vec3( u_contrastingS * pow( advected, u_contrastingP ), 0.0, 0.0 );
-    // if( isZero( cmap.r, 0.1 ) )
-    //     discard;
-    // }
-
     vec4 col = vec4(
-        ( vec3( edge ) + plainColor ) // plain color mapped advection texture with edges
+        mix( plainColor, u_useEdgesColor.xyz, smoothstep( 0, u_useEdgesStep, edge ) ) // plain color mapped advection texture with edges
          * clamp( 1.0 - ( float( u_useDepthCueing ) * depth * depth ), 0.4, 1.0 ) // scaled by depth if enabled
          * ( u_useLight ? light * 1.3 * u_lightIntensity: 1.0 ),    // NOTE: the 1.3 is here to keep compatibility with the old version
         1.0
     );
-
-    // math: BioVis Paper Hack
-    // if( cmap.g < 0.1 )
-    //    discard;
-    // else
-    //    gl_FragColor = col;
 
     gl_FragColor = col;
     gl_FragDepth = depth;

@@ -166,6 +166,10 @@ private:
 
     WPropBool     m_useEdges; //!< indicates whether to show the edges
 
+    WPropColor    m_useEdgesColor; //!< indicated whether the edges (if enabled) should be black or white or green or red or ....
+
+    WPropDouble   m_useEdgesStep; //!< define the steepness of the step function used to blend in the edge color.
+
     WPropBool     m_useLight; //!< indicates whether to use Phong
 
     WPropDouble   m_lightIntensity; //!< light intensity
@@ -177,6 +181,8 @@ private:
     WPropInt      m_numIters; //!< the number of iterations done per frame
 
     WPropDouble   m_cmapRatio; //!< the ratio between colormap and LIC
+
+    WPropDouble   m_projectionAngleThreshold; //!< the angle threshold between surface and vector before clipping the vector.
 
     /**
      * The group for more advanced LIC features
