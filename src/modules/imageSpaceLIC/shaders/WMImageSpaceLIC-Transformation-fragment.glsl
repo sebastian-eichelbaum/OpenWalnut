@@ -157,7 +157,7 @@ void main()
     float geometryVecAngle = ( acos(
                                      abs(
                                           dot( normalize( v_normalObject ),
-                                               normalize(vec.xyz)
+                                               normalize( vec.xyz )
                                              )
                                         )
                                    ) / piHalf
@@ -172,7 +172,9 @@ void main()
     // scale down the vector -> the more it "comes out of the surface, the shorter the vector".
     float dotScale = cutoffAngle -  geometryVecAngle;
     if( dotScale < 0 )
+    {
         dotScale = 0;
+    }
 
     // scale our vector according to the above metric and output
     vec2 dotScaledVector = dotScale * scaleMaxToOne( vecProjected ).xy;

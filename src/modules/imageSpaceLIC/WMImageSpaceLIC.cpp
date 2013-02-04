@@ -172,10 +172,10 @@ void WMImageSpaceLIC::properties()
     m_numIters->setMin( 1 );
     m_numIters->setMax( 1000 );
 
-    m_projectionAngleThreshold = m_advancedLicGroup->addProperty( "Projection Angle Threshold", "This defines the threshold of the angle between tangential "
-            "plane of the surface and the vector which is going to be projected. You can adjust how steep a vector can be before it is clipped and NOT "
-            "projected. Note: all vectors with an angle below this threshold are projected but linearly reduced in influence depending on the "
-            "angle.", 90.0 );
+    m_projectionAngleThreshold = m_advancedLicGroup->addProperty( "Projection Angle Threshold", "This defines the threshold of the angle between "
+            "tangential plane of the surface and the vector which is going to be projected. You can adjust how steep a vector can be before it is "
+            "clipped and NOT projected. Note: all vectors with an angle below this threshold are projected but linearly reduced in influence "
+            "depending on the angle.", 90.0 );
     m_projectionAngleThreshold->setMin( 0.0 );
     m_projectionAngleThreshold->setMax( 90.0 );
 
