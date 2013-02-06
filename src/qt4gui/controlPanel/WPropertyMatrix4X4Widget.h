@@ -31,6 +31,8 @@
 #include <QtGui/QSlider>
 #include <QtGui/QHBoxLayout>
 
+#include "../guiElements/WScaleLabel.h"
+
 #include "WPropertyWidget.h"
 
 class WScaleLabel;

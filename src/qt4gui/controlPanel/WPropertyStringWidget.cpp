@@ -54,10 +54,8 @@ WPropertyStringWidget::WPropertyStringWidget( WPropString property, QGridLayout*
     m_infoLayout.setMargin( WGLOBAL_MARGIN );
     m_infoLayout.setSpacing( WGLOBAL_SPACING );
     m_informationWidgets.setLayout( &m_infoLayout );
-    m_asText.setWordWrap( true );
-    // To have word warp work correctly -> set size policy
-    m_asText.setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding ) );
 
+    // To have word warp work correctly -> set size policy
     m_asText.setTextInteractionFlags( Qt::TextSelectableByMouse );
 
     // set the initial values

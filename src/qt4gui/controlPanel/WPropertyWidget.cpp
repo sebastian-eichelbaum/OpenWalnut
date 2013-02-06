@@ -43,6 +43,9 @@
 #include "WPropertyTriggerWidget.h"
 #include "WPropertyIntervalWidget.h"
 #include "WPropertyWidget.h"
+
+#include "../WGuiConsts.h"
+
 #include "WPropertyWidget.moc"
 #include "WQtPropertyGroupWidget.h"
 
@@ -51,6 +54,7 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
     m_property( property ),
     m_propertyGrid( propertyGrid ),
     m_label( this ),
+    m_separator( this ),
     m_useLabel( m_propertyGrid ),
     m_parameterWidgets(),       // parent gets set by the QStackWidget
     m_informationWidgets(),       // parent gets set by the QStackWidget
@@ -59,7 +63,10 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
     if( m_useLabel )
     {
         // initialize members
+        m_label.setMargin( 0 );
+        m_label.addAdditionalWidth( 8 );    // a 4 px margin around the label
         m_label.setText( property->getName().c_str() );
+
         // set tooltips
         m_label.setToolTip( getTooltip().c_str() );
         setToolTip( m_label.toolTip() );
@@ -70,6 +77,36 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
         m_propertyGrid->addWidget( this, row, 1 );
         m_propertyGrid->setColumnStretch( 0, 0.0 );
         m_propertyGrid->setColumnStretch( 1, 10000.0 );
+
+        // ONLY style if in label mode
+
+        // define some colors
+        QPalette palette;
+        QColor defaultCol = palette.window().color();
+
+        // separator color
+        QColor sepCol = defaultCol.darker( 200 );
+        // label color
+        QColor labelCol = defaultCol.darker( 115 );
+        // property color
+        QColor propertyCol = defaultCol;
+
+        // set spearator style
+        m_separator.setFrameShape( QFrame::HLine );
+        m_separator.setFrameShadow( QFrame::Plain );
+        m_propertyGrid->addWidget( &m_separator, row + 1, 0, 1, 2 );
+        m_separator.setStyleSheet( "QWidget{ color:" + sepCol.name() + ";}" );
+
+        // set style of label
+        m_label.setObjectName( "ControlPanelPropertyLabelWidget" );
+        // increase size of label to be the whole layout cell
+        m_label.setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Expanding ) );
+        m_label.setStyleSheet( "background-color:" + labelCol.name() + ";" );
+
+        // set style of this property widget
+        setObjectName( "ControlPanelPropertyWidget" );
+        setStyleSheet( "QStackedWidget#ControlPanelPropertyWidget{ background-color:" + propertyCol.name() +
+                                                                   "; margin-left:1px; margin-right:1px; }" );
     }
 
     // add both widgets to the stacked widget, it then uses the first as default.
@@ -85,6 +122,7 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
     // if the property is hidden initially, hide widget too
     setHidden( m_property->isHidden() );
     m_label.setHidden( m_property->isHidden() );
+    m_separator.setHidden( m_property->isHidden() );
 
     // setup the update callback
     m_connection = m_property->getUpdateCondition()->subscribeSignal( boost::bind( &WPropertyWidget::requestUpdate, this ) );
@@ -108,6 +146,7 @@ bool WPropertyWidget::event( QEvent* event )
     {
         setHidden( m_property->isHidden() );
         m_label.setHidden( m_property->isHidden() );
+        m_separator.setHidden( m_property->isHidden() );
         update();
         return true;
     }

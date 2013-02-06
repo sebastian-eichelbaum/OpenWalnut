@@ -131,6 +131,13 @@ public:
      */
     WPropertyGroupBase::SPtr getPropertyGroup();
 
+public slots:
+    /**
+     * Change visibility of this group.
+     * \param who the widget to switch
+     */
+    void switchVisibility( QWidget* who );
+
 signals:
 
     /**

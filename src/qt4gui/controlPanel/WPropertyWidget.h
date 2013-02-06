@@ -32,6 +32,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/QStackedWidget>
 #include <QtGui/QLabel>
+#include <QtGui/QFrame>
 #include <QtGui/QGridLayout>
 
 #include "core/common/WPropertyBase.h"
@@ -132,6 +133,11 @@ protected:
      * The label used to name the property
      */
     WScaleLabel m_label;
+
+    /**
+     * Separator after each property
+     */
+    QFrame m_separator;
 
     /**
      * If set to true, the widgets uses the control layout to combine the widget with a label

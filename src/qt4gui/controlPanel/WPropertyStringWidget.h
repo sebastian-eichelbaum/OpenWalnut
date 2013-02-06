@@ -31,6 +31,7 @@
 #include <QtGui/QSlider>
 #include <QtGui/QHBoxLayout>
 
+#include "../guiElements/WScaleLabel.h"
 #include "WPropertyWidget.h"
 
 /**
@@ -78,7 +79,7 @@ protected:
     /**
      * Used to show the property as text.
      */
-    QLabel m_asText;
+    WScaleLabel m_asText;
 
     /**
      * The layout used for the pure output (information properties)

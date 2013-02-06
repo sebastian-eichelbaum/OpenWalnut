@@ -25,9 +25,11 @@
 #include <string>
 #include <algorithm>
 
+#include <QtCore/QSignalMapper>
 #include <QtGui/QApplication>
 #include <QtGui/QGroupBox>
 #include <QtGui/QPushButton>
+#include <QtGui/QToolButton>
 #include <QtGui/QScrollArea>
 
 #include "../events/WEventTypes.h"
@@ -193,24 +195,28 @@ void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asSc
     boxLayout->setSpacing( 0 );
 
     // create a button as title
-    QPushButton* boxTitle = new QPushButton( this );
+    QToolButton* boxTitle = new QToolButton( this );
+    boxTitle->setText( widget->getName() );
     boxLayout->addWidget( boxTitle, 0, 0 );
 
     // set the button up
-    QSizePolicy sizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
+    QSizePolicy sizePolicy( QSizePolicy::Minimum, QSizePolicy::Maximum );
     sizePolicy.setHorizontalStretch( 0 );
     sizePolicy.setVerticalStretch( 0 );
     boxTitle->setSizePolicy( sizePolicy );
-    boxTitle->setCheckable( true );
-    boxTitle->setChecked( true );
-    boxTitle->setFlat( true );
-    QFont font;
-    font.setBold( true );
-    boxTitle->setFont( font );
-    boxTitle->setText( widget->getName() );
+    boxTitle->setAutoRaise( true );
+    boxTitle->setAutoFillBackground( true );
+
+    // some styling
+    QPalette palette;
+    QColor defaultCol = palette.window().color().darker( 150 );
+    boxTitle->setStyleSheet( "background-color: " + defaultCol.name() + "; font-weight:bold;" );
 
     // toggle should cause the body widget to appear/disappear
-    connect( boxTitle, SIGNAL( toggled( bool ) ), group, SLOT( setVisible( bool ) ) );
+    QSignalMapper* signalMapper = new QSignalMapper( this );
+    signalMapper->setMapping( boxTitle, group );
+    connect( boxTitle, SIGNAL( released() ), signalMapper, SLOT( map() ) );
+    connect( signalMapper, SIGNAL( mapped( QWidget* ) ), this, SLOT( switchVisibility( QWidget* ) ) );
 
     // create a body widget
     if( asScrollArea )
@@ -258,4 +264,9 @@ bool WQtPropertyGroupWidget::isEmpty() const
 WPropertyGroupBase::SPtr WQtPropertyGroupWidget::getPropertyGroup()
 {
     return m_group;
+}
+
+void WQtPropertyGroupWidget::switchVisibility( QWidget* who )
+{
+    who->setVisible( !who->isVisible() );
 }

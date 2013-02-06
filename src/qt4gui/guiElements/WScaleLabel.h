@@ -55,21 +55,29 @@ public:
      *
      * \return prefered size of the label
      */
-    QSize sizeHint() const;
+    virtual QSize sizeHint() const;
 
     /**
     * overwritten from QLabel, returning the widgets prefered size
     *
     * \return minimum size of the label
     */
-    QSize minimumSizeHint() const;
+    virtual QSize minimumSizeHint() const;
 
     /**
      * reimplemented function to setText
      *
      * \param text text of the label
      */
-    void setText( const QString &text );
+    virtual void setText( const QString &text );
+
+    /**
+     * Set this to reserve extra space for a margin. This function does not set the margin. This is still your task, using stylesheets. You will
+     * not need this when using QLabel::setMargin().
+     *
+     * \param margin the margin to keep in mind for size calculations
+     */
+    virtual void addAdditionalWidth( int margin );
 protected:
     /**
      * custom implementation of the resize event
@@ -88,6 +96,11 @@ private:
      * QString to remember the original unshortend text of the widget
      */
     QString m_orgText;
+
+    /**
+     * The additional width we need to reserver (like for margins).
+     */
+    int m_additionalWidth;
 };
 
 #endif  // WSCALELABEL_H
