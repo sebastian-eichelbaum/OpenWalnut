@@ -175,6 +175,20 @@ protected:
      */
     boost::signals2::connection m_connection;
 
+    /**
+     * The color to use for separators.
+     */
+    QColor m_sepCol;
+
+    /**
+     * The color to use for the property labels
+     */
+    QColor m_labelCol;
+
+    /**
+     * The color to use for property widgets
+     */
+    QColor m_propertyCol;
 private:
 };
 
