@@ -506,6 +506,7 @@ void WGETexture< TextureType >::setupProperties( double scale, double min )
 
     WMatrix4d m = WMatrix4d::identity();
     m_texMatrix = m_properties->addProperty( "Texture Transformation", "Usable to transform the texture.", m );
+    m_texMatrix->setHidden();
     m_texMatrix->setPurpose( PV_PURPOSE_INFORMATION );
 
     TextureType::setResizeNonPowerOfTwoHint( false );
