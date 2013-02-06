@@ -51,12 +51,20 @@ WQtPropertyGroupWidget::WQtPropertyGroupWidget( WPropertyGroupBase::SPtr group, 
     m_pageLayout = new QVBoxLayout();
     m_pageLayout->setMargin( WGLOBAL_MARGIN );
     m_pageLayout->setSpacing( WGLOBAL_SPACING );
+    m_pageLayout->setAlignment( Qt::AlignTop );
 
     m_controlLayout = new QGridLayout();
     m_controlLayout->setMargin( WGLOBAL_MARGIN );
     m_controlLayout->setSpacing( WGLOBAL_SPACING );
+    m_controlLayout->setAlignment( Qt::AlignTop );
 
     m_pageLayout->addLayout( m_controlLayout );
+
+    // force widgets to horizontally be on top and shrink vertically to match scroll area
+    QSizePolicy sizePolicy( QSizePolicy::Expanding, QSizePolicy::Maximum );
+    sizePolicy.setHorizontalStretch( 0 );
+    sizePolicy.setVerticalStretch( 0 );
+    setSizePolicy( sizePolicy );
 
     // add the groups children
     // read lock, gets unlocked upon destruction (out of scope)
@@ -189,10 +197,9 @@ void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asSc
     boxLayout->addWidget( boxTitle, 0, 0 );
 
     // set the button up
-    QSizePolicy sizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+    QSizePolicy sizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
     sizePolicy.setHorizontalStretch( 0 );
     sizePolicy.setVerticalStretch( 0 );
-    sizePolicy.setHeightForWidth( boxTitle->sizePolicy().hasHeightForWidth() );
     boxTitle->setSizePolicy( sizePolicy );
     boxTitle->setCheckable( true );
     boxTitle->setChecked( true );
