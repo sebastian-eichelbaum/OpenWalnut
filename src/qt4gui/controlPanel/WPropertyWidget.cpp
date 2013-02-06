@@ -71,6 +71,8 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
     // property color
     m_propertyCol = defaultCol;
 
+    m_errorCol = QColor( "#ff3543" );
+
     if( m_useLabel )
     {
         // initialize members
@@ -180,8 +182,7 @@ void WPropertyWidget::invalidate( bool invalid )
 
         if( invalid )
         {
-            m_label.setStyleSheet( " padding-left:1px; background-color:#ff3543; font-weight: bold;" );
-
+            m_label.setStyleSheet( " padding-left:1px; background-color:" + m_errorCol.name() + "; font-weight: bold;" );
         }
         else
         {

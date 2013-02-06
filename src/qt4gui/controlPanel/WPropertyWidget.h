@@ -189,6 +189,11 @@ protected:
      * The color to use for property widgets
      */
     QColor m_propertyCol;
+
+    /**
+     * Color used for indicating errors
+     */
+    QColor m_errorCol;
 private:
 };
 
