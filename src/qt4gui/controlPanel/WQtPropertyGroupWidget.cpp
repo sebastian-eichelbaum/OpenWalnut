@@ -299,6 +299,21 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
     return box;
 }
 
+QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WPropertyGroupBase::SPtr group, const QString& title, size_t depth, QWidget* parent )
+{
+    QSizePolicy sizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
+    sizePolicy.setHorizontalStretch( 0 );
+    sizePolicy.setVerticalStretch( 0 );
+
+    WQtPropertyGroupWidget* propWidget = new WQtPropertyGroupWidget( group, depth, parent );
+    propWidget->setName( title );
+    QWidget* tab =  WQtPropertyGroupWidget::createPropertyGroupBox( propWidget, false, parent, title );
+    tab->setSizePolicy( sizePolicy );
+    tab->setWindowTitle( title );
+
+    return tab;
+}
+
 void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asScrollArea )
 {
     QWidget* box = WQtPropertyGroupWidget::createPropertyGroupBox( widget, asScrollArea, this );
