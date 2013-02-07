@@ -59,9 +59,10 @@ public:
     /**
      * Creates new widget for a property group. Use this constructor to provide automatic hidden-flag management.
      * \param group The group
+     * \param depth the nesting depth of this group, it usually is parents depth + 1.
      * \param parent The widget managing this widget
      */
-    WQtPropertyGroupWidget( WPropertyGroupBase::SPtr group, QWidget* parent = 0 );
+    WQtPropertyGroupWidget( WPropertyGroupBase::SPtr group, size_t depth = 0, QWidget* parent = 0 );
 
     /**
      * destructor
@@ -204,6 +205,11 @@ private:
      * The connection for propertyChangeNotifier().
      */
     boost::signals2::connection m_connection;
+
+    /**
+     * The depth of this group.
+     */
+    size_t m_nestingDepth;
 };
 
 #endif  // WQTPROPERTYGROUPWIDGET_H

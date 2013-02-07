@@ -942,7 +942,7 @@ void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boos
     WQtPropertyGroupWidget* infoTab = NULL;
     if( props )
     {
-        tab = new WQtPropertyGroupWidget( props );
+        tab = new WQtPropertyGroupWidget( props, 0, this );
         if( tab )
         {
             tab->setName( "Settings" );
@@ -950,7 +950,7 @@ void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boos
     }
     if( infoProps )
     {
-        infoTab = new WQtPropertyGroupWidget( infoProps );
+        infoTab = new WQtPropertyGroupWidget( infoProps, 0, this );
         if( infoTab )
         {
             infoTab->setName( "Information" );
