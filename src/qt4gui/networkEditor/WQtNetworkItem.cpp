@@ -402,7 +402,8 @@ void WQtNetworkItem::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* /* event *
             QScrollArea* sa = new QScrollArea( m_networkEditor );
             sa->setWidget( props );
             sa->setWidgetResizable( true );
-            sa->setWindowFlags( Qt::Tool );
+            sa->setWindowFlags( Qt::Window );
+            sa->setWindowRole( "Properties" );
             sa->setWindowTitle( QString::fromStdString( "Properties: " + name ) );
             sa->show();
             m_propertyToolWindow = sa;
