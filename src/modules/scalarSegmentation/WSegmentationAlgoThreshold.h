@@ -96,14 +96,12 @@ private:
 template< typename T >
 WSegmentationAlgo::DataSetPtr WSegmentationAlgoThreshold::operator() ( WValueSet< T > const* valueset ) const
 {
-    double thres = m_threshold->get( true );
-
     boost::shared_ptr< std::vector< T > > values = boost::shared_ptr< std::vector< T > >( new std::vector< T >( valueset->size() ) );
+
+    double threshold = valueset->getMinimumValue() + m_threshold->get( true ) * ( valueset->getMaximumValue() - valueset->getMinimumValue() );
     for( std::size_t k = 0; k < valueset->size(); ++k )
     {
-        ( *values )[k] = ( static_cast< double >( valueset->getScalar( k ) ) <
-                        thres * ( valueset->getMaximumValue() - valueset->getMinimumValue() ) / 100.0 + valueset->getMinimumValue()
-                        ? static_cast< T >( 0 ) : static_cast< T >( 100 ) );
+        ( *values )[k] = static_cast< T >( static_cast< double >( valueset->getScalar( k ) ) < threshold ? 0 : 1 );
     }
     boost::shared_ptr< WValueSet< T > > vs( new WValueSet< T >( 0, 1, values, DataType< T >::type ) );
     return DataSetPtr( new WDataSetScalar( vs, m_dataSet->getGrid() ) );
