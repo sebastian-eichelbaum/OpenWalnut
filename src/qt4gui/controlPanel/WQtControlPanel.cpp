@@ -752,13 +752,13 @@ void WQtControlPanel::selectRoiTreeItem()
         roi->getProperties()->getProperty( "active" )->toPropBool()->set( m_roiTreeWidget->selectedItems().at( 0 )->checkState( 0 ) );
     }
 
-    buildPropTab( props, boost::shared_ptr< WProperties >() );
+    buildPropTab( props, boost::shared_ptr< WProperties >(), "ROI" );
 }
 
 void WQtControlPanel::selectDataModule( osg::ref_ptr< WGETexture3D > texture )
 {
     clearAndDeleteTabs();
-    buildPropTab( texture->getProperties(), texture->getInformationProperties() );
+    buildPropTab( texture->getProperties(), texture->getInformationProperties(), "Colormap" );
 }
 
 QTreeWidgetItem* WQtControlPanel::findModuleItem( WModule::SPtr module ) const
@@ -878,7 +878,18 @@ void WQtControlPanel::setActiveModule( WModule::SPtr module, bool forceUpdate )
     // set new property tabs if module is not crashed
     if( !module->isCrashed() )
     {
-        buildPropTab( module->getProperties(), module->getInformationProperties() );
+        std::string name = module->getName();
+        WPropertyBase::SPtr namePropCandidate = module->getProperties()->findProperty( "Name" );
+        if( namePropCandidate )
+        {
+            WPropString nameProp = namePropCandidate->toPropString();
+            if( nameProp )
+            {
+                name = ( name == nameProp->get() ) ? name : name + " - " + nameProp->get();
+            }
+        }
+
+        buildPropTab( module->getProperties(), module->getInformationProperties(), name  );
     }
 
     // re-select the previous tab
@@ -936,29 +947,34 @@ void WQtControlPanel::setActiveModule( WModule::SPtr module, bool forceUpdate )
     m_ignoreSelectionChange = false;
 }
 
-void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps )
+void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps, const std::string& name )
 {
-    WQtPropertyGroupWidget* tab = NULL;
-    WQtPropertyGroupWidget* infoTab = NULL;
+    QWidget* tab = NULL;
+    QWidget* infoTab = NULL;
+    WQtPropertyGroupWidget* propWidget = NULL;
+    WQtPropertyGroupWidget* propInfoWidget = NULL;
+
+    QSizePolicy sizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
+    sizePolicy.setHorizontalStretch( 0 );
+    sizePolicy.setVerticalStretch( 0 );
+
     if( props )
     {
-        tab = new WQtPropertyGroupWidget( props, 0, this );
-        if( tab )
-        {
-            tab->setName( "Settings" );
-        }
+        propWidget = new WQtPropertyGroupWidget( props, 0, this );
+        tab =  WQtPropertyGroupWidget::createPropertyGroupBox( propWidget, false, this, QString::fromStdString( name ) );
+        propWidget->setName( "Settings" );
+        tab->setSizePolicy( sizePolicy );
     }
     if( infoProps )
     {
-        infoTab = new WQtPropertyGroupWidget( infoProps, 0, this );
-        if( infoTab )
-        {
-            infoTab->setName( "Information" );
-        }
+        propInfoWidget = new WQtPropertyGroupWidget( infoProps, 0, this );
+        infoTab =  WQtPropertyGroupWidget::createPropertyGroupBox( propInfoWidget, false, this, QString::fromStdString( name ) );
+        propInfoWidget->setName( "Information" );
+        infoTab->setSizePolicy( sizePolicy );
     }
 
-    int infoIdx = addTabWidgetContent( infoTab );
-    int propIdx = addTabWidgetContent( tab );
+    int infoIdx = addTabWidgetContent( infoTab, propInfoWidget );
+    int propIdx = addTabWidgetContent( tab, propWidget );
 
     // select the property widget preferably
     if( m_previousTab == "" )
@@ -1046,9 +1062,9 @@ void WQtControlPanel::changeTreeItem( QTreeWidgetItem* item, int /* column */ )
     }
 }
 
-int WQtControlPanel::addTabWidgetContent( WQtPropertyGroupWidget* content )
+int WQtControlPanel::addTabWidgetContent( QWidget* content, WQtPropertyGroupWidget* propContents )
 {
-    if( !content || content->isEmpty() )
+    if( !content || !propContents || propContents->isEmpty() )
     {
         // we destroy the widget if we not use it to avoid empty widgets popping up
         if( content )
@@ -1062,7 +1078,7 @@ int WQtControlPanel::addTabWidgetContent( WQtPropertyGroupWidget* content )
     sa->setWidget( content );
     sa->setWidgetResizable( true );
 
-    return m_tabWidget->addTab( sa, content->getName() );
+    return m_tabWidget->addTab( sa, propContents->getName() );
 }
 
 int WQtControlPanel::getFirstSubject()

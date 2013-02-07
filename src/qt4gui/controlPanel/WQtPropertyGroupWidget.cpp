@@ -34,6 +34,7 @@
 
 #include "../events/WEventTypes.h"
 #include "../events/WPropertyChangedEvent.h"
+#include "../guiElements/WScaleToolButton.h"
 
 #include "core/common/WPropertyGroupBase.h"
 #include "core/common/WLogger.h"
@@ -169,10 +170,14 @@ void WQtPropertyGroupWidget::addGroup( WPropertyGroupBase::SPtr prop )
     addGroup( new WQtPropertyGroupWidget( prop, m_nestingDepth + 1, this ) );
 }
 
-void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asScrollArea )
+QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget* widget, bool asScrollArea, QWidget* parent, const QString& title )
 {
+    QSizePolicy sizePolicy( QSizePolicy::Minimum, QSizePolicy::Maximum );
+    sizePolicy.setHorizontalStretch( 0 );
+    sizePolicy.setVerticalStretch( 0 );
+
     // create a scrollbox and group box containing the widget
-    QWidget* group = new QWidget( this );
+    QWidget* group = new QWidget();
 
     QScrollArea* scrollArea = 0;
     QGridLayout* grid = new QGridLayout();
@@ -189,7 +194,7 @@ void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asSc
     }
 
     // encapsulate it into an collapsable widget
-    QFrame* box = new QFrame( this );
+    QFrame* box = new QFrame( parent );
     box->setFrameShape( QFrame::StyledPanel );
     box->setObjectName( "PropertyGroupBox" );
     QGridLayout* boxLayout = new QGridLayout();
@@ -198,8 +203,10 @@ void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asSc
     box->setLayout( boxLayout );
 
     // create a button as title
-    QToolButton* boxTitle = new QToolButton( this );
-    boxTitle->setText( widget->getName() );
+    WScaleToolButton* boxTitle = new WScaleToolButton( box );
+    QString titleText = ( title == "" ) ? widget->getName() : title;
+    boxTitle->setText( titleText );
+    boxTitle->setToolTip( titleText );
     boxLayout->addWidget( boxTitle, 0, 0 );
 
     // we need a separate widget to indent the content widget a bit without indenting the title ... yes this really looks like the mess you can
@@ -215,9 +222,6 @@ void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asSc
     boxLayout->addWidget( boxContent, 1, 0 );
 
     // set the button up
-    QSizePolicy sizePolicy( QSizePolicy::Minimum, QSizePolicy::Maximum );
-    sizePolicy.setHorizontalStretch( 0 );
-    sizePolicy.setVerticalStretch( 0 );
     boxTitle->setSizePolicy( sizePolicy );
     boxTitle->setAutoRaise( true );
     boxTitle->setAutoFillBackground( true );
@@ -273,10 +277,10 @@ void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asSc
     content->setStyleSheet( "#PropertyGroupContent{ background-color: "+ palette.window().color().name() +";}" );
 
     // toggle should cause the body widget to appear/disappear
-    QSignalMapper* signalMapper = new QSignalMapper( this );
-    signalMapper->setMapping( boxTitle, group );
+    QSignalMapper* signalMapper = new QSignalMapper( box );
+    signalMapper->setMapping( boxTitle, boxContent );
     connect( boxTitle, SIGNAL( released() ), signalMapper, SLOT( map() ) );
-    connect( signalMapper, SIGNAL( mapped( QWidget* ) ), this, SLOT( switchVisibility( QWidget* ) ) );
+    connect( signalMapper, SIGNAL( mapped( QWidget* ) ), widget, SLOT( switchVisibility( QWidget* ) ) );
 
     // create a body widget
     if( asScrollArea )
@@ -288,13 +292,20 @@ void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asSc
         contentLayout->addWidget( group, 1, 0 );
     }
 
-    // insert into layout
-    int row = m_controlLayout->rowCount();
-    m_controlLayout->addWidget( box, row, 0, 1, 2 );
-
     // hide the box too if the property gets hidden
     box->setHidden( widget->isHidden() );
     connect( widget, SIGNAL( hideSignal( bool ) ), box, SLOT( setHidden( bool ) ) );
+
+    return box;
+}
+
+void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asScrollArea )
+{
+    QWidget* box = WQtPropertyGroupWidget::createPropertyGroupBox( widget, asScrollArea, this );
+
+    // insert into layout
+    int row = m_controlLayout->rowCount();
+    m_controlLayout->addWidget( box, row, 0, 1, 2 );
 
     // also keep track of group widgets
     m_propWidgets[ widget->getPropertyGroup() ] = box;

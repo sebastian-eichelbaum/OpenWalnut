@@ -65,6 +65,19 @@ public:
     WQtPropertyGroupWidget( WPropertyGroupBase::SPtr group, size_t depth = 0, QWidget* parent = 0 );
 
     /**
+     * This function creates the fancy box around your specified group widget.
+     *
+     * \param widget the widget to put into the box
+     * \param asScrollArea if true, the widget is embedded into a scroll area
+     * \param parent the parent widget
+     * \param title the title to use for the box. If empty, the property group name is used.
+     *
+     * \return the box widget
+     */
+    static QWidget* createPropertyGroupBox( WQtPropertyGroupWidget* widget, bool asScrollArea = false, QWidget* parent = NULL,
+                                            const QString& title = "" );
+
+    /**
      * destructor
      */
     virtual ~WQtPropertyGroupWidget();

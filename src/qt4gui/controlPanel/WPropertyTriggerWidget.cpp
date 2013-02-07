@@ -73,11 +73,6 @@ void WPropertyTriggerWidget::update()
     m_asText.setText( m_triggerProperty->get() == WPVBaseTypes::PV_TRIGGER_TRIGGERED ? QString( "Operation triggered" ) : QString( "Ready" ) );
 }
 
-QPushButton* WPropertyTriggerWidget::getButton()
-{
-    return &m_button;
-}
-
 void WPropertyTriggerWidget::changed()
 {
     // set the value

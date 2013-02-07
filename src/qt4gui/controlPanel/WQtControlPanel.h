@@ -81,10 +81,11 @@ public:
      * Adds a page to the context widget
      *
      * \param content A widget with controls
+     * \param propContents The prop group widget.
      *
      * \return the index of the new tab
      */
-    int addTabWidgetContent( WQtPropertyGroupWidget* content );
+    int addTabWidgetContent( QWidget* content, WQtPropertyGroupWidget* propContents );
 
     /**
      * Adds a subject entry to the tree widget
@@ -429,7 +430,7 @@ private slots:
      * \param props the properties.
      * \param infoProps the information properties shown on a separate tab
      */
-    void buildPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps );
+    void buildPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps, const std::string& name );
 
     /**
      * Function gets change when a change to a tree item occurs.
