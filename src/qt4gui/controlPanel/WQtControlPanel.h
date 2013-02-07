@@ -429,6 +429,7 @@ private slots:
      *
      * \param props the properties.
      * \param infoProps the information properties shown on a separate tab
+     * \param name the name used as title. Can be empty but should not.
      */
     void buildPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps, const std::string& name );
 
