@@ -40,7 +40,8 @@ WMScalarSegmentation::WMScalarSegmentation():
     WModule()
 {
     m_algoIndex = 0;
-    m_algos.push_back( boost::shared_ptr< WSegmentationAlgo >( new WSegmentationAlgoThreshold() ) );
+    m_algos.push_back( boost::shared_ptr< WSegmentationAlgo >( new WSegmentationAlgoThreshold( WSegmentationAlgoThreshold::LOWER_THRESHOLD ) ) );
+    m_algos.push_back( boost::shared_ptr< WSegmentationAlgo >( new WSegmentationAlgoThreshold( WSegmentationAlgoThreshold::UPPER_THRESHOLD ) ) );
 #ifdef OW_USE_ITK
     m_algos.push_back( boost::shared_ptr< WSegmentationAlgo >( new WSegmentationAlgoWatershed() ) );
     m_algos.push_back( boost::shared_ptr< WSegmentationAlgo >( new WSegmentationAlgoOtsu() ) );
