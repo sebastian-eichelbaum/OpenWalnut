@@ -261,7 +261,7 @@ void WMColormapper::moduleMain()
                                                         dataSet->getTexture()->name()->get() << "\".";
 
                 // set the _recommended_ values from the previous ones
-                // to avoid a critical issue with the minimum and scaler properties of the texture, we explicitly exclude them here.
+                // to avoid a critical issue ( #237 ) with the minimum and scaler properties of the texture, we explicitly exclude them here.
                 std::vector< std::string > excludes;
                 excludes.push_back( "Minimum" );
                 excludes.push_back( "Scale" );
