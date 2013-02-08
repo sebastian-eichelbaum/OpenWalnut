@@ -158,6 +158,21 @@ public:
      */
     virtual bool set( boost::shared_ptr< WPropertyBase > value, bool recommendedOnly = false );
 
+    /**
+     * This method is a special version of \ref WPropertyBase::set for groups. It allows to set the values of the contained properties. It does
+     * not add nor remove properties. It searches the property by name (recursively) and sets the value from the specified property group's
+     * property. You can use the exclusion list to exclude a certain property.
+     *
+     * \param value the source values
+     * \param exclude a list of property names to exclude. Use complete names here, which means, when having nested groups, apply the rules
+     *                defined in \ref WPropertyGroupBase::findProperty.
+     * \param recommendedOnly if true, property types which support recommended values apply the given value as recommendation.
+     *
+     * \return true if the values of the children could be set. If one could not be set, false
+     */
+    virtual bool set( boost::shared_ptr< WPropertyGroup > value, std::vector< std::string > exclude = std::vector< std::string >(),
+                                                                 bool recommendedOnly = false );
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     // Extend the WPropertyGroupBase to allow the property list to be modified
     ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -888,6 +903,20 @@ public:
                                 WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
 protected:
+    /**
+     * This function implements the set functionality. It works recursively and keeps track of the current path.
+     *
+     * \param value the value source
+     * \param path the current path inside the source property group
+     * \param exclude exclude list with paths relative to the original source group
+     * \param recommendedOnly recommendation flag.
+     *
+     * \return true if everything was set successfully.
+     */
+    virtual bool setImpl( boost::shared_ptr< WPropertyGroup > value, std::string path = "",
+                                                                     std::vector< std::string > exclude = std::vector< std::string >(),
+                                                                     bool recommendedOnly = false );
+
 private:
 };
 
