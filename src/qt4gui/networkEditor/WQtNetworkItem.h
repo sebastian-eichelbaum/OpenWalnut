@@ -180,7 +180,7 @@ protected:
      *
      * \param mouseEvent the mouse event
      */
-    void mouseMoveEvent( QGraphicsSceneMouseEvent* mouseEvent );
+    virtual void mouseMoveEvent( QGraphicsSceneMouseEvent* mouseEvent );
 
     /**
      * Reimplemented from QGraphicsRectItem. Used to enable selection of network items
@@ -188,21 +188,28 @@ protected:
      *
      * \param event the mouse event
      **/
-    void mousePressEvent( QGraphicsSceneMouseEvent *event );
+    virtual void mousePressEvent( QGraphicsSceneMouseEvent *event );
+
+    /**
+     * Called upon double click.
+     *
+     * \param event the click event
+     */
+    virtual void mouseDoubleClickEvent( QGraphicsSceneMouseEvent* event );
 
     /**
      * If the cursor enters the item, the item gets a green color.
      *
      * \param event the hover event
      */
-    void hoverEnterEvent( QGraphicsSceneHoverEvent* event );
+    virtual void hoverEnterEvent( QGraphicsSceneHoverEvent* event );
 
     /**
      * If the cursor leaves the item, the item gets his default color.
      *
      * \param event the hover event
      */
-    void hoverLeaveEvent( QGraphicsSceneHoverEvent* event );
+    virtual void hoverLeaveEvent( QGraphicsSceneHoverEvent* event );
 
     /**
      * Draw some customized stuff in the scene.
@@ -211,7 +218,7 @@ protected:
      * \param option
      * \param w
      */
-    void paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* w );
+    virtual void paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* w );
 
 private:
     /**
@@ -294,5 +301,10 @@ private:
      * Optimal width for this module. Calculated during construction.
      */
     float m_itemBestWidth;
+
+    /**
+     * The property toolbox window if any.
+     */
+    QWidget* m_propertyToolWindow;
 };
 #endif  // WQTNETWORKITEM_H

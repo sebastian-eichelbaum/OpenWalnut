@@ -35,6 +35,7 @@
 #include "core/common/WStringUtils.h"
 
 #include "../controlPanel/WQtTreeItem.h"
+#include "../controlPanel/WQtPropertyGroupWidget.h"
 
 #include "WQtNetworkArrow.h"
 #include "WQtNetworkItem.h"
@@ -51,7 +52,8 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
     m_busyIsDetermined( false ),
     m_busyPercent( 0.0 ),
     m_busyIndicatorShow( false ),
-    m_forceUpdate( true )
+    m_forceUpdate( true ),
+    m_propertyToolWindow( NULL )
 {
     m_networkEditor = editor;
     m_module = module;
@@ -139,6 +141,12 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
 
 WQtNetworkItem::~WQtNetworkItem()
 {
+    if( m_propertyToolWindow )
+    {
+        m_propertyToolWindow->close();
+        delete m_propertyToolWindow;
+    }
+
     foreach( WQtNetworkPort *port, m_inPorts )
     {
         delete port;
@@ -226,6 +234,12 @@ void WQtNetworkItem::updater()
             }
             fitLook( m_itemBestWidth, m_itemBestWidth );
         }
+    }
+    else if( m_propertyToolWindow )
+    {
+        m_propertyToolWindow->close();
+        delete m_propertyToolWindow;
+        m_propertyToolWindow = NULL;
     }
 
     // show crash state as text too
@@ -356,6 +370,45 @@ void WQtNetworkItem::mousePressEvent( QGraphicsSceneMouseEvent *event )
     m_networkEditor->getScene()->clearSelection();
     setSelected( true );
     QGraphicsItem::mousePressEvent( event );
+}
+
+void WQtNetworkItem::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* /* event */ )
+{
+    if( m_propertyToolWindow )
+    {
+        m_propertyToolWindow->show();
+        m_propertyToolWindow->activateWindow();
+        m_propertyToolWindow->raise();
+    }
+    else
+    {
+        if( !m_module->isCrashed() )
+        {
+            std::string name = m_module->getName();
+            WPropertyBase::SPtr namePropCandidate = m_module->getProperties()->findProperty( "Name" );
+            if( namePropCandidate )
+            {
+                WPropString nameProp = namePropCandidate->toPropString();
+                if( nameProp )
+                {
+                    name = ( name == nameProp->get() ) ? name : name + " - " + nameProp->get();
+                }
+            }
+
+            QWidget* props = WQtPropertyGroupWidget::createPropertyGroupBox(
+                                m_module->getProperties(), QString::fromStdString( name ), 0, m_networkEditor
+                             );
+
+            QScrollArea* sa = new QScrollArea( m_networkEditor );
+            sa->setWidget( props );
+            sa->setWidgetResizable( true );
+            sa->setWindowFlags( Qt::Window );
+            sa->setWindowRole( "Properties" );
+            sa->setWindowTitle( QString::fromStdString( "Properties: " + name ) );
+            sa->show();
+            m_propertyToolWindow = sa;
+        }
+    }
 }
 
 QVariant WQtNetworkItem::itemChange( GraphicsItemChange change, const QVariant &value )

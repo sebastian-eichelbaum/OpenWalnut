@@ -34,6 +34,7 @@
 
 #include "../events/WEventTypes.h"
 #include "../events/WPropertyChangedEvent.h"
+#include "../guiElements/WScaleToolButton.h"
 
 #include "core/common/WPropertyGroupBase.h"
 #include "core/common/WLogger.h"
@@ -43,10 +44,11 @@
 #include "WQtPropertyGroupWidget.h"
 #include "WQtPropertyGroupWidget.moc"
 
-WQtPropertyGroupWidget::WQtPropertyGroupWidget( WPropertyGroupBase::SPtr group, QWidget* parent )
+WQtPropertyGroupWidget::WQtPropertyGroupWidget( WPropertyGroupBase::SPtr group, size_t depth, QWidget* parent )
     : QWidget( parent ),
     m_name( group->getName().c_str() ),
-    m_group( group )
+    m_group( group ),
+    m_nestingDepth( depth )
 {
     // note: never do layouts as none pointers
     // on destruction of a widget it will try to delete them which will cause crashes
@@ -165,13 +167,17 @@ void WQtPropertyGroupWidget::addProp( WPropertyBase::SPtr property )
 
 void WQtPropertyGroupWidget::addGroup( WPropertyGroupBase::SPtr prop )
 {
-    addGroup( new WQtPropertyGroupWidget( prop ) );
+    addGroup( new WQtPropertyGroupWidget( prop, m_nestingDepth + 1, this ) );
 }
 
-void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asScrollArea )
+QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget* widget, bool asScrollArea, QWidget* parent, const QString& title )
 {
+    QSizePolicy sizePolicy( QSizePolicy::Minimum, QSizePolicy::Maximum );
+    sizePolicy.setHorizontalStretch( 0 );
+    sizePolicy.setVerticalStretch( 0 );
+
     // create a scrollbox and group box containing the widget
-    QWidget* group = new QWidget( this );
+    QWidget* group = new QWidget();
 
     QScrollArea* scrollArea = 0;
     QGridLayout* grid = new QGridLayout();
@@ -188,53 +194,133 @@ void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asSc
     }
 
     // encapsulate it into an collapsable widget
-    QFrame* box = new QFrame( this );
+    QFrame* box = new QFrame( parent );
     box->setFrameShape( QFrame::StyledPanel );
-    QGridLayout* boxLayout = new QGridLayout( box );
+    box->setObjectName( "PropertyGroupBox" );
+    QGridLayout* boxLayout = new QGridLayout();
     boxLayout->setMargin( 0 );
     boxLayout->setSpacing( 0 );
+    box->setLayout( boxLayout );
 
     // create a button as title
-    QToolButton* boxTitle = new QToolButton( this );
-    boxTitle->setText( widget->getName() );
+    WScaleToolButton* boxTitle = new WScaleToolButton( box );
+    QString titleText = ( title == "" ) ? widget->getName() : title;
+    boxTitle->setText( titleText );
+    boxTitle->setToolTip( titleText );
     boxLayout->addWidget( boxTitle, 0, 0 );
 
+    // we need a separate widget to indent the content widget a bit without indenting the title ... yes this really looks like the mess you can
+    // do with DIVs in HTML :-/. What we do here is adding a widget which then contains the content widget and indents it. Setting the contents
+    // margins directly in the QFrame* box would also indent the title button which is not wanted
+    QWidget* boxContent = new QWidget();
+    boxContent->setContentsMargins( 5, 0, 0, 0 );
+    boxContent->setObjectName( "PropertyGroupBoxContent" );
+    QGridLayout* boxContentLayout = new QGridLayout();
+    boxContent->setLayout( boxContentLayout );
+    boxContentLayout->setMargin( 0 );
+    boxContentLayout->setSpacing( 0 );
+    boxLayout->addWidget( boxContent, 1, 0 );
+
     // set the button up
-    QSizePolicy sizePolicy( QSizePolicy::Minimum, QSizePolicy::Maximum );
-    sizePolicy.setHorizontalStretch( 0 );
-    sizePolicy.setVerticalStretch( 0 );
     boxTitle->setSizePolicy( sizePolicy );
     boxTitle->setAutoRaise( true );
     boxTitle->setAutoFillBackground( true );
 
+    // content widget
+    QWidget* content = new QWidget();
+    content->setObjectName( "PropertyGroupContent" );
+    boxContentLayout->addWidget( content, 1, 0 );
+
+    // content layout
+    QGridLayout* contentLayout = new QGridLayout();
+    content->setLayout( contentLayout );
+    contentLayout->setMargin( 0 );
+    contentLayout->setSpacing( 0 );
+
     // some styling
-    QPalette palette;
-    QColor defaultCol = palette.window().color().darker( 150 );
+    QPalette palette;   // the palette is used to get default colors of the style/system
+    QColor defaultCol = palette.window().color().darker( 120 );
+    switch( widget->m_nestingDepth % 10 ) // NOTE: the first level 0 does not need a color as it does not provide a boxtitle, so we begin with 1
+    {
+        // All these colors are taken from the solarized pallette http://ethanschoonover.com/solarized
+        case 1:
+            defaultCol = palette.window().color().darker( 150 );
+            break;
+        case 2:
+            defaultCol = QColor( "#268bd2" );
+            break;
+        case 3:
+            defaultCol = QColor( "#2aa198" );
+            break;
+        case 4:
+            defaultCol = QColor( "#859900" );
+            break;
+        case 5:
+            defaultCol = QColor( "#b58900" );
+            break;
+        case 6:
+            defaultCol = QColor( "#cb4b16" );
+            break;
+        case 7:
+            defaultCol = QColor( "#dc322f" );
+            break;
+        case 8:
+            defaultCol = QColor( "#d33682" );
+            break;
+        case 9:
+            defaultCol = QColor( "#6c71c4" );
+            break;
+    }
+
     boxTitle->setStyleSheet( "background-color: " + defaultCol.name() + "; font-weight:bold;" );
+    box->setStyleSheet( "QFrame#PropertyGroupBox{background-color: " + defaultCol.name() + ";}" );
+    content->setStyleSheet( "#PropertyGroupContent{ background-color: "+ palette.window().color().name() +";}" );
 
     // toggle should cause the body widget to appear/disappear
-    QSignalMapper* signalMapper = new QSignalMapper( this );
-    signalMapper->setMapping( boxTitle, group );
+    QSignalMapper* signalMapper = new QSignalMapper( box );
+    signalMapper->setMapping( boxTitle, boxContent );
     connect( boxTitle, SIGNAL( released() ), signalMapper, SLOT( map() ) );
-    connect( signalMapper, SIGNAL( mapped( QWidget* ) ), this, SLOT( switchVisibility( QWidget* ) ) );
+    connect( signalMapper, SIGNAL( mapped( QWidget* ) ), widget, SLOT( switchVisibility( QWidget* ) ) );
 
     // create a body widget
     if( asScrollArea )
     {
-        boxLayout->addWidget( scrollArea, 1, 0 );
+        contentLayout->addWidget( scrollArea, 1, 0 );
     }
     else
     {
-        boxLayout->addWidget( group, 1, 0 );
+        contentLayout->addWidget( group, 1, 0 );
     }
-
-    // insert into layout
-    int row = m_controlLayout->rowCount();
-    m_controlLayout->addWidget( box, row, 0, 1, 2 );
 
     // hide the box too if the property gets hidden
     box->setHidden( widget->isHidden() );
     connect( widget, SIGNAL( hideSignal( bool ) ), box, SLOT( setHidden( bool ) ) );
+
+    return box;
+}
+
+QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WPropertyGroupBase::SPtr group, const QString& title, size_t depth, QWidget* parent )
+{
+    QSizePolicy sizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
+    sizePolicy.setHorizontalStretch( 0 );
+    sizePolicy.setVerticalStretch( 0 );
+
+    WQtPropertyGroupWidget* propWidget = new WQtPropertyGroupWidget( group, depth, parent );
+    propWidget->setName( title );
+    QWidget* tab =  WQtPropertyGroupWidget::createPropertyGroupBox( propWidget, false, parent, title );
+    tab->setSizePolicy( sizePolicy );
+    tab->setWindowTitle( title );
+
+    return tab;
+}
+
+void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asScrollArea )
+{
+    QWidget* box = WQtPropertyGroupWidget::createPropertyGroupBox( widget, asScrollArea, this );
+
+    // insert into layout
+    int row = m_controlLayout->rowCount();
+    m_controlLayout->addWidget( box, row, 0, 1, 2 );
 
     // also keep track of group widgets
     m_propWidgets[ widget->getPropertyGroup() ] = box;

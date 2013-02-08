@@ -57,6 +57,8 @@ WQtMessagePopup::WQtMessagePopup( QWidget* parent, const QString& title, const Q
 {
     setAutoClose( true );
 
+    setWindowRole( "MessagePopup" );
+
     // these settings seem to be ignored somehow
     setWindowModality( Qt::NonModal );
 

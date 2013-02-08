@@ -59,9 +59,35 @@ public:
     /**
      * Creates new widget for a property group. Use this constructor to provide automatic hidden-flag management.
      * \param group The group
+     * \param depth the nesting depth of this group, it usually is parents depth + 1.
      * \param parent The widget managing this widget
      */
-    WQtPropertyGroupWidget( WPropertyGroupBase::SPtr group, QWidget* parent = 0 );
+    WQtPropertyGroupWidget( WPropertyGroupBase::SPtr group, size_t depth = 0, QWidget* parent = 0 );
+
+    /**
+     * This function creates the fancy box around your specified group widget.
+     *
+     * \param widget the widget to put into the box
+     * \param asScrollArea if true, the widget is embedded into a scroll area
+     * \param parent the parent widget
+     * \param title the title to use for the box. If empty, the property group name is used.
+     *
+     * \return the box widget
+     */
+    static QWidget* createPropertyGroupBox( WQtPropertyGroupWidget* widget, bool asScrollArea = false, QWidget* parent = NULL,
+                                            const QString& title = "" );
+
+    /**
+     * Create a property widget using the given group.
+     *
+     * \param group the property group to represent
+     * \param title the title of the widget
+     * \param depth the nesting depth
+     * \param parent the parent widget
+     *
+     * \return the widget.
+     */
+    static QWidget* createPropertyGroupBox( WPropertyGroupBase::SPtr group, const QString& title = "", size_t depth = 0, QWidget* parent = 0 );
 
     /**
      * destructor
@@ -204,6 +230,11 @@ private:
      * The connection for propertyChangeNotifier().
      */
     boost::signals2::connection m_connection;
+
+    /**
+     * The depth of this group.
+     */
+    size_t m_nestingDepth;
 };
 
 #endif  // WQTPROPERTYGROUPWIDGET_H

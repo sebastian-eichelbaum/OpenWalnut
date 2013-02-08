@@ -32,6 +32,7 @@
 #include <QtGui/QHBoxLayout>
 
 #include "../guiElements/WScaleLabel.h"
+#include "../guiElements/WScaleToolButton.h"
 
 #include "WPropertyWidget.h"
 
@@ -56,13 +57,6 @@ public:
      */
     virtual ~WPropertyTriggerWidget();
 
-    /**
-     * Returns the QT PushButton widget used. It always returns a valid pointer.
-     *
-     * \return the button
-     */
-    virtual QPushButton* getButton();
-
 protected:
     /**
      * Called whenever the widget should update.
@@ -77,7 +71,7 @@ protected:
     /**
      * If asButton is set to true: use this button instead of the m_checkbox
      */
-    QPushButton m_button;
+    WScaleToolButton m_button;
 
     /**
      * Layout used to position the label and the checkbox
