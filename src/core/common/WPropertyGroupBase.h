@@ -83,6 +83,11 @@ public:
      */
     typedef boost::shared_ptr< const WPropertyGroupBase > ConstSPtr;
 
+    /**
+     * The separator used to separate groups and subgroups
+     */
+    static const std::string separator;
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     // Construction
     ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -152,7 +157,9 @@ public:
     virtual PropertySharedContainerType::ReadTicket getReadTicket() const;
 
     /**
-     * Searches the property with a given name. It does not throw any exception. It simply returns NULL if it can't be found.
+     * Searches the property with a given name. It does not throw any exception. It simply returns NULL if it can't be found. It searches
+     * in nested groups too. The naming rules for finding a property in subgroups of this group is like specifying a path, using the \ref
+     * separator char: "somegroup" + separator + "anothergroup" + separator + "propnametosearch".
      *
      * \param name the name of the property to search
      *

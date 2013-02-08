@@ -261,7 +261,11 @@ void WMColormapper::moduleMain()
                                                         dataSet->getTexture()->name()->get() << "\".";
 
                 // set the _recommended_ values from the previous ones
-                dataSet->getTexture()->getProperties()->set( m_lastDataSet->getTexture()->getProperties(), true );
+                // to avoid a critical issue with the minimum and scaler properties of the texture, we explicitly exclude them here.
+                std::vector< std::string > excludes;
+                excludes.push_back( "Minimum" );
+                excludes.push_back( "Scale" );
+                dataSet->getTexture()->getProperties()->set( m_lastDataSet->getTexture()->getProperties(), excludes, true );
 
                 // finally, set the new properties (and remove the old props)
                 m_properties->removeProperty( m_lastDataSet->getTexture()->getProperties() );

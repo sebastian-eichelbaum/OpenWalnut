@@ -152,8 +152,19 @@ bool WPropertyGroup::set( boost::shared_ptr< WPropertyBase > value, bool recomme
         return false;
     }
 
+    // forward, use empty exclude list
+    return set( v, std::vector< std::string >(), recommendedOnly );
+}
+
+bool WPropertyGroup::set( boost::shared_ptr< WPropertyGroup > value, std::vector< std::string > exclude, bool recommendedOnly )
+{
+    setImpl( value, "", exclude, recommendedOnly );
+}
+
+bool WPropertyGroup::setImpl( boost::shared_ptr< WPropertyGroup > value, std::string path, std::vector< std::string > exclude, bool recommendedOnly )
+{
     // go through each of the given child props
-    WPropertyGroup::PropertySharedContainerType::ReadTicket r = v->getReadTicket();
+    WPropertyGroup::PropertySharedContainerType::ReadTicket r = value->getReadTicket();
     size_t c = 0;   // number of props we have set
     for( WPropertyGroupBase::PropertyConstIterator it = r->get().begin(); it != r->get().end(); ++it )
     {
@@ -164,12 +175,43 @@ bool WPropertyGroup::set( boost::shared_ptr< WPropertyBase > value, bool recomme
             // not found. Ignore it. We cannot set the target property as the source did not exist
             continue;
         }
-        // ok there it is -> set
-        prop->set( *it, recommendedOnly );
-        c++;
+
+        // ok there it is. check exclude list.
+        // first: use the current property name and append it to path
+        std::string completePath = path + WPropertyGroupBase::separator + ( *it )->getName();
+        if( path == "" )
+        {
+            // no separator if the path is empty now
+            completePath = ( *it )->getName();
+        }
+
+        // now check exclude list
+        if( std::find( exclude.begin(), exclude.end(), completePath ) != exclude.end() )
+        {
+            // it is excluded
+            continue;
+        }
+
+        // not excluded. Is it a group or something else?
+        WPropertyGroup::SPtr meAsGroup = boost::shared_dynamic_cast< WPropertyGroup >( prop );
+        WPropertyGroup::SPtr inputAsGroup = boost::shared_dynamic_cast< WPropertyGroup >( *it );
+        if( inputAsGroup && meAsGroup )
+        {
+            // not excluded and is group, recurse:
+            c += meAsGroup->setImpl( inputAsGroup, completePath, exclude, recommendedOnly );
+        }
+        else if( inputAsGroup || meAsGroup ) // one group and one not a group, skip
+        {
+            continue;
+        }
+        else
+        {
+            c += prop->set( *it, recommendedOnly );
+        }
     }
 
     // success only if all props have been set
+    // NOTE: it think this only will ever be correct if we have no nested groups ...
     return ( c == r->get().size() );
 }
 
