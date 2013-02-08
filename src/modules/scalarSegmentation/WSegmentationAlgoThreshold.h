@@ -41,20 +41,9 @@ class WSegmentationAlgoThreshold : public WSegmentationAlgo
 {
 public:
     /**
-     * This flags will select if the threshold should cut lower or upper values to zero.
-     */
-    enum ThresholdType
-    {
-        UPPER_THRESHOLD,
-        LOWER_THRESHOLD
-    };
-
-    /**
      * Standard constructor.
-     *
-     * \param type Specifies if this instance should act as an Upper or Lower threshold.
      */
-    explicit WSegmentationAlgoThreshold( ThresholdType type );
+    WSegmentationAlgoThreshold();
 
     /**
      * Destructor.
@@ -101,13 +90,17 @@ private:
      */
     virtual DataSetPtr applyOperation();
 
-    //! The threshold in %.
-    WPropDouble m_threshold;
+    //! The lower threshold in %.
+    WPropDouble m_low_threshold;
+
+    //! The upper threshold in %.
+    WPropDouble m_upp_threshold;
 
     /**
-     * Each instance can select its threshold type which is stored inhere.
+     * Whether the values inside range of thresholds should be keept, or
+     * resulting images should contain only 0 or 1 values (binarized).
      */
-    ThresholdType m_type;
+    WPropBool m_binarize;
 };
 
 template< typename T >
@@ -115,20 +108,24 @@ WSegmentationAlgo::DataSetPtr WSegmentationAlgoThreshold::operator() ( WValueSet
 {
     boost::shared_ptr< std::vector< T > > values = boost::shared_ptr< std::vector< T > >( new std::vector< T >( valueset->size() ) );
 
-    double threshold = valueset->getMinimumValue() + m_threshold->get( true ) * ( valueset->getMaximumValue() - valueset->getMinimumValue() );
+    double low_threshold = valueset->getMinimumValue() + m_low_threshold->get( true ) * ( valueset->getMaximumValue() - valueset->getMinimumValue() );
+    double upp_threshold = valueset->getMinimumValue() + m_upp_threshold->get( true ) * ( valueset->getMaximumValue() - valueset->getMinimumValue() );
 
-    if( m_type == LOWER_THRESHOLD )
+    double val = 0.0;
+    if( m_binarize->get( true ) )
     {
         for( std::size_t k = 0; k < valueset->size(); ++k )
         {
-            ( *values )[k] = static_cast< T >( static_cast< double >( valueset->getScalar( k ) ) < threshold ? 0 : 1 );
+            val =  static_cast< double >( valueset->getScalar( k ) );
+            ( *values )[k] = static_cast< T >( val < low_threshold || val > upp_threshold ? 0 : 1 );
         }
     }
     else
     {
         for( std::size_t k = 0; k < valueset->size(); ++k )
         {
-            ( *values )[k] = static_cast< T >( static_cast< double >( valueset->getScalar( k ) ) >= threshold ? 0 : 1 );
+            val =  static_cast< double >( valueset->getScalar( k ) );
+            ( *values )[k] = static_cast< T >( val < low_threshold || val > upp_threshold ? 0 : val );
         }
     }
     boost::shared_ptr< WValueSet< T > > vs( new WValueSet< T >( 0, 1, values, DataType< T >::type ) );

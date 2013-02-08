@@ -26,9 +26,8 @@
 
 #include "WSegmentationAlgoThreshold.h"
 
-WSegmentationAlgoThreshold::WSegmentationAlgoThreshold( ThresholdType type )
-    : WSegmentationAlgo(),
-      m_type( type )
+WSegmentationAlgoThreshold::WSegmentationAlgoThreshold()
+    : WSegmentationAlgo()
 {
 }
 
@@ -38,46 +37,30 @@ WSegmentationAlgoThreshold::~WSegmentationAlgoThreshold()
 
 void WSegmentationAlgoThreshold::properties()
 {
-    if( m_type == LOWER_THRESHOLD )
-    {
-        m_threshold = m_properties->addProperty( "Lower Threshold", "Threshold in %.", 0.0, m_propCondition );
-    }
-    else
-    {
-        m_threshold = m_properties->addProperty( "Upper Threshold", "Threshold in %.", 0.0, m_propCondition );
-    }
+    m_low_threshold = m_properties->addProperty( "Lower Threshold", "Threshold in %.", 0.0, m_propCondition );
+    m_upp_threshold = m_properties->addProperty( "Upper Threshold", "Threshold in %.", 1.0, m_propCondition );
 
-    m_threshold->setMin( 0.0 );
-    m_threshold->setMax( 1.0 );
+    m_low_threshold->setMin( 0.0 );
+    m_low_threshold->setMax( 1.0 );
+    m_upp_threshold->setMin( 0.0 );
+    m_upp_threshold->setMax( 1.0 );
+
+    m_binarize = m_properties->addProperty( "Binarize", "Replace values with 0 and 1. 0 Means outside, 1 inside.", true, m_propCondition );
 }
 
 std::string WSegmentationAlgoThreshold::getName()
 {
-    if( m_type == LOWER_THRESHOLD )
-    {
-        return "Lower Threshold segmentation";
-    }
-    else
-    {
-        return "Upper Threshold segmentation";
-    }
+    return "Threshold segmentation";
 }
 
 std::string WSegmentationAlgoThreshold::getDescription()
 {
-    if( m_type == LOWER_THRESHOLD )
-    {
-        return "Use lower thresholding for segmentation.";
-    }
-    else
-    {
-        return "Use upper thresholding for segmentation.";
-    }
+    return "Use thresholding for segmentation.";
 }
 
 bool WSegmentationAlgoThreshold::propChanged()
 {
-    return m_threshold->changed();
+    return m_low_threshold->changed() || m_upp_threshold->changed() || m_binarize->changed();
 }
 
 WSegmentationAlgo::DataSetPtr WSegmentationAlgoThreshold::applyOperation()
