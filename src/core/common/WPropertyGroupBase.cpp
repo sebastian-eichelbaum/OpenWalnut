@@ -39,6 +39,8 @@
 
 #include "WPropertyGroupBase.h"
 
+const std::string WPropertyGroupBase::separator = "/";
+
 WPropertyGroupBase::WPropertyGroupBase( std::string name, std::string description ):
     WPropertyBase( name, description ),
     m_properties()
@@ -106,7 +108,7 @@ boost::shared_ptr< WPropertyBase > WPropertyGroupBase::findProperty( std::string
 
     // tokenize the name -> contains any paths?
     typedef boost::tokenizer<boost::char_separator< char > > tokenizer;
-    boost::char_separator< char > sep( "/" );   // separate by /
+    boost::char_separator< char > sep( WPropertyGroupBase::separator.c_str() );   // separate by /
     tokenizer tok( name, sep );
 
     // iterate along the path
