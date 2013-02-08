@@ -26,8 +26,9 @@
 
 #include "WSegmentationAlgoThreshold.h"
 
-WSegmentationAlgoThreshold::WSegmentationAlgoThreshold()
-    : WSegmentationAlgo()
+WSegmentationAlgoThreshold::WSegmentationAlgoThreshold( ThresholdType type )
+    : WSegmentationAlgo(),
+      m_type( type )
 {
 }
 
@@ -37,19 +38,41 @@ WSegmentationAlgoThreshold::~WSegmentationAlgoThreshold()
 
 void WSegmentationAlgoThreshold::properties()
 {
-    m_threshold = m_properties->addProperty( "Threshold", "Threshold in %.", 0.0, m_propCondition );
+    if( m_type == LOWER_THRESHOLD )
+    {
+        m_threshold = m_properties->addProperty( "Lower Threshold", "Threshold in %.", 0.0, m_propCondition );
+    }
+    else
+    {
+        m_threshold = m_properties->addProperty( "Upper Threshold", "Threshold in %.", 0.0, m_propCondition );
+    }
+
     m_threshold->setMin( 0.0 );
     m_threshold->setMax( 1.0 );
 }
 
 std::string WSegmentationAlgoThreshold::getName()
 {
-    return "Threshold segmentation";
+    if( m_type == LOWER_THRESHOLD )
+    {
+        return "Lower Threshold segmentation";
+    }
+    else
+    {
+        return "Upper Threshold segmentation";
+    }
 }
 
 std::string WSegmentationAlgoThreshold::getDescription()
 {
-    return "Use thresholding for segmentation.";
+    if( m_type == LOWER_THRESHOLD )
+    {
+        return "Use lower thresholding for segmentation.";
+    }
+    else
+    {
+        return "Use upper thresholding for segmentation.";
+    }
 }
 
 bool WSegmentationAlgoThreshold::propChanged()
