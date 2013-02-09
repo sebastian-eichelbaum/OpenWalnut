@@ -158,7 +158,7 @@ bool WPropertyGroup::set( boost::shared_ptr< WPropertyBase > value, bool recomme
 
 bool WPropertyGroup::set( boost::shared_ptr< WPropertyGroup > value, std::vector< std::string > exclude, bool recommendedOnly )
 {
-    setImpl( value, "", exclude, recommendedOnly );
+    return setImpl( value, "", exclude, recommendedOnly );
 }
 
 bool WPropertyGroup::setImpl( boost::shared_ptr< WPropertyGroup > value, std::string path, std::vector< std::string > exclude, bool recommendedOnly )
