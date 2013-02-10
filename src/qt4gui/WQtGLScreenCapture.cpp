@@ -36,14 +36,16 @@
 #include "core/common/WLogger.h"
 #include "events/WEventTypes.h"
 #include "WMainWindow.h"
+#include "WQtGLWidget.h"
+#include "WQtGLDockWidget.h"
+#include "WQt4Gui.h"
 #include "WQtGLScreenCapture.h"
 #include "WQtGLScreenCapture.moc"
 
-WQtGLScreenCapture::WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* parent ):
+WQtGLScreenCapture::WQtGLScreenCapture( WQtGLDockWidget* parent ):
     QDockWidget( "Recorder", parent ),
-    m_mainWindow( parent ),
-    m_viewer( viewer ),
-    m_iconManager( parent->getIconManager() )
+    m_glDockWidget( parent ),
+    m_viewer( m_glDockWidget->getGLWidget()->getViewer() )
 {
     // initialize
     setObjectName( "Recorder Dock" );
@@ -117,7 +119,8 @@ WQtGLScreenCapture::WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* par
     );
 
     m_configFileEdit = new QLineEdit();
-    std::string defaultFilename = ( QDir::homePath() + QDir::separator() + "OpenWalnut_Frame_%f.jpg" ).toStdString();
+    std::string defaultFilename = ( QDir::homePath() + QDir::separator() +
+                                    "OpenWalnut - " + parent->getDockTitle() + " - Frame %f.png" ).toStdString();
     m_configFileEdit->setText( QString::fromStdString( defaultFilename ) );
 
     fileGroupLayout->addWidget( configFileHint );
@@ -137,9 +140,9 @@ WQtGLScreenCapture::WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* par
     m_screenshotWidget->setLayout( screenshotLayout );
 
     m_screenshotButton = new QPushButton( "Screenshot" );
-    m_screenshotButton->setToolTip( "Take a screenshot of the 3D view" );
-    m_screenshotAction = new QAction( parent->getIconManager()->getIcon( "image" ), "Screenshot", this );
-    m_screenshotAction->setToolTip( "Take a screenshot of the 3D view" );
+    m_screenshotButton->setToolTip( "Take a screenshot of this view" );
+    m_screenshotAction = new QAction( WQt4Gui::getIconManager()->getIcon( "image" ), "Screenshot", this );
+    m_screenshotAction->setToolTip( "Take a screenshot of this view" );
     m_screenshotAction->setShortcut( QKeySequence(  Qt::Key_F12 ) );
     m_screenshotAction->setShortcutContext( Qt::ApplicationShortcut );
     connect( m_screenshotAction, SIGNAL(  triggered( bool ) ), this, SLOT( screenShot() ) );
@@ -242,10 +245,13 @@ WQtGLScreenCapture::WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* par
     QCoreApplication::postEvent( this, new QEvent( static_cast< QEvent::Type >( WQT_SCREENCAPTURE_EVENT ) ) );
 
     // add them
-    m_toolbox->insertItem( 0, m_configWidget, m_iconManager->getIcon( "preferences" ), "Configuration" );
-    m_toolbox->insertItem( 1, m_screenshotWidget, m_iconManager->getIcon( "image" ), "Screenshot" );
-    m_toolbox->insertItem( 2, m_movieWidget, m_iconManager->getIcon( "video" ), "Movie" );
-    m_toolbox->insertItem( 3, m_animationWidget, m_iconManager->getIcon( "video" ), "Animation" );
+    m_toolbox->insertItem( 0, m_configWidget, WQt4Gui::getIconManager()->getIcon( "preferences" ), "Configuration" );
+    m_toolbox->insertItem( 1, m_screenshotWidget, WQt4Gui::getIconManager()->getIcon( "image" ), "Screenshot" );
+    m_toolbox->insertItem( 2, m_movieWidget, WQt4Gui::getIconManager()->getIcon( "video" ), "Movie" );
+
+    // hide it as long as issue #127 is not done.
+    // m_toolbox->insertItem( 3, m_animationWidget, WQt4Gui::getIconManager()->getIcon( "video" ), "Animation" );
+    m_animationWidget->setHidden( true );
 
     // we need to be notified about the screen grabbers state
     m_recordConnection = m_viewer->getScreenCapture()->getRecordCondition()->subscribeSignal( boost::bind( &WQtGLScreenCapture::recCallback, this ) );
@@ -402,32 +408,32 @@ void WQtGLScreenCapture::resolutionChange( bool force )
         switch( m_resolutionCombo->currentIndex() )
         {
         case 0:
-            m_mainWindow->forceMainGLWidgetSize( 640, 480 );
+            m_glDockWidget->forceGLWidgetSize( 640, 480 );
             break;
         case 1:
-            m_mainWindow->forceMainGLWidgetSize( 800, 600 );
+            m_glDockWidget->forceGLWidgetSize( 800, 600 );
             break;
         case 2:
-            m_mainWindow->forceMainGLWidgetSize( 1024, 768 );
+            m_glDockWidget->forceGLWidgetSize( 1024, 768 );
             break;
         case 3:
-            m_mainWindow->forceMainGLWidgetSize( 1280, 1024 );
+            m_glDockWidget->forceGLWidgetSize( 1280, 1024 );
             break;
         case 4:
-            m_mainWindow->forceMainGLWidgetSize( 1280, 720 );
+            m_glDockWidget->forceGLWidgetSize( 1280, 720 );
             break;
         case 5:
-            m_mainWindow->forceMainGLWidgetSize( 1920, 1080 );
+            m_glDockWidget->forceGLWidgetSize( 1920, 1080 );
             break;
         case 6: // custom size
-            m_mainWindow->forceMainGLWidgetSize( m_customWidth->text().toInt(), m_customHeight->text().toInt() );
+            m_glDockWidget->forceGLWidgetSize( m_customWidth->text().toInt(), m_customHeight->text().toInt() );
             break;
         }
     }
     else
     {
         wlog::debug( "WQtGLScreenCapture" ) << "Restoring resolution";
-        m_mainWindow->restoreMainGLWidgetSize();
+        m_glDockWidget->restoreGLWidgetSize();
     }
 }
 

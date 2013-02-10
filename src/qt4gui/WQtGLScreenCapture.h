@@ -44,7 +44,7 @@
 
 #include "WIconManager.h"
 
-class WMainWindow;
+class WQtGLDockWidget;
 
 /**
  * This class is a screen recorder adapter in QT. It uses WGEScreenCapture and provides a nice widget around it.
@@ -56,10 +56,9 @@ public:
     /**
      * Creates screen capture gui for the specified capture callback of a certain view.
      *
-     * \param viewer the viewer to control
      * \param parent the parent
      */
-    WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* parent );
+    explicit WQtGLScreenCapture( WQtGLDockWidget* parent );
 
     /**
      * Destructor. Cleans up.
@@ -139,7 +138,7 @@ private:
     /**
      * My parent.
      */
-    WMainWindow* m_mainWindow;
+    WQtGLDockWidget* m_glDockWidget;
 
     /**
      * The actual screen capture instance.
@@ -174,11 +173,6 @@ private:
      * The toolbox containing all the stuff
      */
     QToolBox* m_toolbox;
-
-    /**
-     * The icons used here.
-     */
-    WIconManager* m_iconManager;
 
     /**
      * The configuration widget. It contains the common config stuff

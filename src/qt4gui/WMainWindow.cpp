@@ -244,10 +244,10 @@ void WMainWindow::setupGUI()
     WQtGLDockWidget* mainGLDock = new WQtGLDockWidget( "Main View", "3D View", m_glDock );
     mainGLDock->getGLWidget()->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
     m_mainGLWidget = mainGLDock->getGLWidget();
-    m_mainGLWidgetScreenCapture = m_mainGLWidget->getScreenCapture( this );
+    // m_mainGLWidgetScreenCapture = mainGLDock->getScreenCapture();
     m_glDock->addDockWidget( Qt::RightDockWidgetArea, mainGLDock );
-    addDockWidget( Qt::RightDockWidgetArea, m_mainGLWidgetScreenCapture );
-    tabifyDockWidget( m_controlPanel->getRoiDock(), m_mainGLWidgetScreenCapture );
+    // addDockWidget( Qt::RightDockWidgetArea, m_mainGLWidgetScreenCapture );
+    // tabifyDockWidget( m_controlPanel->getRoiDock(), m_mainGLWidgetScreenCapture );
     connect( m_mainGLWidget.get(), SIGNAL( renderedFirstFrame() ), this, SLOT( handleGLVendor() ) );
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
@@ -415,7 +415,7 @@ void WMainWindow::setupGUI()
     m_permanentToolBar->addAction( m_loadButton );
     m_permanentToolBar->addAction( m_saveAction );
     m_permanentToolBar->addSeparator();
-    m_permanentToolBar->addAction( m_mainGLWidgetScreenCapture->getScreenshotTrigger() );
+    // m_permanentToolBar->addAction( m_mainGLWidgetScreenCapture->getScreenshotTrigger() );
     m_permanentToolBar->addSeparator();
     m_permanentToolBar->addAction( roiButton );
     m_permanentToolBar->addSeparator();
@@ -1142,19 +1142,6 @@ void WMainWindow::handleStartMessages()
 {
     // only show welcome dialog for now
     showWelcomeDialog( false );
-}
-
-void WMainWindow::forceMainGLWidgetSize( size_t w, size_t h )
-{
-    m_mainGLWidget->setFixedSize( w, h );
-}
-
-void WMainWindow::restoreMainGLWidgetSize()
-{
-    m_mainGLWidget->setMinimumHeight( 250 );
-    m_mainGLWidget->setMaximumHeight( QWIDGETSIZE_MAX );
-    m_mainGLWidget->setMinimumWidth( 250 );
-    m_mainGLWidget->setMaximumWidth( QWIDGETSIZE_MAX );
 }
 
 void WMainWindow::handleDrop( QDropEvent* event )

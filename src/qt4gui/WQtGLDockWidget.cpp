@@ -39,7 +39,8 @@
 
 WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget* parent, WGECamera::ProjectionMode projectionMode,
                                   const QWidget* shareWidget )
-    : QDockWidget( dockTitle, parent )
+    : QDockWidget( dockTitle, parent ),
+    m_dockTitle( dockTitle )
 {
     setObjectName( QString( "GL - " ) + dockTitle );
 
@@ -65,6 +66,11 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
 
     // we need to know whether the dock is visible or not
     connect( this, SIGNAL( visibilityChanged( bool ) ), this, SLOT( handleVisibilityChange( bool ) ) );
+
+    // all view docks have a screen capture object
+    m_screenCapture = new WQtGLScreenCapture( this );
+    // hide the screen capture object by default
+    m_screenCapture->setHidden( true );
 
     // set custom title
     setTitleBarWidget( new WQtGLDockWidgetTitle( this, dockTitle ) );
@@ -114,6 +120,11 @@ void setupButton( QToolButton* btn )
 WQtGLDockWidgetTitle::WQtGLDockWidgetTitle( WQtGLDockWidget* parent, const QString& dockTitle ):
     QWidget( parent )
 {
+    // screen capture trigger
+    QToolButton* screenShotBtn = new QToolButton( this );
+    screenShotBtn->setDefaultAction( parent->getScreenCapture()->getScreenshotTrigger() );
+    setupButton( screenShotBtn );
+
     // camera presets
     QAction* camPresets = new QAction( WQt4Gui::getIconManager()->getIcon( "view" ), "Camera Presets", this );
     camPresets->setMenu( parent->getGLWidget()->getCameraPresetsAndResetMenu() );
@@ -153,6 +164,7 @@ WQtGLDockWidgetTitle::WQtGLDockWidgetTitle( WQtGLDockWidget* parent, const QStri
 
     layout->addWidget( title );
     layout->addStretch( 100000 );
+    layout->addWidget( screenShotBtn );
     layout->addWidget( presetBtn );
     layout->addWidget( settingsBtn );
     layout->addWidget( closeBtn );
@@ -167,4 +179,27 @@ WQtGLDockWidgetTitle::WQtGLDockWidgetTitle( WQtGLDockWidget* parent, const QStri
             "border-style: none;"
             "}"
     );
+}
+
+WQtGLScreenCapture* WQtGLDockWidget::getScreenCapture()
+{
+    return m_screenCapture;
+}
+
+void WQtGLDockWidget::forceGLWidgetSize( size_t w, size_t h )
+{
+    m_glWidget->setFixedSize( w, h );
+}
+
+void WQtGLDockWidget::restoreGLWidgetSize()
+{
+    m_glWidget->setMinimumHeight( 250 );
+    m_glWidget->setMaximumHeight( QWIDGETSIZE_MAX );
+    m_glWidget->setMinimumWidth( 250 );
+    m_glWidget->setMaximumWidth( QWIDGETSIZE_MAX );
+}
+
+const QString& WQtGLDockWidget::getDockTitle() const
+{
+    return m_dockTitle;
 }

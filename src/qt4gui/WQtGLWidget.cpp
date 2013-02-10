@@ -449,12 +449,6 @@ void WQtGLWidget::notifyFirstRenderedFrame()
     QCoreApplication::postEvent( this, new WRenderedFrameEvent() );
 }
 
-WQtGLScreenCapture* WQtGLWidget::getScreenCapture( WMainWindow* parent ) const
-{
-    WQtGLScreenCapture* sc = new WQtGLScreenCapture( getViewer(), parent );
-    return sc;
-}
-
 void WQtGLWidget::setPresetViewLeft()
 {
     osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( m_Viewer->getCameraManipulator() );

@@ -139,14 +139,6 @@ public:
     QAction* getBackgroundColorAction() const;
 
     /**
-     * Adds a screen capture dock using this view's screen capture callback.
-     *
-     * \param parent the main window parent
-     * \return the capture dock instance.
-     */
-    WQtGLScreenCapture* getScreenCapture( WMainWindow* parent ) const;
-
-    /**
      * The presets menu.
      *
      * \return the menu

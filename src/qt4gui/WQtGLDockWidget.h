@@ -65,6 +65,34 @@ public:
      */
     boost::shared_ptr< WQtGLWidget > getGLWidget() const;
 
+    /**
+     * Adds a screen capture dock using this view's screen capture callback.
+     *
+     * \return the capture dock instance.
+     */
+    WQtGLScreenCapture* getScreenCapture();
+
+    /**
+     * Forces the GL widget to have the desired size. This is mainly useful for screenshots and similar.
+     *
+     * \param w width
+     * \param h height
+     */
+    void forceGLWidgetSize( size_t w, size_t h );
+
+    /**
+     * Restores the GL widget size if it was fixed with forceMainGLWidgetSize() previously.
+     */
+    void restoreGLWidgetSize();
+
+    /**
+     * Return the title of the view/dock.
+     *
+     * \return the title text
+     */
+    const QString& getDockTitle() const;
+
+
 protected:
     /**
      * Layout of this widget. Use this to extend the dock width other widgets (i.e. PropWidgets).
@@ -103,6 +131,16 @@ private:
      * My GL widget.
      */
     boost::shared_ptr<WQtGLWidget> m_glWidget;
+
+    /**
+     * The view name and dock title.
+     */
+    QString m_dockTitle;
+
+    /**
+     * Manager for screen capturing of this view
+     */
+    WQtGLScreenCapture* m_screenCapture;
 };
 
 /**
