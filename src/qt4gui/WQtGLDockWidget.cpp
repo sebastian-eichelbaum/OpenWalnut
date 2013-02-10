@@ -25,13 +25,17 @@
 #include <QtGui/QAction>
 #include <QtGui/QDockWidget>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QToolButton>
 
 #include "WQt4Gui.h"
+#include "WMainWindow.h"
 
 #include "WSettingAction.h"
 
 #include "WQtGLDockWidget.h"
 #include "WQtGLDockWidget.moc"
+
 
 WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget* parent, WGECamera::ProjectionMode projectionMode,
                                   const QWidget* shareWidget )
@@ -62,27 +66,8 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     // we need to know whether the dock is visible or not
     connect( this, SIGNAL( visibilityChanged( bool ) ), this, SLOT( handleVisibilityChange( bool ) ) );
 
-    // create the dock widget context menu
-
-    // important: do not use this menu for the m_panel widget but ensure the right click event to be sent to the widget
-    m_panel->setContextMenuPolicy( Qt::PreventContextMenu );
-    setContextMenuPolicy( Qt::ActionsContextMenu );
-
-    // reset the scene
-    QAction* resetButton = new QAction( WQt4Gui::getIconManager()->getIcon( "view" ), "Reset", this );
-    connect( resetButton, SIGNAL(  triggered( bool ) ), m_glWidget.get(), SLOT( reset() ) );
-    addAction( resetButton );
-
-    // camera presets
-    QAction* camPresets = new QAction( WQt4Gui::getIconManager()->getIcon( "view" ), "Camera Presets", this );
-    camPresets->setMenu( getGLWidget()->getCameraPresetsMenu() );
-    addAction( camPresets );
-
-    // throwing
-    addAction( getGLWidget()->getThrowingSetting() );
-
-    // change background color
-    addAction( getGLWidget()->getBackgroundColorAction() );
+    // set custom title
+    setTitleBarWidget( new WQtGLDockWidgetTitle( this, dockTitle ) );
 }
 
 WQtGLDockWidget::~WQtGLDockWidget()
@@ -113,3 +98,73 @@ void WQtGLDockWidget::showEvent( QShowEvent* event )
     QDockWidget::showEvent( event );
 }
 
+/**
+ * Apply default settings for dock widget title buttons
+ *
+ * \param btn the button to setup
+ */
+void setupButton( QToolButton* btn )
+{
+    btn->setToolButtonStyle( Qt::ToolButtonIconOnly );
+    btn->setContentsMargins( 0, 0, 0, 0 );
+    btn->setFixedWidth( 24 );
+    btn->setFixedHeight( 24 );
+}
+
+WQtGLDockWidgetTitle::WQtGLDockWidgetTitle( WQtGLDockWidget* parent, const QString& dockTitle ):
+    QWidget( parent )
+{
+    // camera presets
+    QAction* camPresets = new QAction( WQt4Gui::getIconManager()->getIcon( "view" ), "Camera Presets", this );
+    camPresets->setMenu( parent->getGLWidget()->getCameraPresetsAndResetMenu() );
+    QToolButton* presetBtn = new QToolButton( this );
+    presetBtn->setDefaultAction( camPresets );
+    presetBtn->setPopupMode( QToolButton::InstantPopup );
+    setupButton( presetBtn );
+
+    QToolButton* settingsBtn = new QToolButton( this );
+    settingsBtn->setPopupMode( QToolButton::InstantPopup );
+    settingsBtn->setIcon(  WQt4Gui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
+    setupButton( settingsBtn );
+    settingsBtn->setToolTip( "Settings" );
+    QMenu* settingsMenu = new QMenu( this );
+    settingsBtn->setMenu( settingsMenu );
+
+    // throwing
+    settingsMenu->addAction( parent->getGLWidget()->getThrowingSetting() );
+
+    // change background color
+    settingsMenu->addAction( parent->getGLWidget()->getBackgroundColorAction() );
+
+    // close Btn
+    QToolButton* closeBtn = new QToolButton( this );
+    QAction* act = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "popup_close" ), "Close", this );
+    connect( act, SIGNAL( triggered( bool ) ), parent, SLOT( close() ) );
+    closeBtn->setDefaultAction( act );
+    setupButton( closeBtn );
+
+    // title
+    QLabel* title = new QLabel( " " + dockTitle, this );
+
+    // build layout
+    QHBoxLayout* layout = new QHBoxLayout( this );
+    layout->setMargin( 0 );
+    layout->setSpacing( 0 );
+
+    layout->addWidget( title );
+    layout->addStretch( 100000 );
+    layout->addWidget( presetBtn );
+    layout->addWidget( settingsBtn );
+    layout->addWidget( closeBtn );
+
+    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+
+    setStyleSheet(
+            "QToolButton{"
+            "border-style: none;"
+            "}"
+            "QPushButton{"
+            "border-style: none;"
+            "}"
+    );
+}

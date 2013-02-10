@@ -39,6 +39,7 @@ class WQtGLDockWidget : public QDockWidget
 {
     Q_OBJECT
 
+    friend class WQtGLDockWidgetTitle;
 public:
     /**
      * default constructor
@@ -102,6 +103,24 @@ private:
      * My GL widget.
      */
     boost::shared_ptr<WQtGLWidget> m_glWidget;
+};
+
+/**
+ * Class for managing dock widget title bars.
+ */
+class WQtGLDockWidgetTitle: public QWidget
+{
+    Q_OBJECT
+public:
+    /**
+     * Constructor
+     *
+     * \param parent the parent
+     * \param dockTitle The title text
+     */
+    WQtGLDockWidgetTitle( WQtGLDockWidget* parent, const QString& dockTitle );
+protected:
+private:
 };
 
 #endif  // WQTGLDOCKWIDGET_H
