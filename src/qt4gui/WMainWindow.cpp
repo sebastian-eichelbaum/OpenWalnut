@@ -330,6 +330,7 @@ void WMainWindow::setupGUI()
     m_viewAction->setMenu( m_viewMenu );
 
     m_settingsAction = new QAction( "Settings", this );
+    m_settingsAction->setIcon( m_iconManager.getIcon( "preferences" ) );
     m_settingsMenu = m_menuBar->addMenu( "Settings" );
     m_settingsMenu->addAction( m_autoDisplaySetting );
     m_settingsMenu->addAction( m_sliderMinMaxEditSetting );
@@ -347,6 +348,7 @@ void WMainWindow::setupGUI()
     this->addAction( controlPanelTrigger );  // this enables the action even if the menu bar is invisible
 
     m_helpAction = new QAction( "Help", this );
+    m_helpAction->setIcon( m_iconManager.getIcon( "help" ) );
     m_helpMenu = m_menuBar->addMenu( "Help" );
     m_helpMenu->addAction( m_iconManager.getIcon( "help" ), "OpenWalnut Help", this, SLOT( openOpenWalnutHelpDialog() ),
                            QKeySequence( QKeySequence::HelpContents ) );
