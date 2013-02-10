@@ -43,18 +43,19 @@
 #include "WQtGLScreenCapture.moc"
 
 WQtGLScreenCapture::WQtGLScreenCapture( WQtGLDockWidget* parent ):
-    QDockWidget( "Recorder", parent ),
+    QWidget( parent ),
     m_glDockWidget( parent ),
     m_viewer( m_glDockWidget->getGLWidget()->getViewer() )
 {
     // initialize
-    setObjectName( "Recorder Dock" );
+    setObjectName( "Recorder Dock - " + parent->getDockTitle() );
+    setWindowTitle( "Recorder - " + parent->getDockTitle() );
 
-    setAllowedAreas( Qt::AllDockWidgetAreas );
-    setFeatures( QDockWidget::AllDockWidgetFeatures );
-
+    // create our toolbox and add it to the main layout
     m_toolbox = new QToolBox( this );
-    setWidget( m_toolbox );
+    QHBoxLayout* layout = new QHBoxLayout( this );
+    layout->addWidget( m_toolbox );
+
     connect( m_toolbox, SIGNAL( currentChanged( int ) ), this, SLOT( toolBoxChanged( int ) ) );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -331,7 +332,7 @@ bool WQtGLScreenCapture::event( QEvent* event )
         }
     }
 
-    return QDockWidget::event( event );
+    return QWidget::event( event );
 }
 
 void WQtGLScreenCapture::screenShot()

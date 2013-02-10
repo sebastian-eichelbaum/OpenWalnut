@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <QtGui/QAction>
+#include <QtGui/QWidgetAction>
 #include <QtGui/QDockWidget>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
@@ -70,7 +71,7 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     // all view docks have a screen capture object
     m_screenCapture = new WQtGLScreenCapture( this );
     // hide the screen capture object by default
-    m_screenCapture->setHidden( true );
+    //m_screenCapture->setHidden( true );
 
     // set custom title
     setTitleBarWidget( new WQtGLDockWidgetTitle( this, dockTitle ) );
@@ -113,24 +114,34 @@ void setupButton( QToolButton* btn )
 {
     btn->setToolButtonStyle( Qt::ToolButtonIconOnly );
     btn->setContentsMargins( 0, 0, 0, 0 );
-    btn->setFixedWidth( 24 );
+    //btn->setFixedWidth( 24 );
     btn->setFixedHeight( 24 );
+    btn->setAutoRaise( true );
 }
 
 WQtGLDockWidgetTitle::WQtGLDockWidgetTitle( WQtGLDockWidget* parent, const QString& dockTitle ):
     QWidget( parent )
 {
+    QFrame* line = new QFrame();
+    line->setFrameShape( QFrame::VLine );
+    line->setFrameShadow( QFrame::Sunken );
+
     // screen capture trigger
     QToolButton* screenShotBtn = new QToolButton( this );
     screenShotBtn->setDefaultAction( parent->getScreenCapture()->getScreenshotTrigger() );
     setupButton( screenShotBtn );
+    QMenu* m = new QMenu();
+    QWidgetAction* a = new QWidgetAction( this );
+    a->setDefaultWidget( parent->getScreenCapture() );
+    m->addAction( a );
+    screenShotBtn->setMenu( m );
+    screenShotBtn->setPopupMode( QToolButton::MenuButtonPopup );
 
     // camera presets
-    QAction* camPresets = new QAction( WQt4Gui::getIconManager()->getIcon( "view" ), "Camera Presets", this );
-    camPresets->setMenu( parent->getGLWidget()->getCameraPresetsAndResetMenu() );
     QToolButton* presetBtn = new QToolButton( this );
-    presetBtn->setDefaultAction( camPresets );
-    presetBtn->setPopupMode( QToolButton::InstantPopup );
+    presetBtn->setDefaultAction( parent->getGLWidget()->getCameraResetAction() );
+    presetBtn->setMenu(  parent->getGLWidget()->getCameraPresetsMenu() );
+    presetBtn->setPopupMode( QToolButton::MenuButtonPopup );
     setupButton( presetBtn );
 
     QToolButton* settingsBtn = new QToolButton( this );
@@ -166,19 +177,11 @@ WQtGLDockWidgetTitle::WQtGLDockWidgetTitle( WQtGLDockWidget* parent, const QStri
     layout->addStretch( 100000 );
     layout->addWidget( screenShotBtn );
     layout->addWidget( presetBtn );
+    layout->addWidget( line );
     layout->addWidget( settingsBtn );
     layout->addWidget( closeBtn );
 
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
-
-    setStyleSheet(
-            "QToolButton{"
-            "border-style: none;"
-            "}"
-            "QPushButton{"
-            "border-style: none;"
-            "}"
-    );
 }
 
 WQtGLScreenCapture* WQtGLDockWidget::getScreenCapture()
@@ -202,4 +205,10 @@ void WQtGLDockWidget::restoreGLWidgetSize()
 const QString& WQtGLDockWidget::getDockTitle() const
 {
     return m_dockTitle;
+}
+
+void WQtGLDockWidget::openScreenCaptureConfig()
+{
+    m_screenCapture->setWindowFlags( Qt::Tool );
+    m_screenCapture->show();
 }

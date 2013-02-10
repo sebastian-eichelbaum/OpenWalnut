@@ -29,7 +29,7 @@
 
 #include <boost/signals2.hpp>
 
-#include <QtGui/QDockWidget>
+#include <QtGui/QWidget>
 #include <QtGui/QToolBox>
 #include <QtGui/QPushButton>
 #include <QtGui/QLabel>
@@ -49,7 +49,7 @@ class WQtGLDockWidget;
 /**
  * This class is a screen recorder adapter in QT. It uses WGEScreenCapture and provides a nice widget around it.
  */
-class WQtGLScreenCapture: public QDockWidget
+class WQtGLScreenCapture: public QWidget
 {
     Q_OBJECT
 public:

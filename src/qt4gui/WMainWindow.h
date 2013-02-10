@@ -391,9 +391,6 @@ private:
     QAction* m_viewAction; //!< the view controls
     QMenu* m_viewMenu; //!< view and camera control menu
 
-    QAction* m_cameraAction; //!< the camera controls
-    QMenu* m_cameraMenu; //!< the camera menu
-
     QAction* m_settingsAction; //!< the settings
     QMenu* m_settingsMenu; //!< the settings
 

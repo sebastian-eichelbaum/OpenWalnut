@@ -92,6 +92,11 @@ public:
      */
     const QString& getDockTitle() const;
 
+public slots:
+    /**
+     * Open screen capture config options
+     */
+    void openScreenCaptureConfig();
 
 protected:
     /**

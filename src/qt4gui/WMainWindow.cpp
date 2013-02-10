@@ -244,10 +244,7 @@ void WMainWindow::setupGUI()
     WQtGLDockWidget* mainGLDock = new WQtGLDockWidget( "Main View", "3D View", m_glDock );
     mainGLDock->getGLWidget()->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
     m_mainGLWidget = mainGLDock->getGLWidget();
-    // m_mainGLWidgetScreenCapture = mainGLDock->getScreenCapture();
     m_glDock->addDockWidget( Qt::RightDockWidgetArea, mainGLDock );
-    // addDockWidget( Qt::RightDockWidgetArea, m_mainGLWidgetScreenCapture );
-    // tabifyDockWidget( m_controlPanel->getRoiDock(), m_mainGLWidgetScreenCapture );
     connect( m_mainGLWidget.get(), SIGNAL( renderedFirstFrame() ), this, SLOT( handleGLVendor() ) );
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
@@ -414,8 +411,6 @@ void WMainWindow::setupGUI()
     m_permanentToolBar->addAction( m_newAction );
     m_permanentToolBar->addAction( m_loadButton );
     m_permanentToolBar->addAction( m_saveAction );
-    m_permanentToolBar->addSeparator();
-    // m_permanentToolBar->addAction( m_mainGLWidgetScreenCapture->getScreenshotTrigger() );
     m_permanentToolBar->addSeparator();
     m_permanentToolBar->addAction( roiButton );
     m_permanentToolBar->addSeparator();
@@ -1290,7 +1285,6 @@ void WMainWindow::addGlobalMenu( QWidget* widget )
     widget->addAction( m_saveAction );
     widget->addAction( createSeperator( this ) );
     widget->addAction( m_viewAction );
-    widget->addAction( m_cameraAction );
     widget->addAction( m_settingsAction );
     widget->addAction( createSeperator( this ) );
     widget->addAction( m_helpAction );
