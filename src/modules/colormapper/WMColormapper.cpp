@@ -23,7 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
-
+#include <vector>
 
 #include <osg/Projection>
 #include <osg/Geode>
