@@ -272,16 +272,13 @@ void WMainWindow::setupGUI()
     m_loadButton = new QAction( m_iconManager.getIcon( "load" ), "Load Dataset or Project", m_permanentToolBar );
     m_loadButton->setShortcut( QKeySequence(  QKeySequence::Open ) );
     QAction* roiButton = new QAction( m_iconManager.getIcon( "ROI icon" ), "ROI", m_permanentToolBar );
-    QAction* resetButton = new QAction( m_iconManager.getIcon( "view" ), "Reset", m_permanentToolBar );
     m_saveAction = new QAction( m_iconManager.getIcon( "saveProject" ), "Save Project", m_permanentToolBar );
 
     connect( m_loadButton, SIGNAL(  triggered( bool ) ), this, SLOT( openLoadDialog() ) );
-    connect( resetButton, SIGNAL(  triggered( bool ) ), m_mainGLWidget.get(), SLOT( reset() ) );
     connect( roiButton, SIGNAL(  triggered( bool ) ), this, SLOT( newRoi() ) );
     connect( m_saveAction, SIGNAL( triggered( bool ) ), this, SLOT( projectSaveAll() ) );
 
     m_loadButton->setToolTip( "Load a dataset or project from file" );
-    resetButton->setToolTip( "Reset main view" );
     roiButton->setToolTip( "Create new ROI" );
     m_saveAction->setToolTip( "Save current project to file" );
 
@@ -332,12 +329,6 @@ void WMainWindow::setupGUI()
     m_viewMenu->addMenu( m_permanentToolBar->getStyleMenu() );
     m_viewAction->setMenu( m_viewMenu );
 
-    // Camera menu
-    m_cameraAction = new QAction( "Camera", this );
-    m_cameraMenu = m_menuBar->addMenu( "Camera" );
-    m_cameraMenu->addAction( mainGLDock->getGLWidget()->getThrowingSetting() );
-    m_cameraAction->setMenu( m_cameraMenu );
-
     m_settingsAction = new QAction( "Settings", this );
     m_settingsMenu = m_menuBar->addMenu( "Settings" );
     m_settingsMenu->addAction( m_autoDisplaySetting );
@@ -354,10 +345,6 @@ void WMainWindow::setupGUI()
     controlPanelShortcut.append( QKeySequence( Qt::Key_F9 ) );
     controlPanelTrigger->setShortcuts( controlPanelShortcut );
     this->addAction( controlPanelTrigger );  // this enables the action even if the menu bar is invisible
-
-    m_cameraMenu->addAction( m_mainGLWidget->getCameraResetAction() );
-    m_cameraMenu->addMenu( m_mainGLWidget->getCameraPresetsMenu() );
-    resetButton->setMenu( m_mainGLWidget->getCameraPresetsMenu() );
 
     m_helpAction = new QAction( "Help", this );
     m_helpMenu = m_menuBar->addMenu( "Help" );
@@ -428,7 +415,6 @@ void WMainWindow::setupGUI()
     m_permanentToolBar->addSeparator();
     m_permanentToolBar->addAction( m_mainGLWidgetScreenCapture->getScreenshotTrigger() );
     m_permanentToolBar->addSeparator();
-    m_permanentToolBar->addAction( resetButton );
     m_permanentToolBar->addAction( roiButton );
     m_permanentToolBar->addSeparator();
     m_permanentToolBar->addAction( showAxial );
