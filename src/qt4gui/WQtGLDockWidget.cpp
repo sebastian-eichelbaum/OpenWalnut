@@ -32,7 +32,6 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QToolBar>
 
-#include "guiElements/WScaleLabel.h"
 #include "WQt4Gui.h"
 #include "WMainWindow.h"
 
@@ -235,7 +234,7 @@ WQtGLDockWidgetTitle::WQtGLDockWidgetTitle( WQtGLDockWidget* parent, const QStri
 
 void WQtGLDockWidgetTitle::resizeEvent( QResizeEvent* event )
 {
-    int required = m_title->minimumSizeHint().width() + m_tools->sizeHint().width() + m_closeBtn->sizeHint().width();
+    int required = m_title->calculateSize( m_title->text().length() ) + m_tools->sizeHint().width() + m_closeBtn->sizeHint().width();
     if( event->size().width() < required )
     {
         m_tools->setHidden( true );

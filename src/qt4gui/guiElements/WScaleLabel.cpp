@@ -76,14 +76,17 @@ void WScaleLabel::resizeEvent( QResizeEvent* /*event*/ )
 
 QSize WScaleLabel::sizeHint() const
 {
-    return QSize( fontMetrics().width( m_orgText ) + 2 * margin() + m_additionalWidth,
-                  QLabel::sizeHint().height() );
+    return QSize( calculateSize( m_orgText.length() ), QLabel::sizeHint().height() );
 }
 
 QSize WScaleLabel::minimumSizeHint() const
 {
-    return QSize( fontMetrics().width( m_orgText.left( m_minLength ) + tr( ".." ) ) + 2 * margin() + m_additionalWidth,
-                  QLabel::minimumSizeHint().height() );
+    return QSize( calculateSize( m_minLength ),QLabel::minimumSizeHint().height() );
+}
+
+size_t WScaleLabel::calculateSize( size_t chars ) const
+{
+    return fontMetrics().width( m_orgText.left( chars ) + tr( ".." ) ) + 2 * margin() + m_additionalWidth;
 }
 
 void WScaleLabel::setText( const QString &text )

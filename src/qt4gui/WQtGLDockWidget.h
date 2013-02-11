@@ -35,6 +35,8 @@
 
 #include "core/graphicsEngine/WGECamera.h"
 
+#include "guiElements/WScaleLabel.h"
+
 #include "WQtGLWidget.h"
 
 /**
@@ -198,7 +200,7 @@ private:
     /**
      * Title label
      */
-    QLabel* m_title;
+    WScaleLabel* m_title;
 
     /**
      * Close button

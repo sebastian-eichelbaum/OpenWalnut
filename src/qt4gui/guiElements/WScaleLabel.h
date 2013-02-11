@@ -111,6 +111,15 @@ public:
      * \return the number of chars visible all the time
      */
     virtual size_t getMinimalLength() const;
+
+    /**
+     * Calculate the size that is needed for the given number of chars.
+     *
+     * \param chars number of chars
+     *
+     * \return the size in pixels
+     */
+    virtual size_t calculateSize( size_t chars ) const;
 protected:
     /**
      * custom implementation of the resize event
