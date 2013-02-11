@@ -70,6 +70,11 @@ void WQtNetworkPort::paint( QPainter* painter, const QStyleOptionGraphicsItem* o
 
 void WQtNetworkPort::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
+    if( mouseEvent->button() != Qt::LeftButton )
+    {
+        mouseEvent->ignore();
+        return;
+    }
     QList<QGraphicsItem *> startItem = scene()->items( mouseEvent->scenePos() );
     if( !startItem.isEmpty() )
     {
