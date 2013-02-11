@@ -27,22 +27,43 @@
 #include "WScaleLabel.h"
 #include "WScaleLabel.moc"
 
-WScaleLabel::WScaleLabel( QWidget *parent /*= NULL */ ):
+WScaleLabel::WScaleLabel( size_t length, QWidget* parent ):
     QLabel( parent ),
-    m_additionalWidth( 0 )
+    m_additionalWidth( 0 ),
+    m_minLength( length )
 {
-    setMinimumWidth( fontMetrics().width( m_orgText.left( WMIN_LABEL_LENGTH ) + tr( ".." ) ) + m_additionalWidth );
-    setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Maximum );
-    setMargin( WGLOBAL_MARGIN );
-    setTextInteractionFlags( Qt::TextSelectableByMouse );
+    construct();
 }
 
-WScaleLabel::WScaleLabel( const QString &text, QWidget *parent /*= NULL */ ) :
+WScaleLabel::WScaleLabel( const QString &text, size_t length, QWidget* parent ) :
     QLabel( text, parent ),
     m_orgText( text ),
-    m_additionalWidth( 0 )
+    m_additionalWidth( 0 ),
+    m_minLength( length )
 {
-    setMinimumWidth( fontMetrics().width( m_orgText.left( WMIN_LABEL_LENGTH ) + tr( ".." ) ) + m_additionalWidth );
+    construct();
+}
+
+WScaleLabel::WScaleLabel( QWidget* parent ):
+    QLabel( parent ),
+    m_additionalWidth( 0 ),
+    m_minLength( WPREFERRED_LABEL_LENGTH )
+{
+    construct();
+}
+
+WScaleLabel::WScaleLabel( const QString &text, QWidget* parent ):
+    QLabel( text, parent ),
+    m_orgText( text ),
+    m_additionalWidth( 0 ),
+    m_minLength( WPREFERRED_LABEL_LENGTH )
+{
+    construct();
+}
+
+void WScaleLabel::construct()
+{
+    setMinimumWidth( fontMetrics().width( m_orgText.left( m_minLength ) + tr( ".." ) ) + m_additionalWidth );
     setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Maximum );
     setMargin( WGLOBAL_MARGIN );
     setTextInteractionFlags( Qt::TextSelectableByMouse );
@@ -61,14 +82,14 @@ QSize WScaleLabel::sizeHint() const
 
 QSize WScaleLabel::minimumSizeHint() const
 {
-    return QSize( fontMetrics().width( m_orgText.left( WMIN_LABEL_LENGTH ) + tr( ".." ) ) + 2 * margin() + m_additionalWidth,
+    return QSize( fontMetrics().width( m_orgText.left( m_minLength ) + tr( ".." ) ) + 2 * margin() + m_additionalWidth,
                   QLabel::minimumSizeHint().height() );
 }
 
 void WScaleLabel::setText( const QString &text )
 {
     m_orgText = text;
-    setMinimumWidth( fontMetrics().width( m_orgText.left( WMIN_LABEL_LENGTH ) + tr( ".." ) ) + 2 * margin() + m_additionalWidth );
+    setMinimumWidth( fontMetrics().width( m_orgText.left( m_minLength ) + tr( ".." ) ) + 2 * margin() + m_additionalWidth );
     fitTextToSize();
 }
 
@@ -94,4 +115,15 @@ void WScaleLabel::fitTextToSize()
 void WScaleLabel::addAdditionalWidth( int w )
 {
     m_additionalWidth = w;
+}
+
+void WScaleLabel::setMinimalLength( size_t chars )
+{
+    setText( m_orgText );
+    m_minLength = chars;
+}
+
+size_t WScaleLabel::getMinimalLength() const
+{
+    return m_minLength;
 }

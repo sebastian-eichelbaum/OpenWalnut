@@ -31,9 +31,9 @@
 WPropertyTriggerWidget::WPropertyTriggerWidget( WPropTrigger property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),
     m_triggerProperty( property ),
-    m_button( &m_parameterWidgets ),
+    m_button( WPREFERRED_LABEL_LENGTH, &m_parameterWidgets ),
     m_layout( &m_parameterWidgets ),
-    m_asText( &m_informationWidgets ),
+    m_asText( WPREFERRED_LABEL_LENGTH, &m_informationWidgets ),
     m_infoLayout( &m_informationWidgets )
 {
     // initialize members

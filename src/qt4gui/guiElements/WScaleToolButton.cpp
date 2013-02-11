@@ -22,26 +22,26 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../WGuiConsts.h"
-
 #include "WScaleToolButton.h"
 #include "WScaleToolButton.moc"
 
-WScaleToolButton::WScaleToolButton( QWidget *parent /*= NULL */ ):
+WScaleToolButton::WScaleToolButton( size_t length, QWidget *parent /*= NULL */ ):
     QToolButton( parent ),
-    m_additionalWidth( 0 )
+    m_additionalWidth( 0 ),
+    m_minLength( length )
 {
-    setMinimumWidth( fontMetrics().width( m_orgText.left( WMIN_LABEL_LENGTH ) + tr( ".." ) ) + m_additionalWidth );
+    setMinimumWidth( fontMetrics().width( m_orgText.left( m_minLength ) + tr( ".." ) ) + m_additionalWidth );
     setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Maximum );
 }
 
-WScaleToolButton::WScaleToolButton( const QString &text, QWidget *parent /*= NULL */ ) :
+WScaleToolButton::WScaleToolButton( const QString &text, size_t length, QWidget *parent /*= NULL */ ) :
     QToolButton( parent ),
     m_orgText( text ),
-    m_additionalWidth( 0 )
+    m_additionalWidth( 0 ),
+    m_minLength( length )
 {
     setText( text );
-    setMinimumWidth( fontMetrics().width( m_orgText.left( WMIN_LABEL_LENGTH ) + tr( ".." ) ) + m_additionalWidth );
+    setMinimumWidth( fontMetrics().width( m_orgText.left( m_minLength ) + tr( ".." ) ) + m_additionalWidth );
     setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Maximum );
 }
 
@@ -58,14 +58,14 @@ QSize WScaleToolButton::sizeHint() const
 
 QSize WScaleToolButton::minimumSizeHint() const
 {
-    return QSize( fontMetrics().width( m_orgText.left( WMIN_LABEL_LENGTH ) + tr( ".." ) ) + m_additionalWidth,
+    return QSize( fontMetrics().width( m_orgText.left( m_minLength ) + tr( ".." ) ) + m_additionalWidth,
                   QToolButton::minimumSizeHint().height() );
 }
 
 void WScaleToolButton::setText( const QString &text )
 {
     m_orgText = text;
-    setMinimumWidth( fontMetrics().width( m_orgText.left( WMIN_LABEL_LENGTH ) + tr( ".." ) ) + m_additionalWidth );
+    setMinimumWidth( fontMetrics().width( m_orgText.left( m_minLength ) + tr( ".." ) ) + m_additionalWidth );
     fitTextToSize();
 }
 
@@ -91,4 +91,15 @@ void WScaleToolButton::fitTextToSize()
 void WScaleToolButton::addAdditionalWidth( int w )
 {
     m_additionalWidth = w;
+}
+
+void WScaleToolButton::setMinimalLength( size_t chars )
+{
+    setText( m_orgText );
+    m_minLength = chars;
+}
+
+size_t WScaleToolButton::getMinimalLength() const
+{
+    return m_minLength;
 }

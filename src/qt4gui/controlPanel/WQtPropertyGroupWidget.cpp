@@ -203,7 +203,7 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
     box->setLayout( boxLayout );
 
     // create a button as title
-    WScaleToolButton* boxTitle = new WScaleToolButton( box );
+    WScaleToolButton* boxTitle = new WScaleToolButton( WPREFERRED_LABEL_LENGTH , box );
     QString titleText = ( title == "" ) ? widget->getName() : title;
     boxTitle->setText( titleText );
     boxTitle->setToolTip( titleText );

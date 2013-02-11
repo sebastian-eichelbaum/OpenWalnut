@@ -27,6 +27,11 @@
 
 #include <QtGui/QDockWidget>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QToolButton>
+#include <QtGui/QLabel>
+#include <QtGui/QResizeEvent>
+#include <QtGui/QWidgetAction>
 
 #include "core/graphicsEngine/WGECamera.h"
 
@@ -163,7 +168,71 @@ public:
      */
     WQtGLDockWidgetTitle( WQtGLDockWidget* parent, const QString& dockTitle );
 protected:
+    /**
+     * Called upon resize. Used to switch between the more menu and the tools widget
+     *
+     * \param event the event
+     */
+    virtual void resizeEvent( QResizeEvent* event );
 private:
+    /**
+     * The tools buttons
+     */
+    QWidget* m_tools;
+
+    /**
+     * The tool inside the menu
+     */
+    QWidget* m_toolsMenu;
+
+    /**
+     * LAyout containing the tools
+     */
+    QHBoxLayout* m_toolsLayout;
+
+    /**
+     * The tool button used when shrinking the title bar too much
+     */
+    QToolButton* m_moreBtn;
+
+    /**
+     * Title label
+     */
+    QLabel* m_title;
+
+    /**
+     * Close button
+     */
+    QToolButton* m_closeBtn;
+
+    /**
+     * Fill the layout with all the tool buttons
+     *
+     * \param parent the parent widget for the buttons
+     * \param layout the layout to fill
+     * \param screenShotConfigMenu the menu to add as screen shot config
+     */
+    void fillToolLayout( QWidget* parent, QBoxLayout* layout, QMenu* screenShotConfigMenu );
+
+    /**
+     * The dock
+     */
+    WQtGLDockWidget* m_dock;
+
+    /**
+     * Used to contain the screen capture dialog
+     */
+    QWidgetAction* m_screenCaptureWidgetAction;
+
+    /**
+     * Menu 1, used to alternate the m_screenCaptureWidgetAction in the tools bar and the tools menu
+     */
+    QMenu* m_screenCaptureMenu1;
+
+    /**
+     * Menu 2, used to alternate the m_screenCaptureWidgetAction in the tools bar and the tools menu
+     */
+    QMenu* m_screenCaptureMenu2;
 };
 
 #endif  // WQTGLDOCKWIDGET_H

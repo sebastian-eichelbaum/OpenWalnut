@@ -28,6 +28,8 @@
 #include <QtGui/QLabel>
 #include <QtCore/QString>
 
+#include "../WGuiConsts.h"
+
 /**
  * Special Label that can shrink and expand in a layout
  */
@@ -39,8 +41,25 @@ public:
      * Constructor
      *
      * \param parent the widgets parent
+     * \param length the minimal number of characters visible.
      */
-    explicit WScaleLabel( QWidget *parent = NULL );
+    WScaleLabel( size_t length = WPREFERRED_LABEL_LENGTH, QWidget* parent = NULL );
+
+    /**
+     * Constructor. Creates the label with its original text
+     *
+     * \param text text of the label
+     * \param parent the widgets parent
+     * \param length the minimal number of characters visible.
+     */
+    WScaleLabel( const QString &text, size_t length = WPREFERRED_LABEL_LENGTH, QWidget* parent = NULL );
+
+    /**
+     * Constructor
+     *
+     * \param parent the widgets parent
+     */
+    explicit WScaleLabel( QWidget* parent );
 
     /**
      * Constructor. Creates the label with its original text
@@ -48,7 +67,7 @@ public:
      * \param text text of the label
      * \param parent the widgets parent
      */
-    WScaleLabel( const QString &text, QWidget *parent = NULL );
+    WScaleLabel( const QString &text, QWidget* parent );
 
     /**
      * overwritten from QLabel, returning the widgets prefered size
@@ -78,6 +97,20 @@ public:
      * \param margin the margin to keep in mind for size calculations
      */
     virtual void addAdditionalWidth( int margin );
+
+    /**
+     * How many characters should be visible all the time?
+     *
+     * \param chars the number of chars
+     */
+    virtual void setMinimalLength( size_t chars );
+
+    /**
+     * Get the current minimal number of characters
+     *
+     * \return the number of chars visible all the time
+     */
+    virtual size_t getMinimalLength() const;
 protected:
     /**
      * custom implementation of the resize event
@@ -87,6 +120,11 @@ protected:
      */
     virtual void resizeEvent( QResizeEvent * event );
 private:
+    /**
+     * Deferred construction.
+     */
+    void construct();
+
     /**
      * set the actual text which is shown on the QLabel
      */
@@ -101,6 +139,11 @@ private:
      * The additional width we need to reserver (like for margins).
      */
     int m_additionalWidth;
+
+    /**
+     * Minimal character number
+     */
+    size_t m_minLength;
 };
 
 #endif  // WSCALELABEL_H
