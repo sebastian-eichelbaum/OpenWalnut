@@ -153,6 +153,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_moduleDock = new QDockWidget( "Module Tree", m_mainWindow );
     m_moduleDock->setObjectName( "Module Dock" );
     m_moduleDock->setWidget( m_moduleTreeWidget );
+    m_moduleDock->setHidden( true );
 
     m_roiDock = new QDockWidget( "ROIs", m_mainWindow );
     m_roiDock->setObjectName( "ROI Dock" );
