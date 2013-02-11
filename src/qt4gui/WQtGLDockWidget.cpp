@@ -264,10 +264,12 @@ void WQtGLDockWidget::forceGLWidgetSize( size_t w, size_t h )
 
 void WQtGLDockWidget::restoreGLWidgetSize()
 {
-    m_glWidget->setMinimumHeight( 250 );
-    m_glWidget->setMaximumHeight( QWIDGETSIZE_MAX );
-    m_glWidget->setMinimumWidth( 250 );
-    m_glWidget->setMaximumWidth( QWIDGETSIZE_MAX );
+    m_glWidget->setMinimumSize( 0, 0 );
+    m_glWidget->setMaximumSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
+    m_panel->setMinimumSize( 0, 0 );
+    m_panel->setMaximumSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
+    this->setMinimumSize( 0, 0 );
+    this->setMaximumSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
 }
 
 const QString& WQtGLDockWidget::getDockTitle() const
