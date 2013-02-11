@@ -166,6 +166,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_roiTreeWidget->setDropIndicatorShown( true );
     m_roiTreeWidget->setDragDropMode( QAbstractItemView::InternalMove );
     m_roiDock->setWidget( m_roiTreeWidget );
+    m_roiTreeWidget->setSelectionMode( QAbstractItemView::SingleSelection );
 
     m_moduleExcluder = new WQtModuleConfig( parent );
     connect( m_missingModuleAction, SIGNAL( triggered( bool ) ), m_moduleExcluder, SLOT( configure() ) );
@@ -211,8 +212,8 @@ void WQtControlPanel::connectSlots()
     connect( m_moduleTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeTreeItem( QTreeWidgetItem*, int ) ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ),  m_roiTreeWidget, SLOT( clearSelection() ) );
-    connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectRoiTreeItem() ) );
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), m_moduleTreeWidget, SLOT( clearSelection() ) );
+    connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectRoiTreeItem( QTreeWidgetItem* ) ) );
     connect( m_colormapper, SIGNAL( textureSelectionChanged( osg::ref_ptr< WGETexture3D > ) ),
              this, SLOT( selectDataModule( osg::ref_ptr< WGETexture3D > ) ) );
     connect( m_roiTreeWidget, SIGNAL( dragDrop() ), this, SLOT( handleRoiDragDrop() ) );
@@ -611,8 +612,9 @@ void WQtControlPanel::addRoi( osg::ref_ptr< WROI > roi )
     branchItem->setExpanded( true );
     newItem = branchItem->addRoiItem( roi );
     newItem->setDisabled( false );
-    newItem->setSelected( true );
+    m_roiTreeWidget->setCurrentItem( newItem );
     WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getSelectedRoi() );
+    selectRoiTreeItem( newItem );
 }
 
 void WQtControlPanel::removeRoi( osg::ref_ptr< WROI > roi )
@@ -703,53 +705,47 @@ void WQtControlPanel::selectTreeItem()
     }
 }
 
-void WQtControlPanel::selectRoiTreeItem()
+void WQtControlPanel::selectRoiTreeItem( QTreeWidgetItem* item )
 {
     clearAndDeleteTabs();
 
     // Make compatibles toolbar empty
+    if( m_mainWindow->getCompatiblesToolbar() != 0 )
     {
-        if( m_mainWindow->getCompatiblesToolbar() != 0 )
-        {
-            m_mainWindow->getCompatiblesToolbar()->makeEmpty();
-        }
-        else
-        {
-            m_mainWindow->setCompatiblesToolbar( new WQtCombinerToolbar( m_mainWindow ) );
-        }
+        m_mainWindow->getCompatiblesToolbar()->makeEmpty();
+    }
+    else
+    {
+        m_mainWindow->setCompatiblesToolbar( new WQtCombinerToolbar( m_mainWindow ) );
     }
 
     boost::shared_ptr< WModule > module;
     boost::shared_ptr< WProperties > props;
 
-    if( m_roiTreeWidget->selectedItems().size() != 0  )
-    {
-        switch( m_roiTreeWidget->selectedItems().at( 0 )->type() )
-        {
-            case SUBJECT:
-            case DATASET:
-            case MODULEHEADER:
-            case MODULE:
-            case ROIHEADER:
-                WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getSelectedRoi() );
-                break;
-            case ROIBRANCH:
-                props = ( static_cast< WQtBranchTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) )->getBranch()->getProperties();
-                WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getFirstRoiInSelectedBranch() );
-                break;
-            case ROI:
-                props = ( static_cast< WQtRoiTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) )->getRoi()->getProperties();
-                WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getSelectedRoi() );
-                break;
-            default:
-                break;
-        }
-    }
+    // activate the item
+    m_roiTreeWidget->setCurrentItem( item );
 
-    if( m_roiTreeWidget->selectedItems().size() == 1 && m_roiTreeWidget->selectedItems().at( 0 )->type() == ROI )
+    // what kind of item is it?
+    switch( item->type() )
     {
-        osg::ref_ptr< WROI > roi = ( static_cast< WQtRoiTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) )->getRoi();
-        roi->getProperties()->getProperty( "active" )->toPropBool()->set( m_roiTreeWidget->selectedItems().at( 0 )->checkState( 0 ) );
+        case SUBJECT:
+        case DATASET:
+        case MODULEHEADER:
+        case MODULE:
+        case ROIHEADER:
+            WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getSelectedRoi() );
+            break;
+        case ROIBRANCH:
+            props = ( static_cast< WQtBranchTreeItem* >( item ) )->getBranch()->getProperties();
+            WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getFirstRoiInSelectedBranch() );
+            break;
+        case ROI:
+            props = ( static_cast< WQtRoiTreeItem* >( item ) )->getRoi()->getProperties();
+            props->getProperty( "active" )->toPropBool()->set( item->checkState( 0 ) );
+            WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getSelectedRoi() );
+            break;
+        default:
+            break;
     }
 
     buildPropTab( props, boost::shared_ptr< WProperties >() );

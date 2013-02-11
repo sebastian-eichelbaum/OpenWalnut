@@ -405,8 +405,10 @@ private slots:
     /**
      * function that gets called when a tree item is selected, on a new select that tab widget
      * is rebuilt with the controls provided by the tree item
+     *
+     * \param item the item that has been clicked
      */
-    void selectRoiTreeItem();
+    void selectRoiTreeItem( QTreeWidgetItem* item );
 
     /**
      * Will be called to select the data module for the given texture.
