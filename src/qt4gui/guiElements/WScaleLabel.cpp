@@ -81,7 +81,7 @@ QSize WScaleLabel::sizeHint() const
 
 QSize WScaleLabel::minimumSizeHint() const
 {
-    return QSize( calculateSize( m_minLength ),QLabel::minimumSizeHint().height() );
+    return QSize( calculateSize( m_minLength ), QLabel::minimumSizeHint().height() );
 }
 
 size_t WScaleLabel::calculateSize( size_t chars ) const
