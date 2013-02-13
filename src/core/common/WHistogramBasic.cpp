@@ -35,7 +35,7 @@
 WHistogramBasic::WHistogramBasic( double min, double max, size_t buckets ):
     WHistogram( min, max, buckets ),
     m_bins( buckets, 0 ),
-    m_intervalWidth( ( m_maximum - m_minimum ) / static_cast< double >( m_nbBuckets ) )
+    m_intervalWidth( std::abs( m_maximum - m_minimum ) / static_cast< double >( m_nbBuckets ) )
 {
 }
 
@@ -91,9 +91,13 @@ void WHistogramBasic::insert( double value )
     {
         m_bins.at( m_nbBuckets - 1 )++;
     }
+    else if( value >= ( m_maximum - m_intervalWidth ) && value <= m_maximum ) // last bucket deserves extra treatment due to possible out of bounds index
+    {
+        m_bins.at( m_nbBuckets - 1 )++;
+    }
     else
     {
-        m_bins.at( static_cast< size_t >( ( value - m_minimum ) / std::abs( m_maximum - m_minimum ) * ( m_nbBuckets - 1 ) ) )++;
+        m_bins.at( static_cast< size_t >( ( value - m_minimum ) / std::abs( m_maximum - m_minimum ) * ( m_nbBuckets ) ) )++;
     }
 }
 
