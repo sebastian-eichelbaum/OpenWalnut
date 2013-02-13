@@ -91,7 +91,7 @@ void WHistogramBasic::insert( double value )
     {
         m_bins.at( m_nbBuckets - 1 )++;
     }
-    else if( value >= ( m_maximum - m_intervalWidth ) && value <= m_maximum ) // last bucket deserves extra treatment due to possible out of bounds index
+    else if( value >= ( m_maximum - m_intervalWidth ) && value <= m_maximum ) // last bin deserves extra treatment due to possbl out of bounds index
     {
         m_bins.at( m_nbBuckets - 1 )++;
     }
