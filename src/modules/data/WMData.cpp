@@ -41,7 +41,9 @@
 #include "core/graphicsEngine/WGEColormapping.h"
 #include "core/kernel/WModuleOutputData.h"
 
-#include "io/WReaderBiosig.h"
+#ifdef WBIOSIG_ENABLED
+    #include "io/WReaderBiosig.h"
+#endif
 #include "io/WReaderEEGASCII.h"
 #include "io/WReaderNIfTI.h"
 #include "io/WReaderELC.h"
@@ -259,11 +261,13 @@ void WMData::moduleMain()
             }
         }
     }
+#ifdef WBIOSIG_ENABLED
     else if( suffix == ".edf" )
     {
         WReaderBiosig biosigLoader( fileName );
         m_dataSet = biosigLoader.load();
     }
+#endif
     else if( suffix == ".asc" )
     {
         WReaderEEGASCII eegAsciiLoader( fileName );

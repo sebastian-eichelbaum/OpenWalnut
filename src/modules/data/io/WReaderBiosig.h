@@ -25,6 +25,8 @@
 #ifndef WREADERBIOSIG_H
 #define WREADERBIOSIG_H
 
+#ifdef WBIOSIG_ENABLED
+
 #include <biosig.h>
 
 #include <string>
@@ -78,5 +80,7 @@ private:
     size_t m_columns; //!< columns of the storage in the file
     size_t m_rows; //!< rows of the storage in the file
 };
+
+#endif  // WBIOSIG_ENABLED
 
 #endif  // WREADERBIOSIG_H
