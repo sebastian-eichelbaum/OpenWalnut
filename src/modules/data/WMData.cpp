@@ -262,13 +262,13 @@ void WMData::moduleMain()
         }
     }
 #ifdef WBIOSIG_ENABLED
-    else if( suffix == ".edf" )
+    else if( suffix == ".edf" ) // NOLINT: An else should appear after closing } in previous line
     {
         WReaderBiosig biosigLoader( fileName );
         m_dataSet = biosigLoader.load();
     }
 #endif
-    else if( suffix == ".asc" )
+    else if( suffix == ".asc" ) // NOLINT: An else should appear after closing } in previous line
     {
         WReaderEEGASCII eegAsciiLoader( fileName );
         m_dataSet = eegAsciiLoader.load();
