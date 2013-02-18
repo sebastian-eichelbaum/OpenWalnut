@@ -146,9 +146,9 @@ private:
     WPropDouble m_colormapRatio;
 
     /**
-     * Some special coloring mode emphasizing the cortex.
+     * Some special coloring mode for disabling specular hightlights.
      */
-    WPropBool m_cortexMode;
+    WPropBool m_phongNoSpec;
 
     /**
      * If true, per-pixel-phong shading is applied to the surface.

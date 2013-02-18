@@ -137,7 +137,8 @@ void WMIsosurfaceRaytracer::properties()
 
     m_phongShading  = m_properties->addProperty( "Phong shading", "If enabled, Phong shading gets applied on a per-pixel basis.", true );
 
-    m_cortexMode    = m_properties->addProperty( "Emphasize cortex", "Emphasize the cortex while inner parts ar not that well lighten.", false );
+    m_phongNoSpec   = m_properties->addProperty( "No Specular Highlights", "Disables specular highlights on the surface. This is especially "
+                                                                           "useful when these highlights tamper with the colormap.", false );
 
     m_stochasticJitter = m_properties->addProperty( "Stochastic jitter", "Improves image quality at low sampling rates but introduces slight "
                                                                          "noise effect.", true );
@@ -161,7 +162,7 @@ void WMIsosurfaceRaytracer::moduleMain()
 {
     m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMIsosurfaceRaytracer", m_localPath ) );
     m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
-        new WGEShaderPropertyDefineOptions< WPropBool >( m_cortexMode, "CORTEXMODE_DISABLED", "CORTEXMODE_ENABLED" ) )
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_phongNoSpec, "PHONGSHADING_NOSECULAR_DISABLED", "PHONGSHADING_NOSECULAR_ENABLED" ) )
     );
     m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
         new WGEShaderPropertyDefineOptions< WPropBool >( m_stochasticJitter, "STOCHASTICJITTER_DISABLED", "STOCHASTICJITTER_ENABLED" ) )

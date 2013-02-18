@@ -216,23 +216,13 @@ void main()
             float light = 1.0;
 #ifdef PHONGSHADING_ENABLED
             // only calculate the phong illumination only if needed
-            light = blinnPhongIlluminationIntensity( normalize( normal ) );
+            wge_LightIntensityParameter lightParams = wge_DefaultLightIntensity;
+    #ifdef PHONGSHADING_NOSECULAR_ENABLED
+            lightParams.materialSpecular = 0.0;
+    #endif
+            light = blinnPhongIlluminationIntensity( lightParams, normalize( normal ) );
 #endif
             // 4: set color
-
-#ifdef CORTEXMODE_ENABLED
-            // NOTE: these are a lot of weird experiments ;-)
-            float d = 1.0 - curPointProjected.z;
-            d = 1.5 * pointDistance( curPoint, vec3( 0.5 ) );
-
-            float w = dot( normalize( vec3( 0.5 ) - curPoint ), normalize( v_ray ) );
-            w = ( w + 0.5 );
-            if( w > 0.8 ) w = 0.8;
-
-            float d2 = w * d * d * d * d * d;
-            light = light * 11.0 * d2;
-#endif
-
             // mix color with colormap
             vec4 color = mix(
                 colormapping( vec4( curPoint.x * u_texture0SizeX, curPoint.y * u_texture0SizeY, curPoint.z * u_texture0SizeZ, 1.0 ) ),
