@@ -91,7 +91,7 @@ namespace
             newData.push_back( vectors->getVectorAt( i ) );
         }
 
-        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( vectors->getGrid() );
+        boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( vectors->getGrid() );
         if( !grid )
         {
             return vectors;

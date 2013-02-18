@@ -63,7 +63,7 @@ void WBatchLoader::threadMain()
         boost::shared_ptr< WModule > mod = WModuleFactory::getModuleFactory()->create(
                 WModuleFactory::getModuleFactory()->getPrototypeByName( "Data Module" )
         );
-        WDataModule::SPtr dmod = boost::shared_static_cast< WDataModule >( mod );
+        WDataModule::SPtr dmod = boost::static_pointer_cast< WDataModule >( mod );
         dmod->setSuppressColormaps( m_suppressColormaps );
 
         // set the filename

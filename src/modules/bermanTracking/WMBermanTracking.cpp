@@ -297,7 +297,7 @@ void WMBermanTracking::resetTracking()
 
     m_fiberAccu.clear();
 
-    boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    boost::shared_ptr< WGridRegular3D > g = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSet->getGrid() );
     WAssert( g, "" );
 
     std::vector< int > v0( 3 );
@@ -361,14 +361,14 @@ void WMBermanTracking::resetProgress( std::size_t todo )
 
 WVector3d WMBermanTracking::getDirFunc( boost::shared_ptr< WDataSetSingle const >, wtracking::WTrackingUtility::JobType const& j )
 {
-    boost::shared_ptr< WGridRegular3D > g( boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() ) );
+    boost::shared_ptr< WGridRegular3D > g( boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSet->getGrid() ) );
     // extract fiber directions from odf
     int v = g->getVoxelNum( j.first );
 
     WPrecondDiffers( v, -1 );
     WPrecond( m_gfa, "" );
 
-    if( boost::shared_dynamic_cast< WDataSetSingle >( m_gfa )->getValueAt( v ) < m_currentMinFA )
+    if( boost::dynamic_pointer_cast< WDataSetSingle >( m_gfa )->getValueAt( v ) < m_currentMinFA )
     {
         return WVector3d( 0.0, 0.0, 0.0 );
     }
@@ -469,7 +469,7 @@ WVector3d WMBermanTracking::getBestDirectionFromSH( WSymmetricSphericalHarmonic 
 
 
     // TEST
-    //boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    //boost::shared_ptr< WGridRegular3D > g = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSet->getGrid() );
     //int k = 1;
     //double gfa = m_gfa->getValueAt( g->getVoxelNum( j.first ) );
 
@@ -569,7 +569,7 @@ void WMBermanTracking::fiberVis( std::vector< WVector3d > const& fiber )
         m_fiberAccu.add( fiber );
 
         // test
-        boost::shared_ptr< WGridRegular3D > g( boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() ) );
+        boost::shared_ptr< WGridRegular3D > g( boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSet->getGrid() ) );
         for( std::size_t k = 0; k < fiber.size(); ++k )
         {
             int v = g->getVoxelNum( fiber[ k ] );

@@ -166,7 +166,7 @@ void WMDeterministicFTMori::moduleMain()
             // if there are no new eigenvectors or datasets,
             // restart the tracking, as there are changes to the parameters
             resetTracking();
-            boost::shared_ptr< WGridRegular3D > g( boost::shared_dynamic_cast< WGridRegular3D >( m_eigenField->getGrid() ) );
+            boost::shared_ptr< WGridRegular3D > g( boost::dynamic_pointer_cast< WGridRegular3D >( m_eigenField->getGrid() ) );
             std::size_t todo = ( g->getNbCoordsX() - 2 ) * ( g->getNbCoordsY() - 2 ) * ( g->getNbCoordsZ() - 2 );
             resetProgress( todo );
             m_trackingPool->run();
@@ -317,10 +317,10 @@ WVector3d WMDeterministicFTMori::getEigenDirection( boost::shared_ptr< WDataSetS
     WAssert( ds, "" );
     WAssert( ds->getGrid(), "" );
     WAssert( ds->getValueSet(), "" );
-    boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
+    boost::shared_ptr< WGridRegular3D > g = boost::dynamic_pointer_cast< WGridRegular3D >( ds->getGrid() );
     int i = g->getVoxelNum( j.first );
     WAssert( i != -1, "" );
-    boost::shared_ptr< WValueSet< double > > vs = boost::shared_dynamic_cast< WValueSet< double > >( ds->getValueSet() );
+    boost::shared_ptr< WValueSet< double > > vs = boost::dynamic_pointer_cast< WValueSet< double > >( ds->getValueSet() );
     WAssert( vs, "" );
     if( vs->rawData()[ 4 * i + 3 ] < m_currentMinFA )
     {

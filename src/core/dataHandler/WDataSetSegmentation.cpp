@@ -110,7 +110,7 @@ boost::shared_ptr< WPrototyped > WDataSetSegmentation::getPrototype()
 
 float WDataSetSegmentation::getWMProbability( int x, int y, int z ) const
 {
-  boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
+  boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_grid );
   size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
 
   return WDataSetSingle::getValueAt( whiteMatter + ( 3*id ) );
@@ -118,7 +118,7 @@ float WDataSetSegmentation::getWMProbability( int x, int y, int z ) const
 
 float WDataSetSegmentation::getGMProbability( int x, int y, int z ) const
 {
-  boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
+  boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_grid );
   size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
 
   return WDataSetSingle::getValueAt( grayMatter + ( 3*id ) );
@@ -126,7 +126,7 @@ float WDataSetSegmentation::getGMProbability( int x, int y, int z ) const
 
 float WDataSetSegmentation::getCSFProbability( int x, int y, int z ) const
 {
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
+    boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_grid );
     size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
 
     return WDataSetSingle::getValueAt( csf + ( 3*id ) );
@@ -142,9 +142,9 @@ boost::shared_ptr< WValueSetBase > WDataSetSegmentation::convert( boost::shared_
     WAssert( cerebrospinalFluid, "No CSF data given." );
 
     // check for same dimension of all three tissue types
-    boost::shared_ptr< WGridRegular3D > wm_grid = boost::shared_dynamic_cast< WGridRegular3D >( whiteMatter->getGrid() );
-    boost::shared_ptr< WGridRegular3D > gm_grid = boost::shared_dynamic_cast< WGridRegular3D >( grayMatter->getGrid() );
-    boost::shared_ptr< WGridRegular3D > csf_grid = boost::shared_dynamic_cast< WGridRegular3D >( cerebrospinalFluid->getGrid() );
+    boost::shared_ptr< WGridRegular3D > wm_grid = boost::dynamic_pointer_cast< WGridRegular3D >( whiteMatter->getGrid() );
+    boost::shared_ptr< WGridRegular3D > gm_grid = boost::dynamic_pointer_cast< WGridRegular3D >( grayMatter->getGrid() );
+    boost::shared_ptr< WGridRegular3D > csf_grid = boost::dynamic_pointer_cast< WGridRegular3D >( cerebrospinalFluid->getGrid() );
 
     WAssert( ( wm_grid->getNbCoordsX() == gm_grid->getNbCoordsX() ) &&  ( gm_grid->getNbCoordsX() == csf_grid->getNbCoordsX() ),
              "Different X size of GrayMatter, WhiteMatter or CSF-Input" );
@@ -207,7 +207,7 @@ boost::shared_ptr< WValueSetBase > WDataSetSegmentation::convert( boost::shared_
 //   size_t WMVoxel = 0;
 //   size_t GMVoxel = 0;
 //   size_t CSFVoxel = 0;
-//   boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( getGrid() );
+//   boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( getGrid() );
 //   for( size_t x = 0; x < grid->getNbCoordsX(); x++ )
 //     for( size_t y = 0; y < grid->getNbCoordsY(); y++ )
 //       for( size_t z = 0; z < grid->getNbCoordsZ(); z++ )

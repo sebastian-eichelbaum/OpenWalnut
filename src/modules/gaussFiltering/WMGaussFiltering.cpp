@@ -204,7 +204,7 @@ template< typename T >
 boost::shared_ptr< WValueSet< double > > WMGaussFiltering::iterativeFilterField( boost::shared_ptr< WValueSet< T > > vals, unsigned int iterations )
 {
     // the grid used
-    boost::shared_ptr<WGridRegular3D> grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    boost::shared_ptr<WGridRegular3D> grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSet->getGrid() );
     WAssert( grid, "Grid is not of type WGridRegular3D." );
 
     // use a custom progress combiner
@@ -312,7 +312,7 @@ void WMGaussFiltering::moduleMain()
                 case W_DT_UNSIGNED_CHAR:
                 {
                     boost::shared_ptr<WValueSet<unsigned char> > vals;
-                    vals = boost::shared_dynamic_cast<WValueSet<unsigned char> >( ( *m_dataSet ).getValueSet() );
+                    vals = boost::dynamic_pointer_cast<WValueSet<unsigned char> >( ( *m_dataSet ).getValueSet() );
                     WAssert( vals, "Data type and data type indicator must fit." );
                     newValueSet = iterativeFilterField( vals, iterations );
                     break;
@@ -320,7 +320,7 @@ void WMGaussFiltering::moduleMain()
                 case W_DT_INT16:
                 {
                     boost::shared_ptr<WValueSet<int16_t> > vals;
-                    vals = boost::shared_dynamic_cast<WValueSet<int16_t> >( ( *m_dataSet ).getValueSet() );
+                    vals = boost::dynamic_pointer_cast<WValueSet<int16_t> >( ( *m_dataSet ).getValueSet() );
                     WAssert( vals, "Data type and data type indicator must fit." );
                     newValueSet = iterativeFilterField( vals, iterations );
                     break;
@@ -328,7 +328,7 @@ void WMGaussFiltering::moduleMain()
                 case W_DT_UINT16:
                 {
                     boost::shared_ptr<WValueSet<uint16_t> > vals;
-                    vals = boost::shared_dynamic_cast<WValueSet<uint16_t> >( ( *m_dataSet ).getValueSet() );
+                    vals = boost::dynamic_pointer_cast<WValueSet<uint16_t> >( ( *m_dataSet ).getValueSet() );
                     WAssert( vals, "Data type and data type indicator must fit." );
                     newValueSet = iterativeFilterField( vals, iterations );
                     break;
@@ -336,7 +336,7 @@ void WMGaussFiltering::moduleMain()
                 case W_DT_SIGNED_INT:
                 {
                     boost::shared_ptr<WValueSet<int32_t> > vals;
-                    vals = boost::shared_dynamic_cast<WValueSet<int32_t> >( ( *m_dataSet ).getValueSet() );
+                    vals = boost::dynamic_pointer_cast<WValueSet<int32_t> >( ( *m_dataSet ).getValueSet() );
                     WAssert( vals, "Data type and data type indicator must fit." );
                     newValueSet = iterativeFilterField( vals, iterations );
                     break;
@@ -344,7 +344,7 @@ void WMGaussFiltering::moduleMain()
                 case W_DT_FLOAT:
                 {
                     boost::shared_ptr<WValueSet<float> > vals;
-                    vals = boost::shared_dynamic_cast<WValueSet<float> >( ( *m_dataSet ).getValueSet() );
+                    vals = boost::dynamic_pointer_cast<WValueSet<float> >( ( *m_dataSet ).getValueSet() );
                     WAssert( vals, "Data type and data type indicator must fit." );
                     newValueSet = iterativeFilterField( vals, iterations );
                     break;
@@ -352,7 +352,7 @@ void WMGaussFiltering::moduleMain()
                 case W_DT_DOUBLE:
                 {
                     boost::shared_ptr<WValueSet<double> > vals;
-                    vals = boost::shared_dynamic_cast<WValueSet<double> >( ( *m_dataSet ).getValueSet() );
+                    vals = boost::dynamic_pointer_cast<WValueSet<double> >( ( *m_dataSet ).getValueSet() );
                     WAssert( vals, "Data type and data type indicator must fit." );
                     newValueSet = iterativeFilterField( vals, iterations );
                     break;

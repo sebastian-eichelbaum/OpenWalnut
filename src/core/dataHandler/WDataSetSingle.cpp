@@ -54,7 +54,7 @@ WDataSetSingle::WDataSetSingle( boost::shared_ptr< WValueSetBase > newValueSet,
     m_infoProperties->addProperty( m_grid->getInformationProperties() );
 
     // technically this should be placed into the WDataSetScalar, WDataSetVector and so on
-    boost::shared_ptr< WGridRegular3D > regGrid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
+    boost::shared_ptr< WGridRegular3D > regGrid = boost::dynamic_pointer_cast< WGridRegular3D >( m_grid );
     if( regGrid && ( m_valueSet->dimension() < 5 ) && ( m_valueSet->dimension() != 0 ) )
     {
         m_texture = osg::ref_ptr< WDataTexture3D >( new WDataTexture3D( m_valueSet, regGrid ) );
@@ -138,23 +138,23 @@ double WDataSetSingle::getValueAt( size_t id ) const
     {
         case W_DT_UNSIGNED_CHAR:
         {
-            return static_cast< double >( boost::shared_dynamic_cast< WValueSet< uint8_t > >( getValueSet() )->getScalar( id ) );
+            return static_cast< double >( boost::dynamic_pointer_cast< WValueSet< uint8_t > >( getValueSet() )->getScalar( id ) );
         }
         case W_DT_INT16:
         {
-            return static_cast< double >( boost::shared_dynamic_cast< WValueSet< int16_t > >( getValueSet() )->getScalar( id ) );
+            return static_cast< double >( boost::dynamic_pointer_cast< WValueSet< int16_t > >( getValueSet() )->getScalar( id ) );
         }
         case W_DT_SIGNED_INT:
         {
-            return static_cast< double >( boost::shared_dynamic_cast< WValueSet< int32_t > >( getValueSet() )->getScalar( id ) );
+            return static_cast< double >( boost::dynamic_pointer_cast< WValueSet< int32_t > >( getValueSet() )->getScalar( id ) );
         }
         case W_DT_FLOAT:
         {
-            return static_cast< double >( boost::shared_dynamic_cast< WValueSet< float > >( getValueSet() )->getScalar( id ) );
+            return static_cast< double >( boost::dynamic_pointer_cast< WValueSet< float > >( getValueSet() )->getScalar( id ) );
         }
         case W_DT_DOUBLE:
         {
-            return static_cast< double >( boost::shared_dynamic_cast< WValueSet< double > >( getValueSet() )->getScalar( id ) );
+            return static_cast< double >( boost::dynamic_pointer_cast< WValueSet< double > >( getValueSet() )->getScalar( id ) );
         }
         default:
             WAssert( false, "Unknow data type in dataset." );

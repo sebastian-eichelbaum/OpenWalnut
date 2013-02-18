@@ -278,7 +278,7 @@ public:
     typename boost::mpl::at< TypeVector, boost::mpl::size_t< N > >::type getProperty()
     {
         typedef typename boost::mpl::at< TypeVector, boost::mpl::size_t< N > >::type::element_type TargetType;
-        return boost::shared_dynamic_cast< TargetType >( getProperty( N ) );
+        return boost::dynamic_pointer_cast< TargetType >( getProperty( N ) );
     }
 
     /**
@@ -292,7 +292,7 @@ public:
     typename boost::mpl::at< TypeVector, boost::mpl::size_t< N > >::type::element_type::ConstSPtr getProperty() const
     {
         typedef typename boost::mpl::at< TypeVector, boost::mpl::size_t< N > >::type::element_type TargetType;
-        return boost::shared_dynamic_cast< const TargetType >( getProperty( N ) );
+        return boost::dynamic_pointer_cast< const TargetType >( getProperty( N ) );
     }
 
     /**
@@ -428,7 +428,7 @@ public:
     virtual bool set( boost::shared_ptr< WPropertyBase > value, bool recommendedOnly = false )
     {
         // is this the same type as we are?
-        typename WPropertyStructType::SPtr v = boost::shared_dynamic_cast< WPropertyStructType >( value );
+        typename WPropertyStructType::SPtr v = boost::dynamic_pointer_cast< WPropertyStructType >( value );
         if( !v )
         {
             // it is not a WPropertyStruct with the same type

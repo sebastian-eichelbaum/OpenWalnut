@@ -140,7 +140,7 @@ void WMCalculateGFA::moduleMain()
         {
             debugLog() << "Computation finished.";
             m_currentProgress->finish();
-            m_result = boost::shared_dynamic_cast< WDataSetScalar >( m_gfaFunc->getResult() );
+            m_result = boost::dynamic_pointer_cast< WDataSetScalar >( m_gfaFunc->getResult() );
             m_gfaPool = boost::shared_ptr< GFAPoolType >();
             m_gfaFunc = boost::shared_ptr< GFAFuncType >();
 
@@ -181,7 +181,7 @@ void WMCalculateGFA::resetGFAPool()
     }
     // the threadpool should have finished computing by now
 
-    boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    boost::shared_ptr< WGridRegular3D > g = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSet->getGrid() );
     WAssert( g, "" );
     resetProgress( g->getNbCoordsX() * g->getNbCoordsY() * g->getNbCoordsZ() );
 

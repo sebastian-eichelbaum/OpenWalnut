@@ -274,7 +274,7 @@ void WDataSetFibers::removeColorScheme( WDataSetFibers::ColorArray colors )
     WItemSelection::Iterator i = l->get().begin();
     while( i != l->get().end() )
     {
-        if( boost::shared_static_cast< const ColorScheme >( *i )->getColor() == colors )
+        if( boost::static_pointer_cast< const ColorScheme >( *i )->getColor() == colors )
         {
             i = l->get().erase( i );
         }
@@ -291,7 +291,7 @@ void WDataSetFibers::replaceColorScheme( WDataSetFibers::ColorArray oldColors, W
     WItemSelection::WriteTicket l = m_colors->getWriteTicket();
     for( WItemSelection::Iterator i = l->get().begin(); i != l->get().end(); ++i )
     {
-        boost::shared_ptr< ColorScheme > ci = boost::shared_static_cast< ColorScheme >( *i );
+        boost::shared_ptr< ColorScheme > ci = boost::static_pointer_cast< ColorScheme >( *i );
         if(ci->getColor() == oldColors )
         {
             ci->setColor( newColors );
@@ -310,18 +310,18 @@ const boost::shared_ptr< WDataSetFibers::ColorScheme > WDataSetFibers::getColorS
         throw WDHNoSuchDataSet( std::string( "Color scheme with specified name could not be found." ) );
     }
 
-    return boost::shared_static_cast< ColorScheme >( *i );
+    return boost::static_pointer_cast< ColorScheme >( *i );
 }
 
 const boost::shared_ptr< WDataSetFibers::ColorScheme > WDataSetFibers::getColorScheme( size_t idx ) const
 {
     WItemSelection::ReadTicket l = m_colors->getReadTicket();
-    return boost::shared_static_cast< ColorScheme >( l->get()[ idx ] );
+    return boost::static_pointer_cast< ColorScheme >( l->get()[ idx ] );
 }
 
 const boost::shared_ptr< WDataSetFibers::ColorScheme > WDataSetFibers::getColorScheme() const
 {
-    return boost::shared_static_cast< ColorScheme >( m_colorProp->get().at( 0 ) );
+    return boost::static_pointer_cast< ColorScheme >( m_colorProp->get().at( 0 ) );
 }
 
 const WPropSelection WDataSetFibers::getColorSchemeProperty() const

@@ -155,8 +155,8 @@ public:
         }
 
         // get data
-        boost::shared_ptr< T > dat = boost::shared_dynamic_cast< T >(
-                boost::shared_dynamic_cast< WModuleOutputConnector >( *m_connected.begin() )->getRawData()
+        boost::shared_ptr< T > dat = boost::dynamic_pointer_cast< T >(
+                boost::dynamic_pointer_cast< WModuleOutputConnector >( *m_connected.begin() )->getRawData()
         );
 
         // unlock and return

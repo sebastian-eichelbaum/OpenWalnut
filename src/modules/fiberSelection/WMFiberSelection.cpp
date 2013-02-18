@@ -232,8 +232,8 @@ void WMFiberSelection::moduleMain()
 
             // currently, both grids need to be the same
             // the grid of voi1 and voi2 is needed here
-            boost::shared_ptr< WGridRegular3D > grid1 = boost::shared_dynamic_cast< WGridRegular3D >( m_voi1->getGrid() );
-            boost::shared_ptr< WGridRegular3D > grid2 = boost::shared_dynamic_cast< WGridRegular3D >( m_voi2->getGrid() );
+            boost::shared_ptr< WGridRegular3D > grid1 = boost::dynamic_pointer_cast< WGridRegular3D >( m_voi1->getGrid() );
+            boost::shared_ptr< WGridRegular3D > grid2 = boost::dynamic_pointer_cast< WGridRegular3D >( m_voi2->getGrid() );
 
             // the list of fibers
             std::vector< boost::tuple< size_t, size_t, size_t > > matches;  // a match contains the fiber ID, the start vertex ID and the stop ID

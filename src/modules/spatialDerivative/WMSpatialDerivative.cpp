@@ -135,7 +135,7 @@ void WMSpatialDerivative::moduleMain()
         m_progress->addSubProgress( progress );
 
         // loop through each voxel
-        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
+        boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( dataSet->getGrid() );
         if( !grid )
         {
             errorLog() << "Only regular 3D grids allowed.";
@@ -147,7 +147,7 @@ void WMSpatialDerivative::moduleMain()
             case W_DT_UNSIGNED_CHAR:
             {
                 boost::shared_ptr<WValueSet<unsigned char> > vals;
-                vals = boost::shared_dynamic_cast<WValueSet<unsigned char> >( dataSet->getValueSet() );
+                vals = boost::dynamic_pointer_cast<WValueSet<unsigned char> >( dataSet->getValueSet() );
                 WAssert( vals, "Data type and data type indicator must fit." );
                 derive( grid, vals );
                 break;
@@ -155,7 +155,7 @@ void WMSpatialDerivative::moduleMain()
             case W_DT_INT16:
             {
                 boost::shared_ptr<WValueSet<int16_t> > vals;
-                vals = boost::shared_dynamic_cast<WValueSet<int16_t> >( dataSet->getValueSet() );
+                vals = boost::dynamic_pointer_cast<WValueSet<int16_t> >( dataSet->getValueSet() );
                 WAssert( vals, "Data type and data type indicator must fit." );
                 derive( grid, vals );
                 break;
@@ -163,7 +163,7 @@ void WMSpatialDerivative::moduleMain()
             case W_DT_SIGNED_INT:
             {
                 boost::shared_ptr<WValueSet<int32_t> > vals;
-                vals = boost::shared_dynamic_cast<WValueSet<int32_t> >( dataSet->getValueSet() );
+                vals = boost::dynamic_pointer_cast<WValueSet<int32_t> >( dataSet->getValueSet() );
                 WAssert( vals, "Data type and data type indicator must fit." );
                 derive( grid, vals );
                 break;
@@ -171,7 +171,7 @@ void WMSpatialDerivative::moduleMain()
             case W_DT_FLOAT:
             {
                 boost::shared_ptr< WValueSet< float > > vals;
-                vals = boost::shared_dynamic_cast< WValueSet< float > >( dataSet->getValueSet() );
+                vals = boost::dynamic_pointer_cast< WValueSet< float > >( dataSet->getValueSet() );
                 WAssert( vals, "Data type and data type indicator must fit." );
                 derive( grid, vals );
                 break;
@@ -179,7 +179,7 @@ void WMSpatialDerivative::moduleMain()
             case W_DT_DOUBLE:
             {
                 boost::shared_ptr< WValueSet< double > > vals;
-                vals = boost::shared_dynamic_cast< WValueSet< double > >( dataSet->getValueSet() );
+                vals = boost::dynamic_pointer_cast< WValueSet< double > >( dataSet->getValueSet() );
                 WAssert( vals, "Data type and data type indicator must fit." );
                 derive( grid, vals );
                 break;

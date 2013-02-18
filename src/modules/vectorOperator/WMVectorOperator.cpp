@@ -312,7 +312,7 @@ void WMVectorOperator::moduleMain()
                 // apply the operation to each voxel
                 debugLog() << "Processing ...";
                 boost::shared_ptr< WValueSetBase > newValueSet = valueSetA->applyFunction( VisitorVSetA(
-                    boost::shared_dynamic_cast< WGridRegular3D >( dataSetA->getGrid() ), s )
+                    boost::dynamic_pointer_cast< WGridRegular3D >( dataSetA->getGrid() ), s )
                 );
 
                 // Create the new dataset and export it

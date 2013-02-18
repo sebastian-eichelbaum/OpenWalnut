@@ -202,7 +202,7 @@ void WMArbitraryROIs::createCutDataset()
 
     boost::shared_ptr< WValueSetBase > newValueSet;
 
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSet->getGrid() );
 
     size_t order = ( *m_dataSet ).getValueSet()->order();
     size_t vDim = ( *m_dataSet ).getValueSet()->dimension();
@@ -215,7 +215,7 @@ void WMArbitraryROIs::createCutDataset()
         case W_DT_UNSIGNED_CHAR:
         {
             boost::shared_ptr< WValueSet< unsigned char > > vals;
-            vals =  boost::shared_dynamic_cast< WValueSet< unsigned char > >( ( *m_dataSet ).getValueSet() );
+            vals =  boost::dynamic_pointer_cast< WValueSet< unsigned char > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
             data = cutArea( ( *m_dataSet ).getGrid(), vals );
             break;
@@ -223,7 +223,7 @@ void WMArbitraryROIs::createCutDataset()
         case W_DT_INT16:
         {
             boost::shared_ptr< WValueSet< int16_t > > vals;
-            vals =  boost::shared_dynamic_cast< WValueSet< int16_t > >( ( *m_dataSet ).getValueSet() );
+            vals =  boost::dynamic_pointer_cast< WValueSet< int16_t > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
             data = cutArea( ( *m_dataSet ).getGrid(), vals );
             break;
@@ -231,7 +231,7 @@ void WMArbitraryROIs::createCutDataset()
         case W_DT_SIGNED_INT:
         {
             boost::shared_ptr< WValueSet< int32_t > > vals;
-            vals =  boost::shared_dynamic_cast< WValueSet< int32_t > >( ( *m_dataSet ).getValueSet() );
+            vals =  boost::dynamic_pointer_cast< WValueSet< int32_t > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
             cutArea( ( *m_dataSet ).getGrid(), vals );
             data = cutArea( ( *m_dataSet ).getGrid(), vals );
@@ -240,7 +240,7 @@ void WMArbitraryROIs::createCutDataset()
         case W_DT_FLOAT:
         {
             boost::shared_ptr< WValueSet< float > > vals;
-            vals =  boost::shared_dynamic_cast< WValueSet< float > >( ( *m_dataSet ).getValueSet() );
+            vals =  boost::dynamic_pointer_cast< WValueSet< float > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
             data = cutArea( ( *m_dataSet ).getGrid(), vals );
             break;
@@ -248,7 +248,7 @@ void WMArbitraryROIs::createCutDataset()
         case W_DT_DOUBLE:
         {
             boost::shared_ptr< WValueSet< double > > vals;
-            vals =  boost::shared_dynamic_cast< WValueSet< double > >( ( *m_dataSet ).getValueSet() );
+            vals =  boost::dynamic_pointer_cast< WValueSet< double > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
             data = cutArea( ( *m_dataSet ).getGrid(), vals );
             break;
@@ -267,7 +267,7 @@ void WMArbitraryROIs::createCutDataset()
 template< typename T >
 boost::shared_ptr< std::vector< float > > WMArbitraryROIs::cutArea( boost::shared_ptr< WGrid > inGrid, boost::shared_ptr< WValueSet< T > > vals )
 {
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( inGrid );
+    boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( inGrid );
 
     size_t nx = grid->getNbCoordsX();
     size_t ny = grid->getNbCoordsY();
@@ -368,7 +368,7 @@ void WMArbitraryROIs::finalizeROI()
         return;
     }
 
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSet->getGrid() );
     osg::ref_ptr< WROI > newROI = osg::ref_ptr< WROI >( new WROIArbitrary(  grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ(),
                                                                             grid->getTransformationMatrix(),
                                                                             *m_newValueSet->rawDataVectorPointer(),

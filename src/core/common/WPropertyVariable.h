@@ -584,7 +584,7 @@ bool WPropertyVariable< T >::accept( const T& newValue )
     bool acceptable = WFlag< T >::accept( newValue );
     for( typename ConstraintContainerType::ConstIterator it = l->get().begin(); it !=  l->get().end(); ++it )
     {
-        acceptable &= ( *it )->accept( boost::shared_static_cast< WPropertyVariable< T > >( shared_from_this() ), newValue );
+        acceptable &= ( *it )->accept( boost::static_pointer_cast< WPropertyVariable< T > >( shared_from_this() ), newValue );
     }
 
     return acceptable;
@@ -620,7 +620,7 @@ template < typename T >
 bool WPropertyVariable< T >::set( boost::shared_ptr< WPropertyBase > value, bool recommendedOnly )
 {
     // try to cast the given property to a WPropertyVariable of right type:
-    boost::shared_ptr< WPropertyVariable< T > > v = boost::shared_dynamic_cast< WPropertyVariable< T > >( value );
+    boost::shared_ptr< WPropertyVariable< T > > v = boost::dynamic_pointer_cast< WPropertyVariable< T > >( value );
     if( v )
     {
         if( recommendedOnly )
@@ -795,7 +795,7 @@ boost::shared_ptr< WPropertyConstraintMin< T > > WPropertyVariable< T >::getMin(
     }
 
     // cast to proper type
-    return boost::shared_static_cast< WPropertyConstraintMin< T > >( c );
+    return boost::static_pointer_cast< WPropertyConstraintMin< T > >( c );
 }
 
 template < typename T >
@@ -810,7 +810,7 @@ boost::shared_ptr< WPropertyConstraintMax< T > > WPropertyVariable< T >::getMax(
     }
 
     // cast to proper type
-    return boost::shared_static_cast< WPropertyConstraintMax< T > >( c );
+    return boost::static_pointer_cast< WPropertyConstraintMax< T > >( c );
 }
 
 template< typename T >

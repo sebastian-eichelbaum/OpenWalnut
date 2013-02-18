@@ -114,7 +114,7 @@ void WMReadSphericalHarmonics::moduleMain()
 
         if( data )
         {
-            m_data = boost::shared_dynamic_cast< WDataSetSphericalHarmonics >( data );
+            m_data = boost::dynamic_pointer_cast< WDataSetSphericalHarmonics >( data );
             if( m_data )
             {
                 m_runtimeName->set( string_utils::tokenize( fileName, "/" ).back() );

@@ -66,7 +66,7 @@ public:
         boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3d( 0.0, 1.0, 0.0 ) );
         // test the test
         TS_ASSERT( ds );
-        boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
+        boost::shared_ptr< WGridRegular3D > g = boost::dynamic_pointer_cast< WGridRegular3D >( ds->getGrid() );
 
         WVector3d v( 1.0, 0.0, 0.0 );
         v += x * -0.5;
@@ -132,7 +132,7 @@ public:
         WVector3d v( 1.0, 0.0, 0.0 );
 
         boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3d( 0.0, 1.0, 0.0 ) );
-        boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
+        boost::shared_ptr< WGridRegular3D > g = boost::dynamic_pointer_cast< WGridRegular3D >( ds->getGrid() );
 
         TS_ASSERT_DELTA( wtracking::WTrackingUtility::getDistanceToBoundary( g, v, x ), 0.5, TRACKING_EPS );
         TS_ASSERT_DELTA( wtracking::WTrackingUtility::getDistanceToBoundary( g, v, y ), 1.0, TRACKING_EPS );
@@ -169,7 +169,7 @@ public:
             y = normalize( y );
 
             boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3d( 0.0, 1.0, 0.0 ) );
-            boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
+            boost::shared_ptr< WGridRegular3D > g = boost::dynamic_pointer_cast< WGridRegular3D >( ds->getGrid() );
 
             wtracking::WTrackingUtility::JobType j;
             // TODO(wiebel): somehow changing the order of the last multiplication does not find the desired operator*
@@ -272,7 +272,7 @@ public:
         std::size_t seedsPerPosition = 1;
 
         boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3d( 1.0, 0.0, 0.0 ), 5 );
-        boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
+        boost::shared_ptr< WGridRegular3D > g = boost::dynamic_pointer_cast< WGridRegular3D >( ds->getGrid() );
         TS_ASSERT( g );
 
         {
@@ -348,7 +348,7 @@ public:
         std::size_t seedsPerPosition = 1;
 
         boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3d( 1.0, 0.0, 0.0 ), 5 );
-        boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
+        boost::shared_ptr< WGridRegular3D > g = boost::dynamic_pointer_cast< WGridRegular3D >( ds->getGrid() );
         TS_ASSERT( g );
 
         {
@@ -423,7 +423,7 @@ public:
         std::size_t seedsPerPosition = 1;
 
         boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3d( 1.0, 0.0, 0.0 ), 5 );
-        boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
+        boost::shared_ptr< WGridRegular3D > g = boost::dynamic_pointer_cast< WGridRegular3D >( ds->getGrid() );
         TS_ASSERT( g );
 
         {
@@ -495,7 +495,7 @@ public:
     void testInstantiation()
     {
         boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3d( 1.0, 0.0, 0.0 ), 5 );
-        boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
+        boost::shared_ptr< WGridRegular3D > g = boost::dynamic_pointer_cast< WGridRegular3D >( ds->getGrid() );
         TS_ASSERT( g );
 
         TS_ASSERT_THROWS_NOTHING(
@@ -512,7 +512,7 @@ public:
     void testGetJob()
     {
         boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3d( 1.0, 0.0, 0.0 ), 7 );
-        boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
+        boost::shared_ptr< WGridRegular3D > g = boost::dynamic_pointer_cast< WGridRegular3D >( ds->getGrid() );
         TS_ASSERT( g );
 
         wtracking::WThreadedTrackingFunction w( ds, boost::bind( &This::dirFunc, this, _1, _2, WVector3d( 1.0, 0.0, 0.0 ) ),
@@ -539,7 +539,7 @@ public:
         y = normalize( y );
 
         boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3d( 1.0, 0.0, 0.0 ), 7 );
-        boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
+        boost::shared_ptr< WGridRegular3D > g = boost::dynamic_pointer_cast< WGridRegular3D >( ds->getGrid() );
         TS_ASSERT( g );
         {
             wtracking::WThreadedTrackingFunction w( ds, boost::bind( &This::dirFunc, this, _1, _2, x ),

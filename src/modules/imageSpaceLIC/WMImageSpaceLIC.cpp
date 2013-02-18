@@ -448,7 +448,7 @@ void WMImageSpaceLIC::moduleMain()
             debugLog() << "Using vector data";
 
             // get grid and prepare OSG
-            boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSetVec->getGrid() );
+            boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( dataSetVec->getGrid() );
             m_xPos->setMax( grid->getNbCoordsX() - 1 );
             m_yPos->setMax( grid->getNbCoordsY() - 1 );
             m_zPos->setMax( grid->getNbCoordsZ() - 1 );
@@ -463,7 +463,7 @@ void WMImageSpaceLIC::moduleMain()
             debugLog() << "Using scalar data";
 
             // get grid and prepare OSG
-            boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSetScal->getGrid() );
+            boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( dataSetScal->getGrid() );
             m_xPos->setMax( grid->getNbCoordsX() - 1 );
             m_yPos->setMax( grid->getNbCoordsY() - 1 );
             m_zPos->setMax( grid->getNbCoordsZ() - 1 );

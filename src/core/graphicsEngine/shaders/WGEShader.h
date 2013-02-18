@@ -279,7 +279,7 @@ typename WGEShaderDefine< T >::SPtr WGEShader::setDefine( std::string key, T val
     PreprocessorsList::ReadTicket r = m_preprocessors.getReadTicket();
     for( PreprocessorsList::ConstIterator pp = r->get().begin(); pp != r->get().end(); ++pp )
     {
-        typename WGEShaderDefine< T >::SPtr define = boost::shared_dynamic_cast< WGEShaderDefine< T > >( ( *pp ).first );
+        typename WGEShaderDefine< T >::SPtr define = boost::dynamic_pointer_cast< WGEShaderDefine< T > >( ( *pp ).first );
         if( define && ( define->getName() == key ) )
         {
             define->setValue( value );

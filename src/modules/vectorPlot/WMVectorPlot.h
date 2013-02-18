@@ -184,8 +184,8 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
 
     WPosition current = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
 
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
-    boost::shared_ptr< WValueSet< ValueType > > vals = boost::shared_dynamic_cast< WValueSet< ValueType > >( m_dataSet->getValueSet() );
+    boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    boost::shared_ptr< WValueSet< ValueType > > vals = boost::dynamic_pointer_cast< WValueSet< ValueType > >( m_dataSet->getValueSet() );
 
     int maxX = grid->getNbCoordsX() - 1;
     int maxY = grid->getNbCoordsY() - 1;

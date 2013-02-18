@@ -49,12 +49,12 @@ WJoinContourTree::WJoinContourTree( boost::shared_ptr< WDataSetSingle > dataset 
     {
         throw WNotImplemented( std::string( "ATM there is only support for scalar fields" ) );
     }
-    m_valueSet = boost::shared_dynamic_cast< WValueSet< double > >( dataset->getValueSet() );
+    m_valueSet = boost::dynamic_pointer_cast< WValueSet< double > >( dataset->getValueSet() );
     if( !m_valueSet )
     {
         throw WNotImplemented( std::string( "ATM there is only support for scalar fields with doubles as scalars" ) );
     }
-    m_grid = boost::shared_dynamic_cast< WGridRegular3D >( dataset->getGrid() );
+    m_grid = boost::dynamic_pointer_cast< WGridRegular3D >( dataset->getGrid() );
     if( !m_grid )
     {
         throw WNotImplemented( std::string( "Only WGridRegular3D is supported, despite that its not a simplicial mesh!" ) );

@@ -322,9 +322,9 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
     ref_ptr< osg::Vec3Array > normals = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
 
     // cycle through all positions in the dataSet
-    boost::shared_ptr< WValueSet< double > > valueset = boost::shared_dynamic_cast< WValueSet< double > >( dataset->getValueSet() );
+    boost::shared_ptr< WValueSet< double > > valueset = boost::dynamic_pointer_cast< WValueSet< double > >( dataset->getValueSet() );
     WAssert( valueset != 0, "No scalar double valueset was given while generating the dataset geode" );
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataset->getGrid() );
+    boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( dataset->getGrid() );
     WAssert( grid != 0, "No WGridRegular3D was given while generating the dataset geode"  );
     const std::vector< double >& values = *valueset->rawDataVectorPointer();
     for( size_t i = 0; i < values.size(); ++i )

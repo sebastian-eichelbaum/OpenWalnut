@@ -115,67 +115,67 @@ void WPropertyBase::setHidden( bool hidden )
 
 WPropInt WPropertyBase::toPropInt()
 {
-    return boost::shared_static_cast< WPVInt >( shared_from_this() );
+    return boost::static_pointer_cast< WPVInt >( shared_from_this() );
 }
 
 WPropDouble WPropertyBase::toPropDouble()
 {
-    return boost::shared_static_cast< WPVDouble >( shared_from_this() );
+    return boost::static_pointer_cast< WPVDouble >( shared_from_this() );
 }
 
 WPropBool WPropertyBase::toPropBool()
 {
-    return boost::shared_static_cast< WPVBool >( shared_from_this() );
+    return boost::static_pointer_cast< WPVBool >( shared_from_this() );
 }
 
 WPropString WPropertyBase::toPropString()
 {
-    return boost::shared_static_cast< WPVString >( shared_from_this() );
+    return boost::static_pointer_cast< WPVString >( shared_from_this() );
 }
 
 WPropFilename WPropertyBase::toPropFilename()
 {
-    return boost::shared_static_cast< WPVFilename >( shared_from_this() );
+    return boost::static_pointer_cast< WPVFilename >( shared_from_this() );
 }
 
 WPropSelection WPropertyBase::toPropSelection()
 {
-    return boost::shared_static_cast< WPVSelection >( shared_from_this() );
+    return boost::static_pointer_cast< WPVSelection >( shared_from_this() );
 }
 
 WPropColor WPropertyBase::toPropColor()
 {
-    return boost::shared_static_cast< WPVColor >( shared_from_this() );
+    return boost::static_pointer_cast< WPVColor >( shared_from_this() );
 }
 
 WPropPosition WPropertyBase::toPropPosition()
 {
-    return boost::shared_static_cast< WPVPosition >( shared_from_this() );
+    return boost::static_pointer_cast< WPVPosition >( shared_from_this() );
 }
 
 WPropGroup WPropertyBase::toPropGroup()
 {
-    return boost::shared_static_cast< WPVGroup >( shared_from_this() );
+    return boost::static_pointer_cast< WPVGroup >( shared_from_this() );
 }
 
 WPropertyGroupBase::SPtr WPropertyBase::toPropGroupBase()
 {
-    return boost::shared_static_cast< WPropertyGroupBase >( shared_from_this() );
+    return boost::static_pointer_cast< WPropertyGroupBase >( shared_from_this() );
 }
 
 WPropMatrix4X4 WPropertyBase::toPropMatrix4X4()
 {
-    return boost::shared_static_cast< WPVMatrix4X4 >( shared_from_this() );
+    return boost::static_pointer_cast< WPVMatrix4X4 >( shared_from_this() );
 }
 
 WPropTrigger WPropertyBase::toPropTrigger()
 {
-    return boost::shared_static_cast< WPVTrigger >( shared_from_this() );
+    return boost::static_pointer_cast< WPVTrigger >( shared_from_this() );
 }
 
 WPropTransferFunction WPropertyBase::toPropTransferFunction()
 {
-    return boost::shared_static_cast< WPVTransferFunction >( shared_from_this() );
+    return boost::static_pointer_cast< WPVTransferFunction >( shared_from_this() );
 }
 
 boost::shared_ptr< WCondition > WPropertyBase::getUpdateCondition() const
@@ -185,6 +185,6 @@ boost::shared_ptr< WCondition > WPropertyBase::getUpdateCondition() const
 
 WPropInterval WPropertyBase::toPropInterval()
 {
-    return boost::shared_static_cast< WPVInterval >( shared_from_this() );
+    return boost::static_pointer_cast< WPVInterval >( shared_from_this() );
 }
 

@@ -59,7 +59,7 @@ WDataSetSingle::SPtr WDataSetDTI::clone() const
 
 WTensorSym< 2, 3, float > WDataSetDTI::getTensor( size_t index ) const
 {
-    boost::shared_ptr< WValueSet< float > > values = boost::shared_dynamic_cast< WValueSet< float > >( m_valueSet );
+    boost::shared_ptr< WValueSet< float > > values = boost::dynamic_pointer_cast< WValueSet< float > >( m_valueSet );
     WAssert( values, "The value set of a WDataSetDTI must be a WValueSet< float >, nothing else!" );
     return WTensorSym< 2, 3, float >( values->getWValue( index ) );
 }

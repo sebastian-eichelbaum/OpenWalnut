@@ -163,7 +163,7 @@ void WMEigenSystem::moduleMain()
 void WMEigenSystem::updateOCs( boost::shared_ptr< const WDataSetSingle > es )
 {
     WAssert( es, "Bug: updating the output with no data makes no sense." );
-    boost::shared_ptr< const WValueSet< double > > vs = boost::shared_dynamic_cast< WValueSet< double > >( es->getValueSet() );
+    boost::shared_ptr< const WValueSet< double > > vs = boost::dynamic_pointer_cast< WValueSet< double > >( es->getValueSet() );
     WAssert( vs, "Bug: invalid value-set from WThreadedPerVoxelOperation dataset" );
     boost::shared_ptr< WGrid > grid = es->getGrid();
 

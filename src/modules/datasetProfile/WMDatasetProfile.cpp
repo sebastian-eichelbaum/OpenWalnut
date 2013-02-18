@@ -154,7 +154,7 @@ void WMDatasetProfile::moduleMain()
             if( dataChanged )
             {
                 m_dataSet = newDataSet;
-                m_grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+                m_grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSet->getGrid() );
             }
         }
 

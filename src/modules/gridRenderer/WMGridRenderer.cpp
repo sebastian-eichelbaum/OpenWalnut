@@ -127,14 +127,14 @@ void WMGridRenderer::moduleMain()
         WGridRegular3D::SPtr regGrid;
 
         // is this a DS with a regular grid?
-        WDataSetSingle::SPtr dsSingle = boost::shared_dynamic_cast< WDataSetSingle >( dataSet );
+        WDataSetSingle::SPtr dsSingle = boost::dynamic_pointer_cast< WDataSetSingle >( dataSet );
         if( dsSingle )
         {
-            regGrid = boost::shared_dynamic_cast< WGridRegular3D >( dsSingle->getGrid() );
+            regGrid = boost::dynamic_pointer_cast< WGridRegular3D >( dsSingle->getGrid() );
         }
 
         // is this a fiber dataset?
-        WDataSetFibers::SPtr dsFibers = boost::shared_dynamic_cast< WDataSetFibers >( dataSet );
+        WDataSetFibers::SPtr dsFibers = boost::dynamic_pointer_cast< WDataSetFibers >( dataSet );
         if( dsFibers )
         {
             debugLog() << "Fiber Data.";
@@ -147,7 +147,7 @@ void WMGridRenderer::moduleMain()
         }
 
         // is this a point dataset?
-        WDataSetPoints::SPtr dsPoints = boost::shared_dynamic_cast< WDataSetPoints >( dataSet );
+        WDataSetPoints::SPtr dsPoints = boost::dynamic_pointer_cast< WDataSetPoints >( dataSet );
         if( dsPoints )
         {
             debugLog() << "Points Data.";

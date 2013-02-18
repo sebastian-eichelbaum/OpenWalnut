@@ -236,7 +236,7 @@ void WMVectorPlot::activate()
 
 void WMVectorPlot::transformVerts( osg::ref_ptr< osg::Vec3Array > verts )
 {
-    WMatrix< double > mat = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() )->getTransformationMatrix();
+    WMatrix< double > mat = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSet->getGrid() )->getTransformationMatrix();
 
     for( size_t i = 0; i < verts->size(); ++i )
     {

@@ -460,7 +460,7 @@ void WMSuperquadricGlyphs::moduleMain()
 
             // get pointers for the new data
             m_dataSet = newDataSet;
-            m_dataSetGrid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+            m_dataSetGrid = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSet->getGrid() );
             WAssert( m_dataSetGrid, "Dataset does not have a regular 3D grid." );
             m_maxX = m_dataSetGrid->getNbCoordsX();
             m_maxY = m_dataSetGrid->getNbCoordsY();

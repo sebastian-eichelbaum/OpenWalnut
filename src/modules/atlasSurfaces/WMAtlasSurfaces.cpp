@@ -225,7 +225,7 @@ void WMAtlasSurfaces::moduleMain()
 
 void WMAtlasSurfaces::createSurfaces()
 {
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSet->getGrid() );
 
     boost::shared_ptr<WProgressCombiner> newProgress = boost::shared_ptr<WProgressCombiner>( new WProgressCombiner() );
     boost::shared_ptr<WProgress>pro = boost::shared_ptr<WProgress>( new WProgress( "dummy", m_dataSet->getMax() ) );
@@ -440,13 +440,13 @@ void WMAtlasSurfaces::createRoi()
 
 void WMAtlasSurfaces::cutArea( int index )
 {
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSet->getGrid() );
 
     size_t order = ( *m_dataSet ).getValueSet()->order();
     size_t vDim = ( *m_dataSet ).getValueSet()->dimension();
 
     boost::shared_ptr< WValueSet< unsigned char > > vals;
-    vals =  boost::shared_dynamic_cast< WValueSet< unsigned char > >( ( *m_dataSet ).getValueSet() );
+    vals =  boost::dynamic_pointer_cast< WValueSet< unsigned char > >( ( *m_dataSet ).getValueSet() );
 
     boost::shared_ptr< std::vector< float > > newVals = boost::shared_ptr< std::vector< float > >( new std::vector< float >( grid->size(), 0 ) );
 

@@ -68,7 +68,7 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
 
     // for captions of data modules
     boost::shared_ptr< WDataModule > dataModule;
-    dataModule = boost::shared_dynamic_cast< WDataModule >( module );
+    dataModule = boost::dynamic_pointer_cast< WDataModule >( module );
     if( dataModule )
     {
         m_subtitleFull = dataModule->getFilename().filename().string();
@@ -223,7 +223,7 @@ void WQtNetworkItem::updater()
             // if busy indication was active -> update to remove it again
             needUpdate |= m_busyIndicatorShow;
             m_busyIndicatorShow = false;
-            WDataModule::SPtr dataModule = boost::shared_dynamic_cast< WDataModule >( m_module );
+            WDataModule::SPtr dataModule = boost::dynamic_pointer_cast< WDataModule >( m_module );
             if( dataModule )
             {
                 m_subtitleFull = dataModule->getFilename().filename().string();

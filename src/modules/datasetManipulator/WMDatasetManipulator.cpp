@@ -137,7 +137,7 @@ void WMDatasetManipulator::properties()
 
 void WMDatasetManipulator::init()
 {
-    m_grid = boost::shared_dynamic_cast< WGridRegular3D >( m_input->getData()->getGrid() );
+    m_grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_input->getData()->getGrid() );
     WAssert( m_grid, "The grid needs to be a regular 3D grid." );
     m_transform = boost::shared_ptr< WGridTransformOrtho >( new WGridTransformOrtho( m_grid->getTransform() ) );
 

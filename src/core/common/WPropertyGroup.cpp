@@ -145,7 +145,7 @@ T addDefaultConstraints( T prop )
 bool WPropertyGroup::set( boost::shared_ptr< WPropertyBase > value, bool recommendedOnly )
 {
     // is this the same type as we are?
-    WPropertyGroup::SPtr v = boost::shared_dynamic_cast< WPropertyGroup >( value );
+    WPropertyGroup::SPtr v = boost::dynamic_pointer_cast< WPropertyGroup >( value );
     if( !v )
     {
         // it is not a WPropertyStruct with the same type
@@ -193,8 +193,8 @@ bool WPropertyGroup::setImpl( boost::shared_ptr< WPropertyGroup > value, std::st
         }
 
         // not excluded. Is it a group or something else?
-        WPropertyGroup::SPtr meAsGroup = boost::shared_dynamic_cast< WPropertyGroup >( prop );
-        WPropertyGroup::SPtr inputAsGroup = boost::shared_dynamic_cast< WPropertyGroup >( *it );
+        WPropertyGroup::SPtr meAsGroup = boost::dynamic_pointer_cast< WPropertyGroup >( prop );
+        WPropertyGroup::SPtr inputAsGroup = boost::dynamic_pointer_cast< WPropertyGroup >( *it );
         if( inputAsGroup && meAsGroup )
         {
             // not excluded and is group, recurse:
