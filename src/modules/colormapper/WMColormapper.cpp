@@ -44,7 +44,8 @@
 W_LOADABLE_MODULE( WMColormapper )
 
 WMColormapper::WMColormapper() :
-    WModule()
+    WModule(),
+    m_windowLevel( 0, 1 )
 {
     // initialize
 }
@@ -230,6 +231,11 @@ void WMColormapper::moduleMain()
                     boost::bind( &WMColormapper::updateColorbarScale, this, _1 )
                 ) );
 
+                // we need to adapt the labels to the window level
+                // we therefore watch the window level properties
+                m_windowLevelEnabled = dataSet->getTexture()->windowEnabled()->get();
+                m_windowLevel = dataSet->getTexture()->window()->get();
+
                 // set some callbacks
                 colorBarBorder->addUpdateCallback( new WGENodeMaskCallback( m_colorBarBorder ) );
                 labels->addUpdateCallback( new WGENodeMaskCallback( m_colorBarName ) );
@@ -338,8 +344,13 @@ void WMColormapper::updateColorbarName( osg::Drawable* label )
 
 void WMColormapper::updateColorbarScale( osg::Node* scaleLabels )
 {
-    if( m_colorBarLabels->changed( true ) )
+    if( m_colorBarLabels->changed( true ) || ( m_windowLevelEnabled != m_lastDataSet->getTexture()->windowEnabled()->get() ) ||
+                                             ( m_windowLevel != m_lastDataSet->getTexture()->window()->get() )
+      )
     {
+        m_windowLevelEnabled = m_lastDataSet->getTexture()->windowEnabled()->get();
+        m_windowLevel = m_lastDataSet->getTexture()->window()->get();
+
         const double labelXPos = 0.060;
         osg::Geode* g = scaleLabels->asGeode();
         g->removeDrawables( 0, g->getNumDrawables() );
@@ -347,6 +358,13 @@ void WMColormapper::updateColorbarScale( osg::Node* scaleLabels )
         size_t num = m_colorBarLabels->get( true );
         double coordStep = 0.8 / static_cast< double >( num - 1 );
         double valueStep = m_valueScale / static_cast< double >( num - 1 );
+        double valueMin = m_valueMin;
+
+        if( m_windowLevelEnabled )
+        {
+            valueStep = m_windowLevel.getLength() / static_cast< double >( num - 1 );
+            valueMin = m_windowLevel.getLower();
+        }
 
         // less than 2 labels is useless
         if( num < 2 )
@@ -359,7 +377,7 @@ void WMColormapper::updateColorbarScale( osg::Node* scaleLabels )
         // create enough labels.
         for( size_t i = 0; i < num; ++i )
         {
-            double value = m_valueMin + ( valueStep * i );
+            double value = valueMin + ( valueStep * i );
 
             // create the label
             osg::ref_ptr< WGELabel > label = new WGELabel();

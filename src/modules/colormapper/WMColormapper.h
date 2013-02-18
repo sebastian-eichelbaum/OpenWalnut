@@ -32,6 +32,7 @@
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
 #include "core/common/WPropertyVariable.h"
+#include "core/common/math/WInterval.h"
 
 #include "core/dataHandler/WDataSetSingle.h"
 
@@ -180,6 +181,16 @@ private:
      * \param scaleLabels the geode containing the labels.
      */
     void updateColorbarScale( osg::Node* scaleLabels );
+
+    /**
+     * True if window leveling is active
+     */
+    bool m_windowLevelEnabled;
+
+    /**
+     * Window level.
+     */
+    WIntervalDouble m_windowLevel;
 };
 
 #endif  // WMCOLORMAPPER_H

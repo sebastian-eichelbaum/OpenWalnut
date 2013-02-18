@@ -111,6 +111,13 @@ public:
     const T& getUpper() const;
 
     /**
+     * The length of the interval. This is upper - lower.
+     *
+     * \return length
+     */
+    T getLength() const;
+
+    /**
      * Compare this interval with another one
      *
      * \param interval the other one
@@ -118,6 +125,15 @@ public:
      * \return true if lower and upper bounds are equal
      */
     bool operator==( Type interval ) const;
+
+    /**
+     * Compare this interval with another one
+     *
+     * \param interval the other one
+     *
+     * \return true if lower and upper bounds are equal
+     */
+    bool operator!=( Type interval ) const;
 
 protected:
 private:
@@ -264,9 +280,21 @@ const T& WInterval< T >::getUpper() const
 }
 
 template < typename T >
+T WInterval< T >::getLength() const
+{
+    return getUpper() - getLower();;
+}
+
+template < typename T >
 bool WInterval< T >::operator==( Type interval ) const
 {
     return ( ( interval.getLower() == getLower() ) && ( interval.getUpper() == getUpper() ) );
+}
+
+template < typename T >
+bool WInterval< T >::operator!=( Type interval ) const
+{
+    return !operator==( interval );
 }
 
 #endif  // WINTERVAL_H
