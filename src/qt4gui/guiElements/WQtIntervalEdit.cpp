@@ -55,6 +55,9 @@ WQtIntervalEditBase::WQtIntervalEditBase( QWidget* parent ):
     m_maxSlider.setMinimum( 0 );
     m_maxSlider.setMaximum( SliderResolution );
 
+    m_minSlider.setValue( 0 );
+    m_maxSlider.setValue( SliderResolution );
+
     setLayout( &m_layout );
 
     connect( &m_minSlider, SIGNAL( valueChanged( int ) ), this, SLOT( minSliderChanged() ) );
