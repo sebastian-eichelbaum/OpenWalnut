@@ -269,10 +269,10 @@ private:
 template< typename DataType, typename DisplayType >
 WQtIntervalEdit< DataType, DisplayType >::WQtIntervalEdit( QWidget* parent ):
     WQtIntervalEditBase( parent ),
-    m_allowedMax( std::numeric_limits< DataType >::max() ),
-    m_allowedMin( std::numeric_limits< DataType >::min() ),
-    m_min( std::numeric_limits< DataType >::min() ),
-    m_max( std::numeric_limits< DataType >::max() )
+    m_allowedMax( 100 ),
+    m_allowedMin( 0 ),
+    m_min( 0 ),
+    m_max( 100 )
 
 {
     // initialize members
@@ -398,8 +398,16 @@ void WQtIntervalEdit< DataType, DisplayType >::update()
                      ( static_cast< double >( m_max ) - static_cast< double >( m_allowedMin ) ) /
                      ( static_cast< double >( m_allowedMax ) - static_cast< double >( m_allowedMin ) );
 
-    m_minSlider.setValue( percMin );
-    m_maxSlider.setValue( percMax );
+    if( m_allowedMin == m_allowedMax )
+    {
+        m_minSlider.setValue( 0 );
+        m_maxSlider.setValue( SliderResolution );
+    }
+    else
+    {
+        m_minSlider.setValue( percMin );
+        m_maxSlider.setValue( percMax );
+    }
 
     // set the text edits
     m_minEdit.setText( QString::number( m_min ) );
