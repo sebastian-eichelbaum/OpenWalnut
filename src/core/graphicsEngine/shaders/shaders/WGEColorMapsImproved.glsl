@@ -92,15 +92,13 @@ float clipThreshold( in vec3 valueDescaled, in int colormap, in float thresholdV
 {
     float isVec = float( colormap == 6 );
 
-
-
     return max( 1.0 - float( thresholdEnabled ),
             isVec * clamp( sign( length( valueDescaled ) - thresholdVLower ) +
-                           sign( 1.0 - ( length( valueDescaled ) - thresholdVUpper ) ),
+                           sign( - ( length( valueDescaled ) - thresholdVUpper ) ),
                            0.0, 1.0 )
                 +
-          ( 1.0 - isVec ) * clamp( sign( valueDescaled.r - ( thresholdVLower - 0.001 ) ) + // or
-                                   sign( 1.0 - ( valueDescaled.r - ( thresholdVUpper - 0.001 ) ) ),
+          ( 1.0 - isVec ) * clamp( sign( valueDescaled.r - ( thresholdVLower  ) ) + // or
+                                   sign( - ( valueDescaled.r - ( thresholdVUpper ) ) ),
                                    0.0, 1.0 ) );
 }
 
