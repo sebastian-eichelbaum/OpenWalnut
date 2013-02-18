@@ -64,7 +64,7 @@ public:
         h.insert( 0.7234 );
         TS_ASSERT_EQUALS( h.size(), 1000 );
         TS_ASSERT_EQUALS( h.valuesSize(), 1 );
-        TS_ASSERT_EQUALS( h[722], 1 );
+        TS_ASSERT_EQUALS( h[723], 1 );
     }
 
     /**
@@ -74,11 +74,11 @@ public:
     {
         WHistogramBasic h( 0.0, 1.0 );
         h.insert( 0.001 );
-        TS_ASSERT_EQUALS( h[0], 1 );
+        TS_ASSERT_EQUALS( h[1], 1 );
         h.insert( 0.0039999 );
         TS_ASSERT_EQUALS( h[3], 1 );
         h.insert( 0.0070001 );
-        TS_ASSERT_EQUALS( h[6], 1 );
+        TS_ASSERT_EQUALS( h[7], 1 );
     }
 
     /**

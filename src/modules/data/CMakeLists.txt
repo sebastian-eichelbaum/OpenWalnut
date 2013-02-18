@@ -43,45 +43,30 @@ GET_FILENAME_COMPONENT( MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
 # NiftiLib, at least 2.0.0
 # See  http://niftilib.sourceforge.net
 
-# we provide the niftilib in ext. If it is found on the system, the system version is used
-SET( OWExtNiftiIOName  "openwalnut_niftiio" )
-SET( OWExtNiftiZNZName  "openwalnut_niftiznz" )
+# If it is found on the system, the system version is used
+SET( OWExtNiftiIOName  "" )
 
-FIND_PACKAGE( niftilib QUIET )
+FIND_PACKAGE( niftilib REQUIRED )
+
 IF( NIFTILIB_FOUND )
    MESSAGE( STATUS "Using system installed nifitlib." )
    INCLUDE_DIRECTORIES( ${NIFTILIB_INCLUDE_DIR} )
    SET( OWExtNiftiIOName  ${NIFTILIB_LIBRARY} )
-ELSE()
-    IF( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ext/nifti/CMakeLists.txt" )
-        MESSAGE( STATUS "Found niftilib in \"${CMAKE_CURRENT_SOURCE_DIR}/ext/nifti\"" )
-        INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/ext/nifti )
-        ADD_SUBDIRECTORY( ext/nifti )
-    ELSE()
-        MESSAGE( FATAL_ERROR "Could not find niftilib." )
-    ENDIF()
 ENDIF()
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # BioSig, at least 0.84
 # See http://biosig.sourceforge.net
 
-# we provide the biosig in ext. If it is found on the system, the system version is used
-SET( OWExtBioSigName "openwalnut_biosig" )
+# If it is found on the system, the system version is used
+SET( OWExtBioSigName "" )
 
 FIND_PACKAGE( biosig QUIET )
 IF( BIOSIG_FOUND )
    MESSAGE( STATUS "Using system installed biosig." )
    INCLUDE_DIRECTORIES( ${BIOSIG_INCLUDE_DIR} )
    SET( OWExtBioSigName  ${BIOSIG_LIBRARY} )
-ELSE()
-    IF( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ext/biosig/CMakeLists.txt" )
-        MESSAGE( STATUS "Found biosig in \"${CMAKE_CURRENT_SOURCE_DIR}/ext/biosig\"" )
-        INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/ext/biosig )
-        ADD_SUBDIRECTORY( ext/biosig )
-    ELSE()
-        MESSAGE( FATAL_ERROR "Could not find biosig." )
-    ENDIF()
+   ADD_DEFINITIONS( "-DWBIOSIG_ENABLED" )
 ENDIF()
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------

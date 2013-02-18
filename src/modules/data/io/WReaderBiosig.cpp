@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#ifdef WBIOSIG_ENABLED
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -158,3 +160,5 @@ boost::shared_ptr< WDataSet > WReaderBiosig::load()
     wlog::info( "BIOSIG loading done." );
     return eeg;
 }
+
+#endif
