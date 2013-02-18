@@ -224,6 +224,7 @@ void WMColormapper::moduleMain()
                 matrix->setReferenceFrame( osg::Transform::ABSOLUTE_RF );
 
                 // this geode contains the labels
+                m_needScaleUpdate = true;
                 osg::ref_ptr< osg::Geode > labels = new osg::Geode();
                 labels->addDrawable( nameLabel );
                 m_scaleLabels = new osg::Geode();
@@ -344,10 +345,12 @@ void WMColormapper::updateColorbarName( osg::Drawable* label )
 
 void WMColormapper::updateColorbarScale( osg::Node* scaleLabels )
 {
-    if( m_colorBarLabels->changed( true ) || ( m_windowLevelEnabled != m_lastDataSet->getTexture()->windowEnabled()->get() ) ||
-                                             ( m_windowLevel != m_lastDataSet->getTexture()->window()->get() )
+    if( m_needScaleUpdate || m_colorBarLabels->changed( true ) ||
+            ( m_windowLevelEnabled != m_lastDataSet->getTexture()->windowEnabled()->get() ) ||
+            ( m_windowLevel != m_lastDataSet->getTexture()->window()->get() )
       )
     {
+        m_needScaleUpdate = false;
         m_windowLevelEnabled = m_lastDataSet->getTexture()->windowEnabled()->get();
         m_windowLevel = m_lastDataSet->getTexture()->window()->get();
 

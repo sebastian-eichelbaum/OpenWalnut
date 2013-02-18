@@ -191,6 +191,11 @@ private:
      * Window level.
      */
     WIntervalDouble m_windowLevel;
+
+    /**
+     * If true, the labels get re-drawn
+     */
+    bool m_needScaleUpdate;
 };
 
 #endif  // WMCOLORMAPPER_H
