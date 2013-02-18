@@ -282,7 +282,7 @@ const T& WInterval< T >::getUpper() const
 template < typename T >
 T WInterval< T >::getLength() const
 {
-    return getUpper() - getLower();;
+    return getUpper() - getLower();
 }
 
 template < typename T >
