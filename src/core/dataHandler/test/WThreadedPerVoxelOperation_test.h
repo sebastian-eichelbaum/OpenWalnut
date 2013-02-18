@@ -128,7 +128,7 @@ public:
         TS_ASSERT_EQUALS( res->getValueSet()->order(), 1 );
         TS_ASSERT_EQUALS( res->getValueSet()->size(), 8 );
 
-        boost::shared_ptr< WValueSet< float > > vs = boost::shared_dynamic_cast< WValueSet< float > >( res->getValueSet() );
+        boost::shared_ptr< WValueSet< float > > vs = boost::dynamic_pointer_cast< WValueSet< float > >( res->getValueSet() );
 
         TS_ASSERT( vs );
         TS_ASSERT( vs->rawData() );

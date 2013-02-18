@@ -403,7 +403,7 @@ void WMPaintTexture::setColorFromPick( WPickInfo pickInfo )
 
 void WMPaintTexture::createTexture()
 {
-    m_grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    m_grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSet->getGrid() );
 
     osg::ref_ptr< osg::Image > ima = new osg::Image;
     ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE, GL_UNSIGNED_BYTE );
@@ -449,12 +449,12 @@ void WMPaintTexture::updateOutDataset()
 
 void WMPaintTexture::copyFromInput()
 {
-    m_grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    m_grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSet->getGrid() );
 
     unsigned char* data = m_texture->getImage()->data();
 
     boost::shared_ptr< WValueSet< unsigned char > > vals;
-    vals =  boost::shared_dynamic_cast< WValueSet< unsigned char > >( m_dataSet->getValueSet() );
+    vals =  boost::dynamic_pointer_cast< WValueSet< unsigned char > >( m_dataSet->getValueSet() );
 
     for( unsigned int i = 0; i < m_grid->size(); ++i )
     {

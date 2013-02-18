@@ -50,7 +50,7 @@ WModuleWrapper WModuleContainerWrapper::create( std::string const& name )
 
 WModuleWrapper WModuleContainerWrapper::createDataModule( std::string const& filename )
 {
-    boost::shared_ptr< WDataModule > dataModule = boost::shared_static_cast< WDataModule >(
+    boost::shared_ptr< WDataModule > dataModule = boost::static_pointer_cast< WDataModule >(
                                                     WModuleFactory::getModuleFactory()->create(
                                                       WModuleFactory::getModuleFactory()->getPrototypeByName( "Data Module" ) ) );
     dataModule->setSuppressColormaps( true );

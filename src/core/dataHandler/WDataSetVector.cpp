@@ -88,7 +88,7 @@ namespace
                                                  bool *success,
                                                  boost::shared_ptr< WGridRegular3D::CellVertexArray > vertexIds )
     {
-        boost::shared_ptr< const WGridRegular3D > grid = boost::shared_dynamic_cast< const WGridRegular3D >( i_grid );
+        boost::shared_ptr< const WGridRegular3D > grid = boost::dynamic_pointer_cast< const WGridRegular3D >( i_grid );
 
         WAssert( grid,  "This data set has a grid whose type is not yet supported for interpolation." );
         WAssert( ( i_valueSet->order() == 1 &&  i_valueSet->dimension() == 3 ),
@@ -180,23 +180,23 @@ WVector3d WDataSetVector::getVectorAt( size_t index ) const
     {
         case W_DT_UNSIGNED_CHAR:
         {
-            return boost::shared_dynamic_cast< WValueSet< uint8_t > >( getValueSet() )->getVector3D( index );
+            return boost::dynamic_pointer_cast< WValueSet< uint8_t > >( getValueSet() )->getVector3D( index );
         }
         case W_DT_INT16:
         {
-            return boost::shared_dynamic_cast< WValueSet< int16_t > >( getValueSet() )->getVector3D( index );
+            return boost::dynamic_pointer_cast< WValueSet< int16_t > >( getValueSet() )->getVector3D( index );
         }
         case W_DT_SIGNED_INT:
         {
-            return boost::shared_dynamic_cast< WValueSet< int32_t > >( getValueSet() )->getVector3D( index );
+            return boost::dynamic_pointer_cast< WValueSet< int32_t > >( getValueSet() )->getVector3D( index );
         }
         case W_DT_FLOAT:
         {
-            return boost::shared_dynamic_cast< WValueSet< float > >( getValueSet() )->getVector3D( index );
+            return boost::dynamic_pointer_cast< WValueSet< float > >( getValueSet() )->getVector3D( index );
         }
         case W_DT_DOUBLE:
         {
-            return boost::shared_dynamic_cast< WValueSet< double > >( getValueSet() )->getVector3D( index );
+            return boost::dynamic_pointer_cast< WValueSet< double > >( getValueSet() )->getVector3D( index );
         }
         default:
             WAssert( false, "Unknow data type in dataset." );

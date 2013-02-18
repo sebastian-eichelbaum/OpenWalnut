@@ -345,7 +345,7 @@ void WIGTLinkRemote::sendImageMetaData( const std::vector < WDataSetScalarSPtr >
         ts0->SetTime( 123456.78 );
 
         imgMeta->SetTimeStamp( ts0 );
-        boost::shared_ptr < WGridRegular3D > g3dr( boost::shared_dynamic_cast < WGridRegular3D > ( dataSets[ i ]->getGrid() ) );
+        boost::shared_ptr < WGridRegular3D > g3dr( boost::dynamic_pointer_cast < WGridRegular3D > ( dataSets[ i ]->getGrid() ) );
         imgMeta->SetSize( g3dr->getNbCoordsX(), g3dr->getNbCoordsY(), g3dr->getNbCoordsZ() );
         imgMeta->SetScalarType( convertTypeOWtoIGTL( dataSets[ i ]->getValueSet()->getDataType() ) );
         imgMetaMsg->AddImageMetaElement( imgMeta );
@@ -361,7 +361,7 @@ namespace Ugly
     size_t getRawSizeT( boost::shared_ptr < WValueSetBase >  valueSet )
     {
         typedef typename DataTypeRT<DT>::type type;
-        boost::shared_ptr < WValueSet < type > > v = boost::shared_dynamic_cast < WValueSet < type > >( valueSet );
+        boost::shared_ptr < WValueSet < type > > v = boost::dynamic_pointer_cast < WValueSet < type > >( valueSet );
         WAssert( v, "Type cast failed" );
         return valueSet->rawSize() * sizeof( type );
     }
@@ -371,7 +371,7 @@ namespace Ugly
     {
         typedef typename DataTypeRT<DT>::type type;
         boost::shared_ptr < WValueSet < type > > v;
-        v = boost::shared_dynamic_cast < WValueSet < type > >( valueSet );
+        v = boost::dynamic_pointer_cast < WValueSet < type > >( valueSet );
         WAssert( v, "Type cast failed" );
         const void* ptr = v->rawData();
         WAssert( ptr != 0, "Trying to query raw data, got null pointer" );
@@ -485,7 +485,7 @@ void WIGTLinkRemote::sendImageData( WDataSetScalarSPtr dataSetScalar )
     if( socket.IsNotNull() )
     {
         int size[ 3 ];
-        boost::shared_ptr < WGridRegular3D > g3dr( boost::shared_dynamic_cast < WGridRegular3D > ( dataSetScalar->getGrid() ) );
+        boost::shared_ptr < WGridRegular3D > g3dr( boost::dynamic_pointer_cast < WGridRegular3D > ( dataSetScalar->getGrid() ) );
         size[ 0 ] = g3dr->getNbCoordsX();
         size[ 1 ] = g3dr->getNbCoordsY();
         size[ 2 ] = g3dr->getNbCoordsZ();

@@ -249,7 +249,7 @@ void WMIsosurfaceRaytracer::moduleMain()
             m_isoValue->setRecommendedValue( dataSet->getTexture()->minimum()->get() + ( 0.5 * dataSet->getTexture()->scale()->get() ) );
 
             // First, grab the grid
-            boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
+            boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( dataSet->getGrid() );
             if( !grid )
             {
                 errorLog() << "The dataset does not provide a regular grid. Ignoring dataset.";

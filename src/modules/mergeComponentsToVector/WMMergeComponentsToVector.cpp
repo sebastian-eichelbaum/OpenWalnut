@@ -134,9 +134,9 @@ void WMMergeComponentsToVector::moduleMain()
         }
 
         // loop through each voxel
-        boost::shared_ptr< WGridRegular3D > gridX = boost::shared_dynamic_cast< WGridRegular3D >( dataSetX->getGrid() );
-        boost::shared_ptr< WGridRegular3D > gridY = boost::shared_dynamic_cast< WGridRegular3D >( dataSetY->getGrid() );
-        boost::shared_ptr< WGridRegular3D > gridZ = boost::shared_dynamic_cast< WGridRegular3D >( dataSetZ->getGrid() );
+        boost::shared_ptr< WGridRegular3D > gridX = boost::dynamic_pointer_cast< WGridRegular3D >( dataSetX->getGrid() );
+        boost::shared_ptr< WGridRegular3D > gridY = boost::dynamic_pointer_cast< WGridRegular3D >( dataSetY->getGrid() );
+        boost::shared_ptr< WGridRegular3D > gridZ = boost::dynamic_pointer_cast< WGridRegular3D >( dataSetZ->getGrid() );
         if( !( gridX && gridY && gridZ ) )
         {
             errorLog() << "Only regular 3D grids allowed.";

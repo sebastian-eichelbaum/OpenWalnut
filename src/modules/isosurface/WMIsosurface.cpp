@@ -279,7 +279,7 @@ namespace
                                                             boost::shared_ptr<WProgressCombiner> progress )
         {
             boost::shared_ptr< WValueSet< T > > vals(
-                    boost::shared_dynamic_cast< WValueSet< T > >( valueSet ) );
+                    boost::dynamic_pointer_cast< WValueSet< T > >( valueSet ) );
             WAssert( vals, "Data type and data type indicator must fit." );
             return AlgoBase::generateSurface( x, y, z, matrix, vals->rawDataVectorPointer(), isoValue, progress );
         }
@@ -333,7 +333,7 @@ void WMIsosurface::generateSurfacePre( double isoValue )
 
     WMarchingCubesAlgorithm mcAlgo;
     WMarchingLegoAlgorithm mlAlgo;
-    boost::shared_ptr< WGridRegular3D > gridRegular3D = boost::shared_dynamic_cast< WGridRegular3D >( ( *m_dataSet ).getGrid() );
+    boost::shared_ptr< WGridRegular3D > gridRegular3D = boost::dynamic_pointer_cast< WGridRegular3D >( ( *m_dataSet ).getGrid() );
     WAssert( gridRegular3D, "Grid is not of type WGridRegular3D." );
     m_grid = gridRegular3D;
 

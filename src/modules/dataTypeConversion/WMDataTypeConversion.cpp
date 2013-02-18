@@ -106,7 +106,7 @@ void WMDataTypeConversion::moduleMain()
             case W_DT_UNSIGNED_CHAR:
             {
                 boost::shared_ptr<WValueSet<unsigned char> > vals;
-                vals = boost::shared_dynamic_cast<WValueSet<unsigned char> >( ( *m_dataSet ).getValueSet() );
+                vals = boost::dynamic_pointer_cast<WValueSet<unsigned char> >( ( *m_dataSet ).getValueSet() );
                 WAssert( vals, "Data type and data type indicator must fit." );
                 convertDataSet( vals );
                 break;
@@ -114,14 +114,14 @@ void WMDataTypeConversion::moduleMain()
             case W_DT_INT16:
             {
                 boost::shared_ptr<WValueSet<int16_t> > vals;
-                vals = boost::shared_dynamic_cast<WValueSet<int16_t> >( ( *m_dataSet ).getValueSet() );
+                vals = boost::dynamic_pointer_cast<WValueSet<int16_t> >( ( *m_dataSet ).getValueSet() );
                 WAssert( vals, "Data type and data type indicator must fit." );
                 convertDataSet( vals );
             }
             case W_DT_SIGNED_INT:
             {
                 boost::shared_ptr<WValueSet<int32_t> > vals;
-                vals = boost::shared_dynamic_cast<WValueSet<int32_t> >( ( *m_dataSet ).getValueSet() );
+                vals = boost::dynamic_pointer_cast<WValueSet<int32_t> >( ( *m_dataSet ).getValueSet() );
                 WAssert( vals, "Data type and data type indicator must fit." );
                 convertDataSet( vals );
                 break;
@@ -129,7 +129,7 @@ void WMDataTypeConversion::moduleMain()
             case W_DT_FLOAT:
             {
                 boost::shared_ptr< WValueSet< float > > vals;
-                vals = boost::shared_dynamic_cast< WValueSet< float > >( ( *m_dataSet ).getValueSet() );
+                vals = boost::dynamic_pointer_cast< WValueSet< float > >( ( *m_dataSet ).getValueSet() );
                 WAssert( vals, "Data type and data type indicator must fit." );
                 convertDataSet( vals );
                 break;
@@ -137,7 +137,7 @@ void WMDataTypeConversion::moduleMain()
             case W_DT_DOUBLE:
             {
                 boost::shared_ptr< WValueSet< double > > vals;
-                vals = boost::shared_dynamic_cast< WValueSet< double > >( ( *m_dataSet ).getValueSet() );
+                vals = boost::dynamic_pointer_cast< WValueSet< double > >( ( *m_dataSet ).getValueSet() );
                 WAssert( vals, "Data type and data type indicator must fit." );
                 convertDataSet( vals );
                 break;

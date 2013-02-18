@@ -214,7 +214,7 @@ WDataSetSegmentation::copyDataSetsToArray( const std::vector< boost::shared_ptr<
     {
       for( size_t voxelNumber = 0; voxelNumber < countVoxels; voxelNumber++ )
       {
-        data[ voxelNumber * voxelDim + dimIndex ] =  ( boost::shared_static_cast< WDataSetSingle > ( *it ) )->getValueAt< T >( voxelNumber );
+        data[ voxelNumber * voxelDim + dimIndex ] =  ( boost::static_pointer_cast< WDataSetSingle > ( *it ) )->getValueAt< T >( voxelNumber );
       }
       dimIndex++;
     }
@@ -224,8 +224,8 @@ WDataSetSegmentation::copyDataSetsToArray( const std::vector< boost::shared_ptr<
 
 // template < typename T > T WDataSetSegmentation::getValueAt( int x, int y, int z )
 // {
-//     boost::shared_ptr< WValueSet< T > > vs = boost::shared_dynamic_cast< WValueSet< T > >( m_valueSet );
-//     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
+//     boost::shared_ptr< WValueSet< T > > vs = boost::dynamic_pointer_cast< WValueSet< T > >( m_valueSet );
+//     boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_grid );
 //
 //     size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
 //

@@ -148,7 +148,7 @@ WSegmentationAlgo::DataSetPtr WSegmentationAlgoRegionGrowingConfidenceConnected:
 
     if( box )
     {
-        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+        boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSet->getGrid() );
         WVector3d v = 0.5 * ( box->getMinPos() + box->getMaxPos() );
         WValue< int > voxel = grid->getVoxelCoord( v );
 

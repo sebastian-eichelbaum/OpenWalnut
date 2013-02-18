@@ -258,7 +258,7 @@ void WMTeemGlyphs::moduleMain()
                 dataChanged = true;
             }
 
-            boost::shared_ptr< WGridRegular3D > gridReg = boost::shared_dynamic_cast< WGridRegular3D >( m_input->getData().get()->getGrid() );
+            boost::shared_ptr< WGridRegular3D > gridReg = boost::dynamic_pointer_cast< WGridRegular3D >( m_input->getData().get()->getGrid() );
             switch( m_sliceOrientationSelectionProp->get( true ).getItemIndexOfSelected( 0 ) )
             {
                 case 0:
@@ -342,8 +342,8 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
     // run through the positions in the slice and draw the glyphs
     boost::shared_ptr< GlyphGeneration > generator;
     generator = boost::shared_ptr< GlyphGeneration >(
-                  new GlyphGeneration( boost::shared_dynamic_cast< WDataSetSphericalHarmonics >( m_input->getData() ),
-                                       boost::shared_dynamic_cast< WDataSetScalar >( m_inputGFA->getData() ),
+                  new GlyphGeneration( boost::dynamic_pointer_cast< WDataSetSphericalHarmonics >( m_input->getData() ),
+                                       boost::dynamic_pointer_cast< WDataSetScalar >( m_inputGFA->getData() ),
                                        m_GFAThresholdProp->get( true ),
                                        sliceId,
                                        order,
@@ -462,7 +462,7 @@ WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSpher
                                                 const bool& hideNegativeLobes ) :
     m_dataSet( dataSet ),
     m_dataGFA( dataGFA ),
-    m_grid( boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() ) ),
+    m_grid( boost::dynamic_pointer_cast< WGridRegular3D >( dataSet->getGrid() ) ),
     m_thresholdGFA( thresholdGFA ),
     m_order( order ),
     m_sliceType( sliceType ),
@@ -607,7 +607,7 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
             }
 
             // do not compute positions of vertices if GFA below threshold
-            if(  m_dataGFA && boost::shared_static_cast< WDataSetSingle >( m_dataGFA )->getValueAt( posId ) < m_thresholdGFA )
+            if(  m_dataGFA && boost::static_pointer_cast< WDataSetSingle >( m_dataGFA )->getValueAt( posId ) < m_thresholdGFA )
             {
                 continue;
             }

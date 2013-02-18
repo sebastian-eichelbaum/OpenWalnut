@@ -139,7 +139,7 @@ template< typename Value_T, std::size_t numValues, typename Output_T, std::size_
 WThreadedPerVoxelOperation< Value_T, numValues, Output_T, numOutputs >::WThreadedPerVoxelOperation(
                                                         boost::shared_ptr< WDataSetSingle const > dataset,
                                                         FunctionType func )
-    : BaseType( ( dataset ? boost::shared_dynamic_cast< ValueSetType >( dataset->getValueSet() )
+    : BaseType( ( dataset ? boost::dynamic_pointer_cast< ValueSetType >( dataset->getValueSet() )
                           : boost::shared_ptr< ValueSetType >() ) ) // NOLINT
 {
     if( !dataset )

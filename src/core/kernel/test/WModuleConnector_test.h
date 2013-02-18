@@ -308,7 +308,7 @@ protected:
     {
         // just copy the data and add one
         boost::shared_ptr< WModuleOutputData< WTestTransferableBase > > o =
-            boost::shared_dynamic_cast< WModuleOutputData< WTestTransferableBase > >( output );
+            boost::dynamic_pointer_cast< WModuleOutputData< WTestTransferableBase > >( output );
         if( !o.get() )
         {
             return;

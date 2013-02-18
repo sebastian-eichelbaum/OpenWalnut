@@ -111,7 +111,7 @@ void WMEffectiveConnectivityCluster::fiberDataChange( boost::shared_ptr< WModule
     }
 
     // cast it to the target type
-    boost::shared_ptr< WModuleOutputData < WFiberCluster > > o = boost::shared_static_cast< WModuleOutputData< WFiberCluster > >( output );
+    boost::shared_ptr< WModuleOutputData < WFiberCluster > > o = boost::static_pointer_cast< WModuleOutputData< WFiberCluster > >( output );
     if( !o )
     {
         errorLog() << "New data is not a WFiberCluster? That should not happen!";

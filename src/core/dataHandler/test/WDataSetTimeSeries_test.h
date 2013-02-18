@@ -394,7 +394,7 @@ public:
             std::vector< double > v( 27, 1.35 );
             ds = ts.calcDataSetAtTime( 0.35f, name );
             TS_ASSERT( ds );
-            boost::shared_ptr< WValueSet< double > > vs = boost::shared_dynamic_cast< WValueSet< double > >( ds->getValueSet() );
+            boost::shared_ptr< WValueSet< double > > vs = boost::dynamic_pointer_cast< WValueSet< double > >( ds->getValueSet() );
             TS_ASSERT( vs );
             for( std::size_t k = 0; k < v.size(); ++k )
             {
@@ -405,7 +405,7 @@ public:
             std::vector< double > v( 27, 1.99 );
             ds = ts.calcDataSetAtTime( 0.99f, name );
             TS_ASSERT( ds );
-            boost::shared_ptr< WValueSet< double > > vs = boost::shared_dynamic_cast< WValueSet< double > >( ds->getValueSet() );
+            boost::shared_ptr< WValueSet< double > > vs = boost::dynamic_pointer_cast< WValueSet< double > >( ds->getValueSet() );
             TS_ASSERT( vs );
             for( std::size_t k = 0; k < v.size(); ++k )
             {
@@ -416,7 +416,7 @@ public:
             std::vector< double > v( 27, 2.598 );
             ds = ts.calcDataSetAtTime( 1.598f, name );
             TS_ASSERT( ds );
-            boost::shared_ptr< WValueSet< double > > vs = boost::shared_dynamic_cast< WValueSet< double > >( ds->getValueSet() );
+            boost::shared_ptr< WValueSet< double > > vs = boost::dynamic_pointer_cast< WValueSet< double > >( ds->getValueSet() );
             TS_ASSERT( vs );
             for( std::size_t k = 0; k < v.size(); ++k )
             {

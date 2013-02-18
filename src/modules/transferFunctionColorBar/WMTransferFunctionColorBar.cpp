@@ -221,7 +221,7 @@ void WMTransferFunctionColorBar::moduleMain()
                     WAssert( dataSet, "data set" );
                     boost::shared_ptr< WValueSetBase > valueSet = dataSet->getValueSet();
                     WAssert( valueSet, "value set" );
-                    boost::shared_ptr< WValueSet< unsigned char > > cvalueSet( boost::shared_dynamic_cast<WValueSet< unsigned char> >( valueSet ) );
+                    boost::shared_ptr< WValueSet< unsigned char > > cvalueSet( boost::dynamic_pointer_cast<WValueSet< unsigned char> >( valueSet ) );
                     if( !cvalueSet )
                     {
                         debugLog() << "invalid type";

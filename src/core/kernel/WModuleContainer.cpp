@@ -112,7 +112,7 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
     wlock->get().insert( module );
     wlock.reset();
 
-    module->setAssociatedContainer( boost::shared_static_cast< WModuleContainer >( shared_from_this() ) );
+    module->setAssociatedContainer( boost::static_pointer_cast< WModuleContainer >( shared_from_this() ) );
     WLogger::getLogger()->addLogMessage( "Associated module \"" + module->getName() + "\" with container." , "ModuleContainer (" + getName() + ")",
             LL_INFO );
 
@@ -256,7 +256,7 @@ WModuleContainer::DataModuleListType WModuleContainer::getDataModules()
         // is this module a data module?
         if( ( *iter )->getType() == MODULE_DATA )
         {
-            boost::shared_ptr< WDataModule > dm = boost::shared_static_cast< WDataModule >( *iter );
+            boost::shared_ptr< WDataModule > dm = boost::static_pointer_cast< WDataModule >( *iter );
 
             // now check the contained dataset ( isTexture and whether it is ready )
             if( dm->isReady()() )
@@ -467,7 +467,7 @@ WBatchLoader::SPtr WModuleContainer::loadDataSets( std::vector< std::string > fi
 {
     // create thread which actually loads the data
     boost::shared_ptr< WBatchLoader > t = boost::shared_ptr< WBatchLoader >( new WBatchLoader( filenames,
-                boost::shared_static_cast< WModuleContainer >( shared_from_this() ) )
+                boost::static_pointer_cast< WModuleContainer >( shared_from_this() ) )
     );
     t->setSuppressColormaps( suppressColormaps );
     t->run();
@@ -478,7 +478,7 @@ WBatchLoader::SPtr WModuleContainer::loadDataSetsSynchronously( std::vector< std
 {
     // create thread which actually loads the data
     boost::shared_ptr< WBatchLoader > t = boost::shared_ptr< WBatchLoader >( new WBatchLoader( filenames,
-                boost::shared_static_cast< WModuleContainer >( shared_from_this() ) )
+                boost::static_pointer_cast< WModuleContainer >( shared_from_this() ) )
     );
     t->setSuppressColormaps( suppressColormaps );
     t->run();

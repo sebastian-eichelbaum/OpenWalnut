@@ -461,7 +461,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
 
         // data modules contain an member denoting the real data type. Currently we only have one data module and a not very modulated data
         // structures.
-        boost::shared_ptr< WDataModule > dataModule = boost::shared_static_cast< WDataModule >( module );
+        boost::shared_ptr< WDataModule > dataModule = boost::static_pointer_cast< WDataModule >( module );
 
         // grab data and identify type
         if( dataModule->getDataSet()->isA< WDataSetSingle >() && dataModule->getDataSet()->isTexture() )
@@ -834,7 +834,7 @@ void WMainWindow::customEvent( QEvent* event )
         }
 
         ocdwEvent->getFlag()->set( widget );
-        boost::shared_dynamic_cast< QDockWidget >( widget )->toggleViewAction()->activate( QAction::Trigger );
+        boost::dynamic_pointer_cast< QDockWidget >( widget )->toggleViewAction()->activate( QAction::Trigger );
     }
     else if( event->type() == WCloseCustomDockWidgetEvent::CUSTOM_TYPE )
     {

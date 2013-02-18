@@ -262,7 +262,7 @@ void WMCoordinateSystem::updateCallback()
     // *******************************************************************************************************
     //    osg::ref_ptr<osg::Drawable> old = osg::ref_ptr<osg::Drawable>( m_boxNode->getDrawable( 0 ) );
     //    m_boxNode->replaceDrawable( old, createGeometryNode() );
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSet->getGrid() );
 
     double xOff = grid->getOffsetX();
     double yOff = grid->getOffsetY();
@@ -307,7 +307,7 @@ void WMCoordinateSystem::updateCallback()
 void WMCoordinateSystem::findBoundingBox()
 {
     // get bounding from dataset
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSet->getGrid() );
 
     double xOff = grid->getOffsetX();
     double yOff = grid->getOffsetY();

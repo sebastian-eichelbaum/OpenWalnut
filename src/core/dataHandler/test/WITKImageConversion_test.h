@@ -68,8 +68,8 @@ public:
         itk::Image< int, 3 >::Pointer i = makeImageFromDataSet< int >( ds );
         boost::shared_ptr< WDataSetScalar > newds = makeDataSetFromImage< int >( i );
 
-        TS_ASSERT_SAME_DATA( boost::shared_dynamic_cast< WValueSet< int > >( ds->getValueSet() )->rawData(),
-                             boost::shared_dynamic_cast< WValueSet< int > >( newds->getValueSet() )->rawData(), sizeof( int ) * 27 );
+        TS_ASSERT_SAME_DATA( boost::dynamic_pointer_cast< WValueSet< int > >( ds->getValueSet() )->rawData(),
+                             boost::dynamic_pointer_cast< WValueSet< int > >( newds->getValueSet() )->rawData(), sizeof( int ) * 27 );
 #endif  // OW_USE_ITK
     }
 };

@@ -400,11 +400,11 @@ void WModuleConnector::notifyConnectionClosed( boost::shared_ptr<WModuleConnecto
 
 boost::shared_ptr< WModuleInputConnector > WModuleConnector::toInputConnector()
 {
-    return boost::shared_dynamic_cast< WModuleInputConnector >( shared_from_this() );
+    return boost::dynamic_pointer_cast< WModuleInputConnector >( shared_from_this() );
 }
 
 boost::shared_ptr< WModuleOutputConnector > WModuleConnector::toOutputConnector()
 {
-    return boost::shared_dynamic_cast< WModuleOutputConnector >( shared_from_this() );
+    return boost::dynamic_pointer_cast< WModuleOutputConnector >( shared_from_this() );
 }
 

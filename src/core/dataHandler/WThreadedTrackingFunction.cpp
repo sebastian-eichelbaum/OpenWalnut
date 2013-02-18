@@ -35,7 +35,7 @@ namespace wtracking
     {
         // TODO(reichenbach): Give those WAsserts correct strings incase they occur
         WAssert( dataset->getGrid(), "" );
-        Grid3DPtr g = boost::shared_dynamic_cast< WGridRegular3D >( dataset->getGrid() );
+        Grid3DPtr g = boost::dynamic_pointer_cast< WGridRegular3D >( dataset->getGrid() );
         WAssert( g, "" );
         WAssert( g->encloses( job.first ), "" );
 
@@ -165,7 +165,7 @@ namespace wtracking
             std::size_t seedPositions, std::size_t seedsPerPos,
             std::vector< int > v0, std::vector< int > v1 )
         : Base( dataset ),
-        m_grid( boost::shared_dynamic_cast< GridType >( dataset->getGrid() ) ),
+        m_grid( boost::dynamic_pointer_cast< GridType >( dataset->getGrid() ) ),
         m_directionFunc( dirFunc ),
         m_nextPosFunc( nextFunc ),
         m_fiberVisitor( fiberVst ),

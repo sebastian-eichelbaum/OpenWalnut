@@ -155,7 +155,7 @@ private:
 
 inline boost::shared_ptr< WDataSetVector > WDataSetVector::isVectorDataSet()
 {
-    return boost::shared_static_cast< WDataSetVector >( shared_from_this() );
+    return boost::static_pointer_cast< WDataSetVector >( shared_from_this() );
 }
 
 #endif  // WDATASETVECTOR_H

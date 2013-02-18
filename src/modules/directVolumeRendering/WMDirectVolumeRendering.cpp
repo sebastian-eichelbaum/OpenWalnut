@@ -267,7 +267,7 @@ void WMDirectVolumeRendering::moduleMain()
             rootNode->clear();
 
             // First, grab the grid
-            boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
+            boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( dataSet->getGrid() );
             if( !grid )
             {
                 errorLog() << "The dataset does not provide a regular grid. Ignoring dataset.";
@@ -444,7 +444,7 @@ void WMDirectVolumeRendering::moduleMain()
                 WAssert( dataSet, "data set" );
                 boost::shared_ptr< WValueSetBase > valueSet = dataSet->getValueSet();
                 WAssert( valueSet, "value set" );
-                boost::shared_ptr< WValueSet< unsigned char > > cvalueSet( boost::shared_dynamic_cast<WValueSet< unsigned char> >( valueSet ) );
+                boost::shared_ptr< WValueSet< unsigned char > > cvalueSet( boost::dynamic_pointer_cast<WValueSet< unsigned char> >( valueSet ) );
                 if( !cvalueSet )
                 {
                     debugLog() << "invalid type";

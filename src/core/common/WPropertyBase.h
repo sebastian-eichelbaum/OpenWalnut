@@ -356,7 +356,7 @@ private:
 template< typename T >
 boost::shared_ptr< WPropertyVariable< T > > WPropertyBase::toPropertyVariable()
 {
-    return boost::shared_dynamic_cast< WPropertyVariable< T > >( shared_from_this() );
+    return boost::dynamic_pointer_cast< WPropertyVariable< T > >( shared_from_this() );
 }
 
 #endif  // WPROPERTYBASE_H

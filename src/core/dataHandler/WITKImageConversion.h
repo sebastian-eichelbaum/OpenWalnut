@@ -47,7 +47,7 @@
 template< typename T >
 typename itk::Image< T, 3 >::Pointer makeImageFromDataSet( boost::shared_ptr< WDataSetScalar const > dataSet )
 {
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
+    boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( dataSet->getGrid() );
     WAssert( grid, "" );
 
     // this is a shared-pointer

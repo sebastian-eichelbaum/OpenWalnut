@@ -40,7 +40,7 @@ WDataSetSphericalHarmonics::WDataSetSphericalHarmonics( boost::shared_ptr< WValu
                                                         boost::shared_ptr< WGrid > newGrid ) :
     WDataSetSingle( newValueSet, newGrid ), m_valueSet( newValueSet )
 {
-    m_gridRegular3D = boost::shared_dynamic_cast< WGridRegular3D >( newGrid );
+    m_gridRegular3D = boost::dynamic_pointer_cast< WGridRegular3D >( newGrid );
     WAssert( newValueSet, "No value set given." );
     WAssert( newGrid, "No grid given." );
 }

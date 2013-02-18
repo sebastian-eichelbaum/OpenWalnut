@@ -185,7 +185,7 @@ void WMWebglSupport::moduleMain()
 
 void WMWebglSupport::colorTriMeshGray()
 {
-    //boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ( *m_datasetScalar ).getGrid() );
+    //boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( ( *m_datasetScalar ).getGrid() );
     //bool success;
 
     for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
@@ -210,7 +210,7 @@ void WMWebglSupport::colorTriMeshGray()
 
 void WMWebglSupport::colorTriMeshRGB()
 {
-    //boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ( *m_datasetScalar ).getGrid() );
+    //boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( ( *m_datasetScalar ).getGrid() );
     bool success;
 
     for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
@@ -238,7 +238,7 @@ void WMWebglSupport::saveSlicesGray()
 {
     using namespace boost::filesystem; //NOLINT
 
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ( *m_datasetScalar ).getGrid() );
+    boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( ( *m_datasetScalar ).getGrid() );
     debugLog() << grid->getNbCoordsX() << " " << grid->getNbCoordsY() << " " << grid->getNbCoordsZ();
 
     osg::ref_ptr< osg::Image > ima = new osg::Image;
@@ -328,7 +328,7 @@ void WMWebglSupport::saveSlicesRGB()
 {
     using namespace boost::filesystem; //NOLINT
 
-//    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ( *m_datasetScalar ).getGrid() );
+//    boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( ( *m_datasetScalar ).getGrid() );
 //    debugLog() << grid->getNbCoordsX() << " " << grid->getNbCoordsY() << " " << grid->getNbCoordsZ();
 
     osg::ref_ptr< osg::Image > ima = new osg::Image;

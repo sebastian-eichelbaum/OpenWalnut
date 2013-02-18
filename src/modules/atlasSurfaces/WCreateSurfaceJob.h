@@ -110,7 +110,7 @@ WCreateSurfaceJob< T >::WCreateSurfaceJob( boost::shared_ptr< WDataSetScalar con
     m_progress( pro )
 {
     m_counter.getWriteTicket()->get() = 1;
-    m_grid = boost::shared_dynamic_cast< WGridRegular3D >( input->getGrid() );
+    m_grid = boost::dynamic_pointer_cast< WGridRegular3D >( input->getGrid() );
     WAssert( m_grid, "" );
 }
 
@@ -139,7 +139,7 @@ void WCreateSurfaceJob< T >::compute( boost::shared_ptr< WDataSetScalar const > 
     boost::shared_ptr< std::vector< float > > tempData =
         boost::shared_ptr< std::vector< float > >( new std::vector< float >( input->getGrid()->size() ) );
 
-    cutArea( boost::shared_dynamic_cast< WValueSet< T > >( m_input->getValueSet() ), ( *tempData.get() ), job );
+    cutArea( boost::dynamic_pointer_cast< WValueSet< T > >( m_input->getValueSet() ), ( *tempData.get() ), job );
 
 
 

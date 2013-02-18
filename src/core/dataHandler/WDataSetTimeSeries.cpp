@@ -42,7 +42,7 @@ WDataSetTimeSeries::WDataSetTimeSeries( std::vector< boost::shared_ptr< WDataSet
     WAssert( datasets.size() == times.size(), "" );
     std::vector< boost::shared_ptr< WDataSetScalar const > >::iterator dit;
     std::vector< float >::iterator tit;
-    boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( datasets.front()->getGrid() );
+    boost::shared_ptr< WGridRegular3D > g = boost::dynamic_pointer_cast< WGridRegular3D >( datasets.front()->getGrid() );
     WAssert( g, "" );
     dataType d = datasets.front()->getValueSet()->getDataType();
     m_minValue = datasets.front()->getMin();
@@ -50,7 +50,7 @@ WDataSetTimeSeries::WDataSetTimeSeries( std::vector< boost::shared_ptr< WDataSet
     for( dit = datasets.begin(), tit = times.begin(); dit != datasets.end() && tit != times.end(); ++dit, ++tit )
     {
         WAssert( *dit, "" );
-        WAssert( g == boost::shared_dynamic_cast< WGridRegular3D >( ( *dit )->getGrid() ), "" );
+        WAssert( g == boost::dynamic_pointer_cast< WGridRegular3D >( ( *dit )->getGrid() ), "" );
         WAssert( !wlimits::isNaN( *tit ), "" );
         WAssert( d == ( *dit )->getValueSet()->getDataType(), "" );
         WAssert( ( *dit )->getValueSet()->dimension() == 1, "" );

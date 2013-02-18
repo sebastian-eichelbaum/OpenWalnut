@@ -171,16 +171,16 @@ boost::shared_ptr< WValueSet< float > > makeFloatValueSet( boost::shared_ptr< WV
     switch( inSet->getDataType() )
     {
         case W_DT_UNSIGNED_CHAR:
-            return makeFloatValueSetHelper( boost::shared_dynamic_cast< WValueSet< unsigned char > >( inSet ) );
+            return makeFloatValueSetHelper( boost::dynamic_pointer_cast< WValueSet< unsigned char > >( inSet ) );
             break;
         case W_DT_INT16:
-            return makeFloatValueSetHelper( boost::shared_dynamic_cast< WValueSet< int16_t > >( inSet ) );
+            return makeFloatValueSetHelper( boost::dynamic_pointer_cast< WValueSet< int16_t > >( inSet ) );
             break;
         case W_DT_SIGNED_INT:
-            return makeFloatValueSetHelper( boost::shared_dynamic_cast< WValueSet< int32_t > >( inSet ) );
+            return makeFloatValueSetHelper( boost::dynamic_pointer_cast< WValueSet< int32_t > >( inSet ) );
             break;
         case W_DT_FLOAT:
-            return boost::shared_dynamic_cast< WValueSet< float > >( inSet );
+            return boost::dynamic_pointer_cast< WValueSet< float > >( inSet );
             break;
         default:
             WAssert( false, "Unknow data type in makeFloatDataSet" );
@@ -199,7 +199,7 @@ boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shar
     boost::shared_ptr< WValueSet< float > > valueSet = makeFloatValueSet( ( *dataSet ).getValueSet() );
     WAssert( valueSet, "Works only for float data sets." );
 
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( ( *dataSet ).getGrid() );
+    boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( ( *dataSet ).getGrid() );
     WAssert( grid, "Works only for data on regular 3D grids."  );
 
     int b, r, c, bb, rr, r0, b0, c0;

@@ -190,7 +190,7 @@ private:
 
 template< typename T > T WDataSetSingle::getValueAt( size_t id )
 {
-    boost::shared_ptr< WValueSet< T > > vs = boost::shared_dynamic_cast< WValueSet< T > >( m_valueSet );
+    boost::shared_ptr< WValueSet< T > > vs = boost::dynamic_pointer_cast< WValueSet< T > >( m_valueSet );
     return vs->getScalar( id );
 }
 #endif  // WDATASETSINGLE_H

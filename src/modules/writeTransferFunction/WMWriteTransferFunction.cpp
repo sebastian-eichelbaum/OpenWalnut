@@ -147,7 +147,7 @@ void WMWriteTransferFunction::moduleMain()
             }
 
             // we ensured that the valuesetbase is this valueset:
-            boost::shared_ptr< WValueSet< unsigned char > > vs = boost::shared_dynamic_cast< WValueSet< unsigned char > >( vsb );
+            boost::shared_ptr< WValueSet< unsigned char > > vs = boost::dynamic_pointer_cast< WValueSet< unsigned char > >( vsb );
 
             f << "Exported using OpenWalnut. http://www.openwalnut.org" << std::endl;
             f << "# TF export format:" << std::endl <<

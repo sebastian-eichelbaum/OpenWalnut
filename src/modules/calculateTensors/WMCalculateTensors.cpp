@@ -177,7 +177,7 @@ void WMCalculateTensors::resetTensorPool()
 
     if( m_dataSet->getSphericalHarmonicAt( 0 ).getOrder() == 2 )
     {
-        boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+        boost::shared_ptr< WGridRegular3D > g = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSet->getGrid() );
         WAssert( g, "" );
         resetProgress( g->getNbCoordsX() * g->getNbCoordsY() * g->getNbCoordsZ() );
 

@@ -156,7 +156,7 @@ void WMAnisotropicFiltering::calcSmoothedImages( int iterations )
     infoLog() << "Images: " << numImages;
 
     boost::shared_ptr< std::vector< double > > smoothed( new std::vector< double >( m_dataSet->getValueSet()->rawSize() ) );
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSet->getGrid() );
 
     // fill in data from dataset
     copyData( smoothed, grid );

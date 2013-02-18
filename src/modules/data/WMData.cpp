@@ -222,7 +222,7 @@ void WMData::moduleMain()
 
         m_isTexture = m_dataSet->isTexture();
 
-        boost::shared_ptr< WDataSetSingle > dss = boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
+        boost::shared_ptr< WDataSetSingle > dss = boost::dynamic_pointer_cast< WDataSetSingle >( m_dataSet );
         if( dss )
         {
             m_dataType->set( getDataTypeString( dss ) );
@@ -241,7 +241,7 @@ void WMData::moduleMain()
                         break;
                     case W_DT_FLOAT:
                     case W_DT_DOUBLE:
-                        if( boost::shared_dynamic_cast< WDataSetVector >( m_dataSet ) )
+                        if( boost::dynamic_pointer_cast< WDataSetVector >( m_dataSet ) )
                         {
                             m_dataSet->getTexture()->colormap()->set(
                                 m_dataSet->getTexture()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 6 ) )
@@ -328,7 +328,7 @@ void WMData::moduleMain()
     m_output->updateData( m_dataSet );
     ready();
 
-    WDataSetSingle::SPtr dataSetAsSingle = boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
+    WDataSetSingle::SPtr dataSetAsSingle = boost::dynamic_pointer_cast< WDataSetSingle >( m_dataSet );
 
     while( !m_shutdownFlag() )
     {
@@ -354,7 +354,7 @@ void WMData::moduleMain()
 
             // a new grid
             boost::shared_ptr< WGrid > newGrid;
-            boost::shared_ptr< WGridRegular3D > oldGrid = boost::shared_dynamic_cast< WGridRegular3D >( dataSetAsSingle->getGrid() );
+            boost::shared_ptr< WGridRegular3D > oldGrid = boost::dynamic_pointer_cast< WGridRegular3D >( dataSetAsSingle->getGrid() );
 
             switch( m_matrixSelection->get( true ).getItemIndexOfSelected( 0 ) )
             {

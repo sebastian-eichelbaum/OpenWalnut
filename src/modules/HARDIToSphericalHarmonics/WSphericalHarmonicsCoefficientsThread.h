@@ -216,7 +216,7 @@ void WSphericalHarmonicsCoefficientsThread< T >::threadMain()
         }
 
         // get measure vector
-        boost::shared_ptr< WValueSet< T > > vs = boost::shared_dynamic_cast< WValueSet< T > >( m_parameter.m_valueSet );
+        boost::shared_ptr< WValueSet< T > > vs = boost::dynamic_pointer_cast< WValueSet< T > >( m_parameter.m_valueSet );
         if( !vs )
         {
             throw WException( "Valueset pointer not valid." );
