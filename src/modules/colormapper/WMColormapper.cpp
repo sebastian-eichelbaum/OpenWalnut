@@ -96,8 +96,8 @@ void WMColormapper::properties()
     m_colorBarBorder = colorBarGroup->addProperty( "Show Border", "If true, a thin white border is shown around the colorbar.", true );
     m_colorBarName = colorBarGroup->addProperty( "Show Name", "If true, a shortened version of the data name is shown.", true );
     m_colorBarLabels = colorBarGroup->addProperty( "Colorbar Labels", "This defines the number of labels.", 10 );
-    m_colorBarLabels->setMin( 0 );
-    m_colorBarLabels->setMax( 55 );
+    m_colorBarLabels->setMin( 2 );
+    m_colorBarLabels->setMax( 100 );
 
     WModule::properties();
 }
