@@ -355,7 +355,7 @@ void WMFiberDisplaySimple::moduleMain()
 
         if( fibersUpdated || dataPropertiesUpdated || propertiesUpdated )
         {
-            debugLog() << "Fibers updated." << m_tubeEnable->changed() << " ---" << fibersUpdated<< " -- " << fibers << " " << m_fibers;
+            debugLog() << "Fibers updated.";
             m_fibers = fibers;
 
             // update the prop observer if new data is available
