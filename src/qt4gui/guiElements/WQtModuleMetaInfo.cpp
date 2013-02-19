@@ -212,6 +212,8 @@ WQtModuleMetaInfo::WQtModuleMetaInfo( WModule::SPtr module, QWidget* parent ):
     // some layout to place the webview
     QVBoxLayout *layout = new QVBoxLayout();
     setLayout( layout );
+    layout->setSpacing( 0 );
+    layout->setContentsMargins( 0, 0, 0, 0 );
 
 #ifndef QT4GUI_NOWEBKIT
     // create the QT webview
@@ -237,19 +239,24 @@ WQtModuleMetaInfo::WQtModuleMetaInfo( WModule::SPtr module, QWidget* parent ):
     // add the buttons
     QToolButton* homeBtn = new QToolButton( toolbar );
     homeBtn->setDefaultAction( homeAction );
-    tbLayout->addWidget( homeBtn );
     homeBtn->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
 
     QToolButton* backBtn = new QToolButton( toolbar );
     backBtn->setDefaultAction( page->action( QWebPage::Back ) );
-    tbLayout->addWidget( backBtn );
     QToolButton* fwdBtn = new QToolButton( toolbar );
     fwdBtn->setDefaultAction( page->action( QWebPage::Forward ) );
+
+    tbLayout->addWidget( backBtn );
     tbLayout->addWidget( fwdBtn );
+    tbLayout->addStretch( 100000 );
+    tbLayout->addWidget( homeBtn );
 
     // build widget
     layout->addWidget( toolbar );
     layout->addWidget( view );
+
+    layout->setStretchFactor( toolbar, 0 );
+    layout->setStretchFactor( view, 1 );
 
     resetContent();
 
