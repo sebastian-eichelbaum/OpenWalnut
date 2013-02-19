@@ -114,18 +114,22 @@ void WMFiberDisplaySimple::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_illuminationEnable = m_properties->addProperty( "Illumination", "Enable line illumination.", true );
+    m_coloringGroup = m_properties->addPropertyGroup( "Coloring", "Options for defining the coloring of the lines." );
+    m_illuminationEnable = m_coloringGroup->addProperty( "Illumination", "Enable line illumination.", true );
+    m_plainColorMode = m_coloringGroup->addProperty( "Use plain color",
+                            "When activated, the specified color is used for the lines instead of the dataset colors.", false, m_propCondition );
+    m_plainColor = m_coloringGroup->addProperty( "Color", "Choose how to color the lines.", defaultColor::WHITE, m_propCondition );
 
-    m_colormapEnabled = m_properties->addProperty( "Enable colormapping", "Check this to enable colormapping. On large data, this can cause "
+    m_colormapEnabled = m_coloringGroup->addProperty( "Enable colormapping", "Check this to enable colormapping. On large data, this can cause "
                                                                               "massive FPS drop.", false );
-    m_colormapRatio = m_properties->addProperty( "Colormap Ratio", "Defines the ratio between colormap and fiber color.", 0.0 );
+    m_colormapRatio = m_coloringGroup->addProperty( "Colormap Ratio", "Defines the ratio between colormap and line color.", 0.0 );
     m_colormapRatio->setMin( 0.0 );
     m_colormapRatio->setMax( 1.0 );
 
     m_clipPlaneGroup = m_properties->addPropertyGroup( "Clipping",  "Clip the fiber data basing on an arbitrary plane." );
     m_clipPlaneEnabled = m_clipPlaneGroup->addProperty( "Enabled", "If set, clipping of fibers is done using an arbitrary plane and plane distance.",
                                                         false );
-    m_clipPlaneShowPlane = m_clipPlaneGroup->addProperty( "Show Clip Plane", "If set, the clipping plane will be shown.", false, m_propCondition );
+    m_clipPlaneShowPlane = m_clipPlaneGroup->addProperty( "Show Clip Plane", "If set, the clipping plane will be shown.", false );
     m_clipPlanePoint = m_clipPlaneGroup->addProperty( "Plane point", "An point on the plane.", WPosition( 0.0, 0.0, 0.0 ) );
     m_clipPlaneVector = m_clipPlaneGroup->addProperty( "Plane normal", "The normal of the plane.", WPosition( 1.0, 0.0, 0.0 ) );
     m_clipPlaneDistance= m_clipPlaneGroup->addProperty( "Clip distance", "The distance from the plane where fibers get clipped.",  10.0 );
@@ -312,7 +316,7 @@ void WMFiberDisplaySimple::moduleMain()
 
         bool dataValid = ( fibers );
         bool dataPropertiesUpdated = propObserver->updated();
-        bool propertiesUpdated = m_clipPlaneShowPlane->changed() || m_tubeEnable->changed();
+        bool propertiesUpdated = m_tubeEnable->changed() || m_plainColorMode->changed() || m_plainColor->changed();
 
         // reset graphics if noting is on the input
         if( !dataValid )
@@ -322,7 +326,7 @@ void WMFiberDisplaySimple::moduleMain()
             postNode->clear();
 
             // remove the fib's properties from my props
-            m_properties->removeProperty( m_fibProps );
+            m_coloringGroup->removeProperty( m_fibProps );
             m_fibProps.reset();
         }
 
@@ -349,18 +353,18 @@ void WMFiberDisplaySimple::moduleMain()
             m_fiberClusteringUpdate = true;
         }
 
-        if( fibersUpdated || dataPropertiesUpdated || m_tubeEnable->changed() )
+        if( fibersUpdated || dataPropertiesUpdated || propertiesUpdated )
         {
             debugLog() << "Fibers updated." << m_tubeEnable->changed() << " ---" << fibersUpdated<< " -- " << fibers << " " << m_fibers;
             m_fibers = fibers;
 
             // update the prop observer if new data is available
-            m_properties->removeProperty( m_fibProps );
+            m_coloringGroup->removeProperty( m_fibProps );
             m_fibProps = fibers->getProperties();
             propObserver->observe( m_fibProps );
             propObserver->handled();
             // also add the fib props to own props. This allows the user to modify the fib props directly
-            m_properties->addProperty( m_fibProps );
+            m_coloringGroup->addProperty( m_fibProps );
 
             //////////////////////////////////////////////////////////////////////////////////////////
             // Create new rendering
@@ -387,14 +391,7 @@ void WMFiberDisplaySimple::moduleMain()
             );
 
             // Add geometry
-            if( m_clipPlaneShowPlane->get() )
-            {
-                WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_plane );
-            }
-            else
-            {
-                WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_plane );
-            }
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_plane );
 
             m_fiberClusteringUpdate = true;
             postNode->insert( geode, m_shader );
@@ -497,9 +494,13 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
     WDataSetFibers::ColorScheme::ColorMode fibColorMode = fibers->getColorScheme()->getMode();
     debugLog() << "Color mode is " << fibColorMode << ".";
     WDataSetFibers::ColorArray  fibColors = fibers->getColorScheme()->getColor();
+    bool usePlainColor = m_plainColorMode->get( true );
+    WColor plainColor = m_plainColor->get( true );
 
     // enable blending, select transparent bin
-    if( fibColorMode == WDataSetFibers::ColorScheme::RGBA )
+    // Either we use the fiber colors or the plain color
+    if( ( !usePlainColor && ( fibColorMode == WDataSetFibers::ColorScheme::RGBA ) ) ||
+        ( usePlainColor && ( plainColor.a() != 1.0  ) ) )
     {
         enableTransparency( state );
         enableTransparency( endState );
@@ -573,15 +574,22 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
             osg::Vec3 vert = osg::Vec3( fibVerts->at( ( 3 * k ) + sidx ),
                                         fibVerts->at( ( 3 * k ) + sidx + 1 ),
                                         fibVerts->at( ( 3 * k ) + sidx + 2 ) );
-            osg::Vec4 color = osg::Vec4( fibColors->at( ( fibColorMode * k ) + csidx + ( 0 % fibColorMode ) ),
-                                         fibColors->at( ( fibColorMode * k ) + csidx + ( 1 % fibColorMode ) ),
-                                         fibColors->at( ( fibColorMode * k ) + csidx + ( 2 % fibColorMode ) ),
-                                         ( fibColorMode == WDataSetFibers::ColorScheme::RGBA ) ?
-                                            fibColors->at( ( fibColorMode * k ) + csidx + ( 3 % fibColorMode ) ) : 1.0 );
+
             osg::Vec3 tangent = osg::Vec3( fibTangents->at( ( 3 * k ) + sidx ),
                                            fibTangents->at( ( 3 * k ) + sidx + 1 ),
                                            fibTangents->at( ( 3 * k ) + sidx + 2 ) );
             tangent.normalize();
+
+            osg::Vec4 color = plainColor;
+            if( !usePlainColor )
+            {
+                color = osg::Vec4( fibColors->at( ( fibColorMode * k ) + csidx + ( 0 % fibColorMode ) ),
+                                   fibColors->at( ( fibColorMode * k ) + csidx + ( 1 % fibColorMode ) ),
+                                   fibColors->at( ( fibColorMode * k ) + csidx + ( 2 % fibColorMode ) ),
+                                     ( fibColorMode == WDataSetFibers::ColorScheme::RGBA ) ?
+                                       fibColors->at( ( fibColorMode * k ) + csidx + ( 3 % fibColorMode ) ) : 1.0 );
+
+            }
 
             vertices->push_back( vert );
             colors->push_back( color );

@@ -156,6 +156,21 @@ private:
     WPropBool m_illuminationEnable;
 
     /**
+     * Group containing several coloring options
+     */
+    WPropGroup m_coloringGroup;
+
+    /**
+     * Define whether to use a single color or the dataset color.
+     */
+    WPropBool m_plainColorMode;
+
+    /**
+     * Define a color to use if in plain color mode.
+     */
+    WPropColor m_plainColor;
+
+    /**
      * The ratio between colormap and fiber color.
      */
     WPropDouble m_colormapRatio;
