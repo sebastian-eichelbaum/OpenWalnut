@@ -69,7 +69,7 @@ public:
     typedef boost::shared_ptr< std::vector< size_t > > IndexArray;
 
     /**
-     * Lengths of fibers in terms of verties.
+     * Lengths of fibers in terms of vertices.
      */
     typedef boost::shared_ptr< std::vector< size_t > > LengthArray;
 

@@ -65,7 +65,7 @@ const std::string WMWriteTracts::getDescription() const
 
 void WMWriteTracts::connectors()
 {
-    m_clusterIC = WModuleInputData< const WFiberCluster >::createAndAdd( shared_from_this(), "clusterInput", "A the tracts behind the WFiberCluster" ); // NOLINT line length
+    m_clusterIC = WModuleInputData< const WFiberCluster >::createAndAdd( shared_from_this(), "clusterInput", "A set of tracts behind the WFiberCluster" ); // NOLINT line length
     m_tractIC = WModuleInputData< const WDataSetFibers >::createAndAdd( shared_from_this(), "tractInput", "A dataset of tracts" );
 
     WModule::connectors();

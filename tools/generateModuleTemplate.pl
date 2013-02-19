@@ -147,7 +147,6 @@ $impl = <<EOF
 #include <string>
 
 #include "core/kernel/WKernel.h"
-#include "modules/emptyIcon.xpm" // Please put a real icon here.
 
 #include "WM#name#.h"
 
@@ -172,7 +171,11 @@ boost::shared_ptr< WModule > WM#name#::factory() const
 
 const char** WM#name#::getXPMIcon() const
 {
-    return emptyIcon_xpm; // Please put a real icon here.
+    // This is deprecated! You can still use it as fallback if you do not specify a META file.
+    //
+    // This was used to provide an icon for your module. You should use the META file in your resource directory. This file is commented and
+    // explains each entry in detail.
+    return NULL;
 }
 const std::string WM#name#::getName() const
 {
