@@ -33,7 +33,7 @@ WDataTexture3D::WDataTexture3D( boost::shared_ptr< WValueSetBase > valueSet, boo
     WGETexture3D( static_cast< float >( valueSet->getMaximumValue() - valueSet->getMinimumValue() ),
                   static_cast< float >( valueSet->getMinimumValue() ) ),
     m_valueSet( valueSet ),
-    m_boundingBox( grid->getBoundingBox() )
+    m_boundingBox( grid->getBoundingBoxIncludingBorder() )
 {
     // initialize members
     setTextureSize( grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ() );

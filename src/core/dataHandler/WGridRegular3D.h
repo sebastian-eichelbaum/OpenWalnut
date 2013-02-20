@@ -206,6 +206,21 @@ public:
     WBoundingBox getBoundingBox() const;
 
     /**
+     * Calculates the bounding box but includes the border voxel associated cell too.
+     *
+     * \return the bounding box
+     */
+    WBoundingBox getBoundingBoxIncludingBorder() const;
+
+    /**
+     * Calculate the bounding box in voxel space. In contrast to the cell bounding box, this includes the space of the last voxel in each
+     * direction.
+     *
+     * \return the voxel space bounding box.
+     */
+    WBoundingBox getVoxelBoundingBox() const;
+
+    /**
      * Returns the i-th position on the grid.
      * \param i id of position to be obtained
      * \return i-th position of the grid.
@@ -638,6 +653,36 @@ inline WBoundingBox WGridRegular3DTemplate< T >::getBoundingBox() const
     result.expandBy( m_transform.positionToWorldSpace( Vector3Type( getNbCoordsX() - 1, 0.0,                getNbCoordsZ() - 1 ) ) );
     result.expandBy( m_transform.positionToWorldSpace( Vector3Type( 0.0,                getNbCoordsY() - 1, getNbCoordsZ() - 1 ) ) );
     result.expandBy( m_transform.positionToWorldSpace( Vector3Type( getNbCoordsX() - 1, getNbCoordsY() - 1, getNbCoordsZ() - 1 ) ) );
+    return result;
+}
+
+template< typename T >
+inline WBoundingBox WGridRegular3DTemplate< T >::getBoundingBoxIncludingBorder() const
+{
+    WBoundingBox result;
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( 0.0,            0.0,            0.0            ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( getNbCoordsX(), 0.0,            0.0            ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( 0.0,            getNbCoordsY(), 0.0            ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( getNbCoordsX(), getNbCoordsY(), 0.0            ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( 0.0,            0.0,            getNbCoordsZ() ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( getNbCoordsX(), 0.0,            getNbCoordsZ() ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( 0.0,            getNbCoordsY(), getNbCoordsZ() ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( getNbCoordsX(), getNbCoordsY(), getNbCoordsZ() ) ) );
+    return result;
+}
+
+template< typename T >
+inline WBoundingBox WGridRegular3DTemplate< T >::getVoxelBoundingBox() const
+{
+    WBoundingBox result;
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( -0.5,                 -0.5,                 -0.5            ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( getNbCoordsX() - 0.5, -0.5,                 -0.5            ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( -0.5,                 getNbCoordsY() - 0.5, -0.5            ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( getNbCoordsX() - 0.5, getNbCoordsY() - 0.5, -0.5            ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( -0.5,                 -0.5,                 getNbCoordsZ() - 0.5 ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( getNbCoordsX() - 0.5, -0.5,                 getNbCoordsZ() - 0.5 ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( -0.5,                 getNbCoordsY() - 0.5, getNbCoordsZ() - 0.5 ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( Vector3Type( getNbCoordsX() - 0.5, getNbCoordsY() - 0.5, getNbCoordsZ() - 0.5 ) ) );
     return result;
 }
 
