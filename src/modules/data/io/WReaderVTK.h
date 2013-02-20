@@ -138,6 +138,16 @@ protected:
     boost::shared_ptr< WValueSetBase > readVectors( size_t nbVectors, const std::string & name );
 
     /**
+     * Read HARDI data from the file.
+     *
+     * \param nbPoints The number of voxels.
+     * \param nbGradients The number of gradients for this HARDI dataset.
+     *
+     * \return The data read as a value set of floats.
+     */
+    boost::shared_ptr< WValueSetBase > readHARDI( std::size_t nbPoints, std::size_t nbGradients, const std::string& /*name*/ );
+
+    /**
      * Read VTK TENSORS field
      * \post the data set pointer is set to the data set constructed of the current grid
      *       and the read tensor values
@@ -213,6 +223,13 @@ private:
      * \param numValues The number of values to read.
      */
     void readValuesFromFile( std::vector< float >& values, std::size_t numValues ); // NOLINT: is non-const ref since we write results to this vector
+
+    /**
+     * Read gradients from a gradients file which has the same basename as the data file and ends in .bvec.
+     *
+     * \return A pointer to a vector of gradients.
+     */
+    boost::shared_ptr< std::vector< WVector3d > > readGradients();
 
     /**
      * Try to cast from the given string to the template value T. If the cast fails a

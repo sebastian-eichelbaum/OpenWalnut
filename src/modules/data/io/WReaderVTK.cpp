@@ -43,6 +43,7 @@
 #include "core/dataHandler/WDataSetScalar.h"
 #include "core/dataHandler/WDataSetVector.h"
 #include "core/dataHandler/WDataSetDTI.h"
+#include "core/dataHandler/WDataSetRawHARDI.h"
 #include "core/dataHandler/WGridRegular3D.h"
 #include "WReaderVTK.h"
 
@@ -110,8 +111,17 @@ boost::shared_ptr< WDataSet > WReaderVTK::read()
         ds = boost::shared_ptr< WDataSet >( new WDataSetVector( values, grid ) );
         break;
     case TENSORS:
-    case ARRAYS:
         ds = boost::shared_ptr< WDataSet >( new WDataSetDTI( values, grid ) );
+    case ARRAYS:
+        if( values->dimension() > 6 )
+        {
+            boost::shared_ptr< std::vector< WVector3d > > grads = readGradients();
+            ds = boost::shared_ptr< WDataSet >( new WDataSetRawHARDI( values, grid, grads ) );
+        }
+        else
+        {
+            ds = boost::shared_ptr< WDataSet >( new WDataSetDTI( values, grid ) );
+        }
         break;
 
     default:
@@ -119,6 +129,58 @@ boost::shared_ptr< WDataSet > WReaderVTK::read()
     }
 
     return ds;
+}
+
+boost::shared_ptr< std::vector< WVector3d > > WReaderVTK::readGradients()
+{
+    typedef std::vector< WVector3d > GradVec;
+
+    std::string gradientFileName = m_fname;
+    std::string suffix = getSuffix( m_fname );
+
+    WAssert( suffix == ".vtk", "Input file is not a vtk file." );
+
+    WAssert( gradientFileName.length() > 4, "" );
+    gradientFileName.resize( gradientFileName.length() - 4 );
+    gradientFileName += ".bvec";
+
+    // check if the file exists
+    std::ifstream i( gradientFileName.c_str() );
+    if( i.bad() || !i.is_open() )
+    {
+        if( i.is_open() )
+        {
+            i.close();
+        }
+    }
+    else
+    {
+        // the file should contain the x-coordinates in line 0, y-coordinates in line 1,
+        // z-coordinates in line 2
+        std::vector< double > values;
+        while( !i.eof() )
+        {
+            double d;
+            i >> d;
+            values.push_back( d );
+        }
+        i.close();
+
+        if( values.size() % 3 != 0 )
+        {
+            values.resize( values.size() / 3 );
+        }
+
+        boost::shared_ptr< GradVec > newGradients = boost::shared_ptr< GradVec >( new GradVec( values.size() / 3 ) );
+
+        for( std::size_t j = 0; j < values.size() / 3; ++j )
+        {
+            ( *newGradients )[ j ] = WVector3d( values[ 3 * j + 0 ], values[ 3 * j + 1 ], values[ 3 * j + 2 ] );
+        }
+
+        return newGradients;
+    }
+    return boost::shared_ptr< GradVec >();
 }
 
 bool WReaderVTK::readHeader()
@@ -247,7 +309,7 @@ boost::shared_ptr< WGridRegular3D > WReaderVTK::readRectilinearGrid()
 
     wlog::warn( "WReaderVTK" ) << "Assuming evenly spaced rectilinear grid! This may not adhere to the domain data in the file!";
 
-    WGridTransformOrtho transform( xcoords.at( 1 ) - xcoords.at( 0 ), ycoords.at( 1 ) - ycoords.at( 0 ), zcoords.at( 1 ) - zcoords.at( 0 ) ); // NOLINT
+    WGridTransformOrtho transform( xcoords.at( 1 ) - xcoords.at( 0 ), ycoords.at( 1 ) - ycoords.at( 0 ), zcoords.at( 1 ) - zcoords.at( 0 ) ); // NOLINT this is not #<algorithm>'s transform!
     return boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( dimensions[ 0 ], dimensions[ 1 ], dimensions[ 2 ], transform ) );
 }
 
@@ -263,7 +325,7 @@ void WReaderVTK::readCoords( std::string const& name, std::size_t dim, std::vect
     readValuesFromFile( coords, dim );
 }
 
-void WReaderVTK::readValuesFromFile( std::vector< float >& values, std::size_t numValues )  // NOLINT - non-const ref
+void WReaderVTK::readValuesFromFile( std::vector< float >& values, std::size_t numValues ) // NOLINT non-const ref
 {
     values.clear();
 
@@ -398,6 +460,35 @@ boost::shared_ptr< WValueSetBase > WReaderVTK::readTensors( size_t nbPoints, con
     // WAssert( std::string( "" ) == line, "Found characters in file where nothing was expected." );
 }
 
+boost::shared_ptr< WValueSetBase > WReaderVTK::readHARDI( std::size_t nbPoints, std::size_t nbGradients, const std::string& /*name*/ )
+{
+    int pos = m_ifs->tellg(); // remember where we are for binary files
+
+    // some files even have a lookup-table tag for vector-valued data
+    std::string line = getLine( "LookupTableOrData" );
+    std::vector< std::string > tokens = string_utils::tokenize( line );
+    if( string_utils::toUpper( tokens.at( 0 ) ) == "LOOKUP_TABLE" )
+    {
+        line = getLine( "Data" );
+        tokens = string_utils::tokenize( line );
+        pos = m_ifs->tellg(); // remember where we are for binary files
+    }
+
+    m_ifs->seekg( pos, std::ios::beg );
+
+    // We assume that all VTK fields store 3-dimensional vectors.
+    // There are other fields around, but there is no official VTK documentation dealing
+    // with 2D vectors and no unique interpretation of the data
+    boost::shared_ptr< std::vector< float > > data( new std::vector< float >( nbPoints * nbGradients ) );
+
+    readValuesFromFile( *data, nbPoints * nbGradients );
+
+    return boost::shared_ptr< WValueSetBase >( new WValueSet< float >( 1, nbGradients, data, W_DT_FLOAT ) );
+
+    // line = getLine( "also eat the remaining newline after lines declaration" );
+    // WAssert( std::string( "" ) == line, "Found characters in file where nothing was expected." );
+}
+
 
 boost::shared_ptr< WValueSetBase > WReaderVTK::readData( boost::shared_ptr< WGridRegular3D > const& /* grid */ )
 {
@@ -438,6 +529,12 @@ boost::shared_ptr< WValueSetBase > WReaderVTK::readData( boost::shared_ptr< WGri
     {
         m_attributeType = ARRAYS;
         return readTensors( nbPoints, name );
+    }
+    else if( tokens.size() == 4 && string_utils::toUpper( tokens.at( 0 ) ) == "ARRAYS" && getLexicalCast< std::size_t >( tokens.at( 2 ), "" ) > 6 )
+    {
+        m_attributeType = ARRAYS;
+        std::size_t k = getLexicalCast< std::size_t >( tokens.at( 2 ), "" );
+        return readHARDI( nbPoints, k, name );
     }
     else
     {
