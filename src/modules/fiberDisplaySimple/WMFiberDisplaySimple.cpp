@@ -588,7 +588,6 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
                                    fibColors->at( ( fibColorMode * k ) + csidx + ( 2 % fibColorMode ) ),
                                      ( fibColorMode == WDataSetFibers::ColorScheme::RGBA ) ?
                                        fibColors->at( ( fibColorMode * k ) + csidx + ( 3 % fibColorMode ) ) : 1.0 );
-
             }
 
             vertices->push_back( vert );
