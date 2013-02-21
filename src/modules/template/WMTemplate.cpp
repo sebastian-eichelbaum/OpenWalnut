@@ -410,17 +410,6 @@ void WMTemplate::moduleMain()
     // the "memory" of the moduleState. For more details, see:
     // http://www.openwalnut.org/projects/openwalnut/wiki/MultithreadingHowto#How-to-wait-correctly
 
-    // Signal ready state. Now your module can be connected by the container, which owns the module.
-    ready();
-    debugLog() << "Module is now ready.";
-
-    // After your module has signalled that it is ready, OpenWalnut allows the project loader to set the restored properties and connections. For
-    // you this means that your module now runs but WHILE running, the project loader might change properties and connections. Usually, this is
-    // no problem as you write interactive modules, handling these changes fast. But if you need to ensure that you do not continue your module
-    // until the project file loader has completely restored your module, you will need to call this:
-    waitRestored();
-    // This always returns if you manually add your module and no project file loader or something similar has to restore any values.
-
     // Most probably, your module will be a module providing some kind of visual output. In this case, the WGEManagedGroupNode is very handy.
     // It allows you to insert several nodes and transform them as the WGEGroupNode (from which WGEManagedGroupNode is derived from) is also
     // an osg::MatrixTransform. The transformation feature comes in handy if you want to transform your whole geometry according to a dataset
@@ -435,6 +424,17 @@ void WMTemplate::moduleMain()
     m_rootNode->addUpdateCallback( new TranslateCallback( this ) );
     // Insert to the scene:
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
+
+    // Signal ready state. Now your module can be connected by the container, which owns the module.
+    ready();
+    debugLog() << "Module is now ready.";
+
+    // After your module has signalled that it is ready, OpenWalnut allows the project loader to set the restored properties and connections. For
+    // you this means that your module now runs but WHILE running, the project loader might change properties and connections. Usually, this is
+    // no problem as you write interactive modules, handling these changes fast. But if you need to ensure that you do not continue your module
+    // until the project file loader has completely restored your module, you will need to call this:
+    waitRestored();
+    // This always returns if you manually add your module and no project file loader or something similar has to restore any values.
 
     // Normally, you will have a loop which runs as long as the module should not shutdown. In this loop you can react on changing data on input
     // connectors or on changed in your properties.
