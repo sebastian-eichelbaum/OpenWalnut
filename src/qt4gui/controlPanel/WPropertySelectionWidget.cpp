@@ -197,9 +197,19 @@ void WPropertySelectionWidget::update()
         {
             // Create a custom widget which contains the name and description
             QWidget* widget = new QWidget( m_list );
-            QGridLayout* layoutWidget = new QGridLayout();
+            QHBoxLayout* layoutWidget = new QHBoxLayout();
+            layoutWidget->setContentsMargins( 5, 0, 0, 0 );
+            layoutWidget->setSpacing( 0 );
+            layoutWidget->setSizeConstraint( QLayout::SetMaximumSize );
+            widget->setLayout( layoutWidget );
 
-            int column = 0;
+            QWidget* innerWidget = new QWidget( widget );
+            QVBoxLayout* layoutInnerWidget = new QVBoxLayout();
+            layoutInnerWidget->setContentsMargins( 5, 0, 0, 0 );
+            layoutInnerWidget->setSpacing( 0 );
+            layoutInnerWidget->setSizeConstraint( QLayout::SetMaximumSize );
+            innerWidget->setLayout( layoutInnerWidget );
+
             // if there is an icon -> show it
             if( sValid.atAll( i )->getIcon() )
             {
@@ -207,28 +217,25 @@ void WPropertySelectionWidget::update()
                 QSizePolicy sizePolicy( QSizePolicy::Maximum, QSizePolicy::Preferred ); // <-- scale it down
                 icon->setSizePolicy( sizePolicy );
                 icon->setPixmap( ensureSize( QPixmap( sValid.atAll( i )->getIcon() ) ) );
-                layoutWidget->addWidget( icon, 0, 0, 2, 1 );
-
-                ++column;
+                layoutWidget->addWidget( icon );
             }
 
             // Add Name and Description
-            layoutWidget->addWidget( new QLabel( "<b>" + QString::fromStdString( sValid.atAll( i )->getName() )+ "</b>" ), 0, column );
+            layoutInnerWidget->addWidget( new QLabel( "<b>" + QString::fromStdString( sValid.atAll( i )->getName() )+ "</b>" ) );
             // if there is no description -> no widget added to save space
             if( !sValid.atAll( i )->getDescription().empty() )
             {
-                layoutWidget->addWidget(  new QLabel( QString::fromStdString( sValid.atAll( i )->getDescription() ) ), 1, column );
+                layoutInnerWidget->addWidget(  new QLabel( QString::fromStdString( sValid.atAll( i )->getDescription() ) ) );
             }
 
-            layoutWidget->setSizeConstraint( QLayout::SetMaximumSize );
-            widget->setLayout( layoutWidget );
+            layoutWidget->addWidget( innerWidget );
 
             // add Item
             QListWidgetItem* item = new QListWidgetItem();
             item->setSizeHint( widget->sizeHint() );
             m_list->addItem( item );
             m_list->setItemWidget( item, widget );
-            m_list->setMinimumHeight( 150 );
+            m_list->setMinimumHeight( widget->height() * 3.5 );
         }
 
         // select all items
