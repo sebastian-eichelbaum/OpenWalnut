@@ -52,6 +52,7 @@
 #include "core/graphicsEngine/shaders/WGEPropertyUniform.h"
 #include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
 #include "core/graphicsEngine/shaders/WGEShaderPropertyDefine.h"
+#include "core/graphicsEngine/postprocessing/WGEPostprocessingNode.h"
 #include "core/graphicsEngine/WGEColormapping.h"
 #include "core/graphicsEngine/WGEUtils.h"
 #include "core/kernel/WKernel.h"
@@ -109,10 +110,30 @@ void WMIsosurface::moduleMain()
     m_moduleState.add( m_input->getDataChangedCondition() );
     m_moduleState.add( m_recompute );
 
+    // create the post-processing node which actually does the nice stuff to the rendered image
+    osg::ref_ptr< WGEPostprocessingNode > postNode = new WGEPostprocessingNode(
+        WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera()
+    );
+    // provide the properties of the post-processor to the user
+    m_properties->addProperty( postNode->getProperties() );
+
+    // add to scene
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( postNode );
+
     // signal ready state
     ready();
 
+    // create shader
+    m_shader = osg::ref_ptr< WGEShader >( new WGEShader( "WMIsosurface", m_localPath ) );
+    m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_useTextureProp, "COLORMAPPING_DISABLED", "COLORMAPPING_ENABLED" ) )
+    );
+
     m_moduleNode = new WGEManagedGroupNode( m_active );
+    m_moduleNode->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropInt >( "u_opacity", m_opacityProp ) );
+
+    // add it to postproc node and register shader
+    postNode->insert( m_moduleNode, m_shader );
 
     // loop until the module container requests the module to quit
     while( !m_shutdownFlag() )
@@ -177,7 +198,7 @@ void WMIsosurface::moduleMain()
         progress->finish();
     }
 
-    WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getScene()->remove( m_moduleNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getScene()->remove( postNode );
 }
 
 void WMIsosurface::connectors()
@@ -431,29 +452,15 @@ void WMIsosurface::renderMesh()
     surfaceGeometry->setUseDisplayList( false );
     surfaceGeometry->setUseVertexBufferObjects( true );
 
-    // ------------------------------------------------
-    // Shader stuff
-
-    osg::ref_ptr< WGEShader > shader = osg::ref_ptr< WGEShader >( new WGEShader( "WMIsosurface", m_localPath ) );
-    shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
-        new WGEShaderPropertyDefineOptions< WPropBool >( m_useTextureProp, "COLORMAPPING_DISABLED", "COLORMAPPING_ENABLED" ) )
-    );
-    state->addUniform( new WGEPropertyUniform< WPropInt >( "u_opacity", m_opacityProp ) );
-    shader->apply( m_surfaceGeode );
+    m_shader->apply( m_surfaceGeode );
 
     // enable transparency
     wge::enableTransparency( m_surfaceGeode );
 
     // Colormapping
-    WGEColormapping::apply( m_surfaceGeode, shader );
+    WGEColormapping::apply( m_surfaceGeode, m_shader );
 
     m_moduleNode->insert( m_surfaceGeode );
-    if( !m_moduleNodeInserted )
-    {
-        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
-        m_moduleNodeInserted = true;
-    }
-
     m_moduleNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMIsosurface::updateGraphicsCallback, this ) ) );
 }
 

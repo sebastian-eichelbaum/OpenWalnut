@@ -25,9 +25,13 @@
 #version 120
 
 #include "WGEColormapping-vertex.glsl"
+#include "WGETransformationTools.glsl"
 
 // The surface normal
 varying vec3 v_normal;
+
+// modelview matrix' scaling factor
+varying float v_worldScale;
 
 void main()
 {
@@ -36,6 +40,9 @@ void main()
 
     // prepare light
     v_normal = gl_NormalMatrix * gl_Normal;
+
+    // Calc the scaling factor in the MV matrix
+    v_worldScale = getModelViewScale();
 
     gl_FrontColor = gl_Color;
     gl_Position = ftransform();

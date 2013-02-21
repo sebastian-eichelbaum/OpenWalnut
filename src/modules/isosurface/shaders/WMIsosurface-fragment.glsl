@@ -25,7 +25,8 @@
 #version 120
 
 #include "WGEColormapping-fragment.glsl"
-
+#include "WGETextureTools.glsl"
+#include "WGEPostprocessing.glsl"
 #include "WGEShadingTools.glsl"
 
 // opacity in percent
@@ -33,6 +34,9 @@ uniform int u_opacity;
 
 // The surface normal
 varying vec3 v_normal;
+
+// modelview matrix' scaling factor
+varying float v_worldScale;
 
 void main()
 {
@@ -48,5 +52,12 @@ void main()
     // opacity of the surface
     col.rgb = light * col.rgb;
     col.a = float( u_opacity ) * 0.01;
-    gl_FragColor = col;
+
+    // finally set the color and depth
+    wgeInitGBuffer();
+    wge_FragColor = col;
+    wge_FragNormal = textureNormalize( normalize( v_normal ) );
+    wge_FragZoom = v_worldScale;
+    wge_FragTangent = textureNormalize( v_normal );
 }
+

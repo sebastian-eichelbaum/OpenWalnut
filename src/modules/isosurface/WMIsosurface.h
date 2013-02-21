@@ -158,6 +158,11 @@ private:
     bool m_moduleNodeInserted; //!< ensures that the above module node gets inserted once the first triangle mesh has been calculated.
 
     osg::ref_ptr< osg::Geode > m_surfaceGeode; //!< Pointer to geode containing the surface.
+
+    /**
+     * The shader
+     */
+    osg::ref_ptr< WGEShader > m_shader;
 };
 
 #endif  // WMISOSURFACE_H
