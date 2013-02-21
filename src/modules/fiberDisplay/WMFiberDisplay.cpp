@@ -177,6 +177,8 @@ void WMFiberDisplay::properties()
     m_insideCullBox   = m_cullBoxGroup->addProperty( "Inside - outside", "Show fibers inside or outside the cull box", true, m_propCondition );
 
     m_propUpdateOutputTrigger = m_properties->addProperty( "Update Output", "Update!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
+    m_permanentUpdate = m_properties->addProperty( "Direct Update", "If enabled, the output fibers immediately update when changing the selection.",
+                                                   false );
 }
 
 
@@ -260,6 +262,13 @@ void WMFiberDisplay::inputUpdated()
         WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
         ++*progress;
         m_fiberSelector = boost::shared_ptr<WFiberSelector>( new WFiberSelector( m_dataset ) );
+
+        // register dirty notifier
+        m_roiUpdateConnection.disconnect();
+        m_roiUpdateConnection = m_fiberSelector->getDirtyCondition()->subscribeSignal(
+            boost::bind( &WMFiberDisplay::roiUpdate, this )
+        );
+
         ++*progress;
         create();
         progress->finish();
@@ -427,4 +436,12 @@ void WMFiberDisplay::updateOutput()
     boost::shared_ptr< WDataSetFibers> newOutput( new WDataSetFibers( vertices, lineStartIndexes, lineLengths, verticesReverse,
                 m_dataset->getBoundingBox() ) );
     m_fiberOutput->updateData( newOutput );
+}
+
+void WMFiberDisplay::roiUpdate()
+{
+    if( m_permanentUpdate->get( true ) )
+    {
+        updateOutput();
+    }
 }

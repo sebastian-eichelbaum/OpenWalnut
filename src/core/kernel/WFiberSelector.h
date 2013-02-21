@@ -29,6 +29,7 @@
 #include <vector>
 
 #include "../dataHandler/WDataSetFibers.h"
+#include "../common/WCondition.h"
 
 #include "WSelectorRoi.h"
 #include "WSelectorBranch.h"
@@ -85,6 +86,13 @@ public:
      */
     void setDirty();
 
+    /**
+     * Condition that fires upon a recalculation of the fiber selection.
+     *
+     * \return the condition
+     */
+    WCondition::SPtr getDirtyCondition();
+
 protected:
     /**
      * listener function for inserting rois
@@ -134,6 +142,11 @@ private:
     boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > m_removeRoiSignal; //!< Signal that can be used to update the selector
     boost::shared_ptr< boost::function< void( boost::shared_ptr< WRMBranch > ) > > m_removeBranchSignal; //!< Signal for updating the selector
     boost::shared_ptr< boost::function< void() > > m_changeRoiSignal; //!< Signal that can be used to update the selector
+
+    /**
+     * Condition that fires on setDirty.
+     */
+    WCondition::SPtr m_dirtyCondition;
 };
 
 inline size_t WFiberSelector::size()

@@ -34,7 +34,8 @@
 WFiberSelector::WFiberSelector( boost::shared_ptr< const WDataSetFibers > fibers ) :
     m_fibers( fibers ),
     m_size( fibers->size() ),
-    m_dirty( true )
+    m_dirty( true ),
+    m_dirtyCondition( boost::shared_ptr< WCondition >( new WCondition() ) )
 {
     boost::shared_ptr< std::vector< float > > verts = m_fibers->getVertices();
     m_kdTree = boost::shared_ptr< WKdTree >( new WKdTree( verts->size() / 3, &( ( *verts )[0] ) ) );
@@ -191,4 +192,10 @@ void WFiberSelector::setDirty()
 {
     recalculate();
     m_dirty = true;
+    m_dirtyCondition->notify();
+}
+
+WCondition::SPtr WFiberSelector::getDirtyCondition()
+{
+    return m_dirtyCondition;
 }

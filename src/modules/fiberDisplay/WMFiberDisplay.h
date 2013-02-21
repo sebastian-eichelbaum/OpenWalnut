@@ -182,7 +182,7 @@ private:
     /**
      * Point to a fiber selector, which is an adapater between the roi manager and the this module
      */
-    boost::shared_ptr< WFiberSelector>m_fiberSelector;
+    boost::shared_ptr< WFiberSelector > m_fiberSelector;
 
     /**
      * stores pointer to the fiber drawer
@@ -265,6 +265,21 @@ private:
      * create a selection box to cull the fibers
      */
     void initCullBox();
+
+    /**
+     * Immediately update the output of the fiberDisplay on ROI change.
+     */
+    WPropBool m_permanentUpdate;
+
+    /**
+     * Connection to the roi dirty signal.
+     */
+    boost::signals2::connection m_roiUpdateConnection;
+
+    /**
+     * Called when updating the selection.
+     */
+    void roiUpdate();
 };
 
 inline const std::string WMFiberDisplay::getName() const
