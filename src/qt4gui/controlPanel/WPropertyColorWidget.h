@@ -28,6 +28,8 @@
 #include <string>
 
 #include <QtGui/QPushButton>
+#include <QtGui/QLabel>
+#include <QtGui/QAction>
 #include <QtGui/QHBoxLayout>
 
 #include "../guiElements/WScaleLabel.h"
@@ -87,7 +89,12 @@ protected:
     /**
      * The button field showing the value
      */
-    QPushButton m_button;
+    QWidget m_widget;
+
+    /**
+     * Color display panel
+     */
+    QWidget* m_colPanel;
 
     /**
      * Layout used to position the label and the checkbox
@@ -104,6 +111,10 @@ protected:
      */
     QHBoxLayout m_infoLayout;
 
+    /**
+     * Color picker
+     */
+    QAction* m_colorPickerAction;
 private:
     /**
      * Helper to convert between QColor and WColor.

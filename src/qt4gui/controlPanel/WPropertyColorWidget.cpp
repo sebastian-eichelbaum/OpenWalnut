@@ -28,10 +28,13 @@
 
 #include <QtGui/QColorDialog>
 #include <QtGui/QDropEvent>
+#include <QtGui/QToolButton>
 
 #include "core/common/WLogger.h"
 #include "core/common/WPropertyVariable.h"
 #include "../WGuiConsts.h"
+#include "../WQt4Gui.h"
+#include "../WMainWindow.h"
 
 #include "WPropertyColorWidget.h"
 #include "WPropertyColorWidget.moc"
@@ -39,7 +42,7 @@
 WPropertyColorWidget::WPropertyColorWidget( WPropColor property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),
     m_colorProperty( property ),
-    m_button( &m_parameterWidgets ),
+    m_widget( &m_parameterWidgets ),
     m_layout(),
     m_asText( &m_informationWidgets ),
     m_infoLayout( &m_informationWidgets )
@@ -48,7 +51,7 @@ WPropertyColorWidget::WPropertyColorWidget( WPropColor property, QGridLayout* pr
     m_parameterWidgets.setLayout( &m_layout );
 
     // layout both against each other
-    m_layout.addWidget( &m_button );
+    m_layout.addWidget( &m_widget );
     m_layout.setMargin( WGLOBAL_MARGIN );
     m_layout.setSpacing( WGLOBAL_SPACING );
 
@@ -58,14 +61,29 @@ WPropertyColorWidget::WPropertyColorWidget( WPropColor property, QGridLayout* pr
     m_infoLayout.setSpacing( WGLOBAL_SPACING );
     m_informationWidgets.setLayout( &m_infoLayout );
 
-    // set the initial values
-    update();
+    QHBoxLayout* wLayout = new QHBoxLayout( &m_widget );
+    wLayout->setContentsMargins( 0, 0, 0, 0 );
+    wLayout->setSpacing( 0 );
 
-    // connect the modification signal of the edit and slider with our callback
-    connect( &m_button, SIGNAL( clicked() ), this, SLOT( buttonClicked() ) );
+    QToolButton* colButton = new QToolButton( this );
+    m_colorPickerAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "colorwheel" ), "Select Color", this );
+    connect( m_colorPickerAction, SIGNAL( triggered( bool ) ), this, SLOT( buttonClicked() ) );
+    colButton->setDefaultAction( m_colorPickerAction );
+    colButton->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
+    colButton->setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Fixed ) );
+
+    m_colPanel = new QWidget( &m_widget );
+    m_colPanel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed ) );
+    m_colPanel->setFixedSize( 32, 32 );
+
+    wLayout->addWidget( m_colPanel );
+    wLayout->addWidget( colButton );
 
     // accept drag and drop
     setAcceptDrops( true );
+
+    // set the initial values
+    update();
 }
 
 WPropertyColorWidget::~WPropertyColorWidget()
@@ -86,9 +104,19 @@ void WPropertyColorWidget::setColor( const QColor& bgColor )
     buttonColorStr << "* { background-color: rgb("
                    << bgColor.red() << ","
                    << bgColor.green() << ","
-                   << bgColor.blue() << ") }";
+                   << bgColor.blue() << ");"
+                   << "}";
 
-    m_button.setStyleSheet( QString().fromStdString( buttonColorStr.str() ) );
+    std::stringstream buttonColorText;
+    buttonColorText << "RGBA( " << bgColor.red() << ", "
+                    << bgColor.green() << ", "
+                    << bgColor.blue() << ", "
+                    << bgColor.alpha() << " )";
+
+    m_colorPickerAction->setText( QString().fromStdString( buttonColorText.str() ) );
+
+    m_colPanel->setStyleSheet( QString().fromStdString( buttonColorStr.str() ) );
+
 
     // if this is a info property -> set background of label and some text
     m_asText.setText( QString::fromStdString( m_colorProperty->getAsString() ) );
@@ -126,7 +154,6 @@ void WPropertyColorWidget::buttonClicked()
     if( current.isValid() )
     {
         // set the button background to the appropriate color
-        //m_button.setPalette( QPalette( current ) );
         setColor( current );
 
         // convert it back to a WColor
