@@ -44,9 +44,15 @@
 #include "core/dataHandler/WDataSetScalar.h"
 #include "core/dataHandler/WSubject.h"
 #include "core/dataHandler/WGridTransformOrtho.h"
+#include "core/graphicsEngine/WGEColormapping.h"
 #include "core/graphicsEngine/WGEGeodeUtils.h"
 #include "core/graphicsEngine/WGEGeometryUtils.h"
 #include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/graphicsEngine/shaders/WGEShaderDefineOptions.h"
+#include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
+#include "core/graphicsEngine/shaders/WGEShaderPropertyDefine.h"
+#include "core/graphicsEngine/shaders/WGEPropertyUniform.h"
+#include "core/graphicsEngine/postprocessing/WGEPostprocessingNode.h"
 #include "core/graphicsEngine/WGEUtils.h"
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WModuleInputData.h"
@@ -105,6 +111,9 @@ void WMVoxelizer::properties()
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_rasterAlgo );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_rasterAlgo );
 
+    m_phongShading  = m_properties->addProperty( "Phong shading", "If enabled, Phong shading gets applied on a per-pixel basis.", true );
+    m_colorMapping  = m_properties->addProperty( "Colormapping", "If enabled, colormapping gets applied on a per-pixel basis.", false );
+
     WModule::properties();
 }
 
@@ -125,9 +134,33 @@ void WMVoxelizer::moduleMain()
     m_moduleState.add( m_clusterIC->getDataChangedCondition() );
     m_moduleState.add( m_fullUpdate );
 
+    // create the post-processing node which actually does the nice stuff to the rendered image
+    osg::ref_ptr< WGEPostprocessingNode > postNode = new WGEPostprocessingNode(
+        WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera()
+    );
+    // provide the properties of the post-processor to the user
+    m_properties->addProperty( postNode->getProperties() );
+
+    // create the root node containing everything
     m_rootNode = new WGEManagedGroupNode( m_active );
-    m_rootNode->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
+
+    // create sheader
+    osg::ref_ptr< WGEShader > shader( new WGEShader( "WMVoxelizer", m_localPath ) );
+    shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_phongShading, "PHONGSHADING_DISABLED", "PHONGSHADING_ENABLED" ) )
+    );
+    shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_colorMapping, "COLORMAPPING_DISABLED", "COLORMAPPING_ENABLED" ) )
+    );
+
+    // apply colormapping
+    WGEColormapping::apply( m_rootNode, shader );
+
+    // add it to postproc node and register shader
+    postNode->insert( m_rootNode, shader );
+
+    // add to scene
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( postNode );
 
     ready();
 
@@ -163,9 +196,9 @@ void WMVoxelizer::moduleMain()
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
     }
 
+    // clean up scene
     m_rootNode->clear();
-
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( postNode );
 }
 
 boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( boost::shared_ptr< const WDataSetFibers > tracts,
@@ -357,18 +390,19 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
 
     osg::StateSet* state = geode->getOrCreateStateSet();
 
+    // Without depth-sorting, this nearly always creates wrong results. Thus we disable it for now.
     // Enable blending, select transparent bin.
-    state->setMode( GL_BLEND, osg::StateAttribute::ON );
-    state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
-
+    // state->setMode( GL_BLEND, osg::StateAttribute::ON );
+    // state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+    //
     // Enable depth test so that an opaque polygon will occlude a transparent one behind it.
-    state->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
-
+    // state->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
+    //
     // Conversely, disable writing to depth buffer so that a transparent polygon will allow polygons behind it to shine through.
     // OSG renders transparent polygons after opaque ones.
-    osg::Depth* depth = new osg::Depth;
-    depth->setWriteMask( false );
-    state->setAttributeAndModes( depth, osg::StateAttribute::ON );
+    // osg::Depth* depth = new osg::Depth;
+    // depth->setWriteMask( false );
+    // state->setAttributeAndModes( depth, osg::StateAttribute::ON );
 
     return geode;
 }

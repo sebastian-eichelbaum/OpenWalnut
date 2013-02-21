@@ -257,6 +257,16 @@ private:
      * The actually selected parameterization algorithm.
      */
     WPropSelection m_parameterAlgo;
+
+    /**
+     * add colormapping
+     */
+    WPropBool m_colorMapping;
+
+    /**
+     * Add lighting to the scene
+     */
+    WPropBool m_phongShading;
 };
 
 inline const std::string WMVoxelizer::getName() const
