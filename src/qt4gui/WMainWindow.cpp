@@ -177,7 +177,6 @@ void WMainWindow::setupGUI()
     m_iconManager.addMapping( "axial icon", "orientation_axial" );
     m_iconManager.addMapping( "coronal icon", "orientation_coronal" );
     m_iconManager.addMapping( "sagittal icon", "orientation_sagittal" );
-    m_iconManager.addMapping( "ROI icon", "roi" );
     m_iconManager.addMapping( "DefaultModuleIcon", "default" );
     m_iconManager.addMapping( "missingModule", "question" );
     m_iconManager.addMapping( "view", "camera" );
@@ -268,7 +267,7 @@ void WMainWindow::setupGUI()
 
     m_loadButton = new QAction( m_iconManager.getIcon( "load" ), "Load Dataset or Project", m_permanentToolBar );
     m_loadButton->setShortcut( QKeySequence(  QKeySequence::Open ) );
-    QAction* roiButton = new QAction( m_iconManager.getIcon( "ROI icon" ), "ROI", m_permanentToolBar );
+    QAction* roiButton = new QAction( m_iconManager.getIcon( "add_roi" ), "ROI", m_permanentToolBar );
     m_saveAction = new QAction( m_iconManager.getIcon( "saveProject" ), "Save Project", m_permanentToolBar );
 
     connect( m_loadButton, SIGNAL(  triggered( bool ) ), this, SLOT( openLoadDialog() ) );
