@@ -28,8 +28,8 @@
 #include <QtGui/QPalette>
 #include <QtGui/QListWidgetItem>
 #include <QtGui/QPushButton>
+#include <QtGui/QToolButton>
 #include <QtGui/QScrollBar>
-
 
 #include "core/common/WLogger.h"
 #include "core/common/WPropertyVariable.h"
@@ -37,6 +37,8 @@
 #include "core/common/WItemSelection.h"
 
 #include "../WGuiConsts.h"
+#include "../WQt4Gui.h"
+#include "../WMainWindow.h"
 
 #include "WPropertySelectionWidget.h"
 #include "WPropertySelectionWidget.moc"
@@ -96,8 +98,13 @@ WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGr
         m_layout.addWidget( m_list, 0, 0 );
 
         // add a select-all button
-        QPushButton* selAllButton = new QPushButton( "Select All", this );
-        connect( selAllButton, SIGNAL( released() ), m_list, SLOT( selectAll() ) );
+        QToolButton* selAllButton = new QToolButton( this );
+        QAction* act = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "select_all" ), "Select All", this );
+        connect( act, SIGNAL( triggered( bool ) ), m_list, SLOT( selectAll() ) );
+        selAllButton->setDefaultAction( act );
+        selAllButton->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
+        selAllButton->setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Fixed ) );
+
         m_layout.addWidget( selAllButton, 1, 0 );
 
         // connect
