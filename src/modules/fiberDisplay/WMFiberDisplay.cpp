@@ -490,13 +490,16 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
     // disable light for this geode as lines can't be lit properly
     state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
 
-    // create everytring needed for the line_strip drawable
+    // create everything needed for the line_strip drawable
     osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
     osg::ref_ptr< osg::Vec3Array > clusterAttribs = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec3Array > tangents = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::FloatArray > texcoords = osg::ref_ptr< osg::FloatArray >( new osg::FloatArray );
     osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
+
+    // new attribute array
+    m_bitfieldAttribs = new osg::FloatArray( m_fibers->getLineStartIndexes()->size() );
 
     // this is needed for the end- sprites
     osg::ref_ptr< osg::Vec3Array > endVertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
@@ -563,6 +566,9 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
         // the length of the fiber
         size_t len = fibLen->at( fidx );
 
+        // also initialize the ROI filter bitfield
+        ( *m_bitfieldAttribs )[ fidx ] = m_fiberSelector->getBitfield()->at( fidx );
+        // create cluster filter
         clusterAttribs->push_back( osg::Vec3( 1.0, 1.0, 1.0 ) );
 
         // a line needs 2 verts at least
@@ -694,13 +700,12 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
     // enable VBO
     geometry->setUseDisplayList( false );
     geometry->setUseVertexBufferObjects( true );
+    startGeometry->setUseDisplayList( false );
+    startGeometry->setUseVertexBufferObjects( true );
+    endGeometry->setUseDisplayList( false );
+    endGeometry->setUseVertexBufferObjects( true );
 
-    // also initialize the ROI filter bitfield
-    m_bitfieldAttribs = new osg::FloatArray( m_fibers->getLineStartIndexes()->size() );
-    for( size_t fidx = 0; fidx < m_fibers->getLineStartIndexes()->size() ; ++fidx )
-    {
-        ( *m_bitfieldAttribs )[ fidx ] = m_fiberSelector->getBitfield()->at( fidx );
-    }
+    // bind the attribute
     geometry->setVertexAttribArray( 6, m_bitfieldAttribs );
     // the attributes are define per line strip, thus we bind the array accordingly
     geometry->setVertexAttribBinding( 6, osg::Geometry::BIND_PER_PRIMITIVE_SET );
