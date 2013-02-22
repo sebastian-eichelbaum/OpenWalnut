@@ -389,8 +389,13 @@ void WMFiberDisplay::moduleMain()
             // create the fiber geode
             osg::ref_ptr< osg::Geode > geode = new osg::Geode();
             osg::ref_ptr< osg::Geode > endCapGeode = new osg::Geode();
+
+            // this avoids that the pick handler tries to pick in millions if lines and quads
             geode->setName( "_Line Geode" );
             endCapGeode->setName( "_Tube Cap Geode" );
+            geode->setNodeMask( 0x0000000F );
+            endCapGeode->setNodeMask( 0x0000000F );
+
             createFiberGeode( fibers, geode, endCapGeode );
 
             // Apply the shader. This is for clipping.
@@ -721,8 +726,6 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
 
 void WMFiberDisplay::geometryUpdate( osg::Drawable* geometry )
 {
-    osg::Geometry* g = static_cast< osg::Geometry* >( geometry );
-
     if( m_fiberSelectorChanged )
     {
         m_fiberSelectorChanged = false;
@@ -765,7 +768,7 @@ void WMFiberDisplay::geometryUpdate( osg::Drawable* geometry )
                 );
             }
         }
-        g->setSecondaryColorArray( attribs );
+        static_cast< osg::Geometry* >( geometry )->setSecondaryColorArray( attribs );
     }
 }
 

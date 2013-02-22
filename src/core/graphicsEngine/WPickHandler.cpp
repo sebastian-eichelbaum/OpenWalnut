@@ -242,7 +242,7 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
         return;
     }
 
-    bool intersetionsExist = view->computeIntersections( x, y, intersections );
+    bool intersetionsExist = view->computeIntersections( x, y, intersections, 0xFFFFFFF0 );
 
     // if something is picked, get the right thing from the list, because it might be hidden.
     bool startPickIsStillInList = false;
