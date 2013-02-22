@@ -36,14 +36,22 @@
 
 #include "WKdTree.h"
 
-
-
 /**
  * Adaptor class between the roi manager and the fiber display
  */
 class  WFiberSelector // NOLINT
 {
 public:
+    /**
+     * Fiber selector pointer
+     */
+    typedef boost::shared_ptr< WFiberSelector > SPtr;
+
+    /**
+     * Const fiber selector pointer.
+     */
+    typedef boost::shared_ptr< const WFiberSelector > ConstSPtr;
+
     /**
      * constructor
      * \param fibers pointer to the datset this selector works on
