@@ -66,6 +66,11 @@ uniform float u_tubeSize;
 varying in vec3 v_normal[];
 
 /**
+ * The normal/tangent in scene-space
+ */
+varying in float v_discard[];
+
+/**
  * The output normal for the fragment shader in world-space
  */
 varying out vec3 v_normalWorld;
@@ -93,6 +98,14 @@ varying out float v_worldScale;
  */
 void main()
 {
+#ifdef BITFIELD_ENABLED
+    // emit no vertex if whe want to discard the endcap
+    if( v_discard[0] > 0.0 )
+    {
+        return;
+    }
+#endif
+
 #ifdef CLIPPLANE_ENABLED
     // define the plane
     vec3 n = normalize( u_planeVector );

@@ -260,6 +260,7 @@ void WMFiberDisplay::moduleMain()
     m_shader->addPreprocessor( defineTmp );
     m_endCapShader->addPreprocessor( defineTmp );
     m_shader->addBindAttribLocation( "a_bitfield", 6 );
+    m_endCapShader->addBindAttribLocation( "a_bitfield", 6 );
 
     // get notified about data changes
     m_moduleState.setResetable( true, true );
@@ -388,6 +389,8 @@ void WMFiberDisplay::moduleMain()
             // create the fiber geode
             osg::ref_ptr< osg::Geode > geode = new osg::Geode();
             osg::ref_ptr< osg::Geode > endCapGeode = new osg::Geode();
+            geode->setName( "_Line Geode" );
+            endCapGeode->setName( "_Tube Cap Geode" );
             createFiberGeode( fibers, geode, endCapGeode );
 
             // Apply the shader. This is for clipping.
@@ -496,6 +499,14 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
     osg::ref_ptr< osg::Vec3Array > endTangents = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::Geometry > endGeometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
 
+    // this is needed for the end- sprites
+    // NOTE: we handle start caps and end caps separately here since the vertex attributes are per line so we need to have one cap per line.
+    osg::ref_ptr< osg::Vec3Array > startVertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    osg::ref_ptr< osg::Vec4Array > startColors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+    osg::ref_ptr< osg::Vec3Array > startTangents = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    osg::ref_ptr< osg::Geometry > startGeometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
+
+
     // needed arrays for iterating the fibers
     WDataSetFibers::IndexArray  fibStart = fibers->getLineStartIndexes();
     WDataSetFibers::LengthArray fibLen   = fibers->getLineLengths();
@@ -574,8 +585,8 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
                                                   fibVerts->at( ( 3 * ( len - 2 ) ) + sidx + 2 ) );
             osg::Vec3 startNormal = firstVert - secondVert;
             osg::Vec3 endNormal = lastVert - secondLastVert;
-            endTangents->push_back( startNormal );
-            endVertices->push_back( firstVert );
+            startTangents->push_back( startNormal );
+            startVertices->push_back( firstVert );
             endTangents->push_back( endNormal );
             endVertices->push_back( lastVert );
         }
@@ -609,7 +620,11 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
             if( tubeMode )
             {
                 // if in tube-mode, some final sprites are needed to provide some kind of ending for the tube
-                if( ( k == 0 ) || ( k == len - 1 ) )
+                if( k == 0 )
+                {
+                    startColors->push_back( color );
+                }
+                if( k == len - 1 )
                 {
                     endColors->push_back( color );
                 }
@@ -630,7 +645,7 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
         if( m_tubeEnable->get() )
         {
             geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUAD_STRIP, 2 * currentStart, 2 * len ) );
-        }
+            }
         else
         {
             geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, currentStart, len ) );
@@ -658,6 +673,15 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
         endGeometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
         endGeometry->setNormalArray( endTangents );
         endGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
+
+        startGeometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::POINTS, 0, startVertices->size() ) );
+        startGeometry->setVertexArray( startVertices );
+        startGeometry->setColorArray( startColors );
+        startGeometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+        startGeometry->setNormalArray( startTangents );
+        startGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
+
+        endCapGeode->addDrawable( startGeometry );
         endCapGeode->addDrawable( endGeometry );
 
         endState->setAttribute( new osg::Point( 1.0f ), osg::StateAttribute::ON );
@@ -666,13 +690,24 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
     geometry->setUseDisplayList( false );
     geometry->setUseVertexBufferObjects( true );
 
+    // also initialize the ROI filter bitfield
     m_bitfieldAttribs = new osg::FloatArray( m_fibers->getLineStartIndexes()->size() );
     for( size_t fidx = 0; fidx < m_fibers->getLineStartIndexes()->size() ; ++fidx )
     {
-        ( *m_bitfieldAttribs )[ fidx ] = 1;
+        ( *m_bitfieldAttribs )[ fidx ] = m_fiberSelector->getBitfield()->at( fidx );
     }
     geometry->setVertexAttribArray( 6, m_bitfieldAttribs );
+    // the attributes are define per line strip, thus we bind the array accordingly
     geometry->setVertexAttribBinding( 6, osg::Geometry::BIND_PER_PRIMITIVE_SET );
+
+    if( tubeMode )
+    {
+        // we have one vertex per line, so bind the attribute array per vertex
+        startGeometry->setVertexAttribArray( 6, m_bitfieldAttribs );
+        startGeometry->setVertexAttribBinding( 6, osg::Geometry::BIND_PER_VERTEX );
+        endGeometry->setVertexAttribArray( 6, m_bitfieldAttribs );
+        endGeometry->setVertexAttribBinding( 6, osg::Geometry::BIND_PER_VERTEX );
+    }
 
     // add an update callback which later handles several things like the filter attribute array
     geometry->setUpdateCallback( new WGEFunctorCallback< osg::Drawable >( boost::bind( &WMFiberDisplay::geometryUpdate, this, _1 ) ) );

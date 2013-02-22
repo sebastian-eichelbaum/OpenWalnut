@@ -34,6 +34,13 @@
 // Attributes
 /////////////////////////////////////////////////////////////////////////////
 
+/**
+ * This vertex attribute is the bitmask denoting whether to show the fiber or not
+ */
+#ifdef BITFIELD_ENABLED
+    in float a_bitfield;
+#endif
+
 /////////////////////////////////////////////////////////////////////////////
 // Varyings
 /////////////////////////////////////////////////////////////////////////////
@@ -42,6 +49,11 @@
  * The normal in scene-space
  */
 varying vec3 v_normal;
+
+/**
+ * Varying defines wether to discard the fragments or not.
+ */
+varying float v_discard;
 
 /////////////////////////////////////////////////////////////////////////////
 // Variables
@@ -56,6 +68,10 @@ varying vec3 v_normal;
  */
 void main()
 {
+#ifdef BITFIELD_ENABLED
+    v_discard = 1.0 - a_bitfield;
+#endif
+
     // forward to geometry shader
     v_normal = gl_Normal;
     gl_FrontColor = gl_Color;
