@@ -28,7 +28,7 @@
 
 #include "WGETransformationTools.glsl"
 
-#include "WMFiberDisplaySimple-varyings.glsl"
+#include "WMFiberDisplay-varyings.glsl"
 
 /////////////////////////////////////////////////////////////////////////////
 // Uniforms

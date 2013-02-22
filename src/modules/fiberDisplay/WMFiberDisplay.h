@@ -27,35 +27,32 @@
 
 #include <string>
 
-#include <osg/Geode>
-
-#include "core/dataHandler/WDataSetFibers.h"
-
-#include "core/graphicsEngine/WFiberDrawable.h"
-#include "core/graphicsEngine/WROI.h"
-#include "core/graphicsEngine/WROIBox.h"
-#include "core/graphicsEngine/shaders/WGEShader.h"
-
-#include "core/kernel/WFiberSelector.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
 #include "core/kernel/WModuleOutputData.h"
 
+#include "core/dataHandler/WDataSetFiberClustering.h"
+#include "core/dataHandler/WDataSetFibers.h"
+#include "core/kernel/WFiberSelector.h"
+
+// forward declarations
+class WGEShader;
+
 /**
- * Module for drawing fibers
+ * This modules takes a dataset and equalizes its histogram.
  *
  * \ingroup modules
  */
-class WMFiberDisplay : public WModule
+class WMFiberDisplay: public WModule
 {
 public:
     /**
-     * Constructs new FiberTestModule
+     * Default constructor.
      */
     WMFiberDisplay();
 
     /**
-     * Destructs this FiberTestModule
+     * Destructor.
      */
     virtual ~WMFiberDisplay();
 
@@ -72,28 +69,15 @@ public:
     virtual const std::string getDescription() const;
 
     /**
-     * Due to the prototype design pattern used to build modules, this method
-     * returns a new instance of this method. NOTE: it should never be
-     * initialized or modified in some other way. A simple new instance is
-     * required.
+     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
+     * should never be initialized or modified in some other way. A simple new instance is required.
      *
      * \return the prototype used to create every module in OpenWalnut.
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
-    /**
-     * Get the icon for this module in XPM format.
-     * \return The icon.
-     */
-    virtual const char** getXPMIcon() const;
-
 protected:
     /**
-     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
-     */
-    virtual void activate();
-
-   /**
      * Entry point after loading the module. Runs in separate thread.
      */
     virtual void moduleMain();
@@ -108,168 +92,215 @@ protected:
      */
     virtual void properties();
 
-    /**
-     * Redraws the scene.
-     *
-     */
-    void update();
-
-    /**
-     * initial creation of the osg geometry
-     */
-    void create();
-
-    /**
-    * switches between fiber display and tube representation,
-    * texturing and box culling
-    * activates the neccesary shaders
-    */
-    void updateRenderModes();
-
 private:
     /**
-     * function gets called when the input connector has been updated
+     * Geometry update callback. Handles fiber cluster filtering
+     *
+     * \param geometry the geometry instance to handle
      */
-    void inputUpdated();
+    void geometryUpdate( osg::Drawable* geometry );
 
     /**
-     * The update callback that is called for the osg node of this module.
+     * If true, the geometryUpdate() callback will upload a new filter attribute array.
      */
-    void updateCallback();
+    bool m_fiberClusteringUpdate;
+
+    /**
+     * The fiber dataset which is going to be filtered.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fiberInput;
+
+    /**
+     * An optional fiber clustering can be specified to filter in m_fiberInput.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetFiberClustering > > m_fiberClusteringInput;
+
+    /**
+     * The current fiber data
+     */
+    WDataSetFibers::SPtr m_fibers;
+
+    /**
+     * The current fiber clustering
+     */
+    WDataSetFiberClustering::SPtr m_fiberClustering;
 
     /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
 
-    WPropBool m_useTubesProp; //!< Property indicating whether to use tubes for the fibers tracts.
-    WPropBool m_useTextureProp; //!< Property indicating whether to use tubes for the fibers tracts.
-    WPropDouble m_tubeThickness; //!< Property determining the thickness of tubes .
-    WBoolFlag m_noData; //!< Flag indicating whether there is data to display.
-
-    WPropGroup m_cullBoxGroup; //!< property group for box culling
-    WPropBool m_activateCullBox; //!< if true fibers are culled depending on a cull box
-    WPropBool m_showCullBox; //!< Enable/Disable showing of the cull box
-    WPropBool m_insideCullBox; //!< if true fibers inside the cull box are shown, outside if false
-
     /**
-     * This property triggers the updating of the output connector, as it would be too slow  to do on every
-     * selection change
+     * The properties of the fiber dataset.
      */
-    WPropTrigger m_propUpdateOutputTrigger;
+    WProperties::SPtr m_fibProps;
 
     /**
-     * Input connector for a fiber dataset.
+     * The shader used for actually drawing the fake tubes or lines.
      */
-    boost::shared_ptr< WModuleInputData< const WDataSetFibers > > m_fiberInput;
+    osg::ref_ptr< WGEShader > m_shader;
 
     /**
-     * Output connector for a fiber dataset.
+     * The shader used for drawing end cap sprites if in tube mode.
      */
-    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_fiberOutput;
+    osg::ref_ptr< WGEShader > m_endCapShader;
 
     /**
-     * Pointer to the fiber data set
+     * Illumination.
      */
-    boost::shared_ptr< const WDataSetFibers > m_dataset;
+    WPropBool m_illuminationEnable;
 
     /**
-     * OSG node for this module. All other OSG nodes of this module should be
-     * placed as child to this node.
+     * Allow disabling ROI filter mode.
      */
-    osg::ref_ptr< osg::Group > m_osgNode;
+    WPropBool m_roiFiltering;
 
     /**
-     * Point to a fiber selector, which is an adapater between the roi manager and the this module
+     * Group containing several coloring options
+     */
+    WPropGroup m_coloringGroup;
+
+    /**
+     * Define whether to use a single color or the dataset color.
+     */
+    WPropBool m_plainColorMode;
+
+    /**
+     * Define a color to use if in plain color mode.
+     */
+    WPropColor m_plainColor;
+
+    /**
+     * The ratio between colormap and fiber color.
+     */
+    WPropDouble m_colormapRatio;
+
+    /**
+     * True if colormapping should be used.
+     */
+    WPropBool m_colormapEnabled;
+
+    /**
+     * A property group for all the clipping related props.
+     */
+    WPropGroup m_clipPlaneGroup;
+
+    /**
+     * Property for en-/disable clipping.
+     */
+    WPropBool m_clipPlaneEnabled;
+
+    /**
+     * Property for en-/disabling of the clip plane plane.
+     */
+    WPropBool m_clipPlaneShowPlane;
+
+    /**
+     * Point on the plane. Defines the plane.
+     */
+    WPropPosition m_clipPlanePoint;
+
+    /**
+     * Vector of the plane. Defines the plane.
+     */
+    WPropPosition m_clipPlaneVector;
+
+    /**
+     * Distance from plane. Used as threshold.
+     */
+    WPropDouble m_clipPlaneDistance;
+
+    /**
+     * Prop denoting whether to use tubes or line strips
+     */
+    WPropBool m_tubeEnable;
+
+    /**
+     * Property denoting whether to use end-caps on tubes
+     */
+    WPropBool m_tubeEndCapsEnable;
+
+    /**
+     * Prop denoting whether tubes can be zoomed or not.
+     */
+    WPropBool m_tubeZoomable;
+
+    /**
+     * Creates a ribbon-like appearance.
+     */
+    WPropBool m_tubeRibbon;
+
+    /**
+     * The size. The meaning somehow relates to tubeZoomable. If a tube is zoomable, the size is the smallest size in pixels on screen of totally
+     * zoomed out.
+     */
+    WPropDouble m_tubeSize;
+
+    /**
+     * Group containing tube specific properties
+     */
+    WPropGroup m_tubeGroup;
+
+    /**
+     * Group containing line specific properties
+     */
+    WPropGroup m_lineGroup;
+
+    /**
+     * Line width.
+     */
+    WPropDouble m_lineWidth;
+
+    /**
+     * Line smoothing.
+     */
+    WPropBool m_lineSmooth;
+
+    /**
+     * Update the transform node to provide an cue were the plane actually is.
+     *
+     * \param node the transform node
+     */
+    void clipPlaneCallback( osg::Node* node ) const;
+
+    /**
+     * Creates the clip plane with corresponding callbacks.
+     *
+     * \return the clip plane node
+     */
+    osg::ref_ptr< osg::Node > createClipPlane() const;
+
+    /**
+     * Creates a geode containing the fiber geometry
+     *
+     * \param fibers the fiber data
+     * \param fibGeode the geode with the fibers as tube strip or lines
+     * \param endCapGeode the end cap sprites. Not used if not in tube mode.
+     */
+    void createFiberGeode( boost::shared_ptr< WDataSetFibers > fibers, osg::ref_ptr< osg::Geode > fibGeode,
+                                                                                         osg::ref_ptr< osg::Geode > endCapGeode );
+
+    /**
+     * The plane node.
+     */
+    osg::ref_ptr< osg::Node > m_plane;
+
+    /**
+     * Callback for the line geode to allow interactive modification of line smooth and width states.
+     *
+     * \param state the state
+     */
+    void lineGeodeStateCallback( osg::StateSet* state );
+
+    /**
+     * Point to a fiber selector, which is an adapter between the ROI manager and the this module
      */
     boost::shared_ptr< WFiberSelector > m_fiberSelector;
 
     /**
-     * stores pointer to the fiber drawer
+     * Is true when received a change signal from m_fiberSelector
      */
-    osg::ref_ptr< WFiberDrawable > m_fiberDrawable;
-
-    /**
-     * lock to prevent concurrent threads trying to update the osg node
-     */
-    boost::shared_mutex m_updateLock;
-
-    /**
-     * the shader object for rendering tubes
-     */
-    osg::ref_ptr< WGEShader >m_shaderTubes;
-
-    /**
-     * the shader object for rendering textured lines
-     */
-    osg::ref_ptr< WGEShader >m_shaderTexturedFibers;
-
-    osg::ref_ptr<osg::Uniform> m_uniformTubeThickness; //!< tube thickness
-
-    /**
-     * boolean to notify the shader to use the texture instead of glColor
-     */
-    osg::ref_ptr<osg::Uniform> m_uniformUseTexture;
-
-    /**
-     * uniform for type of texture
-     */
-    osg::ref_ptr<osg::Uniform> m_uniformType;
-
-    /**
-     * threshold for texture
-     */
-    osg::ref_ptr<osg::Uniform> m_uniformThreshold;
-
-    /**
-     * color map for the  texture
-     */
-    osg::ref_ptr<osg::Uniform> m_uniformsColorMap;
-
-    /**
-     * vector of samplers
-     */
-    osg::ref_ptr<osg::Uniform> m_uniformSampler;
-
-    osg::ref_ptr<osg::Uniform> m_uniformDimX; //!< x dimension of the dataset for calculating the texture coord in the shader
-    osg::ref_ptr<osg::Uniform> m_uniformDimY; //!< y dimension of the dataset for calculating the texture coord in the shader
-    osg::ref_ptr<osg::Uniform> m_uniformDimZ; //!< z dimension of the dataset for calculating the texture coord in the shader
-
-    osg::ref_ptr<osg::Uniform> m_uniformUseCullBox; //!< notify shader that cull box is activated
-    osg::ref_ptr<osg::Uniform> m_uniformInsideCullBox; //!< notify shader that fibers insider or outside cull box are shown
-
-
-    osg::ref_ptr<osg::Uniform> m_uniformCullBoxLBX; //!< cull box lower bound
-    osg::ref_ptr<osg::Uniform> m_uniformCullBoxLBY; //!< cull box lower bound
-    osg::ref_ptr<osg::Uniform> m_uniformCullBoxLBZ; //!< cull box lower bound
-    osg::ref_ptr<osg::Uniform> m_uniformCullBoxUBX; //!< cull box upper bound
-    osg::ref_ptr<osg::Uniform> m_uniformCullBoxUBY; //!< cull box upper bound
-    osg::ref_ptr<osg::Uniform> m_uniformCullBoxUBZ; //!< cull box upper bound
-
-
-    osg::ref_ptr< WROIBox > m_cullBox; //!< stores a pointer to the cull box
-
-    /**
-     * updates the output connector with the currently selected fiber,
-     * this is done on demand to avoid recomputation every time the selection changes
-     */
-    void updateOutput();
-
-    /**
-     * creates and initializes the uniform parameters for the shader
-     * \param rootState The uniforms will be applied to this state.
-     */
-    void initUniforms( osg::StateSet* rootState );
-
-    /**
-     * create a selection box to cull the fibers
-     */
-    void initCullBox();
-
-    /**
-     * Immediately update the output of the fiberDisplay on ROI change.
-     */
-    WPropBool m_permanentUpdate;
+    bool m_fiberSelectorChanged;
 
     /**
      * Connection to the roi dirty signal.
@@ -280,16 +311,12 @@ private:
      * Called when updating the selection.
      */
     void roiUpdate();
+
+    /**
+     * Contains the ROI bitfield
+     */
+    osg::ref_ptr< osg::FloatArray > m_bitfieldAttribs;
 };
 
-inline const std::string WMFiberDisplay::getName() const
-{
-    return std::string( "Fiber Display" );
-}
-
-inline const std::string WMFiberDisplay::getDescription() const
-{
-    return std::string( "Draws fibers out of a WDataSetFibers" );
-}
-
 #endif  // WMFIBERDISPLAY_H
+

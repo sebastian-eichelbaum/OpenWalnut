@@ -30,7 +30,7 @@
 
 // This defines some properties of the module "Template". This must
 // match the name specified in WMTemplate::getName().
-"Fiber Display Simple"
+"Fiber Display"
 {
   // Provide an icon. If the icon exists, it overrides the one provided by your
   // getXPMIcon method. This path is relative to your module's resource directory.

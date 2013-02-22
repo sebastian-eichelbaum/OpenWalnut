@@ -30,7 +30,7 @@
 #include "WGETextureTools.glsl"
 #include "WGEPostprocessing.glsl"
 
-#include "WMFiberDisplaySimple-varyings.glsl"
+#include "WMFiberDisplay-varyings.glsl"
 
 /////////////////////////////////////////////////////////////////////////////
 // Uniforms
