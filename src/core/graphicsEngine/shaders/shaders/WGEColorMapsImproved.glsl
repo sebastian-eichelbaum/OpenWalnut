@@ -138,7 +138,7 @@ vec4 negative2positive( in float valueDescaled, in float minV, in float scaleV )
 
     // the descaled value can be in interval [minV,minV+Scale]. But as we want linear scaling where the pos and neg colors are scaled linearly
     // agains each other, and we want to handle real negative values correctly. For only positive values, use their interval mid-point.
-    float isNegative = ( -1.0 * clamp( sign( minV ), -1.0, 0.0 ) ); // this is 1.0 if minV is smaller than zero
+    float isNegative = 1.0 - ( -1.0 * clamp( sign( minV ), -1.0, 0.0 ) ); // this is 1.0 if minV is smaller than zero
     float mid = ( 1.0 - isNegative ) * 0.5 * scaleV;    // if negative, the mid point always is 0.0
     // the width of the interval is its original width/2 if there are no negative values in the dataset
     float width = ( isNegative * max( abs( minV ), abs( minV + scaleV ) ) ) + ( ( 1.0 - isNegative ) * mid );
