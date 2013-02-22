@@ -96,6 +96,8 @@ public:
 
     /**
      * Get the current dirty-state.
+     *
+     * \return the dirty flag
      */
     bool getDirty();
 
