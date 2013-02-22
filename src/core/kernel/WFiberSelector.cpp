@@ -147,15 +147,6 @@ void WFiberSelector::slotRemoveBranch( boost::shared_ptr< WRMBranch > branch )
 
 boost::shared_ptr< std::vector< bool > > WFiberSelector::getBitfield()
 {
-    for( std::list< boost::shared_ptr< WSelectorBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
-    {
-        m_dirty = std::max( m_dirty, ( *iter )->dirty() );
-    }
-
-    if( m_dirty )
-    {
-        recalculate();
-    }
     return m_outputBitfield;
 }
 
@@ -185,14 +176,18 @@ void WFiberSelector::recalculate()
       ( *m_outputBitfield )[i] = ( *m_workerBitfield )[i];
     }
     m_dirty = false;
-    //m_outputBitfield = m_workerBitfield;
 }
 
 void WFiberSelector::setDirty()
 {
-    recalculate();
     m_dirty = true;
     m_dirtyCondition->notify();
+    recalculate();
+}
+
+bool WFiberSelector::getDirty()
+{
+    return m_dirty;
 }
 
 WCondition::SPtr WFiberSelector::getDirtyCondition()

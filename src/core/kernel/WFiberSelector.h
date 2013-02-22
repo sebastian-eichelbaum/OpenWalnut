@@ -87,6 +87,11 @@ public:
     void setDirty();
 
     /**
+     * Get the current dirty-state.
+     */
+    bool getDirty();
+
+    /**
      * Condition that fires upon a recalculation of the fiber selection.
      *
      * \return the condition

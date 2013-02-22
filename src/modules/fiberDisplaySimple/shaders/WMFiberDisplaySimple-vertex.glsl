@@ -49,6 +49,11 @@ uniform vec3 u_planeVector;
  */
 uniform float u_tubeSize;
 
+/**
+ * This vertex attribute is the bitmask denoting whether to show the fiber or not
+ */
+in float a_bitfield;
+
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
 /////////////////////////////////////////////////////////////////////////////
@@ -134,6 +139,8 @@ void main()
 #ifdef CLUSTER_FILTER_ENABLED
     v_clusterColor = gl_SecondaryColor.rgb;
 #endif
+
+    v_discard = 1.0 - a_bitfield;
 
     // Simply project the vertex afterwards
     gl_Position = gl_ProjectionMatrix * v_vertex;

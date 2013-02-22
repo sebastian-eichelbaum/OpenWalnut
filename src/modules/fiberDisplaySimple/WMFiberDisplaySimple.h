@@ -33,6 +33,7 @@
 
 #include "core/dataHandler/WDataSetFiberClustering.h"
 #include "core/dataHandler/WDataSetFibers.h"
+#include "core/kernel/WFiberSelector.h"
 
 // forward declarations
 class WGEShader;
@@ -291,6 +292,31 @@ private:
      * \param state the state
      */
     void lineGeodeStateCallback( osg::StateSet* state );
+
+    /**
+     * Point to a fiber selector, which is an adapter between the ROI manager and the this module
+     */
+    boost::shared_ptr< WFiberSelector > m_fiberSelector;
+
+    /**
+     * Is true when received a change signal from m_fiberSelector
+     */
+    bool m_fiberSelectorChanged;
+
+    /**
+     * Connection to the roi dirty signal.
+     */
+    boost::signals2::connection m_roiUpdateConnection;
+
+    /**
+     * Called when updating the selection.
+     */
+    void roiUpdate();
+
+    /**
+     * Contains the ROI bitfield
+     */
+    osg::ref_ptr< osg::FloatArray > m_bitfieldAttribs;
 };
 
 #endif  // WMFIBERDISPLAYSIMPLE_H

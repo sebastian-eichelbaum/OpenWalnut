@@ -63,6 +63,11 @@ uniform float u_colormapRatio = 1.0;
  */
 void main()
 {
+    if( v_discard > 0.0 )
+    {
+        discard;
+    }
+
 #ifdef CLIPPLANE_ENABLED
     // discard fragment if too far from plane
     if( abs( v_dist ) >= u_distance )

@@ -75,3 +75,8 @@ varying float v_worldScale;
  */
 varying vec3 v_clusterColor;
 #endif
+
+/**
+ * Varying defines wether to discard the fragments or not.
+ */
+varying float v_discard;

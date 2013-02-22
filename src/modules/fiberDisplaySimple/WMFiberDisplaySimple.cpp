@@ -258,6 +258,8 @@ void WMFiberDisplaySimple::moduleMain()
         new WGEShaderPropertyDefineOptions< WPropBool >( m_colormapEnabled, "COLORMAPPING_DISABLED", "COLORMAPPING_ENABLED" ) )
     );
 
+    m_shader->addBindAttribLocation( "a_bitfield", 6 );
+
     // get notified about data changes
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_fiberInput->getDataChangedCondition() );
@@ -372,6 +374,15 @@ void WMFiberDisplaySimple::moduleMain()
 
             // add geode to module node
             postNode->clear();
+
+            // get a new fiber selector
+            m_fiberSelector = boost::shared_ptr<WFiberSelector>( new WFiberSelector( fibers ) );
+
+            // register dirty notifier
+            m_roiUpdateConnection.disconnect();
+            m_roiUpdateConnection = m_fiberSelector->getDirtyCondition()->subscribeSignal(
+                boost::bind( &WMFiberDisplaySimple::roiUpdate, this )
+            );
 
             // create the fiber geode
             osg::ref_ptr< osg::Geode > geode = new osg::Geode();
@@ -654,6 +665,14 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
     geometry->setUseDisplayList( false );
     geometry->setUseVertexBufferObjects( true );
 
+    m_bitfieldAttribs = new osg::FloatArray( m_fibers->getLineStartIndexes()->size() );
+    for( size_t fidx = 0; fidx < m_fibers->getLineStartIndexes()->size() ; ++fidx )
+    {
+        ( *m_bitfieldAttribs )[ fidx ] = 1;
+    }
+    geometry->setVertexAttribArray( 6, m_bitfieldAttribs );
+    geometry->setVertexAttribBinding( 6, osg::Geometry::BIND_PER_PRIMITIVE_SET );
+
     // add an update callback which later handles several things like the filter attribute array
     geometry->setUpdateCallback( new WGEFunctorCallback< osg::Drawable >( boost::bind( &WMFiberDisplaySimple::geometryUpdate, this, _1 ) ) );
 
@@ -667,6 +686,18 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
 void WMFiberDisplaySimple::geometryUpdate( osg::Drawable* geometry )
 {
     osg::Geometry* g = static_cast< osg::Geometry* >( geometry );
+
+    if( m_fiberSelectorChanged )
+    {
+        m_fiberSelectorChanged = false;
+        // now initialize attribute array
+        for( size_t fidx = 0; fidx < m_fibers->getLineStartIndexes()->size() ; ++fidx )
+        {
+            ( *m_bitfieldAttribs )[ fidx ] = m_fiberSelector->getBitfield()->at( fidx );
+        }
+        m_bitfieldAttribs->dirty();
+    }
+
     if( m_fiberClusteringUpdate && m_fiberClustering )
     {
         m_fiberClusteringUpdate = false;
@@ -721,3 +752,7 @@ void WMFiberDisplaySimple::lineGeodeStateCallback( osg::StateSet* state )
     }
 }
 
+void WMFiberDisplaySimple::roiUpdate()
+{
+    m_fiberSelectorChanged = true;
+}
