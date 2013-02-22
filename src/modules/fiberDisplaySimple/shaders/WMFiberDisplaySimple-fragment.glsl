@@ -63,10 +63,12 @@ uniform float u_colormapRatio = 1.0;
  */
 void main()
 {
+#ifdef BITFIELD_ENABLED
     if( v_discard > 0.0 )
     {
         discard;
     }
+#endif
 
 #ifdef CLIPPLANE_ENABLED
     // discard fragment if too far from plane

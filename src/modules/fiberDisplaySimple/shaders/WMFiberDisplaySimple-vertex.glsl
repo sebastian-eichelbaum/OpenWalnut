@@ -52,7 +52,9 @@ uniform float u_tubeSize;
 /**
  * This vertex attribute is the bitmask denoting whether to show the fiber or not
  */
-in float a_bitfield;
+#ifdef BITFIELD_ENABLED
+    in float a_bitfield;
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -140,7 +142,9 @@ void main()
     v_clusterColor = gl_SecondaryColor.rgb;
 #endif
 
+#ifdef BITFIELD_ENABLED
     v_discard = 1.0 - a_bitfield;
+#endif
 
     // Simply project the vertex afterwards
     gl_Position = gl_ProjectionMatrix * v_vertex;

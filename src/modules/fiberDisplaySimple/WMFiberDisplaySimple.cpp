@@ -54,7 +54,6 @@
 #include "core/kernel/WKernel.h"
 
 #include "WMFiberDisplaySimple.h"
-#include "WMFiberDisplaySimple.xpm"
 
 // This line is needed by the module loader to actually find your module. You need to add this to your module too. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMFiberDisplaySimple )
@@ -74,11 +73,6 @@ boost::shared_ptr< WModule > WMFiberDisplaySimple::factory() const
     return boost::shared_ptr< WModule >( new WMFiberDisplaySimple() );
 }
 
-const char** WMFiberDisplaySimple::getXPMIcon() const
-{
-    return WMFiberDisplaySimple_xpm;
-}
-
 const std::string WMFiberDisplaySimple::getName() const
 {
     return "Fiber Display Simple";
@@ -86,7 +80,7 @@ const std::string WMFiberDisplaySimple::getName() const
 
 const std::string WMFiberDisplaySimple::getDescription() const
 {
-    return "Display fibers. This module, unlike the full-fletched Fiber Display, can't handle ROIs. It simply draws fibers.";
+    return "Display fibers. This module allows filtering by ROIs and provides full fletched graphical output.";
 }
 
 void WMFiberDisplaySimple::connectors()
@@ -113,6 +107,8 @@ void WMFiberDisplaySimple::connectors()
 void WMFiberDisplaySimple::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+    m_roiFiltering = m_properties->addProperty( "ROI Filtering", "When active, you can use the ROI mechanism to filter fibers.", true );
 
     m_coloringGroup = m_properties->addPropertyGroup( "Coloring", "Options for defining the coloring of the lines." );
     m_illuminationEnable = m_coloringGroup->addProperty( "Illumination", "Enable line illumination.", true );
@@ -258,6 +254,11 @@ void WMFiberDisplaySimple::moduleMain()
         new WGEShaderPropertyDefineOptions< WPropBool >( m_colormapEnabled, "COLORMAPPING_DISABLED", "COLORMAPPING_ENABLED" ) )
     );
 
+    // ROI Filter support:
+    defineTmp = WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_roiFiltering, "BITFIELD_DISABLED", "BITFIELD_ENABLED" ) );
+    m_shader->addPreprocessor( defineTmp );
+    m_endCapShader->addPreprocessor( defineTmp );
     m_shader->addBindAttribLocation( "a_bitfield", 6 );
 
     // get notified about data changes
