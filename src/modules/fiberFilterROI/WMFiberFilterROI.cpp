@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <vector>
 
 #include "core/kernel/WKernel.h"
 
