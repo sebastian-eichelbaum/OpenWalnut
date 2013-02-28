@@ -388,10 +388,9 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
     geode->addDrawable( geometry );
 
-    osg::StateSet* state = geode->getOrCreateStateSet();
-
     // Without depth-sorting, this nearly always creates wrong results. Thus we disable it for now.
     // Enable blending, select transparent bin.
+    // osg::StateSet* state = geode->getOrCreateStateSet();
     // state->setMode( GL_BLEND, osg::StateAttribute::ON );
     // state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
     //
