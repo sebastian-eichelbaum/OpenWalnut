@@ -193,7 +193,7 @@ void WReaderFiberVTK::readValues()
     std::string line = getLine( "reading VALUES declaration" );
 
     std::vector< std::string > tokens = string_utils::tokenize( line );
-    if( tokens.size() != 3 || string_utils::toLower( tokens.at( 2 ) ) != "float" )
+    if( tokens.size() != 3 || string_utils::toLower( tokens.at( 2 ) ) != "double" )
     {
         // do not throw an error. this is a custom extension.
         return;
@@ -203,12 +203,12 @@ void WReaderFiberVTK::readValues()
 
     wlog::debug( "ReaderFiberVTK" ) << "Found " << numValues << " values.";
 
-    float *valueData = new float[ numValues ];
-    m_ifs->read( reinterpret_cast< char* >( valueData ), sizeof( float ) * numValues );
+    double *valueData = new double[ numValues ];
+    m_ifs->read( reinterpret_cast< char* >( valueData ), sizeof( double ) * numValues );
 
-    switchByteOrderOfArray( valueData, numValues ); // all 4 bytes of each float are in wrong order we need to reorder them
+    switchByteOrderOfArray( valueData, numValues ); // all 4 bytes of each double are in wrong order we need to reorder them
 
-    m_fiberParameters = WDataSetFibers::VertexParemeterArray( new std::vector< float > );
+    m_fiberParameters = WDataSetFibers::VertexParemeterArray( new std::vector< double > );
     m_fiberParameters->reserve( numValues );
     for( size_t i = 0; i < numValues; ++i )
     {

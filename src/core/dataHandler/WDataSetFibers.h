@@ -86,7 +86,7 @@ public:
     /**
      * Parameter storage for each vertex.
      */
-    typedef boost::shared_ptr< std::vector< float > > VertexParemeterArray;
+    typedef boost::shared_ptr< std::vector< double > > VertexParemeterArray;
 
     /**
      * Item used in the selection below also containing color info.
