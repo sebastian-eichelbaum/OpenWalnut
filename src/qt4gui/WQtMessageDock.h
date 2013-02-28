@@ -31,12 +31,13 @@
 
 #include "core/common/WLogEntry.h"
 
+#include "guiElements/WQtDockWidget.h"
 #include "WQtMessagePopup.h"
 
 /**
  * Dock widget for showing messages and logs
  */
-class WQtMessageDock: public QDockWidget
+class WQtMessageDock: public WQtDockWidget
 {
     Q_OBJECT
 public:

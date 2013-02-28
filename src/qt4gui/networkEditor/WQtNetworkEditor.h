@@ -37,6 +37,7 @@
 #include "core/kernel/WModule.h"
 
 #include "../WQtCombinerToolbar.h"
+#include "../guiElements/WQtDockWidget.h"
 #include "layout/WNetworkLayout.h"
 #include "WQtNetworkEditorView.h"
 #include "WQtNetworkItem.h"
@@ -49,7 +50,7 @@ class WNetworkLayout;
 /**
  * Container widget to hold the WQtNetworkScene
  */
-class WQtNetworkEditor : public QDockWidget
+class WQtNetworkEditor : public WQtDockWidget
 {
     Q_OBJECT
 public:

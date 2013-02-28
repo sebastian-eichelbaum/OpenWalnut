@@ -49,7 +49,7 @@
 #include "WQtColormapper.moc"
 
 WQtColormapper::WQtColormapper( QWidget* parent )
-    : QDockWidget( "Colormaps", parent )
+    : WQtDockWidget( "Colormaps", parent )
 {
     setObjectName( "Colormapper Dock" );
 
@@ -63,6 +63,7 @@ WQtColormapper::WQtColormapper( QWidget* parent )
     QWidget* panel = new QWidget( this );
 
     m_layout = new QVBoxLayout();
+    m_layout->setContentsMargins( 0, 0, 0, 0 );
 
     QHBoxLayout* buttonLayout = new QHBoxLayout();
     m_downButton = new QPushButton();
@@ -145,7 +146,7 @@ bool WQtColormapper::event( QEvent* event )
         return true;
     }
 
-    return QDockWidget::event( event );
+    return WQtDockWidget::event( event );
 }
 
 void WQtColormapper::update()

@@ -42,7 +42,7 @@
 #define MAXITEMS 1000
 
 WQtMessageDock::WQtMessageDock( QString dockTitle, QWidget* parent ):
-    QDockWidget( dockTitle, parent )
+    WQtDockWidget( dockTitle, parent )
 {
     setObjectName( "MessageDock:" + dockTitle );
     setAllowedAreas( Qt::AllDockWidgetAreas );

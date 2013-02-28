@@ -54,7 +54,7 @@
 #include "WQtNetworkEditor.moc"
 
 WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
-    : QDockWidget( "Module Graph", parent )
+    : WQtDockWidget( "Module Graph", parent )
 {
     setObjectName( "Module Graph Dock" );
     m_mainWindow = parent;
@@ -70,8 +70,6 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
 
     m_view->setScene( m_scene );
 
-    this->setAllowedAreas( Qt::AllDockWidgetAreas );
-    this->setFeatures( QDockWidget::DockWidgetClosable |QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
     setWidget( m_view );
     connect( m_scene, SIGNAL( selectionChanged() ), this, SLOT( selectItem() ) );
     connect( m_view, SIGNAL( loadAction() ), m_mainWindow, SLOT( openLoadDialog() ) );
@@ -449,7 +447,7 @@ bool WQtNetworkEditor::event( QEvent* event )
         return true;
     }
 
-    return QDockWidget::event( event );
+    return WQtDockWidget::event( event );
 }
 
 WQtNetworkItem* WQtNetworkEditor::findItemByModule( boost::shared_ptr< WModule > module )

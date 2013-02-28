@@ -39,12 +39,14 @@
 #include "core/common/WSharedObject.h"
 #include "core/graphicsEngine/WGETexture.h"
 
+#include "../guiElements/WQtDockWidget.h"
+
 class WDataSet;
 
 /**
  * This widget controls the colormapper of openwalnut. It directly interacts with WGEColormapper.
  */
-class WQtColormapper : public QDockWidget
+class WQtColormapper : public WQtDockWidget
 {
     Q_OBJECT
 

@@ -73,8 +73,6 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
 
     // all view docks have a screen capture object
     m_screenCapture = new WQtGLScreenCapture( this );
-    // hide the screen capture object by default
-    //m_screenCapture->setHidden( true );
 
     // set custom title
     setTitleBarWidget( new WQtGLDockWidgetTitle( this, dockTitle ) );

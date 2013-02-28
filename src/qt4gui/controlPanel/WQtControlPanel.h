@@ -48,6 +48,7 @@
 #include "WQtRoiHeaderTreeItem.h"
 #include "WQtSubjectTreeItem.h"
 #include "WQtTreeWidget.h"
+#include "../guiElements/WQtDockWidget.h"
 
 class WMainWindow;
 class WQtColormapper;
@@ -55,7 +56,7 @@ class WQtColormapper;
 /**
  * container widget for a tree widget with context menu and some control widgets
  */
-class WQtControlPanel : public QDockWidget
+class WQtControlPanel : public WQtDockWidget
 {
     Q_OBJECT
 
@@ -174,21 +175,21 @@ public:
      *
      * \return the ROI dock.
      */
-    QDockWidget* getRoiDock() const;
+    WQtDockWidget* getRoiDock() const;
 
     /**
      * Gets the module dock widget.
      *
      * \return the module dock
      */
-    QDockWidget* getModuleDock() const;
+    WQtDockWidget* getModuleDock() const;
 
     /**
      * Gets the colormapper dock
      *
      * \return the dock
      */
-    QDockWidget* getColormapperDock() const;
+    WQtDockWidget* getColormapperDock() const;
 
     /**
      * Returns the module excluder. It then can be used for configuration.
@@ -294,8 +295,8 @@ private:
 
     bool m_showToolBarText; //!< Show tool bar icons with text
 
-    QDockWidget* m_roiDock;     //!< the dock widget with the ROI tree
-    QDockWidget* m_moduleDock;  //!< the dock widget with the module tree
+    WQtDockWidget* m_roiDock;     //!< the dock widget with the ROI tree
+    WQtDockWidget* m_moduleDock;  //!< the dock widget with the module tree
 
     /**
      * The action to remove a module from the tree.

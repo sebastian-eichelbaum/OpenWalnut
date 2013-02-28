@@ -42,7 +42,7 @@
 /**
  * Dock widget containing only a GLWidget.
  */
-class WQtGLDockWidget : public QDockWidget
+class WQtGLDockWidget: public QDockWidget
 {
     Q_OBJECT
 

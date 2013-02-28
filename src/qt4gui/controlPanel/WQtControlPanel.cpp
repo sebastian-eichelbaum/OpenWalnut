@@ -69,7 +69,7 @@
 #include "WQtControlPanel.moc"
 
 WQtControlPanel::WQtControlPanel( WMainWindow* parent )
-    : QDockWidget( "Control Panel", parent ),
+    : WQtDockWidget( "Control Panel", parent ),
     m_ignoreSelectionChange( false ),
     m_activeModule( WModule::SPtr() ),
     m_previousTab()
@@ -150,12 +150,12 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_tabWidget = new QTabWidget(  );
     m_tabWidget->setMinimumHeight( 100 );
 
-    m_moduleDock = new QDockWidget( "Module Tree", m_mainWindow );
+    m_moduleDock = new WQtDockWidget( "Module Tree", m_mainWindow );
     m_moduleDock->setObjectName( "Module Dock" );
     m_moduleDock->setWidget( m_moduleTreeWidget );
     m_moduleDock->setHidden( true );
 
-    m_roiDock = new QDockWidget( "ROIs", m_mainWindow );
+    m_roiDock = new WQtDockWidget( "ROIs", m_mainWindow );
     m_roiDock->setObjectName( "ROI Dock" );
     m_roiTreeWidget = new WQtTreeWidget();
     m_roiTreeWidget->setToolTip( "Regions of intrest (ROIs) for selecting fiber  clusters. Branches are combined using logic <b>or</b>, "
@@ -495,7 +495,7 @@ bool WQtControlPanel::event( QEvent* event )
         return true;
     }
 
-    return QDockWidget::event( event );
+    return WQtDockWidget::event( event );
 }
 
 std::list< WQtTreeItem* > WQtControlPanel::findItemsByModule( boost::shared_ptr< WModule > module, QTreeWidgetItem* where )
@@ -1131,7 +1131,7 @@ osg::ref_ptr< WROI > WQtControlPanel::getFirstRoiInSelectedBranch()
 
 QAction* WQtControlPanel::toggleViewAction() const
 {
-    QAction* result = QDockWidget::toggleViewAction();
+    QAction* result = WQtDockWidget::toggleViewAction();
     QList< QKeySequence > shortcut;
 #if defined( __APPLE__ )
     shortcut.append( QKeySequence( Qt::CTRL + Qt::Key_F9 ) ); // In Mac OS X F9 is already taken by window managment
@@ -1223,17 +1223,17 @@ void WQtControlPanel::handleRoiDragDrop()
     WLogger::getLogger()->addLogMessage( "Drag and drop handler not implemented yet!", "ControlPanel", LL_DEBUG );
 }
 
-QDockWidget* WQtControlPanel::getRoiDock() const
+WQtDockWidget* WQtControlPanel::getRoiDock() const
 {
     return m_roiDock;
 }
 
-QDockWidget* WQtControlPanel::getModuleDock() const
+WQtDockWidget* WQtControlPanel::getModuleDock() const
 {
     return m_moduleDock;
 }
 
-QDockWidget* WQtControlPanel::getColormapperDock() const
+WQtDockWidget* WQtControlPanel::getColormapperDock() const
 {
     return m_colormapper;
 }
