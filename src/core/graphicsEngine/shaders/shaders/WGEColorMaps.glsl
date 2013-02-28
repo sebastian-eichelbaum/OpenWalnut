@@ -197,23 +197,27 @@ vec4 blueLightBlueColorMap( in float value )
 
 vec4 negative2positive( in float value )
 {
-    float val = value * 2.0 - 1.0;
+    float valueDescaled = value;
+    float minV = 0.0;
+    float scaleV = 1.0;
 
-    vec4 zeroColor = vec4( 1.0, 1.0, 1.0, 1.0 );
-    vec4 negColor = vec4( 1.0, 1.0, 0.0, 1.0 );
-    vec4 posColor= vec4( 0.0, 1.0, 1.0, 1.0 );
-    if( val < 0.0 )
-    {
-        return ( zeroColor + negColor * val );
-    }
-    else if( val >= 0.0 )
-    {
-        return ( zeroColor - posColor * val );
-    }
-    else
-    {
-        return vec4( 0.0, 0.0, 0.0, 1.0 );
-    }
+    const vec3 zeroColor = vec3( 1.0, 1.0, 1.0 );
+    const vec3 negColor = vec3( 1.0, 1.0, 0.0 );
+    const vec3 posColor= vec3( 0.0, 1.0, 1.0 );
+
+    // the descaled value can be in interval [minV,minV+Scale]. But as we want linear scaling where the pos and neg colors are scaled linearly
+    // agains each other, and we want to handle real negative values correctly. For only positive values, use their interval mid-point.
+    float isNegative = 1.0 - ( -1.0 * clamp( sign( minV ), -1.0, 0.0 ) ); // this is 1.0 if minV is smaller than zero
+    float mid = ( 1.0 - isNegative ) * 0.5 * scaleV;    // if negative, the mid point always is 0.0
+    // the width of the interval is its original width/2 if there are no negative values in the dataset
+    float width = ( isNegative * max( abs( minV ), abs( minV + scaleV ) ) ) + ( ( 1.0 - isNegative ) * mid );
+
+    // pos-neg mix factor
+    float share = ( valueDescaled - mid ) / width;
+
+    // use neg color for shares < 0.0 and pos color for the others
+    return vec4( zeroColor - ( abs( clamp( share, -1.0 , 0.0 ) * negColor ) + ( clamp( share, 0.0 , 1.0 ) * posColor ) ),
+                 1.0 ); // clip zeros is done in colormapping function
 }
 
 // TODO(math): Remove this function and replace its calls with bitwise operations as soon as there

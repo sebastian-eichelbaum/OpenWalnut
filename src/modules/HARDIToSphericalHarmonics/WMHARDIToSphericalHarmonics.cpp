@@ -45,8 +45,6 @@
 #include "core/dataHandler/WSubject.h"
 #include "core/kernel/WKernel.h"
 
-#include "core/graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
-
 #include "WSphericalHarmonicsCoefficientsThread.h"
 
 #include "WMHARDIToSphericalHarmonics.h"

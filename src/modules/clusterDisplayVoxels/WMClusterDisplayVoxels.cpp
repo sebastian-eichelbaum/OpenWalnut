@@ -37,7 +37,7 @@
 #include "core/common/WStringUtils.h"
 #include "core/common/WPathHelper.h"
 #include "core/common/WPropertyHelper.h"
-#include "core/graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
+#include "core/common/algorithms/WMarchingLegoAlgorithm.h"
 #include "core/graphicsEngine/WGEColormapping.h"
 #include "core/graphicsEngine/WGEUtils.h"
 #include "core/kernel/WKernel.h"

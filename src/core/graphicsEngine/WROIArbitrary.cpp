@@ -31,7 +31,7 @@
 #include <osg/LightModel>
 #include <osg/Geometry>
 
-#include "algorithms/WMarchingLegoAlgorithm.h"
+#include "core/common/algorithms/WMarchingLegoAlgorithm.h"
 
 #include "callbacks/WGEFunctorCallback.h"
 #include "WGraphicsEngine.h"

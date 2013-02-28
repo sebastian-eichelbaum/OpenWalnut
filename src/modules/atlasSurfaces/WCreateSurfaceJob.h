@@ -33,7 +33,7 @@
 
 #include "core/dataHandler/WDataSetScalar.h"
 
-#include "core/graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
+#include "core/common/algorithms/WMarchingCubesAlgorithm.h"
 
 #include "core/graphicsEngine/WTriangleMesh.h"
 

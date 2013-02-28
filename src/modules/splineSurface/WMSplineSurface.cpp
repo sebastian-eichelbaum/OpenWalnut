@@ -53,7 +53,6 @@
 #include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
 #include "core/kernel/WKernel.h"
 
-#include "core/graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 #include "WSurface.h"
 #include "WMSplineSurface.h"
 

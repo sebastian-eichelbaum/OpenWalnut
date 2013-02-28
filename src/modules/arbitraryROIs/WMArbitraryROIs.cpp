@@ -35,7 +35,7 @@
 
 #include "core/common/WAssert.h"
 #include "core/dataHandler/WDataSetScalar.h"
-#include "core/graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
+#include "core/common/algorithms/WMarchingLegoAlgorithm.h"
 #include "core/graphicsEngine/WROIArbitrary.h"
 #include "core/graphicsEngine/WROIBox.h"
 #include "core/kernel/WKernel.h"

@@ -22,4 +22,4 @@
 //
 //---------------------------------------------------------------------------
 
-#include "marchingCubesCaseTables.h"
+#include "WMarchingCubesCaseTables.h"

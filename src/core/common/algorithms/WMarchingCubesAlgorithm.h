@@ -27,11 +27,12 @@
 
 #include <vector>
 #include <map>
-#include "../../common/math/WMatrix.h"
-#include "../../common/WProgressCombiner.h"
-#include "../WTriangleMesh.h"
-#include "marchingCubesCaseTables.h"
 
+#include "../math/WMatrix.h"
+#include "../WProgressCombiner.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
+
+#include "WMarchingCubesCaseTables.h"
 
 /**
  * A point consisting of its coordinates and ID
