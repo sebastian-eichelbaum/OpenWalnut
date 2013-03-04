@@ -179,7 +179,7 @@ void WMFibersToPoints::moduleMain()
         WProgress::SPtr progress = WProgress::SPtr( new WProgress( "Creating Points from Fibers." ) );
         m_progress->addSubProgress( progress );
 
-        debugLog() << "Creating point data. Num Points = " << dataSet->getVertices()->size() << ".";
+        debugLog() << "Creating point data. Num Points = " << dataSet->getVertices()->size() / 3 << ".";
         WDataSetFibers::VertexArray fibVerts = dataSet->getVertices();
         WDataSetFibers::ColorArray fibColors = dataSet->getColorScheme()->getColor();
         WDataSetFibers::VertexParemeterArray fibParams = dataSet->getVertexParameters();
@@ -225,7 +225,7 @@ void WMFibersToPoints::moduleMain()
         }
 
 
-        debugLog() << "Done filtering. Result are " << filteredVerts->size() << " points.";
+        debugLog() << "Done filtering. Result are " << filteredVerts->size() / 3 << " points.";
         WDataSetPoints::SPtr result( new WDataSetPoints( filteredVerts, filteredColors, filteredBB ) );
         m_pointsOutput->updateData( result );
 
