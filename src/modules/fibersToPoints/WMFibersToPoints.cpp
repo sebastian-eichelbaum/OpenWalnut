@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <string>
 
 #include "core/kernel/WKernel.h"
@@ -90,6 +91,15 @@ void WMFibersToPoints::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
+    m_filterGroup = m_properties->addPropertyGroup( "Filtering", "Filtering based on fiber parameters." );
+    m_paramHint = m_filterGroup->addProperty( "Hint", "If you see this, your data does not contain fiber parameters.",
+                                              std::string( "Your data cannot be filtered due to missing parameters." ) );
+    m_paramHint->setPurpose( PV_PURPOSE_INFORMATION );
+
+    m_color = m_filterGroup->addProperty( "Color", "The color of the resulting points", defaultColor::WHITE, m_propCondition );
+    m_parametersFilterValue = m_filterGroup->addProperty( "Parameter", "Value", 0.0, m_propCondition );
+    m_parametersFilterWidth = m_filterGroup->addProperty( "Filter Width", "Width", 0.1, m_propCondition );
+
     // call WModule's initialization
     WModule::properties();
 }
@@ -121,6 +131,9 @@ void WMFibersToPoints::moduleMain()
         bool dataUpdated = m_fiberInput->handledUpdate();
         boost::shared_ptr< WDataSetFibers > dataSet = m_fiberInput->getData();
         bool dataValid = ( dataSet );
+        bool propsChanged = m_parametersFilterValue->changed() ||
+                            m_parametersFilterWidth->changed() ||
+                            m_color->changed();
 
         // reset everything if input was disconnected/invalid
         if( !dataValid )
@@ -130,7 +143,34 @@ void WMFibersToPoints::moduleMain()
             continue;
         }
 
-        if( dataValid && !dataUpdated )
+        if( dataValid && dataUpdated )
+        {
+            if( dataSet->getVertexParameters() )
+            {
+                m_parameterMin = dataSet->getVertexParameters()->operator[]( 0 );
+                m_parameterMax = dataSet->getVertexParameters()->operator[]( 0 );
+                for( WDataSetFibers::VertexParemeterArray::element_type::const_iterator it = dataSet->getVertexParameters()->begin();
+                     it != dataSet->getVertexParameters()->end(); ++it )
+                {
+                    m_parameterMax = std::max( *it, m_parameterMax );
+                    m_parameterMin = std::min( *it, m_parameterMin );
+                }
+            }
+            else
+            {
+                m_parameterMin = 0.0;
+                m_parameterMax = 1.0;
+            }
+
+            m_parametersFilterValue->setRecommendedValue( m_parameterMin );
+            m_parametersFilterValue->setMin( m_parameterMin );
+            m_parametersFilterValue->setMax( m_parameterMax );
+            m_parametersFilterWidth->setRecommendedValue( m_parameterMax - m_parameterMin );
+            m_parametersFilterWidth->setMin( 0.0 );
+            m_parametersFilterWidth->setMax( m_parameterMax - m_parameterMin );
+        }
+
+        if( dataValid && !dataUpdated && !propsChanged )
         {
             continue;
         }
@@ -142,7 +182,51 @@ void WMFibersToPoints::moduleMain()
         debugLog() << "Creating point data. Num Points = " << dataSet->getVertices()->size() << ".";
         WDataSetFibers::VertexArray fibVerts = dataSet->getVertices();
         WDataSetFibers::ColorArray fibColors = dataSet->getColorScheme()->getColor();
-        WDataSetPoints::SPtr result( new WDataSetPoints( fibVerts, fibColors, dataSet->getBoundingBox() ) );
+        WDataSetFibers::VertexParemeterArray fibParams = dataSet->getVertexParameters();
+
+        WDataSetFibers::VertexArray filteredVerts( new WDataSetFibers::VertexArray::element_type() );
+        WDataSetFibers::ColorArray filteredColors( new WDataSetFibers::ColorArray::element_type() );
+        WBoundingBox filteredBB;
+
+        if( fibParams )
+        {
+            m_paramHint->setHidden( true );
+
+            WIntervalDouble interval( std::max( m_parametersFilterValue->get( true ) - m_parametersFilterWidth->get( true ), m_parameterMin ),
+                                      std::min( m_parametersFilterValue->get( true ) + m_parametersFilterWidth->get( true ), m_parameterMax ) );
+
+            // filter
+            for( size_t idx = 0; idx < fibVerts->size() / 3; ++idx )
+            {
+                if( isInClosed( interval, fibParams->operator[]( idx ) ) )
+                {
+                    filteredBB.expandBy( fibVerts->operator[]( idx * 3 + 0 ),
+                                         fibVerts->operator[]( idx * 3 + 1 ),
+                                         fibVerts->operator[]( idx * 3 + 2 ) );
+
+                    filteredVerts->push_back( fibVerts->operator[]( idx * 3 + 0 ) );
+                    filteredVerts->push_back( fibVerts->operator[]( idx * 3 + 1 ) );
+                    filteredVerts->push_back( fibVerts->operator[]( idx * 3 + 2 ) );
+
+                    filteredColors->push_back( m_color->get().x() );
+                    filteredColors->push_back( m_color->get().y() );
+                    filteredColors->push_back( m_color->get().z() );
+                    filteredColors->push_back( m_color->get().w() );
+                }
+            }
+        }
+        else
+        {
+            m_paramHint->setHidden( false );
+
+            filteredVerts = fibVerts;
+            filteredColors = fibColors;
+            filteredBB = dataSet->getBoundingBox();
+        }
+
+
+        debugLog() << "Done filtering. Result are " << filteredVerts->size() << " points.";
+        WDataSetPoints::SPtr result( new WDataSetPoints( filteredVerts, filteredColors, filteredBB ) );
         m_pointsOutput->updateData( result );
 
         progress->finish();

@@ -108,6 +108,41 @@ private:
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * A string which informs the user whether filtering is possible.
+     */
+    WPropString m_paramHint;
+
+    /**
+     * The color to use for the resulting points.
+     */
+    WPropColor m_color;
+
+    /**
+     * Group contains the filtering options
+     */
+    WPropGroup m_filterGroup;
+
+    /**
+     * Filter fib point according to its parameter value and this value.
+     */
+    WPropDouble m_parametersFilterValue;
+
+    /**
+     * Filter width.
+     */
+    WPropDouble m_parametersFilterWidth;
+
+    /**
+     * fiber parameter max
+     */
+    double m_parameterMax;
+
+    /**
+     * fiber parameter min
+     */
+    double m_parameterMin;
 };
 
 #endif  // WMFIBERSTOPOINTS_H
