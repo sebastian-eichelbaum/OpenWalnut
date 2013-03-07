@@ -115,7 +115,7 @@ void main()
 
     // finally set the color and depth
     wgeInitGBuffer();
-    wge_FragColor = vec4( gl_Color.rgb * r, 1.0 );
+    wge_FragColor = vec4( gl_Color.rgb * r , gl_Color.a );
     wge_FragNormal = textureNormalize( sphereSurf );
     wge_FragZoom = v_worldScale;
     wge_FragTangent = textureNormalize( vec3( 0.0, 1.0, 0.0 ) );

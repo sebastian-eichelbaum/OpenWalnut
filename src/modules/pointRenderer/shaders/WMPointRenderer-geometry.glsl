@@ -51,6 +51,11 @@ uniform float u_pointSize = 1.0;
 varying in vec3 v_normal[];
 
 /**
+ * Clip vertex if not 0.0
+ */
+varying in float v_clip[];
+
+/**
  * The vertex coordinates in world-space
  */
 varying out vec3 v_vertex;
@@ -103,6 +108,12 @@ varying out float v_worldScale;
  */
 void main()
 {
+    // clip whole sprite
+    if( v_clip[0] != 0.0 )
+    {
+        return;
+    }
+
     // grab the info we got from the vertex array:
     vec3 vertex = gl_PositionIn[0].xyz;
 

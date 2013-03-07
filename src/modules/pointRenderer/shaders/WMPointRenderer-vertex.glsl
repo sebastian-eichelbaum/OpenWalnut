@@ -38,6 +38,8 @@
 // Varyings
 /////////////////////////////////////////////////////////////////////////////
 
+varying float v_clip ;
+
 /////////////////////////////////////////////////////////////////////////////
 // Variables
 /////////////////////////////////////////////////////////////////////////////
@@ -51,6 +53,11 @@
  */
 void main()
 {
+    // use clipping planes to cut away parts
+    v_clip = 0.0;
+    // TODO(ebaum): implement this using proper clip-plane implementation
+    // v_clip = float((  gl_Vertex.x > 500. ) || (gl_Vertex.y>500.) );
+
     // forward to geometry shader
     gl_FrontColor = gl_Color;
     gl_Position = gl_ModelViewMatrix * gl_Vertex;
