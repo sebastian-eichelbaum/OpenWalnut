@@ -49,7 +49,7 @@ WGEPostprocessorSSAO::WGEPostprocessorSSAO( osg::ref_ptr< WGEOffscreenRenderNode
 
     WPropDouble ssaoRadius = m_properties->addProperty( "Radius", "The radius around the pixel to sample for occluders in pixels.", 10.0 );
     ssaoRadius->setMin( 0.0 );
-    ssaoRadius->setMax( 100.0 );
+    ssaoRadius->setMax( 500.0 );
 
     WPropDouble ssaoTotalStrength = m_properties->addProperty( "Total Strength", "The strength of the effect. Higher values emphasize the effect.",
                                                                                  2.0 );

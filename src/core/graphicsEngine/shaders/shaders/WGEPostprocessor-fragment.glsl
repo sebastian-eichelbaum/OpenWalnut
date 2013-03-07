@@ -352,7 +352,8 @@ float getLineAO( vec2 where )
 
     // the radius of the sphere is, in screen-space, half a pixel. So the hemisphere covers nearly one pixel. Scaling by depth somehow makes it
     // more invariant for zooming
-    float radius = ( getZoom() * u_lineaoRadiusSS / float( u_texture0SizeX ) ) / ( 1.0 - currentPixelDepth );
+    float maxPixels = max( u_colorSizeX, u_colorSizeY );
+    float radius = ( getZoom() * u_lineaoRadiusSS / maxPixels ) / ( 1.0 - currentPixelDepth );
 
     // some temporaries needed inside the loop
     vec3 ray;                     // the current ray inside the sphere
@@ -431,9 +432,15 @@ float getLineAO( vec2 where )
             float pointDiffuse = max( dot( hemisphereVector, normal ), 0.0 ); // this equals the diffuse term in Phong if lightDir is the
                                                                               // occluder's surface
 
+            // calculate the diffuse reflected light of the occluder, which might contribute to the current pixels brightness
+            #ifdef WGE_POSTPROCESSOR_LINEAO_OCCLUDERLIGHT
             vec3 t = getTangent( hemispherePoint.xy, lod ).xyz;
             vec3 newnorm = normalize( cross( normalize( cross( t, normalize( hemisphereVector ) ) ), t ) );
             float occluderDiffuse = max( dot( newnorm, gl_LightSource[0].position.xyz ), 0.0 );
+            #else
+            // you can disable this effect.
+            float occluderDiffuse = 0.0;
+            #endif
 
             // incorporate specular reflection
             vec3 H = normalize( gl_LightSource[0].position.xyz + normalize( hemisphereVector ) );

@@ -54,8 +54,8 @@ WGEPostprocessorLineAO::WGEPostprocessorLineAO( osg::ref_ptr< WGEOffscreenRender
     lineaoScalers->setMax( 8 );
 
     WPropDouble lineaoRadiusSS = m_properties->addProperty( "Radius", "The radius around the pixel to sample for occluders in pixels.", 2.0 );
-    lineaoRadiusSS->setMin( 0.01 );
-    lineaoRadiusSS->setMax( 10.0 );
+    lineaoRadiusSS->setMin( 0.0 );
+    lineaoRadiusSS->setMax( 100.0 );
 
     WPropDouble lineaoTotalStrength = m_properties->addProperty( "Total Strength", "The strength of the effect. Higher values emphasize the effect.",
                                                                                  1.0 );
@@ -75,6 +75,11 @@ WGEPostprocessorLineAO::WGEPostprocessorLineAO( osg::ref_ptr< WGEOffscreenRender
                                                                                        "described in the paper, this is turned off by default to "
                                                                                        "ensure that details of far occluders are retained (the "
                                                                                        "images look crispier).", false );
+    WPropBool lineaoUseOccluderLight = m_properties->addProperty( "Use Occluder Light", "When enabling, the LineAO algorithm uses the light "
+                                                                                        "reflected by the occluder as contribution to ambient "
+                                                                                        "light energy of the pixel. This creates a more realistic "
+                                                                                        "rendering but might brighten areas you might want to stay "
+                                                                                        "dark.", true );
 
     // NOTE: The paper proposes to use a gaussian pyramid of the depth and normal maps. We skip this step. Skipping this causes the AO to look
     // more crispy and more detailed at local scope.
@@ -95,6 +100,11 @@ WGEPostprocessorLineAO::WGEPostprocessorLineAO( osg::ref_ptr< WGEOffscreenRender
     s->addPreprocessor( WGEShaderPreprocessor::SPtr(
         new WGEShaderPropertyDefineOptions< WPropBool >( lineaoUseGaussedNDMap, "WGE_POSTPROCESSOR_LINEAO_USEDIRECTNDMAP",
                                                                                 "WGE_POSTPROCESSOR_LINEAO_USEGAUSSPYRAMID" ) )
+    );
+
+    s->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( lineaoUseOccluderLight, "WGE_POSTPROCESSOR_LINEAO_NOOCCLUDERLIGHT",
+                                                                                 "WGE_POSTPROCESSOR_LINEAO_OCCLUDERLIGHT" ) )
     );
 
     // create the LineAO rendering pass
