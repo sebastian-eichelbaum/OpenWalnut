@@ -29,6 +29,10 @@
 
 #include <QtGui/QPushButton>
 #include <QtGui/QHBoxLayout>
+#include <QtCore/QMimeData>
+#include <QtCore/QUrl>
+#include <QtGui/QDragEnterEvent>
+#include <QtGui/QDropEvent>
 
 #include "../guiElements/WScaleLabel.h"
 
@@ -85,6 +89,18 @@ protected:
      * The layout used for the pure output (information properties)
      */
     QHBoxLayout m_infoLayout;
+
+    /**
+     * Reimplemented to accept color drops
+     * \param event the handled event
+     */
+    virtual void dragEnterEvent( QDragEnterEvent* event );
+
+    /**
+     * Reimplemented to accept color drops
+     * \param event the handled event
+     */
+    virtual void dropEvent( QDropEvent* event );
 
 private:
 public slots:

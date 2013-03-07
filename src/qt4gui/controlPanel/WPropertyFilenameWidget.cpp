@@ -25,7 +25,6 @@
 #include <cmath>
 #include <string>
 
-
 #include <QtGui/QFileDialog>
 
 #include "core/common/WLogger.h"
@@ -57,6 +56,9 @@ WPropertyFilenameWidget::WPropertyFilenameWidget( WPropFilename property, QGridL
     m_infoLayout.setMargin( WGLOBAL_MARGIN );
     m_infoLayout.setSpacing( WGLOBAL_SPACING );
     m_informationWidgets.setLayout( &m_infoLayout );
+
+    // accept drag and drop
+    setAcceptDrops( true );
 
     // set the initial values
     update();
@@ -110,5 +112,52 @@ void WPropertyFilenameWidget::buttonReleased()
 
     // set button
     m_button.setText( QString::fromStdString( m_fnProperty->get().filename().string() ) );
+}
+
+
+void WPropertyFilenameWidget::dragEnterEvent( QDragEnterEvent* event )
+{
+    if( event->mimeData()->hasUrls() && ( event->mimeData()->urls().size() == 1 ) )
+    {
+        // accept only a single url to a local file
+        QUrl url = *( event->mimeData()->urls().begin() );
+        QString path =  url.toLocalFile();
+        QFileInfo info( path );
+
+        bool shouldBeDir = ( m_fnProperty->countConstraint( PC_ISDIRECTORY ) != 0 );
+        bool shouldExist = ( m_fnProperty->countConstraint( PC_PATHEXISTS ) != 0 );
+
+        // needs to be a directory?
+        bool accept = ( shouldBeDir && info.isDir() ) || !shouldBeDir;
+        accept &= ( shouldExist && info.exists() ) || !shouldExist;
+
+        event->setAccepted( accept );
+    }
+}
+
+void WPropertyFilenameWidget::dropEvent( QDropEvent* event )
+{
+    if( event->mimeData()->hasUrls() && ( event->mimeData()->urls().size() == 1 ) )
+    {
+        // accept only a single url to a local file
+        QUrl url = *( event->mimeData()->urls().begin() );
+        QString path =  url.toLocalFile();
+        QFileInfo info( path );
+
+        bool shouldBeDir = ( m_fnProperty->countConstraint( PC_ISDIRECTORY ) != 0 );
+        bool shouldExist = ( m_fnProperty->countConstraint( PC_PATHEXISTS ) != 0 );
+
+        // needs to be a directory?
+        bool accept = ( shouldBeDir && info.isDir() ) || !shouldBeDir;
+        accept &= ( shouldExist && info.exists() ) || !shouldExist;
+
+        // use new path/filename
+
+        // convert it back to a filename property
+        invalidate( !m_fnProperty->set( boost::filesystem::path( path.toStdString() ) ) ); // NOTE: set automatically checks the validity of the value
+
+        // set button
+        m_button.setText( QString::fromStdString( m_fnProperty->get().filename().string() ) );
+    }
 }
 
