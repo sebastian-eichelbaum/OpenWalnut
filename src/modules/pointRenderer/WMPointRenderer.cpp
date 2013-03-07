@@ -109,9 +109,6 @@ void WMPointRenderer::moduleMain()
     m_moduleState.add( m_pointInput->getDataChangedCondition() );
     m_moduleState.add( m_propCondition );
 
-    // signal ready state. The module is now ready to be used.
-    ready();
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     // setup the main graphics-node:
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -137,6 +134,9 @@ void WMPointRenderer::moduleMain()
     m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
         new WGEShaderPropertyDefineOptions< WPropBool >( m_useCorrectDepth, "DEPTHWRITE_DISABLED", "DEPTHWRITE_ENABLED" ) )
     );
+
+    // signal ready state. The module is now ready to be used.
+    ready();
 
     // loop until the module container requests the module to quit
     while( !m_shutdownFlag() )
