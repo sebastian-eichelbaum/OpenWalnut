@@ -27,29 +27,30 @@
 
 #include <string>
 
-#include <osg/Geode>
-
-#include "core/graphicsEngine/WROISphere.h"
+#include "core/dataHandler/WDataSet.h"
 
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
 #include "core/kernel/WModuleOutputData.h"
 
+#include "core/common/WStrategyHelper.h"
+#include "core/common/WObjectNDIP.h"
+
 /**
- * Module allowing manipulation of the dataset properties via manipulators in the 3D scene.
+ * Module allowing manipulation of the dataset scaling, orientation and position.
  *
  * \ingroup modules
  */
-class WMDatasetManipulator: public WModule
+class WMDatasetManipulator : public WModule
 {
 public:
     /**
-     *
+     * Constructor.
      */
     WMDatasetManipulator();
 
     /**
-     *
+     * Destructor.
      */
     virtual ~WMDatasetManipulator();
 
@@ -95,181 +96,44 @@ protected:
      */
     virtual void properties();
 
-
 private:
     /**
-     * initializes the manipulator and other settings
+     * Init the matrix to be applied from the transformations stored in the current dataset.
      */
-    void init();
+    void initMatrix();
 
     /**
-     * Removes the knobs and cleans up.
+     * Transform the data using the provided transformation matrix.
+     *
+     * \param mat The Transform to apply.
+     *
+     * \return The new and transformed dataset.
      */
-    void shutdown();
+    boost::shared_ptr< WDataSet > transformData( WMatrixFixed< double, 4, 4 > const& mat );
 
-    /**
-     * reacts to movements of the manipulator knobs
-     */
-    void manipulatorMoved();
-
-    /**
-     * reacts to movements of the manipulator knobs
-     */
-    void manipulatorRotMoved();
-
-    /**
-     * function move manipulators to new positions when they are affected by other operations, like translate
-     * or rotate
-     */
-    void adjustManipulatorPositions();
-
-    /**
-     * locks the manipulators depending on resize or rotation mode
-     */
-    void setManipulatorMode();
-
-    /**
-     * sets the manipulator positions unsing the bounding box
-     */
-    void setManipulatorsFromBoundingBox();
-
-    /**
-     * Notify the module of an update of the transform.
-     */
-    void notifyChanged();
-
-    /**
-     * A condition used to notify about changes in several properties.
-     */
+    //! A condition for property updates.
     boost::shared_ptr< WCondition > m_propCondition;
 
-    /**
-     * True if the manipulator spheres should be shown
-     */
-    WPropBool m_showManipulators;
+    //! A trigger to reset the current transformation to the initial one.
+    WPropTrigger m_resetTrigger;
 
-    /**
-     * Toggles between resize and rotation mode
-     */
-    WPropBool m_rotationMode;
+    //! A trigger to add the transformation from the currently active strategy to the current transformation.
+    WPropTrigger m_applyTrigger;
 
-    boost::shared_ptr< boost::function< void() > > m_changeRotRoiSignal; //!< Signal that can be used to update the rotation manipulator
-    boost::shared_ptr< boost::function< void() > > m_changeRoiSignal; //!< Signal that can be used to update the translation manipulator
+    //! The current data.
+    boost::shared_ptr< WDataSet > m_data;
 
-    osg::ref_ptr<WROISphere> m_knobCenter; //!< stores pointer to the center manipulator
-    osg::ref_ptr<WROISphere> m_knobx1; //!< stores pointer to manipulator 1
-    osg::ref_ptr<WROISphere> m_knobx2; //!< stores pointer to manipulator 2
-    osg::ref_ptr<WROISphere> m_knoby1; //!< stores pointer to manipulator 1
-    osg::ref_ptr<WROISphere> m_knoby2; //!< stores pointer to manipulator 2
-    osg::ref_ptr<WROISphere> m_knobz1; //!< stores pointer to manipulator 1
-    osg::ref_ptr<WROISphere> m_knobz2; //!< stores pointer to manipulator 2
+    //! The current transformation.
+    WMatrixFixed< double, 4, 4 > m_currentMat;
 
-    WPosition m_posCenter; //!< stores the old position of the manipulator
-    WPosition m_posx1; //!< stores the old position of the manipulator
-    WPosition m_posx2; //!< stores the old position of the manipulator
-    WPosition m_posy1; //!< stores the old position of the manipulator
-    WPosition m_posy2; //!< stores the old position of the manipulator
-    WPosition m_posz1; //!< stores the old position of the manipulator
-    WPosition m_posz2; //!< stores the old position of the manipulator
+    //! An input connector that accepts any dataset.
+    boost::shared_ptr< WModuleInputData< WDataSet > > m_input;
 
-    WPosition m_posCenterOrig; //!< stores the old position of the manipulator
-    WPosition m_posx1Orig; //!< stores the old position of the manipulator
-    WPosition m_posx2Orig; //!< stores the old position of the manipulator
-    WPosition m_posy1Orig; //!< stores the old position of the manipulator
-    WPosition m_posy2Orig; //!< stores the old position of the manipulator
-    WPosition m_posz1Orig; //!< stores the old position of the manipulator
-    WPosition m_posz2Orig; //!< stores the old position of the manipulator
+    //! An output connector for the transformed dataset.
+    boost::shared_ptr< WModuleOutputData< WDataSet > > m_output;
 
-    osg::ref_ptr<WROISphere> m_knobRotCenter; //!< stores pointer to the center manipulator
-    osg::ref_ptr<WROISphere> m_knobRot; //!< stores pointer to manipulator 1
-
-    WPosition m_posRotCenter; //!< stores the old position of the manipulator
-    WPosition m_posRot; //!< stores the old position of the manipulator
-
-    WPosition m_posRotCenterOrig; //!< stores the old position of the manipulator
-    WPosition m_posRotOrig; //!< stores the old position of the manipulator
-
-    /**
-     * An input connector that accepts order 1 datasets.
-     */
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;
-
-    /**
-     * An output connector for the output scalar dsataset.
-     */
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output;
-
-    /**
-     * This is a pointer to the dataset the module is currently working on.
-     */
-    boost::shared_ptr< WDataSetSingle > m_dataSet;
-
-    /**
-     * stores a pointer to the grid we use;
-     */
-    boost::shared_ptr< WGridRegular3D > m_grid;
-
-    /**
-     * grouping the texture manipulation properties
-     */
-    WPropGroup    m_groupTexManip;
-
-    /**
-     * translation of the texture
-     */
-    WPropInt m_translationX;
-
-    /**
-     * translation of the texture
-     */
-    WPropInt m_translationY;
-
-    /**
-     * translation of the texture
-     */
-    WPropInt m_translationZ;
-
-    /**
-     * voxel size in x direction
-     */
-    WPropDouble m_stretchX;
-
-    /**
-     * voxel size in y direction
-     */
-    WPropDouble m_stretchY;
-
-    /**
-     * voxel size in z direction
-     */
-    WPropDouble m_stretchZ;
-
-    /**
-     * rotation around the x axis
-     */
-    WPropInt m_rotationX;
-
-    /**
-     * rotation around the y axis
-     */
-    WPropInt m_rotationY;
-
-    /**
-     * rotation around the z axis
-     */
-    WPropInt m_rotationZ;
-
-    //! The grid's transformation.
-    boost::shared_ptr< WGridTransformOrtho > m_transform;
-
-    //! Whether the output connector should be updated.
-    bool m_updated;
-
-    //! A condition that gets notified when any changes were made to the transformation.
-    boost::shared_ptr< WCondition > m_transformChangedCondition;
-
-    //! A mutex for changes to members of this module.
-    boost::mutex m_updateMutex;
+    //! The strategy to use for dataset transformation manipulation.
+    WStrategyHelper< WObjectNDIP< WManipulatorInterface > > m_strategy;
 };
 
 #endif  // WMDATASETMANIPULATOR_H
