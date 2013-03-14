@@ -95,16 +95,21 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     separator->setSeparator( true );
     m_moduleTreeWidget->addAction( separator );
 
-    m_addModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "add" ), "Add Module", m_moduleTreeWidget );
+    m_addModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "add" ), "Add new Module", m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_addModuleAction );
-    m_connectWithPrototypeAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "addAndLink" ), "Add Module and Connect",
+    m_addModuleAction->setCheckable( false );
+    m_connectWithPrototypeAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "addAndLink" ),
+                                                "Add Module and Connect",
                                                 m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_connectWithPrototypeAction );
+    m_connectWithPrototypeAction->setCheckable( false );
     m_connectWithModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "link" ), "Connect Existing Module",
                                             m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_connectWithModuleAction );
+    m_connectWithModuleAction->setCheckable( false );
     m_disconnectAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "unlink" ), "Disconnect", m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_disconnectAction );
+    m_disconnectAction->setCheckable( false );
 
     // a separator to clean up the tree widget's context menu
     m_moduleTreeWidget->addAction( separator );
@@ -119,6 +124,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     }
     connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModule() ) );
     m_moduleTreeWidget->addAction( m_deleteModuleAction );
+    m_deleteModuleAction->setCheckable( false );
 
     // a separator to clean up the tree widget's context menu
     m_moduleTreeWidget->addAction( separator );
@@ -142,6 +148,13 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
         m_mainWindow->getNetworkEditor()->getView()->addAction( m_deleteModuleAction );
         m_mainWindow->getNetworkEditor()->getView()->addAction( separator );
         m_mainWindow->getNetworkEditor()->getView()->addAction( m_missingModuleAction );
+
+        // also add to the title actions
+        m_mainWindow->getNetworkEditor()->addTitleAction( m_addModuleAction, true );
+        m_mainWindow->getNetworkEditor()->addTitleAction( m_connectWithPrototypeAction, true );
+        m_mainWindow->getNetworkEditor()->addTitleAction( m_deleteModuleAction, true );
+
+        m_mainWindow->getNetworkEditor()->addTitleSeperator();
     }
 
     m_colormapper = new WQtColormapper( m_mainWindow );
@@ -1015,28 +1028,28 @@ void WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule > modu
     QMenu* m = new WQtMenuFiltered( m_moduleTreeWidget );
     m->addActions( m_addModuleActionList );
     m_addModuleAction->setDisabled( !m_addModuleActionList.size() || module );  // disable if no entry inside or a module was selected
-    delete( m_addModuleAction->menu() ); // ensure that combiners get free'd
+    // delete( m_addModuleAction->menu() ); // ensure that combiners get free'd
     m_addModuleAction->setMenu( m );
 
     // build the prototype menu
     m = new WQtMenuFiltered( m_moduleTreeWidget );
     m->addActions( m_connectWithPrototypeActionList );
     m_connectWithPrototypeAction->setDisabled( !m_connectWithPrototypeActionList.size() );  // disable if no entry inside
-    delete( m_connectWithPrototypeAction->menu() ); // ensure that combiners get free'd
+    // delete( m_connectWithPrototypeAction->menu() ); // ensure that combiners get free'd
     m_connectWithPrototypeAction->setMenu( m );
 
     // build the module menu
     m = new WQtMenuFiltered( m_moduleTreeWidget );
     m->addActions( m_connectWithModuleActionList );
     m_connectWithModuleAction->setDisabled( !m_connectWithModuleActionList.size() );  // disable if no entry inside
-    delete m_connectWithModuleAction->menu();
+    // delete m_connectWithModuleAction->menu();
     m_connectWithModuleAction->setMenu( m );
 
     // build the disconnect menu
     m = new WQtMenuFiltered( m_moduleTreeWidget );
     m->addActions( m_disconnectActionList );
     m_disconnectAction->setDisabled( !m_disconnectActionList.size() );  // disable if no entry inside
-    delete( m_disconnectAction->menu() ); // ensure that combiners get free'd
+    // delete( m_disconnectAction->menu() ); // ensure that combiners get free'd
     m_disconnectAction->setMenu( m );
 
     // finally, set the actions to the compatibles toolbar.
