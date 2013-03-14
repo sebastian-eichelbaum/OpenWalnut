@@ -53,8 +53,8 @@
 #include "WQtNetworkEditor.h"
 #include "WQtNetworkEditor.moc"
 
-WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
-    : WQtDockWidget( "Module Graph", parent )
+WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent ):
+    WQtDockWidget( "Modules", parent )
 {
     setObjectName( "Module Graph Dock" );
     m_mainWindow = parent;

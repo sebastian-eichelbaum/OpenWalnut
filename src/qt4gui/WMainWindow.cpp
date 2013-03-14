@@ -112,6 +112,20 @@ WMainWindow::~WMainWindow()
     // cleanup
 }
 
+/**
+ * Create a distinct separator.
+ *
+ * \param parent the parent
+ *
+ * \return the separator
+ */
+QAction* createSeperator( QWidget* parent )
+{
+    QAction* separator = new QAction( parent );
+    separator->setSeparator( true );
+    return separator;
+}
+
 void WMainWindow::setupGUI()
 {
     wlog::info( "WMainWindow" ) << "Setting up GUI";
@@ -316,18 +330,15 @@ void WMainWindow::setupGUI()
     // This QAction stuff is quite ugly and complicated some times ... There is no nice constructor which takes name, slot keysequence and so on
     // directly -> set shortcuts, and some further properties using QAction's interface
 
-    m_viewAction = new QAction( "View", this );
-    m_viewMenu = m_menuBar->addMenu( "View" );
+    m_settingsAction = new QAction( "Settings", this );
+    m_settingsAction->setIcon( m_iconManager.getIcon( "preferences" ) );
+    m_settingsMenu = m_menuBar->addMenu( "Settings" );
+    m_viewMenu = m_settingsMenu->addMenu( "View" );
     m_viewMenu->addAction( hideMenuAction );
     m_viewMenu->addSeparator();
     m_viewMenu->addAction( showNavWidgets );
     m_viewMenu->addSeparator();
     m_viewMenu->addMenu( m_permanentToolBar->getStyleMenu() );
-    m_viewAction->setMenu( m_viewMenu );
-
-    m_settingsAction = new QAction( "Settings", this );
-    m_settingsAction->setIcon( m_iconManager.getIcon( "preferences" ) );
-    m_settingsMenu = m_menuBar->addMenu( "Settings" );
     m_settingsMenu->addAction( m_autoDisplaySetting );
     m_settingsMenu->addAction( m_sliderMinMaxEditSetting );
     m_settingsMenu->addAction( m_controlPanel->getModuleConfig().getConfigureAction() );
@@ -335,6 +346,7 @@ void WMainWindow::setupGUI()
     m_settingsMenu->addAction( mtViews );
     m_settingsMenu->addSeparator();
     m_settingsMenu->addMenu( logLevels );
+    m_settingsMenu->addSeparator();
     m_settingsAction->setMenu( m_settingsMenu );
 
     QAction* controlPanelTrigger = m_controlPanel->toggleViewAction();
@@ -345,6 +357,7 @@ void WMainWindow::setupGUI()
 
     m_helpAction = new QAction( "Help", this );
     m_helpAction->setIcon( m_iconManager.getIcon( "help" ) );
+    connect( m_helpAction, SIGNAL( triggered() ), this, SLOT( openOpenWalnutHelpDialog() ) );
     m_helpMenu = m_menuBar->addMenu( "Help" );
     m_helpMenu->addAction( m_iconManager.getIcon( "help" ), "OpenWalnut Help", this, SLOT( openOpenWalnutHelpDialog() ),
                            QKeySequence( QKeySequence::HelpContents ) );
@@ -417,6 +430,15 @@ void WMainWindow::setupGUI()
     m_permanentToolBar->addAction( showCoronal );
     m_permanentToolBar->addAction( showSagittal );
     m_permanentToolBar->addSeparator();
+
+    // set the according actions to the toolbars
+    m_networkEditor->addTitleAction( m_newAction );
+    m_networkEditor->addTitleAction( m_loadButton );
+    m_networkEditor->addTitleAction( m_saveAction );
+    m_networkEditor->addTitleSeperator();
+    m_networkEditor->addTitleAction( m_settingsAction, true );
+    m_networkEditor->addTitleSeperator();
+    m_networkEditor->addTitleAction( m_helpAction, true );
 
     // allow the control panel to complete setup
     m_controlPanel->completeGuiSetup();
@@ -1262,20 +1284,6 @@ QSplashScreen* WMainWindow::getSplash() const
     return m_splash;
 }
 
-/**
- * Create a distinct separator.
- *
- * \param parent the parent
- *
- * \return the separator
- */
-QAction* createSeperator( QWidget* parent )
-{
-    QAction* separator = new QAction( parent );
-    separator->setSeparator( true );
-    return separator;
-}
-
 void WMainWindow::addGlobalMenu( QWidget* widget )
 {
     widget->addAction( createSeperator( this ) );
@@ -1283,7 +1291,6 @@ void WMainWindow::addGlobalMenu( QWidget* widget )
     widget->addAction( m_loadButton );
     widget->addAction( m_saveAction );
     widget->addAction( createSeperator( this ) );
-    widget->addAction( m_viewAction );
     widget->addAction( m_settingsAction );
     widget->addAction( createSeperator( this ) );
     widget->addAction( m_helpAction );

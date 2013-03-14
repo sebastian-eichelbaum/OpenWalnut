@@ -388,7 +388,6 @@ private:
     QAction* m_saveAction; //!< the save menu
     QMenu* m_saveMenu; //!< the menu using m_saveAction
 
-    QAction* m_viewAction; //!< the view controls
     QMenu* m_viewMenu; //!< view and camera control menu
 
     QAction* m_settingsAction; //!< the settings
