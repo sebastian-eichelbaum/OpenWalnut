@@ -47,7 +47,7 @@ public:
      *
      * \param parent the parent
      */
-    WQtDockTitleWidget( QDockWidget* parent );
+    explicit WQtDockTitleWidget( QDockWidget* parent );
 
     /**
      * Add the given action to the titlebar. It gets added after the previously added ones.

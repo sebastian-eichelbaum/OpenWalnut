@@ -89,7 +89,6 @@ public:
      */
     virtual void addTitleSeperator();
 protected:
-
 private:
     /**
      * Title widget.

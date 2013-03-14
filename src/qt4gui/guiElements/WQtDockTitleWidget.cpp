@@ -101,7 +101,6 @@ void WQtDockTitleWidget::construct()
     titleWidgetLayout->addWidget( m_tools );
     titleWidgetLayout->addWidget( m_moreBtn );
     titleWidgetLayout->addWidget( m_closeBtn );
-
 }
 
 void WQtDockTitleWidget::resizeEvent( QResizeEvent* event )
