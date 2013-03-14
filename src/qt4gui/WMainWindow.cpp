@@ -331,7 +331,7 @@ void WMainWindow::setupGUI()
     // directly -> set shortcuts, and some further properties using QAction's interface
 
     m_settingsAction = new QAction( "Settings", this );
-    m_settingsAction->setIcon( m_iconManager.getIcon( "preferences" ) );
+    m_settingsAction->setIcon( m_iconManager.getIcon( "configure" ) );
     m_settingsMenu = m_menuBar->addMenu( "Settings" );
     m_viewMenu = m_settingsMenu->addMenu( "View" );
     m_viewMenu->addAction( hideMenuAction );
@@ -366,6 +366,7 @@ void WMainWindow::setupGUI()
     m_helpMenu->addAction( m_iconManager.getIcon( "logo" ), "About OpenWalnut", this, SLOT( openAboutDialog() ) );
     m_helpMenu->addAction(  m_iconManager.getIcon( "qt" ), "About Qt", this, SLOT( openAboutQtDialog() ) );
     m_helpAction->setMenu( m_helpMenu );
+    connect( m_helpAction, SIGNAL( triggered( bool ) ), this, SLOT( openOpenWalnutHelpDialog() ) );
 
     setMenuBar( m_menuBar );
 
@@ -435,10 +436,6 @@ void WMainWindow::setupGUI()
     m_networkEditor->addTitleAction( m_newAction );
     m_networkEditor->addTitleAction( m_loadButton );
     m_networkEditor->addTitleAction( m_saveAction );
-    m_networkEditor->addTitleSeperator();
-    m_networkEditor->addTitleAction( m_settingsAction, true );
-    m_networkEditor->addTitleSeperator();
-    m_networkEditor->addTitleAction( m_helpAction, true );
 
     // allow the control panel to complete setup
     m_controlPanel->completeGuiSetup();

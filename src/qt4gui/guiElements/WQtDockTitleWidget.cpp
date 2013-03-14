@@ -40,6 +40,7 @@ void WQtDockTitleWidget::setupButton( QToolButton* btn )
     btn->setToolButtonStyle( Qt::ToolButtonIconOnly );
     btn->setContentsMargins( 0, 0, 0, 0 );
     btn->setFixedHeight( 24 );
+    btn->setMinimumSize( 24, 24 );
     btn->setAutoRaise( true );
     btn->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
 }
@@ -85,8 +86,8 @@ void WQtDockTitleWidget::construct()
 
     // create a button that shows the m_toolsMenu container widget
     m_moreBtn = new QToolButton( this );
-    m_moreBtn->setHidden( true );
     setupButton( m_moreBtn );
+    m_moreBtn->setFixedWidth( 32 );
     m_moreBtn->setPopupMode( QToolButton::InstantPopup );
     m_moreBtn->setIcon(  WQt4Gui::getMainWindow()->getIconManager()->getIcon( "popup_more" ) );
     QMenu* moreMenu = new QMenu();
@@ -117,9 +118,22 @@ void WQtDockTitleWidget::addTitleAction( QAction* action, bool instantPopup )
     if( instantPopup )
     {
         actionBtn->setPopupMode( QToolButton::InstantPopup );
+        actionBtn->setFixedWidth( 32 );
     }
+
     // we keep track of the widgets:
     m_titleActionWidgets.push_back( actionBtn );
+
+    // update the layouts
+    updateLayouts( width() );
+}
+
+void WQtDockTitleWidget::addTitleButton( QToolButton* button )
+{
+    setupButton( button );
+
+    // we keep track of the widgets:
+    m_titleActionWidgets.push_back( button );
 
     // update the layouts
     updateLayouts( width() );

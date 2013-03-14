@@ -64,6 +64,11 @@ void WQtDockWidget::addTitleAction( QAction* action, bool instantPopup )
     m_titleBar->addTitleAction( action, instantPopup );
 }
 
+void WQtDockWidget::addTitleButton( QToolButton* button )
+{
+    m_titleBar->addTitleButton( button );
+}
+
 void WQtDockWidget::removeTitleAction( QAction* action )
 {
     m_titleBar->removeTitleAction( action );

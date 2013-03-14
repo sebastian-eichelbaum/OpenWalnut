@@ -78,6 +78,13 @@ public:
     virtual void addTitleAction( QAction* action, bool instantPopup = false );
 
     /**
+     * Add the given tool button to the titlebar. It gets added after the previously added ones.
+     *
+     * \param button the action to add.
+     */
+    virtual void addTitleButton( QToolButton* button );
+
+    /**
      * Remove the given action from the list
      *
      * \param action the action to add
