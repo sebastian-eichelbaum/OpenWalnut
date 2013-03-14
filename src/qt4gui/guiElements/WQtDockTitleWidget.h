@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTDOCKWIDGET_H
-#define WQTDOCKWIDGET_H
+#ifndef WQTDOCKTITLEWIDGET_H
+#define WQTDOCKTITLEWIDGET_H
 
 #include <QtGui/QDockWidget>
 #include <QtGui/QVBoxLayout>
@@ -36,38 +36,18 @@
 #include "WScaleLabel.h"
 
 /**
- * Used for the title bar.
+ * Class for managing dock widget title bars.
  */
-class WQtDockTitleWidget;
-
-/**
- * Advanced QDockWidget. This class allows you to add actions to the titlebar of the dock widget
- */
-class WQtDockWidget: public QDockWidget
+class WQtDockTitleWidget: public QWidget
 {
     Q_OBJECT
 public:
     /**
-     * Construct dock widget.
+     * Constructor.
      *
-     * \param title the title of the widget
-     * \param parent the parent widget
-     * \param flags optional window flags
+     * \param parent the parent
      */
-    WQtDockWidget( const QString& title, QWidget* parent = 0, Qt::WindowFlags flags = 0 );
-
-    /**
-     * Construct dock widget.
-     *
-     * \param parent the parent widget
-     * \param flags optional window flags
-     */
-    WQtDockWidget( QWidget* parent = 0, Qt::WindowFlags flags = 0 );
-
-    /**
-     * Destructor.
-     */
-    virtual ~WQtDockWidget();
+    WQtDockTitleWidget( QDockWidget* parent );
 
     /**
      * Add the given action to the titlebar. It gets added after the previously added ones.
@@ -88,14 +68,79 @@ public:
      * Add a separator.
      */
     virtual void addTitleSeperator();
-protected:
 
+protected:
+    /**
+     * Called upon resize. Used to switch between the more menu and the tools widget
+     *
+     * \param event the event
+     */
+    virtual void resizeEvent( QResizeEvent* event );
+
+    /**
+     * Apply default settings for dock widget title buttons.
+     *
+     * \param btn the button to setup
+     */
+    virtual void setupButton( QToolButton* btn );
 private:
     /**
-     * Title widget.
+     * Construct the title and configure the widget.
      */
-    WQtDockTitleWidget* m_titleBar;
+    void construct();
+
+    /**
+     * Updates the layouts according to the new width
+     *
+     * \param width the new width.
+     */
+    void updateLayouts( int width );
+
+    /**
+     * The tools buttons
+     */
+    QWidget* m_tools;
+
+    /**
+     * The tool inside the menu
+     */
+    QWidget* m_toolsMenu;
+
+    /**
+     * Layout containing the tools
+     */
+    QHBoxLayout* m_toolsLayout;
+
+    /**
+     * The tool button used when shrinking the title bar too much
+     */
+    QToolButton* m_moreBtn;
+
+    /**
+     * LAyout of the items in the moreBtn menu
+     */
+    QHBoxLayout* m_toolsMenuLayout;
+
+    /**
+     * Title label
+     */
+    WScaleLabel* m_title;
+
+    /**
+     * Close button
+     */
+    QToolButton* m_closeBtn;
+
+    /**
+     * The parent as dock pointer
+     */
+    QDockWidget* dockParent;
+
+    /**
+     * We keep track of the widgets that we add
+     */
+    QList< QWidget* > m_titleActionWidgets;
 };
 
-#endif  // WQTDOCKWIDGET_H
+#endif  // WQTDOCKTITLEWIDGET_H
 
