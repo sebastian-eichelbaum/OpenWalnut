@@ -43,6 +43,16 @@ class WDataSetSphericalHarmonics : public WDataSetSingle // NOLINT
 {
 public:
     /**
+     * Convenience typedef for a boost::shared_ptr
+     */
+    typedef boost::shared_ptr< WDataSetSphericalHarmonics > SPtr;
+
+    /**
+     * Convenience typedef for a boost::shared_ptr; const
+     */
+    typedef boost::shared_ptr< const WDataSetSphericalHarmonics > ConstSPtr;
+
+    /**
      * Constructs an instance out of an appropriate value set and a grid.
      *
      * \param newValueSet the value set with the spherical harmonics coefficients to use
