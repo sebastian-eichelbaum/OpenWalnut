@@ -27,6 +27,8 @@
 
 #include <cstddef>
 
+#include <boost/shared_ptr.hpp>
+
 #include "../common/WBoundingBox.h"
 
 
