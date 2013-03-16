@@ -1027,7 +1027,7 @@ void WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule > modu
     // build the add menu
     QMenu* m = new WQtMenuFiltered( m_moduleTreeWidget );
     m->addActions( m_addModuleActionList );
-    m_addModuleAction->setDisabled( !m_addModuleActionList.size() || module );  // disable if no entry inside or a module was selected
+    m_addModuleAction->setDisabled( !m_addModuleActionList.size() );  // disable if no entry inside
     // delete( m_addModuleAction->menu() ); // ensure that combiners get free'd
     m_addModuleAction->setMenu( m );
 
