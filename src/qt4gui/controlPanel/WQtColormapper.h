@@ -95,9 +95,6 @@ private:
     QListWidget* m_textureListWidget; //!< pointer to the tree widget
     QVBoxLayout* m_layout; //!< Layout of the widget
 
-    QPushButton* m_downButton; //!< button down
-    QPushButton* m_upButton; //!< button up
-
     /**
      * Connection of the WGEColormapping signal "registered" to the member function pushUpdateEvent.
      */
@@ -183,6 +180,16 @@ private slots:
      * change order of items, move currently selected item up
      */
     void moveItemUp();
+
+    /**
+     * change order of items, move currently selected item to bottom
+     */
+    void moveItemBottom();
+
+    /**
+     * change order of items, move currently selected item to top
+     */
+    void moveItemTop();
 };
 
 #endif  // WQTCOLORMAPPER_H

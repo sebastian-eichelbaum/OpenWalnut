@@ -345,6 +345,62 @@ bool WGEColormapping::moveUp( osg::ref_ptr< WGETexture3D > texture )
     return true;
 }
 
+bool WGEColormapping::moveToTop( osg::ref_ptr< WGETexture3D > texture )
+{
+    TextureContainerType::WriteTicket w = m_textures.getWriteTicket();
+
+    // does the texture exist?
+    TextureContainerType::Iterator iter = std::find( w->get().begin(), w->get().end(), texture );
+    if( iter == w->get().end() )
+    {
+        return false;
+    }
+
+    // is it already the first item?
+    if( iter == w->get().begin() )
+    {
+        return false;
+    }
+
+    // do the op
+    w->get().erase( iter );
+    w->get().insert( w->get().begin(), texture );
+
+    // unlock and call callbacks
+    w.reset();
+    m_sortSignal();
+
+    return true;
+}
+
+bool WGEColormapping::moveToBottom( osg::ref_ptr< WGETexture3D > texture )
+{
+    TextureContainerType::WriteTicket w = m_textures.getWriteTicket();
+
+    // does the texture exist?
+    TextureContainerType::Iterator iter = std::find( w->get().begin(), w->get().end(), texture );
+    if( iter == w->get().end() )
+    {
+        return false;
+    }
+
+    // is it already the last item?
+    if( iter + 1 == w->get().end() )
+    {
+        return false;
+    }
+
+    // do the op
+    w->get().erase( iter );
+    w->get().push_back( texture );
+
+    // unlock and call callbacks
+    w.reset();
+    m_sortSignal();
+
+    return true;
+}
+
 size_t WGEColormapping::size() const
 {
     return m_textures.size();

@@ -191,6 +191,22 @@ public:
     void sort( Comparator comp );
 
     /**
+     * Move the specified texture up in the list, directly to the top. Causes the sort signal to fire.
+     *
+     * \param texture the texture swapped with its ascendant
+     * \return true if swap was successful. False if not (texture not found, texture already at beginning).
+     */
+    bool moveToTop( osg::ref_ptr< WGETexture3D > texture );
+
+    /**
+     * Move the specified texture down in the list, directly to the bottom. Causes the sort signal to fire.
+     *
+     * \param texture the texture swapped with its descendant
+     * \return true if swap was successful. False if not (texture not found, texture already at end).
+     */
+    bool moveToBottom( osg::ref_ptr< WGETexture3D > texture );
+
+    /**
      * Move the specified texture one item up in the list. Causes the sort signal to fire.
      *
      * \param texture the texture swapped with its ascendant

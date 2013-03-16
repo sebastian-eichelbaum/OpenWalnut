@@ -44,6 +44,8 @@
 #include "core/graphicsEngine/WGETexture.h"
 #include "../events/WUpdateTextureSorterEvent.h"
 #include "../events/WEventTypes.h"
+#include "../WQt4Gui.h"
+#include "../WMainWindow.h"
 
 #include "WQtColormapper.h"
 #include "WQtColormapper.moc"
@@ -65,20 +67,25 @@ WQtColormapper::WQtColormapper( QWidget* parent )
     m_layout = new QVBoxLayout();
     m_layout->setContentsMargins( 0, 0, 0, 0 );
 
-    QHBoxLayout* buttonLayout = new QHBoxLayout();
-    m_downButton = new QPushButton();
-    m_downButton->setText( QString( "down" ) );
-    m_upButton = new QPushButton();
-    m_upButton->setText( QString( "up" ) );
+    // create the move-up/down buttons
+    QAction* downAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "go-down" ), "Move selected colormap down.", this );
+    connect( downAction, SIGNAL( triggered() ), this, SLOT( moveItemDown() ) );
 
-    buttonLayout->addWidget( m_downButton );
-    buttonLayout->addWidget( m_upButton );
+    QAction* upAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "go-up" ), "Move selected colormap up.", this );
+    connect( upAction, SIGNAL( triggered() ), this, SLOT( moveItemUp() ) );
 
-    connect( m_upButton, SIGNAL( pressed() ), this, SLOT( moveItemUp() ) );
-    connect( m_downButton, SIGNAL( pressed() ), this, SLOT( moveItemDown() ) );
+    QAction* bottomAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "go-bottom" ), "Move selected colormap to the bottom.", this );
+    connect( bottomAction, SIGNAL( triggered() ), this, SLOT( moveItemBottom() ) );
+
+    QAction* topAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "go-top" ), "Move selected colormap to the top.", this );
+    connect( topAction, SIGNAL( triggered() ), this, SLOT( moveItemTop() ) );
+
+    addTitleAction( bottomAction );
+    addTitleAction( downAction );
+    addTitleAction( upAction );
+    addTitleAction( topAction );
 
     m_layout->addWidget( m_textureListWidget );
-    m_layout->addLayout( buttonLayout );
 
     connect( m_textureListWidget, SIGNAL( itemClicked( QListWidgetItem* ) ), this, SLOT( handleTextureClicked() ) );
 
@@ -203,6 +210,26 @@ void WQtColormapper::moveItemUp()
     if( item )
     {
         cm->moveUp( item->getTexture() );
+    }
+}
+
+void WQtColormapper::moveItemBottom()
+{
+    boost::shared_ptr< WGEColormapping > cm = WGEColormapping::instance();
+    WQtTextureListItem* item = dynamic_cast< WQtTextureListItem* >( m_textureListWidget->item( m_textureListWidget->currentIndex().row() ) );
+    if( item )
+    {
+        cm->moveToBottom( item->getTexture() );
+    }
+}
+
+void WQtColormapper::moveItemTop()
+{
+    boost::shared_ptr< WGEColormapping > cm = WGEColormapping::instance();
+    WQtTextureListItem* item = dynamic_cast< WQtTextureListItem* >( m_textureListWidget->item( m_textureListWidget->currentIndex().row() ) );
+    if( item )
+    {
+        cm->moveToTop( item->getTexture() );
     }
 }
 
