@@ -160,6 +160,11 @@ private:
     QToolButton* m_closeBtn;
 
     /**
+     * Help button
+     */
+    QToolButton* m_helpBtn;
+
+    /**
      * The parent as dock pointer
      */
     QDockWidget* dockParent;

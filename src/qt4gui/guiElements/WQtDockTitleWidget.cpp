@@ -102,11 +102,22 @@ void WQtDockTitleWidget::construct()
     moreMenu->addAction( moreAction );
     m_moreBtn->setMenu( moreMenu );
 
+    // help button
+    m_helpBtn = new QToolButton( this );
+    QAction* helpAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "questionmark" ), "Help", this );
+    connect( helpAction, SIGNAL( triggered( bool ) ), dockParent, SLOT( showHelp() ) );
+    m_helpBtn->setDefaultAction( helpAction );
+    setupButton( m_helpBtn );
+    setupSizeConstraints( m_helpBtn );
+    m_helpBtn->setMinimumSize( 24, 24 );
+    m_helpBtn->setMaximumSize( 24, 24 );
+
     // fill layout
     titleWidgetLayout->addWidget( m_title );
     titleWidgetLayout->addStretch( 100000 );
     titleWidgetLayout->addWidget( m_tools );
     titleWidgetLayout->addWidget( m_moreBtn );
+    titleWidgetLayout->addWidget( m_helpBtn );
     titleWidgetLayout->addWidget( m_closeBtn );
 }
 
@@ -194,7 +205,10 @@ void WQtDockTitleWidget::addTitleSeperator()
 void WQtDockTitleWidget::updateLayouts( int width )
 {
     // calc the size of widgets and the title and the mandatory close button
-    int minRequired = m_title->calculateSize( m_title->text().length() ) + m_moreBtn->sizeHint().width() + m_closeBtn->sizeHint().width();
+    int minRequired = m_title->calculateSize( m_title->text().length() ) +
+                      m_moreBtn->sizeHint().width() +
+                      m_helpBtn->isVisible() * m_helpBtn->sizeHint().width() +
+                      m_closeBtn->sizeHint().width();
 
     // check and move items
     int curWidth = minRequired;
