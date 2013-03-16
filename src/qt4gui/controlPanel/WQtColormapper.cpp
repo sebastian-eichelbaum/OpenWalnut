@@ -74,7 +74,8 @@ WQtColormapper::WQtColormapper( QWidget* parent )
     QAction* upAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "go-up" ), "Move selected colormap up.", this );
     connect( upAction, SIGNAL( triggered() ), this, SLOT( moveItemUp() ) );
 
-    QAction* bottomAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "go-bottom" ), "Move selected colormap to the bottom.", this );
+    QAction* bottomAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "go-bottom" ), "Move selected colormap to the bottom.",
+                                         this );
     connect( bottomAction, SIGNAL( triggered() ), this, SLOT( moveItemBottom() ) );
 
     QAction* topAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "go-top" ), "Move selected colormap to the top.", this );
