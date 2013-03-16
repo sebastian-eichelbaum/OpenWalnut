@@ -436,6 +436,8 @@ void WMainWindow::setupGUI()
     m_networkEditor->addTitleAction( m_newAction );
     m_networkEditor->addTitleAction( m_loadButton );
     m_networkEditor->addTitleAction( m_saveAction );
+    m_networkEditor->addTitleSeperator();
+    m_networkEditor->addTitleAction( m_settingsAction, true );
 
     // allow the control panel to complete setup
     m_controlPanel->completeGuiSetup();

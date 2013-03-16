@@ -154,6 +154,9 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
         m_mainWindow->getNetworkEditor()->addTitleAction( m_connectWithPrototypeAction, true );
         m_mainWindow->getNetworkEditor()->addTitleAction( m_deleteModuleAction, true );
 
+        // m_mainWindow->getNetworkEditor()->addTitleAction( m_connectWithModuleAction );
+        // m_mainWindow->getNetworkEditor()->addTitleAction( m_disconnectAction );
+
         m_mainWindow->getNetworkEditor()->addTitleSeperator();
     }
 
