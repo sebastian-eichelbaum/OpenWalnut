@@ -38,11 +38,15 @@ WQtDockTitleWidget::WQtDockTitleWidget( QDockWidget* parent ):
 void WQtDockTitleWidget::setupButton( QToolButton* btn )
 {
     btn->setToolButtonStyle( Qt::ToolButtonIconOnly );
-    btn->setContentsMargins( 0, 0, 0, 0 );
-    btn->setFixedHeight( 24 );
-    btn->setMinimumSize( 24, 24 );
     btn->setAutoRaise( true );
-    btn->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+}
+
+void WQtDockTitleWidget::setupSizeConstraints( QWidget* widget )
+{
+    widget->setContentsMargins( 0, 0, 0, 0 );
+    widget->setFixedHeight( 24 );
+    widget->setMinimumSize( 24, 24 );
+    widget->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
 }
 
 void WQtDockTitleWidget::construct()
@@ -63,6 +67,7 @@ void WQtDockTitleWidget::construct()
     connect( closeAction, SIGNAL( triggered( bool ) ), dockParent, SLOT( close() ) );
     m_closeBtn->setDefaultAction( closeAction );
     setupButton( m_closeBtn );
+    setupSizeConstraints( m_closeBtn );
     m_closeBtn->setMinimumSize( 24, 24 );
     m_closeBtn->setMaximumSize( 24, 24 );
 
@@ -87,6 +92,7 @@ void WQtDockTitleWidget::construct()
     // create a button that shows the m_toolsMenu container widget
     m_moreBtn = new QToolButton( this );
     setupButton( m_moreBtn );
+    setupSizeConstraints( m_moreBtn );
     m_moreBtn->setFixedWidth( 32 );
     m_moreBtn->setPopupMode( QToolButton::InstantPopup );
     m_moreBtn->setIcon(  WQt4Gui::getMainWindow()->getIconManager()->getIcon( "popup_more" ) );
@@ -114,6 +120,7 @@ void WQtDockTitleWidget::addTitleAction( QAction* action, bool instantPopup )
     QToolButton* actionBtn = new QToolButton( this );
     actionBtn->setDefaultAction( action );
     setupButton( actionBtn );
+    setupSizeConstraints( actionBtn );
 
     if( instantPopup )
     {
@@ -121,22 +128,38 @@ void WQtDockTitleWidget::addTitleAction( QAction* action, bool instantPopup )
         actionBtn->setFixedWidth( 32 );
     }
 
-    // we keep track of the widgets:
-    m_titleActionWidgets.push_back( actionBtn );
-
-    // update the layouts
-    updateLayouts( width() );
+    addTitleWidget( actionBtn );
 }
 
 void WQtDockTitleWidget::addTitleButton( QToolButton* button )
 {
     setupButton( button );
+    setupSizeConstraints( button );
+
+    addTitleWidget( button );
+}
+
+void WQtDockTitleWidget::addTitleWidget( QWidget* widget )
+{
+    setupSizeConstraints( widget );
 
     // we keep track of the widgets:
-    m_titleActionWidgets.push_back( button );
+    m_titleActionWidgets.push_back( widget );
 
     // update the layouts
     updateLayouts( width() );
+}
+
+void WQtDockTitleWidget::removeTitleWidget( QWidget* widget )
+{
+    if( widget )
+    {
+        m_toolsLayout->removeWidget( widget );
+        m_toolsMenuLayout->removeWidget( widget );
+        m_titleActionWidgets.removeAll( widget );
+        // update the layouts
+        updateLayouts( width() );
+    }
 }
 
 void WQtDockTitleWidget::removeTitleAction( QAction* action )
@@ -152,15 +175,7 @@ void WQtDockTitleWidget::removeTitleAction( QAction* action )
         }
     }
 
-    // found?
-    if( btn )
-    {
-        m_toolsLayout->removeWidget( btn );
-        m_toolsMenuLayout->removeWidget( btn );
-        m_titleActionWidgets.removeAll( btn );
-        // update the layouts
-        updateLayouts( width() );
-    }
+    removeTitleWidget( btn );
 }
 
 void WQtDockTitleWidget::addTitleSeperator()

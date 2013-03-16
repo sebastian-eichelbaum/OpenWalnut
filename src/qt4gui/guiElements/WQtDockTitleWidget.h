@@ -76,6 +76,20 @@ public:
      */
     virtual void addTitleSeperator();
 
+    /**
+     * Add an arbitrary widget. Please take care of its size! This method sets a size policy and a fixed height.
+     *
+     * \param widget the widget to add
+     */
+    virtual void addTitleWidget( QWidget* widget );
+
+    /**
+     * Remove the specified widget from the title bar.
+     *
+     * \param widget the widget to remove
+     */
+    virtual void removeTitleWidget( QWidget* widget );
+
 protected:
     /**
      * Called upon resize. Used to switch between the more menu and the tools widget
@@ -90,6 +104,13 @@ protected:
      * \param btn the button to setup
      */
     virtual void setupButton( QToolButton* btn );
+
+    /**
+     * Apply size setup to a given widget.
+     *
+     * \param widget the widget to setup
+     */
+    virtual void setupSizeConstraints( QWidget* widget );
 private:
     /**
      * Construct the title and configure the widget.

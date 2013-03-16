@@ -84,6 +84,12 @@ public:
      */
     void saveSettings();
 
+public slots:
+    /**
+     * Clear the message list.
+     */
+    void clearMessages();
+
 protected slots:
     /**
      * Handles changes in the filter combo

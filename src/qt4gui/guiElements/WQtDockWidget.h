@@ -95,6 +95,21 @@ public:
      * Add a separator.
      */
     virtual void addTitleSeperator();
+
+    /**
+     * Add an arbitrary widget. Please take care of its size! This method sets a size policy and a fixed height.
+     *
+     * \param widget the widget to add
+     */
+    virtual void addTitleWidget( QWidget* widget );
+
+    /**
+     * Remove the specified widget from the title bar.
+     *
+     * \param widget the widget to remove
+     */
+    virtual void removeTitleWidget( QWidget* widget );
+
 protected:
 private:
     /**

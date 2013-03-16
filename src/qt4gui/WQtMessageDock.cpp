@@ -48,19 +48,13 @@ WQtMessageDock::WQtMessageDock( QString dockTitle, QWidget* parent ):
     setAllowedAreas( Qt::AllDockWidgetAreas );
     setFeatures( QDockWidget::AllDockWidgetFeatures );
 
-    QVBoxLayout* panelLayout = new QVBoxLayout();
-    QWidget* panel = new QWidget( this );
-    panel->setLayout( panelLayout );
-    setWidget( panel );
-
-    // fill the panel
-
     // log messages
     m_logList = new QListWidget( this );
+    setWidget( m_logList );
 
     // filter list
-    QLabel* filterLabel = new QLabel( "Filter Messages" );
     m_filterCombo = new QComboBox();
+    m_filterCombo->setToolTip( "Filter the messages by level. When choosing a level, all messages with this and an above level will be displayed." );
     m_filterCombo->addItem( "Debug" );
     m_filterCombo->addItem( "Info" );
     m_filterCombo->addItem( "Warning" );
@@ -69,24 +63,16 @@ WQtMessageDock::WQtMessageDock( QString dockTitle, QWidget* parent ):
         WMainWindow::getSettings().value( "MessageDockFilterIndex", 2 ).toInt()
     ); // warning is the default
 
-    // the filter widgets reside in a common layout:
-    QHBoxLayout* filterLayout = new QHBoxLayout();
-    filterLayout->addWidget( filterLabel );
-    filterLayout->addWidget( m_filterCombo );
-    QWidget* filterWidget = new QWidget();
-    filterWidget->setLayout( filterLayout );
-
-    // compose them together into the panel
-    panelLayout->addWidget( filterWidget );
-    panelLayout->addWidget( m_logList );
-
-    panelLayout->setSpacing( 0 );
-    filterLayout->setSpacing( 0 );
-    panelLayout->setContentsMargins( 0, 0, 0, 0 );
-    filterLayout->setContentsMargins( 0, 0, 0, 2 );
-
     // connect filter combo
     connect( m_filterCombo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( handleFilterUpdate() ) );
+
+    // clear list action
+    QAction* clearAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "clear" ), "Clear Messages", this );
+    connect( clearAction, SIGNAL( triggered() ), this, SLOT( clearMessages() ) );
+
+    // add everything too the title list
+    addTitleAction( clearAction );
+    addTitleWidget( m_filterCombo );
 }
 
 WQtMessageDock::~WQtMessageDock()
@@ -158,4 +144,9 @@ void WQtMessageDock::handleFilterUpdate()
             li->setHidden( popup->getType() < m_filterCombo->currentIndex() );
         }
     }
+}
+
+void WQtMessageDock::clearMessages()
+{
+    m_logList->clear();
 }

@@ -78,3 +78,14 @@ void WQtDockWidget::addTitleSeperator()
 {
     m_titleBar->addTitleSeperator();
 }
+
+void WQtDockWidget::addTitleWidget( QWidget* widget )
+{
+    m_titleBar->addTitleWidget( widget );
+}
+
+void WQtDockWidget::removeTitleWidget( QWidget* widget )
+{
+    m_titleBar->removeTitleWidget( widget );
+}
+
