@@ -89,3 +89,17 @@ void WQtDockWidget::removeTitleWidget( QWidget* widget )
     m_titleBar->removeTitleWidget( widget );
 }
 
+void WQtDockWidget::setHelpContext( const QString& id )
+{
+    m_helpContextId = id;
+}
+
+const QString& WQtDockWidget::getHelpContext()
+{
+    return m_helpContextId;
+}
+
+void WQtDockWidget::showHelp()
+{
+    // do something here
+}

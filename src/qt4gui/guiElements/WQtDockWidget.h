@@ -110,12 +110,38 @@ public:
      */
     virtual void removeTitleWidget( QWidget* widget );
 
+    /**
+     * Set a string which identifies help material for this dock. If you specify a help ID which then leads to multiple help documents, a help
+     * menu is shown instead of a simple help button. If no help context id was specified, the help button is not show.
+     *
+     * \param id the help context id for this dock
+     */
+    virtual void setHelpContext( const QString& id );
+
+    /**
+     * Return the help context id.
+     *
+     * \return the id.
+     */
+    virtual const QString& getHelpContext();
+
+public slots:
+    /**
+     * Show help.
+     */
+    void showHelp();
+
 protected:
 private:
     /**
      * Title widget.
      */
     WQtDockTitleWidget* m_titleBar;
+
+    /**
+     * The ID for the help context associated with this dock.
+     */
+    QString m_helpContextId;
 };
 
 #endif  // WQTDOCKWIDGET_H
