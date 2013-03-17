@@ -289,7 +289,7 @@ void WMainWindow::setupGUI()
     connect( m_saveAction, SIGNAL( triggered( bool ) ), this, SLOT( projectSaveAll() ) );
 
     m_loadButton->setToolTip( "Load a dataset or project from file" );
-    roiButton->setToolTip( "Create new ROI" );
+    roiButton->setToolTip( "Insert a new ROI" );
     m_saveAction->setToolTip( "Save current project to file" );
 
     // we want the upper most tree item to be selected. This helps to make the always compatible modules
@@ -441,6 +441,10 @@ void WMainWindow::setupGUI()
 
     // allow the control panel to complete setup
     m_controlPanel->completeGuiSetup();
+
+    // add the roi actions to roi dock title
+    m_controlPanel->getRoiDock()->addTitleAction( roiButton );
+    m_controlPanel->getRoiDock()->addTitleAction( m_controlPanel->getRoiDeleteAction() );
 
     // after creating the GUI, restore its saved state
     restoreSavedState();

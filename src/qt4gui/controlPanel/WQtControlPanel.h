@@ -178,6 +178,13 @@ public:
     WQtDockWidget* getRoiDock() const;
 
     /**
+     * Return the action to delete a selected roi
+     *
+     * \return the action
+     */
+    QAction* getRoiDeleteAction() const;
+
+    /**
      * Gets the module dock widget.
      *
      * \return the module dock

@@ -201,13 +201,14 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     connectSlots();
 
     // similar to the module delete action: a ROI delete action
-    m_deleteRoiAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "remove" ), "Remove ROI", m_roiTreeWidget );
+    m_deleteRoiAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "del_roi" ), "Remove ROI", m_roiTreeWidget );
     {
         // Set the key for removing modules
         m_deleteRoiAction->setShortcutContext( Qt::WidgetShortcut );
         m_deleteRoiAction->setShortcut( QKeySequence::Delete );
         m_deleteRoiAction->setIconVisibleInMenu( true );
     }
+    m_deleteRoiAction->setEnabled( false );
     connect( m_deleteRoiAction, SIGNAL( triggered() ), this, SLOT( deleteROITreeItem() ) );
     m_roiTreeWidget->addAction( m_deleteModuleAction );
     m_roiTreeWidget->addAction( m_deleteRoiAction );
@@ -220,6 +221,11 @@ WQtControlPanel::~WQtControlPanel()
 void WQtControlPanel::completeGuiSetup()
 {
     m_mainWindow->addGlobalMenu( m_mainWindow->getNetworkEditor()->getView() );
+}
+
+QAction* WQtControlPanel::getRoiDeleteAction() const
+{
+    return m_deleteRoiAction;
 }
 
 void WQtControlPanel::connectSlots()
@@ -742,6 +748,9 @@ void WQtControlPanel::selectRoiTreeItem( QTreeWidgetItem* item )
     // activate the item
     m_roiTreeWidget->setCurrentItem( item );
 
+    // delete is disabled by default
+    m_deleteRoiAction->setEnabled( false );
+
     // what kind of item is it?
     switch( item->type() )
     {
@@ -760,6 +769,7 @@ void WQtControlPanel::selectRoiTreeItem( QTreeWidgetItem* item )
             props = ( static_cast< WQtRoiTreeItem* >( item ) )->getRoi()->getProperties();
             props->getProperty( "active" )->toPropBool()->set( item->checkState( 0 ) );
             WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getSelectedRoi() );
+            m_deleteRoiAction->setEnabled( true );
             break;
         default:
             break;
