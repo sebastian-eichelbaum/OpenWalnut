@@ -278,6 +278,7 @@ void WMainWindow::setupGUI()
 
     m_permanentToolBar = new WQtToolBar( "Standard Toolbar", this );
     addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
+    m_permanentToolBar->setVisible( false );
 
     m_loadButton = new QAction( m_iconManager.getIcon( "load" ), "Load Dataset or Project", m_permanentToolBar );
     m_loadButton->setShortcut( QKeySequence(  QKeySequence::Open ) );
