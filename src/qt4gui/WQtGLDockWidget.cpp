@@ -53,7 +53,7 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     // the panel contains all other widgets, including the gl widget
     // This allows adding other widgets to certain docks
     m_panel = new QWidget( this );
-    m_layout = new QVBoxLayout();
+    m_layout = new QVBoxLayout( m_panel );
     m_layout->setContentsMargins( 1, 1, 1, 1 );
 
     m_glWidget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( viewTitle.toStdString(), m_panel, projectionMode, shareWidget ) );
