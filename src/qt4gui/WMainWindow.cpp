@@ -205,7 +205,7 @@ void WMainWindow::setupGUI()
     }
 
     // NOTE: this only is an initial size. The state reloaded from QSettings will set it to the value the user had last session.
-    resize( 800, 600 );
+    resize( 1024, 768 );
     setWindowIcon( m_iconManager.getIcon( "logo" ) );
     std::string windowHeading =  std::string( "OpenWalnut " ) + std::string( W_VERSION );
     setWindowTitle( QApplication::translate( "MainWindow", windowHeading.c_str(), 0, QApplication::UnicodeUTF8 ) );
@@ -534,6 +534,7 @@ void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
              m_currentCompatiblesToolbar, SLOT( setToolButtonStyle( Qt::ToolButtonStyle ) ) );
 
     // and the position of the toolbar
+    toolbar->setVisible( false );
     addToolBar( Qt::TopToolBarArea, m_currentCompatiblesToolbar );
 }
 
