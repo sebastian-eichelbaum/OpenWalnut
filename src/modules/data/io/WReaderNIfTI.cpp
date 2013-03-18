@@ -383,7 +383,8 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
                 }
                 // cannot find the appropriate gradient vectors, build a dataSetSingle instead of hardi
                 newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSingle( newValueSet, newGrid ) );
-                wlog::debug( "WReaderNIfTI" ) << "Could not find corresponding gradients file, loading as WDataSetSingle instead.";
+                wlog::debug( "WReaderNIfTI" ) << "Could not find corresponding gradients file \"" << gradientFileName.c_str() <<
+                                                 "\", loading as WDataSetSingle instead.";
             }
             else
             {
