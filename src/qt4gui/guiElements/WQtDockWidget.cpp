@@ -36,6 +36,7 @@ WQtDockWidget::WQtDockWidget( const QString& title, QWidget* parent, Qt::WindowF
     // thats it. we now have the title bar
     m_titleBar = new WQtDockTitleWidget( this );
     setTitleBarWidget( m_titleBar );
+    m_titleBar->updateHelp();
 
     // some standard dock features
     setAllowedAreas( Qt::AllDockWidgetAreas );
@@ -48,6 +49,7 @@ WQtDockWidget::WQtDockWidget( QWidget* parent, Qt::WindowFlags flags ):
     // thats it. we now have the title bar
     m_titleBar = new WQtDockTitleWidget( this );
     setTitleBarWidget( m_titleBar );
+    m_titleBar->updateHelp();
 
     // some standard dock features
     setAllowedAreas( Qt::AllDockWidgetAreas );
@@ -92,6 +94,7 @@ void WQtDockWidget::removeTitleWidget( QWidget* widget )
 void WQtDockWidget::setHelpContext( const QString& id )
 {
     m_helpContextId = id;
+    m_titleBar->updateHelp();
 }
 
 const QString& WQtDockWidget::getHelpContext()

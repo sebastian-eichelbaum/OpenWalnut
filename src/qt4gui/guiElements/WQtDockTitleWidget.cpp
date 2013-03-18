@@ -25,10 +25,11 @@
 #include "../WQt4Gui.h"
 #include "../WMainWindow.h"
 
+#include "WQtDockWidget.h"
 #include "WQtDockTitleWidget.h"
 #include "WQtDockTitleWidget.moc"
 
-WQtDockTitleWidget::WQtDockTitleWidget( QDockWidget* parent ):
+WQtDockTitleWidget::WQtDockTitleWidget( WQtDockWidget* parent ):
     QWidget( parent ),
     dockParent( parent )
 {
@@ -111,6 +112,7 @@ void WQtDockTitleWidget::construct()
     setupSizeConstraints( m_helpBtn );
     m_helpBtn->setMinimumSize( 24, 24 );
     m_helpBtn->setMaximumSize( 24, 24 );
+    m_helpBtn->setVisible( false );
 
     // fill layout
     titleWidgetLayout->addWidget( m_title );
@@ -204,7 +206,7 @@ void WQtDockTitleWidget::addTitleSeperator()
 
 void WQtDockTitleWidget::updateLayouts( int width )
 {
-    // calc the size of widgets and the title and the mandatory close button
+    // calculate the size of widgets and the title and the mandatory close button
     int minRequired = m_title->calculateSize( m_title->text().length() ) +
                       m_moreBtn->sizeHint().width() +
                       m_helpBtn->isVisible() * m_helpBtn->sizeHint().width() +
@@ -240,6 +242,17 @@ void WQtDockTitleWidget::updateLayouts( int width )
         m_toolsMenuLayout->addWidget( *i );
     }
 
-    // hide more button if nothing needs to be hiden
+    // hide more button if nothing needs to be hidden
     m_moreBtn->setHidden( !( hidden.size() ) );
+}
+
+void WQtDockTitleWidget::updateHelp()
+{
+    // hide button if no help is available.
+    if( dockParent->getHelpContext() == "" )
+    {
+        m_helpBtn->setVisible( false );
+        return;
+    }
+    m_helpBtn->setVisible( true );
 }

@@ -36,6 +36,11 @@
 #include "WScaleLabel.h"
 
 /**
+ * We need the dock widget class.
+ */
+class WQtDockWidget;
+
+/**
  * Class for managing dock widget title bars.
  */
 class WQtDockTitleWidget: public QWidget
@@ -47,7 +52,7 @@ public:
      *
      * \param parent the parent
      */
-    explicit WQtDockTitleWidget( QDockWidget* parent );
+    explicit WQtDockTitleWidget( WQtDockWidget* parent );
 
     /**
      * Add the given action to the titlebar. It gets added after the previously added ones.
@@ -90,6 +95,10 @@ public:
      */
     virtual void removeTitleWidget( QWidget* widget );
 
+    /**
+     * Update help button.
+     */
+    virtual void updateHelp();
 protected:
     /**
      * Called upon resize. Used to switch between the more menu and the tools widget
@@ -167,7 +176,7 @@ private:
     /**
      * The parent as dock pointer
      */
-    QDockWidget* dockParent;
+    WQtDockWidget* dockParent;
 
     /**
      * We keep track of the widgets that we add
