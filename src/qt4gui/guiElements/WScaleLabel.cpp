@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <cmath>
+
 #include "../WGuiConsts.h"
 
 #include "WScaleLabel.h"
@@ -63,7 +65,7 @@ WScaleLabel::WScaleLabel( const QString &text, QWidget* parent ):
 
 void WScaleLabel::construct()
 {
-    setMinimumWidth( fontMetrics().width( m_orgText.left( m_minLength ) + tr( ".." ) ) + m_additionalWidth );
+    setMinimumWidth( fontMetrics().width( m_orgText.left( m_minLength ) + tr( "..." ) ) + m_additionalWidth );
     setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Maximum );
     setMargin( WGLOBAL_MARGIN );
     setTextInteractionFlags( Qt::TextSelectableByMouse );
@@ -86,33 +88,20 @@ QSize WScaleLabel::minimumSizeHint() const
 
 size_t WScaleLabel::calculateSize( size_t chars ) const
 {
-    return fontMetrics().width( m_orgText.left( chars ) + tr( ".." ) ) + 2 * margin() + m_additionalWidth;
+    return fontMetrics().width( m_orgText.left( chars ) + tr( "..." ) ) + 2 * margin() + m_additionalWidth;
 }
 
 void WScaleLabel::setText( const QString &text )
 {
     m_orgText = text;
-    setMinimumWidth( fontMetrics().width( m_orgText.left( m_minLength ) + tr( ".." ) ) + 2 * margin() + m_additionalWidth );
+    setMinimumWidth( fontMetrics().width( m_orgText.left( m_minLength ) + tr( "..." ) ) + 2 * margin() + m_additionalWidth );
     fitTextToSize();
 }
 
 void WScaleLabel::fitTextToSize()
 {
-    int newwidth = width();
-    QFontMetrics fn = fontMetrics();
-    if( newwidth < fn.width( m_orgText ) )
-    {
-        QString useText = m_orgText.left( m_orgText.length() - 1 );
-        while( fn.width( useText + tr( ".." ) ) > newwidth || useText.length() == 0 )
-        {
-            useText = useText.left( useText.length() - 1 );
-        }
-        QLabel::setText( useText + tr( ".." ) );
-    }
-    else
-    {
-        QLabel::setText( m_orgText );
-    }
+    QString useText = fontMetrics().elidedText( m_orgText, Qt::ElideRight, width() );
+    QLabel::setText( useText );
 }
 
 void WScaleLabel::addAdditionalWidth( int w )

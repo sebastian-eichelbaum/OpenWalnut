@@ -39,7 +39,7 @@
 #include "WQtMessageDock.h"
 #include "WQtMessageDock.moc"
 
-#define MAXITEMS 25
+#define MAXITEMS 50
 
 WQtMessageDock::WQtMessageDock( QString dockTitle, QWidget* parent ):
     WQtDockWidget( dockTitle, parent )
