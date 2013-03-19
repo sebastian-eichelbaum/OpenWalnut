@@ -130,24 +130,34 @@ WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGET
     }
 
     // create nice widget
-    QWidget* container = new QWidget( m_parent );
+    m_itemWidget = new QWidget( m_parent );
     QHBoxLayout* containerLayout = new QHBoxLayout();
-    container->setLayout( containerLayout );
+    m_itemWidget->setLayout( containerLayout );
 
     // active property
-    WPropertyBoolWidget* active = new WPropertyBoolWidget( m_texture->active(), NULL, container );
+    WPropertyBoolWidget* active = new WPropertyBoolWidget( m_texture->active(), NULL, m_itemWidget );
     containerLayout->addWidget( active );
 
     // create a slider for the  for the texture
-    WScaleLabel* l = new WScaleLabel( QString::fromStdString( m_texture->name()->get() ), 5, container );
+    WScaleLabel* l = new WScaleLabel( QString::fromStdString( m_texture->name()->get() ), 5, m_itemWidget );
     l->setTextInteractionFlags( Qt::NoTextInteraction );
     containerLayout->addWidget( l );
 
     // alpha property
-    WPropertyDoubleWidget* alpha = new WPropertyDoubleWidget( m_texture->alpha(), NULL, container );
+    WPropertyDoubleWidget* alpha = new WPropertyDoubleWidget( m_texture->alpha(), NULL, m_itemWidget );
     containerLayout->addWidget( alpha );
 
-    m_itemWidget = container;
+    // compact layout
+    containerLayout->setContentsMargins( 0, 2, 0, 2 );
+    containerLayout->setSpacing( 0 );
+
+    // prefer stretching the label
+    containerLayout->setStretchFactor( l, 100 );
+    containerLayout->setStretchFactor( active, 0 );
+    containerLayout->setStretchFactor( alpha, 75 );
+
+    // widget size constraints and policies
+    m_itemWidget->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Minimum ) );
 
     // we need to know the name of the texture
     m_nameConnection = m_texture->name()->getUpdateCondition()->subscribeSignal(
@@ -210,7 +220,7 @@ void WQtColormapper::update()
         QWidget* widget = item->getWidget();
 
         m_textureListWidget->addItem( item );    // the list widget removes the item (and frees the reference to the texture pointer).
-        item->setSizeHint( widget->sizeHint() );
+        item->setSizeHint( QSize( 0, widget->sizeHint().height() ) );
         m_textureListWidget->setItemWidget( item, widget );
 
         // is the item the texture that has been selected previously?
