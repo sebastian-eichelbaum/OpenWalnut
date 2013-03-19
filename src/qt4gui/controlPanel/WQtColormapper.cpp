@@ -42,8 +42,11 @@
 #include "core/dataHandler/exceptions/WDHNoSuchSubject.h"
 #include "core/graphicsEngine/WGEColormapping.h"
 #include "core/graphicsEngine/WGETexture.h"
+#include "WPropertyBoolWidget.h"
+#include "WPropertyDoubleWidget.h"
 #include "../events/WUpdateTextureSorterEvent.h"
 #include "../events/WEventTypes.h"
+#include "../guiElements/WScaleLabel.h"
 #include "../WQt4Gui.h"
 #include "../WMainWindow.h"
 
@@ -61,6 +64,7 @@ WQtColormapper::WQtColormapper( QWidget* parent )
                                      + "</b> textures will be applied." );
     this->setAllowedAreas( Qt::AllDockWidgetAreas );
     this->setFeatures( QDockWidget::AllDockWidgetFeatures );
+    m_textureListWidget->setDragDropMode( QAbstractItemView::InternalMove );
 
     QWidget* panel = new QWidget( this );
 
@@ -113,15 +117,37 @@ WQtColormapper::~WQtColormapper()
 }
 
 WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGETexture3D > texture, WQtColormapper* cmapper, QListWidget* parent ):
-    QListWidgetItem( QString::fromStdString( texture->name()->get() ), parent ),
-    m_texture( texture )
+    QListWidgetItem( parent ),
+    m_texture( texture ),
+    m_parent( parent )
 {
     // only show the filename. If the name is not a filename, the texture name is used directly
     std::vector< std::string > names = string_utils::tokenize( texture->name()->get().c_str(), "/" );
+    QString name = QString::fromStdString( texture->name()->get() );
     if( names.size() )
     {
-        setText( QString::fromStdString( names.back() ) );
+        name = QString::fromStdString( names.back() );
     }
+
+    // create nice widget
+    QWidget* container = new QWidget( m_parent );
+    QHBoxLayout* containerLayout = new QHBoxLayout();
+    container->setLayout( containerLayout );
+
+    // active property
+    WPropertyBoolWidget* active = new WPropertyBoolWidget( m_texture->active(), NULL, container );
+    containerLayout->addWidget( active );
+
+    // create a slider for the  for the texture
+    WScaleLabel* l = new WScaleLabel( QString::fromStdString( m_texture->name()->get() ), 5, container );
+    l->setTextInteractionFlags( Qt::NoTextInteraction );
+    containerLayout->addWidget( l );
+
+    // alpha property
+    WPropertyDoubleWidget* alpha = new WPropertyDoubleWidget( m_texture->alpha(), NULL, container );
+    containerLayout->addWidget( alpha );
+
+    m_itemWidget = container;
 
     // we need to know the name of the texture
     m_nameConnection = m_texture->name()->getUpdateCondition()->subscribeSignal(
@@ -137,6 +163,11 @@ WQtColormapper::WQtTextureListItem::~WQtTextureListItem()
 const osg::ref_ptr< WGETexture3D > WQtColormapper::WQtTextureListItem::getTexture() const
 {
     return m_texture;
+}
+
+QWidget* WQtColormapper::WQtTextureListItem::getWidget() const
+{
+    return m_itemWidget;
 }
 
 void WQtColormapper::pushUpdateEvent()
@@ -176,7 +207,11 @@ void WQtColormapper::update()
     for( WGEColormapping::TextureConstIterator iter = r->get().begin(); iter != r->get().end(); ++iter )
     {
         WQtTextureListItem* item = new WQtTextureListItem( *iter, this, m_textureListWidget );
+        QWidget* widget = item->getWidget();
+
         m_textureListWidget->addItem( item );    // the list widget removes the item (and frees the reference to the texture pointer).
+        item->setSizeHint( widget->sizeHint() );
+        m_textureListWidget->setItemWidget( item, widget );
 
         // is the item the texture that has been selected previously?
         if( item->getTexture() == lastSelected )

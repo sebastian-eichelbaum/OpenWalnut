@@ -152,6 +152,12 @@ private:
          */
         const osg::ref_ptr< WGETexture3D > getTexture() const;
 
+        /**
+         * Create a new widget for this item.
+         *
+         * \return the widget
+         */
+        QWidget* getWidget() const;
     private:
         /**
          * The texture that gets handled
@@ -162,6 +168,16 @@ private:
          * Connection for the texture's name property
          */
         boost::signals2::connection m_nameConnection;
+
+        /**
+         * PArent list.
+         */
+        QListWidget* m_parent;
+
+        /**
+         * Widget representing the item.
+         */
+        QWidget* m_itemWidget;
     };
 
 private slots:
