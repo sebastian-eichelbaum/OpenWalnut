@@ -170,7 +170,7 @@ private:
         boost::signals2::connection m_nameConnection;
 
         /**
-         * PArent list.
+         * Parent list.
          */
         QListWidget* m_parent;
 
@@ -181,6 +181,17 @@ private:
     };
 
 private slots:
+
+    /**
+     * A item was moved into another row
+     *
+     * \param sourceParent parent of the item(s) moved.
+     * \param sourceStart items moved start index
+     * \param sourceEnd items moved end index (when multiple selected)
+     * \param destinationParent item moved as childs for this item
+     * \param destinationRow items moved to this position
+     */
+    void rowsMoved( const QModelIndex& sourceParent, int sourceStart, int sourceEnd, const QModelIndex& destinationParent, int destinationRow );
 
     /**
      * Handles a click to a texture in the list

@@ -218,9 +218,20 @@ public:
      * Move the specified texture one item down in the list. Causes the sort signal to fire.
      *
      * \param texture the texture swapped with its descendant
+     *
      * \return true if swap was successful. False if not (texture not found, texture already at end).
      */
     bool moveDown( osg::ref_ptr< WGETexture3D > texture );
+
+    /**
+     * Move the texture to the specified index. If the texture is not in the list, nothing happens.
+     *
+     * \param texture the texture to move
+     * \param idx the target index
+     *
+     * \return true if the operation was successful.
+     */
+    bool moveTo( osg::ref_ptr< WGETexture3D > texture, size_t idx );
 
     /**
      * Counts the number of textures in the colormapper.

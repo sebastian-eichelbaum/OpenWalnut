@@ -401,6 +401,52 @@ bool WGEColormapping::moveToBottom( osg::ref_ptr< WGETexture3D > texture )
     return true;
 }
 
+bool WGEColormapping::moveTo( osg::ref_ptr< WGETexture3D > texture, size_t idx )
+{
+    TextureContainerType::WriteTicket w = m_textures.getWriteTicket();
+
+    // does the texture exist?
+    TextureContainerType::Iterator iter = std::find( w->get().begin(), w->get().end(), texture );
+    if( iter == w->get().end() )
+    {
+        return false;
+    }
+
+    // valid index?
+    // NOTE: we accept index == size as the end iterator.
+    if( idx > w->get().size() )
+    {
+        return false;
+    }
+
+    // is it already there?
+    if( iter == ( w->get().begin() + idx  ) )
+    {
+        return false;
+    }
+
+    // after inserting the item somewhere, the index of the original item might change
+    TextureContainerType::Iterator eraseIdx = iter;  // item is inserted behind the current one -> index of the original item stays the same
+    size_t eraseShift = 0;
+    // if the inserted element is in front of the old one, the old one's index is increasing
+    if( ( w->get().begin() + idx ) < iter )
+    {
+        eraseShift++;
+    }
+
+    // do the op
+    // NOTE: this is not the best way to do it. Manually moving items should be better. But as the colormapper has to handle only a small number
+    // of elements, this is not critical.
+    w->get().insert( w->get().begin() + idx, texture );
+    w->get().erase( eraseIdx + eraseShift );
+
+    // unlock and call callbacks
+    w.reset();
+    m_sortSignal();
+
+    return true;
+}
+
 size_t WGEColormapping::size() const
 {
     return m_textures.size();

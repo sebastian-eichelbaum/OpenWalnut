@@ -37,6 +37,7 @@
 #include <QtGui/QListWidgetItem>
 #include <QtGui/QApplication>
 
+#include "core/common/WAssert.h"
 #include "core/dataHandler/WDataSet.h"
 #include "core/dataHandler/WDataHandler.h"
 #include "core/dataHandler/exceptions/WDHNoSuchSubject.h"
@@ -65,6 +66,11 @@ WQtColormapper::WQtColormapper( QWidget* parent )
     this->setAllowedAreas( Qt::AllDockWidgetAreas );
     this->setFeatures( QDockWidget::AllDockWidgetFeatures );
     m_textureListWidget->setDragDropMode( QAbstractItemView::InternalMove );
+
+    // be notified when moving items around
+    connect( m_textureListWidget->model(), SIGNAL( rowsMoved( const QModelIndex&, int, int, const QModelIndex&, int ) ),
+             this, SLOT( rowsMoved( const QModelIndex&, int, int, const QModelIndex&, int ) ) );
+
 
     QWidget* panel = new QWidget( this );
 
@@ -289,6 +295,21 @@ void WQtColormapper::selectTexture( boost::shared_ptr< WDataSet > dataSet )
         {
             m_textureListWidget->setCurrentItem( item );
         }
+    }
+}
+
+void WQtColormapper::rowsMoved( const QModelIndex& sourceParent, int sourceStart, int sourceEnd,
+                                const QModelIndex& destinationParent, int destinationRow )
+{
+    WAssert( sourceStart == sourceEnd, "Multiple texture items selected. This should not be the case." );
+    WAssert( sourceParent == destinationParent, "Source and target parent are not the same. This should not be the case." );
+
+    // just utilize WGEColormapper for this:
+    boost::shared_ptr< WGEColormapping > cm = WGEColormapping::instance();
+    WQtTextureListItem* item = dynamic_cast< WQtTextureListItem* >( m_textureListWidget->item( m_textureListWidget->currentIndex().row() ) );
+    if( item )
+    {
+        cm->moveTo( item->getTexture(), destinationRow );
     }
 }
 
