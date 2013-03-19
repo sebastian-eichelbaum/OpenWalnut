@@ -144,16 +144,22 @@ WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGET
 
     // active property
     WPropertyBoolWidget* active = new WPropertyBoolWidget( m_texture->active(), NULL, m_itemWidget );
-    containerLayout->addWidget( active );
+    active->setToolTip( "Turn this texture on or off. A turned off texture is completely invisible." );
 
     // create a slider for the  for the texture
-    WScaleLabel* l = new WScaleLabel( QString::fromStdString( m_texture->name()->get() ), 5, m_itemWidget );
+    QWidget* labelContainer = new QWidget( m_itemWidget );
+    QHBoxLayout* labelContainerLayout = new QHBoxLayout();
+    labelContainer->setLayout( labelContainerLayout );
+
+    WScaleLabel* l = new WScaleLabel( QString::fromStdString( m_texture->name()->get() ), 5, labelContainer );
     l->setTextInteractionFlags( Qt::NoTextInteraction );
-    containerLayout->addWidget( l );
+    l->setToolTip( "The name of this texture. This usually is the name of the file it was loaded from." );
+    labelContainerLayout->addWidget( l );
 
     // alpha property
     WPropertyDoubleWidget* alpha = new WPropertyDoubleWidget( m_texture->alpha(), NULL, m_itemWidget );
-    containerLayout->addWidget( alpha );
+    alpha->setToolTip( "Change transparency of a texture. The higher this value, the more opaque is the texture. "
+                       "This is very useful for mixing several datasets." );
 
     // create a button for opening the texture props
 
@@ -180,8 +186,35 @@ WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGET
     propActionBtn->setToolButtonStyle( Qt::ToolButtonIconOnly );
     propActionBtn->setContentsMargins( 0, 0, 0, 0 );
     propActionBtn->setAutoRaise( true );
+    propActionBtn->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
+    propActionBtn->setToolTip( "Show all the configuration options for this texture and its colormap." );
 
-    // done. Add button.
+    QLabel* grabWidget = new QLabel( m_itemWidget );
+    grabWidget->setPixmap( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "touchpoint" ).pixmap( 24, 48 ) );
+    grabWidget->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
+    grabWidget->setFixedWidth( 24 );
+    grabWidget->setToolTip( "Drag and drop these textures to change their composition ordering." );
+
+    // style
+    QPalette palette;
+    QColor defaultCol = palette.window().color();
+
+    // label color
+    QColor labelCol = defaultCol.darker( 115 );
+    // property color
+    QColor propertyCol = defaultCol;
+
+    propActionBtn->setStyleSheet( "background-color:" + propertyCol.name() + ";" );
+    //active->setStyleSheet( "background-color:" + propertyCol.name() + ";" );
+    alpha->setStyleSheet( "#ControlPanelPropertyWidget{ background-color:" + propertyCol.name() + ";}" );
+    l->setStyleSheet( "background-color:" + labelCol.name() + ";" );
+    labelContainer->setStyleSheet( "background-color:" + labelCol.name() + ";" );
+
+    // fill layout
+    containerLayout->addWidget( grabWidget );
+    containerLayout->addWidget( active );
+    containerLayout->addWidget( labelContainer );
+    containerLayout->addWidget( alpha );
     containerLayout->addWidget( propActionBtn );
 
     // compact layout
@@ -189,8 +222,8 @@ WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGET
     containerLayout->setSpacing( 0 );
 
     // prefer stretching the label
-    containerLayout->setStretchFactor( l, 100 );
     containerLayout->setStretchFactor( active, 0 );
+    containerLayout->setStretchFactor( labelContainer, 100 );
     containerLayout->setStretchFactor( alpha, 75 );
     containerLayout->setStretchFactor( propActionBtn, 0 );
 

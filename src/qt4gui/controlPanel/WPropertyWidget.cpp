@@ -60,6 +60,8 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
     m_informationWidgets(),       // parent gets set by the QStackWidget
     m_invalid( false )
 {
+    setObjectName( "ControlPanelPropertyWidget" );
+
     // define some colors
     QPalette palette;
     QColor defaultCol = palette.window().color();
@@ -106,7 +108,6 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
         m_label.setStyleSheet( " padding-left:1px; background-color:" + m_labelCol.name() + ";" );
 
         // set style of this property widget
-        setObjectName( "ControlPanelPropertyWidget" );
         setStyleSheet( "QStackedWidget#ControlPanelPropertyWidget{ background-color:" + m_propertyCol.name() +
                                                                    "; margin-left:1px; margin-right:1px; }" );
     }
