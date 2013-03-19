@@ -36,6 +36,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QListWidgetItem>
 #include <QtGui/QApplication>
+#include <QtGui/QWidgetAction>
 
 #include "core/common/WAssert.h"
 #include "core/dataHandler/WDataSet.h"
@@ -45,6 +46,7 @@
 #include "core/graphicsEngine/WGETexture.h"
 #include "WPropertyBoolWidget.h"
 #include "WPropertyDoubleWidget.h"
+#include "WQtPropertyGroupWidget.h"
 #include "../events/WUpdateTextureSorterEvent.h"
 #include "../events/WEventTypes.h"
 #include "../guiElements/WScaleLabel.h"
@@ -153,6 +155,35 @@ WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGET
     WPropertyDoubleWidget* alpha = new WPropertyDoubleWidget( m_texture->alpha(), NULL, m_itemWidget );
     containerLayout->addWidget( alpha );
 
+    // create a button for opening the texture props
+
+    // first, create a property group widget and an according widget action
+    QScrollArea* sa = new QScrollArea( m_itemWidget );
+    QWidget* props = WQtPropertyGroupWidget::createPropertyGroupBox(
+                         m_texture->getProperties(), QString::fromStdString( "Configure Colormap" ), 0, sa
+                     );
+    sa->setWidget( props );
+
+    // create widget action
+    QWidgetAction* propAction = new QWidgetAction( m_itemWidget );
+    propAction->setDefaultWidget( sa );
+
+    // add it into an menu
+    QMenu* propActionMenu = new QMenu();
+    propActionMenu->addAction( propAction );
+
+    // tool button
+    QToolButton* propActionBtn = new QToolButton( m_itemWidget );
+    propActionBtn->setPopupMode( QToolButton::InstantPopup );
+    propActionBtn->setMenu( propActionMenu );
+    propActionBtn->setIcon( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
+    propActionBtn->setToolButtonStyle( Qt::ToolButtonIconOnly );
+    propActionBtn->setContentsMargins( 0, 0, 0, 0 );
+    propActionBtn->setAutoRaise( true );
+
+    // done. Add button.
+    containerLayout->addWidget( propActionBtn );
+
     // compact layout
     containerLayout->setContentsMargins( 0, 2, 0, 2 );
     containerLayout->setSpacing( 0 );
@@ -161,9 +192,10 @@ WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGET
     containerLayout->setStretchFactor( l, 100 );
     containerLayout->setStretchFactor( active, 0 );
     containerLayout->setStretchFactor( alpha, 75 );
+    containerLayout->setStretchFactor( propActionBtn, 0 );
 
     // widget size constraints and policies
-    m_itemWidget->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Minimum ) );
+    m_itemWidget->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
 
     // we need to know the name of the texture
     m_nameConnection = m_texture->name()->getUpdateCondition()->subscribeSignal(
