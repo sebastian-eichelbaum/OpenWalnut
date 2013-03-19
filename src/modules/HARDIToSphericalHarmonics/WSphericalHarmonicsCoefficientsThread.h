@@ -68,7 +68,9 @@ public:
          * \param flag A reference to a shutdown flag that we should listen to.
          */
         ThreadParameter( WBoolFlag const& flag ) // NOLINT no explicit
-            : m_shutdownFlag( flag )
+          : m_CSADelta1( 0.01 ),
+            m_CSADelta2( 0.01 ),
+            m_shutdownFlag( flag )
         {
         }
 
@@ -148,6 +150,16 @@ public:
          * Indicate if the constant solid angle reconstruction is done.
          */
         bool m_csa;
+
+        /**
+         * Delta1 value for the constant solid angle reconstruction.
+         */
+        double m_CSADelta1;
+
+        /**
+         * Delta2 value for the constant solid angle reconstruction.
+         */
+        double m_CSADelta2;
 
         /**
          * A shutdownFlag that may tell the thread to stop.
@@ -244,28 +256,26 @@ void WSphericalHarmonicsCoefficientsThread< T >::threadMain()
 
         // double minVal = 1e99;
         // double maxVal = -1e99;
-        double thresholdDelta1 = 0.01;
-        double thresholdDelta2 = 0.01;
         for( std::vector< size_t >::const_iterator it = m_parameter.m_validIndices.begin(); it != m_parameter.m_validIndices.end(); it++, idx++ )
         {
             if( m_parameter.m_csa )
             {
                 double val = static_cast< double >( allMeasures[ *it ] ) / S0avg;
-                if( val < 0.0)
+                if( val < 0.0 )
                 {
-                    val = thresholdDelta1 / 2.0;
+                    val = m_parameter.m_CSADelta1 / 2.0;
                 }
-                else if( val < thresholdDelta1 )
+                else if( val < m_parameter.m_CSADelta1 )
                 {
-                    val = thresholdDelta1 / 2.0 + val * val / ( 2.0 * thresholdDelta1 );
+                    val = m_parameter.m_CSADelta1 / 2.0 + val * val / ( 2.0 * m_parameter.m_CSADelta1 );
                 }
-                else if( val > 1.0 - thresholdDelta2 && val < 1.0 )
+                else if( val > 1.0 - m_parameter.m_CSADelta2 && val < 1.0 )
                 {
-                    val = 1.0 - thresholdDelta2 / 2.0 - std::pow( 1.0 - val, 2 ) / ( 2.0 * thresholdDelta2 );
+                    val = 1.0 - m_parameter.m_CSADelta2 / 2.0 - std::pow( 1.0 - val, 2 ) / ( 2.0 * m_parameter.m_CSADelta2 );
                 }
                 else if( val >= 1.0 )
                 {
-                    val = 1.0 - thresholdDelta2 / 2.0;
+                    val = 1.0 - m_parameter.m_CSADelta2 / 2.0;
                 }
                 measures[ idx ] = std::log( -std::log( val  ) );
             }

@@ -120,6 +120,8 @@ void WMHARDIToSphericalHarmonics::moduleMain()
             m_doErrorCalculation->setHidden( false );
             m_doResidualCalculation->setHidden( false );
             m_doNormalisation->setHidden( false );
+            m_CSADelta1->setHidden();
+            m_CSADelta2->setHidden();
             reconstructionType = DEFAULT;
             break;
         case 1:
@@ -127,6 +129,8 @@ void WMHARDIToSphericalHarmonics::moduleMain()
             m_doErrorCalculation->setHidden();
             m_doResidualCalculation->setHidden();
             m_doNormalisation->setHidden();
+            m_CSADelta1->setHidden( false );
+            m_CSADelta2->setHidden( false );
             reconstructionType = CSA;
             break;
         }
@@ -215,6 +219,8 @@ void WMHARDIToSphericalHarmonics::moduleMain()
                 parameter.m_doErrorCalculation = false;
                 parameter.m_normalize = false;
                 parameter.m_doFunkRadonTransformation = false;
+                parameter.m_CSADelta1 = m_CSADelta1->get( true );
+                parameter.m_CSADelta2 = m_CSADelta2->get( true );
                 transformMatrix = WSymmetricSphericalHarmonic::getSHFittingMatrixForConstantSolidAngle( gradients,
                                                                                                         order,
                                                                                                         m_regularisationFactorLambda->get( true ) );
@@ -319,6 +325,20 @@ void WMHARDIToSphericalHarmonics::properties()
                                                    "Normalise the HARDI measurements to 0 to 1 for each voxel.",
                                                    false,
                                                    m_propCondition );
+
+    m_CSADelta1 = m_properties->addProperty( "delta 1",
+                                             "delta1 threshold",
+                                             0.01,
+                                             m_propCondition );
+    m_CSADelta1->setMin( 0.0 );
+    m_CSADelta1->setMax( 1.0 );
+
+    m_CSADelta2 = m_properties->addProperty( "delta 2",
+                                             "delta2 threshold",
+                                             0.01,
+                                             m_propCondition );
+    m_CSADelta2->setMin( 0.0 );
+    m_CSADelta2->setMax( 1.0 );
 
 // vista-daten
     // order    Gesamtfehler
