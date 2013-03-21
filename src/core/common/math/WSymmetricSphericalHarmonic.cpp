@@ -513,6 +513,8 @@ WMatrix< double > WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( std::siz
 
     WMatrix< double > p = pseudoInverse( TEMat );
 
+    WAssert( ( TEMat*p ).isIdentity( 1e-3 ), "Test of inverse matrix failed. Are the given orientations linear independent?" );
+
     return p * calcBaseMatrix( ori2, order );
 }
 
