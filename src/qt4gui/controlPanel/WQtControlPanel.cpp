@@ -196,7 +196,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_tiModules->setText( 0, QString( "Subject-independent Modules" ) );
     m_tiModules->setToolTip( 0, "Subject-independent modules and modules for which no parent module could be detected." );
     m_tiRois = new WQtRoiHeaderTreeItem( m_roiTreeWidget );
-    m_tiRois->setText( 0, QString( "ROIs" ) );
+    m_roiTreeWidget->setItemWidget( m_tiRois, 0, m_tiRois->getWidget() );
 
     connectSlots();
 
@@ -630,11 +630,15 @@ void WQtControlPanel::addRoi( osg::ref_ptr< WROI > roi )
     if( !found )
     {
         branchItem = m_tiRois->addBranch( WKernel::getRunningKernel()->getRoiManager()->getBranch( roi ) );
+        m_roiTreeWidget->setItemWidget( branchItem, 0, branchItem->getWidget() );
     }
 
     branchItem->setExpanded( true );
+
     newItem = branchItem->addRoiItem( roi );
     newItem->setDisabled( false );
+    m_roiTreeWidget->setItemWidget( newItem, 0, newItem->getWidget() );
+
     m_roiTreeWidget->setCurrentItem( newItem );
     WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getSelectedRoi() );
     selectRoiTreeItem( newItem );
@@ -767,7 +771,6 @@ void WQtControlPanel::selectRoiTreeItem( QTreeWidgetItem* item )
             break;
         case ROI:
             props = ( static_cast< WQtRoiTreeItem* >( item ) )->getRoi()->getProperties();
-            props->getProperty( "active" )->toPropBool()->set( item->checkState( 0 ) );
             WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getSelectedRoi() );
             m_deleteRoiAction->setEnabled( true );
             break;

@@ -31,6 +31,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QAction>
 #include <QtGui/QHBoxLayout>
+#include <QtGui/QToolButton>
 
 #include "../guiElements/WScaleLabel.h"
 
@@ -56,6 +57,13 @@ public:
      * Destructor.
      */
     virtual ~WPropertyColorWidget();
+
+    /**
+     * Hide the button for a more compact layout.
+     *
+     * \param hide true to hide
+     */
+    void setColorPickerButtonHidden( bool hide = true );
 
 protected:
     /**
@@ -95,6 +103,11 @@ protected:
      * Color display panel
      */
     QWidget* m_colPanel;
+
+    /**
+     * Color picker button
+     */
+    QToolButton* m_colButton;
 
     /**
      * Layout used to position the label and the checkbox

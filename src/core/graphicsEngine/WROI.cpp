@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <list>
+#include <string>
 
 #include "WROI.h"
 #include "WPickHandler.h"
@@ -41,15 +42,33 @@ void WROI::properties()
 {
     m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "This ROI's properties" ) );
 
-    m_active = m_properties->addProperty( "active", "", true, boost::bind( &WROI::propertyChanged, this ) );
-    m_active->setHidden( true );
-
-    m_show = m_properties->addProperty( "Show", "Toggles visibility of the roi", true, boost::bind( &WROI::propertyChanged, this ) );
-
+    m_name = m_properties->addProperty( "Name", "The name of this ROI.", std::string( "ROI" ) );
+    m_active = m_properties->addProperty( "Active", "Enable or disable the ROI.", true, boost::bind( &WROI::propertyChanged, this ) );
+    m_show = m_properties->addProperty( "Show", "Toggles visibility of the ROI but does not disable it.", true,
+                                        boost::bind( &WROI::propertyChanged, this ) );
+    m_not = m_properties->addProperty( "Not", "Negates the effect of this ROI.", false, boost::bind( &WROI::propertyChanged, this ) );
     m_dirty = m_properties->addProperty( "Dirty", "", true ); // boost::bind( &WROI::propertyChanged, this ) );
     m_dirty->setHidden( true );
+}
 
-    m_not = m_properties->addProperty( "Not", "Negates the effect of this ROI.", false, boost::bind( &WROI::propertyChanged, this ) );
+WPropBool WROI::invertProperty()
+{
+    return m_not;
+}
+
+WPropBool WROI::showProperty()
+{
+    return m_show;
+}
+
+WPropString WROI::nameProperty()
+{
+    return m_name;
+}
+
+WPropBool WROI::activeProperty()
+{
+    return m_active;
 }
 
 void WROI::propertyChanged()
