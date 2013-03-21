@@ -141,6 +141,9 @@ private:
      */
     WPropBool m_doNormalisation;
 
+    WPropDouble m_CSADelta1; //!< Delta1 value for the constant solid angle reconstruction.
+
+    WPropDouble m_CSADelta2; //!< Delta2 value for the constant solid angle reconstruction.
     /**
      * This is a pointer to the dataset the module is currently working on.
      */
