@@ -152,7 +152,7 @@ double WSymmetricSphericalHarmonic::calcGFA( std::vector< WUnitSphereCoordinates
     double d = 0.0;
     double gfa = 0.0;
     double mean = 0.0;
-    double v[ 15 ];
+    std::vector< double > v( orientations.size() );
 
     for( std::size_t i = 0; i < orientations.size(); ++i )
     {
