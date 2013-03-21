@@ -205,7 +205,7 @@ WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGET
     QColor propertyCol = defaultCol;
 
     propActionBtn->setStyleSheet( "background-color:" + propertyCol.name() + ";" );
-    //active->setStyleSheet( "background-color:" + propertyCol.name() + ";" );
+    active->setStyleSheet( "background-color:" + labelCol.name() + ";" );
     alpha->setStyleSheet( "#ControlPanelPropertyWidget{ background-color:" + propertyCol.name() + ";}" );
     l->setStyleSheet( "background-color:" + labelCol.name() + ";" );
     labelContainer->setStyleSheet( "background-color:" + labelCol.name() + ";" );
