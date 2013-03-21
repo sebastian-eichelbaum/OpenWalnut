@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <list>
+#include <string>
 #include <vector>
 
 #include "../graphicsEngine/WGraphicsEngine.h"
@@ -47,9 +48,11 @@ void WRMBranch::properties()
 
     m_dirty = m_properties->addProperty( "Dirty", "", true, boost::bind( &WRMBranch::propertyChanged, this ) );
     m_dirty->setHidden( true );
+    m_name = m_properties->addProperty( "Name", "The name of this branch.", std::string( "Branch" ) );
     m_isNot = m_properties->addProperty( "Not", "Negate the effect of this branch.", false, boost::bind( &WRMBranch::propertyChanged, this ) );
-    m_bundleColor = m_properties->addProperty( "Bundle color", "", WColor( 1.0, 0.0, 0.0, 1.0 ),
+    m_bundleColor = m_properties->addProperty( "Bundle color", "Color the selected fibers using this color.", WColor( 1.0, 0.0, 0.0, 1.0 ),
                                                boost::bind( &WRMBranch::propertyChanged, this ) );
+
     m_changeRoiSignal = boost::shared_ptr< boost::function< void() > >( new boost::function< void() >( boost::bind( &WRMBranch::setDirty, this ) ) );
 }
 
@@ -58,6 +61,20 @@ void WRMBranch::propertyChanged()
     setDirty();
 }
 
+WPropString WRMBranch::nameProperty()
+{
+    return m_name;
+}
+
+WPropBool WRMBranch::invertProperty()
+{
+    return m_isNot;
+}
+
+WPropColor WRMBranch::colorProperty()
+{
+    return m_bundleColor;
+}
 
 void WRMBranch::addRoi( osg::ref_ptr< WROI > roi )
 {

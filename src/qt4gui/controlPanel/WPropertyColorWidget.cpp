@@ -65,19 +65,20 @@ WPropertyColorWidget::WPropertyColorWidget( WPropColor property, QGridLayout* pr
     wLayout->setContentsMargins( 0, 0, 0, 0 );
     wLayout->setSpacing( 0 );
 
-    QToolButton* colButton = new QToolButton( this );
+    m_colButton = new QToolButton( this );
     m_colorPickerAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "colorwheel" ), "Select Color", this );
     connect( m_colorPickerAction, SIGNAL( triggered( bool ) ), this, SLOT( buttonClicked() ) );
-    colButton->setDefaultAction( m_colorPickerAction );
-    colButton->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
-    colButton->setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Fixed ) );
+    m_colButton->setDefaultAction( m_colorPickerAction );
+    m_colButton->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
+    m_colButton->setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Fixed ) );
 
-    m_colPanel = new QWidget( &m_widget );
-    m_colPanel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed ) );
-    m_colPanel->setFixedSize( 32, 32 );
+    m_colPanel = new QPushButton( &m_widget );
+    m_colPanel->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
+    m_colPanel->setMinimumSize( 24, 24 );
+    connect( m_colPanel, SIGNAL( clicked( bool ) ), this, SLOT( buttonClicked() ) );
 
     wLayout->addWidget( m_colPanel );
-    wLayout->addWidget( colButton );
+    wLayout->addWidget( m_colButton );
 
     // accept drag and drop
     setAcceptDrops( true );
@@ -89,6 +90,11 @@ WPropertyColorWidget::WPropertyColorWidget( WPropColor property, QGridLayout* pr
 WPropertyColorWidget::~WPropertyColorWidget()
 {
     // cleanup
+}
+
+void WPropertyColorWidget::setColorPickerButtonHidden( bool hide )
+{
+    m_colButton->setVisible( !hide );
 }
 
 void WPropertyColorWidget::update()
@@ -105,6 +111,7 @@ void WPropertyColorWidget::setColor( const QColor& bgColor )
                    << bgColor.red() << ","
                    << bgColor.green() << ","
                    << bgColor.blue() << ");"
+                   << "border:none;"
                    << "}";
 
     std::stringstream buttonColorText;
