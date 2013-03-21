@@ -156,6 +156,21 @@ T factorial( T i )
     return res;
 }
 
+/**
+ * Checks if two values are equal within a given delta.
+ *
+ * \tparam The floating point type.
+ * \param a The first value.
+ * \param b The second value.
+ * \param delta The tolerance parameter.
+ * \return True if both values are equal within the delta, otherwise false.
+ */
+template< typename T >
+T areEqual( T a, T b, T delta = T( 0 ) )
+{
+    return ( std::fabs( a - b ) <= delta );
+}
+
 template< typename T > inline int signum( const T& value )
 {
     if( value < 0 )
