@@ -247,6 +247,28 @@ public:
           for( size_t col = 0; col < nbCols; col++ )
             TS_ASSERT_EQUALS( matrixTransposed( col, row ), ( row+1 )*10 + col + 1 );
     }
+
+    /**
+     * Test isIdentity method of WMatrix
+     */
+    void testIsIdentity( void )
+    {
+        WMatrix< double > a( 3, 2 );
+        a.makeIdentity();
+        TS_ASSERT_EQUALS( a.isIdentity(), false );
+
+        WMatrix< double > b( 3, 3 );
+        b.makeIdentity();
+        TS_ASSERT_EQUALS( b.isIdentity(), true );
+
+        b( 0, 0 ) += 1e-3;
+        TS_ASSERT_EQUALS( b.isIdentity(), false );
+        TS_ASSERT_EQUALS( b.isIdentity( 1e-3 ), true );
+
+        b( 0, 1 ) += 2e-3;
+        TS_ASSERT_EQUALS( b.isIdentity( 1e-3 ), false );
+        TS_ASSERT_EQUALS( b.isIdentity( 2e-3 ), true );
+    }
 };
 
 #endif  // WMATRIX_TEST_H

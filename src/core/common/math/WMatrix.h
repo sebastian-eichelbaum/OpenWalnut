@@ -195,6 +195,19 @@ public:
         }
     }
 
+    /**
+     * Returns true if the matrix is a square matrix.
+     * \return true for square matrixes, otherwise false.
+     */
+    bool isSquare() const;
+
+    /**
+     * Returns true if the matrix is a identity matrix.
+     * \param delta - tolerance parameter when checking the values.
+     * \return true for identity matrixes, otherwise false.
+     */
+    bool isIdentity( T delta = T( 0.0 ) ) const;
+
 protected:
 private:
     size_t m_nbCols; //!< Number of columns of the matrix. The number of rows will be computed by (size/m_nbCols).
@@ -452,6 +465,33 @@ template< typename T > WVector3d WMatrix< T >::operator*( const WVector3d& rhs )
         }
     }
     return result;
+}
+
+template< typename T > bool WMatrix< T >::isSquare() const
+{
+    return getNbRows() == getNbCols();
+}
+
+template< typename T > bool WMatrix< T >::isIdentity( T delta ) const
+{
+    if( !isSquare() )
+    {
+        return false;
+    }
+
+    for( size_t row = 0; row < getNbRows(); row++ )
+    {
+        for( size_t col = 0; col < getNbCols(); col++ )
+        {
+            T val = ( *this )( row, col );
+            T expected = ( row == col ? T( 1.0 ) : T( 0.0 ) );
+            if( std::fabs( val - expected ) > delta )
+            {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 template< typename T >
