@@ -270,7 +270,7 @@ bool sortIndexComparator( osg::ref_ptr< WGETexture3D > a, osg::ref_ptr< WGETextu
 void WGEColormapping::sortByIndex()
 {
     // use sort with custom comparator
-    sort( &sortIndexComparator );
+    stableSort( &sortIndexComparator );
 }
 
 void WGEColormapping::setSortIndices()
