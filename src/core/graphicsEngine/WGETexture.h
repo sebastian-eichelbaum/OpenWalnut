@@ -96,6 +96,13 @@ public:
     WPropString name() const;
 
     /**
+     * The sorting index in the colormapper's texture list.
+     *
+     * \return the property.
+     */
+    WPropInt sortIndex() const;
+
+    /**
      * Get the minimum in the de-scaled value space. The property can be changed. A change affects all colormaps using this texture. But be
      * careful as the texture creating depends on these values.
      *
@@ -331,6 +338,11 @@ private:
     WPropString m_name;
 
     /**
+     * The sort index of the texture. This is important for restoring and saving the colormapper's sorting.
+     */
+    WPropInt m_sortIdx;
+
+    /**
      * The minimum of each value in the texture in unscaled space.
      */
     WPropDouble m_min;
@@ -458,6 +470,11 @@ void WGETexture< TextureType >::setupProperties( double scale, double min )
 
     m_name = m_properties->addProperty( "Name", "The name of the texture.", std::string( "Unnamed" ) );
 
+    m_sortIdx = m_properties->addProperty( "Sort Index",
+                                           "The index specifies the index in the colormapper, used to restore colormapper sorting on load.",
+                                           -1 );
+    m_sortIdx->setHidden( true );
+
     // initialize members
     m_min = m_properties->addProperty( "Minimum", "The minimum value in the original space.", min, true );
     m_min->removeConstraint( m_min->getMin() );
@@ -541,6 +558,12 @@ template < typename TextureType >
 inline WPropString WGETexture< TextureType >::name() const
 {
     return m_name;
+}
+
+template < typename TextureType >
+inline WPropInt WGETexture< TextureType >::sortIndex() const
+{
+    return m_sortIdx;
 }
 
 template < typename TextureType >

@@ -191,6 +191,22 @@ public:
     void sort( Comparator comp );
 
     /**
+     * Sort the texture list by the indices that have been stored in each texture's sortIndex.
+     */
+    void sortByIndex();
+
+    /**
+     * This function sets the index of a texture in the list to this texture's WGETexture::sortIndex(). This can be used later using
+     * sortByIndex().
+     */
+    void setSortIndices();
+
+    /**
+     * Reset all sort indices. This can be useful when loading new project files with new sort indices.
+     */
+    void resetSortIndices();
+
+    /**
      * Move the specified texture up in the list, directly to the top. Causes the sort signal to fire.
      *
      * \param texture the texture swapped with its ascendant

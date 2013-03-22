@@ -175,7 +175,7 @@ void WGEColormapping::applyInst( NodeList nodes, WMatrix4d preTransform, osg::re
 
 void WGEColormapping::registerTextureInst( osg::ref_ptr< WGETexture3D > texture, std::string name )
 {
-    wlog::debug( "WGEColormapping" ) << "Registering texture.";
+    wlog::debug( "WGEColormapping" ) << "Registering texture \"" << name << "\".";
     if( !m_textures.count( texture ) )
     {
         if( !name.empty() )
@@ -190,7 +190,7 @@ void WGEColormapping::registerTextureInst( osg::ref_ptr< WGETexture3D > texture,
 
 void WGEColormapping::deregisterTextureInst( osg::ref_ptr< WGETexture3D > texture )
 {
-    wlog::debug( "WGEColormapping" ) << "De-registering texture.";
+    wlog::debug( "WGEColormapping" ) << "De-registering texture \"" << texture->name()->get() << "\".";
     if( m_textures.count( texture ) )
     {
         m_textures.remove( texture );
@@ -251,6 +251,45 @@ void WGEColormapping::textureUpdate()
     for( NodeInfoContainerType::Iterator iter = w->get().begin(); iter != w->get().end(); ++iter )
     {
         iter->second->m_rebind = true;
+    }
+}
+
+/**
+ * Custom comparator which uses a textures sortIndex for comparing.
+ *
+ * \param a first element
+ * \param b second element
+ *
+ * \return  true if a's sortIndex is smaller than b's.
+ */
+bool sortIndexComparator( osg::ref_ptr< WGETexture3D > a, osg::ref_ptr< WGETexture3D > b )
+{
+    return ( a->sortIndex()->get() < b->sortIndex()->get() );
+}
+
+void WGEColormapping::sortByIndex()
+{
+    // use sort with custom comparator
+    sort( &sortIndexComparator );
+}
+
+void WGEColormapping::setSortIndices()
+{
+    TextureContainerType::ReadTicket r = m_textures.getReadTicket();
+    size_t index = 0;
+    for( TextureContainerType::ConstIterator iter = r->get().begin(); iter != r->get().end(); ++iter )
+    {
+        ( *iter )->sortIndex()->set( index );
+        index++;
+    }
+}
+
+void WGEColormapping::resetSortIndices()
+{
+    TextureContainerType::ReadTicket r = m_textures.getReadTicket();
+    for( TextureContainerType::ConstIterator iter = r->get().begin(); iter != r->get().end(); ++iter )
+    {
+        ( *iter )->sortIndex()->set( 0 );
     }
 }
 
