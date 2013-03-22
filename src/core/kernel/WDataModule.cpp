@@ -24,7 +24,8 @@
 
 #include "WDataModule.h"
 
-WDataModule::WDataModule()
+WDataModule::WDataModule():
+    m_suppressColormaps( false )
 {
     // initialize members
 }
