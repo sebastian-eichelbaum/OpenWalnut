@@ -34,14 +34,13 @@ class WException;
 /**
  * Enum of all possible signals WModule instances can emit.
  */
-typedef enum
+enum MODULE_SIGNAL
 {
     WM_ASSOCIATED,  // module got associated to a container
     WM_READY,       // module ready
     WM_ERROR,       // error during execution
     WM_REMOVED      // removed from the container
-}
-MODULE_SIGNAL;
+};
 
 // **************************************************************************************************************************
 // Types
