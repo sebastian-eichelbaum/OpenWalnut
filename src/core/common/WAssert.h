@@ -27,9 +27,6 @@
 
 #include <string>
 
-#include "WException.h"
-
-
 /**
  * Implements assertion logic.
  *
