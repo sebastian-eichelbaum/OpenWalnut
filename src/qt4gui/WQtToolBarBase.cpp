@@ -59,7 +59,6 @@ WQtToolBarBase::WQtToolBarBase( const QString& title, WMainWindow* parent ):
 WQtToolBarBase::~WQtToolBarBase()
 {
     // cleanup
-    delete m_styleOptionMenu;
 }
 
 QMenu* WQtToolBarBase::getStyleMenu( QString title ) const
