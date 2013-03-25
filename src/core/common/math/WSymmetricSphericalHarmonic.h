@@ -236,7 +236,7 @@ public:
      * Calculates a matrix that converts spherical harmonics to symmetric tensors of equal or lower order.
      *
      * \param order The order of the symmetric tensor.
-     * \param orientations A vector of at least (orderTensor+1) * (orderTensor+2) / 2 orientations.
+     * \param orientations A vector of at least (orderTensor+1) * (orderTensor+2) / 2 linear independent orientations.
      *
      * \return the conversion matrix
      */
