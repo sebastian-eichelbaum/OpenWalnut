@@ -26,8 +26,7 @@
 #define WTERMINALCOLOR_H
 
 #include <string>
-
-
+#include <iosfwd>
 
 /**
  * Helper class to provide a convenient way to colorize output on the console.

@@ -28,7 +28,6 @@
 #include <exception>
 #include <list>
 #include <string>
-#include <sstream>
 
 #include "WTerminalColor.h"
 
