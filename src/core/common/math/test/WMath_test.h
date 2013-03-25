@@ -265,6 +265,18 @@ public:
         TS_ASSERT_EQUALS( factorial( 7 ), 5040 );
         TS_ASSERT_EQUALS( factorial( 8 ), 40320 );
     }
+
+    /**
+     * Test the areEqual function.
+     */
+    void testAreEqual( void )
+    {
+        TS_ASSERT_EQUALS( areEqual( 1.0, 1.0 ), true );
+        TS_ASSERT_EQUALS( areEqual( 1.0, 1.0, 1e-3 ), true );
+        TS_ASSERT_EQUALS( areEqual( 1.0, 1.0+1e-3, 1e-3 ), true );
+        TS_ASSERT_EQUALS( areEqual( 1.0, 1.0+2e-3, 1e-3 ), false );
+        TS_ASSERT_EQUALS( areEqual( 1.0, 1.0+1e-3 ), false );
+    }
 };
 
 #endif  // WMATH_TEST_H

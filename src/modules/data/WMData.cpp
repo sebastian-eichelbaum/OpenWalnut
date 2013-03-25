@@ -320,6 +320,10 @@ void WMData::moduleMain()
         {
             WGEColormapping::registerTexture( m_dataSet->getTexture(), m_runtimeName->get() );
         }
+        else
+        {
+            debugLog() << "Suppressing colormap \"" << m_runtimeName->get() << "\".";
+        }
         m_properties->addProperty( m_dataSet->getTexture()->getProperties() );
         m_infoProperties->addProperty( m_dataSet->getTexture()->getInformationProperties() );
     }

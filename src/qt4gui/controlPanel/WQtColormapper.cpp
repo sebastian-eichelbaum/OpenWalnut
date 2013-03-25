@@ -190,7 +190,7 @@ WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGET
     propActionBtn->setToolTip( "Show all the configuration options for this texture and its colormap." );
 
     QLabel* grabWidget = new QLabel( m_itemWidget );
-    grabWidget->setPixmap( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "touchpoint" ).pixmap( 24, 48 ) );
+    grabWidget->setPixmap( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "touchpoint_small" ).pixmap( 24, 32 ) );
     grabWidget->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
     grabWidget->setFixedWidth( 24 );
     grabWidget->setToolTip( "Drag and drop these textures to change their composition ordering." );
@@ -205,7 +205,7 @@ WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGET
     QColor propertyCol = defaultCol;
 
     propActionBtn->setStyleSheet( "background-color:" + propertyCol.name() + ";" );
-    //active->setStyleSheet( "background-color:" + propertyCol.name() + ";" );
+    active->setStyleSheet( "background-color:" + labelCol.name() + ";" );
     alpha->setStyleSheet( "#ControlPanelPropertyWidget{ background-color:" + propertyCol.name() + ";}" );
     l->setStyleSheet( "background-color:" + labelCol.name() + ";" );
     labelContainer->setStyleSheet( "background-color:" + labelCol.name() + ";" );
@@ -220,9 +220,12 @@ WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGET
     // compact layout
     containerLayout->setContentsMargins( 0, 2, 0, 2 );
     containerLayout->setSpacing( 0 );
+    labelContainerLayout->setContentsMargins( 2, 2, 0, 2 );
+    labelContainerLayout->setSpacing( 0 );
 
     // prefer stretching the label
     containerLayout->setStretchFactor( active, 0 );
+    containerLayout->setStretchFactor( grabWidget, 0 );
     containerLayout->setStretchFactor( labelContainer, 100 );
     containerLayout->setStretchFactor( alpha, 75 );
     containerLayout->setStretchFactor( propActionBtn, 0 );

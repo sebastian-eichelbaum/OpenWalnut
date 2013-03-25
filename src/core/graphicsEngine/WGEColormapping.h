@@ -191,6 +191,31 @@ public:
     void sort( Comparator comp );
 
     /**
+     * Resorts the texture list using the specified comparator using a stable sorting algorithm.
+     *
+     * \tparam Comparator the comparator type. Usually a boost::function or class providing the operator().
+     * \param comp the comparator
+     */
+    template < typename Comparator >
+    void stableSort( Comparator comp );
+
+    /**
+     * Sort the texture list by the indices that have been stored in each texture's sortIndex.
+     */
+    void sortByIndex();
+
+    /**
+     * This function sets the index of a texture in the list to this texture's WGETexture::sortIndex(). This can be used later using
+     * sortByIndex().
+     */
+    void setSortIndices();
+
+    /**
+     * Reset all sort indices. This can be useful when loading new project files with new sort indices.
+     */
+    void resetSortIndices();
+
+    /**
      * Move the specified texture up in the list, directly to the top. Causes the sort signal to fire.
      *
      * \param texture the texture swapped with its ascendant
@@ -428,6 +453,12 @@ template < typename Comparator >
 void WGEColormapping::sort( Comparator comp )
 {
     m_textures.sort< Comparator >( comp );
+}
+
+template < typename Comparator >
+void WGEColormapping::stableSort( Comparator comp )
+{
+    m_textures.stableSort< Comparator >( comp );
 }
 
 #endif  // WGECOLORMAPPING_H

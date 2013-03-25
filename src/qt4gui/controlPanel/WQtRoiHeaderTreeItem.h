@@ -59,9 +59,18 @@ public:
      */
     WQtBranchTreeItem* addBranch( boost::shared_ptr< WRMBranch> branch );
 
-
+    /**
+     * Create a representation widget for this item.
+     *
+     * \return the widget.
+     */
+    QWidget* getWidget() const;
 protected:
 private:
+    /**
+     * Widget representing the item.
+     */
+    QWidget* m_itemWidget;
 };
 
 #endif  // WQTROIHEADERTREEITEM_H

@@ -57,6 +57,27 @@ public:
     ~WRMBranch();
 
     /**
+     * Get name property.
+     *
+     * \return  name property
+     */
+    WPropString nameProperty();
+
+    /**
+     * Get the "not" property.
+     *
+     * \return the property
+     */
+    WPropBool invertProperty();
+
+    /**
+     * The branch color property.
+     *
+     * \return the color property
+     */
+    WPropColor colorProperty();
+
+    /**
      * adds a roi to the branch
      *
      * \param roi
@@ -184,6 +205,11 @@ private:
      * The color used when in isosurface mode for blending.
      */
     WPropColor m_bundleColor;
+
+    /**
+     * Name property.
+     */
+    WPropString m_name;
 
     /**
      * The notifiers connected to added rois by default.

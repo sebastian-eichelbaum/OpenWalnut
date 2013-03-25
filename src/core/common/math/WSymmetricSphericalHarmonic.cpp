@@ -152,7 +152,7 @@ double WSymmetricSphericalHarmonic::calcGFA( std::vector< WUnitSphereCoordinates
     double d = 0.0;
     double gfa = 0.0;
     double mean = 0.0;
-    double v[ 15 ];
+    std::vector< double > v( orientations.size() );
 
     for( std::size_t i = 0; i < orientations.size(); ++i )
     {
@@ -512,6 +512,8 @@ WMatrix< double > WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( std::siz
     std::vector< WUnitSphereCoordinates > ori2( orientations.begin(), orientations.begin() + numElements );
 
     WMatrix< double > p = pseudoInverse( TEMat );
+
+    WAssert( ( TEMat*p ).isIdentity( 1e-3 ), "Test of inverse matrix failed. Are the given orientations linear independent?" );
 
     return p * calcBaseMatrix( ori2, order );
 }

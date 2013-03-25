@@ -214,6 +214,26 @@ public:
     void sort( typename WSharedSequenceContainer< S >::Iterator first, typename WSharedSequenceContainer< S >::Iterator last, Comparator comp );
 
     /**
+     * Resorts the container using the specified comparator from its begin to its end. Uses stable sort algorithm.
+     *
+     * \tparam Comparator the comparator type. Usually a boost::function or class providing the operator().
+     *
+     * \param comp the comparator
+     */
+    template < typename Comparator >
+    void stableSort( Comparator comp );
+
+    /**
+     * Resorts the container using the specified comparator between [first,last) in ascending order. Uses stable sort algorithm.
+     *
+     * \param first the first element
+     * \param last the last element
+     * \param comp the comparator
+     */
+    template < typename Comparator >
+    void stableSort( typename WSharedSequenceContainer< S >::Iterator first, typename WSharedSequenceContainer< S >::Iterator last, Comparator comp );
+
+    /**
      * Searches the specified value in the range [first,last).
      *
      * \param first the first element
@@ -378,6 +398,23 @@ void WSharedSequenceContainer< S >::sort( typename WSharedSequenceContainer< S >
                                           Comparator comp )
 {
     return std::sort( first, last, comp );
+}
+
+template < typename S >
+template < typename Comparator >
+void WSharedSequenceContainer< S >::stableSort( Comparator comp )
+{
+    typename WSharedObject< S >::WriteTicket a = WSharedObject< S >::getWriteTicket();
+    return std::stable_sort( a->get().begin(), a->get().end(), comp );
+}
+
+template < typename S >
+template < typename Comparator >
+void WSharedSequenceContainer< S >::stableSort( typename WSharedSequenceContainer< S >::Iterator first,
+                                                typename WSharedSequenceContainer< S >::Iterator last,
+                                                Comparator comp )
+{
+    return std::stable_sort( first, last, comp );
 }
 
 template < typename S >

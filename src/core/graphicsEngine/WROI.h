@@ -35,9 +35,6 @@
 
 #include "../common/WProperties.h"
 
-
-
-
 class WPickHandler;
 
 /**
@@ -122,7 +119,33 @@ public:
      */
     void removeROIChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier );
 
+    /**
+     * Invert property.
+     *
+     * \return the property
+     */
+    WPropBool invertProperty();
 
+    /**
+     * The property for toggling ROI visibility.
+     *
+     * \return the property
+     */
+    WPropBool showProperty();
+
+    /**
+     * The active property
+     *
+     * \return the property.
+     */
+    WPropBool activeProperty();
+
+    /**
+     * The name property
+     *
+     * \return the property.
+     */
+    WPropString nameProperty();
 protected:
     /**
      * initializes the roi's properties
@@ -167,6 +190,11 @@ protected:
      * indicates if the roi is negated
      */
     WPropBool m_not;
+
+    /**
+     * name of the ROI.
+     */
+    WPropString m_name;
 
     /**
      * threshold for an arbitrary roi

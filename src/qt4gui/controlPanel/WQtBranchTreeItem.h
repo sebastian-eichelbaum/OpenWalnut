@@ -70,10 +70,21 @@ public:
      */
     boost::shared_ptr< WRMBranch > getBranch();
 
+    /**
+     * Create a representation widget for this item.
+     *
+     * \return the widget.
+     */
+    QWidget* getWidget() const;
 
 protected:
 private:
     boost::shared_ptr< WRMBranch > m_branch; //!< ROI
+
+    /**
+     * Widget representing the item.
+     */
+    QWidget* m_itemWidget;
 };
 
 #endif  // WQTBRANCHTREEITEM_H

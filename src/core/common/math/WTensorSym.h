@@ -124,7 +124,7 @@ public:
      *
      * \return The function value on the sphere for this tensor and the given gradient. 
      */
-    Data_T evaluateSphericalFunction( WVector3d const& gradient ) const;
+    Data_T evaluateSphericalFunction( WMatrixFixed< Data_T, 3, 1 > const& gradient ) const;
 
 protected:
 private:
@@ -158,7 +158,7 @@ Data_T WTensorSym< order, dim, Data_T >::evaluateSphericalFunction( WValue< Data
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
-Data_T WTensorSym< order, dim, Data_T >::evaluateSphericalFunction( WVector3d const& gradient ) const
+Data_T WTensorSym< order, dim, Data_T >::evaluateSphericalFunction( WMatrixFixed< Data_T, 3, 1 > const& gradient ) const
 {
     Data_T const* tens = &m_data[ 0 ];
     Data_T const* grad = &gradient[ 0 ];

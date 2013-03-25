@@ -50,6 +50,8 @@
 #include "../../common/WLogger.h"
 #include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 
+#include "../../graphicsEngine/WGEColormapping.h"
+
 #include "WModuleProjectFileCombiner.h"
 
 WModuleProjectFileCombiner::WModuleProjectFileCombiner( boost::shared_ptr< WModuleContainer > target ):
@@ -173,6 +175,9 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
 
 void WModuleProjectFileCombiner::apply()
 {
+    // reset sort indices in colormapper as we load new ones.
+    WGEColormapping::instance()->resetSortIndices();
+
     // now add each module to the target container
     for( std::map< unsigned int, boost::shared_ptr< WModule > >::const_iterator iter = m_modules.begin(); iter != m_modules.end(); ++iter )
     {
@@ -301,6 +306,9 @@ void WModuleProjectFileCombiner::apply()
         }
     }
 
+    // the colornapper should now sort the textures according to the loaded indices
+    WGEColormapping::instance()->sortByIndex();
+
     // notify modules about the loaded set properties
     for( std::map< unsigned int, boost::shared_ptr< WModule > >::iterator iter = m_modules.begin(); iter != m_modules.end(); ++iter )
     {
@@ -358,6 +366,9 @@ void WModuleProjectFileCombiner::printProperties( std::ostream& output, boost::s
 
 void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
 {
+    // we need to save the colormapper's texture order. To do this, we need to update the textures sort indices
+    WGEColormapping::instance()->setSortIndices();
+
     // grab access object of root container
     WModuleContainer::ModuleSharedContainerType::ReadTicket container = WKernel::getRunningKernel()->getRootContainer()->getModules();
 
