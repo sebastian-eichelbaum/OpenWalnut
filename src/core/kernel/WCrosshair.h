@@ -26,7 +26,7 @@
 #define WCROSSHAIR_H
 
 #include <boost/shared_ptr.hpp>
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../common/math/linearAlgebra/WPosition.h"
 
 
 

@@ -33,6 +33,7 @@
 #include <string>
 #include <vector>
 
+#include "../common/WLogger.h"
 #include "../common/WThreadedRunner.h"
 #include "../common/WTimer.h"
 #include "../common/WRealtimeTimer.h"

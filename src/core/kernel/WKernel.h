@@ -31,7 +31,6 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../common/WTimer.h"
-#include "../common/WLogger.h"
 #include "../scripting/WScriptEngine.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
 

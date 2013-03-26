@@ -32,8 +32,6 @@
 #include "../common/WPathHelper.h"
 #include "../common/WSharedLib.h"
 
-#include "WKernel.h"
-
 #include "WModuleLoader.h"
 
 WModuleLoader::WModuleLoader( )
