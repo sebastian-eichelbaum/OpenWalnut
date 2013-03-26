@@ -25,7 +25,6 @@
 #include <cmath>
 #include <string>
 
-
 #include "core/common/WLogger.h"
 #include "core/common/WPropertyVariable.h"
 #include "../WGuiConsts.h"
@@ -69,6 +68,12 @@ WPropertyStringWidget::WPropertyStringWidget( WPropString property, QGridLayout*
 WPropertyStringWidget::~WPropertyStringWidget()
 {
     // cleanup
+}
+
+void WPropertyStringWidget::disableTextInteraction( bool disable )
+{
+    // To have word warp work correctly -> set size policy
+    m_asText.setTextInteractionFlags( disable ? Qt::NoTextInteraction : Qt::TextSelectableByMouse );
 }
 
 void WPropertyStringWidget::update()

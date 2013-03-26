@@ -35,6 +35,7 @@
 #include "../WQt4Gui.h"
 #include "../WMainWindow.h"
 #include "WPropertyBoolWidget.h"
+#include "WPropertyStringWidget.h"
 
 #include "WTreeItemTypes.h"
 #include "WQtRoiTreeItem.h"
@@ -60,9 +61,11 @@ WQtRoiTreeItem::WQtRoiTreeItem( QTreeWidgetItem * parent, osg::ref_ptr< WROI > r
     propertyContainer->setLayout( propertyContainerLayout );
     propertyContainer->setObjectName( "propertyContainer" );
 
-    WScaleLabel* l = new WScaleLabel( QString::fromStdString( roi->nameProperty()->get() ), 5, labelContainer );
-    l->setTextInteractionFlags( Qt::NoTextInteraction );
-    l->setToolTip( "The name of this ROI." );
+    // name
+    WPropertyStringWidget* name = new WPropertyStringWidget( roi->nameProperty(), NULL, m_itemWidget );
+    name->setToolTip( "The name of this ROI." );
+    name->forceInformationMode();
+    name->disableTextInteraction();
 
     // inverse
     WPropertyBoolWidget* isnot = new WPropertyBoolWidget( roi->invertProperty(), NULL, m_itemWidget );
@@ -91,7 +94,7 @@ WQtRoiTreeItem::WQtRoiTreeItem( QTreeWidgetItem * parent, osg::ref_ptr< WROI > r
     // property color
     QColor propertyCol = defaultCol;
 
-    l->setStyleSheet( "background-color:" + labelCol.name() + ";" );
+    //name->setStyleSheet( "background-color:" + labelCol.name() + ";border:none;" );
     labelContainer->setStyleSheet( "background-color:" + labelCol.name() + ";" );
     propertyContainer->setStyleSheet( "QWidget#propertyContainer{ background-color:" + propertyCol.name() + ";}" );
 
@@ -100,8 +103,8 @@ WQtRoiTreeItem::WQtRoiTreeItem( QTreeWidgetItem * parent, osg::ref_ptr< WROI > r
     propertyContainerLayout->addWidget( show );
 
     labelContainerLayout->addWidget( active );
-    labelContainerLayout->addWidget( l );
-    labelContainerLayout->setStretchFactor( l, 100 );
+    labelContainerLayout->addWidget( name );
+    labelContainerLayout->setStretchFactor( name, 100 );
     labelContainerLayout->setStretchFactor( active, 0 );
 
     // fill layout

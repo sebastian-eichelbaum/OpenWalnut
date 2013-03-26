@@ -113,6 +113,12 @@ public:
      */
     virtual void requestUpdate();
 
+    /**
+     * Force the widget to use the information widgets.
+     *
+     * \param force true to force
+     */
+    void forceInformationMode( bool force = true );
 protected:
     /**
      * Called whenever the widget should update itself.

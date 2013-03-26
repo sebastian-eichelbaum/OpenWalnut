@@ -153,6 +153,8 @@ WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGET
 
     WPropertyStringWidget* nameLabel = new WPropertyStringWidget( m_texture->name(), NULL, m_itemWidget );
     nameLabel->setToolTip( "The name of this texture. This usually is the name of the file it was loaded from." );
+    nameLabel->forceInformationMode();
+    nameLabel->disableTextInteraction();
 
     labelContainerLayout->addWidget( nameLabel );
 

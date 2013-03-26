@@ -137,6 +137,17 @@ WPropertyWidget::~WPropertyWidget()
     m_connection.disconnect();
 }
 
+void WPropertyWidget::forceInformationMode( bool force )
+{
+    if( !force && ( m_property->getPurpose() != PV_PURPOSE_INFORMATION ) )
+    {
+        setCurrentIndex( 0 );
+        return;
+    }
+
+    setCurrentIndex( 1 );
+}
+
 void WPropertyWidget::requestUpdate()
 {
     QCoreApplication::postEvent( this, new WPropertyChangedEvent() );

@@ -55,6 +55,13 @@ public:
      */
     virtual ~WPropertyStringWidget();
 
+    /**
+     * Disable the ability to select text. This is only applicable if in information mode.
+     *
+     * \param disable true to disable.
+     */
+    void disableTextInteraction( bool disable = true );
+
 protected:
     /**
      * Called whenever the widget should update.
