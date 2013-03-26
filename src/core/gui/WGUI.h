@@ -26,13 +26,10 @@
 #define WGUI_H
 
 #include <string>
-#include <vector>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/signals2/signal.hpp>
 
 #include "../common/WFlag.h"
-#include "../kernel/WModule.h"
 #include "../graphicsEngine/WGECamera.h"
 #include "WCustomWidget.h"
 
