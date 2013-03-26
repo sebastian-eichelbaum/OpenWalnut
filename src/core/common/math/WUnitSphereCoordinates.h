@@ -25,6 +25,7 @@
 #ifndef WUNITSPHERECOORDINATES_H
 #define WUNITSPHERECOORDINATES_H
 
+#include <cmath>
 #include <vector>
 
 #include "../../common/math/linearAlgebra/WLinearAlgebra.h"
@@ -32,7 +33,8 @@
 /**
  * This class stores coordinates on the unit sphere.
  */
-class WUnitSphereCoordinates // NOLINT
+
+template< typename T > class WUnitSphereCoordinates // NOLINT
 {
 // TODO(all): implement test
 // friend class WUnitSphereCoordinatesTest;
@@ -47,13 +49,13 @@ public:
      * \param theta coordinate
      * \param phi coordinate
      */
-    WUnitSphereCoordinates( double theta, double phi );
+    WUnitSphereCoordinates( T theta, T phi );
 
     /**
      * Constructor for Euclidean coordinates.
      * \param vector Euclidean coordinates
      */
-    explicit WUnitSphereCoordinates( WVector3d vector );
+    explicit WUnitSphereCoordinates( WMatrixFixed< T, 3, 1 > vector );
 
     /**
      * Destructor.
@@ -65,40 +67,98 @@ public:
      *
      * \return theta angle
      */
-    double getTheta() const;
+    T getTheta() const;
 
     /**
      * Return the phi angle.
      *
      * \return phi angle
      */
-    double getPhi() const;
+    T getPhi() const;
 
     /**
      * Set theta angle.
      * \param theta Value for theta.
      */
-    void setTheta( double theta );
+    void setTheta( T theta );
 
     /**
      * Set phi angle.
      * \param phi Value for phi.
      */
-    void setPhi( double phi );
+    void setPhi( T phi );
 
     /**
      * Returns the stored sphere coordinates as Euclidean coordinates.
      *
      * \return sphere coordinates in euclidean space
      */
-    WVector3d getEuclidean() const;
+    WMatrixFixed< T, 3, 1 > getEuclidean() const;
 
 protected:
 private:
     /** coordinate */
-    double m_theta;
+    T m_theta;
     /** coordinate */
-    double m_phi;
+    T m_phi;
 };
+
+template< typename T >
+WUnitSphereCoordinates< T >::WUnitSphereCoordinates()
+    : m_theta( 0.0 ),
+      m_phi( 0.0 )
+{
+}
+
+template< typename T >
+WUnitSphereCoordinates< T >::WUnitSphereCoordinates( T theta, T phi )
+    : m_theta( theta ),
+      m_phi( phi )
+{
+}
+
+template< typename T >
+WUnitSphereCoordinates< T >::WUnitSphereCoordinates( WMatrixFixed< T, 3, 1 > vector )
+{
+    vector = normalize( vector );
+    // calculate angles
+    m_theta = std::acos( vector[2] );
+    m_phi = std::atan2( vector[1], vector[0] );
+}
+
+template< typename T >
+WUnitSphereCoordinates< T >::~WUnitSphereCoordinates()
+{
+}
+
+template< typename T >
+T WUnitSphereCoordinates< T >::getTheta() const
+{
+    return m_theta;
+}
+
+template< typename T >
+T WUnitSphereCoordinates< T >::getPhi() const
+{
+    return m_phi;
+}
+
+template< typename T >
+void WUnitSphereCoordinates< T >::setTheta( T theta )
+{
+    m_theta = theta;
+}
+
+template< typename T >
+void WUnitSphereCoordinates< T >::setPhi( T phi )
+{
+    m_phi = phi;
+}
+
+template< typename T >
+WMatrixFixed< T, 3, 1 > WUnitSphereCoordinates< T >::getEuclidean() const
+{
+    return WMatrixFixed< T, 3, 1 >( std::sin( m_theta )*std::cos( m_phi ), std::sin( m_theta )*std::sin( m_phi ), std::cos( m_theta ) );
+}
 
 #endif  // WUNITSPHERECOORDINATES_H

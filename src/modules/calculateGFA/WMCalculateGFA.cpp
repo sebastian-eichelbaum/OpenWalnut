@@ -104,17 +104,17 @@ void WMCalculateGFA::moduleMain()
 
     temp.clear();
 
-    std::vector< WUnitSphereCoordinates > ori;
+    std::vector< WUnitSphereCoordinates< double > > ori;
     for( std::size_t k = 0; k < grad.size(); ++k )
     {
         if( grad[ k ][ 0 ] >= 0.0 )
         {
-            ori.push_back( WUnitSphereCoordinates( grad[ k ] ) );
+            ori.push_back( WUnitSphereCoordinates< double >( grad[ k ] ) );
         }
     }
     grad.clear();
 
-    m_BMat = WSymmetricSphericalHarmonic::calcBaseMatrix( ori, 4 );
+    m_BMat = WSymmetricSphericalHarmonic< double >::calcBaseMatrix( ori, 4 );
     ori.clear();
 
     ready();
@@ -217,7 +217,7 @@ boost::array< double, 1 > WMCalculateGFA::perVoxelGFAFunc( WValueSet< double >::
     {
         w[ i ] = s[ i ];
     }
-    WSymmetricSphericalHarmonic h( w );
+    WSymmetricSphericalHarmonic< double > h( w );
     a[ 0 ] = h.calcGFA( m_BMat );
 
     return a;

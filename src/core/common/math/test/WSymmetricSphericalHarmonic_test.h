@@ -61,7 +61,7 @@ public:
      */
     void testCalcFRTMatrix( void )
     {
-        WMatrix<double> result( WSymmetricSphericalHarmonic::calcFRTMatrix( 4 ) );
+        WMatrix<double> result( WSymmetricSphericalHarmonic< double >::calcFRTMatrix( 4 ) );
         WMatrix<double> reference( 15, 15 );
         reference.setZero();
         // j  01 02 03 04 05 06 07 08 09 10 11 12 13 14 15
@@ -91,7 +91,7 @@ public:
      */
     void testCalcSmoothingMatrix( void )
     {
-        WMatrix<double> result( WSymmetricSphericalHarmonic::calcSmoothingMatrix( 4 ) );
+        WMatrix<double> result( WSymmetricSphericalHarmonic< double >::calcSmoothingMatrix( 4 ) );
         WMatrix<double> reference( 15, 15 );
         reference.setZero();
         // j  01 02 03 04 05 06 07 08 09 10 11 12 13 14 15
