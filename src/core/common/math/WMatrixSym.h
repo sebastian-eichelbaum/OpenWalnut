@@ -27,6 +27,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <sstream>
 #include <vector>
 
 #include "../exceptions/WOutOfBounds.h"

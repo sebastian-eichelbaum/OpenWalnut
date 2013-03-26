@@ -24,11 +24,13 @@
 
 #include <stdint.h>
 
+#include <cmath>
 #include <vector>
 
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 
 #include "core/common/WLogger.h"
+#include "core/common/math/WGeometryFunctions.h"
 #include "../exceptions/WPreconditionNotMet.h"
 #include "linearAlgebra/WLinearAlgebra.h"
 #include "WLinearAlgebraFunctions.h"
@@ -464,8 +466,27 @@ WMatrix<double> WSymmetricSphericalHarmonic::calcFRTMatrix( size_t order )
     return result;
 }
 
+WMatrix< double > WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( std::size_t order )
+{
+    std::vector< WVector3d > vertices;
+    std::vector< unsigned int > triangles;
+    // calc necessary tesselation level
+    int level = static_cast< int >( log( static_cast< float >( ( order + 1 ) * ( order + 2 ) ) ) / 2.0f + 1.0f );
+    tesselateIcosahedron( &vertices, &triangles, level );
+    std::vector< WUnitSphereCoordinates > orientations;
+    for( std::vector< WVector3d >::const_iterator cit = vertices.begin(); cit != vertices.end(); cit++ )
+    {
+        // avoid linear dependent orientations
+        if( ( *cit )[ 0 ] >= 0.0001 )
+        {
+            orientations.push_back( WUnitSphereCoordinates( *cit ) );
+        }
+    }
+    return WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( order, orientations );
+}
+
 WMatrix< double > WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( std::size_t order,
-                                                                               const std::vector< WUnitSphereCoordinates >& orientations )
+                                                                        const std::vector< WUnitSphereCoordinates >& orientations )
 {
     std::size_t numElements = ( order + 1 ) * ( order + 2 ) / 2;
     WPrecondEquals( order % 2, 0u );

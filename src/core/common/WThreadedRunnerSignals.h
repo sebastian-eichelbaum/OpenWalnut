@@ -33,11 +33,10 @@ class WException;
 /**
  * Enum of all possible signals WThreadedRunner instances can emit.
  */
-typedef enum
+enum THREAD_SIGNAL
 {
     WTHREAD_ERROR   // error during execution
-}
-THREAD_SIGNAL;
+};
 
 // **************************************************************************************************************************
 // Types
