@@ -124,7 +124,7 @@ WQtColormapper::~WQtColormapper()
     m_sortConnection.disconnect();
 }
 
-WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGETexture3D > texture, WQtColormapper* cmapper, QListWidget* parent ):
+WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGETexture3D > texture, WQtColormapper* /*cmapper*/, QListWidget* parent ):
     QListWidgetItem( parent ),
     m_texture( texture ),
     m_parent( parent )
@@ -152,8 +152,6 @@ WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGET
     labelContainer->setLayout( labelContainerLayout );
 
     WPropertyStringWidget* nameLabel = new WPropertyStringWidget( m_texture->name(), NULL, m_itemWidget );
-    //WScaleLabel* l = new WScaleLabel( QString::fromStdString( m_texture->name()->get() ), 5, labelContainer );
-    //l->setTextInteractionFlags( Qt::NoTextInteraction );
     nameLabel->setToolTip( "The name of this texture. This usually is the name of the file it was loaded from." );
 
     labelContainerLayout->addWidget( nameLabel );
