@@ -124,7 +124,8 @@ WQtColormapper::~WQtColormapper()
     m_sortConnection.disconnect();
 }
 
-WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGETexture3D > texture, WQtColormapper* /*cmapper*/, QListWidget* parent ):
+WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGETexture3D > texture, WQtColormapper* /*cmapper*/,
+                                                        QListWidget* parent ):
     QListWidgetItem( parent ),
     m_texture( texture ),
     m_parent( parent )
