@@ -27,11 +27,9 @@
 
 #include <stdint.h>
 
-#include <iostream>
 #include <list>
 #include <set>
 #include <string>
-#include <vector>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2.hpp>
