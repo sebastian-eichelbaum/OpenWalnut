@@ -31,7 +31,6 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/thread.hpp>
 
 #include "../common/WSharedAssociativeContainer.h"
 #include "WModuleCombinerTypes.h"

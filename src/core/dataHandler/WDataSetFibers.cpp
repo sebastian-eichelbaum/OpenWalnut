@@ -23,12 +23,9 @@
 //---------------------------------------------------------------------------
 
 #include <algorithm>
-#include <iostream>
 #include <string>
 #include <utility>
 #include <vector>
-
-#include <boost/filesystem/fstream.hpp>
 
 #include "../common/datastructures/WFiber.h"
 #include "../common/WBoundingBox.h"
