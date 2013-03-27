@@ -289,7 +289,7 @@ void WGEColormapping::resetSortIndices()
     TextureContainerType::ReadTicket r = m_textures.getReadTicket();
     for( TextureContainerType::ConstIterator iter = r->get().begin(); iter != r->get().end(); ++iter )
     {
-        ( *iter )->sortIndex()->set( 0 );
+        ( *iter )->sortIndex()->set( -1 );
     }
 }
 
