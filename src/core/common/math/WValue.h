@@ -79,16 +79,33 @@ public:
     }
 
     /**
-     * Create a WValue from the given WVector_2.
-     * \param newValues The WVector_2 with the values..
+     * Create a WValue from the given Eigen::VectorXd.
+     * \param newValues The Eigen::VectorXd with the values..
      */
-    explicit WValue( const WVector_2& newValues )
+    explicit WValue( const Eigen::VectorXd& newValues )
         : m_components( static_cast< std::size_t >( newValues.size() ) )
     {
-        for( std::size_t i = 0; i < m_components.size(); ++i )
-        {
-            m_components[ i ] = static_cast< T >( newValues( i ) );
-        }
+        copyFromEigenVector( newValues );
+    }
+
+    /**
+     * Create a WValue from the given Eigen::VectorXf.
+     * \param newValues The Eigen::VectorXf with the values..
+     */
+    explicit WValue( const Eigen::VectorXf& newValues )
+        : m_components( static_cast< std::size_t >( newValues.size() ) )
+    {
+        copyFromEigenVector( newValues );
+    }
+
+    /**
+     * Create a WValue from the given Eigen::VectorXi.
+     * \param newValues The Eigen::VectorXi with the values..
+     */
+    explicit WValue( const Eigen::VectorXi& newValues )
+        : m_components( static_cast< std::size_t >( newValues.size() ) )
+    {
+        copyFromEigenVector( newValues );
     }
 
     /**
@@ -370,6 +387,20 @@ public:
 protected:
 private:
     /**
+     * This function is used by the constructors that have the different Eigen::MatrixX types as parameter.
+     * \tparam EigenDataType The data type which is used by the Eigen::VectorX.
+     * \param newValues The source Eigen::VectorX.
+     */
+    template< typename EigenDataType >
+    void copyFromEigenVector( const Eigen::Matrix< EigenDataType, -1, 1 >& newValues )
+    {
+        for( std::size_t i = 0; i < m_components.size(); ++i )
+        {
+            m_components[ i ] = static_cast< T >( newValues( i ) );
+        }
+    }
+
+   /**
      * The components the value is composed of. This contains the actual data
      */
     std::vector< T > m_components;
