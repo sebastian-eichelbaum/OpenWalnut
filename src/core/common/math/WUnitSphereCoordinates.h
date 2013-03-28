@@ -98,9 +98,9 @@ public:
     /**
      * Returns the stored sphere coordinates as Euclidean coordinates.
      *
-     * \param sphere coordinates in euclidean space
+     * \param vector coordinates in euclidean space
      */
-    void setEuclidean( WMatrixFixed< T, 3, 1 > );
+    void setEuclidean( WMatrixFixed< T, 3, 1 > vector );
 
 protected:
 private:
