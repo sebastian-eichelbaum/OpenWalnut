@@ -115,6 +115,16 @@ void setVertices( osg::Vec3Array* vertices, WPosition minPos, WPosition maxPos )
     vertices->push_back( osg::Vec3( maxPos[0], maxPos[1], maxPos[2] ) );
 }
 
+void setNormals( osg::Vec3Array* normals )
+{
+    normals->push_back( osg::Vec3( -1.0, 0.0, 0.0 ) );
+    normals->push_back( osg::Vec3( 0.0, 1.0, 0.0 ) );
+    normals->push_back( osg::Vec3( 1.0, 0.0, 0.0 ) );
+    normals->push_back( osg::Vec3( 0.0, -1.0, 1.0 ) );
+    normals->push_back( osg::Vec3( 0.0, 0.0, -1.0 ) );
+    normals->push_back( osg::Vec3( 0.0, 0.0, 1.0 ) );
+}
+
 WROIBox::WROIBox( WPosition minPos, WPosition maxPos ) :
     WROI(),
     boxId( maxBoxId++ ),
@@ -179,11 +189,17 @@ WROIBox::WROIBox( WPosition minPos, WPosition maxPos ) :
 
     osg::ref_ptr< osg::LightModel > lightModel = new osg::LightModel();
     lightModel->setTwoSided( true );
-    state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
+    //state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
     state->setMode( GL_BLEND, osg::StateAttribute::ON );
 
     // add a simple default lighting shader
     m_lightShader = new WGEShader( "WGELighting" );
+
+    // normals
+    osg::ref_ptr<osg::Vec3Array> normals = osg::ref_ptr<osg::Vec3Array>( new osg::Vec3Array );
+    setNormals( normals );
+    m_surfaceGeometry->setNormalArray( normals );
+    m_surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
 
     m_not->set( false );
 
