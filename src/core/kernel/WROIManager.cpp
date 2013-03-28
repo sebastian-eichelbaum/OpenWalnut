@@ -227,13 +227,27 @@ osg::ref_ptr< WROI > WROIManager::getSelectedRoi()
     return m_selectedRoi;
 }
 
-std::vector< osg::ref_ptr< WROI > > WROIManager::getRois()
+WROIManager::ROIs WROIManager::getRois() const
 {
-    std::vector< osg::ref_ptr< WROI > > returnVec;
+    ROIs returnVec;
 
-    for( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
+    for( std::list< boost::shared_ptr< WRMBranch > >::const_iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
     {
         ( *iter )->getRois( returnVec );
     }
     return returnVec;
 }
+
+WROIManager::Branches WROIManager::getBranches() const
+{
+    // copy to this vec
+    Branches returnVec;
+
+    // copy
+    for( std::list< boost::shared_ptr< WRMBranch > >::const_iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
+    {
+        returnVec.push_back( *iter );
+    }
+    return returnVec;
+}
+

@@ -25,6 +25,10 @@
 #include <string>
 
 #include "../common/WLogger.h"
+#include "../graphicsEngine/WROI.h"
+#include "../graphicsEngine/WROIBox.h"
+#include "WROIManager.h"
+#include "WKernel.h"
 
 #include "WRoiProjectFileIO.h"
 
@@ -57,8 +61,38 @@ void WRoiProjectFileIO::save( std::ostream& output )   // NOLINT
               "// ROI Structure" << std::endl <<
               "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
               std::endl;
-    output << "// Sorry. Not Yet Implemented." << std::endl;
 
-    wlog::info( "ROI Project File" ) << "Not yet implemented. Sorry.";
+    // write all branches
+    WROIManager::Branches branches =WKernel::getRunningKernel()->getRoiManager()->getBranches();
+    unsigned int branchIndex = 0;
+    for( WROIManager::Branches::const_iterator branchIter = branches.begin(); branchIter != branches.end(); ++branchIter )
+    {
+        // get the branch
+        WRMBranch::SPtr branch = *branchIter;
+
+        // write this branch's properties
+        output << "SELECTOR_BRANCH:" << branchIndex << std::endl;
+        printProperties( output, branch->getProperties(), "", "", branchIndex, "SELECTOR_BRANCH" );
+        output << std::endl;
+
+        // handle this branch's ROIs
+        WROIManager::ROIs rois = branch->getRois();
+        unsigned int roiIndex = 0;
+        for( WROIManager::ROIs::const_iterator roiIter = rois.begin(); roiIter != rois.end(); ++roiIter )
+        {
+            // differentiate the type of roi, currently we will support only WROiBox
+            WROIBox* roiBox = dynamic_cast< WROIBox* >( ( *roiIter ).get() );
+
+            output << "SELECTOR_ROIBOX:" << roiIndex << ":SELECTOR_BRANCH" << branchIndex << std::endl;
+            printProperties( output, roiBox->getProperties(), "", "", roiIndex, "SELECTOR_ROIBOX" );
+            output << std::endl;
+
+            // done
+            roiIndex++;
+        }
+
+        // done
+        branchIndex++;
+    }
 }
 

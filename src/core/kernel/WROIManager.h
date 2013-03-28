@@ -164,10 +164,27 @@ public:
     boost::shared_ptr< WProperties > getProperties();
 
     /**
+     * ROI list
+     */
+    typedef std::vector< osg::ref_ptr< WROI > > ROIs;
+
+    /**
      * getter
      * \return all existing rois
      */
-    std::vector< osg::ref_ptr< WROI > > getRois();
+    ROIs getRois() const;
+
+    /**
+     * Branches list
+     */
+    typedef std::vector< boost::shared_ptr< WRMBranch > > Branches;
+
+    /**
+     * Get a copy of the current branch list. Please note that after getting the list, it might already have been changed by another thread.
+     *
+     * \return the list of current branches
+     */
+    Branches getBranches() const;
 
 protected:
 private:

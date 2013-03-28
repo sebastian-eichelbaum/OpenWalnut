@@ -31,6 +31,7 @@
 #include <osg/Geometry>
 
 #include "../common/WLogger.h"
+#include "shaders/WGEShader.h"
 
 #include "WROIBox.h"
 #include "WGraphicsEngine.h"
@@ -120,11 +121,14 @@ WROIBox::WROIBox( WPosition minPos, WPosition maxPos ) :
     m_pickNormal( WVector3d() ),
     m_oldPixelPosition( WVector2d::zero() ),
     m_oldScrollWheel( 0 ),
-    m_color( osg::Vec4( 0.f, 1.f, 1.f, 0.4f ) ),
-    m_notColor( osg::Vec4( 1.0f, 0.0f, 0.0f, 0.4f ) )
+    m_color( osg::Vec4( 0.391f, 0.594f, 0.828f, 0.5f ) ),
+    m_notColor( osg::Vec4( 0.828f, 0.391f, 0.391f, 0.5f ) )
 {
-    m_minPos = minPos;
-    m_maxPos = maxPos;
+    m_propGrp = m_properties->addPropertyGroup( "ROI Box", "Properties of this ROI Box" );
+    m_minPos = m_propGrp->addProperty( "Min Position", "When a box is described by its diagonal, this is the lower, left, front corner of it.",
+                                          minPos, boost::bind( &WROIBox::boxPropertiesChanged, this, _1 ) );
+    m_maxPos = m_propGrp->addProperty( "Max Position", "When a box is described by its diagonal, this is the upper, right, back corner of it.",
+                                          maxPos, boost::bind( &WROIBox::boxPropertiesChanged, this, _1 ) );
 
     boost::shared_ptr< WGraphicsEngine > ge = WGraphicsEngine::getGraphicsEngine();
     assert( ge );
@@ -178,6 +182,9 @@ WROIBox::WROIBox( WPosition minPos, WPosition maxPos ) :
     state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
     state->setMode( GL_BLEND, osg::StateAttribute::ON );
 
+    // add a simple default lighting shader
+    m_lightShader = new WGEShader( "WGELighting" );
+
     m_not->set( false );
 
     assert( WGraphicsEngine::getGraphicsEngine() );
@@ -195,10 +202,20 @@ WROIBox::~WROIBox()
 
 WPosition WROIBox::getMinPos() const
 {
-    return m_minPos;
+    return m_minPos->get();
 }
 
 WPosition WROIBox::getMaxPos() const
+{
+    return m_maxPos->get();
+}
+
+WPropPosition WROIBox::getMinPosProperty()
+{
+    return m_minPos;
+}
+
+WPropPosition WROIBox::getMaxPosProperty()
 {
     return m_maxPos;
 }
@@ -211,6 +228,13 @@ void WROIBox::registerRedrawRequest( WPickInfo pickInfo )
     m_pickInfo = pickInfo;
 
     lock.unlock();
+}
+
+void WROIBox::boxPropertiesChanged( boost::shared_ptr< WPropertyBase > /* property */ )
+{
+    m_needVertexUpdate = true;
+    // NOTE: this is probably not needed as the above flag will trigger a dirty
+    // setDirty();
 }
 
 void WROIBox::updateGFX()
@@ -251,34 +275,26 @@ void WROIBox::updateGFX()
 
             WVector3d moveVec = newPixelWorldPos - oldPixelWorldPos;
 
-            osg::ref_ptr<osg::Vec3Array> vertices = osg::ref_ptr<osg::Vec3Array>( new osg::Vec3Array );
-
             // resize Box
             if( m_pickInfo.getModifierKey() == WPickInfo::SHIFT )
             {
                 if( m_pickNormal[0] <= 0 && m_pickNormal[1] <= 0 && m_pickNormal[2] <= 0 )
                 {
-                    m_maxPos += m_pickNormal * dot( moveVec, m_pickNormal );
+                    m_maxPos->set( m_maxPos->get() + ( m_pickNormal * dot( moveVec, m_pickNormal ) ) );
                 }
                 if( m_pickNormal[0] >= 0 && m_pickNormal[1] >= 0 && m_pickNormal[2] >= 0 )
                 {
-                    m_minPos += m_pickNormal * dot( moveVec, m_pickNormal );
+                    m_minPos->set( m_minPos->get() + ( m_pickNormal * dot( moveVec, m_pickNormal ) ) );
                 }
-
-                setVertices( vertices, m_minPos, m_maxPos );
-                m_surfaceGeometry->setVertexArray( vertices );
+                // NOTE: this sets m_needVertexUpdate
             }
 
             // move Box
             if( m_pickInfo.getModifierKey() == WPickInfo::NONE )
             {
-                m_minPos += moveVec;
-                m_maxPos += moveVec;
-
-                m_minPos += 2.0 * toDepthWorld * depthMove;
-                m_maxPos += 2.0 * toDepthWorld * depthMove;
-                setVertices( vertices, m_minPos, m_maxPos );
-                m_surfaceGeometry->setVertexArray( vertices );
+                m_minPos->set( m_minPos->get() + moveVec + ( 2.0 * toDepthWorld * depthMove ) );
+                m_maxPos->set( m_maxPos->get() + moveVec + ( 2.0 * toDepthWorld * depthMove ) );
+                // NOTE: this sets m_needVertexUpdate
             }
         }
         else
@@ -311,8 +327,6 @@ void WROIBox::updateGFX()
         setDirty();
         m_isPicked = true;
         m_oldScrollWheel = m_pickInfo.getScrollWheel();
-
-        signalRoiChange();
     }
     if( m_isPicked && m_pickInfo.getName() == "unpick" )
     {
@@ -330,6 +344,18 @@ void WROIBox::updateGFX()
         m_surfaceGeometry->setColorArray( colors );
         m_pickNormal = WVector3d();
         m_isPicked = false;
+    }
+
+    if( m_needVertexUpdate )
+    {
+        osg::ref_ptr<osg::Vec3Array> vertices = osg::ref_ptr<osg::Vec3Array>( new osg::Vec3Array );
+        setVertices( vertices, m_minPos->get(), m_maxPos->get() );
+        m_surfaceGeometry->setVertexArray( vertices );
+
+        m_lightShader->apply( this );
+
+        setDirty();
+        m_needVertexUpdate = false;
     }
 
     if( m_dirty->get() )

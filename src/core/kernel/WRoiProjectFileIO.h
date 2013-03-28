@@ -29,8 +29,6 @@
 
 #include "../common/WProjectFileIO.h"
 
-
-
 /**
  * IO Class for writing the ROI structure to a project file.
  */

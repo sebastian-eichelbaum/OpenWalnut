@@ -29,6 +29,8 @@
 #include <string>
 #include <vector>
 
+#include "WProperties.h"
+
 /**
  * A base class for all parts of OpenWalnut which can be serialized to a project file. It is used by WProjectFile to actually parse the file line
  * by line. Derive from this class if you write your own parser and use it to fill your internal data structures. But write it in a very
@@ -117,6 +119,18 @@ protected:
      */
     void addWarning( std::string description );
 
+    /**
+     * Recursively prints the properties and nested properties.
+     *
+     * \param output    the output stream to print to
+     * \param props     the properties to recursively print
+     * \param indent    the indentation level
+     * \param prefix    the prefix (name prefix of property)
+     * \param index     the ID to use
+     * \param indexPrefix use this to add a prefix to the index
+     */
+    void printProperties( std::ostream& output, boost::shared_ptr< WProperties > props, std::string indent, //NOLINT ( non-const ref )
+                          std::string prefix, unsigned int index, std::string indexPrefix = "" );
 private:
     /**
      * List of errors if any.

@@ -326,44 +326,6 @@ void WModuleProjectFileCombiner::done()
     apply();
 }
 
-void WModuleProjectFileCombiner::printProperties( std::ostream& output, boost::shared_ptr< WProperties > props, std::string indent, //NOLINT
-                                                  std::string prefix, unsigned int module )
-{
-    // lock, unlocked if l looses focus
-    WProperties::PropertySharedContainerType::ReadTicket l = props->getProperties();
-
-    output << indent << "// Property Group: " << props->getName() << std::endl;
-
-    // iterate of them and print them to output
-    for( WProperties::PropertyConstIterator iter = l->get().begin(); iter != l->get().end(); ++iter )
-    {
-        // information properties do not get written
-        if( ( *iter )->getPurpose () == PV_PURPOSE_INFORMATION )
-        {
-            continue;
-        }
-        if( ( *iter )->getType() != PV_GROUP )
-        {
-            output << indent + "    " << "PROPERTY:(" << module << "," << prefix + ( *iter )->getName() << ")="
-                   << ( *iter )->getAsString() << std::endl;
-        }
-        else
-        {
-            // it is a group -> recursively print it
-            if( prefix.empty() )
-            {
-                printProperties( output, ( *iter )->toPropGroup(), indent + "    ", ( *iter )->getName() + "/", module );
-            }
-            else
-            {
-                printProperties( output, ( *iter )->toPropGroup(), indent + "    ", prefix + ( *iter )->getName() + "/", module );
-            }
-        }
-    }
-
-    output << indent << "// Property Group END: " << props->getName() << std::endl;
-}
-
 void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
 {
     // we need to save the colormapper's texture order. To do this, we need to update the textures sort indices
