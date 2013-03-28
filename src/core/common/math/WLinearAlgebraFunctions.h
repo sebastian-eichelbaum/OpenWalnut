@@ -25,6 +25,7 @@
 #ifndef WLINEARALGEBRAFUNCTIONS_H
 #define WLINEARALGEBRAFUNCTIONS_H
 
+#include <Eigen/SVD>
 
 #include "WMatrix.h"
 #include "linearAlgebra/WLinearAlgebra.h"
@@ -92,22 +93,60 @@ bool linearIndependent( const WVector3d& u, const WVector3d& v );
  *
  * A=U*S*V^T
  *
+ * \tparam T The data type.
  * \param A Input Matrix
  * \param U Output Matrix
  * \param S Output of the entries in the diagonal matrix
  * \param V Output Matrix
  *
  */
-void computeSVD( const WMatrix<double>& A, WMatrix<double>& U, WMatrix<double>& V, WValue<double>& S );
+template< typename T >
+void computeSVD( const WMatrix< T >& A, WMatrix< T >& U, WMatrix< T >& V, WValue< T >& S );
 
 /**
  * Calculates for a matrix the pseudo inverse.
  *
+ * \tparam T The data type.
  * \param input Matrix to invert
  *
  * \return Inverted Matrix
  *
  */
-WMatrix<double> pseudoInverse( const WMatrix<double>& input );
+template< typename T >
+WMatrix< T > pseudoInverse( const WMatrix< T >& input );
+
+
+template< typename T >
+void computeSVD( const WMatrix< T >& A,
+                 WMatrix< T >& U,
+                 WMatrix< T >& V,
+                 WValue< T >& S )
+{
+    Eigen::Matrix< T, -1, -1 > eigenA( A );
+    Eigen::JacobiSVD< Eigen::Matrix< T, -1, -1 > > svd( eigenA, Eigen::ComputeFullU | Eigen::ComputeFullV );
+    U = WMatrix< T >( svd.matrixU() );
+    V = WMatrix< T >( svd.matrixV() );
+    S = WValue< T >( svd.singularValues() );
+}
+
+template< typename T >
+WMatrix< T > pseudoInverse( const WMatrix< T >& input )
+{
+    // calc pseudo inverse
+    WMatrix< T > U( input.getNbRows(), input.getNbCols() );
+    WMatrix< T > V( input.getNbCols(), input.getNbCols() );
+    WValue< T > Svec( input.size() );
+    computeSVD( input, U, V, Svec );
+
+    // create diagonal matrix S
+    WMatrix< T > S( input.getNbCols(), input.getNbCols() );
+    S.setZero();
+    for( size_t i = 0; i < Svec.size() && i < S.getNbRows() && i < S.getNbCols(); i++ )
+    {
+        S( i, i ) = ( Svec[ i ] == 0.0 ) ? 0.0 : 1.0 / Svec[ i ];
+    }
+
+    return WMatrix< T >( V*S*U.transposed() );
+}
 
 #endif  // WLINEARALGEBRAFUNCTIONS_H
