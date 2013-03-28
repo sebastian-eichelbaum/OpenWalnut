@@ -34,7 +34,13 @@ void main()
     // prepare light
     v_normal = gl_NormalMatrix * gl_Normal;
 
-    gl_FrontColor = gl_Color;
+#ifdef USE_MATERIAL_DIFFUSE
+    vec4 color = gl_FrontMaterial.diffuse;
+#else
+    vec4 color = gl_Color;
+#endif
+    gl_FrontColor = color;
+    gl_BackColor = color;
     gl_Position = ftransform();
 }
 

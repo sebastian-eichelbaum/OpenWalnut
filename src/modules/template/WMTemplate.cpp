@@ -436,6 +436,16 @@ void WMTemplate::moduleMain()
     waitRestored();
     // This always returns if you manually add your module and no project file loader or something similar has to restore any values.
 
+    // Before we begin, we finally create a shader object which shades the graphics we create in this module. You can use your own shaders or a
+    // global one, like WGELighting. When creating a shader, you need to specify its name and an optional search path. When developing modules,
+    // this search path should be you module's local resource path.
+    m_shader = new WGEShader( "WGELighting", m_localPath );
+
+    // Later in the code, we show how we use a property to modify the graphics color. There, we use the OpenGL material mechanism. So we need to
+    // switch the shader to this mode by setting a compile-time switch:
+    m_shader->setDefine( "USE_MATERIAL_DIFFUSE" );
+    // There are multiple ways to set uniforms and defines automatically by binding them to properties. But this is not the topic of this module.
+
     // Normally, you will have a loop which runs as long as the module should not shutdown. In this loop you can react on changing data on input
     // connectors or on changed in your properties.
     debugLog() << "Entering main loop";
@@ -586,6 +596,10 @@ void WMTemplate::moduleMain()
             // attributes and modes of existing nodes. You do not want to remove the node and recreate another one to simply change some color,
             // right? Setting the color can be done in such an update callback. See in the header file, how this class is defined.
             m_geode->addUpdateCallback( new SafeUpdateCallback( this ) );
+
+            // The default lighting is not very pretty. We can bind a default shader provided by OpenWalnut to this geode to have nice per-pixel
+            // Phong shading. We earlier created this shader object. Now, we need to apply it:
+            m_shader->apply( m_geode );
 
             // And insert the new node
             m_rootNode->insert( m_geode );

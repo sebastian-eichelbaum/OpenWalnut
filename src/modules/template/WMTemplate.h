@@ -33,6 +33,7 @@
 #include "core/common/WItemSelector.h"
 
 #include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
 
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
@@ -301,6 +302,11 @@ private:
      * The callback triggering the hide flag of m_aColor for demonstration.
      */
     void hideButtonPressed();
+
+    /**
+     * We want some nice shading effects, so we need a nice shader.
+     */
+    WGEShader::RefPtr m_shader;
 
     /**
      * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in
