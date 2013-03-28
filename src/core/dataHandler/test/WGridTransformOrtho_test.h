@@ -272,21 +272,21 @@ public:
                                - t.directionToGridSpace( WVector3d( -1.0, 5.0, 4.4 ) ) ), 0.0, 1e-13 );
         }
     }
-    
+
 private:
-	/**
-	 * Compares two vectors, element by element.
-	 * 
-	 * \param v1 The first vector.
-	 * \param v2 The second vector.
-	 * \param delta The maximum absolute difference between the elements of the vectors.
-	 */
-	void compareVectors( WVector3d const& v1, WVector3d const& v2, double delta ) const
-	{
-		TS_ASSERT_DELTA( v1[ 0 ], v2[ 0 ], delta );
-		TS_ASSERT_DELTA( v1[ 1 ], v2[ 1 ], delta );
-		TS_ASSERT_DELTA( v1[ 2 ], v2[ 2 ], delta );
-	}
+    /**
+     * Compares two vectors, element by element.
+     *
+     * \param v1 The first vector.
+     * \param v2 The second vector.
+     * \param delta The maximum absolute difference between the elements of the vectors.
+     */
+    void compareVectors( WVector3d const& v1, WVector3d const& v2, double delta ) const
+    {
+        TS_ASSERT_DELTA( v1[ 0 ], v2[ 0 ], delta );
+        TS_ASSERT_DELTA( v1[ 1 ], v2[ 1 ], delta );
+        TS_ASSERT_DELTA( v1[ 2 ], v2[ 2 ], delta );
+    }
 };
 
 #endif  // WGRIDTRANSFORMORTHO_TEST_H
