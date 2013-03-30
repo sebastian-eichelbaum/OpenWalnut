@@ -24,6 +24,14 @@
 
 #include <string>
 
+#include <boost/regex.hpp>
+
+#include "../common/WStringUtils.h"
+#include "../common/WProperties.h"
+#include "../common/WPropertyBase.h"
+#include "../common/WPropertyVariable.h"
+#include "../common/WPropertyTypes.h"
+#include "../common/exceptions/WFileNotFound.h"
 #include "../common/WLogger.h"
 #include "../graphicsEngine/WROI.h"
 #include "../graphicsEngine/WROIBox.h"
@@ -43,10 +51,59 @@ WRoiProjectFileIO::~WRoiProjectFileIO()
     // cleanup
 }
 
-bool WRoiProjectFileIO::parse( std::string /* line */, unsigned int /* lineNumber */ )
+bool WRoiProjectFileIO::parse( std::string line, unsigned int lineNumber )
 {
+    // this is the proper regular expression for modules
+    static const boost::regex branchRe( "^ *SELECTOR_BRANCH:([0-9]*)$" );
+    static const boost::regex roiBoxRe( "^ *SELECTOR_ROIBOX:([0-9]*):SELECTOR_BRANCH([0-9]*)$" );
+    static const boost::regex branchPropRe( "^ *PROPERTY:\\(SELECTOR_BRANCH([0-9]*),(.*)\\)=(.*)$" );
+    static const boost::regex roiBoxPropRe( "^ *PROPERTY:\\(SELECTOR_ROIBOX([0-9]*),(.*)\\)=(.*)$" );
+
+    boost::smatch matches;  // the list of matches
+    if( boost::regex_match( line, matches, branchRe ) )
+    {
+        Branch branch =  string_utils::fromString< Branch >( matches[1] );
+        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Branch with ID " << branch;
+
+        // store info
+        m_branches.push_back( branch );
+    }
+    else if( boost::regex_match( line, matches, roiBoxRe ) )
+    {
+        Branch parentBranch = string_utils::fromString< Branch >( matches[2] );
+        RoiID roiID = string_utils::fromString< RoiID >( matches[1] );
+        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": ROI with ID " << roiID << " in Branch " << parentBranch;
+
+        // store info
+        m_rois.push_back( Roi( roiID, parentBranch ) );
+    }
+    else if( boost::regex_match( line, matches, branchPropRe ) )
+    {
+        Branch branch = string_utils::fromString< Branch >( matches[1] );
+        std::string prop = matches[2];
+        std::string propValue = matches[3];
+        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Property \"" << prop << "\" of Branch " << branch
+                                                                          << " set to " << propValue;
+        // store info
+        m_branchProperties[ branch ] = Property( prop, propValue );
+    }
+    else if( boost::regex_match( line, matches, roiBoxPropRe ) )
+    {
+        RoiID roiID = string_utils::fromString< RoiID >( matches[1] );
+        std::string prop = matches[2];
+        std::string propValue = matches[3];
+        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Property \"" << prop << "\" of ROI " << roiID
+                                                                          << " set to " << propValue;
+        // store info
+        m_roiProperties[ roiID ] = Property( prop, propValue );
+    }
+    else
+    {
+        return false;
+    }
+
     // read something
-    return false;
+    return true;
 }
 
 void WRoiProjectFileIO::done()

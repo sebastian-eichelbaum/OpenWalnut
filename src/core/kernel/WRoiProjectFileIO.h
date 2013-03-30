@@ -26,6 +26,10 @@
 #define WROIPROJECTFILEIO_H
 
 #include <string>
+#include <vector>
+#include <map>
+
+#include "boost/tuple/tuple.hpp"
 
 #include "../common/WProjectFileIO.h"
 
@@ -70,6 +74,45 @@ public:
 
 protected:
 private:
+    /**
+     * Branch by ID
+     */
+    typedef unsigned int Branch;
+
+    /**
+     * Property for branch/roi with ID. Property name and value are stored as string
+     */
+    typedef boost::tuple< std::string, std::string > Property;
+
+    /**
+     * All loaded branch IDs
+     */
+    std::vector< Branch > m_branches;
+
+    /**
+     * Properties of each branch
+     */
+    std::map< Branch, Property > m_branchProperties;
+
+    /**
+     * ID of a ROI
+     */
+    typedef unsigned int RoiID;
+
+    /**
+     * ROI by ID, second is parent branch ID
+     */
+    typedef boost::tuple< RoiID, Branch > Roi;
+
+    /**
+     * All loaded rois
+     */
+    std::vector< Roi > m_rois;
+
+    /**
+     * Properties of each branch
+     */
+    std::map< RoiID, Property > m_roiProperties;
 };
 
 #endif  // WROIPROJECTFILEIO_H
