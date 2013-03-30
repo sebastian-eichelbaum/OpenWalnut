@@ -726,18 +726,18 @@ WMatrix< T > WSymmetricSphericalHarmonic< T >::calcFRTMatrix( size_t order )
 template< typename T >
 WMatrix< T > WSymmetricSphericalHarmonic< T >::calcSHToTensorSymMatrix( std::size_t order )
 {
-    std::vector< WMatrixFixed< T, 3, 1 > > vertices;
+    std::vector< WVector3d > vertices;
     std::vector< unsigned int > triangles;
     // calc necessary tesselation level
     int level = static_cast< int >( log( static_cast< float >( ( order + 1 ) * ( order + 2 ) ) ) / 2.0f + 1.0f );
     tesselateIcosahedron( &vertices, &triangles, level );
     std::vector< WUnitSphereCoordinates< T > > orientations;
-    for( typename std::vector< WMatrixFixed< T, 3, 1 > >::const_iterator cit = vertices.begin(); cit != vertices.end(); cit++ )
+    for( typename std::vector< WVector3d >::const_iterator cit = vertices.begin(); cit != vertices.end(); cit++ )
     {
         // avoid linear dependent orientations
         if( ( *cit )[ 0 ] >= 0.0001 )
         {
-            orientations.push_back( WUnitSphereCoordinates< T >( *cit ) );
+            orientations.push_back( WUnitSphereCoordinates< T >( WMatrixFixed< T, 3, 1 >( *cit ) ) );
         }
     }
     return WSymmetricSphericalHarmonic< T >::calcSHToTensorSymMatrix( order, orientations );

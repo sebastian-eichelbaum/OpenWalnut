@@ -206,7 +206,7 @@ public:
 
         TS_ASSERT_EQUALS( vec->size(), nbVoxels * vDim );
 
-        double delta = 1e-16;
+        double delta = 1e-12;
         for( unsigned int voxId = 0; voxId < nbVoxels; ++voxId )
         {
             for( unsigned int dim = 0; dim < vDim; ++dim )

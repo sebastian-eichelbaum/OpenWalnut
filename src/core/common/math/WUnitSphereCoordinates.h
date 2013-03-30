@@ -55,7 +55,7 @@ public:
      * Constructor for Euclidean coordinates.
      * \param vector Euclidean coordinates
      */
-    explicit WUnitSphereCoordinates( WMatrixFixed< T, 3, 1 > vector );
+    explicit WUnitSphereCoordinates( const WMatrixFixed< T, 3, 1 >& vector );
 
     /**
      * Destructor.
@@ -95,6 +95,13 @@ public:
      */
     WMatrixFixed< T, 3, 1 > getEuclidean() const;
 
+    /**
+     * Returns the stored sphere coordinates as Euclidean coordinates.
+     *
+     * \param vector coordinates in euclidean space
+     */
+    void setEuclidean( WMatrixFixed< T, 3, 1 > vector );
+
 protected:
 private:
     /** coordinate */
@@ -118,12 +125,9 @@ WUnitSphereCoordinates< T >::WUnitSphereCoordinates( T theta, T phi )
 }
 
 template< typename T >
-WUnitSphereCoordinates< T >::WUnitSphereCoordinates( WMatrixFixed< T, 3, 1 > vector )
+WUnitSphereCoordinates< T >::WUnitSphereCoordinates( const WMatrixFixed< T, 3, 1 >& vector )
 {
-    vector = normalize( vector );
-    // calculate angles
-    m_theta = std::acos( vector[2] );
-    m_phi = std::atan2( vector[1], vector[0] );
+    setEuclidean( vector );
 }
 
 template< typename T >
@@ -159,6 +163,15 @@ template< typename T >
 WMatrixFixed< T, 3, 1 > WUnitSphereCoordinates< T >::getEuclidean() const
 {
     return WMatrixFixed< T, 3, 1 >( std::sin( m_theta )*std::cos( m_phi ), std::sin( m_theta )*std::sin( m_phi ), std::cos( m_theta ) );
+}
+
+template< typename T >
+void WUnitSphereCoordinates< T >::setEuclidean( WMatrixFixed< T, 3, 1 > vector )
+{
+    vector = normalize( vector );
+    // calculate angles
+    m_theta = std::acos( vector[2] );
+    m_phi = std::atan2( vector[1], vector[0] );
 }
 
 #endif  // WUNITSPHERECOORDINATES_H
