@@ -144,14 +144,14 @@ public:
     operator osg::Matrixd() const;
 
     /**
-     * Cast this matrix to an Eigen::Matrix< EigenDataType, -1, -1 >() matrix.
+     * Cast this matrix to an Eigen::Matrix< EigenDataType, Eigen::Dynamic, Eigen::Dynamic >() matrix.
      *
      * \tparam EigenDataType Data type of Eigen matrix.
      *
      * \return casted matrix.
      */
     template< typename EigenDataType >
-    operator Eigen::Matrix< EigenDataType, -1, -1 >() const;
+    operator Eigen::Matrix< EigenDataType, Eigen::Dynamic, Eigen::Dynamic >() const;
 
     /**
      * Compares two matrices and returns true if they are equal.
@@ -233,7 +233,7 @@ private:
      * \param newMatrix The source matrix.
      */
     template< typename EigenDataType >
-    void copyFromEigenMatrix( const Eigen::Matrix< EigenDataType, -1, -1 >& newMatrix );
+    void copyFromEigenMatrix( const Eigen::Matrix< EigenDataType, Eigen::Dynamic, Eigen::Dynamic >& newMatrix );
 
     size_t m_nbCols; //!< Number of columns of the matrix. The number of rows will be computed by (size/m_nbCols).
 };
@@ -331,9 +331,9 @@ template< typename T > WMatrix< T >::operator osg::Matrixd() const
 }
 
 template< typename T >
-template< typename EigenDataType > WMatrix< T >::operator Eigen::Matrix< EigenDataType, -1, -1 >() const
+template< typename EigenDataType > WMatrix< T >::operator Eigen::Matrix< EigenDataType, Eigen::Dynamic, Eigen::Dynamic >() const
 {
-    Eigen::Matrix< EigenDataType, -1, -1 > matrix( this->getNbRows(), this->getNbCols() );
+    Eigen::Matrix< EigenDataType, Eigen::Dynamic, Eigen::Dynamic > matrix( this->getNbRows(), this->getNbCols() );
     for( int row = 0; row < matrix.rows(); ++row )
     {
         for( int col = 0; col < matrix.cols(); ++col )
@@ -526,7 +526,8 @@ template< typename T > bool WMatrix< T >::isIdentity( T delta ) const
 }
 
 template< typename T >
-template< typename EigenDataType > void WMatrix< T >::copyFromEigenMatrix( const Eigen::Matrix< EigenDataType, -1, -1 >& newMatrix )
+template< typename EigenDataType >
+void WMatrix< T >::copyFromEigenMatrix( const Eigen::Matrix< EigenDataType, Eigen::Dynamic, Eigen::Dynamic >& newMatrix )
 {
     m_nbCols = static_cast< size_t >( newMatrix.cols() );
     for( int row = 0; row < newMatrix.rows(); ++row )
