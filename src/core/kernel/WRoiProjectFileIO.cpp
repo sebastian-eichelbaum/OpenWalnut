@@ -23,6 +23,8 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <map>
+#include <vector>
 
 #include <boost/regex.hpp>
 
