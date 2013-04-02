@@ -49,7 +49,7 @@
 #include "WMatrixTraits.h"
 
 /**
- * Testsuite for WPosition.
+ * Testsuite for WSymmetricSphericalHarmonic.
  */
 class WSymmetricSphericalHarmonicTest : public CxxTest::TestSuite
 {
