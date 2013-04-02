@@ -109,6 +109,12 @@ bool WRoiProjectFileIO::parse( std::string line, unsigned int lineNumber )
 void WRoiProjectFileIO::done()
 {
     // apply
+
+    // clear everything
+    m_branches.clear();
+    m_rois.clear();
+    m_roiProperties.clear();
+    m_branchProperties.clear();
 }
 
 void WRoiProjectFileIO::save( std::ostream& output )   // NOLINT
