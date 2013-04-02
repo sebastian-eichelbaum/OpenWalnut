@@ -85,6 +85,11 @@ private:
     typedef boost::tuple< std::string, std::string > Property;
 
     /**
+     * The properties as vector.
+     */
+    typedef std::vector< Property > Properties;
+
+    /**
      * All loaded branch IDs
      */
     std::vector< Branch > m_branches;
@@ -92,7 +97,7 @@ private:
     /**
      * Properties of each branch
      */
-    std::map< Branch, Property > m_branchProperties;
+    std::map< Branch, Properties > m_branchProperties;
 
     /**
      * ID of a ROI
@@ -112,7 +117,7 @@ private:
     /**
      * Properties of each branch
      */
-    std::map< RoiID, Property > m_roiProperties;
+    std::map< RoiID, Properties > m_roiProperties;
 };
 
 #endif  // WROIPROJECTFILEIO_H

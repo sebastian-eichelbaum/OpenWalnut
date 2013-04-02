@@ -41,20 +41,32 @@ WROIManager::~WROIManager()
 {
 }
 
-void WROIManager::addRoi( osg::ref_ptr< WROI > newRoi )
+void WROIManager::addRoi( osg::ref_ptr< WROI > newRoi, boost::shared_ptr< WRMBranch > toBranch )
 {
-    // create new branch
-    boost::shared_ptr< WRMBranch > newBranch = boost::shared_ptr< WRMBranch >( new WRMBranch( shared_from_this() ) );
-    // add branch to list
-    m_branches.push_back( newBranch );
     // add roi to branch
-    newBranch->addRoi( newRoi );
+    toBranch->addRoi( newRoi );
 
     for( std::list< boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > >::iterator iter = m_addNotifiers.begin();
             iter != m_addNotifiers.end(); ++iter )
     {
         ( **iter )( newRoi );
     }
+}
+
+void WROIManager::addRoi( osg::ref_ptr< WROI > newRoi )
+{
+    addRoi( newRoi, addBranch() );
+}
+
+boost::shared_ptr< WRMBranch > WROIManager::addBranch()
+{
+    // create new branch
+    boost::shared_ptr< WRMBranch > newBranch = boost::shared_ptr< WRMBranch >( new WRMBranch( shared_from_this() ) );
+    // add branch to list
+    m_branches.push_back( newBranch );
+
+    // return
+    return newBranch;
 }
 
 void WROIManager::addRoi( osg::ref_ptr< WROI > newRoi, osg::ref_ptr< WROI > parentRoi )

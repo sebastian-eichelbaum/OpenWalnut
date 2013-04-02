@@ -85,7 +85,7 @@ bool WRoiProjectFileIO::parse( std::string line, unsigned int lineNumber )
         wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Property \"" << prop << "\" of Branch " << branch
                                                                           << " set to " << propValue;
         // store info
-        m_branchProperties[ branch ] = Property( prop, propValue );
+        m_branchProperties[ branch ].push_back( Property( prop, propValue ) );
     }
     else if( boost::regex_match( line, matches, roiBoxPropRe ) )
     {
@@ -95,7 +95,7 @@ bool WRoiProjectFileIO::parse( std::string line, unsigned int lineNumber )
         wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Property \"" << prop << "\" of ROI " << roiID
                                                                           << " set to " << propValue;
         // store info
-        m_roiProperties[ roiID ] = Property( prop, propValue );
+        m_roiProperties[ roiID ].push_back( Property( prop, propValue ) );
     }
     else
     {
@@ -108,7 +108,62 @@ bool WRoiProjectFileIO::parse( std::string line, unsigned int lineNumber )
 
 void WRoiProjectFileIO::done()
 {
-    // apply
+    boost::shared_ptr< WROIManager> rm = WKernel::getRunningKernel()->getRoiManager();
+
+    std::map< Branch, boost::shared_ptr< WRMBranch > > branches;
+    // add all branches
+    for( std::vector< Branch >::const_iterator i = m_branches.begin(); i != m_branches.end(); ++i )
+    {
+        boost::shared_ptr< WRMBranch > branch = rm->addBranch();
+        branches[ *i ] = branch;
+
+        // set the properties
+        for( Properties::const_iterator propI = m_branchProperties[ *i ].begin(); propI != m_branchProperties[ *i ].end();
+             ++propI )
+        {
+            std::string name = ( *propI ).get< 0 >();
+            std::string value = ( *propI ).get< 1 >();
+
+            WPropertyBase::SPtr prop = branch->getProperties()->findProperty( name );
+            if( prop )
+            {
+                prop->setAsString( value );
+            }
+            else
+            {
+                addError( "The ROI does not have a property named \"" + name + "\". Skipping." );
+            }
+        }
+    }
+
+    // add ROIs to the branches
+    for( std::vector< Roi >::const_iterator i = m_rois.begin(); i != m_rois.end(); ++i )
+    {
+        // get branch of this ROI
+        boost::shared_ptr< WRMBranch > branch = branches[ ( *i ).get< 1 >() ];
+
+        // add ROI to branch
+        osg::ref_ptr< WROI > roi( new WROIBox( WPosition(), WPosition() ) );
+        rm->addRoi( roi, branch );
+
+        // set the properties
+        for( Properties::const_iterator propI = m_roiProperties[ ( *i ).get< 0 >() ].begin(); propI != m_roiProperties[ ( *i ).get< 0 >() ].end();
+             ++propI )
+        {
+            std::string name = ( *propI ).get< 0 >();
+            std::string value = ( *propI ).get< 1 >();
+
+            WPropertyBase::SPtr prop = roi->getProperties()->findProperty( name );
+            if( prop )
+            {
+                prop->setAsString( value );
+            }
+            else
+            {
+                addError( "The ROI does not have a property named \"" + name + "\". Skipping." );
+            }
+        }
+    }
 
     // clear everything
     m_branches.clear();
@@ -128,6 +183,7 @@ void WRoiProjectFileIO::save( std::ostream& output )   // NOLINT
     // write all branches
     WROIManager::Branches branches =WKernel::getRunningKernel()->getRoiManager()->getBranches();
     unsigned int branchIndex = 0;
+    unsigned int roiIndex = 0;
     for( WROIManager::Branches::const_iterator branchIter = branches.begin(); branchIter != branches.end(); ++branchIter )
     {
         // get the branch
@@ -140,7 +196,6 @@ void WRoiProjectFileIO::save( std::ostream& output )   // NOLINT
 
         // handle this branch's ROIs
         WROIManager::ROIs rois = branch->getRois();
-        unsigned int roiIndex = 0;
         for( WROIManager::ROIs::const_iterator roiIter = rois.begin(); roiIter != rois.end(); ++roiIter )
         {
             // differentiate the type of roi, currently we will support only WROiBox
