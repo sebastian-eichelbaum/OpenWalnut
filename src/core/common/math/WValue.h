@@ -370,20 +370,6 @@ public:
         m_components.resize( size );
     }
 
-    /**
-     * Returns this WValue as WVector_2.
-     * \return The WValue as WVector_2.
-     */
-    WVector_2 toWVector()
-    {
-        WVector_2 result( m_components.size() );
-        for( size_t i = 0; i < m_components.size(); ++i )
-        {
-            result( i ) = static_cast<double>( m_components[ i ] );
-        }
-        return result;
-    }
-
 protected:
 private:
     /**

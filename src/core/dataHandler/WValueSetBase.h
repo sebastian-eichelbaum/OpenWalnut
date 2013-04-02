@@ -106,12 +106,6 @@ public:
     virtual WValue< double > getWValueDouble( size_t i ) const = 0;
 
     /**
-     * \param i id of the WVector to retrieve
-     * \return The i-th WValue (stored in this value set) as WVector. There are size() such scalars.
-     */
-    virtual WVector_2 getWVector( size_t i ) const = 0;
-
-    /**
      * \return Dimension of the values in this ValueSet
      */
     virtual size_t dimension() const

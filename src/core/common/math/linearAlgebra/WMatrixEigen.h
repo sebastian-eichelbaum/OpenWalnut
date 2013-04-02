@@ -30,23 +30,5 @@
 #include <Eigen/Core>
 #include <Eigen/LU>
 
-/**
- * A double matrix of dynamic size. Heap-allocated.
- * If you want to access coefficients using the operator( size_t, size_t ), the first parameter is still the row index, starting with 0.
- *
- * \see http://eigen.tuxfamily.org/dox/classEigen_1_1Matrix.html
- * \see http://eigen.tuxfamily.org/dox/classEigen_1_1MatrixBase.html
- */
-typedef Eigen::MatrixXd WMatrix_2;
-
-/**
- * A complex double matrix of dynamic size. Heap-allocated.
- * If you want to access coefficients using the operator( size_t, size_t ), the first parameter is still the row index, starting with 0.
- *
- * \see http://eigen.tuxfamily.org/dox/classEigen_1_1Matrix.html
- * \see http://eigen.tuxfamily.org/dox/classEigen_1_1MatrixBase.html
- */
-typedef Eigen::MatrixXcd WMatrixComplex_2;
-
 #endif  // WMATRIXEIGEN_H
 

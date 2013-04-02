@@ -214,15 +214,6 @@ public:
     }
 
     /**
-     * \param i id of the WVector to retrieve
-     * \return The i-th WValue (stored in this value set) as WVector. There are size() such scalars.
-     */
-    virtual WVector_2 getWVector( size_t i ) const
-    {
-        return ( WValue< double >( getWValue( i ) ) ).toWVector();
-    }
-
-    /**
      * Get the i'th vector
      *
      * \param index the index number of the vector
