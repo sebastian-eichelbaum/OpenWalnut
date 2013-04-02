@@ -40,7 +40,6 @@
 #include "core/dataHandler/WGridRegular3D.h"
 #include "core/dataHandler/WDataSetRawHARDI.h"
 #include "core/kernel/WKernel.h"
-#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
 #include "core/kernel/WModule.h"
 
 #include "WMWriteNIfTI.h"

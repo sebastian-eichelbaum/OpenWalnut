@@ -26,7 +26,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../common/math/linearAlgebra/WPosition.h"
 #include "WTractAdapter.h"
 
 WTractAdapter::WTractAdapter( boost::shared_ptr< const std::vector< float > > pointComponents, size_t startIndex, size_t numPoints )

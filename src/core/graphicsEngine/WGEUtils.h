@@ -36,7 +36,6 @@
 
 #include "../common/WColor.h"
 #include "../common/WAssert.h"
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../common/WPropertyVariable.h"
 #include "../graphicsEngine/shaders/WGEPropertyUniform.h"
 

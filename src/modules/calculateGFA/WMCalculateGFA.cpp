@@ -27,7 +27,7 @@
 
 #include "core/common/math/WSymmetricSphericalHarmonic.h"
 #include "core/common/WLimits.h"
-#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WVectorFixed.h"
 #include "core/common/math/WGeometryFunctions.h"
 #include "core/kernel/WKernel.h"
 #include "WMCalculateGFA.xpm"

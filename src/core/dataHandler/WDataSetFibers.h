@@ -32,7 +32,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/tuple/tuple.hpp>
 
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../common/math/linearAlgebra/WPosition.h"
 #include "../common/WBoundingBox.h"
 #include "../common/WProperties.h"
 #include "WDataSet.h"

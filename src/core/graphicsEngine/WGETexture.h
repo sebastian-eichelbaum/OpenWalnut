@@ -42,7 +42,6 @@
 #include "../common/WProperties.h"
 #include "../common/WPropertyTypes.h"
 #include "../common/WPropertyHelper.h"
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "WGETextureUtils.h"
 

@@ -33,7 +33,7 @@
 #include "../../WLimits.h"
 #include "../WLinearAlgebraFunctions.h"
 #include "../WMatrix.h"
-#include "../linearAlgebra/WLinearAlgebra.h"
+#include "../linearAlgebra/WVectorFixed.h"
 #include "WVector3dTraits.h"
 
 /**

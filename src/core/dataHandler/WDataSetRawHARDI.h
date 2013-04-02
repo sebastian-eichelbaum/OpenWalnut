@@ -29,7 +29,7 @@
 #include <vector>
 
 #include "WDataSetSingle.h"
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../common/math/linearAlgebra/WVectorFixed.h"
 
 
 /**

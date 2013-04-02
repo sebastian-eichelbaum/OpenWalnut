@@ -33,7 +33,7 @@
 #include <osg/PositionAttitudeTransform>
 #include <osgText/Text>
 
-#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WVectorFixed.h"
 #include "core/common/WAssert.h"
 #include "core/common/WBoundingBox.h"
 #include "core/common/WStringUtils.h"

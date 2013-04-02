@@ -44,7 +44,8 @@
 
 #include "core/common/WPathHelper.h"
 #include "core/common/WProgress.h"
-#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WPosition.h"
+#include "core/common/math/linearAlgebra/WVectorFixed.h"
 #include "core/common/math/WLinearAlgebraFunctions.h"
 #include "core/dataHandler/WDataHandler.h"
 #include "core/dataHandler/WSubject.h"

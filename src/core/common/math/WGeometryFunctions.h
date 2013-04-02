@@ -30,7 +30,7 @@
 #include <vector>
 
 #include "../WAssert.h"
-#include "linearAlgebra/WLinearAlgebra.h"
+#include "linearAlgebra/WVectorFixed.h"
 
 namespace utility
 {

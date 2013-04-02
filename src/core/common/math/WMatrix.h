@@ -30,7 +30,8 @@
 #include <osg/Matrix>
 
 #include "WValue.h"
-#include "linearAlgebra/WLinearAlgebra.h"
+#include "linearAlgebra/WMatrixFixed.h"
+#include "linearAlgebra/WVectorFixed.h"
 
 #include "../WDefines.h"
 

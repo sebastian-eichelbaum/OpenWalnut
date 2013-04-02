@@ -26,7 +26,6 @@
 #include <vector>
 
 #include "core/common/WAssert.h"
-#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
 #include "core/common/datastructures/WFiber.h"
 
 #include "WSimpleResampler.h"

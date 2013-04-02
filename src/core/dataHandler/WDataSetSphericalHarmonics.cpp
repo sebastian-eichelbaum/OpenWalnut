@@ -29,7 +29,7 @@
 #include <vector>
 
 #include "../common/WAssert.h"
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../common/math/linearAlgebra/WPosition.h"
 #include "../common/math/WSymmetricSphericalHarmonic.h"
 #include "WDataSetSingle.h"
 #include "WDataSetSphericalHarmonics.h"

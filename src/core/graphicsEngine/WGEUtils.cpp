@@ -27,7 +27,7 @@
 
 #include <osg/Array>
 
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../common/math/linearAlgebra/WPosition.h"
 
 #include "WGETexture.h"
 

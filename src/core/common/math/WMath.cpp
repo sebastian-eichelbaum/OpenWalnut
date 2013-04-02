@@ -24,7 +24,8 @@
 
 #include "WMath.h"
 #include "WPlane.h"
-#include "linearAlgebra/WLinearAlgebra.h"
+#include "linearAlgebra/WPosition.h"
+#include "linearAlgebra/WVectorFixed.h"
 #include "../WAssert.h"
 #include "../WLimits.h"
 

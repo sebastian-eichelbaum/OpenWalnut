@@ -29,9 +29,10 @@
 #include <cmath>
 #include <vector>
 
+#include <Eigen/Core>
+
 #include "../WAssert.h"
 #include "../WStringUtils.h"
-#include "linearAlgebra/WLinearAlgebra.h"
 
 /**
  * Base class for all higher level values like tensors, vectors, matrices and so on.

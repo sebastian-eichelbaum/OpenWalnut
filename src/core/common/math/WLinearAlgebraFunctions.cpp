@@ -29,7 +29,7 @@
 
 #include "WLinearAlgebraFunctions.h"
 #include "WMatrix.h"
-#include "linearAlgebra/WLinearAlgebra.h"
+#include "linearAlgebra/WVectorFixed.h"
 
 WVector3d multMatrixWithVector3D( WMatrix<double> mat, WVector3d vec )
 {

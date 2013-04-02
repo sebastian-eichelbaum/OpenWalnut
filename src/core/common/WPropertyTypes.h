@@ -34,8 +34,8 @@
 #include <boost/filesystem.hpp>
 
 #include "WStringUtils.h"
-#include "math/linearAlgebra/WLinearAlgebra.h"
 #include "math/linearAlgebra/WMatrixFixed.h"
+#include "math/linearAlgebra/WPosition.h"
 #include "math/linearAlgebra/WVectorFixed.h"
 #include "math/WInterval.h"
 #include "WAssert.h"

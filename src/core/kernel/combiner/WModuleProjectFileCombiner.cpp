@@ -48,7 +48,6 @@
 #include "../../common/WPropertyVariable.h"
 #include "../../common/WPropertyTypes.h"
 #include "../../common/WLogger.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "../../graphicsEngine/WGEColormapping.h"
 

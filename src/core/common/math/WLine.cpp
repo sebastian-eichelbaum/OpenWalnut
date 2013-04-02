@@ -37,7 +37,8 @@
 #include "../WStringUtils.h"
 #include "WLine.h"
 #include "WPolynomialEquationSolvers.h"
-#include "linearAlgebra/WLinearAlgebra.h"
+#include "linearAlgebra/WPosition.h"
+#include "linearAlgebra/WVectorFixed.h"
 
 WLine::WLine( const std::vector< WPosition > &points )
     : WMixinVector< WPosition >( points )

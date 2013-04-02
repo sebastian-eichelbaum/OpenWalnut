@@ -35,7 +35,7 @@
 #include "core/common/WLogger.h"
 #include "core/common/math/WGeometryFunctions.h"
 #include "../exceptions/WPreconditionNotMet.h"
-#include "linearAlgebra/WLinearAlgebra.h"
+#include "linearAlgebra/WVectorFixed.h"
 #include "WLinearAlgebraFunctions.h"
 #include "WMath.h"
 #include "WMatrix.h"

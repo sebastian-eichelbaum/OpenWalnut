@@ -32,7 +32,7 @@
 
 #include <boost/array.hpp>
 
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../common/math/linearAlgebra/WVectorFixed.h"
 #include "../common/WSharedObject.h"
 #include "../common/WThreadedJobs.h"
 

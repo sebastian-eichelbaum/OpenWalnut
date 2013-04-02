@@ -39,7 +39,6 @@
 
 #include "core/common/math/WLinearAlgebraFunctions.h"
 #include "core/common/math/WMath.h"
-#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
 #include "core/common/WAssert.h"
 #include "core/common/WLimits.h"
 #include "core/common/WPathHelper.h"

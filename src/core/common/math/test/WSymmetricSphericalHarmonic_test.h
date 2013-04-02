@@ -39,7 +39,6 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../WMatrix.h"
-#include "../linearAlgebra/WLinearAlgebra.h"
 #include "../WValue.h"
 
 #include "../WGeometryFunctions.h"

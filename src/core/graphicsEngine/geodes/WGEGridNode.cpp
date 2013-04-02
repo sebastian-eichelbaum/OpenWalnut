@@ -27,7 +27,6 @@
 
 #include <osg/LineWidth>
 
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../callbacks/WGEFunctorCallback.h"
 #include "../WGEGeodeUtils.h"
 #include "WGEGridNode.h"

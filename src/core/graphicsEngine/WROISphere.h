@@ -29,7 +29,7 @@
 
 #include <boost/thread.hpp>
 
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../common/math/linearAlgebra/WPosition.h"
 #include "WPickHandler.h"
 #include "WGEViewer.h"
 

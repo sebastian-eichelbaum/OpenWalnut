@@ -25,10 +25,11 @@
 #ifndef WLINEARALGEBRAFUNCTIONS_H
 #define WLINEARALGEBRAFUNCTIONS_H
 
+#include <Eigen/Core>
 #include <Eigen/SVD>
 
 #include "WMatrix.h"
-#include "linearAlgebra/WLinearAlgebra.h"
+#include "linearAlgebra/WPosition.h"
 
 template< typename > class WMatrix;
 

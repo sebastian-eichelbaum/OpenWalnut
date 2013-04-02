@@ -40,7 +40,6 @@
 #include "../common/exceptions/WPreconditionNotMet.h"
 #include "../common/math/WLinearAlgebraFunctions.h"
 #include "../common/math/WMatrix.h"
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../common/WBoundingBox.h"
 #include "../common/WCondition.h"
 #include "../common/WDefines.h"

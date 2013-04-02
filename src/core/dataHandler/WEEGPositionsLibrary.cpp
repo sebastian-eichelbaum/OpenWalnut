@@ -27,7 +27,7 @@
 
 #include "../common/WStringUtils.h"
 #include "../common/exceptions/WOutOfBounds.h"
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../common/math/linearAlgebra/WPosition.h"
 #include "WEEGPositionsLibrary.h"
 
 

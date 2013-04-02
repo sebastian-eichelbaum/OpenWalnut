@@ -28,7 +28,7 @@
 #include <cmath>
 #include <vector>
 
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../../common/math/linearAlgebra/WMatrixFixed.h"
 
 /**
  * This class stores coordinates on the unit sphere.

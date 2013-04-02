@@ -30,7 +30,6 @@
 #include <string>
 #include <vector>
 
-#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
 #include "core/common/WAssert.h"
 #include "core/common/WProgress.h"
 #include "core/common/WStringUtils.h"
