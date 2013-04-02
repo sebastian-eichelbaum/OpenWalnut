@@ -392,7 +392,7 @@ private:
      * \param newValues The source Eigen::VectorX.
      */
     template< typename EigenDataType >
-    void copyFromEigenVector( const Eigen::Matrix< EigenDataType, -1, 1 >& newValues )
+    void copyFromEigenVector( const Eigen::Matrix< EigenDataType, Eigen::Dynamic, 1 >& newValues )
     {
         for( std::size_t i = 0; i < m_components.size(); ++i )
         {
