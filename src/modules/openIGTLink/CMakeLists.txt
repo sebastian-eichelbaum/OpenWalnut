@@ -55,4 +55,6 @@ IF( OpenIGTLink_FOUND )
                   ${OpenIGTLink_LIBRARIES}      # does your module need additional libs to compile?
                   ""                            # do you want to exclude files from stylechecking? (externals for example)
     )
+ELSE( OpenIGTLink_FOUND )
+    MESSAGE( WARNING "OpenIGTLink library wasn't found, don't compile openIGTLink module." )
 ENDIF( OpenIGTLink_FOUND )
