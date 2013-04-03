@@ -83,7 +83,7 @@ WQtRoiTreeItem::WQtRoiTreeItem( QTreeWidgetItem * parent, osg::ref_ptr< WROI > r
     grabWidget->setPixmap( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "touchpoint_small" ).pixmap( 24, 32 ) );
     grabWidget->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
     grabWidget->setFixedWidth( 24 );
-    grabWidget->setToolTip( "Drag and drop these textures to change their composition ordering." );
+    grabWidget->setToolTip( "Drag and drop this ROI to change their ordering." );
 
     // style
     QPalette palette;
