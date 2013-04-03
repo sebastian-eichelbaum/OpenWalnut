@@ -51,6 +51,8 @@
 
 #include "../../exceptions/WOutOfBounds.h"
 
+#include "../WValue.h"
+
 /**
  * Macro for handling the value store template.
  */
@@ -282,6 +284,22 @@ public:
     WMatrixFixed( const WMatrixFixed< RHSValueT, Rows, Cols, RHSValueStoreT >& m )     // NOLINT - we do not want it explicit
     {
         setValues( m.m_values );
+    }
+
+    /**
+     * Casting constructor for  WValue. This won't compile if Cols != 1 and
+     * causes a runtime assertion if val.size() != Rows.
+     *
+     * \param val the WValue with the fitting size.
+     */
+    WMatrixFixed( const WValue< ValueT >& val )     // NOLINT - we do not want it explicit
+    {
+        WAssert( val.size() == Rows, "The size of the given WValue doesn't equal the number of rows." );
+        // NOTE: The static Cols == 1 check is done by operator []
+        for( size_t i = 0; i < Rows; i++ )
+        {
+            operator[]( i ) = val[ i ];
+        }
     }
 
     /**
