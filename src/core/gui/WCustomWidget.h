@@ -32,6 +32,7 @@
 #include <osg/ref_ptr>
 
 #include "../graphicsEngine/WGEViewer.h"
+#include "../common/WFlag.h"
 
 class WGEGroupNode;
 
@@ -84,12 +85,103 @@ public:
      */
     virtual std::string getTitle() const;
 
+    /**
+     * Returns the height of the viewport of the camera.
+     *
+     * \return Height in pixels.
+     */
+    virtual size_t height() const = 0;
+
+    /**
+     * Returns the width of the viewport of the camera.
+     *
+     * \return Width in pixels.
+     */
+    virtual size_t width() const = 0;
+
+    /**
+     * Returns the type of the last event captured by eventOccured. Meanwhile other events may have occured you may miss.
+     *
+     * \param reset If set to true, the flag is reset and the widget is ready for new events. Otherwise its just queried.
+     *
+     * \return OSG GUI event.
+     */
+    virtual const osgGA::GUIEventAdapter& getEvent( bool reset = false );
+
+    /**
+     * This condition fires whenever a new event has to be handled and there was no old event left.
+     *
+     * \return \c WCondition as event notifier.
+     */
+    virtual WCondition::SPtr getCondition() const;
+
+    /**
+     * True when there is an unhandled event left. False otherwise.
+     *
+     * \return Bool indicating unhandled events.
+     */
+    virtual bool eventOccured() const;
+
 protected:
+    /**
+     * \class WindowHandler
+     *
+     * An event handler for a custom widget.
+     */
+    class WindowHandler : public osgGA::GUIEventHandler
+    {
+    public:
+        /**
+         * Constructor.
+         *
+         * \param widget The custom widget which should be notified.
+         */
+        explicit WindowHandler( WCustomWidget* widget )
+            : m_widget( widget )
+        {
+        }
+
+        /**
+         * Deals with the events found by the osg.
+         *
+         * \param ea Event class for storing Keyboard, mouse and window events.
+         *
+         * \return true if the event was handled.
+         */
+        bool handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& /* aa */ )
+        {
+            if( m_widget->eventOccured() ) // if there is an unhandled event proceed
+            {
+                return false;
+            }
+
+            m_widget->m_event = new osgGA::GUIEventAdapter( ea );
+            m_widget->m_eventOccured->set( true );
+            return true;
+        }
+
+    private:
+        /**
+         * Reference to the WCustomWidget which has the condition for such events and needs to be notified.
+         */
+        WCustomWidget* const m_widget;
+    };
+
 private:
     /**
      * The widget's title string.
      */
     std::string m_title;
+
+    /**
+     * Flag indicating if an GUI event has occured. If so it is stored in m_lastEventType.
+     */
+    WBoolFlag::SPtr m_eventOccured;
+
+    /**
+     * Stores last GUI event.
+     */
+    osg::ref_ptr< osgGA::GUIEventAdapter > m_event;
 };
 
 #endif  // WCUSTOMWIDGET_H
