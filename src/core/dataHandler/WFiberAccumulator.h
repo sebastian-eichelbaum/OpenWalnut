@@ -30,7 +30,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../common/math/linearAlgebra/WVectorFixed.h"
 #include "WDataSetFiberVector.h"
 #include "WDataSetFibers.h"
 

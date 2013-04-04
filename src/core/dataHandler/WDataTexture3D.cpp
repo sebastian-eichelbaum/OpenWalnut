@@ -24,7 +24,6 @@
 
 #include <string>
 
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../graphicsEngine/WGETextureUtils.h"
 #include "WDataTexture3D.h"
 #include "WValueSet.h"

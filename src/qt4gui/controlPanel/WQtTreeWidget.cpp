@@ -46,8 +46,9 @@ void WQtTreeWidget::deleteItem( QTreeWidgetItem* item )
     delete item;
 }
 
-void WQtTreeWidget::dropEvent( QDropEvent* /*event*/ )
+void WQtTreeWidget::dropEvent( QDropEvent* event )
 {
-    emit dragDrop();
+    QTreeWidget::dropEvent( event );
+    emit dragDrop( event );
 }
 

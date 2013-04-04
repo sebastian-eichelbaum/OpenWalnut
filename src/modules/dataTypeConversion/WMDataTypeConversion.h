@@ -36,8 +36,6 @@
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
 
-#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
-
 /**
  * Provides a new field with the approximately the same data, but with another data type. E.g., it
  * can convert double into float.

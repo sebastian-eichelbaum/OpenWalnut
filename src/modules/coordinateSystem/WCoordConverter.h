@@ -29,7 +29,7 @@
 
 #include "core/common/WBoundingBox.h"
 #include "core/common/math/WMatrix.h"
-#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WPosition.h"
 
 #include "WTalairachConverter.h"
 

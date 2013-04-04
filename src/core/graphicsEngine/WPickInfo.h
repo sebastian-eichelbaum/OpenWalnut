@@ -30,7 +30,8 @@
 #include <string>
 #include <utility>
 
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../common/math/linearAlgebra/WVectorFixed.h"
+#include "../common/math/linearAlgebra/WPosition.h"
 #include "../common/WDefines.h"
 
 

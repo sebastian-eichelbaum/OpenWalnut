@@ -27,7 +27,7 @@
 
 #include <vector>
 
-#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WVectorFixed.h"
 
 /**
  * A B-spline surface.

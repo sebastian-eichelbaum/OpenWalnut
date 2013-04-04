@@ -31,7 +31,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../../common/math/linearAlgebra/WPosition.h"
 #include "../WTriangleMesh.h"
 #include "WTriangleMeshTraits.h"
 

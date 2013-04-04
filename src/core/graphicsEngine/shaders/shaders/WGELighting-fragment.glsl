@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 OpenWalnut Community, BSV-Leipzig and CNCF-CBS
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -22,49 +22,24 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGELIGHTING_FRAGMENT_GLSL
-#define WGELIGHTING_FRAGMENT_GLSL
-
 #version 120
 
-varying vec3 normal;
-varying vec4 vertex;
-varying vec3 halfvec;
+#include "WGEShadingTools.glsl"
 
-const vec4 AMBIENT_BLACK = vec4( 0.0, 0.0, 0.0, 1.0 );
-const vec4 DEFAULT_BLACK = vec4( 0.0, 0.0, 0.0, 0.0 );
+// The surface normal
+varying vec3 v_normal;
 
-void directionalLight( in int i, in vec3 normal, in float shininess,
-                      inout vec4 ambient, inout vec4 diffuse, inout vec4 specular )
+void main()
 {
-    float nDotVP;
-    float nDotHV;
-    float pf;
+    vec4 col = gl_Color;
 
-    vec3 L = normalize( gl_LightSource[i].position.xyz - vertex.xyz );
-    vec3 H = normalize( L + halfvec.xyz );
+    // do light
+    float light = blinnPhongIlluminationIntensity( normalize( viewAlign( v_normal ) ) );
 
-    nDotVP = max( 0.0, dot( normal, normalize( ( gl_LightSource[i].position.xyz ) ) ) );
-    nDotHV = max( 0.0, dot( normal, H ) );
+    // opacity of the surface
+    col.rgb *= light;
 
-    if( nDotVP == 0.0 )
-    {
-        pf = 0.0;
-    }
-    else
-    {
-        pf = pow( nDotHV, gl_FrontMaterial.shininess );
-    }
-
-    ambient += gl_LightSource[i].ambient;
-    diffuse += gl_LightSource[i].diffuse * nDotVP;
-    specular += gl_LightSource[i].specular * pf;
+    // finally set the color
+    gl_FragColor = col;
 }
-
-void calculateLighting( in vec3 N, in float shininess, inout vec4 ambient, inout vec4 diffuse, inout vec4 specular )
-{
-    directionalLight( 0, N, shininess, ambient, diffuse, specular );
-}
-
-#endif // WGELIGHTING_FRAGMENT_GLSL
 

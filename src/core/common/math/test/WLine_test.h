@@ -170,7 +170,7 @@ public:
         line.push_back( WPosition( 7, 8, 9 ) );
         double expected = length( WPosition( 1, 2, 3 ) - WPosition( 4, 5, 6 ) ) +
                           length( WPosition( 4, 5, 6 ) - WPosition( 7, 8, 9 ) );
-        TS_ASSERT_EQUALS( expected, pathLength( line ) );
+        TS_ASSERT_DELTA( expected, pathLength( line ), 1e-6 );
     }
 
     /**

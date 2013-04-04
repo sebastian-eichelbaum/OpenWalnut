@@ -34,7 +34,7 @@
 
 #include "core/graphicsEngine/WGEManagedGroupNode.h"
 #include "core/graphicsEngine/WGEGroupNode.h"
-#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WVectorFixed.h"
 #include "core/common/WPropertyTypes.h"
 #include "core/graphicsEngine/WPickInfo.h"
 

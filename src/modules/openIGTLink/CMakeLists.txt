@@ -34,24 +34,27 @@ GET_FILENAME_COMPONENT( MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # 1: FindPackage( LibYouNeed )
-Find_Package( OpenIGTLink )
+Find_Package( OpenIGTLink QUIET )
 
-# 2: INCLUDE_DIRECTORIES( ${LIBYOUNEED_INCLUDE_DIR} )
-INCLUDE_DIRECTORIES( ${OpenIGTLink_INCLUDE_DIRS} )
+IF( OpenIGTLink_FOUND )
+    # 2: INCLUDE_DIRECTORIES( ${LIBYOUNEED_INCLUDE_DIR} )
+    INCLUDE_DIRECTORIES( ${OpenIGTLink_INCLUDE_DIRS} )
 
-# 3: LINK_DIRECTORIES( ${LIBYOUNEED_LIBRARY_DIRS} )
-LINK_DIRECTORIES( ${OpenIGTLink_LIBRARY_DIRS} )
-# 4: Add ${LIBYOUNEED_LIBRARY} as _MODULE_DEPENDENCIES parameter to SETUP_MODULE
+    # 3: LINK_DIRECTORIES( ${LIBYOUNEED_LIBRARY_DIRS} )
+    LINK_DIRECTORIES( ${OpenIGTLink_LIBRARY_DIRS} )
+    # 4: Add ${LIBYOUNEED_LIBRARY} as _MODULE_DEPENDENCIES parameter to SETUP_MODULE
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-# Setup for compilation
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------------------------------------------------------------
+    # Setup for compilation
+    # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Let this function do the job. It sets up tests and copies shaders automatically. It additionally configures the stylecheck mechanism for this
-# module.
-SETUP_MODULE( ${MODULE_NAME}                # name of the module
-             "${CMAKE_CURRENT_SOURCE_DIR}"  # where to find the source ${CMAKE_CURRENT_SOURCE_DIR} is a good idea here mostly
-             ${OpenIGTLink_LIBRARIES}                             # does your module need additional libs to compile?
-             ""                             # do you want to exclude files from stylechecking? (externals for example)
-)
-
+    # Let this function do the job. It sets up tests and copies shaders automatically. It additionally configures the stylecheck mechanism for this
+    # module.
+    SETUP_MODULE( ${MODULE_NAME}                # name of the module
+                 "${CMAKE_CURRENT_SOURCE_DIR}"  # where to find the source ${CMAKE_CURRENT_SOURCE_DIR} is a good idea here mostly
+                  ${OpenIGTLink_LIBRARIES}      # does your module need additional libs to compile?
+                  ""                            # do you want to exclude files from stylechecking? (externals for example)
+    )
+ELSE( OpenIGTLink_FOUND )
+    MESSAGE( WARNING "OpenIGTLink library wasn't found, don't compile openIGTLink module." )
+ENDIF( OpenIGTLink_FOUND )

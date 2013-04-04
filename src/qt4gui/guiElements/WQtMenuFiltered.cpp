@@ -143,13 +143,21 @@ void WQtMenuFiltered::filterUpdate()
             // match value against filter
             if( match )
             {
-                ( *a )->setVisible( true );
+                #ifdef __APPLE__
+                    ( *a )->setDisabled( false );
+                #else
+                    ( *a )->setVisible( true );
+                #endif
                 nbLeft++;
                 lastVisibleAction = *a;
             }
             else
             {
-                ( *a )->setVisible( false );
+                #ifdef __APPLE__
+                    ( *a )->setDisabled( true );
+                #else
+                    ( *a )->setVisible( false );
+                #endif
             }
         }
     }

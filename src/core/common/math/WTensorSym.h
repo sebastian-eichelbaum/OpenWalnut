@@ -26,7 +26,6 @@
 #define WTENSORSYM_H
 
 #include <iostream>
-#include <vector>
 
 #include <boost/array.hpp>
 

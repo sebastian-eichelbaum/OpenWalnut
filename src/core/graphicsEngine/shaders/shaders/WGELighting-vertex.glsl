@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 OpenWalnut Community, BSV-Leipzig and CNCF-CBS
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -22,33 +22,25 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGELIGHTING_VERTEX_GLSL
-#define WGELIGHTING_VERTEX_GLSL
-
 #version 120
 
-varying vec3 normal;
-varying vec4 vertex;
-varying vec3 halfvec;
+#include "WGETransformationTools.glsl"
 
-const vec4 AMBIENT_BLACK = vec4( 0.0, 0.0, 0.0, 1.0 );
-const vec4 DEFAULT_BLACK = vec4( 0.0, 0.0, 0.0, 0.0 );
+// The surface normal
+varying vec3 v_normal;
 
-/**
- * Computes normal and makes transformation to eye space.
- */
-void prepareLight()
+void main()
 {
-    // Calculate the normal
-    normal = normalize( gl_NormalMatrix * gl_Normal ).xyz;
+    // prepare light
+    v_normal = gl_NormalMatrix * gl_Normal;
 
-    // Transform the vertex position to eye space
-    vertex = vec4( gl_ModelViewMatrix * gl_Vertex );
-
-    vec3 L = normalize( gl_LightSource[0].position.xyz - vertex.xyz );
-
-    halfvec = vec3( L + vec3( 0.0, 0.0, 1.0 ) );
+#ifdef USE_MATERIAL_DIFFUSE
+    vec4 color = gl_FrontMaterial.diffuse;
+#else
+    vec4 color = gl_Color;
+#endif
+    gl_FrontColor = color;
+    gl_BackColor = color;
+    gl_Position = ftransform();
 }
-
-#endif // WGELIGHTING_VERTEX_GLSL
 

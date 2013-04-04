@@ -30,7 +30,7 @@
 #include <utility>
 #include <vector>
 
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../common/math/linearAlgebra/WPosition.h"
 #include "../common/WPrototyped.h"
 
 #include "WRecording.h"

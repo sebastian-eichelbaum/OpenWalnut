@@ -61,7 +61,12 @@ public:
 protected:
 private:
 signals:
-    void dragDrop(); //!< signal to notify higher ups of the drag&drop action
+    /**
+     * Item was dropped
+     *
+     * \param event the event
+     */
+    void dragDrop( QDropEvent* event );
 };
 
 #endif  // WQTTREEWIDGET_H

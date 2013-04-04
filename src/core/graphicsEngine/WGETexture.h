@@ -26,6 +26,7 @@
 #define WGETEXTURE_H
 
 #include <string>
+#include <limits>
 
 #include <boost/shared_ptr.hpp>
 
@@ -39,8 +40,8 @@
 #include "callbacks/WGEFunctorCallback.h"
 #include "../common/WBoundingBox.h"
 #include "../common/WProperties.h"
+#include "../common/WPropertyTypes.h"
 #include "../common/WPropertyHelper.h"
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "WGETextureUtils.h"
 
@@ -101,6 +102,13 @@ public:
      * \return the property.
      */
     WPropInt sortIndex() const;
+
+    /**
+     * Get the index used to refer to an unset sort index.
+     *
+     * \return the value.
+     */
+    static WPVBaseTypes::PV_INT getUnsetSortIndex();
 
     /**
      * Get the minimum in the de-scaled value space. The property can be changed. A change affects all colormaps using this texture. But be
@@ -472,7 +480,7 @@ void WGETexture< TextureType >::setupProperties( double scale, double min )
 
     m_sortIdx = m_properties->addProperty( "Sort Index",
                                            "The index specifies the index in the colormapper, used to restore colormapper sorting on load.",
-                                           -1 );
+                                           getUnsetSortIndex() );
     m_sortIdx->setHidden( true );
 
     // initialize members
@@ -732,6 +740,12 @@ template < typename TextureType >
 WBoundingBox WGETexture< TextureType >::getBoundingBox() const
 {
     return WBoundingBox( 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 );
+}
+
+template < typename TextureType >
+WPVBaseTypes::PV_INT WGETexture< TextureType >::getUnsetSortIndex()
+{
+    return std::numeric_limits< WPVBaseTypes::PV_INT >::max();
 }
 
 #endif  // WGETEXTURE_H

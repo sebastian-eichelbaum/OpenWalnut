@@ -27,7 +27,7 @@
 
 #ifdef OW_USE_OSSIM
     #include <algorithm>
-    #include <iostream>
+//    #include <iostream>
     #include <vector>
 
     #include <matrix/newmat.h>

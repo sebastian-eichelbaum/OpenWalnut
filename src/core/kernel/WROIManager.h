@@ -51,6 +51,13 @@ public:
     ~WROIManager();
 
     /**
+     * Add a new branch.
+     *
+     * \return the new branch.
+     */
+    boost::shared_ptr< WRMBranch > addBranch();
+
+    /**
      * adds a new master ROI
      *
      * \param newRoi
@@ -66,6 +73,14 @@ public:
      * \return ROI representation which can be used to remove the ROI
      */
     void addRoi( osg::ref_ptr< WROI > newRoi, osg::ref_ptr< WROI > parentRoi );
+
+    /**
+     * Add a ROI to a branch.
+     *
+     * \param newRoi the new ROI to add
+     * \param toBranch the branch to add the ROI to.
+     */
+    void addRoi( osg::ref_ptr< WROI > newRoi, boost::shared_ptr< WRMBranch > toBranch );
 
     /**
      * removes a roi
@@ -164,10 +179,27 @@ public:
     boost::shared_ptr< WProperties > getProperties();
 
     /**
+     * ROI list
+     */
+    typedef std::vector< osg::ref_ptr< WROI > > ROIs;
+
+    /**
      * getter
      * \return all existing rois
      */
-    std::vector< osg::ref_ptr< WROI > > getRois();
+    ROIs getRois() const;
+
+    /**
+     * Branches list
+     */
+    typedef std::vector< boost::shared_ptr< WRMBranch > > Branches;
+
+    /**
+     * Get a copy of the current branch list. Please note that after getting the list, it might already have been changed by another thread.
+     *
+     * \return the list of current branches
+     */
+    Branches getBranches() const;
 
 protected:
 private:

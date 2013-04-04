@@ -25,14 +25,12 @@
 #ifndef WTHREADEDJOBS_H
 #define WTHREADEDJOBS_H
 
-#include <iostream>
 #include <string>
 
 #include <boost/shared_ptr.hpp>
 
 #include "WException.h"
 #include "WFlag.h"
-#include "WLogger.h"
 
 /**
  * \class WThreadedJobs

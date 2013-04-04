@@ -26,7 +26,7 @@
 
 #include "core/dataHandler/WGridRegular3D.h"
 #include "core/common/math/WLine.h"
-#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WPosition.h"
 #include "WBresenhamDBL.h"
 
 WBresenhamDBL::WBresenhamDBL( boost::shared_ptr< WGridRegular3D > grid, bool antialiased )

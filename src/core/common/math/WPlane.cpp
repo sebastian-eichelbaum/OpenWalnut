@@ -27,7 +27,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../common/math/WLinearAlgebraFunctions.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../../common/math/linearAlgebra/WVectorFixed.h"
 #include "../../common/WAssert.h"
 #include "../../common/WLimits.h"
 

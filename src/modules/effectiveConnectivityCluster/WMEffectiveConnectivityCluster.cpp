@@ -44,7 +44,6 @@
 #include <osgDB/WriteFile>
 
 #include "core/common/WProgress.h"
-#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
 #include "core/dataHandler/WSubject.h"
 #include "core/dataHandler/WGridRegular3D.h"
 #include "core/dataHandler/datastructures/WFiberCluster.h"

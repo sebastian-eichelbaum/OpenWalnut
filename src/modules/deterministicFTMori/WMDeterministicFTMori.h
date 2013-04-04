@@ -32,7 +32,7 @@
 #include <boost/thread.hpp>
 
 #include "core/kernel/WModule.h"
-#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WVectorFixed.h"
 #include "core/common/WThreadedFunction.h"
 #include "core/dataHandler/WThreadedPerVoxelOperation.h"
 #include "core/dataHandler/WThreadedTrackingFunction.h"

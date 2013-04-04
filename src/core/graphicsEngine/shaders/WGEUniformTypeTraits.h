@@ -28,7 +28,7 @@
 #include <osg/Vec3>
 #include <osg/Vec2>
 
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../../common/math/linearAlgebra/WVectorFixed.h"
 #include "../../common/math/WInterval.h"
 
 class WItemSelector;

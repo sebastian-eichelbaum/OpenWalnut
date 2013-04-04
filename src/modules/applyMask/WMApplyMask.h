@@ -33,7 +33,6 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
-#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
 #include "core/dataHandler/WDataSetScalar.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"

@@ -35,8 +35,6 @@
 
 #include "../graphicsEngine/WROI.h"
 
-
-
 class WROIManager;
 
 /**
@@ -45,6 +43,16 @@ class WROIManager;
 class  WRMBranch : public boost::enable_shared_from_this< WRMBranch >
 {
 public:
+    /**
+     * Convenience type for a shared pointer of this type
+     */
+    typedef boost::shared_ptr< WRMBranch > SPtr;
+
+    /**
+     * Convenience type for a const shared pointer of this type
+     */
+    typedef boost::shared_ptr< const WRMBranch > ConstSPtr;
+
     /**
      * construtor
      * \param roiManager
@@ -76,6 +84,13 @@ public:
      * \return the color property
      */
     WPropColor colorProperty();
+
+    /**
+     * Get the properties of this branch as group.
+     *
+     * \return branch property group
+     */
+    WPropertyGroup::SPtr getProperties() const;
 
     /**
      * adds a roi to the branch
@@ -156,6 +171,13 @@ public:
      * \param roiVec the vector to fill
      */
     void getRois( std::vector< osg::ref_ptr< WROI > >& roiVec ); //NOLINT
+
+    /**
+     * Create a list of ROIs of the current point in time.
+     *
+     * \return the ROIs
+     */
+    std::vector< osg::ref_ptr< WROI > > getRois() const;
 
     /**
      * Add a specified notifier to the list of default notifiers which get connected to each branch

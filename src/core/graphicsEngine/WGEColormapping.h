@@ -39,7 +39,6 @@
 #include "../common/WBoundingBox.h"
 #include "../common/WSharedSequenceContainer.h"
 #include "../common/WSharedAssociativeContainer.h"
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "callbacks/WGEFunctorCallback.h"
 

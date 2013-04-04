@@ -31,7 +31,7 @@
 
 #include "../../dataHandler/WGridRegular3D.h"
 
-#include "linearAlgebra/WLinearAlgebra.h"
+#include "linearAlgebra/WVectorFixed.h"
 
 /**
  * Represents a plane with a normal vector and a position in space.

@@ -31,7 +31,6 @@
 
 #include <boost/thread.hpp>
 
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../common/math/WMatrix.h"
 #include "../common/WColor.h"
 #include "WPickHandler.h"

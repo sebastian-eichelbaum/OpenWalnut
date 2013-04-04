@@ -289,7 +289,7 @@ void WGEColormapping::resetSortIndices()
     TextureContainerType::ReadTicket r = m_textures.getReadTicket();
     for( TextureContainerType::ConstIterator iter = r->get().begin(); iter != r->get().end(); ++iter )
     {
-        ( *iter )->sortIndex()->set( 0 );
+        ( *iter )->sortIndex()->set( WGETexture3D::getUnsetSortIndex() );
     }
 }
 
@@ -465,7 +465,7 @@ bool WGEColormapping::moveTo( osg::ref_ptr< WGETexture3D > texture, size_t idx )
     }
 
     // after inserting the item somewhere, the index of the original item might change
-    TextureContainerType::Iterator eraseIdx = iter;  // item is inserted behind the current one -> index of the original item stays the same
+    size_t eraseIdx = iter - w->get().begin();  // item is inserted behind the current one -> index of the original item stays the same
     size_t eraseShift = 0;
     // if the inserted element is in front of the old one, the old one's index is increasing
     if( ( w->get().begin() + idx ) < iter )
@@ -477,12 +477,11 @@ bool WGEColormapping::moveTo( osg::ref_ptr< WGETexture3D > texture, size_t idx )
     // NOTE: this is not the best way to do it. Manually moving items should be better. But as the colormapper has to handle only a small number
     // of elements, this is not critical.
     w->get().insert( w->get().begin() + idx, texture );
-    w->get().erase( eraseIdx + eraseShift );
+    w->get().erase( w->get().begin() + eraseIdx + eraseShift );
 
     // unlock and call callbacks
     w.reset();
     m_sortSignal();
-
     return true;
 }
 

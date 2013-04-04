@@ -36,7 +36,6 @@
 #include <osg/ShapeDrawable>
 #include <osg/Vec3>
 
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../common/math/WMath.h"
 #include "../common/WPathHelper.h"
 #include "../common/WStringUtils.h"

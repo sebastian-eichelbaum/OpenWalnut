@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <vector>
+#include <cmath>
 
 #include "WCreateColorArraysThread.h"
 
@@ -87,7 +88,7 @@ void WCreateColorArraysThread::threadMain()
         if( b < 0.0 )
             b *= -1.0;
 
-        float norm = sqrt( r * r + g * g + b * b );
+        float norm = std::sqrt( r * r + g * g + b * b );
         r *= 1.0 / norm;
         g *= 1.0 / norm;
         b *= 1.0 / norm;
@@ -105,7 +106,7 @@ void WCreateColorArraysThread::threadMain()
             lasty = (*m_vertices)[pc + 1];
             lastz = (*m_vertices)[pc + 2];
 
-            float norm = sqrt( rr * rr + gg * gg + bb * bb );
+            float norm = std::sqrt( rr * rr + gg * gg + bb * bb );
             rr *= 1.0 / norm;
             gg *= 1.0 / norm;
             bb *= 1.0 / norm;

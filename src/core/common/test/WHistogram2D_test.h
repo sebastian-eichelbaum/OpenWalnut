@@ -151,7 +151,7 @@ public:
     void testInsertAlmostMax( void )
     {
         double max = 10000.000000010001;
-        WHistogram2D h( -2147483648, max, -2147483648, max, 2, 2 );
+        WHistogram2D h( -2147483646, max, -2147483646, max, 2, 2 );
         h.insert( 10000, 10000 );
         h.insert( max - 2.0 * wlimits::FLT_EPS, max - 2.0 * wlimits::FLT_EPS );
         TS_ASSERT_EQUALS( h( 1, 1 ), 2 );

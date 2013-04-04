@@ -32,7 +32,7 @@
 
 #include <boost/variant.hpp>
 
-#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WVectorFixed.h"
 #include "core/common/WAssert.h"
 #include "core/common/WProgress.h"
 #include "core/common/WStringUtils.h"

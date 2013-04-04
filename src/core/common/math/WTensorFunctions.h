@@ -34,6 +34,8 @@
 
 #include <boost/array.hpp>
 
+#include <Eigen/Dense>
+
 #include "../WAssert.h"
 #include "../WLimits.h"
 #include "WCompileTimeFunctions.h"
@@ -188,6 +190,38 @@ void jacobiEigenvector3D( WTensorSym< 2, 3, Data_T > const& mat, RealEigenSystem
 }
 
 /**
+ * Compute all eigenvalues as well as the corresponding eigenvectors of a
+ * symmetric real Matrix.
+ *
+ * \note Data_T must be castable to double.
+ *
+ * \param[in] mat A real symmetric matrix.
+ * \param[out] RealEigenSystem A pointer to an RealEigenSystem.
+ */
+template< typename Data_T >
+void eigenEigenvector3D( WTensorSym< 2, 3, Data_T > const& mat, RealEigenSystem* es )
+{
+    RealEigenSystem& result = *es; // alias for the result
+    typedef Eigen::Matrix< Data_T, 3, 3 > MatrixType;
+
+    MatrixType m;
+    m << mat( 0, 0 ), mat( 0, 1 ), mat( 0, 2 ),
+         mat( 1, 0 ), mat( 1, 1 ), mat( 1, 2 ),
+         mat( 2, 0 ), mat( 2, 1 ), mat( 2, 2 );
+
+    Eigen::SelfAdjointEigenSolver< MatrixType > solv( m );
+
+    for( std::size_t k = 0; k < 3; ++k )
+    {
+        result[ k ].first = solv.eigenvalues()[ k ];
+        for( std::size_t j = 0; j < 3; ++j )
+        {
+            result[ k ].second[ j ] = solv.eigenvectors()( j, k );
+        }
+    }
+}
+
+/**
  * Calculate eigenvectors via the characteristic polynomial. This is essentially the same
  * function as in the GPU glyph shaders. This is for 3 dimensions only.
  *
@@ -303,7 +337,7 @@ WTensorSym< 2, 3, T > tensorLog( WTensorSym< 2, 3, T > const& tens )
 
     // calculate eigenvalues and eigenvectors
     RealEigenSystem sys;
-    jacobiEigenvector3D( tens, &sys );
+    eigenEigenvector3D( tens, &sys );
 
     // first, we check for negative or zero eigenvalues
     if( sys[ 0 ].first <= 0.0 || sys[ 1 ].first <= 0.0 || sys[ 2 ].first <= 0.0 )
@@ -348,7 +382,7 @@ WTensorSym< 2, 3, T > tensorExp( WTensorSym< 2, 3, T > const& tens )
 
     // calculate eigenvalues and eigenvectors
     RealEigenSystem sys;
-    jacobiEigenvector3D( tens, &sys );
+    eigenEigenvector3D( tens, &sys );
 
     // this implements the matrix product U * exp( E ) * U.transposed()
     // note that u( i, j ) = jth value of the ith eigenvector

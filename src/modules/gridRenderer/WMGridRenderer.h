@@ -33,7 +33,6 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
-#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
 #include "core/graphicsEngine/WGEGroupNode.h"
 #include "core/graphicsEngine/geodes/WGEGridNode.h"
 #include "core/kernel/WModule.h"

@@ -114,7 +114,7 @@ public:
      *
      * \return Interpolated spherical harmonic.
      */
-    WSymmetricSphericalHarmonic interpolate( const WPosition &pos, bool *success ) const;
+    WSymmetricSphericalHarmonic< double > interpolate( const WPosition &pos, bool *success ) const;
 
     /**
      * Get the spherical harmonic on the given position in value set.
@@ -123,7 +123,7 @@ public:
      *
      * \return the spherical harmonic
      */
-    WSymmetricSphericalHarmonic getSphericalHarmonicAt( size_t index ) const;
+    WSymmetricSphericalHarmonic< double > getSphericalHarmonicAt( size_t index ) const;
 
     /**
      * Gets the name of this prototype.

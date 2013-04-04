@@ -33,10 +33,11 @@
 #include <osg/Geometry>
 
 #include "WPickHandler.h"
+#include "shaders/WGEShader.h"
+
 class WGEViewer;
 
 #include "WROI.h"
-
 
 /**
  * A box representing a region of interest.
@@ -68,6 +69,20 @@ public:
     WPosition getMaxPos() const;
 
     /**
+     * Get the corner of the box that has minimal x, y and z values
+     *
+     * \return the corner position
+     */
+    WPropPosition getMinPosProperty();
+
+    /**
+     * Get the corner of the box that has maximal x, y and z values
+     *
+     * \return the corner position
+     */
+    WPropPosition getMaxPosProperty();
+
+    /**
      * Setter for standard color
      * \param color The new color.
      */
@@ -84,8 +99,22 @@ private:
     static size_t maxBoxId; //!< Current maximum boxId over all boxes.
     size_t boxId; //!< Id of the current box.
 
-    WPosition m_minPos; //!< The minimum position of the box
-    WPosition m_maxPos; //!< The maximum position of the box
+    /**
+     * Group for box specific props
+     */
+    WPropGroup m_propGrp;
+    WPropPosition m_minPos; //!< The minimum position of the box
+    WPropPosition m_maxPos; //!< The maximum position of the box
+
+    /**
+     * Shader for proper lighting.
+     */
+    WGEShader::RefPtr m_lightShader;
+
+    /**
+     * If true, the box' vertex data is updated.
+     */
+    bool m_needVertexUpdate;
     bool m_isPicked; //!< Indicates whether the box is currently picked or not.
     WPosition m_pickedPosition; //!< Caches the old picked position to a allow for cmoparison
     WVector3d m_pickNormal; //!< Store the normal that occured when the pick action was started.
@@ -135,6 +164,13 @@ private:
             traverse( node, nv );
         }
     };
+
+    /**
+     * Called when  the specified property has changed. Used to update the ROI when modifying box properties.
+     *
+     * \param property the property
+     */
+    void boxPropertiesChanged( boost::shared_ptr< WPropertyBase > property );
 };
 
 #endif  // WROIBOX_H

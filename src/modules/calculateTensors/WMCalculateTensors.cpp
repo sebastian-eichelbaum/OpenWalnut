@@ -27,7 +27,7 @@
 
 #include "core/common/math/WSymmetricSphericalHarmonic.h"
 #include "core/common/math/WMatrix.h"
-#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WVectorFixed.h"
 #include "core/common/WLimits.h"
 #include "core/kernel/WKernel.h"
 
@@ -97,15 +97,15 @@ void WMCalculateTensors::moduleMain()
     m_moduleState.add( m_exceptionCondition );
 
     // calc sh->tensor conversion matrix
-    std::vector< WUnitSphereCoordinates > orientations;
-    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( 1.0, 0.0, 0.0 ) ) ) );
-    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( 0.6, -0.1, 0.2 ) ) ) );
-    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( 1.0, 1.0, 1.0 ) ) ) );
-    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( -0.1, -0.3, 0.5 ) ) ) );
-    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( -0.56347, 0.374, -0.676676 ) ) ) );
-    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( 0.0, 4.0, 1.0 ) ) ) );
+    std::vector< WUnitSphereCoordinates< double > > orientations;
+    orientations.push_back( WUnitSphereCoordinates< double >( normalize( WVector3d( 1.0, 0.0, 0.0 ) ) ) );
+    orientations.push_back( WUnitSphereCoordinates< double >( normalize( WVector3d( 0.6, -0.1, 0.2 ) ) ) );
+    orientations.push_back( WUnitSphereCoordinates< double >( normalize( WVector3d( 1.0, 1.0, 1.0 ) ) ) );
+    orientations.push_back( WUnitSphereCoordinates< double >( normalize( WVector3d( -0.1, -0.3, 0.5 ) ) ) );
+    orientations.push_back( WUnitSphereCoordinates< double >( normalize( WVector3d( -0.56347, 0.374, -0.676676 ) ) ) );
+    orientations.push_back( WUnitSphereCoordinates< double >( normalize( WVector3d( 0.0, 4.0, 1.0 ) ) ) );
 
-    m_SHToTensorMat = WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( 2, orientations );
+    m_SHToTensorMat = WSymmetricSphericalHarmonic< double >::calcSHToTensorSymMatrix( 2, orientations );
 
     ready();
 

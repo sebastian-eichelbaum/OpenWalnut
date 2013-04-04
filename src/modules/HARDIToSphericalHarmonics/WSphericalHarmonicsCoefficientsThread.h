@@ -289,11 +289,11 @@ void WSphericalHarmonicsCoefficientsThread< T >::threadMain()
 
         if( m_parameter.m_doResidualCalculation || m_parameter.m_doErrorCalculation )
         {
-            WSymmetricSphericalHarmonic currentSphericalHarmonic( coefficients );
+            WSymmetricSphericalHarmonic< double > currentSphericalHarmonic( coefficients );
             for( idx = 0; idx < m_parameter.m_validIndices.size(); idx++ )
             {
                 double error = static_cast< double >( measures[ idx ] )
-                              - currentSphericalHarmonic.getValue( WUnitSphereCoordinates( m_parameter.m_gradients[ idx ] ) );
+                              - currentSphericalHarmonic.getValue( WUnitSphereCoordinates< double >( m_parameter.m_gradients[ idx ] ) );
 
                 if( m_parameter.m_doResidualCalculation )
                 {

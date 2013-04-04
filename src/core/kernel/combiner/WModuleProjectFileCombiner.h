@@ -138,19 +138,6 @@ protected:
      * All properties.
      */
     std::list< PropertyValue > m_properties;
-
-    /**
-     * Recursively prints the properties and nested properties.
-     *
-     * \param output    the output stream to print to
-     * \param props     the properties to recursively print
-     * \param indent    the indentation level
-     * \param prefix    the prefix (name prefix of property)
-     * \param module    the module ID to use
-     */
-    void printProperties( std::ostream& output, boost::shared_ptr< WProperties > props, std::string indent, //NOLINT ( non-const ref )
-                          std::string prefix, unsigned int module );
-
 private:
 };
 

@@ -38,7 +38,7 @@
 
 #include "../common/math/WLine.h"
 #include "../common/math/WPlane.h"
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../common/math/linearAlgebra/WPosition.h"
 #include "../common/WColor.h"
 #include "../common/datastructures/WColoredVertices.h"
 

@@ -27,7 +27,7 @@
 
 #include "../common/exceptions/WPreconditionNotMet.h"
 #include "../common/math/WMatrix.h"
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../common/math/linearAlgebra/WPosition.h"
 
 /**
  * Implements an orthogonal grid transformation.

@@ -29,7 +29,6 @@
 #include <osg/Array>
 #include <osgUtil/DelaunayTriangulator>
 
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WGEGeometryUtils.h"
 #include "WGEUtils.h"
 #include "WTriangleMesh.h"

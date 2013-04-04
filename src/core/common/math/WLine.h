@@ -25,14 +25,12 @@
 #ifndef WLINE_H
 #define WLINE_H
 
-#include <algorithm>
-#include <iostream>
 #include <vector>
 
 #include "../WBoundingBox.h"
 
 #include "../WMixinVector.h"
-#include "linearAlgebra/WLinearAlgebra.h"
+#include "linearAlgebra/WPosition.h"
 
 // forward declarations
 class WLineTest;

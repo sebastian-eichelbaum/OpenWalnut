@@ -31,7 +31,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WPosition.h"
 #include "core/common/WLogger.h"
 #include "core/common/WStringUtils.h"
 #include "core/dataHandler/exceptions/WDHIOFailure.h"

@@ -24,14 +24,12 @@
 
 #include <vector>
 
-#include <Eigen/SVD>
-
 #include "../WAssert.h"
 #include "../WLimits.h"
 
 #include "WLinearAlgebraFunctions.h"
 #include "WMatrix.h"
-#include "linearAlgebra/WLinearAlgebra.h"
+#include "linearAlgebra/WVectorFixed.h"
 
 WVector3d multMatrixWithVector3D( WMatrix<double> mat, WVector3d vec )
 {
@@ -291,35 +289,4 @@ bool linearIndependent( const WVector3d& u, const WVector3d& v )
         return false;
     }
     return true;
-}
-
-void computeSVD( const WMatrix<double>& A,
-                        WMatrix<double>& U,
-                        WMatrix<double>& V,
-                        WValue<double>& S )
-{
-    Eigen::MatrixXd eigenA( A );
-    Eigen::JacobiSVD<Eigen::MatrixXd> svd( eigenA, Eigen::ComputeFullU | Eigen::ComputeFullV );
-    U = WMatrix<double>( svd.matrixU() );
-    V = WMatrix<double>( svd.matrixV() );
-    S = WValue<double>( svd.singularValues() );
-}
-
-WMatrix<double> pseudoInverse( const WMatrix<double>& input )
-{
-    // calc pseudo inverse
-    WMatrix<double> U( input.getNbRows(), input.getNbCols() );
-    WMatrix<double> V( input.getNbCols(), input.getNbCols() );
-    WValue<double> Svec( input.size() );
-    computeSVD( input, U, V, Svec );
-
-    // create diagonal matrix S
-    WMatrix<double> S( input.getNbCols(), input.getNbCols() );
-    S.setZero();
-    for( size_t i = 0; i < Svec.size() && i < S.getNbRows() && i < S.getNbCols(); i++ )
-    {
-        S( i, i ) = ( Svec[ i ] == 0.0 ) ? 0.0 : 1.0 / Svec[ i ];
-    }
-
-    return WMatrix<double>( V*S*U.transposed() );
 }

@@ -209,10 +209,10 @@ void WMHARDIToSphericalHarmonics::moduleMain()
             parameter.m_csa = ( reconstructionType == CSA );
             parameter.m_doFunkRadonTransformation = m_doFunkRadonTransformation->get( true );
             WMatrix< double > transformMatrix(
-                      WSymmetricSphericalHarmonic::getSHFittingMatrix( gradients,
-                                                                       order,
-                                                                       m_regularisationFactorLambda->get( true ),
-                                                                       parameter.m_doFunkRadonTransformation ) );
+                WSymmetricSphericalHarmonic< double >::getSHFittingMatrix( gradients,
+                                                                           order,
+                                                                           m_regularisationFactorLambda->get( true ),
+                                                                           parameter.m_doFunkRadonTransformation ) );
             if( reconstructionType == CSA )
             {
                 parameter.m_doResidualCalculation = false;
@@ -221,9 +221,10 @@ void WMHARDIToSphericalHarmonics::moduleMain()
                 parameter.m_doFunkRadonTransformation = false;
                 parameter.m_CSADelta1 = m_CSADelta1->get( true );
                 parameter.m_CSADelta2 = m_CSADelta2->get( true );
-                transformMatrix = WSymmetricSphericalHarmonic::getSHFittingMatrixForConstantSolidAngle( gradients,
-                                                                                                        order,
-                                                                                                        m_regularisationFactorLambda->get( true ) );
+                transformMatrix = WSymmetricSphericalHarmonic< double >::getSHFittingMatrixForConstantSolidAngle(
+                    gradients,
+                    order,
+                    m_regularisationFactorLambda->get( true ) );
             }
             parameter.m_TransformMatrix = boost::shared_ptr< WMatrix< double > >( new WMatrix< double >( transformMatrix ) );
 

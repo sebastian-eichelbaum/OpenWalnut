@@ -30,7 +30,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WPosition.h"
 #include "core/common/WIOTools.h"
 #include "core/common/WLogger.h"
 #include "core/graphicsEngine/WTriangleMesh.h"

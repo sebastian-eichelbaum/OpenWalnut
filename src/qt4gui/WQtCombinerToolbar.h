@@ -27,9 +27,18 @@
 
 #include <QtGui/QToolBar>
 
+#ifndef Q_MOC_RUN
+// There is an issue with the moc compiler and some boost headers where
+// moc for qt versions < 5.0 is not able to do a macro substitution.
+// The issue occurs in the boost library versions 1.48 and higher,
+// and is tested in boost version 1.52 using moc version 4.8.4
+// Excluding the relevant headers removes the problem.
 #include "core/kernel/WModuleCombinerTypes.h"
+#endif
 
+#ifndef Q_MOC_RUN
 #include "WQtCombinerActionList.h"
+#endif
 #include "WQtToolBarBase.h"
 
 class WMainWindow;

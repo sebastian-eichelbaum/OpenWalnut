@@ -56,6 +56,11 @@ void WRMBranch::properties()
     m_changeRoiSignal = boost::shared_ptr< boost::function< void() > >( new boost::function< void() >( boost::bind( &WRMBranch::setDirty, this ) ) );
 }
 
+WPropertyGroup::SPtr WRMBranch::getProperties() const
+{
+    return m_properties;
+}
+
 void WRMBranch::propertyChanged()
 {
     setDirty();
@@ -116,6 +121,16 @@ void WRMBranch::getRois( std::vector< osg::ref_ptr< WROI > >& roiVec ) // NOLINT
     {
         roiVec.push_back( ( *iter ) );
     }
+}
+
+WROIManager::ROIs WRMBranch::getRois() const
+{
+    WROIManager::ROIs ret;
+    for( std::list< osg::ref_ptr< WROI > >::const_iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
+    {
+        ret.push_back( ( *iter ) );
+    }
+    return ret;
 }
 
 void WRMBranch::removeAllRois()

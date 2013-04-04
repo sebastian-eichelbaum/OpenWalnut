@@ -77,3 +77,41 @@ void WProjectFileIO::addWarning( std::string description )
     m_warnings.push_back( description );
 }
 
+void WProjectFileIO::printProperties( std::ostream& output, boost::shared_ptr< WProperties > props, std::string indent, //NOLINT
+                                      std::string prefix, unsigned int index, std::string indexPrefix )
+{
+    // lock, unlocked if l looses focus
+    WProperties::PropertySharedContainerType::ReadTicket l = props->getProperties();
+
+    output << indent << "// Property Group: " << props->getName() << std::endl;
+
+    // iterate of them and print them to output
+    for( WProperties::PropertyConstIterator iter = l->get().begin(); iter != l->get().end(); ++iter )
+    {
+        // information properties do not get written
+        if( ( *iter )->getPurpose () == PV_PURPOSE_INFORMATION )
+        {
+            continue;
+        }
+        if( ( *iter )->getType() != PV_GROUP )
+        {
+            output << indent + "    " << "PROPERTY:(" << indexPrefix << index << "," << prefix + ( *iter )->getName() << ")="
+                   << ( *iter )->getAsString() << std::endl;
+        }
+        else
+        {
+            // it is a group -> recursively print it
+            if( prefix.empty() )
+            {
+                printProperties( output, ( *iter )->toPropGroup(), indent + "    ", ( *iter )->getName() + "/", index, indexPrefix );
+            }
+            else
+            {
+                printProperties( output, ( *iter )->toPropGroup(), indent + "    ", prefix + ( *iter )->getName() + "/", index, indexPrefix );
+            }
+        }
+    }
+
+    output << indent << "// Property Group END: " << props->getName() << std::endl;
+}
+

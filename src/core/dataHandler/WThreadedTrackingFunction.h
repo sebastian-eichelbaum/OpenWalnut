@@ -25,12 +25,14 @@
 #ifndef WTHREADEDTRACKINGFUNCTION_H
 #define WTHREADEDTRACKINGFUNCTION_H
 
+#include <stdint.h>
+
 #include <vector>
 #include <utility>
 
 #include <boost/array.hpp>
 
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../common/math/linearAlgebra/WVectorFixed.h"
 #include "../common/WSharedObject.h"
 #include "../common/WThreadedJobs.h"
 
@@ -45,7 +47,11 @@ class WThreadedTrackingFunctionTest; //! forward declaration
 namespace wtracking // note that this is not final
 {
     // an epsilon value for various floating point comparisons
-#define TRACKING_EPS 0.0000001
+#if INTPTR_MAX == INT32_MAX
+    #define TRACKING_EPS 0.00001
+#else
+    #define TRACKING_EPS 0.0000001
+#endif
 
     /**
      * \class WTrackingUtility

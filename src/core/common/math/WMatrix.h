@@ -30,7 +30,8 @@
 #include <osg/Matrix>
 
 #include "WValue.h"
-#include "linearAlgebra/WLinearAlgebra.h"
+#include "linearAlgebra/WMatrixFixed.h"
+#include "linearAlgebra/WVectorFixed.h"
 
 #include "../WDefines.h"
 
@@ -78,6 +79,20 @@ public:
      * \param newMatrix the Eigen::MatrixXd matrix to copy
      */
     WMatrix( const Eigen::MatrixXd& newMatrix ); // NOLINT
+
+    /**
+     * Copies the specified Eigen::MatrixXf.
+     *
+     * \param newMatrix the Eigen::MatrixXf matrix to copy
+     */
+    WMatrix( const Eigen::MatrixXf& newMatrix ); // NOLINT
+
+    /**
+     * Copies the specified Eigen::MatrixXi.
+     *
+     * \param newMatrix the Eigen::MatrixXi matrix to copy
+     */
+    WMatrix( const Eigen::MatrixXi& newMatrix ); // NOLINT
 
     /**
      * Makes the matrix contain the identity matrix, i.e. 1 on the diagonal.
@@ -130,11 +145,14 @@ public:
     operator osg::Matrixd() const;
 
     /**
-     * Cast this matrix to an Eigen::MatrixXd matrix.
+     * Cast this matrix to an Eigen::Matrix< EigenDataType, Eigen::Dynamic, Eigen::Dynamic >() matrix.
+     *
+     * \tparam EigenDataType Data type of Eigen matrix.
      *
      * \return casted matrix.
      */
-    operator Eigen::MatrixXd() const;
+    template< typename EigenDataType >
+    operator Eigen::Matrix< EigenDataType, Eigen::Dynamic, Eigen::Dynamic >() const;
 
     /**
      * Compares two matrices and returns true if they are equal.
@@ -210,6 +228,14 @@ public:
 
 protected:
 private:
+    /**
+     * This function is used by the constructors that have the different Eigen::MatrixX types as parameter.
+     * \tparam EigenDataType The data type which is used by the Eigen matrix.
+     * \param newMatrix The source matrix.
+     */
+    template< typename EigenDataType >
+    void copyFromEigenMatrix( const Eigen::Matrix< EigenDataType, Eigen::Dynamic, Eigen::Dynamic >& newMatrix );
+
     size_t m_nbCols; //!< Number of columns of the matrix. The number of rows will be computed by (size/m_nbCols).
 };
 
@@ -251,16 +277,20 @@ template< typename T > WMatrix< T >::WMatrix( const WMatrix4d& newMatrix )
 template< typename T > WMatrix< T >::WMatrix( const Eigen::MatrixXd& newMatrix )
     : WValue< T >( newMatrix.cols() * newMatrix.rows() )
 {
-    m_nbCols = static_cast< size_t >( newMatrix.cols() );
-    for( int row = 0; row < newMatrix.rows(); ++row )
-    {
-        for( int col = 0; col < newMatrix.cols(); ++col )
-        {
-            ( *this )( row, col ) = static_cast< T >( newMatrix( row, col ) );
-        }
-    }
+    copyFromEigenMatrix< double >( newMatrix );
 }
 
+template< typename T > WMatrix< T >::WMatrix( const Eigen::MatrixXf& newMatrix )
+    : WValue< T >( newMatrix.cols() * newMatrix.rows() )
+{
+    copyFromEigenMatrix< float >( newMatrix );
+}
+
+template< typename T > WMatrix< T >::WMatrix( const Eigen::MatrixXi& newMatrix )
+    : WValue< T >( newMatrix.cols() * newMatrix.rows() )
+{
+    copyFromEigenMatrix< int >( newMatrix );
+}
 
 template< typename T > WMatrix< T >::operator WMatrix4d() const
 {
@@ -301,18 +331,20 @@ template< typename T > WMatrix< T >::operator osg::Matrixd() const
     }
 }
 
-template< typename T > WMatrix< T >::operator Eigen::MatrixXd() const
+template< typename T >
+template< typename EigenDataType > WMatrix< T >::operator Eigen::Matrix< EigenDataType, Eigen::Dynamic, Eigen::Dynamic >() const
 {
-    Eigen::MatrixXd matrix( this->getNbRows(), this->getNbCols() );
+    Eigen::Matrix< EigenDataType, Eigen::Dynamic, Eigen::Dynamic > matrix( this->getNbRows(), this->getNbCols() );
     for( int row = 0; row < matrix.rows(); ++row )
     {
         for( int col = 0; col < matrix.cols(); ++col )
         {
-            matrix( row, col ) = ( *this )( row, col );
+            matrix( row, col ) = static_cast< EigenDataType >( ( *this )( row, col ) );
         }
     }
     return matrix;
 }
+
 
 /**
  * Makes the matrix contain the identity matrix, i.e. 1 on the diagonal.
@@ -492,6 +524,20 @@ template< typename T > bool WMatrix< T >::isIdentity( T delta ) const
         }
     }
     return true;
+}
+
+template< typename T >
+template< typename EigenDataType >
+void WMatrix< T >::copyFromEigenMatrix( const Eigen::Matrix< EigenDataType, Eigen::Dynamic, Eigen::Dynamic >& newMatrix )
+{
+    m_nbCols = static_cast< size_t >( newMatrix.cols() );
+    for( int row = 0; row < newMatrix.rows(); ++row )
+    {
+        for( int col = 0; col < newMatrix.cols(); ++col )
+        {
+            ( *this )( row, col ) = static_cast< T >( newMatrix( row, col ) );
+        }
+    }
 }
 
 template< typename T >

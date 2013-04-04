@@ -29,7 +29,7 @@
 
 #include "core/dataHandler/WGridRegular3D.h"
 #include "core/common/math/WLine.h"
-#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WPosition.h"
 #include "WBresenham.h"
 
 /**

@@ -32,7 +32,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../common/math/linearAlgebra/WVectorFixed.h"
 #include "../common/math/WValue.h"
 #include "../common/WAssert.h"
 #include "../common/WLimits.h"
@@ -211,15 +211,6 @@ public:
     virtual WValue< double > getWValueDouble( size_t i ) const
     {
         return WValue< double >( getWValue( i ) );
-    }
-
-    /**
-     * \param i id of the WVector to retrieve
-     * \return The i-th WValue (stored in this value set) as WVector. There are size() such scalars.
-     */
-    virtual WVector_2 getWVector( size_t i ) const
-    {
-        return ( WValue< double >( getWValue( i ) ) ).toWVector();
     }
 
     /**

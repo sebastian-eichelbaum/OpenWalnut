@@ -165,11 +165,6 @@ private:
         const osg::ref_ptr< WGETexture3D > m_texture;
 
         /**
-         * Connection for the texture's name property
-         */
-        boost::signals2::connection m_nameConnection;
-
-        /**
          * Parent list.
          */
         QListWidget* m_parent;

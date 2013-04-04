@@ -29,7 +29,8 @@
 #include <vector>
 
 #include "../common/WAssert.h"
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../common/math/linearAlgebra/WPosition.h"
+#include "../common/math/WSymmetricSphericalHarmonic.h"
 #include "WDataSetSingle.h"
 #include "WDataSetSphericalHarmonics.h"
 
@@ -79,7 +80,7 @@ boost::shared_ptr< WPrototyped > WDataSetSphericalHarmonics::getPrototype()
     return m_prototype;
 }
 
-WSymmetricSphericalHarmonic WDataSetSphericalHarmonics::interpolate( const WPosition& pos, bool* success ) const
+WSymmetricSphericalHarmonic< double > WDataSetSphericalHarmonics::interpolate( const WPosition& pos, bool* success ) const
 {
     *success = m_gridRegular3D->encloses( pos );
 
@@ -89,7 +90,7 @@ WSymmetricSphericalHarmonic WDataSetSphericalHarmonics::interpolate( const WPosi
     if( !isInside )
     {
         *success = false;
-        return WSymmetricSphericalHarmonic();
+        return WSymmetricSphericalHarmonic< double >();
     }
 
     // ids of vertices for interpolation
@@ -128,13 +129,13 @@ WSymmetricSphericalHarmonic WDataSetSphericalHarmonics::interpolate( const WPosi
 
     *success = true;
 
-    return WSymmetricSphericalHarmonic( interpolatedCoefficients );
+    return WSymmetricSphericalHarmonic< double >( interpolatedCoefficients );
 }
 
-WSymmetricSphericalHarmonic WDataSetSphericalHarmonics::getSphericalHarmonicAt( size_t index ) const
+WSymmetricSphericalHarmonic< double > WDataSetSphericalHarmonics::getSphericalHarmonicAt( size_t index ) const
 {
-    if( index < m_valueSet->size() ) return WSymmetricSphericalHarmonic( m_valueSet->getWValueDouble( index ) );
-    return WSymmetricSphericalHarmonic();
+    if( index < m_valueSet->size() ) return WSymmetricSphericalHarmonic< double >( m_valueSet->getWValueDouble( index ) );
+    return WSymmetricSphericalHarmonic< double >();
 }
 
 const std::string WDataSetSphericalHarmonics::getName() const

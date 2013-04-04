@@ -64,10 +64,11 @@ WQtBranchTreeItem::WQtBranchTreeItem( QTreeWidgetItem* parent, boost::shared_ptr
     propertyContainer->setLayout( propertyContainerLayout );
     propertyContainer->setObjectName( "propertyContainer" );
 
-    WScaleLabel* l = new WScaleLabel( QString::fromStdString( "Branch" ), 5, labelContainer );
-    l->setTextInteractionFlags( Qt::NoTextInteraction );
-    l->setToolTip( "The name of this branch." );
-    labelContainerLayout->addWidget( l );
+    WPropertyStringWidget* name = new WPropertyStringWidget( branch->nameProperty(), NULL, m_itemWidget );
+    name->forceInformationMode();
+    name->disableTextInteraction();
+    name->setToolTip( "The name of this branch." );
+    labelContainerLayout->addWidget( name );
 
     // color
     WPropertyColorWidget* color = new WPropertyColorWidget( branch->colorProperty(), NULL, m_itemWidget );
@@ -93,7 +94,7 @@ WQtBranchTreeItem::WQtBranchTreeItem( QTreeWidgetItem* parent, boost::shared_ptr
     // property color
     QColor propertyCol = defaultCol;
 
-    l->setStyleSheet( "background-color:" + labelCol.name() + ";" );
+    name->setStyleSheet( "background-color:" + labelCol.name() + ";" );
     labelContainer->setStyleSheet( "background-color:" + labelCol.name() + ";" );
     propertyContainer->setStyleSheet( "QWidget#propertyContainer{ background-color:" + propertyCol.name() + ";}" );
 

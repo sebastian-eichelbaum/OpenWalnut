@@ -26,7 +26,6 @@
 #define WPOLYNOMIALEQUATIONSOLVERS_H
 
 #include <complex>
-#include <iostream>
 #include <sstream>
 #include <utility>
 
