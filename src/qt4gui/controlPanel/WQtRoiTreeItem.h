@@ -64,16 +64,11 @@ public:
      *
      * \return the widget.
      */
-    QWidget* getWidget() const;
+    QWidget* createWidget() const;
 
 protected:
 private:
     osg::ref_ptr< WROI > m_roi; //!< Pointer to the ROI represented by this item.
-
-    /**
-     * Widget representing the item.
-     */
-    QWidget* m_itemWidget;
 };
 
 #endif  // WQTROITREEITEM_H

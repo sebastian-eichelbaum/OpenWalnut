@@ -45,41 +45,53 @@ WQtRoiTreeItem::WQtRoiTreeItem( QTreeWidgetItem * parent, osg::ref_ptr< WROI > r
     m_roi( roi )
 {
     setFlags( Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDragEnabled );
+}
 
+WQtRoiTreeItem::~WQtRoiTreeItem()
+{
+}
+
+osg::ref_ptr< WROI > WQtRoiTreeItem::getRoi()
+{
+    return m_roi;
+}
+
+QWidget* WQtRoiTreeItem::createWidget() const
+{
     // create nice widget
-    m_itemWidget = new QWidget( );
+    QWidget* itemWidget = new QWidget( );
     QHBoxLayout* containerLayout = new QHBoxLayout();
-    m_itemWidget->setLayout( containerLayout );
+    itemWidget->setLayout( containerLayout );
 
     // create a slider for the  for the texture
-    QWidget* labelContainer = new QWidget( m_itemWidget );
+    QWidget* labelContainer = new QWidget( itemWidget );
     QHBoxLayout* labelContainerLayout = new QHBoxLayout();
     labelContainer->setLayout( labelContainerLayout );
 
-    QWidget* propertyContainer = new QWidget( m_itemWidget );
+    QWidget* propertyContainer = new QWidget( itemWidget );
     QHBoxLayout* propertyContainerLayout = new QHBoxLayout();
     propertyContainer->setLayout( propertyContainerLayout );
     propertyContainer->setObjectName( "propertyContainer" );
 
     // name
-    WPropertyStringWidget* name = new WPropertyStringWidget( roi->nameProperty(), NULL, m_itemWidget );
+    WPropertyStringWidget* name = new WPropertyStringWidget( m_roi->nameProperty(), NULL, itemWidget );
     name->setToolTip( "The name of this ROI." );
     name->forceInformationMode();
     name->disableTextInteraction();
 
     // inverse
-    WPropertyBoolWidget* isnot = new WPropertyBoolWidget( roi->invertProperty(), NULL, m_itemWidget );
-    isnot->setToolTip( QString::fromStdString( roi->invertProperty()->getDescription() ) );
+    WPropertyBoolWidget* isnot = new WPropertyBoolWidget( m_roi->invertProperty(), NULL, itemWidget );
+    isnot->setToolTip( QString::fromStdString( m_roi->invertProperty()->getDescription() ) );
 
     // active
-    WPropertyBoolWidget* active = new WPropertyBoolWidget( roi->activeProperty(), NULL, m_itemWidget );
-    active->setToolTip( QString::fromStdString( roi->activeProperty()->getDescription() ) );
+    WPropertyBoolWidget* active = new WPropertyBoolWidget( m_roi->activeProperty(), NULL, itemWidget );
+    active->setToolTip( QString::fromStdString( m_roi->activeProperty()->getDescription() ) );
 
     // show
-    WPropertyBoolWidget* show = new WPropertyBoolWidget( roi->showProperty(), NULL, m_itemWidget );
-    show->setToolTip( QString::fromStdString( roi->showProperty()->getDescription() ) );
+    WPropertyBoolWidget* show = new WPropertyBoolWidget( m_roi->showProperty(), NULL, itemWidget );
+    show->setToolTip( QString::fromStdString( m_roi->showProperty()->getDescription() ) );
 
-    QLabel* grabWidget = new QLabel( m_itemWidget );
+    QLabel* grabWidget = new QLabel( itemWidget );
     grabWidget->setPixmap( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "touchpoint_small" ).pixmap( 24, 32 ) );
     grabWidget->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
     grabWidget->setFixedWidth( 24 );
@@ -126,20 +138,8 @@ WQtRoiTreeItem::WQtRoiTreeItem( QTreeWidgetItem * parent, osg::ref_ptr< WROI > r
     containerLayout->setStretchFactor( propertyContainer, 0 );
 
     // widget size constraints and policies
-    m_itemWidget->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
-}
+    itemWidget->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
 
-WQtRoiTreeItem::~WQtRoiTreeItem()
-{
-}
-
-osg::ref_ptr< WROI > WQtRoiTreeItem::getRoi()
-{
-    return m_roi;
-}
-
-QWidget* WQtRoiTreeItem::getWidget() const
-{
-    return m_itemWidget;
+    return itemWidget;
 }
 

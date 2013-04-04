@@ -463,8 +463,10 @@ private slots:
 
     /**
      * function to notify the ROI manager of any drag&drop action in the ROI tree
+     *
+     * \param event the drop event
      */
-    void handleRoiDragDrop();
+    void handleRoiDragDrop( QDropEvent* event );
 };
 
 #endif  // WQTCONTROLPANEL_H

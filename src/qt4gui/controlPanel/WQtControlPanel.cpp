@@ -239,7 +239,7 @@ void WQtControlPanel::connectSlots()
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectRoiTreeItem( QTreeWidgetItem* ) ) );
     connect( m_colormapper, SIGNAL( textureSelectionChanged( osg::ref_ptr< WGETexture3D > ) ),
              this, SLOT( selectDataModule( osg::ref_ptr< WGETexture3D > ) ) );
-    connect( m_roiTreeWidget, SIGNAL( dragDrop() ), this, SLOT( handleRoiDragDrop() ) );
+    connect( m_roiTreeWidget, SIGNAL( dragDrop( QDropEvent* ) ), this, SLOT( handleRoiDragDrop( QDropEvent* ) ) );
 }
 
 WQtSubjectTreeItem* WQtControlPanel::addSubject( std::string name )
@@ -637,7 +637,7 @@ void WQtControlPanel::addRoi( osg::ref_ptr< WROI > roi )
 
     newItem = branchItem->addRoiItem( roi );
     newItem->setDisabled( false );
-    m_roiTreeWidget->setItemWidget( newItem, 0, newItem->getWidget() );
+    m_roiTreeWidget->setItemWidget( newItem, 0, newItem->createWidget() );
 
     m_roiTreeWidget->setCurrentItem( newItem );
     WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getSelectedRoi() );
@@ -1247,9 +1247,31 @@ void WQtControlPanel::selectUpperMostEntry()
     m_tiModules->setSelected( true );
 }
 
-void WQtControlPanel::handleRoiDragDrop()
+void WQtControlPanel::handleRoiDragDrop( QDropEvent* event )
 {
-    WLogger::getLogger()->addLogMessage( "Drag and drop handler not implemented yet!", "ControlPanel", LL_DEBUG );
+    for( int branchID = 0; branchID < m_tiRois->childCount(); ++branchID )
+    {
+        QTreeWidgetItem* branchTreeItem = m_tiRois->child( branchID );
+        for( int roiID = 0; roiID < branchTreeItem->childCount(); ++roiID )
+        {
+            WQtRoiTreeItem* roiTreeItem = dynamic_cast< WQtRoiTreeItem* >( branchTreeItem->child( roiID ) );
+
+            // has the widget been removed?
+            QWidget* w = m_roiTreeWidget->itemWidget( roiTreeItem, 0 );
+            if( !w )
+            {
+                w = roiTreeItem->createWidget();
+                m_roiTreeWidget->setItemWidget( roiTreeItem, 0, w );
+                m_roiTreeWidget->setCurrentItem( roiTreeItem );
+
+                // NOTE: there is a bug. After setting the new widget. the treewidget does not update the size of the item. To force this, we
+                // collapse and expand the branch here
+                // roiTreeItem->setSizeHint( 0, w->sizeHint() );
+                //roiTreeItem->parent()->setExpanded( false );
+                roiTreeItem->parent()->setExpanded( true );
+            }
+        }
+    }
 }
 
 WQtDockWidget* WQtControlPanel::getRoiDock() const
