@@ -30,6 +30,7 @@
 #include <vector>
 
 #include <QtCore/QList>
+#include <QtCore/QCoreApplication>
 #include <QtGui/QMenu>
 #include <QtGui/QScrollArea>
 #include <QtGui/QShortcut>
@@ -59,6 +60,7 @@
 #include "../events/WModuleRemovedEvent.h"
 #include "../events/WRoiAssocEvent.h"
 #include "../events/WRoiRemoveEvent.h"
+#include "../events/WRoiSortEvent.h"
 #include "../guiElements/WQtModuleMetaInfo.h"
 #include "../guiElements/WQtMenuFiltered.h"
 #include "../networkEditor/WQtNetworkEditor.h"
@@ -272,6 +274,16 @@ bool WQtControlPanel::event( QEvent* event )
         {
             removeRoi( e3->getRoi() );
             WLogger::getLogger()->addLogMessage( "Removing ROI from control panel.", "ControlPanel", LL_DEBUG );
+        }
+
+        return true;
+    }
+    if( event->type() == WQT_ROI_SORT_EVENT )
+    {
+        WRoiSortEvent* e3 = dynamic_cast< WRoiSortEvent* >( event );
+        if( e3 )
+        {
+            e3->getBranch()->updateRoiManagerSorting();
         }
 
         return true;
@@ -1247,11 +1259,17 @@ void WQtControlPanel::selectUpperMostEntry()
     m_tiModules->setSelected( true );
 }
 
-void WQtControlPanel::handleRoiDragDrop( QDropEvent* event )
+void WQtControlPanel::handleRoiDragDrop( QDropEvent* /* event */ )
 {
+    WROI::RefPtr droppedRoi;
+    WRMBranch::SPtr droppedBranch;
+    WQtBranchTreeItem* droppedBranchTreeItem = NULL;
+
     for( int branchID = 0; branchID < m_tiRois->childCount(); ++branchID )
     {
-        QTreeWidgetItem* branchTreeItem = m_tiRois->child( branchID );
+        WQtBranchTreeItem* branchTreeItem = dynamic_cast< WQtBranchTreeItem* >( m_tiRois->child( branchID ) );
+
+        // go through each roi
         for( int roiID = 0; roiID < branchTreeItem->childCount(); ++roiID )
         {
             WQtRoiTreeItem* roiTreeItem = dynamic_cast< WQtRoiTreeItem* >( branchTreeItem->child( roiID ) );
@@ -1260,18 +1278,44 @@ void WQtControlPanel::handleRoiDragDrop( QDropEvent* event )
             QWidget* w = m_roiTreeWidget->itemWidget( roiTreeItem, 0 );
             if( !w )
             {
+                // let us hope that this really is the dropped item
                 w = roiTreeItem->createWidget();
                 m_roiTreeWidget->setItemWidget( roiTreeItem, 0, w );
                 m_roiTreeWidget->setCurrentItem( roiTreeItem );
 
-                // NOTE: there is a bug. After setting the new widget. the treewidget does not update the size of the item. To force this, we
-                // collapse and expand the branch here
+                // we need this later: the dropped ROI
+                droppedRoi = roiTreeItem->getRoi();
+                droppedBranch = branchTreeItem->getBranch();
+                droppedBranchTreeItem = branchTreeItem;
+
+                // NOTE: there is a bug. After setting the new widget, the treewidget does not update the size of the item. To force this, we
+                // collapse and expand the branch here. It looks like expanding is enough.
                 // roiTreeItem->setSizeHint( 0, w->sizeHint() );
-                //roiTreeItem->parent()->setExpanded( false );
+                // roiTreeItem->parent()->setExpanded( false );
                 roiTreeItem->parent()->setExpanded( true );
             }
         }
     }
+
+    // something went wrong
+    if( !( droppedBranch && droppedBranchTreeItem ) )
+    {
+        wlog::error( "WQtControlPanel::handleRoiDragDrop" ) << "Was not able to find dropped ROI item. This should not happen!";
+    }
+
+    // as the current branch/Roi code is quite ugly ... we need some manual re-sorting and re-inserting stuff
+    WRMBranch::SPtr realParent = WKernel::getRunningKernel()->getRoiManager()->getBranch( droppedRoi );
+    if( realParent != droppedBranch )
+    {
+        // ROI changed in branch:
+        realParent->removeRoi( droppedRoi );
+        droppedBranch->addRoi( droppedRoi );
+    }
+
+    // initiate re-sorting the widget items. We cannot do this directly, as we might have changed the ROI parent in the lines above. The GUI has
+    // not yet been updated so that the sorting would fail.
+    // NOTE: it is enough to re-sort the target branch of a cross-branch moved item.
+    QCoreApplication::postEvent( this, new WRoiSortEvent( droppedBranchTreeItem ) );
 }
 
 WQtDockWidget* WQtControlPanel::getRoiDock() const

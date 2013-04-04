@@ -186,14 +186,12 @@ public:
      */
     void addChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier );
 
-
     /**
      * Remove a specified notifier from the list of default notifiers which get connected to each branch
      *
      * \param notifier  the notifier function
      */
     void removeChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier );
-
 
 protected:
     /**

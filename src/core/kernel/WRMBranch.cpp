@@ -85,7 +85,6 @@ void WRMBranch::addRoi( osg::ref_ptr< WROI > roi )
 {
     m_rois.push_back( roi );
     roi->addROIChangeNotifier( m_changeRoiSignal );
-
     setDirty();
 }
 

@@ -86,4 +86,8 @@
 
 // Log entry added
 #define WQT_LOG_EVENT QEvent::User + 18
+
+// re-sort a branch
+#define WQT_ROI_SORT_EVENT QEvent::User + 19
+
 #endif  // WEVENTTYPES_H

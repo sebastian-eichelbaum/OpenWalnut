@@ -143,3 +143,7 @@ QWidget* WQtBranchTreeItem::getWidget() const
     return m_itemWidget;
 }
 
+void WQtBranchTreeItem::updateRoiManagerSorting()
+{
+    wlog::error( "WQtBranchTreeItem" )<< "resort not yet implemented";
+}
