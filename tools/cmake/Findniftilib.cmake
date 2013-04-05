@@ -6,7 +6,7 @@
 #   * NIFTILIB_LIBRARY - the path to the library
 #
 
-FIND_PATH( NIFTILIB_INCLUDE_DIR nifti1.h /usr/include/nifti /usr/local/include/nifti )
+FIND_PATH( NIFTILIB_INCLUDE_DIR nifti1.h /usr/include/nifti /usr/local/include/nifti /opt/local/include )
 
 # This hack is inspired by FindBoost.cmake. It ensures that only shared objects are found. Linking a SO with a static lib is not possible 
 # in Linux. On other systems, this should be no problem.
