@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <map>
 
 #include <QtCore/QList>
 #include <QtGui/QScrollArea>
@@ -143,12 +144,21 @@ QWidget* WQtBranchTreeItem::getWidget() const
     return m_itemWidget;
 }
 
+/**
+ * Simple comparator class for sorting ROIs in the Roi Manager.
+ */
 class RoiSort
 {
 public:
-    RoiSort( std::map< WROI::RefPtr, int > indexMap ):
+    /**
+     * COnstructor.
+     *
+     * \param indexMap the map is used to compare each ROI with their Qt index.
+     */
+    explicit RoiSort( std::map< WROI::RefPtr, int > indexMap ):
         m_indexMap( indexMap )
     {
+        // nothing else to initialize
     }
 
     /**

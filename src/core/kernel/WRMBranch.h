@@ -25,6 +25,7 @@
 #ifndef WRMBRANCH_H
 #define WRMBRANCH_H
 
+#include <algorithm>
 #include <list>
 #include <string>
 #include <vector>
