@@ -143,7 +143,44 @@ QWidget* WQtBranchTreeItem::getWidget() const
     return m_itemWidget;
 }
 
+class RoiSort
+{
+public:
+    RoiSort( std::map< WROI::RefPtr, int > indexMap ):
+        m_indexMap( indexMap )
+    {
+    }
+
+    /**
+     * Operator to compare the order of two ROIs
+     *
+     * \param a first ROI
+     * \param b second ROI
+     *
+     * \return true if first is in front of second
+     */
+    bool operator()( WROI::RefPtr a, WROI::RefPtr b )
+    {
+        return ( m_indexMap[ a ] < m_indexMap[ b ] );
+    }
+private:
+    /**
+     * Map needed to know the index in the GUI representation
+     */
+    std::map< WROI::RefPtr, int > m_indexMap;
+};
+
 void WQtBranchTreeItem::updateRoiManagerSorting()
 {
-    wlog::error( "WQtBranchTreeItem" )<< "resort not yet implemented";
+    std::map< WROI::RefPtr, int > indexMap;
+    // build an index map for each roi to its item
+    for( int i = 0; i < childCount(); ++i )
+    {
+        WQtRoiTreeItem* rti = dynamic_cast< WQtRoiTreeItem* >( child( i ) );
+        WAssert( rti, "All children of a branch item need to be ROI items." );
+        indexMap[ rti->getRoi() ] = i;
+    }
+
+    // this map now allows to start a comparator
+    m_branch->sort( RoiSort( indexMap ) );
 }
