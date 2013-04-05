@@ -43,6 +43,11 @@ class WPickHandler;
 class WROI : public osg::Geode
 {
 public:
+    /**
+     * Ref Pointer type.
+     */
+    typedef osg::ref_ptr< WROI > RefPtr;
+
     WROI();
 
     /**

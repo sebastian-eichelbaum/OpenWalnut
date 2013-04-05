@@ -25,6 +25,7 @@
 #ifndef WRMBRANCH_H
 #define WRMBRANCH_H
 
+#include <algorithm>
 #include <list>
 #include <string>
 #include <vector>
@@ -186,7 +187,6 @@ public:
      */
     void addChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier );
 
-
     /**
      * Remove a specified notifier from the list of default notifiers which get connected to each branch
      *
@@ -194,6 +194,15 @@ public:
      */
     void removeChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier );
 
+    /**
+     * Resorts the ROIs using the specified comparator from its begin to its end.
+     *
+     * \tparam Comparator the comparator type. Usually a boost::function or class providing the operator<().
+     *
+     * \param comp the comparator
+     */
+    template < typename Comparator >
+    void sort( Comparator comp );
 
 protected:
     /**
@@ -209,8 +218,8 @@ protected:
 private:
     boost::shared_ptr< WROIManager > m_roiManager; //!< stores a pointer to the roi manager
 
-    std::list< osg::ref_ptr< WROI > > m_rois; //!< list of rois in this this branch,
-                                                                  // first in the list is the master roi
+    std::vector< osg::ref_ptr< WROI > > m_rois; //!< list of rois in this this branch,
+                                                  // first in the list is the master roi
     /**
      * the property object for the module
      */
@@ -265,4 +274,12 @@ inline bool WRMBranch::isNot()
 {
     return m_isNot->get();
 }
+
+template < typename Comparator >
+void WRMBranch::sort( Comparator comp )
+{
+    // NOTE: technically, we need not setDirty here as the order of the ROIs has no influence
+    return std::sort( m_rois.begin(), m_rois.end(), comp );
+}
+
 #endif  // WRMBRANCH_H

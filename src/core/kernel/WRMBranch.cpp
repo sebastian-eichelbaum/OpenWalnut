@@ -85,13 +85,12 @@ void WRMBranch::addRoi( osg::ref_ptr< WROI > roi )
 {
     m_rois.push_back( roi );
     roi->addROIChangeNotifier( m_changeRoiSignal );
-
     setDirty();
 }
 
 bool WRMBranch::contains( osg::ref_ptr< WROI > roi )
 {
-    for( std::list< osg::ref_ptr< WROI > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
+    for( std::vector< osg::ref_ptr< WROI > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
     {
         if( ( *iter ) == roi )
         {
@@ -104,7 +103,7 @@ bool WRMBranch::contains( osg::ref_ptr< WROI > roi )
 void WRMBranch::removeRoi( osg::ref_ptr< WROI > roi )
 {
     roi->removeROIChangeNotifier( m_changeRoiSignal );
-    for( std::list< osg::ref_ptr< WROI > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
+    for( std::vector< osg::ref_ptr< WROI > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
     {
         if( ( *iter ) == roi )
         {
@@ -117,7 +116,7 @@ void WRMBranch::removeRoi( osg::ref_ptr< WROI > roi )
 
 void WRMBranch::getRois( std::vector< osg::ref_ptr< WROI > >& roiVec ) // NOLINT
 {
-    for( std::list< osg::ref_ptr< WROI > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
+    for( std::vector< osg::ref_ptr< WROI > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
     {
         roiVec.push_back( ( *iter ) );
     }
@@ -126,7 +125,7 @@ void WRMBranch::getRois( std::vector< osg::ref_ptr< WROI > >& roiVec ) // NOLINT
 WROIManager::ROIs WRMBranch::getRois() const
 {
     WROIManager::ROIs ret;
-    for( std::list< osg::ref_ptr< WROI > >::const_iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
+    for( std::vector< osg::ref_ptr< WROI > >::const_iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
     {
         ret.push_back( ( *iter ) );
     }
@@ -135,7 +134,7 @@ WROIManager::ROIs WRMBranch::getRois() const
 
 void WRMBranch::removeAllRois()
 {
-    for( std::list< osg::ref_ptr< WROI > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
+    for( std::vector< osg::ref_ptr< WROI > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
     {
         WGraphicsEngine::getGraphicsEngine()->getScene()->remove( ( *iter ) );
     }

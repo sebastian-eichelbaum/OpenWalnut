@@ -77,6 +77,10 @@ public:
      */
     QWidget* getWidget() const;
 
+    /**
+     * Update internal Roi Manager sorting using the sorting of the children of this tree item.
+     */
+    void updateRoiManagerSorting();
 protected:
 private:
     boost::shared_ptr< WRMBranch > m_branch; //!< ROI
