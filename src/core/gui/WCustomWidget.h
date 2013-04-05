@@ -26,13 +26,16 @@
 #define WCUSTOMWIDGET_H
 
 #include <string>
+#include <queue>
+#include <deque>
 
 #include <boost/shared_ptr.hpp>
 
 #include <osg/ref_ptr>
 
+#include "../common/WCondition.h"
+#include "../common/WSharedSequenceContainer.h"
 #include "../graphicsEngine/WGEViewer.h"
-#include "../common/WFlag.h"
 
 class WGEGroupNode;
 
@@ -42,6 +45,21 @@ class WGEGroupNode;
 class WCustomWidget
 {
 public:
+    /**
+     * Forward EventType from OSG
+     */
+    typedef osgGA::GUIEventAdapter::EventType EventType;
+
+    /**
+     * Queue of GUI events.
+     */
+    typedef std::queue< osg::ref_ptr< osgGA::GUIEventAdapter > > EventQueue;
+
+    /**
+     * Convenience short hand for \c boost::shared_ptr on \c EventQueue.
+     */
+    typedef boost::shared_ptr< EventQueue > EventQueueSPtr;
+
     /**
      * Abbreviation for a shared pointer on a instance of this class.
      */
@@ -56,8 +74,9 @@ public:
      * Constructor. Create a custom widget instance.
      *
      * \param title the title of the widget
+     * \param subscription Binary mask on which event types you want to be notified.
      */
-    explicit WCustomWidget( std::string title );
+    explicit WCustomWidget( std::string title, EventType subscription = osgGA::GUIEventAdapter::NONE );
 
     /**
      * Destructor
@@ -100,27 +119,27 @@ public:
     virtual size_t width() const = 0;
 
     /**
-     * Returns the type of the last event captured by eventOccured. Meanwhile other events may have occured you may miss.
+     * Returns the next unhandled GUI event on this widget. After calling this function you take responisbility on the event-copy,
+     * (meaning destroy it when you do not need it anymore). Additionally the notification of new events will be triggered again
+     * in case there are more events waiting to be processed.
      *
-     * \param reset If set to true, the flag is reset and the widget is ready for new events. Otherwise its just queried.
-     *
-     * \return OSG GUI event.
+     * \return Next GUI event ( shallow copy ).
      */
-    virtual const osgGA::GUIEventAdapter& getEvent( bool reset = false );
+    virtual EventQueueSPtr getNextEvents();
 
     /**
      * This condition fires whenever a new event has to be handled and there was no old event left.
      *
      * \return \c WCondition as event notifier.
      */
-    virtual WCondition::SPtr getCondition() const;
+    virtual WCondition::SPtr getEventNotifier() const;
 
     /**
-     * True when there is an unhandled event left. False otherwise.
+     * Determines if there are new events which you have subscribed to and need to be processed or not.
      *
-     * \return Bool indicating unhandled events.
+     * \return True when there are new events, false otherwise.
      */
-    virtual bool eventOccured() const;
+    virtual bool newEvents() const;
 
 protected:
     /**
@@ -150,14 +169,21 @@ protected:
          */
         bool handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& /* aa */ )
         {
-            if( m_widget->eventOccured() ) // if there is an unhandled event proceed
+            if( ea.getEventType() & m_widget->m_subscription )
             {
-                return false;
+                WSharedSequenceContainer< EventDeque >::WriteTicket t = m_widget->m_events->getWriteTicket();
+
+                if( t->get().size() == 0 ) // when this is the first event, notify module only once
+                {
+                    m_widget->m_eventNotifier->notify();
+                }
+                // else: Do not spam the module for new events, but still collect events into queue. Module will need to make queue empty again
+
+                t->get().push_back( new osgGA::GUIEventAdapter( ea ) );
+                return true;
             }
 
-            m_widget->m_event = new osgGA::GUIEventAdapter( ea );
-            m_widget->m_eventOccured->set( true );
-            return true;
+            return false; // There was no subscription to this event
         }
 
     private:
@@ -167,6 +193,19 @@ protected:
         WCustomWidget* const m_widget;
     };
 
+    /**
+     * This is a short hand type for our FiFo queue containing events.
+     *
+     * \note A std::queue would be better, as we are using it as a FiFo queue, but inorder to have thread safe access,
+     * we use WSharedSequenceContainer which only supports deque, list and vector at the moment.
+     */
+    typedef std::deque< osg::ref_ptr< osgGA::GUIEventAdapter > > EventDeque;
+
+    /**
+     * Short hand type for boost::shared_ptr on internal event deque.
+     */
+    typedef boost::shared_ptr< EventDeque > EventDequeSPtr;
+
 private:
     /**
      * The widget's title string.
@@ -174,14 +213,20 @@ private:
     std::string m_title;
 
     /**
-     * Flag indicating if an GUI event has occured. If so it is stored in m_lastEventType.
+     * Condition fired if an GUI event has occured.
      */
-    WBoolFlag::SPtr m_eventOccured;
+    WCondition::SPtr m_eventNotifier;
 
     /**
-     * Stores last GUI event.
+     * Stores last GUI events.
      */
-    osg::ref_ptr< osgGA::GUIEventAdapter > m_event;
+    WSharedSequenceContainer< EventDeque >::SPtr m_events;
+
+    /**
+     * Binary mask describing which events should be used for notification. For example you may use:
+     * \c subscription=MOVE|SCROLL|RESIZE.
+     */
+    EventType m_subscription;
 };
 
 #endif  // WCUSTOMWIDGET_H

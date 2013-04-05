@@ -26,9 +26,11 @@
 
 #include "WCustomWidget.h"
 
-WCustomWidget::WCustomWidget( std::string title ):
+WCustomWidget::WCustomWidget( std::string title, EventType subscription ):
     m_title( title ),
-    m_eventOccured( new WBoolFlag( WCondition::SPtr( new WCondition() ), false ) )
+    m_eventNotifier( new WCondition() ),
+    m_events( new WSharedSequenceContainer< EventDeque >() ),
+    m_subscription( subscription )
 {
 }
 
@@ -41,21 +43,26 @@ std::string WCustomWidget::getTitle() const
     return m_title;
 }
 
-const osgGA::GUIEventAdapter& WCustomWidget::getEvent( bool reset )
+WCustomWidget::EventQueueSPtr WCustomWidget::getNextEvents()
 {
-    if( reset )
+    EventQueueSPtr unhandledEvents( new EventQueue() );
+    WSharedSequenceContainer< EventDeque >::WriteTicket t = m_events->getWriteTicket();
+
+    while( !t->get().empty() )
     {
-        m_eventOccured->set( false, true ); // reset and suppress condition notification
+        unhandledEvents->push( t->get().front() );
+        t->get().pop_front();
     }
-    return *m_event;
+    return unhandledEvents;
 }
 
-WCondition::SPtr WCustomWidget::getCondition() const
+WCondition::SPtr WCustomWidget::getEventNotifier() const
 {
-    return m_eventOccured->getCondition();
+    return m_eventNotifier;
 }
 
-bool WCustomWidget::eventOccured() const
+bool WCustomWidget::newEvents() const
 {
-    return m_eventOccured->get( false ); // don't eat change
+    WSharedSequenceContainer< EventDeque >::ReadTicket t = m_events->getReadTicket();
+    return t->get().size() > 0;
 }
