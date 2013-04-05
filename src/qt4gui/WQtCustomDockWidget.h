@@ -77,6 +77,20 @@ public:
      */
     bool decreaseUseCount();
 
+    /**
+     * Returns the height of the viewport of the camera.
+     *
+     * \return Height in pixels.
+     */
+    virtual size_t height() const;
+
+    /**
+     * Returns the width of the viewport of the camera.
+     *
+     * \return Width in pixels.
+     */
+    virtual size_t width() const;
+
 protected:
 private:
     /**

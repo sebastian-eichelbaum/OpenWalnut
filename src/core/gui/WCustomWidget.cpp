@@ -27,7 +27,8 @@
 #include "WCustomWidget.h"
 
 WCustomWidget::WCustomWidget( std::string title ):
-    m_title( title )
+    m_title( title ),
+    m_eventOccured( new WBoolFlag( WCondition::SPtr( new WCondition() ), false ) )
 {
 }
 
@@ -40,3 +41,21 @@ std::string WCustomWidget::getTitle() const
     return m_title;
 }
 
+const osgGA::GUIEventAdapter& WCustomWidget::getEvent( bool reset )
+{
+    if( reset )
+    {
+        m_eventOccured->set( false, true ); // reset and suppress condition notification
+    }
+    return *m_event;
+}
+
+WCondition::SPtr WCustomWidget::getCondition() const
+{
+    return m_eventOccured->getCondition();
+}
+
+bool WCustomWidget::eventOccured() const
+{
+    return m_eventOccured->get( false ); // don't eat change
+}
