@@ -31,9 +31,11 @@
 #include <osg/Geode>
 
 #include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
 #include "core/kernel/WModuleOutputData.h"
+#include "core/kernel/WSelectionManager.h"
 
 /**
  * Someone should add some documentation here.
