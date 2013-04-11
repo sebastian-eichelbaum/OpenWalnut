@@ -25,13 +25,16 @@
 #include <iostream>
 #include <list>
 #include <map>
+#include <set>
 #include <sstream>
+#include <stack>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include <osg/io_utils>
 
+#include "../common/math/WMath.h"
 #include "../common/datastructures/WUnionFind.h"
 #include "WTriangleMesh.h"
 
@@ -753,3 +756,134 @@ osg::ref_ptr< osg::Vec4Array > WTriangleMesh::getTriangleColors() const
 {
     return m_triangleColors;
 }
+
+void WTriangleMesh::performFeaturePreservingSmoothing( float sigmaDistance, float sigmaInfluence )
+{
+    updateVertsInTriangles();
+
+    calcNeighbors();
+
+    // we perform a first smoothing pass and write the resulting vertex coords into a buffer
+    // this will only update the normals
+    performFeaturePreservingSmoothingMollificationPass( sigmaDistance / 2.0f, sigmaInfluence );
+
+    // using the smoothed normals, we now perform a second smoothing pass, this time writing the new vertex coords
+    performFeaturePreservingSmoothingVertexPass( sigmaDistance, sigmaInfluence );
+}
+
+void WTriangleMesh::performFeaturePreservingSmoothingMollificationPass( float sigmaDistance, float sigmaInfluence )
+{
+    // calc Eq. 3 for every triangle
+    osg::ref_ptr< osg::Vec3Array > vtxArray = new osg::Vec3Array( m_verts->size() );
+
+    for( std::size_t k = 0; k < m_verts->size(); ++k )
+    {
+        vtxArray->operator[] ( k ) = estimateSmoothedVertexPosition( k, sigmaDistance, sigmaInfluence, true );
+    }
+
+    // calc the new normal directions - update triangle normals
+    for( std::size_t k = 0; k < m_triangles.size() / 3; ++k )
+    {
+        osg::Vec3 const& p0 = vtxArray->operator[]( m_triangles[ 3 * k + 0 ] );
+        osg::Vec3 const& p1 = vtxArray->operator[]( m_triangles[ 3 * k + 1 ] );
+        osg::Vec3 const& p2 = vtxArray->operator[]( m_triangles[ 3 * k + 2 ] );
+
+        m_triangleNormals->operator[] ( k ) = ( p1 - p0 ) ^ ( p2 - p1 );
+        m_triangleNormals->operator[] ( k ).normalize();
+    }
+}
+
+void WTriangleMesh::performFeaturePreservingSmoothingVertexPass( float sigmaDistance, float sigmaInfluence )
+{
+    for( std::size_t k = 0; k < m_verts->size(); ++k )
+    {
+        m_verts->operator[] ( k ) = estimateSmoothedVertexPosition( k, sigmaDistance, sigmaInfluence, false );
+    }
+
+    recalcVertNormals();
+}
+
+osg::Vec3 WTriangleMesh::estimateSmoothedVertexPosition( std::size_t vtx, float sigmaDistance, float sigmaInfluence, bool mollify )
+{
+    std::stack< std::size_t > triStack;
+    std::set< std::size_t > triSet;
+
+    for( std::size_t k = 0; k < m_vertexIsInTriangle[ vtx ].size(); ++k )
+    {
+        triStack.push( m_vertexIsInTriangle[ vtx ][ k ] );
+        triSet.insert( m_vertexIsInTriangle[ vtx ][ k ] );
+    }
+
+    while( !triStack.empty() )
+    {
+        std::size_t currentTriangle = triStack.top();
+        triStack.pop();
+
+        for( std::size_t k = 0; k < m_triangleNeighbors[ currentTriangle ].size(); ++k )
+        {
+            osg::Vec3 center = calcTriangleCenter( m_triangleNeighbors[ currentTriangle ][ k ] );
+
+            if( ( m_verts->operator[] ( vtx ) - center ).length() > 4.0 * sigmaDistance )
+            {
+                continue;
+            }
+
+            if( triSet.find( m_triangleNeighbors[ currentTriangle ][ k ] ) == triSet.end() )
+            {
+                triStack.push( m_triangleNeighbors[ currentTriangle ][ k ] );
+                triSet.insert( m_triangleNeighbors[ currentTriangle ][ k ] );
+            }
+        }
+    }
+
+    double sum = 0.0;
+    osg::Vec3 res( 0.0, 0.0, 0.0 );
+
+    for( std::set< std::size_t >::const_iterator it = triSet.begin(); it != triSet.end(); ++it )
+    {
+        osg::Vec3 center = calcTriangleCenter( *it );
+        double area = calcTriangleArea( *it );
+
+        // calc f
+        double dist = ( m_verts->operator[] ( vtx ) - center ).length();
+        double f = 1.0 / ( sigmaDistance * sqrt( 2.0 * piDouble ) ) * exp( -0.5 * dist * dist );
+
+        double g;
+        if( !mollify )
+        {
+            // calc prediction
+            osg::Vec3f const& p = m_verts->operator[] ( vtx );
+            osg::Vec3f const& n = m_triangleNormals->operator[] ( *it );
+            osg::Vec3f pred = p + n * ( n * ( center - p ) );
+
+            dist = ( p - pred ).length();
+        }
+        g = 1.0 / ( sigmaInfluence * sqrt( 2.0 * piDouble ) ) * exp( -0.5 * dist * dist );
+
+        sum += area * f * g;
+        res += center * area * f * g;
+    }
+
+    res /= sum;
+    return res;
+}
+
+osg::Vec3 WTriangleMesh::calcTriangleCenter( std::size_t triIdx ) const
+{
+    osg::Vec3 res = m_verts->operator[] ( m_triangles[ 3 * triIdx + 0 ] );
+    res += m_verts->operator[] ( m_triangles[ 3 * triIdx + 1 ] );
+    res += m_verts->operator[] ( m_triangles[ 3 * triIdx + 2 ] );
+
+    res /= 3.0f;
+    return res;
+}
+
+float WTriangleMesh::calcTriangleArea( std::size_t triIdx ) const
+{
+    osg::Vec3 const& p0 = m_verts->operator[] ( m_triangles[ 3 * triIdx + 0 ] );
+    osg::Vec3 const& p1 = m_verts->operator[] ( m_triangles[ 3 * triIdx + 1 ] );
+    osg::Vec3 const& p2 = m_verts->operator[] ( m_triangles[ 3 * triIdx + 2 ] );
+
+    return ( ( p1 - p0 ) ^ ( p2 - p0 ) ).length() * 0.5;
+}
+

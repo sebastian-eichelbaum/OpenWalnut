@@ -380,6 +380,17 @@ public:
      */
     void rescaleVertexColors();
 
+    /**
+     * Implements the feature-preserving mesh smoothing algorithm of Jones et al.:
+     *
+     * "Non-Iterative, Feature-Preserving Mesh Smoothing", Jones, T.R., Durand, F.,
+     * Desbrun, M., ACM Trans. Graph. (22), 2003, 943-949
+     *
+     * \param sigmaDistance The standard deviation for the spatial weight.
+     * \param sigmaInfluence The standard deviation for the influence weight.
+     */
+    void performFeaturePreservingSmoothing( float sigmaDistance, float sigmaInfluence );
+
 protected:
     static boost::shared_ptr< WPrototyped > m_prototype; //!< The prototype as singleton.
 private:
@@ -558,6 +569,57 @@ private:
      */
     size_t loopGetThirdVert( size_t coVert1, size_t coVert2, size_t triangleNum );
 
+    /**
+     * Performs the first pass of the feature-preserving smoothing, only changing the triangle
+     * normals.
+     *
+     * \param sigmaDistance The standard deviation of the spatial weights.
+     * \param sigmaInfluence The standard deviation of the influence weights.
+     */
+    void performFeaturePreservingSmoothingMollificationPass( float sigmaDistance, float sigmaInfluence );
+
+    /**
+     * Performs the second pass of the feature-preserving smoothing. This calculates new
+     * smoothed vertex positions and updates the normals accordingly. Triangle information and colors
+     * stay the same.
+     *
+     * \param sigmaDistance The standard deviation of the spatial weights.
+     * \param sigmaInfluence The standard deviation of the influence weights.
+     */
+    void performFeaturePreservingSmoothingVertexPass( float sigmaDistance, float sigmaInfluence );
+
+    /**
+     * Calculates Eq. 3 of:
+     *
+     * "Non-Iterative, Feature-Preserving Mesh Smoothing", Jones, T.R., Durand, F.,
+     * Desbrun, M., ACM Trans. Graph. (22), 2003, 943-949
+     *
+     * \param vtx The id of the vertex to calculate the new position for.
+     * \param sigmaDistance The standard deviation of the spatial weights.
+     * \param sigmaInfluence The standard deviation of the influence weights.
+     * \param mollify Whether this is a mollification pass (simple position estimates) or not.
+     *
+     * \return The smoothed vertex position.
+     */
+    osg::Vec3 estimateSmoothedVertexPosition( std::size_t vtx, float sigmaDistance, float sigmaInfluence, bool mollify );
+
+    /**
+     * Calculates the center position of a triangle.
+     *
+     * \param triIdx The id of the triangle to calculate the center of.
+     *
+     * \return The center of the triangle.
+     */
+    osg::Vec3 calcTriangleCenter( std::size_t triIdx ) const;
+
+    /**
+     * Calculates the area of a triangle.
+     *
+     * \param triIdx The id of the triangle to calculate the area of.
+     *
+     * \return The area of the triangle.
+     */
+    float calcTriangleArea( std::size_t triIdx ) const;
 
     size_t m_countVerts; //!< number of vertexes in the mesh
 

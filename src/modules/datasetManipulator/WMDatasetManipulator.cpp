@@ -33,6 +33,7 @@
 
 #include "core/dataHandler/WDataSetSingle.h"
 #include "core/dataHandler/WDataSetFibers.h"
+#include "core/dataHandler/WDataSetPoints.h"
 #include "core/graphicsEngine/WTriangleMesh.h"
 
 #include "WManipulatorTranslation.h"
@@ -207,6 +208,27 @@ boost::shared_ptr< WDataSet > WMDatasetManipulator::transformData( WMatrixFixed<
         return data;
     }
 
+    boost::shared_ptr< WDataSetPoints > asPoints = boost::dynamic_pointer_cast< WDataSetPoints >( m_data );
+    if( asPoints )
+    {
+        boost::shared_ptr< std::vector< float > > p( new std::vector< float >( asPoints->getVertices()->size() ) );
+
+        for( std::size_t k = 0; k < asPoints->getVertices()->size(); k += 3 )
+        {
+            WVector4d vec( asPoints->getVertices()->operator[]( k + 0 ),
+                           asPoints->getVertices()->operator[]( k + 1 ),
+                           asPoints->getVertices()->operator[]( k + 2 ),
+                           1.0 );
+
+            vec = mat * vec;
+            p->operator[] ( k + 0 ) = vec[ 0 ];
+            p->operator[] ( k + 1 ) = vec[ 1 ];
+            p->operator[] ( k + 2 ) = vec[ 2 ];
+        }
+
+        return boost::shared_ptr< WDataSetPoints >( new WDataSetPoints( p, asPoints->getColors() ) );
+    }
+
     return boost::shared_ptr< WDataSet >();
 }
 
@@ -224,6 +246,10 @@ void WMDatasetManipulator::initMatrix()
         m_currentMat = grid->getTransformationMatrix();
     }
     else if( boost::dynamic_pointer_cast< WDataSetFibers >( m_data ) )
+    {
+        m_currentMat = WMatrixFixed< double, 4, 4 >::identity();
+    }
+    else if( boost::dynamic_pointer_cast< WDataSetPoints >( m_data ) )
     {
         m_currentMat = WMatrixFixed< double, 4, 4 >::identity();
     }

@@ -34,7 +34,9 @@ namespace
 {
     double depth( osg::Vec3f pos, WPosition viewDir )
     {
-        return ( pos - WPosition() ) * viewDir;
+        WVector3d tmp = pos - WPosition();
+        double result = dot( tmp, viewDir );
+        return result;
     }
 
     class MySorting
@@ -52,8 +54,8 @@ void WTransparentLinesDrawable::drawImplementation( osg::RenderInfo &renderInfo 
     boost::shared_ptr< WGraphicsEngine > ge = WGraphicsEngine::getGraphicsEngine();
     boost::shared_ptr< WGEViewer > viewer; //!< Stores reference to the main viewer
     viewer = ge->getViewerByName( "Main View" );
-    WPosition endPos = WPosition( wge::unprojectFromScreen( WPosition( 0.0, 0.0, 1.0 ), viewer->getCamera() ) );
-    WPosition startPos = WPosition( wge::unprojectFromScreen( WPosition(), viewer->getCamera() ) );
+    WPosition endPos = WPosition( wge::unprojectFromScreen( osg::Vec3( 0.0, 0.0, 1.0 ), viewer->getCamera() ) );
+    WPosition startPos = WPosition( wge::unprojectFromScreen( osg::Vec3(), viewer->getCamera() ) );
     WPosition viewDir = normalize( endPos - startPos );
 
     std::vector< std::pair< double, size_t > > depthVals( _vertexData.array->getNumElements() );
