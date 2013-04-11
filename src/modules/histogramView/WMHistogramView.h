@@ -264,6 +264,8 @@ private:
      * corner of the window. The selected bin is the one pointed to by the mouse cursor.
      *
      * Also adds a quad denoting the currently selected bin that is drawn behind the geometry.
+     *
+     * \param mousePos Current mouse position
      */
     void createInfo( WVector2f mousePos );
 
