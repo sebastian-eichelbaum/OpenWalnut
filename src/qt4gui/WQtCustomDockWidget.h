@@ -91,6 +91,11 @@ public:
      */
     virtual size_t width() const;
 
+    /**
+     * \copydoc WCustomWidget::addEventHandler()
+     */
+    virtual void addEventHandler( osgGA::GUIEventHandler* handler );
+
 protected:
 private:
     /**

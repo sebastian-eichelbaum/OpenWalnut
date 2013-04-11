@@ -42,9 +42,6 @@ WQtCustomDockWidget::WQtCustomDockWidget( std::string title, QWidget* parent, WG
 
     // send mouse move events even if no button is pressed
     getGLWidget()->setMouseTracking( true );
-
-    // register event handler for updating event condition
-    getViewer()->getView()->addEventHandler( new WindowHandler( this ) ); // register an event handler to update change conditions and event types
 }
 
 osg::ref_ptr< WGEGroupNode > WQtCustomDockWidget::getScene() const
@@ -81,6 +78,11 @@ size_t WQtCustomDockWidget::height() const
 size_t WQtCustomDockWidget::width() const
 {
     return static_cast< size_t >( getViewer()->getCamera()->getViewport()->width() );
+}
+
+void WQtCustomDockWidget::addEventHandler( osgGA::GUIEventHandler* handler )
+{
+    getViewer()->getView()->addEventHandler( handler );
 }
 
 

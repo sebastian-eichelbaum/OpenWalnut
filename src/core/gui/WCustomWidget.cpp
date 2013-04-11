@@ -26,11 +26,8 @@
 
 #include "WCustomWidget.h"
 
-WCustomWidget::WCustomWidget( std::string title, EventType subscription ):
-    m_title( title ),
-    m_eventNotifier( new WCondition() ),
-    m_events( new WSharedSequenceContainer< EventDeque >() ),
-    m_subscription( subscription )
+WCustomWidget::WCustomWidget( std::string title ):
+    m_title( title )
 {
 }
 
@@ -41,28 +38,4 @@ WCustomWidget::~WCustomWidget()
 std::string WCustomWidget::getTitle() const
 {
     return m_title;
-}
-
-WCustomWidget::EventQueueSPtr WCustomWidget::getNextEvents()
-{
-    EventQueueSPtr unhandledEvents( new EventQueue() );
-    WSharedSequenceContainer< EventDeque >::WriteTicket t = m_events->getWriteTicket();
-
-    while( !t->get().empty() )
-    {
-        unhandledEvents->push( t->get().front() );
-        t->get().pop_front();
-    }
-    return unhandledEvents;
-}
-
-WCondition::SPtr WCustomWidget::getEventNotifier() const
-{
-    return m_eventNotifier;
-}
-
-bool WCustomWidget::newEvents() const
-{
-    WSharedSequenceContainer< EventDeque >::ReadTicket t = m_events->getReadTicket();
-    return t->get().size() > 0;
 }
