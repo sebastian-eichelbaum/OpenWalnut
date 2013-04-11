@@ -28,6 +28,7 @@
 #include <string>
 #include <vector>
 
+#include <boost/thread.hpp>
 #include <osg/Geode>
 
 #include "core/common/math/linearAlgebra/WMatrixFixed.h"
@@ -168,60 +169,38 @@ protected:
 
 private:
     /**
-     * \class WindowHandler
+     * Called on every mouse move event from the custom widget.
      *
-     * An event handler for a custom widget. Handles resize and mouse movement.
+     * \note this runs in OSG thread.
+     * \param pos New mouse position.
      */
-    class WindowHandler : public osgGA::GUIEventHandler
-    {
-    public:
-        /**
-         * Constructor.
-         *
-         * \param module The WMHistogram to handle events for.
-         */
-        explicit WindowHandler( WMHistogramView* module )
-            : m_module( module )
-        {
-        }
+    void handleMouseMove( WVector2f pos );
 
-        /**
-         * Deals with the events found by the osg.
-         *
-         * \param ea Event class for storing Keyboard, mouse and window events.
-         *
-         * \return true if the event was handled.
-         */
-        bool handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& /* aa */ )
-        {
-            switch( ea.getEventType() )
-            {
-            case osgGA::GUIEventAdapter::RESIZE:
-                {
-                    m_module->m_windowWidth = ea.getWindowWidth();
-                    m_module->m_windowHeight = ea.getWindowHeight();
-                    m_module->m_sizeChanged = true;
-                    m_module->m_sizeChangedCondition->notify();
-                    return true;
-                }
-            case osgGA::GUIEventAdapter::MOVE:
-                {
-                    m_module->m_mousePos = WVector2d( ea.getX(), ea.getY() );
-                    m_module->m_mouseMoved = true;
-                    m_module->m_mouseMovedCondition->notify();
-                }
-            default:
-                return false;
-            }
-            return false;
-        }
-    private:
-        //! The WMHistogram to handle events for.
-        WMHistogramView* const m_module;
-    };
+    /**
+     * Called on every resize event from the custom widget.
+     *
+     * \note this runs in OSG thread.
+     * \param x X pos
+     * \param y Y pos
+     * \param width Widht
+     * \param height Height
+     */
+    void handleResize( int x, int y, int width, int height );
 
-    //! The window handler is a friend.
-    friend class WindowHandler;
+    /**
+     * Whenever a new info node is made this mutex should be used.
+     */
+    boost::mutex m_createInfoMutex;
+
+    /**
+     * Whenever a redraw is made this mutex should be used.
+     */
+    boost::mutex m_redrawMutex;
+
+    /**
+     * Redraws the histogram and add it to the main geode.
+     */
+    void redraw();
 
     /**
      * This updates the maximum value of the histograms.
@@ -286,7 +265,7 @@ private:
      *
      * Also adds a quad denoting the currently selected bin that is drawn behind the geometry.
      */
-    void createInfo();
+    void createInfo( WVector2f mousePos );
 
     /**
      * This finds a suitable spacing of ticks to use for an axis with a certain length and
@@ -344,20 +323,8 @@ private:
     //! The height of the window.
     int m_windowHeight;
 
-    //! A flag indicating the size of the window was changed.
-    bool m_sizeChanged;
-
-    //! A condition used to force execution of the main loop after a window size change.
-    boost::shared_ptr< WCondition > m_sizeChangedCondition;
-
     //! The position of the mouse cursor in window coordinates.
     WVector2d m_mousePos;
-
-    //! A flag indicating the mouse was moved.
-    bool m_mouseMoved;
-
-    //! A condition used to force execution of the main loop after a change to mouse position.
-    boost::shared_ptr< WCondition > m_mouseMovedCondition;
 
     //! Draws histogram bin info to the top right corner of the window.
     osg::ref_ptr< osg::Geode > m_infoNode;
@@ -365,8 +332,8 @@ private:
     //! Draws a marker showing the currently selected histogram bin.
     osg::ref_ptr< osg::Geode > m_markerNode;
 
-    //! The event handler for the custom widget.
-    osg::ref_ptr< WindowHandler > m_windowHandler;
+    //! Holds the reference to the custom widget used for displaying the histogram
+    WCustomWidget::SPtr m_widget;
 
     //! Draws the frame and ticks/labels.
     osg::ref_ptr< osg::Geode > m_frameNode;

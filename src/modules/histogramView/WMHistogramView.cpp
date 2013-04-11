@@ -30,6 +30,7 @@
 
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/bind.hpp>
 
 #include <osg/Drawable>
 #include <osg/Geode>
@@ -41,64 +42,11 @@
 #include "core/common/WPathHelper.h"
 #include "core/graphicsEngine/WGERequirement.h"
 #include "core/gui/WCustomWidget.h"
+#include "core/gui/WCustomWidgetEventHandler.h"
 #include "core/gui/WGUI.h"
 #include "core/kernel/WKernel.h"
 #include "WMHistogramView.h"
 #include "WMHistogramView.xpm"
-
-/**
- * \class CustomWidget
- *
- * This is a helper class that opens a custom window in the constructor and closes
- * it in the destructor. This is used to make the custom widget exception safe in the following sense:
- *
- * If an exception gets thrown in a function, destructors of all local objects are called before passing the exception
- * to the caller. If used to manage the custom widget, this class will guarantee closing of the widget even if exceptions are
- * thrown e.g. in the mainloop of a module and - depending on the operation system - may even close the custom widget when the
- * OpenWalnut process gets terminated.
- */
-class CustomWidget
-{
-public:
-    /**
-     * Constructor. Creates a custom widget.
-     *
-     * \param title The title of the custom widget.
-     * \param mode The projection to use.
-     * \param shutdown A module's shutdown flag.
-     *
-     * \note To open a new widget, the title must be different from that of all current custom widgets.
-     */
-    CustomWidget( std::string title, WGECamera::ProjectionMode mode, WBoolFlag& shutdown ) // NOLINT non-const ref
-    {
-        m_widget = WKernel::getRunningKernel()->getGui()->openCustomWidget( title, mode, shutdown.getValueChangeCondition() );
-    }
-
-    /**
-     * Destructor. Closes the widget.
-     */
-    ~CustomWidget()
-    {
-        if( m_widget )
-        {
-            WKernel::getRunningKernel()->getGui()->closeCustomWidget( m_widget );
-        }
-    }
-
-    /**
-     * Returns a pointer to the widget.
-     *
-     * \return Shared pointer to the widget.
-     */
-    WCustomWidget::SPtr get()
-    {
-        return m_widget;
-    }
-
-private:
-    //! The pointer to the widget.
-    WCustomWidget::SPtr m_widget;
-};
 
 //! The number of inputs/datasets/histograms.
 #define NUM_INPUTS 3
@@ -212,15 +160,40 @@ void WMHistogramView::requirements()
     m_requirements.push_back( new WGERequirement() );
 }
 
+void WMHistogramView::handleMouseMove( WVector2f pos )
+{
+    if( m_infoNode )
+    {
+        m_mainNode->remove( m_infoNode );
+    }
+    if( m_markerNode )
+    {
+        m_mainNode->remove( m_markerNode );
+    }
+
+    createInfo( pos );
+}
+
+void WMHistogramView::handleResize( int /* x */, int /* y */, int width, int height )
+{
+    m_windowWidth = width;
+    m_windowHeight = height;
+
+    m_redrawMutex.lock();
+
+    m_mainNode->clear();
+    if( m_windowHeight != 0 && m_windowWidth != 0 )
+    {
+        redraw();
+    }
+
+    m_redrawMutex.unlock();
+}
+
 void WMHistogramView::moduleMain()
 {
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
-
-    m_sizeChangedCondition = boost::shared_ptr< WCondition >( new WCondition );
-    m_mouseMovedCondition = boost::shared_ptr< WCondition >( new WCondition );
-    m_moduleState.add( m_sizeChangedCondition );
-    m_moduleState.add( m_mouseMovedCondition );
 
     for( std::size_t k = 0; k < m_input.size(); ++k )
     {
@@ -234,23 +207,23 @@ void WMHistogramView::moduleMain()
 
     ready();
 
-    CustomWidget widget( std::string( "HistogramView " ) + string_utils::toString( m_instanceID ), WGECamera::TWO_D, m_shutdownFlag );
+    m_widget = WKernel::getRunningKernel()->getGui()->openCustomWidget( getName() + string_utils::toString( m_instanceID ),
+            WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition() );
+    WCustomWidgetEventHandler eh( m_widget );
+    eh.subscribeMove( boost::bind( &WMHistogramView::handleMouseMove, this, _1 ) );
+    eh.subscribeResize( boost::bind( &WMHistogramView::handleResize, this, _1, _2, _3, _4 ) );
+    m_widget->addEventHandler( &eh );
 
-    if( widget.get() )
+    if( m_widget )
     {
         // window width and height
-        m_windowWidth = widget.get()->getViewer()->getCamera()->getViewport()->width();
-        m_windowHeight = widget.get()->getViewer()->getCamera()->getViewport()->height();
+        m_windowWidth = m_widget->width();
+        m_windowHeight = m_widget->height();
 
-        m_mainNode = widget.get()->getScene();
+        m_mainNode = m_widget->getScene();
         if( !m_mainNode )
         {
             errorLog() << "Could not aquire scene node from widget.";
-        }
-        else
-        {
-            m_windowHandler = new WindowHandler( this );
-            widget.get()->getViewer()->getView()->addEventHandler( m_windowHandler );
         }
     }
     else
@@ -272,6 +245,8 @@ void WMHistogramView::moduleMain()
         // if we do not have a main node, there is no point in doing anything
         if( m_mainNode )
         {
+            m_redrawMutex.lock();
+
             bool dataChanged = false;
             bool hasData = false;
             for( std::size_t k = 0; k < m_data.size(); ++k )
@@ -291,18 +266,8 @@ void WMHistogramView::moduleMain()
                 colorChanged = colorChanged | m_colors[ k ]->changed();
             }
 
-            if( dataChanged || colorChanged || m_histoBins->changed() || m_styleSelection->changed() || m_sizeChanged )
+            if( dataChanged || colorChanged || m_histoBins->changed() || m_styleSelection->changed() )
             {
-                m_sizeChanged = false;
-                m_mouseMoved = false;
-
-                if( m_windowHeight == 0 || m_windowWidth == 0 )
-                {
-                    // remove all child nodes from main node
-                    m_mainNode->clear();
-                    continue;
-                }
-
                 infoLog() << "Recalculating histogram.";
 
                 // get current data
@@ -318,44 +283,10 @@ void WMHistogramView::moduleMain()
 
                 // remove all child nodes from main node
                 m_mainNode->clear();
-
-                int sel = m_styleSelection->get( true ).getItemIndexOfSelected( 0 );
-                if( sel >= static_cast< int >( m_geometryFunctions.size() ) )
-                {
-                    errorLog() << "BUG: There is no geometry generation function for this style!";
-                }
-                else
-                {
-                    // call sel'th geometry generation function
-                    // this adds the osg nodes that draw the histogram
-                    // depending on which style was selected
-                    m_geometryFunctions[ sel ]();
-
-                    // this creates the frame and labels
-                    createFrame();
-                }
-
-                // show information about the histogram bin pointed to by the mouse cursor
-                createInfo();
+                redraw();
             }
-            else if( m_mouseMoved )
-            {
-                // if only the mouse was moved, update the info and marker
-                m_mouseMoved = false;
 
-                // we need to remove the old info and marker nodes however,
-                // as we did not clear the main node this time
-                if( m_infoNode )
-                {
-                    m_mainNode->remove( m_infoNode );
-                }
-                if( m_markerNode )
-                {
-                    m_mainNode->remove( m_markerNode );
-                }
-
-                createInfo();
-            }
+            m_redrawMutex.unlock();
         }
     }
 
@@ -364,9 +295,28 @@ void WMHistogramView::moduleMain()
     // clear main node, just in case
     m_mainNode->clear();
 
-    // at this point the custom widget will be closed by "widget"'s destructor
+    WKernel::getRunningKernel()->getGui()->closeCustomWidget( m_widget );
 
     debugLog() << "Finished. Good bye!";
+}
+
+void WMHistogramView::redraw()
+{
+    int sel = m_styleSelection->get( true ).getItemIndexOfSelected( 0 );
+    if( sel >= static_cast< int >( m_geometryFunctions.size() ) )
+    {
+        errorLog() << "BUG: There is no geometry generation function for this style!";
+    }
+    else
+    {
+        // call sel'th geometry generation function
+        // this adds the osg nodes that draw the histogram
+        // depending on which style was selected
+        m_geometryFunctions[ sel ]();
+
+        // this creates the frame and labels
+        createFrame();
+    }
 }
 
 void WMHistogramView::calculateHistograms()
@@ -1125,10 +1075,11 @@ void WMHistogramView::createFrame()
     m_mainNode->insert( m_frameNode );
 }
 
-void WMHistogramView::createInfo()
+void WMHistogramView::createInfo( WVector2f mousePos )
 {
+    m_createInfoMutex.lock();
     // transform mouse position to histogram space
-    WVector2d m = windowSpaceToHistogramSpace( m_mousePos );
+    WVector2d m = windowSpaceToHistogramSpace( WVector2d( mousePos ) );
 
     if( m_data.size() == 0 )
     {
@@ -1243,6 +1194,7 @@ void WMHistogramView::createInfo()
             m_mainNode->insert( m_markerNode );
         }
     }
+    m_createInfoMutex.unlock();
 }
 
 void WMHistogramView::createNothing()
