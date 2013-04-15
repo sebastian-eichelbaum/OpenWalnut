@@ -182,7 +182,7 @@ void WMHistogramView::handleResize( int /* x */, int /* y */, int width, int hei
     m_redrawMutex.lock();
 
     m_mainNode->clear();
-    if( m_windowHeight != 0 && m_windowWidth != 0 )
+    if( m_windowHeight != 0 && m_windowWidth != 0 && m_histograms.size() != 0 )
     {
         redraw();
     }
@@ -209,10 +209,10 @@ void WMHistogramView::moduleMain()
 
     m_widget = WKernel::getRunningKernel()->getGui()->openCustomWidget( getName() + string_utils::toString( m_instanceID ),
             WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition() );
-    WCustomWidgetEventHandler eh( m_widget );
-    eh.subscribeMove( boost::bind( &WMHistogramView::handleMouseMove, this, _1 ) );
-    eh.subscribeResize( boost::bind( &WMHistogramView::handleResize, this, _1, _2, _3, _4 ) );
-    m_widget->addEventHandler( &eh );
+    osg::ref_ptr< WCustomWidgetEventHandler > eh = new WCustomWidgetEventHandler( m_widget );
+    eh->subscribeMove( boost::bind( &WMHistogramView::handleMouseMove, this, _1 ) );
+    eh->subscribeResize( boost::bind( &WMHistogramView::handleResize, this, _1, _2, _3, _4 ) );
+    m_widget->addEventHandler( eh );
 
     if( m_widget )
     {
