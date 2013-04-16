@@ -50,6 +50,11 @@ public:
     typedef std::map< std::string, boost::shared_ptr< WPropertyBase > > PropertyNameMap;
 
     /**
+     * Convenience type for a shared pointer on property observers.
+     */
+    typedef boost::shared_ptr< WPropertyObserver > SPtr;
+
+    /**
      * Default constructor.
      */
     WPropertyObserver();
