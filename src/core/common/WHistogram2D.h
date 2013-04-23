@@ -31,6 +31,8 @@
 
 #include <Eigen/Core>
 
+#include <osg/Texture2D>
+
 #include "WHistogramND.h"
 
 /**
@@ -40,6 +42,12 @@
 class WHistogram2D : public WHistogramND< 2 > // NOLINT
 {
 public:
+
+    /**
+     * Convenience type for a shared_ptr on this type.
+     */
+    typedef boost::shared_ptr< WHistogram2D > SPtr;
+
     /**
      * Creates a two dimensional histogram field, bounded by the given limits, containing the demanded number of buckets in each dimension.
      *
@@ -116,6 +124,13 @@ public:
      * \param y value for the second dimension.
      */
     void insert( double x, double y );
+
+    /**
+     * Copy-convert this into an OSG texture.
+     *
+     * \return osg::Texture2D representing this histogram.
+     */
+    osg::ref_ptr< osg::Texture2D > getTexture();
 
 protected:
 private:

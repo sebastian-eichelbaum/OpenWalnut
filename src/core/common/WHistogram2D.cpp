@@ -24,6 +24,8 @@
 
 #include <utility>
 
+#include <osg/Texture2D>
+
 #include "WAssert.h"
 #include "WHistogram2D.h"
 #include "WLimits.h"
@@ -118,3 +120,35 @@ void WHistogram2D::insert( double x, double y )
     insert( values );
 }
 
+osg::ref_ptr< osg::Texture2D > WHistogram2D::getTexture()
+{
+    osg::ref_ptr< osg::Image > image = new osg::Image();
+    size_t imageWidth = m_buckets[0];
+    size_t imageHeight = m_buckets[1];
+
+    //get max bin for scaling
+    size_t maxCount = 0;
+    for( int j = 0; j < imageHeight; j++)
+    {
+        for (int i = 0; i < imageWidth; i++)
+        {
+            if(m_bins(i, j) > maxCount)
+            {
+                maxCount = m_bins(i, j);
+            }
+        }
+    }
+    // allocate the image data, size x 1 x 1 with 4 rgba floats - equivalent to a Vec4!
+    image->allocateImage( imageWidth, imageHeight, 1, GL_RED, GL_FLOAT );
+    image->setInternalTextureFormat( GL_RED );
+
+    float* data = reinterpret_cast< float* >( image->data() );
+    for( int j = 0; j < imageHeight; j++)
+    {
+        for (int i = 0; i < imageWidth; i++)
+        {
+            data[i + j * imageWidth] = (float)m_bins(i, j) / (float)maxCount;
+        }
+    }
+    return new osg::Texture2D( image );
+}
