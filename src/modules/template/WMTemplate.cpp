@@ -162,7 +162,7 @@ void WMTemplate::connectors()
     // the function signature can not be changed during runtime (which, in our case, means after connectors() got called).
 
     // Here is an example of how to create connectors. This module wants to have an input connector. This connector is defined by the type of
-    // data that should be transferred, an module-wide unique name and a proper description:
+    // data that should be transferred, a module-wide unique name and a proper description:
     m_input = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "in", "The dataset to display" );
 
     // This creates an input connector which can receive WDataSetSingle. It will never be able to connect to output connectors providing just a
@@ -397,7 +397,7 @@ void WMTemplate::moduleMain()
     debugLog() << "Doing time consuming operations";
     sleep( 2 );
 
-    // Your module can use an moduleState variable to wait for certain events. Most commonly, these events are new data on input connectors or
+    // Your module can use a moduleState variable to wait for certain events. Most commonly, these events are new data on input connectors or
     // changed properties. You can decide which events the moduleState should handle. Therefore, use m_moduleState.add( ... ) to insert every
     // condition you want to wait on. As every input connector provides an changeCondition, we now add this condition to the moduleState:
     m_moduleState.setResetable( true, true );
