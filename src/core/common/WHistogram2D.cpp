@@ -127,14 +127,14 @@ osg::ref_ptr< osg::Texture2D > WHistogram2D::getTexture()
     size_t imageHeight = m_buckets[1];
 
     //get max bin for scaling
-    size_t maxCount = 0;
-    for( int j = 0; j < imageHeight; j++)
+    float maxCount = 0;
+    for( size_t j = 0; j < imageHeight; ++j )
     {
-        for (int i = 0; i < imageWidth; i++)
+        for( size_t i = 0; i < imageWidth; ++i )
         {
-            if(m_bins(i, j) > maxCount)
+            if( m_bins( i, j ) > maxCount )
             {
-                maxCount = m_bins(i, j);
+                maxCount = static_cast< float >( m_bins( i, j ) );
             }
         }
     }
@@ -143,11 +143,11 @@ osg::ref_ptr< osg::Texture2D > WHistogram2D::getTexture()
     image->setInternalTextureFormat( GL_RED );
 
     float* data = reinterpret_cast< float* >( image->data() );
-    for( int j = 0; j < imageHeight; j++)
+    for( size_t j = 0; j < imageHeight; ++j )
     {
-        for (int i = 0; i < imageWidth; i++)
+        for( size_t i = 0; i < imageWidth; ++i )
         {
-            data[i + j * imageWidth] = (float)m_bins(i, j) / (float)maxCount;
+            data[i + j * imageWidth] = static_cast< float >( m_bins( i, j ) ) / maxCount;
         }
     }
     return new osg::Texture2D( image );
