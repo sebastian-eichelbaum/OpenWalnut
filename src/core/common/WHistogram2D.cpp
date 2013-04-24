@@ -138,7 +138,7 @@ osg::ref_ptr< osg::Texture2D > WHistogram2D::getTexture()
             }
         }
     }
-    // allocate the image data, size x 1 x 1 with 4 rgba floats - equivalent to a Vec4!
+
     image->allocateImage( imageWidth, imageHeight, 1, GL_RED, GL_FLOAT );
     image->setInternalTextureFormat( GL_RED );
 
