@@ -24,8 +24,7 @@
 
 #include <utility>
 
-#include <osg/Texture2D>
-
+#include <core/graphicsEngine/WGETexture.h>
 #include "WAssert.h"
 #include "WHistogram2D.h"
 #include "WLimits.h"
@@ -120,7 +119,7 @@ void WHistogram2D::insert( double x, double y )
     insert( values );
 }
 
-osg::ref_ptr< osg::Texture2D > WHistogram2D::getTexture()
+WGETexture2D::RPtr WHistogram2D::getTexture()
 {
     osg::ref_ptr< osg::Image > image = new osg::Image();
     size_t imageWidth = m_buckets[0];
@@ -150,5 +149,6 @@ osg::ref_ptr< osg::Texture2D > WHistogram2D::getTexture()
             data[i + j * imageWidth] = static_cast< float >( m_bins( i, j ) ) / maxCount;
         }
     }
-    return new osg::Texture2D( image );
+    ;
+    return WGETexture2D::RPtr( new WGETexture2D( image ) );
 }

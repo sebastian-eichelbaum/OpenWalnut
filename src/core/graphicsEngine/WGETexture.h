@@ -53,6 +53,11 @@ template < typename TextureType = osg::Texture >
 class WGETexture: public TextureType
 {
 public:
+    /**
+     * Convenience type for OSG reference pointer on WGETextures.
+     */
+    typedef osg::ref_ptr< WGETexture< TextureType > > RPtr;
+
     //! We support only 8 textures because some known hardware does not support more texture coordinates.
     static std::size_t const MAX_NUMBER_OF_TEXTURES = 8;
 

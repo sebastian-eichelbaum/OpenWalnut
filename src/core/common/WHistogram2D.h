@@ -31,7 +31,7 @@
 
 #include <Eigen/Core>
 
-#include <osg/Texture2D>
+#include <core/graphicsEngine/WGETexture.h>
 
 #include "WHistogramND.h"
 
@@ -126,11 +126,11 @@ public:
     void insert( double x, double y );
 
     /**
-     * Copy-convert this into an OSG texture.
+     * Copy-convert this into a texture.
      *
-     * \return osg::Texture2D representing this histogram.
+     * \return \c osg::ref_ptr to the two-dimensional texture.
      */
-    osg::ref_ptr< osg::Texture2D > getTexture();
+    WGETexture2D::RPtr getTexture();
 
 protected:
 private:
