@@ -195,6 +195,14 @@ public:
     void setTriangleColor( size_t index, osg::Vec4 color );
 
     /**
+     * Set a texture coordinate.
+     *
+     * \param index The id of the vertex to set the texture coord of.
+     * \param texCoord The texture coordinate to use.
+     */
+    void setTextureCoord( std::size_t index, osg::Vec3 texCoord );
+
+    /**
      * Return triangle colors
      *
      * \return OSG Vec4 Array of triangle colors
@@ -390,6 +398,64 @@ public:
      * \param sigmaInfluence The standard deviation for the influence weight.
      */
     void performFeaturePreservingSmoothing( float sigmaDistance, float sigmaInfluence );
+
+    /**
+     * Estimates the normal curvatures and their principal directions for every vertex using
+     * the algorithm of:
+     *
+     * DONG, Chen-shi; WANG, Guo-zhao. Curvatures estimation on triangular mesh. Journal of Zhejiang University SCIENCE, 2005, 6. Jg., Nr. 1, S. 128-136.
+     */
+    void estimateCurvature();
+
+    /**
+     * Retreive the main (maximum) curvature of a vertex.
+     *
+     * \param vtxId The id of the vertex.
+     *
+     * \return The estimated main normal curvature.
+     */
+    double getMainCurvature( std::size_t vtxId );
+
+    /**
+     * Retreive the secondary (minimum) curvature of a vertex.
+     *
+     * \param vtxId The id of the vertex.
+     *
+     * \return The estimated secondary normal curvature.
+     */
+    double getSecondaryCurvature( std::size_t vtxId );
+
+    /**
+     * Retreive the 3d principal direction of curvature of a vertex.
+     *
+     * \param vtxId The id of the vertex.
+     *
+     * \return The first principal duirection.
+     */
+    osg::Vec3 getCurvatureMainPrincipalDirection( std::size_t vtxId );
+
+    /**
+     * Retreive the 3d principal direction of curvature for the minimum normal curvature of a vertex.
+     *
+     * \param vtxId The id of the vertex.
+     *
+     * \return The second principal duirection.
+     */
+    osg::Vec3 getCurvatureSecondaryPrincipalDirection( std::size_t vtxId );
+
+    /**
+     * Retreive the array of principal directions e.g. for use as texture coords.
+     *
+     * \return The full array of principal directions.
+     */
+    osg::ref_ptr< osg::Vec3Array > getMainPrincipalCurvatureDirectionArray();
+
+    /**
+     * Retreive the array of principal directions e.g. for use as texture coords.
+     *
+     * \return The full array of principal directions.
+     */
+    osg::ref_ptr< osg::Vec3Array > getSecondaryPrincipalCurvatureDirectionArray();
 
 protected:
     static boost::shared_ptr< WPrototyped > m_prototype; //!< The prototype as singleton.
@@ -621,6 +687,17 @@ private:
      */
     float calcTriangleArea( std::size_t triIdx ) const;
 
+    /**
+     * Calculates the angle between two NORMALIZED vectors. Asserts in debug mode, in release mode
+     * when called with non-normalized vectors, results are undefined.
+     *
+     * \param v1 The first NORMALIZED vector.
+     * \param v2 The second NORMALIZED vector.
+     *
+     * \return The angle between the vectors in radians.
+     */
+    double calcAngleBetweenNormalizedVectors( osg::Vec3 const& v1, osg::Vec3 const& v2 );
+
     size_t m_countVerts; //!< number of vertexes in the mesh
 
     size_t m_countTriangles; //!< number of triangles in the mesh
@@ -628,6 +705,9 @@ private:
     bool m_meshDirty; //!< flag indicating a change took place which requires a recalculation of components
 
     bool m_neighborsCalculated; //!< flag indicating whether the neighbor information has been calculated yet
+
+    //! Indicates whether the curvature and its principal directions have been calculated.
+    bool m_curvatureCalculated;
 
     osg::ref_ptr< osg::Vec3Array > m_verts; //!< array containing the vertices
 
@@ -647,6 +727,18 @@ private:
     std::vector < std::vector< size_t > > m_vertexIsInTriangle; //!< for each vertex, list of triangles it is part of
 
     std::vector< std::vector< size_t > > m_triangleNeighbors; //!< edge neighbors for each triangle
+
+    //! Stores the maximum normal curvature (for the first principal direction) for each vertex.
+    boost::shared_ptr< std::vector< float > > m_mainNormalCurvature;
+
+    //! Stores the minimum normal curvature (for the second principal direction) for each vertex.
+    boost::shared_ptr< std::vector< float > > m_secondaryNormalCurvature;
+
+    //! Stores the first principal curvature direction for each vertex.
+    osg::ref_ptr< osg::Vec3Array > m_mainCurvaturePrincipalDirection;
+
+    //! Stores the second principal curvature direction for each vertex.
+    osg::ref_ptr< osg::Vec3Array > m_secondaryCurvaturePrincipalDirection;
 
     size_t m_numTriVerts; //!< stores the number of vertexes before the loop subdivion is run, needed by the loop algorithm
 

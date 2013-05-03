@@ -34,6 +34,7 @@
 
 #include <osg/io_utils>
 
+#include "../common/WAssert.h"
 #include "../common/math/WMath.h"
 #include "../common/datastructures/WUnionFind.h"
 #include "WTriangleMesh.h"
@@ -57,7 +58,8 @@ WTriangleMesh::WTriangleMesh( size_t vertNum, size_t triangleNum )
     : m_countVerts( 0 ),
       m_countTriangles( 0 ),
       m_meshDirty( true ),
-      m_neighborsCalculated( false )
+      m_neighborsCalculated( false ),
+      m_curvatureCalculated( false )
 {
     m_verts = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( vertNum ) );
     m_textureCoordinates = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( vertNum ) );
@@ -885,5 +887,268 @@ float WTriangleMesh::calcTriangleArea( std::size_t triIdx ) const
     osg::Vec3 const& p2 = m_verts->operator[] ( m_triangles[ 3 * triIdx + 2 ] );
 
     return ( ( p1 - p0 ) ^ ( p2 - p0 ) ).length() * 0.5;
+}
+
+void WTriangleMesh::estimateCurvature()
+{
+    updateVertsInTriangles();
+    calcNeighbors();
+
+    std::vector< osg::Vec3 > normals( m_verts->size() );
+
+    // init vectors
+    m_mainNormalCurvature = boost::shared_ptr< std::vector< float > >( new std::vector< float >( m_verts->size() ) );
+    m_secondaryNormalCurvature = boost::shared_ptr< std::vector< float > >( new std::vector< float >( m_verts->size() ) );
+    m_mainCurvaturePrincipalDirection = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( m_verts->size() ) );
+    m_secondaryCurvaturePrincipalDirection = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( m_verts->size() ) );
+
+    // calculate vertex normals using distance-weighted summing of neighbor-triangle normals
+    for( std::size_t vtxId = 0; vtxId < m_verts->size(); ++vtxId )
+    {
+        osg::Vec3 const& p = m_verts->operator[] ( vtxId );
+        osg::Vec3 n( 0.0, 0.0, 0.0 );
+
+        for( std::size_t k = 0; k < m_vertexIsInTriangle[ vtxId ].size(); ++k )
+        {
+            std::size_t triId = m_vertexIsInTriangle[ vtxId ][ k ];
+
+            osg::Vec3 center = calcTriangleCenter( triId );
+            double w = 1.0 / ( center - p ).length();
+
+            n += m_triangleNormals->operator[] ( triId ) * w;
+        }
+
+        n.normalize();
+        normals[ vtxId ] = n;
+    }
+
+    // calculate curvatures for every vertex
+    for( std::size_t vtxId = 0; vtxId < m_verts->size(); ++vtxId )
+    {
+        osg::Vec3 const& p = m_verts->operator[] ( vtxId );
+
+        osg::Vec3 const& normal = normals[ vtxId ];
+
+        // get the set of neighbor vertices
+        std::set< std::size_t > neighbors;
+
+        for( std::size_t k = 0; k < m_vertexIsInTriangle[ vtxId ].size(); ++k )
+        {
+            std::size_t triId = m_vertexIsInTriangle[ vtxId ][ k ];
+
+            for( std::size_t j = 0; j < 3; ++j )
+            {
+                std::size_t e = m_triangles[ 3 * triId + j ];
+
+                if( neighbors.find( e ) == neighbors.end() && e != vtxId )
+                {
+                    neighbors.insert( e );
+                }
+            }
+        }
+
+        WAssert( neighbors.size() > 2, "" );
+
+        // choose tangent space coordinate system
+        double maxCurvature = 0.0;
+        std::vector< double > curvatures;
+
+        osg::Vec3 maxCurvatureTangent( 0.0, 0.0, 0.0 );
+        std::vector< osg::Vec3 > tangents;
+
+        // part 1: get curvatures at tangents and their maximum curvature
+        for( std::set< std::size_t >::const_iterator it = neighbors.begin(); it != neighbors.end(); ++it )
+        {
+            osg::Vec3 const& neighbPos = m_verts->operator[] ( *it );
+            osg::Vec3 const& neighbNormal = normals[ *it ];
+
+            // calc projected tangent
+            osg::Vec3 tangent = ( neighbPos - p ) - normal * ( ( neighbPos - p ) * normal );
+            tangent.normalize();
+
+            // approximate normal curvature in tangent direction
+            double ncurv = -1.0 * ( ( neighbPos - p ) * ( neighbNormal - normal ) ) / ( ( neighbPos - p ) * ( neighbPos - p ) );
+
+            // WAssert( 0.0 <= ncurv, "" );
+            // WAssert( ncurv <= 1.0, "" );
+
+            if( ncurv > maxCurvature )
+            {
+                maxCurvature = ncurv;
+                maxCurvatureTangent = tangent;
+            }
+
+            tangents.push_back( tangent );
+            curvatures.push_back( ncurv );
+        }
+
+        // part 2: calculate coordinate system
+        osg::Vec3 const& e1 = maxCurvatureTangent;
+        osg::Vec3 e2 = e1 ^ normal;
+
+        e2.normalize();
+
+        bool significantCurvature = false;
+        for( std::vector< double >::const_iterator it = curvatures.begin(); it != curvatures.end(); ++it )
+        {
+            if( fabs( *it ) > 0.00001 )
+            {
+                significantCurvature = true;
+                break;
+            }
+        }
+
+        // curvatures were all almost zero
+        if( !significantCurvature )
+        {
+            m_mainNormalCurvature->operator[] ( vtxId ) = 0.0;
+            m_mainCurvaturePrincipalDirection->operator[] ( vtxId ) = e1;
+            m_secondaryNormalCurvature->operator[] ( vtxId ) = 0.0;
+            m_secondaryCurvaturePrincipalDirection->operator[] ( vtxId ) = e2;
+
+            continue;
+        }
+
+        // calculate coefficients
+        double a11 = 0.0;
+        double a12 = 0.0; // a21 == a12
+        double a22 = 0.0;
+        double a13 = 0.0;
+        double a23 = 0.0;
+
+        double const& a = maxCurvature;
+
+        for( std::size_t k = 0; k < tangents.size(); ++k )
+        {
+            double theta = calcAngleBetweenNormalizedVectors( tangents[ k ], e1 );
+
+            double sintheta = sin( theta );
+            double costheta = cos( theta );
+
+            a11 += costheta * costheta * sintheta * sintheta;
+            a12 += costheta * sintheta * sintheta * sintheta;
+            a22 += sintheta * sintheta * sintheta * sintheta;
+            a13 += ( curvatures[ k ] - a * costheta * costheta ) * costheta * sintheta;
+            a23 += ( curvatures[ k ] - a * costheta * costheta ) * sintheta * sintheta;
+        }
+
+        double b = ( a13 * a22 - a23 * a12 ) / ( a11 * a22 - a12 * a12 );
+        double c = ( a11 * a23 - a12 * a13 ) / ( a11 * a22 - a12 * a12 );
+
+        double Kg = a * c - 0.25 * b * b;
+        double H = 0.5 * ( a + c );
+        double s = H * H - Kg;
+
+        if( s < 0.0 )
+        {
+            s = 0.0;
+        }
+
+        double k1 = H + sqrt( s );
+        double k2 = H - sqrt( s );
+
+        if( fabs( k1 - k2 ) < 0.000001 )
+        {
+            m_mainNormalCurvature->operator[] ( vtxId ) = a;
+            m_mainCurvaturePrincipalDirection->operator[] ( vtxId ) = e1;
+        }
+        else
+        {
+            double temp = b / ( k2 - k1 );
+
+            if( temp > 1.0 )
+            {
+                temp = 1.0;
+            }
+            if( temp < -1.0 )
+            {
+                temp = -1.0;
+            }
+
+            double theta = 0.5 * asin( temp );
+
+            osg::Vec3 ne1 = e1 * cos( theta ) + e2 * sin( theta );
+            osg::Vec3 ne2 = e2 * cos( theta ) - e1 * sin( theta );
+
+            ne1.normalize();
+            ne2.normalize();
+
+            e2 = ne2;
+
+            theta = calcAngleBetweenNormalizedVectors( ne1, e1 );
+
+            m_mainNormalCurvature->operator[] ( vtxId ) = a * cos( theta ) * cos( theta )
+                                                        + b * cos( theta ) * sin( theta )
+                                                        + c * sin( theta ) * sin( theta );
+            m_mainCurvaturePrincipalDirection->operator[] ( vtxId ) = ne1;
+        }
+
+        double theta = calcAngleBetweenNormalizedVectors( e2, e1 );
+
+        m_secondaryNormalCurvature->operator[] ( vtxId ) = a * cos( theta ) * cos( theta )
+                                                         + b * cos( theta ) * sin( theta )
+                                                         + c * sin( theta ) * sin( theta );
+        m_secondaryCurvaturePrincipalDirection->operator[] ( vtxId ) = e2;
+    }
+
+    m_curvatureCalculated = true;
+}
+
+double WTriangleMesh::calcAngleBetweenNormalizedVectors( osg::Vec3 const& v1, osg::Vec3 const& v2 )
+{
+    // assumes vectors are normalized
+    WAssert( v1.length() <  1.0001, "Vector is not normalized!" );
+    WAssert( v1.length() > -1.0001, "Vector is not normalized!" );
+    WAssert( v2.length() <  1.0001, "Vector is not normalized!" );
+    WAssert( v2.length() > -1.0001, "Vector is not normalized!" );
+
+    double temp = v1 * v2;
+
+    // avoid NaNs due to numerical errors
+    if( temp < -1.0 )
+    {
+        temp = -1.0;
+    }
+    if( temp > 1.0 )
+    {
+        temp = 1.0;
+    }
+
+    return acos( temp );
+}
+
+double WTriangleMesh::getMainCurvature( std::size_t vtxId )
+{
+    return m_mainNormalCurvature->operator[] ( vtxId );
+}
+
+double WTriangleMesh::getSecondaryCurvature( std::size_t vtxId )
+{
+    return m_secondaryNormalCurvature->operator[] ( vtxId );
+}
+
+osg::Vec3 WTriangleMesh::getCurvatureMainPrincipalDirection( std::size_t vtxId )
+{
+    return m_mainCurvaturePrincipalDirection->operator[] ( vtxId );
+}
+
+osg::Vec3 WTriangleMesh::getCurvatureSecondaryPrincipalDirection( std::size_t vtxId )
+{
+    return m_secondaryCurvaturePrincipalDirection->operator[] ( vtxId );
+}
+
+void WTriangleMesh::setTextureCoord( std::size_t index, osg::Vec3 texCoord )
+{
+    m_textureCoordinates->operator[] ( index ) = texCoord;
+}
+
+osg::ref_ptr< osg::Vec3Array > WTriangleMesh::getMainPrincipalCurvatureDirectionArray()
+{
+    return m_mainCurvaturePrincipalDirection;
+}
+
+osg::ref_ptr< osg::Vec3Array > WTriangleMesh::getSecondaryPrincipalCurvatureDirectionArray()
+{
+    return m_secondaryCurvaturePrincipalDirection;
 }
 
