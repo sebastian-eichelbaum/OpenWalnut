@@ -457,6 +457,11 @@ public:
      */
     osg::ref_ptr< osg::Vec3Array > getSecondaryPrincipalCurvatureDirectionArray();
 
+    /**
+     * recalculates the vertex normals
+     */
+    void recalcVertNormals();
+
 protected:
     static boost::shared_ptr< WPrototyped > m_prototype; //!< The prototype as singleton.
 private:
@@ -479,11 +484,6 @@ private:
      * \param index the triangle to remove
      */
     void removeTriangle( size_t index );
-
-    /**
-     * recalculates the vertex normals
-     */
-    void recalcVertNormals();
 
     /**
      * calculates a normal from the 3 points in space defining a triangle

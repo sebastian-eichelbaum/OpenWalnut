@@ -31,10 +31,15 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <limits>
 
 #include <osg/io_utils>
 
+#include <Eigen/Sparse>
+#include <Eigen/Eigenvalues>
+
 #include "../common/WAssert.h"
+#include "../common/WLogger.h"
 #include "../common/math/WMath.h"
 #include "../common/datastructures/WUnionFind.h"
 #include "WTriangleMesh.h"
@@ -918,6 +923,8 @@ void WTriangleMesh::estimateCurvature()
             n += m_triangleNormals->operator[] ( triId ) * w;
         }
 
+        WAssert( n.length() > 0.0001, "Invalid normal!" );
+
         n.normalize();
         normals[ vtxId ] = n;
     }
@@ -947,10 +954,9 @@ void WTriangleMesh::estimateCurvature()
             }
         }
 
-        WAssert( neighbors.size() > 2, "" );
+        WAssert( neighbors.size() > 2, "Vertex has too few neighbors! Does this mesh have holes?" );
 
-        // choose tangent space coordinate system
-        double maxCurvature = 0.0;
+        double maxCurvature = -std::numeric_limits< double >::infinity();
         std::vector< double > curvatures;
 
         osg::Vec3 maxCurvatureTangent( 0.0, 0.0, 0.0 );
@@ -962,15 +968,12 @@ void WTriangleMesh::estimateCurvature()
             osg::Vec3 const& neighbPos = m_verts->operator[] ( *it );
             osg::Vec3 const& neighbNormal = normals[ *it ];
 
-            // calc projected tangent
+            // project ( neighbPos - p ) onto the tangent plane
             osg::Vec3 tangent = ( neighbPos - p ) - normal * ( ( neighbPos - p ) * normal );
             tangent.normalize();
 
             // approximate normal curvature in tangent direction
             double ncurv = -1.0 * ( ( neighbPos - p ) * ( neighbNormal - normal ) ) / ( ( neighbPos - p ) * ( neighbPos - p ) );
-
-            // WAssert( 0.0 <= ncurv, "" );
-            // WAssert( ncurv <= 1.0, "" );
 
             if( ncurv > maxCurvature )
             {
@@ -982,7 +985,9 @@ void WTriangleMesh::estimateCurvature()
             curvatures.push_back( ncurv );
         }
 
-        // part 2: calculate coordinate system
+        WAssert( maxCurvatureTangent.length() > 0.0001, "Invalid tangent length!" );
+
+        // part 2: choose a coordinate system in the tangent plane
         osg::Vec3 const& e1 = maxCurvatureTangent;
         osg::Vec3 e2 = e1 ^ normal;
 
@@ -998,9 +1003,10 @@ void WTriangleMesh::estimateCurvature()
             }
         }
 
-        // curvatures were all almost zero
         if( !significantCurvature )
         {
+            // curvatures were all almost zero
+            // the mesh is flat at this point, write values accordingly
             m_mainNormalCurvature->operator[] ( vtxId ) = 0.0;
             m_mainCurvaturePrincipalDirection->operator[] ( vtxId ) = e1;
             m_secondaryNormalCurvature->operator[] ( vtxId ) = 0.0;
@@ -1009,32 +1015,48 @@ void WTriangleMesh::estimateCurvature()
             continue;
         }
 
-        // calculate coefficients
-        double a11 = 0.0;
-        double a12 = 0.0; // a21 == a12
-        double a22 = 0.0;
-        double a13 = 0.0;
-        double a23 = 0.0;
-
+        // calculate coefficients of the ellipse a * cos²(theta) + b * cos(theta) * sin(theta) * c * sin²(theta)
+        // this is done by estimating a as the largest curvature amoung the estimated curvatures in all tangent
+        // direction belonging to points that share a triangle with the current one
         double const& a = maxCurvature;
+
+        Eigen::Matrix< double, -1, -1 > X( tangents.size(), 2 );
+        Eigen::Matrix< double, -1, -1 > y( tangents.size(), 1 );
 
         for( std::size_t k = 0; k < tangents.size(); ++k )
         {
             double theta = calcAngleBetweenNormalizedVectors( tangents[ k ], e1 );
 
-            double sintheta = sin( theta );
-            double costheta = cos( theta );
-
-            a11 += costheta * costheta * sintheta * sintheta;
-            a12 += costheta * sintheta * sintheta * sintheta;
-            a22 += sintheta * sintheta * sintheta * sintheta;
-            a13 += ( curvatures[ k ] - a * costheta * costheta ) * costheta * sintheta;
-            a23 += ( curvatures[ k ] - a * costheta * costheta ) * sintheta * sintheta;
+            X( k, 0 ) = cos( theta ) * sin( theta );
+            X( k, 1 ) = sin( theta ) * sin( theta );
+            y( k, 0 ) = curvatures[ k ] - a * cos( theta ) * cos( theta );
         }
 
-        double b = ( a13 * a22 - a23 * a12 ) / ( a11 * a22 - a12 * a12 );
-        double c = ( a11 * a23 - a12 * a13 ) / ( a11 * a22 - a12 * a12 );
+        // use LU decomposition to calculate rank
+        Eigen::FullPivLU< Eigen::Matrix< double, -1, -1 > > lu( X );
 
+        // we need a rank of at least 2 to calculate the coeffs
+        if( lu.rank() < 2 )
+        {
+            wlog::warn( "WTriangleMesh::estimateCurvature" ) << "Rank too low, cannot estimate curvature for this vertex!";
+
+            m_mainNormalCurvature->operator[] ( vtxId ) = a;
+            m_mainCurvaturePrincipalDirection->operator[] ( vtxId ) = e1;
+            m_secondaryNormalCurvature->operator[] ( vtxId ) = 0.0;
+            m_secondaryCurvaturePrincipalDirection->operator[] ( vtxId ) = e2;
+
+            continue;
+        }
+
+        // do least squares
+        Eigen::Matrix< double, -1, -1 > bb = ( X.transpose() * X ).inverse() * X.transpose() * y;
+
+        // the missing coeffs b and c are now:
+        double b = bb( 0, 0 );
+        double c = bb( 1, 0 );
+
+        // this calculates the maximum and minimum normal curvatures
+        // (as eigenvalues)
         double Kg = a * c - 0.25 * b * b;
         double H = 0.5 * ( a + c );
         double s = H * H - Kg;
@@ -1049,11 +1071,13 @@ void WTriangleMesh::estimateCurvature()
 
         if( fabs( k1 - k2 ) < 0.000001 )
         {
+            // if the curvatures are equal, there is no single principal direction
             m_mainNormalCurvature->operator[] ( vtxId ) = a;
             m_mainCurvaturePrincipalDirection->operator[] ( vtxId ) = e1;
         }
         else
         {
+            // if the curvatures differ, we can now find the direction of maximum curvature
             double temp = b / ( k2 - k1 );
 
             if( temp > 1.0 )
