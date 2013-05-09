@@ -145,6 +145,22 @@ namespace wge
      * \return the generated image.
      */
     osg::ref_ptr< osg::Image > genWhiteNoiseImage( size_t sizeX, size_t sizeY, size_t sizeZ, size_t channels = 1 );
+
+    /**
+     * Generates a 3D turing noise texture. For details, see:
+     *
+     * Eichelbaum, Sebastian, et al. "Fabric-like visualization of tensor field data on arbitrary surfaces
+     * in image space." New Developments in the Visualization and Processing of Tensor Fields. Springer Berlin Heidelberg, 2012. 71-92.
+     *
+     * \param sizeX The size of the textures in voxels, should be a power of 2.
+     * \param sizeY The size of the textures in voxels, should be a power of 2.
+     * \param sizeZ The size of the textures in voxels, should be a power of 2.
+     * \param channels The number of channels; either 1, 3 or 4.
+     *
+     * \return The texture.
+     */
+    osg::ref_ptr< WGETexture< osg::Texture3D > > genTuringNoiseTexture( std::size_t sizeX, std::size_t sizeY,
+                                                                        std::size_t sizeZ, std::size_t channels = 1 );
 }
 
 template < typename T >
