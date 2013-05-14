@@ -1141,22 +1141,32 @@ double WTriangleMesh::calcAngleBetweenNormalizedVectors( osg::Vec3 const& v1, os
     return acos( temp );
 }
 
-double WTriangleMesh::getMainCurvature( std::size_t vtxId )
+double WTriangleMesh::getMainCurvature( std::size_t vtxId ) const
 {
     return m_mainNormalCurvature->operator[] ( vtxId );
 }
 
-double WTriangleMesh::getSecondaryCurvature( std::size_t vtxId )
+double WTriangleMesh::getSecondaryCurvature( std::size_t vtxId ) const
 {
     return m_secondaryNormalCurvature->operator[] ( vtxId );
 }
 
-osg::Vec3 WTriangleMesh::getCurvatureMainPrincipalDirection( std::size_t vtxId )
+boost::shared_ptr< std::vector< float > > const& WTriangleMesh::getMainCurvatures() const
+{
+    return m_mainNormalCurvature;
+}
+
+boost::shared_ptr< std::vector< float > > const& WTriangleMesh::getSecondaryCurvatures() const
+{
+    return m_secondaryNormalCurvature;
+}
+
+osg::Vec3 WTriangleMesh::getCurvatureMainPrincipalDirection( std::size_t vtxId ) const
 {
     return m_mainCurvaturePrincipalDirection->operator[] ( vtxId );
 }
 
-osg::Vec3 WTriangleMesh::getCurvatureSecondaryPrincipalDirection( std::size_t vtxId )
+osg::Vec3 WTriangleMesh::getCurvatureSecondaryPrincipalDirection( std::size_t vtxId ) const
 {
     return m_secondaryCurvaturePrincipalDirection->operator[] ( vtxId );
 }
