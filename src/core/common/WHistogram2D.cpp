@@ -149,6 +149,6 @@ WGETexture2D::RPtr WHistogram2D::getTexture()
             data[i + j * imageWidth] = static_cast< float >( m_bins( i, j ) ) / maxCount;
         }
     }
-    ;
+
     return WGETexture2D::RPtr( new WGETexture2D( image ) );
 }

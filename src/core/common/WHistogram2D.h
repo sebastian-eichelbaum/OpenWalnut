@@ -42,7 +42,6 @@
 class WHistogram2D : public WHistogramND< 2 > // NOLINT
 {
 public:
-
     /**
      * Convenience type for a shared_ptr on this type.
      */
