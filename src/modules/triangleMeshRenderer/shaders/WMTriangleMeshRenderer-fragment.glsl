@@ -37,6 +37,11 @@ varying vec3 v_normal;
 uniform float u_opacity;
 
 /**
+ * True if in outline mode
+ */
+uniform bool u_outline;
+
+/**
  * The colormap ratio specified by the user in [0,1]
  */
 uniform float u_colormapRatio;
@@ -51,7 +56,7 @@ void main()
 #endif
     // calculate lighting
     float light = blinnPhongIlluminationIntensity( normalize( -v_normal ) );
-    col*=light;
+    col *= u_outline ? 1.0 : light;
 
     // finally, apply opacity
     col.a = u_opacity* 0.01;

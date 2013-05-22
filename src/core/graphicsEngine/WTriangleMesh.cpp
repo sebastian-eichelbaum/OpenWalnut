@@ -58,6 +58,7 @@ WTriangleMesh::WTriangleMesh( size_t vertNum, size_t triangleNum )
     : m_countVerts( 0 ),
       m_countTriangles( 0 ),
       m_meshDirty( true ),
+      m_autoNormal( true ),
       m_neighborsCalculated( false ),
       m_curvatureCalculated( false )
 {
@@ -75,6 +76,7 @@ WTriangleMesh::WTriangleMesh( osg::ref_ptr< osg::Vec3Array > vertices, const std
     : m_countVerts( vertices->size() ),
       m_countTriangles( triangles.size() / 3 ),
       m_meshDirty( true ),
+      m_autoNormal( true ),
       m_neighborsCalculated( false ),
       m_verts( vertices ),
       m_textureCoordinates( new osg::Vec3Array( vertices->size() ) ),
@@ -91,14 +93,19 @@ WTriangleMesh::~WTriangleMesh()
 {
 }
 
-void WTriangleMesh::addVertex( float x, float y, float z )
+void WTriangleMesh::setAutoRecalcNormals( bool autoRecalc )
 {
-    addVertex( osg::Vec3( x, y, z ) );
+    m_autoNormal = autoRecalc;
 }
 
-void WTriangleMesh::addVertex( WPosition vert )
+size_t WTriangleMesh::addVertex( float x, float y, float z )
 {
-    addVertex( osg::Vec3( vert[0], vert[1], vert[2] ) );
+    return addVertex( osg::Vec3( x, y, z ) );
+}
+
+size_t WTriangleMesh::addVertex( WPosition vert )
+{
+    return addVertex( osg::Vec3( vert[0], vert[1], vert[2] ) );
 }
 
 void WTriangleMesh::addTriangle( size_t vert0, size_t vert1, size_t vert2 )
@@ -129,8 +136,12 @@ void WTriangleMesh::setVertexNormal( size_t index, osg::Vec3 normal )
 
 void WTriangleMesh::setVertexNormal( size_t index, WPosition normal )
 {
-    WAssert( index < m_countVerts, "set vertex normal: index out of range" );
     setVertexNormal( index, osg::Vec3( normal[0], normal[1], normal[2] ) );
+}
+
+void WTriangleMesh::setVertexNormal( size_t index, float x, float y, float z )
+{
+    setVertexNormal( index, osg::Vec3( x, y, z ) );
 }
 
 void WTriangleMesh::setVertexColor( size_t index, osg::Vec4 color )
@@ -167,7 +178,7 @@ osg::ref_ptr< const osg::Vec3Array > WTriangleMesh::getTextureCoordinateArray() 
 
 osg::ref_ptr< osg::Vec3Array >WTriangleMesh::getVertexNormalArray( bool forceRecalc )
 {
-    if( forceRecalc || m_meshDirty )
+    if( forceRecalc || ( m_meshDirty && m_autoNormal ) )
     {
         recalcVertNormals();
     }
@@ -176,7 +187,7 @@ osg::ref_ptr< osg::Vec3Array >WTriangleMesh::getVertexNormalArray( bool forceRec
 
 osg::ref_ptr< osg::Vec3Array >WTriangleMesh::getTriangleNormalArray( bool forceRecalc )
 {
-    if( forceRecalc || m_meshDirty )
+    if( forceRecalc || ( m_meshDirty && m_autoNormal ) )
     {
         recalcVertNormals();
     }
