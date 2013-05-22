@@ -428,7 +428,7 @@ public:
      *
      * \return The estimated main normal curvature.
      */
-    double getMainCurvature( std::size_t vtxId );
+    double getMainCurvature( std::size_t vtxId ) const;
 
     /**
      * Retreive the secondary (minimum) curvature of a vertex.
@@ -437,7 +437,21 @@ public:
      *
      * \return The estimated secondary normal curvature.
      */
-    double getSecondaryCurvature( std::size_t vtxId );
+    double getSecondaryCurvature( std::size_t vtxId ) const;
+
+    /**
+     * Get the vector of main curvature values.
+     *
+     * \return The curvature values for all the vertices.
+     */
+    boost::shared_ptr< std::vector< float > > const& getMainCurvatures() const;
+
+    /**
+     * Get the vector of secondary curvature values.
+     *
+     * \return The curvature values for all the vertices.
+     */
+    boost::shared_ptr< std::vector< float > > const& getSecondaryCurvatures() const;
 
     /**
      * Retreive the 3d principal direction of curvature of a vertex.
@@ -446,7 +460,7 @@ public:
      *
      * \return The first principal duirection.
      */
-    osg::Vec3 getCurvatureMainPrincipalDirection( std::size_t vtxId );
+    osg::Vec3 getCurvatureMainPrincipalDirection( std::size_t vtxId ) const;
 
     /**
      * Retreive the 3d principal direction of curvature for the minimum normal curvature of a vertex.
@@ -455,7 +469,7 @@ public:
      *
      * \return The second principal duirection.
      */
-    osg::Vec3 getCurvatureSecondaryPrincipalDirection( std::size_t vtxId );
+    osg::Vec3 getCurvatureSecondaryPrincipalDirection( std::size_t vtxId ) const;
 
     /**
      * Retreive the array of principal directions e.g. for use as texture coords.
@@ -470,6 +484,11 @@ public:
      * \return The full array of principal directions.
      */
     osg::ref_ptr< osg::Vec3Array > getSecondaryPrincipalCurvatureDirectionArray();
+
+    /**
+     * recalculates the vertex normals
+     */
+    void recalcVertNormals();
 
     /**
      * Set this to true to force automatic normal calculation. Set it to false if you specify your own normals.
@@ -500,11 +519,6 @@ private:
      * \param index the triangle to remove
      */
     void removeTriangle( size_t index );
-
-    /**
-     * recalculates the vertex normals
-     */
-    void recalcVertNormals();
 
     /**
      * calculates a normal from the 3 points in space defining a triangle
