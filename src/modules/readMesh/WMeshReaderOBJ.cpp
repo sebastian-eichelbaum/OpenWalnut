@@ -142,6 +142,7 @@ WTriangleMesh::SPtr WMeshReaderOBJ::operator()( WProgressCombiner::SPtr parentPr
 
     // build triMesh instance
     WTriangleMesh::SPtr triMesh( new WTriangleMesh( vertices.size() / 3, faces.size() / 3 ) );
+    // this is needed if you want to keep the normals that have been loaded.
     //triMesh->setAutoRecalcNormals( false );
 
     WAssert( ( vertices.size() == normals.size() ) || ( normals.size() == 0 ), "Number of normals and vertices do not match." );
