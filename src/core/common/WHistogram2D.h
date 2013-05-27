@@ -42,7 +42,6 @@
 class WHistogram2D : public WHistogramND< 2 > // NOLINT
 {
 public:
-
     /**
      * Convenience type for a shared_ptr on this type.
      */
@@ -131,6 +130,13 @@ public:
      * \return \c osg::ref_ptr to the two-dimensional texture.
      */
     WGETexture2D::RPtr getTexture();
+
+    /**
+     * Copy-convert this into a spherical texture. \e Spherical means hereby, that buckets representing areas near the poles have scaled counters.
+     *
+     * \return \c osg::ref_ptr to the two-dimensional spherical texture.
+     */
+    WGETexture2D::RPtr getSphereTexture();
 
 protected:
 private:
