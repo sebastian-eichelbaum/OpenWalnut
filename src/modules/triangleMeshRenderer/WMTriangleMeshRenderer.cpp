@@ -293,9 +293,9 @@ void WMTriangleMeshRenderer::moduleMain()
         new WGEShaderPropertyDefineOptions< WPropBool >( m_colormap, "COLORMAPPING_DISABLED", "COLORMAPPING_ENABLED" ) )
     );
 
-
     // set the opacity and material color property as GLSL uniforms:
     moduleNodeState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_opacity", m_opacity ) );
+    moduleNodeState->addUniform( new WGEPropertyUniform< WPropBool >( "u_outline", m_showOutline ) );
 
     // loop until the module container requests the module to quit
     while( !m_shutdownFlag() )

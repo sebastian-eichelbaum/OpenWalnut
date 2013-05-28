@@ -103,14 +103,14 @@ void WDataSetPoints::init( bool calcBB )
         float maxZ = minZ;
 
         // go through each point
-        for( size_t pointIdx = 1; pointIdx < m_vertices->size(); ++pointIdx )
+        for( size_t pointIdx = 3; pointIdx < m_vertices->size(); pointIdx+=3 )
         {
-            minX = std::min( m_vertices->operator[]( pointIdx * 3 + 0 ), minX );
-            minY = std::min( m_vertices->operator[]( pointIdx * 3 + 1 ), minY );
-            minZ = std::min( m_vertices->operator[]( pointIdx * 3 + 2 ), minZ );
-            maxX = std::max( m_vertices->operator[]( pointIdx * 3 + 0 ), maxX );
-            maxY = std::max( m_vertices->operator[]( pointIdx * 3 + 1 ), maxY );
-            maxZ = std::max( m_vertices->operator[]( pointIdx * 3 + 2 ), maxZ );
+            minX = std::min( m_vertices->operator[]( pointIdx + 0 ), minX );
+            minY = std::min( m_vertices->operator[]( pointIdx + 1 ), minY );
+            minZ = std::min( m_vertices->operator[]( pointIdx + 2 ), minZ );
+            maxX = std::max( m_vertices->operator[]( pointIdx + 0 ), maxX );
+            maxY = std::max( m_vertices->operator[]( pointIdx + 1 ), maxY );
+            maxZ = std::max( m_vertices->operator[]( pointIdx + 2 ), maxZ );
         }
 
         m_bb = WBoundingBox( minX, minY, minZ, maxX, maxY, maxZ );

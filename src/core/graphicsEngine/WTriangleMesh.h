@@ -101,8 +101,9 @@ public:
      * adds a vertex position to the mesh
      *
      * \param vert
+     * \return the index of the vertex
      */
-    void addVertex( osg::Vec3 vert );
+    size_t addVertex( osg::Vec3 vert );
 
     /**
      * adds a vertex position to the mesh
@@ -110,15 +111,18 @@ public:
      * \param x
      * \param y
      * \param z
+     *
+     * \return the index of the vertex
      */
-    void addVertex( float x, float y, float z );
+    size_t addVertex( float x, float y, float z );
 
     /**
      * adds a vertex position to the mesh
      *
-     * \param vert
+     * \param vert vertex to add
+     * \return the index of the vertex
      */
-    void addVertex( WPosition vert );
+    size_t addVertex( WPosition vert );
 
     /**
      * Adds a texture coordinate for the vertex.
@@ -169,6 +173,16 @@ public:
      * \param normal
      */
     void setVertexNormal( size_t index, osg::Vec3 normal );
+
+    /**
+     * sets the normal for a given vertex
+     *
+     * \param index
+     * \param x x coordinate
+     * \param y y coordinate
+     * \param z z coordinate
+     */
+    void setVertexNormal( size_t index, float x, float y, float z );
 
     /**
      * sets the normal for a given vertex
@@ -476,6 +490,13 @@ public:
      */
     void recalcVertNormals();
 
+    /**
+     * Set this to true to force automatic normal calculation. Set it to false if you specify your own normals.
+     *
+     * \param autoRecalc auto normal calculation.
+     */
+    void setAutoRecalcNormals( bool autoRecalc = true );
+
 protected:
     static boost::shared_ptr< WPrototyped > m_prototype; //!< The prototype as singleton.
 private:
@@ -718,6 +739,8 @@ private:
 
     bool m_meshDirty; //!< flag indicating a change took place which requires a recalculation of components
 
+    bool m_autoNormal; //!< flag denoting whether normals should be calculated automatically.
+
     bool m_neighborsCalculated; //!< flag indicating whether the neighbor information has been calculated yet
 
     //! Indicates whether the curvature and its principal directions have been calculated.
@@ -800,7 +823,7 @@ inline void WTriangleMesh::addTextureCoordinate( float x, float y, float z )
     addTextureCoordinate( osg::Vec3( x, y, z ) );
 }
 
-inline void WTriangleMesh::addVertex( osg::Vec3 vert )
+inline size_t WTriangleMesh::addVertex( osg::Vec3 vert )
 {
     if( ( *m_verts ).size() == m_countVerts )
     {
@@ -813,10 +836,19 @@ inline void WTriangleMesh::addVertex( osg::Vec3 vert )
     if( ( *m_vertColors ).size() == m_countVerts )
     {
         ( *m_vertColors ).resize( m_countVerts + 1 );
+        ( *m_vertColors )[ m_countVerts ] = osg::Vec4( 1.0, 1.0, 1.0, 1.0 );
+    }
+    if( ( *m_vertNormals ).size() == m_countVerts )
+    {
+        ( *m_vertNormals ).resize( m_countVerts + 1 );
     }
 
-    ( *m_verts )[m_countVerts] = vert;
+    size_t index = m_countVerts;
+    ( *m_verts )[index] = vert;
+    ( *m_vertNormals )[index] = osg::Vec3( 1.0, 1.0, 1.0 );
+
     ++m_countVerts;
+    return index;
 }
 
 inline const std::string WTriangleMesh::getName() const

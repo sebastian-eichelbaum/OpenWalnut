@@ -59,7 +59,9 @@ WTriangleMesh::SPtr WMeshReaderOBJ::operator()( WProgressCombiner::SPtr parentPr
 
     // regex for the different lines possible in OBJ
     static const boost::regex faceRegex(   "^ *[f,F] *([0-9]*) *([0-9]*) *([0-9]*) *$" );
-    static const boost::regex vertexRegex(   "^ *[v,V] *(-?[0-9]*\\.?[0-9]*) *(-?[0-9]*\\.?[0-9]*) *(-?[0-9]*\\.?[0-9]*).*$" );
+    static const boost::regex faceComplexRegex(   "^ *[f,F] *([0-9]*)/([0-9]*)/([0-9]*) *([0-9]*)/([0-9]*)/([0-9]*) *([0-9]*)/([0-9]*)/([0-9]*) *$" );
+    static const boost::regex vertexRegex(   "^ *[v,V][^n] *(-?[0-9]*\\.?[0-9]*) *(-?[0-9]*\\.?[0-9]*) *(-?[0-9]*\\.?[0-9]*).*$" );
+    static const boost::regex normalRegex(   "^ *[v,V][n,N] *(-?[0-9]*\\.?[0-9]*) *(-?[0-9]*\\.?[0-9]*) *(-?[0-9]*\\.?[0-9]*).*$" );
     static const boost::regex commentRegex( "^ *#.*$" );
     // please note that there are several more possible definitions ... Please see http://en.wikipedia.org/wiki/Wavefront_.obj_file
 
@@ -69,6 +71,7 @@ WTriangleMesh::SPtr WMeshReaderOBJ::operator()( WProgressCombiner::SPtr parentPr
 
     std::vector< float > vertices;
     std::vector< size_t > faces;
+    std::vector< size_t > normals;
 
     vertices.reserve( 3000 );
     faces.reserve( 3000 );
@@ -96,6 +99,12 @@ WTriangleMesh::SPtr WMeshReaderOBJ::operator()( WProgressCombiner::SPtr parentPr
             vertices.push_back( string_utils::fromString< float >( matches[2] ) );
             vertices.push_back( string_utils::fromString< float >( matches[3] ) );
         }
+        else if( boost::regex_match( line, matches, normalRegex ) )
+        {
+            normals.push_back( string_utils::fromString< float >( matches[1] ) );
+            normals.push_back( string_utils::fromString< float >( matches[2] ) );
+            normals.push_back( string_utils::fromString< float >( matches[3] ) );
+        }
         // check whether this is a face definition
         else if( boost::regex_match( line, matches, faceRegex ) )
         {
@@ -103,6 +112,13 @@ WTriangleMesh::SPtr WMeshReaderOBJ::operator()( WProgressCombiner::SPtr parentPr
             faces.push_back( string_utils::fromString< size_t >( matches[1] ) - 1 );
             faces.push_back( string_utils::fromString< size_t >( matches[2] ) - 1 );
             faces.push_back( string_utils::fromString< size_t >( matches[3] ) - 1 );
+        }
+        else if( boost::regex_match( line, matches, faceComplexRegex ) )
+        {
+            // NOTE: indices are stored beginning at 1
+            faces.push_back( string_utils::fromString< size_t >( matches[1] ) - 1 );
+            faces.push_back( string_utils::fromString< size_t >( matches[4] ) - 1 );
+            faces.push_back( string_utils::fromString< size_t >( matches[7] ) - 1 );
         }
         // check whether this is a comment
         else if( boost::regex_match( line, matches, commentRegex ) )
@@ -126,6 +142,10 @@ WTriangleMesh::SPtr WMeshReaderOBJ::operator()( WProgressCombiner::SPtr parentPr
 
     // build triMesh instance
     WTriangleMesh::SPtr triMesh( new WTriangleMesh( vertices.size() / 3, faces.size() / 3 ) );
+    // this is needed if you want to keep the normals that have been loaded.
+    //triMesh->setAutoRecalcNormals( false );
+
+    WAssert( ( vertices.size() == normals.size() ) || ( normals.size() == 0 ), "Number of normals and vertices do not match." );
 
     for( size_t i = 0; i < vertices.size(); i += 3 )
     {
@@ -134,6 +154,10 @@ WTriangleMesh::SPtr WMeshReaderOBJ::operator()( WProgressCombiner::SPtr parentPr
     for( size_t i = 0; i < faces.size(); i += 3 )
     {
         triMesh->addTriangle( faces[ i + 0 ], faces[ i + 1 ], faces[ i + 2 ] );
+    }
+    for( size_t i = 0; i < normals.size(); i += 3 )
+    {
+        triMesh->setVertexNormal( i / 3, normals[ i + 0 ], normals[ i + 1 ], normals[ i + 2 ] );
     }
 
     // done.
