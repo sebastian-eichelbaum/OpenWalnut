@@ -836,6 +836,7 @@ inline size_t WTriangleMesh::addVertex( osg::Vec3 vert )
     if( ( *m_vertColors ).size() == m_countVerts )
     {
         ( *m_vertColors ).resize( m_countVerts + 1 );
+        ( *m_vertColors )[ m_countVerts ] = osg::Vec4( 1.0, 1.0, 1.0, 1.0 );
     }
     if( ( *m_vertNormals ).size() == m_countVerts )
     {
