@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMMeshToPoints_H
-#define WMMeshToPoints_H
+#ifndef WMMESHTOPOINTS_H
+#define WMMESHTOPOINTS_H
 
 #include <string>
 
@@ -125,5 +125,5 @@ private:
     WPropBool m_doRefinement;
 };
 
-#endif  // WMMeshToPoints_H
+#endif  // WMMESHTOPOINTS_H
 

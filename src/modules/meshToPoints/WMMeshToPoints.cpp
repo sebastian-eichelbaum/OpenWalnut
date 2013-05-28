@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <string>
+#include <vector>
 
 #include "core/kernel/WKernel.h"
 #include "core/common/WPropertyHelper.h"
