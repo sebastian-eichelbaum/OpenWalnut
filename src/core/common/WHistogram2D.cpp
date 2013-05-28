@@ -24,6 +24,7 @@
 
 #include <utility>
 
+#include <core/common/math/WMath.h>
 #include <core/graphicsEngine/WGETexture.h>
 #include "WAssert.h"
 #include "WHistogram2D.h"
@@ -124,10 +125,9 @@ WGETexture2D::RPtr WHistogram2D::getTexture()
     osg::ref_ptr< osg::Image > image = new osg::Image();
     size_t imageWidth = m_buckets[0];
     size_t imageHeight = m_buckets[1];
-
-    //get max bin for scaling
     float maxCount = 0;
-    for( size_t j = 0; j < imageHeight; ++j )
+
+    for( size_t j = 0; j < imageHeight; ++j ) // get max bin for scaling
     {
         for( size_t i = 0; i < imageWidth; ++i )
         {
@@ -140,8 +140,8 @@ WGETexture2D::RPtr WHistogram2D::getTexture()
 
     image->allocateImage( imageWidth, imageHeight, 1, GL_RED, GL_FLOAT );
     image->setInternalTextureFormat( GL_RED );
-
     float* data = reinterpret_cast< float* >( image->data() );
+
     for( size_t j = 0; j < imageHeight; ++j )
     {
         for( size_t i = 0; i < imageWidth; ++i )
@@ -152,3 +152,53 @@ WGETexture2D::RPtr WHistogram2D::getTexture()
 
     return WGETexture2D::RPtr( new WGETexture2D( image ) );
 }
+
+/**
+ * Unnamed namespace for helper functions keeping the code DRY as possible.
+ */
+namespace
+{
+    double calcAreaScale( const double bucket, const size_t j )
+    {
+        double theta = piDouble - ( j * bucket + ( bucket / 2.0 ) );
+        return 1.0 / sin( theta );
+    }
+}
+
+WGETexture2D::RPtr WHistogram2D::getSphereTexture()
+{
+    osg::ref_ptr< osg::Image > image = new osg::Image();
+    size_t imageWidth = m_buckets[0];
+    size_t imageHeight = m_buckets[1];
+    double maxCount = 0.0;
+    const double bucket = piDouble / static_cast< double >( imageHeight );
+    double areaScale = 0.0;
+
+    for( size_t j = 0; j < imageHeight; ++j ) // get max bin for scaling
+    {
+        areaScale = calcAreaScale( bucket, j );
+        for( size_t i = 0; i < imageWidth; ++i )
+        {
+            if( areaScale * m_bins( i, j ) > maxCount)
+            {
+                maxCount = areaScale * static_cast< double >( m_bins( i, j ) );
+            }
+        }
+    }
+
+    image->allocateImage( imageWidth, imageHeight, 1, GL_RED, GL_FLOAT );
+    image->setInternalTextureFormat( GL_RED );
+    float* data = reinterpret_cast< float* >( image->data() );
+
+    for( size_t j = 0; j < imageHeight; ++j )
+    {
+        areaScale = calcAreaScale( bucket, j );
+        for( size_t i = 0; i < imageWidth; ++i )
+        {
+            data[i + j * imageWidth] = areaScale * static_cast< double >( m_bins( i, j ) ) / maxCount;
+        }
+    }
+
+    return WGETexture2D::RPtr( new WGETexture2D( image ) );
+}
+
