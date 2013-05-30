@@ -91,13 +91,13 @@ int main( int argc, char** argv )
         ( "project,p", po::value< std::string >(), "Project file to be loaded on startup." )
         ( "input,i", po::value< std::vector< std::string > >(), "Input data files that should be loaded automatically" );
 
-    po::positional_options_description p;
-    p.add( "input", -1 );
+    po::positional_options_description pOptDesc;
+    pOptDesc.add( "input", -1 );
 
     boost::program_options::variables_map optionsMap;
     try
     {
-        po::store( po::command_line_parser( argc, argv ).options( desc ).positional( p ).run(), optionsMap );
+        po::store( po::command_line_parser( argc, argv ).options( desc ).positional( pOptDesc ).run(), optionsMap );
     }
     catch( const po::error &e )
     {
