@@ -55,7 +55,7 @@ WQtMessageDock::WQtMessageDock( QString dockTitle, QWidget* parent ):
     // filter list
     m_filterCombo = new QComboBox();
     m_filterCombo->setToolTip( "Filter the messages by level. When choosing a level, all messages with this and an above level will be displayed." );
-    m_filterCombo->addItem( "Debug" );
+    // m_filterCombo->addItem( "Debug" ); // disabled. See issue #283
     m_filterCombo->addItem( "Info" );
     m_filterCombo->addItem( "Warning" );
     m_filterCombo->addItem( "Error" );
@@ -105,7 +105,7 @@ void WQtMessageDock::addMessage( QString title, QString message, WQtMessagePopup
     m_logList->setItemWidget( item, w );
 
     // hide messages not matching the filter
-    if( type < m_filterCombo->currentIndex() )
+    if( type < ( m_filterCombo->currentIndex() + 1 ) )
     {
         item->setHidden( true );
     }
@@ -141,7 +141,7 @@ void WQtMessageDock::handleFilterUpdate()
         WQtMessagePopup* popup = dynamic_cast< WQtMessagePopup* >( w );
         if( popup )
         {
-            li->setHidden( popup->getType() < m_filterCombo->currentIndex() );
+            li->setHidden( popup->getType() < ( m_filterCombo->currentIndex() + 1 ) );
         }
     }
 }

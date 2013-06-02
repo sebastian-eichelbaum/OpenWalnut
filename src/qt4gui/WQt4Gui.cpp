@@ -299,8 +299,10 @@ void WQt4Gui::slotUpdateTextureSorter()
 
 void WQt4Gui::slotAddLog( const WLogEntry& entry )
 {
-    // emit event but the main window might not be available. Chick this.
-    if( m_mainWindow )
+    // emit event but the main window might not be available. Check this.
+    // NOTE: we disable debug log messages completely, since their extensive use in some modules causes SEVERE slowdown of the GUI as millions of
+    //       events need to be handled each GUI event loop. See issue #283 for details.
+    if( m_mainWindow && ( entry.getLogLevel() != LL_DEBUG ) )
     {
         QCoreApplication::postEvent( m_mainWindow, new WLogEvent( entry ) );
     }
