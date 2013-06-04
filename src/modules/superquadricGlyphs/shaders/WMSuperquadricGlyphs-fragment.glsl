@@ -267,12 +267,18 @@ void main( void )
         wge_FragZoom = v_worldScale;
         wge_FragTangent = textureNormalize( vec3( 0.0, 1.0, 0.0 ) );
 
+#ifdef DIRECTIONALCOLORING_ENABLED
+        vec3 col = gl_Color.rgb;
+#else
+        vec3 col = vec3( 1.0, 1.0, 1.0 );
+#endif
+
         // draw shaded pixel
         wge_FragColor = blinnPhongIllumination(
             // material properties
-            gl_Color.rgb * 0.2,                    // ambient color
-            gl_Color.rgb * 2.0,                    // diffuse color
-            gl_Color.rgb,                          // specular color
+            col.rgb * 0.2,                    // ambient color
+            col.rgb * 2.0,                    // diffuse color
+            col.rgb,                          // specular color
             30.0,                                  // shininess
 
             // light color properties

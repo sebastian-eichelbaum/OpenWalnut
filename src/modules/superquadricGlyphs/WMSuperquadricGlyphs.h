@@ -222,6 +222,11 @@ private:
     WPropDouble   m_scaling;
 
     /**
+     * Color glyphs by direction?
+     */
+    WPropBool     m_directionalColoring;
+
+    /**
      * Adds a cube to the vertex array.
      *
      * \param position the position in world

@@ -128,6 +128,8 @@ void WMSuperquadricGlyphs::properties()
     m_scaling = m_properties->addProperty( "Scaling", "Scaling of Glyphs.", 0.5 );
     m_scaling->setMin( 0.0 );
     m_scaling->setMax( 2.0 );
+
+    m_directionalColoring = m_properties->addProperty( "Directional Color", "Color glyphs by main direction.", true );
 }
 
 inline void WMSuperquadricGlyphs::addGlyph( osg::Vec3 position, osg::ref_ptr< osg::Vec3Array > vertices, osg::ref_ptr< osg::Vec3Array > orientation )
@@ -411,6 +413,10 @@ void WMSuperquadricGlyphs::moduleMain()
     sset->addUniform( faThreshold );
     sset->addUniform( scaling );
     sset->addUniform( gamma );
+
+    m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_directionalColoring, "DIRECTIONALCOLORING_DISABLED", "DIRECTIONALCOLORING_ENABLED" ) )
+    );
 
     bool initialTensorUpload = true;
 
