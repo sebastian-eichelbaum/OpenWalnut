@@ -66,8 +66,7 @@ const std::string WMWriteMesh::getDescription() const
 {
     // Specify your module description here. Be detailed. This text is read by the user.
     // See "src/modules/template/" for an extensively documented example.
-    return "Someone should add some documentation here. "
-    "Probably the best person would be the modules's creator, i.e. \"wiebel\"";
+    return "This module writes a triangle mesh to a file. Different file formats are supported.";
 }
 
 void WMWriteMesh::connectors()
