@@ -147,7 +147,13 @@ void main()
     // if( isZero( cmap.r - 1.0, 0.15 ) )
     //     gl_FragData[1] = vec4( 1.0, 0.0, 0.0, 1.0 );
     // }
-    gl_FragData[1] = colormapping();
+
+    vec4 cmap = colormapping();
+    gl_FragData[1] = cmap;
+
+    // this is an example for avoiding certain pixels from beeing LIC'd
+    // if(( cmap.r > 0.3 ) &&  ( cmap.g > 0.3 ) && ( cmap.b > 0.3 ) )
+    //     discard;
 
     const float piHalf = 3.14159265 / 2.0;
     const float pi = 3.14159265;
