@@ -38,6 +38,7 @@ ADD_MODULE( surfaceParameterAnimator )
 ADD_MODULE( transferFunctionColorBar )
 ADD_MODULE( vectorAlign )
 ADD_MODULE( vectorNormalize )
+ADD_MODULE( vectorScale )
 ADD_MODULE( webglSupport )
 
 IF( Teem_FOUND )
