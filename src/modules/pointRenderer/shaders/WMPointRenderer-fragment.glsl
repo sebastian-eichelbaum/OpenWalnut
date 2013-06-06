@@ -73,6 +73,11 @@ varying float v_worldSpaceRadius;
 varying vec3 v_centerPoint;
 
 /**
+ * Vertex in world space.
+ */
+varying vec4 v_worldVertex;
+
+/**
  * Depth of the center point
  */
 varying float v_centerVertexDepth;
@@ -115,7 +120,7 @@ void main()
 
     // finally set the color and depth
     wgeInitGBuffer();
-    wge_FragColor = vec4( gl_Color.rgb * r , gl_Color.a );
+    wge_FragColor = vec4( gl_Color.rgb * r, gl_Color.a );
     wge_FragNormal = textureNormalize( sphereSurf );
     wge_FragZoom = v_worldScale;
     wge_FragTangent = textureNormalize( vec3( 0.0, 1.0, 0.0 ) );

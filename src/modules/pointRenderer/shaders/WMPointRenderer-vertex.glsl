@@ -40,6 +40,11 @@
 
 varying float v_clip;
 
+/**
+ * Vertex in world space.
+ */
+varying vec4 v_worldCenterVertex;
+
 /////////////////////////////////////////////////////////////////////////////
 // Variables
 /////////////////////////////////////////////////////////////////////////////
@@ -61,5 +66,7 @@ void main()
     // forward to geometry shader
     gl_FrontColor = gl_Color;
     gl_Position = gl_ModelViewMatrix * gl_Vertex;
+
+    v_worldCenterVertex = gl_Vertex;
 }
 

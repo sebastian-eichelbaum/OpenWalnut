@@ -198,6 +198,8 @@ void WMPointRenderer::moduleMain()
         // add geode to group
         postNode->clear();
         postNode->insert( geode, m_shader );
+
+        debugLog() << "Bounding Box: " << points->getBoundingBox();
     }
 
     // it is important to always remove the modules again

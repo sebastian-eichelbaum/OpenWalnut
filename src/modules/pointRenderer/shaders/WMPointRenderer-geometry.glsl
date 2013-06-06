@@ -56,6 +56,11 @@ varying in vec3 v_normal[];
 varying in float v_clip[];
 
 /**
+ * Vertex in world space.
+ */
+varying in vec4 v_worldCenterVertex[];
+
+/**
  * The vertex coordinates in world-space
  */
 varying out vec3 v_vertex;
@@ -74,6 +79,11 @@ varying out float v_worldSpaceRadius;
  * The center point of the sphere
  */
 varying out vec3 v_centerPoint;
+
+/**
+ * Vertex in world space.
+ */
+varying out vec4 v_worldVertex;
 
 /**
  * Depth of the center point
@@ -127,6 +137,7 @@ void main()
     v_worldScale = getModelViewScale();
     v_worldSpaceRadius = v_worldScale * u_pointSize;
     v_centerPoint = vertex;
+    v_worldVertex = v_worldCenterVertex[0];
 
     // calculate the depth using the point on the sphere most near to the cam
     vec4 nearestVertex = vec4( v_centerPoint.xy, v_centerPoint.z - v_worldSpaceRadius, 1.0 );
