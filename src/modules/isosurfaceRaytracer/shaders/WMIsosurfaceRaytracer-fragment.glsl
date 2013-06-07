@@ -143,6 +143,8 @@ void main()
     wge_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
     gl_FragDepth = 1.0;
 
+#define SAMPLES u_steps
+
 #ifdef WGE_POSTPROCESSING_ENABLED
     wge_FragZoom = v_worldScale;
 #endif
@@ -153,7 +155,7 @@ void main()
     // when done for each vertex.
     float totalDistance = 0.0;
     vec3 rayEnd = findRayEnd( totalDistance );
-    float stepDistance = totalDistance / float( u_steps );
+    float stepDistance = totalDistance / float( SAMPLES );
 
     // the current value inside the data
     float value;
@@ -172,7 +174,7 @@ void main()
 
     // the step counter
     int i = 1;
-    while( i < u_steps )
+    while( i < SAMPLES )
     {
         // get current value
         value = texture3D( u_texture0Sampler, curPoint ).r;
