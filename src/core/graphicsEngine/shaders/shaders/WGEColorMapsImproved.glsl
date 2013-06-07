@@ -132,6 +132,8 @@ vec4 grayscale( in vec3 value )
  */
 vec4 negative2positive( in float valueDescaled, in float minV, in float scaleV )
 {
+    /*
+    // NOTE: this version should also respect positive-only values.
     const vec3 zeroColor = vec3( 1.0, 1.0, 1.0 );
     const vec3 negColor = vec3( 1.0, 1.0, 0.0 );
     const vec3 posColor= vec3( 0.0, 1.0, 1.0 );
@@ -149,6 +151,20 @@ vec4 negative2positive( in float valueDescaled, in float minV, in float scaleV )
     // use neg color for shares < 0.0 and pos color for the others
     return vec4( zeroColor - ( abs( clamp( share, -1.0 , 0.0 ) * negColor ) + ( clamp( share, 0.0 , 1.0 ) * posColor ) ),
                  1.0 ); // clip zeros is done in colormapping function
+    */
+
+    const vec3 zeroColor = vec3( 1.0, 1.0, 1.0 );
+    const vec3 negColor = vec3( 0.0, 1.0, 1.0 );
+    const vec3 posColor = vec3( 1.0, 1.0, 0.0 );
+
+    // pos-neg mix factor
+    float share = ( valueDescaled - mid ) / width;
+
+    float negShare = abs( valueDescaled / minV ) * ( 1.0 - step( 0.0, valueDescaled ) );
+    float posShare = abs( valueDescaled / ( minV + scaleV ) ) * step( 0.0, valueDescaled );
+
+    vec3 r1 = zeroColor - ( negColor * negShare ) -  ( posColor * posShare );
+    return vec4( r1, 1.0 );
 }
 
 /**
