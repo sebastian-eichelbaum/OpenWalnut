@@ -71,8 +71,8 @@ const std::string WMDatasetProfile::getDescription() const
 {
     // Specify your module description here. Be detailed. This text is read by the user.
     // See "src/modules/template/" for an extensively documented example.
-    return "Someone should add some documentation here. "
-    "Probably the best person would be the modules's creator, i.e. \"schurade\"";
+    return "No documentation yet. "
+    "The best person to ask for documenation is probably the modules's creator, i.e. \"schurade\"";
 }
 
 void WMDatasetProfile::connectors()

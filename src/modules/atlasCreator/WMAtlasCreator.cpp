@@ -69,7 +69,7 @@ const std::string WMAtlasCreator::getDescription() const
 {
     // Specify your module description here. Be detailed. This text is read by the user.
     // See "src/modules/template/" for an extensively documented example.
-    return "Someone should add some documentation here. ";
+    return "No documentation yet.";
 }
 
 void WMAtlasCreator::connectors()
