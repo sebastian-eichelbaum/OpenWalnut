@@ -44,8 +44,6 @@
 #include "../../common/WProperties.h"
 #include "../../common/WPrototyped.h"
 
-
-
 /**
  * The base class for all custom post-processors. It allows building an own texture processing pipeline for special processings.
  */
@@ -263,6 +261,11 @@ protected:
      * A flag denoting whether the effect should be combined with color or not.
      */
     WPropBool m_effectOnly;
+
+    /**
+     * Scale the effect prior to blending it.
+     */
+    WPropDouble m_effectScale;
 
     /**
      * For convenience, this is a shader preprocessor controlled by m_effectOnly property.

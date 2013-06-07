@@ -127,6 +127,10 @@ WGEPostprocessorLineAO::WGEPostprocessorLineAO( osg::ref_ptr< WGEOffscreenRender
     const size_t size = 64;
     osg::ref_ptr< WGETexture2D > randTex = wge::genWhiteNoiseTexture( size, size, 3 );
     lineAOPass->bind( randTex, gBufUnitOffset );
+
+    // also utilize the pre-blend scale
+    m_effectScale->setHidden( false );
+    lineAOPass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_effectPreBlendScale", m_effectScale ) );
 }
 
 WGEPostprocessorLineAO::~WGEPostprocessorLineAO()

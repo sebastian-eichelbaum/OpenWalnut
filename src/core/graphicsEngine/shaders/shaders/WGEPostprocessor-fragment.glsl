@@ -37,6 +37,8 @@
 
 // These are NOT specific to any postprocessor
 
+uniform float u_effectPreBlendScale = 1.0;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Varying
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -516,10 +518,10 @@ void main()
 
         // for black borders, multiply edge with color
         #ifdef WGE_POSTPROCESSOR_EDGE_BLACKEDGE
-            #define EDGEOP * ( 1.0 - getEdge() )
+            #define EDGEOP * u_effectPreBlendScale * ( 1.0 - getEdge() )
         #else
             // for white borders, add
-            #define EDGEOP + vec3( getEdge() )
+            #define EDGEOP + vec3( u_effectPreBlendScale * getEdge() )
         #endif
 
         // apply operation and output color
@@ -538,7 +540,7 @@ void main()
 
 #ifdef WGE_POSTPROCESSOR_CEL
     // output the depth and final color.
-    gl_FragData[0] = getCelShading();
+    gl_FragData[0] = u_effectPreBlendScale * getCelShading();
 #endif
 
 #ifdef WGE_POSTPROCESSOR_GAUSS
@@ -607,18 +609,18 @@ void main()
 #ifdef WGE_POSTPROCESSOR_SSAO
     // output color AND SSAO?
     #ifdef WGE_POSTPROCESSOR_OUTPUT_COMBINE
-        gl_FragData[0] = vec4( getColor().rgb * getSSAO(), 1.0 );
+        gl_FragData[0] = vec4( getColor().rgb * u_effectPreBlendScale * getSSAO(), 1.0 );
     #else
-        gl_FragData[0] = vec4( vec3( getSSAO() ), 1.0 );
+        gl_FragData[0] = vec4( vec3( u_effectPreBlendScale * getSSAO() ), 1.0 );
     #endif
 #endif
 
 #ifdef WGE_POSTPROCESSOR_LINEAO
     // output color AND SSAO?
     #ifdef WGE_POSTPROCESSOR_OUTPUT_COMBINE
-        gl_FragData[0] = vec4( getColor().rgb * getLineAO(), 1.0 );
+        gl_FragData[0] = vec4( getColor().rgb * u_effectPreBlendScale * getLineAO(), 1.0 );
     #else
-        gl_FragData[0] = vec4( vec3( getLineAO() ), 1.0 );
+        gl_FragData[0] = vec4( vec3( u_effectPreBlendScale * getLineAO() ), 1.0 );
     #endif
 #endif
 }

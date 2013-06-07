@@ -46,6 +46,11 @@ WGEPostprocessor::WGEPostprocessor( std::string name, std::string description ):
     // there is always one property:
     m_effectOnly = m_properties->addProperty( "Effect Only", "If active, the plain effect will be shown instead a combination of effect "
                                                              "and color. This settings does not affect all postprocessors.", false );
+    m_effectScale = m_properties->addProperty( "Effect Scaling", "Use this to overemphasize an effect or to weaken it. Technically spoken, this "
+                                                "factor determines the pre-multiplication done prior to blending with the input color.", 1.0,
+                                                true );
+    m_effectScale->setMin( 0.0 );
+    m_effectScale->setMax( 10.0 );
 
     // for convenience, also create a preprocessor for this property
     m_effectOnlyPreprocessor = WGEShaderPreprocessor::SPtr( new WGEShaderPropertyDefineOptions< WPropBool >( m_effectOnly,
