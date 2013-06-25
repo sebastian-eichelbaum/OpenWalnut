@@ -153,7 +153,7 @@ void WMWriteTransferFunction::moduleMain()
                     continue;
                 }
 
-                f << "Exported using OpenWalnut. http://www.openwalnut.org" << std::endl;
+                f << "# Exported using OpenWalnut. http://www.openwalnut.org" << std::endl;
                 f << "# TF export format:" << std::endl <<
                      "# Comments begin with #" << std::endl <<
                      "# 1st line: width height" << std::endl <<
@@ -175,6 +175,30 @@ void WMWriteTransferFunction::moduleMain()
             }
             else
             {
+                // write header file separately
+                std::ofstream fhead;
+                fhead.open( ( p.string() + ".header" ).c_str() );
+                if( !fhead.good() )
+                {
+                    errorLog() << "Failed to write header file " <<  ( p.string() + ".header" ).c_str() << ". Abort.";
+                    continue;
+                }
+
+                fhead << "# Exported using OpenWalnut. http://www.openwalnut.org" << std::endl;
+                fhead << "# TF export format:" << std::endl <<
+                         "# Comments begin with #" << std::endl <<
+                         "# 1st line: width height" << std::endl <<
+                         "# 2nd line: filename to binary file, relative to header" << std::endl <<
+                         "# The RGBA quadruples are stored in binary format as four unsigned char values per quadruples." << std::endl;
+
+                // later, we might support 2d TFs. Now, write 1 as second dimension
+                fhead << string_utils::toString( vs->size() ) << " " << "1" << std::endl;
+                fhead << p.filename().string().c_str() << std::endl;
+                // go through each RGBA vector
+
+                fhead.close();
+
+                // write data file.
                 std::ofstream f;
                 f.open( p.string().c_str(), std::ios::out | std::ios::binary );
                 if( !f.good() )
