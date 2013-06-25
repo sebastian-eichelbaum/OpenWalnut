@@ -113,6 +113,11 @@ private:
      * DO the save operation
      */
     WPropTrigger m_saveTrigger;
+
+    /**
+     * Allows saving as raw data file instead of ascii.
+     */
+    WPropBool m_saveAsRaw;
 };
 
 #endif  // WMWRITETRANSFERFUNCTION_H

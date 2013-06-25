@@ -27,6 +27,7 @@
 
 // C++ headers
 #include <fstream>
+#include <iostream>
 #include <string>
 
 // External lib headers
@@ -90,6 +91,7 @@ void WMWriteTransferFunction::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     m_savePath = m_properties->addProperty( "Save Location", "Set the path to the file.", WPathHelper::getAppPath() / "tf.txt" );
+    m_saveAsRaw = m_properties->addProperty( "Save binary", "Save file in RAW binary format.", false, m_propCondition );
     m_saveTrigger = m_properties->addProperty( "Save", "Save to file.", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
 
     // Call parent method
@@ -125,19 +127,6 @@ void WMWriteTransferFunction::moduleMain()
                 continue;
             }
 
-            // valid path?
-            boost::filesystem::path p = m_savePath->get( true );
-
-            debugLog() << "Save TF to \"" + p.string() + "\".";
-
-            std::ofstream f;
-            f.open( p.string().c_str() );
-            if( !f.good() )
-            {
-                errorLog() << "Failed to open file. Abort.";
-                continue;
-            }
-
             // get value set and write it
             boost::shared_ptr< WValueSetBase > vsb = d->getValueSet();
             if( ( vsb->order() != 1 ) || ( vsb->dimension() != 4 ) || ( vsb->getDataType() != W_DT_UNSIGNED_CHAR ) )
@@ -149,26 +138,56 @@ void WMWriteTransferFunction::moduleMain()
             // we ensured that the valuesetbase is this valueset:
             boost::shared_ptr< WValueSet< unsigned char > > vs = boost::dynamic_pointer_cast< WValueSet< unsigned char > >( vsb );
 
-            f << "Exported using OpenWalnut. http://www.openwalnut.org" << std::endl;
-            f << "# TF export format:" << std::endl <<
-                 "# Comments begin with #" << std::endl <<
-                 "# 1st line: width height" << std::endl <<
-                 "# Then, RGBA quadruples; line-wise; values space separated; in x direction first." << std::endl;
+            // valid path?
+            boost::filesystem::path p = m_savePath->get( true );
 
-            // later, we might support 2d TFs. Now, write 1 as second dimension
-            f << string_utils::toString( vs->size() ) << " " << "1" << std::endl;
-            // go through each RGBA vector
-            for( size_t i = 0; i < vs->size(); ++i )
+            debugLog() << "Save TF to \"" + p.string() + "\".";
+
+            if( !m_saveAsRaw->get( true ) )
             {
-                f << string_utils::toString( vs->getScalar( i * 4 + 0 ) ) << " "
-                  << string_utils::toString( vs->getScalar( i * 4 + 1 ) ) << " "
-                  << string_utils::toString( vs->getScalar( i * 4 + 2 ) ) << " "
-                  << string_utils::toString( vs->getScalar( i * 4 + 3 ) ) << std::endl;
+                std::ofstream f;
+                f.open( p.string().c_str() );
+                if( !f.good() )
+                {
+                    errorLog() << "Failed to open file. Abort.";
+                    continue;
+                }
+
+                f << "Exported using OpenWalnut. http://www.openwalnut.org" << std::endl;
+                f << "# TF export format:" << std::endl <<
+                     "# Comments begin with #" << std::endl <<
+                     "# 1st line: width height" << std::endl <<
+                     "# Then, RGBA quadruples; line-wise; values space separated; in x direction first." << std::endl;
+
+                // later, we might support 2d TFs. Now, write 1 as second dimension
+                f << string_utils::toString( vs->size() ) << " " << "1" << std::endl;
+                // go through each RGBA vector
+                for( size_t i = 0; i < vs->size(); ++i )
+                {
+                    f << string_utils::toString( vs->getScalar( i * 4 + 0 ) ) << " "
+                      << string_utils::toString( vs->getScalar( i * 4 + 1 ) ) << " "
+                      << string_utils::toString( vs->getScalar( i * 4 + 2 ) ) << " "
+                      << string_utils::toString( vs->getScalar( i * 4 + 3 ) ) << std::endl;
+                }
+
+                // done.
+                f.close();
             }
+            else
+            {
+                std::ofstream f;
+                f.open( p.string().c_str(), std::ios::out | std::ios::binary );
+                if( !f.good() )
+                {
+                    errorLog() << "Failed to open file. Abort.";
+                    continue;
+                }
 
-            // done.
-            f.close();
+                f.write( reinterpret_cast< const char*>( vs->rawData() ), vs->size() );
 
+                // done.
+                f.close();
+            }
             // done
             m_saveTrigger->set( WPVBaseTypes::PV_TRIGGER_READY );
         }
