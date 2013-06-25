@@ -95,6 +95,18 @@ void WMColormapper::properties()
     m_showColorbar = colorBarGroup->addProperty( "Show Colorbar", "If true, a colorbar is shown for the current colormap.", false );
     m_colorBarBorder = colorBarGroup->addProperty( "Show Border", "If true, a thin white border is shown around the colorbar.", true );
     m_colorBarName = colorBarGroup->addProperty( "Show Name", "If true, a shortened version of the data name is shown.", true );
+
+
+    m_possibleNamePositions = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_possibleNamePositions->addItem( "Side", "On the side." );
+    m_possibleNamePositions->addItem( "Below", "Below the colorbar." );          // NOTE: you can add XPM images here.
+    m_possibleNamePositions->addItem( "Above", "Above the colorbar." );
+    m_colorbarNamePosition = colorBarGroup->addProperty( "Colorbar Name Position", "Where to place the name.",
+                                                         m_possibleNamePositions->getSelectorFirst(),
+                                                         m_propCondition );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorbarNamePosition );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_colorbarNamePosition );
+
     m_colorBarLabels = colorBarGroup->addProperty( "Colorbar Labels", "This defines the number of labels.", 10 );
     m_colorBarLabels->setMin( 2 );
     m_colorBarLabels->setMax( 100 );
@@ -209,10 +221,10 @@ void WMColormapper::moduleMain()
 
                 // add the name label
                 osg::ref_ptr< WGELabel > nameLabel = new WGELabel();
-                nameLabel->setPosition( osg::Vec3( 0.015, 0.9, 0.0 ) );
                 nameLabel->setText( format( dataSet->getTexture()->name()->get() ) );
-                nameLabel->setCharacterSize( 0.015 );
-                nameLabel->setLayout( osgText::TextBase::VERTICAL );
+                nameLabel->setPosition( osg::Vec3( 0.015, 0.93, 0.0 ) );
+                nameLabel->setCharacterSize( 0.020 );
+                nameLabel->setLayout( osgText::TextBase::LEFT_TO_RIGHT );
                 nameLabel->setAlignment( osgText::Text::BASE_LINE );
                 nameLabel->setUpdateCallback( new WGEFunctorCallback< osg::Drawable >(
                     boost::bind( &WMColormapper::updateColorbarName, this, _1 ) )
@@ -337,9 +349,35 @@ void WMColormapper::activate()
 
 void WMColormapper::updateColorbarName( osg::Drawable* label )
 {
+    WGELabel* l = dynamic_cast< WGELabel* >( label );
+
     if( m_lastDataSet )
     {
-        dynamic_cast< WGELabel* >( label )->setText( format( m_lastDataSet->getTexture()->name()->get() ) );
+        l->setText( format( m_lastDataSet->getTexture()->name()->get() ) );
+    }
+
+    if( m_colorbarNamePosition->changed() )
+    {
+        switch( m_colorbarNamePosition->get( true ) )
+        {
+            case 0: // side
+                l->setPosition( osg::Vec3( 0.015, 0.9, 0.0 ) );
+                l->setCharacterSize( 0.015 );
+                l->setLayout( osgText::TextBase::VERTICAL );
+                break;
+            case 1: // below
+                l->setPosition( osg::Vec3( 0.015, 0.06, 0.0 ) );
+                l->setCharacterSize( 0.020 );
+                l->setLayout( osgText::TextBase::LEFT_TO_RIGHT );
+                break;
+            case 2: // above
+                l->setPosition( osg::Vec3( 0.015, 0.93, 0.0 ) );
+                l->setCharacterSize( 0.020 );
+                l->setLayout( osgText::TextBase::LEFT_TO_RIGHT );
+                break;
+            default:
+                break;
+        }
     }
 }
 

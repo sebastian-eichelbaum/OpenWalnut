@@ -33,6 +33,8 @@
 #include "core/kernel/WModuleInputData.h"
 #include "core/common/WPropertyVariable.h"
 #include "core/common/math/WInterval.h"
+#include "core/common/WItemSelection.h"
+#include "core/common/WItemSelector.h"
 
 #include "core/dataHandler/WDataSetSingle.h"
 
@@ -196,6 +198,17 @@ private:
      * If true, the labels get re-drawn
      */
     bool m_needScaleUpdate;
+
+    /**
+     * Position of the colorbar name.
+     */
+    WPropSelection m_colorbarNamePosition;
+
+    /**
+     * A list of colorbar name positions
+     */
+    boost::shared_ptr< WItemSelection > m_possibleNamePositions;
+
 };
 
 #endif  // WMCOLORMAPPER_H
