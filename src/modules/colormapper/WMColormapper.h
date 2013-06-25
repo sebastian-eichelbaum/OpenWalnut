@@ -208,8 +208,6 @@ private:
      * A list of colorbar name positions
      */
     boost::shared_ptr< WItemSelection > m_possibleNamePositions;
-
 };
 
 #endif  // WMCOLORMAPPER_H
-
