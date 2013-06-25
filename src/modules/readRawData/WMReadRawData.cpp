@@ -126,6 +126,8 @@ void WMReadRawData::moduleMain()
         {
             break;
         }
+
+        debugLog() << "Loading " << m_dataFile->get().string() << ".";
         boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Read Raw Data", 2 ) );
         ++*progress;
         m_dataSet = readData( m_dataFile->get().string() );
