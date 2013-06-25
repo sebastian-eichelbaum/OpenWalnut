@@ -107,7 +107,7 @@ public:
      *
      * \param vsetA the first value set
      */
-    VisitorVSetB( const WValueSet< VSetAType >* const vsetA ):
+    explicit VisitorVSetB( const WValueSet< VSetAType >* const vsetA ):
         boost::static_visitor< result_type >(),
         m_vsetA( vsetA )
     {
@@ -141,10 +141,9 @@ public:
         for( size_t i = 0; i < vsetB->rawSize(); ++i )
         {
             size_t vi = 3 * i;
-            data[ vi + 0 ] = static_cast< ResultT >( a[ vi + 0 ] ) * static_cast< ResultT >( b[ i ] ) ;
-            data[ vi + 1 ] = static_cast< ResultT >( a[ vi + 1 ] ) * static_cast< ResultT >( b[ i ] ) ;
-            data[ vi + 2 ] = static_cast< ResultT >( a[ vi + 2 ] ) * static_cast< ResultT >( b[ i ] ) ;
-
+            data[ vi + 0 ] = static_cast< ResultT >( a[ vi + 0 ] ) * static_cast< ResultT >( b[ i ] );
+            data[ vi + 1 ] = static_cast< ResultT >( a[ vi + 1 ] ) * static_cast< ResultT >( b[ i ] );
+            data[ vi + 2 ] = static_cast< ResultT >( a[ vi + 2 ] ) * static_cast< ResultT >( b[ i ] );
         }
 
         // create result value set
@@ -175,7 +174,7 @@ public:
      *
      * \param vsetB The valueset to visit during this visit.
      */
-    VisitorVSetA( WValueSetBase* vsetB ):
+    explicit VisitorVSetA( WValueSetBase* vsetB ):
         boost::static_visitor< result_type >(),
         m_vsetB( vsetB )
     {
