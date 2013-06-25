@@ -35,6 +35,8 @@
 #include "core/common/WStringUtils.h"
 #include "core/common/WProgress.h"
 #include "core/dataHandler/WGridRegular3D.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataHandlerEnums.h"
 #include "core/kernel/WKernel.h"
 #include "WMDataTypeConversion.h"
 #include "WMDataTypeConversion.xpm"
@@ -77,10 +79,51 @@ const std::string WMDataTypeConversion::getDescription() const
         "E.g., double to float. At the moment only conversion to float is supported.";
 }
 
+/**
+ * Visitor for discriminating the type of the first valueset.
+ */
+template< class TargetType >
+class VisitorVSet: public boost::static_visitor< boost::shared_ptr< WValueSetBase > >
+{
+public:
+    /**
+     * Create visitor instance and convert it to the given input type
+     */
+    VisitorVSet():
+        boost::static_visitor< result_type >()
+    {
+    }
+
+    /**
+     * Called by boost::varying during static visiting. Creates new, converted valueset
+     *
+     * \tparam T the real integral type of the first value set.
+     * \param vsetA the first valueset currently visited.
+     *
+     * \return the result from the operation with this and the second value set
+     */
+    template < typename T >
+    result_type operator()( const WValueSet< T >* const& vals ) const             // NOLINT
+    {
+        boost::shared_ptr< std::vector< TargetType > > newVals = boost::shared_ptr< std::vector< TargetType > >( new std::vector< TargetType >( vals->size() ) );
+        for( size_t i = 0; i < newVals->size(); ++i )
+        {
+            ( *newVals )[i] = static_cast< TargetType >( vals->getScalar( i ) );
+        }
+
+        boost::shared_ptr< WValueSet< TargetType > > valueSet(
+            new WValueSet< TargetType >( 0, 1, newVals, DataType< TargetType >::type )
+        );
+
+        return valueSet;
+    }
+};
+
 void WMDataTypeConversion::moduleMain()
 {
     // use the m_input "data changed" flag
     m_moduleState.add( m_input->getDataChangedCondition() );
+    m_moduleState.add( m_propCondition );
 
     // signal ready state
     ready();
@@ -98,52 +141,74 @@ void WMDataTypeConversion::moduleMain()
             m_moduleState.wait();
             continue;
         }
-        WAssert( m_dataSet, "No data set found." );
 
-        switch( (*m_dataSet).getValueSet()->getDataType() )
+        std::string dataTypeName = m_dataTypeSelection->get().at( 0 )->getName();
+        boost::shared_ptr< WValueSetBase > valueSet;
+
+        // different types
+        if( dataTypeName == "UINT8" )
         {
-            case W_DT_UNSIGNED_CHAR:
-            {
-                boost::shared_ptr<WValueSet<unsigned char> > vals;
-                vals = boost::dynamic_pointer_cast<WValueSet<unsigned char> >( ( *m_dataSet ).getValueSet() );
-                WAssert( vals, "Data type and data type indicator must fit." );
-                convertDataSet( vals );
-                break;
-            }
-            case W_DT_INT16:
-            {
-                boost::shared_ptr<WValueSet<int16_t> > vals;
-                vals = boost::dynamic_pointer_cast<WValueSet<int16_t> >( ( *m_dataSet ).getValueSet() );
-                WAssert( vals, "Data type and data type indicator must fit." );
-                convertDataSet( vals );
-            }
-            case W_DT_SIGNED_INT:
-            {
-                boost::shared_ptr<WValueSet<int32_t> > vals;
-                vals = boost::dynamic_pointer_cast<WValueSet<int32_t> >( ( *m_dataSet ).getValueSet() );
-                WAssert( vals, "Data type and data type indicator must fit." );
-                convertDataSet( vals );
-                break;
-            }
-            case W_DT_FLOAT:
-            {
-                boost::shared_ptr< WValueSet< float > > vals;
-                vals = boost::dynamic_pointer_cast< WValueSet< float > >( ( *m_dataSet ).getValueSet() );
-                WAssert( vals, "Data type and data type indicator must fit." );
-                convertDataSet( vals );
-                break;
-            }
-            case W_DT_DOUBLE:
-            {
-                boost::shared_ptr< WValueSet< double > > vals;
-                vals = boost::dynamic_pointer_cast< WValueSet< double > >( ( *m_dataSet ).getValueSet() );
-                WAssert( vals, "Data type and data type indicator must fit." );
-                convertDataSet( vals );
-                break;
-            }
-            default:
-                WAssert( false, "Unknow data type in Data Type Conversion module." );
+            VisitorVSet< uint8_t > visitor;
+            valueSet = m_dataSet->getValueSet()->applyFunction( visitor );
         }
+        else if( dataTypeName == "UINT16")
+        {
+            VisitorVSet< uint16_t > visitor;
+            valueSet = m_dataSet->getValueSet()->applyFunction( visitor );
+        }
+        else if( dataTypeName == "UINT32")
+        {
+            VisitorVSet< uint32_t > visitor;
+            valueSet = m_dataSet->getValueSet()->applyFunction( visitor );
+        }
+        else if( dataTypeName == "UINT64")
+        {
+            VisitorVSet< uint64_t > visitor;
+            valueSet = m_dataSet->getValueSet()->applyFunction( visitor );
+        }
+        else if( dataTypeName == "INT8" )
+        {
+            VisitorVSet< int8_t > visitor;
+            valueSet = m_dataSet->getValueSet()->applyFunction( visitor );
+        }
+        else if( dataTypeName == "INT16")
+        {
+            VisitorVSet< int16_t > visitor;
+            valueSet = m_dataSet->getValueSet()->applyFunction( visitor );
+        }
+        else if( dataTypeName == "INT32")
+        {
+            VisitorVSet< int32_t > visitor;
+            valueSet = m_dataSet->getValueSet()->applyFunction( visitor );
+        }
+        else if( dataTypeName == "INT64")
+        {
+            VisitorVSet< int64_t > visitor;
+            valueSet = m_dataSet->getValueSet()->applyFunction( visitor );
+        }
+        else if( dataTypeName == "FLOAT" )
+        {
+            VisitorVSet< float > visitor;
+            valueSet = m_dataSet->getValueSet()->applyFunction( visitor );
+        }
+        else if( dataTypeName == "DOUBLE" )
+        {
+            VisitorVSet< double > visitor;
+            valueSet = m_dataSet->getValueSet()->applyFunction( visitor );
+        }
+        else if( dataTypeName == "FLOAT128" )
+        {
+            VisitorVSet< long double > visitor;
+            valueSet = m_dataSet->getValueSet()->applyFunction( visitor );
+        }
+        else
+        {
+            throw WException( "Not supported data type while reading raw data." );
+        }
+
+        // we have the valueset -> create dataset
+        m_dataSet = boost::shared_ptr<WDataSetScalar>( new WDataSetScalar( valueSet, m_dataSet->getGrid() ) );
+        m_output->updateData( m_dataSet );
 
         // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
         // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
@@ -175,21 +240,24 @@ void WMDataTypeConversion::connectors()
 
 void WMDataTypeConversion::properties()
 {
+    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+    m_dataTypeSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_dataTypeSelectionsList->addItem( "DOUBLE", "" );
+    m_dataTypeSelectionsList->addItem( "FLOAT128", "" );
+    m_dataTypeSelectionsList->addItem( "FLOAT", "" );
+    m_dataTypeSelectionsList->addItem( "UINT8", "" );
+    m_dataTypeSelectionsList->addItem( "UINT16", "" );
+    m_dataTypeSelectionsList->addItem( "UINT32", "" );
+    m_dataTypeSelectionsList->addItem( "UINT64", "" );
+    m_dataTypeSelectionsList->addItem( "INT8", "" );
+    m_dataTypeSelectionsList->addItem( "INT16", "" );
+    m_dataTypeSelectionsList->addItem( "INT32", "" );
+    m_dataTypeSelectionsList->addItem( "INT64", "" );
+
+    m_dataTypeSelection = m_properties->addProperty( "Data type",  "Data type.", m_dataTypeSelectionsList->getSelectorFirst() );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_dataTypeSelection );
+
     WModule::properties();
 }
 
-
-template< typename T > void WMDataTypeConversion::convertDataSet( boost::shared_ptr< WValueSet< T > > vals )
-{
-    boost::shared_ptr< std::vector< float > > newVals = boost::shared_ptr< std::vector< float > >( new std::vector< float >( vals->size() ) );
-    for( size_t i = 0; i < newVals->size(); ++i )
-    {
-        ( *newVals )[i] = static_cast< float >( vals->getScalar( i ) );
-    }
-
-    boost::shared_ptr< WValueSet< float > > valueSet;
-    valueSet = boost::shared_ptr< WValueSet< float > >( new WValueSet< float > ( 0, 1, newVals, W_DT_FLOAT ) );
-
-    m_dataSet = boost::shared_ptr<WDataSetSingle>( new WDataSetSingle( valueSet, m_dataSet->getGrid() ) );
-    m_output->updateData( m_dataSet );
-}

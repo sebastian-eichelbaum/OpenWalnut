@@ -102,10 +102,9 @@ private:
     boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output; //!< The only output of this filter module.
     boost::shared_ptr< WDataSetSingle > m_dataSet; //!< Pointer providing access to the treated data set in the whole module.
 
-    /**
-     * The heart of this module. it does the conversion of the values.
-     * \param vals valueset of data set.
-     */
-    template< typename T > void convertDataSet( boost::shared_ptr< WValueSet< T > > vals );
+    boost::shared_ptr< WItemSelection > m_dataTypeSelectionsList; //!< A list of file type selection types
+    WPropSelection m_dataTypeSelection; //!< Selection
+
+    boost::shared_ptr< WCondition > m_propCondition;  //!< A condition used to notify about changes in several properties.
 };
 #endif  // WMDATATYPECONVERSION_H
