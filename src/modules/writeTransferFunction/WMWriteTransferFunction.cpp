@@ -207,7 +207,7 @@ void WMWriteTransferFunction::moduleMain()
                     continue;
                 }
 
-                f.write( reinterpret_cast< const char*>( vs->rawData() ), vs->size() );
+                f.write( reinterpret_cast< const char*>( vs->rawData() ), vs->rawSize() );
 
                 // done.
                 f.close();
