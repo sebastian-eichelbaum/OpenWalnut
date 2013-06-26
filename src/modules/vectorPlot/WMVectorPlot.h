@@ -136,7 +136,6 @@ private:
      */
     void transformVerts( osg::ref_ptr< osg::Vec3Array > verts );
 
-
     /**
      * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
      */
@@ -170,6 +169,8 @@ private:
 
 
     WPropColor    m_aColor; //!< color
+
+    WPropDouble m_scale; //!< Scaling of arrow length.
 
     osg::ref_ptr< WGEShader > m_shader; //!< the shader object for this module
 
@@ -217,6 +218,8 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
 
     WColor color = m_aColor->get( true );
 
+    float scaling = m_scale->get( true );
+
     if( ( ( *m_dataSet ).getValueSet()->order() == 1 ) && ( ( *m_dataSet ).getValueSet()->dimension() == 3 ) )
     {
         if( m_showOnAxial->get( true ) )
@@ -225,9 +228,9 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
             {
                 for( int y = 0; y < nbY; ++y )
                 {
-                    float vecCompX = vals->getScalar( ( x + y * nbX + static_cast< int >( zSlice ) * nbX * nbY ) * 3 ) / 2.;
-                    float vecCompY = vals->getScalar( ( x + y * nbX + static_cast< int >( zSlice ) * nbX * nbY ) * 3 + 1 ) / 2.;
-                    float vecCompZ = vals->getScalar( ( x + y * nbX + static_cast< int >( zSlice ) * nbX * nbY ) * 3 + 2 ) / 2.;
+                    float vecCompX = vals->getScalar( ( x + y * nbX + static_cast< int >( zSlice ) * nbX * nbY ) * 3 ) / 2. * scaling;
+                    float vecCompY = vals->getScalar( ( x + y * nbX + static_cast< int >( zSlice ) * nbX * nbY ) * 3 + 1 ) / 2. * scaling;
+                    float vecCompZ = vals->getScalar( ( x + y * nbX + static_cast< int >( zSlice ) * nbX * nbY ) * 3 + 2 ) / 2. * scaling;
 
                     if( !m_projectOnSlice->get( true ) )
                     {
@@ -277,9 +280,9 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
             {
                 for( int z = 0; z < nbZ; ++z )
                 {
-                    float vecCompX = vals->getScalar( ( x + static_cast< int >( ySlice ) * nbX + z * nbX * nbY ) * 3 ) / 2.;
-                    float vecCompY = vals->getScalar( ( x + static_cast< int >( ySlice ) * nbX + z * nbX * nbY ) * 3 + 1 ) / 2.;
-                    float vecCompZ = vals->getScalar( ( x + static_cast< int >( ySlice ) * nbX + z * nbX * nbY ) * 3 + 2 ) / 2.;
+                    float vecCompX = vals->getScalar( ( x + static_cast< int >( ySlice ) * nbX + z * nbX * nbY ) * 3 ) / 2. * scaling;
+                    float vecCompY = vals->getScalar( ( x + static_cast< int >( ySlice ) * nbX + z * nbX * nbY ) * 3 + 1 ) / 2. * scaling;
+                    float vecCompZ = vals->getScalar( ( x + static_cast< int >( ySlice ) * nbX + z * nbX * nbY ) * 3 + 2 ) / 2. * scaling;
 
                     if( !m_projectOnSlice->get( true ) )
                     {
@@ -329,9 +332,9 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
             {
                 for( int z = 0; z < nbZ; ++z )
                 {
-                    float vecCompX = vals->getScalar( ( static_cast< int >( xSlice ) + y * nbX + z * nbX * nbY ) * 3 ) / 2.;
-                    float vecCompY = vals->getScalar( ( static_cast< int >( xSlice ) + y * nbX + z * nbX * nbY ) * 3 + 1 ) / 2.;
-                    float vecCompZ = vals->getScalar( ( static_cast< int >( xSlice ) + y * nbX + z * nbX * nbY ) * 3 + 2 ) / 2.;
+                    float vecCompX = vals->getScalar( ( static_cast< int >( xSlice ) + y * nbX + z * nbX * nbY ) * 3 ) / 2. * scaling;
+                    float vecCompY = vals->getScalar( ( static_cast< int >( xSlice ) + y * nbX + z * nbX * nbY ) * 3 + 1 ) / 2. * scaling;
+                    float vecCompZ = vals->getScalar( ( static_cast< int >( xSlice ) + y * nbX + z * nbX * nbY ) * 3 + 2 ) / 2. * scaling;
 
                     if( !m_projectOnSlice->get( true ) )
                     {
