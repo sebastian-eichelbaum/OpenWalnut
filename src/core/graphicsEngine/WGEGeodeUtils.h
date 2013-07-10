@@ -129,6 +129,18 @@ namespace wge
                                                                    );
 
     /**
+     * Extract the vertices and triangles from a WTriangleMesh and save them
+     * into an osg::Geometry. It uses per triangle normals.
+     *
+     * \param mesh the WTriangleMesh used as input
+     * \param color This color is used for all vertices
+     * \return an osg::Geometry containing the mesh
+     * \note mesh cannot be const since osg::Geometry needs non-const pointers to the contained arrays
+     */
+    osg::ref_ptr< osg::Geometry > convertMeshToOsgGeometryFlat( WTriangleMesh::SPtr mesh,
+                                                                const WColor& color = WColor( 1.0, 1.0, 1.0, 1.0 ) );
+
+    /**
      * Convert triangle mesh to lines representing it. Draws lines twice (ATM).
      *
      * \param mesh The WTriangleMesh used as input.

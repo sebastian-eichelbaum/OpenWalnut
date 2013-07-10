@@ -340,6 +340,62 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mes
     return geometry;
 }
 
+osg::ref_ptr< osg::Geometry > wge::convertMeshToOsgGeometryFlat( WTriangleMesh::SPtr mesh,
+                                                                 const WColor& color )
+{
+    osg::ref_ptr< osg::Geometry> geometry( new osg::Geometry );
+    geometry->setVertexArray( mesh->getVertexArray() );
+
+    osg::DrawElementsUInt* surfaceElement;
+
+    surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
+
+    std::vector< size_t > tris = mesh->getTriangles();
+    surfaceElement->reserve( tris.size() );
+
+    for( unsigned int vertId = 0; vertId < tris.size(); ++vertId )
+    {
+        surfaceElement->push_back( tris[vertId] );
+    }
+    geometry->addPrimitiveSet( surfaceElement );
+
+    {
+        osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+        colors->push_back( color );
+        geometry->setColorArray( colors );
+        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    }
+
+    // ------------------------------------------------
+    // normals
+    {
+        geometry->setNormalArray( mesh->getTriangleNormalArray() );
+        geometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+
+        // if normals are specified, we also setup a default lighting.
+        osg::StateSet* state = geometry->getOrCreateStateSet();
+        osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
+        lightModel->setTwoSided( true );
+        state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
+        state->setMode( GL_BLEND, osg::StateAttribute::ON  );
+        {
+            osg::ref_ptr< osg::Material > material = new osg::Material();
+            material->setDiffuse(   osg::Material::FRONT, osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
+            material->setSpecular(  osg::Material::FRONT, osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
+            material->setAmbient(   osg::Material::FRONT, osg::Vec4( 0.1, 0.1, 0.1, 1.0 ) );
+            material->setEmission(  osg::Material::FRONT, osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
+            material->setShininess( osg::Material::FRONT, 0.0 );
+            state->setAttribute( material );
+        }
+    }
+
+    // enable VBO
+    geometry->setUseDisplayList( false );
+    geometry->setUseVertexBufferObjects( true );
+
+    return geometry;
+}
+
 osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometryLines( WTriangleMesh::SPtr mesh,
                                                               const WColor& defaultColor,
                                                               bool useMeshColor )
