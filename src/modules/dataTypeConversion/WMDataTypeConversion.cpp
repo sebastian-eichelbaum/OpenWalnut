@@ -98,7 +98,7 @@ public:
      * Called by boost::varying during static visiting. Creates new, converted valueset
      *
      * \tparam T the real integral type of the first value set.
-     * \param vsetA the first valueset currently visited.
+     * \param vals the first valueset currently visited.
      *
      * \return the result from the operation with this and the second value set
      */
