@@ -161,7 +161,7 @@ void WMTriangleMeshRenderer::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     // setup all the properties. See header file for their meaning and purpose.
-    m_showOutline = m_properties->addProperty( "Outline", "Show all edges of the trinagulation as lines.", false, m_propCondition );
+    m_showOutline = m_properties->addProperty( "Outline", "Show all edges of the triangulation as lines.", false, m_propCondition );
     m_flatShading = m_properties->addProperty( "Flat", "If showing the triangulation as a surface use flat shading.", false, m_propCondition );
     m_mainComponentOnly = m_properties->addProperty( "Main component", "Main component only", false, m_propCondition );
     m_showCoordinateSystem = m_properties->addProperty( "Coordinate system", "If enabled, the coordinate system of the mesh will be shown.",
