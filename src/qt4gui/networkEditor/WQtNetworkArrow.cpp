@@ -33,6 +33,13 @@
 #include <QtGui/QStyleOptionGraphicsItem>
 #include <QtGui/QPainterPath>
 
+#include "core/kernel/combiner/WApplyCombiner.h"
+
+#include "../WQt4Gui.h"
+#include "../WMainWindow.h"
+
+#include "WQtNetworkScene.h"
+#include "WQtNetworkEditor.h"
 #include "WQtNetworkInputPort.h"
 #include "WQtNetworkOutputPort.h"
 
@@ -57,7 +64,10 @@ WQtNetworkArrow::WQtNetworkArrow( WQtNetworkOutputPort *startPort, WQtNetworkInp
 WQtNetworkArrow::~WQtNetworkArrow()
 {
     m_startPort->removeArrow( this );
-    m_endPort->removeArrow( this );
+    if( m_endPort )
+    {
+        m_endPort->removeArrow( this );
+    }
 }
 
 int WQtNetworkArrow::type() const
@@ -65,10 +75,53 @@ int WQtNetworkArrow::type() const
     return Type;
 }
 
+WQtNetworkInputPort* WQtNetworkArrow::findNearestCompatibleInput( QPointF pos, float maxDistance )
+{
+    WQtNetworkScene* scene = WQt4Gui::getMainWindow()->getNetworkEditor()->getScene();
+
+    // find items in area:
+    QList<QGraphicsItem *> items = scene->items( pos.x() - ( maxDistance / 2.0 ),
+                                                 pos.y() - ( maxDistance / 2.0 ),
+                                                 maxDistance, maxDistance );
+
+    // find all the connectors:
+    WQtNetworkInputPort* nearest = NULL;
+    float nearestDist = maxDistance;
+    for( int i = 0; i < items.size(); ++i )
+    {
+        QGraphicsItem* item = items[ i ];
+
+        // is this a connector?
+        WQtNetworkInputPort* con = dynamic_cast< WQtNetworkInputPort* >( item );
+        if( !con )
+        {
+            continue;
+        }
+
+        // is it compatible?
+        if( !con->getConnector()->connectable( m_startPort->getConnector() ) )
+        {
+            continue;
+        }
+
+        // nearer than the previous one?
+        QPointF conPos = mapFromItem( con, con->rect().bottomRight() * 0.5 );
+        QPointF vec = pos - conPos;
+        float dist = sqrt( ( vec.x() * vec.x() ) + ( vec.y() * vec.y() ) );
+        // as we want euclidean dist:
+        if( nearestDist >= dist )
+        {
+            nearestDist = dist;
+            nearest = con;
+        }
+    }
+
+    return nearest;
+}
+
 void WQtNetworkArrow::updatePosition( QPointF deviate )
 {
-    QRectF eRect = m_startPort->rect();
-    updatePosition( mapFromItem( m_endPort, eRect.bottomRight() * 0.5 ), deviate );
+    updatePosition( mapFromItem( m_endPort, m_startPort->rect().bottomRight() * 0.5 ), deviate );
 }
 
 void WQtNetworkArrow::updatePosition( QPointF targetPoint, QPointF deviate )
@@ -160,7 +213,6 @@ void WQtNetworkArrow::hoverEnterEvent( QGraphicsSceneHoverEvent * event )
     Q_UNUSED( event );
 
     changeColor( Qt::black, 3 );
-    updatePosition();
 }
 
 void WQtNetworkArrow::hoverLeaveEvent( QGraphicsSceneHoverEvent * event )
@@ -205,6 +257,104 @@ void WQtNetworkArrow::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* mouseEven
     }
 }
 
+void WQtNetworkArrow::startDrag( const QPointF& pos )
+{
+    m_snappedOff = false;
+    m_connectionDisconnect = false;
+    m_connectTo = NULL;
+
+    // highlight
+    changeColor( owGreen, 3 );
+
+    // click Point
+    m_clickPoint = pos;
+}
+
+void WQtNetworkArrow::moveDrag( const QPointF& pos )
+{
+    m_connectionDisconnect = false;
+    m_connectTo = NULL;
+
+    QPointF currentPoint = pos;
+
+    // deviate according to start pos
+    QPointF deviate = currentPoint - m_clickPoint;
+    float l = sqrt( ( deviate.x() * deviate.x() ) + ( deviate.y() * deviate.y() ) );
+
+    // if moved far enough, snap to mouse
+    // NOTE: always be snapped of if there is no endport
+    m_snappedOff = !m_endPort || m_snappedOff || ( l > 100.0 ); // when snapped of once, never snap on again
+
+    if( m_snappedOff )
+    {
+        changeColor( owRed, 3 );
+
+        // can we snap somewhere?
+        WQtNetworkInputPort* nearestPort = findNearestCompatibleInput( currentPoint, 50.0 );
+        if( nearestPort )
+        {
+            changeColor( owGreen, 3 );
+            m_connectTo = nearestPort;
+            updatePosition( mapFromItem( nearestPort, nearestPort->rect().bottomRight() * 0.5 ), QPointF() );
+        }
+        else
+        {
+            m_connectionDisconnect = true;
+            updatePosition( currentPoint, QPointF() );
+        }
+    }
+    else
+    {
+        // m_snappedOff is defined to ensure that we have m_endPoint if not snapped
+        updatePosition( deviate );
+    }
+}
+
+void WQtNetworkArrow::doneDrag( const QPointF& /*pos*/ )
+{
+    if( m_endPort && ( m_connectTo == m_endPort ) )
+    {
+        updatePosition();
+        changeColor( Qt::black );
+
+        m_connectTo = NULL;
+        m_connectionDisconnect = false;
+        return;
+    }
+
+    // apply operations
+    if( m_connectTo )
+    {
+        // connect new
+        boost::shared_ptr< WApplyCombiner > x = boost::shared_ptr< WApplyCombiner >( new WApplyCombiner(
+                                                    m_startPort->getConnector()->getModule(),
+                                                    m_startPort->getConnector()->getName(),
+                                                    m_connectTo->getConnector()->getModule(),
+                                                    m_connectTo->getConnector()->getName() ) );
+
+        // remove old connection if needed
+        if( m_endPort )
+        {
+            m_startPort->getConnector()->disconnect( m_endPort->getConnector() );
+        }
+
+        // apply combiner
+        x->run();
+        return;
+    }
+
+    // disconnect?
+    if( m_connectionDisconnect && m_endPort )
+    {
+        m_startPort->getConnector()->disconnect( m_endPort->getConnector() );
+        m_connectionDisconnect = false;
+        return;
+    }
+
+    m_connectionDisconnect = false;
+    m_connectTo = NULL;
+}
+
 void WQtNetworkArrow::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
     if( mouseEvent->button() != Qt::LeftButton )
@@ -214,55 +364,13 @@ void WQtNetworkArrow::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
     }
     mouseEvent->accept();
 
-    m_snappedOff = false;
-    m_connectionDisconnect = false;
-
-    // highlight
-    changeColor( owGreen, 3 );
-
-    // clickPoint
-    m_clickPoint = mouseEvent->pos();
+    startDrag( mouseEvent->pos() );
 }
 
 void WQtNetworkArrow::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
     mouseEvent->accept();
-
-    QPointF currentPoint = mouseEvent->pos();
-
-    // deviate according to start pos
-    QPointF deviate = currentPoint - m_clickPoint;
-
-    float l = sqrt( ( deviate.x() * deviate.x() ) + ( deviate.y() * deviate.y() ) );
-
-    // if moved far enough, snap to mouse
-    m_snappedOff = m_snappedOff || ( l > 100.0 ); // when snapped of once, never snap on again
-
-    // are we near the original connector?
-
-    QPointF diffToConnector = currentPoint - mapFromItem( m_endPort, m_endPort->rect().bottomRight() * 0.5 );
-    float lDiffToConnector = sqrt( ( diffToConnector.x() * diffToConnector.x() ) + ( diffToConnector.y() * diffToConnector.y() ) );
-    bool snapBack = ( lDiffToConnector < 50.0 );
-
-    if( m_snappedOff && !snapBack )
-    {
-        updatePosition( currentPoint, QPointF() );
-    }
-    else
-    {
-        updatePosition( deviate );
-    }
-
-    if( snapBack )
-    {
-        changeColor( owGreen, 3 );
-        m_connectionDisconnect = false;
-    }
-    if( m_snappedOff && !snapBack )
-    {
-        changeColor( owRed, 3 );
-        m_connectionDisconnect = true;
-    }
+    moveDrag( mouseEvent->pos() );
 }
 
 void WQtNetworkArrow::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
@@ -274,13 +382,6 @@ void WQtNetworkArrow::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
     }
     mouseEvent->accept();
 
-    updatePosition();
-    changeColor( Qt::black );
-
-    // what to do
-    if( m_connectionDisconnect )
-    {
-        m_startPort->getConnector()->disconnect( m_endPort->getConnector() );
-    }
+    doneDrag( mouseEvent->pos() );
 }
 

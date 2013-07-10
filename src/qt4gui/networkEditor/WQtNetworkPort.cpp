@@ -41,7 +41,7 @@ WQtNetworkPort::WQtNetworkPort()
     m_brushNotSet = true;
 
     setAcceptsHoverEvents( true );
-    m_line = NULL;
+    m_arrow = NULL;
 }
 
 WQtNetworkPort::~WQtNetworkPort()
@@ -68,31 +68,6 @@ void WQtNetworkPort::paint( QPainter* painter, const QStyleOptionGraphicsItem* o
     QGraphicsRectItem::paint( painter, option, widget );
 }
 
-void WQtNetworkPort::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
-{
-    if( mouseEvent->button() != Qt::LeftButton )
-    {
-        mouseEvent->ignore();
-        return;
-    }
-    QList<QGraphicsItem *> startItem = scene()->items( mouseEvent->scenePos() );
-    if( !startItem.isEmpty() )
-    {
-        mouseEvent->accept();
-        if( startItem.first()->type() == WQtNetworkOutputPort::Type &&
-            startItem.first()->parentItem()->isEnabled() == true )
-        {
-            m_line = new QGraphicsLineItem( QLineF( mouseEvent->scenePos(),
-                    mouseEvent->scenePos() ) );
-            m_line->setPen( QPen( Qt::black, 2 ) );
-            scene()->addItem( m_line );
-        }
-    }
-    else
-    {
-        mouseEvent->ignore();
-    }
-}
 
 void WQtNetworkPort::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* mouseEvent )
 {
@@ -127,59 +102,37 @@ void WQtNetworkPort::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* mouseEvent
     }
 }
 
+void WQtNetworkPort::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
+{
+    if( mouseEvent->button() != Qt::LeftButton )
+    {
+        mouseEvent->ignore();
+        return;
+    }
+    QList<QGraphicsItem *> startItem = scene()->items( mouseEvent->scenePos() );
+    if( !startItem.isEmpty() )
+    {
+        mouseEvent->accept();
+        if( startItem.first()->type() == WQtNetworkOutputPort::Type &&
+            startItem.first()->parentItem()->isEnabled() == true )
+        {
+            // use might have started to drag
+            m_arrow = new WQtNetworkArrow( qgraphicsitem_cast< WQtNetworkOutputPort* >( startItem.first() ), NULL );
+            m_arrow->startDrag( mouseEvent->scenePos() );
+            scene()->addItem( m_arrow );
+        }
+    }
+    else
+    {
+        mouseEvent->ignore();
+    }
+}
+
 void WQtNetworkPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
-    if( m_line )
+    if( m_arrow )
     {
-        QLineF newLine( m_line->line().p1(), mouseEvent->scenePos() );
-
-        QList<QGraphicsItem *> endItem = scene()->items( mouseEvent->scenePos() );
-        // because m_line is first item below the curser
-        if( !endItem.isEmpty() &&
-                endItem.first()->type() == QGraphicsLineItem::Type )
-        {
-            endItem.removeFirst();
-        }
-
-        if( !endItem.isEmpty() )
-        {
-            if( endItem.first()->type() == WQtNetworkInputPort::Type )
-            {
-                WQtNetworkInputPort *endPort = qgraphicsitem_cast<WQtNetworkInputPort *>( endItem.first() );
-
-                QList<QGraphicsItem *> startItems = scene()->items( m_line->line().p1() );
-                if( startItems.first()->type() == QGraphicsLineItem::Type )
-                {
-                    startItems.removeFirst();
-                }
-                WQtNetworkOutputPort *startPort = qgraphicsitem_cast<WQtNetworkOutputPort *>( startItems.first() );
-
-                if( endPort->parentItem() != this->parentItem() &&
-                    endPort->parentItem()->isEnabled() == true &&
-                    endPort->getConnector()->connectable( startPort->getConnector() ) == true
-                  )
-                {
-                   m_line->setPen( QPen( Qt::green, 2 ) );
-                }
-                else
-                {
-                   m_line->setPen( QPen( Qt::red, 2 ) );
-                }
-            }
-            else if( endItem.first()->type() == WQtNetworkOutputPort::Type )
-            {
-                   m_line->setPen( QPen( Qt::red, 2 ) );
-            }
-            else
-            {
-                m_line->setPen( QPen( Qt::black, 2 ) );
-            }
-        }
-        else
-        {
-            m_line->setPen( QPen( Qt::black, 2 ) );
-        }
-        m_line->setLine( newLine );
+        m_arrow->moveDrag( mouseEvent->scenePos() );
     }
 }
 
@@ -187,46 +140,11 @@ void WQtNetworkPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
     Q_UNUSED( mouseEvent );
 
-    if( m_line != 0 )
+    if( m_arrow )
     {
-        QList<QGraphicsItem *> startItems = scene()->items( m_line->line().p1() );
-        QList<QGraphicsItem *> endItems = scene()->items( m_line->line().p2() );
-
-        // because m_line is first item below the curser
-        if( startItems.first()->type() == QGraphicsLineItem::Type )
-        {
-            startItems.removeFirst();
-        }
-
-        // because m_line is first item below the curser
-        if( endItems.first()->type() == QGraphicsLineItem::Type )
-        {
-            endItems.removeFirst();
-        }
-
-        // remove current m_line for real connection
-        scene()->removeItem( m_line );
-        delete m_line;
-
-        if( !endItems.isEmpty() &&
-             !startItems.isEmpty() &&
-             endItems.first()->type() == WQtNetworkInputPort::Type &&
-             endItems.first()->parentItem()->isEnabled() == true &&
-             startItems.first()->parentItem() != endItems.first()->parentItem() )
-        {
-            WQtNetworkOutputPort *startPort = dynamic_cast<WQtNetworkOutputPort *>( startItems.first() );
-            WQtNetworkInputPort *endPort = dynamic_cast<WQtNetworkInputPort *>( endItems.first() );
-
-            if( endPort->getConnector()->connectable( startPort->getConnector() ) == true )
-            {
-                  boost::shared_ptr< WApplyCombiner > x = boost::shared_ptr< WApplyCombiner >( new WApplyCombiner(
-                                                            startPort->getConnector()->getModule(),
-                                                            startPort->getConnector()->getName(),
-                                                            endPort->getConnector()->getModule(),
-                                                            endPort->getConnector()->getName() ) );
-                  x->run();
-            }
-        }
+        m_arrow->doneDrag( mouseEvent->scenePos() );
+        scene()->removeItem( m_arrow );
+        delete m_arrow;
     }
 }
 

@@ -185,7 +185,10 @@ protected:
     QString m_name; //!< the portname
 
 private:
-    QGraphicsLineItem * m_line; //!< the temporary line when you connect two ports
+    /**
+     * The arrow used to connect items
+     */
+    WQtNetworkArrow* m_arrow;
 
     bool m_brushNotSet; //!< used to indicate that the correct brush was not yet set.
 };

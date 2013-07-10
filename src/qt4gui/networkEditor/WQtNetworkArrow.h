@@ -105,6 +105,16 @@ public:
     WQtNetworkInputPort* getEndPort();
 
     /**
+     * Search the next, compatible input port.
+     *
+     * \param pos the current position for which to search
+     * \param maxDistance the maximum distance
+     *
+     * \return the connector, or NULL if none.
+     */
+    WQtNetworkInputPort* findNearestCompatibleInput( QPointF pos, float maxDistance = 100 );
+
+    /**
      * Reimplementation form QGraphicsItem, because the arrowhead is added
      * to the line. Its needed that QGraphicsView knows which area needs to
      * be redrawn.
@@ -128,6 +138,26 @@ public:
      */
     QVariant itemChange( GraphicsItemChange change, const QVariant &value );
 
+    /**
+     * Start Drag.
+     *
+     * \param pos the position in scene
+     */
+    void startDrag( const QPointF& pos );
+
+    /**
+     * Update drag position
+     *
+     * \param pos the position in scene
+     */
+    void moveDrag( const QPointF& pos );
+
+    /**
+     * Called when releasing the mouse.
+     *
+     * \param pos the position in scene
+     */
+    void doneDrag( const QPointF& pos );
 
 protected:
     /**
@@ -214,5 +244,7 @@ private:
     bool m_snappedOff; //!< gets true once the arrow was pulled far away from original click position.
 
     bool m_connectionDisconnect; //!< disconnect if true.
+
+    WQtNetworkInputPort* m_connectTo; //!< connect to this port after mouse release.
 };
 #endif  // WQTNETWORKARROW_H
