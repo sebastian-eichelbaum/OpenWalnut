@@ -293,7 +293,7 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mes
             osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
             lightModel->setTwoSided( true );
             state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
-            state->setMode(  GL_BLEND, osg::StateAttribute::ON  );
+            state->setMode( GL_BLEND, osg::StateAttribute::ON  );
             {
                 osg::ref_ptr< osg::Material > material = new osg::Material();
                 material->setDiffuse(   osg::Material::FRONT, osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
