@@ -155,6 +155,13 @@ protected:
     void mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent );
 
     /**
+     * Double click on port
+     *
+     * \param mouseEvent the event
+     */
+    void mouseDoubleClickEvent( QGraphicsSceneMouseEvent* mouseEvent );
+
+    /**
      * Updates the temporary arrows endpoint.
      * Arrow is colored green when connection possible, red if no connection
      * is possible, or black when cursor doesent covers an WQtNetworkPort.

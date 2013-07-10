@@ -94,6 +94,39 @@ void WQtNetworkPort::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
     }
 }
 
+void WQtNetworkPort::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* mouseEvent )
+{
+    QGraphicsItem::mouseDoubleClickEvent( mouseEvent );
+
+    // ignore all buttons but the left one
+    if( mouseEvent->button() != Qt::LeftButton )
+    {
+        mouseEvent->ignore();
+        return;
+    }
+
+    QList<QGraphicsItem *> startItem = scene()->items( mouseEvent->scenePos() );
+    if( !startItem.isEmpty() )
+    {
+        mouseEvent->accept();
+        WQtNetworkOutputPort* outP = dynamic_cast< WQtNetworkOutputPort* >( startItem.first() );
+        WQtNetworkInputPort* inP = dynamic_cast< WQtNetworkInputPort* >( startItem.first() );
+        // delete all connections
+        if( inP )
+        {
+            inP->getConnector()->disconnectAll();
+        }
+        if( outP )
+        {
+            outP->getConnector()->disconnectAll();
+        }
+    }
+    else
+    {
+        mouseEvent->ignore();
+    }
+}
+
 void WQtNetworkPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
     if( m_line )

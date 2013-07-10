@@ -78,8 +78,19 @@ public:
     /**
      * Calculated the new position of the lines endpoints in the scene.
      * Is called everytime the parentItem is changed or after construction.
+     *
+     * \param deviate pull the line into this direction.
      */
-    void updatePosition();
+    void updatePosition( QPointF deviate = QPointF() );
+
+    /**
+     * Calculated the new position of the lines endpoints in the scene.
+     * Is called everytime the parentItem is changed or after construction.
+     *
+     * \param deviate pull the line into this direction.
+     * \param targetPoint the point where to point to.
+     */
+    void updatePosition( QPointF targetPoint, QPointF deviate );
 
     /**
      * Returns the WQtNetworkOutputPort where the arrow starts.
@@ -142,6 +153,36 @@ protected:
      */
     void hoverLeaveEvent( QGraphicsSceneHoverEvent *event );
 
+    /**
+     * Double click on port
+     *
+     * \param mouseEvent the event
+     */
+    void mouseDoubleClickEvent( QGraphicsSceneMouseEvent* mouseEvent );
+
+    /**
+     * Start drawing an arrow temporary.
+     *
+     * \param mouseEvent the mouse event
+     */
+    void mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent );
+
+    /**
+     * Updates the temporary arrows endpoint.
+     * Arrow is colored green when connection possible, red if no connection
+     * is possible, or black when cursor doesent covers an WQtNetworkPort.
+     *
+     * \param mouseEvent the mouse event
+     */
+    void mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent );
+
+    /**
+     * Send a connect request to kernel when start- and endport are
+     * connectable
+     *
+     * \param mouseEvent the mouse event
+     */
+    void mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent );
 private:
     /**
      * This method changes the color of the arrow.
@@ -149,6 +190,14 @@ private:
      * \param color the choosen color
      */
     void changeColor( QColor color );
+
+    /**
+     * Change color and width of the arrow
+     *
+     * \param color the color
+     * \param penWidth the new width.
+     */
+    void changeColor( QColor color, float penWidth );
 
     WQtNetworkOutputPort *m_startPort; //!< the start port
 
@@ -159,5 +208,11 @@ private:
     QPolygonF m_arrowHead; //!< the arrowhead
 
     QLineF m_line; //!< the line representing the arrow
+
+    QPointF m_clickPoint; //!< position where the click event was created.
+
+    bool m_snappedOff; //!< gets true once the arrow was pulled far away from original click position.
+
+    bool m_connectionDisconnect; //!< disconnect if true.
 };
 #endif  // WQTNETWORKARROW_H
