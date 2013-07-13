@@ -43,7 +43,7 @@ class WMButterfly: public WModule
 {
 public:
     /**Creates the module for drawing contour lines.*/
-	WMButterfly();
+WMButterfly();
 
     /**Destroys this module.*/
     virtual ~WMButterfly();
@@ -89,16 +89,16 @@ private:
     /**Needed for recreating the geometry, incase when resolution changes.*/
     boost::shared_ptr< WCondition > m_propCondition;
 
-    WPropInt	m_iterations;
-    WPropDouble	m_maxTriangles10n;
-    WPropInt	m_maxTriangles;
+    WPropInt m_iterations;
+    WPropDouble m_maxTriangles10n;
+    WPropInt m_maxTriangles;
 
     boost::shared_ptr< WTriangleMesh > mesh;
-    VertexFactory* verts;
+    butterfly::VertexFactory* verts;
 
     static float w, factor[4][7], s1, s2;
 
-    ButterflyFactory* butterfly;
+    butterfly::ButterflyFactory* butterfly;
 };
 
 #endif  // WMBUTTERFLY_H

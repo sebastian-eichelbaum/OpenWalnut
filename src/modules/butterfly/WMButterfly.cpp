@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <cmath>
 
 #include <osg/Geometry>
 
@@ -36,115 +37,136 @@
 #include "core/kernel/WModuleInputData.h"
 #include "WMButterfly.xpm"
 #include "WMButterfly.h"
-#include <cmath>
+
 #ifndef M_PI
 const double M_PI = 3.14159265358979323846;
 #endif
-// This line is needed by the module loader to actually find your module.
-W_LOADABLE_MODULE(WMButterfly)
 
-float WMButterfly::w=0.0f,
-		WMButterfly::factor[4][7] = {{0.75f, 5.0f/12.0f, -1.0f/12.0f, -1.0f/12.0f, 0.0f, 0.0f, 0.0f},
-				{0.75f, 3.0f/8.0f, -1.0f/8.0f, 0.0f, -1.0f/8.0f, 0.0f, 0.0f},
-				{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f},
-				{0.5f-w, 0.0f, 0.125f+2*w, -0.0625f-w, w, -0.0625f-w, 0.125f+2*w}},
-		WMButterfly::s1 = 9.0f/16.0f, WMButterfly::s2 = -1.0f/16.0f;
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMButterfly )
+
+float WMButterfly::w = 0.0f,
+    WMButterfly::factor[4][7] = {{0.75f, 5.0f/12.0f, -1.0f/12.0f, -1.0f/12.0f, 0.0f, 0.0f, 0.0f}, //NOLINT
+                                 {0.75f, 3.0f/8.0f, -1.0f/8.0f, 0.0f, -1.0f/8.0f, 0.0f, 0.0f},//NOLINT
+                                 {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f},//NOLINT
+                                 {0.5f-w, 0.0f, 0.125f+2*w, -0.0625f-w, w, -0.0625f-w, 0.125f+2*w}},//NOLINT
+    WMButterfly::s1 = 9.0f / 16.0f,
+    WMButterfly::s2 = -1.0f / 16.0f;
 
 WMButterfly::WMButterfly() :
-		WModule(), m_propCondition(new WCondition()) {
-	butterfly = new ButterflyFactory();
-	verts = new VertexFactory();
+    WModule(), m_propCondition( new WCondition() )
+{
+    butterfly = new ButterflyFactory();
+    verts = new VertexFactory();
 }
 
-WMButterfly::~WMButterfly() {
+WMButterfly::~WMButterfly()
+{
 }
 
-boost::shared_ptr<WModule> WMButterfly::factory() const {
-	return boost::shared_ptr<WModule>(new WMButterfly());
+boost::shared_ptr<WModule> WMButterfly::factory() const
+{
+    return boost::shared_ptr<WModule>(new WMButterfly());
 }
 
-const char** WMButterfly::getXPMIcon() const {
-	return WMButterfly_xpm;
-}
-const std::string WMButterfly::getName() const {
-	return "[Proj.] Butterfly";
+const char** WMButterfly::getXPMIcon() const
+{
+    return WMButterfly_xpm;
 }
 
-const std::string WMButterfly::getDescription() const {
-	return "Should draw values above some threshold.";
+const std::string WMButterfly::getName() const
+{
+    return "[Proj.] Butterfly";
 }
 
-void WMButterfly::connectors() {
-	m_input = WModuleInputData< WTriangleMesh >::createAndAdd( shared_from_this(),
-			"input mesh", "The mesh to display" );
-	m_output = boost::shared_ptr<WModuleOutputData<WTriangleMesh> >(
-			new WModuleOutputData<WTriangleMesh>(shared_from_this(), "output mesh",
-					"The loaded mesh."));
-	addConnector(m_output);
-	WModule::connectors();
+const std::string WMButterfly::getDescription() const
+{
+    return "Should draw values above some threshold.";
 }
 
-void WMButterfly::properties() {
-	// ---> Put the code for your properties here. See "src/modules/template/" for an extensively documented example.
-	m_iterations = m_properties->addProperty("Iterations count = ",
-			"Iteration count that is attempted regarding the maximal triangle count.", 1, m_propCondition);
-	m_iterations->setMin(0); m_iterations->setMax(10);
-	m_maxTriangles10n = m_properties->addProperty("Max. triangles = 10^: ",
-			"Maximal triangle count as result, scaled by 10^n.", 5.0, m_propCondition);
-	m_maxTriangles10n->setMin(2); m_maxTriangles10n->setMax(7.5);
-	m_maxTriangles = m_properties->addProperty("Total triangles: ",
-			"voxel count.", (int)pow(10, m_maxTriangles10n->get()));
-	m_maxTriangles->setPurpose(PV_PURPOSE_INFORMATION);
-	WModule::properties();
+void WMButterfly::connectors()
+{
+    m_input = WModuleInputData< WTriangleMesh >::createAndAdd( shared_from_this(),
+                                                               "input mesh", "The mesh to display" );
+    m_output = boost::shared_ptr<WModuleOutputData<WTriangleMesh> >(
+        new WModuleOutputData<WTriangleMesh>( shared_from_this(),
+                                              "output mesh",
+                                              "The loaded mesh." ) );
+    addConnector( m_output );
+    WModule::connectors();
 }
 
-void WMButterfly::requirements() {
+void WMButterfly::properties()
+{
+    // ---> Put the code for your properties here. See "src/modules/template/" for an extensively documented example.
+    m_iterations = m_properties->addProperty( "Iterations count = ",
+                                              "Iteration count that is attempted regarding the maximal triangle count.",
+                                              1,
+                                              m_propCondition );
+    m_iterations->setMin( 0 );
+    m_iterations->setMax( 10 );
+    m_maxTriangles10n = m_properties->addProperty( "Max. triangles = 10^: ",
+                                                   "Maximal triangle count as result, scaled by 10^n.",
+                                                   5.0,
+                                                   m_propCondition );
+    m_maxTriangles10n->setMin( 2 );
+    m_maxTriangles10n->setMax( 7.5 );
+    m_maxTriangles = m_properties->addProperty( "Total triangles: ",
+                                                "voxel count.",
+                                                ( int ) pow( 10, m_maxTriangles10n->get() ) );
+    m_maxTriangles->setPurpose( PV_PURPOSE_INFORMATION );
+    WModule::properties();
 }
 
-void WMButterfly::moduleMain() {
-	// get notified about data changes
-	m_moduleState.setResetable(true, true);
-	m_moduleState.add(m_input->getDataChangedCondition());
-	m_moduleState.add(m_propCondition);
+void WMButterfly::requirements()
+{
+}
 
-	ready();
+void WMButterfly::moduleMain()
+{
+    // get notified about data changes
+    m_moduleState.setResetable( true, true );
+    m_moduleState.add( m_input->getDataChangedCondition() );
+    m_moduleState.add( m_propCondition );
 
-	// graphics setup
-	m_rootNode = osg::ref_ptr<WGEManagedGroupNode>(
-			new WGEManagedGroupNode(m_active));
-	WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert(
-			m_rootNode);
+    ready();
 
-	// main loop
-	while (!m_shutdownFlag()) {
-		int maxTriangles = (int)pow(10, m_maxTriangles10n->get());
-		m_maxTriangles->set(maxTriangles);
-		//infoLog() << "Waiting ...";
-		m_moduleState.wait();
+    // graphics setup
+    m_rootNode = osg::ref_ptr<WGEManagedGroupNode>( new WGEManagedGroupNode( m_active ) );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
-		butterfly->assignSettings(m_iterations, m_maxTriangles10n);
-		mesh = m_input->getData();
-		if (mesh){
-			m_output->updateData(
-					butterfly->getInterpolatedMesh(mesh));
-			std::cout << "Mesh applied for " << m_iterations->get() << " iterations setting\r\n";
-		}
+    // main loop
+    while( !m_shutdownFlag() )
+    {
+        int maxTriangles = ( int ) pow( 10, m_maxTriangles10n->get() );
+        m_maxTriangles->set( maxTriangles );
+        //infoLog() << "Waiting ...";
+        m_moduleState.wait();
 
-		// woke up since the module is requested to finish?
-		if (m_shutdownFlag()) {
-			break;
-		}
+        butterfly->assignSettings( m_iterations, m_maxTriangles10n );
+        mesh = m_input->getData();
+        if( mesh )
+        {
+            m_output->updateData( butterfly->getInterpolatedMesh( mesh ) );
+            std::cout << "Mesh applied for " << m_iterations->get() << " iterations setting\r\n";
+        }
 
-		// save data behind connectors since it might change during processing
-		boost::shared_ptr< WTriangleMesh > meshData = m_input->getData();
+        // woke up since the module is requested to finish?
+        if( m_shutdownFlag() )
+        {
+            break;
+        }
 
-		if (!meshData) {
-			continue;
-		}
+        // save data behind connectors since it might change during processing
+        boost::shared_ptr< WTriangleMesh > meshData = m_input->getData();
 
-		// ---> Insert code doing the real stuff here
-	}
+        if( !meshData )
+        {
+            continue;
+        }
 
-	WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove(
-			m_rootNode);
+        // ---> Insert code doing the real stuff here
+    }
+
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
