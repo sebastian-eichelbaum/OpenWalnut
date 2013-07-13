@@ -147,8 +147,12 @@ void WMButterfly::moduleMain()
         mesh = m_input->getData();
         if( mesh )
         {
+            boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Subdivide", 2 ) );
+            m_progress->addSubProgress( progress );
+
             m_output->updateData( butterfly->getInterpolatedMesh( mesh ) );
-            std::cout << "Mesh applied for " << m_iterations->get() << " iterations setting\r\n";
+            infoLog()  << "Mesh applied for " << m_iterations->get() << " iterations setting\r\n";
+            progress->finish();
         }
 
         // woke up since the module is requested to finish?
