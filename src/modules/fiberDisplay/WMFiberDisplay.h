@@ -156,6 +156,11 @@ private:
     WPropBool m_roiFiltering;
 
     /**
+     * Use coloring defined by the roi branches.
+     */
+    WPropBool m_roiFilterColors;
+
+    /**
      * Group containing several coloring options
      */
     WPropGroup m_coloringGroup;
@@ -316,6 +321,11 @@ private:
      * Contains the ROI bitfield
      */
     osg::ref_ptr< osg::FloatArray > m_bitfieldAttribs;
+
+    /**
+     * Contains the ROI color map for live branch coloring.
+     */
+    osg::ref_ptr< osg::Vec3Array > m_secondaryColor;
 };
 
 #endif  // WMFIBERDISPLAY_H

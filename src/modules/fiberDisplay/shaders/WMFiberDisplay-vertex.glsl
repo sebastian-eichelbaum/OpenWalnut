@@ -138,13 +138,12 @@ void main()
     // ignore the actual width of the tube.
     colormapping( gl_ModelViewMatrixInverse * v_vertex );
 #endif
-#ifdef CLUSTER_FILTER_ENABLED
-    v_clusterColor = gl_SecondaryColor.rgb;
-#endif
 
 #ifdef BITFIELD_ENABLED
     v_discard = 1.0 - a_bitfield;
 #endif
+
+    v_clusterColor = vec4( gl_SecondaryColor.rgb, 1.0 );
 
     // Simply project the vertex afterwards
     gl_Position = gl_ProjectionMatrix * v_vertex;

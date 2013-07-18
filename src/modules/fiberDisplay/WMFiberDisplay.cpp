@@ -109,6 +109,7 @@ void WMFiberDisplay::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     m_roiFiltering = m_properties->addProperty( "ROI Filtering", "When active, you can use the ROI mechanism to filter fibers.", true );
+    m_roiFilterColors = m_properties->addProperty( "ROI Coloring", "When active, you will see the coloring specified by the ROI branches.", true );
 
     m_coloringGroup = m_properties->addPropertyGroup( "Coloring", "Options for defining the coloring of the lines." );
     m_illuminationEnable = m_coloringGroup->addProperty( "Illumination", "Enable line illumination.", true );
@@ -259,6 +260,13 @@ void WMFiberDisplay::moduleMain()
         new WGEShaderPropertyDefineOptions< WPropBool >( m_roiFiltering, "BITFIELD_DISABLED", "BITFIELD_ENABLED" ) );
     m_shader->addPreprocessor( defineTmp );
     m_endCapShader->addPreprocessor( defineTmp );
+
+    // ROI Filter color support
+    defineTmp = WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_roiFilterColors, "SECONDARY_COLORING_DISABLED", "SECONDARY_COLORING_ENABLED" ) );
+    m_shader->addPreprocessor( defineTmp );
+    m_endCapShader->addPreprocessor( defineTmp );
+
     m_shader->addBindAttribLocation( "a_bitfield", 6 );
     m_endCapShader->addBindAttribLocation( "a_bitfield", 6 );
 
@@ -493,13 +501,13 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
     // create everything needed for the line_strip drawable
     osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    osg::ref_ptr< osg::Vec3Array > clusterAttribs = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec3Array > tangents = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::FloatArray > texcoords = osg::ref_ptr< osg::FloatArray >( new osg::FloatArray );
     osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
 
     // new attribute array
     m_bitfieldAttribs = new osg::FloatArray( m_fibers->getLineStartIndexes()->size() );
+    m_secondaryColor = new osg::Vec3Array( m_fibers->getLineStartIndexes()->size() );
 
     // this is needed for the end- sprites
     osg::ref_ptr< osg::Vec3Array > endVertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
@@ -568,8 +576,9 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
 
         // also initialize the ROI filter bitfield
         ( *m_bitfieldAttribs )[ fidx ] = m_fiberSelector->getBitfield()->at( fidx );
-        // create cluster filter
-        clusterAttribs->push_back( osg::Vec3( 1.0, 1.0, 1.0 ) );
+        // NOTE: secondary color arrays only support RGB colors
+        WColor c = m_fiberSelector->getFiberColor( fidx );
+        ( *m_secondaryColor )[ fidx ] = osg::Vec3( c.r(), c.g(), c.b() );
 
         // a line needs 2 verts at least
         if( len < 2 )
@@ -671,8 +680,6 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
     geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
     geometry->setNormalArray( tangents );
     geometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
-    geometry->setSecondaryColorArray( clusterAttribs );
-    geometry->setSecondaryColorBinding( osg::Geometry::BIND_PER_PRIMITIVE_SET );
     if( tubeMode )    // tex coords are only needed for fake-tubes
     {
         geometry->setTexCoordArray( 0, texcoords );
@@ -707,8 +714,11 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
 
     // bind the attribute
     geometry->setVertexAttribArray( 6, m_bitfieldAttribs );
+    geometry->setSecondaryColorArray( m_secondaryColor );
     // the attributes are define per line strip, thus we bind the array accordingly
     geometry->setVertexAttribBinding( 6, osg::Geometry::BIND_PER_PRIMITIVE_SET );
+    geometry->setSecondaryColorBinding( osg::Geometry::BIND_PER_PRIMITIVE_SET );
+
 
     if( tubeMode )
     {
@@ -717,6 +727,11 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
         startGeometry->setVertexAttribBinding( 6, osg::Geometry::BIND_PER_VERTEX );
         endGeometry->setVertexAttribArray( 6, m_bitfieldAttribs );
         endGeometry->setVertexAttribBinding( 6, osg::Geometry::BIND_PER_VERTEX );
+
+        startGeometry->setSecondaryColorArray( m_secondaryColor );
+        startGeometry->setSecondaryColorBinding( osg::Geometry::BIND_PER_PRIMITIVE_SET );
+        endGeometry->setSecondaryColorArray( m_secondaryColor );
+        endGeometry->setSecondaryColorBinding( osg::Geometry::BIND_PER_PRIMITIVE_SET );
     }
 
     // add an update callback which later handles several things like the filter attribute array
@@ -738,8 +753,11 @@ void WMFiberDisplay::geometryUpdate( osg::Drawable* geometry )
         for( size_t fidx = 0; fidx < m_fibers->getLineStartIndexes()->size() ; ++fidx )
         {
             ( *m_bitfieldAttribs )[ fidx ] = m_fiberSelector->getBitfield()->at( fidx );
+            WColor c = m_fiberSelector->getFiberColor( fidx );
+            ( *m_secondaryColor )[ fidx ] = osg::Vec3( c.r(), c.g(), c.b() );
         }
         m_bitfieldAttribs->dirty();
+        m_secondaryColor->dirty();
     }
 
     if( m_fiberClusteringUpdate && m_fiberClustering )

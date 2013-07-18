@@ -77,6 +77,15 @@ public:
     boost::shared_ptr< std::vector< bool > > getBitfield();
 
     /**
+     * Get color for fiber with given index.
+     *
+     * \param fidx the index. Returns white for invalid index.
+     *
+     * \return color.
+     */
+    WColor getFiberColor( size_t fidx ) const;
+
+    /**
      * getter for the line start index array
      * \return line starts
      */
@@ -149,7 +158,7 @@ private:
 
     boost::shared_ptr< std::vector< bool > >m_outputBitfield; //!< bit field of activated fibers
 
-    boost::shared_ptr< std::vector< bool > >m_workerBitfield; //!< bit field of activated fibers
+    boost::shared_ptr< std::vector< float > >m_outputColorMap; //!< Map each fiber to a color
 
     std::list< boost::shared_ptr<WSelectorBranch> >m_branches; //!< list of branches int he roi structure
 

@@ -101,12 +101,13 @@ public:
      */
     bool dirty();
 
-protected:
     /**
-     * function gets called when the color property of the roi branch has changed, it will write this color
-     * into the custom color array of the fiber dataset
+     * Return the current branch color.
+     *
+     * \return  the color
      */
-    void colorChanged();
+    WColor getBranchColor() const;
+protected:
 private:
     /**
      * updates the output bitfield with the information from all rois in this branch

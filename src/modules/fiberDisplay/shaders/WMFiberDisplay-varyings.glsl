@@ -69,12 +69,10 @@ varying float v_surfaceParam;
  */
 varying float v_worldScale;
 
-#ifdef CLUSTER_FILTER_ENABLED
 /**
  * This varying carries the current cluster color.
  */
-varying vec3 v_clusterColor;
-#endif
+varying vec4 v_clusterColor;
 
 /**
  * Varying defines wether to discard the fragments or not.

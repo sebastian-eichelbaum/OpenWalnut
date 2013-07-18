@@ -68,10 +68,6 @@ std::list< boost::shared_ptr< WSelectorRoi > > WSelectorBranch::getROIs()
 void WSelectorBranch::setDirty()
 {
     m_dirty = true;
-    if( m_branch->getProperties()->getProperty( "Bundle color" )->toPropColor()->changed() )
-    {
-        colorChanged();
-    }
 }
 
 void WSelectorBranch::removeRoi( osg::ref_ptr< WROI > roi )
@@ -142,26 +138,7 @@ void WSelectorBranch::recalculate()
     m_bitField = m_workerBitfield;
 }
 
-void WSelectorBranch::colorChanged()
+WColor WSelectorBranch::getBranchColor() const
 {
-    WColor color = m_branch->getProperties()->getProperty( "Bundle color" )->toPropColor()->get( true );
-
-    boost::shared_ptr<std::vector<float> > array = m_fibers->getColorScheme( "Custom Color" )->getColor();
-
-    boost::shared_ptr< std::vector< size_t > > startIndexes = m_fibers->getLineStartIndexes();
-    boost::shared_ptr< std::vector< size_t > > pointsPerLine = m_fibers->getLineLengths();
-
-    for( size_t i = 0; i < m_size; ++i )
-    {
-        if( ( *m_bitField )[i] )
-        {
-            size_t idx = ( *startIndexes )[i] * 3;
-            for( size_t k = 0; k < ( *pointsPerLine )[i]; ++k )
-            {
-                ( *array )[idx++] = color[0];
-                ( *array )[idx++] = color[1];
-                ( *array )[idx++] = color[2];
-            }
-        }
-    }
+    return m_branch->colorProperty()->toPropColor()->get( true );
 }

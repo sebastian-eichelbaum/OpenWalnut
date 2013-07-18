@@ -41,6 +41,7 @@ WFiberSelector::WFiberSelector( boost::shared_ptr< const WDataSetFibers > fibers
     m_kdTree = boost::shared_ptr< WKdTree >( new WKdTree( verts->size() / 3, &( ( *verts )[0] ) ) );
 
     m_outputBitfield = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( m_size, true ) );
+    m_outputColorMap = boost::shared_ptr< std::vector< float > >( new std::vector< float >( m_size * 4, 1.0 ) );
 
     std::vector< osg::ref_ptr< WROI > >rois = WKernel::getRunningKernel()->getRoiManager()->getRois();
 
@@ -85,6 +86,7 @@ WFiberSelector::~WFiberSelector()
             {
                 ( *roiIter )->getRoi()->removeROIChangeNotifier( m_changeRoiSignal );
             }
+            ( *iter )->getBranch()->removeChangeNotifier( m_changeRoiSignal );
         }
     }
     m_branches.clear();
@@ -105,6 +107,7 @@ void WFiberSelector::slotAddRoi( osg::ref_ptr< WROI > roi )
     {
         branch = boost::shared_ptr<WSelectorBranch>(
                 new WSelectorBranch( m_fibers, WKernel::getRunningKernel()->getRoiManager()->getBranch( roi ) ) );
+        branch->getBranch()->addChangeNotifier( m_changeRoiSignal );
         m_branches.push_back( branch );
     }
 
@@ -125,6 +128,7 @@ void WFiberSelector::slotRemoveRoi( osg::ref_ptr< WROI > roi )
 
         if( (*iter )->empty() )
         {
+            ( *iter )->getBranch()->removeChangeNotifier( m_changeRoiSignal );
             m_branches.erase( iter );
             break;
         }
@@ -138,6 +142,8 @@ void WFiberSelector::slotRemoveBranch( boost::shared_ptr< WRMBranch > branch )
     {
         if( branch == ( *iter )->getBranch() )
         {
+            // remove notifier
+            branch->removeChangeNotifier( m_changeRoiSignal );
             m_branches.erase( iter );
             break;
         }
@@ -152,21 +158,28 @@ boost::shared_ptr< std::vector< bool > > WFiberSelector::getBitfield()
 
 void WFiberSelector::recalculate()
 {
-    if( m_branches.empty() )
-    {
-        m_workerBitfield = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( m_size, true ) );
-    }
-    else
-    {
-        m_workerBitfield = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( m_size, false ) );
+    boost::shared_ptr< std::vector< bool > > m_workerBitfield( new std::vector< bool >( m_size, false ) );
+    std::vector< float > m_workerColorMap( m_size * 4, 1.0 );
 
+    if( !m_branches.empty() )
+    {
         for( std::list< boost::shared_ptr< WSelectorBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
         {
             boost::shared_ptr< std::vector< bool > > bf = ( *iter )->getBitField();
+            WColor color = ( *iter )->getBranchColor();
 
             for( size_t i = 0; i < m_size; ++i )
             {
                 ( *m_workerBitfield )[i] = ( *m_workerBitfield )[i] | ( *bf )[i];
+
+                if( ( *bf )[i] )
+                {
+                    // set colors, overwrite previously set colors
+                    m_workerColorMap[ 4 * i + 0 ] = color.r();
+                    m_workerColorMap[ 4 * i + 1 ] = color.g();
+                    m_workerColorMap[ 4 * i + 2 ] = color.b();
+                    m_workerColorMap[ 4 * i + 3 ] = color.a();
+                }
             }
         }
     }
@@ -174,6 +187,10 @@ void WFiberSelector::recalculate()
     for( size_t i = 0; i < m_size; ++i )
     {
       ( *m_outputBitfield )[i] = ( *m_workerBitfield )[i];
+      ( *m_outputColorMap )[ 4 * i + 0 ] = m_workerColorMap[ 4 * i + 0 ];
+      ( *m_outputColorMap )[ 4 * i + 1 ] = m_workerColorMap[ 4 * i + 1 ];
+      ( *m_outputColorMap )[ 4 * i + 2 ] = m_workerColorMap[ 4 * i + 2 ];
+      ( *m_outputColorMap )[ 4 * i + 3 ] = m_workerColorMap[ 4 * i + 3 ];
     }
     m_dirty = false;
 }
@@ -193,4 +210,17 @@ bool WFiberSelector::getDirty()
 WCondition::SPtr WFiberSelector::getDirtyCondition()
 {
     return m_dirtyCondition;
+}
+
+WColor WFiberSelector::getFiberColor( size_t fidx ) const
+{
+    if( fidx >= m_outputBitfield->size() )
+    {
+        return WColor( 1.0, 1.0, 1.0, 1.0 );
+    }
+
+    return WColor( ( *m_outputColorMap )[ 4 * fidx + 0 ],
+                   ( *m_outputColorMap )[ 4 * fidx + 1 ],
+                   ( *m_outputColorMap )[ 4 * fidx + 2 ],
+                   ( *m_outputColorMap )[ 4 * fidx + 3 ] );
 }

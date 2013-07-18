@@ -134,6 +134,14 @@ void main()
 
     // apply colormapping to the input color
     vec4 finalColor = gl_Color;
+
+    // use secondary color only if bitfield filtering is active
+#ifdef BITFIELD_ENABLED
+#ifdef SECONDARY_COLORING_ENABLED
+    finalColor = v_clusterColor;
+#endif
+#endif
+
 #ifdef CLUSTER_FILTER_ENABLED
     finalColor = vec4( v_clusterColor, 1.0 );
 #endif
