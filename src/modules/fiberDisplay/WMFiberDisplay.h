@@ -326,6 +326,11 @@ private:
      * Contains the ROI color map for live branch coloring.
      */
     osg::ref_ptr< osg::Vec3Array > m_secondaryColor;
+
+    /**
+     * Ratio between dataset color and ROI color.
+     */
+    osg::ref_ptr< osg::Uniform > m_roiFilterColorsOverride;
 };
 
 #endif  // WMFIBERDISPLAY_H

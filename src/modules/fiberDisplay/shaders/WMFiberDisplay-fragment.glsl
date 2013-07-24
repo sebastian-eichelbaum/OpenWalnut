@@ -46,6 +46,11 @@ uniform float u_distance = 1.0;
  */
 uniform float u_colormapRatio = 1.0;
 
+/**
+ * Ratio between original dataset color and ROI colors.
+ */
+uniform float u_roiFilterColorOverride = 0.0;
+
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
 /////////////////////////////////////////////////////////////////////////////
@@ -138,7 +143,7 @@ void main()
     // use secondary color only if bitfield filtering is active
 #ifdef BITFIELD_ENABLED
 #ifdef SECONDARY_COLORING_ENABLED
-    finalColor = v_clusterColor;
+    finalColor = mix( v_clusterColor, gl_Color, u_roiFilterColorOverride );
 #endif
 #endif
 

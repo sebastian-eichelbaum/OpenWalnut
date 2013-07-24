@@ -55,6 +55,11 @@ varying vec3 v_normal;
  */
 varying float v_discard;
 
+/**
+ * Second color array
+ */
+varying vec4 v_secondaryColor;
+
 /////////////////////////////////////////////////////////////////////////////
 // Variables
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +76,8 @@ void main()
 #ifdef BITFIELD_ENABLED
     v_discard = 1.0 - a_bitfield;
 #endif
+
+    v_secondaryColor = vec4( gl_SecondaryColor.rgb, 1.0 );
 
     // forward to geometry shader
     v_normal = gl_Normal;

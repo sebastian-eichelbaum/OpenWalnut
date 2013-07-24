@@ -39,6 +39,16 @@
  */
 uniform float u_tubeSize;
 
+/**
+ * Ratio between colormap and fiber color.
+ */
+uniform float u_colormapRatio = 1.0;
+
+/**
+ * Ratio between original dataset color and ROI colors.
+ */
+uniform float u_roiFilterColorOverride = 0.0;
+
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
 /////////////////////////////////////////////////////////////////////////////
@@ -61,6 +71,11 @@ varying vec4 v_vertex;
  * The scaling component of the modelview matrix.
  */
 varying float v_worldScale;
+
+/**
+ * This varying carries the current cluster color.
+ */
+varying vec4 v_clusterColor;
 
 /////////////////////////////////////////////////////////////////////////////
 // Variables
@@ -98,8 +113,28 @@ void main()
 
     float w = gl_TexCoord[0].w * ( 1.0 - abs( gl_TexCoord[0].x ) ) + ( 1.0 - gl_TexCoord[0].w );
 
+    // apply colormapping to the input color
+    vec4 finalColor = gl_Color;
+
+    // use secondary color only if bitfield filtering is active
+#ifdef BITFIELD_ENABLED
+#ifdef SECONDARY_COLORING_ENABLED
+    // finalColor = mix( v_clusterColor, gl_Color, u_roiFilterColorOverride );
+    // FIXME_ somehow, the secondary color array does not arrive at the vertex shader although it is bound. We make endcaps transparent in the
+    // case
+    finalColor = mix( vec4( 0.0 ), gl_Color, u_roiFilterColorOverride );
+#endif
+#endif
+
+#ifdef CLUSTER_FILTER_ENABLED
+    finalColor = vec4( v_clusterColor, 1.0 );
+#endif
+#ifdef COLORMAPPING_ENABLED
+    finalColor = mix( finalColor, colormapping(), u_colormapRatio );
+#endif
+
     // done
-    wge_FragColor = vec4( light * w * gl_Color.rgb, outside * gl_Color.a );
+    wge_FragColor = vec4( light * w * finalColor.rgb, outside * finalColor.a );
     wge_FragNormal = textureNormalize( normalize( normal ) );
     wge_FragZoom = v_worldScale;
     gl_FragDepth = depth;

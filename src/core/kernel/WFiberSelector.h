@@ -117,6 +117,13 @@ public:
      */
     WCondition::SPtr getDirtyCondition();
 
+    /**
+     * Returns true if no fiber gets filtered out because there is no branch in the ROI tree.
+     *
+     * \return true if all fibers should be shown
+     */
+    bool isNothingFiltered() const;
+
 protected:
     /**
      * listener function for inserting rois

@@ -224,3 +224,8 @@ WColor WFiberSelector::getFiberColor( size_t fidx ) const
                    ( *m_outputColorMap )[ 4 * fidx + 2 ],
                    ( *m_outputColorMap )[ 4 * fidx + 3 ] );
 }
+
+bool WFiberSelector::isNothingFiltered() const
+{
+    return m_branches.empty();
+}

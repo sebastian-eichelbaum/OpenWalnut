@@ -71,6 +71,11 @@ varying in vec3 v_normal[];
 varying in float v_discard[];
 
 /**
+ * Second color array
+ */
+varying in vec4 v_secondaryColor[];
+
+/**
  * The output normal for the fragment shader in world-space
  */
 varying out vec3 v_normalWorld;
@@ -84,6 +89,11 @@ varying out vec4 v_vertex;
  * The scaling component of the modelview matrix.
  */
 varying out float v_worldScale;
+
+/**
+ * This varying carries the current cluster color.
+ */
+varying out vec4 v_clusterColor;
 
 /////////////////////////////////////////////////////////////////////////////
 // Variables
@@ -140,6 +150,7 @@ void main()
     vec4 b = 0.2 * u_tubeSize * vec4( normalize( cross( tangent, a.xyz ) ), 0.0 );
 
     gl_FrontColor = gl_FrontColorIn[0];
+    v_clusterColor = v_secondaryColor[0];
 
     // create the quad
     v_normalWorld = ( gl_ModelViewMatrix * vec4( v_normal[0], 0.0 ) ).xyz;

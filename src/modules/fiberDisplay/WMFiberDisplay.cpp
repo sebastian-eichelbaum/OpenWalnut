@@ -294,6 +294,11 @@ void WMFiberDisplay::moduleMain()
     rootState->addUniform( tubeSizeUniform );
     rootState->addUniform( colormapRationUniform );
 
+    // we need another uniform for turning on/off the ROI - coloring when no fibers are filtered out (no branches/no ROIs). In these cases, the
+    // m_roiFilterColors might still be true, but we need to turn off coloring though.
+    // NOTE: 1.0 means the ROI colors are used.
+    m_roiFilterColorsOverride = new osg::Uniform( "u_roiFilterColorOverride", 0.0f );
+    rootState->addUniform( m_roiFilterColorsOverride );
     ready();
 
     // needed to observe the properties of the input connector data
@@ -722,6 +727,7 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
 
     if( tubeMode )
     {
+        errorLog() << "hhhhhhhhhhhhhhhhhhhhhhhhhh";
         // we have one vertex per line, so bind the attribute array per vertex
         startGeometry->setVertexAttribArray( 6, m_bitfieldAttribs );
         startGeometry->setVertexAttribBinding( 6, osg::Geometry::BIND_PER_VERTEX );
@@ -748,11 +754,14 @@ void WMFiberDisplay::geometryUpdate( osg::Drawable* geometry )
 {
     if( m_fiberSelectorChanged )
     {
+        bool overrideROIFiltering = m_fiberSelector->isNothingFiltered();
+        m_roiFilterColorsOverride->set( overrideROIFiltering ? 1.0f : 0.0f );
+
         m_fiberSelectorChanged = false;
         // now initialize attribute array
         for( size_t fidx = 0; fidx < m_fibers->getLineStartIndexes()->size() ; ++fidx )
         {
-            ( *m_bitfieldAttribs )[ fidx ] = m_fiberSelector->getBitfield()->at( fidx );
+            ( *m_bitfieldAttribs )[ fidx ] = overrideROIFiltering | m_fiberSelector->getBitfield()->at( fidx );
             WColor c = m_fiberSelector->getFiberColor( fidx );
             ( *m_secondaryColor )[ fidx ] = osg::Vec3( c.r(), c.g(), c.b() );
         }
