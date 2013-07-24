@@ -251,15 +251,16 @@ namespace WStructuredTextParser
     };
 
     /**
-     * This simplifies working with a tree in a \ref FileType instance. It provides easy query and check methods. It does not
+     * This simplifies working with a tree in a \ref WStructuredTextParser::FileType instance. It provides easy query and check methods. It does not
      * provide any semantic options. So check validity of the contents and structure of the tree is the job of the using class/derived class. As
      * the tree does not know anything about the semantics of your structure, it is also untyped. For every key you query, you need to specify
      * the type.
      *
-     * This tree uses the types in the \ref WStructuredTextParser namespace. To avoid unnecessary copy operations, this class is not recursive
-     * itself. When querying, you always need to specify the full path. This class can be seen as accessor to the \ref ObjectType tree.
+     * This tree uses the types in the WStructuredTextParser namespace. To avoid unnecessary copy operations, this class is not recursive
+     * itself. When querying, you always need to specify the full path. This class can be seen as accessor to the
+     * \ref WStructuredTextParser::ObjectType tree.
      *
-     * \note The syntax of the parsed files is defined by the parser itself. See \ref Grammar for details.
+     * \note The syntax of the parsed files is defined by the parser itself. See \ref WStructuredTextParser::Grammar for details.
      * \note This also stores the comments of the parsed file. This allows them to be written again if OW loads a file, modifies it and re-writes
      * it.
      */
@@ -422,8 +423,8 @@ namespace WStructuredTextParser
          * \param current current element to check and recursively traverse
          * \param keyIter the current path element
          * \param keyEnd the end iter. Just used to stop iteration if the key as not further elements
-         * \param resultObjects all matching instances of type \ref ObjectType
-         * \param resultValues all matching instances of type \ref KeyValueType
+         * \param resultObjects all matching instances of type \ref WStructuredTextParser::ObjectType
+         * \param resultValues all matching instances of type \ref WStructuredTextParser::KeyValueType
          */
         void traverse( MemberType current, std::vector< std::string >::const_iterator keyIter,
                                            std::vector< std::string >::const_iterator keyEnd,
@@ -436,8 +437,8 @@ namespace WStructuredTextParser
          *
          * \param current current element to check and recursively traverse
          * \param key the path
-         * \param resultObjects all matching instances of type \ref ObjectType
-         * \param resultValues all matching instances of type \ref KeyValueType
+         * \param resultObjects all matching instances of type \ref WStructuredTextParser::ObjectType
+         * \param resultValues all matching instances of type \ref WStructuredTextParser::KeyValueType
          */
         void traverse( FileType current, std::string key,
                                          std::vector< ObjectType >& resultObjects,
@@ -503,7 +504,7 @@ namespace WStructuredTextParser
     }
 
     /**
-     * Visitor to identify whether the given variant of type \ref MemberType is a object or key-value pair.
+     * Visitor to identify whether the given variant of type \ref WStructuredTextParser::MemberType is a object or key-value pair.
      */
     class IsLeafVisitor: public boost::static_visitor< bool >
     {
@@ -521,7 +522,7 @@ namespace WStructuredTextParser
         /**
          * Returns always false as it is only called for objects.
          *
-         * \tparam T the type. Should be \ref ObjectType or \ref CommentType
+         * \tparam T the type. Should be \ref WStructuredTextParser::ObjectType or \ref WStructuredTextParser::CommentType
          * \return always false since it identified an Object/comment
          */
         template< typename T >
@@ -532,7 +533,7 @@ namespace WStructuredTextParser
     };
 
     /**
-     * Visitor to identify whether the given variant of type \ref MemberType is a comment.
+     * Visitor to identify whether the given variant of type \ref WStructuredTextParser::MemberType is a comment.
      */
     class IsCommentVisitor: public boost::static_visitor< bool >
     {
@@ -550,7 +551,7 @@ namespace WStructuredTextParser
         /**
          * Returns always false as it is only called for objects and key-value pairs.
          *
-         * \tparam T the type. Should be \ref ObjectType or \ref KeyValueType
+         * \tparam T the type. Should be \ref WStructuredTextParser::ObjectType or \ref WStructuredTextParser::KeyValueType
          * \return always false since it identified an Object/KeyValueType
          */
         template< typename T >
@@ -561,7 +562,7 @@ namespace WStructuredTextParser
     };
 
     /**
-     * Visitor to query the m_name member of \ref ObjectType and \ref KeyValueType.
+     * Visitor to query the m_name member of \ref WStructuredTextParser::ObjectType and \ref WStructuredTextParser::KeyValueType.
      */
     class NameQueryVisitor: public boost::static_visitor< std::string >
     {
@@ -581,7 +582,7 @@ namespace WStructuredTextParser
          *
          * \param element Specified object.
          *
-         * \tparam T one of the types of the \ref MemberType variant
+         * \tparam T one of the types of the \ref WStructuredTextParser::MemberType variant
          * \return always true since it identified an key-value pair
          */
         template< typename T >

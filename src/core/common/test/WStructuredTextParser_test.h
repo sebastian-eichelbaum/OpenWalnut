@@ -67,7 +67,7 @@ public:
     }
 
     /**
-     * This method test the basic empty and count features of \ref WStructuredTextParser::StructuredValueTree.
+     * This method test the basic empty and count features of WStructuredTextParser::StructuredValueTree.
      */
     void testEmptyAndCount()
     {
@@ -128,7 +128,7 @@ public:
     }
 
     /**
-     * This method tests the basic query features of \ref WStructuredTextParser::StructuredValueTree.
+     * This method tests the basic query features of WStructuredTextParser::StructuredValueTree.
      */
     void testQuery()
     {
