@@ -113,7 +113,7 @@ namespace butterfly
     }
 
     // TODO(schwarzkopf): Method isTriangleAttached
-    size_t VertexFactory::getNeighbourIndex( size_t vertexID, size_t neighbourID )
+    int VertexFactory::getNeighbourIndex( size_t vertexID, size_t neighbourID )
     {
         VertexProperty* prop = this->vertProp[vertexID];
         for( int i = 0; i < prop->getNeighbourVertexCount(); i++ )
@@ -153,7 +153,7 @@ namespace butterfly
         return this->vertProp[vertexID];
     }
 
-    size_t VertexFactory::getMidID( size_t fromID, size_t toID )
+    long VertexFactory::getMidID( size_t fromID, size_t toID ) // NOLINT
     {
         if( fromID == toID )
             return fromID;

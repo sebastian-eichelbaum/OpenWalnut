@@ -40,7 +40,7 @@ class MidPoint
 public:
     MidPoint( size_t toID, size_t midID );
     virtual ~MidPoint();
-    size_t getMidID();
+    long getMidID(); // NOLINT
     size_t getToID();
     size_t midExists();
 

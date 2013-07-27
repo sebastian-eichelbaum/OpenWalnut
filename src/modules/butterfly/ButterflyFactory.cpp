@@ -119,7 +119,7 @@ namespace butterfly
                     triMesh->addVertex( calcMid( id1, id2 ) );
                 }
 
-                size_t mid0_1 = verts->getMidID( id0, id1 ),
+                long mid0_1 = verts->getMidID( id0, id1 ), // NOLINT
                     mid0_2 = verts->getMidID( id0, id2 ),
                     mid1_2 = verts->getMidID( id1, id2 );
 

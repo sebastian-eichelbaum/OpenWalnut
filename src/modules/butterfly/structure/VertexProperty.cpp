@@ -123,7 +123,7 @@ bool VertexProperty::toExists( size_t toID )
     return false;
 }
 
-size_t VertexProperty::getMidID( size_t toID )
+long VertexProperty::getMidID( size_t toID ) //NOLINT
 {
     unsigned int size = this->attachedMid.size();
     for( unsigned int i = 0; i < size; i++ )

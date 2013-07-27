@@ -52,11 +52,11 @@ namespace butterfly
         size_t getVertexCount();
         size_t getTriangleCount( size_t vertexID );
         size_t getTriangleID( size_t vertexID, int triangleIndex );
-        size_t getNeighbourIndex( size_t vertexID, size_t neighbourID );
+        int getNeighbourIndex( size_t vertexID, size_t neighbourID );
         bool neighborExists( size_t fromID, size_t toID );
         void attachMid( size_t fromID, size_t toID, size_t midID );
         VertexProperty* getVertexProperty( size_t vertexID );
-        size_t getMidID( size_t fromID, size_t toID );
+        long getMidID( size_t fromID, size_t toID ); // NOLINT
         void examineCircularityAll();
         size_t getNeighbourVertexCount( size_t vertexID );
         size_t getBoundCountClass( size_t vertexID );

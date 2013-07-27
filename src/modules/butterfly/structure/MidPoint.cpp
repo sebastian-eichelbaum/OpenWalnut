@@ -44,7 +44,7 @@ MidPoint::~MidPoint()
     // TODO(schwarzkopf): Auto-generated destructor stub
 }
 
-size_t MidPoint::getMidID()
+    long MidPoint::getMidID() // NOLINT
 {
     return this->midID;
 }

@@ -56,7 +56,7 @@ public:
     void setBoundCountClass( int boundCountClass );
     bool containsTriangle( size_t triangleID );
     void attachMid( size_t toID, size_t midID );
-    size_t getMidID( size_t toID );
+    long getMidID( size_t toID ); // NOLINT
     bool toExists( size_t toID );
     osg::Vec3 getCoords();
 
