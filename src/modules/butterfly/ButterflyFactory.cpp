@@ -36,7 +36,7 @@ namespace butterfly
 {
     float ButterflyFactory::w = 0.0f,
         ButterflyFactory::factor[4][7] = {{0.75f, 5.0f/12.0f, -1.0f/12.0f, -1.0f/12.0f, 0.0f, 0.0f, 0.0f},   //NOLINT
-                                          {0.75f, 3.0f/8.0f, -1.0f/8.0f, 0.0f, -1.0f/8.0f, 0.0f, 0.0f},//NOLINT
+                                          {0.875f, 3.0f/8.0f, -1.0f/8.0f, 0.0f, -1.0f/8.0f, 0.0f, 0.0f},//NOLINT
                                           {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f},//NOLINT
                                           {0.5f-w, 0.0f, 0.125f+2*w, -0.0625f-w, w, -0.0625f-w, 0.125f+2*w}},//NOLINT
         ButterflyFactory::s1 = 9.0f / 16.0f,
@@ -155,19 +155,8 @@ namespace butterfly
                     final = add( Vec3( 0.0f, 0.0f, 0.0f ), getKNeighbourValueBoundary( vertID1, vertID2, false, false ), 1.0f );
                     final = add( final, getKNeighbourValueBoundary( vertID2, vertID1, true, false ), 1.0f );
                 }
-                else if( false/*(k1==6) != (k2==6)*/ )
-                { //Case 2: one vertex of valence=6 and onother has valence!=6
-                    if( k1 != 6 )
-                    {
-                        final = getKNeighbourValueBoundary( vertID1, vertID2, false, false );
-                    }
-                    else
-                    {
-                        final = getKNeighbourValueBoundary( vertID2, vertID1, false, false );
-                    }
-                }
                 else if( k1 != 6 || k2 != 6 )
-                {  //Case 3: two vertices of valence!=6
+                {  //Case 2/3: at least one vertex of valence!=6
                     final = add( Vec3( 0.0f, 0.0f, 0.0f ), getKNeighbourValueBoundary( vertID1, vertID2, false, true ), 0.5f );
                     final = add( final, getKNeighbourValueBoundary( vertID2, vertID1, false, true ), 0.5f );
                 }
@@ -213,9 +202,10 @@ namespace butterfly
         if( bounds == 1 )
             k += k - 2;
         int k_row = static_cast<int>( k + 0.3f ) - 3;
-        bool isDefaultButterfly = ( k == 3 || k == 4 || ( k == 6 && !treatK6AsKn ) );
+        bool hasCustomWeight = ( k == 3 || k == 4 || ( k == 6 && !treatK6AsKn ) );
         Vec3 final = add( Vec3( 0.0f, 0.0f, 0.0f ), mesh->getVertex( stencilCenterVertID ),
-                         isDefaultButterfly ? factor[k_row][0] : factor[0][0] );
+                         hasCustomWeight ? factor[k_row][0] : factor[0][0] );
+
         for( int i = 0; i < k; i++)
         {
             float j = i - start;
@@ -225,7 +215,7 @@ namespace butterfly
             int i_mirrored = isBehindBound ?i-k/2 :i,
                 k_col = 1 + static_cast<int>( j + 0.3f );
             int neighbourID = verts->getVertexProperty( stencilCenterVertID )->getNeighbourVertices()[i_mirrored];
-            float s_j = isDefaultButterfly ?factor[k_row][k_col]
+            float s_j = hasCustomWeight ?factor[k_row][k_col]
                 :( 0.25f + cos( 2.0f * M_PI * j / k ) + 0.5f * cos( 4.0f * M_PI * j / k ) ) / k;
             Vec3 value = mesh->getVertex( neighbourID );
             if( isBehindBound )
@@ -233,7 +223,7 @@ namespace butterfly
                 value = add( mesh->getVertex( stencilCenterVertID ), value, -1.0f );
                 value = add( mesh->getVertex( stencilCenterVertID ), value, 1.0f );
             }
-            if( !isSecondK6 || ( j != 1 && j != 5 ) )
+            if( !isSecondK6 || treatK6AsKn || ( j != 1 && j != 5 ) )
                 final = add( final, value, s_j );
         }
         return final;

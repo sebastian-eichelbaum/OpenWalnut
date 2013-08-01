@@ -45,14 +45,6 @@ const double M_PI = 3.14159265358979323846;
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMButterfly )
 
-float WMButterfly::w = 0.0f,
-    WMButterfly::factor[4][7] = {{0.75f, 5.0f/12.0f, -1.0f/12.0f, -1.0f/12.0f, 0.0f, 0.0f, 0.0f}, //NOLINT
-                                 {0.75f, 3.0f/8.0f, -1.0f/8.0f, 0.0f, -1.0f/8.0f, 0.0f, 0.0f},//NOLINT
-                                 {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f},//NOLINT
-                                 {0.5f-w, 0.0f, 0.125f+2*w, -0.0625f-w, w, -0.0625f-w, 0.125f+2*w}},//NOLINT
-    WMButterfly::s1 = 9.0f / 16.0f,
-    WMButterfly::s2 = -1.0f / 16.0f;
-
 WMButterfly::WMButterfly() :
     WModule(), m_propCondition( new WCondition() )
 {
@@ -76,7 +68,7 @@ const char** WMButterfly::getXPMIcon() const
 
 const std::string WMButterfly::getName() const
 {
-    return "[Proj.] Butterfly";
+    return "Butterfly subdivision";
 }
 
 const std::string WMButterfly::getDescription() const
@@ -172,5 +164,31 @@ void WMButterfly::moduleMain()
         // ---> Insert code doing the real stuff here
     }
 
+
+
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
+
+boost::shared_ptr< WTriangleMesh > WMButterfly::popUnusedVertices( boost::shared_ptr< WTriangleMesh > inputMesh )
+{
+    boost::shared_ptr<WTriangleMesh> outputMesh( new WTriangleMesh( 0, 0 ) );
+
+    size_t triCount = 0;
+    boost::shared_ptr<WTriangleMesh> tmpMesh( new WTriangleMesh( 0, 0 ) );
+    try
+    {
+        while  (true)
+        {
+            Vec3 point0 = inputMesh->getVertex( mesh->getTriVertId0( triCount ) );
+            Vec3 point1 = inputMesh->getVertex( mesh->getTriVertId1( triCount ) );
+            Vec3 point2 = inputMesh->getVertex( mesh->getTriVertId2( triCount ) );
+            outputMesh->addTriangle( point0, point1, point2 );
+            triCount++;
+        }
+    } catch( ... )
+    {
+    }
+
+    return inputMesh;
+}
+

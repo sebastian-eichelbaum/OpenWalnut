@@ -69,6 +69,8 @@ protected:
     /**Entry point after loading the module. Runs in separate thread.*/
     virtual void moduleMain();
 
+    virtual boost::shared_ptr< WTriangleMesh > popUnusedVertices( boost::shared_ptr< WTriangleMesh > inputMesh );
+
     /**Initialize the connectors this module is using.*/
     virtual void connectors();
 
@@ -95,8 +97,6 @@ private:
 
     boost::shared_ptr< WTriangleMesh > mesh;
     butterfly::VertexFactory* verts;
-
-    static float w, factor[4][7], s1, s2;
 
     butterfly::ButterflyFactory* butterfly;
 };
