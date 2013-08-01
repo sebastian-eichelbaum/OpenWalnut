@@ -767,6 +767,11 @@ typedef std::vector< boost::shared_ptr< WModule > > WModuleList;
 typedef void ( *W_LOADABLE_MODULE_SIGNATURE )( WModuleList& );
 
 /**
+ * The signature used for the loaded toolbox as arbitrary registration function.
+ */
+typedef void ( *W_LOADABLE_REGISTERARBITRARY_SIGNATURE )( const boost::filesystem::path& );
+
+/**
  * The following macro is used by modules so the factory can acquire a prototype instance from a shared library using the symbol.
  * You can write this symbol for your own if you need to add multiple modules to the list. This one is for convenience.
  *
@@ -780,6 +785,11 @@ extern "C"                       void WLoadModule( WModuleList& m ) { m.push_bac
  * The corresponding symbol name.
  */
 #define W_LOADABLE_MODULE_SYMBOL "WLoadModule"
+
+/**
+ * THe register function's symbol name.
+ */
+#define W_LOADABLE_REGISTERARBITRARY_SYMBOL "WRegisterArbitrary"
 
 /**
  * \defgroup modules Modules

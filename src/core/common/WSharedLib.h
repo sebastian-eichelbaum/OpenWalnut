@@ -99,6 +99,13 @@ public:
     template < typename FuncType >
     void fetchFunction( const std::string& name, FuncType& func ) const;
 
+    /**
+     * Check whether the function exists.
+     *
+     * \param name the name of the function
+     */
+    bool existsFunction( const std::string& name ) const;
+
     /** Search for an variable in the shared library
      * \tparam PtrType a pointer type
      * \param name the name of the variable

@@ -99,6 +99,19 @@ struct WSharedLib::data
     }
 
     /**
+     * Check for existence of a given function pointer symbol.
+     *
+     * \param name the symbol
+     *
+     * \return true if it exists.
+     */
+    bool existsFunction( const std::string& name )
+    {
+        func_ptr_type func_ptr = reinterpret_cast< func_ptr_type >( GetProcAddress( m_hDLL, name.c_str() ) );
+        return func_ptr;
+    }
+
+    /**
      * Searches the lib for the specified function symbol and returns it.
      *
      * \param name the name of the function
@@ -217,23 +230,36 @@ struct WSharedLib::data
      * Searches the lib for the specified symbol and returns it.
      *
      * \param name the name of the symbol to search.
+     * \param suppressThrow set to true to suppress the exception. NULL is returned if the symbol does not exists
      *
      * \return pointer to the symbol.
      *
      * \throw WLibraryFetchFailed thrown if the symbol could not be found.
      *
      */
-    void* findVariable( const std::string& name )
+    void* findVariable( const std::string& name, bool suppressThrow = false )
     {
         auto_lock lock;
         dlerror();
         void* variable_ptr = dlsym( m_dl, name.c_str() );
         const char *err = dlerror();
-        if( err )
+        if( !suppressThrow && err )
         {
             throw WLibraryFetchFailed( std::string( "Could not fetch symbol \"" + name + "\"" + " due to the error: " + err ) );
         }
         return variable_ptr;
+    }
+
+    /**
+     * Check for existence of a given function pointer symbol.
+     *
+     * \param name the symbol
+     *
+     * \return true if it exists.
+     */
+    bool existsFunction( const std::string& name )
+    {
+        return findVariable( name, true );
     }
 };
 #endif
@@ -273,6 +299,11 @@ WSharedLib::func_ptr_type WSharedLib::findFunction( const std::string& name ) co
 void* WSharedLib::findVariable( const std::string& name ) const
 {
     return m_data->findVariable( name );
+}
+
+bool WSharedLib::existsFunction( const std::string& name ) const
+{
+    return m_data->existsFunction( name );
 }
 
 std::string WSharedLib::getSystemPrefix()

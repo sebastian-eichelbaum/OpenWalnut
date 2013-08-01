@@ -82,44 +82,68 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
                 // load lib
                 boost::shared_ptr< WSharedLib > l = boost::shared_ptr< WSharedLib >( new WSharedLib( i->path() ) );
 
-                // get instantiation function
-                W_LOADABLE_MODULE_SIGNATURE f;
-                l->fetchFunction< W_LOADABLE_MODULE_SIGNATURE >( W_LOADABLE_MODULE_SYMBOL, f );
+                bool isLoadableModule = false;
+                bool isLoadableArbitrary = false;
 
-                // get the first prototype
-                WModuleList m;
-                f( m );
+                // be nice. Do not fail if the module symbol does not exist
+                if( l->existsFunction( W_LOADABLE_MODULE_SYMBOL ) )
+                {
+                    // get instantiation function
+                    W_LOADABLE_MODULE_SIGNATURE f;
+                    l->fetchFunction< W_LOADABLE_MODULE_SIGNATURE >( W_LOADABLE_MODULE_SYMBOL, f );
 
-                // could the prototype be created?
-                if( m.empty() )
-                {
-                    WLogger::getLogger()->addLogMessage( "Load failed for module \"" + relPath + "\". Could not create any " +
-                                                         "prototype instance.", "Module Loader", LL_ERROR );
-                    continue;
-                }
-                else
-                {
-                    // yes, add it to the list of prototypes
-                    for( WModuleList::const_iterator iter = m.begin(); iter != m.end(); ++iter )
+                    isLoadableModule = true;
+
+                    // get the first prototype
+                    WModuleList m;
+                    f( m );
+
+                    // could the prototype be created?
+                    if( m.empty() )
                     {
-                        // which lib?
-                        ( *iter )->setLibPath( i->path() );
-                        // we use the library name (excluding extension and optional lib prefix) as package name
-                        ( *iter )->setPackageName( libBaseName );
-                        // resource path
-                        ( *iter )->setLocalPath( WPathHelper::getModuleResourcePath( i->path().parent_path(), ( *iter )->getPackageName() ) );
-
-                        // add module
-                        ticket->get().insert( *iter );
-
-                        // we need to keep a reference to the lib
-                        m_libs.push_back( l );
+                        continue;
                     }
+                    else
+                    {
+                        // yes, add it to the list of prototypes
+                        for( WModuleList::const_iterator iter = m.begin(); iter != m.end(); ++iter )
+                        {
+                            // which lib?
+                            ( *iter )->setLibPath( i->path() );
+                            // we use the library name (excluding extension and optional lib prefix) as package name
+                            ( *iter )->setPackageName( libBaseName );
+                            // resource path
+                            ( *iter )->setLocalPath( WPathHelper::getModuleResourcePath( i->path().parent_path(), ( *iter )->getPackageName() ) );
 
-                    wlog::debug( "Module Loader" ) << "Loaded " << m.size() << " modules from " << relPath;
+                            // add module
+                            ticket->get().insert( *iter );
+
+                            // we need to keep a reference to the lib
+                            m_libs.push_back( l );
+                        }
+
+                        wlog::debug( "Module Loader" ) << "Loaded " << m.size() << " modules from " << relPath;
+                    }
                 }
 
+                // do the same for the arbitrary register functionality
+                // get instantiation function
+                if( l->existsFunction( W_LOADABLE_REGISTERARBITRARY_SYMBOL ) )
+                {
+                    W_LOADABLE_REGISTERARBITRARY_SIGNATURE arbitraryRegister;
+                    l->fetchFunction< W_LOADABLE_REGISTERARBITRARY_SIGNATURE >( W_LOADABLE_REGISTERARBITRARY_SYMBOL, arbitraryRegister );
+
+                    isLoadableArbitrary = true;
+
+                    // put together the right path and call function
+                    arbitraryRegister( WPathHelper::getModuleResourcePath( i->path().parent_path(), libBaseName ) );
+                }
                 // lib gets closed if l looses focus
+
+                if( !isLoadableModule && !isLoadableArbitrary )
+                {
+                    wlog::warn( "Module Loader" ) << "Library does neither contain a module nor another extension.";
+                }
             }
             catch( const WException& e )
             {
