@@ -32,4 +32,4 @@ if [ -x "$OPENWALNUT_USEOPTIMUS" ]; then
 fi
 
 # Run OpenWalnut
-$runner $BINDIR/openwalnut-qt4 $@
+$runner $BINDIR/openwalnut-qt4 "$@"
