@@ -213,11 +213,12 @@ int WQt4Gui::run()
 
     // startup graphics engine
     m_ge = WGraphicsEngine::getGraphicsEngine();
-    m_ge->subscribeSignal( GE_STARTUPCOMPLETE, boost::bind( &WQt4Gui::deferredLoad, this ) );
 
     // and startup kernel
     m_kernel = boost::shared_ptr< WKernel >( WKernel::instance( m_ge, shared_from_this() ) );
     m_kernel->run();
+    m_kernel->subscribeSignal( WKernel::KERNEL_STARTUPCOMPLETE, boost::bind( &WQt4Gui::deferredLoad, this ) );
+
     t_ModuleErrorSignalHandlerType func = boost::bind( &WQt4Gui::moduleError, this, _1, _2 );
     m_kernel->getRootContainer()->addDefaultNotifier( WM_ERROR, func );
 

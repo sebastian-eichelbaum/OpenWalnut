@@ -265,12 +265,14 @@ struct WSharedLib::data
 #endif
 
 WSharedLib::WSharedLib( boost::filesystem::path lib ):
-    m_data( new data( lib.string() ) )
+    m_data( new data( lib.string() ) ),
+    m_libPath( lib )
 {
 }
 
 WSharedLib::WSharedLib( const WSharedLib& rhs ):
-    m_data( new data( rhs.m_data->m_path ) )
+    m_data( new data( rhs.m_data->m_path ) ),
+    m_libPath( rhs.m_libPath )
 {
 }
 
@@ -319,5 +321,12 @@ std::string WSharedLib::getSystemSuffix()
 std::string WSharedLib::getSystemLibPath()
 {
     return "../lib";
+}
+
+std::string WSharedLib::getLibraryName()
+{
+    // we want to strip the search directory from the path
+    std::string relPath( m_libPath.filename().string() );
+    return relPath;
 }
 

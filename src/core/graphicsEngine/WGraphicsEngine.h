@@ -47,8 +47,6 @@
 #include "WGEViewer.h"
 #include "WGESignals.h"
 
-
-
 /**
  * Base class for initializing the graphics engine. This Class also serves as adaptor to access the graphics
  * engine.
@@ -149,6 +147,11 @@ public:
      * Function notifies the viewer threads (if any) to start. This should only be called AFTER the OpenGL widgets/windows have been initialized.
      */
     void finalizeStartup();
+
+    /**
+     * Wait until someone called \ref finalizeStartup().
+     */
+    void waitForFinalize();
 
     /**
      * Enables multithreaded view. This MUST be called before run(). On Mac, this has no function.

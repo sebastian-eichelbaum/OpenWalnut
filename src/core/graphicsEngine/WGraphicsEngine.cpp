@@ -239,6 +239,11 @@ void WGraphicsEngine::finalizeStartup()
     m_startThreadingCondition.notify();
 }
 
+void WGraphicsEngine::waitForFinalize()
+{
+    m_startThreadingCondition.wait();
+}
+
 void WGraphicsEngine::requestShaderReload()
 {
     m_reloadShadersSignal();

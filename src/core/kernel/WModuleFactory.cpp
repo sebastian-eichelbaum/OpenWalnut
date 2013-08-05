@@ -42,7 +42,7 @@ boost::shared_ptr< WModuleFactory > WModuleFactory::m_instance = boost::shared_p
 
 WModuleFactory::WModuleFactory():
     m_prototypes(),
-    m_moduleLoader()
+    m_moduleLoader( new WModuleLoader() )
 {
     // initialize members
 }
@@ -50,6 +50,11 @@ WModuleFactory::WModuleFactory():
 WModuleFactory::~WModuleFactory()
 {
     // cleanup
+}
+
+boost::shared_ptr< WModuleLoader > WModuleFactory::getModuleLoader()
+{
+    return WModuleFactory::getModuleFactory()->m_moduleLoader;
 }
 
 void WModuleFactory::load()
@@ -61,7 +66,7 @@ void WModuleFactory::load()
     PrototypeSharedContainerType::WriteTicket l = m_prototypes.getWriteTicket();
 
     // Load the dynamic modules here:
-    m_moduleLoader.load( l );
+    m_moduleLoader->load( l );
 
     // initialize every module in the set
     std::set< std::string > names;  // helper to find duplicates

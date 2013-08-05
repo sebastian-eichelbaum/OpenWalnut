@@ -130,13 +130,11 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
                 // get instantiation function
                 if( l->existsFunction( W_LOADABLE_REGISTERARBITRARY_SYMBOL ) )
                 {
-                    W_LOADABLE_REGISTERARBITRARY_SIGNATURE arbitraryRegister;
-                    l->fetchFunction< W_LOADABLE_REGISTERARBITRARY_SIGNATURE >( W_LOADABLE_REGISTERARBITRARY_SYMBOL, arbitraryRegister );
-
                     isLoadableArbitrary = true;
 
+                    // store this temporarily. This is called later, after OW was completely initialized
                     // put together the right path and call function
-                    arbitraryRegister( WPathHelper::getModuleResourcePath( i->path().parent_path(), libBaseName ) );
+                    m_arbitraryRegisterLibs.push_back( PostponedLoad( l, WPathHelper::getModuleResourcePath( i->path().parent_path(), libBaseName ) ) );
                 }
                 // lib gets closed if l looses focus
 
@@ -181,6 +179,18 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
 
         // directly search the path for libOWmodule_ files
         load( ticket, *path );
+    }
+}
+
+void WModuleLoader::initializeExtensions()
+{
+    typedef std::vector< PostponedLoad > Vec;
+    for( Vec::const_iterator iter = m_arbitraryRegisterLibs.begin(); iter != m_arbitraryRegisterLibs.end(); ++iter )
+    {
+        wlog::debug( "WModuleLoader" ) << "Initializing extensions of \"" << ( *iter ).m_lib->getLibraryName() << "\"";
+        W_LOADABLE_REGISTERARBITRARY_SIGNATURE arbitraryRegister;
+        ( *iter ).m_lib->fetchFunction< W_LOADABLE_REGISTERARBITRARY_SIGNATURE >( W_LOADABLE_REGISTERARBITRARY_SYMBOL, arbitraryRegister );
+        arbitraryRegister( ( *iter ).m_path );
     }
 }
 

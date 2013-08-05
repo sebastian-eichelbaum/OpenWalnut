@@ -39,6 +39,7 @@
 #include "../common/WRealtimeTimer.h"
 #include "../dataHandler/WDataHandler.h"
 #include "../gui/WGUI.h"
+#include "exceptions/WKernelException.h"
 #include "WKernel.h"
 #include "WModuleContainer.h"
 #include "WModuleFactory.h"
@@ -153,12 +154,31 @@ void WKernel::threadMain()
     {
         m_gui->isInitialized().wait();
     }
+    else
+    {
+        wlog::warn( "Kernel" ) << "Expected GUI instance but none was initialized.";
+    }
 
     // start GE
     if( m_graphicsEngine )
     {
         m_graphicsEngine->run();
+
+        // wait for it to be ready
+        m_graphicsEngine->waitForFinalize();
     }
+    else
+    {
+        wlog::warn( "Kernel" ) << "Expected GE instance but none was initialized.";
+    }
+
+    // do extension loading
+    wlog::info( "Kernel" ) << "Initializing extensions.";
+    WModuleFactory::getModuleLoader()->initializeExtensions();
+
+    // done. Notify anyone waiting
+    wlog::info( "Kernel" ) << "Initialization completed.";
+    m_startupCompleted.notify();
 
     // actually there is nothing more to do here
     waitForStop();
@@ -206,3 +226,16 @@ WTimer::ConstSPtr WKernel::getTimer() const
     return m_timer;
 }
 
+boost::signals2::connection WKernel::subscribeSignal( WKernel::KERNEL_SIGNAL signal, WKernel::t_KernelGenericSignalHandlerType notifier )
+{
+    switch( signal )
+    {
+        case KERNEL_STARTUPCOMPLETE:
+            return m_startupCompleted.subscribeSignal( notifier );
+        default:
+            std::ostringstream s;
+            s << "Could not subscribe to unknown signal.";
+            throw WKernelException( s.str() );
+            break;
+    }
+}

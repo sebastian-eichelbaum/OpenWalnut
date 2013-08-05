@@ -37,8 +37,6 @@
 #include "WModule.h"
 #include "WModuleLoader.h"
 
-
-
 /**
  * Class able to create a new copy of an arbitrary module. It uses the Factory and Prototype design pattern.
  */
@@ -91,6 +89,13 @@ public:
      * \return the running module factory.
      */
     static boost::shared_ptr< WModuleFactory > getModuleFactory();
+
+    /**
+     * Returns instance of the module loader.
+     *
+     * \return the running module loader.
+     */
+    static boost::shared_ptr< WModuleLoader > getModuleLoader();
 
     /**
      * Searches a prototype by name. It returns the prototype, or a NULL pointer if it is not found. The difference to
@@ -212,7 +217,7 @@ private:
     /**
      * Loader class managing dynamically loaded modules in OpenWalnut.
      */
-    WModuleLoader m_moduleLoader;
+    WModuleLoader::SPtr m_moduleLoader;
 
     /**
      * Singleton instance of WModuleFactory.

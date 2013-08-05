@@ -140,6 +140,13 @@ public:
      */
     static std::string getSystemLibPath();
 
+    /**
+     * Returns the filename of the library without path.
+     *
+     * \return the filename.
+     */
+    std::string getLibraryName();
+
 protected:
 private:
     //! neutral function pointer type
@@ -168,6 +175,9 @@ private:
 
     //! internal data
     data* m_data;
+
+    //! path to lib
+    boost::filesystem::path m_libPath;
 };
 
 template < typename FuncType >

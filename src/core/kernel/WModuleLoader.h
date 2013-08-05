@@ -44,6 +44,16 @@ class  WModuleLoader
 {
 public:
     /**
+     * Shared pointer abbreviation.
+     */
+    typedef boost::shared_ptr< WModuleLoader > SPtr;
+
+    /**
+     * Const pointer abbreviation.
+     */
+    typedef boost::shared_ptr< const WModuleLoader > ConstSPtr;
+
+    /**
      * Constructor. It does not load any files. Use load to do this.
      *
      */
@@ -68,6 +78,12 @@ public:
      */
     static std::string getModulePrefix();
 
+    /**
+     * The loader also stores information on which library provides the arbitrary registration mechanism. This cannot be called during load, as
+     * OW is not completely initialized at this point. So we do this here. Call this after startup, before project loading.
+     */
+    void initializeExtensions();
+
 private:
     /**
      * All the loaded shared libraries. Get freed on destruction. So do NOT free this instance while the libs are used.
@@ -84,6 +100,34 @@ private:
      */
     void load( WSharedAssociativeContainer< std::set< boost::shared_ptr< WModule > > >::WriteTicket ticket, boost::filesystem::path dir,
                unsigned int level = 0 );
+
+    /**
+     * Helper to store information on a lib which gets initialized later. This basically is used for the arbitrary registration feature.
+     */
+    struct PostponedLoad
+    {
+        PostponedLoad( boost::shared_ptr< WSharedLib > lib, boost::filesystem::path path ):
+            m_lib( lib ),
+            m_path( path )
+        {
+        }
+
+        /**
+         * The library. Need to keep this to avoid freeing the lib beforehand.
+         */
+        boost::shared_ptr< WSharedLib > m_lib;
+
+        /**
+         * The path of the resources.
+         */
+        boost::filesystem::path m_path;
+    };
+
+    /**
+     * The libs which need to be initialized when OW is loaded completely.
+     */
+    std::vector< PostponedLoad > m_arbitraryRegisterLibs;
+
 };
 
 #endif  // WMODULELOADER_H

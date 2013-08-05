@@ -36,8 +36,6 @@
 
 #include "WBatchLoader.h"
 
-
-
 // forward declarations
 class WGUI;
 class WModule;
@@ -64,6 +62,26 @@ class WKernel: public WThreadedRunner
 {
 public:
     /**
+     * Signal for generic events.
+     *
+     */
+    typedef boost::function< void ( void ) > t_KernelGenericSignalHandlerType;
+
+    /**
+     * Generic signal type used in the most signals.
+     */
+    typedef boost::signals2::signal< void ( void ) >  t_KernelGenericSignalType;
+
+    /**
+     * Enum of all possible signals WKernel instances can emit.
+     */
+    typedef enum
+    {
+        KERNEL_STARTUPCOMPLETE  // when kernel, GE and GUI are correctly initialized
+    }
+    KERNEL_SIGNAL;
+
+    /**
      * Returns pointer to the running kernel or a new if no kernel was there.
      * If a running kernel exists the function return it and does not check if
      * ge and gui of the running kernel are equivalent to the ones given as parameters.
@@ -78,6 +96,16 @@ public:
      * Destructor.
      */
     virtual ~WKernel();
+
+    /**
+     * Subscribe to several signals.
+     *
+     * \param signal the signal to subscribe
+     * \param notifier the notifier to call
+     *
+     * \return connection variable. Keep this in any case. If not, the connection may be lost.
+     */
+    boost::signals2::connection subscribeSignal( KERNEL_SIGNAL signal, t_KernelGenericSignalHandlerType notifier );
 
     /**
      * Stops execution of the modules in the root container. Note that this does not wait for the kernel thread since this could
@@ -255,6 +283,11 @@ private:
      * The ow system timer.
      */
     WTimer::SPtr m_timer;
+
+    /**
+     * Notified when the startup, including GE and GUI has been completed.
+     */
+    WConditionOneShot m_startupCompleted;
 };
 
 #endif  // WKERNEL_H
