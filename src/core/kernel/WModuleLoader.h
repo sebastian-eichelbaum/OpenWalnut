@@ -127,7 +127,6 @@ private:
      * The libs which need to be initialized when OW is loaded completely.
      */
     std::vector< PostponedLoad > m_arbitraryRegisterLibs;
-
 };
 
 #endif  // WMODULELOADER_H

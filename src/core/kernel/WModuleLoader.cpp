@@ -134,7 +134,9 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
 
                     // store this temporarily. This is called later, after OW was completely initialized
                     // put together the right path and call function
-                    m_arbitraryRegisterLibs.push_back( PostponedLoad( l, WPathHelper::getModuleResourcePath( i->path().parent_path(), libBaseName ) ) );
+                    m_arbitraryRegisterLibs.push_back(
+                        PostponedLoad( l, WPathHelper::getModuleResourcePath( i->path().parent_path(), libBaseName ) )
+                    );
                 }
                 // lib gets closed if l looses focus
 
