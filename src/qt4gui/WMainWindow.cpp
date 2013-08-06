@@ -449,6 +449,10 @@ void WMainWindow::setupGUI()
 
     // after creating the GUI, restore its saved state
     restoreSavedState();
+
+    // this ensures that there is always at least the main window visible. Removing this might cause a freeze on startup if the user has closed
+    // all gl widgets during the last session.
+    mainGLDock->setVisible( true );
 }
 
 void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string proto, bool onlyOnce )
