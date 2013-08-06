@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#version 120
+#version 130
 
 // the Surface normal at this point
 varying vec3 v_normal;

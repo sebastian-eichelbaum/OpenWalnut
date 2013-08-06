@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#version 120
+#version 130
 
 #ifdef LOCALILLUMINATION_PHONG
 #include "WGEShadingTools.glsl"

@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#version 120
+#version 130
 
 #include "WGEColormapping-fragment.glsl"
 
