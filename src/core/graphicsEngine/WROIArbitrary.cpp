@@ -163,7 +163,7 @@ void WROIArbitrary::updateGFX()
         // ------------------------------------------------
         // normals
         surfaceGeometry->setNormalArray( m_triMesh->getTriangleNormalArray() );
-        surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+        // surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
 
         // ------------------------------------------------
         // colors

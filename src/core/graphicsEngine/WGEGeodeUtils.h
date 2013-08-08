@@ -129,18 +129,6 @@ namespace wge
                                                                    );
 
     /**
-     * Extract the vertices and triangles from a WTriangleMesh and save them
-     * into an osg::Geometry. It uses per triangle normals.
-     *
-     * \param mesh the WTriangleMesh used as input
-     * \param color This color is used for all vertices
-     * \return an osg::Geometry containing the mesh
-     * \note mesh cannot be const since osg::Geometry needs non-const pointers to the contained arrays
-     */
-    osg::ref_ptr< osg::Geometry > convertMeshToOsgGeometryFlat( WTriangleMesh::SPtr mesh,
-                                                                const WColor& color = WColor( 1.0, 1.0, 1.0, 1.0 ) );
-
-    /**
      * Convert triangle mesh to lines representing it. Draws lines twice (ATM).
      *
      * \param mesh The WTriangleMesh used as input.
@@ -152,20 +140,6 @@ namespace wge
     osg::ref_ptr< osg::Geometry > convertToOsgGeometryLines( WTriangleMesh::SPtr mesh,
                                                              const WColor& defaultColor = WColor( 1.0, 1.0, 1.0, 1.0 ),
                                                              bool useMeshColor = true );
-
-
-    /**
-     * Generates a line geode with thickness and color as parameters.
-     *
-     * \param line sequence of points
-     * \param thickness How thick the line strip should be
-     * \param color If present this color is used for the whole line, otherwise local coloring is used
-     *
-     * \return The new assembled geode for this line
-     */
-    osg::ref_ptr< osg::Geode > generateLineStripGeode( const WLine& line,
-                                                                  const float thickness = 3.0f,
-                                                                  const WColor& color = WColor( 0, 0, 0, 0 ) );
 
     /**
      * helper function to add a label somewhere
@@ -229,72 +203,6 @@ namespace wge
      * \return the geode
      */
     osg::ref_ptr< osg::Geode > genFinitePlane( osg::Vec3 const& base, osg::Vec3 const& a, osg::Vec3 const& b );
-
-    /**
-     * Generates a plane subdivided into quads.
-     *
-     * \param resX How many quads in x-direction
-     * \param resY How many quads in y-direction
-     * \param spacing Not implement yet
-     *
-     * \return The new uncolored plane geode
-     */
-    osg::ref_ptr< WGESubdividedPlane > genUnitSubdividedPlane( size_t resX, size_t resY, double spacing = 0.01 );
-
-    /**
-     * For each points in the STL container generate small cubes.
-     *
-     * \param points Center point of the cubes
-     * \param size The size of the cubes
-     * \param color The color of the cubes
-     * \tparam An STL container with WPositions as elements ( don't try it with different than vector, set, list or queue )
-     *
-     * \return Geode with as many cubes as points in the container where each cube is around a certain position.
-     */
-    template< class Container > osg::ref_ptr< osg::Geode > genPointBlobs( boost::shared_ptr< Container > points,
-                                                                          double size,
-                                                                          const WColor& color = WColor( 1.0, 0.0, 0.0, 1.0 ) );
 } // end of namespace wge
 
-template< class Container > inline osg::ref_ptr< osg::Geode > wge::genPointBlobs( boost::shared_ptr< Container > points,
-                                                                                  double size,
-                                                                                  const WColor& color )
-{
-    osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-    osg::ref_ptr< osg::Vec4Array > colors   = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    osg::ref_ptr< osg::Geometry >  geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
-    osg::ref_ptr< osg::Vec3Array > normals  = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-
-    for( typename Container::const_iterator point = points->begin(); point != points->end(); ++point )
-    {
-        const WPosition& pos = *point;
-        std::vector< WPosition > corners;
-        corners.reserve( 8 );
-        double halfSize = size / 2.0;
-        corners.push_back( WPosition( pos[0] - halfSize, pos[1] - halfSize, pos[2] - halfSize ) );
-        corners.push_back( WPosition( pos[0] + halfSize, pos[1] - halfSize, pos[2] - halfSize ) );
-        corners.push_back( WPosition( pos[0] + halfSize, pos[1] - halfSize, pos[2] + halfSize ) );
-        corners.push_back( WPosition( pos[0] - halfSize, pos[1] - halfSize, pos[2] + halfSize ) );
-        corners.push_back( WPosition( pos[0] - halfSize, pos[1] + halfSize, pos[2] - halfSize ) );
-        corners.push_back( WPosition( pos[0] + halfSize, pos[1] + halfSize, pos[2] - halfSize ) );
-        corners.push_back( WPosition( pos[0] + halfSize, pos[1] + halfSize, pos[2] + halfSize ) );
-        corners.push_back( WPosition( pos[0] - halfSize, pos[1] + halfSize, pos[2] + halfSize ) );
-
-        osg::ref_ptr< osg::Vec3Array > ver = generateCuboidQuads( corners );
-        vertices->insert( vertices->end(), ver->begin(), ver->end() );
-        osg::ref_ptr< osg::Vec3Array > nor = generateCuboidQuadNormals( corners );
-        normals->insert( normals->end(), nor->begin(), nor->end() );
-        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, vertices->size() - ver->size(), ver->size() ) );
-    }
-
-    geometry->setVertexArray( vertices );
-    colors->push_back( color );
-    geometry->setColorArray( colors );
-    geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-    geometry->setNormalArray( normals );
-    geometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
-    osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
-    geode->addDrawable( geometry );
-    return geode;
-}
 #endif  // WGEGEODEUTILS_H

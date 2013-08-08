@@ -103,11 +103,17 @@ osg::ref_ptr< osg::Geometry > wge::createUnitCube( const WColor& color )
     osg::ref_ptr< osg::Vec3Array > normals = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
 
+    // NOTE: as the OSG 3.2 does not allow binding normals/colors and other arrays on a per-primitive basis, we bind the normals per vertex
+    // This means we add four normals per face
+
     // front face
     vertices->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
     vertices->push_back( osg::Vec3( 1.0, 0.0, 0.0 ) );
     vertices->push_back( osg::Vec3( 1.0, 1.0, 0.0 ) );
     vertices->push_back( osg::Vec3( 0.0, 1.0, 0.0 ) );
+    normals->push_back( osg::Vec3( 0.0, 0.0, -1.0 ) );
+    normals->push_back( osg::Vec3( 0.0, 0.0, -1.0 ) );
+    normals->push_back( osg::Vec3( 0.0, 0.0, -1.0 ) );
     normals->push_back( osg::Vec3( 0.0, 0.0, -1.0 ) );
 
     // back face
@@ -116,12 +122,18 @@ osg::ref_ptr< osg::Geometry > wge::createUnitCube( const WColor& color )
     vertices->push_back( osg::Vec3( 1.0, 1.0, 1.0 ) );
     vertices->push_back( osg::Vec3( 0.0, 1.0, 1.0 ) );
     normals->push_back( osg::Vec3( 0.0, 0.0, 1.0 ) );
+    normals->push_back( osg::Vec3( 0.0, 0.0, 1.0 ) );
+    normals->push_back( osg::Vec3( 0.0, 0.0, 1.0 ) );
+    normals->push_back( osg::Vec3( 0.0, 0.0, 1.0 ) );
 
     // left
     vertices->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
     vertices->push_back( osg::Vec3( 0.0, 1.0, 0.0 ) );
     vertices->push_back( osg::Vec3( 0.0, 1.0, 1.0 ) );
     vertices->push_back( osg::Vec3( 0.0, 0.0, 1.0 ) );
+    normals->push_back( osg::Vec3( -1.0, 0.0, 0.0 ) );
+    normals->push_back( osg::Vec3( -1.0, 0.0, 0.0 ) );
+    normals->push_back( osg::Vec3( -1.0, 0.0, 0.0 ) );
     normals->push_back( osg::Vec3( -1.0, 0.0, 0.0 ) );
 
     // right
@@ -130,6 +142,9 @@ osg::ref_ptr< osg::Geometry > wge::createUnitCube( const WColor& color )
     vertices->push_back( osg::Vec3( 1.0, 1.0, 1.0 ) );
     vertices->push_back( osg::Vec3( 1.0, 0.0, 1.0 ) );
     normals->push_back( osg::Vec3( 1.0, 0.0, 0.0 ) );
+    normals->push_back( osg::Vec3( 1.0, 0.0, 0.0 ) );
+    normals->push_back( osg::Vec3( 1.0, 0.0, 0.0 ) );
+    normals->push_back( osg::Vec3( 1.0, 0.0, 0.0 ) );
 
     // bottom
     vertices->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
@@ -137,12 +152,18 @@ osg::ref_ptr< osg::Geometry > wge::createUnitCube( const WColor& color )
     vertices->push_back( osg::Vec3( 1.0, 0.0, 1.0 ) );
     vertices->push_back( osg::Vec3( 0.0, 0.0, 1.0 ) );
     normals->push_back( osg::Vec3( 0.0, -1.0, 0.0 ) );
+    normals->push_back( osg::Vec3( 0.0, -1.0, 0.0 ) );
+    normals->push_back( osg::Vec3( 0.0, -1.0, 0.0 ) );
+    normals->push_back( osg::Vec3( 0.0, -1.0, 0.0 ) );
 
     // top
     vertices->push_back( osg::Vec3( 0.0, 1.0, 0.0 ) );
     vertices->push_back( osg::Vec3( 1.0, 1.0, 0.0 ) );
     vertices->push_back( osg::Vec3( 1.0, 1.0, 1.0 ) );
     vertices->push_back( osg::Vec3( 0.0, 1.0, 1.0 ) );
+    normals->push_back( osg::Vec3( 0.0, 1.0, 0.0 ) );
+    normals->push_back( osg::Vec3( 0.0, 1.0, 0.0 ) );
+    normals->push_back( osg::Vec3( 0.0, 1.0, 0.0 ) );
     normals->push_back( osg::Vec3( 0.0, 1.0, 0.0 ) );
 
     // set it up and set arrays
@@ -154,7 +175,7 @@ osg::ref_ptr< osg::Geometry > wge::createUnitCube( const WColor& color )
 
     // set normals
     cube->setNormalArray( normals );
-    cube->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+    cube->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
 
     // finally, the colors
     colors->push_back( color );
@@ -340,62 +361,6 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mes
     return geometry;
 }
 
-osg::ref_ptr< osg::Geometry > wge::convertMeshToOsgGeometryFlat( WTriangleMesh::SPtr mesh,
-                                                                 const WColor& color )
-{
-    osg::ref_ptr< osg::Geometry> geometry( new osg::Geometry );
-    geometry->setVertexArray( mesh->getVertexArray() );
-
-    osg::DrawElementsUInt* surfaceElement;
-
-    surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
-
-    std::vector< size_t > tris = mesh->getTriangles();
-    surfaceElement->reserve( tris.size() );
-
-    for( unsigned int vertId = 0; vertId < tris.size(); ++vertId )
-    {
-        surfaceElement->push_back( tris[vertId] );
-    }
-    geometry->addPrimitiveSet( surfaceElement );
-
-    {
-        osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-        colors->push_back( color );
-        geometry->setColorArray( colors );
-        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-    }
-
-    // ------------------------------------------------
-    // normals
-    {
-        geometry->setNormalArray( mesh->getTriangleNormalArray() );
-        geometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
-
-        // if normals are specified, we also setup a default lighting.
-        osg::StateSet* state = geometry->getOrCreateStateSet();
-        osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
-        lightModel->setTwoSided( true );
-        state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
-        state->setMode( GL_BLEND, osg::StateAttribute::ON  );
-        {
-            osg::ref_ptr< osg::Material > material = new osg::Material();
-            material->setDiffuse(   osg::Material::FRONT, osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
-            material->setSpecular(  osg::Material::FRONT, osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
-            material->setAmbient(   osg::Material::FRONT, osg::Vec4( 0.1, 0.1, 0.1, 1.0 ) );
-            material->setEmission(  osg::Material::FRONT, osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
-            material->setShininess( osg::Material::FRONT, 0.0 );
-            state->setAttribute( material );
-        }
-    }
-
-    // enable VBO
-    geometry->setUseDisplayList( false );
-    geometry->setUseVertexBufferObjects( true );
-
-    return geometry;
-}
-
 osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometryLines( WTriangleMesh::SPtr mesh,
                                                               const WColor& defaultColor,
                                                               bool useMeshColor )
@@ -439,47 +404,6 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometryLines( WTriangleMesh::SPt
     stateset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
 
     return geometry;
-}
-
-osg::ref_ptr< osg::Geode > wge::generateLineStripGeode( const WLine& line, const float thickness, const WColor& color )
-{
-    using osg::ref_ptr;
-    ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-    ref_ptr< osg::Vec4Array > colors   = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    ref_ptr< osg::Geometry >  geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
-
-    for( size_t i = 1; i < line.size(); ++i )
-    {
-        vertices->push_back( osg::Vec3( line[i-1][0], line[i-1][1], line[i-1][2] ) );
-        colors->push_back( wge::getRGBAColorFromDirection( line[i-1], line[i] ) );
-    }
-    vertices->push_back( osg::Vec3( line.back()[0], line.back()[1], line.back()[2] ) );
-    colors->push_back( colors->back() );
-
-    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, line.size() ) );
-    geometry->setVertexArray( vertices );
-
-    if( color != WColor( 0, 0, 0, 0 ) )
-    {
-        colors->clear();
-        colors->push_back( color );
-        geometry->setColorArray( colors );
-        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-    }
-    else
-    {
-        geometry->setColorArray( colors );
-        geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
-    }
-
-    // line width
-    osg::StateSet* stateset = geometry->getOrCreateStateSet();
-    stateset->setAttributeAndModes( new osg::LineWidth( thickness ), osg::StateAttribute::ON );
-    stateset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-
-    osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
-    geode->addDrawable( geometry );
-    return geode;
 }
 
 osg::ref_ptr< osg::PositionAttitudeTransform > wge::addLabel( osg::Vec3 position, std::string text )
@@ -600,58 +524,6 @@ osg::ref_ptr< osg::Geode > wge::genFinitePlane( osg::Vec3 const& base, osg::Vec3
 
     osg::ref_ptr< osg::Geode > geode = new osg::Geode();
     geode->addDrawable( geometry );
-    return geode;
-}
-
-osg::ref_ptr< WGESubdividedPlane > wge::genUnitSubdividedPlane( size_t resX, size_t resY, double spacing )
-{
-    WAssert( resX > 0 && resY > 0, "A Plane with no quad is not supported, use another datatype for that!" );
-    double dx = ( resX > 1 ? 1.0 / ( resX - 1 ) : 1.0 );
-    double dy = ( resY > 1 ? 1.0 / ( resY - 1 ) : 1.0 );
-
-    size_t numQuads = resX * resY;
-
-    using osg::ref_ptr;
-    ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array( numQuads * 4 ) );
-    ref_ptr< osg::Vec3Array > centers = ref_ptr< osg::Vec3Array >( new osg::Vec3Array( numQuads ) );
-    ref_ptr< osg::Vec4Array > colors   = ref_ptr< osg::Vec4Array >( new osg::Vec4Array( numQuads ) );
-
-    for( size_t yQuad = 0; yQuad < resY; ++yQuad )
-    {
-        for( size_t xQuad = 0; xQuad < resX; ++xQuad )
-        {
-            size_t qIndex = yQuad * resX + xQuad;
-            size_t vIndex = qIndex * 4; // since there are 4 corners
-            vertices->at( vIndex     ) = osg::Vec3( xQuad * dx + spacing,      yQuad * dy + spacing,      0.0 );
-            vertices->at( vIndex + 1 ) = osg::Vec3( xQuad * dx + dx - spacing, yQuad * dy + spacing,      0.0 );
-            vertices->at( vIndex + 2 ) = osg::Vec3( xQuad * dx + dx - spacing, yQuad * dy + dy - spacing, 0.0 );
-            vertices->at( vIndex + 3 ) = osg::Vec3( xQuad * dx + spacing,      yQuad * dy + dy - spacing, 0.0 );
-            centers->at( qIndex ) = osg::Vec3( xQuad * dx + dx / 2.0, yQuad * dy + dy / 2.0, 0.0 );
-            colors->at( qIndex ) = osg::Vec4( 0.1 +  static_cast< double >( qIndex ) / numQuads * 0.6,
-                                              0.1 +  static_cast< double >( qIndex ) / numQuads * 0.6,
-                                              1.0, 1.0 );
-        }
-    }
-
-    ref_ptr< osg::Geometry >  geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
-    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, vertices->size() ) );
-    geometry->setVertexArray( vertices );
-    geometry->setColorArray( colors );
-    geometry->setColorBinding( osg::Geometry::BIND_PER_PRIMITIVE );
-
-    ref_ptr< osg::Vec3Array > normals = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-    normals->push_back( osg::Vec3( 0.0, 0.0, 1.0 ) );
-    geometry->setNormalArray( normals );
-    geometry->setNormalBinding( osg::Geometry::BIND_OVERALL );
-    osg::ref_ptr< WGESubdividedPlane > geode = osg::ref_ptr< WGESubdividedPlane >( new WGESubdividedPlane );
-    geode->addDrawable( geometry );
-    geode->setCenterArray( centers );
-
-    // we need to disable light, since the order of the vertices may be wrong and with lighting you won't see anything but black surfaces
-    osg::StateSet* state = geode->getOrCreateStateSet();
-    state->setMode( GL_BLEND, osg::StateAttribute::ON );
-    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
-
     return geode;
 }
 
