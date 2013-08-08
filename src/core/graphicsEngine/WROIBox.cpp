@@ -209,6 +209,8 @@ WROIBox::WROIBox( WPosition minPos, WPosition maxPos ) :
     setUserData( this );
     setUpdateCallback( osg::ref_ptr<ROIBoxNodeCallback>( new ROIBoxNodeCallback ) );
 
+    m_lightShader->apply( this );
+
     setDirty();
 }
 
@@ -367,8 +369,6 @@ void WROIBox::updateGFX()
         osg::ref_ptr<osg::Vec3Array> vertices = osg::ref_ptr<osg::Vec3Array>( new osg::Vec3Array );
         setVertices( vertices, m_minPos->get(), m_maxPos->get() );
         m_surfaceGeometry->setVertexArray( vertices );
-
-        m_lightShader->apply( this );
 
         setDirty();
         m_needVertexUpdate = false;
