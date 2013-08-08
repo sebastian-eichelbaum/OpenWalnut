@@ -199,7 +199,7 @@ WROIBox::WROIBox( WPosition minPos, WPosition maxPos ) :
     osg::ref_ptr<osg::Vec3Array> normals = osg::ref_ptr<osg::Vec3Array>( new osg::Vec3Array );
     setNormals( normals );
     m_surfaceGeometry->setNormalArray( normals );
-    // m_surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+     m_surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
 
     m_not->set( false );
 

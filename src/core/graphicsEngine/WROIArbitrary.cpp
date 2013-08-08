@@ -162,7 +162,9 @@ void WROIArbitrary::updateGFX()
 
         // ------------------------------------------------
         // normals
-        surfaceGeometry->setNormalArray( m_triMesh->getTriangleNormalArray() );
+        // FIXME: OSG 3.2 no longer supports binding per primitive. I did not find any evidence that the marching lego Algorithm calculated any
+        // normals. So the code is disabled.
+        // surfaceGeometry->setNormalArray( m_triMesh->getTriangleNormalArray() );
         // surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
 
         // ------------------------------------------------

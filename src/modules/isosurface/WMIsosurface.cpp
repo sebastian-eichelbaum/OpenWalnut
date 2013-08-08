@@ -413,13 +413,9 @@ void WMIsosurface::renderMesh()
 
     // ------------------------------------------------
     // normals
-    if( m_useMarchingLego->get( true ) )
+    if( !m_useMarchingLego->get( true ) )
     {
-        surfaceGeometry->setNormalArray( m_triMesh->getTriangleNormalArray() );
-        surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
-    }
-    else
-    {
+        // marching lego does not provide normals on a per-vertex-basis. Since OSG3.2, only normal binding on a per vertex basis is supported.
         surfaceGeometry->setNormalArray( m_triMesh->getVertexNormalArray() );
         surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
     }
