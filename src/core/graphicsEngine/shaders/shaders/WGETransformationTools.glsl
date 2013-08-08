@@ -25,7 +25,7 @@
 #ifndef WGETRANSFORMATIONTOOLS_GLSL
 #define WGETRANSFORMATIONTOOLS_GLSL
 
-#version 120
+#version 130
 
 /**
  * Projects a given point to screen-space, where (0,0) is the lower left corner and (1,1) the upper right. The Depth

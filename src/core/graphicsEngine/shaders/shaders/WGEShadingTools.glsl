@@ -25,7 +25,7 @@
 #ifndef WGESHADINGTOOLS_GLSL
 #define WGESHADINGTOOLS_GLSL
 
-#version 120
+#version 130
 
 /**
  * A struct containing the needed light and material parameters commonly used in most shaders.

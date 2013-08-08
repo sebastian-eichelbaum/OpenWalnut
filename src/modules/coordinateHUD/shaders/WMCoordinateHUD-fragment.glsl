@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#version 120
+#version 130
 
 /**
  * Texture sampler for the face-label texture

@@ -25,7 +25,7 @@
 #ifndef WGECOLORMAPPING_FRAGMENT_GLSL
 #define WGECOLORMAPPING_FRAGMENT_GLSL
 
-#version 120
+#version 130
 
 #include "WGEColorMapsImproved.glsl"
 
@@ -55,7 +55,7 @@ void colormap( inout vec4 color, in sampler3D sampler, in vec3 coord, in vec3 si
                bool clipZeroEnabled,
                float thresholdVLower, float thresholdVUpper, bool thresholdEnabled,
                bool windowEnabled, vec2  window,
-               float alpha, int cmap, bool active )
+               float alpha, int cmap, bool cmactive )
 {
     // This implements a manual trilinear interpolation. Include WGETextureutils.glsl to use this
     // vec3 vSize = vec3( 1.0 / float( size.x ),
@@ -75,14 +75,14 @@ void colormap( inout vec4 color, in sampler3D sampler, in vec3 coord, in vec3 si
     // vec3 c101 = getNeighbourVoxel( vSize, coord, vec3( 1.0, 0.0, 1.0 ) );
     // vec3 c111 = getNeighbourVoxel( vSize, coord, vec3( 1.0, 1.0, 1.0 ) );
     //
-    // vec4 v00 = mix( colormap( texture3D( sampler, c000 ).rgba, minV, scaleV, thresholdV, thresholdEnabled, alpha, cmap, active ),
-    //                 colormap( texture3D( sampler, c100 ).rgba, minV, scaleV, thresholdV, thresholdEnabled, alpha, cmap, active ), coordDiff.x );
-    // vec4 v10 = mix( colormap( texture3D( sampler, c010 ).rgba, minV, scaleV, thresholdV, thresholdEnabled, alpha, cmap, active ),
-    //                 colormap( texture3D( sampler, c110 ).rgba, minV, scaleV, thresholdV, thresholdEnabled, alpha, cmap, active ), coordDiff.x );
-    // vec4 v01 = mix( colormap( texture3D( sampler, c001 ).rgba, minV, scaleV, thresholdV, thresholdEnabled, alpha, cmap, active ),
-    //                 colormap( texture3D( sampler, c101 ).rgba, minV, scaleV, thresholdV, thresholdEnabled, alpha, cmap, active ), coordDiff.x );
-    // vec4 v11 = mix( colormap( texture3D( sampler, c011 ).rgba, minV, scaleV, thresholdV, thresholdEnabled, alpha, cmap, active ),
-    //                 colormap( texture3D( sampler, c111 ).rgba, minV, scaleV, thresholdV, thresholdEnabled, alpha, cmap, active ), coordDiff.x );
+    // vec4 v00 = mix( colormap( texture3D( sampler, c000 ).rgba, minV, scaleV, thresholdV, thresholdEnabled, alpha, cmap, cmactive ),
+    //                 colormap( texture3D( sampler, c100 ).rgba, minV, scaleV, thresholdV, thresholdEnabled, alpha, cmap, cmactive ), coordDiff.x );
+    // vec4 v10 = mix( colormap( texture3D( sampler, c010 ).rgba, minV, scaleV, thresholdV, thresholdEnabled, alpha, cmap, cmactive ),
+    //                 colormap( texture3D( sampler, c110 ).rgba, minV, scaleV, thresholdV, thresholdEnabled, alpha, cmap, cmactive ), coordDiff.x );
+    // vec4 v01 = mix( colormap( texture3D( sampler, c001 ).rgba, minV, scaleV, thresholdV, thresholdEnabled, alpha, cmap, cmactive ),
+    //                 colormap( texture3D( sampler, c101 ).rgba, minV, scaleV, thresholdV, thresholdEnabled, alpha, cmap, cmactive ), coordDiff.x );
+    // vec4 v11 = mix( colormap( texture3D( sampler, c011 ).rgba, minV, scaleV, thresholdV, thresholdEnabled, alpha, cmap, cmactive ),
+    //                 colormap( texture3D( sampler, c111 ).rgba, minV, scaleV, thresholdV, thresholdEnabled, alpha, cmap, cmactive ), coordDiff.x );
     //
     // vec4 src = mix( mix( v00, v10, coordDiff.y ),
     //            mix( v01, v11, coordDiff.y ), coordDiff.z );
@@ -94,7 +94,7 @@ void colormap( inout vec4 color, in sampler3D sampler, in vec3 coord, in vec3 si
     vec4 src = colormap( value, minV, scaleV, clipZeroEnabled,
                                               thresholdVLower, thresholdVUpper, thresholdEnabled,
                                               window, windowEnabled,
-                                              alpha, cmap, active );
+                                              alpha, cmap, cmactive );
 
     // compositing:
     // associated colors needed

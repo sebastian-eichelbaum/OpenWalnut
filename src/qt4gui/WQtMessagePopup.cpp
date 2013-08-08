@@ -134,6 +134,7 @@ WQtMessagePopup::WQtMessagePopup( QWidget* parent, const QString& title, const Q
 
     WScaleLabel* titleLabel = new WScaleLabel( this );
     titleLabel->setText( titlePrefix + title );
+    titleLabel->setContentsMargins( 0, 0, 0, 0 );
     topLayout->addWidget( titleLabel );
 
     QPushButton* detailsBtn = new QPushButton( "", this );
@@ -184,7 +185,7 @@ void WQtMessagePopup::showEvent( QShowEvent* event )
         QPoint p = parentWidget()->mapToGlobal( QPoint( parentWidget()->width() / 2, parentWidget()->height() ) );
 
         // set position, include margins
-        move( p.x() - width() / 2 - OUTERMARGIN / 2, p.y() - height()- OUTERMARGIN );
+        move( p.x() - width() / 2 - OUTERMARGIN / 2, p.y() - 2 * height()- OUTERMARGIN );
     }
 
     QDialog::showEvent( event );

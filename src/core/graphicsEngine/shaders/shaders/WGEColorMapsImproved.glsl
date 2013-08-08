@@ -25,7 +25,7 @@
 #ifndef WGECOLORMAPSIMPROVED_GLSL
 #define WGECOLORMAPSIMPROVED_GLSL
 
-#version 120
+#version 130
 
 #include "WGEUtils.glsl"
 
@@ -463,7 +463,7 @@ vec4 colormap( in vec4 value, float minV, float scaleV,
                bool clipZeroEnabled,
                float thresholdVLower, float thresholdVUpper, bool thresholdEnabled,
                vec2  window, bool windowEnabled,
-               float alpha, int colormap, bool active )
+               float alpha, int colormap, bool cmactive )
 {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Scale the input data to original space, and apply windowing
@@ -550,7 +550,7 @@ vec4 colormap( in vec4 value, float minV, float scaleV,
                               alpha *               // did the user specified an alpha?
                               clip *                // value clip?
                               clipTh *              // clip due to threshold?
-                              float( active ) );    // is it active?
+                              float( cmactive ) );    // is it active?
 }
 
 #endif // WGECOLORMAPS_GLSL

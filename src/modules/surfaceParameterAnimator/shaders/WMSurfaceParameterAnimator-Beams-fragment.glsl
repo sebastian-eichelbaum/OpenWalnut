@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#version 120
+#version 130
 #extension GL_EXT_gpu_shader4 : enable
 
 #include "WGETextureTools.glsl"

@@ -1,8 +1,6 @@
 ADD_MODULE( HARDIToSphericalHarmonics )
 ADD_MODULE( anisotropicFiltering )
 ADD_MODULE( applyMask )
-ADD_MODULE( atlasCreator )
-ADD_MODULE( atlasSurfaces )
 ADD_MODULE( butterfly )
 ADD_MODULE( calculateGFA )
 ADD_MODULE( calculateTensors )

@@ -25,7 +25,7 @@
 #ifndef WGECOLORMAPS_GLSL
 #define WGECOLORMAPS_GLSL
 
-#version 120
+#version 130
 
 uniform int useColorMap;
 
@@ -438,7 +438,7 @@ void colorMap( inout vec3 col, in float value, int cmap )
  * \param colormap the colormap index to use
  */
 void colormap( inout vec4 color, in vec4 value, float minV, float scaleV, float thresholdV, float alpha, int colormap,
-               bool active )
+               bool cmactive )
 {
     // below threshold?
     bool clip = ( value.r + value.g + value.b ) / 3.0 < ( ( minV + thresholdV ) / scaleV );
@@ -478,7 +478,7 @@ void colormap( inout vec4 color, in vec4 value, float minV, float scaleV, float 
     }
 
     // finally mix colors according to alpha
-    color = mix( color, col, float( active ) * alpha );
+    color = mix( color, col, float( cmactive ) * alpha );
 }
 
 #endif // WGECOLORMAPS_GLSL
