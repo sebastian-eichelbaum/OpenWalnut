@@ -162,7 +162,6 @@ void WMTriangleMeshRenderer::properties()
 
     // setup all the properties. See header file for their meaning and purpose.
     m_showOutline = m_properties->addProperty( "Outline", "Show all edges of the triangulation as lines.", false, m_propCondition );
-    m_flatShading = m_properties->addProperty( "Flat", "If showing the triangulation as a surface use flat shading.", false, m_propCondition );
     m_mainComponentOnly = m_properties->addProperty( "Main component", "Main component only", false, m_propCondition );
     m_showCoordinateSystem = m_properties->addProperty( "Coordinate system", "If enabled, the coordinate system of the mesh will be shown.",
                                                         false, m_propCondition );
@@ -393,15 +392,7 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh
         WItemSelector colorModeSelector = m_colorMode->get( true );
         if( colorModeSelector.getItemIndexOfSelected( 0 ) == 0 )
         {
-            // use single color
-            if( m_flatShading->get( true ) )
-            {
-                geometry = wge::convertMeshToOsgGeometryFlat( mesh, m_color->get() );
-            }
-            else
-            {
-                geometry = wge::convertToOsgGeometry( mesh, m_color->get(), true, true, false );
-            }
+            geometry = wge::convertToOsgGeometry( mesh, m_color->get(), true, true, false );
         }
         else if( colorModeSelector.getItemIndexOfSelected( 0 ) == 1 )
         {

@@ -264,11 +264,6 @@ private:
     WPropBool m_showOutline;
 
     /**
-     * Toggle rendering surface flat shaded (per triangle normals) instead of Phong shaded.
-     */
-    WPropBool m_flatShading;
-
-    /**
      * En/Disable display of only the main component (biggest vertices number)
      */
     WPropBool m_mainComponentOnly;
