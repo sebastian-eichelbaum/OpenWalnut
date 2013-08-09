@@ -228,6 +228,8 @@ void WGraphicsEngine::threadMain()
 
 void WGraphicsEngine::notifyStop()
 {
+    // when stopping the system while the GE is still waiting.
+    m_startThreadingCondition.notify();
     WLogger::getLogger()->addLogMessage( "Stopping Graphics Engine", "GE", LL_INFO );
 #ifdef WGEMODE_MULTITHREADED
     m_viewer->setDone( true );
