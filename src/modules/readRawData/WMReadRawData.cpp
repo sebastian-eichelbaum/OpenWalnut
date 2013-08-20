@@ -93,16 +93,16 @@ void WMReadRawData::properties()
     m_dataTypeSelectionsList->addItem( "DOUBLE", "" );
     m_dataTypeSelectionsList->addItem( "FLOAT128", "" );
 
-    m_dataTypeSelection = m_properties->addProperty( "Data type",  "Data type.", m_dataTypeSelectionsList->getSelectorFirst() );
+    m_dataTypeSelection = m_properties->addProperty( "Data type",  "Data type.", m_dataTypeSelectionsList->getSelectorFirst(), m_propCondition );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_dataTypeSelection );
 
-    m_X = m_properties->addProperty( "X", "Data sample in X direction.", 256 );
+    m_X = m_properties->addProperty( "X", "Data sample in X direction.", 256, m_propCondition );
     m_X->setMin( 0 );
     m_X->setMax( 1024 );
-    m_Y = m_properties->addProperty( "Y", "Data sample in Y direction.", 256 );
+    m_Y = m_properties->addProperty( "Y", "Data sample in Y direction.", 256, m_propCondition );
     m_Y->setMin( 0 );
     m_Y->setMax( 1024 );
-    m_Z = m_properties->addProperty( "Z", "Data sample in Z direction.", 256 );
+    m_Z = m_properties->addProperty( "Z", "Data sample in Z direction.", 256, m_propCondition );
     m_Z->setMin( 0 );
     m_Z->setMax( 1024 );
 

@@ -255,7 +255,7 @@ void WMDataTypeConversion::properties()
     m_dataTypeSelectionsList->addItem( "INT32", "" );
     m_dataTypeSelectionsList->addItem( "INT64", "" );
 
-    m_dataTypeSelection = m_properties->addProperty( "Data type",  "Data type.", m_dataTypeSelectionsList->getSelectorFirst() );
+    m_dataTypeSelection = m_properties->addProperty( "Data type",  "Data type.", m_dataTypeSelectionsList->getSelectorFirst(), m_propCondition );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_dataTypeSelection );
 
     WModule::properties();

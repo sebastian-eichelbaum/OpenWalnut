@@ -290,6 +290,7 @@ public:
      * the grid.
      */
     int getVoxelNum( const size_t x, const size_t y, const size_t z ) const;
+
     /**
      * Computes the X coordinate of that voxel that contains the
      * position pos.
