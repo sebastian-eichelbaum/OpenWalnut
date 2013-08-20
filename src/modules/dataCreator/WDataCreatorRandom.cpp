@@ -72,7 +72,7 @@ WValueSetBase::SPtr WDataCreatorRandom::operator()( WProgress::SPtr progress,
                     // NOLINT: because we do not want to use rand_r.
                     double randD = static_cast< double >( std::rand() ) / static_cast< double >( RAND_MAX ); // NOLINT
                     data->operator[]( ( valuesPerVoxel * grid->getVoxelNum( x, y, z ) ) + v ) =
-                        static_cast< ValueType >( m_rangeMin->get() + ( m_rangeMax->get() * randD ) );
+                        static_cast< ValueType >( m_rangeMin->get() + ( std::abs( m_rangeMin->get() - m_rangeMax->get() ) * randD ) );
                 }
             }
 
