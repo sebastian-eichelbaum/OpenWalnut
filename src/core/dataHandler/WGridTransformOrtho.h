@@ -28,6 +28,7 @@
 #include "../common/exceptions/WPreconditionNotMet.h"
 #include "../common/math/WMatrix.h"
 #include "../common/math/linearAlgebra/WPosition.h"
+#include "../common/math/linearAlgebra/WMatrixFixed.h"
 
 /**
  * Implements an orthogonal grid transformation.
@@ -229,6 +230,13 @@ public:
      */
     template< typename VecType >
     void scale( VecType const& scale );
+
+    /**
+     * Scale the transform.
+     *
+     * \param scale scaling coeffitient for the 3 directions.
+     */
+    void scale( T const& scale );
 
     /**
      * Compares two grid transforms.
@@ -517,6 +525,14 @@ void WGridTransformOrthoTemplate< T >::scale( VecType const& scale )
     m_scaling[ 0 ] *= scale[ 0 ];
     m_scaling[ 1 ] *= scale[ 1 ];
     m_scaling[ 2 ] *= scale[ 2 ];
+}
+
+template< typename T >
+void WGridTransformOrthoTemplate< T >::scale( T const& scale )
+{
+    m_scaling[ 0 ] *= scale;
+    m_scaling[ 1 ] *= scale;
+    m_scaling[ 2 ] *= scale;
 }
 
 template< typename T >
