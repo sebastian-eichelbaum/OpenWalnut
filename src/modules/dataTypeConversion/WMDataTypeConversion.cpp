@@ -69,14 +69,14 @@ const char** WMDataTypeConversion::getXPMIcon() const
 
 const std::string WMDataTypeConversion::getName() const
 {
-    return "Data Type Conversion (to float)";
+    return "Data Type Conversion";
 }
 
 const std::string WMDataTypeConversion::getDescription() const
 {
     return "This module is intended for development use only. Modules for general use should not depend on it.<br><br> "
         "Allows one to change the data type of the provided WDataSetSingle to another type. "
-        "E.g., double to float. At the moment only conversion to float is supported.";
+        "E.g., double to float.";
 }
 
 /**
@@ -132,6 +132,10 @@ void WMDataTypeConversion::moduleMain()
     // loop until the module container requests the module to quit
     while( !m_shutdownFlag() )
     {
+        // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
+        // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
+        m_moduleState.wait();
+
         // acquire data from the input connector
         m_dataSet = m_input->getData();
         if( !m_dataSet )
@@ -139,7 +143,6 @@ void WMDataTypeConversion::moduleMain()
             // ok, the output has not yet sent data
             // NOTE: see comment at the end of this while loop for m_moduleState
             debugLog() << "Waiting for data ...";
-            m_moduleState.wait();
             continue;
         }
 
@@ -210,10 +213,6 @@ void WMDataTypeConversion::moduleMain()
         // we have the valueset -> create dataset
         m_dataSet = boost::shared_ptr<WDataSetScalar>( new WDataSetScalar( valueSet, m_dataSet->getGrid() ) );
         m_output->updateData( m_dataSet );
-
-        // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
-        // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
-        m_moduleState.wait();
     }
 }
 

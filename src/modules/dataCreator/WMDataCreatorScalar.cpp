@@ -36,6 +36,7 @@
 #include "WDataCreatorBreyzel5.h"
 #include "WDataCreatorTangle.h"
 #include "WDataCreatorRandom.h"
+#include "WDataCreatorConstant.h"
 
 #include "WMDataCreator.xpm"
 #include "WMDataCreatorScalar.h"
@@ -46,10 +47,11 @@ WMDataCreatorScalar::WMDataCreatorScalar():
                 "Creator", "A list of all known creators." )
 {
     // add some strategies here
-    m_strategy.addStrategy( WDataCreatorRandom::SPtr( new WDataCreatorRandom() ) );
-    m_strategy.addStrategy( WDataCreatorSphere::SPtr( new WDataCreatorSphere() ) );
-    m_strategy.addStrategy( WDataCreatorSphere::SPtr( new WDataCreatorTangle() ) );
-    m_strategy.addStrategy( WDataCreatorSphere::SPtr( new WDataCreatorBreyzel5() ) );
+    m_strategy.addStrategy( typename WObjectNDIP< WDataSetSingleCreatorInterface >::SPtr( new WDataCreatorRandom() ) );
+    m_strategy.addStrategy( typename WObjectNDIP< WDataSetSingleCreatorInterface >::SPtr( new WDataCreatorConstant() ) );
+    m_strategy.addStrategy( typename WObjectNDIP< WDataSetSingleCreatorInterface >::SPtr( new WDataCreatorSphere() ) );
+    m_strategy.addStrategy( typename WObjectNDIP< WDataSetSingleCreatorInterface >::SPtr( new WDataCreatorTangle() ) );
+    m_strategy.addStrategy( typename WObjectNDIP< WDataSetSingleCreatorInterface >::SPtr( new WDataCreatorBreyzel5() ) );
 }
 
 WMDataCreatorScalar::~WMDataCreatorScalar()
