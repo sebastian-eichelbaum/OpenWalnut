@@ -33,6 +33,7 @@
 #include "core/kernel/WKernel.h"
 
 #include "WDataCreatorBreyzel5.h"
+#include "WDataCreatorConstant.h"
 #include "WDataCreatorLinearAscent.h"
 #include "WDataCreatorRandom.h"
 #include "WDataCreatorSphere.h"
@@ -49,9 +50,10 @@ WMDataCreatorScalar::WMDataCreatorScalar():
     // add some strategies here
     m_strategy.addStrategy( WDataCreatorRandom::SPtr( new WDataCreatorRandom() ) );
     m_strategy.addStrategy( WDataCreatorSphere::SPtr( new WDataCreatorSphere() ) );
-    m_strategy.addStrategy( WDataCreatorSphere::SPtr( new WDataCreatorTangle() ) );
-    m_strategy.addStrategy( WDataCreatorSphere::SPtr( new WDataCreatorBreyzel5() ) );
+    m_strategy.addStrategy( WDataCreatorTangle::SPtr( new WDataCreatorTangle() ) );
+    m_strategy.addStrategy( WDataCreatorBreyzel5::SPtr( new WDataCreatorBreyzel5() ) );
     m_strategy.addStrategy( WDataCreatorSphere::SPtr( new WDataCreatorLinearAscent() ) );
+    m_strategy.addStrategy( WDataCreatorConstant::SPtr( new WDataCreatorConstant() ) );
 }
 
 WMDataCreatorScalar::~WMDataCreatorScalar()
