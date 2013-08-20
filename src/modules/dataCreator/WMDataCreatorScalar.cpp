@@ -28,14 +28,15 @@
 #include "core/common/WAssert.h"
 #include "core/common/WProgress.h"
 #include "core/common/WStrategyHelper.h"
-#include "core/dataHandler/WGridRegular3D.h"
 #include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WGridRegular3D.h"
 #include "core/kernel/WKernel.h"
 
-#include "WDataCreatorSphere.h"
 #include "WDataCreatorBreyzel5.h"
-#include "WDataCreatorTangle.h"
+#include "WDataCreatorLinearAscent.h"
 #include "WDataCreatorRandom.h"
+#include "WDataCreatorSphere.h"
+#include "WDataCreatorTangle.h"
 
 #include "WMDataCreator.xpm"
 #include "WMDataCreatorScalar.h"
@@ -50,6 +51,7 @@ WMDataCreatorScalar::WMDataCreatorScalar():
     m_strategy.addStrategy( WDataCreatorSphere::SPtr( new WDataCreatorSphere() ) );
     m_strategy.addStrategy( WDataCreatorSphere::SPtr( new WDataCreatorTangle() ) );
     m_strategy.addStrategy( WDataCreatorSphere::SPtr( new WDataCreatorBreyzel5() ) );
+    m_strategy.addStrategy( WDataCreatorSphere::SPtr( new WDataCreatorLinearAscent() ) );
 }
 
 WMDataCreatorScalar::~WMDataCreatorScalar()
