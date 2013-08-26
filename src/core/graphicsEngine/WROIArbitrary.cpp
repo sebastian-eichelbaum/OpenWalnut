@@ -36,6 +36,9 @@
 #include "callbacks/WGEFunctorCallback.h"
 #include "WGraphicsEngine.h"
 
+// Compatibility between OSG 3.2 and earlier versions
+#include "core/graphicsEngine/WOSG.h"
+
 #include "WROIArbitrary.h"
 
 WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
@@ -155,7 +158,7 @@ void WROIArbitrary::updateGFX()
                                             &m_vals,
                                             m_threshold->get() );
 
-        osg::Geometry* surfaceGeometry = new osg::Geometry();
+        wosg::Geometry* surfaceGeometry = new wosg::Geometry();
         setName( "roi" );
 
         surfaceGeometry->setVertexArray( m_triMesh->getVertexArray() );
@@ -165,14 +168,14 @@ void WROIArbitrary::updateGFX()
         // FIXME: OSG 3.2 no longer supports binding per primitive. I did not find any evidence that the marching lego Algorithm calculated any
         // normals. So the code is disabled.
         // surfaceGeometry->setNormalArray( m_triMesh->getTriangleNormalArray() );
-        // surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+        // surfaceGeometry->setNormalBinding( wosg::Geometry::BIND_PER_PRIMITIVE );
 
         // ------------------------------------------------
         // colors
         osg::Vec4Array* colors = new osg::Vec4Array;
         colors->push_back( m_color );
         surfaceGeometry->setColorArray( colors );
-        surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+        surfaceGeometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
 
         osg::DrawElementsUInt* surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
 

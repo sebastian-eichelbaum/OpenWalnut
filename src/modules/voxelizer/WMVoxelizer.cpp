@@ -60,6 +60,10 @@
 #include "WBresenhamDBL.h"
 #include "WCenterlineParameterization.h"
 #include "WIntegrationParameterization.h"
+
+// Compatibility between OSG 3.2 and earlier versions
+#include "core/graphicsEngine/WOSG.h"
+
 #include "WMVoxelizer.h"
 #include "WMVoxelizer.xpm"
 #include "WRasterAlgorithm.h"
@@ -351,7 +355,7 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
     using osg::ref_ptr;
     ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    ref_ptr< osg::Geometry > geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
+    ref_ptr< wosg::Geometry > geometry = ref_ptr< wosg::Geometry >( new wosg::Geometry );
     ref_ptr< osg::Vec3Array > normals = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
 
     // cycle through all positions in the dataSet
@@ -382,9 +386,9 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
     geometry->setVertexArray( vertices );
     colors->push_back( WColor( 1.0, 0.0, 0.0, 0.1 ) );
     geometry->setColorArray( colors );
-    geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+    geometry->setColorBinding( wosg::Geometry::BIND_PER_VERTEX );
     geometry->setNormalArray( normals );
-    geometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+    geometry->setNormalBinding( wosg::Geometry::BIND_PER_PRIMITIVE );
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
     geode->addDrawable( geometry );
 

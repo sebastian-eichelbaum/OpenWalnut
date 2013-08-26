@@ -41,6 +41,9 @@
 #include "core/common/WPropertyHelper.h"
 #include "core/graphicsEngine/WGEUtils.h"
 
+// Compatibility between OSG 3.2 and earlier versions
+#include "core/graphicsEngine/WOSG.h"
+
 #include "WMCoordinateHUD.h"
 #include "WMCoordinateHUD.xpm"
 #include "option_1.xpm"
@@ -178,7 +181,7 @@ void WMCoordinateHUD::buildColorAxis()
 {
     // build the geometry & geode for the coordinate axis
     osg::ref_ptr< osg::Geode > coordGeode = new osg::Geode();
-    osg::ref_ptr< osg::Geometry>  coordGeom = new osg::Geometry;
+    osg::ref_ptr< wosg::Geometry>  coordGeom = new wosg::Geometry;
 
     // Vertices
     osg::Vec3Array* vertices = new osg::Vec3Array;
@@ -209,7 +212,7 @@ void WMCoordinateHUD::buildColorAxis()
 
     // add color to geometry
     coordGeom->setColorArray( color );
-    coordGeom->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+    coordGeom->setColorBinding( wosg::Geometry::BIND_PER_VERTEX );
 
     // primitives = draw lines between vertices
     osg::DrawArrays *da = new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, vertices->size( ) );
@@ -227,7 +230,7 @@ void WMCoordinateHUD::buildBWAxis()
 {
     //build the geometry & geode for the coordinate axis
     osg::ref_ptr< osg::Geode > coordGeode = new osg::Geode();
-    osg::ref_ptr< osg::Geometry>  coordGeom = new osg::Geometry;
+    osg::ref_ptr< wosg::Geometry>  coordGeom = new wosg::Geometry;
 
     //Vertices
     osg::Vec3Array* vertices = new osg::Vec3Array;
@@ -253,7 +256,7 @@ void WMCoordinateHUD::buildBWAxis()
 
     //add color to geometry
     coordGeom->setColorArray( color );
-    coordGeom->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+    coordGeom->setColorBinding( wosg::Geometry::BIND_PER_VERTEX );
 
     //primitives = draw lines between vertices
     osg::DrawArrays *da = new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, vertices->size( ) );
@@ -271,7 +274,7 @@ void WMCoordinateHUD::buildColorCube( bool withFaceLabels, std::string labelPref
 {
     // build the geometry & geode for the coordinate axis
     osg::ref_ptr< osg::Geode > coordGeode = new osg::Geode();
-    osg::ref_ptr< osg::Geometry>  coordGeom = new osg::Geometry;
+    osg::ref_ptr< wosg::Geometry>  coordGeom = new wosg::Geometry;
 
     // Vertices
     osg::Vec3Array* vertices = new osg::Vec3Array( 36 );
@@ -301,7 +304,7 @@ void WMCoordinateHUD::buildColorCube( bool withFaceLabels, std::string labelPref
 
     // add color to geometry
     coordGeom->setColorArray( color );
-    coordGeom->setColorBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+    coordGeom->setColorBinding( wosg::Geometry::BIND_PER_PRIMITIVE );
 
     // primitives = draw lines between vertices
     osg::DrawArrays *da = new osg::DrawArrays( osg::PrimitiveSet::TRIANGLES, 0, vertices->size( ) );

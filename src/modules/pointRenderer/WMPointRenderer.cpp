@@ -38,6 +38,9 @@
 
 #include "core/dataHandler/WDataSetPoints.h"
 
+// Compatibility between OSG 3.2 and earlier versions
+#include "core/graphicsEngine/WOSG.h"
+
 #include "WMPointRenderer.h"
 
 // This line is needed by the module loader to actually find your module.
@@ -162,7 +165,7 @@ void WMPointRenderer::moduleMain()
         }
 
         // we have valid data. Put this into a geode
-        osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
+        osg::ref_ptr< wosg::Geometry > geometry = osg::ref_ptr< wosg::Geometry >( new wosg::Geometry );
         osg::ref_ptr< osg::Geode >  geode( new osg::Geode() );
 
         osg::StateSet* state = geode->getOrCreateStateSet();
@@ -187,7 +190,7 @@ void WMPointRenderer::moduleMain()
         geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::POINTS, 0, vertices->size() ) );
         geometry->setVertexArray( vertices );
         geometry->setColorArray( colors );
-        geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+        geometry->setColorBinding( wosg::Geometry::BIND_PER_VERTEX );
 
         // add geometry to geode
         geode->addDrawable( geometry );

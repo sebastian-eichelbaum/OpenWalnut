@@ -38,6 +38,8 @@
 #include "WEEGEvent.h"
 #include "WHeadSurfaceCallback.h"
 
+// Compatibility between OSG 3.2 and earlier versions
+#include "core/graphicsEngine/WOSG.h"
 
 WHeadSurfaceCallback::WHeadSurfaceCallback( const std::vector< std::size_t >& channelIDs,
                                             WPropDouble colorSensitivity,
@@ -57,7 +59,7 @@ void WHeadSurfaceCallback::update( osg::NodeVisitor* /*nv*/, osg::Drawable* draw
     const double time = event->getTime();
     if( colorSensitivity != m_currentColorSensitivity || time != m_currentTime )
     {
-        osg::Geometry* geometry = static_cast< osg::Geometry* >( drawable );
+        wosg::Geometry* geometry = static_cast< wosg::Geometry* >( drawable );
         if( geometry )
         {
             osg::FloatArray* texCoords = static_cast< osg::FloatArray* >( geometry->getTexCoordArray( 0 ) );
@@ -83,7 +85,7 @@ void WHeadSurfaceCallback::update( osg::NodeVisitor* /*nv*/, osg::Drawable* draw
             osg::Vec4Array* colors = new osg::Vec4Array;
             colors->push_back( osg::Vec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
             geometry->setColorArray( colors );
-            geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+            geometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
         }
 
         m_currentColorSensitivity = colorSensitivity;

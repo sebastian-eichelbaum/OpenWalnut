@@ -39,6 +39,9 @@
 
 #include "core/common/math/linearAlgebra/WPosition.h"
 
+// Compatibility between OSG 3.2 and earlier versions
+#include "core/graphicsEngine/WOSG.h"
+
 /**
  * Show an glyph plot (in this case the glyphs are arrows) of a vector data set.
  * \ingroup modules
@@ -116,14 +119,14 @@ private:
      * \tparam ValueType the real type of the valueset
      */
     template< typename ValueType >
-    osg::ref_ptr<osg::Geometry> buildPlotSlices();
+    osg::ref_ptr<wosg::Geometry> buildPlotSlices();
 
     /**
      * Creates a vector plot on the currently selected slices. Handles valuesets of different types properly.
      *
      * \return geometry containing the slices
      */
-    osg::ref_ptr<osg::Geometry> buildPlotSlices();
+    osg::ref_ptr<wosg::Geometry> buildPlotSlices();
 
     /**
      * The update callback that is called for the osg node of this module.
@@ -178,7 +181,7 @@ private:
 };
 
 template< typename ValueType >
-osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
+osg::ref_ptr<wosg::Geometry> WMVectorPlot::buildPlotSlices()
 {
     boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Vector Plot", 4 ) );
     m_progress->addSubProgress( progress );
@@ -214,7 +217,7 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
     using osg::ref_ptr;
     ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    ref_ptr< osg::Geometry > geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
+    ref_ptr< wosg::Geometry > geometry = ref_ptr< wosg::Geometry >( new wosg::Geometry );
 
     WColor color = m_aColor->get( true );
 
@@ -393,7 +396,7 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
 
     geometry->setVertexArray( vertices );
     geometry->setColorArray( colors );
-    geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+    geometry->setColorBinding( wosg::Geometry::BIND_PER_VERTEX );
 
     progress->finish();
 

@@ -41,6 +41,9 @@
 #include "core/graphicsEngine/WGEManagedGroupNode.h"
 #include "core/graphicsEngine/shaders/WGEShader.h"
 
+// Compatibility between OSG 3.2 and earlier versions
+#include "core/graphicsEngine/WOSG.h"
+
 /**
  * Rendering of GPU bases Superquadric Glyphs. These glyphs are completely ray-traced on the GPU.
  *
@@ -255,7 +258,7 @@ private:
          *
          * \param geo the geometry object to handle
          */
-        explicit GlyphGeometryNodeCallback( osg::Geometry* geo ):
+        explicit GlyphGeometryNodeCallback( wosg::Geometry* geo ):
             osg::Drawable::UpdateCallback(),
             m_geometry( geo )
         {
@@ -280,7 +283,7 @@ private:
         /**
          * The geometry node to handle here
          */
-        osg::Geometry* m_geometry;
+        wosg::Geometry* m_geometry;
 
         /**
          * Dirty flag. If true, the m_tensorDiag and m_tensorOffDiag get set

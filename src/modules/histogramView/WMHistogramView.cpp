@@ -45,6 +45,10 @@
 #include "core/gui/WCustomWidgetEventHandler.h"
 #include "core/gui/WGUI.h"
 #include "core/kernel/WKernel.h"
+
+// Compatibility between OSG 3.2 and earlier versions
+#include "core/graphicsEngine/WOSG.h"
+
 #include "WMHistogramView.h"
 #include "WMHistogramView.xpm"
 
@@ -512,12 +516,12 @@ void WMHistogramView::createGeometryBars( int type )
 
         // create drawable for the quads
         {
-            osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
+            osg::ref_ptr< wosg::Geometry > geometry = new wosg::Geometry;
 
             geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 * m_histograms[ k ]->size() ) );
             geometry->setVertexArray( quadVertices );
             geometry->setColorArray( quadColors );
-            geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+            geometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
             geometry->setTexCoordArray( 0, quadTexCoords );
 
             // enable VBO
@@ -529,12 +533,12 @@ void WMHistogramView::createGeometryBars( int type )
 
         // create drawable for the outlines
         {
-            osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
+            osg::ref_ptr< wosg::Geometry > geometry = new wosg::Geometry;
 
             geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, 6 * m_histograms[ k ]->size() ) );
             geometry->setVertexArray( lineVertices );
             geometry->setColorArray( lineColors );
-            geometry->setColorBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+            geometry->setColorBinding( wosg::Geometry::BIND_PER_PRIMITIVE );
 
             // enable VBO
             geometry->setUseDisplayList( false );
@@ -667,12 +671,12 @@ void WMHistogramView::createGeometryCurves( int type )
 
         // create drawable for the quads
         {
-            osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
+            osg::ref_ptr< wosg::Geometry > geometry = new wosg::Geometry;
 
             geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 * m_histograms[ k ]->size() - 4 ) );
             geometry->setVertexArray( quadVertices );
             geometry->setColorArray( quadColors );
-            geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+            geometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
             geometry->setTexCoordArray( 0, quadTexCoords );
 
             // enable VBO
@@ -684,12 +688,12 @@ void WMHistogramView::createGeometryCurves( int type )
 
         // create drawable for the outlines
         {
-            osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
+            osg::ref_ptr< wosg::Geometry > geometry = new wosg::Geometry;
 
             geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, m_histograms[ k ]->size() ) );
             geometry->setVertexArray( lineVertices );
             geometry->setColorArray( lineColors );
-            geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+            geometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
 
             // enable VBO
             geometry->setUseDisplayList( false );
@@ -788,12 +792,12 @@ void WMHistogramView::createGeometryStairs( int type )
 
         // create drawable for the lines
         {
-            osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
+            osg::ref_ptr< wosg::Geometry > geometry = new wosg::Geometry;
 
             geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, 2 * m_histograms[ k ]->size() + 2 ) );
             geometry->setVertexArray( lineVertices );
             geometry->setColorArray( lineColors );
-            geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+            geometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
 
             // enable VBO
             geometry->setUseDisplayList( false );
@@ -1048,12 +1052,12 @@ void WMHistogramView::createFrame()
 
     // create drawable for the lines
     {
-        osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
+        osg::ref_ptr< wosg::Geometry > geometry = new wosg::Geometry;
 
         geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, 4 + 2 * numLabels ) );
         geometry->setVertexArray( lineVertices );
         geometry->setColorArray( lineColors );
-        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+        geometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
 
         // enable VBO
         geometry->setUseDisplayList( false );
@@ -1175,12 +1179,12 @@ void WMHistogramView::createInfo( WVector2f mousePos )
             quadVertices->push_back( histogramSpaceToWindowSpace(
                                         WVector2d( m_histograms[ 0 ]->getIntervalForIndex( bin ).first, m_histogramUpperRight[ 1 ] ) ) );
 
-            osg::Geometry* geometry = new osg::Geometry;
+            wosg::Geometry* geometry = new wosg::Geometry;
 
             geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 ) );
             geometry->setVertexArray( quadVertices );
             geometry->setColorArray( quadColors );
-            geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+            geometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
 
             // enable VBO
             geometry->setUseDisplayList( false );

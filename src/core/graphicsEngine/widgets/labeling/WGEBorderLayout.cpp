@@ -28,6 +28,9 @@
 
 #include "../../WGraphicsEngine.h"
 
+// Compatibility between OSG 3.2 and earlier versions
+#include "core/graphicsEngine/WOSG.h"
+
 #include "WGEBorderLayout.h"
 
 WGEBorderLayout::WGEBorderLayout():
@@ -120,14 +123,14 @@ void WGEBorderLayout::SafeUpdateCallback::operator()( osg::Node* node, osg::Node
     }
 
     // create geometry for the lines calculated above
-    osg::ref_ptr< osg::Geometry > g = new osg::Geometry;
+    osg::ref_ptr< wosg::Geometry > g = new wosg::Geometry;
     g->setDataVariance( osg::Object::DYNAMIC );
     osg::ref_ptr< osg::DrawArrays > da = new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, v->size() );
     g->setVertexArray( v );
     osg::ref_ptr< osg::Vec4Array > colors = new osg::Vec4Array;
     colors->push_back( osg::Vec4( 0.0f, 0.0f, 0.0f, 1.0f ) );
     g->setColorArray( colors );
-    g->setColorBinding( osg::Geometry::BIND_OVERALL );
+    g->setColorBinding( wosg::Geometry::BIND_OVERALL );
     g->addPrimitiveSet( da );
 
     osg::LineWidth* linewidth = new osg::LineWidth();

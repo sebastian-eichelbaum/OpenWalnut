@@ -42,6 +42,8 @@
 #include "core/dataHandler/WEEGValueMatrix.h"
 #include "WLineStripCallback.h"
 
+// Compatibility between OSG 3.2 and earlier versions
+#include "core/graphicsEngine/WOSG.h"
 
 WLineStripCallback::WLineStripCallback( std::size_t channelID,
                                         WPropDouble timePos,
@@ -65,7 +67,7 @@ void WLineStripCallback::update( osg::NodeVisitor* /*nv*/, osg::Drawable* drawab
 
     if( timePos != m_currentTimePos || timeRange != m_currentTimeRange )
     {
-        osg::Geometry* geometry = static_cast< osg::Geometry* >( drawable );
+        wosg::Geometry* geometry = static_cast< wosg::Geometry* >( drawable );
         if( geometry )
         {
             const std::size_t nbSamples = m_segment->getNumberOfSamples();

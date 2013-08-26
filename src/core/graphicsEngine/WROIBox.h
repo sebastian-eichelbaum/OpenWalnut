@@ -32,6 +32,9 @@
 
 #include <osg/Geometry>
 
+// Compatibility between OSG 3.2 and earlier versions
+#include "core/graphicsEngine/WOSG.h"
+
 #include "WPickHandler.h"
 #include "shaders/WGEShader.h"
 
@@ -121,7 +124,7 @@ private:
     WVector2d m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
     int16_t m_oldScrollWheel; //!< caches scroll wheel value
     boost::shared_mutex m_updateLock; //!< Lock to prevent concurrent threads trying to update the osg node
-    osg::ref_ptr< osg::Geometry > m_surfaceGeometry; //!< store this pointer for use in updates
+    osg::ref_ptr< wosg::Geometry > m_surfaceGeometry; //!< store this pointer for use in updates
 
     WPickInfo m_pickInfo; //!< Stores the pick information for potential redraw
 
