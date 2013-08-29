@@ -22,26 +22,13 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WTRANSPARENTLINESDRAWABLE_H
-#define WTRANSPARENTLINESDRAWABLE_H
+#include "osg/Version"
 
-#include <osg/Geometry>
-#include <osg/RenderInfo>
-
-/**
- * A custom osg::Drawable that can render lines depth sorted. This will help when
- * rendering them transparently.
- */
-class WTransparentLinesDrawable : public osg::Geometry
-{
-public:
-    /**
-     * The actual sorting before drawing is done here. This method calls osg::Geometry::drawImplementation
-     * \param renderInfo This is also not documented in OSG docu
-     */
-    virtual void drawImplementation( osg::RenderInfo &renderInfo ) const; //NOLINT
-protected:
-private:
-};
-
-#endif  // WTRANSPARENTLINESDRAWABLE_H
+// Since OSG 3.2, OpenSceneGraph has changed several things in their Geometry class. For compilation compatibility, they provide
+// deprecated_osg::Geometry. It was introduces somewhere in between 3.0 and 3.2. As I do not know where exactly, we only differentiate between
+// 3.2 and earlier.
+#if OSG_VERSION_GREATER_OR_EQUAL( 3, 2, 0 )
+    #define wosg deprecated_osg
+#else
+    #define wosg osg
+#endif

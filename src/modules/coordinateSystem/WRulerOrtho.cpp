@@ -34,6 +34,9 @@
 #include "core/common/WStringUtils.h"
 #include "core/common/WPathHelper.h"
 
+// Compatibility between OSG 3.2 and earlier versions
+#include "core/graphicsEngine/WOSG.h"
+
 #include "WRulerOrtho.h"
 
 WRulerOrtho::WRulerOrtho( boost::shared_ptr<WCoordConverter>coordConverter, osg::Vec3 origin, scaleMode mode, bool showNumbers ) :
@@ -56,7 +59,7 @@ WRulerOrtho::~WRulerOrtho()
 void WRulerOrtho::create()
 {
     osg::ref_ptr< osg::Geode > rulerGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() );
-    osg::ref_ptr< osg::Geometry > geometry;
+    osg::ref_ptr< wosg::Geometry > geometry;
 
     switch( m_scaleMode )
     {
@@ -124,9 +127,9 @@ void WRulerOrtho::addLabel( osg::Vec3 position, std::string text )
     labelXform->addChild( labelGeode );
 }
 
-osg::ref_ptr< osg::Geometry > WRulerOrtho::createXY()
+osg::ref_ptr< wosg::Geometry > WRulerOrtho::createXY()
 {
-    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
+    osg::ref_ptr< wosg::Geometry > geometry = osg::ref_ptr< wosg::Geometry >( new wosg::Geometry() );
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
     int startX = static_cast< int > ( m_lb[0] + 0.5 );
@@ -198,9 +201,9 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createXY()
     return geometry;
 }
 
-osg::ref_ptr< osg::Geometry > WRulerOrtho::createXZ()
+osg::ref_ptr< wosg::Geometry > WRulerOrtho::createXZ()
 {
-    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
+    osg::ref_ptr< wosg::Geometry > geometry = osg::ref_ptr< wosg::Geometry >( new wosg::Geometry() );
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
     int startX = static_cast< int > ( m_lb[0] + 0.5 );
@@ -271,9 +274,9 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createXZ()
     return geometry;
 }
 
-osg::ref_ptr< osg::Geometry > WRulerOrtho::createYX()
+osg::ref_ptr< wosg::Geometry > WRulerOrtho::createYX()
 {
-    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
+    osg::ref_ptr< wosg::Geometry > geometry = osg::ref_ptr< wosg::Geometry >( new wosg::Geometry() );
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
     int startY = static_cast< int > ( m_lb[1] + 0.5 );
@@ -346,9 +349,9 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createYX()
     return geometry;
 }
 
-osg::ref_ptr< osg::Geometry > WRulerOrtho::createYZ()
+osg::ref_ptr< wosg::Geometry > WRulerOrtho::createYZ()
 {
-    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
+    osg::ref_ptr< wosg::Geometry > geometry = osg::ref_ptr< wosg::Geometry >( new wosg::Geometry() );
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
     int startY = static_cast< int > ( m_lb[1] + 0.5 );
@@ -421,9 +424,9 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createYZ()
     return geometry;
 }
 
-osg::ref_ptr< osg::Geometry > WRulerOrtho::createZX()
+osg::ref_ptr< wosg::Geometry > WRulerOrtho::createZX()
 {
-    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
+    osg::ref_ptr< wosg::Geometry > geometry = osg::ref_ptr< wosg::Geometry >( new wosg::Geometry() );
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
     int startZ = static_cast< int > ( m_lb[2] + 0.5 );
@@ -496,9 +499,9 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createZX()
     return geometry;
 }
 
-osg::ref_ptr< osg::Geometry > WRulerOrtho::createZY()
+osg::ref_ptr< wosg::Geometry > WRulerOrtho::createZY()
 {
-    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
+    osg::ref_ptr< wosg::Geometry > geometry = osg::ref_ptr< wosg::Geometry >( new wosg::Geometry() );
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
     int startZ = static_cast< int > ( m_lb[2] + 0.5 );

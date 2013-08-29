@@ -57,6 +57,9 @@
 #include "WPanTransformCallback.h"
 #include "WScaleTransformCallback.h"
 
+// Compatibility between OSG 3.2 and earlier versions
+#include "core/graphicsEngine/WOSG.h"
+
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMEEGView )
 
@@ -558,12 +561,12 @@ void WMEEGView::redraw()
             textGeode->addDrawable( text );
 
             // create geode to draw the actual data as line strip
-            osg::Geometry* geometry = new osg::Geometry;
+            wosg::Geometry* geometry = new wosg::Geometry;
 
             osg::Vec4Array* colors = new osg::Vec4Array;
             colors->push_back( linesColor );
             geometry->setColorArray( colors );
-            geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+            geometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
 
             geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, 0 ) );
 
@@ -607,7 +610,7 @@ void WMEEGView::redraw()
                 const std::vector<float> times = m_dipoles->getTimes( dipoleId );
                 const std::vector<float> magnitudes = m_dipoles->getMagnitudes( dipoleId );
 
-                osg::Geometry* geometry = new osg::Geometry;
+                wosg::Geometry* geometry = new wosg::Geometry;
 
                 osg::Vec3Array* vertices = new osg::Vec3Array;
                 vertices->reserve( 2u * times.size() );
@@ -628,7 +631,7 @@ void WMEEGView::redraw()
                     colors->push_back( color );
                 }
                 geometry->setColorArray( colors );
-                geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+                geometry->setColorBinding( wosg::Geometry::BIND_PER_VERTEX );
 
                 geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUAD_STRIP, 0, 2u * times.size() ) );
 
@@ -786,12 +789,12 @@ osg::ref_ptr< osg::Node > WMEEGView::drawHeadSurface()
 
     const std::size_t nbPositions = positions.size();
 
-    osg::ref_ptr< osg::Geometry > geometry = wge::convertToOsgGeometry( wge::triangulate( positions, -0.005 ), WColor( 1.0, 1.0, 1.0, 1.0 ), true );
+    osg::ref_ptr< wosg::Geometry > geometry = wge::convertToOsgGeometry( wge::triangulate( positions, -0.005 ), WColor( 1.0, 1.0, 1.0, 1.0 ), true );
 
     osg::Vec4Array* colors = new osg::Vec4Array;
     colors->push_back( osg::Vec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
     geometry->setColorArray( colors );
-    geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    geometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
 
     osg::LightModel* lightModel = new osg::LightModel;
     lightModel->setTwoSided( true );

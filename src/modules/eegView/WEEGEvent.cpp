@@ -48,6 +48,8 @@
 #include "core/graphicsEngine/WGEGroupNode.h"
 #include "WEEGEvent.h"
 
+// Compatibility between OSG 3.2 and earlier versions
+#include "core/graphicsEngine/WOSG.h"
 
 WEEGEvent::WEEGEvent( double time,
                       double yPos,
@@ -115,7 +117,7 @@ WEEGEvent::WEEGEvent( double time,
                 const osg::Vec4 color( 1.0f, 0.5f, 0.5f, 1.0f );
 
                 // create geode to draw the event as line
-                osg::Geometry* geometry = new osg::Geometry;
+                wosg::Geometry* geometry = new wosg::Geometry;
 
                 osg::Vec3Array* vertices = new osg::Vec3Array();
                 vertices->reserve( 2 );
@@ -126,7 +128,7 @@ WEEGEvent::WEEGEvent( double time,
                 osg::Vec4Array* colors = new osg::Vec4Array;
                 colors->push_back( color );
                 geometry->setColorArray( colors );
-                geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+                geometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
 
                 geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, 2 ) );
 

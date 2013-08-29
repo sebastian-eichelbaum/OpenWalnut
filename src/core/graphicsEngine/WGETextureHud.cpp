@@ -36,6 +36,9 @@
 #include <osg/TexEnv>
 #include <osgText/Text>
 
+// Compatibility between OSG 3.2 and earlier versions
+#include "core/graphicsEngine/WOSG.h"
+
 #include "../common/WPathHelper.h"
 
 #include "WGETextureHud.h"
@@ -186,7 +189,7 @@ WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Textur
     osg::Geode* geode = new osg::Geode();
 
     // Set up geometry for the HUD and add it to the HUD
-    osg::ref_ptr< osg::Geometry > HUDBackgroundGeometry = new osg::Geometry();
+    osg::ref_ptr< wosg::Geometry > HUDBackgroundGeometry = new wosg::Geometry();
 
     osg::ref_ptr< osg::Vec3Array > HUDBackgroundVertices = new osg::Vec3Array;
     HUDBackgroundVertices->push_back( osg::Vec3( 0, 0, -1 ) );
@@ -212,12 +215,12 @@ WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Textur
     osg::ref_ptr< osg::Vec3Array > HUDnormals = new osg::Vec3Array;
     HUDnormals->push_back( osg::Vec3( 0.0f, 0.0f, 1.0f ) );
     HUDBackgroundGeometry->setNormalArray( HUDnormals );
-    HUDBackgroundGeometry->setNormalBinding( osg::Geometry::BIND_OVERALL );
+    HUDBackgroundGeometry->setNormalBinding( wosg::Geometry::BIND_OVERALL );
     HUDBackgroundGeometry->addPrimitiveSet( HUDBackgroundIndices );
     HUDBackgroundGeometry->setVertexArray( HUDBackgroundVertices );
     HUDBackgroundGeometry->setColorArray( HUDcolors );
     HUDBackgroundGeometry->setTexCoordArray( 0, HUDBackgroundTex );
-    HUDBackgroundGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    HUDBackgroundGeometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
 
     geode->addDrawable( HUDBackgroundGeometry );
 

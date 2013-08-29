@@ -37,6 +37,9 @@
 #include "WGraphicsEngine.h"
 #include "WGEUtils.h"
 
+// Compatibility between OSG 3.2 and earlier versions
+#include "core/graphicsEngine/WOSG.h"
+
 size_t WROIBox::maxBoxId = 0;
 
 void buildFacesFromPoints( osg::DrawElementsUInt* surfaceElements )
@@ -148,7 +151,7 @@ WROIBox::WROIBox( WPosition minPos, WPosition maxPos ) :
     m_pickHandler = m_viewer->getPickHandler();
     m_pickHandler->getPickSignal()->connect( boost::bind( &WROIBox::registerRedrawRequest, this, _1 ) );
 
-    m_surfaceGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
+    m_surfaceGeometry = osg::ref_ptr<wosg::Geometry>( new wosg::Geometry() );
     m_surfaceGeometry->setDataVariance( osg::Object::DYNAMIC );
 
     std::stringstream ss;
@@ -185,7 +188,7 @@ WROIBox::WROIBox( WPosition minPos, WPosition maxPos ) :
 
     colors->push_back( osg::Vec4( 0.0f, 0.0f, 1.0f, 0.5f ) );
     m_surfaceGeometry->setColorArray( colors );
-    m_surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    m_surfaceGeometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
 
     osg::ref_ptr< osg::LightModel > lightModel = new osg::LightModel();
     lightModel->setTwoSided( true );
@@ -199,7 +202,7 @@ WROIBox::WROIBox( WPosition minPos, WPosition maxPos ) :
     osg::ref_ptr<osg::Vec3Array> normals = osg::ref_ptr<osg::Vec3Array>( new osg::Vec3Array );
     setNormals( normals );
     m_surfaceGeometry->setNormalArray( normals );
-    //m_surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+    //m_surfaceGeometry->setNormalBinding( wosg::Geometry::BIND_PER_PRIMITIVE );
 
     m_not->set( false );
 

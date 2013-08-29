@@ -54,6 +54,9 @@
 #include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
 #include "core/kernel/WKernel.h"
 
+// Compatibility between OSG 3.2 and earlier versions
+#include "core/graphicsEngine/WOSG.h"
+
 #include "WSurface.h"
 #include "WMSplineSurface.h"
 
@@ -193,7 +196,7 @@ void WMSplineSurface::renderMesh()
 {
     //    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()
     m_moduleNode->remove( m_surfaceGeode );
-    osg::Geometry* surfaceGeometry = new osg::Geometry();
+    wosg::Geometry* surfaceGeometry = new wosg::Geometry();
     m_surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
     m_surfaceGeode->setName( "spline surface" );
@@ -216,7 +219,7 @@ void WMSplineSurface::renderMesh()
     // ------------------------------------------------
     // normals
     surfaceGeometry->setNormalArray( m_triMesh->getVertexNormalArray() );
-    surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
+    surfaceGeometry->setNormalBinding( wosg::Geometry::BIND_PER_VERTEX );
 
     m_surfaceGeode->addDrawable( surfaceGeometry );
     osg::StateSet* state = m_surfaceGeode->getOrCreateStateSet();
@@ -226,7 +229,7 @@ void WMSplineSurface::renderMesh()
     osg::Vec4Array* colors = new osg::Vec4Array;
     colors->push_back( m_surfaceColor->get( true ) );
     surfaceGeometry->setColorArray( colors );
-    surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    surfaceGeometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
 
     osg::ref_ptr< osg::LightModel > lightModel = new osg::LightModel();
     lightModel->setTwoSided( true );
@@ -338,8 +341,7 @@ void WMSplineSurface::updateGraphics()
     {
         osg::Vec4Array* colors = new osg::Vec4Array;
         colors->push_back( m_surfaceColor->get( true ) );
-        osg::ref_ptr< osg::Geometry > surfaceGeometry = m_surfaceGeode->getDrawable( 0 )->asGeometry();
-        surfaceGeometry->setColorArray( colors );
-        surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+        m_surfaceGeode->getDrawable( 0 )->asGeometry()->setColorArray( colors );
+        m_surfaceGeode->getDrawable( 0 )->asGeometry()->setColorBinding( osg::Geometry::BIND_OVERALL );
     }
 }

@@ -41,6 +41,10 @@
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WROIManager.h"
 #include "core/kernel/WSelectionManager.h"
+
+// Compatibility between OSG 3.2 and earlier versions
+#include "core/graphicsEngine/WOSG.h"
+
 #include "WMArbitraryROIs.h"
 #include "WMArbitraryROIs.xpm"
 
@@ -309,7 +313,7 @@ void WMArbitraryROIs::renderMesh()
 
     if( m_showSelector )
     {
-        osg::Geometry* surfaceGeometry = new osg::Geometry();
+        wosg::Geometry* surfaceGeometry = new wosg::Geometry();
         m_outputGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
         m_outputGeode->setName( "ROI" );
@@ -319,14 +323,14 @@ void WMArbitraryROIs::renderMesh()
         // ------------------------------------------------
         // normals
         surfaceGeometry->setNormalArray( m_triMesh->getVertexNormalArray() );
-        surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
+        surfaceGeometry->setNormalBinding( wosg::Geometry::BIND_PER_VERTEX );
 
         // ------------------------------------------------
         // colors
         osg::Vec4Array* colors = new osg::Vec4Array;
         colors->push_back( osg::Vec4( 0.2f, 1.0f, 0.2f, 1.0f ) );
         surfaceGeometry->setColorArray( colors );
-        surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+        surfaceGeometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
 
         osg::DrawElementsUInt* surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
 
