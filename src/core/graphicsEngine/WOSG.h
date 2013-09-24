@@ -22,13 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WOSG_H
+#define WOSG_H
+
 #include "osg/Version"
 
 // Since OSG 3.2, OpenSceneGraph has changed several things in their Geometry class. For compilation compatibility, they provide
-// deprecated_osg::Geometry. It was introduces somewhere in between 3.0 and 3.2. As I do not know where exactly, we only differentiate between
+// deprecated_osg::Geometry. It was introduced somewhere in between 3.0 and 3.2. As I do not know where exactly, we only differentiate between
 // 3.2 and earlier.
 #if OSG_VERSION_GREATER_OR_EQUAL( 3, 2, 0 )
     #define wosg deprecated_osg
 #else
     #define wosg osg
 #endif
+
+#endif  // WOSG_H
