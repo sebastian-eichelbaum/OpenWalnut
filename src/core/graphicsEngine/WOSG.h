@@ -22,6 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WOSG_H
+#define WOSG_H
+
 #include "osg/Version"
 
 // Since OSG 3.2, OpenSceneGraph has changed several things in their Geometry class. For compilation compatibility, they provide
@@ -32,3 +35,5 @@
 #else
     #define wosg osg
 #endif
+
+#endif  // WOSG_H
