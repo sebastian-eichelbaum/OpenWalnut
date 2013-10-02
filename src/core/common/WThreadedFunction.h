@@ -65,7 +65,7 @@ enum WThreadedFunctionNbThreads
 class WThreadedFunctionBase // NOLINT
 {
     //! a type for exception signals
-    typedef boost::signal< void ( WException const& ) > ExceptionSignal;
+    typedef boost::signals2::signal< void ( WException const& ) > ExceptionSignal;
 
 public:
     //! a type for exception callbacks
@@ -175,7 +175,7 @@ template< class Function_T >
 class WThreadedFunction : public WThreadedFunctionBase
 {
     //! a type for exception signals
-    typedef boost::signal< void ( WException const& ) > ExceptionSignal;
+    typedef boost::signals2::signal< void ( WException const& ) > ExceptionSignal;
 
 public:
     //! a type for exception callbacks
