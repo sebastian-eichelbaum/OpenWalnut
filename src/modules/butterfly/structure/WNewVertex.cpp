@@ -22,31 +22,52 @@
 //
 //---------------------------------------------------------------------------
 
-/*
- * MidPoint.h
- *
- *  Created on: 16.06.2013
- *      Author: renegade
- */
+#include "WNewVertex.h"
 
-#ifndef MIDPOINT_H_
-#define MIDPOINT_H_
 
-#include <cstring>
 namespace butterfly
 {
-class MidPoint
+WNewVertex::WNewVertex( size_t toID )
 {
-public:
-    MidPoint( size_t toID, size_t midID );
-    virtual ~MidPoint();
-    long getMidID(); // NOLINT
-    size_t getToID();
-    size_t midExists();
+    this->m_toID = toID;
+    this->m_newVertexID = 0;
+    this->m_isValid = true;
+    this->m_coordinate = osg::Vec3( 0, 0, 0 );
+}
 
-private:
-    size_t toID, midID;
-};
+WNewVertex::~WNewVertex()
+{
+    //No arrays or vectors to decompose
+}
+
+size_t WNewVertex::getNewVertexID() // NOLINT
+{
+    return this->m_newVertexID;
+}
+void WNewVertex::setNewVertexID( size_t newVertexID )
+{
+    this->m_newVertexID = newVertexID;
+}
+
+size_t WNewVertex::getToID()
+{
+    return this->m_toID;
+}
+void WNewVertex::setValid( bool isValid )
+{
+    this->m_isValid = isValid;
+}
+bool WNewVertex::isValid()
+{
+    return this->m_isValid;
+}
+osg::Vec3 WNewVertex::getCoordinate()
+{
+    return this->m_coordinate;
+}
+void WNewVertex::setCoordinate( osg::Vec3 coordinate )
+{
+    this->m_coordinate = coordinate;
+}
 
 } /* namespace butterfly */
-#endif  // MIDPOINT_H
