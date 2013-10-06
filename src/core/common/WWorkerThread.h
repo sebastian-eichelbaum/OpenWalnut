@@ -29,7 +29,7 @@
 #include <exception>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/signal.hpp>
+#include <boost/signals2/signal.hpp>
 
 #include "WAssert.h"
 #include "WException.h"
@@ -43,10 +43,10 @@ class WWorkerThread : public WThreadedRunner
 {
     // typedefs
     //! a type for stop signals
-    typedef boost::signal< void () > StopSignal;
+    typedef boost::signals2::signal< void () > StopSignal;
 
     //! a type for exception signals
-    typedef boost::signal< void ( WException const& ) > ExceptionSignal;
+    typedef boost::signals2::signal< void ( WException const& ) > ExceptionSignal;
 
 public:
     //typedefs
