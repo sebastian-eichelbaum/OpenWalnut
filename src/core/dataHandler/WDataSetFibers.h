@@ -504,7 +504,7 @@ public:
      *
      * \param iter The iterator to copy from.
      */
-    explicit WFiberIterator( WFiberIterator const& iter );
+    WFiberIterator( WFiberIterator const& iter ); // NOLINT explicit
 
     /**
      * Destructor.
@@ -639,7 +639,7 @@ public:
      *
      * \param iter The iterator to copy from.
      */
-    explicit WFiberPointsIterator( WFiberPointsIterator const& iter );
+    WFiberPointsIterator( WFiberPointsIterator const& iter ); //NOLINT explicit
 
     /**
      * Destructor.

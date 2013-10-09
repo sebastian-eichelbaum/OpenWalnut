@@ -392,8 +392,6 @@ WFiberIterator WDataSetFibers::end()
     return WFiberIterator( this, m_lineLengths->size() );
 }
 
-
-
 WFiberIterator::WFiberIterator()
     : m_fibers( NULL ),
       m_index( 0 )
