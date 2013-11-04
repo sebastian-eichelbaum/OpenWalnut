@@ -136,6 +136,22 @@ namespace wge
      * \return the proxy. Add it to your scene root.
      */
     osg::ref_ptr< osg::Node > generateCullProxy( const WBoundingBox& bbox );
+
+    /**
+     * Generate a proxy cube, which ensures OSG does proper near-far plane calculation and culling. This is especially useful if you create some
+     * geometry and modify it on the GPU by shaders. In these cases, OSG will not properly cull and near-far clip. This cull proxy is basically a
+     * cube, which gets shrinked to zero size on the GPU. This ensures you cannot see it, but it makes OSG see you proper bounding volume.
+     *
+     * \note dynamic cull proxys use the getBound method of the specified node before culling. So if you implement objects that change their size
+     * dynamically, add a  osg::Node::ComputeBoundingSphereCallback to them
+     *
+     * \note This method uses update callbacks. Remember to add your own callbacks via addUpdateCallback, instead of setUpdateCallback.
+     *
+     * \param node the node
+     *
+     * \return the proxy. Add it to your scene root.
+     */
+    osg::ref_ptr< osg::Node > generateDynamicCullProxy( osg::ref_ptr< osg::Node > node );
 }
 
 inline WColor wge::getRGBAColorFromDirection( const WPosition &pos1, const WPosition &pos2 )

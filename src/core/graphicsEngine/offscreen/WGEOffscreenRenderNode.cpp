@@ -27,6 +27,7 @@
 #include <osg/Geode>
 
 #include "../../common/WAssert.h"
+#include "../WGEUtils.h"
 
 #include "WGEOffscreenRenderNode.h"
 
@@ -71,6 +72,9 @@ osg::ref_ptr< WGEOffscreenRenderPass > WGEOffscreenRenderNode::addGeometryRender
     // create a plain render pass and add some geometry
     osg::ref_ptr< WGEOffscreenRenderPass > pass = addRenderPass< WGEOffscreenRenderPass >( name );
     pass->addChild( node );
+
+    insert( wge::generateDynamicCullProxy( node ) );
+
     return pass;
 }
 
@@ -82,6 +86,9 @@ osg::ref_ptr< WGEOffscreenRenderPass > WGEOffscreenRenderNode::addGeometryRender
     osg::ref_ptr< WGEOffscreenRenderPass > pass = addRenderPass< WGEOffscreenRenderPass >( name );
     pass->addChild( node );
     shader->apply( pass );
+
+    insert( wge::generateDynamicCullProxy( node ) );
+
     return pass;
 }
 
