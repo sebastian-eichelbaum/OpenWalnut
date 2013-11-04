@@ -100,10 +100,25 @@ public:
      */
     boost::shared_ptr< WEEGChannelInfo > getChannelInfo( std::size_t channelID ) const;
 
+    /**
+     * Return the name of the dataset
+     *
+     * \return the name
+     */
     virtual const std::string getName() const;
 
+    /**
+     * Description of dataset.
+     *
+     * \return description of dataset
+     */
     virtual const std::string getDescription() const;
 
+    /**
+     * Get dataset prototype.
+     *
+     * \return the prototype
+     */
     static boost::shared_ptr< WPrototyped > getPrototype();
 
 protected:

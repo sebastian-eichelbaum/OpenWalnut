@@ -106,6 +106,12 @@ private:
      */
     struct PostponedLoad
     {
+        /**
+         * Initialize the class and keep track of the lib (and its reference).
+         *
+         * \param lib the lib to keep
+         * \param path the lib path
+         */
         PostponedLoad( boost::shared_ptr< WSharedLib > lib, boost::filesystem::path path ):
             m_lib( lib ),
             m_path( path )

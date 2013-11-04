@@ -95,6 +95,8 @@ class VisitorVSet: public boost::static_visitor<>
 public:
     /**
      * Create visitor instance and convert it to the given input type
+     *
+     * \param fn the filename
      */
     explicit VisitorVSet( boost::filesystem::path fn ):
         boost::static_visitor<>(),
