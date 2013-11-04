@@ -1,7 +1,7 @@
 ADD_MODULE( HARDIToSphericalHarmonics )
 ADD_MODULE( anisotropicFiltering )
 ADD_MODULE( applyMask )
-ADD_MODULE( butterfly )
+#ADD_MODULE( butterfly ) Works on gcc does not compile on clang
 ADD_MODULE( calculateGFA )
 ADD_MODULE( calculateTensors )
 ADD_MODULE( clusterDisplay )

@@ -730,7 +730,6 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
 
     if( tubeMode )
     {
-        errorLog() << "hhhhhhhhhhhhhhhhhhhhhhhhhh";
         // we have one vertex per line, so bind the attribute array per vertex
         startGeometry->setVertexAttribArray( 6, m_bitfieldAttribs );
         startGeometry->setVertexAttribBinding( 6, wosg::Geometry::BIND_PER_VERTEX );
