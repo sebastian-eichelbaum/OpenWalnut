@@ -35,6 +35,7 @@
 #include <osg/Uniform>
 
 #include "../common/WColor.h"
+#include "../common/WBoundingBox.h"
 #include "../common/WAssert.h"
 #include "../common/WPropertyVariable.h"
 #include "../graphicsEngine/shaders/WGEPropertyUniform.h"
@@ -124,6 +125,17 @@ namespace wge
      */
     template< typename T >
     void bindAsUniform( osg::Node* node, T prop, std::string name );
+
+    /**
+     * Generate a proxy cube, which ensures OSG does proper near-far plane calculation and culling. This is especially useful if you create some
+     * geometry and modify it on the GPU by shaders. In these cases, OSG will not properly cull and near-far clip. This cull proxy is basically a
+     * cube, which gets shrinked to zero size on the GPU. This ensures you cannot see it, but it makes OSG see you proper bounding volume.
+     *
+     * \param bbox the bounding box to cover
+     *
+     * \return the proxy. Add it to your scene root.
+     */
+    osg::ref_ptr< osg::Node > generateCullProxy( const WBoundingBox& bbox );
 }
 
 inline WColor wge::getRGBAColorFromDirection( const WPosition &pos1, const WPosition &pos2 )

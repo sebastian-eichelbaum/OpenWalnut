@@ -30,6 +30,8 @@
 #include "../common/math/linearAlgebra/WPosition.h"
 
 #include "WGETexture.h"
+#include "shaders/WGEShader.h"
+#include "WGEGeodeUtils.h"
 
 #include "WGEUtils.h"
 
@@ -229,3 +231,18 @@ void wge::enableTransparency( osg::ref_ptr< osg::Node > node )
     state->setMode( GL_BLEND, osg::StateAttribute::ON );
 }
 
+osg::ref_ptr< osg::Node > wge::generateCullProxy( const WBoundingBox& bbox )
+{
+    // Create some cube. Color is uninteresting.
+    osg::ref_ptr< osg::Node > cullProxy = wge::generateSolidBoundingBoxNode( bbox, defaultColor::WHITE );
+
+    // Avoid picking the proxy
+    cullProxy->asTransform()->getChild( 0 )->setName( "_Cull Proxy Cube" ); // Be aware that this name is used in the pick handler.
+                                                                           // because of the underscore in front it won't be picked
+
+    // Add a shader which visually removes the proxy cube.
+    osg::ref_ptr< WGEShader > cullProxyShader = new WGEShader( "WGECullProxyShader" );
+    cullProxyShader->apply( cullProxy );
+
+    return cullProxy;
+}

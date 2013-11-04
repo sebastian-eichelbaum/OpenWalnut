@@ -140,7 +140,12 @@ private:
     /**
      * The Geode containing all the slices and the mesh
      */
-    osg::ref_ptr< WGEManagedGroupNode > m_output;
+    osg::ref_ptr< WGEGroupNode > m_output;
+
+    /**
+     * Scene root node.
+     */
+    osg::ref_ptr< WGEManagedGroupNode > m_root;
 
     WPropGroup    m_sliceGroup; //!< the group contains several slice properties
 

@@ -46,6 +46,7 @@ WGEOffscreenRenderPass::WGEOffscreenRenderPass( size_t textureWidth, size_t text
     setReferenceFrame( osg::Transform::RELATIVE_RF );
     setRenderTargetImplementation( osg::Camera::FRAME_BUFFER_OBJECT );
     setRenderOrder( osg::Camera::PRE_RENDER, num );
+    setComputeNearFarMode( osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR );
 }
 
 WGEOffscreenRenderPass::WGEOffscreenRenderPass( size_t textureWidth, size_t textureHeight, osg::ref_ptr< WGETextureHud > hud, std::string name,
@@ -63,6 +64,7 @@ WGEOffscreenRenderPass::WGEOffscreenRenderPass( size_t textureWidth, size_t text
     setReferenceFrame( osg::Transform::RELATIVE_RF );
     setRenderTargetImplementation( osg::Camera::FRAME_BUFFER_OBJECT );
     setRenderOrder( osg::Camera::PRE_RENDER, num );
+    setComputeNearFarMode( osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR );
 }
 
 WGEOffscreenRenderPass::~WGEOffscreenRenderPass()
