@@ -265,6 +265,12 @@ osg::ref_ptr< T > WGEOffscreenRenderNode::addRenderPass( std::string name )
     pass->setClearMask( m_referenceCamera->getClearMask() );
     pass->setClearColor( m_referenceCamera->getClearColor() );
 
+    // inherit cull settings
+    pass->inheritCullSettings( *m_referenceCamera, pass->getInheritanceMask() );
+
+    pass->setComputeNearFarMode( osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR );
+    pass->setNearFarRatio( m_referenceCamera->getNearFarRatio() );
+
     return pass;
 }
 

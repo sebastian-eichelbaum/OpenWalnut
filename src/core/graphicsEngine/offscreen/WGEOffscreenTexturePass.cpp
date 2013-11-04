@@ -69,6 +69,9 @@ void WGEOffscreenTexturePass::setup()
     state->setMode( GL_BLEND, osg::StateAttribute::PROTECTED );
     state->setMode( GL_BLEND, osg::StateAttribute::OFF );
 
+    // avoid culling
+    setCullingActive( false );
+
     // setup 2D projection
     this->setReferenceFrame( osg::Transform::ABSOLUTE_RF );
     this->setProjectionMatrixAsOrtho2D( 0.0, 1.0, 0.0, 1.0 );
