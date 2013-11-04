@@ -94,7 +94,7 @@ public:
      *
      * \param bs the sphere
      */
-    WBoundingBoxImpl( const osg::BoundingSphereImpl< VT >& bs );
+    explicit WBoundingBoxImpl( const osg::BoundingSphereImpl< VT >& bs );
 
     /**
      * Destructs this instance.
