@@ -41,6 +41,7 @@
 #include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
 #include "core/graphicsEngine/WGEColormapping.h"
 #include "core/graphicsEngine/WGEGeodeUtils.h"
+#include "core/graphicsEngine/WGEUtils.h"
 #include "core/graphicsEngine/WGraphicsEngine.h"
 #include "core/graphicsEngine/WPickHandler.h"
 #include "core/kernel/WKernel.h"
@@ -275,6 +276,10 @@ void WMNavigationSlices::initOSG()
     m_output->insert( mX );
     m_output->insert( mY );
     m_output->insert( mZ );
+
+    // add proxy
+    m_output->insert( wge::generateCullProxy( bb ) );
+
     m_output->dirtyBound();
 
     m_axialOutput->insert( mZ );
