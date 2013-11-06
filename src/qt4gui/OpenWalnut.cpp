@@ -79,7 +79,7 @@ int main( int argc, char** argv )
 
     // process user parameter
     namespace po = boost::program_options; // since the namespace is far to big we use a shortcut here
-    po::options_description desc( "Options:" );
+    po::options_description desc( "Options" );
 
     // NOTE: if you modify this, also modify the manual pages! (use help2man or do it manually) But be careful. There need
     // to be several manual changes to be done in the manual after help2man has done its job.
