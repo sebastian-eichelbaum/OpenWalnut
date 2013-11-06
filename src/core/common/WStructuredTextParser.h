@@ -260,7 +260,7 @@ namespace WStructuredTextParser
      * itself. When querying, you always need to specify the full path. This class can be seen as accessor to the
      * \ref WStructuredTextParser::ObjectType tree.
      *
-     * \note The syntax of the parsed files is defined by the parser itself. See \ref WStructuredTextParser::Grammar for details.
+     * \note The syntax of the parsed files is defined by the parser itself. See WStructuredTextParser::Grammar for details.
      * \note This also stores the comments of the parsed file. This allows them to be written again if OW loads a file, modifies it and re-writes
      * it.
      */

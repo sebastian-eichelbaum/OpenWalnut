@@ -26,10 +26,14 @@
 #include <vector>
 
 #include <osg/Array>
+#include <osg/MatrixTransform>
 
 #include "../common/math/linearAlgebra/WPosition.h"
+#include "core/common/WLogger.h"
 
 #include "WGETexture.h"
+#include "shaders/WGEShader.h"
+#include "WGEGeodeUtils.h"
 
 #include "WGEUtils.h"
 
@@ -227,5 +231,80 @@ void wge::enableTransparency( osg::ref_ptr< osg::Node > node )
 
     // blending. Without this, setting alpha does not cause anything
     state->setMode( GL_BLEND, osg::StateAttribute::ON );
+}
+
+osg::ref_ptr< osg::Node > wge::generateCullProxy( const WBoundingBox& bbox )
+{
+    // Create some cube. Color is uninteresting.
+    osg::ref_ptr< osg::Node > cullProxy = wge::generateSolidBoundingBoxNode( bbox, defaultColor::WHITE );
+
+    // Avoid picking the proxy
+    cullProxy->asTransform()->getChild( 0 )->setName( "_Cull Proxy Cube" ); // Be aware that this name is used in the pick handler.
+                                                                           // because of the underscore in front it won't be picked
+
+    // Add a shader which visually removes the proxy cube.
+    osg::ref_ptr< WGEShader > cullProxyShader = new WGEShader( "WGECullProxyShader" );
+    cullProxyShader->apply( cullProxy );
+
+    return cullProxy;
+}
+
+/**
+ * Update matrix transform according to bounds of some node
+ */
+class BoundsCallback: public osg::NodeCallback
+{
+public:
+    /**
+     * Create and init.
+     *
+     * \param node the node
+     */
+    explicit BoundsCallback( osg::ref_ptr< osg::Node > node ):
+        m_node( node )
+    {
+    }
+
+    /**
+     *	Callback method called by the NodeVisitor when visiting a node
+     *
+     * \param node the node handled
+     * \param nv the visitor
+     */
+    virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
+    {
+        osg::MatrixTransform* m = static_cast< osg::MatrixTransform* >( node );
+
+        osg::BoundingSphere s = m_node->getBound();
+
+        // this will not be the bounding box which is embedded into the sphere as we do not know how the sphere was calculated. Create a BBox
+        // around the sphere.
+        osg::Matrix matrix = osg::Matrix::scale( osg::Vec3d( s.radius(), s.radius(), s.radius() ) ) * osg::Matrix::translate( s.center() );
+
+        m->setMatrix( matrix );
+
+        traverse( node, nv );
+    }
+private:
+    /**
+     * The node to use as template for the resulting bbox
+     */
+    osg::ref_ptr< osg::Node > m_node;
+};
+
+osg::ref_ptr< osg::Node > wge::generateDynamicCullProxy( osg::ref_ptr< osg::Node > node )
+{
+    // create a unit size proxy cube
+    osg::ref_ptr< osg::Node > proxyUnitCube = generateCullProxy(
+        WBoundingBox( WBoundingBox::vec_type( -1.0, -1.0, -1.0 ), WBoundingBox::vec_type( 1.0, 1.0, 1.0 ) )
+    );
+
+    // setComputeBoundingSphereCallback does not work -> we need a transform node which scales the cube using an update callback
+    osg::ref_ptr< osg::MatrixTransform > mt( new osg::MatrixTransform() );
+
+    mt->setUpdateCallback( new BoundsCallback( node ) );
+    mt->addChild( proxyUnitCube );
+
+    return mt;
 }
 

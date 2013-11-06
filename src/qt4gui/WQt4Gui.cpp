@@ -204,7 +204,7 @@ int WQt4Gui::run()
     WQtModuleConfig::initPathHelper();
 
     // get the minimum log level from preferences
-    LogLevel logLevel = static_cast< LogLevel >( WQt4Gui::getSettings().value( "qt4gui/logLevel", LL_INFO ).toInt() );
+    LogLevel logLevel = static_cast< LogLevel >( WQt4Gui::getSettings().value( "qt4gui/logLevel", LL_DEBUG ).toInt() );
     WLogger::getLogger()->setDefaultLogLevel( logLevel );
 
     // print the first output

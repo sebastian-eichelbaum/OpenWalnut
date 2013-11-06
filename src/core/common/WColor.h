@@ -92,6 +92,7 @@ namespace defaultColor
     static const WColor GRAY50( 0.5, 0.5, 0.5, 1.0 ); //!< Default for gray
     static const WColor GRAY75( 0.75, 0.75, 0.75, 1.0 ); //!< Default for gray
     static const WColor WHITE( 1.0, 1.0, 1.0, 1.0 ); //!< Default for white
+    static const WColor TRANSPARENT( 1.0, 1.0, 1.0, 0.0 ); //!< Completely transparent  -- NOTE: this does not belong to the default palette
     // \endcond
 
     /**

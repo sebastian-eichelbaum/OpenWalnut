@@ -29,6 +29,8 @@
 
 #include <osg/Camera>
 
+#include "core/common/WLogger.h"
+
 #include "../WGEGroupNode.h"
 #include "WGEOffscreenRenderPass.h"
 #include "WGEOffscreenTexturePass.h"
@@ -36,7 +38,6 @@
 #include "../WGETextureHud.h"
 #include "../shaders/WGEShader.h"
 #include "../callbacks/WGEViewportCallback.h"
-
 
 /**
  * This type of node basically is a convenience class for managing and creating offscreen renderings. The children of this node should be of type
@@ -206,6 +207,7 @@ public:
      * \return the flag.
      */
     bool getLinkViewportToTextureSize() const;
+
 protected:
 private:
     /**
@@ -247,10 +249,6 @@ osg::ref_ptr< T > WGEOffscreenRenderNode::addRenderPass( std::string name )
     osg::ref_ptr< T > pass = new T( m_textureWidth, m_textureHeight, m_hud, name, m_nextPassNum );
     m_nextPassNum++;
 
-    // this node needs to keep all the pass instances. Only this way, the OSG traverses and renders these nodes in the order specified by
-    // m_nextPassNum.
-    insert( pass );   // insert into this group
-
     // ensure proper propagation of viewport changes
     if( m_forceViewportTextureSize )
     {
@@ -264,6 +262,17 @@ osg::ref_ptr< T > WGEOffscreenRenderNode::addRenderPass( std::string name )
     // set clear mask and color according to reference cam
     pass->setClearMask( m_referenceCamera->getClearMask() );
     pass->setClearColor( m_referenceCamera->getClearColor() );
+
+    // inherit cull settings
+    pass->setCullSettings( *m_referenceCamera );
+
+    pass->setComputeNearFarMode( osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR );
+    pass->setNearFarRatio( 0.000001 );
+    pass->setCullingMode( osg::CullSettings::NO_CULLING );
+
+    // this node needs to keep all the pass instances. Only this way, the OSG traverses and renders these nodes in the order specified by
+    // m_nextPassNum.
+    insert( pass );   // insert into this group
 
     return pass;
 }

@@ -122,6 +122,7 @@ void main()
     {
         vec3 colorBottom = vec3( 0.0 );
         vec3 colorTop  = vec3( 0.2, 0.2, 0.2 );
+        gl_FragDepth = depth;
         gl_FragColor = vec4( mix( colorBottom, colorTop, coord.y ), 1.0 );
         return;
     }
@@ -135,6 +136,7 @@ void main()
 
     // output the depth and final color.
     gl_FragColor = getColor( coord );
+    gl_FragDepth = depth;
 }
 
 #endif // WGEPOSTPROCESSORCOMBINER_FRAGMENT_GLSL

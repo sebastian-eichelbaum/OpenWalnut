@@ -27,6 +27,7 @@
 #include <osg/Geode>
 
 #include "../../common/WAssert.h"
+#include "../WGEUtils.h"
 
 #include "WGEOffscreenRenderNode.h"
 
@@ -71,6 +72,15 @@ osg::ref_ptr< WGEOffscreenRenderPass > WGEOffscreenRenderNode::addGeometryRender
     // create a plain render pass and add some geometry
     osg::ref_ptr< WGEOffscreenRenderPass > pass = addRenderPass< WGEOffscreenRenderPass >( name );
     pass->addChild( node );
+
+    // add proxy to ensure proper clipping/culling even when the node changes its size in the shader. The programmer of the node has to take
+    // care, that the getBounds methods of the node returns the right size (use a ComputeBoundingSpereCallback or overwrite computeBounds in
+    // your node)
+    //
+    // It is important to add this proxy into the goup as the passes disable near/far recalculation. They inherit the near/far planes from the
+    // camera of this group node. To ensure that OSG sets it properly, we use these proxies.
+    insert( wge::generateDynamicCullProxy( node ) );
+
     return pass;
 }
 
@@ -82,6 +92,14 @@ osg::ref_ptr< WGEOffscreenRenderPass > WGEOffscreenRenderNode::addGeometryRender
     osg::ref_ptr< WGEOffscreenRenderPass > pass = addRenderPass< WGEOffscreenRenderPass >( name );
     pass->addChild( node );
     shader->apply( pass );
+
+    // add proxy to ensure proper clipping/culling even when the node changes its size in the shader. The programmer of the node has to take
+    // care, that the getBounds methods of the node returns the right size (use a ComputeBoundingSpereCallback or overwrite computeBounds in
+    // your node)
+    //
+    // It is important to add this proxy into the goup as the passes disable near/far recalculation. They inherit the near/far planes from the
+    // camera of this group node. To ensure that OSG sets it properly, we use these proxies.    insert( wge::generateDynamicCullProxy( node ) );
+
     return pass;
 }
 

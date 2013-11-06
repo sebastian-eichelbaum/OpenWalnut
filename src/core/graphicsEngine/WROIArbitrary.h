@@ -97,7 +97,7 @@ public:
     void properties();
 
     /**
-     *
+     * Used as callback to mark a change in the ROI
      */
     void propertyChanged();
 

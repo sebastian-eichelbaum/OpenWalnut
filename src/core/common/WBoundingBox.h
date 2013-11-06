@@ -83,6 +83,20 @@ public:
     WBoundingBoxImpl( const vec_type& min, const vec_type& max );
 
     /**
+     * Copy construct using a given bounding box
+     *
+     * \param bb the source bb
+     */
+    WBoundingBoxImpl( const WBoundingBoxImpl& bb );
+
+    /**
+     * Create BoundinmgBox using a given sphere.
+     *
+     * \param bs the sphere
+     */
+    explicit WBoundingBoxImpl( const osg::BoundingSphereImpl< VT >& bs );
+
+    /**
      * Destructs this instance.
      */
     virtual ~WBoundingBoxImpl();
@@ -196,6 +210,19 @@ inline WBoundingBoxImpl< VT >::WBoundingBoxImpl( value_type xmin, value_type ymi
 template< class VT >
 inline WBoundingBoxImpl< VT >::WBoundingBoxImpl( const vec_type& min, const vec_type& max )
     : osg::BoundingBoxImpl< VT >( min, max )
+{
+}
+
+template< class VT >
+inline WBoundingBoxImpl< VT >::WBoundingBoxImpl( const osg::BoundingSphereImpl< VT >& bs )
+    : osg::BoundingBoxImpl< VT >( bs.center() - VT( bs.radius(), bs.radius(), bs.radius() ) ,
+                                  bs.center() + VT( bs.radius(), bs.radius(), bs.radius() ) )
+{
+}
+
+template< class VT >
+inline WBoundingBoxImpl< VT >::WBoundingBoxImpl( const WBoundingBoxImpl< VT >& bb )
+    : osg::BoundingBoxImpl< VT >( bb )
 {
 }
 

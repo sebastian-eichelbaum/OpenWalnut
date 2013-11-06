@@ -40,6 +40,7 @@
 #include "core/dataHandler/WGridRegular3D.h"
 #include "core/graphicsEngine/WGEColormapping.h"
 #include "core/graphicsEngine/WGEGeodeUtils.h"
+#include "core/graphicsEngine/WGEUtils.h"
 #include "core/graphicsEngine/WGETextureUtils.h"
 #include "core/graphicsEngine/callbacks/WGELinearTranslationCallback.h"
 #include "core/graphicsEngine/callbacks/WGENodeMaskCallback.h"
@@ -237,6 +238,11 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
         osg::ref_ptr< osg::Node > zSlice =  wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsX() * grid->getDirectionX(),
                                                                                     grid->getNbCoordsY() * grid->getDirectionY() );
 
+        // disable picking
+        xSlice->setName( "_X SLice" );
+        ySlice->setName( "_Y SLice" );
+        zSlice->setName( "_Z SLice" );
+
         // The movement of the slice is done in the shader. An alternative would be WGELinearTranslationCallback but there, the needed matrix is
         // not available in the shader
         osg::StateSet* ss = xSlice->getOrCreateStateSet();
@@ -302,7 +308,10 @@ void WMImageSpaceLIC::moduleMain()
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // create the root node for all the geometry
-    m_output = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
+    m_root = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
+
+    // root geometry node for the offscreen path
+    m_output = osg::ref_ptr< WGEGroupNode > ( new WGEGroupNode() );
 
     // the WGEOffscreenRenderNode manages each of the render-passes for us
     osg::ref_ptr< WGEOffscreenRenderNode > offscreen = new WGEOffscreenRenderNode(
@@ -402,6 +411,15 @@ void WMImageSpaceLIC::moduleMain()
     clipBlend->addUniform( new WGEPropertyUniform< WPropBool >( "u_useHighContrast", m_useHighContrast ) );
     clipBlend->addUniform( new WGEPropertyUniform< WPropDouble >( "u_cmapRatio", m_cmapRatio ) );
 
+    // add everything to root node
+    m_root->insert( offscreen );
+
+    // Cull proxy. Updated on dataset change
+    osg::ref_ptr< osg::Node > cullProxy;
+
+    // register scene
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_root );
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Main loop
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -441,17 +459,14 @@ void WMImageSpaceLIC::moduleMain()
             continue;
         }
 
-        // ensure it gets added
-        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( offscreen );
-        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( offscreen );
-
         // prefer vector dataset if existing
+        boost::shared_ptr< WGridRegular3D > grid;
         if( dataSetVec )
         {
             debugLog() << "Using vector data";
 
             // get grid and prepare OSG
-            boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( dataSetVec->getGrid() );
+            grid = boost::dynamic_pointer_cast< WGridRegular3D >( dataSetVec->getGrid() );
             m_xPos->setMax( grid->getNbCoordsX() - 1 );
             m_yPos->setMax( grid->getNbCoordsY() - 1 );
             m_zPos->setMax( grid->getNbCoordsZ() - 1 );
@@ -466,7 +481,7 @@ void WMImageSpaceLIC::moduleMain()
             debugLog() << "Using scalar data";
 
             // get grid and prepare OSG
-            boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( dataSetScal->getGrid() );
+            grid = boost::dynamic_pointer_cast< WGridRegular3D >( dataSetScal->getGrid() );
             m_xPos->setMax( grid->getNbCoordsX() - 1 );
             m_yPos->setMax( grid->getNbCoordsY() - 1 );
             m_zPos->setMax( grid->getNbCoordsZ() - 1 );
@@ -477,11 +492,17 @@ void WMImageSpaceLIC::moduleMain()
             transformation->bind( dataSetScal->getTexture(), 0 );
         }
 
+        // Update CullProxy when we get new data
+        // add a cull-proxy as we modify the geometry on the GPU
+        WBoundingBox bbox = grid->getVoxelBoundingBox();
+        m_root->remove( cullProxy );
+        cullProxy = wge::generateCullProxy( bbox );
+        m_root->insert( cullProxy );
         debugLog() << "Done";
     }
 
     // clean up
-    offscreen->clear();
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( offscreen );
+    m_root->clear();
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_root );
 }
 

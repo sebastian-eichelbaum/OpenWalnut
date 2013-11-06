@@ -24,6 +24,11 @@ export LD_PRELOAD=$Preloads
 # Force C locale. This fixes an issue with newer boost versions. See ticket #130.
 export LC_ALL=C
 
+# If the user has installed OSG manually into a non-standard location, we need to set some OSG paths.
+# This command uses libopenwalnuts dependencies to find the libosgDB directory.
+# NOTE: if this command fails, script will continue execution
+export OSG_LIBRARY_PATH=$(dirname `ldd lib/libopenwalnut.so | grep "libosgDB" | awky '{print $3;}'` 2> /dev/null)
+
 # Check if the user has set $OPENWALNUT_USEOPTIMUS to an executable
 runner=
 if [ -x "$OPENWALNUT_USEOPTIMUS" ]; then

@@ -34,6 +34,17 @@ WGECamera::WGECamera( int width, int height, ProjectionMode projectionMode )
 {
     setViewport( 0, 0, width, height );
     setClearColor( osg::Vec4( 0.9, 0.9, 0.9, 1.0 ) );
+
+    // disable all culling
+    setCullingActive( false );
+    setCullingMode( osg::CullSettings::NO_CULLING );
+
+    // near-far computation is done using the bounding volumes
+    setComputeNearFarMode(
+        osg::CullSettings::COMPUTE_NEAR_FAR_USING_BOUNDING_VOLUMES
+        // osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR
+        // osg::CullSettings::COMPUTE_NEAR_FAR_USING_PRIMITIVES
+    );
     reset();
 }
 

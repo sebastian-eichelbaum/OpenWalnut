@@ -103,6 +103,8 @@ public:
      * Check whether the function exists.
      *
      * \param name the name of the function
+     *
+     * \return true if it exists.
      */
     bool existsFunction( const std::string& name ) const;
 
