@@ -555,7 +555,7 @@ FUNCTION( GET_VERSION_STRING _version _api_version )
     # Use hg to query version information.
     # -> the nice thing is: if hg is not available, no compilation errors anymore
     # NOTE: it is run insde the project source directory
-    EXECUTE_PROCESS( COMMAND hg parents --template "{rev}" OUTPUT_VARIABLE OW_VERSION_HG RESULT_VARIABLE hgParentsRetVar 
+    EXECUTE_PROCESS( COMMAND hg parents --template "{node|short}" OUTPUT_VARIABLE OW_VERSION_HG RESULT_VARIABLE hgParentsRetVar 
                      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                     )
     IF( NOT ${hgParentsRetVar} STREQUAL 0 )

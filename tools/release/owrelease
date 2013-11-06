@@ -120,7 +120,7 @@ Bootstrap()
     # called inside the working dir of owpack script.
     echo "VERSION_BASE=$VERSION_BASE" >> $CONFIG_FILE
     if [ $VERSION_INCLUDE_HG -ne 0 ]; then
-        echo "VERSION=$VERSION_BASE$VERSION_TAGS+hg`cd $CHECKOUT_DIR;hg parents --template "{rev}"`" >> $CONFIG_FILE
+        echo "VERSION=$VERSION_BASE$VERSION_TAGS+hg`cd $CHECKOUT_DIR;hg parents --template "{node|short}"`" >> $CONFIG_FILE
     else
         echo "VERSION=$VERSION_BASE$VERSION_TAGS" >> $CONFIG_FILE
     fi
