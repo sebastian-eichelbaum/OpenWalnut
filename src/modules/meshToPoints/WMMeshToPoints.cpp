@@ -63,7 +63,7 @@ const std::string WMMeshToPoints::getName() const
 
 const std::string WMMeshToPoints::getDescription() const
 {
-    return "This module converts mesh data to points by using the fiber vertex points and colors..";
+    return "This module converts mesh data to points by using the fiber vertex points and colors.";
 }
 
 void WMMeshToPoints::connectors()

@@ -64,7 +64,7 @@ const std::string WMReadDipoles::getName() const
 
 const std::string WMReadDipoles::getDescription() const
 {
-    return "Reading \".dip\" files containing position and additional information on dipoles reconstructed from EEG..";
+    return "Reading \".dip\" files containing position and additional information on dipoles reconstructed from EEG.";
 }
 
 void WMReadDipoles::connectors()
