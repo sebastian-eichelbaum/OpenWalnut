@@ -80,7 +80,7 @@ const std::string WMButterfly::getName() const
 
 const std::string WMButterfly::getDescription() const
 {
-    return "Should draw values above some threshold.";
+    return "Subdivides triangles in a mesh using the improved butterfly scheme (Zorin et al., 1996).";
 }
 
 /**Plugin connectors
