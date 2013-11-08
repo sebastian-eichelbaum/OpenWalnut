@@ -71,6 +71,7 @@ public:
      * \return reference to the (i,j) element of the table
      */
     T& operator()( size_t i, size_t j ) throw( WOutOfBounds );
+    const T& operator()( size_t i, size_t j ) const throw( WOutOfBounds );
 
     /**
      * Returns the number of elements stored in this matrix.
@@ -98,6 +99,14 @@ public:
      */
     void setData( const std::vector< T > &data ) throw( WOutOfBounds );
 
+    /**
+     * Renders the matrix to a full nxn matrix, where the main diagonal is set to 0.0 and the m(i,j) == m(j,i).
+     * Each column is separated by exactly one space and each row is separated by a newline.
+     *
+     * @return Multiline string containing the nxn symmetric matrix.
+     */
+    std::string toString( void ) const;
+
 private:
     /**
      * Internal data structure to store the elements. The order is row major.
@@ -124,6 +133,23 @@ inline WMatrixSymImpl< T >::WMatrixSymImpl()
 }
 
 template< typename T >
+inline const T& WMatrixSymImpl< T >::operator()( size_t i, size_t j ) const throw( WOutOfBounds )
+{
+    if( i == j || i >= m_n || j >= m_n )
+    {
+        std::stringstream ss;
+        ss << "Invalid Element Access ( " << i << ", " << j << " ). No diagonal elements or indices bigger than " << m_n << " are allowed.";
+        throw WOutOfBounds( ss.str() );
+    }
+    if( i > j )
+    {
+        std::swap( i, j );
+    }
+    return m_data[( i * m_n + j - ( i + 1 ) * ( i + 2 ) / 2 )];
+}
+
+
+template< typename T >
 inline T& WMatrixSymImpl< T >::operator()( size_t i, size_t j ) throw( WOutOfBounds )
 {
     if( i == j || i >= m_n || j >= m_n )
@@ -137,6 +163,37 @@ inline T& WMatrixSymImpl< T >::operator()( size_t i, size_t j ) throw( WOutOfBou
         std::swap( i, j );
     }
     return m_data[( i * m_n + j - ( i + 1 ) * ( i + 2 ) / 2 )];
+}
+
+template< typename T >
+inline std::string WMatrixSymImpl< T >::toString( void ) const
+{
+    std::stringstream ss;
+    ss.precision( 3 );
+    ss << std::fixed;
+    for( size_t i = 0; i < m_n; ++i )
+    {
+        for( size_t j = 0; j < m_n; ++j )
+        {
+            if( i != j )
+            {
+                ss << this->operator()(i,j);
+            }
+            else
+            {
+                ss << "0.0";
+            }
+            if( ( j + 1 ) < m_n )
+            {
+                ss << " ";
+            }
+        }
+        if( ( i + 1 ) < m_n )
+        {
+            ss << std::endl;
+        }
+    }
+    return ss.str();
 }
 
 template< typename T >
