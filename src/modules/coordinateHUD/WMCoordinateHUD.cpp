@@ -78,7 +78,7 @@ const std::string WMCoordinateHUD::getName() const
 
 const std::string WMCoordinateHUD::getDescription() const
 {
-    return "This module is to display a coordinatesystem as HUD.";
+    return "This module displays a coordinate system as HUD.";
 }
 
 void WMCoordinateHUD::connectors()

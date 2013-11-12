@@ -81,10 +81,18 @@ public:
     void testInvalidAccessOnMainDiagonal( void )
     {
         WMatrixSymDBL t( 4 );
-        double mydata[] = { 1.6, 0.2, 7.7 }; // NOLINT
-        std::vector< double > data( mydata, mydata + sizeof( mydata ) / sizeof( double ) );
         TS_ASSERT_THROWS_EQUALS( t( 0, 0 ), WOutOfBounds &e, std::string( e.what() ),
                 "Invalid Element Access ( 0, 0 ). No diagonal elements or indices bigger than 4 are allowed." );
+    }
+
+    void testToString( void )
+    {
+        WMatrixSymDBL t( 3 );
+        double mydata[] = { 1.6, 0.2, 1/3.0 }; // NOLINT
+        std::vector< double > data( mydata, mydata + sizeof( mydata ) / sizeof( double ) );
+        t.setData( data );
+        std::string expected = "0.0 1.600 0.200\n1.600 0.0 0.333\n0.200 0.333 0.0";
+        TS_ASSERT_EQUALS( expected, t.toString() );
     }
 };
 
