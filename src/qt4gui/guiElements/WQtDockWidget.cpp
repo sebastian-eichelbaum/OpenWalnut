@@ -106,3 +106,21 @@ void WQtDockWidget::showHelp()
 {
     // do something here
 }
+
+void WQtDockWidget::saveSettings()
+{
+    WQt4Gui::getSettings().setValue( objectName() + "/geometry", saveGeometry() );
+}
+
+void WQtDockWidget::restoreSettings()
+{
+    // nothing to do
+    restoreGeometry( WQt4Gui::getSettings().value( objectName() + "/geometry", "" ).toByteArray() );
+}
+
+void WQtDockWidget::closeEvent( QCloseEvent *event )
+{
+    saveSettings();
+    QDockWidget::closeEvent( event );
+}
+

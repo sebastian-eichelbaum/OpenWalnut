@@ -113,6 +113,18 @@ WQtGLDockWidget::~WQtGLDockWidget()
     // cleanup
 }
 
+void WQtGLDockWidget::saveSettings()
+{
+    m_screenCapture->saveSettings();
+    WQtDockWidget::saveSettings();
+}
+
+void WQtGLDockWidget::restoreSettings()
+{
+    m_screenCapture->restoreSettings();
+    WQtDockWidget::restoreSettings();
+}
+
 boost::shared_ptr<WQtGLWidget>WQtGLDockWidget::getGLWidget() const
 {
     return m_glWidget;
@@ -127,13 +139,13 @@ void WQtGLDockWidget::handleVisibilityChange( bool visible )
 void WQtGLDockWidget::closeEvent( QCloseEvent *event )
 {
     getGLWidget()->getViewer()->setClosed( true );
-    QDockWidget::closeEvent( event );
+    WQtDockWidget::closeEvent( event );
 }
 
 void WQtGLDockWidget::showEvent( QShowEvent* event )
 {
     getGLWidget()->getViewer()->setClosed( false );
-    QDockWidget::showEvent( event );
+    WQtDockWidget::showEvent( event );
 }
 
 WQtGLScreenCapture* WQtGLDockWidget::getScreenCapture()

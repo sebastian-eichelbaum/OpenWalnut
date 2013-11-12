@@ -125,6 +125,16 @@ public:
      */
     virtual const QString& getHelpContext();
 
+    /**
+     * Save settings.
+     */
+    virtual void saveSettings();
+
+    /**
+     * Restore settings
+     */
+    virtual void restoreSettings();
+
 public slots:
     /**
      * Show help.
@@ -132,6 +142,13 @@ public slots:
     void showHelp();
 
 protected:
+    /**
+     * Called whenever a close event is received.
+     *
+     * \param event the event.
+     */
+    virtual void closeEvent( QCloseEvent *event );
+
 private:
     /**
      * Title widget.

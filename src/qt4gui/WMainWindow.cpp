@@ -93,7 +93,6 @@
 #include "WSettingAction.h"
 #include "WSettingMenu.h"
 #include "WQtMessageDialog.h"
-#include "WQtGLScreenCapture.h"
 
 #include "WMainWindow.h"
 #include "WMainWindow.moc"
@@ -254,10 +253,11 @@ void WMainWindow::setupGUI()
     m_glDock->setDockOptions( QMainWindow::AnimatedDocks |  QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks );
     m_glDock->setDocumentMode( true );
     setCentralWidget( m_glDock );
-    WQtGLDockWidget* mainGLDock = new WQtGLDockWidget( "Main View", "3D View", m_glDock );
-    mainGLDock->getGLWidget()->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
-    m_mainGLWidget = mainGLDock->getGLWidget();
-    m_glDock->addDockWidget( Qt::RightDockWidgetArea, mainGLDock );
+    m_mainGLDock = new WQtGLDockWidget( "Main View", "3D View", m_glDock );
+    m_mainGLDock->getGLWidget()->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+    m_mainGLDock->restoreSettings();
+    m_mainGLWidget = m_mainGLDock->getGLWidget();
+    m_glDock->addDockWidget( Qt::RightDockWidgetArea, m_mainGLDock );
     connect( m_mainGLWidget.get(), SIGNAL( renderedFirstFrame() ), this, SLOT( handleGLVendor() ) );
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
@@ -452,7 +452,7 @@ void WMainWindow::setupGUI()
 
     // this ensures that there is always at least the main window visible. Removing this might cause a freeze on startup if the user has closed
     // all gl widgets during the last session.
-    mainGLDock->setVisible( true );
+    m_mainGLDock->setVisible( true );
 }
 
 void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string proto, bool onlyOnce )
@@ -800,7 +800,7 @@ void WMainWindow::closeEvent( QCloseEvent* e )
         m_splash->showMessage( "Shutting down GUI." );
 
         // clean up gl widgets
-        m_mainGLWidget->close();
+        m_mainGLDock->close();
         if( m_navAxial )
         {
             m_navAxial->close();
@@ -852,7 +852,7 @@ void WMainWindow::customEvent( QEvent* event )
 
             // restore state and geometry
             m_glDock->restoreDockWidget( widget.get() );
-            //TODO(mario): is there a fallback if the configuration is "stupid" or not set?
+            widget->restoreSettings();
 
             // store it in CustomDockWidget list
             m_customDockWidgets.insert( make_pair( title, widget ) );
@@ -1069,6 +1069,19 @@ void WMainWindow::restoreSavedState()
 
     m_glDock->restoreGeometry( WQt4Gui::getSettings().value( "GLDockWindowGeometry", "" ).toByteArray() );
     m_glDock->restoreState( WQt4Gui::getSettings().value( "GLDockWindowState", "" ).toByteArray() );
+
+    if( m_navAxial )
+    {
+        m_navAxial->restoreSettings();
+    }
+    if( m_navCoronal )
+    {
+        m_navCoronal->restoreSettings();
+    }
+    if( m_navSagittal )
+    {
+        m_navSagittal->restoreSettings();
+    }
 }
 
 void WMainWindow::saveWindowState()

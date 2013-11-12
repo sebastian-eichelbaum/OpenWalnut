@@ -71,6 +71,17 @@ public:
      * \return the action.
      */
     QAction* getScreenshotTrigger() const;
+
+    /**
+     * Save settings.
+     */
+    virtual void saveSettings();
+
+    /**
+     * Restore settings
+     */
+    virtual void restoreSettings();
+
 protected:
     /**
      * Custom event dispatcher. Gets called by QT's Event system every time an event got sent to this widget. This event handler

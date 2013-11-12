@@ -98,6 +98,16 @@ public:
      */
     const QString& getDockTitle() const;
 
+    /**
+     * Save settings.
+     */
+    virtual void saveSettings();
+
+    /**
+     * Restore settings
+     */
+    virtual void restoreSettings();
+
 public slots:
     /**
      * Open screen capture config options
@@ -120,14 +130,14 @@ protected:
      *
      * \param event the event.
      */
-    void closeEvent( QCloseEvent *event );
+    virtual void closeEvent( QCloseEvent *event );
 
     /**
      * Called whenever the widget gets opened
      *
      * \param event the event
      */
-    void showEvent( QShowEvent* event );
+    virtual void showEvent( QShowEvent* event );
 
 private slots:
     /**

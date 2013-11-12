@@ -266,6 +266,22 @@ WQtGLScreenCapture::~WQtGLScreenCapture()
     m_imageConnection.disconnect();
 }
 
+void WQtGLScreenCapture::saveSettings()
+{
+    WQt4Gui::getSettings().setValue( objectName() + "/resolution", m_resolutionCombo->currentIndex() );
+    WQt4Gui::getSettings().setValue( objectName() + "/customResolutionWidth", m_customWidth->text() );
+    WQt4Gui::getSettings().setValue( objectName() + "/customResolutionHeight", m_customHeight->text() );
+    WQt4Gui::getSettings().setValue( objectName() + "/filename", m_configFileEdit->text() );
+}
+
+void WQtGLScreenCapture::restoreSettings()
+{
+    m_customWidth->setText( WQt4Gui::getSettings().value( objectName() + "/customResolutionWidth", m_customWidth->text() ).toString() );
+    m_customHeight->setText( WQt4Gui::getSettings().value( objectName() + "/customResolutionHeight", m_customHeight->text() ).toString() );
+    m_configFileEdit->setText( WQt4Gui::getSettings().value( objectName() + "/filename", m_configFileEdit->text() ).toString() );
+    m_resolutionCombo->setCurrentIndex(  WQt4Gui::getSettings().value( objectName() + "/resolution", m_resolutionCombo->currentIndex() ).toInt() );
+}
+
 QAction* WQtGLScreenCapture::getScreenshotTrigger() const
 {
     return m_screenshotAction;
