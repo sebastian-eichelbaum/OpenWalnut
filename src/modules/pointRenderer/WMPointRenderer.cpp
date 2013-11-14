@@ -64,7 +64,6 @@ boost::shared_ptr< WModule > WMPointRenderer::factory() const
 
 const char** WMPointRenderer::getXPMIcon() const
 {
-    // Thank you Alex for providing some nice icon here ;-)
     return NULL;
 }
 
