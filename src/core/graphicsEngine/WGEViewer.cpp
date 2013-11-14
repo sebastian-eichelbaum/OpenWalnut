@@ -38,6 +38,7 @@
 #include <osgGA/TerrainManipulator>
 #include <osgViewer/ViewerEventHandlers>
 #include <osgViewer/View>
+#include <osg/Depth>
 
 #include <osgDB/ReadFile>
 
@@ -49,7 +50,6 @@
 #include "WPickHandler.h"
 #include "WGEGeodeUtils.h"
 #include "shaders/WGEShader.h"
-
 
 #include "../common/WConditionOneShot.h"
 
@@ -165,31 +165,62 @@ void WGEViewer::setScene( osg::ref_ptr< WGEGroupNode > node )
     m_View->setSceneData( node );
     m_scene = node;
 
+    // vignetting cam
+    {
+        osg::ref_ptr< osg::Camera > bkCam = new osg::Camera();
+        bkCam->setClearMask( GL_DEPTH_BUFFER_BIT );
+        bkCam->setRenderOrder( osg::Camera::POST_RENDER );
+        bkCam->setReferenceFrame( osg::Transform::ABSOLUTE_RF );
+        bkCam->setProjectionMatrixAsOrtho2D( 0.0, 1.0, 0.0, 1.0 );
+        bkCam->setViewMatrix( osg::Matrixd::identity() );
+        osg::StateSet* state = bkCam->getOrCreateStateSet();
+        state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
+        state->setMode( GL_LIGHTING, osg::StateAttribute::PROTECTED );
+        state->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+        state->setMode( GL_BLEND, osg::StateAttribute::PROTECTED );
+        state->setMode( GL_BLEND, osg::StateAttribute::ON );
 
-    osg::ref_ptr< osg::Camera > bkCam = new osg::Camera();
-    bkCam->setClearMask( GL_DEPTH_BUFFER_BIT );
-    bkCam->setRenderOrder( osg::Camera::POST_RENDER );
-    bkCam->setReferenceFrame( osg::Transform::ABSOLUTE_RF );
-    bkCam->setProjectionMatrixAsOrtho2D( 0.0, 1.0, 0.0, 1.0 );
-    bkCam->setViewMatrix( osg::Matrixd::identity() );
-    osg::StateSet* state = bkCam->getOrCreateStateSet();
-    state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
-    state->setMode( GL_LIGHTING, osg::StateAttribute::PROTECTED );
-    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    state->setMode( GL_BLEND, osg::StateAttribute::PROTECTED );
-    state->setMode( GL_BLEND, osg::StateAttribute::ON );
+        osg::ref_ptr< osg::Geode > geode = wge::genFinitePlane( osg::Vec3( 0.0, 0.0, 0.0 ),
+                                                                osg::Vec3( 1.0, 0.0, 0.0 ),
+                                                                osg::Vec3( 0.0, 1.0, 0.0 ) );
 
-    osg::ref_ptr< osg::Geode > geode = wge::genFinitePlane( osg::Vec3( 0.0, 0.0, 0.0 ),
-                                                            osg::Vec3( 1.0, 0.0, 0.0 ),
-                                                            osg::Vec3( 0.0, 1.0, 0.0 ) );
+        osg::ref_ptr< WGEShader > vignetteShader = new WGEShader( "WGECameraVignette" );
+        vignetteShader->apply( geode );
 
-    osg::ref_ptr< WGEShader > vignetteShader = new WGEShader( "WGECameraVignette" );
-    vignetteShader->apply( geode );
+        // add the slice to the geode
+        bkCam->addChild( geode );
+        node->insert( bkCam );
+    }
 
+    // horizon background cam
+    {
+        osg::ref_ptr< osg::Camera > bkCam = new osg::Camera();
+        bkCam->setClearMask( GL_DEPTH_BUFFER_BIT );
+        bkCam->setRenderOrder( osg::Camera::NESTED_RENDER, 0 );
+        bkCam->setReferenceFrame( osg::Transform::ABSOLUTE_RF );
+        bkCam->setProjectionMatrixAsOrtho2D( 0.0, 1.0, 0.0, 1.0 );
+        bkCam->setViewMatrix( osg::Matrixd::identity() );
+        osg::StateSet* state = bkCam->getOrCreateStateSet();
+        state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
+        state->setMode( GL_LIGHTING, osg::StateAttribute::PROTECTED );
+        state->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+        state->setMode( GL_BLEND, osg::StateAttribute::PROTECTED );
+        state->setMode( GL_BLEND, osg::StateAttribute::ON );
+        osg::Depth* depth = new osg::Depth;
+        depth->setWriteMask( false );
+        state->setAttributeAndModes( depth, osg::StateAttribute::ON );
 
-    // add the slice to the geode
-    bkCam->addChild( geode );
-    node->insert( bkCam );
+        osg::ref_ptr< osg::Geode > geode = wge::genFinitePlane( osg::Vec3( 0.0, 0.0, 0.0 ),
+                                                                osg::Vec3( 1.0, 0.0, 0.0 ),
+                                                                osg::Vec3( 0.0, 1.0, 0.0 ) );
+
+        osg::ref_ptr< WGEShader > horizonShader = new WGEShader( "WGECameraHorizon" );
+        horizonShader->apply( geode );
+
+        // add the slice to the geode
+        bkCam->addChild( geode );
+        node->insert( bkCam );
+    }
 }
 
 osg::ref_ptr< WGEGroupNode > WGEViewer::getScene()
