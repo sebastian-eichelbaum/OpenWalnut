@@ -167,6 +167,7 @@ void WGEViewer::setScene( osg::ref_ptr< WGEGroupNode > node )
 
     // vignetting cam
     {
+        /*
         osg::ref_ptr< osg::Camera > bkCam = new osg::Camera();
         bkCam->setClearMask( GL_DEPTH_BUFFER_BIT );
         bkCam->setRenderOrder( osg::Camera::POST_RENDER );
@@ -190,10 +191,12 @@ void WGEViewer::setScene( osg::ref_ptr< WGEGroupNode > node )
         // add the slice to the geode
         bkCam->addChild( geode );
         node->insert( bkCam );
+        */
     }
 
     // horizon background cam
     {
+        /*
         osg::ref_ptr< osg::Camera > bkCam = new osg::Camera();
         bkCam->setClearMask( GL_DEPTH_BUFFER_BIT );
         bkCam->setRenderOrder( osg::Camera::NESTED_RENDER, 0 );
@@ -220,6 +223,7 @@ void WGEViewer::setScene( osg::ref_ptr< WGEGroupNode > node )
         // add the slice to the geode
         bkCam->addChild( geode );
         node->insert( bkCam );
+        */
     }
 }
 
