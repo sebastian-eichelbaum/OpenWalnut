@@ -27,7 +27,9 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iomanip>
 #include <sstream>
+#include <string>
 #include <vector>
 
 #include "../exceptions/WOutOfBounds.h"
@@ -71,6 +73,17 @@ public:
      * \return reference to the (i,j) element of the table
      */
     T& operator()( size_t i, size_t j ) throw( WOutOfBounds );
+
+    /**
+     * Const version of the element access.
+     *
+     * \warning Acessing elements of the main diagonal is forbidden!
+     *
+     * \param i The i'th row
+     * \param j The j'th column
+     *
+     * \return Const reference to the (i,j) element of the table
+     */
     const T& operator()( size_t i, size_t j ) const throw( WOutOfBounds );
 
     /**
@@ -165,35 +178,113 @@ inline T& WMatrixSymImpl< T >::operator()( size_t i, size_t j ) throw( WOutOfBou
     return m_data[( i * m_n + j - ( i + 1 ) * ( i + 2 ) / 2 )];
 }
 
+
 template< typename T >
 inline std::string WMatrixSymImpl< T >::toString( void ) const
 {
-    std::stringstream ss;
-    ss.precision( 3 );
-    ss << std::fixed;
-    for( size_t i = 0; i < m_n; ++i )
+  std::stringstream ss;
+  ss << std::setprecision( 9 ) << std::fixed;
+  ss << *this;
+  return ss.str();
+}
+
+/**
+ * Compares two matrix elementwise. First tested their size, if equal elementwisely further tests.
+ *
+ * \tparam T Element type
+ * \param lhs Left symmetric matrix operand
+ * \param rhs Right symmetric matrix operand
+ *
+ * \return True if and only if all elements are equal.
+ */
+template< typename T >
+inline bool operator==( WMatrixSymImpl< T > const& lhs, WMatrixSymImpl< T > const& rhs )
+{
+    std::vector< T > l = lhs.getData();
+    std::vector< T > r = rhs.getData();
+    return l == r;
+}
+
+/**
+ * Output operator for symmetric Matrix producing full square matrix. Each row in separate line.
+ *
+ * \tparam T Element type
+ * \param os Output stream
+ * \param m Matrix to put to output stream
+ *
+ * \return Output stream
+ */
+template< typename T >
+inline std::ostream& operator<<( std::ostream& os, const WMatrixSymImpl< T >& m )
+{
+    size_t n = m.size();
+    for( size_t i = 0; i < n; ++i )
     {
-        for( size_t j = 0; j < m_n; ++j )
+        for( size_t j = 0; j < n; ++j )
         {
             if( i != j )
             {
-                ss << this->operator()(i,j);
+                os << m( i, j );
             }
             else
             {
-                ss << "0.0";
+                os << 0.0;
             }
-            if( ( j + 1 ) < m_n )
+            if( ( j + 1 ) < n )
             {
-                ss << " ";
+                os << " ";
             }
         }
-        if( ( i + 1 ) < m_n )
+        if( ( i + 1 ) < n )
         {
-            ss << std::endl;
+            os << std::endl;
         }
     }
-    return ss.str();
+    return os;
+}
+
+/**
+ * Read elemnts of full square matrix into symmetric matrix. Only elements of the upper triangle matrix will be used.
+ * First all elements separated by white space are read and then dimension check is performed, to ensure all
+ * elements fit into sym Matrix then.
+ *
+ * \throw WOutOfBounds exception if element number missmatch occours.
+ *
+ * \tparam T Element type
+ * \param is Input Stream
+ * \param m Sym. Matrix to populate
+ *
+ * \return Input Stream
+ */
+template< typename T >
+inline std::istream& operator>>( std::istream& is, WMatrixSymImpl< T >& m )
+{
+    std::vector< T > elements;
+    T elm;
+    while( is >> elm )
+    {
+        elements.push_back( elm );
+    }
+    if( m.size() * m.size() != elements.size() )
+    {
+        std::stringstream ss;
+        ss << "Error: Input stream has: " << elements.size() << " elements, while matrix given to accommodate expected: ";
+        ss << m.size() * m.size() << " elements.";
+        throw WOutOfBounds( ss.str() );
+    }
+    typename std::vector< T >::const_iterator it = elements.begin();
+    for( size_t i = 0; i < m.size(); ++i )
+    {
+        for( size_t j = 0; j < m.size(); ++j )
+        {
+            if( j > i )
+            {
+                m( i, j ) = *it;
+            }
+            ++it;
+        }
+    }
+    return is;
 }
 
 template< typename T >
