@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2013 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -44,7 +44,7 @@ CXXTEST_TEMPLATE_INSTANTIATION
  * Enables better UnitTest OutPut if something fails with WFibers, so you see
  * immedeatly what is failing.
  */
-class ValueTraits< WMatrixSymImpl< double > > : public WTraitsBase
+class ValueTraits< WMatrixSym< double > > : public WTraitsBase
 {
 public:
     /**
@@ -52,7 +52,7 @@ public:
      *
      * \param m the WMatrix to print
      */
-    explicit ValueTraits( const WMatrixSymImpl< double > &m )
+    explicit ValueTraits( const WMatrixSym< double > &m )
     {
         std::stringstream tmp;
         tmp.precision( 5 );

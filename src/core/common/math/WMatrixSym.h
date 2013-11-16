@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2013 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -32,6 +32,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/shared_ptr.hpp>
+
 #include "../exceptions/WOutOfBounds.h"
 
 /**
@@ -41,7 +43,7 @@
  * \note There exists also a WWriter and WReader for storing/reading the matrix in VTK file format.
  */
 template< typename T >
-class WMatrixSymImpl
+class WMatrixSym
 {
 friend class WMatrixSymTest;
 public:
@@ -51,16 +53,21 @@ public:
     typedef T value_type;
 
     /**
+     * Shorthand for shared pointers.
+     */
+    typedef boost::shared_ptr< WMatrixSym < T > > SPtr;
+
+    /**
      * Generates new symmetric matrix.
      *
      * \param n number of rows and cols
      */
-    explicit WMatrixSymImpl( size_t n );
+    explicit WMatrixSym( size_t n );
 
     /**
      * Default constructor leaving all empty.
      */
-    WMatrixSymImpl();
+    WMatrixSym();
 
     /**
      * Element acces operator as if the elements where stored as a normal matrix.
@@ -133,20 +140,20 @@ private:
 };
 
 template< typename T >
-inline WMatrixSymImpl< T >::WMatrixSymImpl( size_t n )
+inline WMatrixSym< T >::WMatrixSym( size_t n )
     : m_data( ( n * ( n - 1 ) ) / 2, 0.0 ),
       m_n( n )
 {
 }
 
 template< typename T >
-inline WMatrixSymImpl< T >::WMatrixSymImpl()
+inline WMatrixSym< T >::WMatrixSym()
     : m_n( 0 )
 {
 }
 
 template< typename T >
-inline const T& WMatrixSymImpl< T >::operator()( size_t i, size_t j ) const throw( WOutOfBounds )
+inline const T& WMatrixSym< T >::operator()( size_t i, size_t j ) const throw( WOutOfBounds )
 {
     if( i == j || i >= m_n || j >= m_n )
     {
@@ -163,7 +170,7 @@ inline const T& WMatrixSymImpl< T >::operator()( size_t i, size_t j ) const thro
 
 
 template< typename T >
-inline T& WMatrixSymImpl< T >::operator()( size_t i, size_t j ) throw( WOutOfBounds )
+inline T& WMatrixSym< T >::operator()( size_t i, size_t j ) throw( WOutOfBounds )
 {
     if( i == j || i >= m_n || j >= m_n )
     {
@@ -180,7 +187,7 @@ inline T& WMatrixSymImpl< T >::operator()( size_t i, size_t j ) throw( WOutOfBou
 
 
 template< typename T >
-inline std::string WMatrixSymImpl< T >::toString( void ) const
+inline std::string WMatrixSym< T >::toString( void ) const
 {
   std::stringstream ss;
   ss << std::setprecision( 9 ) << std::fixed;
@@ -198,7 +205,7 @@ inline std::string WMatrixSymImpl< T >::toString( void ) const
  * \return True if and only if all elements are equal.
  */
 template< typename T >
-inline bool operator==( WMatrixSymImpl< T > const& lhs, WMatrixSymImpl< T > const& rhs )
+inline bool operator==( WMatrixSym< T > const& lhs, WMatrixSym< T > const& rhs )
 {
     std::vector< T > l = lhs.getData();
     std::vector< T > r = rhs.getData();
@@ -215,7 +222,7 @@ inline bool operator==( WMatrixSymImpl< T > const& lhs, WMatrixSymImpl< T > cons
  * \return Output stream
  */
 template< typename T >
-inline std::ostream& operator<<( std::ostream& os, const WMatrixSymImpl< T >& m )
+inline std::ostream& operator<<( std::ostream& os, const WMatrixSym< T >& m )
 {
     size_t n = m.size();
     for( size_t i = 0; i < n; ++i )
@@ -257,7 +264,7 @@ inline std::ostream& operator<<( std::ostream& os, const WMatrixSymImpl< T >& m 
  * \return Input Stream
  */
 template< typename T >
-inline std::istream& operator>>( std::istream& is, WMatrixSymImpl< T >& m )
+inline std::istream& operator>>( std::istream& is, WMatrixSym< T >& m )
 {
     std::vector< T > elements;
     T elm;
@@ -288,25 +295,25 @@ inline std::istream& operator>>( std::istream& is, WMatrixSymImpl< T >& m )
 }
 
 template< typename T >
-inline size_t WMatrixSymImpl< T >::numElements() const
+inline size_t WMatrixSym< T >::numElements() const
 {
     return m_data.size();
 }
 
 template< typename T >
-inline size_t WMatrixSymImpl< T >::size() const
+inline size_t WMatrixSym< T >::size() const
 {
     return m_n;
 }
 
 template< typename T >
-inline const typename std::vector< T >& WMatrixSymImpl< T >::getData() const
+inline const typename std::vector< T >& WMatrixSym< T >::getData() const
 {
     return m_data;
 }
 
 template< typename T >
-inline void WMatrixSymImpl< T >::setData( const std::vector< T > &data ) throw( WOutOfBounds )
+inline void WMatrixSym< T >::setData( const std::vector< T > &data ) throw( WOutOfBounds )
 {
     if( m_n * ( m_n - 1 ) / 2 != data.size() )
     {
@@ -317,7 +324,7 @@ inline void WMatrixSymImpl< T >::setData( const std::vector< T > &data ) throw( 
     m_data = std::vector< T >( data ); // copy content
 }
 
-typedef WMatrixSymImpl< double > WMatrixSymDBL;
-typedef WMatrixSymImpl< float > WMatrixSymFLT;
+typedef WMatrixSym< double > WMatrixSymDBL;
+typedef WMatrixSym< float > WMatrixSymFLT;
 
 #endif  // WMATRIXSYM_H
