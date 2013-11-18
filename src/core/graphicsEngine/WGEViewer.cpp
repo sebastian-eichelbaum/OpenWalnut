@@ -167,7 +167,6 @@ void WGEViewer::setScene( osg::ref_ptr< WGEGroupNode > node )
 
     // vignetting cam
     {
-        /*
         osg::ref_ptr< osg::Camera > bkCam = new osg::Camera();
         bkCam->setClearMask( GL_DEPTH_BUFFER_BIT );
         bkCam->setRenderOrder( osg::Camera::POST_RENDER );
@@ -191,7 +190,43 @@ void WGEViewer::setScene( osg::ref_ptr< WGEGroupNode > node )
         // add the slice to the geode
         bkCam->addChild( geode );
         node->insert( bkCam );
-        */
+    }
+
+    // overlay texture cam
+    {
+        osg::ref_ptr< osg::Camera > bkCam = new osg::Camera();
+        bkCam->setClearMask( GL_DEPTH_BUFFER_BIT );
+        bkCam->setRenderOrder( osg::Camera::POST_RENDER );
+        bkCam->setReferenceFrame( osg::Transform::ABSOLUTE_RF );
+        bkCam->setProjectionMatrixAsOrtho2D( 0.0, 1.0, 0.0, 1.0 );
+        bkCam->setViewMatrix( osg::Matrixd::identity() );
+        osg::StateSet* state = bkCam->getOrCreateStateSet();
+        state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
+        state->setMode( GL_LIGHTING, osg::StateAttribute::PROTECTED );
+        state->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+        state->setMode( GL_BLEND, osg::StateAttribute::PROTECTED );
+        state->setMode( GL_BLEND, osg::StateAttribute::ON );
+
+        osg::ref_ptr< osg::Geode > geode = wge::genFinitePlane( osg::Vec3( 0.0, 0.0, 0.0 ),
+                                                                osg::Vec3( 1.0, 0.0, 0.0 ),
+                                                                osg::Vec3( 0.0, 1.0, 0.0 ) );
+
+        osg::ref_ptr< WGEShader > vignetteShader = new WGEShader( "WGECameraOverlayTexture" );
+        vignetteShader->apply( geode );
+
+        // some logo
+        osg::ref_ptr< osg::Texture2D > logoTexture = new osg::Texture2D;
+        osg::Image* logoImage = osgDB::readImageFile( "/home/seth/CameraOverlay.png" );
+        if ( logoImage )
+        {
+            // Assign the texture to the image we read from file:
+            logoTexture->setImage( logoImage );
+            state->setTextureAttributeAndModes( 0, logoTexture, osg::StateAttribute::ON );
+        }
+
+        // add the slice to the geode
+        bkCam->addChild( geode );
+        node->insert( bkCam );
     }
 
     // horizon background cam

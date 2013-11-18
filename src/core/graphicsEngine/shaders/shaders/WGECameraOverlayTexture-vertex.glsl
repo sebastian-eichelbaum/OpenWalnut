@@ -25,25 +25,16 @@
 #version 120
 
 /**
- * Intensity of effect
- */
-uniform float u_vignetteIntensity = 0.5;
-
-/**
  * Pixel position in [0,1]
  */
 varying vec2 v_pos;
 
 void main()
 {
-    // Basically, use a unit circle and shade alpha when nearing radius 1
-    vec2 posInUnitCircle = 2.0 * ( v_pos - 0.5 );
-    float xsqr = posInUnitCircle.x * posInUnitCircle.x;
-    float ysqr = posInUnitCircle.y * posInUnitCircle.y;
+    v_pos = gl_MultiTexCoord0.st;
 
-    // intensity of the vignette
-    float alpha = u_vignetteIntensity * ( xsqr * ysqr );
-
-    // use texture coordinate to mix along the cylinder
-    gl_FragColor = vec4( vec3( 0.0 ), alpha );
+    // apply standard pipeline
+    gl_FrontColor = gl_Color;
+    gl_Position = ftransform();
 }
+
