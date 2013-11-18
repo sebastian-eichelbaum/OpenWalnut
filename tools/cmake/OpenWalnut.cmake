@@ -282,7 +282,7 @@ ADD_DEFINITIONS( ${OW_CPP_FLAGS_INJECT} )
 # sorry, linking not available properly on windows, Cygwin supports this but we do not want special rules for thousands of environments.
 # ==> keep it clean
 IF( NOT CMAKE_HOST_SYSTEM MATCHES "Windows" )
-    OPTION( OW_LINK_SHADERS "If turned on, shaders will not be copied but will be linked. This is a nice option for developers." OFF )
+    OPTION( OW_LINK_SHADERS "If turned on, shaders will not be copied but will be linked. This is a nice option for developers." ON )
 ENDIF()
 
 # Provide several options to control some aspects of resource copy.
