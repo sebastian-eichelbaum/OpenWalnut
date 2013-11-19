@@ -106,6 +106,13 @@ void WMReadRawData::properties()
     m_Z->setMin( 0 );
     m_Z->setMax( 1024 );
 
+    m_xScale = m_properties->addProperty( "X Scale", "Data scaling in X direction.", 1.0, m_propCondition );
+    m_xScale->setMin( 0 );
+    m_yScale = m_properties->addProperty( "Y Scale", "Data scaling in Y direction.", 1.0, m_propCondition );
+    m_yScale->setMin( 0 );
+    m_zScale = m_properties->addProperty( "Z Scale", "Data scaling in Z direction.", 1.0, m_propCondition );
+    m_zScale->setMin( 0 );
+
     WModule::properties();
 }
 
@@ -196,7 +203,7 @@ boost::shared_ptr< WDataSetScalar > WMReadRawData::readData( std::string fileNam
     size_t numX = m_X->get();
     size_t numY = m_Y->get();
     size_t numZ = m_Z->get();
-    newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( numX, numY, numZ ) );
+    newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( numX, numY, numZ, m_xScale->get(), m_yScale->get(), m_zScale->get() ) );
 
     boost::shared_ptr< WDataSetScalar > newDataSet;
     newDataSet = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( newValueSet, newGrid ) );

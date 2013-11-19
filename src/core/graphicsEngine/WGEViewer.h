@@ -59,13 +59,17 @@ class WGEGroupNode;
 class WPickHandler;
 #include "animation/WGEAnimationManipulator.h"
 
+#include "WGEViewerEffectHorizon.h"
+#include "WGEViewerEffectVignette.h"
+#include "WGEViewerEffectImageOverlay.h"
+
 /**
  * Class for managing one view to the scene. This includes viewport, camera and graphics context.
  * It is, besides WGraphicsEngine, the ONLY entry point for each widget for accessing the graphics engine.
  * \ingroup ge
  */
 class WGEViewer: public WGEGraphicsWindow,
-                            public boost::enable_shared_from_this< WGEViewer >
+                 public boost::enable_shared_from_this< WGEViewer >
 {
 public:
     /**
@@ -183,6 +187,9 @@ public:
 
     /**
      * Determine the color of the viewer's background.
+     *
+     * \note This is only useful when the background effect is disabled.
+     *
      * \param bgColor the new background color
      */
     void setBgColor( const WColor& bgColor );
@@ -236,6 +243,48 @@ public:
      * \return true if in animation mode
      */
     bool isAnimationMode() const;
+
+    /**
+     * Return the background render effect for modification.
+     *
+     * \return the effect
+     */
+    WGEViewerEffectHorizon::SPtr getBackground();
+
+    /**
+     * Return the overlay render effect for modification.
+     *
+     * \return the effect
+     */
+    WGEViewerEffectImageOverlay::SPtr getImageOverlay();
+
+    /**
+     * Return the vignette render effect for modification.
+     *
+     * \return the effect
+     */
+    WGEViewerEffectVignette::SPtr getVignette();
+
+    /**
+     * Return the background render effect for modification.
+     *
+     * \return the effect
+     */
+    WGEViewerEffectHorizon::ConstSPtr getBackground() const;
+
+    /**
+     * Return the overlay render effect for modification.
+     *
+     * \return the effect
+     */
+    WGEViewerEffectImageOverlay::ConstSPtr getImageOverlay() const;
+
+    /**
+     * Return the vignette render effect for modification.
+     *
+     * \return the effect
+     */
+    WGEViewerEffectVignette::ConstSPtr getVignette() const;
 
 protected:
     /**
@@ -338,6 +387,20 @@ protected:
      */
     osg::ref_ptr<osgGA::MatrixManipulator> m_animationModeManipulatorBackup;
 
+    /**
+     * Horizon effect.
+     */
+    WGEViewerEffectHorizon::SPtr m_effectHorizon;
+
+    /**
+    * Vignette effect.
+     */
+    WGEViewerEffectVignette::SPtr m_effectVignette;
+
+    /**
+     * Image overlay effect.
+     */
+    WGEViewerEffectImageOverlay::SPtr m_effectImageOverlay;
 private:
 };
 

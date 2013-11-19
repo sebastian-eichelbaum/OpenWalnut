@@ -109,6 +109,20 @@ public:
                             WGridTransformOrthoTemplate< T > const transform = WGridTransformOrthoTemplate< T >() );
 
     /**
+     * Defines the number of samples in each coordinate direction as ints,
+     * and the transformation of the grid via a grid transform.
+     *
+     * \param nbPosX number of positions along first axis
+     * \param nbPosY number of positions along second axis
+     * \param nbPosZ number of positions along third axis
+     * \param scaleX scaling of a voxel in x direction
+     * \param scaleY scaling of a voxel in y direction
+     * \param scaleZ scaling of a voxel in z direction
+     */
+    WGridRegular3DTemplate( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
+                            double scaleX, double scaleY, double scaleZ );
+
+    /**
      * Returns the number of samples in x direction.
      * \return The number of samples in x direction.
      */
@@ -553,6 +567,18 @@ WGridRegular3DTemplate< T >::WGridRegular3DTemplate( unsigned int nbPosX, unsign
       m_nbPosY( nbPosY ),
       m_nbPosZ( nbPosZ ),
       m_transform( transform )
+{
+    initInformationProperties();
+}
+
+template< typename T >
+WGridRegular3DTemplate< T >::WGridRegular3DTemplate( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
+                                                     double scaleX, double scaleY, double scaleZ ):
+    WGrid( nbPosX * nbPosY * nbPosZ ),
+    m_nbPosX( nbPosX ),
+    m_nbPosY( nbPosY ),
+    m_nbPosZ( nbPosZ ),
+    m_transform( WGridTransformOrthoTemplate< T >( scaleX, scaleY, scaleZ ) )
 {
     initInformationProperties();
 }

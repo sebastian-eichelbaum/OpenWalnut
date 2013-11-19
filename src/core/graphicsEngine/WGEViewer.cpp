@@ -47,8 +47,8 @@
 #include "WGENoOpManipulator.h"
 #include "WGEZoomTrackballManipulator.h"
 #include "WPickHandler.h"
-#include "../common/WConditionOneShot.h"
 
+#include "../common/WConditionOneShot.h"
 #include "../common/WThreadedRunner.h"
 
 #include "WGEViewer.h"
@@ -60,7 +60,10 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
       m_name( name ),
       m_rendered( WBoolFlag::SPtr( new WBoolFlag( new WConditionOneShot(), false ) ) ),
       m_screenCapture( new WGEScreenCapture() ),
-      m_inAnimationMode( false )
+      m_inAnimationMode( false ),
+      m_effectHorizon( new WGEViewerEffectHorizon() ),
+      m_effectVignette( new WGEViewerEffectVignette() ),
+      m_effectImageOverlay( new WGEViewerEffectImageOverlay() )
 {
     try
     {
@@ -160,6 +163,11 @@ void WGEViewer::setScene( osg::ref_ptr< WGEGroupNode > node )
 {
     m_View->setSceneData( node );
     m_scene = node;
+
+    // add effects:
+    node->insert( m_effectVignette );
+    node->insert( m_effectImageOverlay );
+    node->insert( m_effectHorizon );
 }
 
 osg::ref_ptr< WGEGroupNode > WGEViewer::getScene()
@@ -294,3 +302,32 @@ bool WGEViewer::isAnimationMode() const
     return m_inAnimationMode;
 }
 
+WGEViewerEffectHorizon::SPtr WGEViewer::getBackground()
+{
+    return m_effectHorizon;
+}
+
+WGEViewerEffectImageOverlay::SPtr WGEViewer::getImageOverlay()
+{
+    return m_effectImageOverlay;
+}
+
+WGEViewerEffectVignette::SPtr WGEViewer::getVignette()
+{
+    return m_effectVignette;
+}
+
+WGEViewerEffectHorizon::ConstSPtr WGEViewer::getBackground() const
+{
+    return m_effectHorizon;
+}
+
+WGEViewerEffectImageOverlay::ConstSPtr WGEViewer::getImageOverlay() const
+{
+    return m_effectImageOverlay;
+}
+
+WGEViewerEffectVignette::ConstSPtr WGEViewer::getVignette() const
+{
+    return m_effectVignette;
+}
