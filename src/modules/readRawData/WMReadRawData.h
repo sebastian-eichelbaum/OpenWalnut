@@ -127,6 +127,10 @@ private:
     WPropInt m_Y; //!< Samples in Y direction
     WPropInt m_Z; //!< Samples in Z direction
 
+    WPropDouble m_xScale; //!< Scaling in X direction
+    WPropDouble m_yScale; //!< Scaling in Y direction
+    WPropDouble m_zScale; //!< Scaling in Z direction
+
     boost::shared_ptr< WItemSelection > m_dataTypeSelectionsList; //!< A list of file type selection types
     WPropSelection m_dataTypeSelection; //!< Selection property for file types
 
@@ -145,7 +149,6 @@ boost::shared_ptr< std::vector< T > > WMReadRawData::readDataTyped( std::string 
     size_t numVoxels = numX * numY * numZ;
     boost::shared_ptr< std::vector< T > > values;
     values = boost::shared_ptr< std::vector< T > >( new std::vector< T >( numVoxels ) );
-
 
     std::ifstream ifs;
     ifs.open( fileName.c_str(), std::ifstream::in|std::ios::binary );
