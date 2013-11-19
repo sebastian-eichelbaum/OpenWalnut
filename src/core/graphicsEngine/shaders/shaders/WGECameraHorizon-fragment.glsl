@@ -25,15 +25,15 @@
 #version 120
 
 // Bottom Gradient
-uniform vec3 u_bottom1Color = vec3( 0.65 );
-uniform vec3 u_bottom2Color = vec3( 1.0 );
+uniform vec4 u_bottom1Color = vec4( 0.65 );
+uniform vec4 u_bottom2Color = vec4( 1.0 );
 
 // Top Gradient
-uniform vec3 u_top1Color = vec3( 1.0 );
-uniform vec3 u_top2Color = vec3( 0.95 );
+uniform vec4 u_top1Color = vec4( 1.0 );
+uniform vec4 u_top2Color = vec4( 0.95 );
 
 // Where to split between bottom and top
-uniform float u_horizon = 0.33;
+uniform float u_horizon = 33;
 
 /**
  * Pixel position in [0,1]
@@ -45,16 +45,17 @@ void main()
 #ifdef WGE_PLAIN_COLOR
     discard;
 #else
+    float horizonLine = u_horizon / 100.0;
     // is 1 when below horizon line
-    float bottom = float( v_pos.y <= u_horizon );
-    float horizon = u_horizon + 0.0001; // NOTE: this prevents div by 0
+    float bottom = float( v_pos.y <= horizonLine );
+    float horizon = horizonLine + 0.0001; // NOTE: this prevents div by 0
 
     float topScale = ( v_pos.y - horizon ) / ( 1.0 - horizon );
 
-    vec3 color = bottom           * mix( u_bottom1Color, u_bottom2Color, v_pos.y / horizon ) +
+    vec4 color = bottom           * mix( u_bottom1Color, u_bottom2Color, v_pos.y / horizon ) +
                  ( 1.0 - bottom ) * mix( u_top1Color, u_top2Color, topScale );
 
     // use texture coordinate to mix along the cylinder
-    gl_FragColor = vec4( color, 1.0 );
+    gl_FragColor = vec4( color.rgb, 1.0 );
 #endif
 }

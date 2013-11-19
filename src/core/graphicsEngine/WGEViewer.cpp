@@ -38,7 +38,6 @@
 #include <osgGA/TerrainManipulator>
 #include <osgViewer/ViewerEventHandlers>
 #include <osgViewer/View>
-#include <osg/Depth>
 
 #include <osgDB/ReadFile>
 
@@ -48,11 +47,8 @@
 #include "WGENoOpManipulator.h"
 #include "WGEZoomTrackballManipulator.h"
 #include "WPickHandler.h"
-#include "WGEGeodeUtils.h"
-#include "shaders/WGEShader.h"
 
 #include "../common/WConditionOneShot.h"
-
 #include "../common/WThreadedRunner.h"
 
 #include "WGEViewer.h"
@@ -64,7 +60,10 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
       m_name( name ),
       m_rendered( WBoolFlag::SPtr( new WBoolFlag( new WConditionOneShot(), false ) ) ),
       m_screenCapture( new WGEScreenCapture() ),
-      m_inAnimationMode( false )
+      m_inAnimationMode( false ),
+      m_effectHorizon( new WGEViewerEffectHorizon() ),
+      m_effectVignette( new WGEViewerEffectVignette() ),
+      m_effectImageOverlay( new WGEViewerEffectImageOverlay() )
 {
     try
     {
@@ -165,101 +164,10 @@ void WGEViewer::setScene( osg::ref_ptr< WGEGroupNode > node )
     m_View->setSceneData( node );
     m_scene = node;
 
-    /*
-    // vignetting cam
-    {
-        osg::ref_ptr< osg::Camera > bkCam = new osg::Camera();
-        bkCam->setClearMask( GL_DEPTH_BUFFER_BIT );
-        bkCam->setRenderOrder( osg::Camera::POST_RENDER );
-        bkCam->setReferenceFrame( osg::Transform::ABSOLUTE_RF );
-        bkCam->setProjectionMatrixAsOrtho2D( 0.0, 1.0, 0.0, 1.0 );
-        bkCam->setViewMatrix( osg::Matrixd::identity() );
-        osg::StateSet* state = bkCam->getOrCreateStateSet();
-        state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
-        state->setMode( GL_LIGHTING, osg::StateAttribute::PROTECTED );
-        state->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-        state->setMode( GL_BLEND, osg::StateAttribute::PROTECTED );
-        state->setMode( GL_BLEND, osg::StateAttribute::ON );
-
-        osg::ref_ptr< osg::Geode > geode = wge::genFinitePlane( osg::Vec3( 0.0, 0.0, 0.0 ),
-                                                                osg::Vec3( 1.0, 0.0, 0.0 ),
-                                                                osg::Vec3( 0.0, 1.0, 0.0 ) );
-
-        osg::ref_ptr< WGEShader > vignetteShader = new WGEShader( "WGECameraVignette" );
-        vignetteShader->apply( geode );
-
-        // add the slice to the geode
-        bkCam->addChild( geode );
-        node->insert( bkCam );
-    }
-
-    // overlay texture cam
-    {
-        osg::ref_ptr< osg::Camera > bkCam = new osg::Camera();
-        bkCam->setClearMask( GL_DEPTH_BUFFER_BIT );
-        bkCam->setRenderOrder( osg::Camera::POST_RENDER );
-        bkCam->setReferenceFrame( osg::Transform::ABSOLUTE_RF );
-        bkCam->setProjectionMatrixAsOrtho2D( 0.0, 1.0, 0.0, 1.0 );
-        bkCam->setViewMatrix( osg::Matrixd::identity() );
-        osg::StateSet* state = bkCam->getOrCreateStateSet();
-        state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
-        state->setMode( GL_LIGHTING, osg::StateAttribute::PROTECTED );
-        state->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-        state->setMode( GL_BLEND, osg::StateAttribute::PROTECTED );
-        state->setMode( GL_BLEND, osg::StateAttribute::ON );
-
-        osg::ref_ptr< osg::Geode > geode = wge::genFinitePlane( osg::Vec3( 0.0, 0.0, 0.0 ),
-                                                                osg::Vec3( 1.0, 0.0, 0.0 ),
-                                                                osg::Vec3( 0.0, 1.0, 0.0 ) );
-
-        osg::ref_ptr< WGEShader > vignetteShader = new WGEShader( "WGECameraOverlayTexture" );
-        vignetteShader->apply( geode );
-
-        // some logo
-        osg::ref_ptr< osg::Texture2D > logoTexture = new osg::Texture2D;
-        osg::Image* logoImage = osgDB::readImageFile( "/home/seth/CameraOverlay.png" );
-        if ( logoImage )
-        {
-            // Assign the texture to the image we read from file:
-            logoTexture->setImage( logoImage );
-            state->setTextureAttributeAndModes( 0, logoTexture, osg::StateAttribute::ON );
-        }
-
-        // add the slice to the geode
-        bkCam->addChild( geode );
-        node->insert( bkCam );
-    }
-
-    // horizon background cam
-    {
-        osg::ref_ptr< osg::Camera > bkCam = new osg::Camera();
-        bkCam->setClearMask( GL_DEPTH_BUFFER_BIT );
-        bkCam->setRenderOrder( osg::Camera::NESTED_RENDER, 0 );
-        bkCam->setReferenceFrame( osg::Transform::ABSOLUTE_RF );
-        bkCam->setProjectionMatrixAsOrtho2D( 0.0, 1.0, 0.0, 1.0 );
-        bkCam->setViewMatrix( osg::Matrixd::identity() );
-        osg::StateSet* state = bkCam->getOrCreateStateSet();
-        state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
-        state->setMode( GL_LIGHTING, osg::StateAttribute::PROTECTED );
-        state->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-        state->setMode( GL_BLEND, osg::StateAttribute::PROTECTED );
-        state->setMode( GL_BLEND, osg::StateAttribute::ON );
-        osg::Depth* depth = new osg::Depth;
-        depth->setWriteMask( false );
-        state->setAttributeAndModes( depth, osg::StateAttribute::ON );
-
-        osg::ref_ptr< osg::Geode > geode = wge::genFinitePlane( osg::Vec3( 0.0, 0.0, 0.0 ),
-                                                                osg::Vec3( 1.0, 0.0, 0.0 ),
-                                                                osg::Vec3( 0.0, 1.0, 0.0 ) );
-
-        osg::ref_ptr< WGEShader > horizonShader = new WGEShader( "WGECameraHorizon" );
-        horizonShader->apply( geode );
-
-        // add the slice to the geode
-        bkCam->addChild( geode );
-        node->insert( bkCam );
-    }
-    */
+    // add effects:
+    node->insert( m_effectVignette );
+    node->insert( m_effectImageOverlay );
+    node->insert( m_effectHorizon );
 }
 
 osg::ref_ptr< WGEGroupNode > WGEViewer::getScene()
@@ -394,3 +302,32 @@ bool WGEViewer::isAnimationMode() const
     return m_inAnimationMode;
 }
 
+WGEViewerEffectHorizon::SPtr WGEViewer::getBackground()
+{
+    return m_effectHorizon;
+}
+
+WGEViewerEffectImageOverlay::SPtr WGEViewer::getImageOverlay()
+{
+    return m_effectImageOverlay;
+}
+
+WGEViewerEffectVignette::SPtr WGEViewer::getVignette()
+{
+    return m_effectVignette;
+}
+
+WGEViewerEffectHorizon::ConstSPtr WGEViewer::getBackground() const
+{
+    return m_effectHorizon;
+}
+
+WGEViewerEffectImageOverlay::ConstSPtr WGEViewer::getImageOverlay() const
+{
+    return m_effectImageOverlay;
+}
+
+WGEViewerEffectVignette::ConstSPtr WGEViewer::getVignette() const
+{
+    return m_effectVignette;
+}
