@@ -305,11 +305,17 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WPropertyGroupBase::SPt
     sizePolicy.setHorizontalStretch( 0 );
     sizePolicy.setVerticalStretch( 0 );
 
+    QString titleCorrected = title;
+    if( title == "" )
+    {
+        titleCorrected = QString::fromStdString( group->getName() );
+    }
+
     WQtPropertyGroupWidget* propWidget = new WQtPropertyGroupWidget( group, depth, parent );
-    propWidget->setName( title );
-    QWidget* tab =  WQtPropertyGroupWidget::createPropertyGroupBox( propWidget, false, parent, title );
+    propWidget->setName( titleCorrected );
+    QWidget* tab =  WQtPropertyGroupWidget::createPropertyGroupBox( propWidget, false, parent, titleCorrected );
     tab->setSizePolicy( sizePolicy );
-    tab->setWindowTitle( title );
+    tab->setWindowTitle( titleCorrected );
 
     return tab;
 }
