@@ -75,7 +75,6 @@ protected:
     osg::ref_ptr< osg::Uniform > m_viewportHeight;
 
 private:
-
     /**
      * Update the viewport uniforms
      */
@@ -87,7 +86,7 @@ private:
          *
          * \param renderInfo current render state
          */
-        virtual void operator() ( osg::RenderInfo& renderInfo ) const
+        virtual void operator() ( osg::RenderInfo& renderInfo ) const   // NOLINT: non const ref
         {
             m_viewportWidth->set( static_cast< float >( renderInfo.getState()->getCurrentViewport()->width() ) );
             m_viewportHeight->set( static_cast< float >( renderInfo.getState()->getCurrentViewport()->height() ) );

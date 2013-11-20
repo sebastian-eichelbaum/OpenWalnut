@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include <osg/Texture2D>
 #include <osgDB/ReadFile>
 
@@ -52,7 +54,7 @@ WGEViewerEffectImageOverlay::WGEViewerEffectImageOverlay():
     // some logo
     osg::ref_ptr< osg::Texture2D > logoTexture = new osg::Texture2D;
     osg::Image* logoImage = osgDB::readImageFile( ( WPathHelper::getSharePath() / "GE" / "overlay.png" ).string() );
-    if ( logoImage )
+    if( logoImage )
     {
         // Assign the texture to the image we read from file:
         logoTexture->setImage( logoImage );
