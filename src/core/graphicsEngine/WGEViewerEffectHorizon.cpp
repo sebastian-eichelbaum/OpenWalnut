@@ -30,7 +30,7 @@
 #include "WGEViewerEffectHorizon.h"
 
 WGEViewerEffectHorizon::WGEViewerEffectHorizon():
-    WGEViewerEffect( "Horizon", "Configurable horizon background effect." )
+    WGEViewerEffect( "Horizon Background", "Configurable horizon background effect." )
 {
     WPropColor bottom1Color = m_properties->addProperty( "First Bottom Color", "Bottom color gradient: first color.",
                                                          WColor( 0.65, 0.65, 0.65, 1.0 ) );
@@ -39,7 +39,7 @@ WGEViewerEffectHorizon::WGEViewerEffectHorizon():
     WPropColor top1Color = m_properties->addProperty( "First Top Color", "Top color gradient: first color.",
                                                       WColor( 1.0, 1.0, 1.0, 1.0 ) );
     WPropColor top2Color = m_properties->addProperty( "Second Top Color", "Top color gradient: second color.",
-                                                      WColor( 1.0, 1.0, 1.0, 1.0 ) );
+                                                      WColor( 0.95, 0.95, 0.95, 0.95 ) );
 
     WPropDouble horizonLine = m_properties->addProperty( "Horizon in %", "Horizon line in percent.", 33.0 );
     horizonLine->setMin( 0.0 );

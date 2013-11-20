@@ -43,7 +43,7 @@ WGEViewerEffectImageOverlay::WGEViewerEffectImageOverlay():
     WPropFilename imageFn = m_properties->addProperty( "Image", "The Image to use.", WPathHelper::getSharePath() / "GE" / "overlay.png" );
     WPropDouble scale = m_properties->addProperty( "Scale", "Scale the image in percent.", 50.0 );
     scale->setMin( 0.0 );
-    scale->setMax( 100.0 );
+    scale->setMax( 200.0 );
 
     WPropBool moveToTop = m_properties->addProperty( "Move to Top", "Move the image to the top.", false );
     WPropBool moveToRight = m_properties->addProperty( "Move to Right", "Move the image to the right.", true );
@@ -53,7 +53,7 @@ WGEViewerEffectImageOverlay::WGEViewerEffectImageOverlay():
 
     // some logo
     osg::ref_ptr< osg::Texture2D > logoTexture = new osg::Texture2D;
-    osg::Image* logoImage = osgDB::readImageFile( ( WPathHelper::getSharePath() / "GE" / "overlay.png" ).string() );
+    osg::Image* logoImage = osgDB::readImageFile( imageFn->get().string() );
     if( logoImage )
     {
         // Assign the texture to the image we read from file:
