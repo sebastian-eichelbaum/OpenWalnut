@@ -51,8 +51,14 @@ void main()
 {
     vec4 col = gl_Color;
     float widthHalf = u_parameterWidth / 2.0;
+
+    // Streamribbon
     //if( col.r > u_parameterCenter + widthHalf || col.r < u_parameterCenter - widthHalf ) discard;
+
+    // Timeribbon
     //if( col.g > u_parameterCenter + widthHalf || col.g < u_parameterCenter - widthHalf) discard;
+
+    // Slab
     if( verpos.x > u_parameterCenter + widthHalf || verpos.x < u_parameterCenter - widthHalf ) discard;
 
     // calculate lighting
