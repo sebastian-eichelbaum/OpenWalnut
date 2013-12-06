@@ -373,7 +373,7 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh
                               getIntervallCenterMiddle( minZ, maxZ ) );
 
     // start rendering
-    boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Rendering", 3 ) );
+    boost::shared_ptr< WProgress > progress( new WProgress( "Rendering", 3 ) );
     m_progress->addSubProgress( progress );
 
     if( m_mainComponentOnly->get( true ) )

@@ -138,7 +138,7 @@ boost::shared_ptr< WDataSetFibers > WMFiberResampling::resample( boost::shared_p
 {
     debugLog() << "Start resampling: " << dataSet->getLineStartIndexes()->size() << " tracts";
 
-    boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Resampling tracts.", dataSet->getLineStartIndexes()->size() ) ); // NOLINT line length
+    boost::shared_ptr< WProgress > progress1( new WProgress( "Resampling tracts.", dataSet->getLineStartIndexes()->size() ) );
     m_progress->addSubProgress( progress1 );
 
     boost::shared_ptr< WDataSetFiberVector > newDS( new WDataSetFiberVector() );

@@ -105,8 +105,7 @@ public:
     template < typename T >
     result_type operator()( const WValueSet< T >* const& vals ) const             // NOLINT
     {
-        boost::shared_ptr< std::vector< TargetType > > newVals =
-            boost::shared_ptr< std::vector< TargetType > >( new std::vector< TargetType >( vals->size() ) );
+        boost::shared_ptr< std::vector< TargetType > > newVals( new std::vector< TargetType >( vals->size() ) );
         for( size_t i = 0; i < newVals->size(); ++i )
         {
             ( *newVals )[i] = static_cast< TargetType >( vals->getScalar( i ) );

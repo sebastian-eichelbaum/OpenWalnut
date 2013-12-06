@@ -620,7 +620,7 @@ void WMTemplate::moduleMain()
             // them individually. The m_progress combiner provides this information to the GUI and the user.
             // Here is a simple example:
             int steps = 10;
-            boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Doing work 1", steps ) );
+            boost::shared_ptr< WProgress > progress1( new WProgress( "Doing work 1", steps ) );
             m_progress->addSubProgress( progress1 );
             for( int i = 0; i < steps; ++i )
             {
@@ -635,7 +635,7 @@ void WMTemplate::moduleMain()
             // Sometimes, the number of steps is not known. WProgress can also handle this. Simply leave away the last parameter (the number of
             // steps. As with the other progress, you need to add it to the modules progress combiner and you need to mark it as finished with
             // finish() if you are done with your work.
-            boost::shared_ptr< WProgress > progress2 = boost::shared_ptr< WProgress >( new WProgress( "Doing work 2" ) );
+            boost::shared_ptr< WProgress > progress2( new WProgress( "Doing work 2" ) );
             m_progress->addSubProgress( progress2 );
             sleep( 2 );
             progress2->finish();
@@ -670,7 +670,7 @@ void WMTemplate::moduleMain()
 
             // Do something here. As above, do not forget to inform the user about your progress.
             int steps = 10;
-            boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Doing something important", steps ) );
+            boost::shared_ptr< WProgress > progress1( new WProgress( "Doing something important", steps ) );
             m_progress->addSubProgress( progress1 );
             for( int i = 0; i < steps; ++i )
             {

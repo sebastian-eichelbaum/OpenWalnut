@@ -135,13 +135,13 @@ void WMFiberFilterROI::moduleMain()
 void WMFiberFilterROI::updateOutput()
 {
     // target memory
-    boost::shared_ptr< std::vector< bool > > active = m_fiberSelector->getBitfield();
-    boost::shared_ptr< std::vector< float > >vertices = boost::shared_ptr< std::vector< float > >( new std::vector< float >() );
-    boost::shared_ptr< std::vector< size_t > > lineStartIndexes = boost::shared_ptr< std::vector< size_t > > ( new std::vector< size_t >() );
-    boost::shared_ptr< std::vector< size_t > > lineLengths = boost::shared_ptr< std::vector< size_t > >( new std::vector< size_t >() );
-    boost::shared_ptr< std::vector< size_t > > verticesReverse = boost::shared_ptr< std::vector< size_t > >( new std::vector< size_t >() );
+    boost::shared_ptr< std::vector< bool > >    active = m_fiberSelector->getBitfield();
+    boost::shared_ptr< std::vector< float > >   vertices( new std::vector< float >() );
+    boost::shared_ptr< std::vector< size_t > >  lineStartIndexes( new std::vector< size_t >() );
+    boost::shared_ptr< std::vector< size_t > >  lineLengths( new std::vector< size_t >() );
+    boost::shared_ptr< std::vector< size_t > >  verticesReverse( new std::vector< size_t >() );
 
-    boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Filtering", active->size() ) );
+    boost::shared_ptr< WProgress > progress1( new WProgress( "Filtering", active->size() ) );
     m_progress->addSubProgress( progress1 );
 
     size_t countLines = 0;

@@ -156,7 +156,7 @@ void WMWriteRawData::moduleMain()
         if( m_dataSet && ( dataSetChanged || m_dataFile->changed() ) )
         {
             debugLog() << "Writing " << m_dataFile->get().string() << ".";
-            boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Write File", 2 ) );
+            boost::shared_ptr< WProgress > progress( new WProgress( "Write File", 2 ) );
             m_progress->addSubProgress( progress );
 
             // call visitor for this job

@@ -139,7 +139,7 @@ void WMVectorPlot::moduleMain()
             break;
         }
 
-        boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Vector Plot", 2 ) );
+        boost::shared_ptr< WProgress > progress( new WProgress( "Vector Plot", 2 ) );
         m_progress->addSubProgress( progress );
 
         boost::shared_ptr< WDataSetVector > newDataSet = m_input->getData();

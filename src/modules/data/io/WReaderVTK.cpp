@@ -171,7 +171,7 @@ boost::shared_ptr< std::vector< WVector3d > > WReaderVTK::readGradients()
             values.resize( values.size() / 3 );
         }
 
-        boost::shared_ptr< GradVec > newGradients = boost::shared_ptr< GradVec >( new GradVec( values.size() / 3 ) );
+        boost::shared_ptr< GradVec > newGradients( new GradVec( values.size() / 3 ) );
 
         for( std::size_t j = 0; j < values.size() / 3; ++j )
         {

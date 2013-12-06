@@ -49,7 +49,7 @@ WTriangleMesh::SPtr WMeshReaderFreesurfer::operator()( WProgressCombiner::SPtr /
     std::string fileName = file.string();
     WAssert( !fileName.empty(), "No filename specified." );
 
-    boost::shared_ptr< std::ifstream > ifs = boost::shared_ptr< std::ifstream >( new std::ifstream() );
+    boost::shared_ptr< std::ifstream > ifs( new std::ifstream() );
     ifs->open( fileName.c_str(), std::ifstream::in | std::ifstream::binary );
     if( !ifs || ifs->bad() )
     {

@@ -464,7 +464,7 @@ void WMSuperquadricGlyphs::moduleMain()
             initialTensorUpload = true;
 
             // also provide progress information
-            boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Building Glyph Geometry" ) );
+            boost::shared_ptr< WProgress > progress1( new WProgress( "Building Glyph Geometry" ) );
             m_progress->addSubProgress( progress1 );
 
             // get pointers for the new data
@@ -497,7 +497,7 @@ void WMSuperquadricGlyphs::moduleMain()
         if( dataValid && ( m_xPos->changed() || initialTensorUpload ) )
         {
             // also provide progress information
-            boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Building Glyph Geometry" ) );
+            boost::shared_ptr< WProgress > progress1( new WProgress( "Building Glyph Geometry" ) );
             m_progress->addSubProgress( progress1 );
 
             // grab some mem
@@ -528,7 +528,7 @@ void WMSuperquadricGlyphs::moduleMain()
         if( dataValid && ( m_yPos->changed() || initialTensorUpload ) )
         {
             // also provide progress information
-            boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Building Glyph Geometry" ) );
+            boost::shared_ptr< WProgress > progress1( new WProgress( "Building Glyph Geometry" ) );
             m_progress->addSubProgress( progress1 );
 
             // grab some mem
@@ -559,7 +559,7 @@ void WMSuperquadricGlyphs::moduleMain()
         if( dataValid && ( m_zPos->changed() || initialTensorUpload ) )
         {
             // also provide progress information
-            boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Building Glyph Geometry" ) );
+            boost::shared_ptr< WProgress > progress1( new WProgress( "Building Glyph Geometry" ) );
             m_progress->addSubProgress( progress1 );
 
             // grab some mem

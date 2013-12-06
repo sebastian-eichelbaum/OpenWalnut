@@ -131,7 +131,7 @@ void WMSpatialDerivative::moduleMain()
         }
 
         // prepare progress indicators
-        boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Processing", 0 ) );
+        boost::shared_ptr< WProgress > progress( new WProgress( "Processing", 0 ) );
         m_progress->addSubProgress( progress );
 
         // loop through each voxel

@@ -105,7 +105,7 @@ void WMReadDipoles::moduleMain()
             break;
         }
 
-        boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Read Dipoles", 2 ) );
+        boost::shared_ptr< WProgress > progress( new WProgress( "Read Dipoles", 2 ) );
         ++*progress;
         if( !m_metaFile->get() )
         {

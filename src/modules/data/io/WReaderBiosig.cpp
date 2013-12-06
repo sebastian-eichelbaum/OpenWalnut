@@ -153,7 +153,7 @@ boost::shared_ptr< WDataSet > WReaderBiosig::load()
         // TODO(wiebel): set second channel
     }
 
-    boost::shared_ptr< WEEG > eeg = boost::shared_ptr< WEEG >( new WEEG( segments, lib, labels ) );
+    boost::shared_ptr< WEEG > eeg( new WEEG( segments, lib, labels ) );
     eeg->setFilename( m_fname );
 
 

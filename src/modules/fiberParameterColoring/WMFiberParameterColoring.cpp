@@ -181,10 +181,8 @@ void WMFiberParameterColoring::moduleMain()
         m_fibLengthColors->resize( colorMode * ( fibVerts->size() / 3  ), 0.0 ); // create an RGBA coloring
 
         // progress indication
-        boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Coloring fibers.",
-                                                                                                  fibStart->size() ) );
-        boost::shared_ptr< WProgress > progress2 = boost::shared_ptr< WProgress >( new WProgress( "Scaling Colors.",
-                                                                                                  fibStart->size() ) );
+        boost::shared_ptr< WProgress > progress1( new WProgress( "Coloring fibers.", fibStart->size() ) );
+        boost::shared_ptr< WProgress > progress2( new WProgress( "Scaling Colors.", fibStart->size() ) );
         m_progress->addSubProgress( progress1 );
         m_progress->addSubProgress( progress2 );
 

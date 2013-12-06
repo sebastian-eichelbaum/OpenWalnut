@@ -183,7 +183,7 @@ private:
 template< typename ValueType >
 osg::ref_ptr<wosg::Geometry> WMVectorPlot::buildPlotSlices()
 {
-    boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Vector Plot", 4 ) );
+    boost::shared_ptr< WProgress > progress( new WProgress( "Vector Plot", 4 ) );
     m_progress->addSubProgress( progress );
 
     WPosition current = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();

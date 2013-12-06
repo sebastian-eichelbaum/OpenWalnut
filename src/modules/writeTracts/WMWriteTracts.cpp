@@ -521,7 +521,7 @@ bool WMWriteTracts::savePOVRay( boost::shared_ptr< const WDataSetFibers > fibers
     size_t currentStart = 0;
     size_t increment = m_povraySaveOnlyNth->get();
 
-    boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Converting fibers", fibStart->size() / increment ) );
+    boost::shared_ptr< WProgress > progress1( new WProgress( "Converting fibers", fibStart->size() / increment ) );
     m_progress->addSubProgress( progress1 );
     for( size_t fidx = 0; fidx < fibStart->size(); fidx += increment )
     {

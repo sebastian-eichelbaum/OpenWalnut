@@ -151,7 +151,7 @@ void WMMergeComponentsToVector::moduleMain()
         }
 
         // prepare progress indicators
-        boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Processing", dataSetX->getValueSet()->rawSize() ) );
+        boost::shared_ptr< WProgress > progress( new WProgress( "Processing", dataSetX->getValueSet()->rawSize() ) );
         m_progress->addSubProgress( progress );
 
         // FIXME: this should be done using visitors, making it data type invariant. For now, using doubles all the time is enough
