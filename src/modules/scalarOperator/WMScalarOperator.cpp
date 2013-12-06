@@ -105,6 +105,7 @@ void WMScalarOperator::properties()
     m_operations->addItem( "abs( A )", "Absolute value of A." );
     m_operations->addItem( "clamp( lower, upper, A )", "Clamp A between lower and upper so that l <= A <= u." );
     m_operations->addItem( "A * upper", "Scale data by factor." );
+    m_operations->addItem( "Binarize A by upper", "Values > upper, become 1, below or equal become 0" );
 
     m_opSelection = m_properties->addProperty( "Operation", "The operation to apply on A and B.", m_operations->getSelectorFirst(),
                                                m_propCondition );
@@ -288,6 +289,22 @@ template< typename T >
 inline T opAbs( T a, T /* l */, T /* u */ )
 {
     return math::wabs( a );
+}
+
+/**
+ * Operator binarizing some op with certain threshold.
+ *
+ * \tparam T Type of each parameter and the result
+ * \param a the value to binarize
+ * \param l lower border
+ * \param u upper border, used to decied if value greater becomes one or beneath or equal becomes 0.
+ *
+ * \return result
+ */
+template< typename T >
+inline T opBinarizeByA( T a, T /* l */, T u )
+{
+  return ( a > u ) ? 1 : 0;
 }
 
 /**
@@ -519,6 +536,9 @@ public:
             case 7:
                 op = &opScaleByA< ResultT >;
                 break;
+            case 8:
+                op = &opBinarizeByA< ResultT >;
+                break;
             default:
                 op = &opAbs< ResultT >;
                 break;
@@ -627,7 +647,7 @@ void WMScalarOperator::moduleMain()
             boost::shared_ptr< WValueSetBase > newValueSet;
 
             // single operator operation?
-            if( ( s == 5 ) || ( s == 6 ) || ( s == 7 ) )
+            if( ( s == 5 ) || ( s == 6 ) || ( s == 7 ) || ( s == 8 ) )
             {
                 VisitorVSetSingleArgument visitor( s );    // the visitor cascades to the second value set
                 visitor.setBorder( m_lowerBorder->get( true ), m_upperBorder->get( true ) );
