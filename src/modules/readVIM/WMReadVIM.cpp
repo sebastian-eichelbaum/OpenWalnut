@@ -117,7 +117,7 @@ void WMReadVIM::moduleMain()
                 continue;
             }
 
-            boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Loading" ) );
+            boost::shared_ptr< WProgress > progress1( new WProgress( "Loading" ) );
             m_progress->addSubProgress( progress1 );
 
             // target memory

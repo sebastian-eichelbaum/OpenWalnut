@@ -151,7 +151,7 @@ template< typename T > boost::shared_ptr< WValueSet< float > > makeFloatValueSet
     WAssert( inSet->dimension() == 1, "Works only for scalar data." );
     WAssert( inSet->order() == 0, "Works only for scalar data." );
 
-    boost::shared_ptr< std::vector< float > > data = boost::shared_ptr< std::vector< float > >( new std::vector< float >( inSet->size() ) );
+    boost::shared_ptr< std::vector< float > > data( new std::vector< float >( inSet->size() ) );
     for( unsigned int i = 0; i < inSet->size(); ++i )
     {
         ( *data )[i] = static_cast< float >( inSet->getScalar( i ) );

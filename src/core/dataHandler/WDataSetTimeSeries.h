@@ -298,7 +298,7 @@ boost::shared_ptr< WValueSetBase > WDataSetTimeSeries::calcInterpolatedValueSet(
     boost::shared_ptr< WValueSet< Data_T > > vf = boost::dynamic_pointer_cast< WValueSet< Data_T > >( f->getValueSet() );
     boost::shared_ptr< WValueSet< Data_T > > vg = boost::dynamic_pointer_cast< WValueSet< Data_T > >( g->getValueSet() );
     WAssert( vf && vg, "" );
-    boost::shared_ptr< std::vector< Data_T > > values = boost::shared_ptr< std::vector< Data_T > >( new std::vector< Data_T >( vf->size() ) );
+    boost::shared_ptr< std::vector< Data_T > > values( new std::vector< Data_T >( vf->size() ) );
     float ml = ( ub - time ) / ( ub - lb );
     float mu = ( time - lb ) / ( ub - lb );
     for( std::size_t k = 0; k < values->size(); ++k )

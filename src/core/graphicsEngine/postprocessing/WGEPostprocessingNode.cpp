@@ -42,7 +42,7 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > refere
     addChild( m_childs );
 
     // this node has some properties:
-    boost::shared_ptr< WItemSelection > m_possibleSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    boost::shared_ptr< WItemSelection > m_possibleSelections( new WItemSelection() );
     m_possibleSelections->addItem( "None", "No postprocessing." );
 
     m_showHud = m_properties->addProperty( "Texture Debug", "If set, all intermediate texture are shown on screen for debugging.", false );

@@ -195,10 +195,10 @@ template< typename T > void WMApplyMask::applyMask( boost::shared_ptr< WValueSet
         throw WException( std::string( "Mask is not of type float." ) );
     }
 
-    boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Apply Mask", valSet->size() ) );
+    boost::shared_ptr< WProgress > progress( new WProgress( "Apply Mask", valSet->size() ) );
     m_progress->addSubProgress( progress );
 
-    boost::shared_ptr< std::vector< T > > newVals = boost::shared_ptr< std::vector< T > >( new std::vector< T >( valSet->size() ) );
+    boost::shared_ptr< std::vector< T > > newVals( new std::vector< T >( valSet->size() ) );
     for( size_t i = 0; i < valSet->size(); ++i )
     {
         ++*progress;

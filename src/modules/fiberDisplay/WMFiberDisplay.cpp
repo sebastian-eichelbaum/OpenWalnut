@@ -563,7 +563,7 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
     endState->setMode( GL_BLEND, osg::StateAttribute::ON );
 
     // progress indication
-    boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Adding fibers to geode", fibStart->size() ) );
+    boost::shared_ptr< WProgress > progress1( new WProgress( "Adding fibers to geode", fibStart->size() ) );
     m_progress->addSubProgress( progress1 );
 
     // for each fiber:

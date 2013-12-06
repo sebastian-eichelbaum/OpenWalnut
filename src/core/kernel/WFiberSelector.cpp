@@ -111,7 +111,7 @@ void WFiberSelector::slotAddRoi( osg::ref_ptr< WROI > roi )
         m_branches.push_back( branch );
     }
 
-    boost::shared_ptr< WSelectorRoi> sroi = boost::shared_ptr< WSelectorRoi>( new WSelectorRoi( roi, m_fibers, m_kdTree ) );
+    boost::shared_ptr< WSelectorRoi> sroi( new WSelectorRoi( roi, m_fibers, m_kdTree ) );
 
     branch->addRoi( sroi );
     sroi->getRoi()->addROIChangeNotifier( m_changeRoiSignal );

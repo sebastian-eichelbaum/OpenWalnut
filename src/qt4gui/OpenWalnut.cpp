@@ -187,7 +187,7 @@ int main( int argc, char** argv )
 
     // initialize GUI
     // NOTE: we need a shared_ptr here since WGUI uses enable_shared_from_this.
-    boost::shared_ptr< WQt4Gui > gui = boost::shared_ptr< WQt4Gui > ( new WQt4Gui( optionsMap, argc, argv ) );
+    boost::shared_ptr< WQt4Gui > gui( new WQt4Gui( optionsMap, argc, argv ) );
     int result = gui->run();
 
     std::cout << "Closed OpenWalnut smoothly. Goodbye!" << std::endl;

@@ -67,8 +67,7 @@ boost::shared_ptr< WDataSetFibers > WFiberAccumulator::buildDataSet()
 {
     boost::unique_lock< boost::mutex > lock( m_fiberMutex );
 
-    boost::shared_ptr< WDataSetFibers > res = boost::shared_ptr< WDataSetFibers >( new WDataSetFibers( m_points, m_fiberIndices,
-                                                                                                       m_fiberLengths, m_pointToFiber ) );
+    boost::shared_ptr< WDataSetFibers > res( new WDataSetFibers( m_points, m_fiberIndices, m_fiberLengths, m_pointToFiber ) );
 
     m_points = boost::shared_ptr< std::vector< float > >( new std::vector< float >() );
     m_fiberIndices = boost::shared_ptr< std::vector< size_t > >( new std::vector< size_t >() );

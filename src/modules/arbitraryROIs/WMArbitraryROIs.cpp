@@ -212,7 +212,7 @@ void WMArbitraryROIs::createCutDataset()
     size_t vDim = ( *m_dataSet ).getValueSet()->dimension();
 
     float threshold = m_threshold->get();
-    boost::shared_ptr< std::vector< float > > data = boost::shared_ptr< std::vector< float > >( new std::vector< float >() );
+    boost::shared_ptr< std::vector< float > > data( new std::vector< float >() );
 
     switch( ( *m_dataSet ).getValueSet()->getDataType() )
     {
@@ -288,7 +288,7 @@ boost::shared_ptr< std::vector< float > > WMArbitraryROIs::cutArea( boost::share
     size_t yMax = static_cast<size_t>( m_selectionROI->getMaxPos()[1] / dy );
     size_t zMax = static_cast<size_t>( m_selectionROI->getMaxPos()[2] / dz );
 
-    boost::shared_ptr< std::vector< float > > newVals = boost::shared_ptr< std::vector< float > >( new std::vector< float >( nx * ny * nz, 0 ) );
+    boost::shared_ptr< std::vector< float > > newVals( new std::vector< float >( nx * ny * nz, 0 ) );
 
     size_t x, y, z;
     for( z = 0; z < nz; ++z )

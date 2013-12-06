@@ -106,7 +106,7 @@ private:
 template< typename T >
 WSegmentationAlgo::DataSetPtr WSegmentationAlgoThreshold::operator() ( WValueSet< T > const* valueset ) const
 {
-    boost::shared_ptr< std::vector< T > > values = boost::shared_ptr< std::vector< T > >( new std::vector< T >( valueset->size() ) );
+    boost::shared_ptr< std::vector< T > > values( new std::vector< T >( valueset->size() ) );
 
     double low_threshold = valueset->getMinimumValue() + m_low_threshold->get( true ) * ( valueset->getMaximumValue() - valueset->getMinimumValue() );
     double upp_threshold = valueset->getMinimumValue() + m_upp_threshold->get( true ) * ( valueset->getMaximumValue() - valueset->getMinimumValue() );

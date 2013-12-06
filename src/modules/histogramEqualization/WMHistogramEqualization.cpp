@@ -159,7 +159,7 @@ void WMHistogramEqualization::moduleMain()
         dataUpdated = dataUpdated && dataSet;
 
         // prepare progress indicators
-        boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Processing", 4 ) );
+        boost::shared_ptr< WProgress > progress( new WProgress( "Processing", 4 ) );
         m_progress->addSubProgress( progress );
 
         // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.

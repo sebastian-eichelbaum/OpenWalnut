@@ -61,7 +61,7 @@ void WROIManager::addRoi( osg::ref_ptr< WROI > newRoi )
 boost::shared_ptr< WRMBranch > WROIManager::addBranch()
 {
     // create new branch
-    boost::shared_ptr< WRMBranch > newBranch = boost::shared_ptr< WRMBranch >( new WRMBranch( shared_from_this() ) );
+    boost::shared_ptr< WRMBranch > newBranch( new WRMBranch( shared_from_this() ) );
     // add branch to list
     m_branches.push_back( newBranch );
 

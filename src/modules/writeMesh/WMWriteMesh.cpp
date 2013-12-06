@@ -335,7 +335,7 @@ std::vector< boost::shared_ptr< WTriangleMesh > >WMWriteMesh::splitMesh( boost::
 
     while( currentTri < triMesh->triangleSize() )
     {
-        boost::shared_ptr< WTriangleMesh > newMesh = boost::shared_ptr< WTriangleMesh >( new WTriangleMesh( 0, 0 ) );
+        boost::shared_ptr< WTriangleMesh > newMesh( new WTriangleMesh( 0, 0 ) );
         std::vector<int>newIds( triMesh->vertSize(), -1 );
         while( newMesh->vertSize() < targetSize )
         {

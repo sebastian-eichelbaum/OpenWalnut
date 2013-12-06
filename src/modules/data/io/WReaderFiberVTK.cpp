@@ -64,11 +64,8 @@ boost::shared_ptr< WDataSetFibers > WReaderFiberVTK::read()
     readLines();
     readValues();
 
-    boost::shared_ptr< WDataSetFibers > fibers = boost::shared_ptr< WDataSetFibers >( new WDataSetFibers( m_points,
-                                                                                                          m_fiberStartIndices,
-                                                                                                          m_fiberLengths,
-                                                                                                          m_pointFiberMapping,
-                                                                                                          m_fiberParameters ) );
+    boost::shared_ptr< WDataSetFibers > fibers( new WDataSetFibers( m_points, m_fiberStartIndices,
+          m_fiberLengths, m_pointFiberMapping, m_fiberParameters ) );
 
     fibers->setFilename( m_fname );
 

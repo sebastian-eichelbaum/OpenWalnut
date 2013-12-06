@@ -185,7 +185,7 @@ void WMIsosurface::moduleMain()
         // update isosurface
         debugLog() << "Computing surface ...";
 
-        boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Marching Cubes", 2 ) );
+        boost::shared_ptr< WProgress > progress( new WProgress( "Marching Cubes", 2 ) );
         m_progress->addSubProgress( progress );
 
         generateSurfacePre( m_isoValueProp->get( true ) );

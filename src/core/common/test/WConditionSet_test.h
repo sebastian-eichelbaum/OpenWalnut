@@ -87,9 +87,9 @@ public:
         WConditionSet* cs = new WConditionSet();
 
         // create some conditions
-        boost::shared_ptr< WCondition > c1 = boost::shared_ptr< WCondition >( new WCondition() );
-        boost::shared_ptr< WCondition > c2 = boost::shared_ptr< WCondition >( new WCondition() );
-        boost::shared_ptr< WCondition > c3 = boost::shared_ptr< WCondition >( new WCondition() );
+        boost::shared_ptr< WCondition > c1( new WCondition() );
+        boost::shared_ptr< WCondition > c2( new WCondition() );
+        boost::shared_ptr< WCondition > c3( new WCondition() );
 
         // add them
         TS_ASSERT_THROWS_NOTHING( cs->add( c1 ) );
@@ -123,8 +123,8 @@ public:
         WConditionSet* cs = new WConditionSet();
 
         // create some conditions
-        boost::shared_ptr< WCondition > c1 = boost::shared_ptr< WCondition >( new WCondition() );
-        boost::shared_ptr< WCondition > c2 = boost::shared_ptr< WCondition >( new WCondition() );
+        boost::shared_ptr< WCondition > c1( new WCondition() );
+        boost::shared_ptr< WCondition > c2( new WCondition() );
 
         // disable resetable feature
         cs->setResetable( false, false );
@@ -169,8 +169,8 @@ public:
         WConditionSet* cs = new WConditionSet();
 
         // create some conditions
-        boost::shared_ptr< WCondition > c1 = boost::shared_ptr< WCondition >( new WCondition() );
-        boost::shared_ptr< WCondition > c2 = boost::shared_ptr< WCondition >( new WCondition() );
+        boost::shared_ptr< WCondition > c1( new WCondition() );
+        boost::shared_ptr< WCondition > c2( new WCondition() );
 
         // disable resetable feature
         cs->setResetable( true, true );
