@@ -187,7 +187,7 @@ int main( int argc, char** argv )
 
     // initialize GUI
     // NOTE: we need a shared_ptr here since WGUI uses enable_shared_from_this.
-    boost::shared_ptr< WScriptGui > gui = boost::shared_ptr< WScriptGui > ( new WScriptGui( argc, argv, optionsMap ) );
+    boost::shared_ptr< WScriptGui > gui( new WScriptGui( argc, argv, optionsMap ) );
     int result = gui->run();
 
     std::cout << "Closed OpenWalnut smoothly. Goodbye!" << std::endl;

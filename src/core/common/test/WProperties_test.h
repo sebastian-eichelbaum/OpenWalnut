@@ -89,7 +89,7 @@ public:
     {
         WException::disableBacktrace(); // in tests, turn of backtrace globally
 
-        boost::shared_ptr< WProperties > p = boost::shared_ptr< WProperties >( new WProperties( "hey", "you" ) );
+        boost::shared_ptr< WProperties > p( new WProperties( "hey", "you" ) );
 
         // add some new properties
         boost::shared_ptr< WPropertyBase > p1 = p->addProperty( "1", "test1", true );
@@ -119,7 +119,7 @@ public:
     {
         WException::disableBacktrace(); // in tests, turn of backtrace globally
 
-        boost::shared_ptr< WProperties > p = boost::shared_ptr< WProperties >( new WProperties( "hey", "you" ) );
+        boost::shared_ptr< WProperties > p( new WProperties( "hey", "you" ) );
 
         // add some new properties
         boost::shared_ptr< WPropertyBase > p1 = p->addProperty( "1", "test1", true );
@@ -144,7 +144,7 @@ public:
     {
         WException::disableBacktrace(); // in tests, turn of backtrace globally
 
-        boost::shared_ptr< WProperties > p = boost::shared_ptr< WProperties >( new WProperties( "hey", "you" ) );
+        boost::shared_ptr< WProperties > p( new WProperties( "hey", "you" ) );
 
         // add some new properties
         boost::shared_ptr< WPropertyBase > p1 = p->addProperty( "1", "test1", true );
@@ -171,7 +171,7 @@ public:
         WException::disableBacktrace(); // in tests, turn of backtrace globally
 
         // some props we can use as target
-        boost::shared_ptr< WProperties > t = boost::shared_ptr< WProperties >( new WProperties( "hey", "you" ) );
+        boost::shared_ptr< WProperties > t( new WProperties( "hey", "you" ) );
 
         // add some new properties
         WPropBool tp1 = t->addProperty( "p1", "", true );
@@ -181,7 +181,7 @@ public:
         WPropDouble tp4 = t->addProperty( "p4", "", 10.0 );
 
         // create a group we can use as source
-        boost::shared_ptr< WProperties > s = boost::shared_ptr< WProperties >( new WProperties( "hey", "you" ) );
+        boost::shared_ptr< WProperties > s( new WProperties( "hey", "you" ) );
 
         // add some new properties
         WPropBool sp1 = s->addProperty( "p1", "", false );
@@ -211,7 +211,7 @@ public:
     {
         WException::disableBacktrace(); // in tests, turn of backtrace globally
 
-        boost::shared_ptr< WProperties > p = boost::shared_ptr< WProperties >( new WProperties( "hey", "you" ) );
+        boost::shared_ptr< WProperties > p( new WProperties( "hey", "you" ) );
 
         // add some new properties
         boost::shared_ptr< WPropertyBase > p1 = p->addProperty( "1", "test1", true );
@@ -257,7 +257,7 @@ public:
      */
     void testGetAndExistsAndFindRecursive( void )
     {
-        boost::shared_ptr< WProperties > p = boost::shared_ptr< WProperties >( new WProperties( "hey", "you" ) );
+        boost::shared_ptr< WProperties > p( new WProperties( "hey", "you" ) );
         boost::shared_ptr< WProperties > psub = p->addPropertyGroup( "heySub", "you" );
 
         // add some new properties
@@ -312,7 +312,7 @@ public:
         /////////////////////
         // Clone
 
-        boost::shared_ptr< WProperties > orig = boost::shared_ptr< WProperties >( new WProperties( "hey", "you" ) );
+        boost::shared_ptr< WProperties > orig( new WProperties( "hey", "you" ) );
         boost::shared_ptr< WProperties > clone = orig->clone()->toPropGroup();
 
         // test that toPropGroup worked and both are different

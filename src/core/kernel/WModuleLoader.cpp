@@ -80,7 +80,7 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
             try
             {
                 // load lib
-                boost::shared_ptr< WSharedLib > l = boost::shared_ptr< WSharedLib >( new WSharedLib( i->path() ) );
+                boost::shared_ptr< WSharedLib > l( new WSharedLib( i->path() ) );
 
                 bool isLoadableModule = false;
                 bool isLoadableArbitrary = false;

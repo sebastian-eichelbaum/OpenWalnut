@@ -616,7 +616,7 @@ public:
         initConnections();
 
         // set some data, propagate change
-        boost::shared_ptr< WTestTransferableBase > data = boost::shared_ptr< WTestTransferableBase >( new WTestTransferableBase() );
+        boost::shared_ptr< WTestTransferableBase > data( new WTestTransferableBase() );
         int d = 5;
         data->set( d );
         TS_ASSERT_THROWS_NOTHING( m1->m_output->updateData( data ) );

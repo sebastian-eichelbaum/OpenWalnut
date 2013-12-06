@@ -212,7 +212,7 @@ template<typename T> boost::shared_ptr<WTriangleMesh> WMarchingCubesAlgorithm::g
 
     unsigned int nPointsInSlice = nX * nY;
 
-    boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Marching Cubes", m_nCellsZ ) );
+    boost::shared_ptr< WProgress > progress( new WProgress( "Marching Cubes", m_nCellsZ ) );
     mainProgress->addSubProgress( progress );
     // Generate isosurface.
     for( unsigned int z = 0; z < m_nCellsZ; z++ )

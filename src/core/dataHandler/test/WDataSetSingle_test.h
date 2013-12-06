@@ -55,7 +55,7 @@ public:
 
         // create dummies, since they are needed in almost every test
         gridDummy = boost::shared_ptr< WGrid >( new WGridRegular3D( 1, 1, 1 ) );
-        boost::shared_ptr< std::vector< int8_t > > data = boost::shared_ptr< std::vector< int8_t > >( new std::vector< int8_t >( 1, 1 ) );
+        boost::shared_ptr< std::vector< int8_t > > data( new std::vector< int8_t >( 1, 1 ) );
         valueSetDummy = boost::shared_ptr< WValueSet< int8_t > >( new WValueSet< int8_t >( 0, 1, data, W_DT_INT8 ) );
     }
 
@@ -72,7 +72,7 @@ public:
      */
     void testGetValueSet( void )
     {
-        boost::shared_ptr< std::vector< double > > data = boost::shared_ptr< std::vector< double > >( new std::vector< double >( 1, 3.1415 ) );
+        boost::shared_ptr< std::vector< double > > data( new std::vector< double >( 1, 3.1415 ) );
         boost::shared_ptr< WValueSet< double > > other;
         other = boost::shared_ptr< WValueSet< double > >( new WValueSet< double >( 0, 1, data, W_DT_DOUBLE ) );
         WDataSetSingle dataSetSingle( valueSetDummy, gridDummy );

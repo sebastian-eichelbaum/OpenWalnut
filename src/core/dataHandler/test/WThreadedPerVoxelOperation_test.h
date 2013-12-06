@@ -160,7 +160,7 @@ private:
     boost::shared_ptr< WDataSetSingle > buildTestData()
     {
         int a[] = { 1, 2, 3, -5, 7, 8, 2, -4, 12, -28, 3, 3, 4, -4, -5, 2 };
-        boost::shared_ptr< std::vector< int > > v = boost::shared_ptr< std::vector< int > >( new std::vector< int >( a, a + 16 ) );
+        boost::shared_ptr< std::vector< int > > v( new std::vector< int >( a, a + 16 ) );
         dataType r = DataType< int >::type;
         boost::shared_ptr< ValueSetType > vs( new ValueSetType( 1, 2, v, r ) );
         boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 2, 2, 2 ) );

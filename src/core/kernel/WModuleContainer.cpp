@@ -466,9 +466,7 @@ boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< W
 WBatchLoader::SPtr WModuleContainer::loadDataSets( std::vector< std::string > filenames, bool suppressColormaps )
 {
     // create thread which actually loads the data
-    boost::shared_ptr< WBatchLoader > t = boost::shared_ptr< WBatchLoader >( new WBatchLoader( filenames,
-                boost::static_pointer_cast< WModuleContainer >( shared_from_this() ) )
-    );
+    boost::shared_ptr< WBatchLoader > t( new WBatchLoader( filenames, boost::static_pointer_cast< WModuleContainer >( shared_from_this() ) ) );
     t->setSuppressColormaps( suppressColormaps );
     t->run();
     return t;
@@ -477,9 +475,7 @@ WBatchLoader::SPtr WModuleContainer::loadDataSets( std::vector< std::string > fi
 WBatchLoader::SPtr WModuleContainer::loadDataSetsSynchronously( std::vector< std::string > filenames, bool suppressColormaps )
 {
     // create thread which actually loads the data
-    boost::shared_ptr< WBatchLoader > t = boost::shared_ptr< WBatchLoader >( new WBatchLoader( filenames,
-                boost::static_pointer_cast< WModuleContainer >( shared_from_this() ) )
-    );
+    boost::shared_ptr< WBatchLoader > t( new WBatchLoader( filenames, boost::static_pointer_cast< WModuleContainer >( shared_from_this() ) ) );
     t->setSuppressColormaps( suppressColormaps );
     t->run();
     t->wait();

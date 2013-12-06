@@ -106,7 +106,7 @@ public:
         testInfo.setSubjectID( 2 );
         testInfo.setLastName( "Testname2" );
 
-        boost::shared_ptr< WSubject > s = boost::shared_ptr< WSubject >( new WSubject( testInfo ) );
+        boost::shared_ptr< WSubject > s( new WSubject( testInfo ) );
         dh->addSubject( s );
 
         // now there should be 3 subjects (one from testAddSubjects, the above added one and the default subject)

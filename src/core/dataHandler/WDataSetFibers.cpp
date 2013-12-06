@@ -129,9 +129,9 @@ void WDataSetFibers::init()
     size_t size = m_vertices->size();
     m_tangents = boost::shared_ptr< std::vector< float > >( new std::vector<float>( size ) );
 
-    boost::shared_ptr< std::vector< float > > globalColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>( size ) );
-    boost::shared_ptr< std::vector< float > > localColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>( size ) );
-    boost::shared_ptr< std::vector< float > > customColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>( size ) );
+    boost::shared_ptr< std::vector< float > > globalColors( new std::vector<float>( size ) );
+    boost::shared_ptr< std::vector< float > > localColors( new std::vector<float>( size ) );
+    boost::shared_ptr< std::vector< float > > customColors( new std::vector<float>( size ) );
 
     // TODO(all): use the new WThreadedJobs functionality
     WCreateColorArraysThread* t1 = new WCreateColorArraysThread( 0, m_lineLengths->size()/4, m_vertices,

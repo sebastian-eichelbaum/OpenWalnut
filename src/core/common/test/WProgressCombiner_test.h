@@ -74,9 +74,9 @@ public:
         WProgressCombiner p( "Test" );
 
         // create some children
-        boost::shared_ptr< WProgress> p1 = boost::shared_ptr< WProgress>( new WProgress( "TestP1", 11 ) );
-        boost::shared_ptr< WProgress> p2 = boost::shared_ptr< WProgress>( new WProgress( "TestP2", 11 ) );
-        boost::shared_ptr< WProgress> p3 = boost::shared_ptr< WProgress>( new WProgress( "TestP3" ) );
+        boost::shared_ptr< WProgress> p1( new WProgress( "TestP1", 11 ) );
+        boost::shared_ptr< WProgress> p2( new WProgress( "TestP2", 11 ) );
+        boost::shared_ptr< WProgress> p3( new WProgress( "TestP3" ) );
 
         // as the first and only child is determined (has a known end point) -> the combiner is determined
         TS_ASSERT_THROWS_NOTHING( p.addSubProgress( p1 ) );

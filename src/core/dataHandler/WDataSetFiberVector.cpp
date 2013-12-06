@@ -103,7 +103,7 @@ void WDataSetFiberVector::sortDescLength()
 
 boost::shared_ptr< WDataSetFiberVector > WDataSetFiberVector::generateDataSetOutOfUsedFibers( const std::vector< bool > &unused ) const
 {
-    boost::shared_ptr< WDataSetFiberVector > result = boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector() );
+    boost::shared_ptr< WDataSetFiberVector > result( new WDataSetFiberVector() );
     assert( unused.size() == size() );
     for( size_t i = 0 ; i < unused.size(); ++i )
     {
@@ -142,10 +142,10 @@ boost::shared_ptr< WPrototyped > WDataSetFiberVector::getPrototype()
 
 boost::shared_ptr< WDataSetFibers > WDataSetFiberVector::toWDataSetFibers() const
 {
-    boost::shared_ptr< std::vector< float > > points = boost::shared_ptr< std::vector< float > >( new std::vector< float > );
-    boost::shared_ptr< std::vector< size_t > > fiberStartIndices = boost::shared_ptr< std::vector< size_t > >( new std::vector< size_t > );
-    boost::shared_ptr< std::vector< size_t > > fiberLengths = boost::shared_ptr< std::vector< size_t > >( new std::vector< size_t > );
-    boost::shared_ptr< std::vector< size_t > > pointFiberMapping = boost::shared_ptr< std::vector< size_t > >( new std::vector< size_t > );
+    boost::shared_ptr< std::vector< float > > points( new std::vector< float > );
+    boost::shared_ptr< std::vector< size_t > > fiberStartIndices( new std::vector< size_t > );
+    boost::shared_ptr< std::vector< size_t > > fiberLengths( new std::vector< size_t > );
+    boost::shared_ptr< std::vector< size_t > > pointFiberMapping( new std::vector< size_t > );
 
     fiberStartIndices->reserve( size() );
     fiberLengths->reserve( size() );

@@ -119,7 +119,7 @@ public:
      */
     void testEigenVectorInterpolate( void )
     {
-        boost::shared_ptr< WGrid > grid = boost::shared_ptr< WGrid >( new WGridRegular3D( 2, 2, 2 ) );
+        boost::shared_ptr< WGrid > grid( new WGridRegular3D( 2, 2, 2 ) );
         boost::shared_ptr< std::vector< double > > data( new std::vector< double > );
         boost::array< WPosition, 8 > d = { { WPosition( -1, 0, 0 ), // NOLINT braces
                                              WPosition(  1, 0, 0 ),
@@ -160,9 +160,9 @@ public:
      */
     void testBoundary_ticket313( void )
     {
-        boost::shared_ptr< WGridRegular3D > grid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( 3, 4, 5 ) );
+        boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( 3, 4, 5 ) );
         bool success = false;
-        boost::shared_ptr< std::vector< double > > data = boost::shared_ptr< std::vector< double > >( new std::vector< double >( grid->size() * 3 ) );
+        boost::shared_ptr< std::vector< double > > data( new std::vector< double >( grid->size() * 3 ) );
         for( size_t i = 0; i < grid->size() * 3; ++i )
         {
             ( *data )[i] = i;
