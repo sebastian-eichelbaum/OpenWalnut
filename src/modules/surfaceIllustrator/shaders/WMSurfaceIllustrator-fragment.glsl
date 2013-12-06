@@ -71,7 +71,10 @@ void main()
     vec3 normal = normalize( v_normal );
     float dotNorm = dot( vec3( 0.0, 0.0, 1.0 ), normal );
     dotNorm *= sign( dotNorm );
+    // View-dependent transparency
     //col.a=1-dotNorm*dotNorm;
+    // Unnatural opposite effect
+    //col.a=dotNorm*dotNorm;
     gl_FragColor = col;
 }
 
