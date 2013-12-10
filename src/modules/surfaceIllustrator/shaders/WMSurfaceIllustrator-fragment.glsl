@@ -50,6 +50,7 @@ uniform float u_parameterWidth;
 void main()
 {
     vec4 col = gl_Color;
+    //col.rgb = vec3( .7);
     float widthHalf = u_parameterWidth / 2.0;
 
     // Streamribbon
@@ -59,11 +60,11 @@ void main()
     //if( col.g > u_parameterCenter + widthHalf || col.g < u_parameterCenter - widthHalf) discard;
 
     // Slab
-    if( verpos.x > u_parameterCenter + widthHalf || verpos.x < u_parameterCenter - widthHalf ) discard;
+    //if( verpos.x > u_parameterCenter + widthHalf || verpos.x < u_parameterCenter - widthHalf ) discard;
 
     // calculate lighting
     float light = blinnPhongIlluminationIntensity( normalize( -v_normal ) );
-    col*=light;
+    col *= light;
 
     // finally, apply opacity
     col.a = u_opacity* 0.01;
@@ -72,9 +73,11 @@ void main()
     float dotNorm = dot( vec3( 0.0, 0.0, 1.0 ), normal );
     dotNorm *= sign( dotNorm );
     // View-dependent transparency
-    //col.a=1-dotNorm*dotNorm;
+    //col.a = 1 - dotNorm * dotNorm;
     // Unnatural opposite effect
-    //col.a=dotNorm*dotNorm;
+    col.a = dotNorm* dotNorm;
+
+
     gl_FragColor = col;
 }
 
