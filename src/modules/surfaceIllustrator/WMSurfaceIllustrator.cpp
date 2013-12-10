@@ -167,7 +167,7 @@ void WMSurfaceIllustrator::properties()
     m_opacity->setMin( 0.0 );
     m_opacity->setMax( 100.0 );
 
-    // Allow the user to select different colormodes
+    // Allow the user to select different color modes
     boost::shared_ptr< WItemSelection > colorModes( boost::shared_ptr< WItemSelection >( new WItemSelection() ) );
     colorModes->addItem( "Single Color", "The whole surface is colored using the default color." );
     colorModes->addItem( "From Mesh", "The surface is colored according to the mesh." );
@@ -187,6 +187,20 @@ void WMSurfaceIllustrator::properties()
     m_parameterWidth = m_coloringGroup->addProperty( "Parameter width", "Parameter width selection", 0.1 );
     m_parameterWidth->setMin( 0.0 );
     m_parameterWidth->setMax( 2.0 );
+
+    // Allow the user to select different rendering modes
+    boost::shared_ptr< WItemSelection > illustrationModes( boost::shared_ptr< WItemSelection >( new WItemSelection() ) );
+    illustrationModes->addItem( "X-slab", "Slab normal to x-axis." );
+    illustrationModes->addItem( "Stream ribbon", "A range of streamlines (if red color represents s-parameter of surface)." );
+    illustrationModes->addItem( "Time ribbon", "A range timelines (if green color represents t-parameter of surface)." );
+    illustrationModes->addItem( "View-dependent opacity", "Less opaque where surface normal parallel to view direction." );
+    illustrationModes->addItem( "View-dependent opacity (inverted)", "More opqaue where surface normal parallel to view direction." );
+    m_illustrationMode = m_coloringGroup->addProperty( "Illustration mode",
+                                                "Choose one of the types of illustrating the surface.",
+                                                illustrationModes->getSelectorFirst(),
+                                                m_propCondition );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_illustrationMode );
+
 
     // call WModule's initialization
     WModule::properties();
@@ -273,6 +287,8 @@ void WMSurfaceIllustrator::renderMesh( boost::shared_ptr< WTriangleMesh > mesh )
     geode->getOrCreateStateSet()->addUniform( m_colorMapTransformation );
     geode->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_parameterCenter", m_parameterCenter ) );
     geode->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_parameterWidth", m_parameterWidth ) );
+    WItemSelector illustrationModeSelector =  m_illustrationMode->get( true );
+    geode->getOrCreateStateSet()->addUniform( new osg::Uniform( "u_renderingType", static_cast<int>( illustrationModeSelector.getItemIndexOfSelected( 0 ) ) ) );
 
     // apply shader only to mesh
     m_shader->apply( geode );

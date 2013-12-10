@@ -152,6 +152,11 @@ private:
     WPropDouble m_parameterWidth;
 
     /**
+     * Select the type of illustration applied in the shader
+     */
+    WPropSelection m_illustrationMode;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;

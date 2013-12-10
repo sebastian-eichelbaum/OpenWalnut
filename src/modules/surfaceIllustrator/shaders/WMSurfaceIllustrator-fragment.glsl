@@ -44,6 +44,10 @@ uniform float u_parameterCenter;
  * The width of the parameter interval to be selected
  */
 uniform float u_parameterWidth;
+/**
+ * Chooses the type of rendering that should be performed within this shader
+ */
+uniform int u_renderingType;
 
 #include "WGEShadingTools.glsl"
 
@@ -52,15 +56,7 @@ void main()
     vec4 col = gl_Color;
     //col.rgb = vec3( .7);
     float widthHalf = u_parameterWidth / 2.0;
-
-    // Streamribbon
-    //if( col.r > u_parameterCenter + widthHalf || col.r < u_parameterCenter - widthHalf ) discard;
-
-    // Timeribbon
-    //if( col.g > u_parameterCenter + widthHalf || col.g < u_parameterCenter - widthHalf) discard;
-
-    // Slab
-    //if( verpos.x > u_parameterCenter + widthHalf || verpos.x < u_parameterCenter - widthHalf ) discard;
+    vec2 param = col.rg;
 
     // calculate lighting
     float light = blinnPhongIlluminationIntensity( normalize( -v_normal ) );
@@ -72,10 +68,32 @@ void main()
     vec3 normal = normalize( v_normal );
     float dotNorm = dot( vec3( 0.0, 0.0, 1.0 ), normal );
     dotNorm *= sign( dotNorm );
-    // View-dependent transparency
-    //col.a = 1 - dotNorm * dotNorm;
-    // Unnatural opposite effect
-    col.a = dotNorm* dotNorm;
+
+    if( u_renderingType == 0 )
+    {
+        // Slab
+        if( verpos.x > u_parameterCenter + widthHalf || verpos.x < u_parameterCenter - widthHalf ) discard;
+    }
+    else if( u_renderingType == 1 )
+    {
+        // Streamribbon
+        if( param.s > u_parameterCenter + widthHalf || param.s < u_parameterCenter - widthHalf ) discard;
+    }
+    else if( u_renderingType == 2 )
+    {
+        // Timeribbon
+        if( param.t > u_parameterCenter + widthHalf || param.t < u_parameterCenter - widthHalf) discard;
+    }
+    else if( u_renderingType == 3 )
+    {
+        // View-dependent transparency
+        col.a = 1 - dotNorm * dotNorm;
+    }
+    else if( u_renderingType == 4 )
+    {
+        // Unnatural opposite effect
+        col.a = dotNorm* dotNorm;
+    }
 
 
     gl_FragColor = col;
