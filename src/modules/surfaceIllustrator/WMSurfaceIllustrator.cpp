@@ -288,7 +288,8 @@ void WMSurfaceIllustrator::renderMesh( boost::shared_ptr< WTriangleMesh > mesh )
     geode->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_parameterCenter", m_parameterCenter ) );
     geode->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_parameterWidth", m_parameterWidth ) );
     WItemSelector illustrationModeSelector =  m_illustrationMode->get( true );
-    geode->getOrCreateStateSet()->addUniform( new osg::Uniform( "u_renderingType", static_cast<int>( illustrationModeSelector.getItemIndexOfSelected( 0 ) ) ) );
+    int illustrationTypeId = static_cast<int>( illustrationModeSelector.getItemIndexOfSelected( 0 ) );
+    geode->getOrCreateStateSet()->addUniform( new osg::Uniform( "u_renderingType", illustrationTypeId ) );
 
     // apply shader only to mesh
     m_shader->apply( geode );
