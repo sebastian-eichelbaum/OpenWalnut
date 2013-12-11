@@ -175,7 +175,10 @@ void WMHistogramView::handleMouseMove( WVector2f pos )
         m_mainNode->remove( m_markerNode );
     }
 
-    createInfo( pos );
+    if( !m_histograms.empty() ) // Bug: module will crash on mouse events when no data was connected
+    {
+        createInfo( pos );
+    }
 }
 
 void WMHistogramView::handleResize( int /* x */, int /* y */, int width, int height )
