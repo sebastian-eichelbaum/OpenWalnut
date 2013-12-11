@@ -65,6 +65,13 @@ public:
     WDataSetFiberClustering();
 
     /**
+     * constructor with cluster list.
+     *
+     * \param clustering the cluster map defining the clustering
+     */
+    explicit WDataSetFiberClustering( const ClusterMap &clustering );
+
+    /**
      * Destructor.
      */
     virtual ~WDataSetFiberClustering();
@@ -154,6 +161,13 @@ public:
      */
     ClusterMap::iterator end();
 
+    /**
+     * Returns the amount of clusters in the clustering
+     *
+     * \return the amount of clusters in the clustering
+     */
+    size_t size() const;
+
 protected:
     /**
      * Prototype for this dataset
@@ -167,4 +181,3 @@ private:
 };
 
 #endif  // WDATASETFIBERCLUSTERING_H
-

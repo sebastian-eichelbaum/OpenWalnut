@@ -23,7 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
-
+#include <map>
 #include "WDataSetFiberClustering.h"
 
 // The prototype as singleton. Created during first getPrototype() call
@@ -33,6 +33,12 @@ WDataSetFiberClustering::WDataSetFiberClustering()
 {
     // initialize members
 }
+
+WDataSetFiberClustering::WDataSetFiberClustering( const ClusterMap &clustering )
+{
+    m_clusters = clustering;
+}
+
 
 WDataSetFiberClustering::~WDataSetFiberClustering()
 {
@@ -114,4 +120,10 @@ WDataSetFiberClustering::ClusterMap::iterator WDataSetFiberClustering::end()
 {
     return m_clusters.end();
 }
+
+size_t WDataSetFiberClustering::size() const
+{
+    return m_clusters.size();
+}
+
 

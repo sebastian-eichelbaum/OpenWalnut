@@ -213,4 +213,3 @@ private:
 };
 
 #endif  // WMDATA_H
-

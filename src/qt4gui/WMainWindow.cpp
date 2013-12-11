@@ -649,11 +649,12 @@ void WMainWindow::openLoadDialog()
     // build filter list
     // NOTE: Qt Doc says we need to separate multiple filters by ";;"
     QString filters;
-    filters = QString( "Known file types (*.cnt *.edf *.asc *.nii *.nii.gz *.vtk *.fib *.owproj *.owp);;" )
+    filters = QString( "Known file types (*.cnt *.edf *.asc *.nii *.nii.gz *.vtk *.fib *.owproj *.owp *.fdg);;" )
             + QString( "Simple Project File (*.owproj *.owp);;" )
             + QString( "EEG files (*.cnt *.edf *.asc);;" )
             + QString( "NIfTI (*.nii *.nii.gz);;" )
-            + QString( "Fibers (*.fib);;" );
+            + QString( "Fibers (*.fib);;" )
+            + QString( "Clusters (*.fdg);;" );
     for( std::size_t k = 0; k < WKernel::getRunningKernel()->getScriptEngine()->getNumInterpreters(); ++k )
     {
         filters += QString::fromStdString( WKernel::getRunningKernel()->getScriptEngine()->getInterpreter( k )->getName() + " (*"
@@ -1199,7 +1200,9 @@ void WMainWindow::handleDrop( QDropEvent* event )
               || suffix.endsWith( "asc" )
               || suffix.endsWith( "nii" )
               || suffix.endsWith( "nii.gz" )
-              || suffix.endsWith( "fib" ) )
+              || suffix.endsWith( "fib" )
+              || suffix.endsWith( "fdg" )
+              || suffix.endsWith( "vtk" ) )
             {
                 filenames.push_back( path.toStdString() );
             }
@@ -1267,6 +1270,8 @@ bool WMainWindow::isDropAcceptable( const QMimeData* mimeData )
               || suffix.endsWith( "nii" )
               || suffix.endsWith( "nii.gz" )
               || suffix.endsWith( "fib" )
+              || suffix.endsWith( "fdg" )
+              || suffix.endsWith( "vtk" )
               || suffix.endsWith( "owp" )
               || suffix.endsWith( "owproj" ) )
             {

@@ -51,6 +51,7 @@
 #include "io/WReaderLibeep.h"
 #include "io/WReaderVTK.h"
 #include "io/WPagerEEGLibeep.h"
+#include "io/WReaderClustering.h"
 
 #include "WMData.h"
 #include "WMData.xpm"
@@ -289,6 +290,11 @@ void WMData::moduleMain()
     {
         WReaderFiberVTK fibReader( fileName );
         m_dataSet = fibReader.read();
+    }
+    else if( suffix == ".fdg" )
+    {
+        WReaderClustering clusterReader( fileName );
+        m_dataSet = clusterReader.read();
     }
     else if( suffix == ".vtk" )
     {

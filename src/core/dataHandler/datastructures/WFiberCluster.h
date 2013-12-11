@@ -180,6 +180,20 @@ public:
     WColor getColor() const;
 
     /**
+     * Sets the main direction of the cluster
+     *
+     * \param mainDirection the cluster's main direction
+     */
+    void setMainDirection( osg::Vec3 mainDirection );
+
+    /**
+     * Gets the main direction of the cluster ( if set )
+     *
+     * \return the cluster's main direction
+     */
+    osg::Vec3 getMainDirection() const;
+
+    /**
      * The name of this transferable. This is useful information for the users.
      *
      * \return the name.
@@ -327,6 +341,11 @@ private:
     WColor m_color;
 
     /**
+     * The cluster's main direction
+     */
+    osg::Vec3 m_mainDirection;
+
+    /**
      * Lock the modification in the m_centerLine mutable. The lock is stored as pointer to avoid copy construction problems.
      */
     boost::shared_mutex* m_centerLineCreationLock;
@@ -379,6 +398,16 @@ inline void WFiberCluster::setColor( WColor color )
 inline WColor WFiberCluster::getColor() const
 {
     return m_color;
+}
+
+inline void WFiberCluster::setMainDirection( osg::Vec3 mainDirection )
+{
+    m_mainDirection = mainDirection;
+}
+
+inline osg::Vec3 WFiberCluster::getMainDirection() const
+{
+    return m_mainDirection;
 }
 
 inline const std::string WFiberCluster::getName() const
