@@ -148,7 +148,7 @@ void WMIsosurfaceRaytracer::properties()
 
     m_borderClipDistance = m_properties->addProperty( "Border clip distance", "The distance that should be ignored.", 0.05 );
     m_borderClipDistance->setMin( 0.0 );
-    m_borderClipDistance->setMax( 0.1 );
+    m_borderClipDistance->setMax( 1.0 );
 
     WModule::properties();
 }
@@ -162,7 +162,7 @@ void WMIsosurfaceRaytracer::moduleMain()
 {
     m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMIsosurfaceRaytracer", m_localPath ) );
     m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
-        new WGEShaderPropertyDefineOptions< WPropBool >( m_phongNoSpec, "PHONGSHADING_NOSECULAR_DISABLED", "PHONGSHADING_NOSECULAR_ENABLED" ) )
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_phongNoSpec, "PHONGSHADING_NOSPECULAR_DISABLED", "PHONGSHADING_NOSPECULAR_ENABLED" ) )
     );
     m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
         new WGEShaderPropertyDefineOptions< WPropBool >( m_stochasticJitter, "STOCHASTICJITTER_DISABLED", "STOCHASTICJITTER_ENABLED" ) )
