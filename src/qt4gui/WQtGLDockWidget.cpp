@@ -32,12 +32,15 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QToolBar>
 
+#include "core/graphicsEngine/WGEViewerEffect.h"
+
 #include "WQt4Gui.h"
 #include "WMainWindow.h"
 
 #include "WSettingAction.h"
 
 #include "guiElements/WQtDockWidget.h"
+#include "controlPanel/WQtPropertyGroupWidget.h"
 
 #include "WQtGLDockWidget.h"
 #include "WQtGLDockWidget.moc"
@@ -73,6 +76,44 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     // all view docks have a screen capture object
     m_screenCapture = new WQtGLScreenCapture( this );
 
+    // get the viewer background effect
+    WGEViewerEffect::SPtr bkEffect = m_glWidget->getViewer()->getBackground();
+    WGEViewerEffect::SPtr vignetteEffect = m_glWidget->getViewer()->getVignette();
+    WGEViewerEffect::SPtr overlayEffect = m_glWidget->getViewer()->getImageOverlay();
+
+    // create property widgets for each effect
+    QWidget* bkWidget = WQtPropertyGroupWidget::createPropertyGroupBox( bkEffect->getProperties() );
+    QWidget* vignetteWidget = WQtPropertyGroupWidget::createPropertyGroupBox( vignetteEffect->getProperties() );
+    QWidget* overlayWidget = WQtPropertyGroupWidget::createPropertyGroupBox( overlayEffect->getProperties() );
+
+    // create container for all the config widgets
+    QWidget* viewConfigWidget = new QWidget();
+    QVBoxLayout* viewConfigLayout = new QVBoxLayout();
+    viewConfigLayout->setAlignment( Qt::AlignTop );
+    viewConfigWidget->setLayout( viewConfigLayout );
+
+    // force the widget to shrink when the content shrinks.
+    QSizePolicy sizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
+    sizePolicy.setHorizontalStretch( 0 );
+    sizePolicy.setVerticalStretch( 0 );
+    viewConfigWidget->setSizePolicy( sizePolicy );
+
+    // add the property widgets to container
+    viewConfigLayout->addWidget( bkWidget );
+    viewConfigLayout->addWidget( vignetteWidget );
+    viewConfigLayout->addWidget( overlayWidget );
+
+    // Create the toolbutton and the menu containing the config widgets
+    QWidgetAction* viewerConfigWidgetAction = new QWidgetAction( this );
+    viewerConfigWidgetAction->setDefaultWidget( viewConfigWidget );
+    QMenu* viewerConfigMenu = new QMenu();
+    viewerConfigMenu->addAction( viewerConfigWidgetAction );
+    QToolButton* viewerConfigBtn = new QToolButton( parent );
+    viewerConfigBtn->setPopupMode( QToolButton::InstantPopup );
+    viewerConfigBtn->setIcon(  WQt4Gui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
+    viewerConfigBtn->setToolTip( "Configure View" );
+    viewerConfigBtn->setMenu( viewerConfigMenu );
+
     // screen capture trigger
     QWidgetAction* screenCaptureWidgetAction = new QWidgetAction( this );
     screenCaptureWidgetAction->setDefaultWidget( m_screenCapture );
@@ -105,6 +146,7 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     // add them to the title
     addTitleButton( screenShotBtn );
     addTitleButton( presetBtn );
+    addTitleButton( viewerConfigBtn );
     addTitleButton( settingsBtn );
 }
 
