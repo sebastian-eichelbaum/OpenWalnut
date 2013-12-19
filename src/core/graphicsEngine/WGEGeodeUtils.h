@@ -202,10 +202,12 @@ namespace wge
      * \param base the origin position. NOT the center.
      * \param a the first vector spanning the plane
      * \param b the second vector spanning the plane
+     * \param color the color to use.
      *
      * \return the geode
      */
-    osg::ref_ptr< osg::Geode > genFinitePlane( osg::Vec3 const& base, osg::Vec3 const& a, osg::Vec3 const& b );
+    osg::ref_ptr< osg::Geode > genFinitePlane( osg::Vec3 const& base, osg::Vec3 const& a, osg::Vec3 const& b,
+                                               const WColor& color = defaultColor::WHITE );
 } // end of namespace wge
 
 #endif  // WGEGEODEUTILS_H
