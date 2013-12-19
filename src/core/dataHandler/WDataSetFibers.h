@@ -93,6 +93,17 @@ public:
     typedef boost::shared_ptr< std::vector< double > > VertexParemeterArray;
 
     /**
+     * Iterator to go through the fibers.
+     */
+    typedef WFiberIterator iterator;
+
+    /**
+     * Const iterator to go through fibers. As the WFiberIterators does not allow any modifications per-se, the const iterator and the standard
+     * iterator are the same.
+     */
+    typedef WFiberIterator const_iterator;
+
+    /**
      * Item used in the selection below also containing color info.
      */
     class ColorScheme: public WItemSelectionItem
@@ -407,14 +418,14 @@ public:
      *
      * \return An iterator to the first fiber.
      */
-    WFiberIterator begin() const;
+    const_iterator begin() const;
 
     /**
      * Returns an iterator pointing beyond the last fiber. The iterator does not allow any modification of the data.
      *
      * \return An iterator pointing beyond the last fiber.
      */
-    WFiberIterator end() const;
+    const_iterator end() const;
 
 protected:
     /**
