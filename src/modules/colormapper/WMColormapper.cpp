@@ -102,7 +102,8 @@ void WMColormapper::properties()
     WPropGroup colorBarLabelsGroup = colorBarGroup->addPropertyGroup( "Labels", "The colorbar label properties." );
 
     m_colorBarBorder = colorBarBorderGroup->addProperty( "Show Border", "If true, a thin white border is shown around the colorbar.", true );
-    m_colorBarBorderColor = colorBarBorderGroup->addProperty( "Border Color", "Color of the border around the colorbar.", WColor( 1.0, 1.0, 1.0, 1.0 ) );
+    m_colorBarBorderColor = colorBarBorderGroup->addProperty( "Border Color", "Color of the border around the colorbar.",
+                                                               WColor( 1.0, 1.0, 1.0, 1.0 ) );
 
     m_colorBarName = colorBarNameLabelGroup->addProperty( "Show Name", "If true, a shortened version of the data name is shown.", true );
     m_colorBarNameSize = colorBarNameLabelGroup->addProperty( "Text Size", "This defines the size of a character in normalized screen coordinates."
