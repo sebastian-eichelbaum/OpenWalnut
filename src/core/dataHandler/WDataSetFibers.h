@@ -601,6 +601,27 @@ public:
      */
     std::size_t numPoints() const;
 
+    /**
+     * Get the index in the point array where the points data starts for this line. You can use \ref numPoints to know how much data to read
+     * from the vertex array.
+     *
+     * \note You should avoid using these indices as can use the iterators to query the data. But it might get handy in some situations,
+     * where raw data processing is needed.
+     *
+     * \return the start index.
+     */
+    std::size_t getLineStartIndex() const;
+
+    /**
+     * Get the index of the line.
+     *
+     * \note You should avoid using these indices as can use the iterators to query the data. But it might get handy in some situations,
+     * where raw data processing is needed.
+     *
+     * \return the index.
+     */
+    std::size_t getIndex() const;
+
 private:
     //! The pointer to the fibers.
     WDataSetFibers const* m_fibers;
@@ -664,7 +685,7 @@ public:
 
     /**
      * Decrement operator. Makes the iterator point to the previous point.
-     *
+     *3
      * \return The incremented iterator.
      */
     WFiberPointsIterator& operator-- ();
@@ -706,7 +727,75 @@ public:
      *
      * \return The current coordinates.
      */
-    osg::Vec3 operator* ();
+    WPosition operator* ();
+
+    /**
+     * Returns the parameter specified in the vertex parameter array of the dataset. If no such array was set, the specified default will be
+     * returned.
+     *
+     * \param def the default value which will be returned if no vertex parameter array was defined.
+     *
+     * \return the value or the specified default
+     */
+    double getParameter( double def = 0.0 ) const;
+
+    /**
+     * The tangent of the point.
+     *
+     * \return the tangent
+     */
+    WPosition getTangent() const;
+
+    /**
+     * Return the color of the point.
+     *
+     * \return the color.
+     */
+    WColor getColor() const;
+
+    /**
+     * Return the color of the point.
+     *
+     * \param idx the index of the colorscheme to use.
+     *
+     * \throw WDHNoSuchDataSet if the colorscheme does not exist.
+     *
+     * \return the color.
+     */
+    WColor getColor( std::size_t idx ) const;
+
+    /**
+     * Return the color of the point.
+     *
+     * \param name the name of the colorscheme to use.
+     *
+     * \throw WDHNoSuchDataSet if the colorscheme does not exist.
+     *
+     * \return the color.
+     */
+    WColor getColor( std::string name ) const;
+
+    /**
+     * Return the color of the point.
+     *
+     * \param scheme the colorscheme to use.
+     *
+     * \throw WDHNoSuchDataSet if the colorscheme does not exist.
+     *
+     * \return the color.
+     */
+    WColor getColor( const boost::shared_ptr< WDataSetFibers::ColorScheme > scheme ) const;
+
+protected:
+    /**
+     * Calculates the index of this point in the dataset arrays. But be aware that this index works vertex-wise. This mens, getting the y
+     * coordinate of the vertex in the dataset vertex array, use  3 * getBaseIndex() + 1. This depends on the type of array you like to query.
+     *
+     * \note this function properly handles the case when walking in reverse direction.
+     *
+     * \return the base index, vertex-wise.
+     */
+    std::size_t getBaseIndex() const;
 
 private:
     //! The pointer to the fibers.

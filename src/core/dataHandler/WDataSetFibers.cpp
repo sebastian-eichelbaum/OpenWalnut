@@ -494,6 +494,16 @@ WFiberPointsIterator WFiberIterator::rend()
     return WFiberPointsIterator( m_fibers, m_index, numPoints(), true );
 }
 
+std::size_t WFiberIterator::getLineStartIndex() const
+{
+    return m_fibers->getLineStartIndexes()->operator[]( getIndex() );
+}
+
+std::size_t WFiberIterator::getIndex() const
+{
+    return m_index;
+}
+
 WFiberPointsIterator::WFiberPointsIterator()
     : m_fibers( NULL ),
       m_fiberIndex( 0 ),
@@ -563,7 +573,7 @@ WFiberPointsIterator WFiberPointsIterator::operator--( int )
     return t;
 }
 
-osg::Vec3 WFiberPointsIterator::operator*()
+std::size_t WFiberPointsIterator::getBaseIndex() const
 {
     WAssert( m_fibers, "" );
     WAssert( m_fiberIndex < m_fibers->getLineLengths()->size(), "" );
@@ -574,8 +584,13 @@ osg::Vec3 WFiberPointsIterator::operator*()
     {
         i = m_fibers->getLineLengths()->operator[] ( m_fiberIndex ) - i - 1;
     }
-    std::size_t v = m_fibers->getLineStartIndexes()->operator[] ( m_fiberIndex ) + i;
-    return osg::Vec3( m_fibers->getVertices()->operator[]( 3 * v + 0 ),
+    return m_fibers->getLineStartIndexes()->operator[] ( m_fiberIndex ) + i;
+}
+
+WPosition WFiberPointsIterator::operator*()
+{
+    std::size_t v = getBaseIndex();
+    return WPosition( m_fibers->getVertices()->operator[]( 3 * v + 0 ),
                       m_fibers->getVertices()->operator[]( 3 * v + 1 ),
                       m_fibers->getVertices()->operator[]( 3 * v + 2 ) );
 }
@@ -593,5 +608,74 @@ bool WFiberPointsIterator::operator==( WFiberPointsIterator const& rhs ) const
 bool WFiberPointsIterator::operator!=( WFiberPointsIterator const& rhs ) const
 {
     return !( this->operator==( rhs ) );
+}
+
+double WFiberPointsIterator::getParameter( double def ) const
+{
+    if( m_fibers->getVertexParameters() )
+    {
+        return m_fibers->getVertexParameters()->operator[]( getBaseIndex() );
+    }
+    return def;
+}
+
+WPosition WFiberPointsIterator::getTangent() const
+{
+    std::size_t v = getBaseIndex();
+    return WPosition( m_fibers->getTangents()->operator[]( 3 * v + 0 ),
+                      m_fibers->getTangents()->operator[]( 3 * v + 1 ),
+                      m_fibers->getTangents()->operator[]( 3 * v + 2 ) );
+}
+
+
+WColor WFiberPointsIterator::getColor( const boost::shared_ptr< WDataSetFibers::ColorScheme > scheme ) const
+{
+    std::size_t v = getBaseIndex();
+    WColor ret;
+    switch( scheme->getMode() )
+    {
+        case WDataSetFibers::ColorScheme::GRAY:
+            {
+                double r = scheme->getColor()->operator[]( 1 * v + 0 );
+                ret.set( r, r, r, 1.0 );
+            }
+            break;
+        case WDataSetFibers::ColorScheme::RGB:
+            {
+                double r = scheme->getColor()->operator[]( 3 * v + 0 );
+                double g = scheme->getColor()->operator[]( 3 * v + 1 );
+                double b = scheme->getColor()->operator[]( 3 * v + 2 );
+                ret.set( r, g, b, 1.0 );
+            }
+            break;
+        case WDataSetFibers::ColorScheme::RGBA:
+            {
+                double r = scheme->getColor()->operator[]( 4 * v + 0 );
+                double g = scheme->getColor()->operator[]( 4 * v + 1 );
+                double b = scheme->getColor()->operator[]( 4 * v + 2 );
+                double a = scheme->getColor()->operator[]( 4 * v + 3 );
+                ret.set( r, g, b, a );
+            }
+            break;
+        default:
+            ret.set( 1.0, 1.0, 1.0, 1.0 );
+            break;
+    }
+    return ret;
+}
+
+WColor WFiberPointsIterator::getColor() const
+{
+    return getColor( m_fibers->getColorScheme() );
+}
+
+WColor WFiberPointsIterator::getColor( std::size_t idx ) const
+{
+    return getColor( m_fibers->getColorScheme( idx ) );
+}
+
+WColor WFiberPointsIterator::getColor( std::string name ) const
+{
+    return getColor( m_fibers->getColorScheme( name ) );
 }
 
