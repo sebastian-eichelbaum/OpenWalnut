@@ -382,12 +382,12 @@ WFiber WDataSetFibers::operator[]( size_t numTract ) const
     return result;
 }
 
-WFiberIterator WDataSetFibers::begin()
+WFiberIterator WDataSetFibers::begin() const
 {
     return WFiberIterator( this, 0 );
 }
 
-WFiberIterator WDataSetFibers::end()
+WFiberIterator WDataSetFibers::end() const
 {
     return WFiberIterator( this, m_lineLengths->size() );
 }

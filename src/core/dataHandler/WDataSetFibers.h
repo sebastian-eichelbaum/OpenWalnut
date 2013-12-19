@@ -403,18 +403,18 @@ public:
     WFiber operator[]( size_t numTract ) const;
 
     /**
-     * Returns an iterator to the first fiber of the dataset.
+     * Returns an iterator to the first fiber of the dataset. The iterator does not allow any modification of the data.
      *
      * \return An iterator to the first fiber.
      */
-    WFiberIterator begin();
+    WFiberIterator begin() const;
 
     /**
-     * Returns an iterator pointing beyond the last fiber.
+     * Returns an iterator pointing beyond the last fiber. The iterator does not allow any modification of the data.
      *
      * \return An iterator pointing beyond the last fiber.
      */
-    WFiberIterator end();
+    WFiberIterator end() const;
 
 protected:
     /**
