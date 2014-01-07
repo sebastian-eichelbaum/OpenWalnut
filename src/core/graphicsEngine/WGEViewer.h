@@ -195,6 +195,13 @@ public:
     void setBgColor( const WColor& bgColor );
 
     /**
+     * Returns the current default background color. This color is only visible if no camera effect overrides it.
+     *
+     * \return The color.
+     */
+    WColor getBgColor() const;
+
+    /**
      * Getter for the pick handler
      *
      * \return the pick handler
@@ -285,6 +292,13 @@ public:
      * \return the effect
      */
     WGEViewerEffectVignette::ConstSPtr getVignette() const;
+
+    /**
+     * Return a pointer to the properties object of the view.
+     *
+     * \return the properties.
+     */
+    WProperties::SPtr getProperties() const;
 
 protected:
     /**
@@ -401,7 +415,31 @@ protected:
      * Image overlay effect.
      */
     WGEViewerEffectImageOverlay::SPtr m_effectImageOverlay;
+
+    /**
+     * The property object for the view.
+     */
+    WProperties::SPtr m_properties;
 private:
+    /**
+     * The default clear color (bg color).
+     */
+    WPropColor m_bgColor;
+
+    /**
+     * The switch to enable the throw- functionality of some OSG manipulators.
+     */
+    WPropBool m_throwing;
+
+    /**
+     * Update the default clear color (bg color). Called by the m_bgColor property.
+     */
+    void updateBgColor();
+
+    /**
+     * Update throw setting of the manipulator (if supported).
+     */
+    void updateThrowing();
 };
 
 #endif  // WGEVIEWER_H

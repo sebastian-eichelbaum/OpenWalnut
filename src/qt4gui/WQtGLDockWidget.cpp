@@ -76,15 +76,8 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     // all view docks have a screen capture object
     m_screenCapture = new WQtGLScreenCapture( this );
 
-    // get the viewer background effect
-    WGEViewerEffect::SPtr bkEffect = m_glWidget->getViewer()->getBackground();
-    WGEViewerEffect::SPtr vignetteEffect = m_glWidget->getViewer()->getVignette();
-    WGEViewerEffect::SPtr overlayEffect = m_glWidget->getViewer()->getImageOverlay();
-
     // create property widgets for each effect
-    QWidget* bkWidget = WQtPropertyGroupWidget::createPropertyGroupBox( bkEffect->getProperties() );
-    QWidget* vignetteWidget = WQtPropertyGroupWidget::createPropertyGroupBox( vignetteEffect->getProperties() );
-    QWidget* overlayWidget = WQtPropertyGroupWidget::createPropertyGroupBox( overlayEffect->getProperties() );
+    QWidget* viewPropsWidget = WQtPropertyGroupWidget::createPropertyGroupBox( m_glWidget->getViewer()->getProperties() );
 
     // create container for all the config widgets
     QWidget* viewConfigWidget = new QWidget();
@@ -99,9 +92,7 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     viewConfigWidget->setSizePolicy( sizePolicy );
 
     // add the property widgets to container
-    viewConfigLayout->addWidget( bkWidget );
-    viewConfigLayout->addWidget( vignetteWidget );
-    viewConfigLayout->addWidget( overlayWidget );
+    viewConfigLayout->addWidget( viewPropsWidget );
 
     // Create the toolbutton and the menu containing the config widgets
     QWidgetAction* viewerConfigWidgetAction = new QWidgetAction( this );
@@ -130,24 +121,10 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     presetBtn->setMenu(  getGLWidget()->getCameraPresetsMenu() );
     presetBtn->setPopupMode( QToolButton::MenuButtonPopup );
 
-    QToolButton* settingsBtn = new QToolButton( parent );
-    settingsBtn->setPopupMode( QToolButton::InstantPopup );
-    settingsBtn->setIcon(  WQt4Gui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
-    settingsBtn->setToolTip( "Settings" );
-    QMenu* settingsMenu = new QMenu( parent );
-    settingsBtn->setMenu( settingsMenu );
-
-    // throwing
-    settingsMenu->addAction( getGLWidget()->getThrowingSetting() );
-
-    // change background color
-    settingsMenu->addAction( getGLWidget()->getBackgroundColorAction() );
-
     // add them to the title
     addTitleButton( screenShotBtn );
     addTitleButton( presetBtn );
     addTitleButton( viewerConfigBtn );
-    addTitleButton( settingsBtn );
 }
 
 WQtGLDockWidget::~WQtGLDockWidget()

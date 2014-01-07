@@ -104,21 +104,6 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
 
     m_Viewer->isFrameRendered()->getCondition()->subscribeSignal( boost::bind( &WQtGLWidget::notifyFirstRenderedFrame, this ) );
 
-    // set bg color
-    updateViewerBackground();
-    // this action manages the above settings
-    m_changeBGColorAction = new QAction( WQt4Gui::getIconManager()->getIcon( "colorwheel" ), "Change Background Color", parent );
-    connect( m_changeBGColorAction, SIGNAL( triggered( bool ) ), this, SLOT( changeBGColor() ) );
-
-    // enable throwing of wanted
-    m_allowThrowSetting = new WSettingAction( parent, std::string( "qt4gui/" ) + nameOfViewer + std::string( "/allowThrow" ),
-                                                      "Camera Throwing",
-                                                      "If enabled, the camera can be thrown. Try it by dragging the camera. "
-                                                      "The camera then continues the movement.",
-                                                      false );
-    connect( m_allowThrowSetting, SIGNAL( change( bool ) ), this, SLOT( updateThrowing() ) );
-    updateThrowing();
-
     m_cameraResetAction = new QAction( WQt4Gui::getIconManager()->getIcon( "view" ), "Reset", this );
     connect( m_cameraResetAction, SIGNAL(  triggered( bool ) ), this, SLOT( reset() ) );
     m_cameraResetAction->setToolTip( "Reset view" );
@@ -406,42 +391,6 @@ const QGLFormat WQtGLWidget::getDefaultFormat()
     QGLFormat format;
     format.setSwapInterval( 1 );    // according to Qt Doc, this should enable VSync. But it doesn't.
     return format;
-}
-
-void WQtGLWidget::updateThrowing()
-{
-    WGEZoomTrackballManipulator* manipulator = dynamic_cast< WGEZoomTrackballManipulator* >( m_Viewer->getCameraManipulator().get() );
-    if( manipulator )
-    {
-        manipulator->setThrow( m_allowThrowSetting->get() );
-    }
-}
-
-WSettingAction* WQtGLWidget::getThrowingSetting() const
-{
-    return m_allowThrowSetting;
-}
-
-QAction* WQtGLWidget::getBackgroundColorAction() const
-{
-    return m_changeBGColorAction;
-}
-
-void WQtGLWidget::updateViewerBackground()
-{
-    QColor bg = WMainWindow::getSettings().value( QString( "qt4gui/" ) + QString::fromStdString( m_nameOfViewer ) + QString( "/BGColor" ),
-                                                  QColor( 255, 255, 255, 255 ) ).value< QColor >();
-    m_Viewer->setBgColor( WColor( bg.redF(), bg.greenF(), bg.blueF(), 1.0 ) );
-}
-
-void WQtGLWidget::changeBGColor()
-{
-    QColor bgOld = WMainWindow::getSettings().value( QString( "qt4gui/" ) + QString::fromStdString( m_nameOfViewer ) + QString( "/BGColor" ),
-                                                  QColor( 255, 255, 255, 255 ) ).value< QColor >();
-    QColor bg = QColorDialog::getColor( bgOld, this );
-    WMainWindow::getSettings().setValue( QString( "qt4gui/" ) + QString::fromStdString( m_nameOfViewer ) + QString( "/BGColor" ), bg );
-
-    updateViewerBackground();
 }
 
 void WQtGLWidget::notifyFirstRenderedFrame()

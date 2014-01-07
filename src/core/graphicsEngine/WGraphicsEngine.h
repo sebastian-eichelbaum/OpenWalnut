@@ -83,7 +83,7 @@ public:
      */
     boost::shared_ptr< WGEViewer > createViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int x, int y,
                                                int width, int height, WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC,
-                                               WColor bgColor = WColor( 0.9, 0.9, 0.9, 1.0 ) );
+                                               WColor bgColor = WColor( 1.0, 1.0, 1.0, 1.0 ) );
 
     /**
      * Closes a viewer and deletes it from the list of viewers.
