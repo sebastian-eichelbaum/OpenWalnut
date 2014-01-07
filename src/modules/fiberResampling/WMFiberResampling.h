@@ -27,10 +27,12 @@
 
 #include <string>
 
-#include "core/dataHandler/WDataSetScalar.h"
-#include "core/kernel/WModule.h"
-#include "core/kernel/WModuleInputData.h"
-#include "core/kernel/WModuleOutputData.h"
+#include <core/dataHandler/WDataSetFibers.h>
+#include <core/kernel/WModule.h>
+#include <core/kernel/WModuleInputData.h>
+#include <core/kernel/WModuleOutputData.h>
+
+#include "WResampling_I.h"
 
 /**
  * This modules takes a fiber dataset and samples it in regular steps. This is useful when importing fiber datasets from other tools sampled at
@@ -71,12 +73,6 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
-    /**
-     * Get the icon for this module in XPM format.
-     * \return the icon.
-     */
-    virtual const char** getXPMIcon() const;
-
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -93,30 +89,21 @@ protected:
      */
     virtual void properties();
 
-    /**
-     * Resamples all tracts with a resampler instance for example the WSimpleResampler.
-     *
-     * \param dataSet Which dataset should be resampled
-     *
-     * \return The resampled dataset.
-     */
-    boost::shared_ptr< WDataSetFibers > resample( boost::shared_ptr< const WDataSetFibers > dataSet ) const;
-
 private:
     /**
      * The fiber dataset which is going to be filtered.
      */
-    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fiberInput;
+    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fiberIC;
 
     /**
      * The output connector used to provide the calculated data to other modules.
      */
-    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_fiberOutput;
+    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_fiberOC;
 
     /**
-     * Number of new sample points all tracts are resampled to.
+     * Strategies for coloring fibers.
      */
-    WPropInt m_newSamples;
+    WStrategyHelper< WObjectNDIP< WResampling_I > > m_strategy;
 };
 
 #endif  // WMFIBERRESAMPLING_H

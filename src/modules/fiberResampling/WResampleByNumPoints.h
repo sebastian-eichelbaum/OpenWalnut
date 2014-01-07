@@ -22,17 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
-#include <vector>
+#ifndef WRESAMPLEBYNUMPOINTS_H
+#define WRESAMPLEBYNUMPOINTS_H
 
-#include "core/common/WAssert.h"
-#include "core/common/datastructures/WFiber.h"
+#include <core/common/datastructures/WFiber.h>
+#include <core/common/WObjectNDIP.h>
 
-#include "WSimpleResampler.h"
+#include "WResampling_I.h"
 
-WFiber WSimpleResampler::resample( const WFiber& tract, size_t pts ) const
+/**
+ * Resamples fibers to have a given number of points afterwards.
+ */
+class WResampleByNumPoints : public WObjectNDIP< WResampling_I >
 {
-    WFiber result( tract );
-    result.resampleByNumberOfPoints( pts );
-    return result;
-}
+public:
+    /**
+     * Constructor.
+     */
+    WResampleByNumPoints();
+
+    /**
+     * The given fiber is resampled so it contains the number of points given by m_numPoints and a copy is returned.
+     *
+     * \param fib Fiber to resample.
+     *
+     * \return Copy of the resampled fiber.
+     */
+    virtual WFiber resample( WFiber fib ) const;
+
+protected:
+    /**
+     * Number of new sample points all tracts are resampled to.
+     */
+    WPropInt m_numPoints;
+private:
+};
+
+#endif  // WRESAMPLEBYNUMPOINTS_H

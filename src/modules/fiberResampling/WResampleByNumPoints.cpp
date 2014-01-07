@@ -22,34 +22,24 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WSIMPLERESAMPLER_H
-#define WSIMPLERESAMPLER_H
-
 #include <vector>
+#include <cmath>
 
-#include <boost/shared_ptr.hpp>
+#include <osg/Vec3>
 
-#include "core/common/datastructures/WFiber.h"
+#include <core/common/math/WMath.h>
 
-/**
- * Algorithm to resample a single tract into almost equidistant segments.
- */
-class WSimpleResampler
+#include "WResampleByNumPoints.h"
+
+WResampleByNumPoints::WResampleByNumPoints()
+    : WObjectNDIP< WResampling_I >( "#Points Resampling", "Each fiber has a an ensured number of points after resampling" )
 {
-friend class WSimpleResamplerTest;
-public:
-    /**
-     * Resamples a tract.
-     *
-     * \param tract The tract to resample
-     * \param pts The number of points the new tract should have
-     *
-     * \return The resampled tract
-     */
-    WFiber resample( const WFiber& tract, size_t pts ) const;
+    m_numPoints = m_properties->addProperty( "#Points", "Number of points each fiber should have afterwards", 20 );
+    m_numPoints->setMin( 2 );
+}
 
-protected:
-private:
-};
-
-#endif  // WSIMPLERESAMPLER_H
+WFiber WResampleByNumPoints::resample( WFiber fib ) const
+{
+    fib.resampleByNumberOfPoints( m_numPoints->get( true ) );
+    return fib;
+}
