@@ -125,20 +125,6 @@ public:
     static const QGLFormat getDefaultFormat();
 
     /**
-     * Returns the setting for throwing.
-     *
-     * \return the setting
-     */
-    WSettingAction* getThrowingSetting() const;
-
-    /**
-     * Returns the action used to configure the background color of this widget.
-     *
-     * \return the action.
-     */
-    QAction* getBackgroundColorAction() const;
-
-    /**
      * The presets menu.
      *
      * \return the menu
@@ -336,16 +322,6 @@ private:
     bool m_firstPaint;
 
     /**
-     * The setting specifying whether the viewer's camera can be thrown.
-     */
-    WSettingAction* m_allowThrowSetting;
-
-    /**
-     * Action to trigger some colordialog for background-color-selection.
-     */
-    QAction* m_changeBGColorAction;
-
-    /**
      * Called by the WGEViewer to notify about the first frame rendered
      */
     void notifyFirstRenderedFrame();
@@ -364,22 +340,6 @@ private:
      * Camera reset.
      */
     QAction* m_cameraResetAction;
-
-private slots:
-    /**
-     * Function to handle updates in the setting \ref m_allowThrowSetting.
-     */
-    void updateThrowing();
-
-    /**
-     * Asks user for a new color for this widget.
-     */
-    void changeBGColor();
-
-    /**
-     * Updates the color of this widget according to the current settings.
-     */
-    void updateViewerBackground();
 };
 
 #endif  // WQTGLWIDGET_H

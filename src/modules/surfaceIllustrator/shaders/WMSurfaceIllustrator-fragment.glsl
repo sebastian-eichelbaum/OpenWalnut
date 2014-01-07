@@ -69,27 +69,27 @@ void main()
     float dotNorm = dot( vec3( 0.0, 0.0, 1.0 ), normal );
     dotNorm *= sign( dotNorm );
 
-    if( u_renderingType == 0 )
+    if( u_renderingType == 1 )
     {
         // Slab
         if( verpos.x > u_parameterCenter + widthHalf || verpos.x < u_parameterCenter - widthHalf ) discard;
     }
-    else if( u_renderingType == 1 )
+    else if( u_renderingType == 2 )
     {
         // Streamribbon
         if( param.s > u_parameterCenter + widthHalf || param.s < u_parameterCenter - widthHalf ) discard;
     }
-    else if( u_renderingType == 2 )
+    else if( u_renderingType == 3 )
     {
         // Timeribbon
         if( param.t > u_parameterCenter + widthHalf || param.t < u_parameterCenter - widthHalf) discard;
     }
-    else if( u_renderingType == 3 )
+    else if( u_renderingType == 4 )
     {
         // View-dependent transparency
         col.a = 1 - dotNorm * dotNorm;
     }
-    else if( u_renderingType == 4 )
+    else if( u_renderingType == 5 )
     {
         // Unnatural opposite effect
         col.a = dotNorm* dotNorm;

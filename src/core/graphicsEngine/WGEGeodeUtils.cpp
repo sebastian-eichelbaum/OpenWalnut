@@ -486,7 +486,7 @@ osg::ref_ptr< osg::Geode > wge::genFinitePlane( double xSize, double ySize, cons
     return geode;
 }
 
-osg::ref_ptr< osg::Geode > wge::genFinitePlane( osg::Vec3 const& base, osg::Vec3 const& a, osg::Vec3 const& b )
+osg::ref_ptr< osg::Geode > wge::genFinitePlane( osg::Vec3 const& base, osg::Vec3 const& a, osg::Vec3 const& b, const WColor& color )
 {
     // the stuff needed by the OSG to create a geometry instance
     osg::ref_ptr< osg::Vec3Array > vertices = new osg::Vec3Array;
@@ -509,7 +509,7 @@ osg::ref_ptr< osg::Geode > wge::genFinitePlane( osg::Vec3 const& base, osg::Vec3
     bNorm.normalize();
 
     normals->push_back( aCrossB );
-    colors->push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
+    colors->push_back( color );
     texcoords0->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
     texcoords0->push_back( aNorm );
     texcoords0->push_back( aNorm + bNorm );

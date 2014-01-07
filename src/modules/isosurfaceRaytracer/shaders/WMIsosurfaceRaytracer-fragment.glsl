@@ -219,7 +219,7 @@ void main()
 #ifdef PHONGSHADING_ENABLED
             // only calculate the phong illumination only if needed
             wge_LightIntensityParameter lightParams = wge_DefaultLightIntensity;
-    #ifdef PHONGSHADING_NOSECULAR_ENABLED
+    #ifdef PHONGSHADING_NOSPECULAR_ENABLED
             lightParams.materialSpecular = 0.0;
     #endif
             light = blinnPhongIlluminationIntensity( lightParams, normalize( normal ) );

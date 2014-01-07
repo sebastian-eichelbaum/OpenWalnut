@@ -23,6 +23,10 @@
 //---------------------------------------------------------------------------
 
 #include <iostream>
+#include <string>
+
+#include <boost/function.hpp>
+#include <boost/lambda/lambda.hpp>
 
 #include <QtGui/QAction>
 #include <QtGui/QWidgetAction>
@@ -32,12 +36,15 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QToolBar>
 
+#include "core/graphicsEngine/WGEViewerEffect.h"
+
 #include "WQt4Gui.h"
 #include "WMainWindow.h"
 
 #include "WSettingAction.h"
 
 #include "guiElements/WQtDockWidget.h"
+#include "controlPanel/WQtPropertyGroupWidget.h"
 
 #include "WQtGLDockWidget.h"
 #include "WQtGLDockWidget.moc"
@@ -73,6 +80,35 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     // all view docks have a screen capture object
     m_screenCapture = new WQtGLScreenCapture( this );
 
+    // create property widgets for each effect
+    QWidget* viewPropsWidget = WQtPropertyGroupWidget::createPropertyGroupBox( m_glWidget->getViewer()->getProperties() );
+
+    // create container for all the config widgets
+    QWidget* viewConfigWidget = new QWidget();
+    QVBoxLayout* viewConfigLayout = new QVBoxLayout();
+    viewConfigLayout->setAlignment( Qt::AlignTop );
+    viewConfigWidget->setLayout( viewConfigLayout );
+
+    // force the widget to shrink when the content shrinks.
+    QSizePolicy sizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
+    sizePolicy.setHorizontalStretch( 0 );
+    sizePolicy.setVerticalStretch( 0 );
+    viewConfigWidget->setSizePolicy( sizePolicy );
+
+    // add the property widgets to container
+    viewConfigLayout->addWidget( viewPropsWidget );
+
+    // Create the toolbutton and the menu containing the config widgets
+    QWidgetAction* viewerConfigWidgetAction = new QWidgetAction( this );
+    viewerConfigWidgetAction->setDefaultWidget( viewConfigWidget );
+    QMenu* viewerConfigMenu = new QMenu();
+    viewerConfigMenu->addAction( viewerConfigWidgetAction );
+    QToolButton* viewerConfigBtn = new QToolButton( parent );
+    viewerConfigBtn->setPopupMode( QToolButton::InstantPopup );
+    viewerConfigBtn->setIcon(  WQt4Gui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
+    viewerConfigBtn->setToolTip( "Configure View" );
+    viewerConfigBtn->setMenu( viewerConfigMenu );
+
     // screen capture trigger
     QWidgetAction* screenCaptureWidgetAction = new QWidgetAction( this );
     screenCaptureWidgetAction->setDefaultWidget( m_screenCapture );
@@ -89,23 +125,10 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     presetBtn->setMenu(  getGLWidget()->getCameraPresetsMenu() );
     presetBtn->setPopupMode( QToolButton::MenuButtonPopup );
 
-    QToolButton* settingsBtn = new QToolButton( parent );
-    settingsBtn->setPopupMode( QToolButton::InstantPopup );
-    settingsBtn->setIcon(  WQt4Gui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
-    settingsBtn->setToolTip( "Settings" );
-    QMenu* settingsMenu = new QMenu( parent );
-    settingsBtn->setMenu( settingsMenu );
-
-    // throwing
-    settingsMenu->addAction( getGLWidget()->getThrowingSetting() );
-
-    // change background color
-    settingsMenu->addAction( getGLWidget()->getBackgroundColorAction() );
-
     // add them to the title
     addTitleButton( screenShotBtn );
     addTitleButton( presetBtn );
-    addTitleButton( settingsBtn );
+    addTitleButton( viewerConfigBtn );
 }
 
 WQtGLDockWidget::~WQtGLDockWidget()
@@ -117,12 +140,42 @@ void WQtGLDockWidget::saveSettings()
 {
     m_screenCapture->saveSettings();
     WQtDockWidget::saveSettings();
+
+    // visit the properties and save in QSettings. You cannot bind QSettings::setValue directly as the parameters need to be cast to QString and
+    // QVariant, which does not happen implicitly
+    m_glWidget->getViewer()->getProperties()->visitAsString( &WMainWindow::setSetting, m_dockTitle.toStdString() );
 }
 
 void WQtGLDockWidget::restoreSettings()
 {
     m_screenCapture->restoreSettings();
     WQtDockWidget::restoreSettings();
+
+    // do not forget to load the config properties of the viewer
+    WMainWindow::getSettings().beginGroup( m_dockTitle );
+    QStringList keys = WMainWindow::getSettings().allKeys();
+    // iterate all the keys in the group of this viewer. QSettings does not implement a visitor mechanism, thus we iterate manually.
+    for( QStringList::const_iterator it = keys.constBegin(); it != keys.constEnd(); ++it )
+    {
+        std::string value = WMainWindow::getSettings().value( *it ).toString().toStdString();
+        std::string key = ( *it ).toStdString();
+
+        // NOTE: findProperty does not throw an exception, but setAsString.
+        WPropertyBase::SPtr prop = m_glWidget->getViewer()->getProperties()->findProperty( key );
+        if( prop )
+        {
+            // just in case something is going wrong (faulty setting): cannot cast string to property type. Be kind and ignore it.
+            try
+            {
+                prop->setAsString( value );
+            }
+            catch( ... )
+            {
+                // ignore faulty/old settings
+            }
+        }
+    }
+    WMainWindow::getSettings().endGroup();
 }
 
 boost::shared_ptr<WQtGLWidget>WQtGLDockWidget::getGLWidget() const

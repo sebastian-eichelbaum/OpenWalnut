@@ -240,7 +240,7 @@ inline void WBoundingBoxImpl< VT >::reset()
 template< class VT >
 inline typename WBoundingBoxImpl< VT >::value_type WBoundingBoxImpl< VT >::radiusSquare() const
 {
-    return this->raidus2();
+    return this->radius2();
 }
 
 template< class VT >

@@ -190,6 +190,7 @@ void WMSurfaceIllustrator::properties()
 
     // Allow the user to select different rendering modes
     boost::shared_ptr< WItemSelection > illustrationModes( boost::shared_ptr< WItemSelection >( new WItemSelection() ) );
+    illustrationModes->addItem( "None", "Standard rendering." );
     illustrationModes->addItem( "X-slab", "Slab normal to x-axis." );
     illustrationModes->addItem( "Stream ribbon", "A range of streamlines (if red color represents s-parameter of surface)." );
     illustrationModes->addItem( "Time ribbon", "A range timelines (if green color represents t-parameter of surface)." );

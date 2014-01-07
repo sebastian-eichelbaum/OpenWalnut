@@ -152,6 +152,15 @@ public:
     static QSettings& getSettings();
 
     /**
+     * Set a setting specified by a key to a given value. Abbreviation for the lazy programmer as it ensures proper typecast of std::string to
+     * the QSettings types (QString and QVariant).
+     *
+     * \param key the key
+     * \param value the value
+     */
+    static void setSetting( std::string key, std::string value );
+
+    /**
      * Get the current splash screen
      *
      * \return the splash screen. Might be closed.

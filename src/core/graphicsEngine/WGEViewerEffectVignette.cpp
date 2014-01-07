@@ -33,7 +33,7 @@ WGEViewerEffectVignette::WGEViewerEffectVignette():
     WGEViewerEffect( "Vignette", "Provide a basic vignette effect." )
 {
     // WPropDouble vignetteIntensity = m_properties->addProperty( "", "", 0.5 );
-    WPropDouble vignetteIntensity = m_properties->addProperty( "Strength", "Define dominance of vignette effect.", 0.5 );
+    WPropDouble vignetteIntensity = m_properties->addProperty( "Strength", "Define dominance of vignette effect.", 0.33 );
     vignetteIntensity->setMin( 0.0 );
     vignetteIntensity->setMax( 2.0 );
     m_state->addUniform( new WGEPropertyUniform< WPropDouble >( "u_vignetteIntensity", vignetteIntensity ) );

@@ -112,6 +112,24 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
 
         // add the stats handler
         m_View->addEventHandler( new osgViewer::StatsHandler );
+
+        // Properties of the view. Collects props of the effects and similar
+        m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "The view's properties" ) );
+        m_bgColor = m_properties->addProperty( "Background Color", "Default background color if not overwritten by a camera effect.",
+                                               defaultColor::WHITE,
+                                               boost::bind( &WGEViewer::updateBgColor, this ) );
+        m_throwing = m_properties->addProperty( "Throwing", "If checked, you can grab the scene and throw it. It will keep the rotation impulse.",
+                                                false,
+                                                boost::bind( &WGEViewer::updateThrowing, this ) );
+
+        WPropGroup effects = m_properties->addPropertyGroup( "Camera Effects", "Several effects that to not depend on any scene content." );
+        effects->addProperty( m_effectHorizon->getProperties() );
+        effects->addProperty( m_effectVignette->getProperties() );
+        effects->addProperty( m_effectImageOverlay->getProperties() );
+
+        // apply the above default
+        updateThrowing();
+        updateBgColor();
     }
     catch( ... )
     {
@@ -175,9 +193,28 @@ osg::ref_ptr< WGEGroupNode > WGEViewer::getScene()
     return m_scene;
 }
 
+void WGEViewer::updateThrowing()
+{
+    WGEZoomTrackballManipulator* manipulator = dynamic_cast< WGEZoomTrackballManipulator* >( getCameraManipulator().get() );
+    if( manipulator )
+    {
+        manipulator->setThrow( m_throwing->get() );
+    }
+}
+
+void WGEViewer::updateBgColor()
+{
+    m_View->getCamera()->setClearColor( m_bgColor->get() );
+}
+
 void WGEViewer::setBgColor( const WColor& bgColor )
 {
-    m_View->getCamera()->setClearColor( bgColor );
+    m_bgColor->set( bgColor );
+}
+
+WColor WGEViewer::getBgColor() const
+{
+    return m_bgColor->get();
 }
 
 void WGEViewer::paint()
@@ -330,4 +367,9 @@ WGEViewerEffectImageOverlay::ConstSPtr WGEViewer::getImageOverlay() const
 WGEViewerEffectVignette::ConstSPtr WGEViewer::getVignette() const
 {
     return m_effectVignette;
+}
+
+WProperties::SPtr WGEViewer::getProperties() const
+{
+    return m_properties;
 }

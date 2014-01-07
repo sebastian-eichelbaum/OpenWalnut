@@ -96,23 +96,44 @@ void WMColormapper::properties()
 
     WPropGroup colorBarGroup = m_properties->addPropertyGroup( "Colorbar", "The colorbar with several properties." );
     m_showColorbar = colorBarGroup->addProperty( "Show Colorbar", "If true, a colorbar is shown for the current colormap.", false );
-    m_colorBarBorder = colorBarGroup->addProperty( "Show Border", "If true, a thin white border is shown around the colorbar.", true );
-    m_colorBarName = colorBarGroup->addProperty( "Show Name", "If true, a shortened version of the data name is shown.", true );
 
+    WPropGroup colorBarBorderGroup = colorBarGroup->addPropertyGroup( "Border", "The colorbar border properties." );
+    WPropGroup colorBarNameLabelGroup = colorBarGroup->addPropertyGroup( "Name Label", "The colorbar name label properties." );
+    WPropGroup colorBarLabelsGroup = colorBarGroup->addPropertyGroup( "Labels", "The colorbar label properties." );
+
+    m_colorBarBorder = colorBarBorderGroup->addProperty( "Show Border", "If true, a thin white border is shown around the colorbar.", true );
+    m_colorBarBorderColor = colorBarBorderGroup->addProperty( "Border Color", "Color of the border around the colorbar.",
+                                                               WColor( 1.0, 1.0, 1.0, 1.0 ) );
+
+    m_colorBarName = colorBarNameLabelGroup->addProperty( "Show Name", "If true, a shortened version of the data name is shown.", true );
+    m_colorBarNameSize = colorBarNameLabelGroup->addProperty( "Text Size", "This defines the size of a character in normalized screen coordinates."
+                                                                           "A value of 1 means the char is as large as the view.", 0.015 );
+    m_colorBarNameSize->setMin( 0.0 );
+    m_colorBarNameSize->setMax( 0.25 );
+
+    m_colorBarNameColor = colorBarNameLabelGroup->addProperty( "Name Color", "Color of the name text", WColor( 0.9, 0.9, 0.9, 1.0 ) );
+    m_colorBarNameOutlineColor = colorBarNameLabelGroup->addProperty( "Name Outline Color", "Color of the name outline", defaultColor::BLACK );
 
     m_possibleNamePositions = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_possibleNamePositions->addItem( "Side", "On the side." );
     m_possibleNamePositions->addItem( "Below", "Below the colorbar." );          // NOTE: you can add XPM images here.
     m_possibleNamePositions->addItem( "Above", "Above the colorbar." );
-    m_colorbarNamePosition = colorBarGroup->addProperty( "Colorbar Name Position", "Where to place the name.",
-                                                         m_possibleNamePositions->getSelectorFirst(),
-                                                         m_propCondition );
+    m_colorbarNamePosition = colorBarNameLabelGroup->addProperty( "Colorbar Name Position", "Where to place the name.",
+                                                                  m_possibleNamePositions->getSelectorFirst(),
+                                                                  m_propCondition );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorbarNamePosition );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_colorbarNamePosition );
 
-    m_colorBarLabels = colorBarGroup->addProperty( "Colorbar Labels", "This defines the number of labels.", 10 );
+    m_colorBarLabels = colorBarLabelsGroup->addProperty( "Colorbar Labels", "This defines the number of labels.", 10 );
     m_colorBarLabels->setMin( 2 );
     m_colorBarLabels->setMax( 100 );
+    m_colorBarLabelsSize = colorBarLabelsGroup->addProperty( "Text Size", "This defines the size of a character in normalized screen coordinates."
+                                                                          "A value of 1 means the char is as large as the view.", 0.015 );
+    m_colorBarLabelsSize->setMin( 0.0 );
+    m_colorBarLabelsSize->setMax( 0.25 );
+    m_colorBarLabelsColor = colorBarLabelsGroup->addProperty( "Label Color", "Color of the label text", WColor( 0.9, 0.9, 0.9, 1.0 ) );
+    m_colorBarLabelsOutlineColor = colorBarLabelsGroup->addProperty( "Label Outline Color", "Color of the label outline.", defaultColor::BLACK );
+    m_colorBarLabelsBarColor = colorBarLabelsGroup->addProperty( "Label Bar Color", "Color of the small bar for each label.", defaultColor::WHITE );
 
     WModule::properties();
 }
@@ -218,6 +239,10 @@ void WMColormapper::moduleMain()
                 osg::ref_ptr< osg::Geode > colorBarBorder = wge::genFinitePlane( osg::Vec3( 0.025 - borderWidth, 0.1 - borderWidth, -0.1 ),
                                                                                  osg::Vec3( 0.025 + 2.0 * borderWidth, 0.0, -0.1 ),
                                                                                  osg::Vec3( 0.0, 0.8 + 2.0 * borderWidth, -0.1 ) );
+                colorBarBorder->getDrawable( 0 )->setUpdateCallback( new WGEFunctorCallback< osg::Drawable >(
+                    boost::bind( &WMColormapper::updateColorbarBorder, this, _1 ) )
+                );
+
                 m_colorBar->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropSelection >( "u_colormap",
                                                                dataSet->getTexture()->colormap() ) );
                 colormapShader->apply( m_colorBar );
@@ -350,6 +375,13 @@ void WMColormapper::activate()
     WModule::activate();
 }
 
+void WMColormapper::updateColorbarBorder( osg::Drawable* border )
+{
+    osg::ref_ptr< osg::Vec4Array > colors = new osg::Vec4Array;
+    colors->push_back( m_colorBarBorderColor->get() );
+    dynamic_cast< osg::Geometry* >( border )->setColorArray( colors );
+}
+
 void WMColormapper::updateColorbarName( osg::Drawable* label )
 {
     WGELabel* l = dynamic_cast< WGELabel* >( label );
@@ -359,34 +391,40 @@ void WMColormapper::updateColorbarName( osg::Drawable* label )
         l->setText( format( m_lastDataSet->getTexture()->name()->get() ) );
     }
 
-    if( m_colorbarNamePosition->changed() )
+    if( m_colorbarNamePosition->changed() || m_colorBarNameSize->changed( true ) )
     {
         switch( m_colorbarNamePosition->get( true ) )
         {
             case 0: // side
                 l->setPosition( osg::Vec3( 0.015, 0.9, 0.0 ) );
-                l->setCharacterSize( 0.015 );
+                l->setCharacterSize( m_colorBarNameSize->get() );
                 l->setLayout( osgText::TextBase::VERTICAL );
                 break;
             case 1: // below
                 l->setPosition( osg::Vec3( 0.015, 0.06, 0.0 ) );
-                l->setCharacterSize( 0.020 );
+                l->setCharacterSize( m_colorBarNameSize->get() );
                 l->setLayout( osgText::TextBase::LEFT_TO_RIGHT );
                 break;
             case 2: // above
                 l->setPosition( osg::Vec3( 0.015, 0.93, 0.0 ) );
-                l->setCharacterSize( 0.020 );
+                l->setCharacterSize( m_colorBarNameSize->get() );
                 l->setLayout( osgText::TextBase::LEFT_TO_RIGHT );
                 break;
             default:
                 break;
         }
     }
+    l->setColor( m_colorBarNameColor->get() );
+    l->setBackdropColor( m_colorBarNameOutlineColor->get() );
 }
 
 void WMColormapper::updateColorbarScale( osg::Node* scaleLabels )
 {
     if( m_needScaleUpdate || m_colorBarLabels->changed( true ) ||
+              m_colorBarLabelsColor->changed( true ) ||
+              m_colorBarLabelsOutlineColor->changed( true ) ||
+              m_colorBarLabelsBarColor->changed( true ) ||
+              m_colorBarLabelsSize->changed( true ) ||
             ( m_windowLevelEnabled != m_lastDataSet->getTexture()->windowEnabled()->get() ) ||
             ( m_windowLevel != m_lastDataSet->getTexture()->window()->get() )
       )
@@ -427,8 +465,10 @@ void WMColormapper::updateColorbarScale( osg::Node* scaleLabels )
             osg::ref_ptr< WGELabel > label = new WGELabel();
             label->setPosition( osg::Vec3( labelXPos, 0.1 + i * coordStep, 0.0 ) );  // bar goes from 0.1 to 0.9 in our coordinate system
             label->setText( format( value ) );
-            label->setCharacterSize( 0.015 );
+            label->setCharacterSize( m_colorBarLabelsSize->get() );
             label->setAlignment( osgText::Text::LEFT_CENTER );
+            label->setColor( m_colorBarLabelsColor->get() );
+            label->setBackdropColor( m_colorBarLabelsOutlineColor->get() );
 
             g->addDrawable( label );
 
@@ -440,8 +480,8 @@ void WMColormapper::updateColorbarScale( osg::Node* scaleLabels )
         // create the line drawable
         wosg::Geometry* lines = new wosg::Geometry();
         lines->setVertexArray( lineVerts );
-        osg::Vec3Array* color = new osg::Vec3Array();
-        color->push_back( osg::Vec3( 1.0, 1.0, 1.0 ) );
+        osg::Vec4Array* color = new osg::Vec4Array();
+        color->push_back( m_colorBarLabelsBarColor->get() );
         lines->setColorArray( color );
         lines->setColorBinding( wosg::Geometry::BIND_OVERALL );
         lines->addPrimitiveSet( new osg::DrawArrays( GL_LINES, 0, lineVerts->size() ) );

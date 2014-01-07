@@ -1105,6 +1105,11 @@ QSettings& WMainWindow::getSettings()
     return WQt4Gui::getSettings();
 }
 
+void WMainWindow::setSetting( std::string key, std::string value )
+{
+    WMainWindow::getSettings().setValue( QString::fromStdString( key ), QString::fromStdString( value ) );
+}
+
 void WMainWindow::handleLogLevelUpdate( unsigned int logLevel )
 {
     WLogger::getLogger()->setDefaultLogLevel( static_cast< LogLevel >( logLevel ) );

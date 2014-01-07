@@ -151,6 +151,46 @@ private:
     WPropBool m_colorBarBorder;
 
     /**
+     * Color bar color: border.
+     */
+    WPropColor m_colorBarBorderColor;
+
+    /**
+     * Color bar color: name text.
+     */
+    WPropColor m_colorBarNameColor;
+
+    /**
+     * Color bar color: name outline color.
+     */
+    WPropColor m_colorBarNameOutlineColor;
+
+    /**
+     * Color bar color: labels text.
+     */
+    WPropColor m_colorBarLabelsColor;
+
+    /**
+     * Color bar color: labels outline color.
+     */
+    WPropColor m_colorBarLabelsOutlineColor;
+
+    /**
+     * Color bar color: labels bar color.
+     */
+    WPropColor m_colorBarLabelsBarColor;
+
+    /**
+     * Character size of the labels.
+     */
+    WPropDouble m_colorBarLabelsSize;
+
+    /**
+     * Character size of the name label.
+     */
+    WPropDouble m_colorBarNameSize;
+
+    /**
      * This property holds the name of the texture to use if the texture itself is unnamed.
      */
     WPropString m_defaultName;
@@ -183,6 +223,13 @@ private:
      * \param scaleLabels the geode containing the labels.
      */
     void updateColorbarScale( osg::Node* scaleLabels );
+
+    /**
+     * Callback for updating the border of the colorbar.
+     *
+     * \param border border geometry.
+     */
+    void updateColorbarBorder( osg::Drawable* border );
 
     /**
      * True if window leveling is active
