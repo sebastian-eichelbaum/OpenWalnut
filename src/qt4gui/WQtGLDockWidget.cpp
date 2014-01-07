@@ -23,6 +23,10 @@
 //---------------------------------------------------------------------------
 
 #include <iostream>
+#include <string>
+
+#include <boost/function.hpp>
+#include <boost/lambda/lambda.hpp>
 
 #include <QtGui/QAction>
 #include <QtGui/QWidgetAction>
@@ -136,12 +140,42 @@ void WQtGLDockWidget::saveSettings()
 {
     m_screenCapture->saveSettings();
     WQtDockWidget::saveSettings();
+
+    // visit the properties and save in QSettings. You cannot bind QSettings::setValue directly as the parameters need to be cast to QString and
+    // QVariant, which does not happen implicitly
+    m_glWidget->getViewer()->getProperties()->visitAsString( &WMainWindow::setSetting, m_dockTitle.toStdString() );
 }
 
 void WQtGLDockWidget::restoreSettings()
 {
     m_screenCapture->restoreSettings();
     WQtDockWidget::restoreSettings();
+
+    // do not forget to load the config properties of the viewer
+    WMainWindow::getSettings().beginGroup( m_dockTitle );
+    QStringList keys = WMainWindow::getSettings().allKeys();
+    // iterate all the keys in the group of this viewer. QSettings does not implement a visitor mechanism, thus we iterate manually.
+    for( QStringList::const_iterator it = keys.constBegin(); it != keys.constEnd(); ++it )
+    {
+        std::string value = WMainWindow::getSettings().value( *it ).toString().toStdString();
+        std::string key = ( *it ).toStdString();
+
+        // NOTE: findProperty does not throw an exception, but setAsString.
+        WPropertyBase::SPtr prop = m_glWidget->getViewer()->getProperties()->findProperty( key );
+        if( prop )
+        {
+            // just in case something is going wrong (faulty setting): cannot cast string to property type. Be kind and ignore it.
+            try
+            {
+                prop->setAsString( value );
+            }
+            catch( ... )
+            {
+                // ignore faulty/old settings
+            }
+        }
+    }
+    WMainWindow::getSettings().endGroup();
 }
 
 boost::shared_ptr<WQtGLWidget>WQtGLDockWidget::getGLWidget() const

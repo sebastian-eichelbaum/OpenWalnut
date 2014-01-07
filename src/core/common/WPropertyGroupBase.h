@@ -40,8 +40,6 @@
 #include "WPropertyVariable.h"
 #include "WSharedSequenceContainer.h"
 
-
-
 /**
  * This is the base class and interface for property groups. This class itself is abstract and derived from WPropertyBase. So if you create a
  * group of properties, this ensures that your group is a property itself. This interface defines no way to add, remove or edit the property list
@@ -166,6 +164,23 @@ public:
      * \return the property or NULL if not found.
      */
     virtual boost::shared_ptr< WPropertyBase > findProperty( std::string name ) const;
+
+    /**
+     * The visitor type used to visit properties as strings. The first parameter is the name, including the path of the property, relative to
+     * this group. The second parameter is the value as string.
+     */
+    typedef boost::function< void ( std::string, std::string )> PropertyStringVisitor;
+
+    /**
+     * Visit all leafs in the property three that aren't empty groups. This is especially interesting when using it with lambda functionality.
+     * The visitor function gets two parameters: 1st: the name of the property, including the path beginning at this group; 2nd: the value as
+     * string.
+     *
+     * \param visitor the function to use for each property.
+     * \param pathPrefix add this prefix to the property name in the visitor. It might be interesting if manually implementing group visitors
+     * that always require a complete path, so you can add an upper-level path here.
+     */
+    virtual void visitAsString( PropertyStringVisitor visitor, std::string pathPrefix = "" ) const;
 
 protected:
    /**

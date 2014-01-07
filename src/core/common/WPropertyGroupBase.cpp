@@ -29,6 +29,7 @@
 #include <algorithm>
 
 #include <boost/tokenizer.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 #include "WStringUtils.h"
 #include "WLogger.h"
@@ -137,6 +138,43 @@ boost::shared_ptr< WPropertyBase > WPropertyGroupBase::findProperty( std::string
     }
 
     return result;
+}
+
+void WPropertyGroupBase::visitAsString( WPropertyGroupBase::PropertyStringVisitor visitor, std::string pathPrefix ) const
+{
+    // read access
+    PropertySharedContainerType::ReadTicket r = getReadTicket();
+
+    for( PropertyConstIterator it = r->get().begin(); it != r->get().end(); ++it )
+    {
+        // path: handle some special cases:
+        std::string propName = pathPrefix + WPropertyGroupBase::separator + ( *it )->getName();
+
+        // 1: user added a separator
+        if( boost::algorithm::ends_with( pathPrefix, WPropertyGroupBase::separator ) )
+        {
+            propName = pathPrefix + ( *it )->getName();
+        }
+        // 2: avoid separator if prefix is empty
+        if( pathPrefix.empty() )
+        {
+            propName = ( *it )->getName();
+        }
+
+        // is it a group type?
+        WPropertyGroupBase::SPtr g = ( *it )->toPropGroupBase();
+        if( g )
+        {
+            // recurse down
+            g->visitAsString( visitor, propName );
+        }
+        else
+        {
+            // it is a leaf, call visitor
+            std::string value = ( *it )->getAsString();
+            visitor( propName, value );
+        }
+    }
 }
 
 bool WPropertyGroupBase::existsProperty( std::string name )
