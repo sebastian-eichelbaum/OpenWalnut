@@ -27,7 +27,7 @@
 
 #include <map>
 #include <string>
-#include <vector>
+#include <list>
 
 #include <boost/shared_ptr.hpp>
 
@@ -114,7 +114,7 @@ public:
      * \param level the maximum level for a node to be selected
      * \return the clusters down to a certain level in the hierarchy
      */
-    std::vector< size_t > getClustersDownToLevel( WTreeNode::SPtr node, size_t level );
+    std::list< WTreeNode::SPtr > getClustersDownToLevel( WTreeNode::SPtr node, size_t level );
 
 protected:
     /**

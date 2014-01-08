@@ -30,11 +30,13 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
+#include "../../common/datastructures/WDendrogram.h"
 
 /**
  * A node in a tree, holding an index, a level in the tree and pointers to its child nodes
  */
-class WTreeNode
+class WTreeNode : public boost::enable_shared_from_this<WTreeNode>
 {
 public:
     /**
@@ -48,7 +50,14 @@ public:
      * \param index the index of the new Node.
      * \param level the level of the Node in the Tree
      */
-    WTreeNode( size_t index, size_t level );
+    WTreeNode( size_t index, double level );
+
+    /**
+     * Constructs a tree of WTreeNodes from a WDendrogram with this WTreeNode as root
+     *
+     * \param dendrogram Reference to the dendrogram to construct the tree from
+     */
+    WTreeNode( const WDendrogram &dendrogram );
 
     /**
      * Default destructor.
@@ -74,7 +83,7 @@ public:
      *
      * \return the node's level
      */
-    size_t level();
+    double level();
 
     /**
      * Returns the child nodes of this node
@@ -82,6 +91,13 @@ public:
      * \return the child nodes of this node
      */
     std::vector< WTreeNode::SPtr > getChildren();
+
+    /**
+     * Returns the parent node of this node
+     *
+     * \return the parent node of this node
+     */
+    WTreeNode::SPtr getParent();
 
 private:
     /**
@@ -92,12 +108,17 @@ private:
     /**
      * Stores the level of this node
      */
-    size_t m_level;
+    double m_level;
 
     /**
      * Stores the index of this node
      */
     size_t m_index;
+
+    /**
+     * Stores the parent node
+     */
+    WTreeNode::SPtr m_parent;
 };
 
 #endif  // WTREENODE_H

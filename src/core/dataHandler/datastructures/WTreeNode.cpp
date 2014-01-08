@@ -22,23 +22,60 @@
 //
 //---------------------------------------------------------------------------
 
+#include <map>
 #include <string>
 #include <vector>
 
 #include "../../common/WStringUtils.h"
 #include "WTreeNode.h"
 
-WTreeNode::WTreeNode( size_t index, size_t level )
+WTreeNode::WTreeNode( size_t index, double level )
+  : boost::enable_shared_from_this< WTreeNode >(),
+    m_level( level ),
+    m_index( index )
 {
-    m_index = index;
-    m_level = level;
+}
+
+WTreeNode::WTreeNode( const WDendrogram &dendrogram )
+  : boost::enable_shared_from_this< WTreeNode >()
+{
+    const std::vector< size_t >& nodes = dendrogram.getParents();
+    const std::vector< double >& heights = dendrogram.getHeights();
+
+    size_t n = heights.size();
+
+    std::map< size_t, WTreeNode::SPtr > map;
+
+    for( size_t index = 0; index < nodes.size(); index++ )
+    {
+        double height = 0.0;
+
+        if( index > n )
+        {
+            height = heights[ index - n - 1 ];
+        }
+        map[ index ] = WTreeNode::SPtr( new WTreeNode( index, height ) );
+    }
+
+    for( size_t index = 0; index < nodes.size() - 1; index++ )
+    {
+        size_t parent = nodes[ index ];
+        map[ parent ]->addChild( map[ index ] );
+    }
+
+    //Last node is the root node
+    WTreeNode::SPtr root = map.at( map.size() - 1 );
+
+    m_index = root->index();
+    m_level = root->level();
+    m_children = root->getChildren();
 }
 
 WTreeNode::~WTreeNode()
 {
 }
 
-size_t WTreeNode::level()
+double WTreeNode::level()
 {
     return m_level;
 }
@@ -51,6 +88,12 @@ size_t WTreeNode::index()
 void WTreeNode::addChild( WTreeNode::SPtr child )
 {
     m_children.push_back( child );
+    child->m_parent = shared_from_this();
+}
+
+WTreeNode::SPtr WTreeNode::getParent()
+{
+    return m_parent;
 }
 
 std::vector< WTreeNode::SPtr > WTreeNode::getChildren()
