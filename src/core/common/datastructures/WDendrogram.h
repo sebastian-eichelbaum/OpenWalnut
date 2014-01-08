@@ -116,6 +116,10 @@ public:
      */
     std::string toString() const;
 
+    const std::vector< size_t >& getParents() const;
+
+    const std::vector< double >& getHeights() const;
+
 protected:
     static boost::shared_ptr< WPrototyped > m_prototype; //!< The prototype as singleton.
 

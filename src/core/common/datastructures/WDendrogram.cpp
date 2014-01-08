@@ -161,3 +161,13 @@ std::string WDendrogram::toString() const
 
     return result.str();
 }
+
+const std::vector< size_t >& WDendrogram::getParents() const
+{
+    return m_parents;
+}
+
+const std::vector< double >& WDendrogram::getHeights() const
+{
+    return m_heights;
+}
