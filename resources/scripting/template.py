@@ -80,7 +80,7 @@ import signal
 import time
 
 # This makes the interpreter react to Ctrl+C.
-signal.signal( signal.SIGINT, signal.SIG_DFL ) 
+signal.signal( signal.SIGINT, signal.SIG_DFL )
 
 # Now we can proceed by checking the parameters:
 
@@ -109,7 +109,7 @@ if not os.path.exists( outputDir ):
 if not os.path.isdir( outputDir ):
     print outputDir, "is not a directory!"
     exit( 1 )
-    
+
 # The next step is to find all the files that we want to process:
 
 niftiList = list()
@@ -160,7 +160,7 @@ iterProp.setInt( 2 )
 # 'setDouble()'
 # 'setFilename()'  - the parameter is a string denoting a path/filename
 # 'setSelection()' - the parameter is an integer denoting which element of a selection to select
-#                    0 is the first one, 1 the second one etc.... 
+#                    0 is the first one, 1 the second one etc....
 #
 # There are also the respective getters.
 
@@ -177,7 +177,7 @@ writer.getInputConnector( "in" ).connect( gauss.getOutputConnector( "out" ) )
 # Now that we have done the setup, let's start working on the datasets.
 for dataset in niftiList:
     fileToLoad = os.path.join( inputDir, dataset )
-    
+
     # We start with loading the dataset, which is done by creating a data module:
     data = rootContainer.createDataModule( fileToLoad )
 
@@ -219,7 +219,7 @@ for dataset in niftiList:
     # Now our data should be written to disk, so we can now delete the dataset from the pipeline
     # by removing the data module. This is done via the 'remove()' function of the 'rootContainer'
     # global. We might also want to disconnect the data- and gauss modules beforehand.
-    data.getOutputConnector( "out" ).disconnect() 
+    data.getOutputConnector( "out" ).disconnect()
     rootContainer.remove( data )
     # Now we are ready for the next dataset.
 
