@@ -32,9 +32,9 @@
 #include "WResampleBySegLength.h"
 
 WResampleBySegLength::WResampleBySegLength()
-    : WObjectNDIP< WResampling_I >( "#Points Resampling", "Each fiber has a an ensured number of points after resampling" )
+    : WObjectNDIP< WResampling_I >( "Segment Length Resampling", "Each fiber segement is of the given length after resampling" )
 {
-    m_segLength = m_properties->addProperty( "#Points", "Number of points each fiber should have afterwards", 1.0 );
+    m_segLength = m_properties->addProperty( "Length", "New Segmentlength each fiber should have afterwards", 1.0 );
     m_segLength->setMin( 0.0 );
 }
 
