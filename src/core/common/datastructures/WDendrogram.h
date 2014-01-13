@@ -116,8 +116,18 @@ public:
      */
     std::string toString() const;
 
+    /**
+     * Returns const reference to the internal parents array.
+     *
+     * \return const ref to the parents array.
+     */
     const std::vector< size_t >& getParents() const;
 
+    /**
+     * Const reference to the heights array.
+     *
+     * \return const reference to the heights array.
+     */
     const std::vector< double >& getHeights() const;
 
 protected:
