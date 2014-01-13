@@ -31,6 +31,8 @@
 #include "../common/WProperties.h"
 #include "../common/WLogger.h"
 
+#include "WGEViewer.h"
+
 #include "callbacks/WGEFunctorCallback.h"
 #include "shaders/WGEShader.h"
 #include "shaders/WGEPropertyUniform.h"
@@ -40,7 +42,7 @@
 WGEViewerEffectImageOverlay::WGEViewerEffectImageOverlay():
     WGEViewerEffect( "Image Overlay", "Blend in some arbitrary image." )
 {
-    WPropFilename imageFn = m_properties->addProperty( "Image", "The Image to use.", WPathHelper::getSharePath() / "GE" / "overlay.png" );
+    m_image = m_properties->addProperty( "Image", "The Image to use.", WPathHelper::getSharePath() / "GE" / "overlay.png" );
     WPropDouble scale = m_properties->addProperty( "Scale", "Scale the image in percent.", 50.0 );
     scale->setMin( 0.0 );
     scale->setMax( 200.0 );
@@ -51,53 +53,90 @@ WGEViewerEffectImageOverlay::WGEViewerEffectImageOverlay():
     osg::ref_ptr< WGEShader > overlayShader = new WGEShader( "WGECameraOverlayTexture" );
     overlayShader->apply( m_geode );
 
-    // some logo
-    osg::ref_ptr< osg::Texture2D > logoTexture = new osg::Texture2D;
-    osg::Image* logoImage = osgDB::readImageFile( imageFn->get().string() );
-    if( logoImage )
-    {
-        // Assign the texture to the image we read from file:
-        logoTexture->setImage( logoImage );
+    m_forceReload = true;
 
-        // no wrapping
-        logoTexture->setWrap( osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_BORDER );
-        logoTexture->setWrap( osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_BORDER );
-        logoTexture->setDataVariance( osg::Object::DYNAMIC );
+    // texture setup, Loading is done later in the update callback.
+    m_logoTexture = new osg::Texture2D;
+    m_logoTexture->setDataVariance( osg::Object::DYNAMIC );
+    // no wrapping
+    m_logoTexture->setWrap( osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_BORDER );
+    m_logoTexture->setWrap( osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_BORDER );
 
-        // texture width and height
-        m_overlayWidth = new osg::Uniform( "u_overlayWidth", static_cast< float >( logoImage->s() ) );
-        m_overlayHeight = new osg::Uniform( "u_overlayHeight", static_cast< float >( logoImage->t() ) );
-        m_state->addUniform( m_overlayWidth );
-        m_state->addUniform( m_overlayHeight );
+    // texture width and height (gets set by the update callback)
+    m_overlayWidth = new osg::Uniform( "u_overlayWidth", static_cast< float >( 1 ) );
+    m_overlayHeight = new osg::Uniform( "u_overlayHeight", static_cast< float >( 1 ) );
+    m_state->addUniform( m_overlayWidth );
+    m_state->addUniform( m_overlayHeight );
+    // NOTE: the values of these uniforms get updated by the updateViewport callback, so these values are only placeholders
+    m_viewportWidth = new osg::Uniform( "u_viewportWidth", static_cast< float >( 1024 ) );
+    m_viewportHeight = new osg::Uniform( "u_viewportHeight", static_cast< float >( 768 ) );
+    m_state->addUniform( m_viewportWidth );
+    m_state->addUniform( m_viewportHeight );
 
-        // NOTE: the values of these uniforms get updated by the updateViewport callback, so these values are only placeholders
-        m_viewportWidth = new osg::Uniform( "u_viewportWidth", static_cast< float >( 1024 ) );
-        m_viewportHeight = new osg::Uniform( "u_viewportHeight", static_cast< float >( 768 ) );
-        m_state->addUniform( m_viewportWidth );
-        m_state->addUniform( m_viewportHeight );
+    m_state->addUniform( new WGEPropertyUniform< WPropDouble >( "u_overlayScalePerc", scale ) );
+    m_state->addUniform( new WGEPropertyUniform< WPropBool >( "u_toTop", moveToTop ) );
+    m_state->addUniform( new WGEPropertyUniform< WPropBool >( "u_toRight", moveToRight ) );
 
-        m_state->addUniform( new WGEPropertyUniform< WPropDouble >( "u_overlayScalePerc", scale ) );
-        m_state->addUniform( new WGEPropertyUniform< WPropBool >( "u_toTop", moveToTop ) );
-        m_state->addUniform( new WGEPropertyUniform< WPropBool >( "u_toRight", moveToRight ) );
+    // add a callback which handles changes in viewport size
+    m_updater = new Updater();
+    addUpdateCallback( m_updater );
 
-        // add a callback which handles changes in viewport size
-        osg::ref_ptr< ViewportUpdater > viewportUpd( new ViewportUpdater() );
-        viewportUpd->m_viewportWidth = m_viewportWidth;
-        viewportUpd->m_viewportHeight = m_viewportHeight;
-        setPreDrawCallback( viewportUpd );
-
-        // bind
-        m_state->setTextureAttributeAndModes( 0, logoTexture, osg::StateAttribute::ON );
-    }
-    else
-    {
-        wlog::error( "WGECameraEffect" ) << "Could not load overlay image \"" <<
-                                            ( WPathHelper::getSharePath() / "GE" / "overlay.png" ).string()  << "\".";
-    }
+    // bind
+    m_state->setTextureAttributeAndModes( 0, m_logoTexture, osg::StateAttribute::ON );
 }
 
 WGEViewerEffectImageOverlay::~WGEViewerEffectImageOverlay()
 {
     // cleanup
+}
+
+void WGEViewerEffectImageOverlay::setReferenceViewer( WGEViewer::SPtr viewer )
+{
+    m_viewer = viewer;
+}
+
+const boost::shared_ptr< WGEViewer > WGEViewerEffectImageOverlay::getReferenceViewer() const
+{
+    return m_viewer;
+}
+
+void WGEViewerEffectImageOverlay::Updater::operator() ( osg::Node* node, osg::NodeVisitor* nv )
+{
+    WGEViewerEffectImageOverlay* effect = dynamic_cast< WGEViewerEffectImageOverlay* >( node );
+    if( effect )
+    {
+        // viewer set?
+        if( effect->m_viewer )
+        {
+            // valid camera? -> update viewport
+            osg::Camera* cam = effect->m_viewer->getCamera();
+            if( cam )
+            {
+                // valid viewport?
+                if( cam->getViewport() )
+                {
+                    effect->m_viewportWidth->set( static_cast< float >( cam->getViewport()->width() ) );
+                    effect->m_viewportHeight->set( static_cast< float >( cam->getViewport()->height() ) );
+                }
+            }
+
+            // update image if needed
+            if( effect->m_forceReload || effect->m_image->changed() )
+            {
+                effect->m_forceReload = false;
+                osg::Image* logoImage = osgDB::readImageFile( effect->m_image->get( true ).string() );
+                if( logoImage )
+                {
+                    effect->m_logoTexture->setImage( logoImage );
+                    effect->m_overlayWidth->set( static_cast< float >( logoImage->s() ) );
+                    effect->m_overlayHeight->set( static_cast< float >( logoImage->t() ) );
+                }
+            }
+        }
+    }
+
+    // call nested callbacks
+    traverse( node, nv );
+    return;
 }
 
