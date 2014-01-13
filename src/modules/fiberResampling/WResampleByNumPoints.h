@@ -41,6 +41,7 @@ public:
      */
     WResampleByNumPoints();
 
+protected:
     /**
      * The given fiber is resampled so it contains the number of points given by m_numPoints and a copy is returned.
      *
@@ -50,7 +51,6 @@ public:
      */
     virtual WFiber resample( WFiber fib ) const;
 
-protected:
     /**
      * Number of new sample points all tracts are resampled to.
      */

@@ -31,7 +31,9 @@
 #include <core/common/WPropertyHelper.h>
 #include <core/dataHandler/WDataHandler.h>
 #include <core/kernel/WKernel.h>
+
 #include "WMFiberResampling.h"
+#include "WResampleByMaxPoints.h"
 #include "WResampleByNumPoints.h"
 #include "WResampleBySegLength.h"
 
@@ -44,6 +46,7 @@ WMFiberResampling::WMFiberResampling():
 {
     m_strategy.addStrategy( WResampleByNumPoints::SPtr( new WResampleByNumPoints() ) );
     m_strategy.addStrategy( WResampleBySegLength::SPtr( new WResampleBySegLength() ) );
+    m_strategy.addStrategy( WResampleByMaxPoints::SPtr( new WResampleByMaxPoints() ) );
 }
 
 WMFiberResampling::~WMFiberResampling()
@@ -82,9 +85,9 @@ void WMFiberResampling::properties()
 
 void WMFiberResampling::moduleMain()
 {
-    // get notified about data changes
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_fiberIC->getDataChangedCondition() );
+    m_moduleState.add( m_strategy.getProperties()->getUpdateCondition() );
 
     ready();
 

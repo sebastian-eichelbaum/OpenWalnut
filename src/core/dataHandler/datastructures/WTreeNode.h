@@ -57,7 +57,7 @@ public:
      *
      * \param dendrogram Reference to the dendrogram to construct the tree from
      */
-    WTreeNode( const WDendrogram &dendrogram );
+    explicit WTreeNode( const WDendrogram &dendrogram );
 
     /**
      * Default destructor.

@@ -62,9 +62,9 @@ public:
     void resampleByNumberOfPoints( size_t numPoints );
 
     /**
+     * Resample this line so there are only segements of the given length.
      *
-     *
-     * \warning This may elongate your line at max. by the newSegmentLength
+     * \warning This may shorten fib if new segment length is bigger than the remainder of the original fiber under the new sampling.
      *
      * \param newSegementLength
      */
