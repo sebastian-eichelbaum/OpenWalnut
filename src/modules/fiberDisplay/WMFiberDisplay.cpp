@@ -402,6 +402,9 @@ void WMFiberDisplay::moduleMain()
                 boost::bind( &WMFiberDisplay::roiUpdate, this )
             );
 
+            // we force the module to check if we need to enable normal colormapping even if ROI coloring is set
+            roiUpdate();
+
             // create the fiber geode
             osg::ref_ptr< osg::Geode > geode = new osg::Geode();
             osg::ref_ptr< osg::Geode > endCapGeode = new osg::Geode();
