@@ -127,6 +127,7 @@ void WMWriteTracts::moduleMain()
 
         if( m_run->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
+            debugLog() << "Start saving fibers: " << m_savePath->get();
             switch( m_fileTypeSelection->get( true ).getItemIndexOfSelected( 0 ) )
             {
                 case 0:
@@ -161,6 +162,7 @@ void WMWriteTracts::moduleMain()
                     debugLog() << "this shouldn't be reached";
                     break;
             }
+            debugLog() << "Finished saving fibers.";
             m_run->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
     }
