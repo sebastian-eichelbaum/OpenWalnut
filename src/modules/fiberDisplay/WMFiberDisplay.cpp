@@ -88,22 +88,10 @@ const std::string WMFiberDisplay::getDescription() const
 
 void WMFiberDisplay::connectors()
 {
-    // The input fiber dataset
-    m_fiberInput = boost::shared_ptr< WModuleInputData < WDataSetFibers > >(
-        new WModuleInputData< WDataSetFibers >( shared_from_this(), "fibers", "The fiber dataset to color" )
-    );
+    m_fiberInput = WModuleInputData < WDataSetFibers >::createAndAdd( shared_from_this(), "fibers", "The fiber dataset to color" );
+    m_fiberClusteringInput = WModuleInputData < WDataSetFiberClustering >::createAndAdd( shared_from_this(), "fiberClustering",
+        "Optional input to filter the fibers using a clustering.");
 
-    m_fiberClusteringInput = boost::shared_ptr< WModuleInputData < WDataSetFiberClustering > >(
-        new WModuleInputData< WDataSetFiberClustering >( shared_from_this(), "fiberClustering",
-            "Optional input to filter the fibers using a clustering."
-        )
-    );
-
-    // As properties, every connector needs to be added to the list of connectors.
-    addConnector( m_fiberInput );
-    addConnector( m_fiberClusteringInput );
-
-    // call WModule's initialization
     WModule::connectors();
 }
 
