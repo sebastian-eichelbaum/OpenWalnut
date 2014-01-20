@@ -148,7 +148,7 @@ void main()
 #endif
 
 #ifdef CLUSTER_FILTER_ENABLED
-    finalColor = vec4( v_clusterColor, 1.0 );
+    finalColor = vec4( v_clusterColor.rgb, 1.0 );
 #endif
 #ifdef COLORMAPPING_ENABLED
     finalColor = mix( finalColor, colormapping(), u_colormapRatio );
