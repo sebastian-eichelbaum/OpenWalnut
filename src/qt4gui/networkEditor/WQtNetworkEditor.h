@@ -38,14 +38,12 @@
 
 #include "../WQtCombinerToolbar.h"
 #include "../guiElements/WQtDockWidget.h"
-#include "layout/WNetworkLayout.h"
 #include "WQtNetworkEditorView.h"
 #include "WQtNetworkItem.h"
 #include "WQtNetworkScene.h"
 
 // forward declaration
 class WMainWindow;
-class WNetworkLayout;
 
 /**
  * Container widget to hold the WQtNetworkScene
@@ -128,8 +126,6 @@ protected:
 
 private:
     WQtNetworkScene* m_scene; //!< QGraphicsScene
-
-    WNetworkLayout* m_layout; //!< the object that handels the layout
 
     QList< WQtNetworkItem* > m_items; //!< a list of the WQtNetworkItems in the WQtNetworkScene
 

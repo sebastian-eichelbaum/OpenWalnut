@@ -74,8 +74,6 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent ):
     connect( m_scene, SIGNAL( selectionChanged() ), this, SLOT( selectItem() ) );
     connect( m_view, SIGNAL( loadAction() ), m_mainWindow, SLOT( openLoadDialog() ) );
 
-    m_layout = new WNetworkLayout();
-
     // as the QGraphicsItems are not derived from QObject, they cannot utilize the event system. We need to provide some possibility to update
     // them regularly. We use a timer here.
     QTimer* updater = new QTimer( this );
@@ -85,7 +83,6 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent ):
 
 WQtNetworkEditor::~WQtNetworkEditor()
 {
-    delete m_layout;
 }
 
 QList<QGraphicsItem *> WQtNetworkEditor::selectedItems() const
@@ -150,7 +147,6 @@ bool WQtNetworkEditor::event( QEvent* event )
                                                 "NetworkEditor", LL_DEBUG );
             WQtNetworkItem *item = new WQtNetworkItem( this, e1->getModule() );
             m_items.push_back( item );
-            m_layout->addItem( item );
             m_scene->addItem( item );
         }
         return true;
@@ -259,8 +255,6 @@ bool WQtNetworkEditor::event( QEvent* event )
             arrow->updatePosition();
 
             m_scene->addItem( arrow );
-
-            m_layout->connectItems( outItem, inItem );
         }
     }
 
@@ -348,8 +342,6 @@ bool WQtNetworkEditor::event( QEvent* event )
         }
         if( ar )
         {
-            m_layout->disconnectNodes( outItem, inItem );
-
             op->removeArrow( ar );
             ip->removeArrow( ar );
             if( ar->scene() != NULL )
@@ -412,8 +404,6 @@ bool WQtNetworkEditor::event( QEvent* event )
 
         if( item != 0 )
         {
-            m_layout->removeItem( item );
-
             if( item->scene() != NULL )
             {
                 m_scene->removeItem( item );

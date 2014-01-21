@@ -78,6 +78,25 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
         m_subtitleFull = "Idle";
     }
 
+    // setup animation
+    m_animation = new QGraphicsItemAnimation;
+    QTimeLine* m_animationTimer = new QTimeLine( 500 );
+    m_animationTimer->setFrameRange( 0, 100 );
+    m_animation->setItem( this );
+    m_animation->setTimeLine( m_animationTimer );
+
+    // scale animation
+    float steps = 500.0;
+
+    m_animation->setScaleAt( 0.0, 1.0, 1.0 );
+    for( int i = 1; i < ( steps - 1 ); ++i )
+    {
+        float sinus = sin( 3.14159265359 * 2.0 * ( i / steps ) );
+        float s = 1.0 - 0.25 * sinus;
+        m_animation->setScaleAt( i / steps, s, s );
+    }
+    m_animation->setScaleAt( 1.0, 1.0, 1.0 );
+
     m_subtitle = new QGraphicsTextItem( m_subtitleFull.c_str() );
     m_subtitle->setParentItem( this );
     m_subtitle->setDefaultTextColor( Qt::white );
@@ -136,7 +155,7 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
     // this now calculated the optimal size. We keep them for later use
     m_itemBestWidth = boundingRect().width();
 
-    m_layoutNode = NULL;
+    m_animationTimer->start();
 }
 
 WQtNetworkItem::~WQtNetworkItem()
@@ -452,11 +471,6 @@ QList< WQtNetworkInputPort *> WQtNetworkItem::getInPorts()
 QList< WQtNetworkOutputPort *> WQtNetworkItem::getOutPorts()
 {
     return m_outPorts;
-}
-
-WNetworkLayoutNode * WQtNetworkItem::getLayoutNode()
-{
-    return m_layoutNode;
 }
 
 /**

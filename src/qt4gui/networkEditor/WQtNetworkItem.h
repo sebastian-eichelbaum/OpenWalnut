@@ -28,18 +28,18 @@
 #include <string>
 
 #include <QtCore/QTimer>
+#include <QtCore/QTimeLine>
 #include <QtGui/QGraphicsRectItem>
 #include <QtGui/QGraphicsTextItem>
+#include <QtGui/QGraphicsItemAnimation>
 #include <QtGui/QPainter>
 #include <QtGui/QColor>
 
 #include "core/kernel/WModule.h"
 
-#include "layout/WNetworkLayoutNode.h"
 #include "WQtNetworkInputPort.h"
 #include "WQtNetworkOutputPort.h"
 
-class WNetworkLayoutNode;
 class WQtNetworkEditor;
 class WQtNetworkItemActivator;
 
@@ -49,7 +49,6 @@ class WQtNetworkItemActivator;
  */
 class WQtNetworkItem : public QGraphicsRectItem
 {
-    friend class WNetworkLayoutNode;
 public:
     /**
      * Constructs new item in the network scene.
@@ -132,13 +131,6 @@ public:
      * \return the related WModule
      */
     boost::shared_ptr< WModule > getModule();
-
-    /**
-     * Returns the layout item for this network item, layout item is set through the layout item (friend).
-     *
-     * \return the associated node
-     **/
-    WNetworkLayoutNode * getLayoutNode();
 
     /**
      * Here the module can be enabled when the WModule is ready.
@@ -259,8 +251,6 @@ private:
 
     WQtNetworkEditor* m_networkEditor; //!< the related WQtNetworkEditor
 
-    WNetworkLayoutNode *m_layoutNode; //!< the layout item
-
     QColor m_itemColor; //!< the color of the item. Depends on type (source, sink, ...).
 
     State m_currentState; //!< denotes the state the item currently is in
@@ -306,5 +296,15 @@ private:
      * The property toolbox window if any.
      */
     QWidget* m_propertyToolWindow;
+
+    /**
+     * Animation for appearance and deletion
+     */
+    QGraphicsItemAnimation* m_animation;
+
+    /**
+     * Timer for the animation.
+     */
+    QTimeLine* m_animationTimer;
 };
 #endif  // WQTNETWORKITEM_H
