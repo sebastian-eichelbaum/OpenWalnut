@@ -99,20 +99,14 @@ void WQtMenuFiltered::keyPressEvent( QKeyEvent* e )
         {
             resetFilter();
         }
-        else
-        {
-            QMenu::keyPressEvent( e );
-        }
     }
-    else
-    {
-        QMenu::keyPressEvent( e );
-    }
+    QMenu::keyPressEvent( e );
 }
 
-void WQtMenuFiltered::hideEvent( QHideEvent* /* e */ )
+void WQtMenuFiltered::hideEvent( QHideEvent* e )
 {
     resetFilter();
+    QMenu::hideEvent( e );
 }
 
 void WQtMenuFiltered::filterUpdate()
