@@ -114,7 +114,7 @@ public:
      * \param level the maximum level for a node to be selected
      * \return the clusters down to a certain level in the hierarchy
      */
-    std::list< WTreeNode::SPtr > getClustersDownToLevel( WTreeNode::SPtr node, size_t level );
+    std::vector< WTreeNode::SPtr > getClustersDownToLevel( WTreeNode::SPtr node, size_t level );
 
 protected:
     /**
