@@ -112,7 +112,7 @@ void WGEScreenCapture::operator()( osg::RenderInfo& renderInfo ) const  // NOLIN
     // osg::ref_ptr< osg::Image > imagePBO = new osg::Image();
     // osg::BufferObject::Extensions* ext = osg::BufferObject::getExtensions( gc->getState()->getContextID(), true );
     // imagePBO->allocateImage( width, height, 1, pixelFormat, GL_UNSIGNED_BYTE );
-    // if (m_pbo==0)
+    // if( m_pbo == 0 )
     // {
     //     std::cout << "CREATE" << std::endl;
     //     ext->glGenBuffers( 1, &m_pbo );

@@ -118,6 +118,17 @@ public:
     virtual WFiberCluster::SPtr getCluster( size_t id );
 
     /**
+     * Returns the cluster with the given ID.
+     *
+     * \throw WInvalidID if the ID is not known.
+     *
+     * \param id the ID of the cluster to get
+     *
+     * \return the cluster
+     */
+    virtual WFiberCluster::ConstSPtr getCluster( size_t id ) const;
+
+    /**
      * Returns the cluster with the given ID. If there is no cluster with this ID, an empty one is returned.
      *
      * \param id the ID of the cluster to get

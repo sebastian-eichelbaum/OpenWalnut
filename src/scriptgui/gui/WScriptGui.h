@@ -79,6 +79,15 @@ public:
     virtual void closeCustomWidget( WCustomWidget::SPtr );
 
 protected:
+    /**
+     * If you need to load additional modules from your toolboxes, you might want specify these paths in a config file.
+     * In that file we need a line starting with: "additionalModulePaths=" followed by a comma separated list of paths.
+     * Please note this is the same format as in the config.qt4gui file, so you may symlink it.
+     *
+     * \param configPath This is the path to the config file. If not existent, nothing will be thrown or done.
+     */
+    virtual void loadToolboxes( boost::filesystem::path configPath );
+
     //! The programm options.
     boost::program_options::variables_map const& m_programOptions;
 };

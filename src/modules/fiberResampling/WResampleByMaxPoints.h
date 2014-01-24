@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WRESAMPLEBYSEGLENGTH_H
-#define WRESAMPLEBYSEGLENGTH_H
+#ifndef WRESAMPLEBYMAXPOINTS_H
+#define WRESAMPLEBYMAXPOINTS_H
 
 #include <core/common/datastructures/WFiber.h>
 #include <core/common/WObjectNDIP.h>
@@ -31,15 +31,15 @@
 #include "WResampling_I.h"
 
 /**
- * Resamples fibers by segment length.
+ * Resamples fibers so no fiber has more than the given number of Points.
  */
-class WResampleBySegLength : public WObjectNDIP< WResampling_I >
+class WResampleByMaxPoints : public WObjectNDIP< WResampling_I >
 {
 public:
     /**
      * Constructor.
      */
-    WResampleBySegLength();
+    WResampleByMaxPoints();
 
 protected:
     /**
@@ -55,7 +55,12 @@ protected:
      * Number of new sample points all tracts are resampled to.
      */
     WPropDouble m_segLength;
+
+    /**
+     * Number of max sample points per fiber.
+     */
+    WPropInt m_numPoints;
 private:
 };
 
-#endif  // WRESAMPLEBYSEGLENGTH_H
+#endif  // WRESAMPLEBYMAXPOINTS_H

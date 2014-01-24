@@ -22,8 +22,13 @@
 //
 //---------------------------------------------------------------------------
 
+#include <fstream>
+#include <sstream>
 #include <string>
 #include <vector>
+
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "core/common/WLogger.h"
 #include "core/common/WIOTools.h"
@@ -75,6 +80,8 @@ int WScriptGui::run()
     // on all other platforms, get the home directory form Qt and the path from the application binary location
     WPathHelper::getPathHelper()->setBasePaths( walnutBin, homePath / ".OpenWalnut" );
 #endif
+
+    loadToolboxes( WPathHelper::getHomePath() / "config.script" );
 
     //----------------------------
     // startup
@@ -201,4 +208,29 @@ void WScriptGui::closeCustomWidget( WCustomWidget::SPtr )
 {
 }
 
-
+void WScriptGui::loadToolboxes( boost::filesystem::path configPath )
+{
+    // add additional module paths to the PathHelper, the rest will be done by module loader
+    if( boost::filesystem::exists( configPath ) )
+    {
+        wlog::info( "Walnut" ) << "Reading config file from: " << configPath;
+        std::ifstream is( configPath.string().c_str() );
+        std::string line;
+        std::string pattern = "additionalModulePaths="; // same pattern in config.qt4gui file, so you may use symlinks
+        while( std::getline( is, line ) )
+        {
+            if( boost::starts_with( line, pattern ) )
+            {
+                std::istringstream ss( line.substr( pattern.size(), line.size() - pattern.size() ) );
+                std::string path;
+                while( std::getline( ss, path, ',' ) )
+                {
+                    boost::algorithm::trim( path );
+                    WPathHelper::getPathHelper()->addAdditionalModulePath( path );
+                    // wlog::debug( "Walnut" ) << "Added: " << path << " to PathHelper";
+                }
+                break;
+            }
+        }
+    }
+}

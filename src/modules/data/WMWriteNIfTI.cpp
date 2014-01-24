@@ -90,6 +90,7 @@ void WMWriteNIfTI::moduleMain()
     // use the m_input "data changed" flag
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
+    m_moduleState.add( m_saveTriggerProp->getCondition() );
 
     // signal ready state
     ready();
@@ -97,43 +98,35 @@ void WMWriteNIfTI::moduleMain()
     // loop until the module container requests the module to quit
     while( !m_shutdownFlag() )
     {
+        debugLog() << "Waiting for data ...";
+
+        m_moduleState.wait();
+
         // acquire data from the input connector
         m_dataSet = m_input->getData();
         if( !m_dataSet )
         {
-            // ok, the output has not yet sent data
-            // NOTE: see comment at the end of this while loop for m_moduleState
-            debugLog() << "Waiting for data ...";
-            m_moduleState.wait();
             continue;
         }
-        writeToFile();
-        // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
-        // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
-        m_moduleState.wait();
+        if( m_saveTriggerProp->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            writeToFile();
+            m_saveTriggerProp->set( WPVBaseTypes::PV_TRIGGER_READY, false ); // reset button to save again
+        }
     }
 }
 
 void WMWriteNIfTI::connectors()
 {
-    // this module works for scalar data sets only so far
-    m_input = boost::shared_ptr< WModuleInputData< WDataSetSingle > >( new WModuleInputData< WDataSetSingle > (
-                    shared_from_this(), "in", "The dataset to filter" ) );
+    m_input = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "in", "The dataset to filter" );
 
-    // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
-    addConnector( m_input );
-
-    // call WModules initialization
     WModule::connectors();
 }
 
 void WMWriteNIfTI::properties()
 {
-    m_filename = m_properties->addProperty( "Filename", "Filename where to write the NIfTI file to.",
-                                             WPathHelper::getAppPath() );
-    m_saveTriggerProp = m_properties->addProperty( "Do save",  "Press!",
-                                                  WPVBaseTypes::PV_TRIGGER_READY );
-    m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMWriteNIfTI::writeToFile, this ) );
+    m_filename = m_properties->addProperty( "Filename", "Filename where to write the NIfTI file to.", WPathHelper::getAppPath() );
+    m_saveTriggerProp = m_properties->addProperty( "Do save",  "Press!", WPVBaseTypes::PV_TRIGGER_READY );
 
     WModule::properties();
 }
@@ -164,8 +157,6 @@ template< typename T > void WMWriteNIfTI::castData( void*& returnData )
 
 void WMWriteNIfTI::writeToFile()
 {
-    m_saveTriggerProp->set( WPVBaseTypes::PV_TRIGGER_READY, false );
-
     infoLog() << "Writing Data to " << m_filename->get().string();
     nifti_image *outField = nifti_simple_init_nim();
 

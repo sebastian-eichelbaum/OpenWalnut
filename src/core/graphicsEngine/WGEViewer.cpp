@@ -179,6 +179,8 @@ osg::ref_ptr<osg::Camera> WGEViewer::getCamera()
 
 void WGEViewer::setScene( osg::ref_ptr< WGEGroupNode > node )
 {
+    m_effectImageOverlay->setReferenceViewer( shared_from_this() );
+
     m_View->setSceneData( node );
     m_scene = node;
 

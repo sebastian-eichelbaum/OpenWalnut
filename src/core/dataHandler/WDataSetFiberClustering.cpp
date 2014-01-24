@@ -79,6 +79,16 @@ WFiberCluster::SPtr WDataSetFiberClustering::getCluster( size_t id )
     return result;
 }
 
+WFiberCluster::ConstSPtr WDataSetFiberClustering::getCluster( size_t id ) const
+{
+    ClusterMap::const_iterator it = m_clusters.find( id );
+    if( it == m_clusters.end() )
+    {
+        throw WInvalidID( "The cluster with the specified ID does not exist." );
+    }
+    return it->second;
+}
+
 WFiberCluster::SPtr WDataSetFiberClustering::getOrCreateCluster( size_t id )
 {
     WFiberCluster::SPtr result = m_clusters[ id ];

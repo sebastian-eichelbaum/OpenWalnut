@@ -400,23 +400,6 @@ public:
     }
 
     /**
-     * If there is a remainder bigger than 0.5+newSegmentLength elongate into last known direction
-     * with the newSegmentLength.
-     */
-    void testResamplingByNewSegementLengthRemainderGreaterAsHalfOfNewSegmentLength( void )
-    {
-        WLine line;
-        line.push_back( WPosition( 0.0, 0.0, 0.0 ) );
-        line.push_back( WPosition( 1.1, 0.0, 0.0 ) );
-        line.resampleBySegmentLength( 0.6 );
-        WLine expected;
-        expected.push_back( WPosition( 0.0, 0.0, 0.0 ) );
-        expected.push_back( WPosition( 0.6, 0.0, 0.0 ) );
-        expected.push_back( WPosition( 1.2, 0.0, 0.0 ) );
-        assert_equals_delta( line, expected );
-    }
-
-    /**
      * Only if a sample point comes out of the circle with radius newSegmentLength then append the
      * point of intersection.
      */

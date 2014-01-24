@@ -47,6 +47,12 @@ public:
     virtual WDataSetFibers::SPtr operator()( WProgress::SPtr progress, WBoolFlag const &shutdown, WDataSetFibers::SPtr fibers );
 
     /**
+     * Destructor.
+     */
+    virtual ~WResampling_I();
+
+protected:
+    /**
      * All overrided methods should resample the fiber in their specific way.
      *
      * \param fib The fiber to resample.
@@ -55,11 +61,6 @@ public:
      */
     virtual WFiber resample( WFiber fib ) const = 0;
 
-    /**
-     * Destructor.
-     */
-    virtual ~WResampling_I();
-protected:
 private:
 };
 

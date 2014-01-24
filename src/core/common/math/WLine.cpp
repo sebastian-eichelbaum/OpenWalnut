@@ -133,11 +133,12 @@ void WLine::removeAdjacentDuplicates()
     WLine newLine;
     newLine.reserve( size() );
     newLine.push_back( front() );
-    for( const_iterator cit = begin()++; cit != end(); ++cit )
+
+    for( size_t i = 1; i < size(); ++i )
     {
-        if( length( *cit - newLine.back() ) > wlimits::DBL_EPS )
+        if( length( (*this)[i] - newLine.back() ) > wlimits::DBL_EPS )
         {
-            newLine.push_back( *cit );
+            newLine.push_back( (*this)[i] );
         }
     }
     this->WMixinVector< WPosition >::operator=( newLine );
@@ -156,56 +157,48 @@ void WLine::resampleBySegmentLength( double newSegmentLength )
     newLine.push_back( front() );
     for( size_t i = 1; i < size(); )
     {
-        if( length( newLine.back() - ( *this )[i] ) > newSegmentLength )
+        WPosition current = (*this)[i];
+        if( length( newLine.back() - current ) > newSegmentLength )
         {
-            const WPosition& pred = ( *this )[i - 1];
-            if( pred == newLine.back() )
-            {
-                // Then there is no triangle and the old Segment Length is bigger as the new segment
-                // length
-                newLine.push_back( newLine.back() + normalize( ( *this )[i] - pred ) * newSegmentLength );
-                continue;
-            }
-            else // this is the general case, and the point we search is inbetween the pred and the current position
-            {
-                // we compute the three coefficents describing the quadradic equation of the point of intersection of
-                // the circle with radius newSegmentLength and the segmend: pred and ( *this )[i].
-                // alpha * x^2 + beta * x + gamma = 0
-                double alpha = ( ( *this )[i][0] - pred[0] ) * ( ( *this )[i][0] - pred[0] ) +
-                               ( ( *this )[i][1] - pred[1] ) * ( ( *this )[i][1] - pred[1] ) +
-                               ( ( *this )[i][2] - pred[2] ) * ( ( *this )[i][2] - pred[2] );
-
-                double beta = 2.0 * ( ( *this )[i][0] - pred[0] ) * ( pred[0] - newLine.back()[0] ) +
-                              2.0 * ( ( *this )[i][1] - pred[1] ) * ( pred[1] - newLine.back()[1] ) +
-                              2.0 * ( ( *this )[i][2] - pred[2] ) * ( pred[2] - newLine.back()[2] );
-
-                double gamma = ( pred[0] - newLine.back()[0] ) * ( pred[0] - newLine.back()[0] ) +
-                               ( pred[1] - newLine.back()[1] ) * ( pred[1] - newLine.back()[1] ) +
-                               ( pred[2] - newLine.back()[2] ) * ( pred[2] - newLine.back()[2] ) - newSegmentLength * newSegmentLength;
-
-                typedef std::pair< std::complex< double >, std::complex< double > > ComplexPair;
-                ComplexPair solution = solveRealQuadraticEquation( alpha, beta, gamma );
-                // NOTE: if those asserts fire, then this algo is wrong and produces wrong results, and I've to search to bug!
-                WAssert( std::imag( solution.first ) == 0.0, "Invalid quadratic equation while computing resamplingBySegmentLength" );
-                WAssert( std::imag( solution.second ) == 0.0, "Invalid quadratic equation while computing resamplingBySegmentLength" );
-                WPosition pointOfIntersection;
-                if( std::real( solution.first ) > 0.0 )
-                {
-                    pointOfIntersection = pred + std::real( solution.first ) * ( ( *this )[i] - pred );
-                }
-                else
-                {
-                    pointOfIntersection = pred + std::real( solution.second ) * ( ( *this )[i] - pred );
-                }
-                newLine.push_back( pointOfIntersection );
-            }
+            newLine.push_back( newLine.back() + normalize( ( current - newLine.back() ) * newSegmentLength ) );
+            continue;
         }
-        ++i;
-    }
-    if( length( newLine.back() - ( *this )[size() - 1] ) > newSegmentLength / 2.0 )
-    {
-        WVector3d direction = normalize( ( *this )[size() - 1] - newLine.back() );
-        newLine.push_back( newLine.back() + direction * newSegmentLength );
+        else
+        {
+            do
+            {
+                i = i + 1;
+                current = (*this)[i];
+            }
+            while( length( newLine.back() - current ) < newSegmentLength && i < size() );
+
+            if( i >= size() ) // discard last point, as we dont want to elongate the new line
+            {
+                break;
+            }
+            const WPosition pred = ( *this )[ i - 1 ];
+
+            WVector3d lineDirection = current - pred;
+            WAssert( lineDirection != WVector3d( 0.0, 0.0, 0.0 ), "current should be diffrent from pred" );
+            WVector3d o_c = pred - newLine.back(); // origin - center
+            double alpha = dot( lineDirection, lineDirection );
+            double beta = 2.0 * dot( lineDirection, o_c );
+            double gamma = dot( o_c, o_c ) - newSegmentLength * newSegmentLength;
+
+            std::pair< std::complex< double >, std::complex< double > > solution = solveRealQuadraticEquation( alpha, beta, gamma );
+            // NOTE: if this assert fires, then this algo is wrong and produces wrong results, and I've to search to bug!
+            WAssert( std::imag( solution.first ) == 0.0 && std::imag( solution.second ) == 0.0, "Imaginary solution detected." );
+            WPosition pointOfIntersection;
+            if( std::real( solution.first ) > 0.0 )
+            {
+                pointOfIntersection = pred + std::real( solution.first ) * ( ( *this )[i] - pred );
+            }
+            else
+            {
+                pointOfIntersection = pred + std::real( solution.second ) * ( ( *this )[i] - pred );
+            }
+            newLine.push_back( pointOfIntersection );
+        }
     }
     this->WMixinVector< WPosition >::operator=( newLine );
 }
