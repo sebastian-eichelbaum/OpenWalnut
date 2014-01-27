@@ -38,7 +38,7 @@
 #include "../common/WTimer.h"
 #include "../common/WRealtimeTimer.h"
 #include "../dataHandler/WDataHandler.h"
-#include "../gui/WGUI.h"
+#include "../ui/WUI.h"
 #include "exceptions/WKernelException.h"
 #include "WKernel.h"
 #include "WModuleContainer.h"
@@ -53,7 +53,7 @@
  */
 WKernel* WKernel::m_kernel = NULL;
 
-WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui ):
+WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WUI > ui ):
     WThreadedRunner(),
     m_timer( WTimer::SPtr( new WRealtimeTimer() ) )
 {
@@ -66,7 +66,7 @@ WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WG
     m_kernel = this;
 
     // initialize members
-    m_gui = gui;
+    m_ui = ui;
     m_graphicsEngine = ge;
 
     // init
@@ -79,11 +79,11 @@ WKernel::~WKernel()
     WLogger::getLogger()->addLogMessage( "Shutting down Kernel", "Kernel", LL_INFO );
 }
 
-WKernel* WKernel::instance( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui )
+WKernel* WKernel::instance( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WUI > ui )
 {
     if( m_kernel == NULL )
     {
-        new WKernel( ge, gui ); // m_kernel will be set in the constructor.
+        new WKernel( ge, ui ); // m_kernel will be set in the constructor.
     }
 
     return m_kernel;
@@ -129,9 +129,9 @@ boost::shared_ptr< WModuleContainer > WKernel::getRootContainer() const
     return m_moduleContainer;
 }
 
-boost::shared_ptr< WGUI > WKernel::getGui() const
+boost::shared_ptr< WUI > WKernel::getUI() const
 {
-    return m_gui;
+    return m_ui;
 }
 
 void WKernel::finalize()
@@ -149,14 +149,14 @@ void WKernel::threadMain()
 {
     WLogger::getLogger()->addLogMessage( "Starting Kernel", "Kernel", LL_INFO );
 
-    // wait for GUI to be initialized properly
-    if( m_gui )
+    // wait for UI to be initialized properly
+    if( m_ui )
     {
-        m_gui->isInitialized().wait();
+        m_ui->isInitialized().wait();
     }
     else
     {
-        wlog::warn( "Kernel" ) << "Expected GUI instance but none was initialized.";
+        wlog::warn( "Kernel" ) << "Expected UI instance but none was initialized.";
     }
 
     // start GE

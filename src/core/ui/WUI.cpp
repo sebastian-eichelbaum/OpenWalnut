@@ -24,21 +24,21 @@
 
 #include "../common/WConditionOneShot.h"
 #include "../common/WFlag.h"
-#include "WGUI.h"
+#include "WUI.h"
 
-WGUI::WGUI( int argc, char** argv )
-    : boost::enable_shared_from_this< WGUI >(),
+WUI::WUI( int argc, char** argv )
+    : boost::enable_shared_from_this< WUI >(),
       m_isInitialized( new WConditionOneShot(), false ),
       m_argc( argc ),
       m_argv( argv )
 {
 }
 
-WGUI::~WGUI()
+WUI::~WUI()
 {
 }
 
-const WFlag< bool >& WGUI::isInitialized() const
+const WFlag< bool >& WUI::isInitialized() const
 {
     return m_isInitialized;
 }

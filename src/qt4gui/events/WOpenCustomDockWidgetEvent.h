@@ -31,7 +31,7 @@
 
 #include "core/graphicsEngine/WGECamera.h"
 #include "core/common/WFlag.h"
-#include "core/gui/WCustomWidget.h"
+#include "core/ui/WCustomWidget.h"
 
 #include "WEventTypes.h"
 

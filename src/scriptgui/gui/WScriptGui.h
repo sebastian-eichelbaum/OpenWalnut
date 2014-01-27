@@ -29,7 +29,7 @@
 
 #include <boost/program_options.hpp>
 
-#include "core/gui/WGUI.h"
+#include "core/ui/WUI.h"
 
 /**
  * \class WScriptGui
@@ -37,7 +37,7 @@
  * Implements a gui that executes scripts. These can be read from files or input by the user,
  * depending on the parameters supplied to the executable.
  */
-class WScriptGui : public WGUI
+class WScriptGui : public WUI
 {
 public:
     /**

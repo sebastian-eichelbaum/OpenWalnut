@@ -186,7 +186,7 @@ int main( int argc, char** argv )
     wlog::info( "Walnut" ) << "Version: " << W_VERSION;
 
     // initialize GUI
-    // NOTE: we need a shared_ptr here since WGUI uses enable_shared_from_this.
+    // NOTE: we need a shared_ptr here since WUI uses enable_shared_from_this.
     boost::shared_ptr< WScriptGui > gui( new WScriptGui( argc, argv, optionsMap ) );
     int result = gui->run();
 
