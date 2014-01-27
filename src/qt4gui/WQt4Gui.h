@@ -39,7 +39,7 @@
 
 #include "core/kernel/WModule.h"
 
-#include "core/gui/WGUI.h"
+#include "core/ui/WUI.h"
 
 #include "WIconManager.h"
 
@@ -47,10 +47,10 @@ class WMainWindow;
 class WKernel;
 
 /**
- * The QT4 Based GUI implementation. Implements WGUI.
+ * The QT4 Based GUI implementation. Implements WUI.
  * \ingroup gui
  */
-class WQt4Gui : public WGUI
+class WQt4Gui : public WUI
 {
 public:
     /**

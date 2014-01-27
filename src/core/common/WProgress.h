@@ -32,11 +32,11 @@
 
 
 /**
- * Class managing progress inside of modules. It interacts with the abstract WGUI class to present those information to the user.
+ * Class managing progress inside of modules. It interacts with the abstract WUI class to present those information to the user.
  * At the same time, it also is a simple tree structure, allowing the programmer to arrange complex sub progress. This is
  * especially useful if several time-consuming tasks need to be performed.
  *
- * \see WGUI
+ * \see WUI
  */
 class WProgress // NOLINT
 {

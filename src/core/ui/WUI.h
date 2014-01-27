@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGUI_H
-#define WGUI_H
+#ifndef WUI_H
+#define WUI_H
 
 #include <string>
 
@@ -47,7 +47,7 @@ class WDataSet;
  *
  * \ingroup gui
  */
-class WGUI : public boost::enable_shared_from_this< WGUI >
+class WUI : public boost::enable_shared_from_this< WUI >
 {
 public:
     /**
@@ -56,12 +56,12 @@ public:
      * \param argc number of arguments given on command line.
      * \param argv arguments given on command line.
      */
-    WGUI( int argc, char** argv );
+    WUI( int argc, char** argv );
 
     /**
      * Destructor.
      */
-    virtual ~WGUI();
+    virtual ~WUI();
 
     /**
      * Returns the init flag.
@@ -126,5 +126,5 @@ protected:
     char** m_argv;
 };
 
-#endif  // WGUI_H
+#endif  // WUI_H
 

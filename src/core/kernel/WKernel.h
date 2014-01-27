@@ -37,7 +37,7 @@
 #include "WBatchLoader.h"
 
 // forward declarations
-class WGUI;
+class WUI;
 class WModule;
 class WModuleContainer;
 class WModuleFactory;
@@ -50,12 +50,12 @@ class WThreadedRunner;
  *
  * \brief
  * This library implements the central part of OpenWalnut that manages
- * the interaction between GUI, GraphicsEngine and DataHandler.
+ * the interaction between UI, GraphicsEngine and DataHandler.
  */
 
 /**
  * OpenWalnut kernel, managing modules and interaction between
- * GUI, GE and DataHandler
+ * UI, GE and DataHandler
  * \ingroup kernel
  */
 class WKernel: public WThreadedRunner
@@ -77,20 +77,20 @@ public:
      */
     typedef enum
     {
-        KERNEL_STARTUPCOMPLETE  // when kernel, GE and GUI are correctly initialized
+        KERNEL_STARTUPCOMPLETE  // when kernel, GE and UI are correctly initialized
     }
     KERNEL_SIGNAL;
 
     /**
      * Returns pointer to the running kernel or a new if no kernel was there.
      * If a running kernel exists the function return it and does not check if
-     * ge and gui of the running kernel are equivalent to the ones given as parameters.
+     * GE and UI of the running kernel are equivalent to the ones given as parameters.
      *
      * \param ge initialized graphics engine.
-     * \param gui initialized gui.
+     * \param ui initialized ui.
      * \return the kernel instance.
      */
-    static WKernel* instance( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui );
+    static WKernel* instance( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WUI > ui );
 
     /**
      * Destructor.
@@ -177,11 +177,11 @@ public:
     boost::shared_ptr< WModuleContainer > getRootContainer() const;
 
     /**
-     * Getter for the associated GUI.
+     * Getter for the associated UI.
      *
-     * \return the GUI.
+     * \return the UI.
      */
-    boost::shared_ptr< WGUI > getGui() const;
+    boost::shared_ptr< WUI > getUI() const;
 
     /**
      * get for roi manager
@@ -215,12 +215,12 @@ public:
 
 protected:
     /**
-     * Constructor is protected because this class is a singleton. Awaits an INITIALIZED graphics engine an gui.
+     * Constructor is protected because this class is a singleton. Awaits an INITIALIZED graphics engine an UI.
      *
      * \param ge initialized graphics engine.
-     * \param gui initialized gui.
+     * \param ui initialized UI.
      */
-    WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui );
+    WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WUI > ui );
 
     /**
      * Function that has to be overwritten for execution. It gets executed in a separate thread after run()
@@ -229,9 +229,9 @@ protected:
     virtual void threadMain();
 
     /**
-     * The Gui.
+     * The UI.
      */
-    boost::shared_ptr< WGUI > m_gui;
+    boost::shared_ptr< WUI > m_ui;
 
     /**
      * Pointer to an initialized graphics engine.
@@ -285,7 +285,7 @@ private:
     WTimer::SPtr m_timer;
 
     /**
-     * Notified when the startup, including GE and GUI has been completed.
+     * Notified when the startup, including GE and UI has been completed.
      */
     WConditionOneShot m_startupCompleted;
 };

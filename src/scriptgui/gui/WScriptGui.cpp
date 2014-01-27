@@ -43,7 +43,7 @@
 #include "WScriptGui.h"
 
 WScriptGui::WScriptGui( int argc, char** argv, boost::program_options::variables_map const& options )
-    : WGUI( argc, argv ),
+    : WUI( argc, argv ),
       m_programOptions( options )
 {
 }
