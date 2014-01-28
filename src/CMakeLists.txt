@@ -151,7 +151,7 @@ ENDIF()
 OPTION( OW_GUI_SCRIPT "Enable this to build the script-based OpenWalnut interface for commandline-only use." ON )
 IF( OW_GUI_SCRIPT )
     # build
-    ADD_SUBDIRECTORY( scriptgui )
+    ADD_SUBDIRECTORY( scriptUI )
 ENDIF()
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
