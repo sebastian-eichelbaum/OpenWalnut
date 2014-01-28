@@ -158,7 +158,7 @@ private:
  * \defgroup dataHandler Data Handler
  *
  * \brief
- * This module implements the data storage facility of OpenWalnut.
+ * This library implements the data storage facility of OpenWalnut.
  */
 
 #endif  // WDATAHANDLER_H
