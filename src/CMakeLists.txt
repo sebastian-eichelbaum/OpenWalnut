@@ -81,7 +81,7 @@ ENDIF()
 ADD_CUSTOM_TARGET( list_install_tarets
                    COMMAND echo The following components can be installed:
                    COMMAND echo " * install - install everything."
-                   COMMAND echo " * install_runtime - install the GUIs."
+                   COMMAND echo " * install_runtime - install the UIs."
                    COMMAND echo " * install_lib - install only libopenwalnut."
                    COMMAND echo " * install_modules - install only the compiled modules."
                    COMMAND echo " * install_dev - install the development headers for libopenwalnut."
@@ -146,10 +146,10 @@ IF( OW_GUI_QT4 )
 ENDIF()
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
-# Scripting GUI
+# Scripting UI
 
-OPTION( OW_GUI_SCRIPT "Enable this to build the script-based OpenWalnut interface for commandline-only use." ON )
-IF( OW_GUI_SCRIPT )
+OPTION( OW_UI_SCRIPT "Enable this to build the script-based OpenWalnut interface for commandline-only use." ON )
+IF( OW_UI_SCRIPT )
     # build
     ADD_SUBDIRECTORY( scriptUI )
 ENDIF()

@@ -34,8 +34,10 @@
 /**
  * \class WScriptUI
  *
- * Implements a gui that executes scripts. These can be read from files or input by the user,
+ * Implements a UI that executes scripts. These can be read from files or input by the user,
  * depending on the parameters supplied to the executable.
+ *
+ * \ingroup ui
  */
 class WScriptUI : public WUI
 {
@@ -55,7 +57,7 @@ public:
     virtual ~WScriptUI();
 
     /**
-     * Runs the GUI.
+     * Runs the UI.
      *
      * \return the return code.
      */
