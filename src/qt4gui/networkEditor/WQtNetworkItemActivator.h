@@ -67,7 +67,6 @@ public:
      */
     virtual int type() const;
 
-
     /**
      * Actually paints the port.
      *

@@ -27,6 +27,7 @@
 
 #include <string>
 
+#include <QtCore/QObject>
 #include <QtCore/QTimer>
 #include <QtCore/QTimeLine>
 #include <QtGui/QGraphicsRectItem>
@@ -47,8 +48,11 @@ class WQtNetworkItemActivator;
  * This class represents a WModule as QGraphicsRectItem and
  * contains a reference to its in- and outports.
  */
-class WQtNetworkItem : public QGraphicsRectItem
+class WQtNetworkItem: public QObject,
+                      public QGraphicsRectItem
 {
+    Q_OBJECT
+
 public:
     /**
      * Constructs new item in the network scene.
@@ -56,7 +60,7 @@ public:
      * \param editor the editor containing this item
      * \param module the module represented by the item
      */
-    WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WModule > module );
+    WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WModule > module );
 
     /**
      * Destructor.
@@ -156,6 +160,20 @@ public:
      */
     void setCrashed();
 
+    /**
+     * Animate removal and finally, instruct the owning network editor to remove the item.
+     *
+     * \return the timer for the removal animation. Use this to start the animation.
+     */
+    QTimeLine* die();
+
+signals:
+    /**
+     * The item is now dead. Animation completed and item was removed from scene. Do not use this to delete the item.
+     *
+     * \param item the item.
+     */
+    void dead( WQtNetworkItem* item );
 protected:
     /**
      * If the item is changed we want to get notified.
@@ -306,5 +324,21 @@ private:
      * Timer for the animation.
      */
     QTimeLine* m_animationTimer;
+
+    /**
+     * Animation for appearance and deletion
+     */
+    QGraphicsItemAnimation* m_removalAnimation;
+
+    /**
+     * Timer for the animation.
+     */
+    QTimeLine* m_removalAnimationTimer;
+
+private slots:
+    /**
+     * Called when the m_removalAnimationTimer finishes.
+     */
+    void removalAnimationDone();
 };
 #endif  // WQTNETWORKITEM_H

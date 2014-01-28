@@ -404,12 +404,8 @@ bool WQtNetworkEditor::event( QEvent* event )
 
         if( item != 0 )
         {
-            if( item->scene() != NULL )
-            {
-                m_scene->removeItem( item );
-            }
             m_items.removeAll( item );
-            delete item;
+            item->die();
         }
 
         return true;
@@ -463,3 +459,4 @@ WQtNetworkEditorView* WQtNetworkEditor::getView()
 {
     return m_view;
 }
+

@@ -33,6 +33,7 @@
 #include <QtGui/QTextCursor>
 
 #include "core/common/WStringUtils.h"
+#include "core/common/WLogger.h"
 
 #include "../controlPanel/WQtTreeItem.h"
 #include "../controlPanel/WQtPropertyGroupWidget.h"
@@ -45,8 +46,11 @@
 #include "WQtNetworkColors.h"
 #include "WQtNetworkEditorGlobals.h"
 
-WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WModule > module )
-    : QGraphicsRectItem(),
+#include "WQtNetworkItem.moc"
+
+WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WModule > module ):
+    QObject( editor ),
+    QGraphicsRectItem(),
     m_isHovered( false ),
     m_isSelected( false ),
     m_busyIsDetermined( false ),
@@ -80,7 +84,7 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
 
     // setup animation
     m_animation = new QGraphicsItemAnimation;
-    QTimeLine* m_animationTimer = new QTimeLine( 500 );
+    m_animationTimer = new QTimeLine( 250 );
     m_animationTimer->setFrameRange( 0, 100 );
     m_animation->setItem( this );
     m_animation->setTimeLine( m_animationTimer );
@@ -91,11 +95,35 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
     m_animation->setScaleAt( 0.0, 1.0, 1.0 );
     for( int i = 1; i < ( steps - 1 ); ++i )
     {
-        float sinus = sin( 3.14159265359 * 2.0 * ( i / steps ) );
-        float s = 1.0 - 0.25 * sinus;
-        m_animation->setScaleAt( i / steps, s, s );
+        float pi = 3.14159265359;
+        float sinus = sin( pi * 0.5 * ( i / steps ) );
+        float stepNorm = static_cast< float >( i) / static_cast< float >( steps );
+        float s = sinus;//stepNorm;// * sinus;
+
+        m_animation->setScaleAt( stepNorm, s, s );
     }
     m_animation->setScaleAt( 1.0, 1.0, 1.0 );
+
+    // setup removal animation
+    m_removalAnimation = new QGraphicsItemAnimation;
+    m_removalAnimationTimer = new QTimeLine( 250 );
+    m_removalAnimationTimer->setFrameRange( 0, 100 );
+    m_removalAnimation->setItem( this );
+    m_removalAnimation->setTimeLine( m_removalAnimationTimer );
+
+    // notify when removal done.
+    connect( m_removalAnimationTimer, SIGNAL( finished() ), this, SLOT( removalAnimationDone() ) );
+
+    m_removalAnimation->setScaleAt( 0.0, 1.0, 1.0 );
+    for( int i = 1; i < ( steps - 1 ); ++i )
+    {
+        float pi = 3.14159265359;
+        float sinus = sin( pi * 0.5 * ( i / steps ) );
+        float stepNorm = static_cast< float >( i) / static_cast< float >( steps );
+        float s = 1.0 - sinus;//stepNorm;// * sinus;
+        m_removalAnimation->setScaleAt( stepNorm, s, s );
+    }
+    m_removalAnimation->setScaleAt( 1.0, 0.0, 0.0 );
 
     m_subtitle = new QGraphicsTextItem( m_subtitleFull.c_str() );
     m_subtitle->setParentItem( this );
@@ -160,6 +188,16 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
 
 WQtNetworkItem::~WQtNetworkItem()
 {
+    delete m_animation;
+    delete m_animationTimer;
+    delete m_removalAnimation;
+    delete m_removalAnimationTimer;
+
+    if( m_hidden )
+    {
+        delete m_hidden;
+    }
+
     if( m_propertyToolWindow )
     {
         m_propertyToolWindow->close();
@@ -186,6 +224,11 @@ int WQtNetworkItem::type() const
 
 void WQtNetworkItem::updater()
 {
+    if( !m_module )
+    {
+        return;
+    }
+
     // it is very important to avoid unnecessary changes to pen/brush and similar stuff to avoid permanent updates of the graphics item.
     bool needUpdate = m_forceUpdate;
     m_forceUpdate = false;
@@ -636,6 +679,11 @@ boost::shared_ptr< WModule > WQtNetworkItem::getModule()
 
 void WQtNetworkItem::activate( bool active )
 {
+    if( !m_module )
+    {
+        return;
+    }
+
     setEnabled( active );
 
     if( active == true )
@@ -673,3 +721,31 @@ bool WQtNetworkItem::advance()
     return true;
 }
 
+QTimeLine* WQtNetworkItem::die()
+{
+    // this one also keeps a ref on m_module
+    delete m_hidden;
+    m_hidden = NULL;
+
+    // free module: we do not need it anymore
+    m_module = WModule::SPtr();
+
+    // start removal animation
+    m_removalAnimationTimer->start();
+    return  m_removalAnimationTimer;
+}
+
+void WQtNetworkItem::removalAnimationDone()
+{
+    // remove from scene
+    if( scene() != NULL )
+    {
+        scene()->removeItem( this );
+    }
+
+    // tell everyone that we are done
+    emit dead( this );
+
+    // this ensures that this item gets deleted by the main loop in the main thread
+    deleteLater();
+}
