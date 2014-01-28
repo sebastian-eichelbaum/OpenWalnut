@@ -750,6 +750,10 @@ void WMTemplate::moduleMain()
     //  * stop any pending threads you may have started earlier
     //  * ...
     //  NOTE: as the module gets disconnected prior to shutdown, most of the cleanup should have been done already.
+
+    // Remove the geometry from the scene. If it has never been added, this call does nothing. Always remember to remove your rendering at the
+    // end of the module loop.
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
 void WMTemplate::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
