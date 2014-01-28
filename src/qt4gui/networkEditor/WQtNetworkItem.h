@@ -340,5 +340,19 @@ private slots:
      * Called when the m_removalAnimationTimer finishes.
      */
     void removalAnimationDone();
+
+    /**
+     * Called when the animation timers tick and progress in timeline. Used to blend the item out.
+     *
+     * \param value the value between 0 and 1
+     */
+    void animationBlendOutTick( qreal value );
+
+    /**
+     * Called when the animation timers tick and progress in timeline. Used to blend the item in.
+     *
+     * \param value the value between 0 and 1
+     */
+    void animationBlendInTick( qreal value );
 };
 #endif  // WQTNETWORKITEM_H

@@ -144,7 +144,7 @@ bool WQtNetworkEditor::event( QEvent* event )
         if( e1 )
         {
             WLogger::getLogger()->addLogMessage( "Inserting \"" + e1->getModule()->getName() + "\".",
-                                                "NetworkEditor", LL_DEBUG );
+                                                 "NetworkEditor", LL_DEBUG );
             WQtNetworkItem *item = new WQtNetworkItem( this, e1->getModule() );
             m_items.push_back( item );
             m_scene->addItem( item );

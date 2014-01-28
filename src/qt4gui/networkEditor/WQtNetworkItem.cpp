@@ -89,17 +89,14 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WMo
     m_animation->setItem( this );
     m_animation->setTimeLine( m_animationTimer );
 
+    connect( m_animationTimer, SIGNAL( valueChanged( qreal ) ), this, SLOT( animationBlendInTick( qreal ) ) );
+
     // scale animation
     float steps = 500.0;
-
-    m_animation->setScaleAt( 0.0, 1.0, 1.0 );
-    for( int i = 1; i < ( steps - 1 ); ++i )
+    for( int i = 0; i < steps; ++i )
     {
-        float pi = 3.14159265359;
-        float sinus = sin( pi * 0.5 * ( i / steps ) );
-        float stepNorm = static_cast< float >( i) / static_cast< float >( steps );
-        float s = sinus;//stepNorm;// * sinus;
-
+        float stepNorm = static_cast< float >( i) / static_cast< float >( steps - 1 );
+        float s = stepNorm * stepNorm;
         m_animation->setScaleAt( stepNorm, s, s );
     }
     m_animation->setScaleAt( 1.0, 1.0, 1.0 );
@@ -113,14 +110,12 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WMo
 
     // notify when removal done.
     connect( m_removalAnimationTimer, SIGNAL( finished() ), this, SLOT( removalAnimationDone() ) );
+    connect( m_removalAnimationTimer, SIGNAL( valueChanged( qreal ) ), this, SLOT( animationBlendOutTick( qreal ) ) );
 
-    m_removalAnimation->setScaleAt( 0.0, 1.0, 1.0 );
-    for( int i = 1; i < ( steps - 1 ); ++i )
+    for( int i = 0; i < steps; ++i )
     {
-        float pi = 3.14159265359;
-        float sinus = sin( pi * 0.5 * ( i / steps ) );
-        float stepNorm = static_cast< float >( i) / static_cast< float >( steps );
-        float s = 1.0 - sinus;//stepNorm;// * sinus;
+        float stepNorm = static_cast< float >( i) / static_cast< float >( steps - 1 );
+        float s = 1.0 - ( stepNorm * stepNorm );
         m_removalAnimation->setScaleAt( stepNorm, s, s );
     }
     m_removalAnimation->setScaleAt( 1.0, 0.0, 0.0 );
@@ -748,4 +743,14 @@ void WQtNetworkItem::removalAnimationDone()
 
     // this ensures that this item gets deleted by the main loop in the main thread
     deleteLater();
+}
+
+void WQtNetworkItem::animationBlendOutTick( qreal value )
+{
+    setOpacity( 1.0 - ( value * value ) );
+}
+
+void WQtNetworkItem::animationBlendInTick( qreal value )
+{
+    setOpacity( value * value );
 }
