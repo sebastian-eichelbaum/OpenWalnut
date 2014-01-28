@@ -59,7 +59,7 @@ class WQtGLScreenCapture;
 
 /**
  * This class contains the main window and the layout of the widgets within the window.
- * \ingroup gui
+ * \ingroup ui
  */
 class WMainWindow : public QMainWindow
 {

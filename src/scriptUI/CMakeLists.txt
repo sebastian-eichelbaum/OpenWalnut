@@ -26,9 +26,9 @@
 # Some common setup
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-# NOTE: to ensure a uniqze script gui name, add gui to the script lib name. This is used as target name in cmake and is NOT the name of the
+# NOTE: to ensure a uniqe script UI name, add UI to the script lib name. This is used as target name in cmake and is NOT the name of the
 # binary.
-SET( LibName "${OW_LIB_OPENWALNUTSCRIPT}-gui" )
+SET( LibName "${OW_LIB_OPENWALNUTSCRIPT}-UI" )
 # NOTE: ensure that this  name is uniqe. It must not match the scripting lib's name
 SET( BinaryName "openwalnut-script" )
 

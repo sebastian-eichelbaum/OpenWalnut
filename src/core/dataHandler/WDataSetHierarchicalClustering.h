@@ -25,9 +25,10 @@
 #ifndef WDATASETHIERARCHICALCLUSTERING_H_
 #define WDATASETHIERARCHICALCLUSTERING_H_
 
+#include <list>
 #include <map>
 #include <string>
-#include <list>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 

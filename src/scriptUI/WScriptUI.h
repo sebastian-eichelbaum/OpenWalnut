@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WSCRIPTGUI_H
-#define WSCRIPTGUI_H
+#ifndef WSCRIPTUI_H
+#define WSCRIPTUI_H
 
 #include <string>
 
@@ -32,12 +32,14 @@
 #include "core/ui/WUI.h"
 
 /**
- * \class WScriptGui
+ * \class WScriptUI
  *
- * Implements a gui that executes scripts. These can be read from files or input by the user,
+ * Implements a UI that executes scripts. These can be read from files or input by the user,
  * depending on the parameters supplied to the executable.
+ *
+ * \ingroup ui
  */
-class WScriptGui : public WUI
+class WScriptUI : public WUI
 {
 public:
     /**
@@ -47,15 +49,15 @@ public:
      * \param argv arguments given on command line.
      * \param options The program options.
      */
-    WScriptGui( int argc, char** argv, boost::program_options::variables_map const& options );
+    WScriptUI( int argc, char** argv, boost::program_options::variables_map const& options );
 
     /**
      * Destructor.
      */
-    virtual ~WScriptGui();
+    virtual ~WScriptUI();
 
     /**
-     * Runs the GUI.
+     * Runs the UI.
      *
      * \return the return code.
      */
@@ -92,4 +94,4 @@ protected:
     boost::program_options::variables_map const& m_programOptions;
 };
 
-#endif  // WSCRIPTGUI_H
+#endif  // WSCRIPTUI_H

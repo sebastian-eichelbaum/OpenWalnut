@@ -54,7 +54,7 @@ class WSettingAction;
 /**
  * A widget containing an open gl display area. This initializes OpenGL context and adds a view to the
  * engine.
- * \ingroup gui
+ * \ingroup ui
  */
 // NOTE: to make this work with MOC, the defines must be set before MOC runs (ensured in Build system)
 class WQtGLWidget: public WQtGLWidgetParent

@@ -48,7 +48,7 @@ class WKernel;
 
 /**
  * The QT4 Based GUI implementation. Implements WUI.
- * \ingroup gui
+ * \ingroup ui
  */
 class WQt4Gui : public WUI
 {
