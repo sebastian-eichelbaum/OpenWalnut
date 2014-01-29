@@ -140,7 +140,7 @@ void WTransferFunctionColorPoint::paint( QPainter *painter, const QStyleOptionGr
 
 QVariant WTransferFunctionColorPoint::itemChange( GraphicsItemChange change, const QVariant &value )
 {
-    // if ( change == ItemPositionChange )
+    // if( change == ItemPositionChange )
     // {
     //  QPointF newPos = value.toPointF();
     //
