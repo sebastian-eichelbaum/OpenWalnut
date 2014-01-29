@@ -22,9 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
+#include <list>
 #include <map>
 #include <string>
-#include <list>
+#include <vector>
 
 #include "WDataSetHierarchicalClustering.h"
 
@@ -79,9 +80,9 @@ std::map< size_t, WFiberCluster::SPtr > WDataSetHierarchicalClustering::getClust
 }
 
 
-std::list< WTreeNode::SPtr > WDataSetHierarchicalClustering::getClustersDownToLevel( WTreeNode::SPtr node, size_t level )
+std::vector< WTreeNode::SPtr > WDataSetHierarchicalClustering::getClustersDownToLevel( WTreeNode::SPtr node, size_t level )
 {
-    std::list< WTreeNode::SPtr > result;
+    std::vector< WTreeNode::SPtr > result;
 
     if( node->level() <= level )
     {
@@ -91,7 +92,8 @@ std::list< WTreeNode::SPtr > WDataSetHierarchicalClustering::getClustersDownToLe
 
     for( size_t i = 0; i < node->getChildren().size(); i++ )
     {
-        std::list< WTreeNode::SPtr > c = getClustersDownToLevel( node->getChildren()[i], level );
+        std::vector< WTreeNode::SPtr > c = getClustersDownToLevel( node->getChildren()[i], level );
+        result.reserve( result.size() + c.size() ); // ensure capacity will last for insertion.
         result.insert( result.end(), c.begin(), c.end() );
     }
 

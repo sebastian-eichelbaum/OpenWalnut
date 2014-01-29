@@ -33,7 +33,7 @@
 
 #include "WQtGLDockWidget.h"
 
-#include "core/gui/WCustomWidget.h"
+#include "core/ui/WCustomWidget.h"
 
 /**
  * Dock Widget which is created by a module to display custom information.

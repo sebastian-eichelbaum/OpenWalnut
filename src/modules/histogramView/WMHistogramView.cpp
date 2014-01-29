@@ -41,9 +41,9 @@
 #include "core/common/WStringUtils.h"
 #include "core/common/WPathHelper.h"
 #include "core/graphicsEngine/WGERequirement.h"
-#include "core/gui/WCustomWidget.h"
-#include "core/gui/WCustomWidgetEventHandler.h"
-#include "core/gui/WGUI.h"
+#include "core/ui/WCustomWidget.h"
+#include "core/ui/WCustomWidgetEventHandler.h"
+#include "core/ui/WUI.h"
 #include "core/kernel/WKernel.h"
 
 // Compatibility between OSG 3.2 and earlier versions
@@ -214,7 +214,7 @@ void WMHistogramView::moduleMain()
 
     ready();
 
-    m_widget = WKernel::getRunningKernel()->getGui()->openCustomWidget( getName() + string_utils::toString( m_instanceID ),
+    m_widget = WKernel::getRunningKernel()->getUI()->openCustomWidget( getName() + string_utils::toString( m_instanceID ),
             WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition() );
     osg::ref_ptr< WCustomWidgetEventHandler > eh = new WCustomWidgetEventHandler( m_widget );
     eh->subscribeMove( boost::bind( &WMHistogramView::handleMouseMove, this, _1 ) );
@@ -302,7 +302,7 @@ void WMHistogramView::moduleMain()
     // clear main node, just in case
     m_mainNode->clear();
 
-    WKernel::getRunningKernel()->getGui()->closeCustomWidget( m_widget );
+    WKernel::getRunningKernel()->getUI()->closeCustomWidget( m_widget );
 
     debugLog() << "Finished. Good bye!";
 }

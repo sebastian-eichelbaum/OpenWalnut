@@ -40,19 +40,19 @@
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WModuleFactory.h"
 
-#include "WScriptGui.h"
+#include "WScriptUI.h"
 
-WScriptGui::WScriptGui( int argc, char** argv, boost::program_options::variables_map const& options )
-    : WGUI( argc, argv ),
+WScriptUI::WScriptUI( int argc, char** argv, boost::program_options::variables_map const& options )
+    : WUI( argc, argv ),
       m_programOptions( options )
 {
 }
 
-WScriptGui::~WScriptGui()
+WScriptUI::~WScriptUI()
 {
 }
 
-int WScriptGui::run()
+int WScriptUI::run()
 {
     // the call path of the application
     boost::filesystem::path walnutBin = boost::filesystem::path( m_argv[ 0 ] ).parent_path();
@@ -195,20 +195,20 @@ int WScriptGui::run()
     return 0;
 }
 
-WCustomWidget::SPtr WScriptGui::openCustomWidget( std::string, WGECamera::ProjectionMode, boost::shared_ptr< WCondition > )
+WCustomWidget::SPtr WScriptUI::openCustomWidget( std::string, WGECamera::ProjectionMode, boost::shared_ptr< WCondition > )
 {
     return WCustomWidget::SPtr();
 }
 
-void WScriptGui::closeCustomWidget( std::string )
+void WScriptUI::closeCustomWidget( std::string )
 {
 }
 
-void WScriptGui::closeCustomWidget( WCustomWidget::SPtr )
+void WScriptUI::closeCustomWidget( WCustomWidget::SPtr )
 {
 }
 
-void WScriptGui::loadToolboxes( boost::filesystem::path configPath )
+void WScriptUI::loadToolboxes( boost::filesystem::path configPath )
 {
     // add additional module paths to the PathHelper, the rest will be done by module loader
     if( boost::filesystem::exists( configPath ) )

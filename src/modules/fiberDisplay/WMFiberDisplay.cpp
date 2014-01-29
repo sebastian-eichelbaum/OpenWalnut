@@ -90,7 +90,7 @@ void WMFiberDisplay::connectors()
 {
     m_fiberInput = WModuleInputData < WDataSetFibers >::createAndAdd( shared_from_this(), "fibers", "The fiber dataset to color" );
     m_fiberClusteringInput = WModuleInputData < WDataSetFiberClustering >::createAndAdd( shared_from_this(), "fiberClustering",
-        "Optional input to filter the fibers using a clustering.");
+        "Optional input to filter the fibers using a clustering." );
 
     WModule::connectors();
 }
