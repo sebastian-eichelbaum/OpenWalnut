@@ -145,7 +145,7 @@ QVariant WTransferFunctionColorPoint::itemChange( GraphicsItemChange change, con
     //  QPointF newPos = value.toPointF();
     //
     //  QRectF boundingBox( this->scene()->sceneRect() );
-    //  if ( boundingBox.left() > newPos.x() || boundingBox.right() < newPos.x() )
+    //  if( boundingBox.left() > newPos.x() || boundingBox.right() < newPos.x() )
     //  {
     //    newPos.setX( qMin( boundingBox.right(), qMax( newPos.x(), boundingBox.left() ) ) );
     //    if ( newPos.y() != 0 )
