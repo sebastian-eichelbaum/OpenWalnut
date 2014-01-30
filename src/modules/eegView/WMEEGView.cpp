@@ -40,8 +40,8 @@
 #include "core/graphicsEngine/WGEGroupNode.h"
 #include "core/graphicsEngine/WGEUtils.h"
 #include "core/graphicsEngine/WROIBox.h"
-#include "core/gui/WCustomWidget.h"
-#include "core/gui/WGUI.h"
+#include "core/ui/WCustomWidget.h"
+#include "core/ui/WUI.h"
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WModuleInputData.h"
 #include "core/kernel/WROIManager.h"
@@ -428,7 +428,7 @@ void WMEEGView::createColorMap()
 bool WMEEGView::openCustomWidget()
 {
     debugLog() << "Try to open EEG View widget...";
-    m_widget = WKernel::getRunningKernel()->getGui()->openCustomWidget( getName(), WGECamera::TWO_D, m_shutdownFlag.getCondition() );
+    m_widget = WKernel::getRunningKernel()->getUI()->openCustomWidget( getName(), WGECamera::TWO_D, m_shutdownFlag.getCondition() );
     bool success = m_widget.get();
     if( success )
     {
@@ -465,7 +465,7 @@ void WMEEGView::closeCustomWidget()
     }
 
     // TODO(wiebel): use unique names here
-    WKernel::getRunningKernel()->getGui()->closeCustomWidget( getName() );
+    WKernel::getRunningKernel()->getUI()->closeCustomWidget( getName() );
     m_widget.reset(); // forces need call of destructor
 }
 
@@ -653,7 +653,7 @@ void WMEEGView::redraw()
         m_rootNode2d->addChild( labelsTransform );
         m_rootNode2d->addChild( panTransform );
 
-        // create GUI event handler
+        // create UI event handler
         m_handler = new WEEGViewHandler( m_labelsWidth,
                                          m_timePos,
                                          m_timeRange,

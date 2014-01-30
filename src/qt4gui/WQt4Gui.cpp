@@ -75,7 +75,7 @@ WMainWindow* WQt4Gui::m_mainWindow = NULL;
 QSettings* WQt4Gui::m_settings = NULL;
 
 WQt4Gui::WQt4Gui( const boost::program_options::variables_map& options, int argc, char** argv )
-    : WGUI( argc, argv ),
+    : WUI( argc, argv ),
     m_optionsMap( options ),
     m_loadDeferredOnce( true )
 {

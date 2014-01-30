@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include "core/gui/WCustomWidget.h"
+#include "core/ui/WCustomWidget.h"
 
 #include "WCloseCustomDockWidgetEvent.h"
 

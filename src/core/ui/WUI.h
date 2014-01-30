@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGUI_H
-#define WGUI_H
+#ifndef WUI_H
+#define WUI_H
 
 #include <string>
 
@@ -36,18 +36,18 @@
 class WDataSet;
 
 /**
- * This library implements the graphical user interface for OpenWalnut.
+ * This library implements the user interface for OpenWalnut.
  *
- * \defgroup gui GUI
+ * \defgroup ui UI
  */
 
 /**
- * This class prescribes the interface to the GUI. It basically is an abstract class defining the interface common to all possible
- * GUI implementations.
+ * This class prescribes the interface to the UI. It basically is an abstract class defining the interface common to all possible
+ * UI implementations.
  *
- * \ingroup gui
+ * \ingroup ui
  */
-class WGUI : public boost::enable_shared_from_this< WGUI >
+class WUI : public boost::enable_shared_from_this< WUI >
 {
 public:
     /**
@@ -56,12 +56,12 @@ public:
      * \param argc number of arguments given on command line.
      * \param argv arguments given on command line.
      */
-    WGUI( int argc, char** argv );
+    WUI( int argc, char** argv );
 
     /**
      * Destructor.
      */
-    virtual ~WGUI();
+    virtual ~WUI();
 
     /**
      * Returns the init flag.
@@ -71,7 +71,7 @@ public:
     virtual const WFlag< bool >& isInitialized() const;
 
     /**
-     * Runs the GUI. All initialization should be done here.
+     * Runs the UI. All initialization should be done here.
      *
      * \return the return code.
      */
@@ -111,7 +111,7 @@ public:
 
 protected:
     /**
-     * Flag determining whether the GUI is properly initialized.
+     * Flag determining whether the UI is properly initialized.
      */
     WFlag< bool > m_isInitialized;
 
@@ -126,5 +126,5 @@ protected:
     char** m_argv;
 };
 
-#endif  // WGUI_H
+#endif  // WUI_H
 
