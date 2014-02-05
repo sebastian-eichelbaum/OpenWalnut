@@ -72,6 +72,7 @@ std::string WGEShaderVersionPreprocessor::process( const std::string& file, cons
             unsigned int versionNum = string_utils::fromString< unsigned int >( matches[1] );
             version = std::max( versionNum, version );
             foundVersion = true;
+            cleanedCode << "// " << line << std::endl;
             continue;
         }
 
@@ -87,7 +88,8 @@ std::string WGEShaderVersionPreprocessor::process( const std::string& file, cons
 
     // the ATI compiler needs the version statement to be the first statement in the shader
     std::stringstream vs;
-    vs << "#version " << version << std::endl << cleanedCode.str();
+    vs << "#version " << version << std::endl
+       << "#line 1 " << file << std::endl << cleanedCode.str();
     return vs.str();
 }
 

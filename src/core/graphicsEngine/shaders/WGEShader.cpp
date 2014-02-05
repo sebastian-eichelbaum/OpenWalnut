@@ -295,12 +295,20 @@ std::string WGEShader::processShaderRecursive( const std::string filename, bool 
     // go through each line and process includes
     std::string line;               // the current line
     boost::smatch matches;          // the list of matches
+    std::size_t lineNo = 0;         // keep track of line numbers
+
+    output << "#line 1 \"" << filename << "\"";
 
     while( std::getline( input, line ) )
     {
+        lineNo++;
         if( boost::regex_search( line, matches, includeRegexp ) )
         {
+            // a new file begins. Use GLSL line directive to ensure proper numbering
+            output << "#line 1 \"" << matches[1] << "\"";
             output << processShaderRecursive( matches[1], false, level + 1 );
+            // reset numbering in source file of the previous include
+            output << "#line " << lineNo << " \"" << filename << "\"";
         }
         else
         {
