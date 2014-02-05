@@ -93,7 +93,6 @@ void WQtNetworkSceneLayout::snapAccept( WQtNetworkItem* item )
     // something changed?
     QPoint oldCell = m_grid->whereIs( item );
     QPoint newCell = m_grid->findNearestCell( item->pos() );
-
     if( oldCell == newCell )
     {
         return;

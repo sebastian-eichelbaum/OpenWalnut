@@ -433,17 +433,16 @@ void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent* mouseEvent )
 
     // do not forward event. We handled it.
     mouseEvent->accept();
-    //QGraphicsItem::mouseMoveEvent( mouseEvent );
+    // QGraphicsItem::mouseMoveEvent( mouseEvent );
 }
 
 void WQtNetworkItem::mousePressEvent( QGraphicsSceneMouseEvent* event )
 {
     m_networkEditor->getScene()->clearSelection();
     setSelected( true );
-
     m_networkEditor->getLayout()->blendIn();
-
-    QGraphicsItem::mousePressEvent( event );
+    event->accept();
+    // QGraphicsItem::mousePressEvent( event );
 }
 
 void WQtNetworkItem::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
@@ -452,7 +451,11 @@ void WQtNetworkItem::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
     m_networkEditor->getLayout()->snapAccept( this );
     m_networkEditor->getLayout()->blendOut();
 
-    QGraphicsItem::mouseReleaseEvent( event );
+    // make visible if clicked at the border of the view
+    ensureVisible();
+
+    event->accept();
+    // QGraphicsItem::mouseReleaseEvent( event );
 }
 
 void WQtNetworkItem::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* /* event */ )

@@ -159,12 +159,13 @@ bool WQtNetworkEditor::event( QEvent* event )
             m_scene->addItem( item );
             m_layout->addItem( item );
 
-            // make visible
-            QList< QGraphicsView* > allViews = m_scene->views();
             // This is needed here for some reason. You know how to make this better? Tell us.
             // REASON: although the WQtNetworkItemGrid updates its bounding box, the ensureVisible call does not move to the new item.
             // Also calling the next method directly from the grid causes seg-faults when leaving the widget area while dragging the item.
             m_scene->setSceneRect( m_layout->getBoundingBox() );
+
+            // make visible
+            QList< QGraphicsView* > allViews = m_scene->views();
             foreach( QGraphicsView* v, allViews )
             {
                 WQtNetworkEditorView* nv = dynamic_cast< WQtNetworkEditorView* >( v );
