@@ -31,7 +31,6 @@
 #include <QtGui/QGraphicsLineItem>
 
 #include "WQtNetworkArrow.h"
-#include "WQtNetworkEditorGlobals.h"
 #include "WQtNetworkItemActivator.h"
 
 /**

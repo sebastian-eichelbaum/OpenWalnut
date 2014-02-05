@@ -30,7 +30,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QTimer>
 #include <QtCore/QTimeLine>
-#include <QtGui/QGraphicsRectItem>
+#include <QtGui/QGraphicsObject>
 #include <QtGui/QGraphicsTextItem>
 #include <QtGui/QGraphicsItemAnimation>
 #include <QtGui/QPainter>
@@ -40,16 +40,16 @@
 
 #include "WQtNetworkInputPort.h"
 #include "WQtNetworkOutputPort.h"
+#include "WQtNetworkEditorGlobals.h"
 
 class WQtNetworkEditor;
 class WQtNetworkItemActivator;
 
 /**
- * This class represents a WModule as QGraphicsRectItem and
+ * This class represents a WModule as QGraphicsItem and
  * contains a reference to its in- and outports.
  */
-class WQtNetworkItem: public QObject,
-                      public QGraphicsRectItem
+class WQtNetworkItem: public QGraphicsObject
 {
     Q_OBJECT
 
@@ -80,6 +80,13 @@ public:
      * \return the type of the item as int
      */
     int type() const;
+
+    /**
+     * The bounding area of the item.
+     *
+     * \return the bounding rect
+     */
+    virtual QRectF boundingRect() const;
 
     /**
      * Add a port to the item.
@@ -143,14 +150,6 @@ public:
     void activate( bool active );
 
     /**
-     * Check if new calculated position is different from current. If yes
-     * the ne position is set and all connected WQtNetworkArrow are updated.
-     *
-     * \return true if items position has changed
-     */
-    bool advance();
-
-    /**
      * Can be used for polling the module states. It is called by a timer.
      */
     virtual void updater();
@@ -167,6 +166,20 @@ public:
      */
     QTimeLine* die();
 
+    /**
+     * Move item to specified position smoothly, via animation.
+     *
+     * \param pos position in world space
+     */
+    void animatedMoveTo( QPointF pos );
+
+    /**
+     * Move item to specified position smoothly, via animation.
+     *
+     * \param x x coord in world space
+     * \param y y coord in world space
+     */
+    void animatedMoveTo( qreal x, qreal y );
 signals:
     /**
      * The item is now dead. Animation completed and item was removed from scene. Do not use this to delete the item.
@@ -182,7 +195,7 @@ protected:
      * \param value
      * \return
      */
-    QVariant itemChange( GraphicsItemChange change, const QVariant& value );
+    virtual QVariant itemChange( GraphicsItemChange change, const QVariant& value );
 
     /**
      * If the WQtNetworkItem is moved, then the contained ports have to update
@@ -199,6 +212,13 @@ protected:
      * \param event the mouse event
      **/
     virtual void mousePressEvent( QGraphicsSceneMouseEvent *event );
+
+    /**
+     * Mouse was released.
+     *
+     * \param event the mouse event
+     */
+    virtual void mouseReleaseEvent( QGraphicsSceneMouseEvent* event );
 
     /**
      * Called upon double click.
@@ -264,8 +284,6 @@ private:
     QGraphicsTextItem* m_text; //!< the caption
     std::string m_subtitleFull; //!< always contains the unclipped text of m_subtitle
     QGraphicsTextItem* m_subtitle; //!< the caption
-
-    QPointF m_newPos; //!< the new position in the WQtNetworkScene
 
     WQtNetworkEditor* m_networkEditor; //!< the related WQtNetworkEditor
 
@@ -335,6 +353,10 @@ private:
      */
     QTimeLine* m_removalAnimationTimer;
 
+    /**
+     * Keep track of the mouse dragging of this item
+     */
+    QPointF m_dragStartPosition;
 private slots:
     /**
      * Called when the m_removalAnimationTimer finishes.
@@ -354,5 +376,10 @@ private slots:
      * \param value the value between 0 and 1
      */
     void animationBlendInTick( qreal value );
+
+    /**
+     * Called whenever the item moves around.
+     */
+    void positionChanged();
 };
 #endif  // WQTNETWORKITEM_H

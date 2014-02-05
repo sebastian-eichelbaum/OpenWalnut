@@ -35,6 +35,7 @@
 
 #include "../WMainWindow.h"
 #include "WQtNetworkPort.h"
+#include "WQtNetworkItemGrid.h"
 
 #include "core/kernel/combiner/WDisconnectCombiner.h"
 #include "core/kernel/WKernel.h"
@@ -66,7 +67,15 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent ):
     this->setFocusProxy( m_view );
 
     m_scene = new WQtNetworkScene( this );
-    m_scene->setSceneRect( m_scene->itemsBoundingRect() );
+
+    // our virtual grid used to place items
+    m_grid = new WQtNetworkItemGrid;
+
+    m_scene->addItem( m_grid );
+
+    // QGraphicsScene provides no virtual methods for adding/removing items, thus we use a separate layouter instead of implementing this in
+    // WQtNetworkScene
+    m_layout = new WQtNetworkSceneLayout( m_scene, m_grid );
 
     m_view->setScene( m_scene );
 
@@ -148,6 +157,18 @@ bool WQtNetworkEditor::event( QEvent* event )
             WQtNetworkItem *item = new WQtNetworkItem( this, e1->getModule() );
             m_items.push_back( item );
             m_scene->addItem( item );
+            m_layout->addItem( item );
+
+            // make visible
+            QList< QGraphicsView* > allViews = m_scene->views();
+            // This is needed here for some reason. You know how to make this better? Tell us.
+            // REASON: although the WQtNetworkItemGrid updates its bounding box, the ensureVisible call does not move to the new item.
+            // Also calling the next method directly from the grid causes seg-faults when leaving the widget area while dragging the item.
+            m_scene->setSceneRect( m_layout->getBoundingBox() );
+            foreach( QGraphicsView* v, allViews )
+            {
+                v->ensureVisible( item );
+            }
         }
         return true;
     }
@@ -255,6 +276,9 @@ bool WQtNetworkEditor::event( QEvent* event )
             arrow->updatePosition();
 
             m_scene->addItem( arrow );
+
+            // also update the layouter
+            m_layout->connection( outItem, inItem );
         }
     }
 
@@ -355,6 +379,9 @@ bool WQtNetworkEditor::event( QEvent* event )
             WLogger::getLogger()->addLogMessage( "Arrow not found!.", "NetworkEditor", LL_ERROR );
         }
 
+        // update layouter
+        m_layout->disconnection( outItem, inItem );
+
         return true;
     }
 
@@ -405,6 +432,7 @@ bool WQtNetworkEditor::event( QEvent* event )
         if( item != 0 )
         {
             m_items.removeAll( item );
+            // NOTE: the die-animation also removes the item from the layout. (in  WQtNetworkItem::removalAnimationDone )
             item->die();
         }
 
@@ -458,5 +486,10 @@ WQtNetworkScene* WQtNetworkEditor::getScene()
 WQtNetworkEditorView* WQtNetworkEditor::getView()
 {
     return m_view;
+}
+
+WQtNetworkSceneLayout* WQtNetworkEditor::getLayout()
+{
+    return m_layout;
 }
 

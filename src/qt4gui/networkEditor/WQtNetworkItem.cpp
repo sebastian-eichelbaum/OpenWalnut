@@ -42,15 +42,14 @@
 #include "WQtNetworkItem.h"
 #include "WQtNetworkItemActivator.h"
 #include "WQtNetworkScene.h"
+#include "WQtNetworkSceneLayout.h"
 #include "WQtNetworkEditor.h"
 #include "WQtNetworkColors.h"
-#include "WQtNetworkEditorGlobals.h"
 
 #include "WQtNetworkItem.moc"
 
 WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WModule > module ):
-    QObject( editor ),
-    QGraphicsRectItem(),
+    QGraphicsObject(),
     m_isHovered( false ),
     m_isSelected( false ),
     m_busyIsDetermined( false ),
@@ -61,6 +60,9 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WMo
 {
     m_networkEditor = editor;
     m_module = module;
+
+    // important to automatically update the arrows if the item moves around
+    setFlag( ItemSendsGeometryChanges );
 
     setCacheMode( DeviceCoordinateCache );
 
@@ -84,7 +86,7 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WMo
 
     // setup animation
     m_animation = new QGraphicsItemAnimation;
-    m_animationTimer = new QTimeLine( 250 );
+    m_animationTimer = new QTimeLine( WNETWORKITEM_BIRTH_DURATION );
     m_animationTimer->setFrameRange( 0, 100 );
     m_animation->setItem( this );
     m_animation->setTimeLine( m_animationTimer );
@@ -103,7 +105,7 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WMo
 
     // setup removal animation
     m_removalAnimation = new QGraphicsItemAnimation;
-    m_removalAnimationTimer = new QTimeLine( 250 );
+    m_removalAnimationTimer = new QTimeLine( WNETWORKITEM_DEATH_DURATION );
     m_removalAnimationTimer->setFrameRange( 0, 100 );
     m_removalAnimation->setItem( this );
     m_removalAnimation->setTimeLine( m_removalAnimationTimer );
@@ -178,6 +180,10 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WMo
     // this now calculated the optimal size. We keep them for later use
     m_itemBestWidth = boundingRect().width();
 
+    // get notified on position changes:
+    //connect( this, SIGNAL( xChanged() ), this, SLOT( positionChanged() ) );
+    //connect( this, SIGNAL( yChanged() ), this, SLOT( positionChanged() ) );
+
     m_animationTimer->start();
 }
 
@@ -215,6 +221,23 @@ WQtNetworkItem::~WQtNetworkItem()
 int WQtNetworkItem::type() const
 {
     return Type;
+}
+
+QRectF WQtNetworkItem::boundingRect() const
+{
+    return m_rect;
+}
+
+void WQtNetworkItem::positionChanged()
+{
+    foreach( WQtNetworkPort *port, m_inPorts )
+    {
+        port->updateArrows();
+    }
+    foreach( WQtNetworkPort *port, m_outPorts )
+    {
+        port->updateArrows();
+    }
 }
 
 void WQtNetworkItem::updater()
@@ -332,7 +355,7 @@ void WQtNetworkItem::hoverLeaveEvent( QGraphicsSceneHoverEvent *event )
     update();
 }
 
-void WQtNetworkItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* w )
+void WQtNetworkItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* /* w */ )
 {
     // This is the default appearance
     QPen newPen = QPen( m_itemColor, 1, Qt::SolidLine, Qt::SquareCap, Qt::RoundJoin );
@@ -365,18 +388,13 @@ void WQtNetworkItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* o
 
     // only set brush and pen if they have changed
     QBrush newBrush = QBrush( fillColor );
-    if( newBrush != brush() )
-    {
-        setBrush( newBrush );
-    }
-    if( newPen != pen() )
-    {
-        setPen( newPen );
-    }
+    painter->setBrush( newBrush );
+    painter->setPen( newPen );
 
-    QStyleOptionGraphicsItem *o = const_cast<QStyleOptionGraphicsItem*>( option );
+    QStyleOptionGraphicsItem* o = const_cast<QStyleOptionGraphicsItem*>( option );
     o->state &= ~QStyle::State_Selected;
-    QGraphicsRectItem::paint( painter, o, w );
+    // draw the rect
+    painter->drawRect( m_rect );
 
     // strike through crashed modules
     if( m_currentState == Crashed )
@@ -408,25 +426,33 @@ void WQtNetworkItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* o
     }
 }
 
-void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
+void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent* mouseEvent )
 {
-    QGraphicsItem::mouseMoveEvent( mouseEvent );
+    // ask layouter
+    m_networkEditor->getLayout()->snapTemporarily( this, mouseEvent->scenePos() );
 
-    foreach( WQtNetworkPort *port, m_inPorts )
-    {
-        port->updateArrows();
-    }
-    foreach( WQtNetworkPort *port, m_outPorts )
-    {
-        port->updateArrows();
-    }
+    // do not forward event. We handled it.
+    mouseEvent->accept();
+    //QGraphicsItem::mouseMoveEvent( mouseEvent );
 }
 
-void WQtNetworkItem::mousePressEvent( QGraphicsSceneMouseEvent *event )
+void WQtNetworkItem::mousePressEvent( QGraphicsSceneMouseEvent* event )
 {
     m_networkEditor->getScene()->clearSelection();
     setSelected( true );
+
+    m_networkEditor->getLayout()->blendIn();
+
     QGraphicsItem::mousePressEvent( event );
+}
+
+void WQtNetworkItem::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
+{
+    // when released, update layouter
+    m_networkEditor->getLayout()->snapAccept( this );
+    m_networkEditor->getLayout()->blendOut();
+
+    QGraphicsItem::mouseReleaseEvent( event );
 }
 
 void WQtNetworkItem::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* /* event */ )
@@ -476,14 +502,7 @@ QVariant WQtNetworkItem::itemChange( GraphicsItemChange change, const QVariant &
             m_isSelected = isSelected();
             break;
         case ItemPositionHasChanged:
-            foreach( WQtNetworkPort *port, m_inPorts )
-            {
-                port->updateArrows();
-            }
-            foreach( WQtNetworkPort *port, m_outPorts )
-            {
-                port->updateArrows();
-            }
+            positionChanged();
         default:
             break;
     }
@@ -540,6 +559,9 @@ void clipText( QGraphicsTextItem* item, float maxWidth, std::string fullText )
 
 void WQtNetworkItem::fitLook( float maximumWidth, float minimumWidth )
 {
+    // NOTE: this is very important to allow QGraphicsScene updating its index before geometry change
+    prepareGeometryChange();
+
     // The purpose of this method is to ensure proper dimensions of the item and the contained text. This method ensures:
     //  * an item maximum size is WNETWORKITEM_MINIMUM_WIDTH or the width of the connectors!
     //  * text exceeding size limits is cut
@@ -612,7 +634,6 @@ void WQtNetworkItem::fitLook( float maximumWidth, float minimumWidth )
 
     QRectF rect( 0, 0, m_width, m_height );
     m_rect = rect;
-    setRect( m_rect );
 
     // 4: use the sizes and set the positions and sizes of the text elements properly
     if( m_text != 0)
@@ -697,25 +718,6 @@ void WQtNetworkItem::activate( bool active )
     }
 }
 
-bool WQtNetworkItem::advance()
-{
-    if( m_newPos == pos() )
-        return false;
-
-    setPos( m_newPos );
-
-    foreach( WQtNetworkPort *port, m_inPorts )
-    {
-        port->updateArrows();
-    }
-    foreach( WQtNetworkPort *port, m_outPorts )
-    {
-        port->updateArrows();
-    }
-
-    return true;
-}
-
 QTimeLine* WQtNetworkItem::die()
 {
     // this one also keeps a ref on m_module
@@ -736,6 +738,7 @@ void WQtNetworkItem::removalAnimationDone()
     if( scene() != NULL )
     {
         scene()->removeItem( this );
+        m_networkEditor->getLayout()->removeItem( this );
     }
 
     // tell everyone that we are done
@@ -754,3 +757,39 @@ void WQtNetworkItem::animationBlendInTick( qreal value )
 {
     setOpacity( value * value );
 }
+
+void WQtNetworkItem::animatedMoveTo( QPointF newPos )
+{
+    // create a timer and an animation object
+    QGraphicsItemAnimation* animation = new QGraphicsItemAnimation;
+    QTimeLine* animationTimer = new QTimeLine( WNETWORKITEM_MOVE_DURATION );
+
+    // set them up properly
+    animationTimer->setFrameRange( 0, 100 );
+    animation->setItem( this );
+    animation->setTimeLine( animationTimer );
+
+    // delete timer when done
+    connect( animationTimer, SIGNAL( finished() ), animation, SLOT( deleteLater() ) );
+    connect( animationTimer, SIGNAL( finished() ), animationTimer, SLOT( deleteLater() ) );
+
+    // linearly move item
+    float steps = 500.0;
+    QPointF oldPos = pos();
+    for( int i = 0; i < steps; ++i )
+    {
+        float stepNorm = static_cast< float >( i) / static_cast< float >( steps - 1 );
+        QPointF p = ( ( 1.0 - stepNorm ) * oldPos ) + ( stepNorm * newPos );
+        animation->setPosAt( stepNorm, p );
+    }
+    animation->setPosAt( 1.0, newPos );
+
+    // go
+    animationTimer->start();
+}
+
+void WQtNetworkItem::animatedMoveTo( qreal x, qreal y )
+{
+    animatedMoveTo( QPointF( x, y ) );
+}
+

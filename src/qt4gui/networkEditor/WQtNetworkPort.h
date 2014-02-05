@@ -29,7 +29,6 @@
 #include <QtGui/QGraphicsLineItem>
 
 #include "WQtNetworkArrow.h"
-#include "WQtNetworkEditorGlobals.h"
 #include "WQtNetworkPort.h"
 
 // forward declaration

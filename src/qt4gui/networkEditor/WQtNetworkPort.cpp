@@ -30,6 +30,7 @@
 #include "WQtNetworkOutputPort.h"
 #include "WQtNetworkInputPort.h"
 #include "WQtNetworkColors.h"
+#include "WQtNetworkEditorGlobals.h"
 
 #include "core/kernel/combiner/WApplyCombiner.h"
 

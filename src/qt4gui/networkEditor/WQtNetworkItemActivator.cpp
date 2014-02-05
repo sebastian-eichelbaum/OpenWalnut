@@ -34,6 +34,7 @@
 #include "WQtNetworkOutputPort.h"
 #include "WQtNetworkInputPort.h"
 #include "WQtNetworkColors.h"
+#include "WQtNetworkEditorGlobals.h"
 
 #include "WQtNetworkItemActivator.h"
 
@@ -41,9 +42,10 @@ WQtNetworkItemActivator::WQtNetworkItemActivator( boost::shared_ptr< WModule > m
     : m_module( module ), m_activeColor( WQtNetworkColors::ActivatorActive ),
                           m_inactiveColor( WQtNetworkColors::ActivatorInactive )
 {
+    float dist = 2.0;
     // create the shape using a polygon
     QPolygonF poly;
-    poly << QPointF( 1.0, 1.0 ) << QPointF( WNETWORKPORT_SIZEX, 1.0 ) << QPointF( 1.0, WNETWORKPORT_SIZEY );
+    poly << QPointF( dist, dist ) << QPointF( dist + WNETWORKPORT_SIZEX, dist ) << QPointF( dist, dist + WNETWORKPORT_SIZEY );
     setPolygon( poly );
 
     setPen( QPen( Qt::white, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );

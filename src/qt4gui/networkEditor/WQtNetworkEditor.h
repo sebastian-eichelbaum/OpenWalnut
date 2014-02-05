@@ -41,9 +41,11 @@
 #include "WQtNetworkEditorView.h"
 #include "WQtNetworkItem.h"
 #include "WQtNetworkScene.h"
+#include "WQtNetworkSceneLayout.h"
 
 // forward declaration
 class WMainWindow;
+class WQtNetworkItemGrid;
 
 /**
  * Container widget to hold the WQtNetworkScene
@@ -109,6 +111,13 @@ public:
      * \return the view.
      */
     WQtNetworkEditorView* getView();
+
+    /**
+     * Get the layouter of the scene.
+     *
+     * \return the layout instance
+     */
+    WQtNetworkSceneLayout* getLayout();
 protected:
     /**
      * Reference to the main window of the application.
@@ -125,7 +134,9 @@ protected:
     virtual bool event( QEvent* event );
 
 private:
-    WQtNetworkScene* m_scene; //!< QGraphicsScene
+    WQtNetworkScene* m_scene; //!< the scene managing the items
+
+    WQtNetworkSceneLayout* m_layout; //!< the layouter of the scene
 
     QList< WQtNetworkItem* > m_items; //!< a list of the WQtNetworkItems in the WQtNetworkScene
 
@@ -148,6 +159,8 @@ private:
      * The view controlling several scene transformations.
      */
     WQtNetworkEditorView* m_view;
+
+    WQtNetworkItemGrid* m_grid; //!< we use a grid to place the items
 
 private slots:
 

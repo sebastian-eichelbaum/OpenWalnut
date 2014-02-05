@@ -103,7 +103,7 @@ void WQtNetworkEditorView::mouseDoubleClickEvent( QMouseEvent* event )
 
 void WQtNetworkEditorView::mousePressEvent( QMouseEvent* event )
 {
-    // only pan if no element is hit
+   /* // only pan if no element is hit
     if( items( event->pos() ).size() != 0 )
     {
         QGraphicsView::mousePressEvent( event );
@@ -118,12 +118,12 @@ void WQtNetworkEditorView::mousePressEvent( QMouseEvent* event )
 
     // for panning the view
     m_lastPanPoint = event->pos();
-    setCursor( Qt::ClosedHandCursor );
+    setCursor( Qt::ClosedHandCursor );*/
     QGraphicsView::mousePressEvent( event );
 }
 
 void WQtNetworkEditorView::mouseReleaseEvent( QMouseEvent* event )
-{
+{/*
     // middle mouse button release: open add-menu
     if( event->button() == Qt::MidButton )
     {
@@ -132,12 +132,12 @@ void WQtNetworkEditorView::mouseReleaseEvent( QMouseEvent* event )
     }
 
     setCursor( Qt::ArrowCursor );
-    m_lastPanPoint = QPoint();
+    m_lastPanPoint = QPoint();*/
     QGraphicsView::mouseReleaseEvent( event );
 }
 
 void WQtNetworkEditorView::mouseMoveEvent( QMouseEvent* event )
-{
+{/*
     // are we in pan mode?
     if( !m_lastPanPoint.isNull() )
     {
@@ -151,14 +151,14 @@ void WQtNetworkEditorView::mouseMoveEvent( QMouseEvent* event )
         // during pan, avoid anyone else to handle this event
         event->accept();
         return;
-    }
+    }*/
     QGraphicsView::mouseMoveEvent( event );
 }
 
 void WQtNetworkEditorView::wheelEvent( QWheelEvent* event )
 {
     // get the position of the mouse before scaling, in scene coords
-    QPointF pointBeforeScale( mapToScene( event->pos() ) );
+    /*QPointF pointBeforeScale( mapToScene( event->pos() ) );
 
     // get the original screen centerpoint
     QPointF screenCenter = getCenter();
@@ -185,18 +185,18 @@ void WQtNetworkEditorView::wheelEvent( QWheelEvent* event )
     // adjust to the new center for correct zooming
     QPointF newCenter = screenCenter + offset;
     setCenter( newCenter );
-
+*/
     // we do not forward this event to avoid the scrollbox to scroll around while zooming
-    event->accept();
-    // QGraphicsView::wheelEvent( event );
+  //  event->accept();
+     QGraphicsView::wheelEvent( event );
 }
 
 void WQtNetworkEditorView::resizeEvent( QResizeEvent* event )
 {
-    // get the rectangle of the visible area in scene coords
+  /*  // get the rectangle of the visible area in scene coords
     QRectF visibleArea = mapToScene( rect() ).boundingRect();
     setCenter( visibleArea.center() );
-
+*/
     // call the subclass resize so the scrollbars are updated correctly
     QGraphicsView::resizeEvent( event );
 }
