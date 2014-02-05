@@ -167,7 +167,15 @@ bool WQtNetworkEditor::event( QEvent* event )
             m_scene->setSceneRect( m_layout->getBoundingBox() );
             foreach( QGraphicsView* v, allViews )
             {
-                v->ensureVisible( item );
+                WQtNetworkEditorView* nv = dynamic_cast< WQtNetworkEditorView* >( v );
+                if( nv )
+                {
+                    nv->focusOn( item );
+                }
+                else
+                {
+                    v->ensureVisible( item );
+                }
             }
         }
         return true;

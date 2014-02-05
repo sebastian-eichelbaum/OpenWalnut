@@ -26,7 +26,8 @@
 #define WQTNETWORKEDITORVIEW_H
 
 #include <QtGui/QGraphicsView>
-#include <QtGui/QGraphicsRectItem>
+
+class QGraphicsItem;
 
 /**
  * This class extends the basic functionality of QGraphicsView to allow comfortable panning and zooming.
@@ -41,6 +42,13 @@ public:
      * \param parent parent widgets containing the view
      */
     explicit WQtNetworkEditorView( QWidget* parent = NULL );
+
+    /**
+     * The Item to focus on. Use this instead of QGraphicsView::ensureVisible.
+     *
+     * \param item the item.
+     */
+    void focusOn( QGraphicsItem* item );
 
 signals:
     /**
@@ -147,6 +155,11 @@ private:
      * To keep track of mouse movement, cache last known mouse event point
      */
     QPoint m_lastPanPoint;
+
+    /**
+     * If true, we are in pan mode.
+     */
+    bool m_panning;
 
     /**
      * Action list

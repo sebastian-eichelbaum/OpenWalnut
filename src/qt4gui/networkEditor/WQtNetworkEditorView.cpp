@@ -24,6 +24,7 @@
 
 #include <QtGui/QMouseEvent>
 #include <QtGui/QWheelEvent>
+#include <QtGui/QGraphicsItem>
 
 #include "core/common/WLogger.h"
 #include "core/kernel/WModuleFactory.h"
@@ -38,6 +39,8 @@
 WQtNetworkEditorView::WQtNetworkEditorView( QWidget* parent ):
     QGraphicsView( parent )
 {
+    m_panning = false;
+
     setDragMode( QGraphicsView::NoDrag );
     setRenderHint( QPainter::Antialiasing );
     setMinimumSize( 20, 20 );
@@ -52,6 +55,12 @@ WQtNetworkEditorView::WQtNetworkEditorView( QWidget* parent ):
                                                    0, false );
     m_addMenu = new WQtMenuFiltered( this );
     m_addMenu->addActions( m_addModuleActionList );
+}
+
+void WQtNetworkEditorView::focusOn( QGraphicsItem* item )
+{
+    ensureVisible( item );
+    setCenter( item->mapToScene( item->boundingRect().center() ) );
 }
 
 void WQtNetworkEditorView::setCenter( const QPointF& centerPoint )
@@ -103,7 +112,7 @@ void WQtNetworkEditorView::mouseDoubleClickEvent( QMouseEvent* event )
 
 void WQtNetworkEditorView::mousePressEvent( QMouseEvent* event )
 {
-   /* // only pan if no element is hit
+    // only pan if no element is hit
     if( items( event->pos() ).size() != 0 )
     {
         QGraphicsView::mousePressEvent( event );
@@ -113,17 +122,22 @@ void WQtNetworkEditorView::mousePressEvent( QMouseEvent* event )
     // also ignore middle mouse button
     if( event->button() == Qt::MidButton )
     {
+        event->accept();
         return;
     }
 
-    // for panning the view
-    m_lastPanPoint = event->pos();
-    setCursor( Qt::ClosedHandCursor );*/
+    if( event->button() == Qt::LeftButton )
+    {
+        // for panning the view
+        m_lastPanPoint = event->pos();
+        m_panning = true;
+        setCursor( Qt::ClosedHandCursor );
+    }
     QGraphicsView::mousePressEvent( event );
 }
 
 void WQtNetworkEditorView::mouseReleaseEvent( QMouseEvent* event )
-{/*
+{
     // middle mouse button release: open add-menu
     if( event->button() == Qt::MidButton )
     {
@@ -132,14 +146,15 @@ void WQtNetworkEditorView::mouseReleaseEvent( QMouseEvent* event )
     }
 
     setCursor( Qt::ArrowCursor );
-    m_lastPanPoint = QPoint();*/
+    m_lastPanPoint = QPoint();
+    m_panning = false;
     QGraphicsView::mouseReleaseEvent( event );
 }
 
 void WQtNetworkEditorView::mouseMoveEvent( QMouseEvent* event )
-{/*
+{
     // are we in pan mode?
-    if( !m_lastPanPoint.isNull() )
+    if( m_panning )
     {
         // get how much we panned
         QPointF delta = mapToScene( m_lastPanPoint ) - mapToScene( event->pos() );
@@ -151,7 +166,7 @@ void WQtNetworkEditorView::mouseMoveEvent( QMouseEvent* event )
         // during pan, avoid anyone else to handle this event
         event->accept();
         return;
-    }*/
+    }
     QGraphicsView::mouseMoveEvent( event );
 }
 
