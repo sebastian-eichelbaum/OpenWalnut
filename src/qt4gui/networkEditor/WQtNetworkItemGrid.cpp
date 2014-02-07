@@ -41,11 +41,20 @@ WQtNetworkItemGrid::WQtNetworkItemGrid():
     // initialize members
     setZValue( -1.0 );
     setOpacity( 0.0 );
+
+    // blend timer
+    m_blendInTimer = new QTimeLine( WNETWORKITEM_GRIDBLENDIN_DURATION );
+    connect( m_blendInTimer, SIGNAL( valueChanged( qreal ) ), this, SLOT( animationBlendInTick( qreal ) ) );
+
+    m_blendOutTimer = new QTimeLine( WNETWORKITEM_GRIDBLENDOUT_DURATION );
+    connect( m_blendOutTimer, SIGNAL( valueChanged( qreal ) ), this, SLOT( animationBlendOutTick( qreal ) ) );
 }
 
 WQtNetworkItemGrid::~WQtNetworkItemGrid()
 {
     // cleanup
+    delete m_blendInTimer;
+    delete m_blendOutTimer;
 }
 
 QRectF WQtNetworkItemGrid::boundingRect() const
@@ -402,20 +411,38 @@ void WQtNetworkItemGrid::highlightCell()
 
 void WQtNetworkItemGrid::blendIn()
 {
-    QTimeLine* animationTimer = new QTimeLine( WNETWORKITEM_GRIDBLENDIN_DURATION );
-    animationTimer->setFrameRange( 0, 100 );
-    connect( animationTimer, SIGNAL( valueChanged( qreal ) ), this, SLOT( animationBlendInTick( qreal ) ) );
-    connect( animationTimer, SIGNAL( finished() ), animationTimer, SLOT( deleteLater() ) );
-    animationTimer->start();
+    // if currently blending out, stop it and continue with blending in at this position
+    if( m_blendOutTimer->state() == QTimeLine::Running )
+    {
+        m_blendOutTimer->stop();
+        float doneRatio = static_cast< float >( m_blendOutTimer->currentTime() ) / static_cast< float >( m_blendInTimer->duration() );
+        float remaining = doneRatio * static_cast< float >( m_blendInTimer->duration() );
+        m_blendInTimer->setCurrentTime( static_cast< int >( remaining ) );
+    }
+    else
+    {
+        m_blendInTimer->setCurrentTime( 0 );
+    }
+
+    m_blendInTimer->start();
 }
 
 void WQtNetworkItemGrid::blendOut()
 {
-    QTimeLine* animationTimer = new QTimeLine( WNETWORKITEM_GRIDBLENDOUT_DURATION );
-    animationTimer->setFrameRange( 0, 100 );
-    connect( animationTimer, SIGNAL( valueChanged( qreal ) ), this, SLOT( animationBlendOutTick( qreal ) ) );
-    connect( animationTimer, SIGNAL( finished() ), animationTimer, SLOT( deleteLater() ) );
-    animationTimer->start();
+    // if currently blending out, stop it and continue with blending in at this position
+    if( m_blendInTimer->state() == QTimeLine::Running )
+    {
+        m_blendInTimer->stop();
+        float doneRatio = static_cast< float >( m_blendInTimer->currentTime() ) / static_cast< float >( m_blendInTimer->duration() );
+        float remaining = doneRatio * static_cast< float >( m_blendOutTimer->duration() );
+        m_blendOutTimer->setCurrentTime( static_cast< int >( remaining ) );
+    }
+    else
+    {
+        m_blendOutTimer->setCurrentTime( 0 );
+    }
+
+    m_blendOutTimer->resume();
 }
 
 void WQtNetworkItemGrid::animationBlendInTick( qreal value )

@@ -429,7 +429,7 @@ void WQtNetworkItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* o
 
 void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent* mouseEvent )
 {
-    if( ( mouseEvent->button() == Qt::LeftButton ) && m_dragging )
+    if( m_dragging )
     {
         // ask layouter
         m_networkEditor->getLayout()->snapTemporarily( this, mouseEvent->scenePos() );
@@ -445,10 +445,11 @@ void WQtNetworkItem::mousePressEvent( QGraphicsSceneMouseEvent* event )
     if( event->button() == Qt::LeftButton )
     {
         m_dragging = true;
+        m_networkEditor->getLayout()->blendIn();
     }
     m_networkEditor->getScene()->clearSelection();
     setSelected( true );
-    m_networkEditor->getLayout()->blendIn();
+
     event->accept();
     // QGraphicsItem::mousePressEvent( event );
 }
@@ -461,8 +462,9 @@ void WQtNetworkItem::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
 
         // when released, update layouter
         m_networkEditor->getLayout()->snapAccept( this );
-        m_networkEditor->getLayout()->blendOut();
     }
+
+    m_networkEditor->getLayout()->blendOut();
 
     // make visible if clicked at the border of the view
     QList< QGraphicsView* > allViews = scene()->views();

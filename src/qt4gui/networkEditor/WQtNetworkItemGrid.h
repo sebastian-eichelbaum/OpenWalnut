@@ -268,6 +268,7 @@ public:
      */
     void highlightCell();
 
+public slots:
     /**
      * Allows blending in the underlaying layout structure.
      */
@@ -374,6 +375,16 @@ private:
      */
     bool m_highlightCellEnabled;
 
+    /**
+     * Timer used for blend in effects of the grid.
+     */
+    QTimeLine* m_blendInTimer;
+
+    /**
+     * Timer used for blend in effects of the grid.
+     */
+    QTimeLine* m_blendOutTimer;
+
 private slots:
     /**
      * Called when the animation timers tick and progress in timeline. Used to blend the item in.
@@ -388,7 +399,6 @@ private slots:
      * \param value the value between 0 and 1
      */
     void animationBlendOutTick( qreal value );
-
 };
 
 #endif  // WQTNETWORKITEMGRID_H
