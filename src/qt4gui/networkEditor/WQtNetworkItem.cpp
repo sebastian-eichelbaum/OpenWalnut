@@ -470,11 +470,11 @@ void WQtNetworkItem::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
     QList< QGraphicsView* > allViews = scene()->views();
     foreach( QGraphicsView* v, allViews )
     {
+        // Our own view offers a smooth version of ensureVisible. Try to use it.
         WQtNetworkEditorView* nv = dynamic_cast< WQtNetworkEditorView* >( v );
         if( nv )
         {
-            // Maybe use focusOn() here?
-            nv->ensureVisible( this );
+            nv->ensureVisibleSmooth( this );
         }
         else
         {

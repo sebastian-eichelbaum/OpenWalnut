@@ -40,13 +40,22 @@
 #define WNETWORKITEM_MAXIMUM_HEIGHT 50
 
 // Animation times in ms
+
+// Mode birth/dead
 #define WNETWORKITEM_BIRTH_DURATION 500
 #define WNETWORKITEM_DEATH_DURATION 250
+
+// Module movement (re-layout and snap-back)
 #define WNETWORKITEM_MOVE_DURATION 500
+
+// Item grid line blending
 #define WNETWORKITEM_GRIDBLENDIN_DURATION 250
 #define WNETWORKITEM_GRIDBLENDOUT_DURATION 250
 
-// Item Grid
+// View Scroll times
+#define WNETWORKITEM_VIEWPAN_DURATION 500
+
+// Item grid
 #define WNETWORKITEM_XSPACE 16  // distance between the grid boxes
 #define WNETWORKITEM_YSPACE 50  // distance between the grid boxes
 

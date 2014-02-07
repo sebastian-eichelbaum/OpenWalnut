@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <QtGui/QMouseEvent>
+#include <QtGui/QScrollBar>
 #include <QtGui/QWheelEvent>
 #include <QtGui/QGraphicsItem>
 
@@ -33,6 +34,7 @@
 #include "../WMainWindow.h"
 #include "../guiElements/WQtMenuFiltered.h"
 
+#include "WQtNetworkEditorGlobals.h"
 #include "WQtNetworkEditorView.h"
 #include "WQtNetworkEditorView.moc"
 
@@ -45,7 +47,6 @@ WQtNetworkEditorView::WQtNetworkEditorView( QWidget* parent ):
     setRenderHint( QPainter::Antialiasing );
     setMinimumSize( 20, 20 );
 
-    setCenter( QPointF( 0.0, 0.0 ) );
     setResizeAnchor( QGraphicsView::AnchorUnderMouse );
     setAcceptDrops( true );
 
@@ -55,23 +56,74 @@ WQtNetworkEditorView::WQtNetworkEditorView( QWidget* parent ):
                                                    0, false );
     m_addMenu = new WQtMenuFiltered( this );
     m_addMenu->addActions( m_addModuleActionList );
+
+    m_autoPanTimer = new QTimeLine( WNETWORKITEM_VIEWPAN_DURATION );
+    connect( m_autoPanTimer, SIGNAL( valueChanged( qreal ) ), this, SLOT( autoPanTick( qreal ) ) );
 }
 
 void WQtNetworkEditorView::focusOn( QGraphicsItem* item )
 {
-    ensureVisible( item );
-    setCenter( item->mapToScene( item->boundingRect().center() ) );
+    //ensureVisibleSmooth( item );
+    centerOn( item );
 }
 
-void WQtNetworkEditorView::setCenter( const QPointF& centerPoint )
+void WQtNetworkEditorView::ensureVisibleSmooth( QGraphicsItem* item , int xmargin, int ymargin )
 {
-    m_currentCenterPoint = centerPoint;
-    centerOn( m_currentCenterPoint );
+    // rect of the item inside the scene -> convert from scene to viewport
+    QRectF viewRect = mapFromScene( matrix().mapRect( item->sceneBoundingRect() ) ).boundingRect();
+
+    // actually visible area
+    qreal top = verticalScrollBar()->value();
+    qreal left = horizontalScrollBar()->value();
+    qreal width = viewport()->width();
+    qreal height = viewport()->height();
+
+    m_autoPanOrig = QPoint( left, top );
+    m_autoPanTarget = QPoint();
+
+    // our rect somehow outside the left
+    if( viewRect.left() < xmargin )
+    {
+        m_autoPanTarget.rx() = viewRect.left() - xmargin;
+    }
+    // ... the right
+    if( viewRect.right() + xmargin > width )
+    {
+        m_autoPanTarget.rx() = viewRect.right() + xmargin - width;
+    }
+    // ... above
+    if( viewRect.top() < ymargin )
+    {
+        m_autoPanTarget.ry() = viewRect.top() - ymargin;
+    }
+
+    // ... below
+    if( viewRect.bottom() + ymargin > height )
+    {
+        m_autoPanTarget.ry() = viewRect.bottom() + ymargin - height;
+    }
+
+    m_autoPanTimer->stop();
+    m_autoPanTimer->start();
 }
 
-QPointF WQtNetworkEditorView::getCenter()
+void WQtNetworkEditorView::autoPanTick( qreal value )
 {
-    return m_currentCenterPoint;
+    moveTo( m_autoPanOrig + value * m_autoPanTarget );
+}
+
+void WQtNetworkEditorView::moveBy( const QPointF& delta )
+{
+    QScrollBar* horiz = horizontalScrollBar();
+    QScrollBar* vert = verticalScrollBar();
+    horiz->setValue( horiz->value() - delta.x() );
+    vert->setValue( vert->value() - delta.y() );
+}
+
+void WQtNetworkEditorView::moveTo( const QPointF& target )
+{
+    horizontalScrollBar()->setValue( target.x() );
+    verticalScrollBar()->setValue( target.y() );
 }
 
 void WQtNetworkEditorView::leaveEvent( QEvent* event )
@@ -161,7 +213,7 @@ void WQtNetworkEditorView::mouseMoveEvent( QMouseEvent* event )
         m_lastPanPoint = event->pos();
 
         // update the center ie. do the pan
-        setCenter( getCenter() + delta );
+        moveBy( -delta );
 
         // during pan, avoid anyone else to handle this event
         event->accept();
@@ -173,7 +225,7 @@ void WQtNetworkEditorView::mouseMoveEvent( QMouseEvent* event )
 void WQtNetworkEditorView::wheelEvent( QWheelEvent* event )
 {
     // get the position of the mouse before scaling, in scene coords
-    /*QPointF pointBeforeScale( mapToScene( event->pos() ) );
+ /*   QPointF pointBeforeScale( mapToScene( event->pos() ) );
 
     // get the original screen centerpoint
     QPointF screenCenter = getCenter();
@@ -202,16 +254,11 @@ void WQtNetworkEditorView::wheelEvent( QWheelEvent* event )
     setCenter( newCenter );
 */
     // we do not forward this event to avoid the scrollbox to scroll around while zooming
-  //  event->accept();
-     QGraphicsView::wheelEvent( event );
+    event->accept();
 }
 
 void WQtNetworkEditorView::resizeEvent( QResizeEvent* event )
 {
-  /*  // get the rectangle of the visible area in scene coords
-    QRectF visibleArea = mapToScene( rect() ).boundingRect();
-    setCenter( visibleArea.center() );
-*/
     // call the subclass resize so the scrollbars are updated correctly
     QGraphicsView::resizeEvent( event );
 }

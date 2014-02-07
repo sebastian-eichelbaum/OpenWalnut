@@ -25,6 +25,7 @@
 #ifndef WQTNETWORKEDITORVIEW_H
 #define WQTNETWORKEDITORVIEW_H
 
+#include <QtCore/QTimeLine>
 #include <QtGui/QGraphicsView>
 
 class QGraphicsItem;
@@ -50,6 +51,14 @@ public:
      */
     void focusOn( QGraphicsItem* item );
 
+    /**
+     * Improved version of QGraphicsView::ensureVisible for smooth scrolling.
+     *
+     * \param item the item to make visible.
+     * \param xmargin the margin to ensure between item border and visible scene border (x direction)
+     * \param ymargin the margin to ensure between item border and visible scene border (y direction)
+     */
+    void ensureVisibleSmooth( QGraphicsItem* item , int xmargin = 50, int ymargin = 50 );
 signals:
     /**
      * Emitted whenever the user caused a load event.
@@ -64,24 +73,6 @@ signals:
     void dragDrop( QDropEvent* event );
 
 protected:
-    /**
-     * Sets the current centerpoint.  Also updates the scene's center point.
-     * Unlike centerOn, which has no way of getting the floating point center
-     * back, setCenter() stores the center point.  It also handles the special
-     * sidebar case.  This function will claim the centerPoint to sceneRec ie.
-     * the centerPoint must be within the sceneRec.
-     *
-     * \param centerPoint the center
-     */
-    void setCenter( const QPointF& centerPoint );
-
-    /**
-     * Returns current center point
-     *
-     * \return
-     */
-    QPointF getCenter();
-
     /**
      * Double clicked into the view
      *
@@ -145,12 +136,21 @@ protected:
      */
     virtual void dropEvent( QDropEvent *event );
 
-private:
     /**
-     * The currently set centerpoint.
+     * Move scene in the view by delta units
+     *
+     * \param delta move vector.
      */
-    QPointF m_currentCenterPoint;
+    void moveBy( const QPointF& delta );
 
+    /**
+     * Move scrollarea to absolute position.
+     *
+     * \param target the new scroll position
+     */
+    void moveTo( const QPointF& target );
+
+private:
     /**
      * To keep track of mouse movement, cache last known mouse event point
      */
@@ -170,6 +170,29 @@ private:
      * The menu containing the add actions in m_addModuleActionList.
      */
     QMenu* m_addMenu;
+
+    /**
+     * Auto-pan vector
+     */
+    QPoint m_autoPanTarget;
+
+    /**
+     * Origin of auto-pan movement for proper interpolation.
+     */
+    QPoint m_autoPanOrig;
+
+    /**
+     * Auto-pan timer
+     */
+    QTimeLine* m_autoPanTimer;
+
+private slots:
+    /**
+     * Called every tick of the auto pan timer
+     *
+     * \param value
+     */
+    void autoPanTick( qreal value );
 };
 
 #endif  // WQTNETWORKEDITORVIEW_H
