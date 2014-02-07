@@ -56,7 +56,8 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WMo
     m_busyPercent( 0.0 ),
     m_busyIndicatorShow( false ),
     m_forceUpdate( true ),
-    m_propertyToolWindow( NULL )
+    m_propertyToolWindow( NULL ),
+    m_dragging( true )
 {
     m_networkEditor = editor;
     m_module = module;
@@ -428,8 +429,11 @@ void WQtNetworkItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* o
 
 void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent* mouseEvent )
 {
-    // ask layouter
-    m_networkEditor->getLayout()->snapTemporarily( this, mouseEvent->scenePos() );
+    if( ( mouseEvent->button() == Qt::LeftButton ) && m_dragging )
+    {
+        // ask layouter
+        m_networkEditor->getLayout()->snapTemporarily( this, mouseEvent->scenePos() );
+    }
 
     // do not forward event. We handled it.
     mouseEvent->accept();
@@ -438,6 +442,10 @@ void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent* mouseEvent )
 
 void WQtNetworkItem::mousePressEvent( QGraphicsSceneMouseEvent* event )
 {
+    if( event->button() == Qt::LeftButton )
+    {
+        m_dragging = true;
+    }
     m_networkEditor->getScene()->clearSelection();
     setSelected( true );
     m_networkEditor->getLayout()->blendIn();
@@ -447,12 +455,30 @@ void WQtNetworkItem::mousePressEvent( QGraphicsSceneMouseEvent* event )
 
 void WQtNetworkItem::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
 {
-    // when released, update layouter
-    m_networkEditor->getLayout()->snapAccept( this );
-    m_networkEditor->getLayout()->blendOut();
+    if( m_dragging )
+    {
+        m_dragging = false;
+
+        // when released, update layouter
+        m_networkEditor->getLayout()->snapAccept( this );
+        m_networkEditor->getLayout()->blendOut();
+    }
 
     // make visible if clicked at the border of the view
-    ensureVisible();
+    QList< QGraphicsView* > allViews = scene()->views();
+    foreach( QGraphicsView* v, allViews )
+    {
+        WQtNetworkEditorView* nv = dynamic_cast< WQtNetworkEditorView* >( v );
+        if( nv )
+        {
+            // Maybe use focusOn() here?
+            nv->ensureVisible( this );
+        }
+        else
+        {
+            v->ensureVisible( this );
+        }
+    }
 
     event->accept();
     // QGraphicsItem::mouseReleaseEvent( event );

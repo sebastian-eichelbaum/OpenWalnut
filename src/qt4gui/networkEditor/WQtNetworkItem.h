@@ -357,6 +357,11 @@ private:
      * Keep track of the mouse dragging of this item
      */
     QPointF m_dragStartPosition;
+
+    /**
+     * Dragging?
+     */
+    bool m_dragging;
 private slots:
     /**
      * Called when the m_removalAnimationTimer finishes.
