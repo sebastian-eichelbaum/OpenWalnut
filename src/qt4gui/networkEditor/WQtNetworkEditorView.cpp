@@ -63,8 +63,8 @@ WQtNetworkEditorView::WQtNetworkEditorView( QWidget* parent ):
 
 void WQtNetworkEditorView::focusOn( QGraphicsItem* item )
 {
-    //ensureVisibleSmooth( item );
-    centerOn( item );
+    ensureVisibleSmooth( item );
+    // centerOn( item );
 }
 
 void WQtNetworkEditorView::ensureVisibleSmooth( QGraphicsItem* item , int xmargin, int ymargin )
