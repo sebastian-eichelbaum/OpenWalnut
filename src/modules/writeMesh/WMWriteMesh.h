@@ -111,6 +111,13 @@ private:
     bool saveVTKASCII() const;
 
     /**
+     * Write STL format.
+     *
+     * \return  true if successful.
+     */
+    bool saveSTL();
+
+    /**
      * Store the mesh in a json (javascript object notation) file.
      *
      * \return true if successful.

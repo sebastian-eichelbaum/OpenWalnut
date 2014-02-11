@@ -90,6 +90,7 @@ void WMWriteMesh::properties()
     m_fileTypeSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_fileTypeSelectionsList->addItem( "VTK ASCII", "" );
     m_fileTypeSelectionsList->addItem( "json", "" );
+    m_fileTypeSelectionsList->addItem( "STL", "Ascii Stereo Lithography File." );
 
     m_fileTypeSelection = m_properties->addProperty( "File type",  "file type.", m_fileTypeSelectionsList->getSelectorFirst() );
        WPropertyHelper::PC_SELECTONLYONE::addTo( m_fileTypeSelection );
@@ -132,6 +133,10 @@ void WMWriteMesh::moduleMain()
             case 1:
                 debugLog() << "type json file selected";
                 saveJson();
+                break;
+            case 2:
+                debugLog() << "type STL file selected";
+                saveSTL();
                 break;
             default:
                 debugLog() << "this shouldn't be reached";
@@ -215,6 +220,68 @@ bool WMWriteMesh::saveVTKASCII() const
     }
     dataFile.close();
     WLogger::getLogger()->addLogMessage( "saving done", "Write Mesh", LL_DEBUG );
+    return true;
+}
+
+bool WMWriteMesh::saveSTL()
+{
+    if( !m_triMesh )
+    {
+        return false;
+    }
+
+    if( m_triMesh->vertSize() == 0 )
+    {
+        WLogger::getLogger()->addLogMessage( "Will not write file that contains 0 vertices.", "Write Mesh", LL_ERROR );
+        return false;
+    }
+
+    if( m_triMesh->triangleSize() == 0 )
+    {
+        WLogger::getLogger()->addLogMessage( "Will not write file that contains 0 triangles.", "Write Mesh", LL_ERROR );
+        return false;
+    }
+
+    const char* c_file = m_meshFile->get().string().c_str();
+    std::ofstream dataFile( c_file, std::ios_base::binary );
+
+    if( dataFile )
+    {
+        WLogger::getLogger()->addLogMessage( "Opening file", "Write Mesh", LL_DEBUG );
+    }
+    else
+    {
+        WLogger::getLogger()->addLogMessage( "Open file failed" + m_meshFile->get().string() , "Write Mesh", LL_ERROR );
+        return false;
+    }
+
+    WLogger::getLogger()->addLogMessage( "Start writing file", "Write Mesh", LL_DEBUG );
+    dataFile << ( "solid OpenWalnut_TriangleMesh\n" );
+
+    // STL requires special number format. Look at Wikipedia: "in sign-mantissa 'e'-sign-exponent format, e.g., "-2.648000e-002"
+    dataFile.precision( 16 );
+    dataFile << std::scientific;
+
+    // write each triangle. Remember: only one normal per facet. If 0,0,0, viewer program calculates them.
+    for( size_t i = 0; i < m_triMesh->triangleSize(); ++i )
+    {
+        osg::Vec3f v1 = m_triMesh->getTriVert( i, 0 );
+        osg::Vec3f v2 = m_triMesh->getTriVert( i, 1 );
+        osg::Vec3f v3 = m_triMesh->getTriVert( i, 2 );
+
+        // write face, use right hand rule
+        dataFile << "facet normal 0 0 0 " << std::endl;
+        dataFile << "  outer loop" << std::endl;
+        dataFile << "    vertex " << v1.x() << " " << v1.y() << " " << v1.z() << std::endl;
+        dataFile << "    vertex " << v3.x() << " " << v3.y() << " " << v3.z() << std::endl;
+        dataFile << "    vertex " << v2.x() << " " << v2.y() << " " << v2.z() << std::endl;
+        dataFile << "  endloop" << std::endl;
+        dataFile << "endfacet" << std::endl;
+    }
+
+    dataFile << ( "endsolid OpenWalnut_TriangleMesh\n" );
+    dataFile.close();
+    WLogger::getLogger()->addLogMessage( "Saving done", "Write Mesh", LL_DEBUG );
     return true;
 }
 
