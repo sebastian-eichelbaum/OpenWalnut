@@ -224,12 +224,6 @@ void WQtNetworkEditorView::mouseMoveEvent( QMouseEvent* event )
 
 void WQtNetworkEditorView::wheelEvent( QWheelEvent* event )
 {
-    // get the position of the mouse before scaling, in scene coords
- /*   QPointF pointBeforeScale( mapToScene( event->pos() ) );
-
-    // get the original screen centerpoint
-    QPointF screenCenter = getCenter();
-
     // scale the view ie. do the zoom
     double scaleFactor = 1.15;
     if( event->delta() > 0 )
@@ -243,16 +237,6 @@ void WQtNetworkEditorView::wheelEvent( QWheelEvent* event )
         scale( 1.0 / scaleFactor, 1.0 / scaleFactor );
     }
 
-    // get the position after scaling, in scene coords
-    QPointF pointAfterScale( mapToScene( event->pos() ) );
-
-    // get the offset of how the screen moved
-    QPointF offset = pointBeforeScale - pointAfterScale;
-
-    // adjust to the new center for correct zooming
-    QPointF newCenter = screenCenter + offset;
-    setCenter( newCenter );
-*/
     // we do not forward this event to avoid the scrollbox to scroll around while zooming
     event->accept();
 }
