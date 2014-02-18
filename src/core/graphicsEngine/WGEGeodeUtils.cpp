@@ -268,10 +268,10 @@ osg::ref_ptr< osg::Node > wge::generateSolidBoundingBoxNode( const WBoundingBox&
 }
 
 osg::ref_ptr< wosg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mesh,
-                                                         const WColor& defaultColor,
-                                                         bool includeNormals,
-                                                         bool lighting,
-                                                         bool useMeshColor )
+                                                          const WColor& defaultColor,
+                                                          bool includeNormals,
+                                                          bool lighting,
+                                                          bool useMeshColor )
 {
     osg::ref_ptr< wosg::Geometry> geometry( new wosg::Geometry );
     geometry->setVertexArray( mesh->getVertexArray() );
@@ -337,8 +337,89 @@ osg::ref_ptr< wosg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr me
     return geometry;
 }
 
-osg::ref_ptr< wosg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mesh, const WColoredVertices& colorMap, const WColor& defaultColor,
-                                                         bool includeNormals, bool lighting )
+osg::ref_ptr< wosg::Geometry > wge::convertToOsgGeometryFlatShaded( WTriangleMesh::SPtr mesh,
+                                                                    const WColor& defaultColor,
+                                                                    bool includeNormals,
+                                                                    bool lighting,
+                                                                    bool useMeshColor )
+{
+    osg::DrawElementsUInt* surfaceElement;
+    surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
+    std::vector< size_t > tris = mesh->getTriangles();
+
+    osg::ref_ptr< wosg::Geometry> geometry( new wosg::Geometry );
+    osg::ref_ptr< osg::Vec3Array > oldVertexArray( mesh->getVertexArray() );
+    osg::ref_ptr< osg::Vec3Array > newVertexArray( new osg::Vec3Array );
+
+    // Make separate vertices for all triangle corners
+    for( size_t index = 0; index < tris.size(); ++index )
+    {
+        newVertexArray->push_back( (*oldVertexArray)[tris[index]] );
+        surfaceElement->push_back( index );
+    }
+    geometry->setVertexArray( newVertexArray );
+    geometry->addPrimitiveSet( surfaceElement );
+
+    // add the mesh colors
+    if( mesh->getVertexColorArray() && useMeshColor )
+    {
+        geometry->setColorArray( mesh->getVertexColorArray() );
+        geometry->setColorBinding( wosg::Geometry::BIND_PER_VERTEX );
+    }
+    else
+    {
+        osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+        colors->push_back( defaultColor );
+        geometry->setColorArray( colors );
+        geometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
+    }
+
+    // ------------------------------------------------
+    // normals
+    if( includeNormals )
+    {
+        // Set all vertex normals to the normals of the corresponding
+        // triangles causing uniform shading in a triangle
+        osg::ref_ptr< osg::Vec3Array > oldTriNormals = mesh->getTriangleNormalArray( true );
+        osg::ref_ptr< osg::Vec3Array > newVertNormals( new osg::Vec3Array );
+        for( size_t index = 0; index < tris.size(); ++index )
+        {
+            newVertNormals->push_back( (*oldTriNormals)[index/3] );
+        }
+        geometry->setNormalArray( newVertNormals );
+        geometry->setNormalBinding( wosg::Geometry::BIND_PER_VERTEX );
+
+        if( lighting )
+        {
+            // if normals are specified, we also setup a default lighting.
+            osg::StateSet* state = geometry->getOrCreateStateSet();
+            osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
+            lightModel->setTwoSided( true );
+            state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
+            state->setMode( GL_BLEND, osg::StateAttribute::ON  );
+            {
+                osg::ref_ptr< osg::Material > material = new osg::Material();
+                material->setDiffuse(   osg::Material::FRONT, osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
+                material->setSpecular(  osg::Material::FRONT, osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
+                material->setAmbient(   osg::Material::FRONT, osg::Vec4( 0.1, 0.1, 0.1, 1.0 ) );
+                material->setEmission(  osg::Material::FRONT, osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
+                material->setShininess( osg::Material::FRONT, 25.0 );
+                state->setAttribute( material );
+            }
+        }
+    }
+
+    // enable VBO
+    geometry->setUseDisplayList( false );
+    geometry->setUseVertexBufferObjects( true );
+
+    return geometry;
+}
+
+osg::ref_ptr< wosg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr mesh,
+                                                          const WColoredVertices& colorMap,
+                                                          const WColor& defaultColor,
+                                                          bool includeNormals, bool lighting )
 {
     wosg::Geometry* geometry = convertToOsgGeometry( mesh, defaultColor, includeNormals, lighting, false );
 

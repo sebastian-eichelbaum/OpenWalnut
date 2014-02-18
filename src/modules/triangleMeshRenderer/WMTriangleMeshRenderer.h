@@ -134,7 +134,7 @@ private:
      *
      * \return interval center
      */
-     double getIntervallCenterMiddle( double min, double max ) const;
+    double getIntervallCenterMiddle( double min, double max ) const;
 
     /**
      * Center of the mesh. Needed  for applying transformation with the mesh in (0,0,0).
@@ -262,6 +262,11 @@ private:
      * Toggle showing outline instead fo surface.
      */
     WPropBool m_showOutline;
+
+    /**
+     * Toggle flat rendering of surface.
+     */
+    WPropBool m_flatRendering;
 
     /**
      * En/Disable display of only the main component (biggest vertices number)
