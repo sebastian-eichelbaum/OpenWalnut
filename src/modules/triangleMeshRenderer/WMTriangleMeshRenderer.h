@@ -259,14 +259,14 @@ private:
     WPropDouble m_translateZ;
 
     /**
+     * Which rendering mode should be used?
+     */
+    WPropSelection m_renderingMode;
+
+    /**
      * Toggle showing outline instead fo surface.
      */
     WPropBool m_showOutline;
-
-    /**
-     * Toggle flat rendering of surface.
-     */
-    WPropBool m_flatRendering;
 
     /**
      * En/Disable display of only the main component (biggest vertices number)
@@ -279,7 +279,7 @@ private:
     WPropColor m_color;
 
     /**
-     * Which colormode should be used?
+     * Which color mode should be used?
      */
     WPropSelection m_colorMode;
 
