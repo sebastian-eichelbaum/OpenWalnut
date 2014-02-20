@@ -442,9 +442,8 @@ protected:
      */
     unsigned int m_preselection;
 
-private:
     /**
-     * Logger instance for comfortable error logging. Simply use logError() << "my error".
+     * Logger instance for comfortable error logging. Simply use errorLog() << "my error".
      *
      * \return the logger stream.
      */
