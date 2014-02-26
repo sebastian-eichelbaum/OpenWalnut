@@ -58,12 +58,33 @@ void WQtNetworkSceneLayout::removeItem( WQtNetworkItem* item )
 
 void WQtNetworkSceneLayout::connection( WQtNetworkItem* outItem, WQtNetworkItem* inItem )
 {
+    // was layouted earlier?
+    if( inItem->wasLayedOut() )
+    {
+        return;
+    }
+
+    // get out item position
     QPoint out = m_grid->whereIs( outItem );
-    m_grid->moveItem( inItem, out.x(), out.y() + 1 );
+    QPoint in = m_grid->whereIs( outItem );
+
+    // first guess: y + 1
+    QPoint target( out.x(), out.y() + 1 );
+
+    // maybe the x position is already occupied?
+    while( m_grid->isOccupied( target ) && ( target != in ) )
+    {
+        target.rx()++;
+    }
+
+    // move there
+    m_grid->moveItem( inItem, target );
+    inItem->setLayedOut();
 }
 
-void WQtNetworkSceneLayout::disconnection( WQtNetworkItem* outItem, WQtNetworkItem* inItem )
+void WQtNetworkSceneLayout::disconnection( WQtNetworkItem* /* outItem */, WQtNetworkItem* /* inItem */ )
 {
+    // leave item on its current position.
 }
 
 void WQtNetworkSceneLayout::snapTemporarily( WQtNetworkItem* item, QPointF worldCoords )
@@ -97,6 +118,9 @@ void WQtNetworkSceneLayout::snapAccept( WQtNetworkItem* item )
     {
         return;
     }
+
+    // user moved it somewhere. Mark as already positioned.
+    item->setLayedOut();
 
     // move in layout
     if( !m_grid->moveItem( item, newCell ) )

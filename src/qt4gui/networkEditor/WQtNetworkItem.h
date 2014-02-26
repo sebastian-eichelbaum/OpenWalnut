@@ -180,6 +180,20 @@ public:
      * \param y y coord in world space
      */
     void animatedMoveTo( qreal x, qreal y );
+
+    /**
+     * Marks the item as already layed out.
+     *
+     * \param layedOut the layout flag
+     */
+    void setLayedOut( bool layedOut = true );
+
+    /**
+     * Checks whether the item was layed out earlier.
+     *
+     * \return true if already positioned
+     */
+    bool wasLayedOut() const;
 signals:
     /**
      * The item is now dead. Animation completed and item was removed from scene. Do not use this to delete the item.
@@ -362,6 +376,11 @@ private:
      * Dragging?
      */
     bool m_dragging;
+
+    /**
+     * Mark item as already positioned.
+     */
+    bool m_wasLayedOut;
 private slots:
     /**
      * Called when the m_removalAnimationTimer finishes.

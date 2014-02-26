@@ -57,7 +57,8 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WMo
     m_busyIndicatorShow( false ),
     m_forceUpdate( true ),
     m_propertyToolWindow( NULL ),
-    m_dragging( true )
+    m_dragging( true ),
+    m_wasLayedOut( false )
 {
     m_networkEditor = editor;
     m_module = module;
@@ -98,7 +99,7 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WMo
     float steps = 500.0;
     for( int i = 0; i < steps; ++i )
     {
-        float stepNorm = static_cast< float >( i) / static_cast< float >( steps - 1 );
+        float stepNorm = static_cast< float >( i ) / static_cast< float >( steps - 1 );
         float s = stepNorm * stepNorm;
         m_animation->setScaleAt( stepNorm, s, s );
     }
@@ -117,7 +118,7 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WMo
 
     for( int i = 0; i < steps; ++i )
     {
-        float stepNorm = static_cast< float >( i) / static_cast< float >( steps - 1 );
+        float stepNorm = static_cast< float >( i ) / static_cast< float >( steps - 1 );
         float s = 1.0 - ( stepNorm * stepNorm );
         m_removalAnimation->setScaleAt( stepNorm, s, s );
     }
@@ -809,7 +810,7 @@ void WQtNetworkItem::animatedMoveTo( QPointF newPos )
     QPointF oldPos = pos();
     for( int i = 0; i < steps; ++i )
     {
-        float stepNorm = static_cast< float >( i) / static_cast< float >( steps - 1 );
+        float stepNorm = static_cast< float >( i ) / static_cast< float >( steps - 1 );
         QPointF p = ( ( 1.0 - stepNorm ) * oldPos ) + ( stepNorm * newPos );
         animation->setPosAt( stepNorm, p );
     }
@@ -822,5 +823,15 @@ void WQtNetworkItem::animatedMoveTo( QPointF newPos )
 void WQtNetworkItem::animatedMoveTo( qreal x, qreal y )
 {
     animatedMoveTo( QPointF( x, y ) );
+}
+
+void WQtNetworkItem::setLayedOut( bool layedOut )
+{
+    m_wasLayedOut = layedOut;
+}
+
+bool WQtNetworkItem::wasLayedOut() const
+{
+    return m_wasLayedOut;
 }
 

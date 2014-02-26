@@ -24,6 +24,8 @@
 
 #include <cmath>
 
+#include <algorithm>
+
 #include <QtGui/QPainter>
 
 #include "core/common/WLogger.h"
@@ -91,7 +93,7 @@ void WQtNetworkItemGrid::updateBoundingRect()
 void WQtNetworkItemGrid::paint( QPainter* painter, const QStyleOptionGraphicsItem* /* option */,
                                 QWidget* /* widget */ )
 {
-    QRectF bb=boundingRect();
+    QRectF bb = boundingRect();
 
     float sx = WNETWORKITEM_XSPACE + WNETWORKITEM_MAXIMUM_WIDTH;
     float sy = WNETWORKITEM_YSPACE + WNETWORKITEM_MAXIMUM_HEIGHT;

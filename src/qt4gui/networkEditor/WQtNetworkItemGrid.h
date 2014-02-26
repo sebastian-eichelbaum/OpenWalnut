@@ -25,6 +25,8 @@
 #ifndef WQTNETWORKITEMGRID_H
 #define WQTNETWORKITEMGRID_H
 
+#include <map>
+
 #include <boost/shared_ptr.hpp>
 
 #include <QtCore/QObject>
@@ -55,7 +57,6 @@ class WQtNetworkItemGrid: public QGraphicsObject
 {
     Q_OBJECT
 public:
-
     /**
      * Convenience typedef for a boost::shared_ptr< WQtNetworkItemGrid >.
      */
