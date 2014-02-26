@@ -421,7 +421,7 @@ osg::ref_ptr< wosg::Geometry > wge::convertToOsgGeometry( WTriangleMesh::SPtr me
                                                           const WColor& defaultColor,
                                                           bool includeNormals, bool lighting )
 {
-    wosg::Geometry* geometry = convertToOsgGeometry( mesh, defaultColor, includeNormals, lighting, false );
+    osg::ref_ptr< wosg::Geometry >  geometry = convertToOsgGeometry( mesh, defaultColor, includeNormals, lighting, false );
 
     // ------------------------------------------------
     // colors
