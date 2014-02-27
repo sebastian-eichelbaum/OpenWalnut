@@ -111,6 +111,25 @@ namespace wge
                                                         bool lighting = false,
                                                         bool useMeshColor = true );
 
+
+    /**
+     * Extract the vertices and triangles from a WTriangleMesh and save them
+     * into an wosg::Geometry in order to produce a flat shaded rendering. 
+     *
+     * \param mesh the WTriangleMesh used as input
+     * \param includeNormals When true, calculate the triangle normals and include
+     *                       them into the geometry.
+     * \param defaultColor This color is used in case the useMeshColor parameter is false or no colors are defined in the mesh.
+     * \param lighting if true, a standard lighting is activated for this geometry
+     * \param useMeshColor if true, the mesh color is used. If false, the defaultColor is used.
+     * \return an wosg::Geometry containing the mesh
+     * \note mesh cannot be const since wosg::Geometry needs non-const pointers to the contained arrays
+     */
+    osg::ref_ptr< wosg::Geometry > convertToOsgGeometryFlatShaded( WTriangleMesh::SPtr mesh,
+                                                                        const WColor& defaultColor = WColor( 1.0, 1.0, 1.0, 1.0 ),
+                                                                        bool includeNormals = false,
+                                                                        bool lighting = false,
+                                                                        bool useMeshColor = true );
     /**
      * Extract the vertices and triangles from a WTriangleMesh and save them
      * into an wosg::Geometry. It can use the normals and per-vertex colors of the mesh.
@@ -130,6 +149,7 @@ namespace wge
                                                                    bool includeNormals = false,
                                                                    bool lighting = false
                                                                    );
+
 
     /**
      * Convert triangle mesh to lines representing it. Draws lines twice (ATM).

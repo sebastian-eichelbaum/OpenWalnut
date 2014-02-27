@@ -165,7 +165,18 @@ void WMTriangleMeshRenderer::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     // setup all the properties. See header file for their meaning and purpose.
-    m_showOutline = m_properties->addProperty( "Outline", "Show all edges of the triangulation as lines.", false, m_propCondition );
+    // Allow the user to select different colormodes
+
+    boost::shared_ptr< WItemSelection > renderingModes( boost::shared_ptr< WItemSelection >( new WItemSelection() ) );
+    renderingModes->addItem( "Smooth Shading", "Smooth shading with Phong illumination model." );
+    renderingModes->addItem( "Flat Shading", "Each triangle has one constant color for shading." );
+    renderingModes->addItem( "Outline", "The surface is represented by lines only." );
+    m_renderingMode = m_properties->addProperty( "Rendering mode", "Choose one of the available rendering modes.", renderingModes->getSelectorFirst(),
+                                             m_propCondition );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_renderingMode );
+
+    const bool hideProperty = true;
+    m_showOutline = m_properties->addProperty( "Outline", "Show all edges of the triangulation as lines.", false, m_propCondition, hideProperty );
     m_mainComponentOnly = m_properties->addProperty( "Main component", "Main component only", false, m_propCondition );
     m_showCoordinateSystem = m_properties->addProperty( "Coordinate system", "If enabled, the coordinate system of the mesh will be shown.",
                                                         false, m_propCondition );
@@ -309,6 +320,9 @@ void WMTriangleMeshRenderer::moduleMain()
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
+        WItemSelector renderingModeSelector = m_renderingMode->get();
+        m_showOutline->set( renderingModeSelector.getItemIndexOfSelected( 0 ) == 2 );
+
         // woke up since the module is requested to finish
         if( m_shutdownFlag() )
         {
@@ -387,11 +401,17 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh
     ++*progress;
 
     // now create the mesh but handle the color mode properly
-    if( m_showOutline->get( true ) )
+    WItemSelector renderingModeSelector = m_renderingMode->get( true );
+
+    if( renderingModeSelector.getItemIndexOfSelected( 0 ) == 2 )
     {
         geometry = wge::convertToOsgGeometryLines( mesh, m_color->get(), false );
     }
-    else
+    else if( renderingModeSelector.getItemIndexOfSelected( 0 ) == 1 )
+    {
+        geometry = wge::convertToOsgGeometryFlatShaded( mesh, m_color->get(), true, true, false );
+    }
+    else // if( renderingModeSelector.getItemIndexOfSelected( 0 ) == 0 )
     {
         WItemSelector colorModeSelector = m_colorMode->get( true );
         if( colorModeSelector.getItemIndexOfSelected( 0 ) == 0 )

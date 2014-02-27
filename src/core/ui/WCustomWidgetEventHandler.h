@@ -432,14 +432,6 @@ protected:
      */
     TriggerSignalType        m_sigUser;
 
-private:
-    /**
-     * Logger instance for comfortable error logging. Simply use logError() << "my error".
-     *
-     * \return the logger stream.
-     */
-    wlog::WStreamedLogger errorLog() const;
-
     /**
      * Reference to the WCustomWidget for which event handling should performed.
      */
@@ -449,6 +441,13 @@ private:
      * Binary mask describing which events should be used for notification or subscription.
      */
     unsigned int m_preselection;
+
+    /**
+     * Logger instance for comfortable error logging. Simply use errorLog() << "my error".
+     *
+     * \return the logger stream.
+     */
+    wlog::WStreamedLogger errorLog() const;
 };
 
 #endif  // WCUSTOMWIDGETEVENTHANDLER_H
