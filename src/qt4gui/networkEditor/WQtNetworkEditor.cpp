@@ -215,7 +215,6 @@ bool WQtNetworkEditor::event( QEvent* event )
     // a module tree item was connected to another one
     if( event->type() == WQT_MODULE_CONNECT_EVENT )
     {
-
         WModuleConnectEvent* e = dynamic_cast< WModuleConnectEvent* >( event );     // NOLINT
         if( !e )
         {
