@@ -41,6 +41,7 @@
 #include "WQtNetworkArrow.h"
 #include "WQtNetworkItem.h"
 #include "WQtNetworkItemActivator.h"
+#include "WQtNetworkItemGrid.h"
 #include "WQtNetworkScene.h"
 #include "WQtNetworkSceneLayout.h"
 #include "WQtNetworkEditor.h"
@@ -433,12 +434,16 @@ void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent* mouseEvent )
     if( m_dragging )
     {
         // ask layouter
+        // suppress scene update - very annoying but if you remove this, QT segfaults somewhere
+        m_networkEditor->getLayout()->getGrid()->disableBoundsUpdate();
         m_networkEditor->getLayout()->snapTemporarily( this, mouseEvent->scenePos() );
+        // enable again
+        m_networkEditor->getLayout()->getGrid()->disableBoundsUpdate( false );
     }
 
     // do not forward event. We handled it.
     mouseEvent->accept();
-    // QGraphicsItem::mouseMoveEvent( mouseEvent );
+    QGraphicsItem::mouseMoveEvent( mouseEvent );
 }
 
 void WQtNetworkItem::mousePressEvent( QGraphicsSceneMouseEvent* event )
@@ -452,7 +457,7 @@ void WQtNetworkItem::mousePressEvent( QGraphicsSceneMouseEvent* event )
     setSelected( true );
 
     event->accept();
-    // QGraphicsItem::mousePressEvent( event );
+    QGraphicsItem::mousePressEvent( event );
 }
 
 void WQtNetworkItem::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
@@ -484,10 +489,10 @@ void WQtNetworkItem::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
     }
 
     event->accept();
-    // QGraphicsItem::mouseReleaseEvent( event );
+    QGraphicsItem::mouseReleaseEvent( event );
 }
 
-void WQtNetworkItem::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* /* event */ )
+void WQtNetworkItem::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* event )
 {
     if( m_propertyToolWindow )
     {
@@ -524,6 +529,9 @@ void WQtNetworkItem::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* /* event *
             m_propertyToolWindow = sa;
         }
     }
+
+    event->accept();
+    // QGraphicsItem::mouseReleaseEvent( event );
 }
 
 QVariant WQtNetworkItem::itemChange( GraphicsItemChange change, const QVariant &value )

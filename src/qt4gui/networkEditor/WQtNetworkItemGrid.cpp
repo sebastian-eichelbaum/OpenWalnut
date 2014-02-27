@@ -38,7 +38,8 @@
 
 WQtNetworkItemGrid::WQtNetworkItemGrid():
     QGraphicsObject(),
-    m_highlightCellEnabled( false )
+    m_highlightCellEnabled( false ),
+    m_disableUpdateBounds( false )
 {
     // initialize members
     setZValue( -1.0 );
@@ -87,7 +88,10 @@ void WQtNetworkItemGrid::updateBoundingRect()
     // done. Create rect and emit signal
     m_bb = QRectF( minX, minY, maxX, maxY );
 
-    emit updatedBounds();
+    if( !m_disableUpdateBounds )
+    {
+        emit updatedBounds();
+    }
 }
 
 void WQtNetworkItemGrid::paint( QPainter* painter, const QStyleOptionGraphicsItem* /* option */,
@@ -457,3 +461,7 @@ void WQtNetworkItemGrid::animationBlendOutTick( qreal value )
     setOpacity( 1.0 - ( value * value ) );
 }
 
+void WQtNetworkItemGrid::disableBoundsUpdate( bool disable )
+{
+    m_disableUpdateBounds = disable;
+}

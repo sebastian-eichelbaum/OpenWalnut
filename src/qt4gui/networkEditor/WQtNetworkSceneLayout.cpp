@@ -143,3 +143,8 @@ QRectF WQtNetworkSceneLayout::getBoundingBox()
 {
     return m_grid->boundingRect();
 }
+
+WQtNetworkItemGrid* WQtNetworkSceneLayout::getGrid() const
+{
+    return m_grid;
+}

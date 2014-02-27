@@ -77,6 +77,9 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent ):
     // WQtNetworkScene
     m_layout = new WQtNetworkSceneLayout( m_scene, m_grid );
 
+    // update view rect whenever the grid updates its dimensions
+    connect( m_grid, SIGNAL( updatedBounds() ), this, SLOT( updateSceneRect() ) );
+
     m_view->setScene( m_scene );
 
     setWidget( m_view );
@@ -502,3 +505,7 @@ WQtNetworkSceneLayout* WQtNetworkEditor::getLayout()
     return m_layout;
 }
 
+void WQtNetworkEditor::updateSceneRect()
+{
+    m_scene->setSceneRect( m_layout->getBoundingBox() );
+}

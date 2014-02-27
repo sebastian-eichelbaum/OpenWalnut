@@ -85,6 +85,12 @@ public:
     virtual QRectF boundingRect() const;
 
     /**
+     * Update the m_dimensions. This method rebuilds the bounding area of the grid by re-reading all items in the grid. This is useful, whenever
+     * you do a lot of complex operations while suppressing all updates. Then use this method to force a complete update of the dimensions.
+     */
+    void updateDimensions();
+
+    /**
      * Paint the item.
      *
      * \param painter implements drawing commands
@@ -269,6 +275,16 @@ public:
      */
     void highlightCell();
 
+    /**
+     * Allows for temporarily disabling bounds update signal. This is needed sometimes, where bounds are updated during another Qt event, causing the
+     * update event again, causing the Qt event again, causing the update event again, segfault.
+     *
+     * \note Always remember to enable again.
+     *
+     * \param disable true to disable.
+     */
+    void disableBoundsUpdate( bool disable = true );
+
 public slots:
     /**
      * Allows blending in the underlaying layout structure.
@@ -356,12 +372,6 @@ private:
     void updateBoundingRect();
 
     /**
-     * Update the m_dimensions. This method rebuilds the bounding area of the grid by re-reading all items in the grid. This is useful, whenever
-     * you do a lot of complex operations while suppressing all updates. Then use this method to force a complete update of the dimensions.
-     */
-    void updateDimensions();
-
-    /**
      * Current cell to highlight.
      */
     QPoint m_highlightCell;
@@ -385,6 +395,11 @@ private:
      * Timer used for blend in effects of the grid.
      */
     QTimeLine* m_blendOutTimer;
+
+    /**
+     * Disable updateBounds signal.
+     */
+    bool m_disableUpdateBounds;
 
 private slots:
     /**

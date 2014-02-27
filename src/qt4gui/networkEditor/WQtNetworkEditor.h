@@ -118,6 +118,14 @@ public:
      * \return the layout instance
      */
     WQtNetworkSceneLayout* getLayout();
+
+public slots:
+
+    /**
+     * Set new scene rect
+     */
+    void updateSceneRect();
+
 protected:
     /**
      * Reference to the main window of the application.

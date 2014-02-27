@@ -124,6 +124,13 @@ public:
      * \return the bb
      */
     QRectF getBoundingBox();
+
+    /**
+     * Get the grid used for the layout.
+     *
+     * \return the grid.
+     */
+    WQtNetworkItemGrid* getGrid() const;
 protected:
 private:
     WQtNetworkScene* m_scene; //!< the scene managed by this layouter
