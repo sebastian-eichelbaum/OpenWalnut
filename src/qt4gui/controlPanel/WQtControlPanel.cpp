@@ -740,7 +740,9 @@ void WQtControlPanel::selectTreeItem()
     else
     {
         // clean up if nothing is selected
-        setActiveModule( WModule::SPtr() );  // module is NULL at this point
+        // NOTE: this should be deprecated, If re-activating, please consider a proper solution for the WQtNetworkEditor items that get
+        // de-selected too although the should stay selected.
+        // setActiveModule( WModule::SPtr() );  // module is NULL at this point
     }
 }
 
