@@ -59,7 +59,8 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WMo
     m_forceUpdate( true ),
     m_propertyToolWindow( NULL ),
     m_dragging( true ),
-    m_wasLayedOut( false )
+    m_wasLayedOut( false ),
+    m_wasManuallyPlaced( false )
 {
     m_networkEditor = editor;
     m_module = module;
@@ -843,3 +844,12 @@ bool WQtNetworkItem::wasLayedOut() const
     return m_wasLayedOut;
 }
 
+void WQtNetworkItem::setManuallyPlaced( bool manual )
+{
+    m_wasManuallyPlaced = manual;
+}
+
+bool WQtNetworkItem::wasManuallyPlaced() const
+{
+    return m_wasManuallyPlaced;
+}

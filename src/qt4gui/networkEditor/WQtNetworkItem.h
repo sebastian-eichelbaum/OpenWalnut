@@ -194,6 +194,20 @@ public:
      * \return true if already positioned
      */
     bool wasLayedOut() const;
+
+    /**
+     * Mark item as manually placed. This flag is used by the layouter to avoid re-layouting these kind of items.
+     *
+     * \param manual true if manually placed.
+     */
+    void setManuallyPlaced( bool manual = true );
+
+    /**
+     * Item was placed by hand. Used as a flag to avoid re-layouting these items.
+     *
+     * \return true if manually placed.
+     */
+    bool wasManuallyPlaced() const;
 signals:
     /**
      * The item is now dead. Animation completed and item was removed from scene. Do not use this to delete the item.
@@ -381,6 +395,12 @@ private:
      * Mark item as already positioned.
      */
     bool m_wasLayedOut;
+
+    /**
+     * Item has been placed manually. This flag is used by the layouter to avoid moving around manually placed items.
+     */
+    bool m_wasManuallyPlaced;
+
 private slots:
     /**
      * Called when the m_removalAnimationTimer finishes.

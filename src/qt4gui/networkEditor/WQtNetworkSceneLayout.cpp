@@ -59,7 +59,7 @@ void WQtNetworkSceneLayout::removeItem( WQtNetworkItem* item )
 void WQtNetworkSceneLayout::connection( WQtNetworkItem* outItem, WQtNetworkItem* inItem )
 {
     // was layouted earlier?
-    if( inItem->wasLayedOut() )
+    if( inItem->wasLayedOut() || inItem->wasManuallyPlaced() )
     {
         return;
     }
@@ -120,7 +120,7 @@ void WQtNetworkSceneLayout::snapAccept( WQtNetworkItem* item )
     }
 
     // user moved it somewhere. Mark as already positioned.
-    item->setLayedOut();
+    item->setManuallyPlaced();
 
     // move in layout
     if( !m_grid->moveItem( item, newCell ) )
