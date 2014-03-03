@@ -31,6 +31,7 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 
 #include "../common/WSharedAssociativeContainer.h"
 #include "WModuleCombinerTypes.h"
@@ -44,6 +45,16 @@ class  WModuleFactory // NOLINT
 {
 friend class WModuleFactoryTest;
 public:
+    /**
+     * Shared pointer to a WModule.
+     */
+    typedef boost::shared_ptr< WModuleFactory > SPtr;
+
+    /**
+     * Shared pointer to a const WModule.
+     */
+    typedef boost::shared_ptr< const WModuleFactory > ConstSPtr;
+
     /**
      * For shortening: a type defining a shared set of WModule pointers.
      */
@@ -78,17 +89,19 @@ public:
      * Create a new and initialized module using the specified prototype.
      *
      * \param prototype the prototype to clone.
+     * \param uuid the uuid to use for the created module. If you specify an empty string (default), a uuid will be created. This parameter is
+     *             useful for the project loader.
      *
      * \return the module created using the prototype.
      */
-    boost::shared_ptr< WModule > create( boost::shared_ptr< WModule > prototype );
+    boost::shared_ptr< WModule > create( boost::shared_ptr< WModule > prototype, std::string uuid = "" );
 
     /**
      * Returns instance of the module factory to use to create modules.
      *
      * \return the running module factory.
      */
-    static boost::shared_ptr< WModuleFactory > getModuleFactory();
+    static SPtr getModuleFactory();
 
     /**
      * Returns instance of the module loader.
@@ -192,6 +205,15 @@ public:
      */
     static bool isPrototype( boost::shared_ptr< WModule > module );
 
+    /**
+     * Find a module instance by UUID.
+     *
+     * \param uuid the uuid to search for.
+     *
+     * \return the module, or NULL if not found
+     */
+    static WModule::SPtr findByUUID( std::string uuid );
+
 protected:
     /**
      * Constructors are protected because this is a Singleton.
@@ -223,6 +245,16 @@ private:
      * Singleton instance of WModuleFactory.
      */
     static boost::shared_ptr< WModuleFactory > m_instance;
+
+    /**
+     * Mapping between a UUID and a module.
+     */
+    typedef std::map< std::string, boost::weak_ptr< WModule > > UuidModuleMap;
+
+    /**
+     * Keep track of uuids of each created module. This is needed to find module pointers using uuid.
+     */
+    WSharedAssociativeContainer< UuidModuleMap > m_uuidModuleMap;
 };
 
 template <typename T>

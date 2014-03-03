@@ -394,6 +394,23 @@ public:
      */
     virtual WModuleMetaInformation::ConstSPtr getMetaInformation() const;
 
+    /**
+     * Get the UUID of the module instance. Use this when you need to guarantee a unique instance name, even across multiple OW sessions. The
+     * UUID gets set by the initialize method once and can never be changed.
+     *
+     * \return the UUID as string.
+     */
+    const std::string& getUUID() const;
+
+    /**
+     * Find a module instance by UUID.
+     *
+     * \param uuid the uuid to search for.
+     *
+     * \return the module, or NULL if not found
+     */
+    static SPtr findByUUID( std::string uuid );
+
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -458,7 +475,7 @@ protected:
     virtual std::string deprecated() const;
 
     /**
-     * Manages connector initialization. Gets called by module container.
+     * Manages initialization. Gets called by module container and ensures all properties, requirements, and connectors are properly set up.
      *
      * \throw WModuleConnectorInitFailed if called multiple times.
      */
@@ -754,6 +771,18 @@ private:
      * \return the requirement that has failed.
      */
     const WRequirement* checkRequirements() const;
+
+    /**
+     * The unique ID of the module instance.
+     */
+    std::string m_uuid;
+
+    /**
+     * Set a uuid. If the specified string is empty, a new one gets created.
+     *
+     * \param uuid the uuid to set.
+     */
+    void setUUID( std::string uuid );
 };
 
 /**

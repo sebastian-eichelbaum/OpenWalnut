@@ -73,8 +73,8 @@ WModuleProjectFileCombiner::~WModuleProjectFileCombiner()
 bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumber )
 {
     // this is the proper regular expression for modules
-    static const boost::regex modRe( "^ *MODULE:([0-9]*):(.*)$" );
-    static const boost::regex dataRe( "^ *DATA:([0-9]*):\"?([^\"]*)\"?$" );
+    static const boost::regex modRe( "^ *MODULE:([0-9]*):([^:]*):?(.*)?$" );
+    static const boost::regex dataRe( "^ *DATA:([0-9]*):\"?([^:\"]*)\"?:?(.*)?$" );
     static const boost::regex conRe( "^ *CONNECTION:\\(([0-9]*),(.*)\\)->\\(([0-9]*),(.*)\\)$" );
     static const boost::regex propRe( "^ *PROPERTY:\\(([0-9]*),(.*)\\)=(.*)$" );
 
@@ -84,8 +84,15 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
         // it is a module line
         // matches[1] is the ID
         // matches[2] is the name of the module
+        // matches[3] is the UUID (optional)
 
-        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Module \"" << matches[2] << "\" with ID " << matches[1];
+        std::string uuid = "";
+        if( matches.size() > 3 )
+        {
+            uuid = matches[3];
+        }
+        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Module \"" << matches[2] << "\" with ID " << matches[1]
+                                                 << " and UUID " << uuid;
 
         // create a module instance
         boost::shared_ptr< WModule > proto = WModuleFactory::getModuleFactory()-> isPrototypeAvailable( matches[2] );
@@ -101,7 +108,7 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
         }
         else
         {
-            boost::shared_ptr< WModule > module = WModuleFactory::getModuleFactory()->create( proto );
+            boost::shared_ptr< WModule > module = WModuleFactory::getModuleFactory()->create( proto, uuid );
             // set restore mode
             module->setRestoreNeeded();
 
@@ -113,8 +120,15 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
         // it is a dataset line
         // matches[1] is the ID
         // matches[2] is the filename
-        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Data \"" << matches[2] << "\" with ID " << matches[1];
+        // matches[3] is the UUID (optional)
 
+        std::string uuid = "";
+        if( matches.size() > 3 )
+        {
+            uuid = matches[3];
+        }
+        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Data \"" << matches[2] << "\" with ID " << matches[1]
+                                                 << " and UUID " << uuid;
         // create a module instance
         boost::shared_ptr< WModule > proto = WModuleFactory::getModuleFactory()-> isPrototypeAvailable( "Data Module" );
         if( !proto )
@@ -124,7 +138,7 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
         else
         {
             std::string parameter = std::string( matches[2] );
-            boost::shared_ptr< WModule > module = WModuleFactory::getModuleFactory()->create( proto );
+            boost::shared_ptr< WModule > module = WModuleFactory::getModuleFactory()->create( proto, uuid );
 
             // set restore mode
             module->setRestoreNeeded();
@@ -156,13 +170,6 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
     {
         // it is a property line
         // matches[1] is the module ID
-        // matches[2] is the property name
-        // matches[3] is the property value
-
-        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Property \"" << matches[2] << "\" of module " << matches[1]
-                                                 << " set to " << matches[3];
-
-        m_properties.push_back( PropertyValue( Property( string_utils::fromString< unsigned int >( matches[1] ), matches[2] ), matches[3] ) );
     }
     else
     {
@@ -350,11 +357,12 @@ void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
         // handle data modules separately
         if( ( *iter )->getType() == MODULE_DATA )
         {
-            output << "DATA:" << i << ":" <<  boost::static_pointer_cast< WDataModule >( ( *iter ) )->getFilename().string() << std::endl;
+            output << "DATA:" << i << ":" <<  boost::static_pointer_cast< WDataModule >( ( *iter ) )->getFilename().string() <<
+                                      ":" <<   ( *iter )->getUUID() << std::endl;
         }
         else
         {
-            output << "MODULE:" << i << ":" <<  ( *iter )->getName() << std::endl;
+            output << "MODULE:" << i << ":" <<  ( *iter )->getName() << ":" << ( *iter )->getUUID() << std::endl;
         }
 
         // the properties:

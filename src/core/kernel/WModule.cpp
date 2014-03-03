@@ -28,6 +28,9 @@
 #include <sstream>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 #include "WModuleInputConnector.h"
 #include "WModuleOutputConnector.h"
@@ -645,3 +648,27 @@ void WModule::reportRestoreComplete()
 {
     m_isLoadFinished.set( true );
 }
+
+const std::string& WModule::getUUID() const
+{
+    return m_uuid;
+}
+
+void WModule::setUUID( std::string uuid )
+{
+    m_uuid = uuid;
+
+    // create one if none was specified
+    if( m_uuid.empty() )
+    {
+        // simple random uuid generator
+        boost::uuids::random_generator gen;
+        m_uuid = boost::uuids::to_string( gen() );
+    }
+}
+
+WModule::SPtr WModule::findByUUID( std::string uuid )
+{
+    return WModuleFactory::findByUUID( uuid );
+}
+

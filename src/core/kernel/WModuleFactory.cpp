@@ -107,7 +107,7 @@ bool WModuleFactory::checkPrototype( boost::shared_ptr< WModule > module, Protot
     return ( ticket->get().count( module ) != 0 );
 }
 
-boost::shared_ptr< WModule > WModuleFactory::create( boost::shared_ptr< WModule > prototype )
+boost::shared_ptr< WModule > WModuleFactory::create( boost::shared_ptr< WModule > prototype, std::string uuid )
 {
     wlog::debug( "ModuleFactory" ) << "Creating new instance of prototype \"" << prototype->getName() << "\".";
 
@@ -125,6 +125,11 @@ boost::shared_ptr< WModule > WModuleFactory::create( boost::shared_ptr< WModule 
 
     // call prototypes factory function
     boost::shared_ptr< WModule > clone = boost::shared_ptr< WModule >( prototype->factory() );
+    // set uuid and keep track of it
+    clone->setUUID( uuid );
+    m_uuidModuleMap.insert( UuidModuleMap::value_type( clone->getUUID(), clone ) );
+
+    // init module
     clone->setLocalPath( prototype->getLocalPath() );   // prototype and clone have the same local path.
     initializeModule( clone );
 
@@ -296,5 +301,25 @@ WCombinerTypes::WCompatiblesList WModuleFactory::getAllPrototypes()
     std::sort( compatibles.begin(), compatibles.end(), WCombinerTypes::compatiblesSort );
 
     return compatibles;
+}
+
+WModule::SPtr WModuleFactory::findByUUID( std::string uuid )
+{
+    SPtr f = getModuleFactory();
+    // unlocked upon destruction
+    WSharedAssociativeContainer< UuidModuleMap >::ReadTicket r = f->m_uuidModuleMap.getReadTicket();
+
+    // find
+    UuidModuleMap::const_iterator it = r->get().find( uuid );
+    if( it != r->get().end() )
+    {
+        // found. Return locked weak_ptr.
+        boost::weak_ptr< WModule > m = ( *it ).second;
+        return m.lock();
+    }
+    else
+    {
+        return WModule::SPtr();
+    }
 }
 
