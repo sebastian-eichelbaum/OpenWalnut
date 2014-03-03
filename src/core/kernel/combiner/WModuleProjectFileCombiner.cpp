@@ -28,6 +28,7 @@
 #include <list>
 #include <string>
 #include <utility>
+#include <limits>
 
 #include <boost/regex.hpp>
 
@@ -68,6 +69,7 @@ WModuleProjectFileCombiner::WModuleProjectFileCombiner():
 WModuleProjectFileCombiner::~WModuleProjectFileCombiner()
 {
     // cleanup
+    m_modules.clear();
 }
 
 WProjectFileIO::SPtr WModuleProjectFileCombiner::clone( WProjectFile* project ) const
@@ -81,8 +83,8 @@ WProjectFileIO::SPtr WModuleProjectFileCombiner::clone( WProjectFile* project ) 
 bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumber )
 {
     // this is the proper regular expression for modules
-    static const boost::regex modRe( "^ *MODULE:([0-9]*):([^:]*):?(.*)?$" );
-    static const boost::regex dataRe( "^ *DATA:([0-9]*):\"?([^:\"]*)\"?:?(.*)?$" );
+    static const boost::regex modRe( "^ *MODULE:([0-9]*):([^:]*)$" );
+    static const boost::regex dataRe( "^ *DATA:([0-9]*):\"?([^:\"]*)\"?$" );
     static const boost::regex conRe( "^ *CONNECTION:\\(([0-9]*),(.*)\\)->\\(([0-9]*),(.*)\\)$" );
     static const boost::regex propRe( "^ *PROPERTY:\\(([0-9]*),(.*)\\)=(.*)$" );
 
@@ -92,15 +94,8 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
         // it is a module line
         // matches[1] is the ID
         // matches[2] is the name of the module
-        // matches[3] is the UUID (optional)
 
-        std::string uuid = "";
-        if( matches.size() > 3 )
-        {
-            uuid = matches[3];
-        }
-        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Module \"" << matches[2] << "\" with ID " << matches[1]
-                                                 << " and UUID " << uuid;
+        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Module \"" << matches[2] << "\" with ID " << matches[1];
 
         // create a module instance
         boost::shared_ptr< WModule > proto = WModuleFactory::getModuleFactory()-> isPrototypeAvailable( matches[2] );
@@ -116,7 +111,7 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
         }
         else
         {
-            boost::shared_ptr< WModule > module = WModuleFactory::getModuleFactory()->create( proto, uuid );
+            boost::shared_ptr< WModule > module = WModuleFactory::getModuleFactory()->create( proto );
             // set restore mode
             module->setRestoreNeeded();
 
@@ -128,15 +123,9 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
         // it is a dataset line
         // matches[1] is the ID
         // matches[2] is the filename
-        // matches[3] is the UUID (optional)
 
-        std::string uuid = "";
-        if( matches.size() > 3 )
-        {
-            uuid = matches[3];
-        }
-        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Data \"" << matches[2] << "\" with ID " << matches[1]
-                                                 << " and UUID " << uuid;
+        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Data \"" << matches[2] << "\" with ID " << matches[1];
+
         // create a module instance
         boost::shared_ptr< WModule > proto = WModuleFactory::getModuleFactory()-> isPrototypeAvailable( "Data Module" );
         if( !proto )
@@ -146,7 +135,7 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
         else
         {
             std::string parameter = std::string( matches[2] );
-            boost::shared_ptr< WModule > module = WModuleFactory::getModuleFactory()->create( proto, uuid );
+            boost::shared_ptr< WModule > module = WModuleFactory::getModuleFactory()->create( proto );
 
             // set restore mode
             module->setRestoreNeeded();
@@ -209,7 +198,7 @@ void WModuleProjectFileCombiner::apply()
         {
             addError( "In the module with ID " + ( *iter ).first +
                       std::string( " a problem occurred. Connections and properties relating to this module will fail." ) );
-            m_modules.erase( iter );
+            // m_modules.erase( iter );
         }
     }
 
@@ -330,7 +319,6 @@ void WModuleProjectFileCombiner::apply()
     }
 
     // clear all our lists (deref all contained pointers)
-    m_modules.clear();
     m_connections.clear();
     m_properties.clear();
 }
@@ -408,5 +396,29 @@ void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
             lock.unlock();
         }
     }
+}
+
+boost::shared_ptr< WModule > WModuleProjectFileCombiner::mapToModule( unsigned int id ) const
+{
+    // existing?
+    ModuleIDMap::const_iterator it = m_modules.find( id );
+    if( it == m_modules.end() )
+    {
+        return WModule::SPtr();
+    }
+
+    return ( *it ).second;
+}
+
+unsigned int WModuleProjectFileCombiner::mapFromModule( boost::shared_ptr< WModule > module ) const
+{
+    // find the specific module
+    ModuleIDMap::const_iterator it = std::find_if( m_modules.begin(), m_modules.end(), boost::bind( &ModuleIDMap::value_type::second, _1 ) == module );
+    if( it == m_modules.end() )
+    {
+        return std::numeric_limits< unsigned int >::max();
+    }
+
+    return ( *it ).first;
 }
 

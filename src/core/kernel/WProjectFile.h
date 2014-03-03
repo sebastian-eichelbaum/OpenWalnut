@@ -38,6 +38,9 @@
 
 #include "../common/WProjectFileIO.h"
 
+class WModuleProjectFileCombiner;
+class WModule;
+
 /**
  * Class loading project files. This class opens an file and reads it line by line. It delegates the actual parsing to each of the known
  * WProjectFileIO instances which then do their job.
@@ -144,6 +147,26 @@ public:
      */
     static void deregisterParser( WProjectFileIO::SPtr parser );
 
+    /**
+     * Map a given project file ID to a module. This method must not be used by WModuleProjectFileCombiner, as it builds this mapping. All other
+     * \ref WProjectFileIO implementations are allowed to use it in their save and apply methods (NOT in parse()).
+     *
+     * \param id the id
+     *
+     * \return the module, or NULL if ID is not known.
+     */
+    boost::shared_ptr< WModule > mapToModule( unsigned int id ) const;
+
+    /**
+     * Map a given module to project file ID. This method must not be used by WModuleProjectFileCombiner, as it builds this mapping. All other
+     * \ref WProjectFileIO implementations are allowed to use it in their save and apply methods (NOT in parse()).
+     *
+     * \param id the id
+     *
+     * \return the ID, or numeric_limits< unisigned int >::max() if module not known.*
+     */
+    unsigned int mapFromModule(  boost::shared_ptr< WModule > module ) const;
+
 protected:
     /**
      * Function that has to be overwritten for execution. It gets executed in a separate thread after run()
@@ -189,6 +212,11 @@ private:
      * List of all additional parser prototypes. Handled as singleton.
      */
     static ParserList m_additionalParsers;
+
+    /**
+     * This is the only WProjectFileIO instance which is needed. It is used to map ID to module.
+     */
+    boost::shared_ptr< WModuleProjectFileCombiner > m_moduleIO;
 };
 
 #endif  // WPROJECTFILE_H

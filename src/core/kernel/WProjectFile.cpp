@@ -30,6 +30,7 @@
 
 #include <boost/regex.hpp>
 
+#include "WModule.h"
 #include "WKernel.h"
 #include "combiner/WModuleProjectFileCombiner.h"
 #include "WRoiProjectFileIO.h"
@@ -53,7 +54,8 @@ WProjectFile::WProjectFile( boost::filesystem::path project ):
     boost::shared_ptr< WProjectFileIO > p3( new WGEProjectFileIO() );
 
     // The module graph parser
-    m_parsers.push_back( p1->clone( this ) );
+    m_moduleIO = boost::dynamic_pointer_cast< WModuleProjectFileCombiner >( p1->clone( this ) );
+    m_parsers.push_back( p1 );
 
     // The ROI parser
     m_parsers.push_back( p2->clone( this ) );
@@ -85,7 +87,8 @@ WProjectFile::WProjectFile( boost::filesystem::path project, ProjectLoadCallback
     boost::shared_ptr< WProjectFileIO > p3( new WGEProjectFileIO() );
 
     // The module graph parser
-    m_parsers.push_back( p1->clone( this ) );
+    m_moduleIO = boost::dynamic_pointer_cast< WModuleProjectFileCombiner >( p1->clone( this ) );
+    m_parsers.push_back( p1 );
 
     // The ROI parser
     m_parsers.push_back( p2->clone( this ) );
@@ -283,3 +286,14 @@ void WProjectFile::deregisterParser( WProjectFileIO::SPtr parser )
 {
     m_additionalParsers.remove( parser );
 }
+
+boost::shared_ptr< WModule > WProjectFile::mapToModule( unsigned int id ) const
+{
+    return m_moduleIO->mapToModule( id );
+}
+
+unsigned int WProjectFile::mapFromModule(  boost::shared_ptr< WModule > module ) const
+{
+    return m_moduleIO->mapFromModule( module );
+}
+
