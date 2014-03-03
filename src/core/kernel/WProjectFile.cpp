@@ -67,7 +67,7 @@ WProjectFile::WProjectFile( boost::filesystem::path project ):
     ParserList::ReadTicket r = m_additionalParsers.getReadTicket();
 
     // Grab all items and add to my own list of parsers
-    for( ParserList::ConstIterator it = r->get().begin(); it != r->get().begin(); ++it )
+    for( ParserList::ConstIterator it = r->get().begin(); it != r->get().end(); ++it )
     {
         m_parsers.push_back( ( *it )->clone( this ) );
     }
@@ -100,7 +100,7 @@ WProjectFile::WProjectFile( boost::filesystem::path project, ProjectLoadCallback
     ParserList::ReadTicket r = m_additionalParsers.getReadTicket();
 
     // Grab all items and add to my own list of parsers
-    for( ParserList::ConstIterator it = r->get().begin(); it != r->get().begin(); ++it )
+    for( ParserList::ConstIterator it = r->get().begin(); it != r->get().end(); ++it )
     {
         m_parsers.push_back( ( *it )->clone( this ) );
     }
@@ -277,7 +277,7 @@ void WProjectFile::registerParser( WProjectFileIO::SPtr parser )
     if( it == w->get().end() )
     {
         // add
-        m_additionalParsers.push_back( parser );
+        w->get().push_back( parser );
     }
     // ticket unlocked automatically upon its destruction
 }
