@@ -83,7 +83,7 @@ WProjectFileIO::SPtr WModuleProjectFileCombiner::clone( WProjectFile* project ) 
 bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumber )
 {
     // this is the proper regular expression for modules
-    static const boost::regex modRe( "^ *MODULE:([0-9]*):([^:]*)$" );
+    static const boost::regex modRe( "^ *MODULE:([0-9]*):(.*)$" );
     static const boost::regex dataRe( "^ *DATA:([0-9]*):\"?([^:\"]*)\"?$" );
     static const boost::regex conRe( "^ *CONNECTION:\\(([0-9]*),(.*)\\)->\\(([0-9]*),(.*)\\)$" );
     static const boost::regex propRe( "^ *PROPERTY:\\(([0-9]*),(.*)\\)=(.*)$" );
