@@ -33,8 +33,9 @@
 #include <boost/function.hpp>
 #include <boost/signals2/signal.hpp>
 
-#include "../common/WProjectFileIO.h"
+#include "../common/WSharedSequenceContainer.h"
 
+#include "../common/WProjectFileIO.h"
 
 /**
  * Class loading project files. This class opens an file and reads it line by line. It delegates the actual parsing to each of the known
@@ -124,6 +125,21 @@ public:
      */
     static boost::shared_ptr< WProjectFileIO > getROIWriter();
 
+    /**
+     * Register a custom project file parser. Use this to add and re-read information from project files. The change takes effect when creating a
+     * new instance of WProjectFile.
+     *
+     * \param parser the parser. Can be added multiple times.
+     */
+    static void registerParser( WProjectFileIO::SPtr parser );
+
+    /**
+     * Remove parser from registry.  The change takes effect when creating a new instance of WProjectFile.
+     *
+     * \param parser the parser to remove. If not existing, nothing happens.
+     */
+    static void deregisterParser( WProjectFileIO::SPtr parser );
+
 protected:
     /**
      * Function that has to be overwritten for execution. It gets executed in a separate thread after run()
@@ -147,7 +163,13 @@ protected:
      * \param e the exception
      */
     virtual void onThreadException( const WException& e );
+
 private:
+    /**
+     * Type used for returning lists of parser prototypes.
+     */
+    typedef WSharedSequenceContainer< std::vector< WProjectFileIO::SPtr > > ParserList;
+
     /**
      * Signal used to callback someone that the loader was finished.
      */
@@ -158,6 +180,11 @@ private:
      * finished.
      */
     boost::signals2::connection m_signalLoadDoneConnection;
+
+    /**
+     * List of all additional parser prototypes. Handled as singleton.
+     */
+    static ParserList m_additionalParsers;
 };
 
 #endif  // WPROJECTFILE_H

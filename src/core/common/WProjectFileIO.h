@@ -29,6 +29,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/shared_ptr.hpp>
+
 #include "WProperties.h"
 
 /**
@@ -39,6 +41,16 @@
 class WProjectFileIO // NOLINT
 {
 public:
+    /**
+     * Abbreviation for a shared pointer.
+     */
+    typedef boost::shared_ptr< WProjectFileIO > SPtr;
+
+    /**
+     * Abbreviation for const shared pointer.
+     */
+    typedef boost::shared_ptr< const WProjectFileIO > ConstSPtr;
+
     /**
      * Default constructor.
      */

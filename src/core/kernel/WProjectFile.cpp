@@ -40,6 +40,8 @@
 
 #include "WProjectFile.h"
 
+WProjectFile::ParserList WProjectFile::m_additionalParsers;
+
 WProjectFile::WProjectFile( boost::filesystem::path project ):
     WThreadedRunner(),
     boost::enable_shared_from_this< WProjectFile >(),
@@ -55,6 +57,17 @@ WProjectFile::WProjectFile( boost::filesystem::path project ):
 
     // The Camera parser
     m_parsers.push_back( boost::shared_ptr< WProjectFileIO >( new WGEProjectFileIO() ) );
+
+    // add the current list of additional parsers
+    ParserList::ReadTicket r = m_additionalParsers.getReadTicket();
+
+    // Grab all items and add to my own list of parsers
+    for( ParserList::ConstIterator it = r->get().begin(); it != r->get().begin(); ++it )
+    {
+        m_parsers.push_back( *it );
+    }
+
+    // ticket unlocked automatically upon its destruction
 }
 
 WProjectFile::WProjectFile( boost::filesystem::path project, ProjectLoadCallback doneCallback ):
@@ -71,6 +84,17 @@ WProjectFile::WProjectFile( boost::filesystem::path project, ProjectLoadCallback
 
     // The Camera parser
     m_parsers.push_back( boost::shared_ptr< WProjectFileIO >( new WGEProjectFileIO() ) );
+
+    // add the current list of additional parsers
+    ParserList::ReadTicket r = m_additionalParsers.getReadTicket();
+
+    // Grab all items and add to my own list of parsers
+    for( ParserList::ConstIterator it = r->get().begin(); it != r->get().begin(); ++it )
+    {
+        m_parsers.push_back( *it );
+    }
+
+    // ticket unlocked automatically upon its destruction
 }
 
 WProjectFile::~WProjectFile()
@@ -230,4 +254,24 @@ void WProjectFile::onThreadException( const WException& e )
     // remove from thread list. Please note: this NEEDS to be done after handleDeadlyException - if done before, the thread pointer might be
     // deleted already.
     WKernel::getRunningKernel()->getRootContainer()->finishedPendingThread( shared_from_this() );
+}
+
+void WProjectFile::registerParser( WProjectFileIO::SPtr parser )
+{
+    ParserList::WriteTicket w = m_additionalParsers.getWriteTicket();
+
+    // find item if still inside
+    ParserList::Iterator it = std::find( w->get().begin(), w->get().end(), parser );
+    // item not inside? Add!
+    if( it == w->get().end() )
+    {
+        // add
+        m_additionalParsers.push_back( parser );
+    }
+    // ticket unlocked automatically upon its destruction
+}
+
+void WProjectFile::deregisterParser( WProjectFileIO::SPtr parser )
+{
+    m_additionalParsers.remove( parser );
 }
