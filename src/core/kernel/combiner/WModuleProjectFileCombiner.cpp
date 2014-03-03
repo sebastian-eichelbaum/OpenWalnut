@@ -413,7 +413,9 @@ boost::shared_ptr< WModule > WModuleProjectFileCombiner::mapToModule( unsigned i
 unsigned int WModuleProjectFileCombiner::mapFromModule( boost::shared_ptr< WModule > module ) const
 {
     // find the specific module
-    ModuleIDMap::const_iterator it = std::find_if( m_modules.begin(), m_modules.end(), boost::bind( &ModuleIDMap::value_type::second, _1 ) == module );
+    ModuleIDMap::const_iterator it = std::find_if( m_modules.begin(), m_modules.end(),
+                                                   boost::bind( &ModuleIDMap::value_type::second, _1 ) == module
+                                                 );
     if( it == m_modules.end() )
     {
         return std::numeric_limits< unsigned int >::max();
