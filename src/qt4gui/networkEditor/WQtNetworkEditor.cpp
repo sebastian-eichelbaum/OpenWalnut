@@ -41,6 +41,8 @@
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleFactory.h"
+#include "core/kernel/WProjectFile.h"
+
 #include "../controlPanel/WQtControlPanel.h"
 #include "../events/WEventTypes.h"
 #include "../events/WModuleAssocEvent.h"
@@ -51,12 +53,17 @@
 #include "../events/WModuleRemovedEvent.h"
 #include "../events/WModuleCrashEvent.h"
 
+#include "WQtNetworkEditorProjectFileIO.h"
+
 #include "WQtNetworkEditor.h"
 #include "WQtNetworkEditor.moc"
 
 WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent ):
     WQtDockWidget( "Modules", parent )
 {
+    // register network editor project IO parser
+    WProjectFile::registerParser( WProjectFileIO::SPtr( new WQtNetworkEditorProjectFileIO( this ) ) );
+
     setObjectName( "Module Graph Dock" );
     m_mainWindow = parent;
 

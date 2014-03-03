@@ -27,6 +27,8 @@
 
 #include "WLogger.h"
 
+#include "../kernel/WProjectFile.h"
+
 #include "WProjectFileIO.h"
 
 WProjectFileIO::WProjectFileIO():
@@ -113,5 +115,10 @@ void WProjectFileIO::printProperties( std::ostream& output, boost::shared_ptr< W
     }
 
     output << indent << "// Property Group END: " << props->getName() << std::endl;
+}
+
+void WProjectFileIO::setProject( WProjectFile* project )
+{
+    m_project = project;
 }
 

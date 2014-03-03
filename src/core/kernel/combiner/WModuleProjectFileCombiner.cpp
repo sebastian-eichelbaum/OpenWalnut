@@ -48,7 +48,7 @@
 #include "../../common/WPropertyVariable.h"
 #include "../../common/WPropertyTypes.h"
 #include "../../common/WLogger.h"
-
+#include "../WProjectFile.h"
 #include "../../graphicsEngine/WGEColormapping.h"
 
 #include "WModuleProjectFileCombiner.h"
@@ -68,6 +68,14 @@ WModuleProjectFileCombiner::WModuleProjectFileCombiner():
 WModuleProjectFileCombiner::~WModuleProjectFileCombiner()
 {
     // cleanup
+}
+
+WProjectFileIO::SPtr WModuleProjectFileCombiner::clone( WProjectFile* project ) const
+{
+    // nothing special. Simply create new instance.
+    WProjectFileIO::SPtr p( new WModuleProjectFileCombiner() );
+    p->setProject( project );
+    return p;
 }
 
 bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumber )

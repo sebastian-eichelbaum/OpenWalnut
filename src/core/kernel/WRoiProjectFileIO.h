@@ -33,6 +33,8 @@
 
 #include "../common/WProjectFileIO.h"
 
+class WProjectFile;
+
 /**
  * IO Class for writing the ROI structure to a project file.
  */
@@ -71,6 +73,16 @@ public:
      * \param output the stream to print the state to.
      */
     virtual void save( std::ostream& output );   // NOLINT
+
+    /**
+     * Create a clone of the IO. This is especially useful for custom parsers registered at \ref WProjectFile::registerPArser. Implement this
+     * function.
+     *
+     * \param project the project file using this parser instance.
+     *
+     * \return Cloned instance.
+     */
+    virtual SPtr clone( WProjectFile* project ) const;
 
 protected:
 private:

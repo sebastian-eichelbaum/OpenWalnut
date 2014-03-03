@@ -22,34 +22,33 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGEPROJECTFILEIO_H
-#define WGEPROJECTFILEIO_H
+#ifndef WQTNETWORKEDITORPROJECTFILEIO_H
+#define WQTNETWORKEDITORPROJECTFILEIO_H
 
 #include <string>
-#include <map>
 
-#include <osg/Matrixd>
+#include "core/common/WProjectFileIO.h"
 
-#include "../common/WProjectFileIO.h"
-
+class WQtNetworkEditor;
 class WProjectFile;
 
 /**
- * IO class for writing the graphics engine state to a project file. Currently it only writes the camera settings for the main view with the
- * WGEZoomTrackbalManipulator.
+ * IO class for writing the network editor meta data for the modules.
  */
-class WGEProjectFileIO: public WProjectFileIO
+class WQtNetworkEditorProjectFileIO: public WProjectFileIO
 {
 public:
     /**
      * Default constructor.
+     *
+     * \param ne the network editor to use to query meta info.
      */
-    WGEProjectFileIO();
+    explicit WQtNetworkEditorProjectFileIO( WQtNetworkEditor* ne );
 
     /**
      * Destructor.
      */
-    virtual ~WGEProjectFileIO();
+    virtual ~WQtNetworkEditorProjectFileIO();
 
     /**
      * This method parses the specified line and interprets it. It gets called line by line by WProjectFile.
@@ -85,38 +84,12 @@ public:
     virtual SPtr clone( WProjectFile* project ) const;
 
 protected:
-    /**
-     * All Cameras parsed.
-     */
-    typedef std::map< unsigned int, std::string > CameraList;
-
-    /**
-     * Camera map.
-     */
-    CameraList m_cameras;
-
-    /**
-     * All view's manipulator matrices.
-     */
-    std::map< unsigned int, osg::Matrixd > m_manipulatorMatrices;
-
-    /**
-     * The home position eye point.
-     */
-    std::map< unsigned int, osg::Vec3d > m_homeEyeVectors;
-
-    /**
-     * The home position center point.
-     */
-    std::map< unsigned int, osg::Vec3d > m_homeCenterVectors;
-
-    /**
-     * The home position up vector.
-     */
-    std::map< unsigned int, osg::Vec3d > m_homeUpVectors;
-
 private:
+    /**
+     * The network editor to use.
+     */
+    WQtNetworkEditor* m_networkEditor;
 };
 
-#endif  // WGEPROJECTFILEIO_H
+#endif  // WQTNETWORKEDITORPROJECTFILEIO_H
 

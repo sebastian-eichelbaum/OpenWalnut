@@ -39,6 +39,7 @@
 #include "../graphicsEngine/WROIBox.h"
 #include "WROIManager.h"
 #include "WKernel.h"
+#include "WProjectFile.h"
 
 #include "WRoiProjectFileIO.h"
 
@@ -51,6 +52,14 @@ WRoiProjectFileIO::WRoiProjectFileIO():
 WRoiProjectFileIO::~WRoiProjectFileIO()
 {
     // cleanup
+}
+
+WProjectFileIO::SPtr WRoiProjectFileIO::clone( WProjectFile* project ) const
+{
+    // nothing special. Simply create new instance.
+    WProjectFileIO::SPtr p( new WRoiProjectFileIO() );
+    p->setProject( project );
+    return p;
 }
 
 bool WRoiProjectFileIO::parse( std::string line, unsigned int lineNumber )

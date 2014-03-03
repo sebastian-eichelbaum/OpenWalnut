@@ -34,6 +34,7 @@
 #include <boost/signals2/signal.hpp>
 
 #include "../common/WSharedSequenceContainer.h"
+#include "../common/WThreadedRunner.h"
 
 #include "../common/WProjectFileIO.h"
 
@@ -127,7 +128,10 @@ public:
 
     /**
      * Register a custom project file parser. Use this to add and re-read information from project files. The change takes effect when creating a
-     * new instance of WProjectFile.
+     * new instance of WProjectFile. The custom parser needs to implement \ref WProjectFileIO::clone as this is used for instancing the parser
+     * for each project file.
+     *
+     * \NOTE: See \ref WQtNetworkEditorProjectFileIO for a working example.
      *
      * \param parser the parser. Can be added multiple times.
      */

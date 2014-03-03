@@ -33,6 +33,8 @@
 
 #include "WProperties.h"
 
+class WProjectFile;
+
 /**
  * A base class for all parts of OpenWalnut which can be serialized to a project file. It is used by WProjectFile to actually parse the file line
  * by line. Derive from this class if you write your own parser and use it to fill your internal data structures. But write it in a very
@@ -114,6 +116,23 @@ public:
      */
     const std::vector< std::string >& getWarnings() const;
 
+    /**
+     * Create a clone of the IO. This is especially useful for custom parsers registered at \ref WProjectFile::registerPArser. Implement this
+     * function.
+     *
+     * \param project the project file using this parser instance.
+     *
+     * \return Cloned instance.
+     */
+    virtual SPtr clone( WProjectFile* project ) const = 0;
+
+    /**
+     * Set the project using this parser
+     *
+     * \param project the project
+     */
+    void setProject( WProjectFile* project );
+
 protected:
     /**
      * Add an error. Use this when you encounter some difficulties during parsing or applying settings. Provide useful errors. They will be
@@ -143,6 +162,12 @@ protected:
      */
     void printProperties( std::ostream& output, boost::shared_ptr< WProperties > props, std::string indent, //NOLINT ( non-const ref )
                           std::string prefix, unsigned int index, std::string indexPrefix = "" );
+
+    /**
+     * The project using this parser
+     */
+    WProjectFile* m_project;
+
 private:
     /**
      * List of errors if any.

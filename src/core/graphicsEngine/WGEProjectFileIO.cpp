@@ -31,6 +31,7 @@
 
 #include "../common/WLogger.h"
 #include "../common/WStringUtils.h"
+#include "../kernel/WProjectFile.h"
 
 #include "WGraphicsEngine.h"
 #include "WGEViewer.h"
@@ -46,6 +47,14 @@ WGEProjectFileIO::WGEProjectFileIO():
 WGEProjectFileIO::~WGEProjectFileIO()
 {
     // cleanup
+}
+
+WProjectFileIO::SPtr WGEProjectFileIO::clone( WProjectFile* project ) const
+{
+    // nothing special. Simply create new instance.
+    WProjectFileIO::SPtr p( new WGEProjectFileIO() );
+    p->setProject( project );
+    return p;
 }
 
 /**

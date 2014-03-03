@@ -37,7 +37,7 @@
 
 #include "../WModuleCombiner.h"
 
-
+class WProjectFile;
 
 /**
  * This class is able to parse project files and create the appropriate module graph inside a specified container. It is also derived from
@@ -97,6 +97,16 @@ public:
      * \param output the stream to print the state to.
      */
     virtual void save( std::ostream& output );   // NOLINT
+
+    /**
+     * Create a clone of the IO. This is especially useful for custom parsers registered at \ref WProjectFile::registerPArser. Implement this
+     * function.
+     *
+     * \param project the project file using this parser instance.
+     *
+     * \return Cloned instance.
+     */
+    virtual SPtr clone( WProjectFile* project ) const;
 
 protected:
     /**

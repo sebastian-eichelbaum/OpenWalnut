@@ -48,15 +48,18 @@ WProjectFile::WProjectFile( boost::filesystem::path project ):
     m_project( project )
 {
     // initialize members
+    boost::shared_ptr< WProjectFileIO > p1( new WModuleProjectFileCombiner() );
+    boost::shared_ptr< WProjectFileIO > p2( new WRoiProjectFileIO() );
+    boost::shared_ptr< WProjectFileIO > p3( new WGEProjectFileIO() );
 
     // The module graph parser
-    m_parsers.push_back( boost::shared_ptr< WProjectFileIO >( new WModuleProjectFileCombiner() ) );
+    m_parsers.push_back( p1->clone( this ) );
 
     // The ROI parser
-    m_parsers.push_back( boost::shared_ptr< WProjectFileIO >( new WRoiProjectFileIO() ) );
+    m_parsers.push_back( p2->clone( this ) );
 
     // The Camera parser
-    m_parsers.push_back( boost::shared_ptr< WProjectFileIO >( new WGEProjectFileIO() ) );
+    m_parsers.push_back( p3->clone( this ) );
 
     // add the current list of additional parsers
     ParserList::ReadTicket r = m_additionalParsers.getReadTicket();
@@ -64,7 +67,7 @@ WProjectFile::WProjectFile( boost::filesystem::path project ):
     // Grab all items and add to my own list of parsers
     for( ParserList::ConstIterator it = r->get().begin(); it != r->get().begin(); ++it )
     {
-        m_parsers.push_back( *it );
+        m_parsers.push_back( ( *it )->clone( this ) );
     }
 
     // ticket unlocked automatically upon its destruction
@@ -76,14 +79,19 @@ WProjectFile::WProjectFile( boost::filesystem::path project, ProjectLoadCallback
     m_project( project ),
     m_signalLoadDoneConnection( m_signalLoadDone.connect( doneCallback ) )
 {
+    // initialize members
+    boost::shared_ptr< WProjectFileIO > p1( new WModuleProjectFileCombiner() );
+    boost::shared_ptr< WProjectFileIO > p2( new WRoiProjectFileIO() );
+    boost::shared_ptr< WProjectFileIO > p3( new WGEProjectFileIO() );
+
     // The module graph parser
-    m_parsers.push_back( boost::shared_ptr< WProjectFileIO >( new WModuleProjectFileCombiner() ) );
+    m_parsers.push_back( p1->clone( this ) );
 
     // The ROI parser
-    m_parsers.push_back( boost::shared_ptr< WProjectFileIO >( new WRoiProjectFileIO() ) );
+    m_parsers.push_back( p2->clone( this ) );
 
     // The Camera parser
-    m_parsers.push_back( boost::shared_ptr< WProjectFileIO >( new WGEProjectFileIO() ) );
+    m_parsers.push_back( p3->clone( this ) );
 
     // add the current list of additional parsers
     ParserList::ReadTicket r = m_additionalParsers.getReadTicket();
@@ -91,7 +99,7 @@ WProjectFile::WProjectFile( boost::filesystem::path project, ProjectLoadCallback
     // Grab all items and add to my own list of parsers
     for( ParserList::ConstIterator it = r->get().begin(); it != r->get().begin(); ++it )
     {
-        m_parsers.push_back( *it );
+        m_parsers.push_back( ( *it )->clone( this ) );
     }
 
     // ticket unlocked automatically upon its destruction
