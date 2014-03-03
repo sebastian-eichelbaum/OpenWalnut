@@ -25,6 +25,7 @@
 #ifndef WMODULEFACTORY_H
 #define WMODULEFACTORY_H
 
+#include <map>
 #include <set>
 #include <string>
 #include <utility>
