@@ -117,7 +117,7 @@ public:
     const std::vector< std::string >& getWarnings() const;
 
     /**
-     * Create a clone of the IO. This is especially useful for custom parsers registered at \ref WProjectFile::registerPArser. Implement this
+     * Create a clone of the IO. This is especially useful for custom parsers registered at \ref WProjectFile::registerParser. Implement this
      * function.
      *
      * \param project the project file using this parser instance.

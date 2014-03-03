@@ -131,7 +131,7 @@ public:
      * new instance of WProjectFile. The custom parser needs to implement \ref WProjectFileIO::clone as this is used for instancing the parser
      * for each project file.
      *
-     * \NOTE: See \ref WQtNetworkEditorProjectFileIO for a working example.
+     * \note: See \ref WQtNetworkEditorProjectFileIO for a working example.
      *
      * \param parser the parser. Can be added multiple times.
      */
