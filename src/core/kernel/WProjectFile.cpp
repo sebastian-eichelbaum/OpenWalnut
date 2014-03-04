@@ -24,9 +24,10 @@
 
 #include <algorithm>
 #include <fstream>
+#include <iterator>
+#include <list>
 #include <string>
 #include <vector>
-#include <iterator>
 
 #include <boost/regex.hpp>
 

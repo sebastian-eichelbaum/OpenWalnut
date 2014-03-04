@@ -25,6 +25,7 @@
 #ifndef WQTNETWORKEDITORPROJECTFILEIO_H
 #define WQTNETWORKEDITORPROJECTFILEIO_H
 
+#include <map>
 #include <string>
 
 #include <QtCore/QPoint>

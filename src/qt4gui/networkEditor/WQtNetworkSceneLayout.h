@@ -25,6 +25,10 @@
 #ifndef WQTNETWORKSCENELAYOUT_H
 #define WQTNETWORKSCENELAYOUT_H
 
+#include <map>
+#include <string>
+#include <utility>
+
 #include <boost/shared_ptr.hpp>
 
 #include "core/common/WSharedAssociativeContainer.h"
