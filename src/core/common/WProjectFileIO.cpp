@@ -32,7 +32,8 @@
 #include "WProjectFileIO.h"
 
 WProjectFileIO::WProjectFileIO():
-    m_errors()
+    m_errors(),
+    m_applyOrder( POST_MODULES )
 {
     // initialize
 }
@@ -120,5 +121,15 @@ void WProjectFileIO::printProperties( std::ostream& output, boost::shared_ptr< W
 void WProjectFileIO::setProject( WProjectFile* project )
 {
     m_project = project;
+}
+
+WProjectFileIO::ApplyOrder WProjectFileIO::getApplyOrder() const
+{
+    return m_applyOrder;
+}
+
+void WProjectFileIO::setApplyOrder( WProjectFileIO::ApplyOrder order )
+{
+    m_applyOrder = order;
 }
 

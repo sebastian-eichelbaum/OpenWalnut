@@ -39,6 +39,9 @@ class WProjectFile;
  * A base class for all parts of OpenWalnut which can be serialized to a project file. It is used by WProjectFile to actually parse the file line
  * by line. Derive from this class if you write your own parser and use it to fill your internal data structures. But write it in a very
  * error-tolerant way. We want to avoid that small problems in the project file cause the whole file to be useless.
+ *
+ * In general, each IO implementation has the chance to parse each line. After parsing all lines, the done method gets called. This method should
+ * contain code to actually apply the settings loaded. You should avoid doing this in the parse method itself.
  */
 class WProjectFileIO // NOLINT
 {
@@ -133,6 +136,23 @@ public:
      */
     void setProject( WProjectFile* project );
 
+    /**
+     * When to apply this parser. This might be important in some cases. Note that you can only decide
+     * whether you want to apply your changes before or after the modules have been added.
+     */
+    enum ApplyOrder
+    {
+        PRE_MODULES = 0,
+        POST_MODULES
+    };
+
+    /**
+     * Return the apply order of this IO.
+     *
+     * \return the order
+     */
+    ApplyOrder getApplyOrder() const;
+
 protected:
     /**
      * Add an error. Use this when you encounter some difficulties during parsing or applying settings. Provide useful errors. They will be
@@ -168,6 +188,13 @@ protected:
      */
     WProjectFile* m_project;
 
+    /**
+     * Set the order of calls to "done".
+     *
+     * \param order the order.
+     */
+    void setApplyOrder( ApplyOrder order );
+
 private:
     /**
      * List of errors if any.
@@ -178,6 +205,11 @@ private:
      * List of warnings if any.
      */
     std::vector< std::string > m_warnings;
+
+    /**
+     * The order in which the "done" functions are called.
+     */
+    ApplyOrder m_applyOrder;
 };
 
 #endif  // WPROJECTFILEIO_H

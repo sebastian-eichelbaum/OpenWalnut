@@ -26,6 +26,7 @@
 #define WPROJECTFILE_H
 
 #include <string>
+#include <list>
 #include <vector>
 
 #include <boost/filesystem.hpp>
@@ -99,6 +100,14 @@ public:
      * Saves the current state to the file specified in the constructor.
      */
     virtual void save();
+
+    /**
+     * Saves the current state to the file specified in the constructor. This also supports a custom list of writers. This is useful to only
+     * write some parts of the state.
+     *
+     * \param writer the list of writers to use.
+     */
+    virtual void save( const std::list< boost::shared_ptr< WProjectFileIO > >& writer );
 
     /**
      * Saves the current state to the file specified in the constructor. This also supports a custom list of writers. This is useful to only
@@ -182,7 +191,7 @@ protected:
     /**
      * The parser instances. They are used to parse the file.
      */
-    std::vector< boost::shared_ptr< WProjectFileIO > > m_parsers;
+    std::list< boost::shared_ptr< WProjectFileIO > > m_parsers;
 
     /**
      * Do custom exception handling.

@@ -69,7 +69,14 @@ WProjectFile::WProjectFile( boost::filesystem::path project ):
     // Grab all items and add to my own list of parsers
     for( ParserList::ConstIterator it = r->get().begin(); it != r->get().end(); ++it )
     {
-        m_parsers.push_back( ( *it )->clone( this ) );
+        if( ( *it )->getApplyOrder() == WProjectFileIO::POST_MODULES )
+        {
+            m_parsers.push_back( ( *it )->clone( this ) );
+        }
+        else
+        {
+            m_parsers.push_front( ( *it )->clone( this ) );
+        }
     }
 
     // ticket unlocked automatically upon its destruction
@@ -102,7 +109,14 @@ WProjectFile::WProjectFile( boost::filesystem::path project, ProjectLoadCallback
     // Grab all items and add to my own list of parsers
     for( ParserList::ConstIterator it = r->get().begin(); it != r->get().end(); ++it )
     {
-        m_parsers.push_back( ( *it )->clone( this ) );
+        if( ( *it )->getApplyOrder() == WProjectFileIO::POST_MODULES )
+        {
+            m_parsers.push_back( ( *it )->clone( this ) );
+        }
+        else
+        {
+            m_parsers.push_front( ( *it )->clone( this ) );
+        }
     }
 
     // ticket unlocked automatically upon its destruction
@@ -141,6 +155,12 @@ void WProjectFile::load()
 
 void WProjectFile::save( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer )
 {
+    std::list< boost::shared_ptr< WProjectFileIO > > l( writer.begin(), writer.end() );
+    save( l );
+}
+
+void WProjectFile::save( const std::list< boost::shared_ptr< WProjectFileIO > >& writer )
+{
     wlog::info( "Project File" ) << "Saving project file \"" << m_project.string() << "\".";
 
     // open the file for write
@@ -152,7 +172,7 @@ void WProjectFile::save( const std::vector< boost::shared_ptr< WProjectFileIO > 
     }
 
     // allow each parser to handle save request
-    for( std::vector< boost::shared_ptr< WProjectFileIO > >::const_iterator iter = writer.begin(); iter != writer.end(); ++iter )
+    for( std::list< boost::shared_ptr< WProjectFileIO > >::const_iterator iter = writer.begin(); iter != writer.end(); ++iter )
     {
         ( *iter )->save( output );
         output << std::endl;
@@ -204,7 +224,7 @@ void WProjectFile::threadMain()
         match = false;
 
         // allow each parser to handle the line.
-        for( std::vector< boost::shared_ptr< WProjectFileIO > >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
+        for( std::list< boost::shared_ptr< WProjectFileIO > >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
         {
             try
             {
@@ -233,7 +253,7 @@ void WProjectFile::threadMain()
     input.close();
 
     // finally, let every one know that we have finished
-    for( std::vector< boost::shared_ptr< WProjectFileIO > >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
+    for( std::list< boost::shared_ptr< WProjectFileIO > >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
     {
         try
         {
