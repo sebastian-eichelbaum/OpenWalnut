@@ -44,6 +44,11 @@ WQtCustomDockWidget::WQtCustomDockWidget( std::string title, QWidget* parent, WG
     getGLWidget()->setMouseTracking( true );
 }
 
+WQtCustomDockWidget::~WQtCustomDockWidget()
+{
+    // nothing
+}
+
 osg::ref_ptr< WGEGroupNode > WQtCustomDockWidget::getScene() const
 {
     return m_scene;

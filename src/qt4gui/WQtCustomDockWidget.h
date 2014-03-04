@@ -52,6 +52,11 @@ public:
     WQtCustomDockWidget( std::string title, QWidget* parent, WGECamera::ProjectionMode projectionMode );
 
     /**
+     * Destructor
+     */
+    virtual ~WQtCustomDockWidget();
+
+    /**
      * Get the scene which is displayed by the GL widget
      *
      * \return the scene as osg::ref_ptr
