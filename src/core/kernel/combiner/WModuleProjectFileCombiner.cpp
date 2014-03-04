@@ -353,12 +353,11 @@ void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
         // handle data modules separately
         if( ( *iter )->getType() == MODULE_DATA )
         {
-            output << "DATA:" << i << ":" <<  boost::static_pointer_cast< WDataModule >( ( *iter ) )->getFilename().string() <<
-                                      ":" <<   ( *iter )->getUUID() << std::endl;
+            output << "DATA:" << i << ":" <<  boost::static_pointer_cast< WDataModule >( ( *iter ) )->getFilename().string() << std::endl;
         }
         else
         {
-            output << "MODULE:" << i << ":" <<  ( *iter )->getName() << ":" << ( *iter )->getUUID() << std::endl;
+            output << "MODULE:" << i << ":" <<  ( *iter )->getName() << std::endl;
         }
 
         // the properties:
