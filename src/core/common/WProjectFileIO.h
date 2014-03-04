@@ -183,10 +183,6 @@ protected:
     void printProperties( std::ostream& output, boost::shared_ptr< WProperties > props, std::string indent, //NOLINT ( non-const ref )
                           std::string prefix, unsigned int index, std::string indexPrefix = "" );
 
-    /**
-     * The project using this parser
-     */
-    WProjectFile* m_project;
 
     /**
      * Set the order of calls to "done".
@@ -194,6 +190,13 @@ protected:
      * \param order the order.
      */
     void setApplyOrder( ApplyOrder order );
+
+    /**
+     * The project using this parser.
+     *
+     * \return the project
+     */
+    WProjectFile* getProject() const;
 
 private:
     /**
@@ -205,6 +208,11 @@ private:
      * List of warnings if any.
      */
     std::vector< std::string > m_warnings;
+
+    /**
+     * The project using this parser
+     */
+    WProjectFile* m_project;
 
     /**
      * The order in which the "done" functions are called.

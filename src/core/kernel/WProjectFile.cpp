@@ -55,13 +55,16 @@ WProjectFile::WProjectFile( boost::filesystem::path project ):
 
     // The module graph parser
     m_moduleIO = boost::dynamic_pointer_cast< WModuleProjectFileCombiner >( p1->clone( this ) );
-    m_parsers.push_back( p1 );
+    m_parsers.push_back( m_moduleIO );
+    m_writers.push_back( m_moduleIO );
 
     // The ROI parser
     m_parsers.push_back( p2->clone( this ) );
+    m_writers.push_back( p2->clone( this ) );
 
     // The Camera parser
     m_parsers.push_back( p3->clone( this ) );
+    m_writers.push_back( p3->clone( this ) );
 
     // add the current list of additional parsers
     ParserList::ReadTicket r = m_additionalParsers.getReadTicket();
@@ -77,6 +80,9 @@ WProjectFile::WProjectFile( boost::filesystem::path project ):
         {
             m_parsers.push_front( ( *it )->clone( this ) );
         }
+
+        // always add savers behind the module saver, to allow the module saver build the id map
+        m_writers.push_back( ( *it )->clone( this )  );
     }
 
     // ticket unlocked automatically upon its destruction
@@ -95,13 +101,16 @@ WProjectFile::WProjectFile( boost::filesystem::path project, ProjectLoadCallback
 
     // The module graph parser
     m_moduleIO = boost::dynamic_pointer_cast< WModuleProjectFileCombiner >( p1->clone( this ) );
-    m_parsers.push_back( p1 );
+    m_parsers.push_back( m_moduleIO );
+    m_writers.push_back( m_moduleIO );
 
     // The ROI parser
     m_parsers.push_back( p2->clone( this ) );
+    m_writers.push_back( p2->clone( this ) );
 
     // The Camera parser
     m_parsers.push_back( p3->clone( this ) );
+    m_writers.push_back( p3->clone( this ) );
 
     // add the current list of additional parsers
     ParserList::ReadTicket r = m_additionalParsers.getReadTicket();
@@ -117,6 +126,9 @@ WProjectFile::WProjectFile( boost::filesystem::path project, ProjectLoadCallback
         {
             m_parsers.push_front( ( *it )->clone( this ) );
         }
+
+        // always add savers behind the module saver, to allow the module saver build the id map
+        m_writers.push_back( ( *it )->clone( this )  );
     }
 
     // ticket unlocked automatically upon its destruction
@@ -126,6 +138,7 @@ WProjectFile::~WProjectFile()
 {
     // cleanup
     m_parsers.clear();
+    m_writers.clear();
     m_signalLoadDoneConnection.disconnect();
 }
 
@@ -183,7 +196,7 @@ void WProjectFile::save( const std::list< boost::shared_ptr< WProjectFileIO > >&
 
 void WProjectFile::save()
 {
-    save( m_parsers );
+    save( m_writers );
 }
 
 void WProjectFile::threadMain()

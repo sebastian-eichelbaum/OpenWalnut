@@ -363,6 +363,8 @@ void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
         // the properties:
         printProperties( output, ( *iter )->getProperties(), "", "", i );
 
+        m_modules.insert( ModuleID( i, *iter ) );
+
         // some readability:
         output << std::endl;
         ++i;
@@ -409,9 +411,10 @@ boost::shared_ptr< WModule > WModuleProjectFileCombiner::mapToModule( unsigned i
     return ( *it ).second;
 }
 
+
+
 unsigned int WModuleProjectFileCombiner::mapFromModule( boost::shared_ptr< WModule > module ) const
 {
-    // find the specific module
     ModuleIDMap::const_iterator it = std::find_if( m_modules.begin(), m_modules.end(),
                                                    boost::bind( &ModuleIDMap::value_type::second, _1 ) == module
                                                  );

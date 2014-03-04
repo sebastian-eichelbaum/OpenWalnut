@@ -123,6 +123,11 @@ void WProjectFileIO::setProject( WProjectFile* project )
     m_project = project;
 }
 
+WProjectFile* WProjectFileIO::getProject() const
+{
+    return m_project;
+}
+
 WProjectFileIO::ApplyOrder WProjectFileIO::getApplyOrder() const
 {
     return m_applyOrder;

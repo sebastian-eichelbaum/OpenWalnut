@@ -194,6 +194,11 @@ protected:
     std::list< boost::shared_ptr< WProjectFileIO > > m_parsers;
 
     /**
+     * The writer instances. They are used to write the file.
+     */
+    std::list< boost::shared_ptr< WProjectFileIO > > m_writers;
+
+    /**
      * Do custom exception handling.
      *
      * \param e the exception
