@@ -181,6 +181,11 @@ bool WQtNetworkItemGrid::setItem( QGraphicsItem* item, int col, int row )
     return true;
 }
 
+bool WQtNetworkItemGrid::setItem( QGraphicsItem* item, QPoint cell )
+{
+    return setItem( item, cell.x(), cell.y() );
+}
+
 void WQtNetworkItemGrid::removeItem( int col, int row )
 {
     removeItemImpl( m_grid[ QPoint( col, row ) ] );
@@ -465,3 +470,9 @@ void WQtNetworkItemGrid::disableBoundsUpdate( bool disable )
 {
     m_disableUpdateBounds = disable;
 }
+
+QRect WQtNetworkItemGrid::getGridBoundingRect() const
+{
+    return m_dimensions;
+}
+

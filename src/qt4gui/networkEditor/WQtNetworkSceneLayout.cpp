@@ -45,9 +45,22 @@ WQtNetworkSceneLayout::~WQtNetworkSceneLayout()
 
 void WQtNetworkSceneLayout::addItem( WQtNetworkItem* item )
 {
-    // add in first row of the next free column
-    int nextX = m_grid->getFirstFreeColumn();
-    m_grid->setItem( item, nextX, 0 );
+    // do we have a default?
+    WSharedAssociativeContainer< ModuleDefaultCoordinates >::ReadTicket r = m_moduleDefaultCoords.getReadTicket();
+    ModuleDefaultCoordinates::const_iterator defaultCoord = r->get().find( item->getModule()->getUUID() );
+    if( defaultCoord == r->get().end() )
+    {
+        // NO. No default found. Do naive placement to next free column.
+        // add in first row of the next free column
+        int nextX = m_grid->getFirstFreeColumn();
+        m_grid->setItem( item, nextX, 0 );
+    }
+    else
+    {
+        // default found. Place there and mark item as already layed out
+        m_grid->setItem( item, ( *defaultCoord ).second );
+        item->setLayedOut();
+    }
 }
 
 void WQtNetworkSceneLayout::removeItem( WQtNetworkItem* item )
@@ -106,21 +119,20 @@ void WQtNetworkSceneLayout::snapTemporarily( WQtNetworkItem* item, QPointF world
     m_grid->physicalMoveTo( item, cell, false );
 }
 
-void WQtNetworkSceneLayout::snapAccept( WQtNetworkItem* item )
+void WQtNetworkSceneLayout::snapAccept( WQtNetworkItem* item, QPointF worldCoords )
 {
     // disable highlight
     m_grid->highlightCell();
 
     // something changed?
+    QPoint newCell = m_grid->findNearestCell( worldCoords );
     QPoint oldCell = m_grid->whereIs( item );
-    QPoint newCell = m_grid->findNearestCell( item->pos() );
-    if( oldCell == newCell )
-    {
-        return;
-    }
 
-    // user moved it somewhere. Mark as already positioned.
-    item->setManuallyPlaced();
+    if( oldCell != newCell )
+    {
+        // user moved it somewhere. Mark as already positioned. (But only if start and end cell are different)
+        item->setManuallyPlaced();
+    }
 
     // move in layout
     if( !m_grid->moveItem( item, newCell ) )
@@ -148,3 +160,10 @@ WQtNetworkItemGrid* WQtNetworkSceneLayout::getGrid() const
 {
     return m_grid;
 }
+
+void WQtNetworkSceneLayout::setModuleDefaultPosition( WModule::SPtr module, QPoint coord )
+{
+    WSharedAssociativeContainer< ModuleDefaultCoordinates >::WriteTicket w = m_moduleDefaultCoords.getWriteTicket();
+    w->get()[ module->getUUID() ] = coord;
+}
+

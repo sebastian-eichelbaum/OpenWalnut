@@ -468,7 +468,7 @@ void WQtNetworkItem::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
         m_dragging = false;
 
         // when released, update layouter
-        m_networkEditor->getLayout()->snapAccept( this );
+        m_networkEditor->getLayout()->snapAccept( this, event->scenePos() );
     }
 
     m_networkEditor->getLayout()->blendOut();

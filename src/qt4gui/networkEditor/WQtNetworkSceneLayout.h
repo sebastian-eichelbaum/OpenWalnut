@@ -27,6 +27,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "core/common/WSharedAssociativeContainer.h"
+
 class WQtNetworkEditor;
 class WQtNetworkScene;
 class WQtNetworkItem;
@@ -105,8 +107,9 @@ public:
      * Accept the current item position and update layout accordingly.
      *
      * \param item the item
+     * \param worldCoords world space coordinates
      */
-    void snapAccept( WQtNetworkItem* item );
+    void snapAccept( WQtNetworkItem* item, QPointF worldCoords );
 
     /**
      * Allows blending in the underlaying layout structure.
@@ -131,11 +134,36 @@ public:
      * \return the grid.
      */
     WQtNetworkItemGrid* getGrid() const;
+
+    /**
+     * Set a default position for a given module. The layouter will position a module at the given coordinate now, or in future.
+     *
+     * \param module the module
+     * \param coord the coordinate
+     */
+    void setModuleDefaultPosition( WModule::SPtr module, QPoint coord );
+
 protected:
 private:
     WQtNetworkScene* m_scene; //!< the scene managed by this layouter
 
     WQtNetworkItemGrid* m_grid; //!< we use a grid to place the items
+
+    /**
+     * Map between module UUID and network coord
+     */
+    typedef std::map< std::string, QPoint > ModuleDefaultCoordinates;
+
+    /**
+     * The type inside the map
+     */
+    typedef std::pair< std::string, QPoint > ModuleDefaultCoordinatesItem;
+
+    /**
+     * The mapping of network coordinates for each module. This is wrapped by a thread save WSharedObject, since the loader might run in a thread
+     * that is not the GUI thread.
+     */
+    WSharedAssociativeContainer< ModuleDefaultCoordinates > m_moduleDefaultCoords;
 };
 
 #endif  // WQTNETWORKSCENELAYOUT_H

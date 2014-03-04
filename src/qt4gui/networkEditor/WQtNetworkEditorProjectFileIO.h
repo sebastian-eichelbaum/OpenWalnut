@@ -27,6 +27,8 @@
 
 #include <string>
 
+#include <QtCore/QPoint>
+
 #include "core/common/WProjectFileIO.h"
 
 class WQtNetworkEditor;
@@ -89,6 +91,26 @@ private:
      * The network editor to use.
      */
     WQtNetworkEditor* m_networkEditor;
+
+    /**
+     * Map between module ID and network coord
+     */
+    typedef std::map< unsigned int, QPoint > ModuleNetworkCoordinates;
+
+    /**
+     * The mapping of network coordinates for each module.
+     */
+    ModuleNetworkCoordinates m_networkCoords;
+
+    /**
+     * The bounding coordinates of the loaded grid: top-left
+     */
+    QPoint m_bbTL;
+
+    /**
+     * The bounding coordinates of the loaded grid: top-left
+     */
+    QPoint m_bbBR;
 };
 
 #endif  // WQTNETWORKEDITORPROJECTFILEIO_H

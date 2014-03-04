@@ -85,6 +85,13 @@ public:
     virtual QRectF boundingRect() const;
 
     /**
+     * Returns the boundaries in grid coordinates. If you need world coords, use \ref boundingRect instead.
+     *
+     * \return the grid bounds
+     */
+    virtual QRect getGridBoundingRect() const;
+
+    /**
      * Update the m_dimensions. This method rebuilds the bounding area of the grid by re-reading all items in the grid. This is useful, whenever
      * you do a lot of complex operations while suppressing all updates. Then use this method to force a complete update of the dimensions.
      */
@@ -117,6 +124,16 @@ public:
      * \return false if there already is an element
      */
     bool setItem( QGraphicsItem* item, int col, int row );
+
+    /**
+     * Set the specified item to the specified position.
+     *
+     * \param item the item to set
+     * \param cell the column ( x coordinate )
+     *
+     * \return false if there already is an element
+     */
+    bool setItem( QGraphicsItem* item, QPoint cell );
 
     /**
      * Remove the item at the given position.
