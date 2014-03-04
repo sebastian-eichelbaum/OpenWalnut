@@ -170,11 +170,11 @@ public:
      * Map a given module to project file ID. This method must not be used by WModuleProjectFileCombiner, as it builds this mapping. All other
      * \ref WProjectFileIO implementations are allowed to use it in their save and apply methods (NOT in parse()).
      *
-     * \param id the id
+     * \param module the module to map
      *
      * \return the ID, or numeric_limits< unisigned int >::max() if module not known.*
      */
-    unsigned int mapFromModule(  boost::shared_ptr< WModule > module ) const;
+    unsigned int mapFromModule( boost::shared_ptr< WModule > module ) const;
 
 protected:
     /**
