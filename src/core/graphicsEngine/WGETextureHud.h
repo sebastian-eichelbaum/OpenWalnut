@@ -34,6 +34,7 @@
 #include <osg/Geode>
 #include <osg/Texture2D>
 #include <osg/TexMat>
+#include <osgText/Text>
 
 #include "WGEGroupNode.h"
 
@@ -110,6 +111,12 @@ public:
          */
         osg::ref_ptr< osg::Texture2D > getTexture() const;
 
+        /**
+         * Set maximum text width. This is useful to avoid oversize text. Call only from inside a OSG callback.
+         *
+         * \param width the max width
+         */
+        void setMaxTextWidth( float width );
     protected:
         /**
          * The texture.
@@ -122,10 +129,19 @@ public:
         osg::ref_ptr< osg::TexMat > m_texMat;
 
         /**
+         * The label text.
+         */
+        osgText::Text* m_label;
+
+        /**
          * The name for this HUD entry.
          */
         std::string m_name;
 
+        /**
+         * Mqx text width.
+         */
+        float m_maxTextWidth;
     private:
     };
 

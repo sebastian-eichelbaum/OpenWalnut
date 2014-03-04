@@ -34,7 +34,6 @@
 #include <osg/MatrixTransform>
 #include <osg/Node>
 #include <osg/TexEnv>
-#include <osgText/Text>
 
 // Compatibility between OSG 3.2 and earlier versions
 #include "core/graphicsEngine/WOSG.h"
@@ -82,6 +81,7 @@ void WGETextureHud::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVi
     {
         // all children are WGETextureHudEntries.
         WGETextureHudEntry* tex = static_cast< WGETextureHudEntry* >( group->getChild( i ) );
+        tex->setMaxTextWidth( m_hud->getMaxElementWidth() );    // as this might change each frame, we set it here
 
         // scale the height of the quad (texture) to have proper aspect ratio
         float height = static_cast< float >( m_hud->getMaxElementWidth() * tex->getRealHeight() ) / static_cast< float >( tex->getRealWidth() );
@@ -178,7 +178,8 @@ void WGETextureHud::coupleViewportWithTextureViewport( bool couple )
 WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Texture2D > texture, std::string name, bool transparency ):
     osg::MatrixTransform(),
     m_texture( texture ),
-    m_name( name )
+    m_name( name ),
+    m_maxTextWidth( 256 )
 {
     setMatrix( osg::Matrixd::identity() );
     setReferenceFrame( osg::Transform::ABSOLUTE_RF );
@@ -263,20 +264,26 @@ WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Textur
     state = textGeode->getOrCreateStateSet();
     state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
     addChild( textGeode );
-    osgText::Text* label = new osgText::Text();
-    label->setFont( WPathHelper::getAllFonts().Default.string() );
-    label->setBackdropType( osgText::Text::OUTLINE );
-    label->setCharacterSize( 15 );
-    label->setText( m_name );
-    label->setAxisAlignment( osgText::Text::SCREEN );
-    label->setPosition( osg::Vec3( 0.01, 0.01, -1.0 ) );
-    label->setColor( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
-    textGeode->addDrawable( label );
+    m_label = new osgText::Text();
+    m_label->setFont( WPathHelper::getAllFonts().Default.string() );
+    m_label->setBackdropType( osgText::Text::OUTLINE );
+    m_label->setCharacterSize( 15 );
+    m_label->setText( m_name );
+    m_label->setAxisAlignment( osgText::Text::SCREEN );
+    m_label->setPosition( osg::Vec3( 0.02, 0.925, -1.0 ) );
+    m_label->setColor( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
+    textGeode->addDrawable( m_label );
 }
 
 WGETextureHud::WGETextureHudEntry::~WGETextureHudEntry()
 {
     // cleanup
+}
+
+void WGETextureHud::WGETextureHudEntry::setMaxTextWidth( float width )
+{
+    m_maxTextWidth = width;
+    m_label->setMaximumWidth( width - 20 ); // 20? Ensure some space at the right side
 }
 
 unsigned int WGETextureHud::WGETextureHudEntry::getRealWidth() const
