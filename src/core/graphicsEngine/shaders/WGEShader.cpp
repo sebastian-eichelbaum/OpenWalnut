@@ -305,10 +305,10 @@ std::string WGEShader::processShaderRecursive( const std::string filename, bool 
         if( boost::regex_search( line, matches, includeRegexp ) )
         {
             // a new file begins. Use GLSL line directive to ensure proper numbering
-            output << "#line 1 \"" << matches[1] << "\"";
-            output << processShaderRecursive( matches[1], false, level + 1 );
+            output << "#line 1" << std::endl;
+            output << processShaderRecursive( matches[1], false, level + 1 ) << std::endl;
             // reset numbering in source file of the previous include
-            output << "#line " << lineNo << " \"" << filename << "\"";
+            output << "#line " << lineNo << std::endl;
         }
         else
         {

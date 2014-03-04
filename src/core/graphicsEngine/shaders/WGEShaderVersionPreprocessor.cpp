@@ -89,7 +89,7 @@ std::string WGEShaderVersionPreprocessor::process( const std::string& file, cons
     // the ATI compiler needs the version statement to be the first statement in the shader
     std::stringstream vs;
     vs << "#version " << version << std::endl
-       << "#line 1 " << file << std::endl << cleanedCode.str();
+       << "#line 1 " << std::endl << cleanedCode.str();
     return vs.str();
 }
 
