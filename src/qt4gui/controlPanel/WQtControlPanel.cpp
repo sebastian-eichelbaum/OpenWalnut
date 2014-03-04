@@ -36,6 +36,7 @@
 #include <QtGui/QShortcut>
 #include <QtGui/QSplitter>
 #include <QtGui/QMessageBox>
+#include <QtGui/QVBoxLayout>
 
 #include "core/common/WLogger.h"
 #include "core/common/WPredicateHelper.h"
@@ -170,7 +171,20 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
 
     m_moduleDock = new WQtDockWidget( "Module Tree", m_mainWindow );
     m_moduleDock->setObjectName( "Module Dock" );
-    m_moduleDock->setWidget( m_moduleTreeWidget );
+
+    // show deprecation info
+    QWidget* treeWidgetContainer = new QWidget();
+    QVBoxLayout* treeWidgetContainerLayout = new QVBoxLayout();
+    treeWidgetContainer->setLayout( treeWidgetContainerLayout );
+    QLabel* treeWidgetDeprecation = new QLabel( "<h1><b><font color=#f00>The module tree is deprecated.</font></b></h1>"
+                                                "Use the tab \"Modules\" instead. This will be removed in the next release." );
+    treeWidgetDeprecation->setMargin( 25 );
+    treeWidgetDeprecation->setWordWrap( true );
+
+    treeWidgetContainerLayout->addWidget( treeWidgetDeprecation );
+    treeWidgetContainerLayout->addWidget( m_moduleTreeWidget );
+
+    m_moduleDock->setWidget( treeWidgetContainer );
     m_moduleDock->setHidden( true );
 
     m_roiDock = new WQtDockWidget( "ROIs", m_mainWindow );
@@ -364,11 +378,15 @@ bool WQtControlPanel::event( QEvent* event )
         boost::shared_ptr< WModule > mIn = e->getInput()->getModule();
         boost::shared_ptr< WModule > mOut = e->getOutput()->getModule();
 
-        // NOTE: the following is ugly. We definitely should rethink our GUI
+        // NOTE: the following is ugly. We definitely should rethink our GUI. We comment this out now, as the whole module tree is deprecated.
+        /*
 
         // at this moment items for each input connector are inside the tree.
         // search the items not yet associated with some other module for the first item
         std::list< WQtTreeItem* > items = findItemsByModule( mIn, m_tiModules );
+        std::list< WQtTreeItem* > possibleParents = findItemsByModule( mOut );
+
+        // move
         for( std::list< WQtTreeItem* >::const_iterator iter = items.begin(); iter != items.end(); ++iter )
         {
             ( *iter )->setHidden( false );
@@ -376,7 +394,6 @@ bool WQtControlPanel::event( QEvent* event )
             ( *iter )->setHandledOutput( e->getOutput()->getName() );
 
             // move it to the module with the involved output
-            std::list< WQtTreeItem* > possibleParents = findItemsByModule( mOut );
             for( std::list< WQtTreeItem* >::const_iterator parIter = possibleParents.begin(); parIter != possibleParents.end(); ++parIter )
             {
                 // remove child from tiModules
@@ -392,6 +409,7 @@ bool WQtControlPanel::event( QEvent* event )
             // job done.
             break;
         }
+        */
     }
 
     // a module tree item was disconnected from another one
