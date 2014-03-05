@@ -69,7 +69,7 @@ WProjectFileIO::SPtr WQtNetworkEditorProjectFileIO::clone( WProjectFile* project
  *
  * \return the values
  */
-unsigned int* parseIntSequence( std::string seq, unsigned int size )
+int* parseIntSequence( std::string seq, int size )
 {
     // parse the string
     // -> tokenize it and fill pointer appropriately
@@ -78,11 +78,11 @@ unsigned int* parseIntSequence( std::string seq, unsigned int size )
     tokenizer tok( seq, sep );
 
     // each value must be stored at the proper position
-    unsigned int* values = new unsigned int[ size ];
-    unsigned int i = 0;
+    int* values = new int[ size ];
+    int i = 0;
     for( tokenizer::iterator it = tok.begin(); ( it != tok.end() ) && ( i < size ); ++it )
     {
-        values[ i ] = string_utils::fromString< unsigned int >( ( *it ) );
+        values[ i ] = string_utils::fromString< int >( ( *it ) );
         ++i;
     }
 
@@ -104,7 +104,7 @@ bool WQtNetworkEditorProjectFileIO::parse( std::string line, unsigned int lineNu
         wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Network \"" << matches[2] << "\" with module ID " << matches[1];
 
         unsigned int id = string_utils::fromString< unsigned int >( matches[1] );
-        unsigned int* coordRaw = parseIntSequence( string_utils::toString( matches[2] ), 2 );
+        int* coordRaw = parseIntSequence( string_utils::toString( matches[2] ), 2 );
 
         // store. Applied later.
         m_networkCoords[ id ] = QPoint( coordRaw[0], coordRaw[1] );
@@ -139,7 +139,11 @@ void WQtNetworkEditorProjectFileIO::done()
     }
 
     // request a reserved grid zone:
-    //unsigned int reservedAredID = m_networkEditor->getLayout()->reserveRect( bbTL, bbBR );
+    // NOTE: future possibility?!
+    // unsigned int reservedAredID = m_networkEditor->getLayout()->reserveRect( bbTL, bbBR );
+
+    // get next free column
+    int firstFree = m_networkEditor->getLayout()->getGrid()->getFirstFreeColumn();
 
     // iterate our list.
     for( ModuleNetworkCoordinates::const_iterator it = m_networkCoords.begin(); it != m_networkCoords.end(); ++it )
@@ -149,7 +153,12 @@ void WQtNetworkEditorProjectFileIO::done()
         if( module )
         {
             // register in network editor instance as a default position
-            m_networkEditor->getLayout()->setModuleDefaultPosition( module, ( *it ).second );
+            // ensure that the coordinates where relative to the top-left item. Although this is done by the writing code, we should assume someone
+            // has modified the file. Why? One of the primary directives for the project file IO classes is to be fault tolerant.
+            // NOTE: usually bbTL should be 0,0
+            QPoint p = ( *it ).second - bbTL;
+            p.rx() += firstFree;
+            m_networkEditor->getLayout()->setModuleDefaultPosition( module, p );
         }
     }
 }
