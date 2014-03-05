@@ -129,7 +129,7 @@ WQtMessagePopup::WQtMessagePopup( QWidget* parent, const QString& title, const Q
     // this is the layout of some widget
     QWidget* titleWidget = new QWidget();
     titleWidget->setFixedHeight( CONTENTHEIGHT + BORDERWIDTH + BORDERWIDTH );
-    titleWidget->setContentsMargins( 5, 0, 0, 0 );
+    titleWidget->setContentsMargins( BORDERWIDTH, 0, 0, 0 );
     titleWidget->setLayout( topLayout );
 
     WScaleLabel* titleLabel = new WScaleLabel( this );
@@ -161,7 +161,7 @@ WQtMessagePopup::WQtMessagePopup( QWidget* parent, const QString& title, const Q
 
     WScaleLabel* messageLabel = new WScaleLabel( this );
     messageLabel->setText( message );
-    messageLabel->setContentsMargins( BORDERWIDTH, 0, 0, BORDERWIDTH );
+    messageLabel->setContentsMargins( 2 * BORDERWIDTH, 2 * BORDERWIDTH,  2 * BORDERWIDTH, 2 * BORDERWIDTH );
     popupLayout->addWidget( titleWidget );
     popupLayout->addWidget( messageLabel );
 
