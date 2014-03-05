@@ -44,7 +44,6 @@
 
 #define OUTERMARGIN 10
 #define BORDERWIDTH 2
-#define CONTENTHEIGHT 16
 #define MAXWIDTH 600
 
 WQtMessagePopup::WQtMessagePopup( QWidget* parent, const QString& title, const QString& message, MessageType type ):
@@ -62,15 +61,21 @@ WQtMessagePopup::WQtMessagePopup( QWidget* parent, const QString& title, const Q
     // these settings seem to be ignored somehow
     setWindowModality( Qt::NonModal );
 
+    QString borderColor = "red";
+    QString titlePrefix = "";
+
+    // text height. Use FontMetrics and get it directly from the title label
+    WScaleLabel* titleLabel = new WScaleLabel( this );
+    titleLabel->setText( titlePrefix + title );
+    QFontMetrics fm( titleLabel->fontMetrics() );
+    int textHeight = fm.height();
+
     // determine a width and height for the popup
     unsigned int w = std::min( parent->width() - ( 2 * OUTERMARGIN ), MAXWIDTH );
-    unsigned int h = CONTENTHEIGHT + BORDERWIDTH + BORDERWIDTH;
+    unsigned int h = textHeight + BORDERWIDTH + BORDERWIDTH;
 
     // change size of popup
     resize( w, h );
-
-    QString borderColor = "red";
-    QString titlePrefix = "";
 
     switch( m_type )
     {
@@ -126,22 +131,21 @@ WQtMessagePopup::WQtMessagePopup( QWidget* parent, const QString& title, const Q
 
     QHBoxLayout* topLayout = new QHBoxLayout( this );
     topLayout->setContentsMargins( 0, 0, 0, 0 );
+    topLayout->setSpacing( 0 );
     // this is the layout of some widget
     QWidget* titleWidget = new QWidget();
-    titleWidget->setFixedHeight( CONTENTHEIGHT + BORDERWIDTH + BORDERWIDTH );
+    titleWidget->setFixedHeight( textHeight + 3 * BORDERWIDTH );
     titleWidget->setContentsMargins( BORDERWIDTH, 0, 0, 0 );
     titleWidget->setLayout( topLayout );
 
-    WScaleLabel* titleLabel = new WScaleLabel( this );
-    titleLabel->setText( titlePrefix + title );
     titleLabel->setContentsMargins( 0, 0, 0, 0 );
     topLayout->addWidget( titleLabel );
 
     QPushButton* detailsBtn = new QPushButton( "", this );
     detailsBtn->setContentsMargins( 0, 0, 0, 0 );
     detailsBtn->setIcon( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "popup_more" ) );
-    detailsBtn->setFixedWidth( CONTENTHEIGHT );
-    detailsBtn->setFixedHeight( CONTENTHEIGHT );
+    detailsBtn->setFixedWidth( textHeight );
+    detailsBtn->setFixedHeight( textHeight );
     detailsBtn->setToolTip( "Show complete message" );
     topLayout->addWidget( detailsBtn );
     connect( detailsBtn, SIGNAL( released() ), this, SLOT( showMessage() ) );
@@ -149,8 +153,8 @@ WQtMessagePopup::WQtMessagePopup( QWidget* parent, const QString& title, const Q
     m_closeBtn = new QPushButton( "", this );
     m_closeBtn->setContentsMargins( 0, 0, 0, 0 );
     m_closeBtn->setIcon( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "popup_close" ) );
-    m_closeBtn->setFixedWidth( CONTENTHEIGHT );
-    m_closeBtn->setFixedHeight( CONTENTHEIGHT );
+    m_closeBtn->setFixedWidth( textHeight );
+    m_closeBtn->setFixedHeight( textHeight );
     m_closeBtn->setToolTip( "Close this message" );
     topLayout->addWidget( m_closeBtn );
     connect( m_closeBtn, SIGNAL( released() ), this, SLOT( closePopup() ) );
