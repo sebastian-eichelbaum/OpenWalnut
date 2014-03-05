@@ -297,7 +297,7 @@ std::string WGEShader::processShaderRecursive( const std::string filename, bool 
     boost::smatch matches;          // the list of matches
     std::size_t lineNo = 0;         // keep track of line numbers
 
-    output << "#line 1 \"" << filename << "\"";
+    output << "#line 1 ";
 
     while( std::getline( input, line ) )
     {
