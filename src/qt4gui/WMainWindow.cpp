@@ -144,7 +144,7 @@ void WMainWindow::setupGUI()
                                                                "Show Navigation Views",
                                                                "Disables the navigation views completely. This can lead to a speed-up and is "
                                                                "recommended for those who do not need them.",
-                                                               true,
+                                                               false,
                                                                true    // this requires a restart
                                                        );
     m_autoDisplaySetting = new WSettingAction( this, "qt4gui/useAutoDisplay",
