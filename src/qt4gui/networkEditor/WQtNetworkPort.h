@@ -26,6 +26,7 @@
 #define WQTNETWORKPORT_H
 
 #include <QtGui/QGraphicsRectItem>
+#include <QtGui/QGraphicsPolygonItem>
 #include <QtGui/QGraphicsLineItem>
 
 #include "WQtNetworkArrow.h"

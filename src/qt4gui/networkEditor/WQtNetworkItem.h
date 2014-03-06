@@ -392,6 +392,11 @@ private:
     bool m_dragging;
 
     /**
+     * Start position of dragging
+     */
+    QPointF m_draggingStart;
+
+    /**
      * Mark item as already positioned.
      */
     bool m_wasLayedOut;
@@ -400,6 +405,11 @@ private:
      * Item has been placed manually. This flag is used by the layouter to avoid moving around manually placed items.
      */
     bool m_wasManuallyPlaced;
+
+    /**
+     * If true, the mouse events do not cause a drag and move operation.
+     */
+    bool m_noDrag;
 
 private slots:
     /**
@@ -425,5 +435,10 @@ private slots:
      * Called whenever the item moves around.
      */
     void positionChanged();
+
+    /**
+     * Called whenever a animated move was finished.
+     */
+    void moveFinished();
 };
 #endif  // WQTNETWORKITEM_H

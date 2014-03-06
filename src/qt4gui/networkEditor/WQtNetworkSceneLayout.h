@@ -104,8 +104,9 @@ public:
      *
      * \param item the item
      * \param worldCoords world space coordinates
+     * \param noPhysicalMove disable movement of item if you handle it for yourself
      */
-    void snapTemporarily( WQtNetworkItem* item, QPointF worldCoords );
+    void snapTemporarily( WQtNetworkItem* item, QPointF worldCoords, bool noPhysicalMove = false );
 
     /**
      * Accept the current item position and update layout accordingly.

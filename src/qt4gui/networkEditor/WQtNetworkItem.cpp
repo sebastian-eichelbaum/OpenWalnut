@@ -58,15 +58,18 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WMo
     m_busyIndicatorShow( false ),
     m_forceUpdate( true ),
     m_propertyToolWindow( NULL ),
-    m_dragging( true ),
+    m_dragging( false ),
     m_wasLayedOut( false ),
-    m_wasManuallyPlaced( false )
+    m_wasManuallyPlaced( false ),
+    m_noDrag( false )
 {
     m_networkEditor = editor;
     m_module = module;
 
     // important to automatically update the arrows if the item moves around
     setFlag( ItemSendsGeometryChanges );
+    setFlag( QGraphicsItem::ItemIsSelectable );
+    setFlag( QGraphicsItem::ItemIsMovable, false ); // < we manage movement for our own.
 
     setCacheMode( DeviceCoordinateCache );
 
@@ -430,39 +433,69 @@ void WQtNetworkItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* o
     }
 }
 
-void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent* mouseEvent )
+void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 {
+    if( m_noDrag )
+    {
+        event->accept();
+        return;
+    }
+
     if( m_dragging )
     {
         // ask layouter
         // suppress scene update - very annoying but if you remove this, QT segfaults somewhere
         m_networkEditor->getLayout()->getGrid()->disableBoundsUpdate();
-        m_networkEditor->getLayout()->snapTemporarily( this, mouseEvent->scenePos() );
+        m_networkEditor->getLayout()->snapTemporarily( this, event->scenePos(), true );
         // enable again
         m_networkEditor->getLayout()->getGrid()->disableBoundsUpdate( false );
+
+        // move item. If commenting this out you can enable discrete grid move (remember to set the third param in snapTemporarily to false ).
+        QPointF p = event->scenePos() - m_draggingStart;
+        m_draggingStart = event->scenePos();
+        setPos( pos() + p );
     }
 
     // do not forward event. We handled it.
-    mouseEvent->accept();
-    QGraphicsItem::mouseMoveEvent( mouseEvent );
+    event->accept();
+    QGraphicsItem::mouseMoveEvent( event );
 }
 
 void WQtNetworkItem::mousePressEvent( QGraphicsSceneMouseEvent* event )
 {
+    if( m_noDrag )
+    {
+        event->accept();
+        return;
+    }
+
     if( event->button() == Qt::LeftButton )
     {
         m_dragging = true;
+        m_draggingStart = event->scenePos();
         m_networkEditor->getLayout()->blendIn();
+        event->accept();
     }
+    if( event->button() == Qt::RightButton )
+    {
+        event->accept();
+    }
+
     m_networkEditor->getScene()->clearSelection();
     setSelected( true );
 
-    event->accept();
-    QGraphicsItem::mousePressEvent( event );
+    // do not accept all events to allow right clicks
+    //QGraphicsItem::mousePressEvent( event );
 }
 
 void WQtNetworkItem::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
 {
+    if( m_noDrag )
+    {
+        event->accept();
+        return;
+    }
+
     if( m_dragging )
     {
         m_dragging = false;
@@ -746,15 +779,13 @@ void WQtNetworkItem::activate( bool active )
     if( active == true )
     {
         setAcceptsHoverEvents( true );
-        setFlag( QGraphicsItem::ItemIsSelectable );
-        setFlag( QGraphicsItem::ItemIsMovable );
+        setFlag( QGraphicsItem::ItemIsSelectable, true );
         changeState( m_module->isCrashed() ? Crashed : Normal );
     }
     if( active == false )
     {
         setAcceptsHoverEvents( false );
         setFlag( QGraphicsItem::ItemIsSelectable, false );
-        setFlag( QGraphicsItem::ItemIsMovable, false );
         changeState( Disabled );
     }
 }
@@ -811,6 +842,7 @@ void WQtNetworkItem::animatedMoveTo( QPointF newPos )
     animation->setTimeLine( animationTimer );
 
     // delete timer when done
+    connect( animationTimer, SIGNAL( finished() ), this, SLOT( moveFinished() ) );
     connect( animationTimer, SIGNAL( finished() ), animation, SLOT( deleteLater() ) );
     connect( animationTimer, SIGNAL( finished() ), animationTimer, SLOT( deleteLater() ) );
 
@@ -825,6 +857,11 @@ void WQtNetworkItem::animatedMoveTo( QPointF newPos )
     }
     animation->setPosAt( 1.0, newPos );
 
+    // disable item during animation to avoid click+drag.
+    // NOTE: using setEnabled causes the active selection of the module to vanish. So we use our own flag which is then handled in the event
+    // methods
+    m_noDrag = true;
+
     // go
     animationTimer->start();
 }
@@ -832,6 +869,12 @@ void WQtNetworkItem::animatedMoveTo( QPointF newPos )
 void WQtNetworkItem::animatedMoveTo( qreal x, qreal y )
 {
     animatedMoveTo( QPointF( x, y ) );
+}
+
+void WQtNetworkItem::moveFinished()
+{
+    // we have disabled the item to avoid clicking and dragging during move
+    m_noDrag = false;
 }
 
 void WQtNetworkItem::setLayedOut( bool layedOut )

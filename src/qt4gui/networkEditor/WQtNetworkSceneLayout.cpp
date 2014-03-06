@@ -100,7 +100,7 @@ void WQtNetworkSceneLayout::disconnection( WQtNetworkItem* /* outItem */, WQtNet
     // leave item on its current position.
 }
 
-void WQtNetworkSceneLayout::snapTemporarily( WQtNetworkItem* item, QPointF worldCoords )
+void WQtNetworkSceneLayout::snapTemporarily( WQtNetworkItem* item, QPointF worldCoords, bool noPhysicalMove )
 {
     // the grid knows where to snap:
     QPoint cell = m_grid->findNearestCell( worldCoords );
@@ -116,7 +116,10 @@ void WQtNetworkSceneLayout::snapTemporarily( WQtNetworkItem* item, QPointF world
         // explicitly turn of highlight
         m_grid->highlightCell();
     }
-    m_grid->physicalMoveTo( item, cell, false );
+    if( !noPhysicalMove )
+    {
+        m_grid->physicalMoveTo( item, cell, false );
+    }
 }
 
 void WQtNetworkSceneLayout::snapAccept( WQtNetworkItem* item, QPointF worldCoords )

@@ -34,11 +34,11 @@
 
 #include "core/kernel/combiner/WApplyCombiner.h"
 
-WQtNetworkPort::WQtNetworkPort()
+WQtNetworkPort::WQtNetworkPort():
+    QGraphicsRectItem()
 {
     setRect( 0.0, 0.0, WNETWORKPORT_SIZEX, WNETWORKPORT_SIZEY );
     setPen( QPen( Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
-    setBrush( WQtNetworkColors::OutputConnector );
     m_brushNotSet = true;
 
     setAcceptsHoverEvents( true );
@@ -67,8 +67,16 @@ void WQtNetworkPort::paint( QPainter* painter, const QStyleOptionGraphicsItem* o
     }
 
     QGraphicsRectItem::paint( painter, option, widget );
-}
 
+    // add some nice triangle?
+    // QPolygonF triangle;
+    // triangle.clear();
+    // triangle << QPointF( 0, 0 );
+    // triangle << QPointF( WNETWORKPORT_SIZEX, 0 );
+    // triangle << QPointF( static_cast< float >( WNETWORKPORT_SIZEX ) / 2.0 , WNETWORKPORT_SIZEY / 2.0 );
+    // painter->setBrush( QBrush( Qt::black ) );
+    // painter->drawPolygon( triangle );
+}
 
 void WQtNetworkPort::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* mouseEvent )
 {
@@ -153,11 +161,11 @@ void WQtNetworkPort::alignPosition( int size, int portNumber, QRectF rect, bool 
 {
     if( outPort == false )
     {
-        setPos( rect.width() / ( size + 1 ) * portNumber - 5.0, 0.0 );
+        setPos( rect.width() / ( size + 1 ) * portNumber - 5.0, -this->rect().height() / 2 + 3 );
     }
     else if( outPort == true )
     {
-        setPos( rect.width() / ( size + 1 ) * portNumber - 5.0, rect.height() - this->rect().height() / 2 - 2 );
+        setPos( rect.width() / ( size + 1 ) * portNumber - 5.0, rect.height() - this->rect().height() / 2 - 3 );
     }
 }
 
@@ -170,8 +178,10 @@ void WQtNetworkPort::removeArrow( WQtNetworkArrow *arrow )
 {
     int index = m_arrows.indexOf( arrow );
 
-    if(index != -1)
+    if( index != -1 )
+    {
         m_arrows.removeAt( index );
+    }
 }
 
 void WQtNetworkPort::removeArrows()
