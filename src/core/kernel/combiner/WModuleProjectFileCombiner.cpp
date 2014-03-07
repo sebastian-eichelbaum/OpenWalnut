@@ -84,7 +84,7 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
 {
     // this is the proper regular expression for modules
     static const boost::regex modRe( "^ *MODULE:([0-9]*):(.*)$" );
-    static const boost::regex dataRe( "^ *DATA:([0-9]*):\"?([^:\"]*)\"?$" );
+    static const boost::regex dataRe( "^ *DATA:([0-9]*):\"?([^\"]*)\"?$" );
     static const boost::regex conRe( "^ *CONNECTION:\\(([0-9]*),(.*)\\)->\\(([0-9]*),(.*)\\)$" );
     static const boost::regex propRe( "^ *PROPERTY:\\(([0-9]*),(.*)\\)=(.*)$" );
 
@@ -123,7 +123,6 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
         // it is a dataset line
         // matches[1] is the ID
         // matches[2] is the filename
-
         wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Data \"" << matches[2] << "\" with ID " << matches[1];
 
         // create a module instance
@@ -167,6 +166,13 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
     {
         // it is a property line
         // matches[1] is the module ID
+        // matches[2] is the property name
+        // matches[3] is the property value
+
+        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Property \"" << matches[2] << "\" of module " << matches[1]
+                                                 << " set to " << matches[3];
+
+        m_properties.push_back( PropertyValue( Property( string_utils::fromString< unsigned int >( matches[1] ), matches[2] ), matches[3] ) );
     }
     else
     {
