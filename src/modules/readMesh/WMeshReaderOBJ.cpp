@@ -47,7 +47,7 @@ WTriangleMesh::SPtr WMeshReaderOBJ::operator()( WProgressCombiner::SPtr parentPr
     std::string fileName = file.string();
     WAssert( !fileName.empty(), "No filename specified." );
 
-    boost::shared_ptr< WProgress > progress( new WProgress( "Read Mesh", 3 ) );
+    boost::shared_ptr< WProgress > progress( new WProgress( "Read Mesh" ) );
     parentProgress->addSubProgress( progress );
 
     std::ifstream ifs;
@@ -58,10 +58,17 @@ WTriangleMesh::SPtr WMeshReaderOBJ::operator()( WProgressCombiner::SPtr parentPr
     }
 
     // regex for the different lines possible in OBJ
-    static const boost::regex faceRegex(   "^ *[f,F] *([0-9]*) *([0-9]*) *([0-9]*) *$" );
-    static const boost::regex faceComplexRegex(   "^ *[f,F] *([0-9]*)/([0-9]*)/([0-9]*) *([0-9]*)/([0-9]*)/([0-9]*) *([0-9]*)/([0-9]*)/([0-9]*) *$" );
-    static const boost::regex vertexRegex(   "^ *[v,V][^n] *(-?[0-9]*\\.?[0-9]*) *(-?[0-9]*\\.?[0-9]*) *(-?[0-9]*\\.?[0-9]*).*$" );
-    static const boost::regex normalRegex(   "^ *[v,V][n,N] *(-?[0-9]*\\.?[0-9]*) *(-?[0-9]*\\.?[0-9]*) *(-?[0-9]*\\.?[0-9]*).*$" );
+    // mateches vertex only
+    static const boost::regex faceVRegex(   "^ *[f,F] *([0-9]+) +([0-9]+) +([0-9]+).*$" );
+    // matches vertex-tex coord
+    static const boost::regex faceVTRegex(  "^ *[f,F] *([0-9]+)/([0-9]+) +([0-9]+)/([0-9]+) +([0-9]+)/([0-9]+).*$" );
+    // matches vertex-tex coord-normal
+    static const boost::regex faceVTNRegex( "^ *[f,F] *([0-9]+)/([0-9]+)/([0-9]+) +([0-9]+)/([0-9]+)/([0-9]+) +([0-9]+)/([0-9]+)/([0-9]+).*$" );
+    // matches vertex-normal
+    static const boost::regex faceVNRegex(  "^ *[f,F] *([0-9]+)//([0-9]+) +([0-9]+)//([0-9]+) +([0-9]+)//([0-9]+).*$" );
+
+    static const boost::regex vertexRegex(  "^ *[v,V][^n] *(-?[0-9]*\\.?[0-9]*) +(-?[0-9]*\\.?[0-9]*) +(-?[0-9]*\\.?[0-9]*).*$" );
+    static const boost::regex normalRegex(  "^ *[v,V][n,N] *(-?[0-9]*\\.?[0-9]*) +(-?[0-9]*\\.?[0-9]*) +(-?[0-9]*\\.?[0-9]*).*$" );
     static const boost::regex commentRegex( "^ *#.*$" );
     // please note that there are several more possible definitions ... Please see http://en.wikipedia.org/wiki/Wavefront_.obj_file
 
@@ -106,19 +113,33 @@ WTriangleMesh::SPtr WMeshReaderOBJ::operator()( WProgressCombiner::SPtr parentPr
             normals.push_back( string_utils::fromString< float >( matches[3] ) );
         }
         // check whether this is a face definition
-        else if( boost::regex_match( line, matches, faceRegex ) )
+        else if( boost::regex_match( line, matches, faceVRegex ) )
         {
             // NOTE: indices are stored beginning at 1
             faces.push_back( string_utils::fromString< size_t >( matches[1] ) - 1 );
             faces.push_back( string_utils::fromString< size_t >( matches[2] ) - 1 );
             faces.push_back( string_utils::fromString< size_t >( matches[3] ) - 1 );
         }
-        else if( boost::regex_match( line, matches, faceComplexRegex ) )
+        else if( boost::regex_match( line, matches, faceVTRegex ) )
+        {
+            // NOTE: indices are stored beginning at 1
+            faces.push_back( string_utils::fromString< size_t >( matches[1] ) - 1 );
+            faces.push_back( string_utils::fromString< size_t >( matches[3] ) - 1 );
+            faces.push_back( string_utils::fromString< size_t >( matches[5] ) - 1 );
+        }
+        else if( boost::regex_match( line, matches, faceVTNRegex ) )
         {
             // NOTE: indices are stored beginning at 1
             faces.push_back( string_utils::fromString< size_t >( matches[1] ) - 1 );
             faces.push_back( string_utils::fromString< size_t >( matches[4] ) - 1 );
             faces.push_back( string_utils::fromString< size_t >( matches[7] ) - 1 );
+        }
+        else if( boost::regex_match( line, matches, faceVNRegex ) )
+        {
+            // NOTE: indices are stored beginning at 1
+            faces.push_back( string_utils::fromString< size_t >( matches[1] ) - 1 );
+            faces.push_back( string_utils::fromString< size_t >( matches[3] ) - 1 );
+            faces.push_back( string_utils::fromString< size_t >( matches[5] ) - 1 );
         }
         // check whether this is a comment
         else if( boost::regex_match( line, matches, commentRegex ) )
