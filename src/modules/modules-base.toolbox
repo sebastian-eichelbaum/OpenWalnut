@@ -3,7 +3,6 @@
 ADD_MODULE( arbitraryPlane )
 ADD_MODULE( arbitraryROIs )
 ADD_MODULE( colormapper )
-ADD_MODULE( coordinateHUD )
 ADD_MODULE( coordinateSystem )
 ADD_MODULE( directVolumeRendering )
 ADD_MODULE( distanceMap )
