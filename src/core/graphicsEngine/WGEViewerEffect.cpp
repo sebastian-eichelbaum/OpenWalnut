@@ -62,7 +62,7 @@ WGEViewerEffect::WGEViewerEffect( std::string name, std::string description, con
     addChild( m_geode );
 
     // Configure properties
-    m_active = m_properties->addProperty( "Active", "Activate this effect?", false );
+    m_active = m_properties->addProperty( "Active", "Activate this effect?", true );
     // let this control the nodemask
     addUpdateCallback( new WGENodeMaskCallback( m_active ) );
 }

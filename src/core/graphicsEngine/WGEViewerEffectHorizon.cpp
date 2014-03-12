@@ -33,11 +33,11 @@ WGEViewerEffectHorizon::WGEViewerEffectHorizon():
     WGEViewerEffect( "Horizon Background", "Configurable horizon background effect." )
 {
     WPropColor bottom1Color = m_properties->addProperty( "First Bottom Color", "Bottom color gradient: first color.",
-                                                         WColor( 0.65, 0.65, 0.65, 1.0 ) );
+                                                         WColor( 1.00, 1.00, 1.00, 1.00 ) );
     WPropColor bottom2Color = m_properties->addProperty( "Second Bottom Color", "Bottom color gradient: second color.",
-                                                         WColor( 1.0, 1.0, 1.0, 1.0 ) );
+                                                         WColor( 0.82, 0.82, 0.82, 1.00 ) );
     WPropColor top1Color = m_properties->addProperty( "First Top Color", "Top color gradient: first color.",
-                                                      WColor( 1.0, 1.0, 1.0, 1.0 ) );
+                                                      WColor( 0.85, 0.85, 0.85, 1.0 ) );
     WPropColor top2Color = m_properties->addProperty( "Second Top Color", "Top color gradient: second color.",
                                                       WColor( 0.95, 0.95, 0.95, 0.95 ) );
 
