@@ -139,7 +139,7 @@ WQtMessagePopup::WQtMessagePopup( QWidget* parent, const QString& title, const Q
     topLayout->setSpacing( 0 );
     // this is the layout of some widget
     QWidget* titleWidget = new QWidget();
-    titleWidget->setFixedHeight( textHeight + 3 * BORDERWIDTH );
+    titleWidget->setMinimumHeight( textHeight + 3 * BORDERWIDTH );
     titleWidget->setContentsMargins( BORDERWIDTH, 0, 0, 0 );
     titleWidget->setLayout( topLayout );
 
