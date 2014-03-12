@@ -509,6 +509,9 @@ void WMHistogramView::createGeometryBars( int type )
             // outline colors
             lineColors->push_back( lighterColor );
             lineColors->push_back( lighterColor );
+            lineColors->push_back( lighterColor );
+            lineColors->push_back( lighterColor );
+            lineColors->push_back( darkerColor );
             lineColors->push_back( darkerColor );
 
             if( type == 3 )
@@ -541,7 +544,7 @@ void WMHistogramView::createGeometryBars( int type )
             geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, 6 * m_histograms[ k ]->size() ) );
             geometry->setVertexArray( lineVertices );
             geometry->setColorArray( lineColors );
-            geometry->setColorBinding( wosg::Geometry::BIND_PER_PRIMITIVE );
+            geometry->setColorBinding( wosg::Geometry::BIND_PER_VERTEX );
 
             // enable VBO
             geometry->setUseDisplayList( false );
