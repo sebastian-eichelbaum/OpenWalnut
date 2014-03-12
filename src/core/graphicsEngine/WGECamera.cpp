@@ -32,6 +32,9 @@ WGECamera::WGECamera( int width, int height, ProjectionMode projectionMode )
     : osg::Camera(),
       m_DefProjMode( projectionMode )
 {
+    // needed since OSG 3.2 to ensure a properly initialized stateset. Also works with OSG 3.0
+    getOrCreateStateSet()->setGlobalDefaults();
+
     setViewport( 0, 0, width, height );
     setClearColor( osg::Vec4( 0.9, 0.9, 0.9, 1.0 ) );
 
