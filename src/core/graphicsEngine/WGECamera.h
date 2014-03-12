@@ -27,8 +27,6 @@
 
 #include <osg/Camera>
 
-
-
 /**
  * Class for wrapping around the OSG Camera class. It adds some utility
  * functions for simply setting some camera defaults.
@@ -59,6 +57,11 @@ public:
      * \param projectionMode projection mode of the viewer.
      */
     WGECamera( int width, int height, ProjectionMode projectionMode );
+
+    /**
+     * Constructor which sets defaults
+     */
+    WGECamera();
 
     /**
      * Sets the default projection mode used for cameras getting reset.

@@ -41,7 +41,7 @@ bool checkTextureSize( size_t size )
     return !( ( size > 8192 ) || ( size < 8 ) );
 }
 
-WGEOffscreenRenderNode::WGEOffscreenRenderNode( osg::ref_ptr< osg::Camera > reference, size_t width, size_t height, bool noHud ):
+WGEOffscreenRenderNode::WGEOffscreenRenderNode( osg::ref_ptr< WGECamera > reference, size_t width, size_t height, bool noHud ):
     WGEGroupNode(),
     m_referenceCamera( reference ),
     m_hud(),

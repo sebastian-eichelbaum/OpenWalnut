@@ -37,6 +37,7 @@
 #include "core/graphicsEngine/widgets/WOSGButton.h"
 #include "core/graphicsEngine/WPickHandler.h"
 #include "core/graphicsEngine/WPickInfo.h"
+#include "core/graphicsEngine/WGECamera.h"
 #include "core/kernel/WFiberSelector.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
@@ -320,7 +321,7 @@ private:
      */
     std::vector< osg::ref_ptr<WOSGButton> >m_biggestClustersButtonList;
 
-    osg::Camera* m_camera; //!< stores the camera object
+    WGECamera* m_camera; //!< stores the camera object
 
     WDendrogramGeode* m_dendrogramGeode; //!< stores the dendrogram geode
 

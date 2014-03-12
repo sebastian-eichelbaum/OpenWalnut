@@ -33,7 +33,7 @@
 
 #include "WGEPostprocessingNode.h"
 
-WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > reference, size_t width, size_t height, bool noHud ):
+WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< WGECamera > reference, size_t width, size_t height, bool noHud ):
     osg::Switch(),
     m_childs( new WGEGroupNode() ),
     m_properties( boost::shared_ptr< WProperties >( new WProperties( "Post-processing", "Post-processing properties" ) ) )

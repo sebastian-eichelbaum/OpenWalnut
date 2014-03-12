@@ -32,8 +32,8 @@ WGEOffscreenFinalPass::WGEOffscreenFinalPass( size_t textureWidth, size_t textur
     WGEOffscreenTexturePass( textureWidth, textureHeight, num )
 {
     // initialize members
-    setRenderTargetImplementation( osg::Camera::FRAME_BUFFER );
-    setRenderOrder( osg::Camera::NESTED_RENDER, 0 );
+    setRenderTargetImplementation( WGECamera::FRAME_BUFFER );
+    setRenderOrder( WGECamera::NESTED_RENDER, 0 );
 
     // render before the hud
     if( m_hud )
@@ -57,8 +57,8 @@ WGEOffscreenFinalPass::WGEOffscreenFinalPass( size_t textureWidth, size_t textur
     WGEOffscreenTexturePass( textureWidth, textureHeight, hud, name, num )
 {
     // initialize members
-    setRenderTargetImplementation( osg::Camera::FRAME_BUFFER );
-    setRenderOrder( osg::Camera::NESTED_RENDER, 0 );
+    setRenderTargetImplementation( WGECamera::FRAME_BUFFER );
+    setRenderOrder( WGECamera::NESTED_RENDER, 0 );
 
     // render before the hud
     if( m_hud )

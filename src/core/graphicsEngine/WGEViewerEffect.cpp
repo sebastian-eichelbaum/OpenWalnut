@@ -37,7 +37,7 @@ WGEViewerEffect::WGEViewerEffect( std::string name, std::string description, con
 {
     // setup camera
     setClearMask( GL_DEPTH_BUFFER_BIT );
-    setRenderOrder( osg::Camera::POST_RENDER );
+    setRenderOrder( WGECamera::POST_RENDER );
     setReferenceFrame( osg::Transform::ABSOLUTE_RF );
     setProjectionMatrixAsOrtho2D( 0.0, 1.0, 0.0, 1.0 );
     setViewMatrix( osg::Matrixd::identity() );

@@ -34,7 +34,7 @@
 #include "WGEOffscreenRenderPass.h"
 
 WGEOffscreenRenderPass::WGEOffscreenRenderPass( size_t textureWidth, size_t textureHeight, int num ):
-    osg::Camera(),
+    WGECamera(),
     m_width( textureWidth ),
     m_height( textureHeight ),
     m_fbo( new osg::FrameBufferObject() ),
@@ -44,13 +44,13 @@ WGEOffscreenRenderPass::WGEOffscreenRenderPass( size_t textureWidth, size_t text
     setClearColor( osg::Vec4( 0.0, 0.0, 0.0, 0.0 ) );
     setClearMask( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     setReferenceFrame( osg::Transform::RELATIVE_RF );
-    setRenderTargetImplementation( osg::Camera::FRAME_BUFFER_OBJECT );
-    setRenderOrder( osg::Camera::PRE_RENDER, num );
+    setRenderTargetImplementation( WGECamera::FRAME_BUFFER_OBJECT );
+    setRenderOrder( WGECamera::PRE_RENDER, num );
 }
 
 WGEOffscreenRenderPass::WGEOffscreenRenderPass( size_t textureWidth, size_t textureHeight, osg::ref_ptr< WGETextureHud > hud, std::string name,
                                                 int num ):
-    osg::Camera(),
+    WGECamera(),
     m_width( textureWidth ),
     m_height( textureHeight ),
     m_fbo( new osg::FrameBufferObject() ),
@@ -61,8 +61,8 @@ WGEOffscreenRenderPass::WGEOffscreenRenderPass( size_t textureWidth, size_t text
     setClearColor( osg::Vec4( 0.0, 0.0, 0.0, 0.0 ) );
     setClearMask( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     setReferenceFrame( osg::Transform::RELATIVE_RF );
-    setRenderTargetImplementation( osg::Camera::FRAME_BUFFER_OBJECT );
-    setRenderOrder( osg::Camera::PRE_RENDER, num );
+    setRenderTargetImplementation( WGECamera::FRAME_BUFFER_OBJECT );
+    setRenderOrder( WGECamera::PRE_RENDER, num );
 }
 
 WGEOffscreenRenderPass::~WGEOffscreenRenderPass()
@@ -84,12 +84,12 @@ void WGEOffscreenRenderPass::attach( BufferComponent buffer, osg::ref_ptr< osg::
     texture->setNumMipmapLevels( 0 );
 
     // attach
-    osg::Camera::attach( buffer, texture, 0, 0, true );
+    WGECamera::attach( buffer, texture, 0, 0, true );
 }
 
 void WGEOffscreenRenderPass::attach( BufferComponent buffer, osg::ref_ptr< osg::Image > image )
 {
-    osg::Camera::attach( buffer, image );
+    WGECamera::attach( buffer, image );
 }
 
 osg::ref_ptr< osg::Texture2D > WGEOffscreenRenderPass::attach( BufferComponent buffer, GLint internalFormat )
@@ -119,14 +119,14 @@ osg::ref_ptr< osg::Texture2D > WGEOffscreenRenderPass::attach( BufferComponent b
 void WGEOffscreenRenderPass::detach( BufferComponent buffer )
 {
     // remove the texture from HUD if existing
-    if( m_hud && osg::Camera::getBufferAttachmentMap().count( buffer ) )
+    if( m_hud && WGECamera::getBufferAttachmentMap().count( buffer ) )
     {
-        m_hud->removeTexture( osg::Camera::getBufferAttachmentMap()[ buffer ]._texture );
+        m_hud->removeTexture( WGECamera::getBufferAttachmentMap()[ buffer ]._texture );
     }
 
     m_fbo->setAttachment( buffer, osg::FrameBufferAttachment() );
 
-    osg::Camera::detach( buffer );
+    WGECamera::detach( buffer );
 }
 
 osg::ref_ptr< osg::Texture2D > WGEOffscreenRenderPass::createTexture( GLint internalFormat )

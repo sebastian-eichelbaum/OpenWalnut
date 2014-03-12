@@ -40,6 +40,7 @@
 #include "../offscreen/WGEOffscreenFinalPass.h"
 
 #include "../shaders/WGEShaderPropertyDefineOptions.h"
+#include "../WGECamera.h"
 
 #include "../../common/WProperties.h"
 #include "../../common/WPrototyped.h"

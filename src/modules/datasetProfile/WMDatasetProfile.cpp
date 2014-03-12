@@ -291,14 +291,14 @@ void WMDatasetProfile::init()
 
     m_wm = new osgWidget::WindowManager( viewer, 0.0f, 0.0f, MASK_2D );
 
-    m_camera = new osg::Camera();
+    m_camera = new WGECamera();
     m_camera->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::PROTECTED | osg::StateAttribute::OFF );
 
     m_camera->setProjectionMatrix( osg::Matrix::ortho2D( 0.0, width, 0.0f, height ) );
     m_camera->setReferenceFrame( osg::Transform::ABSOLUTE_RF );
     m_camera->setViewMatrix( osg::Matrix::identity() );
     m_camera->setClearMask( GL_DEPTH_BUFFER_BIT );
-    m_camera->setRenderOrder( osg::Camera::POST_RENDER );
+    m_camera->setRenderOrder( WGECamera::POST_RENDER );
 
     m_graphNode->addChild( m_camera );
     m_camera->addChild( m_wm );

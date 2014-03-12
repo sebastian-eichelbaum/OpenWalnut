@@ -48,6 +48,25 @@ WGECamera::WGECamera( int width, int height, ProjectionMode projectionMode )
     reset();
 }
 
+WGECamera::WGECamera()
+    : osg::Camera(),
+      m_DefProjMode( ORTHOGRAPHIC )
+{
+    // needed since OSG 3.2 to ensure a properly initialized stateset. Also works with OSG 3.0
+    getOrCreateStateSet()->setGlobalDefaults();
+
+    // disable all culling
+    setCullingActive( false );
+    setCullingMode( osg::CullSettings::NO_CULLING );
+
+    // near-far computation is done using the bounding volumes
+    setComputeNearFarMode(
+        osg::CullSettings::COMPUTE_NEAR_FAR_USING_BOUNDING_VOLUMES
+        // osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR
+        // osg::CullSettings::COMPUTE_NEAR_FAR_USING_PRIMITIVES
+    );
+}
+
 WGECamera::~WGECamera()
 {
     // cleanup
@@ -74,15 +93,15 @@ void WGECamera::reset()
             break;
         case PERSPECTIVE:
             setProjectionMatrixAsPerspective( 30.0, getViewport()->aspectRatio(), 1.0, 1000.0 );
-            setProjectionResizePolicy( osg::Camera::HORIZONTAL );
+            setProjectionResizePolicy( WGECamera::HORIZONTAL );
             break;
         case TWO_D:
             resize();
-            setProjectionResizePolicy( osg::Camera::FIXED );
+            setProjectionResizePolicy( WGECamera::FIXED );
             break;
         case TWO_D_UNIT:
             resize();
-            setProjectionResizePolicy( osg::Camera::FIXED );
+            setProjectionResizePolicy( WGECamera::FIXED );
             break;
         default:
             throw WGEInitFailed( std::string( "Unknown projection mode." ) );

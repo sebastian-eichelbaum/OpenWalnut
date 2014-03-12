@@ -109,7 +109,7 @@ void WGEViewerEffectImageOverlay::Updater::operator() ( osg::Node* node, osg::No
         if( effect->m_viewer )
         {
             // valid camera? -> update viewport
-            osg::Camera* cam = effect->m_viewer->getCamera();
+            WGECamera* cam = effect->m_viewer->getCamera();
             if( cam )
             {
                 // valid viewport?

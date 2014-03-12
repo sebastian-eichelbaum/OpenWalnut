@@ -37,6 +37,7 @@
 
 #include "core/graphicsEngine/WGEManagedGroupNode.h"
 #include "core/graphicsEngine/WROISphere.h"
+#include "core/graphicsEngine/WGECamera.h"
 
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
@@ -45,7 +46,7 @@
 const unsigned int MASK_2D = 0xF0000000; //!< used for osgWidget stuff
 const unsigned int MASK_3D = 0x0F000000; //!< used for osgWidget stuff
 
-/** 
+/**
  * Someone should add some documentation here.
  * Probably the best person would be the module's
  * creator, i.e. "schurade".
@@ -240,7 +241,7 @@ private:
 
     osgWidget::WindowManager* m_wm; //!< stores a pointer to the window manager used for osg wdgets and overlay stuff
 
-    osg::Camera* m_camera; //!< stores the camera object
+    WGECamera* m_camera; //!< stores the camera object
 };
 
 #endif  // WMDATASETPROFILE_H

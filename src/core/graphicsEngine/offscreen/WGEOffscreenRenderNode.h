@@ -79,7 +79,7 @@ public:
      *
      * \param noHud If true, no hud gets displayed showing the created and used textures.
      */
-    WGEOffscreenRenderNode( osg::ref_ptr< osg::Camera > reference, size_t width = 2048, size_t height = 2048, bool noHud = false );
+    WGEOffscreenRenderNode( osg::ref_ptr< WGECamera > reference, size_t width = 2048, size_t height = 2048, bool noHud = false );
 
     /**
      * Destructor.
@@ -213,7 +213,7 @@ private:
     /**
      * The camera to which is used for setting this camera up.
      */
-    osg::ref_ptr< osg::Camera > m_referenceCamera;
+    osg::ref_ptr< WGECamera > m_referenceCamera;
 
     /**
      * The pointer to the hud used to render all used texture buffers. This can be NULL. It gets distributed to all created render-pass

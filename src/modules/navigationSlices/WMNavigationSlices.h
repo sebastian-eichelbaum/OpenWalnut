@@ -37,6 +37,7 @@
 #include "core/common/math/linearAlgebra/WVectorFixed.h"
 #include "core/common/WPropertyTypes.h"
 #include "core/graphicsEngine/WPickInfo.h"
+#include "core/graphicsEngine/WGECamera.h"
 
 #include "core/kernel/WModule.h"
 
@@ -152,7 +153,7 @@ private:
         /**
          * The camera under which the node is placed. Needed for proper back-projection.
          */
-        osg::ref_ptr< osg::Camera > m_camera;
+        osg::ref_ptr< WGECamera > m_camera;
 
         /**
          * If true, the item is still picked.

@@ -49,12 +49,12 @@ osg::ref_ptr< osg::Vec3Array > wge::osgVec3Array( const std::vector< WPosition >
     return result;
 }
 
-osg::Vec3 wge::unprojectFromScreen( const osg::Vec3 screen, osg::ref_ptr< osg::Camera > camera )
+osg::Vec3 wge::unprojectFromScreen( const osg::Vec3 screen, osg::ref_ptr< WGECamera > camera )
 {
     return screen * osg::Matrix::inverse( camera->getViewMatrix() * camera->getProjectionMatrix() * camera->getViewport()->computeWindowMatrix() );
 }
 
-osg::Vec4 wge::unprojectFromScreen( const osg::Vec4 screen, osg::ref_ptr< osg::Camera > camera )
+osg::Vec4 wge::unprojectFromScreen( const osg::Vec4 screen, osg::ref_ptr< WGECamera > camera )
 {
     return screen * osg::Matrix::inverse( camera->getViewMatrix() * camera->getProjectionMatrix() * camera->getViewport()->computeWindowMatrix() );
 }

@@ -34,10 +34,12 @@
 #include "core/common/WObjectNDIP.h"
 #include "core/common/WProperties.h"
 
+#include "WGECamera.h"
+
 /**
  * Base class for implementing basic fullscreen effects for the WGEViewer. It uses properties for configuration.
  */
-class WGEViewerEffect: public WObjectNDIP< osg::Camera >
+class WGEViewerEffect: public WObjectNDIP< WGECamera >
 {
 public:
     /**

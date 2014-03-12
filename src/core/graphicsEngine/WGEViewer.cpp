@@ -74,8 +74,9 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
         m_View = osg::ref_ptr<osgViewer::Viewer>( new osgViewer::Viewer );
 #endif
 
-        m_View->setCamera( new WGECamera( width, height, projectionMode ) );
-        m_queryCallback = new QueryCallback( m_View->getCamera(), m_rendered );
+        osg::ref_ptr< WGECamera > cam( new WGECamera( width, height, projectionMode ) );
+        m_View->setCamera( cam );
+        m_queryCallback = new QueryCallback( cam, m_rendered );
         m_View->getCamera()->setInitialDrawCallback( m_queryCallback );
         m_View->getCamera()->setFinalDrawCallback( m_screenCapture );
 
@@ -166,15 +167,15 @@ osg::ref_ptr<osgGA::MatrixManipulator> WGEViewer::getCameraManipulator()
     return m_View->getCameraManipulator();
 }
 
-void WGEViewer::setCamera( osg::ref_ptr<osg::Camera> camera )
+void WGEViewer::setCamera( osg::ref_ptr<WGECamera> camera )
 {
     m_View->setCamera( camera );
     // redraw request?? No since it redraws permanently and uses the new settings
 }
 
-osg::ref_ptr<osg::Camera> WGEViewer::getCamera()
+osg::ref_ptr<WGECamera> WGEViewer::getCamera()
 {
-    return m_View->getCamera();
+    return dynamic_cast< WGECamera* >( m_View->getCamera() );
 }
 
 void WGEViewer::setScene( osg::ref_ptr< WGEGroupNode > node )
@@ -277,7 +278,7 @@ WBoolFlag::SPtr WGEViewer::isFrameRendered() const
     return m_rendered;
 }
 
-WGEViewer::QueryCallback::QueryCallback( osg::ref_ptr<osg::Camera> camera, WBoolFlag::SPtr run ):
+WGEViewer::QueryCallback::QueryCallback( osg::ref_ptr<WGECamera> camera, WBoolFlag::SPtr run ):
     m_vendor( "" ),
     m_run( run ),
     m_camera( camera )

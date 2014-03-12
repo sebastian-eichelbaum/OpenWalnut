@@ -114,7 +114,7 @@ WGEPostprocessorLineAO::WGEPostprocessorLineAO( osg::ref_ptr< WGEOffscreenRender
     lineAOPass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_lineaoRadiusSS", lineaoRadiusSS ) );
 
     // attach color0 output
-    m_resultTextures.push_back( lineAOPass->attach( osg::Camera::COLOR_BUFFER0, GL_RGB ) );
+    m_resultTextures.push_back( lineAOPass->attach( WGECamera::COLOR_BUFFER0, GL_RGB ) );
 
     // provide the Gbuffer input, with several mipmap levels
     gbuffer.m_depthTexture->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR );

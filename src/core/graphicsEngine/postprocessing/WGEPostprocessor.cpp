@@ -127,11 +127,11 @@ WGEPostprocessor::PostprocessorInput::PostprocessorInput( osg::ref_ptr< osg::Tex
 WGEPostprocessor::PostprocessorInput WGEPostprocessor::PostprocessorInput::attach( osg::ref_ptr< WGEOffscreenRenderPass > from )
 {
     PostprocessorInput buf;
-    buf.m_colorTexture = from->attach( osg::Camera::COLOR_BUFFER0 );
-    buf.m_normalTexture = from->attach( osg::Camera::COLOR_BUFFER1, GL_RGB );
-    buf.m_parameterTexture = from->attach( osg::Camera::COLOR_BUFFER2, GL_R32F );
-    buf.m_tangentTexture = from->attach( osg::Camera::COLOR_BUFFER3, GL_RGB );
-    buf.m_depthTexture = from->attach( osg::Camera::DEPTH_BUFFER );
+    buf.m_colorTexture = from->attach( WGECamera::COLOR_BUFFER0 );
+    buf.m_normalTexture = from->attach( WGECamera::COLOR_BUFFER1, GL_RGB );
+    buf.m_parameterTexture = from->attach( WGECamera::COLOR_BUFFER2, GL_R32F );
+    buf.m_tangentTexture = from->attach( WGECamera::COLOR_BUFFER3, GL_RGB );
+    buf.m_depthTexture = from->attach( WGECamera::DEPTH_BUFFER );
 
     return buf;
 }

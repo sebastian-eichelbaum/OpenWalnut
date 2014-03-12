@@ -40,7 +40,7 @@
 #include "../callbacks/WGESwitchCallback.h"
 #include "../callbacks/WGENodeMaskCallback.h"
 #include "../WGEGroupNode.h"
-
+#include "../WGECamera.h"
 
 #include "WGEPostprocessor.h"
 
@@ -76,7 +76,7 @@ public:
      * \param height the height of the textures used in this rendering. Must be in [8,4096] and a power of two.
      * \param noHud If true, no hud gets displayed showing the created and used textures.
      */
-    WGEPostprocessingNode( osg::ref_ptr< osg::Camera > reference, size_t width = 2048, size_t height = 2048, bool noHud = false );
+    WGEPostprocessingNode( osg::ref_ptr< WGECamera > reference, size_t width = 2048, size_t height = 2048, bool noHud = false );
 
     /**
      * Destructor.

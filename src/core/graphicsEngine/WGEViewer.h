@@ -155,14 +155,14 @@ public:
      *
      * \param camera the OSG camera instance.
      */
-    void setCamera( osg::ref_ptr<osg::Camera> camera );
+    void setCamera( osg::ref_ptr< WGECamera > camera );
 
     /**
      * Returns the camera currently in use.
      *
      * \return the camera currently in use.
      */
-    osg::ref_ptr<osg::Camera> getCamera();
+    osg::ref_ptr< WGECamera > getCamera();
 
     /**
      * Sets the scene graph node to be used for rendering.
@@ -333,7 +333,7 @@ protected:
     /**
      * Small class used for querying glGet info during rendering.
      */
-    class QueryCallback: public osg::Camera::DrawCallback
+    class QueryCallback: public WGECamera::DrawCallback
     {
     public:
         /**
@@ -342,7 +342,7 @@ protected:
          * \param camera the cam to which this was registered
          * \param run notifies the flag when run.
          */
-        QueryCallback( osg::ref_ptr<osg::Camera> camera, WBoolFlag::SPtr run );
+        QueryCallback( osg::ref_ptr< WGECamera> camera, WBoolFlag::SPtr run );
 
         /**
          * Destructor.
@@ -377,7 +377,7 @@ protected:
         /**
          * The camera to which this was connected.
          */
-        osg::ref_ptr<osg::Camera> m_camera;
+        osg::ref_ptr< WGECamera > m_camera;
     };
 
     /**

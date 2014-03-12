@@ -32,7 +32,7 @@
 
 #include "../WGEUtils.h"
 #include "../WGETexture.h"
-
+#include "../WGECamera.h"
 
 class WGETextureHud;
 
@@ -41,7 +41,7 @@ class WGETextureHud;
  * which, by default, is the same as the camera in the this instance nesting graph. It allows simple attachment of textures to a offscreen
  * rendering as well as easy texture creation.
  */
-class WGEOffscreenRenderPass: public osg::Camera // NOLINT
+class WGEOffscreenRenderPass: public WGECamera // NOLINT
 {
 public:
     /**

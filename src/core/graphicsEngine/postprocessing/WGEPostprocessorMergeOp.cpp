@@ -65,7 +65,7 @@ WGEPostprocessorMergeOp::WGEPostprocessorMergeOp( osg::ref_ptr< WGEOffscreenRend
     // for each of the textures do:
 
     // attach color0 output and bind tex0
-    m_resultTextures.push_back( pass->attach( osg::Camera::COLOR_BUFFER0, GL_RGBA ) );
+    m_resultTextures.push_back( pass->attach( WGECamera::COLOR_BUFFER0, GL_RGBA ) );
     pass->bind( tex0, 0 );
     m_mergeOpShader->setDefine( "WGE_POSTPROCESSOR_MERGEOP_UNIT0" );
 

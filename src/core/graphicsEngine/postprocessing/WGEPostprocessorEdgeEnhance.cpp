@@ -65,7 +65,7 @@ WGEPostprocessorEdgeEnhance::WGEPostprocessorEdgeEnhance( osg::ref_ptr< WGEOffsc
     pass->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_edgeEdgeThresholdLower", edgeThresholdL ) );
 
     // attach color0 output
-    m_resultTextures.push_back( pass->attach( osg::Camera::COLOR_BUFFER0, GL_RGB ) );
+    m_resultTextures.push_back( pass->attach( WGECamera::COLOR_BUFFER0, GL_RGB ) );
 
     // provide the Gbuffer input
     gbuffer.bind( pass );

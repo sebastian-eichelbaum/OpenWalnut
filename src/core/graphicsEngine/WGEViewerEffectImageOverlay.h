@@ -59,7 +59,7 @@ public:
 
     /**
      * Set the reference viewer. Needed as the effect itself is not able to query important camera states. This can be the viewer on which the
-     * effect is applied but does not have to. Important is a valid osg::Camera, including a properly setup viewport.
+     * effect is applied but does not have to. Important is a valid WGECamera, including a properly setup viewport.
      *
      * \param viewer the viewer in which the effect is used.
      */

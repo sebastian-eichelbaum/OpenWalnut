@@ -35,6 +35,7 @@
 
 #include "WGraphicsEngine.h"
 #include "WGEViewer.h"
+#include "WGECamera.h"
 
 #include "WGEProjectFileIO.h"
 
@@ -243,7 +244,7 @@ void WGEProjectFileIO::save( std::ostream& output ) // NOLINT
               std::endl;
 
     // grab the main camera
-    osg::ref_ptr< osg::Camera > cam = WGraphicsEngine::getGraphicsEngine()->getViewer()->getCamera();
+    osg::ref_ptr< WGECamera > cam = WGraphicsEngine::getGraphicsEngine()->getViewer()->getCamera();
     osg::ref_ptr< osgGA::MatrixManipulator > mani = WGraphicsEngine::getGraphicsEngine()->getViewer()->getCameraManipulator();
     std::string name = WGraphicsEngine::getGraphicsEngine()->getViewer()->getName();
     output << "CAMERA:0:" <<  name << std::endl;

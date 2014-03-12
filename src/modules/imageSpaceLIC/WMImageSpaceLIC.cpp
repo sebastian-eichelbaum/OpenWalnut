@@ -365,9 +365,9 @@ void WMImageSpaceLIC::moduleMain()
     //  * Creates 2D projected Vectors in RG
     //  * Lighting in B
     //  * Depth
-    osg::ref_ptr< osg::Texture2D > transformationOut1  = transformation->attach( osg::Camera::COLOR_BUFFER0 );
-    osg::ref_ptr< osg::Texture2D > transformationColormapped  = transformation->attach( osg::Camera::COLOR_BUFFER1 );
-    osg::ref_ptr< osg::Texture2D > transformationDepth = transformation->attach( osg::Camera::DEPTH_BUFFER );
+    osg::ref_ptr< osg::Texture2D > transformationOut1  = transformation->attach( WGECamera::COLOR_BUFFER0 );
+    osg::ref_ptr< osg::Texture2D > transformationColormapped  = transformation->attach( WGECamera::COLOR_BUFFER1 );
+    osg::ref_ptr< osg::Texture2D > transformationDepth = transformation->attach( WGECamera::DEPTH_BUFFER );
     // and some uniforms
     transformation->addUniform( new WGEPropertyUniform< WPropDouble >( "u_noise3DResoultuion", m_3dNoiseRes ) );
     transformation->addUniform( new WGEPropertyUniform< WPropDouble >( "u_projectionAngleThreshold", m_projectionAngleThreshold ) );
@@ -376,14 +376,14 @@ void WMImageSpaceLIC::moduleMain()
     //  * Edges in R
     //  * Depth in G
     //  * Un-advected Noise in B
-    osg::ref_ptr< osg::Texture2D > edgeDetectionOut1 = edgeDetection->attach( osg::Camera::COLOR_BUFFER0 );
+    osg::ref_ptr< osg::Texture2D > edgeDetectionOut1 = edgeDetection->attach( WGECamera::COLOR_BUFFER0 );
     edgeDetection->bind( transformationDepth, 0 );
     edgeDetection->bind( randTexture,         1 );
     edgeDetection->bind( transformationOut1,  2 );
 
     // Advection Pass, needs edges and projected vectors as well as noise texture
     //  * Advected noise in luminance channel
-    osg::ref_ptr< osg::Texture2D > advectionOutA  = advection->attach( osg::Camera::COLOR_BUFFER0, GL_LUMINANCE );
+    osg::ref_ptr< osg::Texture2D > advectionOutA  = advection->attach( WGECamera::COLOR_BUFFER0, GL_LUMINANCE );
     advection->bind( transformationOut1, 0 );
     advection->bind( edgeDetectionOut1,  1 );
 

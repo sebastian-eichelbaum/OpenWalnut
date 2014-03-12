@@ -39,6 +39,7 @@
 #include "core/dataHandler/WValueSet.h"
 #include "core/graphicsEngine/geodes/WDendrogramGeode.h"
 #include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/graphicsEngine/WGECamera.h"
 #include "core/graphicsEngine/widgets/WOSGButton.h"
 #include "core/graphicsEngine/WPickHandler.h"
 #include "core/kernel/WModule.h"
@@ -390,7 +391,7 @@ private:
      */
     std::vector< osg::ref_ptr<WOSGButton> >m_activeClustersButtonList;
 
-    osg::Camera* m_camera; //!< stores the camera object
+    WGECamera* m_camera; //!< stores the camera object
 
     WDendrogramGeode* m_dendrogramGeode; //!< stores the dendrogram geode
 

@@ -27,6 +27,7 @@
 #include <osg/Geometry>
 
 #include "../../WGraphicsEngine.h"
+#include "../../WGECamera.h"
 
 // Compatibility between OSG 3.2 and earlier versions
 #include "core/graphicsEngine/WOSG.h"
@@ -75,7 +76,7 @@ void WGEBorderLayout::addLayoutable( osg::ref_ptr< WGELabel > obj )
 
 void WGEBorderLayout::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
-    osg::ref_ptr<osg::Camera> cam = WGraphicsEngine::getGraphicsEngine()->getViewer()->getCamera();
+    osg::ref_ptr<WGECamera> cam = WGraphicsEngine::getGraphicsEngine()->getViewer()->getCamera();
 
     // set up projection
     unsigned int  vwidth = cam->getViewport()->width();

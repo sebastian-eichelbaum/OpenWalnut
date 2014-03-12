@@ -28,6 +28,8 @@
 #include <osg/Camera>
 #include <osg/Node>
 
+#include "../WGECamera.h"
+
 /**
  * This callback is useful to update viewport information on several nodes supporting it. The specified type must support an setViewport method.
  * This is especially useful to keep offscreen render cameras in sync with the scene cam or to update HUD viewport information. Note that the
@@ -36,7 +38,7 @@
  * \tparam T the type supporting setViewport
  * \tparam Source the type from who the viewport should be acquired by using osg::Viewport* getViewport()
  */
-template < typename T, typename Source = osg::Camera >
+template < typename T, typename Source = WGECamera >
 class WGEViewportCallback: public osg::NodeCallback
 {
 public:

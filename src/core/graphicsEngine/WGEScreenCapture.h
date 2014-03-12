@@ -37,6 +37,8 @@
 #include "../common/WSharedObject.h"
 #include "../common/WCondition.h"
 
+#include "WGECamera.h"
+
 #include "animation/WGEAnimationFrameTimer.h"
 
 
@@ -44,7 +46,7 @@
 /**
  * This class is a screen recorder. It records the frame buffer to files on a per-frame-basis. This class is NOT thread-safe due to performance
  * reasons. You should not distribute the instance among multiple threads. It can be applied to <b>ONE</b> camera only by setting it as
- * finalDrawCallback (osg::Camera::setFinalDrawCallback). Each camera can only use ONE final draw callback.
+ * finalDrawCallback (WGECamera::setFinalDrawCallback). Each camera can only use ONE final draw callback.
  *
  * This class is abstract. Derive your own class and handle image writing.
  *
@@ -52,7 +54,7 @@
  *
  * \ingroup GE
  */
-class WGEScreenCapture: public osg::Camera::DrawCallback
+class WGEScreenCapture: public WGECamera::DrawCallback
 {
 public:
     /**

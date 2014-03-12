@@ -38,7 +38,9 @@
 #include "../common/WBoundingBox.h"
 #include "../common/WAssert.h"
 #include "../common/WPropertyVariable.h"
-#include "../graphicsEngine/shaders/WGEPropertyUniform.h"
+
+#include "shaders/WGEPropertyUniform.h"
+#include "WGECamera.h"
 
 namespace wge
 {
@@ -76,7 +78,7 @@ namespace wge
      *
      * \return un-projects a screen coordinate back to world space
      */
-    osg::Vec3 unprojectFromScreen( const osg::Vec3 screen, osg::ref_ptr< osg::Camera > camera  );
+    osg::Vec3 unprojectFromScreen( const osg::Vec3 screen, osg::ref_ptr< WGECamera > camera  );
 
     /**
      * Converts screen coordinates into Camera coordinates.
@@ -87,7 +89,7 @@ namespace wge
      *
      * \return un-projects a screen coordinate back to world space
      */
-    osg::Vec4 unprojectFromScreen( const osg::Vec4 screen, osg::ref_ptr< osg::Camera > camera  );
+    osg::Vec4 unprojectFromScreen( const osg::Vec4 screen, osg::ref_ptr< WGECamera > camera  );
 
     /**
      * creates the same color as the atlas colormap shader from the index
