@@ -143,7 +143,7 @@ void main()
     v_discard = 1.0 - a_bitfield;
 #endif
 
-    v_clusterColor = vec4( gl_SecondaryColor.rgb, 1.0 );
+    v_clusterColor = gl_SecondaryColor.rgba;
 
     // Simply project the vertex afterwards
     gl_Position = gl_ProjectionMatrix * v_vertex;

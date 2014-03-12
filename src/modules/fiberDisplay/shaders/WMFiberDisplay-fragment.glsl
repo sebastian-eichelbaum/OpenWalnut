@@ -85,7 +85,7 @@ void main()
 
 #ifdef CLUSTER_FILTER_ENABLED
     // is this a cluster color?
-    if( v_clusterColor.r + v_clusterColor.g + v_clusterColor.b < 0.0001 )
+    if( v_clusterColor.a < 0.0001 )
     {
         discard;
     }
