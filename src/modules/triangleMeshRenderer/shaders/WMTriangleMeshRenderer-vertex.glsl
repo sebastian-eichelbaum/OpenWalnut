@@ -25,6 +25,7 @@
 #version 130
 
 #include "WGEColormapping-vertex.glsl"
+#include "WGETransformationTools.glsl"
 
 /**
  * The normal.
@@ -36,6 +37,9 @@ varying vec3 v_normal;
  */
 uniform mat4 u_colorMapTransformation;
 
+// modelview matrix' scaling factor
+varying float v_worldScale;
+
 void main()
 {
 #ifdef COLORMAPPING_ENABLED
@@ -43,10 +47,12 @@ void main()
     colormapping( u_colorMapTransformation );
 #endif
 
-    // get normal
+    // prepare light
     v_normal = gl_NormalMatrix * gl_Normal;
 
-    // apply standard pipeline
+    // Calc the scaling factor in the MV matrix
+    v_worldScale = getModelViewScale();
+
     gl_FrontColor = gl_Color;
     gl_Position = ftransform();
 }

@@ -25,6 +25,9 @@
 #version 130
 
 #include "WGEColormapping-fragment.glsl"
+#include "WGETextureTools.glsl"
+#include "WGEPostprocessing.glsl"
+#include "WGEShadingTools.glsl"
 
 /**
  * The normal.
@@ -46,19 +49,27 @@ uniform bool u_outline;
  */
 uniform float u_colormapRatio;
 
-#include "WGEShadingTools.glsl"
+// modelview matrix' scaling factor
+varying float v_worldScale;
 
 void main()
 {
     vec4 col = gl_Color;
+
 #ifdef COLORMAPPING_ENABLED
     col = mix( colormapping(), col, u_colormapRatio );
 #endif
-    // calculate lighting
-    float light = blinnPhongIlluminationIntensity( normalize( -v_normal ) );
-    col *= u_outline ? 1.0 : light;
 
-    // finally, apply opacity
-    col.a = u_opacity* 0.01;
-    gl_FragColor = col;
+    // calculate lighting
+    float light = blinnPhongIlluminationIntensity( normalize( viewAlign( v_normal ) ) );
+    col *= u_outline ? 1.0 : light;
+    // apply opacity
+    col.a = u_opacity * 0.01;
+
+    // finally set the color and depth
+    wgeInitGBuffer();
+    wge_FragColor = col;
+    wge_FragNormal = textureNormalize( normalize( v_normal ) );
+    wge_FragZoom = v_worldScale;
+    wge_FragTangent = textureNormalize( v_normal );
 }

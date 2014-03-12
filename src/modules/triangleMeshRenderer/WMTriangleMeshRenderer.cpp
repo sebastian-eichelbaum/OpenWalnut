@@ -36,6 +36,7 @@
 #include "core/graphicsEngine/shaders/WGEPropertyUniform.h"
 #include "core/graphicsEngine/shaders/WGEShader.h"
 #include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
+#include "core/graphicsEngine/postprocessing/WGEPostprocessingNode.h"
 #include "core/graphicsEngine/WGEColormapping.h"
 #include "core/graphicsEngine/WGEGeodeUtils.h"
 #include "core/graphicsEngine/WGEManagedGroupNode.h"
@@ -283,8 +284,12 @@ void WMTriangleMeshRenderer::moduleMain()
     m_moduleState.add( m_colorMapInput->getDataChangedCondition() );
     m_moduleState.add( m_propCondition );
 
-    // signal ready state. The module is now ready to be used.
-    ready();
+    // create the post-processing node which actually does the nice stuff to the rendered image
+    osg::ref_ptr< WGEPostprocessingNode > postNode = new WGEPostprocessingNode(
+        WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera()
+    );
+    // provide the properties of the post-processor to the user
+    m_properties->addProperty( postNode->getProperties() );
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     // setup the main graphics-node:
@@ -293,7 +298,6 @@ void WMTriangleMeshRenderer::moduleMain()
     // create a OSG node, which will contain the triangle data and allows easy transformations:
     m_moduleNode = new WGEManagedGroupNode( m_active );
     osg::StateSet* moduleNodeState = m_moduleNode->getOrCreateStateSet();
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
 
     // set the member function "updateTransformation" as callback
     WGEFunctorCallback< osg::Node >::SPtr transformationCallback(
@@ -311,6 +315,13 @@ void WMTriangleMeshRenderer::moduleMain()
     // set the opacity and material color property as GLSL uniforms:
     moduleNodeState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_opacity", m_opacity ) );
     moduleNodeState->addUniform( new WGEPropertyUniform< WPropBool >( "u_outline", m_showOutline ) );
+
+    // signal ready state. The module is now ready to be used.
+    ready();
+
+    // add it to postproc node and register shader
+    postNode->insert( m_moduleNode, m_shader );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( postNode );
 
     // loop until the module container requests the module to quit
     while( !m_shutdownFlag() )
@@ -341,10 +352,8 @@ void WMTriangleMeshRenderer::moduleMain()
     }
 
     // it is important to always remove the modules again
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( postNode );
 }
-
-
 
 void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh )
 {
