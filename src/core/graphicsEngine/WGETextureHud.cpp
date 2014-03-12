@@ -220,8 +220,8 @@ WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Textur
     HUDBackgroundGeometry->addPrimitiveSet( HUDBackgroundIndices );
     HUDBackgroundGeometry->setVertexArray( HUDBackgroundVertices );
     HUDBackgroundGeometry->setColorArray( HUDcolors );
-    HUDBackgroundGeometry->setTexCoordArray( 0, HUDBackgroundTex );
     HUDBackgroundGeometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
+    HUDBackgroundGeometry->setTexCoordArray( 0, HUDBackgroundTex );
 
     geode->addDrawable( HUDBackgroundGeometry );
 

@@ -600,10 +600,10 @@ osg::ref_ptr< osg::Geode > wge::genFinitePlane( osg::Vec3 const& base, osg::Vec3
     osg::ref_ptr< wosg::Geometry > geometry = new wosg::Geometry();
     geometry->setVertexArray( vertices );
     geometry->setTexCoordArray( 0, texcoords0 );
-    geometry->setNormalBinding( wosg::Geometry::BIND_OVERALL );
-    geometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
     geometry->setNormalArray( normals );
+    geometry->setNormalBinding( wosg::Geometry::BIND_OVERALL );
     geometry->setColorArray( colors );
+    geometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
     geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 ) );
 
     osg::ref_ptr< osg::Geode > geode = new osg::Geode();
