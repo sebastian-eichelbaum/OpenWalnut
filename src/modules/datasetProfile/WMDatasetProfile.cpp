@@ -36,9 +36,6 @@
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WSelectionManager.h"
 
-// Compatibility between OSG 3.2 and earlier versions
-#include "core/graphicsEngine/WOSG.h"
-
 #include "WMDatasetProfile.h"
 #include "WMDatasetProfile.xpm" // Please put a real icon here.
 
@@ -339,7 +336,7 @@ void WMDatasetProfile::update()
     {
         osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
         osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-        osg::ref_ptr< wosg::Geometry > geometry = osg::ref_ptr< wosg::Geometry >( new wosg::Geometry );
+        osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
 
         for( size_t i = 0; i < knobs.size(); ++i )
         {
@@ -351,7 +348,7 @@ void WMDatasetProfile::update()
 
         colors->push_back( m_graphColor->get() );
         geometry->setColorArray( colors );
-        geometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
+        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
         // disable light for this geode as lines can't be lit properly
         osg::StateSet* state = m_lineGeode->getOrCreateStateSet();
@@ -402,7 +399,7 @@ osg::ref_ptr< osg::Geode > WMDatasetProfile::createGraphGridGeode()
 
     osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    osg::ref_ptr< wosg::Geometry > geometry = osg::ref_ptr< wosg::Geometry >( new wosg::Geometry );
+    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
 
     int step = ( m_oldViewWidth - 20 ) / 10;
     int i;
@@ -439,7 +436,7 @@ osg::ref_ptr< osg::Geode > WMDatasetProfile::createGraphGridGeode()
     WColor color( 0.7, 0.7, 0.7, 1.0 );
     colors->push_back( color );
     geometry->setColorArray( colors );
-    geometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
+    geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
     // disable light for this geode as lines can't be lit properly
     osg::StateSet* state = m_lineGeode->getOrCreateStateSet();
@@ -456,7 +453,7 @@ osg::ref_ptr< osg::Geode > WMDatasetProfile::createGraphGeode()
 
     osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    osg::ref_ptr< wosg::Geometry > geometry = osg::ref_ptr< wosg::Geometry >( new wosg::Geometry );
+    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
 
     std::vector<float>knobPositions;
 
@@ -516,7 +513,7 @@ osg::ref_ptr< osg::Geode > WMDatasetProfile::createGraphGeode()
 
     colors->push_back( m_graphColor->get() );
     geometry->setColorArray( colors );
-    geometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
+    geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
     // disable light for this geode as lines can't be lit properly
     osg::StateSet* state = m_lineGeode->getOrCreateStateSet();

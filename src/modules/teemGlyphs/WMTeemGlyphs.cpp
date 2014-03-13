@@ -39,9 +39,6 @@
 #include "core/common/WThreadedFunction.h"
 #include "core/kernel/WKernel.h"
 
-// Compatibility between OSG 3.2 and earlier versions
-#include "core/graphicsEngine/WOSG.h"
-
 #include "WMTeemGlyphs.h"
 #include "WMTeemGlyphs.xpm"
 
@@ -778,13 +775,13 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
 
 osg::ref_ptr< osg::Geode > WMTeemGlyphs::GlyphGeneration::getGraphics()
 {
-    osg::ref_ptr< wosg::Geometry > glyphGeometry = new wosg::Geometry();
+    osg::ref_ptr< osg::Geometry > glyphGeometry = new osg::Geometry();
     glyphGeometry->setVertexArray( m_vertArray );
     glyphGeometry->addPrimitiveSet( m_glyphElements );
     glyphGeometry->setNormalArray( m_normals );
-    glyphGeometry->setNormalBinding( wosg::Geometry::BIND_PER_VERTEX );
+    glyphGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
     glyphGeometry->setColorArray( m_colors );
-    glyphGeometry->setColorBinding( wosg::Geometry::BIND_PER_VERTEX );
+    glyphGeometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
 
 
     osg::ref_ptr< osg::Geode > glyphsGeode;

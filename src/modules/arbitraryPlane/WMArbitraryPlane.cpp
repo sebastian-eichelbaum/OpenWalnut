@@ -41,9 +41,6 @@
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WSelectionManager.h"
 
-// Compatibility between OSG 3.2 and earlier versions
-#include "core/graphicsEngine/WOSG.h"
-
 #include "WMArbitraryPlane.h"
 #include "WMArbitraryPlane.xpm"
 
@@ -285,7 +282,7 @@ void WMArbitraryPlane::updatePlane()
     WPosition v2( p0[0] + p0[0] - p1[0]  , p0[1] + p0[1] - p2[1] , p0[2] + ( p0[2] - p1[2] ) + ( p0[2] - p2[2] ) );
     WPosition v3( p0[0] + p0[0] - p1[0]  , p2[1]                 , p0[2] + ( p0[2] - p1[2] ) - ( p0[2] - p2[2] ) );
 
-    osg::ref_ptr<wosg::Geometry> planeGeometry = osg::ref_ptr<wosg::Geometry>( new wosg::Geometry() );
+    osg::ref_ptr<osg::Geometry> planeGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
     osg::Vec3Array* planeVertices = new osg::Vec3Array;
 
     planeVertices->push_back( v0 );

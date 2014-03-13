@@ -31,9 +31,6 @@
 #include "../WGEGeodeUtils.h"
 #include "WGEGridNode.h"
 
-// Compatibility between OSG 3.2 and earlier versions
-#include "core/graphicsEngine/WOSG.h"
-
 WGEGridNode::WGEGridNode( WGridRegular3D::ConstSPtr grid ):
     m_boundaryGeode( new osg::Geode() ),
     m_innerGridGeode( new osg::Geode() ),
@@ -254,7 +251,7 @@ void WGEGridNode::callback( osg::Node* /*node*/ )
         // grab the grid
         WGridRegular3D::ConstSPtr grid = m_grid.getReadTicket()->get();
 
-        wosg::Geometry* gridGeometry = new wosg::Geometry();
+        osg::Geometry* gridGeometry = new osg::Geometry();
         osg::ref_ptr< osg::Vec3Array > vertArray = new osg::Vec3Array( grid->size() );
 
         osg::DrawElementsUInt* gridElement = new osg::DrawElementsUInt( osg::PrimitiveSet::LINES, 0 );
@@ -304,7 +301,7 @@ void WGEGridNode::callback( osg::Node* /*node*/ )
         // finally, the colors
         colors->push_back( m_gridColor );
         gridGeometry->setColorArray( colors );
-        gridGeometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
+        gridGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
         if( m_innerGridGeode->getNumDrawables() )
         {

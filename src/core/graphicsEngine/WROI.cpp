@@ -28,7 +28,7 @@
 #include "WROI.h"
 #include "WPickHandler.h"
 
-WROI::WROI() :
+WROI::WROI():
     osg::Geode()
 {
     properties();

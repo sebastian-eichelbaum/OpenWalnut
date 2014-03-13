@@ -52,9 +52,6 @@
 #include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
 #include "core/kernel/WKernel.h"
 
-// Compatibility between OSG 3.2 and earlier versions
-#include "core/graphicsEngine/WOSG.h"
-
 #include "WMImageSpaceLIC.h"
 #include "WMImageSpaceLIC.xpm"
 
@@ -197,7 +194,7 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
     {
         // we have a mesh and want to use it
         // create geometry and geode
-        wosg::Geometry* surfaceGeometry = new wosg::Geometry();
+        osg::Geometry* surfaceGeometry = new osg::Geometry();
         osg::ref_ptr< osg::Geode > surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
         surfaceGeometry->setVertexArray( mesh->getVertexArray() );
@@ -213,7 +210,7 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
 
         // normals
         surfaceGeometry->setNormalArray( mesh->getVertexNormalArray() );
-        surfaceGeometry->setNormalBinding( wosg::Geometry::BIND_PER_VERTEX );
+        surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
 
         // texture coordinates
         surfaceGeometry->setTexCoordArray( 0, mesh->getTextureCoordinateArray() );

@@ -26,9 +26,6 @@
 
 #include "../../graphicsEngine/WGEUtils.h"
 
-// Compatibility between OSG 3.2 and earlier versions
-#include "core/graphicsEngine/WOSG.h"
-
 #include "WDendrogramGeode.h"
 
 /**
@@ -84,14 +81,14 @@ void WDendrogramGeode::create()
         (*m_vertexArray)[i].y() = (*m_vertexArray)[i].y() * m_yMult + m_yOff;
     }
 
-    osg::ref_ptr< wosg::Geometry > geometry = osg::ref_ptr< wosg::Geometry >( new wosg::Geometry() );
+    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
 
     geometry->setVertexArray( m_vertexArray );
 
     geometry->addPrimitiveSet( m_lineArray );
 
     geometry->setColorArray( m_colors );
-    geometry->setColorBinding( wosg::Geometry::BIND_PER_VERTEX );
+    geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
 
     osg::StateSet* state = geometry->getOrCreateStateSet();
     state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );

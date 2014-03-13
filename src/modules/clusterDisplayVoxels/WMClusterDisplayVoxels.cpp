@@ -43,9 +43,6 @@
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WSelectionManager.h"
 
-// Compatibility between OSG 3.2 and earlier versions
-#include "core/graphicsEngine/WOSG.h"
-
 #include "WFileParser.h"
 #include "WMClusterDisplayVoxels.h"
 #include "WMClusterDisplayVoxels.xpm"
@@ -767,7 +764,7 @@ void WMClusterDisplayVoxels::renderMesh()
     {
         for( size_t i = 0; i < m_triMeshes.size(); ++i )
         {
-            wosg::Geometry* surfaceGeometry = new wosg::Geometry();
+            osg::Geometry* surfaceGeometry = new osg::Geometry();
             osg::ref_ptr< osg::Geode >outputGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
             outputGeode->setName( ( std::string( "cluster" ) + string_utils::toString( m_activatedClusters[i] ) ).c_str() );
@@ -776,15 +773,15 @@ void WMClusterDisplayVoxels::renderMesh()
 
             // ------------------------------------------------
             // normals
-            surfaceGeometry->setNormalArray( m_triMeshes[i]->getTriangleNormalArray() );
-            surfaceGeometry->setNormalBinding( wosg::Geometry::BIND_PER_PRIMITIVE );
+            surfaceGeometry->setNormalArray( m_triMeshes[i]->getVertexNormalArray() );
+            surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
 
             // ------------------------------------------------
             // colors
             osg::Vec4Array* colors = new osg::Vec4Array;
             colors->push_back( m_clusterColors[m_activatedClusters[i]] );
             surfaceGeometry->setColorArray( colors );
-            surfaceGeometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
+            surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
             osg::DrawElementsUInt* surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
 
@@ -810,7 +807,7 @@ void WMClusterDisplayVoxels::renderMesh()
     }
     if( m_propShowVoxelTriangulation->get( true ) && m_showNotInClusters->get() )
     {
-        wosg::Geometry* surfaceGeometry = new wosg::Geometry();
+        osg::Geometry* surfaceGeometry = new osg::Geometry();
         osg::ref_ptr< osg::Geode >outputGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
         outputGeode->setName( ( std::string( "non active" ) ).c_str() );
@@ -819,8 +816,8 @@ void WMClusterDisplayVoxels::renderMesh()
 
         // ------------------------------------------------
         // normals
-        surfaceGeometry->setNormalArray( m_nonActiveMesh->getTriangleNormalArray() );
-        surfaceGeometry->setNormalBinding( wosg::Geometry::BIND_PER_PRIMITIVE );
+        surfaceGeometry->setNormalArray( m_nonActiveMesh->getVertexNormalArray() );
+        surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
 
         // ------------------------------------------------
         // colors
@@ -828,7 +825,7 @@ void WMClusterDisplayVoxels::renderMesh()
 
         colors->push_back( osg::Vec4( 0.3, 0.3, 0.3, 1.0f ) );
         surfaceGeometry->setColorArray( colors );
-        surfaceGeometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
+        surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
         osg::DrawElementsUInt* surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
 

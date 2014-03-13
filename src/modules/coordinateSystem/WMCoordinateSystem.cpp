@@ -40,9 +40,6 @@
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WSelectionManager.h"
 
-// Compatibility between OSG 3.2 and earlier versions
-#include "core/graphicsEngine/WOSG.h"
-
 #include "WMCoordinateSystem.h"
 #include "WMCoordinateSystem.xpm"
 #include "WTalairachConverter.h"
@@ -576,7 +573,7 @@ void WMCoordinateSystem::addSagittalGrid( float position )
     }
 
     osg::ref_ptr< osg::Geode > gridGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() );
-    osg::ref_ptr< wosg::Geometry > geometry = osg::ref_ptr< wosg::Geometry >( new wosg::Geometry() );
+    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
     WBoundingBox boundingBox = m_coordConverter->getBoundingBox();
@@ -657,7 +654,7 @@ void WMCoordinateSystem::addCoronalGrid( float position )
     }
 
     osg::ref_ptr< osg::Geode > gridGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() );
-    osg::ref_ptr< wosg::Geometry > geometry = osg::ref_ptr< wosg::Geometry >( new wosg::Geometry() );
+    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
     WBoundingBox boundingBox = m_coordConverter->getBoundingBox();
@@ -738,7 +735,7 @@ void WMCoordinateSystem::addAxialGrid( float position )
     }
 
     osg::ref_ptr< osg::Geode > gridGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() );
-    osg::ref_ptr< wosg::Geometry > geometry = osg::ref_ptr< wosg::Geometry >( new wosg::Geometry() );
+    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
     WBoundingBox boundingBox = m_coordConverter->getBoundingBox();

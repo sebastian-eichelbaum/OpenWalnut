@@ -31,9 +31,6 @@
 
 #include "core/common/math/linearAlgebra/WVectorFixed.h"
 
-// Compatibility between OSG 3.2 and earlier versions
-#include "core/graphicsEngine/WOSG.h"
-
 #include "WCoordConverter.h"
 #include "WRuler.h"
 
@@ -107,42 +104,42 @@ private:
      *
      * \return A part of the geometry of the ruler
      */
-    osg::ref_ptr< wosg::Geometry > createXY();
+    osg::ref_ptr< osg::Geometry > createXY();
 
     /**
      * Helper function to create the ruler along the x axis
      *
      * \return A part of the geometry of the ruler
      */
-    osg::ref_ptr< wosg::Geometry > createXZ();
+    osg::ref_ptr< osg::Geometry > createXZ();
 
     /**
      * Helper function to create the ruler along the y axis
      *
      * \return A part of the geometry of the ruler
      */
-    osg::ref_ptr< wosg::Geometry > createYX();
+    osg::ref_ptr< osg::Geometry > createYX();
 
     /**
      * Helper function to create the ruler along the y axis
      *
      * \return A part of the geometry of the ruler
      */
-    osg::ref_ptr< wosg::Geometry > createYZ();
+    osg::ref_ptr< osg::Geometry > createYZ();
 
     /**
      * Helper function to create the ruler along the z axis
      *
      * \return A part of the geometry of the ruler
      */
-    osg::ref_ptr< wosg::Geometry > createZX();
+    osg::ref_ptr< osg::Geometry > createZX();
 
     /**
      * Helper function to create the ruler along the z axis
      *
      * \return A part of the geometry of the ruler
      */
-    osg::ref_ptr< wosg::Geometry > createZY();
+    osg::ref_ptr< osg::Geometry > createZY();
 
     /**
      * converts a number into a string according to the currently selected coordinate system

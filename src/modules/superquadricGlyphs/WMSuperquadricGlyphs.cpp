@@ -38,9 +38,6 @@
 #include "core/graphicsEngine/shaders/WGEPropertyUniform.h"
 #include "core/graphicsEngine/postprocessing/WGEPostprocessingNode.h"
 
-// Compatibility between OSG 3.2 and earlier versions
-#include "core/graphicsEngine/WOSG.h"
-
 #include "WMSuperquadricGlyphs.h"
 #include "WMSuperquadricGlyphs.xpm"
 
@@ -238,7 +235,7 @@ void WMSuperquadricGlyphs::initOSG()
 
     // init the vertex arrays
     osg::ref_ptr< osg::Geode > geode;
-    osg::ref_ptr< wosg::Geometry > geometry;
+    osg::ref_ptr< osg::Geometry > geometry;
     osg::ref_ptr< osg::DrawArrays > da;
 
     // NOTE: it would be nice to use one vertex and tex array for all the three but this disallows us to replace the tensor diag/offdiag arrays
@@ -254,7 +251,7 @@ void WMSuperquadricGlyphs::initOSG()
     vertices->reserve( m_nbGlyphsX * 6 * 4 );
     texcoords0 = new osg::Vec3Array;
     texcoords0->reserve( m_nbGlyphsX * 6 * 4 );
-    geometry = new wosg::Geometry();
+    geometry = new osg::Geometry();
     geometry->setDataVariance( osg::Object::DYNAMIC );
     geometry->setVertexArray( vertices );
     geometry->setUseVertexBufferObjects( true );
@@ -289,7 +286,7 @@ void WMSuperquadricGlyphs::initOSG()
     vertices->reserve( m_nbGlyphsX * 6 * 4 );
     texcoords0 = new osg::Vec3Array;
     texcoords0->reserve( m_nbGlyphsX * 6 * 4 );
-    geometry = new wosg::Geometry();
+    geometry = new osg::Geometry();
     geometry->setDataVariance( osg::Object::DYNAMIC );
     geometry->setVertexArray( vertices );
     geometry->setUseVertexBufferObjects( true );
@@ -323,7 +320,7 @@ void WMSuperquadricGlyphs::initOSG()
     vertices->reserve( m_nbGlyphsX * 6 * 4 );
     texcoords0 = new osg::Vec3Array;
     texcoords0->reserve( m_nbGlyphsX * 6 * 4 );
-    geometry = new wosg::Geometry();
+    geometry = new osg::Geometry();
     geometry->setDataVariance( osg::Object::DYNAMIC );
     geometry->setVertexArray( vertices );
     geometry->setUseVertexBufferObjects( true );

@@ -39,9 +39,6 @@
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WSelectionManager.h"
 
-// Compatibility between OSG 3.2 and earlier versions
-#include "core/graphicsEngine/WOSG.h"
-
 #include "WMVectorPlot.h"
 #include "WMVectorPlot.xpm"
 
@@ -180,7 +177,7 @@ void WMVectorPlot::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
-osg::ref_ptr<wosg::Geometry> WMVectorPlot::buildPlotSlices()
+osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
 {
     switch( ( *m_dataSet ).getValueSet()->getDataType() )
     {

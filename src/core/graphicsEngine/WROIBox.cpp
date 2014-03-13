@@ -36,97 +36,9 @@
 #include "WROIBox.h"
 #include "WGraphicsEngine.h"
 #include "WGEUtils.h"
-
-// Compatibility between OSG 3.2 and earlier versions
-#include "core/graphicsEngine/WOSG.h"
+#include "WGEGeodeUtils.h"
 
 size_t WROIBox::maxBoxId = 0;
-
-void buildFacesFromPoints( osg::DrawElementsUInt* surfaceElements )
-{
-    surfaceElements->push_back( 0 );
-    surfaceElements->push_back( 2 );
-    surfaceElements->push_back( 3 );
-    surfaceElements->push_back( 1 );
-
-    surfaceElements->push_back( 2 );
-    surfaceElements->push_back( 6 );
-    surfaceElements->push_back( 7 );
-    surfaceElements->push_back( 3 );
-
-    surfaceElements->push_back( 6 );
-    surfaceElements->push_back( 4 );
-    surfaceElements->push_back( 5 );
-    surfaceElements->push_back( 7 );
-
-    surfaceElements->push_back( 4 );
-    surfaceElements->push_back( 0 );
-    surfaceElements->push_back( 1 );
-    surfaceElements->push_back( 5 );
-
-    surfaceElements->push_back( 1 );
-    surfaceElements->push_back( 3 );
-    surfaceElements->push_back( 7 );
-    surfaceElements->push_back( 5 );
-
-    surfaceElements->push_back( 0 );
-    surfaceElements->push_back( 4 );
-    surfaceElements->push_back( 6 );
-    surfaceElements->push_back( 2 );
-}
-
-void buildLinesFromPoints( osg::DrawElementsUInt* surfaceElements )
-{
-    surfaceElements->push_back( 0 );
-    surfaceElements->push_back( 2 );
-    surfaceElements->push_back( 2 );
-    surfaceElements->push_back( 3 );
-    surfaceElements->push_back( 3 );
-    surfaceElements->push_back( 1 );
-    surfaceElements->push_back( 1 );
-    surfaceElements->push_back( 0 );
-
-    surfaceElements->push_back( 6 );
-    surfaceElements->push_back( 4 );
-    surfaceElements->push_back( 4 );
-    surfaceElements->push_back( 5 );
-    surfaceElements->push_back( 5 );
-    surfaceElements->push_back( 7 );
-    surfaceElements->push_back( 7 );
-    surfaceElements->push_back( 6 );
-
-    surfaceElements->push_back( 2 );
-    surfaceElements->push_back( 6 );
-    surfaceElements->push_back( 7 );
-    surfaceElements->push_back( 3 );
-
-    surfaceElements->push_back( 4 );
-    surfaceElements->push_back( 0 );
-    surfaceElements->push_back( 1 );
-    surfaceElements->push_back( 5 );
-}
-
-void setVertices( osg::Vec3Array* vertices, WPosition minPos, WPosition maxPos )
-{
-    vertices->push_back( osg::Vec3( minPos[0], minPos[1], minPos[2] ) );
-    vertices->push_back( osg::Vec3( minPos[0], minPos[1], maxPos[2] ) );
-    vertices->push_back( osg::Vec3( minPos[0], maxPos[1], minPos[2] ) );
-    vertices->push_back( osg::Vec3( minPos[0], maxPos[1], maxPos[2] ) );
-    vertices->push_back( osg::Vec3( maxPos[0], minPos[1], minPos[2] ) );
-    vertices->push_back( osg::Vec3( maxPos[0], minPos[1], maxPos[2] ) );
-    vertices->push_back( osg::Vec3( maxPos[0], maxPos[1], minPos[2] ) );
-    vertices->push_back( osg::Vec3( maxPos[0], maxPos[1], maxPos[2] ) );
-}
-
-void setNormals( osg::Vec3Array* normals )
-{
-    normals->push_back( osg::Vec3( -1.0, 0.0, 0.0 ) );
-    normals->push_back( osg::Vec3( 0.0, 1.0, 0.0 ) );
-    normals->push_back( osg::Vec3( 1.0, 0.0, 0.0 ) );
-    normals->push_back( osg::Vec3( 0.0, -1.0, 1.0 ) );
-    normals->push_back( osg::Vec3( 0.0, 0.0, -1.0 ) );
-    normals->push_back( osg::Vec3( 0.0, 0.0, 1.0 ) );
-}
 
 WROIBox::WROIBox( WPosition minPos, WPosition maxPos ) :
     WROI(),
@@ -151,44 +63,16 @@ WROIBox::WROIBox( WPosition minPos, WPosition maxPos ) :
     m_pickHandler = m_viewer->getPickHandler();
     m_pickHandler->getPickSignal()->connect( boost::bind( &WROIBox::registerRedrawRequest, this, _1 ) );
 
-    m_surfaceGeometry = osg::ref_ptr<wosg::Geometry>( new wosg::Geometry() );
-    m_surfaceGeometry->setDataVariance( osg::Object::DYNAMIC );
-
     std::stringstream ss;
     ss << "ROIBox" << boxId;
-
     setName( ss.str() );
-    m_surfaceGeometry->setName( ss.str() );
 
-    osg::ref_ptr<osg::Vec3Array> vertices = osg::ref_ptr<osg::Vec3Array>( new osg::Vec3Array );
-    setVertices( vertices, minPos, maxPos );
-    m_surfaceGeometry->setVertexArray( vertices );
-
-    osg::DrawElementsUInt* surfaceElements;
-    surfaceElements = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS, 0 );
-    buildFacesFromPoints( surfaceElements );
-
-    osg::DrawElementsUInt* lineElements;
-    lineElements = new osg::DrawElementsUInt( osg::PrimitiveSet::LINES, 0 );
-    buildLinesFromPoints( lineElements );
-
-    m_surfaceGeometry->addPrimitiveSet( surfaceElements );
-    m_surfaceGeometry->addPrimitiveSet( lineElements );
-    addDrawable( m_surfaceGeometry );
     osg::StateSet* state = getOrCreateStateSet();
     state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
 
     osg::LineWidth* linewidth = new osg::LineWidth();
-    linewidth->setWidth( 2.f );
+    linewidth->setWidth( 2.0f );
     state->setAttributeAndModes( linewidth, osg::StateAttribute::ON );
-
-    // ------------------------------------------------
-    // colors
-    osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
-
-    colors->push_back( osg::Vec4( 0.0f, 0.0f, 1.0f, 0.5f ) );
-    m_surfaceGeometry->setColorArray( colors );
-    m_surfaceGeometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
 
     osg::ref_ptr< osg::LightModel > lightModel = new osg::LightModel();
     lightModel->setTwoSided( true );
@@ -197,12 +81,6 @@ WROIBox::WROIBox( WPosition minPos, WPosition maxPos ) :
 
     // add a simple default lighting shader
     m_lightShader = new WGEShader( "WGELighting" );
-
-    // normals
-    osg::ref_ptr<osg::Vec3Array> normals = osg::ref_ptr<osg::Vec3Array>( new osg::Vec3Array );
-    setNormals( normals );
-    m_surfaceGeometry->setNormalArray( normals );
-    //m_surfaceGeometry->setNormalBinding( wosg::Geometry::BIND_PER_PRIMITIVE );
 
     m_not->set( false );
 
@@ -214,6 +92,7 @@ WROIBox::WROIBox( WPosition minPos, WPosition maxPos ) :
 
     m_lightShader->apply( this );
 
+    m_needVertexUpdate = true;
     setDirty();
 }
 
@@ -254,8 +133,6 @@ void WROIBox::registerRedrawRequest( WPickInfo pickInfo )
 void WROIBox::boxPropertiesChanged( boost::shared_ptr< WPropertyBase > /* property */ )
 {
     m_needVertexUpdate = true;
-    // NOTE: this is probably not needed as the above flag will trigger a dirty
-    // setDirty();
 }
 
 void WROIBox::updateGFX()
@@ -324,22 +201,18 @@ void WROIBox::updateGFX()
             // color for moving box
             if( m_pickInfo.getModifierKey() == WPickInfo::NONE )
             {
-                osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
                 if( m_not->get() )
                 {
-                    colors->push_back( m_notColor );
+                    updateColor( m_notColor );
                 }
                 else
                 {
-                    colors->push_back( m_color );
+                    updateColor( m_color );
                 }
-                m_surfaceGeometry->setColorArray( colors );
             }
             if( m_pickInfo.getModifierKey() == WPickInfo::SHIFT )
             {
-                osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
-                colors->push_back( osg::Vec4( 0.0f, 1.0f, 0.0f, 0.4f ) );
-                m_surfaceGeometry->setColorArray( colors );
+                updateColor( osg::Vec4( 0.0f, 1.0f, 0.0f, 0.4f ) );
             }
 
             m_oldScrollWheel = m_pickInfo.getScrollWheel();
@@ -352,43 +225,58 @@ void WROIBox::updateGFX()
     if( m_isPicked && m_pickInfo.getName() == "unpick" )
     {
         // Perform all actions necessary for finishing a pick
-
-        osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
         if( m_not->get() )
         {
-            colors->push_back( m_notColor );
+            updateColor( m_notColor );
         }
         else
         {
-            colors->push_back( m_color );
+            updateColor( m_color );
         }
-        m_surfaceGeometry->setColorArray( colors );
+
         m_pickNormal = WVector3d();
         m_isPicked = false;
     }
 
     if( m_needVertexUpdate )
     {
-        osg::ref_ptr<osg::Vec3Array> vertices = osg::ref_ptr<osg::Vec3Array>( new osg::Vec3Array );
-        setVertices( vertices, m_minPos->get(), m_maxPos->get() );
-        m_surfaceGeometry->setVertexArray( vertices );
+        removeDrawable( m_surfaceGeometry );
 
+        WPosition pos = getMinPos();
+        WPosition size = getMaxPos() - getMinPos();
+
+        // create a new geometry
+        m_surfaceGeometry = wge::createCube( pos, size, WColor( 1.0, 1.0, 1.0, 1.0 ) );
+
+        // create nice outline
+        m_surfaceGeometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_LOOP, 0, 4 ) );
+        m_surfaceGeometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_LOOP, 4, 4 ) );
+        m_surfaceGeometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_LOOP, 8, 4 ) );
+        m_surfaceGeometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_LOOP, 12, 4 ) );
+        m_surfaceGeometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_LOOP, 16, 4 ) );
+        m_surfaceGeometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_LOOP, 20, 4 ) );
+
+        // name it and add to geode
+        m_surfaceGeometry->setDataVariance( osg::Object::DYNAMIC );
+        m_surfaceGeometry->setName( ss.str() );
+
+        addDrawable( m_surfaceGeometry );
+
+        // NOTE: as we set the roi dirty, we ensure the color gets set properly in the next if-statement.
         setDirty();
         m_needVertexUpdate = false;
     }
 
     if( m_dirty->get() )
     {
-        osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
         if( m_not->get() )
         {
-            colors->push_back( m_notColor );
+            updateColor( m_notColor );
         }
         else
         {
-            colors->push_back( m_color );
+            updateColor( m_color );
         }
-        m_surfaceGeometry->setColorArray( colors );
     }
 
     lock.unlock();
@@ -402,4 +290,21 @@ void WROIBox::setColor( osg::Vec4 color )
 void WROIBox::setNotColor( osg::Vec4 color )
 {
     m_notColor = color;
+}
+
+void WROIBox::updateColor( osg::Vec4 color )
+{
+    osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
+    colors->push_back( color );
+
+    WColor outline( 0.0, 0.0, 0.0, 1.0 );
+    // NOTE: also add a black color for the solid outlines
+    colors->push_back( outline );
+    colors->push_back( outline );
+    colors->push_back( outline );
+    colors->push_back( outline );
+    colors->push_back( outline );
+    colors->push_back( outline );
+    m_surfaceGeometry->setColorArray( colors );
+    m_surfaceGeometry->setColorBinding( osg::Geometry::BIND_PER_PRIMITIVE_SET );
 }

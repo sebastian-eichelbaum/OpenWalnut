@@ -59,9 +59,6 @@
 #include "WMIsosurface.h"
 #include "WMIsosurface.xpm"
 
-// Compatibility between OSG 3.2 and earlier versions
-#include "core/graphicsEngine/WOSG.h"
-
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMIsosurface )
 
@@ -397,7 +394,7 @@ void WMIsosurface::renderMesh()
         lock.unlock();
     }
 
-    osg::ref_ptr< wosg::Geometry > surfaceGeometry( new wosg::Geometry() );
+    osg::ref_ptr< osg::Geometry > surfaceGeometry( new osg::Geometry() );
     m_surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
     m_surfaceGeode->setName( "iso surface" );
@@ -420,7 +417,7 @@ void WMIsosurface::renderMesh()
     {
         // marching lego does not provide normals on a per-vertex-basis. Since OSG3.2, only normal binding on a per vertex basis is supported.
         surfaceGeometry->setNormalArray( m_triMesh->getVertexNormalArray() );
-        surfaceGeometry->setNormalBinding( wosg::Geometry::BIND_PER_VERTEX );
+        surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
     }
 
     m_surfaceGeode->addDrawable( surfaceGeometry );
@@ -432,7 +429,7 @@ void WMIsosurface::renderMesh()
 
     colors->push_back( m_surfaceColor->get( true ) );
     surfaceGeometry->setColorArray( colors );
-    surfaceGeometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
+    surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
     osg::ref_ptr<osg::LightModel> lightModel( new osg::LightModel() );
     lightModel->setTwoSided( true );

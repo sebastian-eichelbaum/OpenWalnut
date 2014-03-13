@@ -38,9 +38,6 @@
 #include "core/graphicsEngine/widgets/labeling/WGELabel.h"
 #include "core/kernel/WKernel.h"
 
-// Compatibility between OSG 3.2 and earlier versions
-#include "core/graphicsEngine/WOSG.h"
-
 #include "WMTransferFunctionColorBar.xpm"
 #include "WMTransferFunctionColorBar.h"
 
@@ -355,12 +352,12 @@ void WMTransferFunctionColorBar::updateColorbarScale( osg::Node* scaleLabels )
         }
 
         // create the line drawable
-        wosg::Geometry* lines = new wosg::Geometry();
+        osg::Geometry* lines = new osg::Geometry();
         lines->setVertexArray( lineVerts );
         osg::Vec3Array* color = new osg::Vec3Array();
         color->push_back( osg::Vec3( 1.0, 1.0, 1.0 ) );
         lines->setColorArray( color );
-        lines->setColorBinding( wosg::Geometry::BIND_OVERALL );
+        lines->setColorBinding( osg::Geometry::BIND_OVERALL );
         lines->addPrimitiveSet( new osg::DrawArrays( GL_LINES, 0, lineVerts->size() ) );
         g->addDrawable( lines );
     }

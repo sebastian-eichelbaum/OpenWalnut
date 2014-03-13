@@ -53,9 +53,6 @@
 #include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
 #include "core/kernel/WKernel.h"
 
-// Compatibility between OSG 3.2 and earlier versions
-#include "core/graphicsEngine/WOSG.h"
-
 #include "WMFiberDisplay.h"
 
 // This line is needed by the module loader to actually find your module. You need to add this to your module too. Do NOT add a ";" here.
@@ -455,7 +452,7 @@ osg::ref_ptr< osg::Node > WMFiberDisplay::createClipPlane() const
     osg::ref_ptr< osg::MatrixTransform > planeTransform = new osg::MatrixTransform();
     osg::ref_ptr< osg::Vec3Array > planeVertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec4Array > planeColor = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    osg::ref_ptr< wosg::Geometry > planeGeometry = osg::ref_ptr< wosg::Geometry >( new wosg::Geometry );
+    osg::ref_ptr< osg::Geometry > planeGeometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
 
     // the plane vertices
     planeColor->push_back( osg::Vec4( 1.0, 0.0, 0.0, 0.125 ) );
@@ -467,7 +464,7 @@ osg::ref_ptr< osg::Node > WMFiberDisplay::createClipPlane() const
     // build geometry
     planeGeometry->setVertexArray( planeVertices );
     planeGeometry->setColorArray( planeColor );
-    planeGeometry->setColorBinding( wosg::Geometry::BIND_OVERALL );
+    planeGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
     planeGeometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 ) );
     planeGeode->addDrawable( planeGeometry );
 
@@ -502,7 +499,7 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
     osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
     osg::ref_ptr< osg::Vec3Array > tangents = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::FloatArray > texcoords = osg::ref_ptr< osg::FloatArray >( new osg::FloatArray );
-    osg::ref_ptr< wosg::Geometry > geometry = osg::ref_ptr< wosg::Geometry >( new wosg::Geometry );
+    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
 
     // new attribute array
     m_bitfieldAttribs = new osg::FloatArray( m_fibers->getLineStartIndexes()->size() );
@@ -512,14 +509,14 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
     osg::ref_ptr< osg::Vec3Array > endVertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec4Array > endColors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
     osg::ref_ptr< osg::Vec3Array > endTangents = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-    osg::ref_ptr< wosg::Geometry > endGeometry = osg::ref_ptr< wosg::Geometry >( new wosg::Geometry );
+    osg::ref_ptr< osg::Geometry > endGeometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
 
     // this is needed for the end- sprites
     // NOTE: we handle start caps and end caps separately here since the vertex attributes are per line so we need to have one cap per line.
     osg::ref_ptr< osg::Vec3Array > startVertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec4Array > startColors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
     osg::ref_ptr< osg::Vec3Array > startTangents = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-    osg::ref_ptr< wosg::Geometry > startGeometry = osg::ref_ptr< wosg::Geometry >( new wosg::Geometry );
+    osg::ref_ptr< osg::Geometry > startGeometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
 
 
     // needed arrays for iterating the fibers
@@ -676,9 +673,9 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
     // combine these arrays to the geometry
     geometry->setVertexArray( vertices );
     geometry->setColorArray( colors );
-    geometry->setColorBinding( wosg::Geometry::BIND_PER_VERTEX );
+    geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
     geometry->setNormalArray( tangents );
-    geometry->setNormalBinding( wosg::Geometry::BIND_PER_VERTEX );
+    geometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
     if( tubeMode )    // tex coords are only needed for fake-tubes
     {
         geometry->setTexCoordArray( 0, texcoords );
@@ -687,16 +684,16 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
         endGeometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::POINTS, 0, endVertices->size() ) );
         endGeometry->setVertexArray( endVertices );
         endGeometry->setColorArray( endColors );
-        endGeometry->setColorBinding( wosg::Geometry::BIND_PER_VERTEX );
+        endGeometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
         endGeometry->setNormalArray( endTangents );
-        endGeometry->setNormalBinding( wosg::Geometry::BIND_PER_VERTEX );
+        endGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
 
         startGeometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::POINTS, 0, startVertices->size() ) );
         startGeometry->setVertexArray( startVertices );
         startGeometry->setColorArray( startColors );
-        startGeometry->setColorBinding( wosg::Geometry::BIND_PER_VERTEX );
+        startGeometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
         startGeometry->setNormalArray( startTangents );
-        startGeometry->setNormalBinding( wosg::Geometry::BIND_PER_VERTEX );
+        startGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
 
         endCapGeode->addDrawable( startGeometry );
         endCapGeode->addDrawable( endGeometry );
@@ -715,22 +712,22 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
     geometry->setVertexAttribArray( 6, m_bitfieldAttribs );
     geometry->setSecondaryColorArray( m_secondaryColor );
     // the attributes are define per line strip, thus we bind the array accordingly
-    geometry->setVertexAttribBinding( 6, wosg::Geometry::BIND_PER_PRIMITIVE_SET );
-    geometry->setSecondaryColorBinding( wosg::Geometry::BIND_PER_PRIMITIVE_SET );
+    geometry->setVertexAttribBinding( 6, osg::Geometry::BIND_PER_PRIMITIVE_SET );
+    geometry->setSecondaryColorBinding( osg::Geometry::BIND_PER_PRIMITIVE_SET );
 
 
     if( tubeMode )
     {
         // we have one vertex per line, so bind the attribute array per vertex
         startGeometry->setVertexAttribArray( 6, m_bitfieldAttribs );
-        startGeometry->setVertexAttribBinding( 6, wosg::Geometry::BIND_PER_VERTEX );
+        startGeometry->setVertexAttribBinding( 6, osg::Geometry::BIND_PER_VERTEX );
         endGeometry->setVertexAttribArray( 6, m_bitfieldAttribs );
-        endGeometry->setVertexAttribBinding( 6, wosg::Geometry::BIND_PER_VERTEX );
+        endGeometry->setVertexAttribBinding( 6, osg::Geometry::BIND_PER_VERTEX );
 
         startGeometry->setSecondaryColorArray( m_secondaryColor );
-        startGeometry->setSecondaryColorBinding( wosg::Geometry::BIND_PER_PRIMITIVE_SET );
+        startGeometry->setSecondaryColorBinding( osg::Geometry::BIND_PER_PRIMITIVE_SET );
         endGeometry->setSecondaryColorArray( m_secondaryColor );
-        endGeometry->setSecondaryColorBinding( wosg::Geometry::BIND_PER_PRIMITIVE_SET );
+        endGeometry->setSecondaryColorBinding( osg::Geometry::BIND_PER_PRIMITIVE_SET );
     }
 
     // add an update callback which later handles several things like the filter attribute array
@@ -793,7 +790,7 @@ void WMFiberDisplay::geometryUpdate( osg::Drawable* geometry )
                 );
             }
         }
-        static_cast< wosg::Geometry* >( geometry )->setSecondaryColorArray( attribs );
+        static_cast< osg::Geometry* >( geometry )->setSecondaryColorArray( attribs );
     }
 }
 

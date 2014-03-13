@@ -61,9 +61,6 @@
 #include "WCenterlineParameterization.h"
 #include "WIntegrationParameterization.h"
 
-// Compatibility between OSG 3.2 and earlier versions
-#include "core/graphicsEngine/WOSG.h"
-
 #include "WMVoxelizer.h"
 #include "WMVoxelizer.xpm"
 #include "WRasterAlgorithm.h"
@@ -372,7 +369,7 @@ osg::ref_ptr< osg::Node > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WData
     }
 
     // create geometry for each voxel
-    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new wosg::Geometry );
+    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
     const std::vector< double >& values = *valueset->rawDataVectorPointer();
     for( size_t i = 0; i < values.size(); ++i )
     {
