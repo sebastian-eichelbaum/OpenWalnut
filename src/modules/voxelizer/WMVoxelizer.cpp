@@ -350,62 +350,45 @@ void WMVoxelizer::raster( boost::shared_ptr< WRasterAlgorithm > algo, boost::sha
     algo->finished();
 }
 
-osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDataSetScalar > dataset ) const
+osg::ref_ptr< osg::Node > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDataSetScalar > dataset ) const
 {
-    using osg::ref_ptr;
-    ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-    ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    ref_ptr< wosg::Geometry > geometry = ref_ptr< wosg::Geometry >( new wosg::Geometry );
-    ref_ptr< osg::Vec3Array > normals = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    // set the scaling of the dataset. We assume a unit cube per voxel. But this might not be true:
+    WGridRegular3D::SPtr grid = boost::dynamic_pointer_cast< WGridRegular3D >( dataset->getGrid() );
+    if( !grid )
+    {
+        errorLog() << "The dataset grid is not regular.";
+        return new osg::Node;   // empty node
+    }
+    WPosition size( grid->getOffsetX(), grid->getOffsetY(), grid->getOffsetZ() );
 
-    // cycle through all positions in the dataSet
+    // add cubes to this geode
+    osg::ref_ptr< osg::Geode > geode( new osg::Geode );
+
     boost::shared_ptr< WValueSet< double > > valueset = boost::dynamic_pointer_cast< WValueSet< double > >( dataset->getValueSet() );
-    WAssert( valueset != 0, "No scalar double valueset was given while generating the dataset geode" );
-    boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( dataset->getGrid() );
-    WAssert( grid != 0, "No WGridRegular3D was given while generating the dataset geode"  );
+    if( !valueset )
+    {
+        errorLog() << "The dataset does not contain a double valueset";
+        return new osg::Node;   // empty node
+    }
+
+    // create geometry for each voxel
+    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new wosg::Geometry );
     const std::vector< double >& values = *valueset->rawDataVectorPointer();
     for( size_t i = 0; i < values.size(); ++i )
     {
         if( values[i] != 0.0 )
         {
+            // collect data
             WPosition pos = grid->getPosition( i );
-            boost::shared_ptr< std::vector< WPosition > > voxelCornerVertices = grid->getVoxelVertices( pos, 0.01 );
-            osg::ref_ptr< osg::Vec3Array > ver = wge::generateCuboidQuads( *voxelCornerVertices );
-            vertices->insert( vertices->end(), ver->begin(), ver->end() );
-            osg::ref_ptr< osg::Vec3Array > nor = wge::generateCuboidQuadNormals( *voxelCornerVertices );
-            normals->insert( normals->end(), nor->begin(), nor->end() );
-            geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, vertices->size() - ver->size(), ver->size() ) );
-            for( size_t j = 0; j < ver->size(); ++j )
-            {
-                double transparency = ( values[i] <= 1.0 ? values[i] : 1.0 );
-                colors->push_back( WColor( 1.0, 0.0, 0.0, transparency ) );
-            }
+            double transparency = ( values[i] <= 1.0 ? values[i] : 1.0 );
+            WColor color( 1.0, 0.0, 0.0, transparency );
+
+            // build cube
+            wge::createCube( geometry, pos, size, color );
         }
     }
 
-    geometry->setVertexArray( vertices );
-    colors->push_back( WColor( 1.0, 0.0, 0.0, 0.1 ) );
-    geometry->setColorArray( colors );
-    geometry->setColorBinding( wosg::Geometry::BIND_PER_VERTEX );
-    geometry->setNormalArray( normals );
-    geometry->setNormalBinding( wosg::Geometry::BIND_PER_PRIMITIVE );
-    osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
+    // done
     geode->addDrawable( geometry );
-
-    // Without depth-sorting, this nearly always creates wrong results. Thus we disable it for now.
-    // Enable blending, select transparent bin.
-    // osg::StateSet* state = geode->getOrCreateStateSet();
-    // state->setMode( GL_BLEND, osg::StateAttribute::ON );
-    // state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
-    //
-    // Enable depth test so that an opaque polygon will occlude a transparent one behind it.
-    // state->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
-    //
-    // Conversely, disable writing to depth buffer so that a transparent polygon will allow polygons behind it to shine through.
-    // OSG renders transparent polygons after opaque ones.
-    // osg::Depth* depth = new osg::Depth;
-    // depth->setWriteMask( false );
-    // state->setAttributeAndModes( depth, osg::StateAttribute::ON );
-
     return geode;
 }

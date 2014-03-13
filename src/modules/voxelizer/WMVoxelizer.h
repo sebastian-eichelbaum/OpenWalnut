@@ -130,9 +130,9 @@ protected:
      *
      * \param dataset The dataset which should be drawn
      *
-     * \return OSG Geode with the voxels as cuboids.
+     * \return OSG node with the voxels as cuboids.
      */
-    osg::ref_ptr< osg::Geode > genDataSetGeode( boost::shared_ptr< WDataSetScalar > dataset ) const;
+    osg::ref_ptr< osg::Node > genDataSetGeode( boost::shared_ptr< WDataSetScalar > dataset ) const;
 
     /**
      * Performs rasterization with the given algorithm on either all tracts or only a subset if given.

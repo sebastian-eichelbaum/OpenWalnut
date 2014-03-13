@@ -44,9 +44,6 @@
 #include "core/graphicsEngine/WTriangleMesh.h"
 #include "core/kernel/WKernel.h"
 
-// Compatibility between OSG 3.2 and earlier versions
-#include "core/graphicsEngine/WOSG.h"
-
 #include "WMTriangleMeshRenderer.h"
 #include "WMTriangleMeshRenderer.xpm"
 
@@ -364,7 +361,7 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh
 
     // prepare the geometry node
     debugLog() << "Start rendering Mesh";
-    osg::ref_ptr< wosg::Geometry > geometry;
+    osg::ref_ptr< osg::Geometry > geometry;
     osg::ref_ptr< osg::Geode > geode( new osg::Geode );
     geode->getOrCreateStateSet()->addUniform( m_colorMapTransformation );
     geode->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_colormapRatio", m_colormapRatio ) );

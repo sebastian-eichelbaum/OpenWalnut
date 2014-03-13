@@ -31,6 +31,7 @@
 #include <osg/Array>
 #include <osg/Geode>
 #include <osg/Geometry>
+#include <osg/Drawable>
 #include <osg/MatrixTransform>
 #include <osg/PositionAttitudeTransform>
 #include <osg/Vec3>
@@ -46,9 +47,6 @@
 #include "WGESubdividedPlane.h"
 #include "WGEUtils.h"
 #include "WTriangleMesh.h"
-
-// Compatibility between OSG 3.2 and earlier versions
-#include "core/graphicsEngine/WOSG.h"
 
 namespace wge
 {
@@ -75,26 +73,54 @@ namespace wge
     osg::ref_ptr< osg::Node > generateSolidBoundingBoxNode( const WBoundingBox& bb, const WColor& color, bool threeDTexCoords = true );
 
     /**
-     * Creates a wosg::Geometry containing an unit cube, having 3D texture coordinates.
+     * Creates a osg::Geometry containing an unit cube, having 3D texture coordinates.
      *
      * \param color the color to set for all vertices
      *
      * \return the geometry
      */
-    osg::ref_ptr< wosg::Geometry > createUnitCube( const WColor& color );
+    osg::ref_ptr< osg::Geometry > createUnitCube( const WColor& color );
 
     /**
-     * Creates a wosg::Geometry containing an unit cube as line-strips, having 3D texture coordinates.
+     * Create an arbitrary cube and insert it into the given geometry. You will get a cube with normals, tex coords and a single color. This
+     * function is very restrictive with respect to the given geode. It is not recommended to use it in combination with an geometry you already
+     * filled with something. It is designed to be used to fill many cubes into one geometry.
+     *
+     * \param position position of the lower,left,front vertex
+     * \param size size in x,y,z direction
+     * \param color a color
+     * \param geometry the geometry where to add the cube. It can be completely empty (no arrays). If you use an invalid (in the following
+     * terms) geometry here, the graphics will fail. Ensure that you have a color array, tex array, normal array and vertex array, where the
+     * color array is used per primitive set and normals/tex are bound per vertex. The vertices/tex/normals need to be vec3 arrays. The color
+     * array needs to be a vec4 array.
+     *
+     * \return the drawable.
+     */
+    void createCube( osg::ref_ptr< osg::Geometry > geometry, const WPosition& position, const WPosition& size, const WColor& color );
+
+    /**
+     * Create an arbitrary cube.
+     *
+     * \param position position of the lower,left,front vertex
+     * \param size size in x,y,z direction
+     * \param color a color
+     *
+     * \return the drawable.
+     */
+    osg::ref_ptr< osg::Geometry > createCube( const WPosition& position, const WPosition& size, const WColor& color );
+
+    /**
+     * Creates a osg::Geometry containing an unit cube as line-strips, having 3D texture coordinates.
      *
      * \param color the color to set for all vertices
      *
      * \return the geometry
      */
-    osg::ref_ptr< wosg::Geometry > createUnitCubeAsLines( const WColor& color );
+    osg::ref_ptr< osg::Geometry > createUnitCubeAsLines( const WColor& color );
 
     /**
      * Extract the vertices and triangles from a WTriangleMesh and save them
-     * into an wosg::Geometry. It can use the normals and per-vertex colors of the mesh.
+     * into an osg::Geometry. It can use the normals and per-vertex colors of the mesh.
      *
      * \param mesh the WTriangleMesh used as input
      * \param includeNormals When true, calculate the vertex normals and include
@@ -102,10 +128,10 @@ namespace wge
      * \param defaultColor This color is used in case the useMeshColor parameter is false or no colors are defined in the mesh.
      * \param lighting if true, a standard lighting is activated for this geometry
      * \param useMeshColor if true, the mesh color is used. If false, the defaultColor is used.
-     * \return an wosg::Geometry containing the mesh
-     * \note mesh cannot be const since wosg::Geometry needs non-const pointers to the contained arrays
+     * \return an osg::Geometry containing the mesh
+     * \note mesh cannot be const since osg::Geometry needs non-const pointers to the contained arrays
      */
-    osg::ref_ptr< wosg::Geometry > convertToOsgGeometry( WTriangleMesh::SPtr mesh,
+    osg::ref_ptr< osg::Geometry > convertToOsgGeometry( WTriangleMesh::SPtr mesh,
                                                         const WColor& defaultColor = WColor( 1.0, 1.0, 1.0, 1.0 ),
                                                         bool includeNormals = false,
                                                         bool lighting = false,
@@ -114,7 +140,7 @@ namespace wge
 
     /**
      * Extract the vertices and triangles from a WTriangleMesh and save them
-     * into an wosg::Geometry in order to produce a flat shaded rendering. 
+     * into an osg::Geometry in order to produce a flat shaded rendering.
      *
      * \param mesh the WTriangleMesh used as input
      * \param includeNormals When true, calculate the triangle normals and include
@@ -122,17 +148,17 @@ namespace wge
      * \param defaultColor This color is used in case the useMeshColor parameter is false or no colors are defined in the mesh.
      * \param lighting if true, a standard lighting is activated for this geometry
      * \param useMeshColor if true, the mesh color is used. If false, the defaultColor is used.
-     * \return an wosg::Geometry containing the mesh
-     * \note mesh cannot be const since wosg::Geometry needs non-const pointers to the contained arrays
+     * \return an osg::Geometry containing the mesh
+     * \note mesh cannot be const since osg::Geometry needs non-const pointers to the contained arrays
      */
-    osg::ref_ptr< wosg::Geometry > convertToOsgGeometryFlatShaded( WTriangleMesh::SPtr mesh,
+    osg::ref_ptr< osg::Geometry > convertToOsgGeometryFlatShaded( WTriangleMesh::SPtr mesh,
                                                                         const WColor& defaultColor = WColor( 1.0, 1.0, 1.0, 1.0 ),
                                                                         bool includeNormals = false,
                                                                         bool lighting = false,
                                                                         bool useMeshColor = true );
     /**
      * Extract the vertices and triangles from a WTriangleMesh and save them
-     * into an wosg::Geometry. It can use the normals and per-vertex colors of the mesh.
+     * into an osg::Geometry. It can use the normals and per-vertex colors of the mesh.
      * This method additionally uses the specified vertexID-color map to provide additional coloring.
      *
      * \param mesh the WTriangleMesh used as input
@@ -141,10 +167,10 @@ namespace wge
      *                       them into the geometry.
      * \param defaultColor This color is used in case the colorMap does not provide a color for a vertex
      * \param lighting if true, a standard lighting is activated for this geometry*
-     * \return an wosg::Geometry containing the mesh
-     * \note mesh cannot be const since wosg::Geometry needs non-const pointers to the contained arrays
+     * \return an osg::Geometry containing the mesh
+     * \note mesh cannot be const since osg::Geometry needs non-const pointers to the contained arrays
      */
-    osg::ref_ptr< wosg::Geometry > convertToOsgGeometry( WTriangleMesh::SPtr mesh, const WColoredVertices& colorMap,
+    osg::ref_ptr< osg::Geometry > convertToOsgGeometry( WTriangleMesh::SPtr mesh, const WColoredVertices& colorMap,
                                                                    const WColor& defaultColor = WColor( 1.0, 1.0, 1.0, 1.0 ),
                                                                    bool includeNormals = false,
                                                                    bool lighting = false
@@ -158,9 +184,9 @@ namespace wge
      * \param defaultColor This color is used in case the useMeshColor parameter is false or no colors are defined in the mesh.
      * \param useMeshColor If true, the mesh color is used. If false, the defaultColor is used.
      *
-     * \return an wosg::Geometry containing the mesh as lines
+     * \return an osg::Geometry containing the mesh as lines
      */
-    osg::ref_ptr< wosg::Geometry > convertToOsgGeometryLines( WTriangleMesh::SPtr mesh,
+    osg::ref_ptr< osg::Geometry > convertToOsgGeometryLines( WTriangleMesh::SPtr mesh,
                                                              const WColor& defaultColor = WColor( 1.0, 1.0, 1.0, 1.0 ),
                                                              bool useMeshColor = true );
 
