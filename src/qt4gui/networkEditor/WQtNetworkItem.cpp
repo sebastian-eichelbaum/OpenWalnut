@@ -188,8 +188,8 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WMo
     m_itemBestWidth = boundingRect().width();
 
     // get notified on position changes:
-    //connect( this, SIGNAL( xChanged() ), this, SLOT( positionChanged() ) );
-    //connect( this, SIGNAL( yChanged() ), this, SLOT( positionChanged() ) );
+    connect( this, SIGNAL( xChanged() ), this, SLOT( positionChanged() ) );
+    connect( this, SIGNAL( yChanged() ), this, SLOT( positionChanged() ) );
 
     m_animationTimer->start();
 }
@@ -875,6 +875,7 @@ void WQtNetworkItem::moveFinished()
 {
     // we have disabled the item to avoid clicking and dragging during move
     m_noDrag = false;
+    positionChanged();
 }
 
 void WQtNetworkItem::setLayedOut( bool layedOut )

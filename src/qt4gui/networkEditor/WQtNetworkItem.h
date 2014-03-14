@@ -208,6 +208,13 @@ public:
      * \return true if manually placed.
      */
     bool wasManuallyPlaced() const;
+
+public slots:
+    /**
+     * Called whenever the item moves around.
+     */
+    void positionChanged();
+
 signals:
     /**
      * The item is now dead. Animation completed and item was removed from scene. Do not use this to delete the item.
@@ -430,11 +437,6 @@ private slots:
      * \param value the value between 0 and 1
      */
     void animationBlendInTick( qreal value );
-
-    /**
-     * Called whenever the item moves around.
-     */
-    void positionChanged();
 
     /**
      * Called whenever a animated move was finished.
