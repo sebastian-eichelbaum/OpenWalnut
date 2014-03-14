@@ -529,21 +529,6 @@ bool WQtControlPanel::event( QEvent* event )
     // a connector was updated
     if( event->type() == WQT_MODULE_CONNECTOR_EVENT )
     {
-        // convert event to ready event
-        WModuleConnectorEvent* e1 = dynamic_cast< WModuleConnectorEvent* >( event );     // NOLINT
-        if( e1 )
-        {
-            // iterate tree items and find proper one -> check if selected
-            // NOTE: This could return multiple items here. But, the GUI always selects all of the same module or none. So it is enough to check
-            // the first item if it is selected to check whether the current module is active.
-            std::list< WQtTreeItem* > items = findItemsByModule( e1->getModule() );
-            if( !items.empty() && ( *items.begin() )->isSelected() )
-            {
-                // ok, the module is selected. Now, update the connectables lists (buttons and menu)
-                createCompatibleButtons( e1->getModule() );
-            }
-        }
-
         return true;
     }
 
