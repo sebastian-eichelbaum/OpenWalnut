@@ -232,12 +232,14 @@ void WGEGridNode::callback( osg::Node* /*node*/ )
         // color
         osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
         colors->push_back( m_bbColor );
+        colors->setBinding( osg::Array::BIND_OVERALL );
         m_boundaryGeode->getDrawable( 0 )->asGeometry()->setColorArray( colors );
 
         // set color for grid too
         if( m_innerGridGeode->getNumDrawables() )
         {
             osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+            colors->setBinding( osg::Array::BIND_OVERALL );
             colors->push_back( m_gridColor );
             m_innerGridGeode->getDrawable( 0 )->asGeometry()->setColorArray( colors );
         }
