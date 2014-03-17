@@ -65,6 +65,11 @@ uniform bool u_toRight = true;
 uniform bool u_toTop = false;
 
 /**
+ * Change transparency of the overlay.
+ */
+uniform float u_overlayOpacity;
+
+/**
  * Pixel position in [0,1]
  */
 varying vec2 v_pos;
@@ -96,6 +101,6 @@ void main()
     vec4 tex = texture2D( u_overlay, coord );
 
     // use texture coordinate to mix along the cylinder
-    gl_FragColor = vec4( tex.rgb, tex.a * valid );
+    gl_FragColor = vec4( tex.rgb, u_overlayOpacity * tex.a * valid );
 }
 

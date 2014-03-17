@@ -50,6 +50,11 @@ WGEViewerEffectImageOverlay::WGEViewerEffectImageOverlay():
     WPropBool moveToTop = m_properties->addProperty( "Move to Top", "Move the image to the top.", false );
     WPropBool moveToRight = m_properties->addProperty( "Move to Right", "Move the image to the right.", true );
 
+    WPropDouble opacity = m_properties->addProperty( "Opacity",
+        "Make the overlay transparent. Please be aware that the image itself might be transparent already.", 1.0 );
+    opacity->setMin( 0.0 );
+    opacity->setMax( 1.0 );
+
     osg::ref_ptr< WGEShader > overlayShader = new WGEShader( "WGECameraOverlayTexture" );
     overlayShader->apply( m_geode );
 
@@ -76,6 +81,8 @@ WGEViewerEffectImageOverlay::WGEViewerEffectImageOverlay():
     m_state->addUniform( new WGEPropertyUniform< WPropDouble >( "u_overlayScalePerc", scale ) );
     m_state->addUniform( new WGEPropertyUniform< WPropBool >( "u_toTop", moveToTop ) );
     m_state->addUniform( new WGEPropertyUniform< WPropBool >( "u_toRight", moveToRight ) );
+
+    m_state->addUniform( new WGEPropertyUniform< WPropDouble >( "u_overlayOpacity", opacity ) );
 
     // add a callback which handles changes in viewport size
     m_updater = new Updater();
