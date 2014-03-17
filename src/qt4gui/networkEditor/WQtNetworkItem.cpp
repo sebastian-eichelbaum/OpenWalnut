@@ -99,6 +99,8 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WMo
     m_animation->setTimeLine( m_animationTimer );
 
     connect( m_animationTimer, SIGNAL( valueChanged( qreal ) ), this, SLOT( animationBlendInTick( qreal ) ) );
+    connect( m_animationTimer, SIGNAL( finished() ), this, SLOT( positionChanged() ) );
+    connect( m_animationTimer, SIGNAL( valueChanged( qreal ) ), this, SLOT( positionChanged() ) );
 
     // scale animation
     float steps = 500.0;
