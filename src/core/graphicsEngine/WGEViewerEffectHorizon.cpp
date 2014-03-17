@@ -52,7 +52,7 @@ WGEViewerEffectHorizon::WGEViewerEffectHorizon():
     m_state->addUniform( new WGEPropertyUniform< WPropColor >( "u_top2Color", top2Color ) );
 
     // default cam is a post render cam. The Horizon needs to be done BEFORE everything else
-    setRenderOrder( WGECamera::NESTED_RENDER, 0 );
+    setRenderOrder( WGECamera::NESTED_RENDER, -1000 );
 
     osg::ref_ptr< WGEShader > horizonShader = new WGEShader( "WGECameraHorizon" );
     horizonShader->apply( m_geode );

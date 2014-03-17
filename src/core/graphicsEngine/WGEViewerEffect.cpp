@@ -44,15 +44,21 @@ WGEViewerEffect::WGEViewerEffect( std::string name, std::string description, con
 
     // some state options
     m_state = getOrCreateStateSet();
-    m_state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
-    m_state->setMode( GL_LIGHTING, osg::StateAttribute::PROTECTED );
-    m_state->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    m_state->setMode( GL_BLEND, osg::StateAttribute::PROTECTED );
-    m_state->setMode( GL_BLEND, osg::StateAttribute::ON );
+    m_state->setMode( GL_DEPTH_TEST,  osg::StateAttribute::PROTECTED |
+                                      osg::StateAttribute::OVERRIDE |
+                                      osg::StateAttribute::OFF );
+    m_state->setMode( GL_LIGHTING, osg::StateAttribute::PROTECTED |
+                                   osg::StateAttribute::OVERRIDE |
+                                   osg::StateAttribute::OFF );
+    m_state->setMode( GL_BLEND, osg::StateAttribute::PROTECTED |
+                                osg::StateAttribute::OVERRIDE |
+                                osg::StateAttribute::ON );
 
     osg::Depth* depth = new osg::Depth;
     depth->setWriteMask( false );
-    m_state->setAttributeAndModes( depth, osg::StateAttribute::ON );
+    m_state->setAttributeAndModes( depth, osg::StateAttribute::PROTECTED |
+                                          osg::StateAttribute::OVERRIDE |
+                                          osg::StateAttribute::ON );
 
     m_geode = wge::genFinitePlane( osg::Vec3( 0.0, 0.0, 0.0 ),
                                    osg::Vec3( 1.0, 0.0, 0.0 ),

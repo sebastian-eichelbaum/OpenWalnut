@@ -57,5 +57,7 @@ void main()
 
     // use texture coordinate to mix along the cylinder
     gl_FragColor = vec4( color.rgb, 1.0 );
+    // we disabled depth write in WGEViewerEffect.cpp, but it does not seem to work ...
+    gl_FragDepth = 0.9999999;
 #endif
 }
