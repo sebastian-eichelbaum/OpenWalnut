@@ -53,17 +53,18 @@
 
 #include "WGEViewer.h"
 
-WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int x, int y,
-    int width, int height, WGECamera::ProjectionMode projectionMode )
-    : WGEGraphicsWindow( wdata, x, y, width, height ),
-      boost::enable_shared_from_this< WGEViewer >(),
-      m_name( name ),
-      m_rendered( WBoolFlag::SPtr( new WBoolFlag( new WConditionOneShot(), false ) ) ),
-      m_screenCapture( new WGEScreenCapture() ),
-      m_inAnimationMode( false ),
-      m_effectHorizon( new WGEViewerEffectHorizon() ),
-      m_effectVignette( new WGEViewerEffectVignette() ),
-      m_effectImageOverlay( new WGEViewerEffectImageOverlay() )
+WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int x, int y, int width, int height,
+                      WGECamera::ProjectionMode projectionMode ):
+    WGEGraphicsWindow( wdata, x, y, width, height ),
+    boost::enable_shared_from_this< WGEViewer >(),
+    m_name( name ),
+    m_scene( new WGEGroupNode ),
+    m_rendered( WBoolFlag::SPtr( new WBoolFlag( new WConditionOneShot(), false ) ) ),
+    m_screenCapture( new WGEScreenCapture() ),
+    m_inAnimationMode( false ),
+    m_effectHorizon( new WGEViewerEffectHorizon() ),
+    m_effectVignette( new WGEViewerEffectVignette() ),
+    m_effectImageOverlay( new WGEViewerEffectImageOverlay() )
 {
     try
     {
@@ -128,6 +129,13 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
         effects->addProperty( m_effectVignette->getProperties() );
         effects->addProperty( m_effectImageOverlay->getProperties() );
 
+        // scene node
+        m_View->setSceneData( m_scene );
+        // add effects to it:
+        m_scene->insert( m_effectVignette );
+        m_scene->insert( m_effectImageOverlay );
+        m_scene->insert( m_effectHorizon );
+
         // apply the above default
         updateThrowing();
         updateBgColor();
@@ -180,20 +188,21 @@ osg::ref_ptr<WGECamera> WGEViewer::getCamera()
 
 void WGEViewer::setScene( osg::ref_ptr< WGEGroupNode > node )
 {
+    m_sceneMainNode = node;
+
     m_effectImageOverlay->setReferenceViewer( shared_from_this() );
 
-    m_View->setSceneData( node );
-    m_scene = node;
-
-    // add effects:
-    node->insert( m_effectVignette );
-    node->insert( m_effectImageOverlay );
-    node->insert( m_effectHorizon );
+    m_scene->clear();
+    m_scene->insert( m_sceneMainNode );
+    // add effects to scene node. We cleared it earlier.
+    m_scene->insert( m_effectVignette );
+    m_scene->insert( m_effectImageOverlay );
+    m_scene->insert( m_effectHorizon );
 }
 
 osg::ref_ptr< WGEGroupNode > WGEViewer::getScene()
 {
-    return m_scene;
+    return m_sceneMainNode;
 }
 
 void WGEViewer::updateThrowing()
@@ -376,3 +385,11 @@ WProperties::SPtr WGEViewer::getProperties() const
 {
     return m_properties;
 }
+
+void WGEViewer::setEffectsActiveDefault( bool activeByDefault )
+{
+    getBackground()->setEnabledByDefault( activeByDefault );
+    getImageOverlay()->setEnabledByDefault( activeByDefault );
+    getVignette()->setEnabledByDefault( activeByDefault );
+}
+

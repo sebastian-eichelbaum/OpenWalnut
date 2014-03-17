@@ -71,15 +71,21 @@ public:
      *
      * \return true if active
      */
-    bool isEnabled() const;
+    virtual bool isEnabled() const;
 
     /**
      * Set the effect enabled.
      *
      * \param enable true to enable. False to disable.
      */
-    void setEnabled( bool enable = true );
+    virtual void setEnabled( bool enable = true );
 
+    /**
+     * Use this to activate an effect by default. This sets the default value of the active property. It can be overwritten by user settings.
+     *
+     * \param enableByDefault activate this effect by default if true.
+     */
+    virtual void setEnabledByDefault( bool enableByDefault = true );
 protected:
     /**
      * The fullscreen quad

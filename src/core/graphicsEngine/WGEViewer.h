@@ -294,6 +294,13 @@ public:
     WGEViewerEffectVignette::ConstSPtr getVignette() const;
 
     /**
+     * Activate viewer effects by default. If the user has deactivated them, this method does not cause any change.
+     *
+     * \param activeByDefault if true all effects are active by default
+     */
+    void setEffectsActiveDefault( bool activeByDefault = true );
+
+    /**
      * Return a pointer to the properties object of the view.
      *
      * \return the properties.
@@ -324,6 +331,11 @@ protected:
      * reference to the scene which is displayed by viewer
      */
     osg::ref_ptr< WGEGroupNode > m_scene;
+
+    /**
+     * Keep the currently set scene node. Unlike m_scene, it is the user set node.
+     */
+    osg::ref_ptr< WGEGroupNode > m_sceneMainNode;
 
     /**
      * This flag is true and notifies after the first rendered frame.

@@ -254,6 +254,8 @@ void WMainWindow::setupGUI()
     m_glDock->setDocumentMode( true );
     setCentralWidget( m_glDock );
     m_mainGLDock = new WQtGLDockWidget( "Main View", "3D View", m_glDock );
+    // activate effects for this view by default
+    m_mainGLDock->getGLWidget()->getViewer()->setEffectsActiveDefault();
     m_mainGLDock->getGLWidget()->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
     m_mainGLDock->restoreSettings();
     m_mainGLWidget = m_mainGLDock->getGLWidget();
