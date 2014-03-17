@@ -32,12 +32,12 @@ uniform sampler2D u_overlay;
 /**
  * Overlay Texture Width in pixels.
  */
-uniform float u_overlayWidth = 1000;
+uniform float u_overlayWidth = 1024;
 
 /**
  * Overlay Texture height in pixels.
  */
-uniform float u_overlayHeight = 250;
+uniform float u_overlayHeight = 256;
 
 /**
  * Viewport width in pixel
@@ -85,10 +85,16 @@ void main()
     float scaledOverlayWidth = u_overlayWidth * scaler;
     float scaledOverlayHeight = u_overlayHeight * scaler;
 
+    float limitScaleX = min( 1.0, u_viewportWidth / scaledOverlayWidth );
+    float limitScaleY = min( 1.0, u_viewportHeight / scaledOverlayHeight );
+
+    scaledOverlayWidth *= min( limitScaleX, limitScaleY );
+    scaledOverlayHeight *= min( limitScaleX, limitScaleY );
+
     // position right:
     pixel += vec2(
-                   float( u_toRight ) * -abs( u_viewportWidth - scaledOverlayWidth ),
-                   float( u_toTop ) * -abs( u_viewportHeight - scaledOverlayHeight )
+                   float( u_toRight ) * -( u_viewportWidth - scaledOverlayWidth ),
+                   float( u_toTop ) * -( u_viewportHeight - scaledOverlayHeight )
                  );
 
     // absolute size in texture coordinate system

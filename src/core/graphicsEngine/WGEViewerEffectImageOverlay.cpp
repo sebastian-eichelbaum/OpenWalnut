@@ -53,7 +53,7 @@ WGEViewerEffectImageOverlay::WGEViewerEffectImageOverlay():
     WPropDouble opacity = m_properties->addProperty( "Opacity",
         "Make the overlay transparent. Please be aware that the image itself might be transparent already.", 1.0 );
     opacity->setMin( 0.0 );
-    opacity->setMax( 1.0 );
+    opacity->setMax( 3.0 );
 
     osg::ref_ptr< WGEShader > overlayShader = new WGEShader( "WGECameraOverlayTexture" );
     overlayShader->apply( m_geode );
