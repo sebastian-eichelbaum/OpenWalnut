@@ -34,8 +34,6 @@
 
 #include "../widgets/labeling/WGELabel.h"
 
-
-
 /**
  * This node is able to represent a grid in certain ways. It can show its boundary or the whole grid if desired.
  */
