@@ -69,7 +69,8 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
         #endif
         // this will contain the filename afterwards
         boost::smatch matches;
-        bool matchLibName = boost::regex_match( i->path().filename().string(), matches, CheckLibMMP );
+        std::string fn = i->path().filename().string();
+        bool matchLibName = boost::regex_match( fn, matches, CheckLibMMP );
         std::string libBaseName = matchLibName ? std::string( matches[2] ) : "";
 
         if( !boost::filesystem::is_directory( *i ) &&
