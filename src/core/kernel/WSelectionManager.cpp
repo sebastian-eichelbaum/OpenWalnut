@@ -56,14 +56,6 @@ WSelectionManager::WSelectionManager() :
     m_coronalShow = m_sliceGroup->addProperty( "Show Coronal Slice", "Slice visible?", true, true );
     m_sagittalShow = m_sliceGroup->addProperty( "Show Sagittal Slice", "Slice visible?", true, true );
 
-    // until now, no bbox information is available.
-    m_axialPos->setMin( 0.0 );
-    m_coronalPos->setMin( 0.0 );
-    m_sagittalPos->setMin( 0.0 );
-    m_axialPos->setMax( 0.0 );
-    m_coronalPos->setMax( 0.0 );
-    m_sagittalPos->setMax( 0.0 );
-
     m_axialUpdateConnection = m_axialPos->getUpdateCondition()->subscribeSignal(
         boost::bind( &WSelectionManager::updateCrosshairPosition, this )
     );

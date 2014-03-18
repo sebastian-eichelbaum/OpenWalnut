@@ -158,9 +158,9 @@ void WMNavigationSlices::initOSG()
     if( m_first )
     {
         m_first = false;
-        m_xPos->set( midBB[0] );
-        m_yPos->set( midBB[1] );
-        m_zPos->set( midBB[2] );
+        m_xPos->setRecommendedValue( midBB[0] );
+        m_yPos->setRecommendedValue( midBB[1] );
+        m_zPos->setRecommendedValue( midBB[2] );
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

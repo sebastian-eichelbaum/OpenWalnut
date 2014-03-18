@@ -236,7 +236,7 @@ void WModuleProjectFileCombiner::apply()
                 bool result = prop->setAsString( ( *iter ).second );
                 if( !result )
                 {
-                    addError( "Failed to set property " + ( *iter ).first.second + " in module \"" + m->getName() + "\"." );
+                    addWarning( "Failed to set property " + ( *iter ).first.second + " in module \"" + m->getName() + "\"." );
                 }
             }
             else
