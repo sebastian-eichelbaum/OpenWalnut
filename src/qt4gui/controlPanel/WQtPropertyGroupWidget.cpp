@@ -80,6 +80,7 @@ WQtPropertyGroupWidget::WQtPropertyGroupWidget( WPropertyGroupBase::SPtr group, 
     {
         addProp( *iter );
     }
+    propAccess.reset();
     addSpacer();
 
     // empty groups are hidden too
