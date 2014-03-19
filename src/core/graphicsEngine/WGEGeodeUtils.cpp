@@ -540,6 +540,7 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometryLines( WTriangleMesh::SPt
     osg::StateSet* stateset = geometry->getOrCreateStateSet();
     stateset->setAttributeAndModes( new osg::LineWidth( 1 ), osg::StateAttribute::ON );
     stateset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    stateset->setMode( GL_BLEND, osg::StateAttribute::ON );
 
     return geometry;
 }
