@@ -17,6 +17,8 @@ Build-Depends: debhelper (>= 8.0.0),
                libnifti-dev (>= 2.0.0),
                zlib1g-dev (>= 1:1.2.3.4.dfsg)
 Standards-Version: 3.9.3
+Vcs-hg: http://source.openwalnut.org
+Vcs-browser: http://source.openwalnut.org
 Homepage: http://www.openwalnut.org
 
 
