@@ -25,7 +25,7 @@ Homepage: http://www.openwalnut.org
 Package: libopenwalnut1
 Section: libs
 Architecture: any
-Depends: ttf-liberation (>= 1.0.0), ${shlibs:Depends}, ${misc:Depends}
+Depends: fonts-liberation (>= 1.0.0), ${shlibs:Depends}, ${misc:Depends}
 Suggests: nvidia-glx | fglrx-glx
 Description: Framework for multi-modal medical and brain data visualization
  OpenWalnut is a tool for multi-modal medical and brain data visualization. Its
