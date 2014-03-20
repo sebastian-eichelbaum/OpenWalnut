@@ -24,6 +24,7 @@ override_dh_auto_configure:
 							-DOW_USE_CUDA=OFF\
 							-DOW_USE_OPENCL=OFF\
 							-DOW_USE_TESTS=OFF\
+							-DOW_UI_SCRIPT=OFF\
 							-DOW_PACKAGE_BUILD=ON\
 								-DOW_PACKAGE_NOCOPY_LICENSE=ON\
 								-DOW_PACKAGE_NOCOPY_COREFONTS=ON\
