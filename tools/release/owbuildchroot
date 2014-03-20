@@ -195,17 +195,12 @@ chroot_setup_suite()
     # NOTE: I tested only debian sid and ubuntu natty and maverick. Maverick currently has some problem with libopenscenegraph.
     #       Please add others here if needed
     case "$SUITE" in
-        quantal | precise | oneiric | natty | maverick )
+        raring | saucy | quantal | precise | oneiric | natty | maverick )
             # multiverse and universe needed for several packs
             echo "deb http://de.archive.ubuntu.com/ubuntu $SUITE restricted universe multiverse" > ./$CHROOTDIR/etc/apt/sources.list.d/universeMultiverse.sources.list
 
             # they provide qtwebkit
             chroot_do apt-get -y --allow-unauthenticated install libqtwebkit-dev
-        ;;
-        lucid )
-            # lucid does not provide libqtwebkit-qt .. so, do not install. only add multi/universe
-            # multiverse and universe needed for several packs
-            echo "deb http://de.archive.ubuntu.com/ubuntu $SUITE restricted universe multiverse" > ./$CHROOTDIR/etc/apt/sources.list.d/universeMultiverse.sources.list
         ;;
         sid | wheezy )
             # they provide qtwebkit
@@ -228,7 +223,7 @@ chroot_finalize_suite()
 {
     # handle some special suites
     case "$SUITE" in
-        quantal | precise | oneiric | natty | maverick | lucid )
+        saucy | raring | quantal | precise | oneiric | natty | maverick | lucid )
             # ubuntu hack: kill this xapian-index stuff. If not done, chroot_umount will fail
             chroot_do killall -q update-apt-xapian-index | echo
         ;;
