@@ -4,7 +4,7 @@ openwalnut (OWPACK_VERSION-1) unstable; urgency=low
   * Several bug fixes
   * See http://www.openwalnut.org/versions/2
 
- -- Sebastian Eichelbaum <eichelbaum@informatik.uni-leipzig.de>  Wed, 19 Mar 2014 17:46:12 +0100
+ -- Sebastian Eichelbaum <openwalnut@nemtics.com>  Wed, 19 Mar 2014 17:46:12 +0100
 
 openwalnut (1.3.1-1) unstable; urgency=low
 

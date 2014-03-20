@@ -1,7 +1,7 @@
 Source: openwalnut
 Section: science
 Priority: extra
-Maintainer: Sebastian Eichelbaum <eichelbaum@informatik.uni-leipzig.de>
+Maintainer: Sebastian Eichelbaum <openwalnut@nemtics.com>
 Uploaders: Yaroslav Halchenko <debian@onerussian.com>, Michael Hanke <michael.hanke@gmail.com>
 Build-Depends: debhelper (>= 8.0.0),
                cmake (>= 2.8.0), doxygen (>= 1.6.3), graphviz (>= 2.26.3),
