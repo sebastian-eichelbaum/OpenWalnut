@@ -35,7 +35,6 @@
 
 #include <osg/io_utils>
 
-#include <Eigen/Sparse>
 #include <Eigen/Eigenvalues>
 
 #include "../common/WAssert.h"
