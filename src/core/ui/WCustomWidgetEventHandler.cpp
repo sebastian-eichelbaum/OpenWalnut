@@ -146,7 +146,7 @@ bool WCustomWidgetEventHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA:
                 break;
             }
             default:
-                errorLog() << "Unkown GUI Event: " << et;
+                errorLog() << "Unknown GUI Event: " << et;
                 return false;
         }
 
