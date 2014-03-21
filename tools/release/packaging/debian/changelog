@@ -2,8 +2,8 @@ openwalnut (OWPACK_VERSION-1) unstable; urgency=low
 
   * Major functionality and stability improvements.
   * Several bug fixes
-  * Changeg dependency on ttf-liberation to fonts-liberation (Closes: #722405)
-  * OpenWalnut not works properly with OpenSceneGraph 3.2 (Closes: #718381)
+  * Changed openwalnut-qt4 dependency on ttf-liberation to fonts-liberation (Closes: #722405)
+  * OpenWalnut now works properly with OpenSceneGraph 3.2 (Closes: #718381)
   * See http://www.openwalnut.org/versions/2
 
  -- Sebastian Eichelbaum <openwalnut@nemtics.com>  Wed, 19 Mar 2014 17:46:12 +0100
