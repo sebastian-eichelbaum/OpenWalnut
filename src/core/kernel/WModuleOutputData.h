@@ -121,7 +121,7 @@ public:
     };
 
     /**
-     * Update the data associated
+     * Update the data associated.
      *
      * \param data the data do send
      */
@@ -195,11 +195,13 @@ public:
     };
 
 protected:
-private:
     /**
      * The data associated with this connector.
+     *
+     * \note If you modify this or its contents, consider triggering an update. See \ref updateData() for details.
      */
     boost::shared_ptr< T > m_data;
+private:
 };
 
 template < typename T >
