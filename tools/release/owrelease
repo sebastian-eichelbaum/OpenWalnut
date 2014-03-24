@@ -106,6 +106,10 @@ Bootstrap()
         echo " * Cloning failed. Wrong repository?"
         exit 1
     fi
+    echo "* Creating CHANGELOG."
+    hg log --style changelog "$CHECKOUT_DIR" > "$CHECKOUT_DIR/CHANGELOG"
+    cp $CHECKOUT_DIR/CHANGELOG $CHECKOUT_DIR/tools/release/packaging/debian/changelog
+    gzip -9 $CHECKOUT_DIR/tools/release/packaging/debian/changelog
 
     echo "* Creating release directory \"$RELEASE_DIR\"."
     mkdir -p $RELEASE_DIR
