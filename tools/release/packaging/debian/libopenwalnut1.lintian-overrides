@@ -1,0 +1,4 @@
+# dpkg-gensymbols generates an empty file?!
+libopenwalnut1: no-symbols-control-file
+# We include code from libEEP (http://sourceforge.net/projects/libeep/) in libopenwalnut_eep.so. They use exit calls unfortunately.
+libopenwalnut1: shlib-calls-exit
