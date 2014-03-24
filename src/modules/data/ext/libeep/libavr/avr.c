@@ -31,11 +31,7 @@
 #include <eep/eepio.h>
 #include <eep/eepmem.h>
 #include <eep/eepraw.h>
-
-#if defined(WIN32) && !defined(__CYGWIN__)
-#define strcasecmp stricmp
-#define snprintf _snprintf
-#endif
+#include <eep/winsafe.h>
 
 #ifdef COMPILE_RCS
 char RCS_avr_h[] = RCS_AVR_H;
@@ -150,7 +146,7 @@ int get_avr_history(avr_t *avr, FILE *f) {
  unsigned short notEOH = 1;
  
   init_avr_history( avr );
-  fseek(f, AVROFS_HISTORY(avr), SEEK_SET);
+  eepio_fseek(f, AVROFS_HISTORY(avr), SEEK_SET);
   got = fgets(line, strlen(AVRHIST_TAG) + 1, f); 
   
   if( got && !strncmp(line,AVRHIST_TAG,9) ) {
@@ -177,7 +173,7 @@ int put_avr_history( avr_t *avr, FILE *f ) {
   int i;
       
   if( avr->histc > 0 ) {      
-     fseek(f, AVROFS_HISTORY(avr), SEEK_SET);
+     eepio_fseek(f, AVROFS_HISTORY(avr), SEEK_SET);
   
      fputs(AVRHIST_TAG, f);
      fputs("\n", f); /* maybe, later we'll log the histsize after the tag */
@@ -233,7 +229,7 @@ void show_avr_history( avr_t *avr, int linelen ) {
 		   if( str[0] == '\n')  { str++; len--; }
 		   if( len == 0 ) continue;
 		   n = (len > lineleft ? lineleft : len);
-		   c = fwrite(str, sizeof(char), n, stdout);
+		   c = eepio_fwrite(str, sizeof(char), n, stdout);
 		   if( c != n) 
                        syserror("output error"); 
 	           str += c; 
@@ -242,7 +238,7 @@ void show_avr_history( avr_t *avr, int linelen ) {
 		   if( str[-1] == '\n' ) {
 			   lineleft = linelen;
 		    } else if(len) {
-                           fwrite("\n",sizeof(char),1,stdout);
+                           eepio_fwrite("\n",sizeof(char),1,stdout);
 			   lineleft = linelen;			
 		    } else { 
                           lineleft = lineleft > c ? lineleft - c : linelen;
@@ -298,34 +294,34 @@ int get_avr_header(avr_t *avr, FILE *f)
   int w;
   
   /* load the format information */
-  fseek(f, AVROFS_HEADER_SIZE, SEEK_SET);
+  eepio_fseek(f, AVROFS_HEADER_SIZE, SEEK_SET);
   read_u16(f, &w);
   avr->header_size = w;
-  fseek(f, AVROFS_CHANNEL_HEADER_SIZE, SEEK_SET);
+  eepio_fseek(f, AVROFS_CHANNEL_HEADER_SIZE, SEEK_SET);
   read_u16(f, &w);
   avr->channel_header_size = w;
   
-  fseek(f, AVROFS_CHANC, SEEK_SET);
+  eepio_fseek(f, AVROFS_CHANC, SEEK_SET);
   read_u16(f, &v);
   avr->chanc = v;
   
-  fseek(f, AVROFS_SAMPLEC, SEEK_SET);
+  eepio_fseek(f, AVROFS_SAMPLEC, SEEK_SET);
   read_u16(f, &v);
   avr->samplec = v;
 
-  fseek(f, AVROFS_TRIALC, SEEK_SET);
+  eepio_fseek(f, AVROFS_TRIALC, SEEK_SET);
   read_u16(f, &v);
   avr->trialc = v;
 
-  fseek(f, AVROFS_REJTRIALC, SEEK_SET);
+  eepio_fseek(f, AVROFS_REJTRIALC, SEEK_SET);
   read_u16(f, &v);
   avr->rejtrialc = v;
   
-  fseek(f, AVROFS_STARTTIME, SEEK_SET);
+  eepio_fseek(f, AVROFS_STARTTIME, SEEK_SET);
   read_f32(f, &t);
   if (t > 1E6 || t < -1E6) return 1;
   
-  fseek(f, AVROFS_PERIOD, SEEK_SET);
+  eepio_fseek(f, AVROFS_PERIOD, SEEK_SET);
   read_f32(f, &p);
   if (p <= 0.0001 || p > 1E6) return 1;
   
@@ -333,14 +329,14 @@ int get_avr_header(avr_t *avr, FILE *f)
   avr->sample0 = (int) FRND(t / p);
   
   /* condition label has trailing spaces - ignore them */
-  fseek(f, AVROFS_CONDLAB, SEEK_SET);
+  eepio_fseek(f, AVROFS_CONDLAB, SEEK_SET);
   i = 0;
   while (i < 11 && (avr->condlab[i++] = fgetc(f)) != ' ');
   avr->condlab[i - 1] = '\0';
 
   /* color code uses 8 chars always */
-  fseek(f, AVROFS_CONDCOL, SEEK_SET);
-  fread(avr->condcol, 8, 1, f);
+  eepio_fseek(f, AVROFS_CONDCOL, SEEK_SET);
+  eepio_fread(avr->condcol, 8, 1, f);
   avr->condcol[8] = '\0';
   
   avr->mtrialc = (float) (avr->trialc - avr->rejtrialc);
@@ -356,12 +352,12 @@ int get_chan_header(avr_t *avr, FILE *f, short chan)
   const int ofs = avr->header_size + chan * avr->channel_header_size;
   avrchan_t *c = &(avr->chanv[chan]);
   
-  fseek(f, ofs + AVROFS_LAB, SEEK_SET); 
+  eepio_fseek(f, ofs + AVROFS_LAB, SEEK_SET); 
   i = 0;
   while (i < 11 && (c->lab[i++] = fgetc(f)) != ' ');
   c->lab[i - 1] = '\0';
   
-  fseek(f, ofs + AVROFS_FILEPOS, SEEK_SET);
+  eepio_fseek(f, ofs + AVROFS_FILEPOS, SEEK_SET);
   read_u32(f, &(c->filepos));
   
   return ferror(f);
@@ -369,26 +365,26 @@ int get_chan_header(avr_t *avr, FILE *f, short chan)
 
 int put_avr_header(avr_t *avr, FILE *f)
 {
-  fseek(f, 0, SEEK_SET);
+  eepio_fseek(f, 0, SEEK_SET);
   write_u16(f, avr->header_size);
   write_u16(f, avr->channel_header_size);
-  fseek(f, AVROFS_CHANC, SEEK_SET);
+  eepio_fseek(f, AVROFS_CHANC, SEEK_SET);
   write_u16(f, avr->chanc);
-  fseek(f, AVROFS_SAMPLEC, SEEK_SET);
+  eepio_fseek(f, AVROFS_SAMPLEC, SEEK_SET);
   write_u16(f, avr->samplec);
-  fseek(f, AVROFS_TRIALC, SEEK_SET);
+  eepio_fseek(f, AVROFS_TRIALC, SEEK_SET);
   write_u16(f, avr->trialc);
-  fseek(f, AVROFS_REJTRIALC, SEEK_SET);
+  eepio_fseek(f, AVROFS_REJTRIALC, SEEK_SET);
   write_u16(f, avr->rejtrialc);
-  fseek(f, AVROFS_STARTTIME, SEEK_SET);
+  eepio_fseek(f, AVROFS_STARTTIME, SEEK_SET);
   write_f32(f, (float) avr->sample0 * avr->period * 1000);
-  fseek(f, AVROFS_PERIOD, SEEK_SET);
+  eepio_fseek(f, AVROFS_PERIOD, SEEK_SET);
   write_f32(f, avr->period * 1000);
   
-  fseek(f, AVROFS_CONDLAB, SEEK_SET);
+  eepio_fseek(f, AVROFS_CONDLAB, SEEK_SET);
   avr->condlab[10] = '\0';
   fprintf(f, "%-10s", avr->condlab);       /* strings are filled with spaces! */
-  fseek(f, AVROFS_CONDCOL, SEEK_SET);
+  eepio_fseek(f, AVROFS_CONDCOL, SEEK_SET);
   avr->condcol[8] = '\0';
   fprintf(f, "%-8s", avr->condcol);
   
@@ -404,16 +400,16 @@ int put_chan_header(avr_t *avr, FILE *f, short chan)
   char dummy[2] = {'\0','\0'};
   
   
-  fseek(f, ofs + AVROFS_LAB, SEEK_SET);
+  eepio_fseek(f, ofs + AVROFS_LAB, SEEK_SET);
   c->lab[10] = '\0';
   fprintf(f, "%-10s", c->lab);
   
   /* setting the file pointer */
-  fseek(f, ofs + AVROFS_FILEPOS, SEEK_SET);
+  eepio_fseek(f, ofs + AVROFS_FILEPOS, SEEK_SET);
   write_u32(f, c->filepos);
   
   /* insert dummy */
-  fwrite(dummy,2,1,f);
+  eepio_fwrite(dummy,2,1,f);
   
   
   return ferror(f);
@@ -439,7 +435,7 @@ unsigned short get_avt_rejectc(avr_t *avr)
   return avr->rejtrialc;
 }  			
 
-slen_t get_avr_samplec(avr_t *avr)
+uint64_t get_avr_samplec(avr_t *avr)
 {
    return avr->samplec;
 }   
@@ -483,7 +479,7 @@ int avropen_f(avr_t *avr, FILE *f)
   read_u16(f, &w);
   avr->channel_header_size = w;
   
-  /* this function depends on the default header - it doesn't fseek */
+  /* this function depends on the default header - it doesn't eepio_fseek */
   if (avr->header_size != 38 || avr->channel_header_size != 16)
     return avropen(avr, f);
   
@@ -509,20 +505,20 @@ int avropen_f(avr_t *avr, FILE *f)
   
   /* condition label has trailing spaces - ignore */
   labbuf[10] = '\0';
-  fread(labbuf, 10, 1, f);
+  eepio_fread(labbuf, 10, 1, f);
   sscanf(labbuf, "%s", avr->condlab);
 
   /* color code uses 8 chars always */
-  fread(avr->condcol, 8, 1, f);
+  eepio_fread(avr->condcol, 8, 1, f);
   avr->condcol[8] = '\0';
   
   avr->chanv = (avrchan_t *)
     v_malloc(avr->chanc * sizeof(avrchan_t), "avrchanv");
   for (chan = 0; chan < avr->chanc; chan++) {
-    fread(labbuf, 10, 1, f);
+    eepio_fread(labbuf, 10, 1, f);
     sscanf(labbuf, "%s", avr->chanv[chan].lab);
     read_s32(f, &(avr->chanv[chan].filepos));
-    fread(dummy, 2, 1, f);
+    eepio_fread(dummy, 2, 1, f);
   }
 
   return ferror(f);
@@ -575,23 +571,23 @@ int avrseek (avr_t *avr, FILE *f, short chan, short band)
   int r;
   long offs = band * 4 * avr->samplec;
      
-  r = fseek(f, (long) avr->chanv[chan].filepos + offs, SEEK_SET);
+  r = eepio_fseek(f, (long) avr->chanv[chan].filepos + offs, SEEK_SET);
   
   return (r ? AVRERR_FILE : AVRERR_NONE);
 }
 
-int avrread (FILE *f, float *v, slen_t c)
+int avrread (FILE *f, float *v, uint64_t c)
 {
-  slen_t r;
+  uint64_t r;
   
   r = vread_f32(f, v, c);  
   
   return (r != c ? AVRERR_FILE : AVRERR_NONE);
 }
 
-int avrwrite(FILE *f, float *v, slen_t c)
+int avrwrite(FILE *f, float *v, uint64_t c)
 {
-  slen_t r;
+  uint64_t r;
   
   r = vwrite_f32(f, v, c);
    
@@ -633,7 +629,7 @@ short avr_eep_get_chan_index(avr_t *avr, char *lab, short try_first)
 }
 
 float **avr_load(avr_t *avr, FILE *f, float **v, 
-              chanlab_t *chanv, short chanc, slen_t sample0, slen_t samplec,
+              chanlab_t *chanv, short chanc, uint64_t sample0, uint64_t samplec,
               int band)
 {
   float *in = (float *) v_malloc(avr->samplec * sizeof(float), "in");
@@ -678,11 +674,11 @@ void avr_save(avr_t *avr, FILE *f, float **v, int band)
   }
 }
 
-int avr_read_slice(avr_t *avr, FILE *Avr, slen_t start, slen_t length, 
+int avr_read_slice(avr_t *avr, FILE *Avr, uint64_t start, uint64_t length, 
                     chanlab_t *chanv, short chanc, float *slice)
 {
   short chan, i;
-  slen_t sample;
+  uint64_t sample;
   float *in;
   
   if (length == 0) length = 1;

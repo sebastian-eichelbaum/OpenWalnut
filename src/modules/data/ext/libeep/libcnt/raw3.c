@@ -31,13 +31,13 @@
 #include <math.h>
 #include <assert.h>
 
+#include <cnt/cnt_private.h>
 #include <cnt/raw3.h>
 
 #ifdef COMPILE_RCS
 char RCS_raw3_h[] = RCS_RAW3_H;
 char RCS_raw3_c[] = "$RCSfile: raw3.c,v $ $Revision: 2415 $";
 #endif
-
 
 /* #ifdef RAW3_CHECK obsolete */
 /* indicator flags for the citical compression methods */
@@ -46,8 +46,12 @@ short ERR_FLAG_0  = 0;
 short ERR_FLAG_EPOCH = 0;
 /* #endif */
 
-void    raw3_reset_ERR_FLAG_EPOCH(void) { ERR_FLAG_EPOCH = 0; }
-short   raw3_ERR_FLAG_EPOCH(void)       { return ERR_FLAG_EPOCH; }
+void    raw3_set_ERR_FLAG_16(short n) { ERR_FLAG_16 = n; }
+short   raw3_get_ERR_FLAG_16()        { return ERR_FLAG_16; }
+void    raw3_set_ERR_FLAG_0(short n) { ERR_FLAG_0 = n; }
+short   raw3_get_ERR_FLAG_0()        { return ERR_FLAG_0; }
+void    raw3_set_ERR_FLAG_EPOCH(short n) { ERR_FLAG_EPOCH = n; }
+short   raw3_get_ERR_FLAG_EPOCH()        { return ERR_FLAG_EPOCH; }
 
 unsigned char CheckVerbose = 0;
 void raw3_setVerbose(int onoff)
@@ -72,16 +76,10 @@ void raw3_setVerbose(int onoff)
 #define RAW3_TIME2_32 10
 #define RAW3_CHAN_32  11
 
-
-
-
 /*
   find the number of bits needed to store the passed (signed!) value
 */
 
-#ifdef __GNUC__
-inline
-#endif
 int bitc(sraw_t x)
 {
   static int nbits[128] = {
@@ -118,7 +116,6 @@ int huffman_size(int *bitfreq, int n, int *nbits, int *nexcbits)
   int lmin = 1000000000;
   int lcur;
   int  i, j, nexc;
-
 
   /* don't store with one bit per sample point */
   bitfreq[2] += bitfreq[1]; bitfreq[1] = 0;
@@ -313,7 +310,6 @@ int huffman(sraw_t *in, int n, int method, int nbits, int nexcbits,
     }
   }
 
-
   else if (method == RAW3_COPY_32) {
     nout = 1;
     for (nin = 0; nin < n; nin++) {
@@ -330,7 +326,6 @@ int huffman(sraw_t *in, int n, int method, int nbits, int nexcbits,
 
   return nout;
 }
-
 
 int dehuffman16(unsigned char *in, int n, int *method, sraw_t *out)
 {
@@ -390,7 +385,7 @@ int dehuffman16(unsigned char *in, int n, int *method, sraw_t *out)
          fprintf(stderr,"\nlibeep: critical compression method encountered "
                      "(method %d, 16 bit)\n", *method);
        }
-      ERR_FLAG_16 = 1; 	 		
+      raw3_set_ERR_FLAG_16(1); 	 		
     } 		
     nbit_1 = nbit - 1;
     nexcbit = (in[1] >> 4) & 0x0f;
@@ -502,7 +497,7 @@ int dehuffman16(unsigned char *in, int n, int *method, sraw_t *out)
          fprintf(stderr,"\nlibeep: critical compression method encountered "
                    "(method 0 RAW3_COPY)\n");	
      }	
-    ERR_FLAG_0 = 1;
+    raw3_set_ERR_FLAG_0(0);
     nin = 1;
     for (nout = 0; nout < n; nout++) {
       out[nout] = (((sraw_t) in[nin]) << 8) | in[nin + 1];
@@ -669,7 +664,6 @@ int dehuffman(unsigned char *in, int n, int *method, sraw_t *out)
   }
 }
 
-
 /* ---------------------------------------------------------------------
   take native raw data vectors (neighbors)
   calc the residuals using the supported methods
@@ -684,7 +678,6 @@ int compchan(raw3_t *raw3, sraw_t *last, sraw_t *cur, int n, char *out)
   raw3res_t *rc;
   sraw_t *res, *restime=NULL;
   int *hst;
-
 
   /* don't care about short vectors in each loop - force copy instead */
   if (n < 8) {
@@ -712,7 +705,6 @@ int compchan(raw3_t *raw3, sraw_t *last, sraw_t *cur, int n, char *out)
       res = rc->res;
       hst = rc->hst;
       memset(hst, 0, 33 * sizeof(int));
-
 
       switch (mi) {
 	case 0:
@@ -762,7 +754,7 @@ int compchan(raw3_t *raw3, sraw_t *last, sraw_t *cur, int n, char *out)
     rc = &raw3->rc[imin];
 
     /* need 32 bit storage ? */
-    if (rc->nexcbits > 16 || rc->res[0] < -32768 || rc->res[0] >= 32768 )
+    if (rc->nexcbits >= 16 || rc->res[0] < -32768 || rc->res[0] >= 32768 )
     {
       rc->method |= 0x08;
       short_method = RAW3_COPY_32;
@@ -887,7 +879,6 @@ int decompepoch_mux(raw3_t *raw3, char *in, int length, sraw_t *out)
   int samplepos;
   int insize = 0;
 
-
   cur = raw3->cur;
   last = raw3->last;
   memset(last, 0, length * sizeof(sraw_t));
@@ -907,87 +898,6 @@ int decompepoch_mux(raw3_t *raw3, char *in, int length, sraw_t *out)
 
     /* prepare for reading next channel */
     tmp = cur; cur = last; last = tmp;
-  }
-
-  return insize;
-}
-
-/* #ifdef RAW3_CHECK obsolete */
-#include <cnt/cnt.h>
-int decompepoch_mux_RAW3_CHECK(eeg_t *EEG, raw3_t *raw3, char *in, int length, sraw_t *out)
-{
-  int chan;
-  int sample;
-  sraw_t *tmp, *chanbase, *last, *cur;
-  int samplepos;
-  int insize = 0;
-
-
-  cur = raw3->cur;
-  last = raw3->last;
-  memset(last, 0, length * sizeof(sraw_t));
-
-  for (chan = 0; chan < raw3->chanc; chan++) {
-
-    /* uncompress */
-    insize += decompchan(raw3, last, cur, length, &in[insize]);
-
-    /* #ifdef RAW3_CHECK obsolete */
-    {
-      char *label;
-      int n = 0;   /* count chars in output line */
-      char buf[128];
-      int j;
-
-      /*fflush(stderr); fflush(stdout);*/
-      if(ERR_FLAG_16) {
-        if( EEG && eep_get_chanc(EEG) > 0 ) {
-          /* print label of affected channel */
-          label = eep_get_chan_label(EEG, raw3->chanv[chan]);
-              sprintf(buf,"channel %s", label );
-          fprintf(stderr, buf);
-          n = strlen(buf);
-
-          /* the following channels will probably be also affected */
-          /* wrap lines after 77 chars */
-              if(chan<raw3->chanc-1) {
-                 fprintf(stderr," ("); n+=2;
-             for(j=chan+1; j < raw3->chanc; j++) {
-                  label = eep_get_chan_label(EEG, raw3->chanv[j]);
-    	      if( (n+strlen(label)) < 78) {
-                      fprintf(stderr," %s", label );
-    	          n += strlen(label) + 1;
-    	       } else {
-    		  fprintf(stderr,"\n%s", label);
-    	          n = strlen(label);
-    	       }	                        	
-              }
-                 fprintf(stderr," )\n");
-              } else  fprintf(stderr,"\n");
-        }    	
-        ERR_FLAG_EPOCH = 1;
-        ERR_FLAG_16 = 0;
-       }
-       if(ERR_FLAG_0) {
-       if( EEG && eep_get_chanc(EEG) > 0 ) {
-           label = eep_get_chan_label(EEG, raw3->chanv[chan]);
-          fprintf(stderr,"channel %s\n", label );
-        }
-        ERR_FLAG_EPOCH = 1;
-        ERR_FLAG_0 = 0;
-       }
-     }
-
-     /* mangle into MUX buffer */
-     chanbase = &out[raw3->chanv[chan]];
-     samplepos = 0;
-     for (sample = 0; sample < length; sample++) {
-       chanbase[samplepos] = cur[sample];
-       samplepos += raw3->chanc;
-     }
-
-     /* prepare for reading next channel */
-     tmp = cur; cur = last; last = tmp;
   }
 
   return insize;
@@ -1061,7 +971,7 @@ void compchanv_mux(sraw_t *buf, int length,
   free((char *) rvv);
 }
 
-raw3_t *raw3_init(int chanc, short *chanv, int length)
+raw3_t *raw3_init(int chanc, short *chanv, uint64_t length)
 {
   int i;
   raw3_t *raw3 = (raw3_t *) malloc(sizeof(raw3_t));

@@ -30,6 +30,7 @@
 #include <cnt/cnt.h>
 #include <cnt/raw3.h>
 #include <cnt/riff.h>
+#include <cnt/riff64.h>
 #include <eep/var_string.h>
 #include <eep/val.h>
 
@@ -66,47 +67,47 @@ struct tf_component_s {
 
 /* Epoch specific information */
 typedef struct {
-  slen_t epochc;              /* number of epochs in file */
-  slen_t epochl;              /* epoch length in samples */
-  int   *epochv;              /* relative file position of epochs */
-  int    epvbuf;              /* file position buffer */
+  uint64_t   epochc;              /* number of epochs in file */
+  uint64_t   epochl;              /* epoch length in samples */
+  uint64_t * epochv;              /* relative file position of epochs */
+  uint64_t   epvbuf;              /* file position buffer */
 } cnt_epoch_t;
 
 /* Time/frequency data-chunk information */
 typedef struct {
-  slen_t bufepoch;        /* id number of the epoch in buffer   */
-  char   writeflag;       /* access mode flag                   */
-  slen_t writepos;        /* working buffer write pointer       */
-  slen_t readpos;         /*    "           read     "          */
+  uint64_t   bufepoch;        /* id number of the epoch in buffer   */
+  char       writeflag;       /* access mode flag                   */
+  uint64_t   writepos;        /* working buffer write pointer       */
+  uint64_t   readpos;         /*    "           read     "          */
   /* Either buf_int or buf_float is used, the other should be NULL */
-  float   *buf_float;     /* working buffer (1 epoch), floats   */
-  sraw_t  *buf_int;       /* working buffer (1 epoch), integers */
-  char    *cbuf;          /* buffer with data as in file (poss. compressed) */
+  float    * buf_float;     /* working buffer (1 epoch), floats   */
+  sraw_t   * buf_int;       /* working buffer (1 epoch), integers */
+  char     * cbuf;          /* buffer with data as in file (poss. compressed) */
 } cnt_data_t;
 
 /* Time Frequency Header contents */
 typedef struct {
   char            tf_type[40];    /* Time/frequency type identifier */
   tf_content_e    content_datatype;/* TF content type spec.         */
-  slen_t          componentc;     /* Number of components           */
+  uint64_t        componentc;     /* Number of components           */
   tf_component_t  *componentv;    /* component info table           */
   char            tf_unit[16];    /* Unit of measurement on time/freq axis */
-  int             samplec;        /* Number of TF samples           */
+  uint64_t        samplec;        /* Number of TF samples           */
   double          period;         /* T/F time axis scaling          */
 
   /* RIFF hacking/trickery. See make_partial_output_consistent() */
   /* Don't EVER touch this unless you know exactly what it does. */
-  long            chunk_size;
+  uint64_t        chunk_size;
 } tf_header_t;
 
 /* Standard EEP headers */
 typedef struct {
-  double period;            /* time axis scaling     */
-  short chanc;              /* number of electrodes  */
-  eegchan_t *chanv;         /* electrode info table          */
-  slen_t samplec;           /* Number of samples     */
-  int fileversion_major;    /* CNT file versioning. See cnt_version.h */
-  int fileversion_minor;    /* CNT file versioning. See cnt_version.h */
+  double      period;            /* time axis scaling     */
+  short       chanc;              /* number of electrodes  */
+  eegchan_t * chanv;         /* electrode info table          */
+  uint64_t    samplec;           /* Number of samples     */
+  int         fileversion_major;    /* CNT file versioning. See cnt_version.h */
+  int         fileversion_minor;    /* CNT file versioning. See cnt_version.h */
 
   long total_trials;
   long averaged_trials;
@@ -116,7 +117,7 @@ typedef struct {
 
   /* RIFF hacking/trickery. See make_partial_output_consistent() */
   /* Don't EVER touch this unless you know exactly what it does. */
-  long chunk_size;
+  uint64_t chunk_size;
 } eep_header_t;
 
 typedef struct {
@@ -133,8 +134,8 @@ typedef struct {
 
   /* RIFF hacking/trickery. See make_partial_output_consistent() */
   /* Don't EVER touch this unless you know exactly what they're for. */
-  long data_size;
-  long ep_size;
+  uint64_t data_size;
+  uint64_t ep_size;
 
   /* memory mapped access. It maps the contents of the X.DATA chunk */
 #ifdef CNT_MMAP
