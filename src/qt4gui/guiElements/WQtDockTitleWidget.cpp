@@ -25,13 +25,17 @@
 #include "../WQt4Gui.h"
 #include "../WMainWindow.h"
 
+#include "core/common/WLogger.h"
+
 #include "WQtDockWidget.h"
 #include "WQtDockTitleWidget.h"
 #include "WQtDockTitleWidget.moc"
 
+#define MagicWidgetMinSize 24
+
 WQtDockTitleWidget::WQtDockTitleWidget( WQtDockWidget* parent ):
     QWidget( parent ),
-    dockParent( parent )
+    m_dockParent( parent )
 {
     construct();
 }
@@ -45,8 +49,8 @@ void WQtDockTitleWidget::setupButton( QToolButton* btn )
 void WQtDockTitleWidget::setupSizeConstraints( QWidget* widget )
 {
     widget->setContentsMargins( 0, 0, 0, 0 );
-    widget->setFixedHeight( 24 );
-    widget->setMinimumSize( 24, 24 );
+    widget->setFixedHeight( MagicWidgetMinSize );
+    widget->setMinimumSize( MagicWidgetMinSize, MagicWidgetMinSize );
     widget->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
 }
 
@@ -59,18 +63,18 @@ void WQtDockTitleWidget::construct()
     setSizePolicy( QSizePolicy( QSizePolicy::Ignored, QSizePolicy::Fixed ) );
 
     // title
-    m_title = new WScaleLabel( " " + dockParent->windowTitle(), 3, this );
+    m_title = new WScaleLabel( " " + m_dockParent->windowTitle(), 5, this );
     m_title->setTextInteractionFlags( Qt::NoTextInteraction );
 
     // close Btn
     m_closeBtn = new QToolButton( this );
     QAction* closeAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "popup_close" ), "Close", this );
-    connect( closeAction, SIGNAL( triggered( bool ) ), dockParent, SLOT( close() ) );
+    connect( closeAction, SIGNAL( triggered( bool ) ), m_dockParent, SLOT( close() ) );
     m_closeBtn->setDefaultAction( closeAction );
     setupButton( m_closeBtn );
     setupSizeConstraints( m_closeBtn );
-    m_closeBtn->setMinimumSize( 24, 24 );
-    m_closeBtn->setMaximumSize( 24, 24 );
+    m_closeBtn->setMinimumSize( MagicWidgetMinSize, MagicWidgetMinSize );
+    m_closeBtn->setMaximumSize( MagicWidgetMinSize, MagicWidgetMinSize );
 
     // create the container for the actions shown in the titlebar directly
     m_tools = new QWidget( this );
@@ -80,7 +84,7 @@ void WQtDockTitleWidget::construct()
     m_toolsLayout->setMargin( 0 );
     m_toolsLayout->setSpacing( 0 );
     m_tools->setContentsMargins( 0, 0, 0, 0 );
-    m_tools->setMinimumSize( 1, 24 );
+    m_tools->setMinimumSize( 1, MagicWidgetMinSize );
 
     // create the container for the actions dropped out the titlebar to save some space
     m_toolsMenu = new QWidget( this );
@@ -106,17 +110,17 @@ void WQtDockTitleWidget::construct()
     // help button
     m_helpBtn = new QToolButton( this );
     QAction* helpAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "questionmark" ), "Help", this );
-    connect( helpAction, SIGNAL( triggered( bool ) ), dockParent, SLOT( showHelp() ) );
+    connect( helpAction, SIGNAL( triggered( bool ) ), m_dockParent, SLOT( showHelp() ) );
     m_helpBtn->setDefaultAction( helpAction );
     setupButton( m_helpBtn );
     setupSizeConstraints( m_helpBtn );
-    m_helpBtn->setMinimumSize( 24, 24 );
-    m_helpBtn->setMaximumSize( 24, 24 );
+    m_helpBtn->setMinimumSize( MagicWidgetMinSize, MagicWidgetMinSize );
+    m_helpBtn->setMaximumSize( MagicWidgetMinSize, MagicWidgetMinSize );
     m_helpBtn->setVisible( false );
 
     // fill layout
     titleWidgetLayout->addWidget( m_title );
-    titleWidgetLayout->addStretch( 100000 );
+    titleWidgetLayout->addStretch( 1 );
     titleWidgetLayout->addWidget( m_tools );
     titleWidgetLayout->addWidget( m_moreBtn );
     titleWidgetLayout->addWidget( m_helpBtn );
@@ -126,6 +130,7 @@ void WQtDockTitleWidget::construct()
 void WQtDockTitleWidget::resizeEvent( QResizeEvent* event )
 {
     updateLayouts( event->size().width() );
+    QWidget::resizeEvent( event );
 }
 
 void WQtDockTitleWidget::addTitleAction( QAction* action, bool instantPopup )
@@ -138,10 +143,13 @@ void WQtDockTitleWidget::addTitleAction( QAction* action, bool instantPopup )
     if( instantPopup )
     {
         actionBtn->setPopupMode( QToolButton::InstantPopup );
-        actionBtn->setFixedWidth( 32 );
     }
 
-    addTitleWidget( actionBtn );
+    // we keep track of the widgets:
+    m_titleActionWidgets.push_back( actionBtn );
+
+    // update the layouts
+    updateLayouts( width() );
 }
 
 void WQtDockTitleWidget::addTitleButton( QToolButton* button )
@@ -197,6 +205,7 @@ void WQtDockTitleWidget::addTitleSeperator()
     QFrame* line = new QFrame();
     line->setFrameShape( QFrame::VLine );
     line->setFrameShadow( QFrame::Sunken );
+    line->setFixedWidth( 5 );
 
     // add it
     m_titleActionWidgets.push_back( line );
@@ -208,9 +217,9 @@ void WQtDockTitleWidget::updateLayouts( int width )
 {
     // calculate the size of widgets and the title and the mandatory close button
     int minRequired = m_title->calculateSize( m_title->text().length() ) +
-                      m_moreBtn->sizeHint().width() +
-                      m_helpBtn->isVisible() * m_helpBtn->sizeHint().width() +
-                      m_closeBtn->sizeHint().width();
+                      m_moreBtn->minimumSize().width() +
+                      m_helpBtn->isVisible() * m_helpBtn->minimumSize().width() +
+                      m_closeBtn->minimumSize().width();
 
     // check and move items
     int curWidth = minRequired;
@@ -219,13 +228,13 @@ void WQtDockTitleWidget::updateLayouts( int width )
     QList< QWidget* >* currentList = &visible;
     for( QList< QWidget* >::iterator i = m_titleActionWidgets.begin(); i != m_titleActionWidgets.end(); ++i )
     {
-        if( curWidth > width )
+        curWidth += ( *i )->sizeHint().width();
+        if( curWidth >= width )
         {
             // we reached the size limit.
             currentList = &hidden;
         }
         currentList->push_back( *i );
-        curWidth += ( *i )->sizeHint().width();
     }
 
     // move all visible items to the m_toolsLayout
@@ -244,12 +253,14 @@ void WQtDockTitleWidget::updateLayouts( int width )
 
     // hide more button if nothing needs to be hidden
     m_moreBtn->setHidden( !( hidden.size() ) );
+
+    updateGeometry();
 }
 
 void WQtDockTitleWidget::updateHelp()
 {
     // hide button if no help is available.
-    if( dockParent->getHelpContext() == "" )
+    if( m_dockParent->getHelpContext() == "" )
     {
         m_helpBtn->setVisible( false );
         return;

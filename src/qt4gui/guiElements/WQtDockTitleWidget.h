@@ -176,7 +176,7 @@ private:
     /**
      * The parent as dock pointer
      */
-    WQtDockWidget* dockParent;
+    WQtDockWidget* m_dockParent;
 
     /**
      * We keep track of the widgets that we add
