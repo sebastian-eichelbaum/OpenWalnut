@@ -69,6 +69,7 @@ WTriangleMesh::WTriangleMesh( size_t vertNum, size_t triangleNum )
     m_verts = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( vertNum ) );
     m_textureCoordinates = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( vertNum ) );
     m_vertNormals = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( vertNum ) );
+    m_vertFlatNormals = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( vertNum ) );
     m_vertColors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array( vertNum ) );
 
     m_triangles.resize( triangleNum * 3 );
@@ -85,6 +86,7 @@ WTriangleMesh::WTriangleMesh( osg::ref_ptr< osg::Vec3Array > vertices, const std
       m_verts( vertices ),
       m_textureCoordinates( new osg::Vec3Array( vertices->size() ) ),
       m_vertNormals( new osg::Vec3Array( vertices->size() ) ),
+      m_vertFlatNormals( new osg::Vec3Array( vertices->size() ) ),
       m_vertColors( new osg::Vec4Array( vertices->size() ) ),
       m_triangles( triangles ),
       m_triangleNormals( new osg::Vec3Array( triangles.size() / 3 ) ),
@@ -189,6 +191,15 @@ osg::ref_ptr< osg::Vec3Array >WTriangleMesh::getVertexNormalArray( bool forceRec
     return m_vertNormals;
 }
 
+osg::ref_ptr< osg::Vec3Array >WTriangleMesh::getVertexFlatNormalArray( bool forceRecalc )
+{
+    if( forceRecalc || ( m_meshDirty && m_autoNormal ) )
+    {
+        recalcVertNormals();
+    }
+    return m_vertFlatNormals;
+}
+
 osg::ref_ptr< osg::Vec3Array >WTriangleMesh::getTriangleNormalArray( bool forceRecalc )
 {
     if( forceRecalc || ( m_meshDirty && m_autoNormal ) )
@@ -262,6 +273,7 @@ void WTriangleMesh::recalcVertNormals()
     updateVertsInTriangles();
 
     ( *m_vertNormals ).resize( m_countVerts );
+    ( *m_vertFlatNormals ).resize( m_countVerts );
     ( *m_triangleNormals ).resize( m_countTriangles );
 
     for( size_t i = 0; i < m_countTriangles; ++i )
@@ -272,14 +284,17 @@ void WTriangleMesh::recalcVertNormals()
     for( size_t vertId = 0; vertId < m_countVerts; ++vertId )
     {
         osg::Vec3 tempNormal( 0.0, 0.0, 0.0 );
+        osg::Vec3 tempFlatNormal( 0.0, 0.0, 0.0 );
         for( size_t neighbour = 0; neighbour < m_vertexIsInTriangle[vertId].size(); ++neighbour )
         {
             tempNormal += ( *m_triangleNormals )[ m_vertexIsInTriangle[vertId][neighbour] ];
+            tempFlatNormal = ( *m_triangleNormals )[ m_vertexIsInTriangle[vertId][0] ];
         }
         tempNormal *= 1./m_vertexIsInTriangle[vertId].size();
 
         tempNormal.normalize();
         ( *m_vertNormals )[vertId] = tempNormal;
+        ( *m_vertFlatNormals )[vertId] = tempFlatNormal; // note: normal already normalized
     }
 
     m_meshDirty = false;

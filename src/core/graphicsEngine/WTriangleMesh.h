@@ -252,15 +252,24 @@ public:
     osg::ref_ptr< const osg::Vec3Array > getTextureCoordinateArray() const;
 
     /**
-     * getter
+     * Get normal array containing smooth normals for each vertex.
      *
-     * \param forceRecalc
+     * \param forceRecalc true to force recalc
      * \return pointer to the vertex normal array
      */
     osg::ref_ptr< osg::Vec3Array > getVertexNormalArray( bool forceRecalc = false );
 
     /**
-     * getter
+     * Get the normal array with flat normals for each vertex. These normals will be calculated. If you have a mesh with shared vertices, this
+     * will create some unwanted effects like having the flat normal of a neighbour triangle as the flat normal of a given vertex.
+     *
+     * \param forceRecalc true to force recalc
+     * \return pointer to the vertex normal array
+     */
+    osg::ref_ptr< osg::Vec3Array > getVertexFlatNormalArray( bool forceRecalc = false );
+
+    /**
+     * Color array with a color for each vertex
      *
      * \return pointer to the vertex color array
      */
@@ -274,13 +283,13 @@ public:
     const std::vector< size_t >& getTriangles() const;
 
     /**
-     * getter
+     * Normal per triangle. Be careful when using this in a geometry node. They do not support attributes on a per primitive basis. Use \ref
+     * getVertexFlatNormalArray in this case.
      *
-     * \param forceRecalc
+     * \param forceRecalc true to force recalc
      * \return pointer to the triangle normal array
      */
     osg::ref_ptr< osg::Vec3Array > getTriangleNormalArray( bool forceRecalc = false );
-
 
     /**
      * getter
@@ -751,6 +760,8 @@ private:
     osg::ref_ptr< osg::Vec3Array > m_textureCoordinates; //!< array containing the texture coordinates
 
     osg::ref_ptr< osg::Vec3Array > m_vertNormals; //!< array containing the vertex normals
+
+    osg::ref_ptr< osg::Vec3Array > m_vertFlatNormals; //!< array containing the flat vertex normals
 
     osg::ref_ptr< osg::Vec4Array > m_vertColors; //!< array containing vertex colors
 
