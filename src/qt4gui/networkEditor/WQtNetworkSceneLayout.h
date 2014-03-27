@@ -148,6 +148,15 @@ public:
      */
     void setModuleDefaultPosition( WModule::SPtr module, QPoint coord );
 
+    /**
+     * Set a default flag combination for the given module. The layouter might use them.
+     *
+     * \param module the module
+     * \param layedOut flag if the item was layed out already.
+     * \param manuallyLayedOut flag if the item was manually layed out.
+     */
+    void setModuleDefaultFlags( WModule::SPtr module, bool layedOut, bool manuallyLayedOut );
+
 protected:
 private:
     WQtNetworkScene* m_scene; //!< the scene managed by this layouter
@@ -160,6 +169,27 @@ private:
     typedef std::map< std::string, QPoint > ModuleDefaultCoordinates;
 
     /**
+     * Some flags used in the layouter as defaults.
+     */
+    struct LayoutFlags
+    {
+        /**
+         * Automatically layed out
+         */
+        bool m_layedOut;
+
+        /**
+         * Manual layout done
+         */
+        bool m_manuallyLayedOut;
+    };
+
+    /**
+     * Map between module UUID and network flags
+     */
+    typedef std::map< std::string, LayoutFlags > ModuleDefaultFlags;
+
+    /**
      * The type inside the map
      */
     typedef std::pair< std::string, QPoint > ModuleDefaultCoordinatesItem;
@@ -169,6 +199,12 @@ private:
      * that is not the GUI thread.
      */
     WSharedAssociativeContainer< ModuleDefaultCoordinates > m_moduleDefaultCoords;
+
+    /**
+     * The mapping of network flags for each module. This is wrapped by a thread save WSharedObject, since the loader might run in a thread
+     * that is not the GUI thread.
+     */
+    WSharedAssociativeContainer< ModuleDefaultFlags > m_moduleDefaultFlags;
 };
 
 #endif  // WQTNETWORKSCENELAYOUT_H

@@ -99,9 +99,19 @@ private:
     typedef std::map< unsigned int, QPoint > ModuleNetworkCoordinates;
 
     /**
+     * Map between module ID and network flags. We are lazy and use QPoint to store our flags.
+     */
+    typedef std::map< unsigned int, QPoint > ModuleNetworkFlags;
+
+    /**
      * The mapping of network coordinates for each module.
      */
     ModuleNetworkCoordinates m_networkCoords;
+
+    /**
+     * Keep flags.
+     */
+    ModuleNetworkFlags m_networkFlags;
 
     /**
      * The bounding coordinates of the loaded grid: top-left

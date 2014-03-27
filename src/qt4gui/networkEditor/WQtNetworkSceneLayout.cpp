@@ -47,6 +47,7 @@ void WQtNetworkSceneLayout::addItem( WQtNetworkItem* item )
 {
     // do we have a default?
     WSharedAssociativeContainer< ModuleDefaultCoordinates >::ReadTicket r = m_moduleDefaultCoords.getReadTicket();
+    WSharedAssociativeContainer< ModuleDefaultFlags >::ReadTicket rflags = m_moduleDefaultFlags.getReadTicket();
     ModuleDefaultCoordinates::const_iterator defaultCoord = r->get().find( item->getModule()->getUUID() );
     if( defaultCoord == r->get().end() )
     {
@@ -59,7 +60,17 @@ void WQtNetworkSceneLayout::addItem( WQtNetworkItem* item )
     {
         // default found. Place there and mark item as already layed out
         m_grid->setItem( item, ( *defaultCoord ).second );
-        item->setLayedOut();
+
+        ModuleDefaultFlags::const_iterator defaultFlags = rflags->get().find( item->getModule()->getUUID() );
+        if( defaultFlags != rflags->get().end() )
+        {
+            item->setLayedOut( ( *defaultFlags ).second.m_layedOut );
+            item->setManuallyPlaced( ( *defaultFlags ).second.m_manuallyLayedOut );
+        }
+        else    // no default flag found.
+        {
+            item->setLayedOut( );
+        }
     }
 }
 
@@ -168,5 +179,12 @@ void WQtNetworkSceneLayout::setModuleDefaultPosition( WModule::SPtr module, QPoi
 {
     WSharedAssociativeContainer< ModuleDefaultCoordinates >::WriteTicket w = m_moduleDefaultCoords.getWriteTicket();
     w->get()[ module->getUUID() ] = coord;
+}
+
+void WQtNetworkSceneLayout::setModuleDefaultFlags( WModule::SPtr module, bool layedOut, bool manuallyLayedOut )
+{
+    WSharedAssociativeContainer< ModuleDefaultFlags >::WriteTicket w = m_moduleDefaultFlags.getWriteTicket();
+    w->get()[ module->getUUID() ].m_layedOut = layedOut;
+    w->get()[ module->getUUID() ].m_manuallyLayedOut = manuallyLayedOut;
 }
 
