@@ -873,11 +873,27 @@ void WQtNetworkItem::animatedMoveTo( qreal x, qreal y )
     animatedMoveTo( QPointF( x, y ) );
 }
 
+void WQtNetworkItem::moveTo( QPointF pos )
+{
+    moveTo( pos.x(), pos.y() );
+}
+
+void WQtNetworkItem::moveTo( qreal x, qreal y )
+{
+    setPos( x, y );
+    moveFinished();
+}
+
 void WQtNetworkItem::moveFinished()
 {
     // we have disabled the item to avoid clicking and dragging during move
     m_noDrag = false;
     positionChanged();
+    if( isSelected() )
+    {
+        // ensure visible if moved
+        m_networkEditor->getView()->focusOn( this );
+    }
 }
 
 void WQtNetworkItem::setLayedOut( bool layedOut )

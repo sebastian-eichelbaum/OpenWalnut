@@ -182,6 +182,21 @@ public:
     void animatedMoveTo( qreal x, qreal y );
 
     /**
+     * Move item to specified position smoothly, no animation.
+     *
+     * \param pos position in world space
+     */
+    void moveTo( QPointF pos );
+
+    /**
+     * Move item to specified position smoothly, no animation.
+     *
+     * \param x x coord in world space
+     * \param y y coord in world space
+     */
+    void moveTo( qreal x, qreal y );
+
+    /**
      * Marks the item as already layed out.
      *
      * \param layedOut the layout flag
