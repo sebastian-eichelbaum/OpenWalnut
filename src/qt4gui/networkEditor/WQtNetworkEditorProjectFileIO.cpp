@@ -70,7 +70,7 @@ WProjectFileIO::SPtr WQtNetworkEditorProjectFileIO::clone( WProjectFile* project
  *
  * \return the values
  */
-int* parseIntSequence( std::string seq, int size, int& loaded )
+int* parseIntSequence( std::string seq, int size, int& loaded ) // NOLINT: yes it is a non const ref.
 {
     // parse the string
     // -> tokenize it and fill pointer appropriately
@@ -204,7 +204,6 @@ void WQtNetworkEditorProjectFileIO::done()
                                                                          static_cast< bool >( p.y() ) );
         }
     }
-
 }
 
 void WQtNetworkEditorProjectFileIO::save( std::ostream& output ) // NOLINT
