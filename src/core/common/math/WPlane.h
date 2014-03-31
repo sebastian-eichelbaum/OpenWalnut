@@ -146,18 +146,6 @@ public:
         m_second = normalize( m_second );
     }
 
-//    \cond Suppress_Doxygen
-//    /**
-//     * Computes sample points on that plane.
-//     *
-//     * \param grid
-//     * \param stepWidth
-//     *
-//     * \return Set of positions on the plane
-//     */
-//    boost::shared_ptr< std::set< WPosition > > samplePoints( const WGridRegular3D& grid, double stepWidth );
-//    \endcond
-
     /**
      * Computes a fixed number of sample points on that plane.
      *
