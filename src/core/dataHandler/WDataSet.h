@@ -101,8 +101,8 @@ public:
     /**
      * Get the name of the file that this data set stems from.
      *
-     * \deprecated use getFilename instead
      * \return the filename.
+     * \deprecated use getFilename instead
      */
     OW_API_DEPRECATED std::string getFileName() const;
 
