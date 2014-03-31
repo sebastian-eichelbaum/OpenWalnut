@@ -306,6 +306,11 @@ void WMData::moduleMain()
         throw WDHException( std::string( "Could not load \"" + fileName + "\". Reason: unknown file type: \"" + suffix + "\"" ) );
     }
 
+    if( !m_dataSet )
+    {
+        throw WDHException( std::string( "Could not load \"" + fileName + "\". Possibly format not supported." ) );
+    }
+
     debugLog() << "Loading data done.";
 
     // register the dataset properties
