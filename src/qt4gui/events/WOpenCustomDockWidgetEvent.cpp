@@ -27,7 +27,7 @@
 #include "WOpenCustomDockWidgetEvent.h"
 
 WOpenCustomDockWidgetEvent::WOpenCustomDockWidgetEvent( std::string title, WGECamera::ProjectionMode projectionMode,
-    boost::shared_ptr< WFlag< boost::shared_ptr< WCustomWidget > > > flag )
+    boost::shared_ptr< WFlag< boost::shared_ptr< WCustomView > > > flag )
     : QEvent( CUSTOM_TYPE ),
       m_title( title ),
       m_projectionMode( projectionMode ),
@@ -45,7 +45,7 @@ WGECamera::ProjectionMode WOpenCustomDockWidgetEvent::getProjectionMode() const
     return m_projectionMode;
 }
 
-boost::shared_ptr< WFlag< boost::shared_ptr< WCustomWidget > > > WOpenCustomDockWidgetEvent::getFlag() const
+boost::shared_ptr< WFlag< boost::shared_ptr< WCustomView > > > WOpenCustomDockWidgetEvent::getFlag() const
 {
     return m_flag;
 }

@@ -68,7 +68,7 @@ public:
      *
      * \return A NULL-pointer.
      */
-    virtual WCustomWidget::SPtr openCustomWidget( std::string, WGECamera::ProjectionMode, boost::shared_ptr< WCondition > );
+    virtual WCustomView::SPtr openCustomWidget( std::string, WGECamera::ProjectionMode, boost::shared_ptr< WCondition > );
 
     /**
      * Instruct to close a custom widget.
@@ -78,7 +78,7 @@ public:
     /**
      * Instruct to close the custom widget.
      */
-    virtual void closeCustomWidget( WCustomWidget::SPtr );
+    virtual void closeCustomWidget( WCustomView::SPtr );
 
 protected:
     /**

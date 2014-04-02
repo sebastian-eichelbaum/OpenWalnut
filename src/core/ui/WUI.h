@@ -31,7 +31,7 @@
 
 #include "../common/WFlag.h"
 #include "../graphicsEngine/WGECamera.h"
-#include "WCustomWidget.h"
+#include "WCustomView.h"
 
 class WDataSet;
 
@@ -90,7 +90,7 @@ public:
      *
      * \return the created widget
      */
-    virtual WCustomWidget::SPtr openCustomWidget(
+    virtual WCustomView::SPtr openCustomWidget(
             std::string title,
             WGECamera::ProjectionMode projectionMode,
             boost::shared_ptr< WCondition > shutdownCondition ) = 0;
@@ -107,7 +107,7 @@ public:
      *
      * \param widget the widget to close again.
      */
-    virtual void closeCustomWidget( WCustomWidget::SPtr widget ) = 0;
+    virtual void closeCustomWidget( WCustomView::SPtr widget ) = 0;
 
 protected:
     /**

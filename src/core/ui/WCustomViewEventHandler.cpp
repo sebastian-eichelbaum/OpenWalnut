@@ -23,16 +23,16 @@
 //---------------------------------------------------------------------------
 
 #include "../common/WLogger.h"
-#include "WCustomWidgetEventHandler.h"
+#include "WCustomViewEventHandler.h"
 
 
-WCustomWidgetEventHandler::WCustomWidgetEventHandler( WCustomWidget::SPtr widget )
+WCustomViewEventHandler::WCustomViewEventHandler( WCustomView::SPtr widget )
     : m_widget( widget ),
       m_preselection( GUIEvents::NONE )
 {
 }
 
-bool WCustomWidgetEventHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& /* aa */ )
+bool WCustomViewEventHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& /* aa */ )
 {
     GUIEvents::EventType et = ea.getEventType();
     if( et & m_preselection )
@@ -156,177 +156,177 @@ bool WCustomWidgetEventHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA:
     return false; // There was no subscription to this event
 }
 
-wlog::WStreamedLogger WCustomWidgetEventHandler::errorLog() const
+wlog::WStreamedLogger WCustomViewEventHandler::errorLog() const
 {
-    return wlog::error( "CustomWidgetEventHandler" ) << m_widget->getTitle() << ": ";
+    return wlog::error( "CustomViewEventHandler" ) << m_widget->getTitle() << ": ";
 }
 
-void WCustomWidgetEventHandler::subscribePush( ButtonSignalType::slot_type slot )
+void WCustomViewEventHandler::subscribePush( ButtonSignalType::slot_type slot )
 {
     m_preselection |= GUIEvents::PUSH;
     m_sigPush.connect( slot );
 }
 
-void WCustomWidgetEventHandler::subscribeRelease( ButtonSignalType::slot_type slot )
+void WCustomViewEventHandler::subscribeRelease( ButtonSignalType::slot_type slot )
 {
     m_preselection |= GUIEvents::RELEASE;
     m_sigRelease.connect( slot );
 }
 
-void WCustomWidgetEventHandler::subscribeDoubleclick( ButtonSignalType::slot_type slot )
+void WCustomViewEventHandler::subscribeDoubleclick( ButtonSignalType::slot_type slot )
 {
     m_preselection |= GUIEvents::DOUBLECLICK;
     m_sigDoubleclick.connect( slot );
 }
 
-void WCustomWidgetEventHandler::subscribeDrag( DragSignalType::slot_type slot )
+void WCustomViewEventHandler::subscribeDrag( DragSignalType::slot_type slot )
 {
     m_preselection |= GUIEvents::DRAG;
     m_sigDrag.connect( slot );
 }
 
-void WCustomWidgetEventHandler::subscribeMove( MoveSignalType::slot_type slot )
+void WCustomViewEventHandler::subscribeMove( MoveSignalType::slot_type slot )
 {
     m_preselection |= GUIEvents::MOVE;
     m_sigMove.connect( slot );
 }
 
-void WCustomWidgetEventHandler::subscribeFrame( TriggerSignalType::slot_type slot )
+void WCustomViewEventHandler::subscribeFrame( TriggerSignalType::slot_type slot )
 {
     m_preselection |= GUIEvents::FRAME;
     m_sigFrame.connect( slot );
 }
 
-void WCustomWidgetEventHandler::subscribeKeydown( KeySignalType::slot_type slot )
+void WCustomViewEventHandler::subscribeKeydown( KeySignalType::slot_type slot )
 {
     m_preselection |= GUIEvents::KEYDOWN;
     m_sigKeydown.connect( slot );
 }
 
-void WCustomWidgetEventHandler::subscribeKeyup( KeySignalType::slot_type slot )
+void WCustomViewEventHandler::subscribeKeyup( KeySignalType::slot_type slot )
 {
     m_preselection |= GUIEvents::KEYUP;
     m_sigKeyup.connect( slot );
 }
 
-void WCustomWidgetEventHandler::subscribeResize( ResizeSignalType::slot_type slot )
+void WCustomViewEventHandler::subscribeResize( ResizeSignalType::slot_type slot )
 {
     m_preselection |= GUIEvents::RESIZE;
     m_sigResize.connect( slot );
 }
 
-void WCustomWidgetEventHandler::subscribeScroll( ScrollSignalType::slot_type slot )
+void WCustomViewEventHandler::subscribeScroll( ScrollSignalType::slot_type slot )
 {
     m_preselection |= GUIEvents::SCROLL;
     m_sigScroll.connect( slot );
 }
 
-void WCustomWidgetEventHandler::subscribePenPressure( PenPressureSignalType::slot_type slot )
+void WCustomViewEventHandler::subscribePenPressure( PenPressureSignalType::slot_type slot )
 {
     m_preselection |= GUIEvents::PEN_PRESSURE;
     m_sigPenPressure.connect( slot );
 }
 
-void WCustomWidgetEventHandler::subscribePenOrientation( PenOrientationSignalType::slot_type slot )
+void WCustomViewEventHandler::subscribePenOrientation( PenOrientationSignalType::slot_type slot )
 {
     m_preselection |= GUIEvents::PEN_ORIENTATION;
     m_sigPenOrientation.connect( slot );
 }
 
-void WCustomWidgetEventHandler::subscribePenProximityEnter( TriggerSignalType::slot_type slot )
+void WCustomViewEventHandler::subscribePenProximityEnter( TriggerSignalType::slot_type slot )
 {
     m_preselection |= GUIEvents::PEN_PROXIMITY_ENTER;
     m_sigPenProximityEnter.connect( slot );
 }
 
-void WCustomWidgetEventHandler::subscribePenProximityLeave( TriggerSignalType::slot_type slot )
+void WCustomViewEventHandler::subscribePenProximityLeave( TriggerSignalType::slot_type slot )
 {
     m_preselection |= GUIEvents::PEN_PROXIMITY_LEAVE;
     m_sigPenProximityLeave.connect( slot );
 }
 
-void WCustomWidgetEventHandler::subscribeCloseWindow( TriggerSignalType::slot_type slot )
+void WCustomViewEventHandler::subscribeCloseWindow( TriggerSignalType::slot_type slot )
 {
     m_preselection |= GUIEvents::CLOSE_WINDOW;
     m_sigCloseWindow.connect( slot );
 }
 
-void WCustomWidgetEventHandler::subscribeQuitApplication( TriggerSignalType::slot_type slot )
+void WCustomViewEventHandler::subscribeQuitApplication( TriggerSignalType::slot_type slot )
 {
     m_preselection |= GUIEvents::QUIT_APPLICATION;
     m_sigQuitApplication.connect( slot );
 }
 
-void WCustomWidgetEventHandler::subscribeUser( TriggerSignalType::slot_type slot )
+void WCustomViewEventHandler::subscribeUser( TriggerSignalType::slot_type slot )
 {
     m_preselection |= GUIEvents::USER;
     m_sigUser.connect( slot );
 }
 
-void WCustomWidgetEventHandler::handlePush( WVector2f /* mousePos */, int /* button */ )
+void WCustomViewEventHandler::handlePush( WVector2f /* mousePos */, int /* button */ )
 {
 }
 
-void WCustomWidgetEventHandler::handleRelease( WVector2f /* mousePos */, int /* button */ )
+void WCustomViewEventHandler::handleRelease( WVector2f /* mousePos */, int /* button */ )
 {
 }
 
-void WCustomWidgetEventHandler::handleDoubleclick( WVector2f /* mousePos */, int /* button */ )
+void WCustomViewEventHandler::handleDoubleclick( WVector2f /* mousePos */, int /* button */ )
 {
 }
 
-void WCustomWidgetEventHandler::handleDrag( WVector2f /* mousePos */, int /* buttonMask */ )
+void WCustomViewEventHandler::handleDrag( WVector2f /* mousePos */, int /* buttonMask */ )
 {
 }
 
-void WCustomWidgetEventHandler::handleMove( WVector2f /* mousePos */ )
+void WCustomViewEventHandler::handleMove( WVector2f /* mousePos */ )
 {
 }
 
-void WCustomWidgetEventHandler::handleKeydown( int /* keyID */, unsigned int /* modKeyMask */ )
+void WCustomViewEventHandler::handleKeydown( int /* keyID */, unsigned int /* modKeyMask */ )
 {
 }
 
-void WCustomWidgetEventHandler::handleKeyup( int /* keyID */, unsigned int /* modKeyMask */ )
+void WCustomViewEventHandler::handleKeyup( int /* keyID */, unsigned int /* modKeyMask */ )
 {
 }
 
-void WCustomWidgetEventHandler::handleFrame()
+void WCustomViewEventHandler::handleFrame()
 {
 }
 
-void WCustomWidgetEventHandler::handleResize( int /* xPos */, int /* yPos */, int /* width */, int /* height */ )
+void WCustomViewEventHandler::handleResize( int /* xPos */, int /* yPos */, int /* width */, int /* height */ )
 {
 }
 
-void WCustomWidgetEventHandler::handleScroll( GUIEvents::ScrollingMotion /* motion */, float /* deltaX */, float /* deltaY */ )
+void WCustomViewEventHandler::handleScroll( GUIEvents::ScrollingMotion /* motion */, float /* deltaX */, float /* deltaY */ )
 {
 }
 
-void WCustomWidgetEventHandler::handlePenPressure( float /* pressure */ )
+void WCustomViewEventHandler::handlePenPressure( float /* pressure */ )
 {
 }
 
-void WCustomWidgetEventHandler::handlePenOrientation( const osg::Matrix /* orientation */ )
+void WCustomViewEventHandler::handlePenOrientation( const osg::Matrix /* orientation */ )
 {
 }
 
-void WCustomWidgetEventHandler::handlePenProximityEnter()
+void WCustomViewEventHandler::handlePenProximityEnter()
 {
 }
 
-void WCustomWidgetEventHandler::handlePenProximityLeave()
+void WCustomViewEventHandler::handlePenProximityLeave()
 {
 }
 
-void WCustomWidgetEventHandler::handleCloseWindow()
+void WCustomViewEventHandler::handleCloseWindow()
 {
 }
 
-void WCustomWidgetEventHandler::handleQuitApplication()
+void WCustomViewEventHandler::handleQuitApplication()
 {
 }
 
-void WCustomWidgetEventHandler::handleUser()
+void WCustomViewEventHandler::handleUser()
 {
 }

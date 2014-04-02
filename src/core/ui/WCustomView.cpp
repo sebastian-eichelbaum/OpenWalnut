@@ -24,18 +24,18 @@
 
 #include <string>
 
-#include "WCustomWidget.h"
+#include "WCustomView.h"
 
-WCustomWidget::WCustomWidget( std::string title ):
+WCustomView::WCustomView( std::string title ):
     m_title( title )
 {
 }
 
-WCustomWidget::~WCustomWidget()
+WCustomView::~WCustomView()
 {
 }
 
-std::string WCustomWidget::getTitle() const
+std::string WCustomView::getTitle() const
 {
     return m_title;
 }

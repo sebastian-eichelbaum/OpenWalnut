@@ -195,16 +195,16 @@ int WScriptUI::run()
     return 0;
 }
 
-WCustomWidget::SPtr WScriptUI::openCustomWidget( std::string, WGECamera::ProjectionMode, boost::shared_ptr< WCondition > )
+WCustomView::SPtr WScriptUI::openCustomWidget( std::string, WGECamera::ProjectionMode, boost::shared_ptr< WCondition > )
 {
-    return WCustomWidget::SPtr();
+    return WCustomView::SPtr();
 }
 
 void WScriptUI::closeCustomWidget( std::string )
 {
 }
 
-void WScriptUI::closeCustomWidget( WCustomWidget::SPtr )
+void WScriptUI::closeCustomWidget( WCustomView::SPtr )
 {
 }
 

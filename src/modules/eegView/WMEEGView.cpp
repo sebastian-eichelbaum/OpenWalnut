@@ -40,7 +40,7 @@
 #include "core/graphicsEngine/WGEGroupNode.h"
 #include "core/graphicsEngine/WGEUtils.h"
 #include "core/graphicsEngine/WROIBox.h"
-#include "core/ui/WCustomWidget.h"
+#include "core/ui/WCustomView.h"
 #include "core/ui/WUI.h"
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WModuleInputData.h"

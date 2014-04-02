@@ -31,7 +31,7 @@
 
 #include "core/graphicsEngine/WGECamera.h"
 #include "core/common/WFlag.h"
-#include "core/ui/WCustomWidget.h"
+#include "core/ui/WCustomView.h"
 
 #include "WEventTypes.h"
 
@@ -49,7 +49,7 @@ public:
      * \param flag The WFlag which contains the widget after its creation.
      */
     explicit WOpenCustomDockWidgetEvent( std::string title, WGECamera::ProjectionMode projectionMode,
-        boost::shared_ptr< WFlag< boost::shared_ptr< WCustomWidget > > > flag );
+        boost::shared_ptr< WFlag< boost::shared_ptr< WCustomView > > > flag );
 
     /**
      * Get the title of the widget to open.
@@ -70,7 +70,7 @@ public:
      *
      * \return a shared pointer to the WFlag
      */
-    boost::shared_ptr< WFlag< boost::shared_ptr< WCustomWidget > > > getFlag() const;
+    boost::shared_ptr< WFlag< boost::shared_ptr< WCustomView > > > getFlag() const;
 
     /**
      * Constant which saves the number used to distinguish this event from other
@@ -93,7 +93,7 @@ private:
     /**
      * WFlag which contains the widget after its creation.
      */
-    boost::shared_ptr< WFlag< boost::shared_ptr< WCustomWidget > > > m_flag;
+    boost::shared_ptr< WFlag< boost::shared_ptr< WCustomView > > > m_flag;
 };
 
 #endif  // WOPENCUSTOMDOCKWIDGETEVENT_H

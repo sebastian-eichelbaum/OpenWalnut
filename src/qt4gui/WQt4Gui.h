@@ -157,7 +157,7 @@ public:
      *
      * \return the created widget
      */
-    virtual WCustomWidget::SPtr openCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode,
+    virtual WCustomView::SPtr openCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode,
         boost::shared_ptr< WCondition > shutdownCondition );
 
     /**
@@ -172,7 +172,7 @@ public:
      *
      * \param widget the widget to close
      */
-    virtual void closeCustomWidget( WCustomWidget::SPtr widget );
+    virtual void closeCustomWidget( WCustomView::SPtr widget );
 
     /**
      * Returns the current main window instance or NULL if not existent.
