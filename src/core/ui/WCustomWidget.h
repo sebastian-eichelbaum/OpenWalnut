@@ -27,10 +27,10 @@
 
 #include "core/common/WDefines.h"
 
-#include "WCustomView.h"
+#include "WUIView.h"
 
-// The former WCustomWidget is now called WCustomView as it provides a view and is not a generic widget.
-typedef WCustomView WCustomWidget OW_API_DEPRECATED;
+// The former WCustomWidget is now called WUIView as it provides a view and is not a generic widget.
+typedef WUIView WCustomWidget OW_API_DEPRECATED;
 
 #endif  // WCUSTOMWIDGET_H
 

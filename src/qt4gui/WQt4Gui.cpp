@@ -403,15 +403,15 @@ boost::signals2::signal1< void, std::vector< std::string > >* WQt4Gui::getLoadBu
     return m_mainWindow->getLoaderSignal();
 }
 
-boost::shared_ptr< WCustomView > WQt4Gui::openCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode,
+boost::shared_ptr< WUIView > WQt4Gui::openCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode,
     boost::shared_ptr< WCondition > shutdownCondition )
 {
     WConditionSet conditionSet;
     conditionSet.setResetable( true, false );
     conditionSet.add( shutdownCondition );
 
-    boost::shared_ptr< WFlag< boost::shared_ptr< WCustomView > > > widgetFlag(
-        new WFlag< boost::shared_ptr< WCustomView > >( new WConditionOneShot, boost::shared_ptr< WCustomView >() ) );
+    boost::shared_ptr< WFlag< boost::shared_ptr< WUIView > > > widgetFlag(
+        new WFlag< boost::shared_ptr< WUIView > >( new WConditionOneShot, boost::shared_ptr< WUIView >() ) );
     conditionSet.add( widgetFlag->getCondition() );
 
     QCoreApplication::postEvent( m_mainWindow, new WOpenCustomDockWidgetEvent( title, projectionMode, widgetFlag ) );
@@ -425,7 +425,7 @@ void WQt4Gui::closeCustomWidget( std::string title )
     m_mainWindow->closeCustomDockWidget( title );
 }
 
-void WQt4Gui::closeCustomWidget( WCustomView::SPtr widget )
+void WQt4Gui::closeCustomWidget( WUIView::SPtr widget )
 {
     m_mainWindow->closeCustomDockWidget( widget->getTitle() );
 }

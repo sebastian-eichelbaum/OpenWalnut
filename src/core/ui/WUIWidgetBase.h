@@ -22,15 +22,42 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WCUSTOMWIDGETEVENTHANDLER_H
-#define WCUSTOMWIDGETEVENTHANDLER_H
+#ifndef WCUSTOMWIDGETBASE_H
+#define WCUSTOMWIDGETBASE_H
 
-#include "core/common/WDefines.h"
+#include <boost/shared_ptr.hpp>
 
-#include "WCustomViewEventHandler.h"
+/**
+ * Base class for all the widget abstraction the core UI provides.
+ */
+class WUIWidgetBase
+{
+public:
 
-// The former WCustomWidget is now called WCustomView as it provides a view and is not a generic widget.
-typedef WCustomViewEventHandler WCustomWidgetEventHandler OW_API_DEPRECATED;
+    /**
+     * Convenience typedef for a boost::shared_ptr< WUIWidgetBase >.
+     */
+    typedef boost::shared_ptr< WUIWidgetBase > SPtr;
 
-#endif  // WCUSTOMWIDGETEVENTHANDLER_H
+    /**
+     * Convenience typedef for a boost::shared_ptr< const WUIWidgetBase >.
+     */
+    typedef boost::shared_ptr< const WUIWidgetBase > ConstSPtr;
+
+    /**
+     * Default constructor.
+     */
+    WUIWidgetBase();
+
+    /**
+     * Destructor.
+     */
+    virtual ~WUIWidgetBase();
+
+protected:
+
+private:
+};
+
+#endif  // WCUSTOMWIDGETBASE_H
 

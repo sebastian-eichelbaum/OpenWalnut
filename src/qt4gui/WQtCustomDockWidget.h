@@ -33,13 +33,13 @@
 
 #include "WQtGLDockWidget.h"
 
-#include "core/ui/WCustomView.h"
+#include "core/ui/WUIView.h"
 
 /**
  * Dock Widget which is created by a module to display custom information.
  */
 class WQtCustomDockWidget : public WQtGLDockWidget,
-                            public WCustomView
+                            public WUIView
 {
 public:
     /**
@@ -97,7 +97,7 @@ public:
     virtual size_t width() const;
 
     /**
-     * \copydoc WCustomView::addEventHandler()
+     * \copydoc WUIView::addEventHandler()
      */
     virtual void addEventHandler( osgGA::GUIEventHandler* handler );
 

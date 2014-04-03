@@ -22,20 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#include "WUIWidgetBase.h"
 
-#include "WCustomView.h"
-
-WCustomView::WCustomView( std::string title ):
-    m_title( title )
+WUIWidgetBase::WUIWidgetBase()
 {
+    // initialize members
 }
 
-WCustomView::~WCustomView()
+WUIWidgetBase::~WUIWidgetBase()
 {
+    // cleanup
 }
 
-std::string WCustomView::getTitle() const
-{
-    return m_title;
-}

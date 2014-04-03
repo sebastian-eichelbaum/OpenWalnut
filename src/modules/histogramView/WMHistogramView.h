@@ -335,7 +335,7 @@ private:
     osg::ref_ptr< osg::Geode > m_markerNode;
 
     //! Holds the reference to the custom widget used for displaying the histogram
-    WCustomView::SPtr m_widget;
+    WUIView::SPtr m_widget;
 
     //! Draws the frame and ticks/labels.
     osg::ref_ptr< osg::Geode > m_frameNode;

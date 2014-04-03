@@ -33,6 +33,8 @@
 
 #include "../graphicsEngine/WGEViewer.h"
 
+#include "WUIWidgetBase.h"
+
 class WGEGroupNode;
 
 /**
@@ -61,30 +63,30 @@ private:
 /**
  * Custom widget which is created by a module to display custom information.
  */
-class WCustomView
+class WUIView: public WUIWidgetBase
 {
 public:
     /**
      * Abbreviation for a shared pointer on a instance of this class.
      */
-    typedef boost::shared_ptr< WCustomView > SPtr;
+    typedef boost::shared_ptr< WUIView > SPtr;
 
     /**
      * Abbreviation for a const shared pointer on a instance of this class.
      */
-    typedef boost::shared_ptr< const WCustomView > ConstSPtr;
+    typedef boost::shared_ptr< const WUIView > ConstSPtr;
 
     /**
      * Constructor. Create a custom widget instance.
      *
      * \param title the title of the widget
      */
-    explicit WCustomView( std::string title );
+    explicit WUIView( std::string title );
 
     /**
      * Destructor
      */
-    virtual ~WCustomView();
+    virtual ~WUIView();
 
     /**
      * Get the scene which is displayed

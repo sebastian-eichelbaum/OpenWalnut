@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WCUSTOMVIEWEVENTHANDLER_H
-#define WCUSTOMVIEWEVENTHANDLER_H
+#ifndef WUIVIEWEVENTHANDLER_H
+#define WUIVIEWEVENTHANDLER_H
 
 #include <boost/signals2/signal.hpp>
 
@@ -32,7 +32,7 @@
 
 #include "../common/math/linearAlgebra/WVectorFixed.h"
 #include "../common/WLogger.h"
-#include "WCustomView.h"
+#include "WUIView.h"
 
 /**
  * An event handler for a custom widget which eases interaction with GUIEvents within your module. Without you need to write your
@@ -44,13 +44,13 @@
  * that this is now called in context of the GUI thread and that you need to take care of threadsafety by yourself.
  *
  * Use the corresponding handleXY() member functions if you still need a custom event handler. But take care that you may need to
- * set the WCustomViewEventHandler::m_preselection event-mask accordingly within the constructor then.
+ * set the WUIViewEventHandler::m_preselection event-mask accordingly within the constructor then.
  *
  * In case you might not know what the specific parameters of the handle function represent you might have luck looking into the
  * OpenSceneGraph documentation http://www.openscenegraph.org/documentation/OpenSceneGraphReferenceDocs within the GUIEventAdapter
  * class.
  */
-class WCustomViewEventHandler : public osgGA::GUIEventHandler
+class WUIViewEventHandler : public osgGA::GUIEventHandler
 {
 public:
     /**
@@ -58,7 +58,7 @@ public:
      *
      * \param widget The custom widget for which events should be handled.
      */
-    explicit WCustomViewEventHandler( WCustomView::SPtr widget );
+    explicit WUIViewEventHandler( WUIView::SPtr widget );
 
     /**
      * The OSG calls this function whenever a new event has occured.
@@ -433,9 +433,9 @@ protected:
     TriggerSignalType        m_sigUser;
 
     /**
-     * Reference to the WCustomView for which event handling should performed.
+     * Reference to the WUIView for which event handling should performed.
      */
-    WCustomView::SPtr m_widget;
+    WUIView::SPtr m_widget;
 
     /**
      * Binary mask describing which events should be used for notification or subscription.
@@ -450,4 +450,4 @@ protected:
     wlog::WStreamedLogger errorLog() const;
 };
 
-#endif  // WCUSTOMVIEWEVENTHANDLER_H
+#endif  // WUIVIEWEVENTHANDLER_H

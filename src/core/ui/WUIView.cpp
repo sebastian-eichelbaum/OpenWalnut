@@ -24,28 +24,19 @@
 
 #include <string>
 
-#include "WOpenCustomDockWidgetEvent.h"
+#include "WUIView.h"
 
-WOpenCustomDockWidgetEvent::WOpenCustomDockWidgetEvent( std::string title, WGECamera::ProjectionMode projectionMode,
-    boost::shared_ptr< WFlag< boost::shared_ptr< WUIView > > > flag )
-    : QEvent( CUSTOM_TYPE ),
-      m_title( title ),
-      m_projectionMode( projectionMode ),
-      m_flag( flag )
+WUIView::WUIView( std::string title ):
+    WUIWidgetBase(),
+    m_title( title )
 {
 }
 
-std::string WOpenCustomDockWidgetEvent::getTitle() const
+WUIView::~WUIView()
+{
+}
+
+std::string WUIView::getTitle() const
 {
     return m_title;
-}
-
-WGECamera::ProjectionMode WOpenCustomDockWidgetEvent::getProjectionMode() const
-{
-    return m_projectionMode;
-}
-
-boost::shared_ptr< WFlag< boost::shared_ptr< WUIView > > > WOpenCustomDockWidgetEvent::getFlag() const
-{
-    return m_flag;
 }
