@@ -25,6 +25,8 @@
 #ifndef WUIWIDGETFACTORY_H
 #define WUIWIDGETFACTORY_H
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include "WUIGridWidget.h"
@@ -36,7 +38,6 @@
 class WUIWidgetFactory
 {
 public:
-
     /**
      * Convenience typedef for a boost::shared_ptr< WUIWidgetFactory >.
      */
@@ -79,6 +80,12 @@ public:
             WGECamera::ProjectionMode projectionMode,
             boost::shared_ptr< WCondition > shutdownCondition ) const = 0;
 
+    /**
+     * Destructor.
+     */
+    virtual ~WUIWidgetFactory()
+    {
+    }
 protected:
 private:
 };

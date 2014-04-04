@@ -25,6 +25,8 @@
 #ifndef WQTWIDGETFACTORY_H
 #define WQTWIDGETFACTORY_H
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include "core/common/WCondition.h"
@@ -39,7 +41,6 @@ class WMainWindow;
 class WQtWidgetFactory: public WUIWidgetFactory
 {
 public:
-
     /**
      * Convenience typedef for a boost::shared_ptr< WQtWidgetFactory >.
      */

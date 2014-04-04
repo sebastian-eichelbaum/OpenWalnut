@@ -44,7 +44,7 @@ public:
      *
      * \param function the function to call
      */
-    explicit WDeferredCallEvent( boost::function< void ( void ) >  function );
+    explicit WDeferredCallEvent( boost::function< void( void ) >  function );
 
     /**
      * Constant which saves the number used to distinguish this event from other
@@ -66,7 +66,7 @@ private:
     /**
      * the title of the widget to create
      */
-    boost::function< void ( void ) > m_function;
+    boost::function< void( void ) > m_function;
 
     /**
      * Fired whenever the function was called.

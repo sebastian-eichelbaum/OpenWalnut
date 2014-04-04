@@ -92,12 +92,10 @@ void WQtCustomDockWidget::addEventHandler( osgGA::GUIEventHandler* handler )
 
 void WQtCustomDockWidget::show()
 {
-
 }
 
 void WQtCustomDockWidget::close()
 {
-
 }
 
 void WQtCustomDockWidget::setVisible( bool visible )

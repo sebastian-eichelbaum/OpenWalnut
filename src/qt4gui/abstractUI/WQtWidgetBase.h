@@ -38,7 +38,6 @@
 class WQtWidgetBase
 {
 public:
-
     /**
      * Convenience typedef for a boost::shared_ptr< WQtWidgetBase >.
      */

@@ -24,7 +24,7 @@
 
 #include "WDeferredCallEvent.h"
 
-WDeferredCallEvent::WDeferredCallEvent( boost::function< void ( void ) > function ):
+WDeferredCallEvent::WDeferredCallEvent( boost::function< void( void ) > function ):
     QEvent( CUSTOM_TYPE ),
     m_function( function )
 {

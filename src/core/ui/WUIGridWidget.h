@@ -25,6 +25,8 @@
 #ifndef WUIGRIDWIDGET_H
 #define WUIGRIDWIDGET_H
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include "WUIWidgetBase.h"
@@ -37,7 +39,6 @@ class WUIGridWidget: public WUIWidgetBase
 {
     friend class WUI;
 public:
-
     /**
      * Convenience typedef for a boost::shared_ptr< WUIGridWidget >.
      */
@@ -52,7 +53,6 @@ public:
      * Destructor.
      */
     virtual ~WUIGridWidget();
-
 protected:
     /**
      * Default constructor. Create an empty grid widget.
@@ -60,7 +60,6 @@ protected:
      * \param title the widget title
      */
     explicit WUIGridWidget( std::string title );
-
 private:
 };
 

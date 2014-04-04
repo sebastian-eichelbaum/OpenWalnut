@@ -25,6 +25,8 @@
 #ifndef WQTVIEWWIDGET_H
 #define WQTVIEWWIDGET_H
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include "core/graphicsEngine/WGEGroupNode.h"
@@ -44,7 +46,6 @@ class WQtViewWidget: public WUIViewWidget,
                      public WQtWidgetBase
 {
 public:
-
     /**
      * Convenience typedef for a boost::shared_ptr< WQtViewWidget >.
      */

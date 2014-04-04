@@ -25,6 +25,8 @@
 #ifndef WUIWIDGETBASE_H
 #define WUIWIDGETBASE_H
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 /**
@@ -34,7 +36,6 @@
 class WUIWidgetBase
 {
 public:
-
     /**
      * Convenience typedef for a boost::shared_ptr< WUIWidgetBase >.
      */

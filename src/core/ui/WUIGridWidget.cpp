@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WUIGridWidget.h"
 
 WUIGridWidget::WUIGridWidget( std::string title ):

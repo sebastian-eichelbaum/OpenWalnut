@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include <QtGui/QApplication>
 
 #include "../WMainWindow.h"

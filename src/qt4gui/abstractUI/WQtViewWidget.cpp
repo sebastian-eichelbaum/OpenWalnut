@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "core/common/WConditionOneShot.h"
 #include "core/common/WFlag.h"
 
@@ -80,6 +82,5 @@ void WQtViewWidget::close()
 
 void WQtViewWidget::realizeImpl()
 {
-
 }
 

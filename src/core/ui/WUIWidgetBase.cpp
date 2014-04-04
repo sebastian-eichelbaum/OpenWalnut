@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WUIWidgetBase.h"
 
 WUIWidgetBase::WUIWidgetBase( std::string title ):

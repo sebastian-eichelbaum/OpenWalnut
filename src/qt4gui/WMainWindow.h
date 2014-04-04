@@ -238,7 +238,7 @@ public:
      *
      * \param function the function to call
      */
-    void execInGUIThread( boost::function< void ( void ) > function );
+    void execInGUIThread( boost::function< void( void ) > function );
 protected:
     /**
      * Setup the GUI by handling special modules. NavSlices for example setup several toolbar buttons.

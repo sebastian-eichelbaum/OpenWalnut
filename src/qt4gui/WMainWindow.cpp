@@ -1275,9 +1275,10 @@ WQtMessageDock* WMainWindow::getMessageDock()
     return m_messageDock;
 }
 
-void WMainWindow::execInGUIThread( boost::function< void ( void ) > function )
+void WMainWindow::execInGUIThread( boost::function< void( void ) > function )
 {
     WDeferredCallEvent* ev = new WDeferredCallEvent( function );
     QCoreApplication::postEvent( this, ev );
     ev->wait();
 }
+
