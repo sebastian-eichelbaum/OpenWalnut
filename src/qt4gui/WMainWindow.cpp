@@ -79,15 +79,13 @@
 #include "events/WModuleCrashEvent.h"
 #include "events/WModuleReadyEvent.h"
 #include "events/WModuleRemovedEvent.h"
-#include "events/WOpenCustomDockWidgetEvent.h"
-#include "events/WCloseCustomDockWidgetEvent.h"
+#include "events/WDeferredCallEvent.h"
 #include "events/WLoadFinishedEvent.h"
 #include "events/WLogEvent.h"
 #include "guiElements/WQtPropertyBoolAction.h"
 #include "WQtMessagePopup.h"
 #include "WQt4Gui.h"
 #include "WQtCombinerToolbar.h"
-#include "WQtCustomDockWidget.h"
 #include "WQtGLDockWidget.h"
 #include "WQtNavGLWidget.h"
 #include "WSettingAction.h"
@@ -817,15 +815,6 @@ void WMainWindow::closeEvent( QCloseEvent* e )
             m_navSagittal->close();
         }
 
-        // delete CustomDockWidgets
-        boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
-        for( std::map< std::string, boost::shared_ptr< WQtCustomDockWidget > >::iterator it = m_customDockWidgets.begin();
-             it != m_customDockWidgets.end(); ++it )
-        {
-            it->second->close();
-        }
-        //m_customDockWidgetsLock.unlock();
-
         // finally close
         e->accept();
     }
@@ -837,50 +826,9 @@ void WMainWindow::closeEvent( QCloseEvent* e )
 
 void WMainWindow::customEvent( QEvent* event )
 {
-    if( event->type() == WOpenCustomDockWidgetEvent::CUSTOM_TYPE )
+    if( event->type() == WDeferredCallEvent::CUSTOM_TYPE )
     {
-        // OpenCustomDockWidgetEvent
-        WOpenCustomDockWidgetEvent* ocdwEvent = static_cast< WOpenCustomDockWidgetEvent* >( event );
-        std::string title = ocdwEvent->getTitle();
-
-        boost::shared_ptr< WQtCustomDockWidget > widget;
-
-        boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
-        if( m_customDockWidgets.count( title ) == 0 )
-        {
-            // create new custom dock widget
-            widget = boost::shared_ptr< WQtCustomDockWidget >(
-                new WQtCustomDockWidget( title, m_glDock, ocdwEvent->getProjectionMode() ) );
-            m_glDock->addDockWidget( Qt::BottomDockWidgetArea, widget.get() );
-
-            // restore state and geometry
-            m_glDock->restoreDockWidget( widget.get() );
-            widget->restoreSettings();
-
-            // store it in CustomDockWidget list
-            m_customDockWidgets.insert( make_pair( title, widget ) );
-        }
-        else
-        {
-            widget = m_customDockWidgets[title];
-            widget->increaseUseCount();
-        }
-
-        ocdwEvent->getFlag()->set( widget );
-        boost::dynamic_pointer_cast< QDockWidget >( widget )->toggleViewAction()->activate( QAction::Trigger );
-    }
-    else if( event->type() == WCloseCustomDockWidgetEvent::CUSTOM_TYPE )
-    {
-        WCloseCustomDockWidgetEvent* closeEvent = static_cast< WCloseCustomDockWidgetEvent* >( event );
-        boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
-        if( m_customDockWidgets.count( closeEvent->getTitle() ) > 0 )
-        {
-            if( m_customDockWidgets[closeEvent->getTitle()]->decreaseUseCount() )
-            {
-                // custom dock widget should be deleted
-                m_customDockWidgets.erase( closeEvent->getTitle() );
-            }
-        }
+        static_cast< WDeferredCallEvent* >( event )->call();
     }
     else
     {
@@ -1027,21 +975,6 @@ bool WMainWindow::event( QEvent* event )
     }
 
     return QMainWindow::event( event );
-}
-
-boost::shared_ptr< WQtCustomDockWidget > WMainWindow::getCustomDockWidget( std::string title )
-{
-    boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
-    boost::shared_ptr< WQtCustomDockWidget > out = m_customDockWidgets.count( title ) > 0 ?
-        m_customDockWidgets[title] :
-        boost::shared_ptr< WQtCustomDockWidget >();
-    return out;
-}
-
-
-void WMainWindow::closeCustomDockWidget( std::string title )
-{
-    QCoreApplication::postEvent( this, new WCloseCustomDockWidgetEvent( title ) );
 }
 
 void WMainWindow::newRoi()
@@ -1340,4 +1273,11 @@ const WQtMessageDock* WMainWindow::getMessageDock() const
 WQtMessageDock* WMainWindow::getMessageDock()
 {
     return m_messageDock;
+}
+
+void WMainWindow::execInGUIThread( boost::function< void ( void ) > function )
+{
+    WDeferredCallEvent* ev = new WDeferredCallEvent( function );
+    QCoreApplication::postEvent( this, ev );
+    ev->wait();
 }

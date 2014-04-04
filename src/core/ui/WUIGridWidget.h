@@ -22,26 +22,47 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDEFINES_H
-#define WDEFINES_H
+#ifndef WUIGRIDWIDGET_H
+#define WUIGRIDWIDGET_H
+
+#include <boost/shared_ptr.hpp>
+
+#include "WUIWidgetBase.h"
 
 /**
- * \defgroup macros Macros
- *
- * This are macros used in OpenWalnut. Generally speaking we want to use as less macros as possible, so introduce new macros only if you have read:
- * http://www.parashift.com/c++-faq-lite/inline-functions.html#faq-9.5 esp. all four "why are macros - evil" pages.
+ * Widget which is a container for others. The child widgets can be arranged in a grid. The WUIGridWidget itself is a widget, which means you can
+ * embed grids in grid cells.
  */
+class WUIGridWidget: public WUIWidgetBase
+{
+    friend class WUI;
+public:
 
-/**
- * \ingroup macros
- * \def OW_API_DEPRECATED
- * In order to mark functions for the compiler as deprecated we need to put this before each deprecated function to get compiler warnings whenever this function is used.
- * \note This macro is defined in here, since almost every header of the dataHandler includes this header.
- */
-#if ( __GNUC__ > 3 || ( __GNUC__ == 3 && __GNUC_MINOR__ >= 1 ) )
-    #define OW_API_DEPRECATED  __attribute__( ( __deprecated__ ) )
-#else
-    #define OW_API_DEPRECATED
-#endif /* __GNUC__ */
+    /**
+     * Convenience typedef for a boost::shared_ptr< WUIGridWidget >.
+     */
+    typedef boost::shared_ptr< WUIGridWidget > SPtr;
 
-#endif  // WDEFINES_H
+    /**
+     * Convenience typedef for a boost::shared_ptr< const WUIGridWidget >.
+     */
+    typedef boost::shared_ptr< const WUIGridWidget > ConstSPtr;
+
+    /**
+     * Destructor.
+     */
+    virtual ~WUIGridWidget();
+
+protected:
+    /**
+     * Default constructor. Create an empty grid widget.
+     *
+     * \param title the widget title
+     */
+    explicit WUIGridWidget( std::string title );
+
+private:
+};
+
+#endif  // WUIGRIDWIDGET_H
+

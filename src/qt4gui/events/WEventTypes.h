@@ -90,4 +90,7 @@
 // re-sort a branch
 #define WQT_ROI_SORT_EVENT QEvent::User + 19
 
+// call a function from within the GUI thread
+#define WQT_DEFERREDCALL QEvent::User + 20
+
 #endif  // WEVENTTYPES_H

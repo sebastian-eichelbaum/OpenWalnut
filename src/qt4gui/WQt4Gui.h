@@ -38,8 +38,11 @@
 #include "core/graphicsEngine/WGraphicsEngine.h"
 
 #include "core/kernel/WModule.h"
+#include "core/common/WDefines.h"
 
 #include "core/ui/WUI.h"
+
+#include "abstractUI/WQtWidgetFactory.h"
 
 #include "WIconManager.h"
 
@@ -145,36 +148,6 @@ public:
     boost::signals2::signal1< void, std::vector< std::string > >* getLoadButtonSignal();
 
     /**
-     * Instruct to open a new custom widget. The specified condition should be the shutdown condition of the module, as the function returns only
-     * if the widget was created. To ensure that the creation is aborted properly if the module shuts down in the meantime, this condition is
-     * used.
-     *
-     * \note this function blocks until the widget was created. Check the resulting pointer for NULL.
-     *
-     * \param title the title of the widget
-     * \param projectionMode the kind of projection which should be used
-     * \param shutdownCondition a condition enforcing abort of widget creation.
-     *
-     * \return the created widget
-     */
-    virtual WUIView::SPtr openCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode,
-        boost::shared_ptr< WCondition > shutdownCondition );
-
-    /**
-     * Instruct the WMainWindow to close a custom widget. NEVER call this in the GUI thread. It will block the GUI.
-     *
-     * \param title The title of the widget
-     */
-    virtual void closeCustomWidget( std::string title );
-
-    /**
-     * Instruct the WMainWindow to close a custom widget. NEVER call this in the GUI thread. It will block the GUI.
-     *
-     * \param widget the widget to close
-     */
-    virtual void closeCustomWidget( WUIView::SPtr widget );
-
-    /**
      * Returns the current main window instance or NULL if not existent.
      *
      * \return the main window instance.
@@ -201,6 +174,13 @@ public:
      * \return the option map
      */
     const boost::program_options::variables_map& getOptionMap() const;
+
+    /**
+     * Returns the widget factory of the UI.
+     *
+     * \return the factory. Use this to create your widget instances.
+     */
+    virtual WUIWidgetFactory::SPtr getWidgetFactory() const;
 
 protected:
     /**
@@ -268,6 +248,11 @@ private:
      * The splash screen.
      */
     QSplashScreen* m_splash;
+
+    /**
+     * The widget factory which handles WUI widget creation.
+     */
+    WQtWidgetFactory::SPtr m_widgetFactory;
 };
 
 #endif  // WQT4GUI_H

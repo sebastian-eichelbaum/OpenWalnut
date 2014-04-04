@@ -22,30 +22,35 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#include <QtGui/QApplication>
 
-#include "WOpenCustomDockWidgetEvent.h"
+#include "../WMainWindow.h"
+#include "WQtViewWidget.h"
 
-WOpenCustomDockWidgetEvent::WOpenCustomDockWidgetEvent( std::string title, WGECamera::ProjectionMode projectionMode,
-    boost::shared_ptr< WFlag< boost::shared_ptr< WUIView > > > flag )
-    : QEvent( CUSTOM_TYPE ),
-      m_title( title ),
-      m_projectionMode( projectionMode ),
-      m_flag( flag )
+#include "WQtWidgetFactory.h"
+
+WQtWidgetFactory::WQtWidgetFactory( WMainWindow* mainWindow ):
+    WUIWidgetFactory(),
+    m_mainWindow( mainWindow )
+{
+    // initialize members
+}
+
+WQtWidgetFactory::~WQtWidgetFactory()
+{
+    // cleanup
+}
+
+WUIGridWidget::SPtr WQtWidgetFactory::createGridWidget( const std::string& title ) const
 {
 }
 
-std::string WOpenCustomDockWidgetEvent::getTitle() const
+WUIViewWidget::SPtr WQtWidgetFactory::createViewWidget(
+    std::string title,
+    WGECamera::ProjectionMode projectionMode,
+    boost::shared_ptr< WCondition > abortCondition ) const
 {
-    return m_title;
-}
-
-WGECamera::ProjectionMode WOpenCustomDockWidgetEvent::getProjectionMode() const
-{
-    return m_projectionMode;
-}
-
-boost::shared_ptr< WFlag< boost::shared_ptr< WUIView > > > WOpenCustomDockWidgetEvent::getFlag() const
-{
-    return m_flag;
+    WQtViewWidget::SPtr widget( new WQtViewWidget( title, projectionMode, m_mainWindow ) );
+    widget->realize( abortCondition );
+    return widget;
 }

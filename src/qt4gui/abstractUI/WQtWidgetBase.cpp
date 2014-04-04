@@ -22,15 +22,42 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WCUSTOMWIDGET_H
-#define WCUSTOMWIDGET_H
+#include <boost/function.hpp>
 
-#include "core/common/WDefines.h"
+#include "WQtWidgetBase.h"
 
-#include "WUIViewWidget.h"
+WQtWidgetBase::WQtWidgetBase( WMainWindow* mainWindow ):
+    m_mainWindow( mainWindow )
+{
+    // initialize members
+}
 
-// The former WCustomWidget is now called WUIViewWidget as it provides a view and is not a generic widget.
-typedef WUIViewWidget WCustomWidget OW_API_DEPRECATED;
+WQtWidgetBase::~WQtWidgetBase()
+{
+    // cleanup
+}
 
-#endif  // WCUSTOMWIDGET_H
+void WQtWidgetBase::realize( boost::shared_ptr< WCondition > /* abortCondition */ )
+{
+    m_mainWindow->execInGUIThread( boost::bind( &WQtWidgetBase::callMe, this ) );
 
+    // FIXME: somehow incorporate the abortCondition
+
+    /*WConditionSet conditionSet;
+    conditionSet.setResetable( true, false );
+    conditionSet.add( shutdownCondition );
+
+    boost::shared_ptr< WFlag< boost::shared_ptr< WUIViewWidget > > > widgetFlag(
+        new WFlag< boost::shared_ptr< WUIViewWidget > >( new WConditionOneShot, boost::shared_ptr< WUIViewWidget >() ) );
+    conditionSet.add( widgetFlag->getCondition() );
+
+    QCoreApplication::postEvent( m_mainWindow, new WOpenCustomDockWidgetEvent( title, projectionMode, widgetFlag ) );
+
+    conditionSet.wait();
+    return widgetFlag->get();*/
+}
+
+void WQtWidgetBase::callMe()
+{
+    realizeImpl();
+}

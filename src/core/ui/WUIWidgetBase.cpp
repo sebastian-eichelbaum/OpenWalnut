@@ -24,7 +24,8 @@
 
 #include "WUIWidgetBase.h"
 
-WUIWidgetBase::WUIWidgetBase()
+WUIWidgetBase::WUIWidgetBase( std::string title ):
+    m_title( title )
 {
     // initialize members
 }
@@ -32,5 +33,10 @@ WUIWidgetBase::WUIWidgetBase()
 WUIWidgetBase::~WUIWidgetBase()
 {
     // cleanup
+}
+
+std::string WUIWidgetBase::getTitle() const
+{
+    return m_title;
 }
 

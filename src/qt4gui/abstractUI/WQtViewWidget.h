@@ -22,65 +22,70 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTCUSTOMDOCKWIDGET_H
-#define WQTCUSTOMDOCKWIDGET_H
+#ifndef WQTVIEWWIDGET_H
+#define WQTVIEWWIDGET_H
 
-#include <string>
+#include <boost/shared_ptr.hpp>
 
 #include "core/graphicsEngine/WGEGroupNode.h"
-
-#include <QtGui/QDockWidget>
-
-#include "WQtGLDockWidget.h"
+#include "core/graphicsEngine/WGECamera.h"
+#include "core/graphicsEngine/WGEViewer.h"
+#include "core/common/WCondition.h"
 
 #include "core/ui/WUIViewWidget.h"
+#include "../WMainWindow.h"
+
+#include "WQtWidgetBase.h"
 
 /**
- * Dock Widget which is created by a module to display custom information.
+ * Implementation of \ref WUIViewWidget.
  */
-class WQtCustomDockWidget : public WQtGLDockWidget,
-                            public WUIViewWidget
+class WQtViewWidget: public WUIViewWidget,
+                     public WQtWidgetBase
 {
 public:
+
     /**
-     * constructor
+     * Convenience typedef for a boost::shared_ptr< WQtViewWidget >.
+     */
+    typedef boost::shared_ptr< WQtViewWidget > SPtr;
+
+    /**
+     * Convenience typedef for a boost::shared_ptr< const WQtViewWidget >.
+     */
+    typedef boost::shared_ptr< const WQtViewWidget > ConstSPtr;
+
+    /**
+     * Default constructor.
+     *
+     * \param mainWindow the main window instance
      *
      * \param title the title of the widget
-     * \param parent the parent of the widget
-     * \param projectionMode The kind of projection which should be used
+     * \param projectionMode the kind of projection which should be used
      */
-    WQtCustomDockWidget( std::string title, QWidget* parent, WGECamera::ProjectionMode projectionMode );
+    WQtViewWidget(
+            std::string title,
+            WGECamera::ProjectionMode projectionMode,
+            WMainWindow* mainWindow );
 
     /**
-     * Destructor
+     * Destructor.
      */
-    virtual ~WQtCustomDockWidget();
+    virtual ~WQtViewWidget();
 
     /**
-     * Get the scene which is displayed by the GL widget
+     * Get the scene which is displayed
      *
      * \return the scene as osg::ref_ptr
      */
     virtual osg::ref_ptr< WGEGroupNode > getScene() const;
 
     /**
-     * Get the viewer which is used by the GL widget
+     * Get the viewer which is used
      *
      * \return the viewer as boost::shard_ptr
      */
     virtual boost::shared_ptr< WGEViewer > getViewer() const;
-
-    /**
-     * Notify the widget that another module needs it.
-     */
-    void increaseUseCount();
-
-    /**
-     * Notify the widget that it is not needed by one module anymore.
-     *
-     * \returns whether the widget is not needed at all and should be deleted
-     */
-    bool decreaseUseCount();
 
     /**
      * Returns the height of the viewport of the camera.
@@ -97,9 +102,12 @@ public:
     virtual size_t width() const;
 
     /**
-     * \copydoc WUIViewWidget::addEventHandler()
+     * Adds an event handler to the widget's view.
+     *
+     * \param handler Pointer to the handler.
      */
     virtual void addEventHandler( osgGA::GUIEventHandler* handler );
+
 
     /**
      * Show this widget if not yet visible.
@@ -124,21 +132,15 @@ public:
      * Close the widget. When done, the widget can be safely deleted.
      */
     virtual void close();
-protected:
-private:
-    /**
-     * the scene which is displayed by the GL widget
-     */
-    osg::ref_ptr< WGEGroupNode > m_scene;
 
+protected:
     /**
-     * How many modules currently need this widget?
-     * Widget should be closed if this count reaches 0.
-     *
-     * \note It is not thread safe. But concurrent access is prevented by
-     *       WMainWindow's m_customDockWidgetsLock
+     * Realize the widget. This method blocks until the GUI thread created the widget. Called from within the GUI thread! So you can safely do Qt
+     * stuff.
      */
-    unsigned int m_useCount;
+    virtual void realizeImpl();
+private:
 };
 
-#endif  // WQTCUSTOMDOCKWIDGET_H
+#endif  // WQTVIEWWIDGET_H
+

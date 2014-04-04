@@ -22,20 +22,21 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#include "WDeferredCallEvent.h"
 
-#include "core/ui/WUIView.h"
-
-#include "WCloseCustomDockWidgetEvent.h"
-
-WCloseCustomDockWidgetEvent::WCloseCustomDockWidgetEvent( std::string title ):
+WDeferredCallEvent::WDeferredCallEvent( boost::function< void ( void ) > function ):
     QEvent( CUSTOM_TYPE ),
-    m_title( title )
+    m_function( function )
 {
 }
 
-std::string WCloseCustomDockWidgetEvent::getTitle() const
+void WDeferredCallEvent::wait()
 {
-    return m_title;
+    m_callCondition.wait();
 }
 
+void WDeferredCallEvent::call()
+{
+    m_function();
+    m_callCondition.notify();
+}

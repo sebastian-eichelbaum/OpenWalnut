@@ -22,21 +22,64 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#include "core/common/WConditionOneShot.h"
+#include "core/common/WFlag.h"
 
-#include "WUIView.h"
+#include "WQtViewWidget.h"
 
-WUIView::WUIView( std::string title ):
-    WUIWidgetBase(),
-    m_title( title )
+WQtViewWidget::WQtViewWidget(
+            std::string title,
+            WGECamera::ProjectionMode projectionMode,
+            WMainWindow* mainWindow ):
+    WUIViewWidget( title ),
+    WQtWidgetBase( mainWindow )
+{
+    // initialize members
+}
+
+WQtViewWidget::~WQtViewWidget()
+{
+    // cleanup
+}
+
+osg::ref_ptr< WGEGroupNode > WQtViewWidget::getScene() const
 {
 }
 
-WUIView::~WUIView()
+boost::shared_ptr< WGEViewer > WQtViewWidget::getViewer() const
 {
 }
 
-std::string WUIView::getTitle() const
+size_t WQtViewWidget::height() const
 {
-    return m_title;
 }
+
+size_t WQtViewWidget::width() const
+{
+}
+
+void WQtViewWidget::addEventHandler( osgGA::GUIEventHandler* handler )
+{
+}
+
+void WQtViewWidget::show()
+{
+}
+
+void WQtViewWidget::setVisible( bool visible )
+{
+}
+
+bool WQtViewWidget::isVisible() const
+{
+}
+
+void WQtViewWidget::close()
+{
+}
+
+void WQtViewWidget::realizeImpl()
+{
+
+}
+

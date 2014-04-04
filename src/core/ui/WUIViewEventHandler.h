@@ -32,7 +32,7 @@
 
 #include "../common/math/linearAlgebra/WVectorFixed.h"
 #include "../common/WLogger.h"
-#include "WUIView.h"
+#include "WUIViewWidget.h"
 
 /**
  * An event handler for a custom widget which eases interaction with GUIEvents within your module. Without you need to write your
@@ -58,7 +58,7 @@ public:
      *
      * \param widget The custom widget for which events should be handled.
      */
-    explicit WUIViewEventHandler( WUIView::SPtr widget );
+    explicit WUIViewEventHandler( WUIViewWidget::SPtr widget );
 
     /**
      * The OSG calls this function whenever a new event has occured.
@@ -433,9 +433,9 @@ protected:
     TriggerSignalType        m_sigUser;
 
     /**
-     * Reference to the WUIView for which event handling should performed.
+     * Reference to the WUIViewWidget for which event handling should performed.
      */
-    WUIView::SPtr m_widget;
+    WUIViewWidget::SPtr m_widget;
 
     /**
      * Binary mask describing which events should be used for notification or subscription.

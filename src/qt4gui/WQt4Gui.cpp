@@ -56,7 +56,6 @@
 #include "events/WModuleDisconnectEvent.h"
 #include "events/WModuleReadyEvent.h"
 #include "events/WModuleRemovedEvent.h"
-#include "events/WOpenCustomDockWidgetEvent.h"
 #include "events/WRoiAssocEvent.h"
 #include "events/WRoiRemoveEvent.h"
 #include "events/WUpdateTextureSorterEvent.h"
@@ -260,6 +259,9 @@ int WQt4Gui::run()
 
     // create the window
     m_mainWindow = new WMainWindow( m_splash );
+
+    m_widgetFactory = WQtWidgetFactory::SPtr( new WQtWidgetFactory( m_mainWindow ) );
+
 #ifdef Q_WS_MAC
     //TODO(mario): this should run on all platforms but crashes at least on Linux right now. Therefore, I only use it on OSX
     appl.setMyMainWidget( m_mainWindow );
@@ -403,33 +405,6 @@ boost::signals2::signal1< void, std::vector< std::string > >* WQt4Gui::getLoadBu
     return m_mainWindow->getLoaderSignal();
 }
 
-boost::shared_ptr< WUIView > WQt4Gui::openCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode,
-    boost::shared_ptr< WCondition > shutdownCondition )
-{
-    WConditionSet conditionSet;
-    conditionSet.setResetable( true, false );
-    conditionSet.add( shutdownCondition );
-
-    boost::shared_ptr< WFlag< boost::shared_ptr< WUIView > > > widgetFlag(
-        new WFlag< boost::shared_ptr< WUIView > >( new WConditionOneShot, boost::shared_ptr< WUIView >() ) );
-    conditionSet.add( widgetFlag->getCondition() );
-
-    QCoreApplication::postEvent( m_mainWindow, new WOpenCustomDockWidgetEvent( title, projectionMode, widgetFlag ) );
-
-    conditionSet.wait();
-    return widgetFlag->get();
-}
-
-void WQt4Gui::closeCustomWidget( std::string title )
-{
-    m_mainWindow->closeCustomDockWidget( title );
-}
-
-void WQt4Gui::closeCustomWidget( WUIView::SPtr widget )
-{
-    m_mainWindow->closeCustomDockWidget( widget->getTitle() );
-}
-
 QSettings& WQt4Gui::getSettings()
 {
     return *m_settings;
@@ -438,4 +413,9 @@ QSettings& WQt4Gui::getSettings()
 const boost::program_options::variables_map& WQt4Gui::getOptionMap() const
 {
     return m_optionsMap;
+}
+
+WUIWidgetFactory::SPtr WQt4Gui::getWidgetFactory() const
+{
+    return m_widgetFactory;
 }

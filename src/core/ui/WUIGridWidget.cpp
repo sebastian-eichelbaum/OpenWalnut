@@ -22,26 +22,16 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDEFINES_H
-#define WDEFINES_H
+#include "WUIGridWidget.h"
 
-/**
- * \defgroup macros Macros
- *
- * This are macros used in OpenWalnut. Generally speaking we want to use as less macros as possible, so introduce new macros only if you have read:
- * http://www.parashift.com/c++-faq-lite/inline-functions.html#faq-9.5 esp. all four "why are macros - evil" pages.
- */
+WUIGridWidget::WUIGridWidget( std::string title ):
+    WUIWidgetBase( title )
+{
+    // initialize members
+}
 
-/**
- * \ingroup macros
- * \def OW_API_DEPRECATED
- * In order to mark functions for the compiler as deprecated we need to put this before each deprecated function to get compiler warnings whenever this function is used.
- * \note This macro is defined in here, since almost every header of the dataHandler includes this header.
- */
-#if ( __GNUC__ > 3 || ( __GNUC__ == 3 && __GNUC_MINOR__ >= 1 ) )
-    #define OW_API_DEPRECATED  __attribute__( ( __deprecated__ ) )
-#else
-    #define OW_API_DEPRECATED
-#endif /* __GNUC__ */
+WUIGridWidget::~WUIGridWidget()
+{
+    // cleanup
+}
 
-#endif  // WDEFINES_H

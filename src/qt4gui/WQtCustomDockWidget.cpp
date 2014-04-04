@@ -31,7 +31,7 @@
 
 WQtCustomDockWidget::WQtCustomDockWidget( std::string title, QWidget* parent, WGECamera::ProjectionMode projectionMode )
     : WQtGLDockWidget( QString::fromStdString( title ), QString::fromStdString( title ), parent, projectionMode ),
-      WUIView( title ),
+      WUIViewWidget( title ),
       m_useCount( 1 )
 {
     setObjectName( QString( "Custom Dock Window " ) + QString::fromStdString( title ) );
@@ -90,4 +90,21 @@ void WQtCustomDockWidget::addEventHandler( osgGA::GUIEventHandler* handler )
     getViewer()->getView()->addEventHandler( handler );
 }
 
+void WQtCustomDockWidget::show()
+{
 
+}
+
+void WQtCustomDockWidget::close()
+{
+
+}
+
+void WQtCustomDockWidget::setVisible( bool visible )
+{
+}
+
+bool WQtCustomDockWidget::isVisible() const
+{
+    return true;
+}

@@ -22,13 +22,14 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WCUSTOMWIDGETBASE_H
-#define WCUSTOMWIDGETBASE_H
+#ifndef WUIWIDGETBASE_H
+#define WUIWIDGETBASE_H
 
 #include <boost/shared_ptr.hpp>
 
 /**
- * Base class for all the widget abstraction the core UI provides.
+ * Base class for all the widget abstraction the core UI provides. All the abstract widgets use the bridge pattern to let the UI/GUI implementor
+ * actually handle everything.
  */
 class WUIWidgetBase
 {
@@ -45,19 +46,53 @@ public:
     typedef boost::shared_ptr< const WUIWidgetBase > ConstSPtr;
 
     /**
-     * Default constructor.
-     */
-    WUIWidgetBase();
-
-    /**
      * Destructor.
      */
     virtual ~WUIWidgetBase();
 
-protected:
+    /**
+     * Get the title of the widget.
+     *
+     * \return title as string
+     */
+    virtual std::string getTitle() const;
 
+    /**
+     * Show this widget if not yet visible.
+     */
+    virtual void show() = 0;
+
+    /**
+     * Hide/show this widget. Unlike close(), you can show the widget again using show().
+     *
+     * \param visible false to hide widget
+     */
+    virtual void setVisible( bool visible = true ) = 0;
+
+    /**
+     * Check if the widget is hidden or not.
+     *
+     * \return true if visible.
+     */
+    virtual bool isVisible() const = 0;
+
+    /**
+     * Close the widget. When done, the widget can be safely deleted.
+     */
+    virtual void close() = 0;
+protected:
+    /**
+     * Default constructor.
+     *
+     * \param title the title of the widget
+     */
+    explicit WUIWidgetBase( std::string title );
 private:
+    /**
+     * The widget's title string.
+     */
+    std::string m_title;
 };
 
-#endif  // WCUSTOMWIDGETBASE_H
+#endif  // WUIWIDGETBASE_H
 

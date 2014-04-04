@@ -41,7 +41,7 @@
 #include "core/common/WStringUtils.h"
 #include "core/common/WPathHelper.h"
 #include "core/graphicsEngine/WGERequirement.h"
-#include "core/ui/WUIView.h"
+#include "core/ui/WUIViewWidget.h"
 #include "core/ui/WUIViewEventHandler.h"
 #include "core/ui/WUI.h"
 #include "core/kernel/WKernel.h"
@@ -211,7 +211,8 @@ void WMHistogramView::moduleMain()
 
     ready();
 
-    m_widget = WKernel::getRunningKernel()->getUI()->openCustomWidget( getName() + string_utils::toString( m_instanceID ),
+    m_widget = WKernel::getRunningKernel()->getUI()->getWidgetFactory()->createViewWidget(
+            getName() + string_utils::toString( m_instanceID ),
             WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition() );
     osg::ref_ptr< WUIViewEventHandler > eh = new WUIViewEventHandler( m_widget );
     eh->subscribeMove( boost::bind( &WMHistogramView::handleMouseMove, this, _1 ) );
@@ -299,7 +300,7 @@ void WMHistogramView::moduleMain()
     // clear main node, just in case
     m_mainNode->clear();
 
-    WKernel::getRunningKernel()->getUI()->closeCustomWidget( m_widget );
+    m_widget->close();
 
     debugLog() << "Finished. Good bye!";
 }

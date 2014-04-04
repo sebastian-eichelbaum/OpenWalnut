@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WCUSTOMVIEW_H
-#define WCUSTOMVIEW_H
+#ifndef WUIVIEWWIDGET_H
+#define WUIVIEWWIDGET_H
 
 #include <string>
 
@@ -63,30 +63,24 @@ private:
 /**
  * Custom widget which is created by a module to display custom information.
  */
-class WUIView: public WUIWidgetBase
+class WUIViewWidget: public WUIWidgetBase
 {
+    friend class WUI;
 public:
     /**
      * Abbreviation for a shared pointer on a instance of this class.
      */
-    typedef boost::shared_ptr< WUIView > SPtr;
+    typedef boost::shared_ptr< WUIViewWidget > SPtr;
 
     /**
      * Abbreviation for a const shared pointer on a instance of this class.
      */
-    typedef boost::shared_ptr< const WUIView > ConstSPtr;
-
-    /**
-     * Constructor. Create a custom widget instance.
-     *
-     * \param title the title of the widget
-     */
-    explicit WUIView( std::string title );
+    typedef boost::shared_ptr< const WUIViewWidget > ConstSPtr;
 
     /**
      * Destructor
      */
-    virtual ~WUIView();
+    virtual ~WUIViewWidget();
 
     /**
      * Get the scene which is displayed
@@ -101,13 +95,6 @@ public:
      * \return the viewer as boost::shard_ptr
      */
     virtual boost::shared_ptr< WGEViewer > getViewer() const = 0;
-
-    /**
-     * Get the title of the widget.
-     *
-     * \return title as string
-     */
-    virtual std::string getTitle() const;
 
     /**
      * Returns the height of the viewport of the camera.
@@ -131,11 +118,14 @@ public:
     virtual void addEventHandler( osgGA::GUIEventHandler* handler ) = 0;
 
 protected:
-private:
     /**
-     * The widget's title string.
+     * Constructor. Create a custom widget instance.
+     *
+     * \param title the title of the widget
      */
-    std::string m_title;
+    explicit WUIViewWidget( std::string title );
+
+private:
 };
 
-#endif  // WCUSTOMVIEW_H
+#endif  // WUIVIEWWIDGET_H

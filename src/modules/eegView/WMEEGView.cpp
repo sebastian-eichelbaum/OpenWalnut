@@ -40,7 +40,7 @@
 #include "core/graphicsEngine/WGEGroupNode.h"
 #include "core/graphicsEngine/WGEUtils.h"
 #include "core/graphicsEngine/WROIBox.h"
-#include "core/ui/WUIView.h"
+#include "core/ui/WUIViewWidget.h"
 #include "core/ui/WUI.h"
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WModuleInputData.h"
@@ -425,7 +425,8 @@ void WMEEGView::createColorMap()
 bool WMEEGView::openCustomWidget()
 {
     debugLog() << "Try to open EEG View widget...";
-    m_widget = WKernel::getRunningKernel()->getUI()->openCustomWidget( getName(), WGECamera::TWO_D, m_shutdownFlag.getCondition() );
+    m_widget = WKernel::getRunningKernel()->getUI()->getWidgetFactory()->createViewWidget( getName(),
+                    WGECamera::TWO_D, m_shutdownFlag.getCondition() );
     bool success = m_widget.get();
     if( success )
     {
@@ -461,8 +462,7 @@ void WMEEGView::closeCustomWidget()
         m_widget->getViewer()->getView()->getEventHandlers().remove( m_handler );
     }
 
-    // TODO(wiebel): use unique names here
-    WKernel::getRunningKernel()->getUI()->closeCustomWidget( getName() );
+    m_widget->close();
     m_widget.reset(); // forces need call of destructor
 }
 

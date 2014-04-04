@@ -22,49 +22,56 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WCLOSECUSTOMDOCKWIDGETEVENT_H
-#define WCLOSECUSTOMDOCKWIDGETEVENT_H
+#ifndef WDEFERREDCALLEVENT_H
+#define WDEFERREDCALLEVENT_H
 
-#include <string>
+#include <boost/function.hpp>
 
 #include <QtCore/QEvent>
 
-#include "core/common/WCondition.h"
+#include "core/common/WConditionOneShot.h"
 
 #include "WEventTypes.h"
 
 /**
- * A Qt event to close an existing custom dock widget if posted to the WMainWindow.
+ * A Qt event to call a function from within the GUI thread.
  */
-class WCloseCustomDockWidgetEvent : public QEvent
+class WDeferredCallEvent : public QEvent
 {
 public:
     /**
-     * Constructor. Use the doneCondition to wait for the event to be processed.
+     * Constructor.
      *
-     * \param title the title of the widget to open
+     * \param function the function to call
      */
-    explicit WCloseCustomDockWidgetEvent( std::string title );
-
-    /**
-     * Get the title of the widget to open.
-     *
-     * \return title of the widget to open
-     */
-    std::string getTitle() const;
+    explicit WDeferredCallEvent( boost::function< void ( void ) >  function );
 
     /**
      * Constant which saves the number used to distinguish this event from other
      * custom events.
      */
-    static const QEvent::Type CUSTOM_TYPE = static_cast< QEvent::Type >( WQT_CLOSECUSTOMDOCKWIDGET );
+    static const QEvent::Type CUSTOM_TYPE = static_cast< QEvent::Type >( WQT_DEFERREDCALL );
 
+    /**
+     * Call the function.
+     */
+    void call();
+
+    /**
+     * Wait until the function was called
+     */
+    void wait();
 protected:
 private:
     /**
      * the title of the widget to create
      */
-    std::string m_title;
+    boost::function< void ( void ) > m_function;
+
+    /**
+     * Fired whenever the function was called.
+     */
+    WConditionOneShot m_callCondition;
 };
 
-#endif  // WCLOSECUSTOMDOCKWIDGETEVENT_H
+#endif  // WDEFERREDCALLEVENT_H

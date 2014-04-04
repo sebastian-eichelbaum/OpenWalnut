@@ -26,7 +26,7 @@
 #include "WUIViewEventHandler.h"
 
 
-WUIViewEventHandler::WUIViewEventHandler( WUIView::SPtr widget )
+WUIViewEventHandler::WUIViewEventHandler( WUIViewWidget::SPtr widget )
     : m_widget( widget ),
       m_preselection( GUIEvents::NONE )
 {
