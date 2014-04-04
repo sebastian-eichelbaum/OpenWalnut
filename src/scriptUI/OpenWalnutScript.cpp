@@ -54,7 +54,10 @@ void printVersion()
               << std::endl;
 
     std::cout <<
-    "Copyright 2009-2010 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS\n"
+    "Copyright 2009-2014 The OpenWalnut Community\n"
+    "          2012-2014 Nemtics\n"
+    "          2009-2014 Abteilung fuer Bild- und Signalverarbeitung, Universitaet Leipzig\n"
+    "          2009-2013 Max-Planck Institute of Cognitive Neuroscience, Leipzig, Germany\n"
     "For more information see http://www.openwalnut.org/copying\n"
     "This program comes with ABSOLUTELY NO WARRANTY.\n"
     "This is free software, and you are welcome to redistribute it\n"
@@ -63,7 +66,7 @@ void printVersion()
     "along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>." << std::endl;
     std::cout << std::endl;  // Create new line after message for clarity.
 
-    std::cout << "Written by the OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS." << std::endl;
+    std::cout << "Written by the OpenWalnut Community, Nemtics, BSV@Uni-Leipzig and CNCF@MPI-CBS." << std::endl;
 }
 
 /**
