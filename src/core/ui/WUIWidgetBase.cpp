@@ -24,10 +24,14 @@
 
 #include <string>
 
+#include "core/common/WConditionOneShot.h"
+#include "core/common/WLogger.h"
+
 #include "WUIWidgetBase.h"
 
 WUIWidgetBase::WUIWidgetBase( std::string title ):
-    m_title( title )
+    m_title( title ),
+    m_closeCondition( new WConditionOneShot() )
 {
     // initialize members
 }
@@ -42,3 +46,12 @@ std::string WUIWidgetBase::getTitle() const
     return m_title;
 }
 
+void WUIWidgetBase::onClose()
+{
+    m_closeCondition->notify();
+}
+
+WCondition::SPtr WUIWidgetBase::getCloseCondition() const
+{
+    return m_closeCondition;
+}

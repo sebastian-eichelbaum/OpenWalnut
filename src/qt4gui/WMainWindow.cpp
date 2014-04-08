@@ -76,13 +76,14 @@
 #include "core/kernel/WROIManager.h"
 #include "core/kernel/WSelectionManager.h"
 #include "events/WEventTypes.h"
+#include "events/WDeferredCallEvent.h"
 #include "events/WModuleCrashEvent.h"
 #include "events/WModuleReadyEvent.h"
 #include "events/WModuleRemovedEvent.h"
-#include "events/WDeferredCallEvent.h"
 #include "events/WLoadFinishedEvent.h"
 #include "events/WLogEvent.h"
 #include "guiElements/WQtPropertyBoolAction.h"
+#include "abstractUI/WQtWidgetBase.h"
 #include "WQtMessagePopup.h"
 #include "WQt4Gui.h"
 #include "WQtCombinerToolbar.h"
@@ -258,7 +259,7 @@ void WMainWindow::setupGUI()
     m_mainGLDock->restoreSettings();
     m_mainGLWidget = m_mainGLDock->getGLWidget();
     m_glDock->addDockWidget( Qt::RightDockWidgetArea, m_mainGLDock );
-    connect( m_mainGLWidget.get(), SIGNAL( renderedFirstFrame() ), this, SLOT( handleGLVendor() ) );
+    connect( m_mainGLWidget, SIGNAL( renderedFirstFrame() ), this, SLOT( handleGLVendor() ) );
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
 
@@ -273,8 +274,8 @@ void WMainWindow::setupGUI()
     }
 
     // NOTE: we abuse the gl widgets first frame event to handle startup news.
-    connect( m_mainGLWidget.get(), SIGNAL( renderedFirstFrame() ), this, SLOT( handleStartMessages() ) );
-    connect( m_mainGLWidget.get(), SIGNAL( renderedFirstFrame() ), this, SLOT( closeSplash() ) );
+    connect( m_mainGLWidget, SIGNAL( renderedFirstFrame() ), this, SLOT( handleStartMessages() ) );
+    connect( m_mainGLWidget, SIGNAL( renderedFirstFrame() ), this, SLOT( closeSplash() ) );
 
     m_permanentToolBar = new WQtToolBar( "Standard Toolbar", this );
     addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
@@ -376,7 +377,7 @@ void WMainWindow::setupGUI()
         if( showNavWidgets->get() )
         {
             m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Axial View", "Axial View", this, "Axial Slice",
-                                                                                  m_mainGLWidget.get() ) );
+                                                                                  m_mainGLWidget ) );
             m_navAxial->setFeatures( QDockWidget::AllDockWidgetFeatures );
             m_navAxial->setSliderProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropAxialPos() );
             m_navAxial->getGLWidget()->setCameraManipulator( WQtGLWidget::NO_OP );
@@ -384,7 +385,7 @@ void WMainWindow::setupGUI()
             m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
 
             m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Coronal View", "Coronal View", this, "Coronal Slice",
-                                                                                    m_mainGLWidget.get() ) );
+                                                                                    m_mainGLWidget ) );
             m_navCoronal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             m_navCoronal->setSliderProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropCoronalPos() );
             m_navCoronal->getGLWidget()->setCameraManipulator( WQtGLWidget::NO_OP );
@@ -393,7 +394,7 @@ void WMainWindow::setupGUI()
 
             m_navSagittal =
                 boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Sagittal View", "Sagittal View", this, "Sagittal Slice",
-                                                                         m_mainGLWidget.get() ) );
+                                                                         m_mainGLWidget ) );
             m_navSagittal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             m_navSagittal->setSliderProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropSagittalPos() );
             m_navSagittal->getGLWidget()->setCameraManipulator( WQtGLWidget::NO_OP );
@@ -793,11 +794,17 @@ void WMainWindow::closeEvent( QCloseEvent* e )
 
         saveWindowState();
 
+        // close all registered custom widgets
+        for( CustomWidgets::iterator it = m_customWidgets.begin(); it != m_customWidgets.end(); ++it )
+        {
+            ( *it )->guiShutDown();
+        }
+
         // signal everybody to shut down properly.
         m_splash->showMessage( "Shutting down kernel. Waiting for modules to finish." );
         WKernel::getRunningKernel()->finalize();
 
-        // now nobody acesses the osg anymore
+        // now nobody accesses the osg anymore
         m_splash->showMessage( "Shutting down GUI." );
 
         // clean up gl widgets
@@ -1275,10 +1282,19 @@ WQtMessageDock* WMainWindow::getMessageDock()
     return m_messageDock;
 }
 
-void WMainWindow::execInGUIThread( boost::function< void( void ) > function )
+void WMainWindow::registerCustomWidget( WQtWidgetBase* widget )
 {
-    WDeferredCallEvent* ev = new WDeferredCallEvent( function );
-    QCoreApplication::postEvent( this, ev );
-    ev->wait();
+    CustomWidgets::iterator it = std::find( m_customWidgets.begin(), m_customWidgets.end(), widget );
+    if( it == m_customWidgets.end() )
+    {
+        m_customWidgets.push_back( widget );
+    }
+}
+
+void WMainWindow::deregisterCustomWidget( WQtWidgetBase* widget )
+{
+    // remove
+    CustomWidgets::iterator newEnd = std::remove( m_customWidgets.begin(), m_customWidgets.end(), widget );
+    m_customWidgets.erase( newEnd, m_customWidgets.end() );
 }
 

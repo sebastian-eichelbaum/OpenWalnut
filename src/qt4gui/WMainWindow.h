@@ -56,6 +56,7 @@ class WQtPropertyBoolAction;
 class WPropertyBase;
 class WQtControlPanel;
 class WQtGLScreenCapture;
+class WQtWidgetBase;
 
 /**
  * This class contains the main window and the layout of the widgets within the window.
@@ -234,11 +235,20 @@ public:
     WQtMessageDock* getMessageDock();
 
     /**
-     * Call a given function from within the GUI thread.
+     * Register a custom widget. This is important as the main window needs to manage the close/delete of these widgets. Only call from withing
+     * the GUI thread.
      *
-     * \param function the function to call
+     * \param widget the widget.
      */
-    void execInGUIThread( boost::function< void( void ) > function );
+    void registerCustomWidget( WQtWidgetBase* widget );
+
+    /**
+     * De-register a custom widget.
+     *
+     * \param widget the widget.
+     */
+    void deregisterCustomWidget( WQtWidgetBase* widget );
+
 protected:
     /**
      * Setup the GUI by handling special modules. NavSlices for example setup several toolbar buttons.
@@ -416,7 +426,7 @@ private:
 
     WQtNetworkEditor* m_networkEditor; //!< network editor
 
-    boost::shared_ptr< WQtGLWidget > m_mainGLWidget; //!< the main GL widget of the GUI
+    WQtGLWidget* m_mainGLWidget; //!< the main GL widget of the GUI
 
     boost::shared_ptr< WQtNavGLWidget > m_navAxial; //!< the axial view widget GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navCoronal; //!< the coronal view widget GL widget of the GUI
@@ -426,14 +436,14 @@ private:
     WQtGLDockWidget* m_mainGLDock; //!< the dock containing the main gl widget
 
     /**
-     * All registered WQtCustomDockWidgets.
+     * Container for core/UI widgetd
      */
-    std::map< std::string, boost::shared_ptr< WQtCustomDockWidget > > m_customDockWidgets;
+    typedef std::vector< WQtWidgetBase* > CustomWidgets;
 
     /**
-     * Mutex used to lock the map of WQtCustomDockWidgets.
+     * All registered widgets created by the core/UI api.
      */
-    boost::mutex m_customDockWidgetsLock;
+    CustomWidgets m_customWidgets;
 
     boost::signals2::signal1< void, std::vector< std::string > > m_loaderSignal; //!< boost signal for open file dialog
 

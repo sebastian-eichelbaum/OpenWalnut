@@ -25,6 +25,8 @@
 #include "../WQt4Gui.h"
 #include "../WMainWindow.h"
 
+#include "core/common/WLogger.h"
+
 #include "WQtDockTitleWidget.h"
 
 #include "WQtDockWidget.h"

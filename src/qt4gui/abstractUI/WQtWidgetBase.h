@@ -25,6 +25,8 @@
 #ifndef WQTWIDGETBASE_H
 #define WQTWIDGETBASE_H
 
+#include <QtGui/QWidget>
+
 #include <boost/shared_ptr.hpp>
 
 #include "core/common/WCondition.h"
@@ -61,11 +63,49 @@ public:
     virtual ~WQtWidgetBase();
 
     /**
+     * The widget was created and can be used.
+     *
+     * \return true if the widget is valid.
+     */
+    virtual bool isReal();
+
+    /**
+     * Show this widget if not yet visible.
+     */
+    virtual void show();
+
+    /**
+     * Hide/show this widget. Unlike close(), you can show the widget again using show().
+     *
+     * \param visible false to hide widget
+     */
+    virtual void setVisible( bool visible = true );
+
+    /**
+     * Check if the widget is hidden or not.
+     *
+     * \return true if visible.
+     */
+    virtual bool isVisible() const;
+
+    /**
+     * Close the widget. When done, the widget can be safely deleted.
+     */
+    virtual void close();
+
+    /**
      * Realize the widget. This method blocks until the GUI thread created the widget.
      *
      * \param abortCondition a condition enforcing abort of widget creation.
      */
     virtual void realize( boost::shared_ptr< WCondition > abortCondition );
+
+    /**
+     * Handle shutdown. This includes notification of the creating module and closing the widget. This method must be called from within the GUI
+     * thread.
+     */
+    void guiShutDown();
+
 protected:
     /**
      * Realize the widget. This method blocks until the GUI thread created the widget. Called from within the GUI thread! So you can safely do Qt
@@ -74,15 +114,54 @@ protected:
     virtual void realizeImpl() = 0;
 
     /**
-     * Forwards call from a boost function to the virtual realizeImpl method
+     * Show this widget if not yet visible. Called in GUI Thread (GT).
      */
-    void callMe();
+    virtual void showGT();
+
+    /**
+     * Hide/show this widget. Unlike close(), you can show the widget again using show(). Called in GUI Thread (GT).
+     *
+     * \param visible false to hide widget
+     */
+    virtual void setVisibleGT( bool visible = true );
+
+    /**
+     * Check if the widget is hidden or not. Called in GUI Thread (GT).
+     *
+     * \return true if visible.
+     */
+    virtual bool isVisibleGT() const;
+
+    /**
+     * Close the widget. When done, the widget can be safely deleted. Called in GUI Thread (GT).
+     */
+    virtual void closeGT();
+
+    /**
+     * Called directly before close in the GUI thread.
+     */
+    virtual void onClose();
+
+    /**
+     * Clean up all the memory in Gui Thread.
+     */
+    virtual void cleanUpGT() = 0;
 
     /**
      * The main window instance.
      */
     WMainWindow* m_mainWindow;
+
+    /**
+     * The widget representing this abstract UI element.
+     */
+    QWidget* m_widget;
+
 private:
+    /**
+     * Forwards call from a boost function to the virtual realizeImpl method
+     */
+    void realizeGT();
 };
 
 #endif  // WQTWIDGETBASE_H

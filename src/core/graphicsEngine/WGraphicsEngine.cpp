@@ -66,8 +66,12 @@ WGraphicsEngine::WGraphicsEngine():
     m_viewer->setThreadingModel( osgViewer::ViewerBase::SingleThreaded );
 #endif
 
+    m_viewer->setRunMaxFrameRate( 60.0 );
+
     // initialize members
     m_rootNode = new WGEScene();
+
+    m_viewersUpdate = false;
 
     setThreadName( "WGE" );
 }
@@ -139,43 +143,99 @@ boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( std::string name, os
     viewer->setBgColor( bgColor );
     viewer->setScene( getScene() );
 
-#ifdef WGEMODE_MULTITHREADED
-    // finally add view
-    m_viewer->addView( viewer->getView() );
-#endif
-
     // store it in viewer list
-    boost::mutex::scoped_lock lock( m_viewersLock );
+    boost::unique_lock< boost::shared_mutex > lock( m_viewersLock );
     bool insertSucceeded = m_viewers.insert( make_pair( name, viewer ) ).second;
     assert( insertSucceeded == true ); // if false, viewer with same name already exists
+
+#ifdef WGEMODE_MULTITHREADED
+    WCondition::SPtr viewerUpdateCondition( new WConditionOneShot() );
+    // finally add view (in the GE thread)
+    m_addViewers.push_back( viewer );
+    m_viewersUpdate = true;
+#else
+    m_viewer->addView( viewer->getView() );
+#endif
+    lock.unlock();
 
     return viewer;
 }
 
+void WGraphicsEngine::closeViewer( boost::shared_ptr< WGEViewer > viewer )
+{
+    boost::unique_lock< boost::shared_mutex > lock( m_viewersLock );
+
+    // close and erase
+    viewer->close();
+    if( m_viewers.count( viewer->getName() ) > 0 )
+    {
+        m_viewers.erase( viewer->getName() );
+    }
+
+#ifdef WGEMODE_MULTITHREADED
+    WCondition::SPtr viewerUpdateCondition( new WConditionOneShot() );
+    m_viewerUpdateNotifiers.push_back( viewerUpdateCondition );
+    // finally remove view (in the GE thread)
+    m_removeViewers.push_back( viewer );
+    m_viewersUpdate = true;
+#else
+    m_viewer->removeView( viewer->getView() );
+#endif
+
+    lock.unlock();
+
+#ifdef WGEMODE_MULTITHREADED
+    // wait until the GE thread processed our request.
+    viewerUpdateCondition->wait();
+#endif
+}
+
 void WGraphicsEngine::closeViewer( const std::string name )
 {
-    boost::mutex::scoped_lock lock( m_viewersLock );
+    boost::unique_lock< boost::shared_mutex > lock( m_viewersLock );
     if( m_viewers.count( name ) > 0 )
     {
         m_viewers[name]->close();
-
         m_viewers.erase( name );
+
+#ifdef WGEMODE_MULTITHREADED
+        WCondition::SPtr viewerUpdateCondition( new WConditionOneShot() );
+        m_viewerUpdateNotifiers.push_back( viewerUpdateCondition );
+        // finally remove view (in the GE thread)
+        m_removeViewers.push_back( m_viewers[name] );
+        m_viewersUpdate = true;
+#else
+        m_viewer->removeView( m_viewers[name]->getView() );
+#endif
+        lock.unlock();
+
+#ifdef WGEMODE_MULTITHREADED
+        // wait until the GE thread processed our request.
+        viewerUpdateCondition->wait();
+#endif
+    }
+    else
+    {
+        lock.unlock();
     }
 }
 
 boost::shared_ptr< WGEViewer > WGraphicsEngine::getViewerByName( std::string name )
 {
-    boost::mutex::scoped_lock lock( m_viewersLock );
+    boost::shared_lock< boost::shared_mutex > lock( m_viewersLock );
     boost::shared_ptr< WGEViewer > out = m_viewers.count( name ) > 0 ?
         m_viewers[name] :
         boost::shared_ptr< WGEViewer >();
+    lock.unlock();
     return out;
 }
 
 boost::shared_ptr< WGEViewer > WGraphicsEngine::getViewer()
 {
-    boost::mutex::scoped_lock lock( m_viewersLock );
-    return m_viewers[ "Main View" ];
+    boost::shared_lock< boost::shared_mutex > lock( m_viewersLock );
+    boost::shared_ptr< WGEViewer > result = m_viewers[ "Main View" ];
+    lock.unlock();
+    return result;
 }
 
 bool WGraphicsEngine::isRunning()
@@ -205,6 +265,36 @@ bool WGraphicsEngine::waitForStartupComplete()
     return isRunning();
 }
 
+void WGraphicsEngine::applyViewerListUpdates()
+{
+    // any new or removed views?
+    if( m_viewersUpdate )
+    {
+        boost::unique_lock< boost::shared_mutex > lock( m_viewersLock );
+
+        // add all views
+        for( std::vector< WGEViewer::SPtr >::iterator it = m_addViewers.begin(); it != m_addViewers.end(); ++it )
+        {
+            m_viewer->addView( ( *it )->getView() );
+        }
+        m_addViewers.clear();
+        for( std::vector< WGEViewer::SPtr >::iterator it = m_removeViewers.begin(); it != m_removeViewers.end(); ++it )
+        {
+            m_viewer->removeView( ( *it )->getView() );
+        }
+        m_removeViewers.clear();
+        m_viewersUpdate = false;
+        lock.unlock();
+
+        // notify all of them
+        for( std::vector< WCondition::SPtr >::iterator it = m_viewerUpdateNotifiers.begin(); it != m_viewerUpdateNotifiers.end(); ++it )
+        {
+            ( *it )->notify();
+        }
+        m_viewerUpdateNotifiers.clear();
+    }
+}
+
 void WGraphicsEngine::threadMain()
 {
     WLogger::getLogger()->addLogMessage( "Starting Graphics Engine", "GE", LL_INFO );
@@ -217,7 +307,20 @@ void WGraphicsEngine::threadMain()
     m_startThreadingCondition.wait();
     m_running = true;
     m_viewer->startThreading();
-    m_viewer->run();
+
+    // do this before calling realize to ensure the initial views where added
+    applyViewerListUpdates();
+
+    if( !m_viewer->isRealized() )
+    {
+        m_viewer->realize();
+    }
+    while( !m_viewer->done() )
+    {
+        // added or removed views?
+        applyViewerListUpdates();
+        m_viewer->frame();
+    }
     m_viewer->stopThreading();
     m_running = false;
 #else

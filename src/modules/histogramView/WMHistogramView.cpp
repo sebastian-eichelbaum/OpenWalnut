@@ -218,6 +218,7 @@ void WMHistogramView::moduleMain()
     eh->subscribeMove( boost::bind( &WMHistogramView::handleMouseMove, this, _1 ) );
     eh->subscribeResize( boost::bind( &WMHistogramView::handleResize, this, _1, _2, _3, _4 ) );
     m_widget->addEventHandler( eh );
+    m_widget->show();
 
     if( m_widget )
     {
@@ -298,7 +299,10 @@ void WMHistogramView::moduleMain()
     debugLog() << "Shutting down...";
 
     // clear main node, just in case
-    m_mainNode->clear();
+    if( m_mainNode )
+    {
+        m_mainNode->clear();
+    }
 
     m_widget->close();
 

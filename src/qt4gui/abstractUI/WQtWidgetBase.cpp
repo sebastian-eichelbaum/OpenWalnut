@@ -24,10 +24,15 @@
 
 #include <boost/function.hpp>
 
+#include "core/common/WLogger.h"
+
+#include "../WQt4Gui.h"
+
 #include "WQtWidgetBase.h"
 
 WQtWidgetBase::WQtWidgetBase( WMainWindow* mainWindow ):
-    m_mainWindow( mainWindow )
+    m_mainWindow( mainWindow ),
+    m_widget( NULL )
 {
     // initialize members
 }
@@ -35,29 +40,143 @@ WQtWidgetBase::WQtWidgetBase( WMainWindow* mainWindow ):
 WQtWidgetBase::~WQtWidgetBase()
 {
     // cleanup
+    if( m_widget )
+    {
+        delete m_widget;
+    }
 }
 
-void WQtWidgetBase::realize( boost::shared_ptr< WCondition > /* abortCondition */ )
+void WQtWidgetBase::realize( boost::shared_ptr< WCondition > abortCondition )
 {
-    m_mainWindow->execInGUIThread( boost::bind( &WQtWidgetBase::callMe, this ) );
-
-    // FIXME: somehow incorporate the abortCondition
-
-    /*WConditionSet conditionSet;
+    WConditionSet conditionSet;
     conditionSet.setResetable( true, false );
-    conditionSet.add( shutdownCondition );
+    // there are several events we want to wait for:
+    // 1) the caller of this function does not want to wait anymore:
+    conditionSet.add( abortCondition );
 
-    boost::shared_ptr< WFlag< boost::shared_ptr< WUIViewWidget > > > widgetFlag(
-        new WFlag< boost::shared_ptr< WUIViewWidget > >( new WConditionOneShot, boost::shared_ptr< WUIViewWidget >() ) );
-    conditionSet.add( widgetFlag->getCondition() );
+    // 2) the execution call was done:
+    WCondition::SPtr doneNotify( new WConditionOneShot() );
+    conditionSet.add( doneNotify );
 
-    QCoreApplication::postEvent( m_mainWindow, new WOpenCustomDockWidgetEvent( title, projectionMode, widgetFlag ) );
+    // use the UI to do the GUI thread call
+    WQt4Gui::execInGUIThreadAsync( boost::bind( &WQtWidgetBase::realizeGT, this ), doneNotify );
 
+    // use the UI to do the GUI thread call
+    WQt4Gui::execInGUIThreadAsync( boost::bind( &WMainWindow::registerCustomWidget, m_mainWindow, this ) );
+
+    // wait ...
     conditionSet.wait();
-    return widgetFlag->get();*/
 }
 
-void WQtWidgetBase::callMe()
+void WQtWidgetBase::realizeGT()
 {
     realizeImpl();
+    if( m_widget )
+    {
+        // ensure the widget is deleted when it was closed.
+        //m_widget->setAttribute( Qt::WA_DeleteOnClose, true );
+    }
+}
+
+bool WQtWidgetBase::isReal()
+{
+    return ( m_widget );
+}
+
+void WQtWidgetBase::show()
+{
+    if( m_widget )
+    {
+        WQt4Gui::execInGUIThread( boost::bind( &WQtWidgetBase::showGT, this ) );
+    }
+}
+
+void WQtWidgetBase::setVisible( bool visible )
+{
+    if( m_widget )
+    {
+        WQt4Gui::execInGUIThread( boost::bind( &WQtWidgetBase::setVisibleGT, this, visible ) );
+    }
+}
+
+/**
+ * Simple function to query the visibility in GUI thread.
+ */
+struct IsVisibleFunctor
+{
+    /**
+     * Functor queries the visibility in GUI thread
+     */
+    void operator()()
+    {
+        m_return = m_widget->isVisible();
+    }
+
+    /**
+     * The widget to query.
+     */
+    QWidget* m_widget;
+
+    /**
+     * The return value.
+     */
+    bool m_return;
+};
+
+bool WQtWidgetBase::isVisible() const
+{
+    if( m_widget )
+    {
+        IsVisibleFunctor f;
+        f.m_widget = m_widget;
+        WQt4Gui::execInGUIThread( f );
+        return f.m_return;
+    }
+    return false;
+}
+
+void WQtWidgetBase::close()
+{
+    if( m_widget )
+    {
+        WQt4Gui::execInGUIThread( boost::bind( &WQtWidgetBase::closeGT, this ) );
+    }
+}
+
+void WQtWidgetBase::showGT()
+{
+    m_widget->show();
+}
+
+void WQtWidgetBase::setVisibleGT( bool visible )
+{
+    m_widget->setVisible( visible );
+}
+
+bool WQtWidgetBase::isVisibleGT() const
+{
+    return m_widget->isVisible();
+}
+
+void WQtWidgetBase::closeGT()
+{
+    onClose();
+    m_mainWindow->deregisterCustomWidget( this );
+    // NOTE: due to the WA_DeleteOnClose attribute, the widget gets deleted properly on close
+    m_widget->close();
+    cleanUpGT();    // we do not delete the widget our self ... let the bridge implementor do it.
+    m_widget = NULL;
+}
+
+void WQtWidgetBase::guiShutDown()
+{
+    if( m_widget )
+    {
+        closeGT();
+    }
+}
+
+void WQtWidgetBase::onClose()
+{
+    // do nothing for now
 }

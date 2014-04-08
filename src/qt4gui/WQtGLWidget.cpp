@@ -151,8 +151,26 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
 
 WQtGLWidget::~WQtGLWidget()
 {
-    WKernel::getRunningKernel()->getGraphicsEngine()->closeViewer( m_nameOfViewer );
-    m_Viewer.reset();
+    wlog::info( "nbjhg" ) << "tod glwqidgetr";
+    // nothing
+    cleanUp();
+}
+
+void WQtGLWidget::cleanUp()
+{
+    if( m_Viewer )
+    {
+        m_Viewer->setClosed( true );
+        WKernel::getRunningKernel()->getGraphicsEngine()->closeViewer( m_Viewer );
+        m_Viewer = boost::shared_ptr<WGEViewer>();
+    }
+}
+
+void WQtGLWidget::closeEvent( QCloseEvent* event )
+{
+    cleanUp();
+    event->accept();
+    WQtGLWidgetParent::closeEvent( event );
 }
 
 QSize WQtGLWidget::sizeHint() const
@@ -162,6 +180,11 @@ QSize WQtGLWidget::sizeHint() const
 
 void WQtGLWidget::setCameraManipulator( WQtGLWidget::CameraManipulators manipulator )
 {
+    if( !m_Viewer )
+    {
+        return;
+    }
+
     m_CurrentManipulator = manipulator;
     switch( manipulator )
     {
@@ -215,7 +238,10 @@ void WQtGLWidget::paintEvent( QPaintEvent* /*event*/ )
 
 void WQtGLWidget::paintGL()
 {
-    m_Viewer->paint();
+    if( m_Viewer )
+    {
+        m_Viewer->paint();
+    }
 }
 
 void WQtGLWidget::resizeEvent( QResizeEvent* event )
@@ -227,7 +253,10 @@ void WQtGLWidget::resizeEvent( QResizeEvent* event )
 
 void WQtGLWidget::resizeGL( int width, int height )
 {
-    m_Viewer->resize( width, height );
+    if( m_Viewer )
+    {
+        m_Viewer->resize( width, height );
+    }
 }
 
 #else
@@ -243,7 +272,10 @@ void WQtGLWidget::paintGL()
 
 void WQtGLWidget::resizeEvent( QResizeEvent* event )
 {
-    m_Viewer->resize( event->size().width(), event->size().height() );
+    if( m_Viewer )
+    {
+        m_Viewer->resize( event->size().width(), event->size().height() );
+    }
 
     WQtGLWidgetParent::resizeEvent( event );
 }
@@ -275,6 +307,11 @@ int WQtGLWidget::translateButton( QMouseEvent* event )
 
 void WQtGLWidget::keyPressEvent( QKeyEvent* event )
 {
+    if( !m_Viewer )
+    {
+        return;
+    }
+
     // we ignore auto-repeated keys independent of the window manager settings
     if( event->isAutoRepeat() )
     {
@@ -302,6 +339,11 @@ void WQtGLWidget::keyPressEvent( QKeyEvent* event )
 
 void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
 {
+    if( !m_Viewer )
+    {
+        return;
+    }
+
     // we ignore auto-repeated keys independent of the window manager settings
     if( event->isAutoRepeat() )
     {
@@ -336,38 +378,53 @@ void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
 
 void WQtGLWidget::mousePressEvent( QMouseEvent* event )
 {
-    m_Viewer->mouseEvent( WGEViewer::MOUSEPRESS, event->x(), event->y(), translateButton( event ) );
+    if( m_Viewer )
+    {
+        m_Viewer->mouseEvent( WGEViewer::MOUSEPRESS, event->x(), event->y(), translateButton( event ) );
+    }
 }
 
 void WQtGLWidget::mouseDoubleClickEvent( QMouseEvent* event )
 {
-    m_Viewer->mouseEvent( WGEViewer::MOUSEDOUBLECLICK, event->x(), event->y(), translateButton( event ) );
+    if( m_Viewer )
+    {
+        m_Viewer->mouseEvent( WGEViewer::MOUSEDOUBLECLICK, event->x(), event->y(), translateButton( event ) );
+    }
 }
 
 void WQtGLWidget::mouseReleaseEvent( QMouseEvent* event )
 {
-    m_Viewer->mouseEvent( WGEViewer::MOUSERELEASE, event->x(), event->y(), translateButton( event ) );
+    if( m_Viewer )
+    {
+        m_Viewer->mouseEvent( WGEViewer::MOUSERELEASE, event->x(), event->y(), translateButton( event ) );
+    }
 }
 
 void WQtGLWidget::mouseMoveEvent( QMouseEvent* event )
 {
-    m_Viewer->mouseEvent( WGEViewer::MOUSEMOVE, event->x(), event->y(), 0 );
+    if( m_Viewer )
+    {
+        m_Viewer->mouseEvent( WGEViewer::MOUSEMOVE, event->x(), event->y(), 0 );
+    }
 }
 
 void WQtGLWidget::wheelEvent( QWheelEvent* event )
 {
-    int x, y;
-    if( event->orientation() == Qt::Vertical )
+    if( m_Viewer )
     {
-        x = 0;
-        y = event->delta();
+        int x, y;
+        if( event->orientation() == Qt::Vertical )
+        {
+            x = 0;
+            y = event->delta();
+        }
+        else
+        {
+            x = event->delta();
+            y = 0;
+        }
+        m_Viewer->mouseEvent( WGEViewer::MOUSESCROLL, x, y, 0 );
     }
-    else
-    {
-        x = event->delta();
-        y = 0;
-    }
-    m_Viewer->mouseEvent( WGEViewer::MOUSESCROLL, x, y, 0 );
 }
 
 bool WQtGLWidget::event( QEvent* event )
@@ -383,7 +440,10 @@ bool WQtGLWidget::event( QEvent* event )
 
 void WQtGLWidget::reset()
 {
-    m_Viewer->reset();
+    if( m_Viewer )
+    {
+        m_Viewer->reset();
+    }
 }
 
 const QGLFormat WQtGLWidget::getDefaultFormat()
@@ -400,91 +460,109 @@ void WQtGLWidget::notifyFirstRenderedFrame()
 
 void WQtGLWidget::setPresetViewLeft()
 {
-    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( m_Viewer->getCameraManipulator() );
-    osg::Quat q( 0.5, -0.5, -0.5, 0.5 );
-    // is it a trackball manipulator?
-    if( cm )
+    if( m_Viewer )
     {
-        cm->setRotation( q );
-    }
-    else
-    {
-        wlog::warn( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "GL Widget does not use a TrackballManipulator. Preset cannot be used.";
+        osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( m_Viewer->getCameraManipulator() );
+        osg::Quat q( 0.5, -0.5, -0.5, 0.5 );
+        // is it a trackball manipulator?
+        if( cm )
+        {
+            cm->setRotation( q );
+        }
+        else
+        {
+            wlog::warn( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "GL Widget does not use a TrackballManipulator. Preset cannot be used.";
+        }
     }
 }
 
 void WQtGLWidget::setPresetViewRight()
 {
-    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( m_Viewer->getCameraManipulator() );
-    osg::Quat q( -0.5, -0.5, -0.5, -0.5 );
-    // is it a trackball manipulator?
-    if( cm )
+    if( m_Viewer )
     {
-        cm->setRotation( q );
-    }
-    else
-    {
-        wlog::warn( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "GL Widget does not use a TrackballManipulator. Preset cannot be used.";
+        osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( m_Viewer->getCameraManipulator() );
+        osg::Quat q( -0.5, -0.5, -0.5, -0.5 );
+        // is it a trackball manipulator?
+        if( cm )
+        {
+            cm->setRotation( q );
+        }
+        else
+        {
+            wlog::warn( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "GL Widget does not use a TrackballManipulator. Preset cannot be used.";
+        }
     }
 }
 
 void WQtGLWidget::setPresetViewSuperior()
 {
-    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( m_Viewer->getCameraManipulator() );
-    osg::Quat q( 0., 0., 0., 1 );
-    // is it a trackball manipulator?
-    if( cm )
+    if( m_Viewer )
     {
-        cm->setRotation( q );
-    }
-    else
-    {
-        wlog::warn( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "GL Widget does not use a TrackballManipulator. Preset cannot be used.";
+        osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( m_Viewer->getCameraManipulator() );
+        osg::Quat q( 0., 0., 0., 1 );
+        // is it a trackball manipulator?
+        if( cm )
+        {
+            cm->setRotation( q );
+        }
+        else
+        {
+            wlog::warn( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "GL Widget does not use a TrackballManipulator. Preset cannot be used.";
+        }
     }
 }
 
 void WQtGLWidget::setPresetViewInferior()
 {
-    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( m_Viewer->getCameraManipulator() );
-    osg::Quat q( 0., -1., 0., 0. );
-    // is it a trackball manipulator?
-    if( cm )
+    if( m_Viewer )
     {
-        cm->setRotation( q );
-    }
-    else
-    {
-        wlog::warn( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "GL Widget does not use a TrackballManipulator. Preset cannot be used.";
+        osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( m_Viewer->getCameraManipulator() );
+        osg::Quat q( 0., -1., 0., 0. );
+        // is it a trackball manipulator?
+        if( cm )
+        {
+            cm->setRotation( q );
+        }
+        else
+        {
+            wlog::warn( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "GL Widget does not use a TrackballManipulator. Preset cannot be used.";
+        }
     }
 }
 
 void WQtGLWidget::setPresetViewAnterior()
 {
-    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( m_Viewer->getCameraManipulator() );
-    osg::Quat q( 0., -0.707107, -0.707107, 0. );
-    // is it a trackball manipulator?
-    if( cm )
+    if( m_Viewer )
     {
-        cm->setRotation( q );
-    }
-    else
-    {
-        wlog::warn( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "GL Widget does not use a TrackballManipulator. Preset cannot be used.";
+        osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( m_Viewer->getCameraManipulator() );
+        osg::Quat q( 0., -0.707107, -0.707107, 0. );
+        // is it a trackball manipulator?
+        if( cm )
+        {
+            cm->setRotation( q );
+        }
+        else
+        {
+            wlog::warn( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "GL Widget does not use a TrackballManipulator. Preset cannot be used.";
+        }
     }
 }
 
 void WQtGLWidget::setPresetViewPosterior()
 {
-    osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( m_Viewer->getCameraManipulator() );
-    osg::Quat q( 0.707107, 0., 0., 0.707107 );
-    // is it a trackball manipulator?
-    if( cm )
+    if( m_Viewer )
     {
-        cm->setRotation( q );
-    }
-    else
-    {
-        wlog::warn( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "GL Widget does not use a TrackballManipulator. Preset cannot be used.";
+        osg::ref_ptr<osgGA::TrackballManipulator>  cm = osg::dynamic_pointer_cast<osgGA::TrackballManipulator>( m_Viewer->getCameraManipulator() );
+        osg::Quat q( 0.707107, 0., 0., 0.707107 );
+        // is it a trackball manipulator?
+        if( cm )
+        {
+            cm->setRotation( q );
+        }
+        else
+        {
+            wlog::warn( "WQtGLWidget(" + m_Viewer->getName() + ")" ) << "GL Widget does not use a TrackballManipulator. Preset cannot be used.";
+        }
     }
 }
 

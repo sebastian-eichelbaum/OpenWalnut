@@ -78,7 +78,7 @@ void WQtNavGLWidget::setSliderProperty( boost::shared_ptr< WPropertyBase > prop 
     propWidget = new WPropertyDoubleWidget( prop->toPropDouble(), NULL, parentWidget() );
     propertyWidgetMap[prop] = propWidget;
     m_layout->addWidget( propWidget );
-    m_layout->setStretchFactor( getGLWidget().get(), 1 );
+    m_layout->setStretchFactor( getGLWidget(), 1 );
     m_layout->setStretchFactor( propWidget, 0 );
 }
 

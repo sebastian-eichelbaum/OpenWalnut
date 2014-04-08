@@ -24,6 +24,8 @@
 
 #include <iostream>
 
+#include "core/common/WLogger.h"
+
 #include "WGEGraphicsWindow.h"
 
 #include "exceptions/WGEInitFailed.h"
@@ -105,17 +107,30 @@ void WGEGraphicsWindow::createContext( int x, int y, int width, int height )
 
 void WGEGraphicsWindow::resize( int width, int height )
 {
+    if( !m_GraphicsWindow )
+    {
+        return;
+    }
+
     m_GraphicsWindow->getEventQueue()->windowResize( 0, 0, width, height );
     m_GraphicsWindow->resized( 0, 0, width, height );
 }
 
 void WGEGraphicsWindow::close()
 {
-    m_GraphicsWindow->getEventQueue()->closeWindow();
+    setClosed( true );
+
+    // this causes segfaults ...
+    // m_GraphicsWindow->getEventQueue()->closeWindow();
 }
 
 void WGEGraphicsWindow::keyEvent( KeyEvents eventType, int key )
 {
+    if( !m_GraphicsWindow )
+    {
+        return;
+    }
+
     switch( eventType )
     {
         case KEYPRESS:
@@ -129,6 +144,10 @@ void WGEGraphicsWindow::keyEvent( KeyEvents eventType, int key )
 
 void WGEGraphicsWindow::mouseEvent( MouseEvents eventType, int x, int y, int button )
 {
+    if( !m_GraphicsWindow )
+    {
+        return;
+    }
     switch( eventType )
     {
         case MOUSEPRESS:

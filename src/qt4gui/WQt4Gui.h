@@ -182,6 +182,27 @@ public:
      */
     virtual WUIWidgetFactory::SPtr getWidgetFactory() const;
 
+    /**
+     * Call a given function from within the GUI thread. The function posts an event and waits for its execution.
+     *
+     * \param functor the function to call (you can implement structs with operator() too if you need parameters and return values)
+     * \param notify specify your own condition to wait for. This is needed since the QApplication doc tells us that ownership of an event is
+     * handed over to QT and that it is not save to use the event after posting it. This means we cannot utilize an internal condition in the
+     * event as it might be deleted already when calling wait() on it. Do not specify this variable to get a fire-and-forget call (but still the
+     * method blocks until execution).
+     */
+    static void execInGUIThread( boost::function< void( void ) > functor, WCondition::SPtr notify = WCondition::SPtr() );
+
+    /**
+     * Call a given function from within the GUI thread. The function posts an event and DOES NOT wait for its execution.
+     *
+     * \param functor the function to call (you can implement structs with operator() too if you need parameters and return values)
+     * \param notify specify your own condition to wait for. This is needed since the QApplication doc tells us that ownership of an event is
+     * handed over to QT and that it is not save to use the event after posting it. This means we cannot utilize an internal condition in the
+     * event as it might be deleted already when calling wait() on it. Do not specify this variable to get a fire-and-forget call.
+     */
+    static void execInGUIThreadAsync( boost::function< void( void ) > functor, WCondition::SPtr notify = WCondition::SPtr() );
+
 protected:
     /**
      * Called whenever a module crashes.

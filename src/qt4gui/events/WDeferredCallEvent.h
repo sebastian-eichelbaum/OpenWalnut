@@ -43,8 +43,11 @@ public:
      * Constructor.
      *
      * \param function the function to call
+     * \param notify specify your own condition to wait for. This is needed since the QApplication doc tells us that ownership of an event is
+     * handed over to QT and that it is not save to use the event after posting it. This means we cannot utilize an internal condition in the
+     * event as it might be deleted already when calling wait() on it. Do not specify this variable to get a fire-and-forget call.
      */
-    explicit WDeferredCallEvent( boost::function< void( void ) >  function );
+    WDeferredCallEvent( boost::function< void( void ) >  function, WCondition::SPtr notify = WCondition::SPtr() );
 
     /**
      * Constant which saves the number used to distinguish this event from other
@@ -58,9 +61,11 @@ public:
     void call();
 
     /**
-     * Wait until the function was called
+     * Get the condition that notifies about the finished execution of the specified function.
+     *
+     * \return the condition. Might be NULL if none was specified.
      */
-    void wait();
+    WConditionOneShot::SPtr getDoneCondition() const;
 protected:
 private:
     /**
@@ -71,7 +76,7 @@ private:
     /**
      * Fired whenever the function was called.
      */
-    WConditionOneShot m_callCondition;
+    WCondition::SPtr m_callCondition;
 };
 
 #endif  // WDEFERREDCALLEVENT_H

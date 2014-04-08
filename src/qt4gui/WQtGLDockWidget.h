@@ -69,7 +69,7 @@ public:
      *
      * \return pointer to GL widget
      */
-    boost::shared_ptr< WQtGLWidget > getGLWidget() const;
+    WQtGLWidget* getGLWidget() const;
 
     /**
      * Adds a screen capture dock using this view's screen capture callback.
@@ -151,7 +151,7 @@ private:
     /**
      * My GL widget.
      */
-    boost::shared_ptr<WQtGLWidget> m_glWidget;
+    WQtGLWidget* m_glWidget;
 
     /**
      * The view name and dock title.

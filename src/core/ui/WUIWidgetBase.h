@@ -27,6 +27,8 @@
 
 #include <string>
 
+#include "core/common/WCondition.h"
+
 #include <boost/shared_ptr.hpp>
 
 /**
@@ -78,9 +80,17 @@ public:
     virtual bool isVisible() const = 0;
 
     /**
-     * Close the widget. When done, the widget can be safely deleted.
+     * Close the widget. When done, the widget can be safely deleted. You cannot re-open the widget with \ref show(). If you want to hide widget,
+     * use setVisible( false ) instead.
      */
     virtual void close() = 0;
+
+    /**
+     * Return the condition that fires when the widgets closes.
+     *
+     * \return the condition fired whenever the widget closes
+     */
+    WCondition::SPtr getCloseCondition() const;
 protected:
     /**
      * Default constructor.
@@ -88,11 +98,21 @@ protected:
      * \param title the title of the widget
      */
     explicit WUIWidgetBase( std::string title );
+
+    /**
+     * Called directly before closing the widget.
+     */
+    virtual void onClose();
 private:
     /**
      * The widget's title string.
      */
     std::string m_title;
+
+    /**
+     * Close condition. Notified when widget closes.
+     */
+    WCondition::SPtr m_closeCondition;
 };
 
 #endif  // WUIWIDGETBASE_H

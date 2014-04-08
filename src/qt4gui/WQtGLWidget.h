@@ -144,6 +144,12 @@ public:
      * \return the action
      */
     QAction* getCameraResetAction();
+
+    /**
+     * Called on close. Clean up all OpenGL stuff.
+     */
+    virtual void cleanUp();
+
 signals:
 
     /**
@@ -304,6 +310,13 @@ protected:
      * \return true if the event got handled properly.
      */
     virtual bool event( QEvent* event );
+
+    /**
+     * Called on close. Accept the event to accept the close call.
+     *
+     * \param event the event.
+     */
+    virtual void closeEvent( QCloseEvent* event );
 
 private:
     /**

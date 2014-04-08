@@ -63,14 +63,14 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     m_layout = new QVBoxLayout( m_panel );
     m_layout->setContentsMargins( 1, 1, 1, 1 );
 
-    m_glWidget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( viewTitle.toStdString(), m_panel, projectionMode, shareWidget ) );
+    m_glWidget = new WQtGLWidget( viewTitle.toStdString(), m_panel, projectionMode, shareWidget );
 
     // NOTE: do not remove this. When creating custom widgets using the OSG manipulators, a too small size here (or even no min size) causes the
     // cull visitor to do crap ... unknown reason ...
     setMinimumSize( 50, 50 );
 
     // add panel to layout.
-    m_layout->addWidget( m_glWidget.get() );
+    m_layout->addWidget( m_glWidget );
     m_panel->setLayout( m_layout );
     setWidget( m_panel );
 
@@ -121,8 +121,8 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
 
     // camera presets
     QToolButton* presetBtn = new QToolButton( parent );
-    presetBtn->setDefaultAction( getGLWidget()->getCameraResetAction() );
-    presetBtn->setMenu(  getGLWidget()->getCameraPresetsMenu() );
+    presetBtn->setDefaultAction( m_glWidget->getCameraResetAction() );
+    presetBtn->setMenu(  m_glWidget->getCameraPresetsMenu() );
     presetBtn->setPopupMode( QToolButton::MenuButtonPopup );
 
     // add them to the title
@@ -178,7 +178,7 @@ void WQtGLDockWidget::restoreSettings()
     WMainWindow::getSettings().endGroup();
 }
 
-boost::shared_ptr<WQtGLWidget>WQtGLDockWidget::getGLWidget() const
+WQtGLWidget* WQtGLDockWidget::getGLWidget() const
 {
     return m_glWidget;
 }
@@ -186,18 +186,26 @@ boost::shared_ptr<WQtGLWidget>WQtGLDockWidget::getGLWidget() const
 void WQtGLDockWidget::handleVisibilityChange( bool visible )
 {
     // this can help to reduce CPU load. Especially if multithreading viewers are used with cull thread per context.
-    m_glWidget->getViewer()->getView()->getScene()->getSceneData()->setNodeMask( visible * 0xFFFFFFFF );
+    if( m_glWidget->getViewer() )
+    {
+        m_glWidget->getViewer()->getView()->getScene()->getSceneData()->setNodeMask( visible * 0xFFFFFFFF );
+    }
 }
 
 void WQtGLDockWidget::closeEvent( QCloseEvent *event )
 {
-    getGLWidget()->getViewer()->setClosed( true );
+    event->accept();
     WQtDockWidget::closeEvent( event );
+
+    delete m_screenCapture;
+    m_screenCapture = NULL;
+
+    m_glWidget->close();
 }
 
 void WQtGLDockWidget::showEvent( QShowEvent* event )
 {
-    getGLWidget()->getViewer()->setClosed( false );
+    m_glWidget->getViewer()->setClosed( false );
     WQtDockWidget::showEvent( event );
 }
 
@@ -228,6 +236,9 @@ const QString& WQtGLDockWidget::getDockTitle() const
 
 void WQtGLDockWidget::openScreenCaptureConfig()
 {
-    m_screenCapture->setWindowFlags( Qt::Tool );
-    m_screenCapture->show();
+    if( m_screenCapture )
+    {
+        m_screenCapture->setWindowFlags( Qt::Tool );
+        m_screenCapture->show();
+    }
 }

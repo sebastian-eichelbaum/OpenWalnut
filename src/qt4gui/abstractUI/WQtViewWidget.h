@@ -36,6 +36,8 @@
 
 #include "core/ui/WUIViewWidget.h"
 #include "../WMainWindow.h"
+#include "../WQtGLDockWidget.h"
+#include "../WQtGLWidget.h"
 
 #include "WQtWidgetBase.h"
 
@@ -109,7 +111,6 @@ public:
      */
     virtual void addEventHandler( osgGA::GUIEventHandler* handler );
 
-
     /**
      * Show this widget if not yet visible.
      */
@@ -140,7 +141,33 @@ protected:
      * stuff.
      */
     virtual void realizeImpl();
+
+    /**
+     * Called directly before close in the GUI thread.
+     */
+    virtual void onClose();
+
+    /**
+     * Cleanup the GUI.
+     */
+    virtual void cleanUpGT();
+
 private:
+    /**
+     * Projection mode of the cam
+     */
+    WGECamera::ProjectionMode m_projectionMode;
+
+    /**
+     * Scene in this view
+     */
+    osg::ref_ptr< WGEGroupNode > m_scene;
+
+    /**
+     * The Qt widget representing this abstract widget.
+     * \note this is the same pointer as WQtWidgetBase::m_widget as WQtGLDockWidget.
+     */
+    WQtGLDockWidget* m_widgetDock;
 };
 
 #endif  // WQTVIEWWIDGET_H

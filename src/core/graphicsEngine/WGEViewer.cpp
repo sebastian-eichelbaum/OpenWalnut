@@ -253,6 +253,9 @@ void WGEViewer::resize( int width, int height )
 
 void WGEViewer::close()
 {
+    // delete/unset all the objects we sponsored a "shared_from_this" pointer to ensure the viewer gets deleted after close
+    m_effectImageOverlay->setReferenceViewer( WGEViewer::SPtr() );
+
     // forward close event
     WGEGraphicsWindow::close();
 }
