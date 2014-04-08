@@ -49,36 +49,39 @@ public:
     typedef boost::shared_ptr< const WUIWidgetFactory > ConstSPtr;
 
     /**
-     * Create a grid widget. This kind of widget is basically empty. Add others to it. The widgets are initially invisible. Use
+     * Create a grid widget. This kind of widget is basically empty. Add others to it. Parentless widgets are initially invisible. Use
      * WUIWidgetBase::show() to make them visible.
      * If a widget with this name already exists, it will be returned.
      *
      * \note this function blocks until the widget was created. Check the resulting pointer for NULL.
      *
      * \param title the title
+     * \param parent the parent widget which will contain this widget. Can be NULL.
      *
      * \return the widget. Might be NULL if something goes wrong.
      */
-    virtual WUIGridWidget::SPtr createGridWidget( const std::string& title ) const = 0;
+    virtual WUIGridWidget::SPtr createGridWidget( const std::string& title, WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const = 0;
 
     /**
      * Instruct to open a new view widget. The specified condition should be the shutdown condition of the module, as the function returns only
      * if the widget was created. To ensure that the creation is aborted properly if the module shuts down in the meantime, this condition is
-     * used. The widgets are initially invisible. Use WUIWidgetBase::show() to make them visible.
+     * used. Parentless widgets are initially invisible. Use WUIWidgetBase::show() to make them visible.
      * If a widget with this name already exists, it will be returned.
      *
      * \note this function blocks until the widget was created. Check the resulting pointer for NULL.
      *
      * \param title the title of the widget
      * \param projectionMode the kind of projection which should be used
-     * \param shutdownCondition a condition enforcing abort of widget creation.
+     * \param abordCondition a condition enforcing abort of widget creation. Can be NULL
+     * \param parent the parent widget which will contain this widget. Can be NULL.
      *
      * \return the created widget
      */
     virtual WUIViewWidget::SPtr createViewWidget(
             std::string title,
             WGECamera::ProjectionMode projectionMode,
-            boost::shared_ptr< WCondition > shutdownCondition ) const = 0;
+            boost::shared_ptr< WCondition > abordCondition = WCondition::SPtr(),
+            WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const = 0;
 
     /**
      * Destructor.
@@ -87,6 +90,16 @@ public:
     {
     }
 protected:
+    /**
+     * Set the parent of a widget. This is needed as WUIWidgetBase and WUIWidgetFactory are friends. Friendship is not derivable.
+     *
+     * \param widget the widget to set the parent to
+     * \param parent the parent
+     */
+    void setParent( WUIWidgetBase::SPtr widget, WUIWidgetBase::SPtr parent ) const
+    {
+        widget->setParent( parent );
+    }
 private:
 };
 

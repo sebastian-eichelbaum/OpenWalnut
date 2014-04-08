@@ -37,6 +37,7 @@
  */
 class WUIWidgetBase
 {
+    friend class WUIWidgetFactory;
 public:
     /**
      * Convenience typedef for a boost::shared_ptr< WUIWidgetBase >.
@@ -91,6 +92,13 @@ public:
      * \return the condition fired whenever the widget closes
      */
     WCondition::SPtr getCloseCondition() const;
+
+    /**
+     * Get the parent widget of this widget if any. Can be NULL.
+     *
+     * \return the parent
+     */
+    virtual WUIWidgetBase::SPtr getParent() const;
 protected:
     /**
      * Default constructor.
@@ -103,6 +111,13 @@ protected:
      * Called directly before closing the widget.
      */
     virtual void onClose();
+
+    /**
+     * Set the parent of this WUI widget. Do never call this after the widget was realized by the factory.
+     *
+     * \param parent the parent. Can be NULL if none.
+     */
+    virtual void setParent( WUIWidgetBase::SPtr parent );
 private:
     /**
      * The widget's title string.
@@ -113,6 +128,11 @@ private:
      * Close condition. Notified when widget closes.
      */
     WCondition::SPtr m_closeCondition;
+
+    /**
+     * The parent. Can be NULL.
+     */
+    WUIWidgetBase::SPtr m_parent;
 };
 
 #endif  // WUIWIDGETBASE_H

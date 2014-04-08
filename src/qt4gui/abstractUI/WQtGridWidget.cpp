@@ -1,0 +1,124 @@
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
+
+#include <string>
+
+#include "core/common/WConditionOneShot.h"
+#include "core/common/WFlag.h"
+
+#include "WQtGridWidget.h"
+
+WQtGridWidget::WQtGridWidget(
+            std::string title,
+            WMainWindow* mainWindow,
+            WQtWidgetBase::SPtr parent ):
+    WUIGridWidget( title ),
+    WQtWidgetBase( mainWindow, parent ),
+    m_widgetDock( NULL )
+{
+    // initialize members
+}
+
+WQtGridWidget::~WQtGridWidget()
+{
+    // cleanup
+}
+
+void WQtGridWidget::show()
+{
+    WQtWidgetBase::show();
+}
+
+void WQtGridWidget::setVisible( bool visible )
+{
+    WQtWidgetBase::setVisible( visible );
+}
+
+bool WQtGridWidget::isVisible() const
+{
+    return WQtWidgetBase::isVisible();
+}
+
+void WQtGridWidget::cleanUpGT()
+{
+    //m_mainWindow->removeDockWidget( m_widgetDock );
+    //delete m_widget;
+    m_widgetDock = NULL;
+    m_widget = NULL;
+}
+
+void WQtGridWidget::close()
+{
+    WQtWidgetBase::close();
+}
+
+void WQtGridWidget::onClose()
+{
+    WUIGridWidget::onClose();
+}
+
+void WQtGridWidget::realizeImpl()
+{
+    // this is called from withing the GUI thread -> we can safely create QT widgets here
+/*
+    //WQtGLWidget* w = new WQtGLWidget(  getTitle(), NULL, m_projectionMode, NULL );
+    WQtGLDockWidget* w = new WQtGLDockWidget( QString::fromStdString( getTitle() ),
+                                              QString::fromStdString( getTitle() ), m_mainWindow, m_projectionMode );
+    w->setObjectName( QString( "Custom Dock Window " ) + QString::fromStdString( getTitle() ) );
+
+    // define some scene
+    m_scene = new WGEGroupNode();
+    m_scene->setDataVariance( osg::Object::DYNAMIC );
+    w->getGLWidget()->getViewer()->setScene( m_scene );
+
+    // store them. Allow WQtWidgetBase to work on our widget instance
+    m_widget = w;
+    // lazy mode: keep pointer with proper type for later use.
+    m_widgetDock = w;
+
+    // hide but dock
+    w->setVisible( false );
+    m_mainWindow->addDockWidget( Qt::BottomDockWidgetArea, w );*/
+}
+
+void WQtGridWidget::placeWidgetImpl( WUIWidgetBase::SPtr widget, int x, int y )
+{
+    // get the real Qt widget
+    WQtWidgetBase* widgetQt = dynamic_cast< WQtWidgetBase* >( widget.get() );
+    QWidget* widgetQtwidget = NULL;
+    if( widgetQt )
+    {
+        widgetQtwidget = widgetQt->getWidget();
+    }
+
+    // and forward call to GUI thread
+    if( widgetQtwidget )
+    {
+        WQt4Gui::execInGUIThread( boost::bind( &WQtGridWidget::placeWidgetImplGT, this, widgetQtwidget, x, y ) );
+    }
+}
+
+void WQtGridWidget::placeWidgetImplGT( QWidget* widget, int x, int y )
+{
+}

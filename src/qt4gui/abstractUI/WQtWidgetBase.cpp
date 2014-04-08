@@ -30,9 +30,10 @@
 
 #include "WQtWidgetBase.h"
 
-WQtWidgetBase::WQtWidgetBase( WMainWindow* mainWindow ):
+WQtWidgetBase::WQtWidgetBase( WMainWindow* mainWindow, WQtWidgetBase::SPtr parent ):
     m_mainWindow( mainWindow ),
-    m_widget( NULL )
+    m_widget( NULL ),
+    m_parent( parent )
 {
     // initialize members
 }
@@ -52,7 +53,10 @@ void WQtWidgetBase::realize( boost::shared_ptr< WCondition > abortCondition )
     conditionSet.setResetable( true, false );
     // there are several events we want to wait for:
     // 1) the caller of this function does not want to wait anymore:
-    conditionSet.add( abortCondition );
+    if( abortCondition )
+    {
+        conditionSet.add( abortCondition );
+    }
 
     // 2) the execution call was done:
     WCondition::SPtr doneNotify( new WConditionOneShot() );
@@ -71,11 +75,6 @@ void WQtWidgetBase::realize( boost::shared_ptr< WCondition > abortCondition )
 void WQtWidgetBase::realizeGT()
 {
     realizeImpl();
-    if( m_widget )
-    {
-        // ensure the widget is deleted when it was closed.
-        //m_widget->setAttribute( Qt::WA_DeleteOnClose, true );
-    }
 }
 
 bool WQtWidgetBase::isReal()
@@ -179,4 +178,26 @@ void WQtWidgetBase::guiShutDown()
 void WQtWidgetBase::onClose()
 {
     // do nothing for now
+}
+
+QWidget* WQtWidgetBase::getWidget() const
+{
+    return m_widget;
+}
+
+QWidget* WQtWidgetBase::getParentAsQtWidget() const
+{
+    if( getQtParent() )
+    {
+        return getQtParent()->getWidget();
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+WQtWidgetBase::SPtr WQtWidgetBase::getQtParent() const
+{
+    return m_parent;
 }

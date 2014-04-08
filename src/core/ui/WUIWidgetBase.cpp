@@ -55,3 +55,14 @@ WCondition::SPtr WUIWidgetBase::getCloseCondition() const
 {
     return m_closeCondition;
 }
+
+void WUIWidgetBase::setParent( WUIWidgetBase::SPtr parent )
+{
+    m_parent = parent;
+}
+
+WUIWidgetBase::SPtr WUIWidgetBase::getParent() const
+{
+    return m_parent;
+}
+

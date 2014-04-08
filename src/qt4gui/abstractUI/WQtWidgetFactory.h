@@ -66,32 +66,37 @@ public:
     /**
      * Create a grid widget. This kind of widget is basically empty. Add others to it. The widgets are initially invisible. Use
      * WUIWidgetBase::show() to make them visible.
+     * If a widget with this name already exists, it will be returned.
      *
      * \note this function blocks until the widget was created. Check the resulting pointer for NULL.
      *
      * \param title the title
+     * \param parent the parent widget which will contain this widget. Can be NULL.
      *
      * \return the widget. Might be NULL if something goes wrong.
      */
-    virtual WUIGridWidget::SPtr createGridWidget( const std::string& title ) const;
+    virtual WUIGridWidget::SPtr createGridWidget( const std::string& title, WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const;
 
     /**
      * Instruct to open a new view widget. The specified condition should be the shutdown condition of the module, as the function returns only
      * if the widget was created. To ensure that the creation is aborted properly if the module shuts down in the meantime, this condition is
      * used. The widgets are initially invisible. Use WUIWidgetBase::show() to make them visible.
+     * If a widget with this name already exists, it will be returned.
      *
      * \note this function blocks until the widget was created. Check the resulting pointer for NULL.
      *
      * \param title the title of the widget
      * \param projectionMode the kind of projection which should be used
-     * \param abortCondition a condition enforcing abort of widget creation.
+     * \param abordCondition a condition enforcing abort of widget creation. Can be NULL
+     * \param parent the parent widget which will contain this widget. Can be NULL.
      *
      * \return the created widget
      */
     virtual WUIViewWidget::SPtr createViewWidget(
             std::string title,
             WGECamera::ProjectionMode projectionMode,
-            boost::shared_ptr< WCondition > abortCondition ) const;
+            boost::shared_ptr< WCondition > abordCondition = WCondition::SPtr(),
+            WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const;
 protected:
 private:
     /**

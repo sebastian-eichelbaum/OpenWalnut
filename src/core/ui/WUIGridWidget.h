@@ -53,6 +53,16 @@ public:
      * Destructor.
      */
     virtual ~WUIGridWidget();
+
+    /**
+     * Place the given widget in this grid at the given coordinates. The widget to be placed must be created with this grid as parent or an
+     * exception will be thrown.
+     *
+     * \param widget the widget
+     * \param x x coord ( 0 is left )
+     * \param y y coord ( 0 is top )
+     */
+    virtual void placeWidget( WUIWidgetBase::SPtr widget, int x, int y );
 protected:
     /**
      * Default constructor. Create an empty grid widget.
@@ -60,6 +70,15 @@ protected:
      * \param title the widget title
      */
     explicit WUIGridWidget( std::string title );
+
+    /**
+     * Place the given widget in this grid at the given coordinates. The widget to be placed must be created with this grid as parent.
+     *
+     * \param widget the widget
+     * \param x x coord ( 0 is left )
+     * \param y y coord ( 0 is top )
+     */
+    virtual void placeWidgetImpl( WUIWidgetBase::SPtr widget, int x, int y ) = 0;
 private:
 };
 

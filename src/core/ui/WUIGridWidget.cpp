@@ -24,6 +24,8 @@
 
 #include <string>
 
+#include "core/common/WException.h"
+
 #include "WUIGridWidget.h"
 
 WUIGridWidget::WUIGridWidget( std::string title ):
@@ -37,3 +39,11 @@ WUIGridWidget::~WUIGridWidget()
     // cleanup
 }
 
+void WUIGridWidget::placeWidget( WUIWidgetBase::SPtr widget, int x, int y )
+{
+    if( widget->getParent().get() != this )
+    {
+        throw WException( "This grid is not parent of the widget to place via placeWidget()." );
+    }
+    placeWidgetImpl( widget, x, y );
+}

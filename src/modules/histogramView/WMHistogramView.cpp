@@ -211,14 +211,26 @@ void WMHistogramView::moduleMain()
 
     ready();
 
+    //! Holds the reference to the custom widget used for displaying the histogram
+    WUIGridWidget::SPtr m_widgetGrid = WKernel::getRunningKernel()->getUI()->getWidgetFactory()->createGridWidget( getName() );
+
     m_widget = WKernel::getRunningKernel()->getUI()->getWidgetFactory()->createViewWidget(
             getName() + string_utils::toString( m_instanceID ),
-            WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition() );
+            WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition(), m_widgetGrid );
     osg::ref_ptr< WUIViewEventHandler > eh = new WUIViewEventHandler( m_widget );
     eh->subscribeMove( boost::bind( &WMHistogramView::handleMouseMove, this, _1 ) );
     eh->subscribeResize( boost::bind( &WMHistogramView::handleResize, this, _1, _2, _3, _4 ) );
     m_widget->addEventHandler( eh );
-    m_widget->show();
+/*
+    WUIViewWidget::SPtr m_widget2 = WKernel::getRunningKernel()->getUI()->getWidgetFactory()->createViewWidget(
+            getName() + "kk" + string_utils::toString( m_instanceID ),
+            WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition(), m_widgetGrid );
+
+
+    m_widgetGrid->placeWidget( m_widget, 0, 0 );
+    m_widgetGrid->placeWidget( m_widget, 0, 1 );
+*/
+    m_widgetGrid->show();
 
     if( m_widget )
     {
@@ -229,7 +241,7 @@ void WMHistogramView::moduleMain()
         m_mainNode = m_widget->getScene();
         if( !m_mainNode )
         {
-            errorLog() << "Could not aquire scene node from widget.";
+            errorLog() << "Could not acquire scene node from widget.";
         }
     }
     else
@@ -304,7 +316,8 @@ void WMHistogramView::moduleMain()
         m_mainNode->clear();
     }
 
-    m_widget->close();
+    m_widgetGrid->close();
+    //m_widget->close();
 
     debugLog() << "Finished. Good bye!";
 }

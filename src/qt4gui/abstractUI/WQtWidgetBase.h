@@ -55,7 +55,7 @@ public:
      *
      * \param mainWindow the main window instance
      */
-    explicit WQtWidgetBase( WMainWindow* mainWindow );
+    explicit WQtWidgetBase( WMainWindow* mainWindow, WQtWidgetBase::SPtr parent );
 
     /**
      * Destructor.
@@ -98,7 +98,7 @@ public:
      *
      * \param abortCondition a condition enforcing abort of widget creation.
      */
-    virtual void realize( boost::shared_ptr< WCondition > abortCondition );
+    virtual void realize( WCondition::SPtr abortCondition = WCondition::SPtr() );
 
     /**
      * Handle shutdown. This includes notification of the creating module and closing the widget. This method must be called from within the GUI
@@ -106,6 +106,26 @@ public:
      */
     void guiShutDown();
 
+    /**
+     * Get the widget representation. Can be NULL if not yet created.
+     *
+     * \return the widget
+     */
+    QWidget* getWidget() const;
+
+    /**
+     * Get the parent as Qt widget. Can be NULL.
+     *
+     * \return the parent
+     */
+    QWidget* getParentAsQtWidget() const;
+
+    /**
+     * Parent widget. Can be NULL.
+     *
+     * \return the parent
+     */
+    WQtWidgetBase::SPtr getQtParent() const;
 protected:
     /**
      * Realize the widget. This method blocks until the GUI thread created the widget. Called from within the GUI thread! So you can safely do Qt
@@ -157,6 +177,10 @@ protected:
      */
     QWidget* m_widget;
 
+    /**
+     * Parent widget. Can be NULL.
+     */
+    WQtWidgetBase::SPtr m_parent;
 private:
     /**
      * Forwards call from a boost function to the virtual realizeImpl method

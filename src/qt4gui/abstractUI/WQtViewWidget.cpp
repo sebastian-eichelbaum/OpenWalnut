@@ -32,9 +32,10 @@
 WQtViewWidget::WQtViewWidget(
             std::string title,
             WGECamera::ProjectionMode projectionMode,
-            WMainWindow* mainWindow ):
+            WMainWindow* mainWindow,
+            WQtWidgetBase::SPtr parent ):
     WUIViewWidget( title ),
-    WQtWidgetBase( mainWindow ),
+    WQtWidgetBase( mainWindow, parent ),
     m_projectionMode( projectionMode ),
     m_widgetDock( NULL )
 {
@@ -129,9 +130,14 @@ void WQtViewWidget::realizeImpl()
 {
     // this is called from withing the GUI thread -> we can safely create QT widgets here
 
-    //WQtGLWidget* w = new WQtGLWidget(  getTitle(), NULL, m_projectionMode, NULL );
+    QWidget* parent = getParentAsQtWidget();
+    bool hasParent = parent;
+    if( !parent )
+    {
+        parent = m_mainWindow;
+    }
     WQtGLDockWidget* w = new WQtGLDockWidget( QString::fromStdString( getTitle() ),
-                                              QString::fromStdString( getTitle() ), m_mainWindow, m_projectionMode );
+                                              QString::fromStdString( getTitle() ), parent, m_projectionMode );
     w->setObjectName( QString( "Custom Dock Window " ) + QString::fromStdString( getTitle() ) );
 
     // define some scene
@@ -144,8 +150,17 @@ void WQtViewWidget::realizeImpl()
     // lazy mode: keep pointer with proper type for later use.
     m_widgetDock = w;
 
-    // hide but dock
-    w->setVisible( false );
-    m_mainWindow->addDockWidget( Qt::BottomDockWidgetArea, w );
+    if( hasParent )
+    {
+        // if we have a parent and thus be embedded somewhere: remove dock widget features
+        w->setFeatures( QDockWidget::NoDockWidgetFeatures );
+        w->setVisible( true );
+    }
+    else
+    {
+        // hide by default if we do not have a parent
+        w->setVisible( false );
+        m_mainWindow->addDockWidget( Qt::BottomDockWidgetArea, w );
+    }
 }
 
