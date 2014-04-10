@@ -54,8 +54,9 @@ public:
      * Default constructor.
      *
      * \param mainWindow the main window instance
+     * \param parent the parent widget. Can be NULL.
      */
-    explicit WQtWidgetBase( WMainWindow* mainWindow, WQtWidgetBase::SPtr parent );
+    WQtWidgetBase( WMainWindow* mainWindow, WQtWidgetBase::SPtr parent );
 
     /**
      * Destructor.
