@@ -101,7 +101,7 @@ int WUIQtTabbedWidget::addTabImpl( WUIWidgetBase::SPtr widget, std::string label
     if( widgetQtwidget )
     {
         QString s = QString::fromStdString( label );
-        WQt4Gui::execInGUIThread( boost::bind( &QTabWidget::addTab, m_tabWidget, widgetQtwidgetgvim , s ) );
+        WQt4Gui::execInGUIThread( boost::bind( &QTabWidget::addTab, m_tabWidget, widgetQtwidget, s ) );
     }
 
     return 0;
