@@ -97,6 +97,19 @@ public:
     static QWidget* createPropertyGroupBox( WPropertyGroupBase::SPtr group, const QString& title = "", size_t depth = 0, QWidget* parent = 0 );
 
     /**
+     * Create a property widget using the given group.
+     *
+     * \param group the property group to represent
+     * \param title the title of the widget
+     * \param depth the nesting depth
+     * \param parent the parent widget
+     * \param asScrollArea if true, add a scroll area around the group
+     *
+     * \return the widget.
+     */
+    static QWidget* createPropertyGroupBox( WPropertyGroupBase::SPtr group, bool asScrollArea, const QString& title = "", size_t depth = 0, QWidget* parent = 0 );
+
+    /**
      * destructor
      */
     virtual ~WQtPropertyGroupWidget();

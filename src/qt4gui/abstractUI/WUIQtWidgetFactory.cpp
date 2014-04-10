@@ -29,6 +29,7 @@
 #include "../WMainWindow.h"
 #include "WUIQtViewWidget.h"
 #include "WUIQtGridWidget.h"
+#include "WUIQtPropertyGroupWidget.h"
 
 #include "WUIQtWidgetFactory.h"
 
@@ -61,10 +62,10 @@ WUIGridWidget::SPtr WUIQtWidgetFactory::createGridWidgetImpl( const std::string&
 WUIPropertyGroupWidget::SPtr WUIQtWidgetFactory::createPropertyGroupWidgetImpl( const std::string& title, WPropGroup properties,
                                                                               WUIWidgetBase::SPtr parent ) const
 {
-    /*WQtPropertyGroupWidget::SPtr widget( new WUIQtGridWidget( title, properties, m_mainWindow, getAsQtWidgetBase( parent ) ) );
+    WUIQtPropertyGroupWidget::SPtr widget( new WUIQtPropertyGroupWidget( title, properties, m_mainWindow, getAsQtWidgetBase( parent ) ) );
     WUIWidgetFactory::setParent( widget, parent );    // NOTE: this is the parent on the WUI side
     widget->realize();
-    return widget;*/
+    return widget;
 }
 
 WUIViewWidget::SPtr WUIQtWidgetFactory::createViewWidgetImpl(

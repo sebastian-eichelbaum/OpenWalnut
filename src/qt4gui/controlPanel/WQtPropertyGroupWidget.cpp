@@ -190,6 +190,7 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
     if( asScrollArea )
     {
         scrollArea = new QScrollArea();
+        scrollArea->setWidgetResizable( true );
         scrollArea->setWidget( group );
         group->show();
     }
@@ -300,7 +301,8 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
     return box;
 }
 
-QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WPropertyGroupBase::SPtr group, const QString& title, size_t depth, QWidget* parent )
+QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WPropertyGroupBase::SPtr group, bool asScrollArea, const QString& title,
+                                                         size_t depth, QWidget* parent )
 {
     QSizePolicy sizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
     sizePolicy.setHorizontalStretch( 0 );
@@ -314,11 +316,16 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WPropertyGroupBase::SPt
 
     WQtPropertyGroupWidget* propWidget = new WQtPropertyGroupWidget( group, depth, parent );
     propWidget->setName( titleCorrected );
-    QWidget* tab =  WQtPropertyGroupWidget::createPropertyGroupBox( propWidget, false, parent, titleCorrected );
+    QWidget* tab =  WQtPropertyGroupWidget::createPropertyGroupBox( propWidget, asScrollArea, parent, titleCorrected );
     tab->setSizePolicy( sizePolicy );
     tab->setWindowTitle( titleCorrected );
 
     return tab;
+}
+
+QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WPropertyGroupBase::SPtr group, const QString& title, size_t depth, QWidget* parent )
+{
+    return createPropertyGroupBox( group, false, title, depth, parent );
 }
 
 void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asScrollArea )
