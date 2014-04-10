@@ -249,6 +249,20 @@ public:
      */
     void deregisterCustomWidget( WUIQtWidgetBase* widget );
 
+    /**
+     * The default dock area to use for adding custom docks.
+     *
+     * \return the dock area in \ref getDefaultCustomDockAreaWidget
+     */
+    Qt::DockWidgetArea getDefaultCustomDockArea() const;
+
+    /**
+     * The Widget to add custom docks.
+     *
+     * \return the widget
+     */
+    QMainWindow* getDefaultCustomDockAreaWidget() const;
+
 protected:
     /**
      * Setup the GUI by handling special modules. NavSlices for example setup several toolbar buttons.

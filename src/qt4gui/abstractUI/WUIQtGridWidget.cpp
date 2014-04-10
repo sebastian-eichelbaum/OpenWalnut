@@ -69,8 +69,7 @@ bool WUIQtGridWidget::isVisible() const
 
 void WUIQtGridWidget::cleanUpGT()
 {
-    delete m_widget;
-    m_widget = NULL;
+    // nothing to do
 }
 
 void WUIQtGridWidget::close()
@@ -127,3 +126,20 @@ void WUIQtGridWidget::placeWidgetImplGT( QWidget* widget, int x, int y )
         m_gridLayout->addWidget( widget, x, y );
     }
 }
+
+void WUIQtGridWidget::setRowStretch( int row, int stretch )
+{
+    if( m_gridLayout )
+    {
+        WQt4Gui::execInGUIThread( boost::bind( &QGridLayout::setRowStretch, m_gridLayout, row, stretch ) );
+    }
+}
+
+void WUIQtGridWidget::setColumnStretch( int column, int stretch )
+{
+    if( m_gridLayout )
+    {
+        WQt4Gui::execInGUIThread( boost::bind( &QGridLayout::setColumnStretch, m_gridLayout, column, stretch ) );
+    }
+}
+

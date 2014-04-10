@@ -33,6 +33,7 @@
 #include "core/common/WPropertyTypes.h"
 
 #include "WUIGridWidget.h"
+#include "WUITabbedWidget.h"
 #include "WUIPropertyGroupWidget.h"
 #include "WUIViewWidget.h"
 
@@ -57,6 +58,7 @@ public:
      * WUIWidgetBase::show() to make them visible.
      *
      * \note this function blocks until the widget was created. Check the resulting pointer for NULL.
+     * \throw WException if something was wrong (like parent does not allow nesting). You need to catch this.
      *
      * \param title the title
      * \param parent the parent widget which will contain this widget. Can be NULL.
@@ -76,10 +78,36 @@ public:
     }
 
     /**
+     * Create a tabed widget. This kind of widget is basically empty. Add others to it. Parentless widgets are initially invisible. Use
+     * WUIWidgetBase::show() to make them visible.
+     *
+     * \note this function blocks until the widget was created. Check the resulting pointer for NULL.
+     * \throw WException if something was wrong (like parent does not allow nesting). You need to catch this.
+     *
+     * \param title the title
+     * \param parent the parent widget which will contain this widget. Can be NULL.
+     *
+     * \return the widget. Might be NULL if something goes wrong.
+     */
+    virtual WUITabbedWidget::SPtr createTabbedWidget( const std::string& title, WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const
+    {
+        if( parent )
+        {
+            if( !parent->allowNesting() )
+            {
+                throw WException( "Parent of widget \"" + title + "\" does not allow nesting." );
+            }
+        }
+        return createTabbedWidgetImpl( title, parent );
+    }
+
+
+    /**
      * Create a property widget. Parentless widgets are initially invisible. Use
      * WUIWidgetBase::show() to make them visible.
      *
      * \note this function blocks until the widget was created. Check the resulting pointer for NULL.
+     * \throw WException if something was wrong (like parent does not allow nesting). You need to catch this.
      *
      * \param title the title
      * \param properties the property group
@@ -167,6 +195,16 @@ protected:
      * \return the widget. Might be NULL if something goes wrong.
      */
     virtual WUIGridWidget::SPtr createGridWidgetImpl( const std::string& title, WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const = 0;
+
+    /**
+     * Implementation of \ref createTabbedWidget.
+     *
+     * \param title the title
+     * \param parent the parent widget which will contain this widget. Can be NULL.
+     *
+     * \return the widget. Might be NULL if something goes wrong.
+     */
+    virtual WUITabbedWidget::SPtr createTabbedWidgetImpl( const std::string& title, WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const = 0;
 
     /**
      * Implementation of \ref createPropertyGroupWidget.

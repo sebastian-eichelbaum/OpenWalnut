@@ -115,9 +115,7 @@ bool WUIQtViewWidget::isVisible() const
 
 void WUIQtViewWidget::cleanUpGT()
 {
-    delete m_widget;
-    m_widgetDock = NULL;
-    m_widget = NULL;
+    // nothing to do
 }
 
 void WUIQtViewWidget::close()

@@ -156,7 +156,8 @@ protected:
     virtual void closeImpl();
 
     /**
-     * Cleanup the GUI.
+     * Cleanup the GUI. Do not delete m_widget, or your content widget. This is done by WUIQtWidgetBase. This method allows you to free resources
+     * that are not automatically freed by the Qt delete mechanism.
      */
     virtual void cleanUpGT();
 

@@ -107,7 +107,8 @@ public:
      *
      * \return the widget.
      */
-    static QWidget* createPropertyGroupBox( WPropertyGroupBase::SPtr group, bool asScrollArea, const QString& title = "", size_t depth = 0, QWidget* parent = 0 );
+    static QWidget* createPropertyGroupBox( WPropertyGroupBase::SPtr group, bool asScrollArea, const QString& title = "", size_t depth = 0,
+                                            QWidget* parent = 0 );
 
     /**
      * destructor

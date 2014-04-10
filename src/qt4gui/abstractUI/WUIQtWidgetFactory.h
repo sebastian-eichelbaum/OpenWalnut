@@ -86,6 +86,15 @@ protected:
      * \return the widget. Might be NULL if something goes wrong.
      */
     virtual WUIGridWidget::SPtr createGridWidgetImpl( const std::string& title, WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const;
+    /**
+     * Implementation of \ref createTabbedWidget.
+     *
+     * \param title the title
+     * \param parent the parent widget which will contain this widget. Can be NULL.
+     *
+     * \return the widget. Might be NULL if something goes wrong.
+     */
+    virtual WUITabbedWidget::SPtr createTabbedWidgetImpl( const std::string& title, WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const;
 
     /**
      * Create a property widget. Parentless widgets are initially invisible. Use

@@ -29,6 +29,7 @@
 #include "../WMainWindow.h"
 #include "WUIQtViewWidget.h"
 #include "WUIQtGridWidget.h"
+#include "WUIQtTabbedWidget.h"
 #include "WUIQtPropertyGroupWidget.h"
 
 #include "WUIQtWidgetFactory.h"
@@ -54,6 +55,14 @@ WUIQtWidgetBase::SPtr WUIQtWidgetFactory::getAsQtWidgetBase( WUIWidgetBase::SPtr
 WUIGridWidget::SPtr WUIQtWidgetFactory::createGridWidgetImpl( const std::string& title, WUIWidgetBase::SPtr parent ) const
 {
     WUIQtGridWidget::SPtr widget( new WUIQtGridWidget( title, m_mainWindow, getAsQtWidgetBase( parent ) ) );
+    WUIWidgetFactory::setParent( widget, parent );    // NOTE: this is the parent on the WUI side
+    widget->realize();
+    return widget;
+}
+
+WUITabbedWidget::SPtr WUIQtWidgetFactory::createTabbedWidgetImpl( const std::string& title, WUIWidgetBase::SPtr parent ) const
+{
+    WUIQtTabbedWidget::SPtr widget( new WUIQtTabbedWidget( title, m_mainWindow, getAsQtWidgetBase( parent ) ) );
     WUIWidgetFactory::setParent( widget, parent );    // NOTE: this is the parent on the WUI side
     widget->realize();
     return widget;

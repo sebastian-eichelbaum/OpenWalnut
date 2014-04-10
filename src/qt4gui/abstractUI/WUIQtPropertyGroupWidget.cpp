@@ -78,8 +78,7 @@ bool WUIQtPropertyGroupWidget::isVisible() const
 
 void WUIQtPropertyGroupWidget::cleanUpGT()
 {
-    delete m_widget;
-    m_widget = NULL;
+    // nothing to do
 }
 
 void WUIQtPropertyGroupWidget::close()

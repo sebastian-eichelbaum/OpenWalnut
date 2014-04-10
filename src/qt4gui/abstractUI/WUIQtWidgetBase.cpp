@@ -165,7 +165,16 @@ bool WUIQtWidgetBase::isVisibleGT() const
 void WUIQtWidgetBase::closeGT()
 {
     m_mainWindow->deregisterCustomWidget( this );
-    cleanUpGT();    // we do not delete the widget ourselfs ... let the bridge implementor do it.
+
+    QDockWidget* asDock = dynamic_cast< QDockWidget* >( m_widget );
+    if( asDock )
+    {
+        //WQt4Gui::getSettings().setValue( m_widget->objectName() + "state", asDock->saveState() );
+        WQt4Gui::getSettings().setValue( m_widget->objectName() + "geometry", asDock->saveGeometry() );
+    }
+
+    cleanUpGT();
+    delete m_widget;
     m_widget = NULL;
 }
 
@@ -211,7 +220,7 @@ QWidget* WUIQtWidgetBase::embedContent( QWidget* content )
         // doc says we return NULL if there is no container
         return NULL;
     }
-    else // it is a standalone widget -> embedd into dock widget
+    else // it is a standalone widget -> embed into dock widget
     {
         // NO! It already is a dock:
         if( asDock )
@@ -233,7 +242,13 @@ QWidget* WUIQtWidgetBase::embedContent( QWidget* content )
 
         // hide by default if we do not have a parent
         m_widget->setVisible( false );
-        m_mainWindow->addDockWidget( Qt::BottomDockWidgetArea, asDock );
+
+        // restore state
+        asDock->restoreGeometry( WQt4Gui::getSettings().value( m_widget->objectName() + "geometry", "" ).toByteArray() );
+        if( !m_mainWindow->getDefaultCustomDockAreaWidget()->restoreDockWidget( asDock ) )
+        {
+            m_mainWindow->getDefaultCustomDockAreaWidget()->addDockWidget( m_mainWindow->getDefaultCustomDockArea(), asDock );
+        }
     }
 
     return m_widget;
@@ -242,7 +257,6 @@ QWidget* WUIQtWidgetBase::embedContent( QWidget* content )
 QWidget* WUIQtWidgetBase::getCompellingQParent() const
 {
     QWidget* parent = getParentAsQtWidget();
-    bool hasParent = parent;
     if( !parent )
     {
         parent = m_mainWindow;

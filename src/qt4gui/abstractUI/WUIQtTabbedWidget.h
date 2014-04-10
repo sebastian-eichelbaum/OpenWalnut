@@ -22,14 +22,16 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WUIQTGRIDWIDGET_H
-#define WUIQTGRIDWIDGET_H
+#ifndef WUIQTTABBEDWIDGET_H
+#define WUIQTTABBEDWIDGET_H
 
 #include <string>
 
+#include <QtGui/QTabWidget>
+
 #include <boost/shared_ptr.hpp>
 
-#include "core/ui/WUIGridWidget.h"
+#include "core/ui/WUITabbedWidget.h"
 #include "../WMainWindow.h"
 
 #include "../guiElements/WQtDockWidget.h"
@@ -37,21 +39,21 @@
 #include "WUIQtWidgetBase.h"
 
 /**
- * Implementation of \ref WUIGridWidget.
+ * Implementation of \ref WUITabbedWidget.
  */
-class WUIQtGridWidget: public WUIGridWidget,
-                     public WUIQtWidgetBase
+class WUIQtTabbedWidget: public WUITabbedWidget,
+                         public WUIQtWidgetBase
 {
 public:
     /**
-     * Convenience typedef for a boost::shared_ptr< WUIQtGridWidget >.
+     * Convenience typedef for a boost::shared_ptr< WUIQtTabbedWidget >.
      */
-    typedef boost::shared_ptr< WUIQtGridWidget > SPtr;
+    typedef boost::shared_ptr< WUIQtTabbedWidget > SPtr;
 
     /**
-     * Convenience typedef for a boost::shared_ptr< const WUIQtGridWidget >.
+     * Convenience typedef for a boost::shared_ptr< const WUIQtTabbedWidget >.
      */
-    typedef boost::shared_ptr< const WUIQtGridWidget > ConstSPtr;
+    typedef boost::shared_ptr< const WUIQtTabbedWidget > ConstSPtr;
 
     /**
      * Default constructor.
@@ -60,15 +62,15 @@ public:
      * \param parent the Qt parent. Can be NULL.
      * \param title the title of the widget
      */
-    WUIQtGridWidget(
-            std::string title,
-            WMainWindow* mainWindow,
-            WUIQtWidgetBase::SPtr parent = WUIQtWidgetBase::SPtr() );
+    WUIQtTabbedWidget(
+                      std::string title,
+                      WMainWindow* mainWindow,
+                      WUIQtWidgetBase::SPtr parent = WUIQtWidgetBase::SPtr() );
 
     /**
      * Destructor.
      */
-    virtual ~WUIQtGridWidget();
+    virtual ~WUIQtTabbedWidget();
 
     /**
      * Title as QString.
@@ -103,24 +105,42 @@ public:
     virtual void close();
 
     /**
-     * Sets the stretch factor of a row to stretch. The first row is number 0. The stretch factor is relative to the other rows in this grid.
-     * Rows with a higher stretch factor take more of the available space. The default stretch factor is 0. If the stretch factor is 0 and no
-     * other row in this table can grow at all, the row may still grow.
+     * Set label of the tab with given index. If the tab does not exist, nothing happens.
      *
-     * \param row the row to set this value for
-     * \param stretch the stretch
+     * \param index the index of the tab
+     * \param label the label of the tab
      */
-    virtual void setRowStretch( int row, int stretch );
+    virtual void setTabText ( int index, const std::string& label );
 
     /**
-     * Sets the stretch factor of a column to stretch. The first column is number 0. The stretch factor is relative to the other columns in this grid.
-     * Columns with a higher stretch factor take more of the available space. The default stretch factor is 0. If the stretch factor is 0 and no
-     * other column in this table can grow at all, the column may still grow.
+     * Set the given tab active. If it not exists, the current tab stays active.
      *
-     * \param column the column to set this value for
-     * \param stretch the stretch
+     * \param index the index of the tab
      */
-    virtual void setColumnStretch( int column, int stretch );
+    virtual void setActiveTab( int index );
+
+    /**
+     * Write some tool tip for a given tab. If the index is invalid, nothing happens.
+     *
+     * \param index the tab index
+     * \param tip the tooltip text
+     */
+    virtual void setTabToolTip( int index, const std::string& tip );
+
+    /**
+     * Allows en/disabling a tab. If the index is invalid, nothing happens.
+     *
+     * \param index the index.
+     * \param enable true to enable
+     */
+    virtual void setTabEnabled( int index, bool enable );
+
+    /**
+     * Specify where to place the tabs
+     *
+     * \param position the position
+     */
+    virtual void setTabPosition( TabPosition position );
 protected:
     /**
      * Realize the widget. This method blocks until the GUI thread created the widget. Called from within the GUI thread! So you can safely do Qt
@@ -140,23 +160,15 @@ protected:
     virtual void cleanUpGT();
 
     /**
-     * Place the given widget in this grid at the given coordinates. The widget to be placed must be created with this grid as parent.
+     * Place the given widget in this tab widget in a new tab with a given label. The widget to be placed must be created with this tab widget as parent or an
+     * exception will be thrown.
      *
      * \param widget the widget
-     * \param x x coord ( 0 is left )
-     * \param y y coord ( 0 is top )
-     */
-    virtual void placeWidgetImpl( WUIWidgetBase::SPtr widget, int x, int y );
-
-    /**
-     * Place the given widget in this grid at the given coordinates. The widget to be placed must be created with this grid as parent. GUI thread
-     * version.
+     * \param label the label of the tab
      *
-     * \param widget the widget
-     * \param x x coord ( 0 is left )
-     * \param y y coord ( 0 is top )
+     * \return the index of the new tab
      */
-    virtual void placeWidgetImplGT( QWidget* widget, int x, int y );
+    virtual int addTabImpl( WUIWidgetBase::SPtr widget, std::string label );
 private:
     /**
      * The Qt widget representing this abstract widget. Might be null. Check before use!
@@ -165,10 +177,10 @@ private:
     WQtDockWidget* m_widgetDock;
 
     /**
-     * The grid used for managing child widgets
+     * The tab widget used for managing child widgets
      */
-    QGridLayout* m_gridLayout;
+    QTabWidget* m_tabWidget;
 };
 
-#endif  // WUIQTGRIDWIDGET_H
+#endif  // WUIQTTABBEDWIDGET_H
 

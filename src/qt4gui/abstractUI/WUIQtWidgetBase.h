@@ -166,7 +166,8 @@ protected:
     virtual void closeGT();
 
     /**
-     * Clean up all the memory in Gui Thread.
+     * Cleanup the GUI. Do not delete m_widget, or your content widget. This is done by WUIQtWidgetBase. This method allows you to free resources
+     * that are not automatically freed by the Qt delete mechanism.
      */
     virtual void cleanUpGT() = 0;
 
@@ -204,6 +205,8 @@ protected:
      * This method can be used if you just create some QWidget and do not want to take care about embedding the content in a dock if there is no
      * parent, setting size constraints and similar. This method handles this. It is also aware of QDckWidgets. This means it does not embed
      * them if you create your own QDockWidgets. It then just sets the defaults and registers it at WMainWindow.
+     *
+     * \param content your widget to config and embed
      *
      * \return the container (usually WQtDockWidget) or NULL if the content is used stand-alone.
      */

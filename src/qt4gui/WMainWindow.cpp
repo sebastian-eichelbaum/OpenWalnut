@@ -254,13 +254,14 @@ void WMainWindow::setupGUI()
     m_glDock->setDockOptions( QMainWindow::AnimatedDocks |  QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks );
     m_glDock->setDocumentMode( true );
     setCentralWidget( m_glDock );
+
     m_mainGLDock = new WQtGLDockWidget( "Main View", "3D View", m_glDock );
     // activate effects for this view by default
     m_mainGLDock->getGLWidget()->getViewer()->setEffectsActiveDefault();
     m_mainGLDock->getGLWidget()->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
     m_mainGLDock->restoreSettings();
     m_mainGLWidget = m_mainGLDock->getGLWidget();
-    m_glDock->addDockWidget( Qt::RightDockWidgetArea, m_mainGLDock );
+    m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_mainGLDock );
     connect( m_mainGLWidget, SIGNAL( renderedFirstFrame() ), this, SLOT( handleGLVendor() ) );
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
@@ -327,9 +328,7 @@ void WMainWindow::setupGUI()
     m_saveAction->setMenu( m_saveMenu );
 
     fileMenu->addSeparator();
-    // TODO(all): If all distributions provide a newer QT version we should use QKeySequence::Quit here
-    //fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( QKeySequence::Quit ) );
-    m_quitAction = fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ),  QKeySequence( Qt::CTRL + Qt::Key_Q ) );
+    m_quitAction = fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( QKeySequence::Quit ) );
 
     // This QAction stuff is quite ugly and complicated some times ... There is no nice constructor which takes name, slot keysequence and so on
     // directly -> set shortcuts, and some further properties using QAction's interface
@@ -1338,5 +1337,15 @@ void WMainWindow::deregisterCustomWidget( WUIQtWidgetBase* widget )
 {
     // remove
     m_customWidgets.remove( widget );
+}
+
+Qt::DockWidgetArea WMainWindow::getDefaultCustomDockArea() const
+{
+    return Qt::BottomDockWidgetArea;
+}
+
+QMainWindow* WMainWindow::getDefaultCustomDockAreaWidget() const
+{
+    return m_glDock;
 }
 

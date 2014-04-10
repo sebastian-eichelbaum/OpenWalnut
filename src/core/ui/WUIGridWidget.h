@@ -70,6 +70,26 @@ public:
      * \param y y coord ( 0 is top )
      */
     virtual void placeWidget( WUIWidgetBase::SPtr widget, int x, int y );
+
+    /**
+     * Sets the stretch factor of a row to stretch. The first row is number 0. The stretch factor is relative to the other rows in this grid.
+     * Rows with a higher stretch factor take more of the available space. The default stretch factor is 0. If the stretch factor is 0 and no
+     * other row in this table can grow at all, the row may still grow.
+     *
+     * \param row the row to set this value for
+     * \param stretch the stretch
+     */
+    virtual void setRowStretch( int row, int stretch ) = 0;
+
+    /**
+     * Sets the stretch factor of a column to stretch. The first column is number 0. The stretch factor is relative to the other columns in this grid.
+     * Columns with a higher stretch factor take more of the available space. The default stretch factor is 0. If the stretch factor is 0 and no
+     * other column in this table can grow at all, the column may still grow.
+     *
+     * \param column the column to set this value for
+     * \param stretch the stretch
+     */
+    virtual void setColumnStretch( int column, int stretch ) = 0;
 protected:
     /**
      * Default constructor. Create an empty grid widget.
