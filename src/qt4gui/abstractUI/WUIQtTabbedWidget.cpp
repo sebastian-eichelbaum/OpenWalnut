@@ -107,7 +107,7 @@ int WUIQtTabbedWidget::addTabImpl( WUIWidgetBase::SPtr widget, std::string label
     return 0;
 }
 
-void WUIQtTabbedWidget::setTabText ( int index, const std::string& label )
+void WUIQtTabbedWidget::setTabText( int index, const std::string& label )
 {
     if( m_tabWidget )
     {

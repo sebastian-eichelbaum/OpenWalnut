@@ -110,7 +110,7 @@ public:
      * \param index the index of the tab
      * \param label the label of the tab
      */
-    virtual void setTabText ( int index, const std::string& label );
+    virtual void setTabText( int index, const std::string& label );
 
     /**
      * Set the given tab active. If it not exists, the current tab stays active.
