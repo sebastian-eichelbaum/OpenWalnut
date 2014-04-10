@@ -436,6 +436,31 @@ private:
     WQtGLDockWidget* m_mainGLDock; //!< the dock containing the main gl widget
 
     /**
+     * Used to handle the two-stage close process.
+     */
+    bool m_closeFirstStage;
+
+    /**
+     * Flag whether the system is shutting down now.
+     */
+    bool m_closeInProgress;
+
+    /**
+     * The thread responsible for doing stage 1 stuff.
+     */
+    WThreadedRunner::SPtr m_closeStage1Thread;
+
+    /**
+     * The actual thread function for m_closeStage1Thread.
+     */
+    void closeStage1Thread();
+
+    /**
+     * The second stage function. Called by the finished closeStage1Thread function. Runs in GUI thread.
+     */
+    void closeStage2();
+
+    /**
      * Container for core/UI widgetd
      */
     typedef std::vector< WQtWidgetBase* > CustomWidgets;
@@ -443,7 +468,7 @@ private:
     /**
      * All registered widgets created by the core/UI api.
      */
-    CustomWidgets m_customWidgets;
+    WSharedSequenceContainer< CustomWidgets > m_customWidgets;
 
     boost::signals2::signal1< void, std::vector< std::string > > m_loaderSignal; //!< boost signal for open file dialog
 

@@ -78,6 +78,13 @@ public:
     virtual ~WQtViewWidget();
 
     /**
+     * Title as QString.
+     *
+     * \return the title
+     */
+    virtual QString getTitleQString() const;
+
+    /**
      * Get the scene which is displayed
      *
      * \return the scene as osg::ref_ptr
@@ -132,7 +139,8 @@ public:
     virtual bool isVisible() const;
 
     /**
-     * Close the widget. When done, the widget can be safely deleted.
+     * Handle shutdown. This includes notification of the creating module and closing the widget. Can be called from any thread.
+     * Implement in your implementation.
      */
     virtual void close();
 protected:
@@ -143,9 +151,9 @@ protected:
     virtual void realizeImpl();
 
     /**
-     * Called directly before close in the GUI thread.
+     * Close the widget. When done, the widget can be safely deleted.
      */
-    virtual void onClose();
+    virtual void closeImpl();
 
     /**
      * Cleanup the GUI.

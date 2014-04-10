@@ -55,6 +55,13 @@ public:
     virtual ~WUIGridWidget();
 
     /**
+     * Tell the user whether this kind of widget can be used as parent. In other word, whether it is allowed to nest other widgets into this one.
+     *
+     * \return true if nesting other widgets INTO this one is allowed
+     */
+    virtual bool allowNesting() const;
+
+    /**
      * Place the given widget in this grid at the given coordinates. The widget to be placed must be created with this grid as parent or an
      * exception will be thrown.
      *

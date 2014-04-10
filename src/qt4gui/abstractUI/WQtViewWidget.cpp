@@ -47,6 +47,11 @@ WQtViewWidget::~WQtViewWidget()
     // cleanup
 }
 
+QString WQtViewWidget::getTitleQString() const
+{
+    return QString::fromStdString( getTitle() );
+}
+
 osg::ref_ptr< WGEGroupNode > WQtViewWidget::getScene() const
 {
     return m_scene;
@@ -110,7 +115,6 @@ bool WQtViewWidget::isVisible() const
 
 void WQtViewWidget::cleanUpGT()
 {
-    m_mainWindow->removeDockWidget( m_widgetDock );
     delete m_widget;
     m_widgetDock = NULL;
     m_widget = NULL;
@@ -118,12 +122,13 @@ void WQtViewWidget::cleanUpGT()
 
 void WQtViewWidget::close()
 {
-    WQtWidgetBase::close();
+    // use WUIViewWidget to handle this
+    WUIViewWidget::close();
 }
 
-void WQtViewWidget::onClose()
+void WQtViewWidget::closeImpl()
 {
-    WUIViewWidget::onClose();
+    WQtWidgetBase::closeImpl();
 }
 
 void WQtViewWidget::realizeImpl()
@@ -150,6 +155,7 @@ void WQtViewWidget::realizeImpl()
     // lazy mode: keep pointer with proper type for later use.
     m_widgetDock = w;
 
+    // if this widget has a parent, disable dock features
     if( hasParent )
     {
         // if we have a parent and thus be embedded somewhere: remove dock widget features

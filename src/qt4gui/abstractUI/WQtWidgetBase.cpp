@@ -28,6 +28,7 @@
 
 #include "../WQt4Gui.h"
 
+#include "WQtWidgetFactory.h"
 #include "WQtWidgetBase.h"
 
 WQtWidgetBase::WQtWidgetBase( WMainWindow* mainWindow, WQtWidgetBase::SPtr parent ):
@@ -65,15 +66,17 @@ void WQtWidgetBase::realize( boost::shared_ptr< WCondition > abortCondition )
     // use the UI to do the GUI thread call
     WQt4Gui::execInGUIThreadAsync( boost::bind( &WQtWidgetBase::realizeGT, this ), doneNotify );
 
-    // use the UI to do the GUI thread call
-    WQt4Gui::execInGUIThreadAsync( boost::bind( &WMainWindow::registerCustomWidget, m_mainWindow, this ) );
-
     // wait ...
     conditionSet.wait();
 }
 
 void WQtWidgetBase::realizeGT()
 {
+    // only top-level widgets will be registered
+    if( !m_parent )
+    {
+        m_mainWindow->registerCustomWidget( this );
+    }
     realizeImpl();
 }
 
@@ -134,8 +137,11 @@ bool WQtWidgetBase::isVisible() const
     return false;
 }
 
-void WQtWidgetBase::close()
+void WQtWidgetBase::closeImpl()
 {
+    wlog::debug( "WQtWidgetBase" ) << "Close: \"" << getTitleQString().toStdString() << "\"";
+
+    // move this to the GUI thread.
     if( m_widget )
     {
         WQt4Gui::execInGUIThread( boost::bind( &WQtWidgetBase::closeGT, this ) );
@@ -159,25 +165,9 @@ bool WQtWidgetBase::isVisibleGT() const
 
 void WQtWidgetBase::closeGT()
 {
-    onClose();
     m_mainWindow->deregisterCustomWidget( this );
-    // NOTE: due to the WA_DeleteOnClose attribute, the widget gets deleted properly on close
-    m_widget->close();
-    cleanUpGT();    // we do not delete the widget our self ... let the bridge implementor do it.
+    cleanUpGT();    // we do not delete the widget ourselfs ... let the bridge implementor do it.
     m_widget = NULL;
-}
-
-void WQtWidgetBase::guiShutDown()
-{
-    if( m_widget )
-    {
-        closeGT();
-    }
-}
-
-void WQtWidgetBase::onClose()
-{
-    // do nothing for now
 }
 
 QWidget* WQtWidgetBase::getWidget() const

@@ -24,6 +24,8 @@
 
 #include <string>
 
+#include <QtGui/QGridLayout>
+
 #include "core/common/WConditionOneShot.h"
 #include "core/common/WFlag.h"
 
@@ -35,7 +37,7 @@ WQtGridWidget::WQtGridWidget(
             WQtWidgetBase::SPtr parent ):
     WUIGridWidget( title ),
     WQtWidgetBase( mainWindow, parent ),
-    m_widgetDock( NULL )
+    m_gridLayout( NULL )
 {
     // initialize members
 }
@@ -43,6 +45,11 @@ WQtGridWidget::WQtGridWidget(
 WQtGridWidget::~WQtGridWidget()
 {
     // cleanup
+}
+
+QString WQtGridWidget::getTitleQString() const
+{
+    return QString::fromStdString( getTitle() );
 }
 
 void WQtGridWidget::show()
@@ -62,44 +69,68 @@ bool WQtGridWidget::isVisible() const
 
 void WQtGridWidget::cleanUpGT()
 {
-    //m_mainWindow->removeDockWidget( m_widgetDock );
-    //delete m_widget;
-    m_widgetDock = NULL;
+    delete m_widget;
     m_widget = NULL;
 }
 
 void WQtGridWidget::close()
 {
-    WQtWidgetBase::close();
+    // use WUIGridWidget to handle this
+    WUIGridWidget::close();
 }
 
-void WQtGridWidget::onClose()
+void WQtGridWidget::closeImpl()
 {
-    WUIGridWidget::onClose();
+    // notify child widgets
+    WQtWidgetBase::closeImpl();
 }
 
 void WQtGridWidget::realizeImpl()
 {
     // this is called from withing the GUI thread -> we can safely create QT widgets here
-/*
-    //WQtGLWidget* w = new WQtGLWidget(  getTitle(), NULL, m_projectionMode, NULL );
-    WQtGLDockWidget* w = new WQtGLDockWidget( QString::fromStdString( getTitle() ),
-                                              QString::fromStdString( getTitle() ), m_mainWindow, m_projectionMode );
-    w->setObjectName( QString( "Custom Dock Window " ) + QString::fromStdString( getTitle() ) );
 
-    // define some scene
-    m_scene = new WGEGroupNode();
-    m_scene->setDataVariance( osg::Object::DYNAMIC );
-    w->getGLWidget()->getViewer()->setScene( m_scene );
+    // parent info:
+    QWidget* parent = getParentAsQtWidget();
+    bool hasParent = parent;
+    if( !parent )
+    {
+        parent = m_mainWindow;
+    }
 
-    // store them. Allow WQtWidgetBase to work on our widget instance
-    m_widget = w;
-    // lazy mode: keep pointer with proper type for later use.
-    m_widgetDock = w;
+    // is the widget embedded somewhere?
+    if( hasParent )
+    {
+        // then we use a plain QWidget
+        // create the actual grid widget (using a QGridLayout)
+        QWidget* gridWidget = new QWidget( parent );
+        m_gridLayout = new QGridLayout();
+        gridWidget->setLayout( m_gridLayout );
 
-    // hide but dock
-    w->setVisible( false );
-    m_mainWindow->addDockWidget( Qt::BottomDockWidgetArea, w );*/
+        // store them. Allow WQtWidgetBase to work on our widget instance
+        m_widget = gridWidget;
+
+        m_widget->setVisible( true );
+    }
+    else
+    {
+        // it is a top-level window -> use a dock
+        // create as dock widget
+        m_widgetDock = new WQtDockWidget( QString::fromStdString( getTitle() ), parent );
+        m_widgetDock->setObjectName( QString( "Custom Dock Window " ) + QString::fromStdString( getTitle() ) );
+
+        // create the actual grid widget (using a QGridLayout)
+        QWidget* gridWidget = new QWidget( m_widgetDock );
+        m_gridLayout = new QGridLayout();
+        gridWidget->setLayout( m_gridLayout );
+        m_widgetDock->setWidget( gridWidget );
+
+        // store them. Allow WQtWidgetBase to work on our widget instance
+        m_widget = m_widgetDock;
+
+        // hide by default if we do not have a parent
+        m_widgetDock->setVisible( false );
+        m_mainWindow->addDockWidget( Qt::BottomDockWidgetArea, m_widgetDock );
+    }
 }
 
 void WQtGridWidget::placeWidgetImpl( WUIWidgetBase::SPtr widget, int x, int y )
@@ -121,4 +152,8 @@ void WQtGridWidget::placeWidgetImpl( WUIWidgetBase::SPtr widget, int x, int y )
 
 void WQtGridWidget::placeWidgetImplGT( QWidget* widget, int x, int y )
 {
+    if( m_gridLayout )
+    {
+        m_gridLayout->addWidget( widget, x, y );
+    }
 }

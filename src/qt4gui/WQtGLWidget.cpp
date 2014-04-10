@@ -151,7 +151,7 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
 
 WQtGLWidget::~WQtGLWidget()
 {
-    wlog::info( "nbjhg" ) << "tod glwqidgetr";
+    wlog::debug( "WQtGLWidget" ) << "OpenGL widget for viewer \"" << m_nameOfViewer << "\" removed.";
     // nothing
     cleanUp();
 }
@@ -168,7 +168,6 @@ void WQtGLWidget::cleanUp()
 
 void WQtGLWidget::closeEvent( QCloseEvent* event )
 {
-    cleanUp();
     event->accept();
     WQtGLWidgetParent::closeEvent( event );
 }

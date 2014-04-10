@@ -35,6 +35,8 @@
 WQtDockWidget::WQtDockWidget( const QString& title, QWidget* parent, Qt::WindowFlags flags ):
     QDockWidget( title, parent, flags )
 {
+    setObjectName( title );
+
     // thats it. we now have the title bar
     m_titleBar = new WQtDockTitleWidget( this );
     setTitleBarWidget( m_titleBar );

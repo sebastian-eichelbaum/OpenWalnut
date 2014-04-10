@@ -31,7 +31,8 @@
 
 WUIWidgetBase::WUIWidgetBase( std::string title ):
     m_title( title ),
-    m_closeCondition( new WConditionOneShot() )
+    m_closeCondition( new WConditionOneShot() ),
+    m_closed( false )
 {
     // initialize members
 }
@@ -46,9 +47,27 @@ std::string WUIWidgetBase::getTitle() const
     return m_title;
 }
 
-void WUIWidgetBase::onClose()
+void WUIWidgetBase::close()
 {
+    // already closed?
+    if( isClosed() )
+    {
+        return;
+    }
+
+    m_closed = true;
+
+    // close all children
+    closeChildren();
+
+    // clear the list of children. Their shared_ptr now get de-references.
+    m_childs.clear();
+
+    // notify about close
     m_closeCondition->notify();
+
+    // let the implementor do the rest
+    closeImpl();
 }
 
 WCondition::SPtr WUIWidgetBase::getCloseCondition() const
@@ -64,5 +83,49 @@ void WUIWidgetBase::setParent( WUIWidgetBase::SPtr parent )
 WUIWidgetBase::SPtr WUIWidgetBase::getParent() const
 {
     return m_parent;
+}
+
+void WUIWidgetBase::registerChild( WUIWidgetBase::SPtr child )
+{
+    // it is a WSharedSequenceContainer which handles all the nasty locking stuff
+    m_childs.unique_push_back( child );
+}
+
+bool WUIWidgetBase::allowNesting() const
+{
+    // not allowed by default.
+    return false;
+}
+
+WUIWidgetBase::ChildContainer& WUIWidgetBase::getChildren()
+{
+    return m_childs;
+}
+
+const WUIWidgetBase::ChildContainer& WUIWidgetBase::getChildren() const
+{
+    return m_childs;
+}
+
+/**
+ * Close the specified widget.
+ *
+ * \param widget the widget
+ */
+void closeFunctor( WUIWidgetBase::SPtr widget )
+{
+    widget->close();
+}
+
+void WUIWidgetBase::closeChildren()
+{
+    ChildContainer::WriteTicket w = m_childs.getWriteTicket();
+    std::for_each( w->get().begin(), w->get().end(), closeFunctor );
+
+}
+
+bool WUIWidgetBase::isClosed() const
+{
+    return m_closed;
 }
 

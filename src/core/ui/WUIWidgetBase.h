@@ -28,6 +28,7 @@
 #include <string>
 
 #include "core/common/WCondition.h"
+#include "core/common/WSharedSequenceContainer.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -84,7 +85,14 @@ public:
      * Close the widget. When done, the widget can be safely deleted. You cannot re-open the widget with \ref show(). If you want to hide widget,
      * use setVisible( false ) instead.
      */
-    virtual void close() = 0;
+    void close();
+
+    /**
+     * Checks whether the widget was closed already.
+     *
+     * \return true if already closed
+     */
+    bool isClosed() const;
 
     /**
      * Return the condition that fires when the widgets closes.
@@ -99,6 +107,13 @@ public:
      * \return the parent
      */
     virtual WUIWidgetBase::SPtr getParent() const;
+
+    /**
+     * Tell the user whether this kind of widget can be used as parent. In other word, whether it is allowed to nest other widgets into this one.
+     *
+     * \return true if nesting other widgets INTO this one is allowed
+     */
+    virtual bool allowNesting() const;
 protected:
     /**
      * Default constructor.
@@ -108,16 +123,52 @@ protected:
     explicit WUIWidgetBase( std::string title );
 
     /**
-     * Called directly before closing the widget.
+     * Close the widget. When done, the widget can be safely deleted. You cannot re-open the widget with \ref show(). If you want to hide widget,
+     * use setVisible( false ) instead.
      */
-    virtual void onClose();
+    virtual void closeImpl() = 0;
 
     /**
-     * Set the parent of this WUI widget. Do never call this after the widget was realized by the factory.
+     * Set the parent of this WUI widget. Do never call this after the widget was realized by the factory. This method is used by the factory. Do
+     * not manually call it.
      *
      * \param parent the parent. Can be NULL if none.
      */
     virtual void setParent( WUIWidgetBase::SPtr parent );
+
+    /**
+     * Register widget as child. Called by the widget factory.
+     *
+     * \param child the child.
+     */
+    virtual void registerChild( WUIWidgetBase::SPtr child );
+
+    /**
+     * Keep track of our child widgets. Please note that we store shared_ptr here. This means, no widget ever gets deleted by the shared_ptr
+     * accidentally in a module. All widgets keeps reference of their parent, and each widget keeps reference to its childs. Only a call to close
+     * will recursively free the widgets.
+     */
+    typedef WSharedSequenceContainer< std::vector< WUIWidgetBase::SPtr > > ChildContainer;
+
+    /**
+     * Return the list of children.
+     *
+     * \return the children
+     */
+    ChildContainer& getChildren();
+
+    /**
+     * Return the list of children.
+     *
+     * \return the children
+     */
+    const ChildContainer& getChildren() const;
+
+    /**
+     * Comfortable function to recurse a close call. This iterates the children and closes them.
+     */
+    void closeChildren();
+
 private:
     /**
      * The widget's title string.
@@ -133,6 +184,16 @@ private:
      * The parent. Can be NULL.
      */
     WUIWidgetBase::SPtr m_parent;
+
+    /**
+     * Child widgets.
+     */
+    ChildContainer m_childs;
+
+    /**
+     * Flag denotes whether the widget was closed already.
+     */
+    bool m_closed;
 };
 
 #endif  // WUIWIDGETBASE_H

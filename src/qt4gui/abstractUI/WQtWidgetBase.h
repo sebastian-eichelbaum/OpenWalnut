@@ -63,6 +63,13 @@ public:
     virtual ~WQtWidgetBase();
 
     /**
+     * The title as QString.
+     *
+     * \return  the title.
+     */
+    virtual QString getTitleQString() const = 0;
+
+    /**
      * The widget was created and can be used.
      *
      * \return true if the widget is valid.
@@ -89,11 +96,6 @@ public:
     virtual bool isVisible() const;
 
     /**
-     * Close the widget. When done, the widget can be safely deleted.
-     */
-    virtual void close();
-
-    /**
      * Realize the widget. This method blocks until the GUI thread created the widget.
      *
      * \param abortCondition a condition enforcing abort of widget creation.
@@ -101,10 +103,10 @@ public:
     virtual void realize( WCondition::SPtr abortCondition = WCondition::SPtr() );
 
     /**
-     * Handle shutdown. This includes notification of the creating module and closing the widget. This method must be called from within the GUI
-     * thread.
+     * Handle shutdown. This includes notification of the creating module and closing the widget. Can be called from any thread.
+     * Implement in your implementation.
      */
-    void guiShutDown();
+    virtual void close() = 0;
 
     /**
      * Get the widget representation. Can be NULL if not yet created.
@@ -153,14 +155,14 @@ protected:
     virtual bool isVisibleGT() const;
 
     /**
+     * Close the widget. When done, the widget can be safely deleted.
+     */
+    virtual void closeImpl();
+
+    /**
      * Close the widget. When done, the widget can be safely deleted. Called in GUI Thread (GT).
      */
     virtual void closeGT();
-
-    /**
-     * Called directly before close in the GUI thread.
-     */
-    virtual void onClose();
 
     /**
      * Clean up all the memory in Gui Thread.

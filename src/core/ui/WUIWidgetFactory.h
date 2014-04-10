@@ -29,6 +29,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "core/common/WException.h"
+
 #include "WUIGridWidget.h"
 #include "WUIViewWidget.h"
 
@@ -60,7 +62,17 @@ public:
      *
      * \return the widget. Might be NULL if something goes wrong.
      */
-    virtual WUIGridWidget::SPtr createGridWidget( const std::string& title, WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const = 0;
+    virtual WUIGridWidget::SPtr createGridWidget( const std::string& title, WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const
+    {
+        if( parent )
+        {
+            if( !parent->allowNesting() )
+            {
+                throw WException( "Parent of widget \"" + title + "\" does not allow nesting." );
+            }
+        }
+        return createGridWidgetImpl( title, parent );
+    }
 
     /**
      * Instruct to open a new view widget. The specified condition should be the shutdown condition of the module, as the function returns only
@@ -69,6 +81,8 @@ public:
      * If a widget with this name already exists, it will be returned.
      *
      * \note this function blocks until the widget was created. Check the resulting pointer for NULL.
+     *
+     * \throw WException if something was wrong (like parent does not allow nesting). You need to catch this.
      *
      * \param title the title of the widget
      * \param projectionMode the kind of projection which should be used
@@ -81,7 +95,17 @@ public:
             std::string title,
             WGECamera::ProjectionMode projectionMode,
             boost::shared_ptr< WCondition > abordCondition = WCondition::SPtr(),
-            WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const = 0;
+            WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const
+    {
+        if( parent )
+        {
+            if( !parent->allowNesting() )
+            {
+                throw WException( "Parent of widget \"" + title + "\" does not allow nesting." );
+            }
+        }
+        return createViewWidgetImpl( title, projectionMode, abordCondition, parent );
+    }
 
     /**
      * Destructor.
@@ -91,15 +115,50 @@ public:
     }
 protected:
     /**
-     * Set the parent of a widget. This is needed as WUIWidgetBase and WUIWidgetFactory are friends. Friendship is not derivable.
+     * Set the parent of a widget and notify parent about new child widget.
+     * This is needed as WUIWidgetBase and WUIWidgetFactory are friends. Friendship is not derivable.
      *
      * \param widget the widget to set the parent to
      * \param parent the parent
      */
     void setParent( WUIWidgetBase::SPtr widget, WUIWidgetBase::SPtr parent ) const
     {
-        widget->setParent( parent );
+        if( parent )
+        {
+            widget->setParent( parent );
+
+            // NOTE: the parent keeps a shared_ptr of its child. This avoids deletion of widgets. Only a call to WUIWidgetBase::close() cleans this
+            // up and thus releases the shared_ptr properly.
+            parent->registerChild( widget );
+        }
     }
+
+    /**
+     * Implementation of \ref createGridWidget.
+     *
+     * \param title the title
+     * \param parent the parent widget which will contain this widget. Can be NULL.
+     *
+     * \return the widget. Might be NULL if something goes wrong.
+     */
+    virtual WUIGridWidget::SPtr createGridWidgetImpl( const std::string& title, WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const = 0;
+
+    /**
+     * Implementation of \ref createViewWidget.
+     *
+     * \param title the title of the widget
+     * \param projectionMode the kind of projection which should be used
+     * \param abordCondition a condition enforcing abort of widget creation. Can be NULL
+     * \param parent the parent widget which will contain this widget. Can be NULL.
+     *
+     * \return the created widget
+     */
+    virtual WUIViewWidget::SPtr createViewWidgetImpl(
+            std::string title,
+            WGECamera::ProjectionMode projectionMode,
+            boost::shared_ptr< WCondition > abordCondition = WCondition::SPtr(),
+            WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const = 0;
+
 private:
 };
 

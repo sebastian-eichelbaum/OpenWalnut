@@ -100,7 +100,9 @@ WMainWindow::WMainWindow( QSplashScreen* splash ):
     QMainWindow(),
     m_splash( splash ),
     m_currentCompatiblesToolbar( NULL ),
-    m_iconManager()
+    m_iconManager(),
+    m_closeFirstStage( false ),
+    m_closeInProgress( false )
 {
     setAcceptDrops( true ); // enable drag and drop events
 }
@@ -781,29 +783,74 @@ WIconManager*  WMainWindow::getIconManager()
     return &m_iconManager;
 }
 
+void WMainWindow::closeStage1Thread()
+{
+    WKernel::getRunningKernel()->finalize();
+
+    // close all registered custom widgets -> modules might have missed them.
+    // But first, we need to copy the custom widget list as the close function of the custom widgets modifies this list
+    CustomWidgets copy;
+    {
+        WSharedSequenceContainer< CustomWidgets >::ReadTicket r = m_customWidgets.getReadTicket();
+        copy = r->get();
+        // IMPORTANT: free lock
+    }
+
+    // close all of them now
+    for( CustomWidgets::iterator it = copy.begin(); it != copy.end(); ++it )
+    {
+        wlog::warn( "MainWindow" ) << "Closing custom UI widget \"" << ( *it )->getTitleQString().toStdString() << "\". This should have be"
+                                      " done by the owning module!";
+        ( *it )->close();
+    }
+    copy.clear();
+
+    // notify main window -> just call close() again with updated state
+    WQt4Gui::execInGUIThreadAsync( boost::bind( &WMainWindow::closeStage2, this ) );
+}
+
+void WMainWindow::closeStage2()
+{
+    m_closeFirstStage = false;
+    // NOTE: runs in GUI thread
+    close();
+}
+
 void WMainWindow::closeEvent( QCloseEvent* e )
 {
-    // use some "Really Close?" Dialog here
-    bool reallyClose = true;
+    // closing is a two-stage process. When the user requests the close, we tell the kernel to shutdown, while the GUI still is active. In the
+    // second stage, we close the GUI itself (it is freezed). The kernel shutdown needs a running GUI to properly close everything -> thus we
+    // ensure a running GUI in stage 1.
 
-    // handle close event
-    if( reallyClose )
+    // start stage stage 1
+    if( !m_closeInProgress )
     {
+        m_closeInProgress = true;
+        m_closeFirstStage = true;
+
+        // IMPORTANT: we tell QT to not close the app
+        e->ignore();
+
+        // show splash
         m_splash->show();
         m_splash->showMessage( "Shutting down" );
+        setDisabled( true );    // avoid user interaction
 
+        // save state
         saveWindowState();
 
-        // close all registered custom widgets
-        for( CustomWidgets::iterator it = m_customWidgets.begin(); it != m_customWidgets.end(); ++it )
-        {
-            ( *it )->guiShutDown();
-        }
+        // tell kernel to shutdown
+        m_splash->showMessage( "Shutting down kernel. Waiting for modules to finish and cleanup." );
 
-        // signal everybody to shut down properly.
-        m_splash->showMessage( "Shutting down kernel. Waiting for modules to finish." );
-        WKernel::getRunningKernel()->finalize();
+        // start a thread for this
+        m_closeStage1Thread = WThreadedRunner::SPtr( new WThreadedRunner() );
+        m_closeStage1Thread->run( boost::bind( &WMainWindow::closeStage1Thread, this ) );
+        return;
+    }
 
+    // stage 1 finished, close in progress -> stage 2
+    if( m_closeInProgress && !m_closeFirstStage )
+    {
         // now nobody accesses the osg anymore
         m_splash->showMessage( "Shutting down GUI." );
 
@@ -824,11 +871,11 @@ void WMainWindow::closeEvent( QCloseEvent* e )
 
         // finally close
         e->accept();
+        return;
     }
-    else
-    {
-        e->ignore();
-    }
+
+    // all other cases: user pressed "close" somewhere during shutdown
+    e->ignore();
 }
 
 void WMainWindow::customEvent( QEvent* event )
@@ -1284,17 +1331,12 @@ WQtMessageDock* WMainWindow::getMessageDock()
 
 void WMainWindow::registerCustomWidget( WQtWidgetBase* widget )
 {
-    CustomWidgets::iterator it = std::find( m_customWidgets.begin(), m_customWidgets.end(), widget );
-    if( it == m_customWidgets.end() )
-    {
-        m_customWidgets.push_back( widget );
-    }
+    m_customWidgets.unique_push_back( widget );
 }
 
 void WMainWindow::deregisterCustomWidget( WQtWidgetBase* widget )
 {
     // remove
-    CustomWidgets::iterator newEnd = std::remove( m_customWidgets.begin(), m_customWidgets.end(), widget );
-    m_customWidgets.erase( newEnd, m_customWidgets.end() );
+    m_customWidgets.remove( widget );
 }
 

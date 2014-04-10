@@ -71,6 +71,13 @@ public:
     virtual ~WQtGridWidget();
 
     /**
+     * Title as QString.
+     *
+     * \return the title
+     */
+    virtual QString getTitleQString() const;
+
+    /**
      * Show this widget if not yet visible.
      */
     virtual void show();
@@ -90,10 +97,10 @@ public:
     virtual bool isVisible() const;
 
     /**
-     * Close the widget. When done, the widget can be safely deleted.
+     * Handle shutdown. This includes notification of the creating module and closing the widget. Can be called from any thread.
+     * Implement in your implementation.
      */
     virtual void close();
-
 protected:
     /**
      * Realize the widget. This method blocks until the GUI thread created the widget. Called from within the GUI thread! So you can safely do Qt
@@ -102,9 +109,9 @@ protected:
     virtual void realizeImpl();
 
     /**
-     * Called directly before close in the GUI thread.
+     * Close the widget. When done, the widget can be safely deleted.
      */
-    virtual void onClose();
+    virtual void closeImpl();
 
     /**
      * Cleanup the GUI.
@@ -132,10 +139,15 @@ protected:
 
 private:
     /**
-     * The Qt widget representing this abstract widget.
+     * The Qt widget representing this abstract widget. Might be null. Check before use!
      * \note this is the same pointer as WQtWidgetBase::m_widget as WQtDockWidget.
      */
     WQtDockWidget* m_widgetDock;
+
+    /**
+     * The grid used for managing child widgets
+     */
+    QGridLayout* m_gridLayout;
 };
 
 #endif  // WQTGRIDWIDGET_H

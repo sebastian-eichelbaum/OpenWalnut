@@ -44,27 +44,27 @@ WQtWidgetFactory::~WQtWidgetFactory()
     // cleanup
 }
 
-WQtWidgetBase::SPtr getAsQtParent( WUIWidgetBase::SPtr parent )
+WQtWidgetBase::SPtr WQtWidgetFactory::getAsQtWidgetBase( WUIWidgetBase::SPtr widget )
 {
-    WQtWidgetBase::SPtr w = boost::dynamic_pointer_cast< WQtWidgetBase >( parent );
+    WQtWidgetBase::SPtr w = boost::dynamic_pointer_cast< WQtWidgetBase >( widget );
     return w;
 }
 
-WUIGridWidget::SPtr WQtWidgetFactory::createGridWidget( const std::string& title, WUIWidgetBase::SPtr parent ) const
+WUIGridWidget::SPtr WQtWidgetFactory::createGridWidgetImpl( const std::string& title, WUIWidgetBase::SPtr parent ) const
 {
-    WQtGridWidget::SPtr widget( new WQtGridWidget( title, m_mainWindow, getAsQtParent( parent ) ) );
+    WQtGridWidget::SPtr widget( new WQtGridWidget( title, m_mainWindow, getAsQtWidgetBase( parent ) ) );
     WUIWidgetFactory::setParent( widget, parent );    // NOTE: this is the parent on the WUI side
     widget->realize();
     return widget;
 }
 
-WUIViewWidget::SPtr WQtWidgetFactory::createViewWidget(
+WUIViewWidget::SPtr WQtWidgetFactory::createViewWidgetImpl(
     std::string title,
     WGECamera::ProjectionMode projectionMode,
     boost::shared_ptr< WCondition > abortCondition,
     WUIWidgetBase::SPtr parent ) const
 {
-    WQtViewWidget::SPtr widget( new WQtViewWidget( title, projectionMode, m_mainWindow, getAsQtParent( parent ) ) );
+    WQtViewWidget::SPtr widget( new WQtViewWidget( title, projectionMode, m_mainWindow, getAsQtWidgetBase( parent ) ) );
     WUIWidgetFactory::setParent( widget, parent );    // NOTE: this is the parent on the WUI side
     widget->realize( abortCondition );
     return widget;

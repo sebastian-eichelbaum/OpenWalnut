@@ -47,3 +47,9 @@ void WUIGridWidget::placeWidget( WUIWidgetBase::SPtr widget, int x, int y )
     }
     placeWidgetImpl( widget, x, y );
 }
+
+bool WUIGridWidget::allowNesting() const
+{
+    return true;
+}
+

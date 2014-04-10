@@ -34,6 +34,7 @@
 #include "core/ui/WUIWidgetFactory.h"
 
 class WMainWindow;
+class WQtWidgetBase;
 
 /**
  * Implementation of \ref WUIWidgetFactory.
@@ -64,6 +65,16 @@ public:
     virtual ~WQtWidgetFactory();
 
     /**
+     * Convert the given WUIWidgetBase to the corresponding WQtWidgetBase.
+     *
+     * \param widget the widget to convert
+     *
+     * \return the converted widget.
+     */
+    static boost::shared_ptr< WQtWidgetBase > getAsQtWidgetBase( WUIWidgetBase::SPtr widget );
+protected:
+
+    /**
      * Create a grid widget. This kind of widget is basically empty. Add others to it. The widgets are initially invisible. Use
      * WUIWidgetBase::show() to make them visible.
      * If a widget with this name already exists, it will be returned.
@@ -75,7 +86,7 @@ public:
      *
      * \return the widget. Might be NULL if something goes wrong.
      */
-    virtual WUIGridWidget::SPtr createGridWidget( const std::string& title, WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const;
+    virtual WUIGridWidget::SPtr createGridWidgetImpl( const std::string& title, WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const;
 
     /**
      * Instruct to open a new view widget. The specified condition should be the shutdown condition of the module, as the function returns only
@@ -92,12 +103,11 @@ public:
      *
      * \return the created widget
      */
-    virtual WUIViewWidget::SPtr createViewWidget(
+    virtual WUIViewWidget::SPtr createViewWidgetImpl(
             std::string title,
             WGECamera::ProjectionMode projectionMode,
             boost::shared_ptr< WCondition > abordCondition = WCondition::SPtr(),
             WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const;
-protected:
 private:
     /**
      * The main window instance.

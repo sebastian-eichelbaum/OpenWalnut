@@ -163,35 +163,41 @@ void WMHistogramView::requirements()
 
 void WMHistogramView::handleMouseMove( WVector2f pos )
 {
-    if( m_infoNode )
+    if( m_mainNode )
     {
-        m_mainNode->remove( m_infoNode );
-    }
-    if( m_markerNode )
-    {
-        m_mainNode->remove( m_markerNode );
-    }
+        if( m_infoNode )
+        {
+            m_mainNode->remove( m_infoNode );
+        }
+        if( m_markerNode )
+        {
+            m_mainNode->remove( m_markerNode );
+        }
 
-    if( !m_histograms.empty() ) // Bug: module will crash on mouse events when no data was connected
-    {
-        createInfo( pos );
+        if( !m_histograms.empty() ) // Bug: module will crash on mouse events when no data was connected
+        {
+            createInfo( pos );
+        }
     }
 }
 
 void WMHistogramView::handleResize( int /* x */, int /* y */, int width, int height )
 {
-    m_windowWidth = width;
-    m_windowHeight = height;
-
-    m_redrawMutex.lock();
-
-    m_mainNode->clear();
-    if( m_windowHeight != 0 && m_windowWidth != 0 && m_histograms.size() != 0 )
+    if( m_mainNode )
     {
-        redraw();
-    }
+        m_windowWidth = width;
+        m_windowHeight = height;
 
-    m_redrawMutex.unlock();
+        m_redrawMutex.lock();
+
+        m_mainNode->clear();
+        if( m_windowHeight != 0 && m_windowWidth != 0 && m_histograms.size() != 0 )
+        {
+            redraw();
+        }
+
+        m_redrawMutex.unlock();
+    }
 }
 
 void WMHistogramView::moduleMain()
@@ -217,19 +223,31 @@ void WMHistogramView::moduleMain()
     m_widget = WKernel::getRunningKernel()->getUI()->getWidgetFactory()->createViewWidget(
             getName() + string_utils::toString( m_instanceID ),
             WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition(), m_widgetGrid );
+//            WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition() );
+
+
     osg::ref_ptr< WUIViewEventHandler > eh = new WUIViewEventHandler( m_widget );
     eh->subscribeMove( boost::bind( &WMHistogramView::handleMouseMove, this, _1 ) );
     eh->subscribeResize( boost::bind( &WMHistogramView::handleResize, this, _1, _2, _3, _4 ) );
     m_widget->addEventHandler( eh );
-/*
+
+       //! Holds the reference to the custom widget used for displaying the histogram
+    WUIGridWidget::SPtr m_widgetGrid2 = WKernel::getRunningKernel()->getUI()->getWidgetFactory()->createGridWidget( "spass"+ getName(), m_widgetGrid );
+
     WUIViewWidget::SPtr m_widget2 = WKernel::getRunningKernel()->getUI()->getWidgetFactory()->createViewWidget(
             getName() + "kk" + string_utils::toString( m_instanceID ),
-            WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition(), m_widgetGrid );
+            WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition(), m_widgetGrid2 );
 
+    WUIViewWidget::SPtr m_widget3 = WKernel::getRunningKernel()->getUI()->getWidgetFactory()->createViewWidget(
+            getName() + "kk2" + string_utils::toString( m_instanceID ),
+            WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition(), m_widgetGrid2 );
 
     m_widgetGrid->placeWidget( m_widget, 0, 0 );
-    m_widgetGrid->placeWidget( m_widget, 0, 1 );
-*/
+    m_widgetGrid->placeWidget( m_widgetGrid2, 0, 1 );
+
+    m_widgetGrid2->placeWidget( m_widget2, 0, 0 );
+    m_widgetGrid2->placeWidget( m_widget3, 1, 0 );
+
     m_widgetGrid->show();
 
     if( m_widget )
@@ -317,7 +335,6 @@ void WMHistogramView::moduleMain()
     }
 
     m_widgetGrid->close();
-    //m_widget->close();
 
     debugLog() << "Finished. Good bye!";
 }
