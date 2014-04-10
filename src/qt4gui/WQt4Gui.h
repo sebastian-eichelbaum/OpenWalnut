@@ -42,7 +42,7 @@
 
 #include "core/ui/WUI.h"
 
-#include "abstractUI/WQtWidgetFactory.h"
+#include "abstractUI/WUIQtWidgetFactory.h"
 
 #include "WIconManager.h"
 
@@ -273,7 +273,7 @@ private:
     /**
      * The widget factory which handles WUI widget creation.
      */
-    WQtWidgetFactory::SPtr m_widgetFactory;
+    WUIQtWidgetFactory::SPtr m_widgetFactory;
 };
 
 #endif  // WQT4GUI_H

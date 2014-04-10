@@ -83,7 +83,7 @@
 #include "events/WLoadFinishedEvent.h"
 #include "events/WLogEvent.h"
 #include "guiElements/WQtPropertyBoolAction.h"
-#include "abstractUI/WQtWidgetBase.h"
+#include "abstractUI/WUIQtWidgetBase.h"
 #include "WQtMessagePopup.h"
 #include "WQt4Gui.h"
 #include "WQtCombinerToolbar.h"
@@ -1329,12 +1329,12 @@ WQtMessageDock* WMainWindow::getMessageDock()
     return m_messageDock;
 }
 
-void WMainWindow::registerCustomWidget( WQtWidgetBase* widget )
+void WMainWindow::registerCustomWidget( WUIQtWidgetBase* widget )
 {
     m_customWidgets.unique_push_back( widget );
 }
 
-void WMainWindow::deregisterCustomWidget( WQtWidgetBase* widget )
+void WMainWindow::deregisterCustomWidget( WUIQtWidgetBase* widget )
 {
     // remove
     m_customWidgets.remove( widget );

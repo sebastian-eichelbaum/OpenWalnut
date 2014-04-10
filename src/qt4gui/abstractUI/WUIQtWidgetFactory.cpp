@@ -27,53 +27,53 @@
 #include <QtGui/QApplication>
 
 #include "../WMainWindow.h"
-#include "WQtViewWidget.h"
-#include "WQtGridWidget.h"
+#include "WUIQtViewWidget.h"
+#include "WUIQtGridWidget.h"
 
-#include "WQtWidgetFactory.h"
+#include "WUIQtWidgetFactory.h"
 
-WQtWidgetFactory::WQtWidgetFactory( WMainWindow* mainWindow ):
+WUIQtWidgetFactory::WUIQtWidgetFactory( WMainWindow* mainWindow ):
     WUIWidgetFactory(),
     m_mainWindow( mainWindow )
 {
     // initialize members
 }
 
-WQtWidgetFactory::~WQtWidgetFactory()
+WUIQtWidgetFactory::~WUIQtWidgetFactory()
 {
     // cleanup
 }
 
-WQtWidgetBase::SPtr WQtWidgetFactory::getAsQtWidgetBase( WUIWidgetBase::SPtr widget )
+WUIQtWidgetBase::SPtr WUIQtWidgetFactory::getAsQtWidgetBase( WUIWidgetBase::SPtr widget )
 {
-    WQtWidgetBase::SPtr w = boost::dynamic_pointer_cast< WQtWidgetBase >( widget );
+    WUIQtWidgetBase::SPtr w = boost::dynamic_pointer_cast< WUIQtWidgetBase >( widget );
     return w;
 }
 
-WUIGridWidget::SPtr WQtWidgetFactory::createGridWidgetImpl( const std::string& title, WUIWidgetBase::SPtr parent ) const
+WUIGridWidget::SPtr WUIQtWidgetFactory::createGridWidgetImpl( const std::string& title, WUIWidgetBase::SPtr parent ) const
 {
-    WQtGridWidget::SPtr widget( new WQtGridWidget( title, m_mainWindow, getAsQtWidgetBase( parent ) ) );
+    WUIQtGridWidget::SPtr widget( new WUIQtGridWidget( title, m_mainWindow, getAsQtWidgetBase( parent ) ) );
     WUIWidgetFactory::setParent( widget, parent );    // NOTE: this is the parent on the WUI side
     widget->realize();
     return widget;
 }
 
-WUIPropertyGroupWidget::SPtr WQtWidgetFactory::createPropertyGroupWidgetImpl( const std::string& title, WPropGroup properties,
+WUIPropertyGroupWidget::SPtr WUIQtWidgetFactory::createPropertyGroupWidgetImpl( const std::string& title, WPropGroup properties,
                                                                               WUIWidgetBase::SPtr parent ) const
 {
-    /*WQtPropertyGroupWidget::SPtr widget( new WQtGridWidget( title, properties, m_mainWindow, getAsQtWidgetBase( parent ) ) );
+    /*WQtPropertyGroupWidget::SPtr widget( new WUIQtGridWidget( title, properties, m_mainWindow, getAsQtWidgetBase( parent ) ) );
     WUIWidgetFactory::setParent( widget, parent );    // NOTE: this is the parent on the WUI side
     widget->realize();
     return widget;*/
 }
 
-WUIViewWidget::SPtr WQtWidgetFactory::createViewWidgetImpl(
+WUIViewWidget::SPtr WUIQtWidgetFactory::createViewWidgetImpl(
     std::string title,
     WGECamera::ProjectionMode projectionMode,
     boost::shared_ptr< WCondition > abortCondition,
     WUIWidgetBase::SPtr parent ) const
 {
-    WQtViewWidget::SPtr widget( new WQtViewWidget( title, projectionMode, m_mainWindow, getAsQtWidgetBase( parent ) ) );
+    WUIQtViewWidget::SPtr widget( new WUIQtViewWidget( title, projectionMode, m_mainWindow, getAsQtWidgetBase( parent ) ) );
     WUIWidgetFactory::setParent( widget, parent );    // NOTE: this is the parent on the WUI side
     widget->realize( abortCondition );
     return widget;

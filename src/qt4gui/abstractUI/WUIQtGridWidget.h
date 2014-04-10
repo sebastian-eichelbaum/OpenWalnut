@@ -22,41 +22,36 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTVIEWWIDGET_H
-#define WQTVIEWWIDGET_H
+#ifndef WUIQTGRIDWIDGET_H
+#define WUIQTGRIDWIDGET_H
 
 #include <string>
 
 #include <boost/shared_ptr.hpp>
 
-#include "core/graphicsEngine/WGEGroupNode.h"
-#include "core/graphicsEngine/WGECamera.h"
-#include "core/graphicsEngine/WGEViewer.h"
-#include "core/common/WCondition.h"
-
-#include "core/ui/WUIViewWidget.h"
+#include "core/ui/WUIGridWidget.h"
 #include "../WMainWindow.h"
-#include "../WQtGLDockWidget.h"
-#include "../WQtGLWidget.h"
 
-#include "WQtWidgetBase.h"
+#include "../guiElements/WQtDockWidget.h"
+
+#include "WUIQtWidgetBase.h"
 
 /**
- * Implementation of \ref WUIViewWidget.
+ * Implementation of \ref WUIGridWidget.
  */
-class WQtViewWidget: public WUIViewWidget,
-                     public WQtWidgetBase
+class WUIQtGridWidget: public WUIGridWidget,
+                     public WUIQtWidgetBase
 {
 public:
     /**
-     * Convenience typedef for a boost::shared_ptr< WQtViewWidget >.
+     * Convenience typedef for a boost::shared_ptr< WUIQtGridWidget >.
      */
-    typedef boost::shared_ptr< WQtViewWidget > SPtr;
+    typedef boost::shared_ptr< WUIQtGridWidget > SPtr;
 
     /**
-     * Convenience typedef for a boost::shared_ptr< const WQtViewWidget >.
+     * Convenience typedef for a boost::shared_ptr< const WUIQtGridWidget >.
      */
-    typedef boost::shared_ptr< const WQtViewWidget > ConstSPtr;
+    typedef boost::shared_ptr< const WUIQtGridWidget > ConstSPtr;
 
     /**
      * Default constructor.
@@ -64,18 +59,16 @@ public:
      * \param mainWindow the main window instance
      * \param parent the Qt parent. Can be NULL.
      * \param title the title of the widget
-     * \param projectionMode the kind of projection which should be used
      */
-    WQtViewWidget(
+    WUIQtGridWidget(
             std::string title,
-            WGECamera::ProjectionMode projectionMode,
             WMainWindow* mainWindow,
-            WQtWidgetBase::SPtr parent = WQtWidgetBase::SPtr() );
+            WUIQtWidgetBase::SPtr parent = WUIQtWidgetBase::SPtr() );
 
     /**
      * Destructor.
      */
-    virtual ~WQtViewWidget();
+    virtual ~WUIQtGridWidget();
 
     /**
      * Title as QString.
@@ -83,41 +76,6 @@ public:
      * \return the title
      */
     virtual QString getTitleQString() const;
-
-    /**
-     * Get the scene which is displayed
-     *
-     * \return the scene as osg::ref_ptr
-     */
-    virtual osg::ref_ptr< WGEGroupNode > getScene() const;
-
-    /**
-     * Get the viewer which is used
-     *
-     * \return the viewer as boost::shard_ptr
-     */
-    virtual boost::shared_ptr< WGEViewer > getViewer() const;
-
-    /**
-     * Returns the height of the viewport of the camera.
-     *
-     * \return Height in pixels.
-     */
-    virtual size_t height() const;
-
-    /**
-     * Returns the width of the viewport of the camera.
-     *
-     * \return Width in pixels.
-     */
-    virtual size_t width() const;
-
-    /**
-     * Adds an event handler to the widget's view.
-     *
-     * \param handler Pointer to the handler.
-     */
-    virtual void addEventHandler( osgGA::GUIEventHandler* handler );
 
     /**
      * Show this widget if not yet visible.
@@ -160,23 +118,37 @@ protected:
      */
     virtual void cleanUpGT();
 
+    /**
+     * Place the given widget in this grid at the given coordinates. The widget to be placed must be created with this grid as parent.
+     *
+     * \param widget the widget
+     * \param x x coord ( 0 is left )
+     * \param y y coord ( 0 is top )
+     */
+    virtual void placeWidgetImpl( WUIWidgetBase::SPtr widget, int x, int y );
+
+    /**
+     * Place the given widget in this grid at the given coordinates. The widget to be placed must be created with this grid as parent. GUI thread
+     * version.
+     *
+     * \param widget the widget
+     * \param x x coord ( 0 is left )
+     * \param y y coord ( 0 is top )
+     */
+    virtual void placeWidgetImplGT( QWidget* widget, int x, int y );
+
 private:
     /**
-     * Projection mode of the cam
+     * The Qt widget representing this abstract widget. Might be null. Check before use!
+     * \note this is the same pointer as WUIQtWidgetBase::m_widget as WQtDockWidget.
      */
-    WGECamera::ProjectionMode m_projectionMode;
+    WQtDockWidget* m_widgetDock;
 
     /**
-     * Scene in this view
+     * The grid used for managing child widgets
      */
-    osg::ref_ptr< WGEGroupNode > m_scene;
-
-    /**
-     * The Qt widget representing this abstract widget.
-     * \note this is the same pointer as WQtWidgetBase::m_widget as WQtGLDockWidget.
-     */
-    WQtGLDockWidget* m_widgetDock;
+    QGridLayout* m_gridLayout;
 };
 
-#endif  // WQTVIEWWIDGET_H
+#endif  // WUIQTGRIDWIDGET_H
 

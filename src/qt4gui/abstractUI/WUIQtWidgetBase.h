@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTWIDGETBASE_H
-#define WQTWIDGETBASE_H
+#ifndef WUIQTWIDGETBASE_H
+#define WUIQTWIDGETBASE_H
 
 #include <QtGui/QWidget>
 
@@ -37,18 +37,18 @@
  * Implementation of \ref WUIWidgetBase. Not really. It is an base class for all WUIWidgetBase implementations to comfortably allow thread-save
  * GUI ops.
  */
-class WQtWidgetBase
+class WUIQtWidgetBase
 {
 public:
     /**
-     * Convenience typedef for a boost::shared_ptr< WQtWidgetBase >.
+     * Convenience typedef for a boost::shared_ptr< WUIQtWidgetBase >.
      */
-    typedef boost::shared_ptr< WQtWidgetBase > SPtr;
+    typedef boost::shared_ptr< WUIQtWidgetBase > SPtr;
 
     /**
-     * Convenience typedef for a boost::shared_ptr< const WQtWidgetBase >.
+     * Convenience typedef for a boost::shared_ptr< const WUIQtWidgetBase >.
      */
-    typedef boost::shared_ptr< const WQtWidgetBase > ConstSPtr;
+    typedef boost::shared_ptr< const WUIQtWidgetBase > ConstSPtr;
 
     /**
      * Default constructor.
@@ -56,12 +56,12 @@ public:
      * \param mainWindow the main window instance
      * \param parent the parent widget. Can be NULL.
      */
-    WQtWidgetBase( WMainWindow* mainWindow, WQtWidgetBase::SPtr parent );
+    WUIQtWidgetBase( WMainWindow* mainWindow, WUIQtWidgetBase::SPtr parent );
 
     /**
      * Destructor.
      */
-    virtual ~WQtWidgetBase();
+    virtual ~WUIQtWidgetBase();
 
     /**
      * The title as QString.
@@ -128,7 +128,7 @@ public:
      *
      * \return the parent
      */
-    WQtWidgetBase::SPtr getQtParent() const;
+    WUIQtWidgetBase::SPtr getQtParent() const;
 protected:
     /**
      * Realize the widget. This method blocks until the GUI thread created the widget. Called from within the GUI thread! So you can safely do Qt
@@ -183,7 +183,7 @@ protected:
     /**
      * Parent widget. Can be NULL.
      */
-    WQtWidgetBase::SPtr m_parent;
+    WUIQtWidgetBase::SPtr m_parent;
 private:
     /**
      * Forwards call from a boost function to the virtual realizeImpl method
@@ -191,5 +191,5 @@ private:
     void realizeGT();
 };
 
-#endif  // WQTWIDGETBASE_H
+#endif  // WUIQTWIDGETBASE_H
 

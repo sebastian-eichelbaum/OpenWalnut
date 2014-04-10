@@ -28,10 +28,9 @@
 
 #include "../WQt4Gui.h"
 
-#include "WQtWidgetFactory.h"
-#include "WQtWidgetBase.h"
+#include "WUIQtWidgetBase.h"
 
-WQtWidgetBase::WQtWidgetBase( WMainWindow* mainWindow, WQtWidgetBase::SPtr parent ):
+WUIQtWidgetBase::WUIQtWidgetBase( WMainWindow* mainWindow, WUIQtWidgetBase::SPtr parent ):
     m_mainWindow( mainWindow ),
     m_widget( NULL ),
     m_parent( parent )
@@ -39,7 +38,7 @@ WQtWidgetBase::WQtWidgetBase( WMainWindow* mainWindow, WQtWidgetBase::SPtr paren
     // initialize members
 }
 
-WQtWidgetBase::~WQtWidgetBase()
+WUIQtWidgetBase::~WUIQtWidgetBase()
 {
     // cleanup
     if( m_widget )
@@ -48,7 +47,7 @@ WQtWidgetBase::~WQtWidgetBase()
     }
 }
 
-void WQtWidgetBase::realize( boost::shared_ptr< WCondition > abortCondition )
+void WUIQtWidgetBase::realize( boost::shared_ptr< WCondition > abortCondition )
 {
     WConditionSet conditionSet;
     conditionSet.setResetable( true, false );
@@ -64,13 +63,13 @@ void WQtWidgetBase::realize( boost::shared_ptr< WCondition > abortCondition )
     conditionSet.add( doneNotify );
 
     // use the UI to do the GUI thread call
-    WQt4Gui::execInGUIThreadAsync( boost::bind( &WQtWidgetBase::realizeGT, this ), doneNotify );
+    WQt4Gui::execInGUIThreadAsync( boost::bind( &WUIQtWidgetBase::realizeGT, this ), doneNotify );
 
     // wait ...
     conditionSet.wait();
 }
 
-void WQtWidgetBase::realizeGT()
+void WUIQtWidgetBase::realizeGT()
 {
     // only top-level widgets will be registered
     if( !m_parent )
@@ -80,24 +79,24 @@ void WQtWidgetBase::realizeGT()
     realizeImpl();
 }
 
-bool WQtWidgetBase::isReal()
+bool WUIQtWidgetBase::isReal()
 {
     return ( m_widget );
 }
 
-void WQtWidgetBase::show()
+void WUIQtWidgetBase::show()
 {
     if( m_widget )
     {
-        WQt4Gui::execInGUIThread( boost::bind( &WQtWidgetBase::showGT, this ) );
+        WQt4Gui::execInGUIThread( boost::bind( &WUIQtWidgetBase::showGT, this ) );
     }
 }
 
-void WQtWidgetBase::setVisible( bool visible )
+void WUIQtWidgetBase::setVisible( bool visible )
 {
     if( m_widget )
     {
-        WQt4Gui::execInGUIThread( boost::bind( &WQtWidgetBase::setVisibleGT, this, visible ) );
+        WQt4Gui::execInGUIThread( boost::bind( &WUIQtWidgetBase::setVisibleGT, this, visible ) );
     }
 }
 
@@ -125,7 +124,7 @@ struct IsVisibleFunctor
     bool m_return;
 };
 
-bool WQtWidgetBase::isVisible() const
+bool WUIQtWidgetBase::isVisible() const
 {
     if( m_widget )
     {
@@ -137,45 +136,45 @@ bool WQtWidgetBase::isVisible() const
     return false;
 }
 
-void WQtWidgetBase::closeImpl()
+void WUIQtWidgetBase::closeImpl()
 {
-    wlog::debug( "WQtWidgetBase" ) << "Close: \"" << getTitleQString().toStdString() << "\"";
+    wlog::debug( "WUIQtWidgetBase" ) << "Close: \"" << getTitleQString().toStdString() << "\"";
 
     // move this to the GUI thread.
     if( m_widget )
     {
-        WQt4Gui::execInGUIThread( boost::bind( &WQtWidgetBase::closeGT, this ) );
+        WQt4Gui::execInGUIThread( boost::bind( &WUIQtWidgetBase::closeGT, this ) );
     }
 }
 
-void WQtWidgetBase::showGT()
+void WUIQtWidgetBase::showGT()
 {
     m_widget->show();
 }
 
-void WQtWidgetBase::setVisibleGT( bool visible )
+void WUIQtWidgetBase::setVisibleGT( bool visible )
 {
     m_widget->setVisible( visible );
 }
 
-bool WQtWidgetBase::isVisibleGT() const
+bool WUIQtWidgetBase::isVisibleGT() const
 {
     return m_widget->isVisible();
 }
 
-void WQtWidgetBase::closeGT()
+void WUIQtWidgetBase::closeGT()
 {
     m_mainWindow->deregisterCustomWidget( this );
     cleanUpGT();    // we do not delete the widget ourselfs ... let the bridge implementor do it.
     m_widget = NULL;
 }
 
-QWidget* WQtWidgetBase::getWidget() const
+QWidget* WUIQtWidgetBase::getWidget() const
 {
     return m_widget;
 }
 
-QWidget* WQtWidgetBase::getParentAsQtWidget() const
+QWidget* WUIQtWidgetBase::getParentAsQtWidget() const
 {
     if( getQtParent() )
     {
@@ -187,7 +186,7 @@ QWidget* WQtWidgetBase::getParentAsQtWidget() const
     }
 }
 
-WQtWidgetBase::SPtr WQtWidgetBase::getQtParent() const
+WUIQtWidgetBase::SPtr WUIQtWidgetBase::getQtParent() const
 {
     return m_parent;
 }

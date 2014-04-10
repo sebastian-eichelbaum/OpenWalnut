@@ -27,43 +27,43 @@
 #include "core/common/WConditionOneShot.h"
 #include "core/common/WFlag.h"
 
-#include "WQtViewWidget.h"
+#include "WUIQtViewWidget.h"
 
-WQtViewWidget::WQtViewWidget(
+WUIQtViewWidget::WUIQtViewWidget(
             std::string title,
             WGECamera::ProjectionMode projectionMode,
             WMainWindow* mainWindow,
-            WQtWidgetBase::SPtr parent ):
+            WUIQtWidgetBase::SPtr parent ):
     WUIViewWidget( title ),
-    WQtWidgetBase( mainWindow, parent ),
+    WUIQtWidgetBase( mainWindow, parent ),
     m_projectionMode( projectionMode ),
     m_widgetDock( NULL )
 {
     // initialize members
 }
 
-WQtViewWidget::~WQtViewWidget()
+WUIQtViewWidget::~WUIQtViewWidget()
 {
     // cleanup
 }
 
-QString WQtViewWidget::getTitleQString() const
+QString WUIQtViewWidget::getTitleQString() const
 {
     return QString::fromStdString( getTitle() );
 }
 
-osg::ref_ptr< WGEGroupNode > WQtViewWidget::getScene() const
+osg::ref_ptr< WGEGroupNode > WUIQtViewWidget::getScene() const
 {
     return m_scene;
 }
 
-boost::shared_ptr< WGEViewer > WQtViewWidget::getViewer() const
+boost::shared_ptr< WGEViewer > WUIQtViewWidget::getViewer() const
 {
     // should be safe to call from outside the GUI thread !?
     return m_widgetDock->getGLWidget()->getViewer();
 }
 
-size_t WQtViewWidget::height() const
+size_t WUIQtViewWidget::height() const
 {
     if( m_widgetDock->getGLWidget()->getViewer() )
     {
@@ -76,7 +76,7 @@ size_t WQtViewWidget::height() const
     }
 }
 
-size_t WQtViewWidget::width() const
+size_t WUIQtViewWidget::width() const
 {
     if( m_widgetDock->getGLWidget()->getViewer() )
     {
@@ -89,7 +89,7 @@ size_t WQtViewWidget::width() const
     }
 }
 
-void WQtViewWidget::addEventHandler( osgGA::GUIEventHandler* handler )
+void WUIQtViewWidget::addEventHandler( osgGA::GUIEventHandler* handler )
 {
     if( m_widgetDock->getGLWidget()->getViewer() )
     {
@@ -98,40 +98,40 @@ void WQtViewWidget::addEventHandler( osgGA::GUIEventHandler* handler )
     }
 }
 
-void WQtViewWidget::show()
+void WUIQtViewWidget::show()
 {
-    WQtWidgetBase::show();
+    WUIQtWidgetBase::show();
 }
 
-void WQtViewWidget::setVisible( bool visible )
+void WUIQtViewWidget::setVisible( bool visible )
 {
-    WQtWidgetBase::setVisible( visible );
+    WUIQtWidgetBase::setVisible( visible );
 }
 
-bool WQtViewWidget::isVisible() const
+bool WUIQtViewWidget::isVisible() const
 {
-    return WQtWidgetBase::isVisible();
+    return WUIQtWidgetBase::isVisible();
 }
 
-void WQtViewWidget::cleanUpGT()
+void WUIQtViewWidget::cleanUpGT()
 {
     delete m_widget;
     m_widgetDock = NULL;
     m_widget = NULL;
 }
 
-void WQtViewWidget::close()
+void WUIQtViewWidget::close()
 {
     // use WUIViewWidget to handle this
     WUIViewWidget::close();
 }
 
-void WQtViewWidget::closeImpl()
+void WUIQtViewWidget::closeImpl()
 {
-    WQtWidgetBase::closeImpl();
+    WUIQtWidgetBase::closeImpl();
 }
 
-void WQtViewWidget::realizeImpl()
+void WUIQtViewWidget::realizeImpl()
 {
     // this is called from withing the GUI thread -> we can safely create QT widgets here
 
@@ -150,7 +150,7 @@ void WQtViewWidget::realizeImpl()
     m_scene->setDataVariance( osg::Object::DYNAMIC );
     w->getGLWidget()->getViewer()->setScene( m_scene );
 
-    // store them. Allow WQtWidgetBase to work on our widget instance
+    // store them. Allow WUIQtWidgetBase to work on our widget instance
     m_widget = w;
     // lazy mode: keep pointer with proper type for later use.
     m_widgetDock = w;

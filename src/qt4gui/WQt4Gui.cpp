@@ -261,7 +261,7 @@ int WQt4Gui::run()
     // create the window
     m_mainWindow = new WMainWindow( m_splash );
 
-    m_widgetFactory = WQtWidgetFactory::SPtr( new WQtWidgetFactory( m_mainWindow ) );
+    m_widgetFactory = WUIQtWidgetFactory::SPtr( new WUIQtWidgetFactory( m_mainWindow ) );
 
 #ifdef Q_WS_MAC
     //TODO(mario): this should run on all platforms but crashes at least on Linux right now. Therefore, I only use it on OSX

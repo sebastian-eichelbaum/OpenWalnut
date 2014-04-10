@@ -56,7 +56,7 @@ class WQtPropertyBoolAction;
 class WPropertyBase;
 class WQtControlPanel;
 class WQtGLScreenCapture;
-class WQtWidgetBase;
+class WUIQtWidgetBase;
 
 /**
  * This class contains the main window and the layout of the widgets within the window.
@@ -240,14 +240,14 @@ public:
      *
      * \param widget the widget.
      */
-    void registerCustomWidget( WQtWidgetBase* widget );
+    void registerCustomWidget( WUIQtWidgetBase* widget );
 
     /**
      * De-register a custom widget.
      *
      * \param widget the widget.
      */
-    void deregisterCustomWidget( WQtWidgetBase* widget );
+    void deregisterCustomWidget( WUIQtWidgetBase* widget );
 
 protected:
     /**
@@ -463,7 +463,7 @@ private:
     /**
      * Container for core/UI widgetd
      */
-    typedef std::vector< WQtWidgetBase* > CustomWidgets;
+    typedef std::vector< WUIQtWidgetBase* > CustomWidgets;
 
     /**
      * All registered widgets created by the core/UI api.

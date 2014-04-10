@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTWIDGETFACTORY_H
-#define WQTWIDGETFACTORY_H
+#ifndef WUIQTWIDGETFACTORY_H
+#define WUIQTWIDGETFACTORY_H
 
 #include <string>
 
@@ -34,44 +34,44 @@
 #include "core/ui/WUIWidgetFactory.h"
 
 class WMainWindow;
-class WQtWidgetBase;
+class WUIQtWidgetBase;
 
 /**
  * Implementation of \ref WUIWidgetFactory.
  */
-class WQtWidgetFactory: public WUIWidgetFactory
+class WUIQtWidgetFactory: public WUIWidgetFactory
 {
 public:
     /**
-     * Convenience typedef for a boost::shared_ptr< WQtWidgetFactory >.
+     * Convenience typedef for a boost::shared_ptr< WUIQtWidgetFactory >.
      */
-    typedef boost::shared_ptr< WQtWidgetFactory > SPtr;
+    typedef boost::shared_ptr< WUIQtWidgetFactory > SPtr;
 
     /**
-     * Convenience typedef for a boost::shared_ptr< const WQtWidgetFactory >.
+     * Convenience typedef for a boost::shared_ptr< const WUIQtWidgetFactory >.
      */
-    typedef boost::shared_ptr< const WQtWidgetFactory > ConstSPtr;
+    typedef boost::shared_ptr< const WUIQtWidgetFactory > ConstSPtr;
 
     /**
      * Default constructor.
      *
      * \param mainWindow the main window instance
      */
-    explicit WQtWidgetFactory( WMainWindow* mainWindow );
+    explicit WUIQtWidgetFactory( WMainWindow* mainWindow );
 
     /**
      * Destructor.
      */
-    virtual ~WQtWidgetFactory();
+    virtual ~WUIQtWidgetFactory();
 
     /**
-     * Convert the given WUIWidgetBase to the corresponding WQtWidgetBase.
+     * Convert the given WUIWidgetBase to the corresponding WUIQtWidgetBase.
      *
      * \param widget the widget to convert
      *
      * \return the converted widget.
      */
-    static boost::shared_ptr< WQtWidgetBase > getAsQtWidgetBase( WUIWidgetBase::SPtr widget );
+    static boost::shared_ptr< WUIQtWidgetBase > getAsQtWidgetBase( WUIWidgetBase::SPtr widget );
 protected:
     /**
      * Create a grid widget. This kind of widget is basically empty. Add others to it. The widgets are initially invisible. Use
@@ -129,5 +129,5 @@ private:
     WMainWindow* m_mainWindow;
 };
 
-#endif  // WQTWIDGETFACTORY_H
+#endif  // WUIQTWIDGETFACTORY_H
 

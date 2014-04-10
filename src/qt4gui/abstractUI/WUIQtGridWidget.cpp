@@ -29,63 +29,63 @@
 #include "core/common/WConditionOneShot.h"
 #include "core/common/WFlag.h"
 
-#include "WQtGridWidget.h"
+#include "WUIQtGridWidget.h"
 
-WQtGridWidget::WQtGridWidget(
+WUIQtGridWidget::WUIQtGridWidget(
             std::string title,
             WMainWindow* mainWindow,
-            WQtWidgetBase::SPtr parent ):
+            WUIQtWidgetBase::SPtr parent ):
     WUIGridWidget( title ),
-    WQtWidgetBase( mainWindow, parent ),
+    WUIQtWidgetBase( mainWindow, parent ),
     m_gridLayout( NULL )
 {
     // initialize members
 }
 
-WQtGridWidget::~WQtGridWidget()
+WUIQtGridWidget::~WUIQtGridWidget()
 {
     // cleanup
 }
 
-QString WQtGridWidget::getTitleQString() const
+QString WUIQtGridWidget::getTitleQString() const
 {
     return QString::fromStdString( getTitle() );
 }
 
-void WQtGridWidget::show()
+void WUIQtGridWidget::show()
 {
-    WQtWidgetBase::show();
+    WUIQtWidgetBase::show();
 }
 
-void WQtGridWidget::setVisible( bool visible )
+void WUIQtGridWidget::setVisible( bool visible )
 {
-    WQtWidgetBase::setVisible( visible );
+    WUIQtWidgetBase::setVisible( visible );
 }
 
-bool WQtGridWidget::isVisible() const
+bool WUIQtGridWidget::isVisible() const
 {
-    return WQtWidgetBase::isVisible();
+    return WUIQtWidgetBase::isVisible();
 }
 
-void WQtGridWidget::cleanUpGT()
+void WUIQtGridWidget::cleanUpGT()
 {
     delete m_widget;
     m_widget = NULL;
 }
 
-void WQtGridWidget::close()
+void WUIQtGridWidget::close()
 {
     // use WUIGridWidget to handle this
     WUIGridWidget::close();
 }
 
-void WQtGridWidget::closeImpl()
+void WUIQtGridWidget::closeImpl()
 {
     // notify child widgets
-    WQtWidgetBase::closeImpl();
+    WUIQtWidgetBase::closeImpl();
 }
 
-void WQtGridWidget::realizeImpl()
+void WUIQtGridWidget::realizeImpl()
 {
     // this is called from withing the GUI thread -> we can safely create QT widgets here
 
@@ -106,7 +106,7 @@ void WQtGridWidget::realizeImpl()
         m_gridLayout = new QGridLayout();
         gridWidget->setLayout( m_gridLayout );
 
-        // store them. Allow WQtWidgetBase to work on our widget instance
+        // store them. Allow WUIQtWidgetBase to work on our widget instance
         m_widget = gridWidget;
         m_widget->setVisible( true );
     }
@@ -123,7 +123,7 @@ void WQtGridWidget::realizeImpl()
         gridWidget->setLayout( m_gridLayout );
         m_widgetDock->setWidget( gridWidget );
 
-        // store them. Allow WQtWidgetBase to work on our widget instance
+        // store them. Allow WUIQtWidgetBase to work on our widget instance
         m_widget = m_widgetDock;
 
         // hide by default if we do not have a parent
@@ -141,10 +141,10 @@ void WQtGridWidget::realizeImpl()
     m_gridLayout->setContentsMargins( 1, 1, 1, 1 );
 }
 
-void WQtGridWidget::placeWidgetImpl( WUIWidgetBase::SPtr widget, int x, int y )
+void WUIQtGridWidget::placeWidgetImpl( WUIWidgetBase::SPtr widget, int x, int y )
 {
     // get the real Qt widget
-    WQtWidgetBase* widgetQt = dynamic_cast< WQtWidgetBase* >( widget.get() );
+    WUIQtWidgetBase* widgetQt = dynamic_cast< WUIQtWidgetBase* >( widget.get() );
     QWidget* widgetQtwidget = NULL;
     if( widgetQt )
     {
@@ -154,11 +154,11 @@ void WQtGridWidget::placeWidgetImpl( WUIWidgetBase::SPtr widget, int x, int y )
     // and forward call to GUI thread
     if( widgetQtwidget )
     {
-        WQt4Gui::execInGUIThread( boost::bind( &WQtGridWidget::placeWidgetImplGT, this, widgetQtwidget, x, y ) );
+        WQt4Gui::execInGUIThread( boost::bind( &WUIQtGridWidget::placeWidgetImplGT, this, widgetQtwidget, x, y ) );
     }
 }
 
-void WQtGridWidget::placeWidgetImplGT( QWidget* widget, int x, int y )
+void WUIQtGridWidget::placeWidgetImplGT( QWidget* widget, int x, int y )
 {
     if( m_gridLayout )
     {
