@@ -88,6 +88,21 @@ protected:
     virtual WUIGridWidget::SPtr createGridWidgetImpl( const std::string& title, WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const;
 
     /**
+     * Create a property widget. Parentless widgets are initially invisible. Use
+     * WUIWidgetBase::show() to make them visible.
+     *
+     * \note this function blocks until the widget was created. Check the resulting pointer for NULL.
+     *
+     * \param title the title
+     * \param properties the property group
+     * \param parent the parent widget which will contain this widget. Can be NULL.
+     *
+     * \return the widget. Might be NULL if something goes wrong.
+     */
+    virtual WUIPropertyGroupWidget::SPtr createPropertyGroupWidgetImpl( const std::string& title, WPropGroup properties,
+                                                                        WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const;
+
+    /**
      * Instruct to open a new view widget. The specified condition should be the shutdown condition of the module, as the function returns only
      * if the widget was created. To ensure that the creation is aborted properly if the module shuts down in the meantime, this condition is
      * used. The widgets are initially invisible. Use WUIWidgetBase::show() to make them visible.

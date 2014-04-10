@@ -58,6 +58,15 @@ WUIGridWidget::SPtr WQtWidgetFactory::createGridWidgetImpl( const std::string& t
     return widget;
 }
 
+WUIPropertyGroupWidget::SPtr WQtWidgetFactory::createPropertyGroupWidgetImpl( const std::string& title, WPropGroup properties,
+                                                                              WUIWidgetBase::SPtr parent ) const
+{
+    /*WQtPropertyGroupWidget::SPtr widget( new WQtGridWidget( title, properties, m_mainWindow, getAsQtWidgetBase( parent ) ) );
+    WUIWidgetFactory::setParent( widget, parent );    // NOTE: this is the parent on the WUI side
+    widget->realize();
+    return widget;*/
+}
+
 WUIViewWidget::SPtr WQtWidgetFactory::createViewWidgetImpl(
     std::string title,
     WGECamera::ProjectionMode projectionMode,

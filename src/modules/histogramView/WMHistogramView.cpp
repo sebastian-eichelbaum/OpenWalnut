@@ -242,11 +242,15 @@ void WMHistogramView::moduleMain()
             getName() + "kk2" + string_utils::toString( m_instanceID ),
             WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition(), m_widgetGrid2 );
 
+    WUIPropertyGroupWidget::SPtr m_widgetProps = WKernel::getRunningKernel()->getUI()->getWidgetFactory()->createPropertyGroupWidget( "Propsy",
+            m_properties, m_widgetGrid2 );
+
     m_widgetGrid->placeWidget( m_widget, 0, 0 );
     m_widgetGrid->placeWidget( m_widgetGrid2, 0, 1 );
 
     m_widgetGrid2->placeWidget( m_widget2, 0, 0 );
     m_widgetGrid2->placeWidget( m_widget3, 1, 0 );
+    m_widgetGrid2->placeWidget( m_widgetProps, 2, 0 );
 
     m_widgetGrid->show();
 

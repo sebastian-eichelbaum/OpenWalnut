@@ -30,8 +30,10 @@
 #include <boost/shared_ptr.hpp>
 
 #include "core/common/WException.h"
+#include "core/common/WPropertyTypes.h"
 
 #include "WUIGridWidget.h"
+#include "WUIPropertyGroupWidget.h"
 #include "WUIViewWidget.h"
 
 /**
@@ -53,7 +55,6 @@ public:
     /**
      * Create a grid widget. This kind of widget is basically empty. Add others to it. Parentless widgets are initially invisible. Use
      * WUIWidgetBase::show() to make them visible.
-     * If a widget with this name already exists, it will be returned.
      *
      * \note this function blocks until the widget was created. Check the resulting pointer for NULL.
      *
@@ -75,10 +76,34 @@ public:
     }
 
     /**
+     * Create a property widget. Parentless widgets are initially invisible. Use
+     * WUIWidgetBase::show() to make them visible.
+     *
+     * \note this function blocks until the widget was created. Check the resulting pointer for NULL.
+     *
+     * \param title the title
+     * \param properties the property group
+     * \param parent the parent widget which will contain this widget. Can be NULL.
+     *
+     * \return the widget. Might be NULL if something goes wrong.
+     */
+    virtual WUIPropertyGroupWidget::SPtr createPropertyGroupWidget( const std::string& title, WPropGroup properties,
+                                                                    WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const
+    {
+        if( parent )
+        {
+            if( !parent->allowNesting() )
+            {
+                throw WException( "Parent of widget \"" + title + "\" does not allow nesting." );
+            }
+        }
+        return createPropertyGroupWidgetImpl( title, properties, parent );
+    }
+
+    /**
      * Instruct to open a new view widget. The specified condition should be the shutdown condition of the module, as the function returns only
      * if the widget was created. To ensure that the creation is aborted properly if the module shuts down in the meantime, this condition is
      * used. Parentless widgets are initially invisible. Use WUIWidgetBase::show() to make them visible.
-     * If a widget with this name already exists, it will be returned.
      *
      * \note this function blocks until the widget was created. Check the resulting pointer for NULL.
      *
@@ -142,6 +167,18 @@ protected:
      * \return the widget. Might be NULL if something goes wrong.
      */
     virtual WUIGridWidget::SPtr createGridWidgetImpl( const std::string& title, WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const = 0;
+
+    /**
+     * Implementation of \ref createPropertyGroupWidget.
+     *
+     * \param title the title
+     * \param properties the property group
+     * \param parent the parent widget which will contain this widget. Can be NULL.
+     *
+     * \return the widget. Might be NULL if something goes wrong.
+     */
+    virtual WUIPropertyGroupWidget::SPtr createPropertyGroupWidgetImpl( const std::string& title, WPropGroup properties,
+                                                                        WUIWidgetBase::SPtr parent = WUIWidgetBase::SPtr() ) const = 0;
 
     /**
      * Implementation of \ref createViewWidget.
