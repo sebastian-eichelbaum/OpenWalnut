@@ -190,3 +190,68 @@ WUIQtWidgetBase::SPtr WUIQtWidgetBase::getQtParent() const
 {
     return m_parent;
 }
+
+QWidget* WUIQtWidgetBase::embedContent( QWidget* content )
+{
+    QDockWidget* asDock = dynamic_cast< QDockWidget* >( content );
+
+    // is the widget embedded somewhere?
+    if( hasUIParent() )
+    {
+        m_widget = content;
+        // if the widget has a parent, make it visible by default
+        m_widget->setVisible( true );
+
+        // embedded into another widget? Remove dock features
+        if( asDock )
+        {
+            asDock->setFeatures( QDockWidget::NoDockWidgetFeatures );
+        }
+
+        // doc says we return NULL if there is no container
+        return NULL;
+    }
+    else // it is a standalone widget -> embedd into dock widget
+    {
+        // NO! It already is a dock:
+        if( asDock )
+        {
+            m_widget = asDock;
+        }
+        else    // add dock
+        {
+            // it is a top-level window -> use a dock
+            // create as dock widget
+            WQtDockWidget* widgetDock = new WQtDockWidget( getTitleQString(), getCompellingQParent() );
+            widgetDock->setObjectName( QString( "Custom Dock Window " ) + getTitleQString() );
+            widgetDock->setWidget( content );
+            m_widget = widgetDock;
+
+            // re-use this var. It is NULL
+            asDock = widgetDock;
+        }
+
+        // hide by default if we do not have a parent
+        m_widget->setVisible( false );
+        m_mainWindow->addDockWidget( Qt::BottomDockWidgetArea, asDock );
+    }
+
+    return m_widget;
+}
+
+QWidget* WUIQtWidgetBase::getCompellingQParent() const
+{
+    QWidget* parent = getParentAsQtWidget();
+    bool hasParent = parent;
+    if( !parent )
+    {
+        parent = m_mainWindow;
+    }
+
+    return parent;
+}
+
+bool WUIQtWidgetBase::hasUIParent() const
+{
+    return getQtParent();
+}

@@ -89,55 +89,17 @@ void WUIQtGridWidget::realizeImpl()
 {
     // this is called from withing the GUI thread -> we can safely create QT widgets here
 
-    // parent info:
-    QWidget* parent = getParentAsQtWidget();
-    bool hasParent = parent;
-    if( !parent )
-    {
-        parent = m_mainWindow;
-    }
+    // then we use a plain QWidget
+    // create the actual grid widget (using a QGridLayout)
+    QWidget* gridWidget = new QWidget( getCompellingQParent() );
+    m_gridLayout = new QGridLayout();
+    gridWidget->setLayout( m_gridLayout );
 
-    // is the widget embedded somewhere?
-    if( hasParent )
-    {
-        // then we use a plain QWidget
-        // create the actual grid widget (using a QGridLayout)
-        QWidget* gridWidget = new QWidget( parent );
-        m_gridLayout = new QGridLayout();
-        gridWidget->setLayout( m_gridLayout );
-
-        // store them. Allow WUIQtWidgetBase to work on our widget instance
-        m_widget = gridWidget;
-        m_widget->setVisible( true );
-    }
-    else
-    {
-        // it is a top-level window -> use a dock
-        // create as dock widget
-        m_widgetDock = new WQtDockWidget( QString::fromStdString( getTitle() ), parent );
-        m_widgetDock->setObjectName( QString( "Custom Dock Window " ) + QString::fromStdString( getTitle() ) );
-
-        // create the actual grid widget (using a QGridLayout)
-        QWidget* gridWidget = new QWidget( m_widgetDock );
-        m_gridLayout = new QGridLayout();
-        gridWidget->setLayout( m_gridLayout );
-        m_widgetDock->setWidget( gridWidget );
-
-        // store them. Allow WUIQtWidgetBase to work on our widget instance
-        m_widget = m_widgetDock;
-
-        // hide by default if we do not have a parent
-        m_widgetDock->setVisible( false );
-        m_mainWindow->addDockWidget( Qt::BottomDockWidgetArea, m_widgetDock );
-    }
+    embedContent( gridWidget );
 
     // spacing?
     m_gridLayout->setSpacing( 0 );
     m_widget->setContentsMargins( 0, 0, 0, 0 );
-    if( hasParent )
-    {
-        parent->setContentsMargins( 0, 0, 0, 0 );
-    }
     m_gridLayout->setContentsMargins( 1, 1, 1, 1 );
 }
 

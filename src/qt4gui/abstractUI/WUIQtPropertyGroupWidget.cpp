@@ -98,39 +98,10 @@ void WUIQtPropertyGroupWidget::realizeImpl()
 {
     // this is called from withing the GUI thread -> we can safely create QT widgets here
 
-    // parent info:
-    QWidget* parent = getParentAsQtWidget();
-    bool hasParent = parent;
-    if( !parent )
-    {
-        parent = m_mainWindow;
-    }
-
     // this widget does what we want:
-    m_propWidget = WQtPropertyGroupWidget::createPropertyGroupBox( m_properties, true, "", 0, parent );
-    m_widget = m_propWidget;
+    m_propWidget = WQtPropertyGroupWidget::createPropertyGroupBox( m_properties, true, "", 0, getCompellingQParent() );
 
-
-    // is the widget embedded somewhere?
-    if( hasParent )
-    {
-        m_widget->setVisible( true );
-    }
-    else
-    {
-        // it is a top-level window -> use a dock
-        // create as dock widget
-        WQtDockWidget* m_widgetDock = new WQtDockWidget( QString::fromStdString( getTitle() ), parent );
-        m_widgetDock->setObjectName( QString( "Custom Dock Window " ) + QString::fromStdString( getTitle() ) );
-
-        m_widgetDock->setWidget( m_propWidget );
-
-        // store them. Allow WUIQtWidgetBase to work on our widget instance
-        m_widget = m_widgetDock;
-
-        // hide by default if we do not have a parent
-        m_widgetDock->setVisible( false );
-        m_mainWindow->addDockWidget( Qt::BottomDockWidgetArea, m_widgetDock );
-    }
+    // let WUIQtWidgetBase do the rest
+    embedContent( m_propWidget );
 }
 

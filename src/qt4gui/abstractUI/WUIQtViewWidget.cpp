@@ -134,42 +134,18 @@ void WUIQtViewWidget::closeImpl()
 void WUIQtViewWidget::realizeImpl()
 {
     // this is called from withing the GUI thread -> we can safely create QT widgets here
-
-    QWidget* parent = getParentAsQtWidget();
-    bool hasParent = parent;
-    if( !parent )
-    {
-        parent = m_mainWindow;
-    }
-    WQtGLDockWidget* w = new WQtGLDockWidget( QString::fromStdString( getTitle() ),
-                                              QString::fromStdString( getTitle() ), parent, m_projectionMode );
-    w->setObjectName( QString( "Custom Dock Window " ) + QString::fromStdString( getTitle() ) );
+    m_widgetDock = new WQtGLDockWidget( QString::fromStdString( getTitle() ),
+                                        QString::fromStdString( getTitle() ), getCompellingQParent(), m_projectionMode );
+    m_widgetDock->setObjectName( QString( "Custom Dock Window " ) + QString::fromStdString( getTitle() ) );
 
     // define some scene
     m_scene = new WGEGroupNode();
     m_scene->setDataVariance( osg::Object::DYNAMIC );
-    w->getGLWidget()->getViewer()->setScene( m_scene );
-
-    // store them. Allow WUIQtWidgetBase to work on our widget instance
-    m_widget = w;
-    // lazy mode: keep pointer with proper type for later use.
-    m_widgetDock = w;
+    m_widgetDock->getGLWidget()->getViewer()->setScene( m_scene );
 
     // remove the close button
     m_widgetDock->disableCloseButton();
 
-    // if this widget has a parent, disable dock features
-    if( hasParent )
-    {
-        // if we have a parent and thus be embedded somewhere: remove dock widget features
-        w->setFeatures( QDockWidget::NoDockWidgetFeatures );
-        w->setVisible( true );
-    }
-    else
-    {
-        // hide by default if we do not have a parent
-        w->setVisible( false );
-        m_mainWindow->addDockWidget( Qt::BottomDockWidgetArea, w );
-    }
+    embedContent( m_widgetDock );
 }
 

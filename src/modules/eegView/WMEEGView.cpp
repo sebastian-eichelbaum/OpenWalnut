@@ -427,6 +427,7 @@ bool WMEEGView::openCustomWidget()
     debugLog() << "Try to open EEG View widget...";
     m_widget = WKernel::getRunningKernel()->getUI()->getWidgetFactory()->createViewWidget( getName(),
                     WGECamera::TWO_D, m_shutdownFlag.getCondition() );
+    m_widget->show();
     bool success = m_widget.get();
     if( success )
     {

@@ -184,6 +184,30 @@ protected:
      * Parent widget. Can be NULL.
      */
     WUIQtWidgetBase::SPtr m_parent;
+
+    /**
+     * Returns the parent to use for your implementation in \ref realizeImpl. It is important to understand that this always returns a parent,
+     * regardless of m_parent being NULL or not. This is the parent of your QWidget.
+     *
+     * \return the parent
+     */
+    QWidget* getCompellingQParent() const;
+
+    /**
+     * Check if the widget is embedded into another WUI widget.
+     *
+     * \return true if there is a WUIQtWidgetBase parent
+     */
+    bool hasUIParent() const;
+
+    /**
+     * This method can be used if you just create some QWidget and do not want to take care about embedding the content in a dock if there is no
+     * parent, setting size constraints and similar. This method handles this. It is also aware of QDckWidgets. This means it does not embed
+     * them if you create your own QDockWidgets. It then just sets the defaults and registers it at WMainWindow.
+     *
+     * \return the container (usually WQtDockWidget) or NULL if the content is used stand-alone.
+     */
+    QWidget* embedContent( QWidget* content );
 private:
     /**
      * Forwards call from a boost function to the virtual realizeImpl method
