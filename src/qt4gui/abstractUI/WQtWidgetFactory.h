@@ -73,7 +73,6 @@ public:
      */
     static boost::shared_ptr< WQtWidgetBase > getAsQtWidgetBase( WUIWidgetBase::SPtr widget );
 protected:
-
     /**
      * Create a grid widget. This kind of widget is basically empty. Add others to it. The widgets are initially invisible. Use
      * WUIWidgetBase::show() to make them visible.

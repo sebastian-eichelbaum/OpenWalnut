@@ -121,7 +121,6 @@ void WUIWidgetBase::closeChildren()
 {
     ChildContainer::WriteTicket w = m_childs.getWriteTicket();
     std::for_each( w->get().begin(), w->get().end(), closeFunctor );
-
 }
 
 bool WUIWidgetBase::isClosed() const

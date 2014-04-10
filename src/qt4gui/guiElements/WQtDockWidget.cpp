@@ -128,3 +128,7 @@ void WQtDockWidget::closeEvent( QCloseEvent *event )
     QDockWidget::closeEvent( event );
 }
 
+void WQtDockWidget::disableCloseButton( bool disable )
+{
+    m_titleBar->disableCloseButton( disable );
+}

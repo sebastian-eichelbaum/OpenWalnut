@@ -26,6 +26,7 @@
 #define WUIWIDGETBASE_H
 
 #include <string>
+#include <vector>
 
 #include "core/common/WCondition.h"
 #include "core/common/WSharedSequenceContainer.h"

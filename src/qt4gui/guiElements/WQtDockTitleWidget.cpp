@@ -267,3 +267,9 @@ void WQtDockTitleWidget::updateHelp()
     }
     m_helpBtn->setVisible( true );
 }
+
+void WQtDockTitleWidget::disableCloseButton( bool disable )
+{
+    m_closeBtn->setDisabled( disable );
+    m_closeBtn->setVisible( !disable );
+}

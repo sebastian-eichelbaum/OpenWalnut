@@ -135,6 +135,13 @@ public:
      */
     virtual void restoreSettings();
 
+    /**
+     * Disable close button? Might come in handy when embedding these widgets into others
+     *
+     * \param disable true to disable
+     */
+    void disableCloseButton( bool disable = true );
+
 public slots:
     /**
      * Show help.

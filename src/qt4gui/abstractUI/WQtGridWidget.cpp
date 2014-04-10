@@ -108,7 +108,6 @@ void WQtGridWidget::realizeImpl()
 
         // store them. Allow WQtWidgetBase to work on our widget instance
         m_widget = gridWidget;
-
         m_widget->setVisible( true );
     }
     else
@@ -131,6 +130,15 @@ void WQtGridWidget::realizeImpl()
         m_widgetDock->setVisible( false );
         m_mainWindow->addDockWidget( Qt::BottomDockWidgetArea, m_widgetDock );
     }
+
+    // spacing?
+    m_gridLayout->setSpacing( 0 );
+    m_widget->setContentsMargins( 0, 0, 0, 0 );
+    if( hasParent )
+    {
+        parent->setContentsMargins( 0, 0, 0, 0 );
+    }
+    m_gridLayout->setContentsMargins( 1, 1, 1, 1 );
 }
 
 void WQtGridWidget::placeWidgetImpl( WUIWidgetBase::SPtr widget, int x, int y )

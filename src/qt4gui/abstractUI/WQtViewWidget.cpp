@@ -155,6 +155,9 @@ void WQtViewWidget::realizeImpl()
     // lazy mode: keep pointer with proper type for later use.
     m_widgetDock = w;
 
+    // remove the close button
+    m_widgetDock->disableCloseButton();
+
     // if this widget has a parent, disable dock features
     if( hasParent )
     {
