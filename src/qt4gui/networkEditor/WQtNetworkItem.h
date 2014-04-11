@@ -300,6 +300,13 @@ protected:
      */
     virtual void paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* w );
 
+    /**
+     * Set the new title text. Forces update.
+     *
+     * \param text the text
+     */
+    void setText( std::string text );
+
 private:
     /**
      * Denotes the current state this item is in.
@@ -432,6 +439,21 @@ private:
      * If true, the mouse events do not cause a drag and move operation.
      */
     bool m_noDrag;
+
+    /**
+     * Keep track of runtime name changes of this module.
+     */
+    boost::signals2::connection m_runtimeNameConnection;
+
+    /**
+     * Update name as it has been changed.
+     */
+    void runtimeNameChanged();
+
+    /**
+     * Update name as it has been changed. Runs in GUI thread.
+     */
+    void runtimeNameChangedGT();
 
 private slots:
     /**

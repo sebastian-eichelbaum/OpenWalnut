@@ -411,6 +411,13 @@ public:
      */
     static SPtr findByUUID( std::string uuid );
 
+    /**
+     * Returns the name the user has given this module.
+     *
+     * \return the runtime name.
+     */
+    WPropString getRuntimeName() const;
+
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
