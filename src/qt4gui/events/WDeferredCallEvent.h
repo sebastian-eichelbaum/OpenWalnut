@@ -202,7 +202,7 @@ private:
     /**
      * the title of the widget to create
      */
-    boost::function< void ( void ) > m_function;
+    boost::function< void( void ) > m_function;
 };
 
 /**
