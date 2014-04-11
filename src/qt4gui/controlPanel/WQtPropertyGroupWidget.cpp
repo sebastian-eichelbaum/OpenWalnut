@@ -182,6 +182,7 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
 
     QScrollArea* scrollArea = 0;
     QGridLayout* grid = new QGridLayout();
+    grid->setAlignment( Qt::AlignTop );
     grid->addWidget( widget, 0, 0 );
     grid->setMargin( WGLOBAL_MARGIN );
     grid->setSpacing( WGLOBAL_SPACING );
@@ -192,6 +193,7 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
         scrollArea = new QScrollArea();
         scrollArea->setWidgetResizable( true );
         scrollArea->setWidget( group );
+        scrollArea->setAlignment( Qt::AlignTop );
         group->show();
     }
 
