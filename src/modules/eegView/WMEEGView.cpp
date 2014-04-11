@@ -38,6 +38,7 @@
 #include "core/graphicsEngine/WGEGeodeUtils.h"
 #include "core/graphicsEngine/WGEGeometryUtils.h"
 #include "core/graphicsEngine/WGEGroupNode.h"
+#include "core/graphicsEngine/WGERequirement.h"
 #include "core/graphicsEngine/WGEUtils.h"
 #include "core/graphicsEngine/WROIBox.h"
 #include "core/ui/WUIViewWidget.h"
@@ -90,6 +91,14 @@ const std::string WMEEGView::getDescription() const
 const char** WMEEGView::getXPMIcon() const
 {
     return eeg_xpm;
+}
+
+
+void WMEEGView::requirements()
+{
+    // we need graphics to draw anything
+    m_requirements.push_back( new WGERequirement() );
+    m_requirements.push_back( new WUIRequirement() );
 }
 
 void WMEEGView::connectors()

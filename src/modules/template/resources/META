@@ -55,7 +55,7 @@
 //     // will be ignored
 
 ///////////////////////////////////////////////////////////////////////////////
-// SEMANTICS and USAGE
+// USAGE and MEANING
 
 // OpenWalnut defines some values and blocks for certain information which can
 // will be used by the UI. But you can define your own too! This is very handy
@@ -98,6 +98,9 @@
 //    
 //   NOTE: everything but the module name is optional, even if this makes no
 //         sense at all.
+
+///////////////////////////////////////////////////////////////////////////////
+// SEMANTICS
 
 // This defines some properties of the module "Template". This must
 // match the name specified in WMTemplate::getName().
@@ -187,6 +190,30 @@
 "common"
 {
     // how to say goodbye ...
-    goodbye = "Auf Wiedersehen!"; // hey
-}; // hgeee
+    goodbye = "Auf Wiedersehen!";   // in german
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Further meta info
+
+// Basically the same as above, without comments. Skip this. It does not contain new information.
+"Template UI"
+{
+  icon="WMTemplateIcon.png";
+  website = "http://www.openwalnut.org";
+  description = "Demonstrative module which tries to show the custom UI features in OW and its usage.";
+  author = "OpenWalnut Project";
+  "OpenWalnut Project"
+  {
+    url="http://www.openwalnut.org";
+    email="contact@openwalnut.org";
+    what="Design, Development and Bug fixing";
+  };
+  tag = "Tutorial";
+  screenshot
+  {
+      description = "The custom UI";
+      filename = "templateUIScreenshot1.png";
+  };
+};
 

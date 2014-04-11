@@ -166,6 +166,14 @@ public:
     virtual ~WUIWidgetFactory()
     {
     }
+
+    /**
+     * Query whether the WUI instance supports the WUI Widget interface properly as UIs can simply ignore the WUIWidgetFactory calls done in
+     * modules. This is used mainly by \ref WUIRequirement.
+     *
+     * \return true if the UI properly implements the WUI widget interface.
+     */
+    virtual bool implementsUI() const = 0;
 protected:
     /**
      * Set the parent of a widget and notify parent about new child widget.

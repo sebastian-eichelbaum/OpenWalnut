@@ -121,6 +121,11 @@ protected:
      */
     virtual void moduleMain();
 
+    /**
+     * Initialize requirements for this module.
+     */
+    virtual void requirements();
+
 private:
     /**
      * Input connector for a EEG dataset

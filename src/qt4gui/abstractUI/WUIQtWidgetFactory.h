@@ -65,6 +65,14 @@ public:
     virtual ~WUIQtWidgetFactory();
 
     /**
+     * Query whether the WUI instance supports the WUI Widget interface properly as UIs can simply ignore the WUIWidgetFactory calls done in
+     * modules. This is used mainly by \ref WUIRequirement.
+     *
+     * \return always true. Qt4Gui supports the WUI widget interface
+     */
+    virtual bool implementsUI() const;
+
+    /**
      * Convert the given WUIWidgetBase to the corresponding WUIQtWidgetBase.
      *
      * \param widget the widget to convert

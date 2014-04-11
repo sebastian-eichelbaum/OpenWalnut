@@ -232,7 +232,6 @@ public:
      * event as it might be deleted already when calling wait() on it. Do not specify this variable to get a fire-and-forget call.
      */
     static void execInGUIThreadAsync( boost::function< void( void ) > functor, WCondition::SPtr notify = WCondition::SPtr() );
-
 protected:
     /**
      * Called whenever a module crashes.

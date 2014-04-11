@@ -159,6 +159,7 @@ void WMHistogramView::requirements()
 {
     // we need graphics to draw anything
     m_requirements.push_back( new WGERequirement() );
+    m_requirements.push_back( new WUIRequirement() );
 }
 
 void WMHistogramView::handleMouseMove( WVector2f pos )

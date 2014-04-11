@@ -46,6 +46,11 @@ WUIQtWidgetFactory::~WUIQtWidgetFactory()
     // cleanup
 }
 
+bool WUIQtWidgetFactory::implementsUI() const
+{
+    return true;
+}
+
 WUIQtWidgetBase::SPtr WUIQtWidgetFactory::getAsQtWidgetBase( WUIWidgetBase::SPtr widget )
 {
     WUIQtWidgetBase::SPtr w = boost::dynamic_pointer_cast< WUIQtWidgetBase >( widget );

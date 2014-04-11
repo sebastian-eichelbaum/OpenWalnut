@@ -30,6 +30,8 @@
 #include "../common/WFlag.h"
 
 #include "WUIWidgetFactory.h"
+#include "WUIViewEventHandler.h"
+#include "WUIRequirement.h"
 
 class WDataSet;
 
