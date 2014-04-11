@@ -1,0 +1,17 @@
+This is your entry point into OpenWalnut module development!
+
+This directory contains a bunch of modules that demonstrate how to develop with/for
+OpenWalnut. Get started with WToolkit. This file contains definitions for all the modules
+that are required by OpenWalnut during load of your module.  Each module listed there can
+than be found in the corresponding C++ files. They are extensively documented and describe
+each step in detail. 
+
+You need help? Check out our extensive code documentation when something is unclear, check
+out http://www.openwalnut.org for more documentation or simply contact our developer
+mailing list openwalnut-dev@lists.informatik.uni-leipzig.de.
+
+Now, directly dive into the code. You will see, getting started with OpenWalnut module
+development is easy!
+
+Enjoy,
+the OpenWalnut Team

@@ -218,53 +218,15 @@ void WMHistogramView::moduleMain()
     ready();
 
     //! Holds the reference to the custom widget used for displaying the histogram
-    WUIGridWidget::SPtr m_widgetGrid = WKernel::getRunningKernel()->getUI()->getWidgetFactory()->createGridWidget( getName() );
-    WUITabbedWidget::SPtr m_tab =  WKernel::getRunningKernel()->getUI()->getWidgetFactory()->createTabbedWidget( "tabs"+ getName(), m_widgetGrid );
-
     m_widget = WKernel::getRunningKernel()->getUI()->getWidgetFactory()->createViewWidget(
             getName() + string_utils::toString( m_instanceID ),
-            WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition(), m_tab );
-//            WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition() );
-
-
-    WUIViewWidget::SPtr m_widgetTab2 = WKernel::getRunningKernel()->getUI()->getWidgetFactory()->createViewWidget(
-            getName() + "hey" + string_utils::toString( m_instanceID ),
-            WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition(), m_tab );
-
+            WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition() );
     osg::ref_ptr< WUIViewEventHandler > eh = new WUIViewEventHandler( m_widget );
     eh->subscribeMove( boost::bind( &WMHistogramView::handleMouseMove, this, _1 ) );
     eh->subscribeResize( boost::bind( &WMHistogramView::handleResize, this, _1, _2, _3, _4 ) );
     m_widget->addEventHandler( eh );
 
-       //! Holds the reference to the custom widget used for displaying the histogram
-    WUIGridWidget::SPtr m_widgetGrid2 = WKernel::getRunningKernel()->getUI()->getWidgetFactory()->createGridWidget( "23"+ getName(), m_widgetGrid );
-
-    WUIViewWidget::SPtr m_widget2 = WKernel::getRunningKernel()->getUI()->getWidgetFactory()->createViewWidget(
-            getName() + "kk" + string_utils::toString( m_instanceID ),
-            WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition(), m_widgetGrid2 );
-
-    WUIViewWidget::SPtr m_widget3 = WKernel::getRunningKernel()->getUI()->getWidgetFactory()->createViewWidget(
-            getName() + "kk2" + string_utils::toString( m_instanceID ),
-            WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition(), m_widgetGrid2 );
-
-
-    WUIPropertyGroupWidget::SPtr m_widgetProps = WKernel::getRunningKernel()->getUI()->getWidgetFactory()->createPropertyGroupWidget( "Propsy",
-            m_properties, m_widgetGrid2 );
-
-    debugLog() << "huhu 1" << m_tab->addTab( m_widget, "Widget 1" );
-    debugLog() << "huhu 2" << m_tab->addTab( m_widgetTab2, "Widget 2" );
-
-    m_widgetGrid->placeWidget( m_tab, 0, 0 );
-    m_widgetGrid->placeWidget( m_widgetGrid2, 0, 1 );
-
-    m_widgetGrid->setColumnStretch( 0, 2 );
-    m_widgetGrid->setColumnStretch( 1, 1 );
-
-    m_widgetGrid2->placeWidget( m_widget2, 0, 0 );
-    m_widgetGrid2->placeWidget( m_widget3, 1, 0 );
-    m_widgetGrid2->placeWidget( m_widgetProps, 2, 0 );
-
-    m_widgetGrid->show();
+    m_widget->show();
 
     if( m_widget )
     {
@@ -350,7 +312,7 @@ void WMHistogramView::moduleMain()
         m_mainNode->clear();
     }
 
-    m_widgetGrid->close();
+    m_widget->close();
 
     debugLog() << "Finished. Good bye!";
 }

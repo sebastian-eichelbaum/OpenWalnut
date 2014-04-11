@@ -67,7 +67,6 @@
 #include "core/common/WPropertyHelper.h"
 #include "core/common/WItemSelection.h"
 #include "core/common/WItemSelectionItem.h"
-#include "core/common/WItemSelectionItemTyped.h"
 #include "core/common/WItemSelector.h"
 #include "core/graphicsEngine/WGEUtils.h"
 #include "core/graphicsEngine/WGERequirement.h"
@@ -76,9 +75,6 @@
 #include "icons/wurst.xpm"
 #include "icons/steak.xpm"
 #include "WMTemplate.h"
-
-// This line is needed by the module loader to actually find your module. You need to add this to your module too. Do NOT add a ";" here.
-W_LOADABLE_MODULE( WMTemplate )
 
 WMTemplate::WMTemplate():
     WModule()
