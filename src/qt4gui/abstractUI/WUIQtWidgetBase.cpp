@@ -181,7 +181,6 @@ QWidget* WUIQtWidgetBase::embedContent( QWidget* content )
     if( hasUIParent() )
     {
         m_widget = content;
-        // if the widget has a parent, make it visible by default
         m_widget->setVisible( true );
 
         // embedded into another widget? Remove dock features
@@ -213,8 +212,7 @@ QWidget* WUIQtWidgetBase::embedContent( QWidget* content )
             asDock = widgetDock;
         }
 
-        // hide by default if we do not have a parent
-        m_widget->setVisible( false );
+        m_widget->setVisible( true );
 
         // restore state
         asDock->restoreGeometry( WQt4Gui::getSettings().value( m_widget->objectName() + "geometry", "" ).toByteArray() );

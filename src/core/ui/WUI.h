@@ -25,14 +25,10 @@
 #ifndef WUI_H
 #define WUI_H
 
-#include <string>
-
 #include <boost/shared_ptr.hpp>
 
 #include "../common/WFlag.h"
-#include "../graphicsEngine/WGECamera.h"
 
-#include "WUIViewWidget.h"
 #include "WUIWidgetFactory.h"
 
 class WDataSet;
