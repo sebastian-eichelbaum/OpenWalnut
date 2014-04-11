@@ -24,23 +24,3 @@
 
 #include "WDeferredCallEvent.h"
 
-WDeferredCallEvent::WDeferredCallEvent( boost::function< void( void ) > function, WCondition::SPtr notify ):
-    QEvent( CUSTOM_TYPE ),
-    m_function( function ),
-    m_callCondition( notify )
-{
-}
-
-void WDeferredCallEvent::call()
-{
-    m_function();
-    if( m_callCondition )
-    {
-        m_callCondition->notify();
-    }
-}
-
-WConditionOneShot::SPtr WDeferredCallEvent::getDoneCondition() const
-{
-    return m_callCondition;
-}

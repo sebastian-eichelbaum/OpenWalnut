@@ -100,38 +100,11 @@ void WUIQtWidgetBase::setVisible( bool visible )
     }
 }
 
-/**
- * Simple function to query the visibility in GUI thread.
- */
-struct IsVisibleFunctor
-{
-    /**
-     * Functor queries the visibility in GUI thread
-     */
-    void operator()()
-    {
-        m_return = m_widget->isVisible();
-    }
-
-    /**
-     * The widget to query.
-     */
-    QWidget* m_widget;
-
-    /**
-     * The return value.
-     */
-    bool m_return;
-};
-
 bool WUIQtWidgetBase::isVisible() const
 {
     if( m_widget )
     {
-        IsVisibleFunctor f;
-        f.m_widget = m_widget;
-        WQt4Gui::execInGUIThread( f );
-        return f.m_return;
+        return WQt4Gui::execInGUIThread< bool >( boost::bind( &QWidget::isVisible, m_widget ) );
     }
     return false;
 }

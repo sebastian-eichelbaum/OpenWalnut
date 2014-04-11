@@ -251,8 +251,8 @@ void WMHistogramView::moduleMain()
     WUIPropertyGroupWidget::SPtr m_widgetProps = WKernel::getRunningKernel()->getUI()->getWidgetFactory()->createPropertyGroupWidget( "Propsy",
             m_properties, m_widgetGrid2 );
 
-    m_tab->addTab( m_widget, "Widget 1" );
-    m_tab->addTab( m_widgetTab2, "Widget 2" );
+    debugLog() << "huhu 1" << m_tab->addTab( m_widget, "Widget 1" );
+    debugLog() << "huhu 2" << m_tab->addTab( m_widgetTab2, "Widget 2" );
 
     m_widgetGrid->placeWidget( m_tab, 0, 0 );
     m_widgetGrid->placeWidget( m_widgetGrid2, 0, 1 );

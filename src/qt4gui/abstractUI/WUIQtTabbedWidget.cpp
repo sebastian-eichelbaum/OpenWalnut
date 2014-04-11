@@ -101,10 +101,10 @@ int WUIQtTabbedWidget::addTabImpl( WUIWidgetBase::SPtr widget, std::string label
     if( widgetQtwidget )
     {
         QString s = QString::fromStdString( label );
-        WQt4Gui::execInGUIThread( boost::bind( &QTabWidget::addTab, m_tabWidget, widgetQtwidget, s ) );
+        return WQt4Gui::execInGUIThread< int >( boost::bind( &QTabWidget::addTab, m_tabWidget, widgetQtwidget, s ) );
     }
 
-    return 0;
+    return -1;
 }
 
 void WUIQtTabbedWidget::setTabText( int index, const std::string& label )
@@ -148,4 +148,22 @@ void WUIQtTabbedWidget::setTabPosition( TabPosition position )
     {
         WQt4Gui::execInGUIThread( boost::bind( &QTabWidget::setTabPosition, m_tabWidget, posInQt ) );
     }
+}
+
+int WUIQtTabbedWidget::getActiveTab() const
+{
+    if( m_tabWidget )
+    {
+        return WQt4Gui::execInGUIThread< int >( boost::bind( &QTabWidget::currentIndex, m_tabWidget ) );
+    }
+    return -1;
+}
+
+int WUIQtTabbedWidget::getNumTabs() const
+{
+    if( m_tabWidget )
+    {
+        return WQt4Gui::execInGUIThread< int >( boost::bind( &QTabWidget::count, m_tabWidget ) );
+    }
+    return -1;
 }

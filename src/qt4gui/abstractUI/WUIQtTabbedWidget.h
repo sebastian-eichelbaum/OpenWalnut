@@ -120,6 +120,20 @@ public:
     virtual void setActiveTab( int index );
 
     /**
+     * Get the index of the currently active tab.
+     *
+     * \return the index, or -1 if error
+     */
+    virtual int getActiveTab() const;
+
+    /**
+     * Query the number of tabs.
+     *
+     * \return the number of tabs, or -1 if error.
+     */
+    virtual int getNumTabs() const;
+
+    /**
      * Write some tool tip for a given tab. If the index is invalid, nothing happens.
      *
      * \param index the tab index

@@ -77,6 +77,20 @@ public:
     virtual void setActiveTab( int index ) = 0;
 
     /**
+     * Get the index of the currently active tab.
+     *
+     * \return the index, or -1 if error
+     */
+    virtual int getActiveTab() const = 0;
+
+    /**
+     * Query the number of tabs.
+     *
+     * \return the number of tabs, or -1 if error.
+     */
+    virtual int getNumTabs() const = 0;
+
+    /**
      * Write some tool tip for a given tab. If the index is invalid, nothing happens.
      *
      * \param index the tab index
@@ -117,7 +131,7 @@ public:
      * \param widget the widget
      * \param label the label of the tab
      *
-     * \return the index of the new tab
+     * \return the index of the new tab, or -1 if error.
      */
     virtual int addTab( WUIWidgetBase::SPtr widget, const std::string& label );
 protected:

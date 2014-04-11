@@ -50,7 +50,6 @@
 #include "core/kernel/WProjectFile.h"
 #include "core/kernel/WROIManager.h"
 #include "controlPanel/WQtControlPanel.h"
-#include "events/WDeferredCallEvent.h"
 #include "events/WModuleAssocEvent.h"
 #include "events/WModuleConnectEvent.h"
 #include "events/WModuleCrashEvent.h"
@@ -421,21 +420,21 @@ WUIWidgetFactory::SPtr WQt4Gui::getWidgetFactory() const
     return m_widgetFactory;
 }
 
-void WQt4Gui::execInGUIThread( boost::function< void( void ) > function, WCondition::SPtr notify )
+void WQt4Gui::execInGUIThread( boost::function< void( void ) > functor, WCondition::SPtr notify )
 {
     if( !notify )
     {
         // the user did not specify a condition. We create our own
         notify = WCondition::SPtr( new WConditionOneShot() );
     }
-    WDeferredCallEvent* ev = new WDeferredCallEvent( function, notify );
+    WDeferredCallEvent* ev = new WDeferredCallEvent( functor, notify );
     QCoreApplication::postEvent( getMainWindow(), ev );
     notify->wait();
 }
 
-void WQt4Gui::execInGUIThreadAsync( boost::function< void( void ) > function, WCondition::SPtr notify )
+void WQt4Gui::execInGUIThreadAsync( boost::function< void( void ) > functor, WCondition::SPtr notify )
 {
-    WDeferredCallEvent* ev = new WDeferredCallEvent( function, notify );
+    WDeferredCallEvent* ev = new WDeferredCallEvent( functor, notify );
     QCoreApplication::postEvent( getMainWindow(), ev );
 }
 
