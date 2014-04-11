@@ -98,7 +98,7 @@ void WUIQtPropertyGroupWidget::realizeImpl()
     // this is called from withing the GUI thread -> we can safely create QT widgets here
 
     // this widget does what we want:
-    m_propWidget = WQtPropertyGroupWidget::createPropertyGroupBox( m_properties, true, "", 0, getCompellingQParent() );
+    m_propWidget = WQtPropertyGroupWidget::createPropertyGroupBox( m_properties, true, getTitleQString(), 0, getCompellingQParent() );
 
     // let WUIQtWidgetBase do the rest
     embedContent( m_propWidget );

@@ -24,6 +24,10 @@
 
 #include <string>
 
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
+
 #include "core/common/WConditionOneShot.h"
 #include "core/common/WFlag.h"
 
@@ -131,8 +135,11 @@ void WUIQtViewWidget::closeImpl()
 
 void WUIQtViewWidget::realizeImpl()
 {
+    // WGEViewers need to have unique names. Create a uuid for this new viewer
+    std::string uuid = boost::lexical_cast<std::string>( boost::uuids::random_generator()() );
+
     // this is called from withing the GUI thread -> we can safely create QT widgets here
-    m_widgetDock = new WQtGLDockWidget( QString::fromStdString( getTitle() ),
+    m_widgetDock = new WQtGLDockWidget( QString::fromStdString( getTitle() + uuid ),
                                         QString::fromStdString( getTitle() ), getCompellingQParent(), m_projectionMode );
     m_widgetDock->setObjectName( QString( "Custom Dock Window " ) + QString::fromStdString( getTitle() ) );
 

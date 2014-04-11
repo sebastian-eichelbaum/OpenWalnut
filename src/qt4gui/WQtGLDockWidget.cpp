@@ -52,7 +52,7 @@
 
 WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget* parent, WGECamera::ProjectionMode projectionMode,
                                   const QWidget* shareWidget ):
-    WQtDockWidget( viewTitle, parent ),
+    WQtDockWidget( dockTitle, parent ),
     m_dockTitle( dockTitle )
 {
     setObjectName( QString( "GL - " ) + dockTitle );
