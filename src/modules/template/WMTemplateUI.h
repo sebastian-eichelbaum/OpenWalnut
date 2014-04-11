@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMHISTOGRAMVIEW_H
-#define WMHISTOGRAMVIEW_H
+#ifndef WMTEMPLATEUI_H
+#define WMTEMPLATEUI_H
 
 #include <string>
 #include <vector>
@@ -37,7 +37,8 @@
 /**
  * \class WMTemplateUI
  *
- * A module that explains the usage of the abstract UI interface in OpenWalnut.
+ * A module that explains the usage of the abstract UI interface in OpenWalnut. Please read the C++ code.
+ *
  * \ingroup modules
  */
 class WMTemplateUI : public WModule
@@ -118,4 +119,4 @@ private:
     boost::shared_ptr< WCondition > m_propCondition;
 };
 
-#endif  // WMHISTOGRAMVIEW_H
+#endif  // WMTEMPLATEUI_H

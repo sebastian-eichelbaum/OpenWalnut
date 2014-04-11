@@ -237,7 +237,7 @@ public:
      * the default value will be returned.
      * \param path the absolute path in the META file. Please be aware that, if you specify a value inside your modules meta block, you need to
      * add the module name too. The path is absolute!
-     * \param defaultValue the default value to return in case of an non-existing element or cast problems.
+     * \param defaultValues the default value to return in case of an non-existing element or cast problems.
      *
      * \throw WTypeMismatch if the value cannot be cast to the specified target type
      *
