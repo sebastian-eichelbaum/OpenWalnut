@@ -1,5 +1,8 @@
 This is your entry point into OpenWalnut module development!
 
+1. General:
+***********
+
 This directory contains a bunch of modules that demonstrate how to develop with/for
 OpenWalnut. Get started with WToolkit. This file contains definitions for all the modules
 that are required by OpenWalnut during load of your module.  Each module listed there can
@@ -13,5 +16,6 @@ mailing list openwalnut-dev@lists.informatik.uni-leipzig.de.
 Now, directly dive into the code. You will see, getting started with OpenWalnut module
 development is easy!
 
-Enjoy,
-the OpenWalnut Team
+2. Files:
+*********
+

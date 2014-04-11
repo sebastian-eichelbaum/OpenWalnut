@@ -750,6 +750,14 @@ void WMTemplate::moduleMain()
     // Remove the geometry from the scene. If it has never been added, this call does nothing. Always remember to remove your rendering at the
     // end of the module loop.
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+
+    // Let us utilize the META file in the resources directory. This file contains several information about a module and
+    // can also contain custom values. Here, we query the "goodbye" value:
+    std::string bye = getMetaInformation()->query< std::string >(
+       "common/goodbye", // the absolute path
+       "have a nice day"       // a default if the element does not exist or cannot be returned as std::string.
+    );
+    infoLog() << bye;
 }
 
 void WMTemplate::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )

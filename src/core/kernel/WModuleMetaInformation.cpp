@@ -261,3 +261,12 @@ std::vector< WModuleMetaInformation::Screenshot > WModuleMetaInformation::getScr
     return r;
 }
 
+bool WModuleMetaInformation::valueExists( std::string path ) const
+{
+    if( !m_loaded )
+    {
+        return false;
+    }
+    return m_metaData.exists( path, true );
+}
+

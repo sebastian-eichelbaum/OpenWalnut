@@ -209,6 +209,57 @@ public:
      * \return the screenshot list.
      */
     std::vector< Screenshot > getScreenshots() const;
+
+    /**
+     * Query a value from the META file.
+     *
+     * \tparam ResultType the type of the result of the query. The function tries to cast the found value to this type. If this is not possible,
+     * the default value will be returned.
+     * \param path the absolute path in the META file. Please be aware that, if you specify a value inside your modules meta block, you need to
+     * add the module name too. The path is absolute!
+     * \param defaultValue the default value to return in case of an non-existing element or cast problems.
+     *
+     * \throw WTypeMismatch if the value cannot be cast to the specified target type
+     *
+     * \return the value, or defaultType.
+     */
+    template< typename ResultType >
+    ResultType query( std::string path, ResultType defaultValue = ResultType() ) const
+    {
+        // find key-value pair
+        return m_metaData.getValue< ResultType >( path, defaultValue );
+    }
+
+    /**
+     * Query multiple values from the META file.
+     *
+     * \tparam ResultType the type of the result of the query. The function tries to cast the found value to this type. If this is not possible,
+     * the default value will be returned.
+     * \param path the absolute path in the META file. Please be aware that, if you specify a value inside your modules meta block, you need to
+     * add the module name too. The path is absolute!
+     * \param defaultValue the default value to return in case of an non-existing element or cast problems.
+     *
+     * \throw WTypeMismatch if the value cannot be cast to the specified target type
+     *
+     * \return the value vector, or defaultType.
+     */
+    template< typename ResultType >
+    std::vector< ResultType > query( std::string path, const std::vector< ResultType >& defaultValues ) const
+    {
+        // find key-value pair
+        return m_metaData.getValues< ResultType >( path, defaultValues );
+    }
+
+    /**
+     * Check whether the value specified by "path" exists.
+     *
+     * \param path the absolute path in the META file. Please be aware that, if you specify a value inside your modules meta block, you need to
+     * add the module name too. The path is absolute!
+     *
+     * \return true if it exists.
+     */
+    bool valueExists( std::string path ) const;
+
 protected:
 private:
     /**

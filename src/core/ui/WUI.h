@@ -81,7 +81,6 @@ public:
      * \return the factory. Use this to create your widget instances.
      */
     virtual WUIWidgetFactory::SPtr getWidgetFactory() const = 0;
-
 protected:
     /**
      * Flag determining whether the UI is properly initialized.
