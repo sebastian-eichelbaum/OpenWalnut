@@ -112,8 +112,6 @@ void WMTemplateUI::moduleMain()
 {
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
-    // simply mark module as ready
-    ready();
 
     // Now lets create some widgets. In OpenWalnut, all widgets need to be created using a factory. We can get a factory instance from the
     // currently running GUI.
@@ -295,6 +293,26 @@ void WMTemplateUI::moduleMain()
     // We want cool backgrounds and stuff for our first view widget. Please note that these settings are defaults only. The user might have
     // overwritten them.
     widgetView->getViewer()->setEffectsActiveDefault();
+
+    // Ok. Now we have a whole bunch of modules, made an event handler and set some default effects. Is there more? Yes! In the next view code
+    // lines you will learn how to customize and add "actions" to your widget.
+    // TODO(ebaum) write
+
+    // Finally, mark the module as ready.
+    //
+    // ... But wait. Something to keep in mind here. If you remember from WMTemplate, the project file loader in OpenWalnut FIRST initializes the
+    // modules, waits for their ready() signal, and THEN sets the properties from the project file. This means, setting ready() after widget
+    // creation allows you to utilize the properties mechanism with WUIViewerWidget::getViewer()::getProperties to save the configuration of a
+    // certain view if you like. If you consider to NOT save a view's config, please disable the view configuration action as shown above. The
+    // user should never be able to configure the view if he looses his settings all the time.
+    //
+    // Here is an example how:
+    WPropGroup viewProps = m_properties->addPropertyGroup( "Hidden View Properties", "View properties." );
+    viewProps->setHidden(); // we do not want to show these to the user in our module control panel.
+    viewProps->addProperty( widgetView->getViewer()->getProperties() );
+
+    // Now, we can mark the module ready.
+    ready();
 
     // Now the remaining module code. In our case, this is empty.
     while( !m_shutdownFlag() )
