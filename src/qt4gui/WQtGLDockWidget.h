@@ -108,6 +108,19 @@ public:
      */
     virtual void restoreSettings();
 
+    /**
+     * Allow turning the automatic save and restore of viewer-settings.
+     *
+     * \param enable true to enable
+     */
+    void setSaveViewerSettings( bool enable = true );
+
+    /**
+     * Check whether the automatic saving of \ref WGEViewer properties is enabled.
+     *
+     * \return true if enabled.
+     */
+    bool getSaveViewerSettings() const;
 public slots:
     /**
      * Open screen capture config options
@@ -162,6 +175,11 @@ private:
      * Manager for screen capturing of this view
      */
     WQtGLScreenCapture* m_screenCapture;
+
+    /**
+     * If true, the saveSettings method also saves the WGEViewer properties.
+     */
+    bool m_saveViewerSettings;
 };
 
 #endif  // WQTGLDOCKWIDGET_H

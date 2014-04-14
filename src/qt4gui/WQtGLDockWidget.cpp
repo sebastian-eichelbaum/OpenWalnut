@@ -53,7 +53,8 @@
 WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget* parent, WGECamera::ProjectionMode projectionMode,
                                   const QWidget* shareWidget ):
     WQtDockWidget( dockTitle, parent ),
-    m_dockTitle( dockTitle )
+    m_dockTitle( dockTitle ),
+    m_saveViewerSettings( true )
 {
     setObjectName( QString( "GL - " ) + dockTitle );
 
@@ -141,9 +142,13 @@ void WQtGLDockWidget::saveSettings()
     m_screenCapture->saveSettings();
     WQtDockWidget::saveSettings();
 
-    // visit the properties and save in QSettings. You cannot bind QSettings::setValue directly as the parameters need to be cast to QString and
-    // QVariant, which does not happen implicitly
-    m_glWidget->getViewer()->getProperties()->visitAsString( &WMainWindow::setSetting, m_dockTitle.toStdString() );
+    // optional:
+    if( m_saveViewerSettings )
+    {
+        // visit the properties and save in QSettings. You cannot bind QSettings::setValue directly as the parameters need to be cast to QString and
+        // QVariant, which does not happen implicitly
+        m_glWidget->getViewer()->getProperties()->visitAsString( &WMainWindow::setSetting, m_dockTitle.toStdString() );
+    }
 }
 
 void WQtGLDockWidget::restoreSettings()
@@ -151,31 +156,44 @@ void WQtGLDockWidget::restoreSettings()
     m_screenCapture->restoreSettings();
     WQtDockWidget::restoreSettings();
 
-    // do not forget to load the config properties of the viewer
-    WMainWindow::getSettings().beginGroup( m_dockTitle );
-    QStringList keys = WMainWindow::getSettings().allKeys();
-    // iterate all the keys in the group of this viewer. QSettings does not implement a visitor mechanism, thus we iterate manually.
-    for( QStringList::const_iterator it = keys.constBegin(); it != keys.constEnd(); ++it )
+    if( m_saveViewerSettings )
     {
-        std::string value = WMainWindow::getSettings().value( *it ).toString().toStdString();
-        std::string key = ( *it ).toStdString();
-
-        // NOTE: findProperty does not throw an exception, but setAsString.
-        WPropertyBase::SPtr prop = m_glWidget->getViewer()->getProperties()->findProperty( key );
-        if( prop )
+        // do not forget to load the config properties of the viewer
+        WMainWindow::getSettings().beginGroup( m_dockTitle );
+        QStringList keys = WMainWindow::getSettings().allKeys();
+        // iterate all the keys in the group of this viewer. QSettings does not implement a visitor mechanism, thus we iterate manually.
+        for( QStringList::const_iterator it = keys.constBegin(); it != keys.constEnd(); ++it )
         {
-            // just in case something is going wrong (faulty setting): cannot cast string to property type. Be kind and ignore it.
-            try
+            std::string value = WMainWindow::getSettings().value( *it ).toString().toStdString();
+            std::string key = ( *it ).toStdString();
+
+            // NOTE: findProperty does not throw an exception, but setAsString.
+            WPropertyBase::SPtr prop = m_glWidget->getViewer()->getProperties()->findProperty( key );
+            if( prop )
             {
-                prop->setAsString( value );
-            }
-            catch( ... )
-            {
-                // ignore faulty/old settings
+                // just in case something is going wrong (faulty setting): cannot cast string to property type. Be kind and ignore it.
+                try
+                {
+                    prop->setAsString( value );
+                }
+                catch( ... )
+                {
+                    // ignore faulty/old settings
+                }
             }
         }
+        WMainWindow::getSettings().endGroup();
     }
-    WMainWindow::getSettings().endGroup();
+}
+
+void WQtGLDockWidget::setSaveViewerSettings( bool enable )
+{
+    m_saveViewerSettings = enable;
+}
+
+bool WQtGLDockWidget::getSaveViewerSettings() const
+{
+    return m_saveViewerSettings;
 }
 
 WQtGLWidget* WQtGLDockWidget::getGLWidget() const

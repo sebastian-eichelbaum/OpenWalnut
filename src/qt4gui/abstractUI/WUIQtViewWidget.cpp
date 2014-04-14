@@ -143,6 +143,9 @@ void WUIQtViewWidget::realizeImpl()
                                         QString::fromStdString( getTitle() ), getCompellingQParent(), m_projectionMode );
     m_widgetDock->setObjectName( QString( "Custom Dock Window " ) + QString::fromStdString( getTitle() ) );
 
+    // custom widgets need to take care of this! Besides this, if this widget is nested, it will not restore no matter what you set here.
+    m_widgetDock->setSaveViewerSettings( false );
+
     // define some scene
     m_scene = new WGEGroupNode();
     m_scene->setDataVariance( osg::Object::DYNAMIC );
