@@ -86,7 +86,7 @@ void WMTemplateUI::properties()
                                 "A property which gets modified if \"Number of shape rows\" gets modified.", 10 );
     m_properties->addProperty( "Shape radii",              "Shape radii.", 20.0 );
     m_properties->addProperty( "A string",                 "Something.", std::string( "hello" ) );
-    m_properties->addProperty( "A filename",              "Description.", WPathHelper::getAppPath() );
+    m_properties->addProperty( "A filename",               "Description.", WPathHelper::getAppPath() );
     m_properties->addProperty( "A color",                  "Description.", WColor( 1.0, 0.0, 0.0, 1.0 ) );
     m_properties->addProperty( "Somewhere",                "Description.", WPosition( 0.0, 0.0, 0.0 ) );
 
@@ -128,10 +128,10 @@ void WMTemplateUI::moduleMain()
     );
     // Thats it. Now we have a widget which itself is empty. It provides simple grid functionality and allows nesting other widgets.
 
-    // One important thing to remember about names. Names are not required to be unique. But ...
+    // One important thing to remember about titles. Titles are not required to be unique. But ...
     //  1) You should always add your module name to the title of top-level widgets (getName()). This ensures that the user can distinguish
     //     between different views.
-    //  2) You should ensure unique names inside your own set of modules, at least at the top-level. This is might be important to the GUI
+    //  2) You should ensure unique names inside your own set of modules, at least at the top-level. This might be important to the GUI
     //     to differentiate your widgets and restore their previous state properly.
 
     // Lets create a second top-level widget. This time, it is a WUIViewWidget. This basically is an OpenGL render area to be filled by OSG.
@@ -141,9 +141,11 @@ void WMTemplateUI::moduleMain()
         WGECamera::TWO_D,                           // Specify an initial camera mode.
         m_shutdownFlag.getValueChangeCondition()    // define a condition that, when notified, aborts creation of the view
     );
-    // Again, the same scheme as above. The interesting thing here is the 3rd parameter. You can specify a condition to abort widget creation.
-    // The issue is that creating views might take some time. But if your module is requested to shut down during this time, the user would need
-    // to wait. When specifying your m_shutdownFlag condition, you can ensure automatic abortion of widget creation.
+    // Again, the same scheme as above. But there is something interesting here:
+    //  *  The name of the viewer. In OpenWalnut, the name of a viewer needs to be unique. If your name is not unique, you will get a
+    //     WNameNotUnique exception. So ensure you use some unique name here. Such a name can be created as above. As the module name (via
+    //     getName() ) is ensured to be unique, you can add some view identifier (MainView in our case) and an instance number to ensure a unique
+    //     string. The instance number is useful to ensure that the string still is unique if you start your module multiple times.
 
     // Let us summarize: we have two top-level widgets. This means, two separate windows, docks whatever (depending on GUI implementation). The
     // creation is always done using a factory we get from the GUI.
@@ -290,6 +292,9 @@ void WMTemplateUI::moduleMain()
     // You can now fill your view with OSG nodes. This is done as shown in WMTemplate. Each WUIViewWidget can deliver its WGEViewer.
     // The viewer than allows you to add nodes to the scene, modify camera and similar
     // widgetView->getViewer()->getScene()->insert( myNode );
+    // We want cool backgrounds and stuff for our first view widget. Please note that these settings are defaults only. The user might have
+    // overwritten them.
+    widgetView->getViewer()->setEffectsActiveDefault();
 
     // Now the remaining module code. In our case, this is empty.
     while( !m_shutdownFlag() )
