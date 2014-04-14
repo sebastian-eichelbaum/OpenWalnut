@@ -42,6 +42,7 @@
 #include "../common/WColor.h"
 #include "../common/WLogger.h"
 #include "../common/WPathHelper.h"
+#include "../common/exceptions/WNameNotUnique.h"
 #include "WGEViewer.h"
 #include "exceptions/WGEInitFailed.h"
 #include "exceptions/WGESignalSubscriptionFailed.h"
@@ -146,7 +147,10 @@ boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( std::string name, os
     // store it in viewer list
     boost::unique_lock< boost::shared_mutex > lock( m_viewersLock );
     bool insertSucceeded = m_viewers.insert( make_pair( name, viewer ) ).second;
-    assert( insertSucceeded == true ); // if false, viewer with same name already exists
+    if( !insertSucceeded ) // if false, viewer with same name already exists
+    {
+        throw WNameNotUnique( "Viewer names need to be unique." );
+    }
 
 #ifdef WGEMODE_MULTITHREADED
     WCondition::SPtr viewerUpdateCondition( new WConditionOneShot() );
