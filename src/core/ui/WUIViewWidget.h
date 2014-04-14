@@ -62,6 +62,8 @@ private:
 
 /**
  * Custom widget which is created by a module to display custom information.
+ *
+ * \note Please read documentation of \ref WUIWidgetFactory for limitations, requirements and creation of these widgets.
  */
 class WUIViewWidget: public WUIWidgetBase
 {

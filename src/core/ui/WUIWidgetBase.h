@@ -36,6 +36,8 @@
 /**
  * Base class for all the widget abstraction the core UI provides. All the abstract widgets use the bridge pattern to let the UI/GUI implementor
  * actually handle everything.
+ *
+ * \note Please read documentation of \ref WUIWidgetFactory for limitations, requirements and creation of these widgets.
  */
 class WUIWidgetBase
 {

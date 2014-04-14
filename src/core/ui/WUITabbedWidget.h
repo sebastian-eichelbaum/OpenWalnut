@@ -34,6 +34,8 @@
 /**
  * Widget which is a container for others. The child widgets can be arranged in tabs. The WUITabbedWidget itself is a widget, which means you can
  * embed tabs in other container widgets (like grids).
+ *
+ * \note Please read documentation of \ref WUIWidgetFactory for limitations, requirements and creation of these widgets.
  */
 class WUITabbedWidget: public WUIWidgetBase
 {

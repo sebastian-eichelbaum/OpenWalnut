@@ -34,6 +34,8 @@
 /**
  * Widget which is a container for others. The child widgets can be arranged in a grid. The WUIGridWidget itself is a widget, which means you can
  * embed grids in grid cells.
+ *
+ * \note Please read documentation of \ref WUIWidgetFactory for limitations, requirements and creation of these widgets.
  */
 class WUIGridWidget: public WUIWidgetBase
 {
