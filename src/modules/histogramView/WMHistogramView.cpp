@@ -55,7 +55,7 @@
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMHistogramView )
 
-InstanceCounter WMHistogramView::m_instanceCounter;
+WCounter WMHistogramView::m_instanceCounter;
 
 WMHistogramView::WMHistogramView()
     : WModule(),

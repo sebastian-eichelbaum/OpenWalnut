@@ -33,69 +33,13 @@
 
 #include "core/common/math/linearAlgebra/WMatrixFixed.h"
 #include "core/common/WHistogramBasic.h"
+#include "core/common/WCounter.h"
 
 #include "core/dataHandler/WDataSetScalar.h"
 
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
 #include "core/kernel/WModuleOutputData.h"
-
-/**
- * \class InstanceCounter
- *
- * A simple threadsafe non-copyable counter.
- */
-class InstanceCounter
-{
-public:
-    /**
-     * Constructor.
-     */
-    InstanceCounter()
-        : m_counterMutex(),
-          m_counter( 0 )
-    {
-    }
-
-    /**
-     * Increase count by 1 and return the new counter value. This is threadsafe.
-     *
-     * \return The new counter value.
-     */
-    int operator++ ()
-    {
-        boost::unique_lock< boost::mutex > lock( m_counterMutex );
-        return ++m_counter;
-    }
-
-    /**
-     * Decrease count by 1 and return the new counter value. This is threadsafe.
-     *
-     * \return The new counter value.
-     */
-    int operator-- ()
-    {
-        boost::unique_lock< boost::mutex > lock( m_counterMutex );
-        return --m_counter;
-    }
-
-private:
-    //! No copy construction.
-    InstanceCounter( InstanceCounter& /* count */ );
-
-    /**
-     * No copy operator.
-     *
-     * \return Nothing.
-     */
-    InstanceCounter operator= ( InstanceCounter& /* count */ );
-
-    //! A mutex to protect the counter from concurrent updates.
-    boost::mutex m_counterMutex;
-
-    //! The counter.
-    int m_counter;
-};
 
 
 // TODO(reichenbach): choose color of frame and marker depending on the user's chosen window background color
@@ -365,7 +309,7 @@ private:
     int m_instanceID;
 
     //! The instance counter used to get the instance ID.
-    static InstanceCounter m_instanceCounter;
+    static WCounter m_instanceCounter;
 
     //! The scene node of the custom window. All geometry nodes are added as children of this node.
     osg::ref_ptr< WGEGroupNode > m_mainNode;
