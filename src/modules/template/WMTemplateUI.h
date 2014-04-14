@@ -97,6 +97,15 @@ protected:
 
 private:
     /**
+     * Called on every mouse drag-move event from the custom widget.
+     *
+     * \note this runs in OSG thread.
+     * \param pos New mouse position.
+     * \param button the button.
+     */
+    void handleMouseDrag( WVector2f pos, int button );
+
+    /**
      * Called on every mouse move event from the custom widget.
      *
      * \note this runs in OSG thread.
@@ -114,6 +123,14 @@ private:
      * \param height Height
      */
     void handleResize( int x, int y, int width, int height );
+
+    /**
+     * Handle mouse clicks
+     *
+     * \param coords where
+     * \param button the button
+     */
+    void handleButtonRelease( WVector2f coords , int button );
 
     //! A condition for property updates.
     boost::shared_ptr< WCondition > m_propCondition;

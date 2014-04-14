@@ -83,6 +83,7 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
     setAttribute( Qt::WA_PaintOnScreen );
     setAttribute( Qt::WA_NoSystemBackground );
     setFocusPolicy( Qt::ClickFocus );
+    setMouseTracking( true );
 
     // initialize OpenGL context and OpenSceneGraph
 #ifdef WGEMODE_MULTITHREADED

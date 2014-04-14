@@ -281,8 +281,10 @@ void WMTemplateUI::moduleMain()
     //  1) derive from WUIViewEventHandler (not shown here)
     //  2) subscribe to each event:
     eh->subscribeMove( boost::bind( &WMTemplateUI::handleMouseMove, this, _1 ) );
+    eh->subscribeDrag( boost::bind( &WMTemplateUI::handleMouseDrag, this, _1, _2 ) );
+    eh->subscribeRelease( boost::bind( &WMTemplateUI::handleButtonRelease, this, _1, _2 ) );
     eh->subscribeResize( boost::bind( &WMTemplateUI::handleResize , this, _1, _2, _3, _4 ) );
-    // This binds our member functions handleMouseMove and handleResize to the event handler.
+    // This binds our member functions handleMouseMove, handleResize, and others to the event handler.
     // Finally, we add the event handler:
     widgetView->addEventHandler( eh );
     // If you now move your mouse around in the view, you will get a lots of debug output.
@@ -342,8 +344,19 @@ void WMTemplateUI::handleMouseMove( WVector2f pos )
     debugLog() << "MOUSE MOVED: " << pos;
 }
 
+void WMTemplateUI::handleMouseDrag( WVector2f pos, int button )
+{
+    // This function just prints the mouse position.
+    debugLog() << "MOUSE DRAG-MOVED: " << pos << " -- Button = " << button;
+}
+
 void WMTemplateUI::handleResize( int /* x */, int /* y */, int width, int height )
 {
     // This function just prints the current view size.
     debugLog() << "RESIZE: " << width << ", " << height;
+}
+
+void WMTemplateUI::handleButtonRelease( WVector2f coords , int button )
+{
+    debugLog() << "BUTTON RELEASE: " << coords << " -- Button = " << button;
 }
