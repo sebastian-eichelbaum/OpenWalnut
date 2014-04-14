@@ -283,7 +283,8 @@ void WMTemplateUI::moduleMain()
     eh->subscribeDrag( boost::bind( &WMTemplateUI::handleMouseDrag, this, _1, _2 ) );
     eh->subscribeRelease( boost::bind( &WMTemplateUI::handleButtonRelease, this, _1, _2 ) );
     eh->subscribeResize( boost::bind( &WMTemplateUI::handleResize , this, _1, _2, _3, _4 ) );
-    // This binds our member functions handleMouseMove, handleResize, and others to the event handler.
+    // This binds our member functions handleMouseMove, handleResize, and others to the event handler. You should consider reading the
+    // boost::bind documentation in case you do not completely understand the above lines.
     // Finally, we add the event handler:
     widgetView->addEventHandler( eh );
     // If you now move your mouse around in the view, you will get a lots of debug output.
