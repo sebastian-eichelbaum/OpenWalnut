@@ -140,10 +140,9 @@ void WMTemplateUI::moduleMain()
         m_shutdownFlag.getValueChangeCondition()    // define a condition that, when notified, aborts creation of the view
     );
     // Again, the same scheme as above. But there is something interesting here:
-    //  *  The name of the viewer. In OpenWalnut, the name of a viewer needs to be unique. If your name is not unique, you will get a
-    //     WNameNotUnique exception. So ensure you use some unique name here. Such a name can be created as above. As the module name (via
-    //     getName() ) is ensured to be unique, you can add some view identifier (MainView in our case) and an instance number to ensure a unique
-    //     string. The instance number is useful to ensure that the string still is unique if you start your module multiple times.
+    //  * You can specify a condition to abort widget creation.The issue is that creating views might take some time. But if your module is
+    //  requested to shut down during this time, the user would need to wait. When specifying your m_shutdownFlag condition, you can ensure
+    //  automatic abortion of widget creation.
 
     // Let us summarize: we have two top-level widgets. This means, two separate windows, docks whatever (depending on GUI implementation). The
     // creation is always done using a factory we get from the GUI.
