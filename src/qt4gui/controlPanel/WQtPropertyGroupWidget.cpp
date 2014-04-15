@@ -201,6 +201,7 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
     QFrame* box = new QFrame( parent );
     box->setFrameShape( QFrame::StyledPanel );
     box->setObjectName( "PropertyGroupBox" );
+    box->setContentsMargins( 0, 0, 0, 0 );
     QGridLayout* boxLayout = new QGridLayout();
     boxLayout->setMargin( 0 );
     boxLayout->setSpacing( 0 );
