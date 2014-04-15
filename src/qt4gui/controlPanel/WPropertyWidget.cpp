@@ -66,12 +66,12 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
     QPalette palette;
     QColor defaultCol = palette.window().color();
 
-    // separator color
-    m_sepCol = defaultCol.darker( 200 );
     // label color
     m_labelCol = defaultCol.darker( 115 );
     // property color
     m_propertyCol = defaultCol;
+    // separator color
+    m_sepCol = defaultCol.darker( 130 );
 
     m_errorCol = QColor( "#ff3543" );
 
@@ -94,12 +94,13 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
         m_propertyGrid->setColumnStretch( 1, 10000.0 );
 
         // ONLY style if in label mode
-
         // set spearator style
-        m_separator.setFrameShape( QFrame::HLine );
-        m_separator.setFrameShadow( QFrame::Plain );
+        m_separator.setFixedHeight( 1 );
+        // If you use QFrame for m_separator
+        // m_separator.setFrameShape( QFrame::HLine );
+        // m_separator.setFrameShadow( QFrame::Plain );
         m_propertyGrid->addWidget( &m_separator, row + 1, 0, 1, 2 );
-        m_separator.setStyleSheet( "QWidget{ color:" + m_sepCol.name() + ";}" );
+        m_separator.setStyleSheet( "QWidget{ background-color:" + m_sepCol.name() + ";}" );
 
         // set style of label
         m_label.setObjectName( "ControlPanelPropertyLabelWidget" );
