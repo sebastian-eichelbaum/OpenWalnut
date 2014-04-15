@@ -266,6 +266,16 @@ void WMTemplate::properties()
     m_group1a       = m_group1->addPropertyGroup(     "Group 1a", "A group nested into \"Group 1\"." );
     m_group2        = m_properties->addPropertyGroup( "Second Group",  "Another nice group for grouping stuff." );
 
+    // You can nest property groups arbitrarily deep. ( But as with a good text, a chapter number 1.23.23.5.73.1.5 is useless. Avoid nesting too
+    // deep and avoid groups with only one or two properties. )
+    WPropGroup group = m_properties->addPropertyGroup( "Group Nesting - Level 0", "Demo for intensive group nesting." );
+    for( int d = 1; d <= 20; ++d )
+    {
+        std::string depth = string_utils::toString( d );
+        group = group->addPropertyGroup( "Group Nesting - Level " + depth, "A nested group." );
+        // NOTE: the last group will be deleted as we do not keep its shared_ptr.
+    }
+
     // To understand how the groups can be used, you should consider that m_properties itself is a WPropGroup! This means, you can use your newly
     // created groups exactly in the same way as you would use m_properties.
     m_group1Bool    = m_group1->addProperty( "Funny stuff", "A grouped property", true );

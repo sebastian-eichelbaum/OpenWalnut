@@ -226,6 +226,7 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
     boxLayout->addWidget( boxContent, 1, 0 );
 
     // set the button up
+    boxTitle->setMinimumHeight( WMIN_PROPGROUP_HEAD_HEIGHT );
     boxTitle->setSizePolicy( sizePolicy );
     boxTitle->setAutoRaise( true );
     boxTitle->setAutoFillBackground( true );
@@ -243,40 +244,52 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
 
     // some styling
     QPalette palette;   // the palette is used to get default colors of the style/system
-    QColor defaultCol = palette.window().color().darker( 120 );
+    QColor defaultCol = QColor( "#b9b9b9" ); // palette.window().color().darker( 120 );
+    QColor brightTextCol = QColor( "#eeeeee" );
+    QColor darkTextCol = QColor( "#444444" );
+    QColor defaultTextCol = darkTextCol; // palette.windowText().color();
     switch( widget->m_nestingDepth % 10 ) // NOTE: the first level 0 does not need a color as it does not provide a boxtitle, so we begin with 1
     {
         // All these colors are taken from the solarized pallette http://ethanschoonover.com/solarized
         case 1:
-            defaultCol = palette.window().color().darker( 150 );
+            defaultCol = QColor( "#949494" ); // palette.window().color().darker( 150 );
+            defaultTextCol = darkTextCol;
             break;
         case 2:
             defaultCol = QColor( "#268bd2" );
+            defaultTextCol = brightTextCol;
             break;
         case 3:
             defaultCol = QColor( "#2aa198" );
+            defaultTextCol = brightTextCol;
             break;
         case 4:
             defaultCol = QColor( "#859900" );
+            defaultTextCol = brightTextCol;
             break;
         case 5:
             defaultCol = QColor( "#b58900" );
+            defaultTextCol = brightTextCol;
             break;
         case 6:
             defaultCol = QColor( "#cb4b16" );
+            defaultTextCol = brightTextCol;
             break;
         case 7:
             defaultCol = QColor( "#dc322f" );
+            defaultTextCol = brightTextCol;
             break;
         case 8:
             defaultCol = QColor( "#d33682" );
+            defaultTextCol = brightTextCol;
             break;
         case 9:
             defaultCol = QColor( "#6c71c4" );
+            defaultTextCol = brightTextCol;
             break;
     }
 
-    boxTitle->setStyleSheet( "background-color: " + defaultCol.name() + "; font-weight:bold;" );
+    boxTitle->setStyleSheet( "background-color: " + defaultCol.name() + "; font-weight:bold; color: " + defaultTextCol.name() + ";" );
     box->setStyleSheet( "QFrame#PropertyGroupBox{background-color: " + defaultCol.name() + ";}" );
     content->setStyleSheet( "#PropertyGroupContent{ background-color: "+ palette.window().color().name() +";}" );
 
