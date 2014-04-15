@@ -23,3 +23,9 @@
 //---------------------------------------------------------------------------
 
 #include "WFlag.h"
+
+#ifdef __APPLE__
+// Force instantiation of WFlag< bool >. On Mac computers, the linker misses the operator()( const bool& ) symbol if not instantiated here. We
+// are not sure what the reason is. Inlining the operator did not help.
+template class WFlag< bool >;
+#endif
