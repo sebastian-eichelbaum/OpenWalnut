@@ -80,6 +80,9 @@ WPropertyColorWidget::WPropertyColorWidget( WPropColor property, QGridLayout* pr
     wLayout->addWidget( m_colPanel );
     wLayout->addWidget( m_colButton );
 
+    m_colPanel->setMinimumHeight( WMIN_WIDGET_HEIGHT );
+    m_colButton->setMinimumHeight( WMIN_WIDGET_HEIGHT );
+
     // accept drag and drop
     setAcceptDrops( true );
 

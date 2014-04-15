@@ -61,6 +61,9 @@ WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* property
     m_vLayout.setMargin( WGLOBAL_MARGIN );
     m_vLayout.setSpacing( WGLOBAL_SPACING );
 
+    m_edit.setMinimumHeight( WMIN_WIDGET_HEIGHT );
+    m_slider.setMinimumHeight( WMIN_WIDGET_HEIGHT );
+
     // add the m_layout to the vlayout
     QWidget* layoutContainer = new QWidget();
     layoutContainer->setLayout( &m_layout );

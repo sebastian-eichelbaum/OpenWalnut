@@ -63,6 +63,9 @@ WPropertyIntervalWidget::WPropertyIntervalWidget( WPropInterval property, QGridL
     // WPropertyVartiable does not yet provide a default value mechanism.
     m_resetBtn.setHidden( true );
 
+    m_minEdit.setMinimumHeight( WMIN_WIDGET_HEIGHT );
+    m_maxEdit.setMinimumHeight( WMIN_WIDGET_HEIGHT );
+
     // create resetButton action
     QAction* reset = new QAction( WQt4Gui::getIconManager()->getIcon( "undo" ), "Reset to defaults", &m_resetBtn );
     m_resetBtn.setDefaultAction( reset );

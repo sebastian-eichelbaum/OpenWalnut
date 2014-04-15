@@ -26,7 +26,6 @@
 #include <cmath>
 #include <string>
 
-
 #include "core/common/WLogger.h"
 #include "core/common/WPropertyVariable.h"
 #include "../WGuiConsts.h"
@@ -44,6 +43,10 @@ WPropertyPositionWidget::WPropertyPositionWidget( WPropPosition property, QGridL
     m_asText( &m_informationWidgets ),
     m_infoLayout( &m_informationWidgets )
 {
+    m_editX.setMinimumHeight( WMIN_WIDGET_HEIGHT );
+    m_editY.setMinimumHeight( WMIN_WIDGET_HEIGHT );
+    m_editZ.setMinimumHeight( WMIN_WIDGET_HEIGHT );
+
     // initialize members
     m_editX.resize( m_editX.minimumSizeHint().width() * 2.0, m_editX.size().height() );
     //m_editX.setMaximumWidth( m_editX.minimumSizeHint().width() * 5.0 );

@@ -52,6 +52,7 @@ WPropertyMatrix4X4Widget::WPropertyMatrix4X4Widget( WPropMatrix4X4 property, QGr
         {
             size_t i = row * 4 + col;
             m_edits[ i ].setParent( &m_parameterWidgets );
+            m_edits[ i ].setMinimumHeight( WMIN_WIDGET_HEIGHT );
             m_edits[ i ].resize( m_edits[ i ].minimumSizeHint().width() * 2.0, m_edits[ i ].size().height() );
 
             connect( &m_edits[ i ], SIGNAL( returnPressed() ), this, SLOT( editChanged() ) );

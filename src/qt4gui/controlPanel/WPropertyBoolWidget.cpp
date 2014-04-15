@@ -39,6 +39,8 @@ WPropertyBoolWidget::WPropertyBoolWidget( WPropBool property, QGridLayout* prope
     // initialize members
     update();
 
+    m_checkbox.setMinimumHeight( WMIN_WIDGET_HEIGHT );
+
     // layout both against each other
     m_layout.addWidget( static_cast< QWidget* >( &m_checkbox ) );
     m_layout.setMargin( WGLOBAL_MARGIN );

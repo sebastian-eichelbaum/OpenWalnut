@@ -53,8 +53,8 @@
 QPixmap ensureSize( QPixmap pix )
 {
     // maximum size
-    int maxW = 32;
-    int maxH = 32;
+    int maxW = WMIN_WIDGET_HEIGHT;
+    int maxH = WMIN_WIDGET_HEIGHT;
 
     if( ( pix.width() > maxW ) || ( pix.height() > maxH ) )
     {
@@ -82,6 +82,7 @@ WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGr
     if( m_selectionProperty->countConstraint( PC_SELECTONLYONE ) != 0 )
     {
         m_combo = new QComboBox( &m_parameterWidgets );
+        m_combo->setMinimumHeight( WMIN_WIDGET_HEIGHT );
 
         // layout
         m_layout.addWidget( m_combo, 0, 0 );
@@ -103,6 +104,7 @@ WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGr
         connect( act, SIGNAL( triggered( bool ) ), m_list, SLOT( selectAll() ) );
         selAllButton->setDefaultAction( act );
         selAllButton->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
+        selAllButton->setMinimumHeight( WMIN_WIDGET_HEIGHT );
         selAllButton->setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Fixed ) );
 
         m_layout.addWidget( selAllButton, 1, 0 );
