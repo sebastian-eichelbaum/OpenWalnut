@@ -112,7 +112,7 @@ public:
 
 
     /**
-     * Create a property widget using the given group. The difference to \ref createPropertyGroupBoxis that this call only creates the plain
+     * Create a property widget using the given group. The difference to \ref createPropertyGroupBox is that this call only creates the plain
      * WQtPropertyGroupWidget which can be embedded somewhere else.
      *
      * \param group the property group to represent
