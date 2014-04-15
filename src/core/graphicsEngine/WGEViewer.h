@@ -307,6 +307,19 @@ public:
      */
     WProperties::SPtr getProperties() const;
 
+    /**
+     * Pause rendering. This does not free the viewer. It simply pauses rendering.
+     *
+     * \param pause true to pause.
+     */
+    void setPaused( bool pause = true );
+
+    /**
+     * Query whether the view is paused or not.
+     *
+     * \return true if paused
+     */
+    bool getPaused() const;
 protected:
     /**
      * The OpenSceneGraph view used in this (Composite)Viewer.
@@ -452,6 +465,11 @@ private:
      * Update throw setting of the manipulator (if supported).
      */
     void updateThrowing();
+
+    /**
+     * Flag denoting whether the view is paused or not
+     */
+    bool m_paused;
 };
 
 #endif  // WGEVIEWER_H

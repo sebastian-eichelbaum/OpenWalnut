@@ -41,12 +41,13 @@
 
 #include <osgDB/ReadFile>
 
-#include "exceptions/WGEInitFailed.h"
 #include "WGE2DManipulator.h"
 #include "WGEGroupNode.h"
 #include "WGENoOpManipulator.h"
 #include "WGEZoomTrackballManipulator.h"
+#include "WGraphicsEngine.h"
 #include "WPickHandler.h"
+#include "exceptions/WGEInitFailed.h"
 
 #include "../common/WConditionOneShot.h"
 #include "../common/WThreadedRunner.h"
@@ -64,7 +65,8 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
     m_inAnimationMode( false ),
     m_effectHorizon( new WGEViewerEffectHorizon() ),
     m_effectVignette( new WGEViewerEffectVignette() ),
-    m_effectImageOverlay( new WGEViewerEffectImageOverlay() )
+    m_effectImageOverlay( new WGEViewerEffectImageOverlay() ),
+    m_paused( false )
 {
     try
     {
@@ -396,3 +398,12 @@ void WGEViewer::setEffectsActiveDefault( bool activeByDefault )
     getVignette()->setEnabledByDefault( activeByDefault );
 }
 
+void WGEViewer::setPaused( bool pause )
+{
+    m_paused = pause;
+}
+
+bool WGEViewer::getPaused() const
+{
+    return m_paused;
+}

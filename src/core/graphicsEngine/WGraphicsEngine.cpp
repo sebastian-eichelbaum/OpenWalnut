@@ -288,7 +288,6 @@ void WGraphicsEngine::applyViewerListUpdates()
         }
         m_removeViewers.clear();
         m_viewersUpdate = false;
-        lock.unlock();
 
         // notify all of them
         for( std::vector< WCondition::SPtr >::iterator it = m_viewerUpdateNotifiers.begin(); it != m_viewerUpdateNotifiers.end(); ++it )
@@ -296,6 +295,7 @@ void WGraphicsEngine::applyViewerListUpdates()
             ( *it )->notify();
         }
         m_viewerUpdateNotifiers.clear();
+        lock.unlock();
     }
 }
 

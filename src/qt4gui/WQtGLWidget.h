@@ -150,6 +150,20 @@ public:
      */
     virtual void cleanUp();
 
+    /**
+     * Pause rendering. This does not free the viewer. It simply pauses rendering.
+     *
+     * \param pause true to pause.
+     */
+    void setPaused( bool pause = true );
+
+    /**
+     * Query whether the view is paused or not.
+     *
+     * \return true if paused
+     */
+    bool getPaused() const;
+
 signals:
 
     /**

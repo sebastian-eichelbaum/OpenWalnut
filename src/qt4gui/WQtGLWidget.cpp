@@ -240,7 +240,10 @@ void WQtGLWidget::paintGL()
 {
     if( m_Viewer )
     {
-        m_Viewer->paint();
+        if( !m_Viewer->getPaused() )
+        {
+            m_Viewer->paint();
+        }
     }
 }
 
@@ -265,8 +268,14 @@ void WQtGLWidget::paintGL()
 {
     // m_Viewer->paint();
 #ifdef IS_A_QGLWIDGET
-    // if the parent is a GL widget, issue parent method.
-    WQtGLWidgetParent::paintGL();
+    if( m_Viewer )
+    {
+        if( !m_Viewer->getPaused() )
+        {
+            // if the parent is a GL widget, issue parent method.
+            WQtGLWidgetParent::paintGL();
+        }
+    }
 #endif
 }
 
@@ -579,4 +588,14 @@ QMenu* WQtGLWidget::getCameraPresetsAndResetMenu()
 QAction* WQtGLWidget::getCameraResetAction()
 {
     return m_cameraResetAction;
+}
+
+void WQtGLWidget::setPaused( bool pause )
+{
+    getViewer()->setPaused( pause );
+}
+
+bool WQtGLWidget::getPaused() const
+{
+    return getViewer()->getPaused();
 }

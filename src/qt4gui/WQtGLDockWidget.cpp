@@ -139,11 +139,16 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
 WQtGLDockWidget::~WQtGLDockWidget()
 {
     // cleanup
+    delete m_screenCapture;
+    m_screenCapture = NULL;
 }
 
 void WQtGLDockWidget::saveSettings()
 {
-    m_screenCapture->saveSettings();
+    if( m_screenCapture )
+    {
+        m_screenCapture->saveSettings();
+    }
     WQtDockWidget::saveSettings();
 
     // optional:
@@ -217,17 +222,13 @@ void WQtGLDockWidget::handleVisibilityChange( bool visible )
 void WQtGLDockWidget::closeEvent( QCloseEvent *event )
 {
     event->accept();
+    m_glWidget->setPaused( true );
     WQtDockWidget::closeEvent( event );
-
-    delete m_screenCapture;
-    m_screenCapture = NULL;
-
-    m_glWidget->close();
 }
 
 void WQtGLDockWidget::showEvent( QShowEvent* event )
 {
-    m_glWidget->getViewer()->setClosed( false );
+    m_glWidget->setPaused( false );
     WQtDockWidget::showEvent( event );
 }
 
