@@ -118,7 +118,7 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
         m_View->addEventHandler( new osgViewer::StatsHandler );
 
         // Properties of the view. Collects props of the effects and similar
-        m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "The view's properties" ) );
+        m_properties = boost::shared_ptr< WProperties >( new WProperties( "Viewer Properties", "The view's properties" ) );
         m_bgColor = m_properties->addProperty( "Background Color", "Default background color if not overwritten by a camera effect.",
                                                defaultColor::WHITE,
                                                boost::bind( &WGEViewer::updateBgColor, this ) );
