@@ -86,7 +86,8 @@ public:
 
     /**
      * Close the widget. When done, the widget can be safely deleted. You cannot re-open the widget with \ref show(). If you want to hide widget,
-     * use setVisible( false ) instead.
+     * use setVisible( false ) instead. This function cascades to all child widgets if any. So it is enough to use this for the top-level
+     * (parent-less) widget only. This ensures proper close for all nested widgets.
      */
     void close();
 
