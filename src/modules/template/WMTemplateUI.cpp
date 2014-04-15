@@ -298,7 +298,10 @@ void WMTemplateUI::moduleMain()
 
     // Ok. Now we have a whole bunch of modules, made an event handler and set some default effects. Is there more? Yes! In the next view code
     // lines you will learn how to customize and add "actions" to your widget.
-    // TODO(ebaum) write
+
+    // Let us begin with the viewer settings. If you use our Qt GUI, the you will notice the little cog next to the close button of view widgets.
+    // These settings are visible by default. But sometimes you might want to hide them:
+    widgetView->getViewer()->getProperties()->setHidden();
 
     // Finally, mark the module as ready.
     //

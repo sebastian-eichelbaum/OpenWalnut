@@ -82,7 +82,8 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     m_screenCapture = new WQtGLScreenCapture( this );
 
     // create property widgets for each effect
-    QWidget* viewPropsWidget = WQtPropertyGroupWidget::createPropertyGroupBox( m_glWidget->getViewer()->getProperties() );
+    WQtPropertyGroupWidget* viewPropsWidget = WQtPropertyGroupWidget::createPropertyGroupWidget( m_glWidget->getViewer()->getProperties() );
+    QWidget* viewPropsBox =  WQtPropertyGroupWidget::createPropertyGroupBox( viewPropsWidget );
 
     // create container for all the config widgets
     QWidget* viewConfigWidget = new QWidget();
@@ -97,7 +98,7 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     viewConfigWidget->setSizePolicy( sizePolicy );
 
     // add the property widgets to container
-    viewConfigLayout->addWidget( viewPropsWidget );
+    viewConfigLayout->addWidget( viewPropsBox );
 
     // Create the toolbutton and the menu containing the config widgets
     QWidgetAction* viewerConfigWidgetAction = new QWidgetAction( this );
@@ -109,6 +110,9 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     viewerConfigBtn->setIcon(  WQt4Gui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
     viewerConfigBtn->setToolTip( "Configure View" );
     viewerConfigBtn->setMenu( viewerConfigMenu );
+
+    // hide config button when properties are hidden
+    connect( viewPropsWidget, SIGNAL( hideSignal( bool ) ), viewerConfigBtn, SLOT( setHidden( bool ) ) );
 
     // screen capture trigger
     QWidgetAction* screenCaptureWidgetAction = new QWidgetAction( this );

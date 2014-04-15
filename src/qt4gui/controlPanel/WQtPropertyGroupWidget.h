@@ -110,6 +110,21 @@ public:
     static QWidget* createPropertyGroupBox( WPropertyGroupBase::SPtr group, bool asScrollArea, const QString& title = "", size_t depth = 0,
                                             QWidget* parent = 0 );
 
+
+    /**
+     * Create a property widget using the given group. The difference to \ref createPropertyGroupBoxis that this call only creates the plain
+     * WQtPropertyGroupWidget which can be embedded somewhere else.
+     *
+     * \param group the property group to represent
+     * \param title the title of the widget
+     * \param depth the nesting depth
+     * \param parent the parent widget
+     *
+     * \return the widget.
+     */
+    static WQtPropertyGroupWidget* createPropertyGroupWidget( WPropertyGroupBase::SPtr group, const QString& title = "", size_t depth = 0,
+                                                              QWidget* parent = 0 );
+
     /**
      * destructor
      */

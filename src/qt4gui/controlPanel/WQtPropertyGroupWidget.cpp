@@ -306,10 +306,27 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
 QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WPropertyGroupBase::SPtr group, bool asScrollArea, const QString& title,
                                                          size_t depth, QWidget* parent )
 {
+    WQtPropertyGroupWidget* propWidget =  createPropertyGroupWidget( group, title, depth, parent );
+
+    // embed nicely into some scroll area or container or ....
+    QWidget* tab =  WQtPropertyGroupWidget::createPropertyGroupBox( propWidget, asScrollArea, parent, propWidget->getName() );
     QSizePolicy sizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
     sizePolicy.setHorizontalStretch( 0 );
     sizePolicy.setVerticalStretch( 0 );
+    tab->setSizePolicy( sizePolicy );
+    tab->setWindowTitle( propWidget->getName() );
 
+    return tab;
+}
+
+QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WPropertyGroupBase::SPtr group, const QString& title, size_t depth, QWidget* parent )
+{
+    return createPropertyGroupBox( group, false, title, depth, parent );
+}
+
+WQtPropertyGroupWidget* WQtPropertyGroupWidget::createPropertyGroupWidget( WPropertyGroupBase::SPtr group, const QString& title,
+                                                                           size_t depth, QWidget* parent )
+{
     QString titleCorrected = title;
     if( title == "" )
     {
@@ -318,16 +335,8 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WPropertyGroupBase::SPt
 
     WQtPropertyGroupWidget* propWidget = new WQtPropertyGroupWidget( group, depth, parent );
     propWidget->setName( titleCorrected );
-    QWidget* tab =  WQtPropertyGroupWidget::createPropertyGroupBox( propWidget, asScrollArea, parent, titleCorrected );
-    tab->setSizePolicy( sizePolicy );
-    tab->setWindowTitle( titleCorrected );
 
-    return tab;
-}
-
-QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WPropertyGroupBase::SPtr group, const QString& title, size_t depth, QWidget* parent )
-{
-    return createPropertyGroupBox( group, false, title, depth, parent );
+    return propWidget;
 }
 
 void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asScrollArea )
