@@ -191,6 +191,9 @@
 {
     // how to say goodbye ...
     goodbye = "Auf Wiedersehen!";   // in german
+
+    // and a useful texture we want to use in some modules. We will load this using WGEImage.
+    amazingTexture = "amazingTexture.png";
 };
 
 ///////////////////////////////////////////////////////////////////////////////

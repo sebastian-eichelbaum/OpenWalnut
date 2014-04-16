@@ -764,7 +764,7 @@ void WMTemplate::moduleMain()
     // Let us utilize the META file in the resources directory. This file contains several information about a module and
     // can also contain custom values. Here, we query the "goodbye" value:
     std::string bye = getMetaInformation()->query< std::string >(
-       "common/goodbye", // the absolute path
+       "common/goodbye",       // the absolute path
        "have a nice day"       // a default if the element does not exist or cannot be returned as std::string.
     );
     infoLog() << bye;
