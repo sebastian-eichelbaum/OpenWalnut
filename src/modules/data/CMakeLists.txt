@@ -45,6 +45,7 @@ GET_FILENAME_COMPONENT( MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
 
 # If it is found on the system, the system version is used
 SET( OWExtNiftiIOName  "" )
+SET( OWExtNiftiZNZName "" )
 
 FIND_PACKAGE( niftilib REQUIRED )
 
@@ -52,6 +53,7 @@ IF( NIFTILIB_FOUND )
    MESSAGE( STATUS "Using system installed nifitlib." )
    INCLUDE_DIRECTORIES( ${NIFTILIB_INCLUDE_DIR} )
    SET( OWExtNiftiIOName  ${NIFTILIB_LIBRARY} )
+   SET( OWExtNiftiZNZName  ${NIFTIZNZ_LIBRARY} )
 ENDIF()
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -89,7 +91,7 @@ ADD_SUBDIRECTORY( ext/libeep) # The needed external libraries
 # module.
 SETUP_MODULE( ${MODULE_NAME}                # name of the module
              "${CMAKE_CURRENT_SOURCE_DIR}"  # where to find the source ${CMAKE_CURRENT_SOURCE_DIR} is a good idea here mostly
-             "${OWExtBioSigName};${OWExtEEPName};${OWExtNiftiIOName}" # does your module need additional libs to compile?
+             "${OWExtBioSigName};${OWExtEEPName};${OWExtNiftiIOName};${OWExtNiftiZNZName}" # does your module need additional libs to compile?
              "ext"                             # do you want to exclude files from stylechecking? (externals for example)
 )
 
