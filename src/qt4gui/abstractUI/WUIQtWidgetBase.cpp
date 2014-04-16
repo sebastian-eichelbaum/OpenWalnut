@@ -262,12 +262,6 @@ void WUIQtWidgetBase::addAction( WPropBool toggle, WGEImage::SPtr icon )
 
 void WUIQtWidgetBase::addActionGroupGT( WPropGroup group, WGEImage::SPtr icon )
 {
-    if( hasUIParent() )
-    {
-        wlog::warn( "WUIQtWidgetBase" ) << "Cannot add action to non-top-level widget.";
-        return;
-    }
-
     if( asDockWidget() )
     {
         asDockWidget()->addTitleProperty( group, icon );
@@ -276,12 +270,6 @@ void WUIQtWidgetBase::addActionGroupGT( WPropGroup group, WGEImage::SPtr icon )
 
 void WUIQtWidgetBase::addActionTriggerGT( WPropTrigger trigger, WGEImage::SPtr icon )
 {
-    if( hasUIParent() )
-    {
-        wlog::warn( "WUIQtWidgetBase" ) << "Cannot add action to non-top-level widget.";
-        return;
-    }
-
     if( asDockWidget() )
     {
         asDockWidget()->addTitleProperty( trigger, icon );
@@ -290,12 +278,6 @@ void WUIQtWidgetBase::addActionTriggerGT( WPropTrigger trigger, WGEImage::SPtr i
 
 void WUIQtWidgetBase::addActionBoolGT( WPropBool toggle, WGEImage::SPtr icon )
 {
-    if( hasUIParent() )
-    {
-        wlog::warn( "WUIQtWidgetBase" ) << "Cannot add action to non-top-level widget.";
-        return;
-    }
-
     if( asDockWidget() )
     {
         asDockWidget()->addTitleProperty( toggle, icon );
