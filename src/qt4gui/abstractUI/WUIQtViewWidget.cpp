@@ -151,8 +151,11 @@ void WUIQtViewWidget::realizeImpl()
     m_scene->setDataVariance( osg::Object::DYNAMIC );
     m_widgetDock->getGLWidget()->getViewer()->setScene( m_scene );
 
-    // remove the close button
-    m_widgetDock->disableCloseButton();
+    // remove the close button for embedded views
+    if( getQtParent() )
+    {
+        m_widgetDock->disableCloseButton();
+    }
 
     embedContent( m_widgetDock );
 }

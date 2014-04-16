@@ -301,7 +301,10 @@ void WMTemplateUI::moduleMain()
 
     // Let us begin with the viewer settings. If you use our Qt GUI, the you will notice the little cog next to the close button of view widgets.
     // These settings are visible by default. But sometimes you might want to hide them:
-    widgetView->getViewer()->getProperties()->setHidden();
+    widgetGridRightVerticalView1->getViewer()->getProperties()->setHidden();
+    widgetGridRightVerticalView2->getViewer()->getProperties()->setHidden();
+    widgetGridLeftTabbedView1->getViewer()->getProperties()->setHidden();
+    widgetGridLeftTabbedView2->getViewer()->getProperties()->setHidden();
 
     // Finally, mark the module as ready.
     //
