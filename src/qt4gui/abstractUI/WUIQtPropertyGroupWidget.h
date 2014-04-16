@@ -109,6 +109,39 @@ public:
      * \return the group
      */
     virtual WPropGroup getPropertyGroup() const;
+
+    /**
+     * Implement \ref WUIWidgetBase::addAction.
+     *
+     * \param trigger the property to use.
+     * \param icon the icon to use. Consider a minimum size of 32x32.
+     */
+    virtual void addAction( WPropGroup group, WGEImage::SPtr icon = WGEImage::SPtr() )
+    {
+        WUIQtWidgetBase::addAction( group, icon );
+    }
+
+    /**
+     * Implement \ref WUIWidgetBase::addAction.
+     *
+     * \param trigger the property to use.
+     * \param icon the icon to use. Consider a minimum size of 32x32.
+     */
+    virtual void addAction( WPropTrigger trigger, WGEImage::SPtr icon = WGEImage::SPtr() )
+    {
+        WUIQtWidgetBase::addAction( trigger, icon );
+    }
+
+    /**
+     * Implement \ref WUIWidgetBase::addAction.
+     *
+     * \param trigger the property to use.
+     * \param icon the icon to use. Consider a minimum size of 32x32.
+     */
+    virtual void addAction( WPropBool toggle, WGEImage::SPtr icon = WGEImage::SPtr() )
+    {
+        WUIQtWidgetBase::addAction( toggle, icon );
+    }
 protected:
     /**
      * Realize the widget. This method blocks until the GUI thread created the widget. Called from within the GUI thread! So you can safely do Qt

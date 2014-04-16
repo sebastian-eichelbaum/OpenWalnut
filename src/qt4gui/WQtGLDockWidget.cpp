@@ -81,39 +81,6 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     // all view docks have a screen capture object
     m_screenCapture = new WQtGLScreenCapture( this );
 
-    // create property widgets for each effect
-    WQtPropertyGroupWidget* viewPropsWidget = WQtPropertyGroupWidget::createPropertyGroupWidget( m_glWidget->getViewer()->getProperties() );
-    QWidget* viewPropsBox =  WQtPropertyGroupWidget::createPropertyGroupBox( viewPropsWidget );
-
-    // create container for all the config widgets
-    QWidget* viewConfigWidget = new QWidget();
-    QVBoxLayout* viewConfigLayout = new QVBoxLayout();
-    viewConfigLayout->setAlignment( Qt::AlignTop );
-    viewConfigWidget->setLayout( viewConfigLayout );
-
-    // force the widget to shrink when the content shrinks.
-    QSizePolicy sizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
-    sizePolicy.setHorizontalStretch( 0 );
-    sizePolicy.setVerticalStretch( 0 );
-    viewConfigWidget->setSizePolicy( sizePolicy );
-
-    // add the property widgets to container
-    viewConfigLayout->addWidget( viewPropsBox );
-
-    // Create the toolbutton and the menu containing the config widgets
-    QWidgetAction* viewerConfigWidgetAction = new QWidgetAction( this );
-    viewerConfigWidgetAction->setDefaultWidget( viewConfigWidget );
-    QMenu* viewerConfigMenu = new QMenu();
-    viewerConfigMenu->addAction( viewerConfigWidgetAction );
-    QToolButton* viewerConfigBtn = new QToolButton( parent );
-    viewerConfigBtn->setPopupMode( QToolButton::InstantPopup );
-    viewerConfigBtn->setIcon(  WQt4Gui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
-    viewerConfigBtn->setToolTip( "Configure View" );
-    viewerConfigBtn->setMenu( viewerConfigMenu );
-
-    // hide config button when properties are hidden
-    connect( viewPropsWidget, SIGNAL( hideSignal( bool ) ), viewerConfigBtn, SLOT( setHidden( bool ) ) );
-
     // screen capture trigger
     QWidgetAction* screenCaptureWidgetAction = new QWidgetAction( this );
     screenCaptureWidgetAction->setDefaultWidget( m_screenCapture );
@@ -133,7 +100,8 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     // add them to the title
     addTitleButton( screenShotBtn );
     addTitleButton( presetBtn );
-    addTitleButton( viewerConfigBtn );
+
+    addTitleProperty( m_glWidget->getViewer()->getProperties() );
 }
 
 WQtGLDockWidget::~WQtGLDockWidget()

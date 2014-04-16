@@ -22,6 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
+#include <string>
+
 #include <osgDB/ReadFile>
 
 #include "core/common/WLogger.h"
@@ -29,14 +32,25 @@
 #include "WGEImage.h"
 
 WGEImage::WGEImage():
-    osg::Image()
+    m_image()
 {
     // initialize members
 }
 
 WGEImage::WGEImage( const osg::Image& image ):
-    osg::Image( image, osg::CopyOp::DEEP_COPY_IMAGES )
+    m_image( new osg::Image( image, osg::CopyOp::DEEP_COPY_IMAGES ) )
 {
+}
+
+WGEImage::WGEImage( const WGEImage& image ):
+    m_image( new osg::Image( *image.m_image, osg::CopyOp::DEEP_COPY_IMAGES ) )
+{
+}
+
+WGEImage& WGEImage::operator= ( WGEImage other )
+{
+    std::swap( m_image, other.m_image );
+    return *this;
 }
 
 WGEImage::~WGEImage()
@@ -44,14 +58,74 @@ WGEImage::~WGEImage()
     // cleanup
 }
 
-WGEImage* WGEImage::loadFromFile( boost::filesystem::path file )
+WGEImage::SPtr WGEImage::createFromFile( std::string file )
 {
-    osg::ref_ptr< osg::Image > image = osgDB::readImageFile( file.string() );
-    if( !image )
+    try
     {
-        wlog::error( "WGEImage" ) << "Failed to load image \"" << file.string() << "\".";
+        osg::ref_ptr< osg::Image > image = osgDB::readImageFile( file );
+        if( !image )
+        {
+            wlog::error( "WGEImage" ) << "Failed to load image \"" << file << "\".";
+            return WGEImage::SPtr();
+        }
+        return WGEImage::SPtr( new WGEImage( *image ) );
     }
-    WGEImage* wimg = new WGEImage( *image );
-    return wimg;
+    catch( ... )
+    {
+        wlog::error( "WGEImage" ) << "Failed to load image \"" << file << "\".";
+    }
+    return WGEImage::SPtr();
 }
 
+WGEImage::SPtr WGEImage::createFromFile( boost::filesystem::path file )
+{
+    return WGEImage::createFromFile( file.string() );
+}
+
+osg::ref_ptr< osg::Image > WGEImage::getAsOSGImage() const
+{
+    return m_image;
+}
+
+int WGEImage::getWidth() const
+{
+    return m_image->s();
+}
+
+int WGEImage::getHeight() const
+{
+    return m_image->t();
+}
+
+int WGEImage::getDepth() const
+{
+    return m_image->r();
+}
+
+unsigned char* WGEImage::data()
+{
+    return m_image->data();
+}
+
+const unsigned char* WGEImage::data() const
+{
+    return m_image->data();
+}
+
+WColor WGEImage::getColor( unsigned int x, unsigned int y, unsigned int z )
+{
+    return m_image->getColor( x, y, z );
+}
+
+WGEImage::Origin WGEImage::getOrigin() const
+{
+    switch( m_image->getOrigin() )
+    {
+        case osg::Image::BOTTOM_LEFT:
+            return BOTTOM_LEFT;
+        case osg::Image::TOP_LEFT:
+            return TOP_LEFT;
+    }
+
+    return BOTTOM_LEFT;
+}

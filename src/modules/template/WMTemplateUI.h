@@ -134,6 +134,16 @@ private:
 
     //! A condition for property updates.
     boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * A boolean property used in this example.
+     */
+    WPropBool m_boolProp;
+
+    /**
+     * A trigger property used in this example.
+     */
+    WPropTrigger m_triggerProp;
 };
 
 #endif  // WMTEMPLATEUI_H

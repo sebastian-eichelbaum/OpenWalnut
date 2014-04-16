@@ -79,8 +79,8 @@ void WMTemplateUI::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     // We create some dummy preferences here to use in our widgets:
-    m_properties->addProperty( "Do it now!",               "Trigger Button Text.", WPVBaseTypes::PV_TRIGGER_READY );
-    m_properties->addProperty( "Enable feature",           "Description.", true );
+    m_triggerProp = m_properties->addProperty( "Do it now!",               "Trigger Button Text.", WPVBaseTypes::PV_TRIGGER_READY );
+    m_boolProp = m_properties->addProperty( "Enable feature",           "Description.", true );
     m_properties->addProperty( "Number of shape rows",     "Number of shape rows.", 10 );
     m_properties->addProperty( "CLONE!Number of shape rows",
                                 "A property which gets modified if \"Number of shape rows\" gets modified.", 10 );
@@ -305,6 +305,25 @@ void WMTemplateUI::moduleMain()
     widgetGridRightVerticalView2->getViewer()->getProperties()->setHidden();
     widgetGridLeftTabbedView1->getViewer()->getProperties()->setHidden();
     widgetGridLeftTabbedView2->getViewer()->getProperties()->setHidden();
+
+    // We now disabled the viewer settings of some of the views. But we want to add our own settings now. Simply construct some properties
+    // and add them to a top-level widget:
+    widgetGrid->addAction( m_triggerProp, WGEImage::createFromFile(
+                           m_localPath / getMetaInformation()->query< std::string >( "common/settingsIcon" ) ) // loads an icon we
+                                                                                                               // specified in our META file.
+                                                                                                               // NOTE: WGEImage::loadFromFile is
+                                                                                                               // very fault tolerant. It simply
+                                                                                                               // returns a NULL image.
+            );
+    // You can also use WPropBool:
+    widgetGrid->addAction( m_boolProp, WGEImage::createFromFile(
+                           m_localPath / "iconWurst.png" ) // or use a hardcoded file path
+                         );
+    // The difference between bool and trigger can be seen in WMTemplate (a trigger must be reset by the module).
+    // And even groups are possible:
+    widgetGrid->addAction( m_properties ); // NOTE: the icon is optional but should be used for user convenience!
+
+    // Now you might ask on how to react on these actions? For this, please refer to WMTemplate, showing this in detail.
 
     // Finally, mark the module as ready.
     //

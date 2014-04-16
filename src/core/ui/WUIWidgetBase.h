@@ -29,7 +29,9 @@
 #include <vector>
 
 #include "core/common/WCondition.h"
+#include "core/common/WProperties.h"
 #include "core/common/WSharedSequenceContainer.h"
+#include "core/graphicsEngine/WGEImage.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -118,6 +120,40 @@ public:
      * \return true if nesting other widgets INTO this one is allowed
      */
     virtual bool allowNesting() const;
+
+    /**
+     * Define a property as action. Depending on the UI implementing this, adding actions to a nested widget can be useless. View the
+     * corresponding WUI*Widget doc for details. Order of adding is order of appearance in the UI/GUI.
+     *
+     * \note They might not be visible. Only top-level widgets guarantee to show these properly.
+     *
+     * \param group the property to use.
+     * \param icon the icon to use. Consider a minimum size of 32x32.
+     */
+    virtual void addAction( WPropGroup group, WGEImage::SPtr icon = WGEImage::SPtr() ) = 0;
+
+    /**
+     * Define a property as action. Depending on the UI implementing this, adding actions to a nested widget can be useless. View the
+     * corresponding WUI*Widget doc for details. Order of adding is order of appearance in the UI/GUI.
+     *
+     * \note They might not be visible. Only top-level widgets guarantee to show these properly.
+     *
+     * \param trigger the property to use
+     * \param icon the icon to use. Consider a minimum size of 32x32.
+     */
+    virtual void addAction( WPropTrigger trigger, WGEImage::SPtr icon = WGEImage::SPtr() ) = 0;
+
+    /**
+     * Define a property as action. Depending on the UI implementing this, adding actions to a nested widget can be useless. View the
+     * corresponding WUI*Widget doc for details. Order of adding is order of appearance in the UI/GUI.
+     *
+     * \note They might not be visible. Only top-level widgets guarantee to show these properly.
+     *
+     * \param toggle the property to use
+     * \param icon the icon to use. Consider a minimum size of 32x32.
+     */
+    virtual void addAction( WPropBool toggle, WGEImage::SPtr icon = WGEImage::SPtr() ) = 0;
+
 protected:
     /**
      * Default constructor.

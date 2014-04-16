@@ -194,6 +194,10 @@
 
     // and a useful texture we want to use in some modules. We will load this using WGEImage.
     amazingTexture = "amazingTexture.png";
+
+    // icons used in WMTemplateUI
+    settingsIcon = "iconBier.png";
+    boolIcon = "iconWurst.png";
 };
 
 ///////////////////////////////////////////////////////////////////////////////

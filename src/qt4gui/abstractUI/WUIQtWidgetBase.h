@@ -129,6 +129,30 @@ public:
      * \return the parent
      */
     WUIQtWidgetBase::SPtr getQtParent() const;
+
+    /**
+     * Implement \ref WUIWidgetBase::addAction.
+     *
+     * \param trigger the property to use.
+     * \param icon the icon to use. Consider a minimum size of 32x32.
+     */
+    virtual void addAction( WPropGroup group, WGEImage::SPtr icon = WGEImage::SPtr() );
+
+    /**
+     * Implement \ref WUIWidgetBase::addAction.
+     *
+     * \param trigger the property to use.
+     * \param icon the icon to use. Consider a minimum size of 32x32.
+     */
+    virtual void addAction( WPropTrigger trigger, WGEImage::SPtr icon = WGEImage::SPtr() );
+
+    /**
+     * Implement \ref WUIWidgetBase::addAction.
+     *
+     * \param trigger the property to use.
+     * \param icon the icon to use. Consider a minimum size of 32x32.
+     */
+    virtual void addAction( WPropBool toggle, WGEImage::SPtr icon = WGEImage::SPtr() );
 protected:
     /**
      * Realize the widget. This method blocks until the GUI thread created the widget. Called from within the GUI thread! So you can safely do Qt
@@ -211,11 +235,42 @@ protected:
      * \return the container (usually WQtDockWidget) or NULL if the content is used stand-alone.
      */
     QWidget* embedContent( QWidget* content );
+
+    /**
+     * Implement \ref WUIWidgetBase::addAction.
+     *
+     * \param trigger the property to use.
+     * \param icon the icon to use. Consider a minimum size of 32x32.
+     */
+    virtual void addActionGroupGT( WPropGroup group, WGEImage::SPtr icon = WGEImage::SPtr() );
+
+    /**
+     * Implement \ref WUIWidgetBase::addAction.
+     *
+     * \param trigger the property to use.
+     * \param icon the icon to use. Consider a minimum size of 32x32.
+     */
+    virtual void addActionTriggerGT( WPropTrigger trigger, WGEImage::SPtr icon = WGEImage::SPtr() );
+
+    /**
+     * Implement \ref WUIWidgetBase::addAction.
+     *
+     * \param trigger the property to use.
+     * \param icon the icon to use. Consider a minimum size of 32x32.
+     */
+    virtual void addActionBoolGT( WPropBool toggle, WGEImage::SPtr icon = WGEImage::SPtr() );
 private:
     /**
      * Forwards call from a boost function to the virtual realizeImpl method
      */
     void realizeGT();
+
+    /**
+     * Returns m_widget as WQtDockWidget if possible. NULL if not.
+     *
+     * \return the dock or NULL
+     */
+    WQtDockWidget* asDockWidget();
 };
 
 #endif  // WUIQTWIDGETBASE_H

@@ -27,6 +27,7 @@
 #include "core/common/WLogger.h"
 
 #include "../WQt4Gui.h"
+#include "../guiElements/WQtDockWidget.h"
 
 #include "WUIQtWidgetBase.h"
 
@@ -239,4 +240,69 @@ QWidget* WUIQtWidgetBase::getCompellingQParent() const
 bool WUIQtWidgetBase::hasUIParent() const
 {
     return getQtParent();
+}
+
+void WUIQtWidgetBase::addAction( WPropGroup group, WGEImage::SPtr icon )
+{
+    // do in GUI thread:
+    WQt4Gui::execInGUIThread( boost::bind( &WUIQtWidgetBase::addActionGroupGT, this, group, icon ) );
+}
+
+void WUIQtWidgetBase::addAction( WPropTrigger trigger, WGEImage::SPtr icon )
+{
+    // do in GUI thread:
+    WQt4Gui::execInGUIThread( boost::bind( &WUIQtWidgetBase::addActionTriggerGT, this, trigger, icon ) );
+}
+
+void WUIQtWidgetBase::addAction( WPropBool toggle, WGEImage::SPtr icon )
+{
+    // do in GUI thread:
+    WQt4Gui::execInGUIThread( boost::bind( &WUIQtWidgetBase::addActionBoolGT, this, toggle, icon ) );
+}
+
+void WUIQtWidgetBase::addActionGroupGT( WPropGroup group, WGEImage::SPtr icon )
+{
+    if( hasUIParent() )
+    {
+        wlog::warn( "WUIQtWidgetBase" ) << "Cannot add action to non-top-level widget.";
+        return;
+    }
+
+    if( asDockWidget() )
+    {
+        asDockWidget()->addTitleProperty( group, icon );
+    }
+}
+
+void WUIQtWidgetBase::addActionTriggerGT( WPropTrigger trigger, WGEImage::SPtr icon )
+{
+    if( hasUIParent() )
+    {
+        wlog::warn( "WUIQtWidgetBase" ) << "Cannot add action to non-top-level widget.";
+        return;
+    }
+
+    if( asDockWidget() )
+    {
+        asDockWidget()->addTitleProperty( trigger, icon );
+    }
+}
+
+void WUIQtWidgetBase::addActionBoolGT( WPropBool toggle, WGEImage::SPtr icon )
+{
+    if( hasUIParent() )
+    {
+        wlog::warn( "WUIQtWidgetBase" ) << "Cannot add action to non-top-level widget.";
+        return;
+    }
+
+    if( asDockWidget() )
+    {
+        asDockWidget()->addTitleProperty( toggle, icon );
+    }
+}
+
+WQtDockWidget* WUIQtWidgetBase::asDockWidget()
+{
+    return dynamic_cast< WQtDockWidget* >( m_widget );
 }

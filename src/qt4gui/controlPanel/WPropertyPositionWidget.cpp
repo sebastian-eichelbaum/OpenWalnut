@@ -48,11 +48,11 @@ WPropertyPositionWidget::WPropertyPositionWidget( WPropPosition property, QGridL
     m_editZ.setMinimumHeight( WMIN_WIDGET_HEIGHT );
 
     // initialize members
-    m_editX.resize( m_editX.minimumSizeHint().width() * 2.0, m_editX.size().height() );
+    m_editX.resize( m_editX.minimumSizeHint().width() * 1.0, m_editX.size().height() );
     //m_editX.setMaximumWidth( m_editX.minimumSizeHint().width() * 5.0 );
-    m_editY.resize( m_editY.minimumSizeHint().width() * 2.0, m_editY.size().height() );
+    m_editY.resize( m_editY.minimumSizeHint().width() * 1.0, m_editY.size().height() );
     //m_editY.setMaximumWidth( m_editY.minimumSizeHint().width() * 5.0 );
-    m_editZ.resize( m_editZ.minimumSizeHint().width() * 2.0, m_editZ.size().height() );
+    m_editZ.resize( m_editZ.minimumSizeHint().width() * 1.0, m_editZ.size().height() );
     //m_editZ.setMaximumWidth( m_editZ.minimumSizeHint().width() * 5.0 );
 
     // layout both against each other

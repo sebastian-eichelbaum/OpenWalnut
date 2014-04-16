@@ -32,6 +32,8 @@
 
 #include <QtGui/QIcon>
 
+#include "core/graphicsEngine/WGEImage.h"
+
 /**
  * Manages icon access. Icons stored either here inside or inside of modules.
  */
@@ -63,6 +65,22 @@ public:
      * \param mapToThis the icon to use when calling getIcon( newName ). Never add a file anding as png or jpg!
      */
     void addMapping( const std::string& newName, const std::string& mapToThis );
+
+    /**
+     * Convert a WGEImage to an QIcon. Image must be 2D. Everything else causes an empty icon to be returned.
+     *
+     * \param image the image.
+     *
+     * \return icon
+     */
+    static QIcon convertToIcon( WGEImage::SPtr image );
+
+    /**
+     * Return an icon representing a default "No Icon" icon.
+     *
+     * \return the icon
+     */
+    static QIcon getNoIconDefault();
 protected:
 private:
     std::map< std::string, std::string > m_iconMappingList; //!< A map storing icons and the names used to identify them

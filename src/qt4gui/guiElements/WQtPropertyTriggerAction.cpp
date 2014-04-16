@@ -29,12 +29,12 @@
 #include "../events/WEventTypes.h"
 #include "../events/WPropertyChangedEvent.h"
 
-#include "WQtPropertyBoolAction.h"
-#include "WQtPropertyBoolAction.moc"
+#include "WQtPropertyTriggerAction.h"
+#include "WQtPropertyTriggerAction.moc"
 
-WQtPropertyBoolAction::WQtPropertyBoolAction( WPropBool property, QWidget* parent ):
+WQtPropertyTriggerAction::WQtPropertyTriggerAction( WPropTrigger property, QWidget* parent ):
     QAction( parent ),
-    m_boolProperty( property )
+    m_triggerProperty( property )
 {
     setCheckable( true );
 
@@ -44,35 +44,41 @@ WQtPropertyBoolAction::WQtPropertyBoolAction( WPropBool property, QWidget* paren
     // initialize members
     update();
 
-    m_connection = property->getUpdateCondition()->subscribeSignal( boost::bind( &WQtPropertyBoolAction::propertyChangeNotifier, this ) );
+    m_connection = property->getUpdateCondition()->subscribeSignal( boost::bind( &WQtPropertyTriggerAction::propertyChangeNotifier, this ) );
 
     // connect the modification signal of m_checkbox with our callback
     connect( this, SIGNAL( toggled( bool ) ), this, SLOT( changed() ) );
 }
 
-WQtPropertyBoolAction::~WQtPropertyBoolAction()
+WQtPropertyTriggerAction::~WQtPropertyTriggerAction()
 {
     // cleanup
 }
 
-void WQtPropertyBoolAction::update()
+void WQtPropertyTriggerAction::update()
 {
     // simply set the new state
-    setChecked( m_boolProperty->get() );
+    setChecked( m_triggerProperty->get() == WPVBaseTypes::PV_TRIGGER_TRIGGERED );
 }
 
-void WQtPropertyBoolAction::changed()
+void WQtPropertyTriggerAction::changed()
 {
-    m_boolProperty->set( isChecked() );
-    setChecked( m_boolProperty->get() );
+    // the module should reset to PV_TRIGGER_READY
+    if( !isChecked() )
+    {
+        setChecked( true );
+        return;
+    }
+    m_triggerProperty->set( isChecked() ? WPVBaseTypes::PV_TRIGGER_TRIGGERED : WPVBaseTypes::PV_TRIGGER_READY );
+    setChecked( m_triggerProperty->get() );
 }
 
-void WQtPropertyBoolAction::propertyChangeNotifier()
+void WQtPropertyTriggerAction::propertyChangeNotifier()
 {
     QCoreApplication::postEvent( this, new WPropertyChangedEvent() );
 }
 
-bool WQtPropertyBoolAction::event( QEvent* event )
+bool WQtPropertyTriggerAction::event( QEvent* event )
 {
     // a property changed
     if( event->type() == WQT_PROPERTY_CHANGED_EVENT )
