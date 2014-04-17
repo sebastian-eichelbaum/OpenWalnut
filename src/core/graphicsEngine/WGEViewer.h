@@ -308,7 +308,8 @@ public:
     WProperties::SPtr getProperties() const;
 
     /**
-     * Pause rendering. This does not free the viewer. It simply pauses rendering.
+     * Pause rendering. This does not free the viewer. It simply pauses rendering. Be warned. This does not necessarily improve performance with
+     * multiple views. This depends on the osgViewer components used and the underlying GUI (i.e. Qt).
      *
      * \param pause true to pause.
      */
