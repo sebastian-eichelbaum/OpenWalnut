@@ -119,6 +119,21 @@ public:
      */
     virtual void addEventHandler( osgGA::GUIEventHandler* handler ) = 0;
 
+    /**
+     * Remove any pre-existing camera preset. Very useful when adding custom presets or presets do not make sense at all.
+     */
+    virtual void clearCameraPresets() = 0;
+
+    /**
+     * Add a custom camera preset. Appends at the end of any pre-existing presets. The presets are not directly specified via a matrix or
+     * quaternion. A trigger property allows implementing own callbacks to actually set the preset. This is very useful when using your own
+     * osg::CameraManupulator implementation for your view.
+     *
+     * \param name the name of the preset.
+     * \param preset the trigger to set the preset.
+     * \param icon optional icon.
+     */
+    virtual void addCameraPreset( std::string name, WPropTrigger preset, WGEImage::SPtr icon = WGEImage::SPtr() ) = 0;
 protected:
     /**
      * Constructor. Create a custom widget instance.
@@ -126,7 +141,6 @@ protected:
      * \param title the title of the widget
      */
     explicit WUIViewWidget( std::string title );
-
 private:
 };
 

@@ -160,3 +160,10 @@ void WUIQtViewWidget::realizeImpl()
     embedContent( m_widgetDock );
 }
 
+void WUIQtViewWidget::clearCameraPresets()
+{
+}
+
+void WUIQtViewWidget::addCameraPreset( std::string name, WPropTrigger preset, WGEImage::SPtr icon )
+{
+}
