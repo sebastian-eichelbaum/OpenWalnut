@@ -159,7 +159,7 @@ public:
     /**
      * Implement \ref WUIWidgetBase::addAction.
      *
-     * \param trigger the property to use.
+     * \param group the property to use.
      * \param icon the icon to use. Consider a minimum size of 32x32.
      */
     virtual void addAction( WPropGroup group, WGEImage::SPtr icon = WGEImage::SPtr() )
@@ -181,7 +181,7 @@ public:
     /**
      * Implement \ref WUIWidgetBase::addAction.
      *
-     * \param trigger the property to use.
+     * \param toggle the property to use.
      * \param icon the icon to use. Consider a minimum size of 32x32.
      */
     virtual void addAction( WPropBool toggle, WGEImage::SPtr icon = WGEImage::SPtr() )
