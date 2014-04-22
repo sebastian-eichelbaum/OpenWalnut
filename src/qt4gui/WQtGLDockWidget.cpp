@@ -92,14 +92,14 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     screenShotBtn->setMenu( screenCaptureMenu );
 
     // camera presets
-    QToolButton* presetBtn = new QToolButton( parent );
-    presetBtn->setDefaultAction( m_glWidget->getCameraResetAction() );
-    presetBtn->setMenu(  m_glWidget->getCameraPresetsMenu() );
-    presetBtn->setPopupMode( QToolButton::MenuButtonPopup );
+    m_presetBtn = new QToolButton( parent );
+    m_presetBtn->setDefaultAction( m_glWidget->getCameraResetAction() );
+    m_presetBtn->setMenu(  m_glWidget->getCameraPresetsMenu() );
+    m_presetBtn->setPopupMode( QToolButton::MenuButtonPopup );
 
     // add them to the title
     addTitleButton( screenShotBtn );
-    addTitleButton( presetBtn );
+    addTitleButton( m_presetBtn );
 
     addTitleProperty( m_glWidget->getViewer()->getProperties() );
 }
@@ -232,4 +232,9 @@ void WQtGLDockWidget::openScreenCaptureConfig()
         m_screenCapture->setWindowFlags( Qt::Tool );
         m_screenCapture->show();
     }
+}
+
+QMenu* WQtGLDockWidget::getCameraPresetMenu() const
+{
+    return m_presetBtn->menu();
 }

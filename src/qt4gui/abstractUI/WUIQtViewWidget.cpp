@@ -31,6 +31,8 @@
 #include "core/common/WConditionOneShot.h"
 #include "core/common/WFlag.h"
 
+#include "../guiElements/WQtPropertyTriggerAction.h"
+
 #include "WUIQtViewWidget.h"
 
 WUIQtViewWidget::WUIQtViewWidget(
@@ -162,8 +164,37 @@ void WUIQtViewWidget::realizeImpl()
 
 void WUIQtViewWidget::clearCameraPresets()
 {
+    WQt4Gui::execInGUIThread( boost::bind( &WUIQtViewWidget::clearCameraPresetsGT, this ) );
 }
 
 void WUIQtViewWidget::addCameraPreset( std::string name, WPropTrigger preset, WGEImage::SPtr icon )
 {
+    WQt4Gui::execInGUIThread( boost::bind( &WUIQtViewWidget::addCameraPresetGT, this, name, preset, icon ) );
+}
+
+void WUIQtViewWidget::clearCameraPresetsGT()
+{
+    if( m_widgetDock )
+    {
+        m_widgetDock->getCameraPresetMenu()->clear();
+    }
+}
+
+void WUIQtViewWidget::addCameraPresetGT( std::string name, WPropTrigger preset, WGEImage::SPtr icon )
+{
+    if( m_widgetDock )
+    {
+        QMenu* m = m_widgetDock->getCameraPresetMenu();
+
+        WQtPropertyTriggerAction* propAction = new WQtPropertyTriggerAction( preset, m_widgetDock );
+        if( !icon )
+        {
+            propAction->setIcon(  WQt4Gui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
+        }
+        else
+        {
+            propAction->setIcon( WIconManager::convertToIcon( icon ) );
+        }
+        m->addAction( propAction );
+    }
 }

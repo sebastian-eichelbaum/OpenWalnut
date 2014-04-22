@@ -121,6 +121,13 @@ public:
      * \return true if enabled.
      */
     bool getSaveViewerSettings() const;
+
+    /**
+     * Get the menu used for camera presets
+     *
+     * \return the menu.
+     */
+    QMenu* getCameraPresetMenu() const;
 public slots:
     /**
      * Open screen capture config options
@@ -180,6 +187,11 @@ private:
      * If true, the saveSettings method also saves the WGEViewer properties.
      */
     bool m_saveViewerSettings;
+
+    /**
+     * Camera presets.
+     */
+    QToolButton* m_presetBtn;
 };
 
 #endif  // WQTGLDOCKWIDGET_H

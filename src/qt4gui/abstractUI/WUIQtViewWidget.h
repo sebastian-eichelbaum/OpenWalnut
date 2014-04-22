@@ -208,6 +208,19 @@ protected:
      */
     virtual void cleanUpGT();
 
+    /**
+     * Remove any pre-existing camera preset. Implements \ref WUIViewWidget::clearCameraPresets.
+     */
+    virtual void clearCameraPresetsGT();
+
+    /**
+     * Add a custom camera preset. Implements \ref WUIViewWidget::addCameraPreset
+     *
+     * \param name the name of the preset.
+     * \param preset the trigger to set the preset.
+     * \param icon optional icon.
+     */
+    virtual void addCameraPresetGT( std::string name, WPropTrigger preset, WGEImage::SPtr icon = WGEImage::SPtr() );
 private:
     /**
      * Projection mode of the cam
