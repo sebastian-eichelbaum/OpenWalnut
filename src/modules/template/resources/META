@@ -198,6 +198,7 @@
     // icons used in WMTemplateUI
     settingsIcon = "iconBier.png";
     boolIcon = "iconWurst.png";
+    cameraPresetIcon = "iconSteak.png";
 };
 
 ///////////////////////////////////////////////////////////////////////////////

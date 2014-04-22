@@ -132,6 +132,11 @@ private:
      */
     void handleButtonRelease( WVector2f coords , int button );
 
+    /**
+     * Handle camera presets.
+     */
+    void cameraPresetCallback();
+
     //! A condition for property updates.
     boost::shared_ptr< WCondition > m_propCondition;
 

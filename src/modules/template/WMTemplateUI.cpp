@@ -322,8 +322,33 @@ void WMTemplateUI::moduleMain()
     // The difference between bool and trigger can be seen in WMTemplate (a trigger must be reset by the module).
     // And even groups are possible:
     widgetGrid->addAction( m_properties ); // NOTE: the icon is optional but should be used for user convenience!
-
     // Now you might ask on how to react on these actions? For this, please refer to WMTemplate, showing this in detail.
+
+    // Similar to adding actions to widgets, it is possible to define custom camera presets for a WUIViewWidget. This is especially useful when
+    // you define own camera manipulators or view setups. By default, the user gets the usual 6 camera presets (up, down, left, right, front,
+    // back).
+    // You are not required to remove the existing presets. If you do not remove them, our custom presets get appended to the presets list.
+    // ... but ... we do not need the predefines ones. Remove them:
+    widgetView->clearCameraPresets();
+    // Now let us add a preset. You might assume that we have to define a matrix or quaternion here. But this is not the case. In OSG, you
+    // usually control the camera via an CameraManipulator. Depending on the manipulator you use and the camera you have set up, you might want
+    // to implement more complex presets than simply setting a matrix. To achieve this easily in OpenWalnut, we use WPropTrigger for setting
+    // presets. Define a trigger and set it as preset. When the user triggers your property, you can use the notifier (callback mechanism of our
+    // WProp*) to directly apply your changes:
+    WPropTrigger preset( new WPropTrigger::element_type(
+        "A preset",
+        "A new preset for this view.", // name and description
+        WPVBaseTypes::PV_TRIGGER_READY,              // default: ready
+        boost::bind( &WMTemplateUI::cameraPresetCallback, this )    // bind a callback
+    ));
+    // Finally, add the property:
+    widgetView->addCameraPreset( preset,
+                                 WGEImage::createFromFile(
+                                     m_localPath / getMetaInformation()->query< std::string >( "common/cameraPresetIcon" )  // Icon. You can leave
+                                     // this out for a default icon.
+                                 )
+    );
+    // Done :-). Head over to cameraPresetCallback.
 
     // Finally, mark the module as ready.
     //
@@ -334,8 +359,10 @@ void WMTemplateUI::moduleMain()
     // user should never be able to configure the view if he looses his settings all the time.
     //
     // Here is an example how:
+    // 1) Create a group for all the properties we'd like to save
     WPropGroup viewProps = m_properties->addPropertyGroup( "Hidden View Properties", "View properties." );
     viewProps->setHidden(); // we do not want to show these to the user in our module control panel.
+    // 2) add all the viewer props to the hidden group. This way, they get saved in the project file without cluttering your module's properties.
     viewProps->addProperty( widgetView->getViewer()->getProperties() );
 
     // Now, we can mark the module ready.
@@ -384,4 +411,11 @@ void WMTemplateUI::handleResize( int /* x */, int /* y */, int width, int height
 void WMTemplateUI::handleButtonRelease( WVector2f coords , int button )
 {
     debugLog() << "BUTTON RELEASE: " << coords << " -- Button = " << button;
+}
+
+void WMTemplateUI::cameraPresetCallback()
+{
+    debugLog() << "Camera preset 1 requested.";
+
+    // This is the camera preset callback.
 }

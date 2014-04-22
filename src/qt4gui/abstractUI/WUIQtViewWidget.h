@@ -185,11 +185,10 @@ public:
     /**
      * Add a custom camera preset. Implements \ref WUIViewWidget::addCameraPreset
      *
-     * \param name the name of the preset.
      * \param preset the trigger to set the preset.
      * \param icon optional icon.
      */
-    virtual void addCameraPreset( std::string name, WPropTrigger preset, WGEImage::SPtr icon = WGEImage::SPtr() );
+    virtual void addCameraPreset( WPropTrigger preset, WGEImage::SPtr icon = WGEImage::SPtr() );
 protected:
     /**
      * Realize the widget. This method blocks until the GUI thread created the widget. Called from within the GUI thread! So you can safely do Qt
@@ -216,11 +215,10 @@ protected:
     /**
      * Add a custom camera preset. Implements \ref WUIViewWidget::addCameraPreset
      *
-     * \param name the name of the preset.
      * \param preset the trigger to set the preset.
      * \param icon optional icon.
      */
-    virtual void addCameraPresetGT( std::string name, WPropTrigger preset, WGEImage::SPtr icon = WGEImage::SPtr() );
+    virtual void addCameraPresetGT( WPropTrigger preset, WGEImage::SPtr icon = WGEImage::SPtr() );
 private:
     /**
      * Projection mode of the cam

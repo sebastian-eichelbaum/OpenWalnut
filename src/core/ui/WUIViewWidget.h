@@ -129,11 +129,10 @@ public:
      * quaternion. A trigger property allows implementing own callbacks to actually set the preset. This is very useful when using your own
      * osg::CameraManupulator implementation for your view.
      *
-     * \param name the name of the preset.
      * \param preset the trigger to set the preset.
      * \param icon optional icon.
      */
-    virtual void addCameraPreset( std::string name, WPropTrigger preset, WGEImage::SPtr icon = WGEImage::SPtr() ) = 0;
+    virtual void addCameraPreset( WPropTrigger preset, WGEImage::SPtr icon = WGEImage::SPtr() ) = 0;
 protected:
     /**
      * Constructor. Create a custom widget instance.

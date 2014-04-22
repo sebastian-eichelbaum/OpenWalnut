@@ -94,7 +94,7 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     // camera presets
     m_presetBtn = new QToolButton( parent );
     m_presetBtn->setDefaultAction( m_glWidget->getCameraResetAction() );
-    m_presetBtn->setMenu(  m_glWidget->getCameraPresetsMenu() );
+    m_presetBtn->setMenu( m_glWidget->getCameraPresetsMenu() );
     m_presetBtn->setPopupMode( QToolButton::MenuButtonPopup );
 
     // add them to the title
@@ -234,7 +234,19 @@ void WQtGLDockWidget::openScreenCaptureConfig()
     }
 }
 
+void WQtGLDockWidget::updateCameraPresetButton()
+{
+    if( getCameraPresetMenu()->isEmpty() )
+    {
+        m_presetBtn->setMenu( NULL );
+    }
+    else
+    {
+        m_presetBtn->setMenu( getCameraPresetMenu() );
+    }
+}
+
 QMenu* WQtGLDockWidget::getCameraPresetMenu() const
 {
-    return m_presetBtn->menu();
+    return m_glWidget->getCameraPresetsMenu();
 }

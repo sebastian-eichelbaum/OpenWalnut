@@ -128,6 +128,11 @@ public:
      * \return the menu.
      */
     QMenu* getCameraPresetMenu() const;
+
+    /**
+     * Update camera button. Call this when you modify the camera preset menu.
+     */
+    void updateCameraPresetButton();
 public slots:
     /**
      * Open screen capture config options
