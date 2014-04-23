@@ -335,12 +335,14 @@ void WMTemplateUI::moduleMain()
     // to implement more complex presets than simply setting a matrix. To achieve this easily in OpenWalnut, we use WPropTrigger for setting
     // presets. Define a trigger and set it as preset. When the user triggers your property, you can use the notifier (callback mechanism of our
     // WProp*) to directly apply your changes:
-    WPropTrigger preset( new WPropTrigger::element_type(
-        "A preset",
-        "A new preset for this view.", // name and description
-        WPVBaseTypes::PV_TRIGGER_READY,              // default: ready
-        boost::bind( &WMTemplateUI::cameraPresetCallback, this )    // bind a callback
-    ));
+    WPropTrigger preset(
+        new WPropTrigger::element_type(
+            "A preset",
+            "A new preset for this view.", // name and description
+            WPVBaseTypes::PV_TRIGGER_READY,              // default: ready
+            boost::bind( &WMTemplateUI::cameraPresetCallback, this )    // bind a callback
+        )
+    );
     // Finally, add the property:
     widgetView->addCameraPreset( preset,
                                  WGEImage::createFromFile(
