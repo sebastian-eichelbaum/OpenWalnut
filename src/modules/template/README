@@ -16,6 +16,10 @@ mailing list openwalnut-dev@lists.informatik.uni-leipzig.de.
 Now, directly dive into the code. You will see, getting started with OpenWalnut module
 development is easy!
 
-2. Files:
-*********
+2. Where to start?
+******************
+
+You are completely new to OpenWalnut module development? Then WMTemplate.* is for you.
+Check our online documentation on setting up your build environment and start coding!
+Each example module is in its own file, all beginning with "WMTemplate".
 
