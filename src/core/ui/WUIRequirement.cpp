@@ -42,7 +42,14 @@ WUIRequirement::~WUIRequirement()
 
 bool WUIRequirement::isComplied() const
 {
-    return WKernel::getRunningKernel()->getUI()->getWidgetFactory()->implementsUI();
+    if( WKernel::getRunningKernel()->getUI()->getWidgetFactory() )
+    {
+        return WKernel::getRunningKernel()->getUI()->getWidgetFactory()->implementsUI();
+    }
+    else
+    {
+        return false;
+    }
 }
 
 std::string WUIRequirement::getDescription() const

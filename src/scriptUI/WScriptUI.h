@@ -64,21 +64,12 @@ public:
     virtual int run();
 
     /**
-     * Instruct to open a new custom widget. Does nothing and always returns a NULL-pointer.
+     * Returns the widget factory of the UI. The Script UI always returns NULL as it does not support widgets. The WUIRequirement checks for this
+     * too and thus disallows modules using WUI.
      *
-     * \return A NULL-pointer.
+     * \return the factory. Use this to create your widget instances.
      */
-    virtual WUIViewWidget::SPtr openCustomWidget( std::string, WGECamera::ProjectionMode, boost::shared_ptr< WCondition > );
-
-    /**
-     * Instruct to close a custom widget.
-     */
-    virtual void closeCustomWidget( std::string );
-
-    /**
-     * Instruct to close the custom widget.
-     */
-    virtual void closeCustomWidget( WUIWidgetBase::SPtr );
+    virtual WUIWidgetFactory::SPtr getWidgetFactory() const;
 
 protected:
     /**
