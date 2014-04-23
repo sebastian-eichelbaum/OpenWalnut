@@ -76,18 +76,17 @@
 #include "core/kernel/WROIManager.h"
 #include "core/kernel/WSelectionManager.h"
 #include "events/WEventTypes.h"
+#include "events/WDeferredCallEvent.h"
 #include "events/WModuleCrashEvent.h"
 #include "events/WModuleReadyEvent.h"
 #include "events/WModuleRemovedEvent.h"
-#include "events/WOpenCustomDockWidgetEvent.h"
-#include "events/WCloseCustomDockWidgetEvent.h"
 #include "events/WLoadFinishedEvent.h"
 #include "events/WLogEvent.h"
 #include "guiElements/WQtPropertyBoolAction.h"
+#include "abstractUI/WUIQtWidgetBase.h"
 #include "WQtMessagePopup.h"
 #include "WQt4Gui.h"
 #include "WQtCombinerToolbar.h"
-#include "WQtCustomDockWidget.h"
 #include "WQtGLDockWidget.h"
 #include "WQtNavGLWidget.h"
 #include "WSettingAction.h"
@@ -101,7 +100,9 @@ WMainWindow::WMainWindow( QSplashScreen* splash ):
     QMainWindow(),
     m_splash( splash ),
     m_currentCompatiblesToolbar( NULL ),
-    m_iconManager()
+    m_iconManager(),
+    m_closeFirstStage( false ),
+    m_closeInProgress( false )
 {
     setAcceptDrops( true ); // enable drag and drop events
 }
@@ -253,14 +254,15 @@ void WMainWindow::setupGUI()
     m_glDock->setDockOptions( QMainWindow::AnimatedDocks |  QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks );
     m_glDock->setDocumentMode( true );
     setCentralWidget( m_glDock );
+
     m_mainGLDock = new WQtGLDockWidget( "Main View", "3D View", m_glDock );
     // activate effects for this view by default
     m_mainGLDock->getGLWidget()->getViewer()->setEffectsActiveDefault();
     m_mainGLDock->getGLWidget()->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
     m_mainGLDock->restoreSettings();
     m_mainGLWidget = m_mainGLDock->getGLWidget();
-    m_glDock->addDockWidget( Qt::RightDockWidgetArea, m_mainGLDock );
-    connect( m_mainGLWidget.get(), SIGNAL( renderedFirstFrame() ), this, SLOT( handleGLVendor() ) );
+    m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_mainGLDock );
+    connect( m_mainGLWidget, SIGNAL( renderedFirstFrame() ), this, SLOT( handleGLVendor() ) );
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
 
@@ -275,8 +277,8 @@ void WMainWindow::setupGUI()
     }
 
     // NOTE: we abuse the gl widgets first frame event to handle startup news.
-    connect( m_mainGLWidget.get(), SIGNAL( renderedFirstFrame() ), this, SLOT( handleStartMessages() ) );
-    connect( m_mainGLWidget.get(), SIGNAL( renderedFirstFrame() ), this, SLOT( closeSplash() ) );
+    connect( m_mainGLWidget, SIGNAL( renderedFirstFrame() ), this, SLOT( handleStartMessages() ) );
+    connect( m_mainGLWidget, SIGNAL( renderedFirstFrame() ), this, SLOT( closeSplash() ) );
 
     m_permanentToolBar = new WQtToolBar( "Standard Toolbar", this );
     addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
@@ -326,9 +328,7 @@ void WMainWindow::setupGUI()
     m_saveAction->setMenu( m_saveMenu );
 
     fileMenu->addSeparator();
-    // TODO(all): If all distributions provide a newer QT version we should use QKeySequence::Quit here
-    //fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( QKeySequence::Quit ) );
-    m_quitAction = fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ),  QKeySequence( Qt::CTRL + Qt::Key_Q ) );
+    m_quitAction = fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( QKeySequence::Quit ) );
 
     // This QAction stuff is quite ugly and complicated some times ... There is no nice constructor which takes name, slot keysequence and so on
     // directly -> set shortcuts, and some further properties using QAction's interface
@@ -378,7 +378,7 @@ void WMainWindow::setupGUI()
         if( showNavWidgets->get() )
         {
             m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Axial View", "Axial View", this, "Axial Slice",
-                                                                                  m_mainGLWidget.get() ) );
+                                                                                  m_mainGLWidget ) );
             m_navAxial->setFeatures( QDockWidget::AllDockWidgetFeatures );
             m_navAxial->setSliderProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropAxialPos() );
             m_navAxial->getGLWidget()->setCameraManipulator( WQtGLWidget::NO_OP );
@@ -386,7 +386,7 @@ void WMainWindow::setupGUI()
             m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
 
             m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Coronal View", "Coronal View", this, "Coronal Slice",
-                                                                                    m_mainGLWidget.get() ) );
+                                                                                    m_mainGLWidget ) );
             m_navCoronal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             m_navCoronal->setSliderProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropCoronalPos() );
             m_navCoronal->getGLWidget()->setCameraManipulator( WQtGLWidget::NO_OP );
@@ -395,7 +395,7 @@ void WMainWindow::setupGUI()
 
             m_navSagittal =
                 boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Sagittal View", "Sagittal View", this, "Sagittal Slice",
-                                                                         m_mainGLWidget.get() ) );
+                                                                         m_mainGLWidget ) );
             m_navSagittal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             m_navSagittal->setSliderProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropSagittalPos() );
             m_navSagittal->getGLWidget()->setCameraManipulator( WQtGLWidget::NO_OP );
@@ -782,24 +782,75 @@ WIconManager*  WMainWindow::getIconManager()
     return &m_iconManager;
 }
 
+void WMainWindow::closeStage1Thread()
+{
+    WKernel::getRunningKernel()->finalize();
+
+    // close all registered custom widgets -> modules might have missed them.
+    // But first, we need to copy the custom widget list as the close function of the custom widgets modifies this list
+    CustomWidgets copy;
+    {
+        WSharedSequenceContainer< CustomWidgets >::ReadTicket r = m_customWidgets.getReadTicket();
+        copy = r->get();
+        // IMPORTANT: free lock
+    }
+
+    // close all of them now
+    for( CustomWidgets::iterator it = copy.begin(); it != copy.end(); ++it )
+    {
+        wlog::warn( "MainWindow" ) << "Closing custom UI widget \"" << ( *it )->getTitleQString().toStdString() << "\". This should have be"
+                                      " done by the owning module!";
+        ( *it )->close();
+    }
+    copy.clear();
+
+    // notify main window -> just call close() again with updated state
+    WQt4Gui::execInGUIThreadAsync( boost::bind( &WMainWindow::closeStage2, this ) );
+}
+
+void WMainWindow::closeStage2()
+{
+    m_closeFirstStage = false;
+    // NOTE: runs in GUI thread
+    close();
+}
+
 void WMainWindow::closeEvent( QCloseEvent* e )
 {
-    // use some "Really Close?" Dialog here
-    bool reallyClose = true;
+    // closing is a two-stage process. When the user requests the close, we tell the kernel to shutdown, while the GUI still is active. In the
+    // second stage, we close the GUI itself (it is freezed). The kernel shutdown needs a running GUI to properly close everything -> thus we
+    // ensure a running GUI in stage 1.
 
-    // handle close event
-    if( reallyClose )
+    // start stage stage 1
+    if( !m_closeInProgress )
     {
+        m_closeInProgress = true;
+        m_closeFirstStage = true;
+
+        // IMPORTANT: we tell QT to not close the app
+        e->ignore();
+
+        // show splash
         m_splash->show();
         m_splash->showMessage( "Shutting down" );
+        setDisabled( true );    // avoid user interaction
 
+        // save state
         saveWindowState();
 
-        // signal everybody to shut down properly.
-        m_splash->showMessage( "Shutting down kernel. Waiting for modules to finish." );
-        WKernel::getRunningKernel()->finalize();
+        // tell kernel to shutdown
+        m_splash->showMessage( "Shutting down kernel. Waiting for modules to finish and cleanup." );
 
-        // now nobody acesses the osg anymore
+        // start a thread for this
+        m_closeStage1Thread = WThreadedRunner::SPtr( new WThreadedRunner() );
+        m_closeStage1Thread->run( boost::bind( &WMainWindow::closeStage1Thread, this ) );
+        return;
+    }
+
+    // stage 1 finished, close in progress -> stage 2
+    if( m_closeInProgress && !m_closeFirstStage )
+    {
+        // now nobody accesses the osg anymore
         m_splash->showMessage( "Shutting down GUI." );
 
         // clean up gl widgets
@@ -817,70 +868,20 @@ void WMainWindow::closeEvent( QCloseEvent* e )
             m_navSagittal->close();
         }
 
-        // delete CustomDockWidgets
-        boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
-        for( std::map< std::string, boost::shared_ptr< WQtCustomDockWidget > >::iterator it = m_customDockWidgets.begin();
-             it != m_customDockWidgets.end(); ++it )
-        {
-            it->second->close();
-        }
-        //m_customDockWidgetsLock.unlock();
-
         // finally close
         e->accept();
+        return;
     }
-    else
-    {
-        e->ignore();
-    }
+
+    // all other cases: user pressed "close" somewhere during shutdown
+    e->ignore();
 }
 
 void WMainWindow::customEvent( QEvent* event )
 {
-    if( event->type() == WOpenCustomDockWidgetEvent::CUSTOM_TYPE )
+    if( event->type() == WDeferredCallEvent::CUSTOM_TYPE )
     {
-        // OpenCustomDockWidgetEvent
-        WOpenCustomDockWidgetEvent* ocdwEvent = static_cast< WOpenCustomDockWidgetEvent* >( event );
-        std::string title = ocdwEvent->getTitle();
-
-        boost::shared_ptr< WQtCustomDockWidget > widget;
-
-        boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
-        if( m_customDockWidgets.count( title ) == 0 )
-        {
-            // create new custom dock widget
-            widget = boost::shared_ptr< WQtCustomDockWidget >(
-                new WQtCustomDockWidget( title, m_glDock, ocdwEvent->getProjectionMode() ) );
-            m_glDock->addDockWidget( Qt::BottomDockWidgetArea, widget.get() );
-
-            // restore state and geometry
-            m_glDock->restoreDockWidget( widget.get() );
-            widget->restoreSettings();
-
-            // store it in CustomDockWidget list
-            m_customDockWidgets.insert( make_pair( title, widget ) );
-        }
-        else
-        {
-            widget = m_customDockWidgets[title];
-            widget->increaseUseCount();
-        }
-
-        ocdwEvent->getFlag()->set( widget );
-        boost::dynamic_pointer_cast< QDockWidget >( widget )->toggleViewAction()->activate( QAction::Trigger );
-    }
-    else if( event->type() == WCloseCustomDockWidgetEvent::CUSTOM_TYPE )
-    {
-        WCloseCustomDockWidgetEvent* closeEvent = static_cast< WCloseCustomDockWidgetEvent* >( event );
-        boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
-        if( m_customDockWidgets.count( closeEvent->getTitle() ) > 0 )
-        {
-            if( m_customDockWidgets[closeEvent->getTitle()]->decreaseUseCount() )
-            {
-                // custom dock widget should be deleted
-                m_customDockWidgets.erase( closeEvent->getTitle() );
-            }
-        }
+        static_cast< WDeferredCallEvent* >( event )->call();
     }
     else
     {
@@ -1027,21 +1028,6 @@ bool WMainWindow::event( QEvent* event )
     }
 
     return QMainWindow::event( event );
-}
-
-boost::shared_ptr< WQtCustomDockWidget > WMainWindow::getCustomDockWidget( std::string title )
-{
-    boost::mutex::scoped_lock lock( m_customDockWidgetsLock );
-    boost::shared_ptr< WQtCustomDockWidget > out = m_customDockWidgets.count( title ) > 0 ?
-        m_customDockWidgets[title] :
-        boost::shared_ptr< WQtCustomDockWidget >();
-    return out;
-}
-
-
-void WMainWindow::closeCustomDockWidget( std::string title )
-{
-    QCoreApplication::postEvent( this, new WCloseCustomDockWidgetEvent( title ) );
 }
 
 void WMainWindow::newRoi()
@@ -1341,3 +1327,25 @@ WQtMessageDock* WMainWindow::getMessageDock()
 {
     return m_messageDock;
 }
+
+void WMainWindow::registerCustomWidget( WUIQtWidgetBase* widget )
+{
+    m_customWidgets.unique_push_back( widget );
+}
+
+void WMainWindow::deregisterCustomWidget( WUIQtWidgetBase* widget )
+{
+    // remove
+    m_customWidgets.remove( widget );
+}
+
+Qt::DockWidgetArea WMainWindow::getDefaultCustomDockArea() const
+{
+    return Qt::BottomDockWidgetArea;
+}
+
+QMainWindow* WMainWindow::getDefaultCustomDockAreaWidget() const
+{
+    return m_glDock;
+}
+

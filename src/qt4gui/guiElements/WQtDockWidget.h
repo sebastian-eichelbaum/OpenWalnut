@@ -33,6 +33,9 @@
 #include <QtGui/QResizeEvent>
 #include <QtGui/QWidgetAction>
 
+#include "core/common/WProperties.h"
+#include "core/graphicsEngine/WGEImage.h"
+
 #include "WScaleLabel.h"
 
 /**
@@ -68,6 +71,30 @@ public:
      * Destructor.
      */
     virtual ~WQtDockWidget();
+
+    /**
+     * Add a property to the title of this dock. Image should be specified but is optional.
+     *
+     * \param prop the property
+     * \param icon the icon to use.
+     */
+    virtual void addTitleProperty( WPropTrigger prop, WGEImage::SPtr icon = WGEImage::SPtr() );
+
+    /**
+     * Add a property to the title of this dock. Image should be specified but is optional.
+     *
+     * \param prop the property
+     * \param icon the icon to use.
+     */
+    virtual void addTitleProperty( WPropBool prop, WGEImage::SPtr icon = WGEImage::SPtr() );
+
+    /**
+     * Add a property to the title of this dock. Image should be specified but is optional.
+     *
+     * \param prop the property
+     * \param icon the icon to use.
+     */
+    virtual void addTitleProperty( WPropGroup prop, WGEImage::SPtr icon = WGEImage::SPtr() );
 
     /**
      * Add the given action to the titlebar. It gets added after the previously added ones.
@@ -134,6 +161,13 @@ public:
      * Restore settings
      */
     virtual void restoreSettings();
+
+    /**
+     * Disable close button? Might come in handy when embedding these widgets into others
+     *
+     * \param disable true to disable
+     */
+    void disableCloseButton( bool disable = true );
 
 public slots:
     /**

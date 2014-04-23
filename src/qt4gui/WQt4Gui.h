@@ -29,7 +29,9 @@
 #include <vector>
 
 #include <boost/program_options.hpp>
+#include <boost/function.hpp>
 
+#include <QtGui/QApplication>
 #include <QtCore/QSettings>
 #include <QtCore/QMutex>
 #include <QtGui/QSplashScreen>
@@ -38,8 +40,12 @@
 #include "core/graphicsEngine/WGraphicsEngine.h"
 
 #include "core/kernel/WModule.h"
+#include "core/common/WDefines.h"
 
 #include "core/ui/WUI.h"
+
+#include "events/WDeferredCallEvent.h"
+#include "abstractUI/WUIQtWidgetFactory.h"
 
 #include "WIconManager.h"
 
@@ -145,36 +151,6 @@ public:
     boost::signals2::signal1< void, std::vector< std::string > >* getLoadButtonSignal();
 
     /**
-     * Instruct to open a new custom widget. The specified condition should be the shutdown condition of the module, as the function returns only
-     * if the widget was created. To ensure that the creation is aborted properly if the module shuts down in the meantime, this condition is
-     * used.
-     *
-     * \note this function blocks until the widget was created. Check the resulting pointer for NULL.
-     *
-     * \param title the title of the widget
-     * \param projectionMode the kind of projection which should be used
-     * \param shutdownCondition a condition enforcing abort of widget creation.
-     *
-     * \return the created widget
-     */
-    virtual WCustomWidget::SPtr openCustomWidget( std::string title, WGECamera::ProjectionMode projectionMode,
-        boost::shared_ptr< WCondition > shutdownCondition );
-
-    /**
-     * Instruct the WMainWindow to close a custom widget. NEVER call this in the GUI thread. It will block the GUI.
-     *
-     * \param title The title of the widget
-     */
-    virtual void closeCustomWidget( std::string title );
-
-    /**
-     * Instruct the WMainWindow to close a custom widget. NEVER call this in the GUI thread. It will block the GUI.
-     *
-     * \param widget the widget to close
-     */
-    virtual void closeCustomWidget( WCustomWidget::SPtr widget );
-
-    /**
      * Returns the current main window instance or NULL if not existent.
      *
      * \return the main window instance.
@@ -202,6 +178,60 @@ public:
      */
     const boost::program_options::variables_map& getOptionMap() const;
 
+    /**
+     * Returns the widget factory of the UI.
+     *
+     * \return the factory. Use this to create your widget instances.
+     */
+    virtual WUIWidgetFactory::SPtr getWidgetFactory() const;
+
+    /**
+     * Call a given function from within the GUI thread. The function posts an event and waits for its execution.
+     *
+     * \param functor the function to call (you can implement structs with operator() too if you need parameters and return values)
+     * \param notify specify your own condition to wait for. This is needed since the QApplication doc tells us that ownership of an event is
+     * handed over to QT and that it is not save to use the event after posting it. This means we cannot utilize an internal condition in the
+     * event as it might be deleted already when calling wait() on it. Do not specify this variable to get a fire-and-forget call (but still the
+     * method blocks until execution).
+     */
+    static void execInGUIThread( boost::function< void( void ) > functor, WCondition::SPtr notify = WCondition::SPtr() );
+
+    /**
+     * Call a given function from within the GUI thread. The function posts an event and waits for its execution.
+     *
+     * \param functor the function to call (you can implement structs with operator() too if you need parameters and return values)
+     * \param notify specify your own condition to wait for. This is needed since the QApplication doc tells us that ownership of an event is
+     * handed over to QT and that it is not save to use the event after posting it. This means we cannot utilize an internal condition in the
+     * event as it might be deleted already when calling wait() on it. Do not specify this variable to get a fire-and-forget call (but still the
+     * method blocks until execution).
+     *
+     * \return the result
+     * \tparam Result the type of the function return value.
+     */
+    template< typename Result >
+    static Result execInGUIThread( boost::function< Result( void ) > functor, WCondition::SPtr notify = WCondition::SPtr() )
+    {
+        if( !notify )
+        {
+            // the user did not specify a condition. We create our own
+            notify = WCondition::SPtr( new WConditionOneShot() );
+        }
+        Result result; // stores result
+        WDeferredCallResultEvent< Result >* ev = new WDeferredCallResultEvent< Result >( functor, &result, notify );
+        QCoreApplication::postEvent( getMainWindow(), ev );
+        notify->wait();
+        return result;
+    }
+
+    /**
+     * Call a given function from within the GUI thread. The function posts an event and DOES NOT wait for its execution.
+     *
+     * \param functor the function to call (you can implement structs with operator() too if you need parameters and return values)
+     * \param notify specify your own condition to wait for. This is needed since the QApplication doc tells us that ownership of an event is
+     * handed over to QT and that it is not save to use the event after posting it. This means we cannot utilize an internal condition in the
+     * event as it might be deleted already when calling wait() on it. Do not specify this variable to get a fire-and-forget call.
+     */
+    static void execInGUIThreadAsync( boost::function< void( void ) > functor, WCondition::SPtr notify = WCondition::SPtr() );
 protected:
     /**
      * Called whenever a module crashes.
@@ -268,6 +298,11 @@ private:
      * The splash screen.
      */
     QSplashScreen* m_splash;
+
+    /**
+     * The widget factory which handles WUI widget creation.
+     */
+    WUIQtWidgetFactory::SPtr m_widgetFactory;
 };
 
 #endif  // WQT4GUI_H

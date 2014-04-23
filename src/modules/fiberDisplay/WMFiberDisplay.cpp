@@ -107,7 +107,7 @@ void WMFiberDisplay::properties()
 
     m_colormapEnabled = m_coloringGroup->addProperty( "Enable colormapping", "Check this to enable colormapping. On large data, this can cause "
                                                                               "massive FPS drop.", false );
-    m_colormapRatio = m_coloringGroup->addProperty( "Colormap Ratio", "Defines the ratio between colormap and line color.", 0.0 );
+    m_colormapRatio = m_coloringGroup->addProperty( "Colormap Ratio", "Defines the ratio between colormap and line color.", 0.5 );
     m_colormapRatio->setMin( 0.0 );
     m_colormapRatio->setMax( 1.0 );
 

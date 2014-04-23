@@ -24,18 +24,32 @@
 
 #include <string>
 
-#include "core/ui/WCustomWidget.h"
+#include "core/common/WException.h"
 
-#include "WCloseCustomDockWidgetEvent.h"
+#include "WUIGridWidget.h"
 
-WCloseCustomDockWidgetEvent::WCloseCustomDockWidgetEvent( std::string title ):
-    QEvent( CUSTOM_TYPE ),
-    m_title( title )
+WUIGridWidget::WUIGridWidget( std::string title ):
+    WUIWidgetBase( title )
 {
+    // initialize members
 }
 
-std::string WCloseCustomDockWidgetEvent::getTitle() const
+WUIGridWidget::~WUIGridWidget()
 {
-    return m_title;
+    // cleanup
+}
+
+void WUIGridWidget::placeWidget( WUIWidgetBase::SPtr widget, int x, int y )
+{
+    if( widget->getParent().get() != this )
+    {
+        throw WException( "This grid is not parent of the widget to place via placeWidget()." );
+    }
+    placeWidgetImpl( widget, x, y );
+}
+
+bool WUIGridWidget::allowNesting() const
+{
+    return true;
 }
 

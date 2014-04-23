@@ -143,7 +143,7 @@ protected:
     /**
      * Separator after each property
      */
-    QFrame m_separator;
+    QWidget m_separator;
 
     /**
      * If set to true, the widgets uses the control layout to combine the widget with a label

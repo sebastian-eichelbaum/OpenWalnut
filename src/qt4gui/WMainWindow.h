@@ -56,6 +56,7 @@ class WQtPropertyBoolAction;
 class WPropertyBase;
 class WQtControlPanel;
 class WQtGLScreenCapture;
+class WUIQtWidgetBase;
 
 /**
  * This class contains the main window and the layout of the widgets within the window.
@@ -232,6 +233,36 @@ public:
      * \return the message dock
      */
     WQtMessageDock* getMessageDock();
+
+    /**
+     * Register a custom widget. This is important as the main window needs to manage the close/delete of these widgets. Only call from withing
+     * the GUI thread.
+     *
+     * \param widget the widget.
+     */
+    void registerCustomWidget( WUIQtWidgetBase* widget );
+
+    /**
+     * De-register a custom widget.
+     *
+     * \param widget the widget.
+     */
+    void deregisterCustomWidget( WUIQtWidgetBase* widget );
+
+    /**
+     * The default dock area to use for adding custom docks.
+     *
+     * \return the dock area in \ref getDefaultCustomDockAreaWidget
+     */
+    Qt::DockWidgetArea getDefaultCustomDockArea() const;
+
+    /**
+     * The Widget to add custom docks.
+     *
+     * \return the widget
+     */
+    QMainWindow* getDefaultCustomDockAreaWidget() const;
+
 protected:
     /**
      * Setup the GUI by handling special modules. NavSlices for example setup several toolbar buttons.
@@ -409,7 +440,7 @@ private:
 
     WQtNetworkEditor* m_networkEditor; //!< network editor
 
-    boost::shared_ptr< WQtGLWidget > m_mainGLWidget; //!< the main GL widget of the GUI
+    WQtGLWidget* m_mainGLWidget; //!< the main GL widget of the GUI
 
     boost::shared_ptr< WQtNavGLWidget > m_navAxial; //!< the axial view widget GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navCoronal; //!< the coronal view widget GL widget of the GUI
@@ -419,14 +450,39 @@ private:
     WQtGLDockWidget* m_mainGLDock; //!< the dock containing the main gl widget
 
     /**
-     * All registered WQtCustomDockWidgets.
+     * Used to handle the two-stage close process.
      */
-    std::map< std::string, boost::shared_ptr< WQtCustomDockWidget > > m_customDockWidgets;
+    bool m_closeFirstStage;
 
     /**
-     * Mutex used to lock the map of WQtCustomDockWidgets.
+     * Flag whether the system is shutting down now.
      */
-    boost::mutex m_customDockWidgetsLock;
+    bool m_closeInProgress;
+
+    /**
+     * The thread responsible for doing stage 1 stuff.
+     */
+    WThreadedRunner::SPtr m_closeStage1Thread;
+
+    /**
+     * The actual thread function for m_closeStage1Thread.
+     */
+    void closeStage1Thread();
+
+    /**
+     * The second stage function. Called by the finished closeStage1Thread function. Runs in GUI thread.
+     */
+    void closeStage2();
+
+    /**
+     * Container for core/UI widgetd
+     */
+    typedef std::vector< WUIQtWidgetBase* > CustomWidgets;
+
+    /**
+     * All registered widgets created by the core/UI api.
+     */
+    WSharedSequenceContainer< CustomWidgets > m_customWidgets;
 
     boost::signals2::signal1< void, std::vector< std::string > > m_loaderSignal; //!< boost signal for open file dialog
 

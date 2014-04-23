@@ -27,6 +27,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
@@ -42,6 +43,7 @@
 #include "../common/WThreadedRunner.h"
 #include "../common/WConditionOneShot.h"
 #include "../common/WColor.h"
+#include "../common/WCondition.h"
 #include "WGEGraphicsWindow.h"
 #include "WGEScene.h"
 #include "WGEViewer.h"
@@ -70,7 +72,7 @@ public:
     /**
      * Creates a new viewer. Does basic initialization and sets the default scene.
      *
-     * \param name the name of the viewer
+     * \param name the name of the viewer. Must be unique.
      * \param wdata the WindowData instance for the widget to use as render widget
      * \param x X coordinate of widget where to create the context.
      * \param y Y coordinate of widget where to create the context.
@@ -80,6 +82,7 @@ public:
      * \param bgColor background color shown in the viewer.
      * \return the new instance, ready to be used.
      * \exception WGEInitFailed thrown if initialization of graphics context or graphics window has failed.
+     * \exception WNameNotUnique if the name if the viewer was not unique
      */
     boost::shared_ptr< WGEViewer > createViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int x, int y,
                                                int width, int height, WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC,
@@ -91,6 +94,13 @@ public:
      * \param name the name of the viewer
      */
     void closeViewer( const std::string name );
+
+    /**
+     * Closes a viewer and deletes it from the list of viewers.
+     *
+     * \param viewer the viewer
+     */
+    void closeViewer( boost::shared_ptr< WGEViewer > viewer );
 
     /**
      * Searches for a viewer with a given name and returns it, if found.
@@ -189,14 +199,40 @@ protected:
     osg::ref_ptr<WGEScene> m_rootNode;
 
     /**
+     * Map between name of viewer and viewer
+     */
+    typedef std::map< std::string, boost::shared_ptr< WGEViewer > > ViewerMap;
+
+    /**
      * All registered viewers.
      */
-    std::map< std::string, boost::shared_ptr< WGEViewer > > m_viewers;
+    ViewerMap m_viewers;
 
     /**
      * Mutex used to lock the map of viewers.
      */
-    boost::mutex m_viewersLock;
+    boost::shared_mutex m_viewersLock;
+
+    /**
+     * If true, the view thread checks for updates in the m_viewers list
+     */
+    bool m_viewersUpdate;
+
+    /**
+     * List of viewers to add to m_viewer via addView. Protected by m_viewersLock.
+     */
+    std::vector< WGEViewer::SPtr > m_addViewers;
+
+    /**
+     * List of viewers to remove from m_viewer via addView. Protected by m_viewersLock.
+     */
+    std::vector< WGEViewer::SPtr > m_removeViewers;
+
+    /**
+     * A list of conditions to notify when the GE thread processed the m_addViewers and m_removeViewers lists. Protected by
+     * m_viewersLock.
+     */
+    std::vector< WCondition::SPtr > m_viewerUpdateNotifiers;
 
     /**
      * OpenSceneGraph composite viewer. Contains all created osgViewer::Views.
@@ -223,6 +259,11 @@ private:
      * This condition is fired externally if all the GUI startup is done to ensure all OGL stuff is initialized prior to OSG threading startup.
      */
     WConditionOneShot m_startThreadingCondition;
+
+    /**
+     * Apply updates in m_addViewers and m_removeViewers. Needs to be run in the GE thread
+     */
+    void applyViewerListUpdates();
 };
 
 /**

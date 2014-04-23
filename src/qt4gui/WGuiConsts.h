@@ -30,6 +30,9 @@
 
 #define WPREFERRED_LABEL_LENGTH 15
 
+// Property specific minimum sizes
+#define WMIN_WIDGET_HEIGHT 26
+#define WMIN_PROPGROUP_HEAD_HEIGHT 26
 #define WMIN_SLIDER_WIDTH 60
 
 #endif  // WGUICONSTS_H

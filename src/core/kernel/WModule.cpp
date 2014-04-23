@@ -672,3 +672,8 @@ WModule::SPtr WModule::findByUUID( std::string uuid )
     return WModuleFactory::findByUUID( uuid );
 }
 
+WPropString WModule::getRuntimeName() const
+{
+    return m_runtimeName;
+}
+

@@ -31,6 +31,7 @@
 
 #include "core/common/WItemSelection.h"
 #include "core/common/WItemSelector.h"
+#include "core/common/WItemSelectionItemTyped.h"
 
 #include "core/graphicsEngine/WGEManagedGroupNode.h"
 #include "core/graphicsEngine/shaders/WGEShader.h"

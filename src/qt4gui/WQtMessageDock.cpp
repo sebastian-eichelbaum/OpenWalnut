@@ -60,7 +60,7 @@ WQtMessageDock::WQtMessageDock( QString dockTitle, QWidget* parent ):
     m_filterCombo->addItem( "Warning" );
     m_filterCombo->addItem( "Error" );
     m_filterCombo->setCurrentIndex(
-        WMainWindow::getSettings().value( "MessageDockFilterIndex", 2 ).toInt()
+        WMainWindow::getSettings().value( "MessageDockFilterIndex", 1 ).toInt()
     ); // warning is the default
 
     // connect filter combo

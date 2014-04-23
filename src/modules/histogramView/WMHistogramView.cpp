@@ -41,8 +41,8 @@
 #include "core/common/WStringUtils.h"
 #include "core/common/WPathHelper.h"
 #include "core/graphicsEngine/WGERequirement.h"
-#include "core/ui/WCustomWidget.h"
-#include "core/ui/WCustomWidgetEventHandler.h"
+#include "core/ui/WUIViewWidget.h"
+#include "core/ui/WUIViewEventHandler.h"
 #include "core/ui/WUI.h"
 #include "core/kernel/WKernel.h"
 
@@ -55,7 +55,7 @@
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMHistogramView )
 
-InstanceCounter WMHistogramView::m_instanceCounter;
+WCounter WMHistogramView::m_instanceCounter;
 
 WMHistogramView::WMHistogramView()
     : WModule(),
@@ -159,39 +159,46 @@ void WMHistogramView::requirements()
 {
     // we need graphics to draw anything
     m_requirements.push_back( new WGERequirement() );
+    m_requirements.push_back( new WUIRequirement() );
 }
 
 void WMHistogramView::handleMouseMove( WVector2f pos )
 {
-    if( m_infoNode )
+    if( m_mainNode )
     {
-        m_mainNode->remove( m_infoNode );
-    }
-    if( m_markerNode )
-    {
-        m_mainNode->remove( m_markerNode );
-    }
+        if( m_infoNode )
+        {
+            m_mainNode->remove( m_infoNode );
+        }
+        if( m_markerNode )
+        {
+            m_mainNode->remove( m_markerNode );
+        }
 
-    if( !m_histograms.empty() ) // Bug: module will crash on mouse events when no data was connected
-    {
-        createInfo( pos );
+        if( !m_histograms.empty() ) // Bug: module will crash on mouse events when no data was connected
+        {
+            createInfo( pos );
+        }
     }
 }
 
 void WMHistogramView::handleResize( int /* x */, int /* y */, int width, int height )
 {
-    m_windowWidth = width;
-    m_windowHeight = height;
-
-    m_redrawMutex.lock();
-
-    m_mainNode->clear();
-    if( m_windowHeight != 0 && m_windowWidth != 0 && m_histograms.size() != 0 )
+    if( m_mainNode )
     {
-        redraw();
-    }
+        m_windowWidth = width;
+        m_windowHeight = height;
 
-    m_redrawMutex.unlock();
+        m_redrawMutex.lock();
+
+        m_mainNode->clear();
+        if( m_windowHeight != 0 && m_windowWidth != 0 && m_histograms.size() != 0 )
+        {
+            redraw();
+        }
+
+        m_redrawMutex.unlock();
+    }
 }
 
 void WMHistogramView::moduleMain()
@@ -211,12 +218,16 @@ void WMHistogramView::moduleMain()
 
     ready();
 
-    m_widget = WKernel::getRunningKernel()->getUI()->openCustomWidget( getName() + string_utils::toString( m_instanceID ),
+    //! Holds the reference to the custom widget used for displaying the histogram
+    m_widget = WKernel::getRunningKernel()->getUI()->getWidgetFactory()->createViewWidget(
+            getName() + string_utils::toString( m_instanceID ),
             WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition() );
-    osg::ref_ptr< WCustomWidgetEventHandler > eh = new WCustomWidgetEventHandler( m_widget );
+    osg::ref_ptr< WUIViewEventHandler > eh = new WUIViewEventHandler( m_widget );
     eh->subscribeMove( boost::bind( &WMHistogramView::handleMouseMove, this, _1 ) );
     eh->subscribeResize( boost::bind( &WMHistogramView::handleResize, this, _1, _2, _3, _4 ) );
     m_widget->addEventHandler( eh );
+
+    m_widget->show();
 
     if( m_widget )
     {
@@ -227,7 +238,7 @@ void WMHistogramView::moduleMain()
         m_mainNode = m_widget->getScene();
         if( !m_mainNode )
         {
-            errorLog() << "Could not aquire scene node from widget.";
+            errorLog() << "Could not acquire scene node from widget.";
         }
     }
     else
@@ -297,9 +308,12 @@ void WMHistogramView::moduleMain()
     debugLog() << "Shutting down...";
 
     // clear main node, just in case
-    m_mainNode->clear();
+    if( m_mainNode )
+    {
+        m_mainNode->clear();
+    }
 
-    WKernel::getRunningKernel()->getUI()->closeCustomWidget( m_widget );
+    m_widget->close();
 
     debugLog() << "Finished. Good bye!";
 }

@@ -41,12 +41,13 @@
 
 #include <osgDB/ReadFile>
 
-#include "exceptions/WGEInitFailed.h"
 #include "WGE2DManipulator.h"
 #include "WGEGroupNode.h"
 #include "WGENoOpManipulator.h"
 #include "WGEZoomTrackballManipulator.h"
+#include "WGraphicsEngine.h"
 #include "WPickHandler.h"
+#include "exceptions/WGEInitFailed.h"
 
 #include "../common/WConditionOneShot.h"
 #include "../common/WThreadedRunner.h"
@@ -64,7 +65,8 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
     m_inAnimationMode( false ),
     m_effectHorizon( new WGEViewerEffectHorizon() ),
     m_effectVignette( new WGEViewerEffectVignette() ),
-    m_effectImageOverlay( new WGEViewerEffectImageOverlay() )
+    m_effectImageOverlay( new WGEViewerEffectImageOverlay() ),
+    m_paused( false )
 {
     try
     {
@@ -116,7 +118,7 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
         m_View->addEventHandler( new osgViewer::StatsHandler );
 
         // Properties of the view. Collects props of the effects and similar
-        m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "The view's properties" ) );
+        m_properties = boost::shared_ptr< WProperties >( new WProperties( "Viewer Properties", "The view's properties" ) );
         m_bgColor = m_properties->addProperty( "Background Color", "Default background color if not overwritten by a camera effect.",
                                                defaultColor::WHITE,
                                                boost::bind( &WGEViewer::updateBgColor, this ) );
@@ -253,6 +255,9 @@ void WGEViewer::resize( int width, int height )
 
 void WGEViewer::close()
 {
+    // delete/unset all the objects we sponsored a "shared_from_this" pointer to ensure the viewer gets deleted after close
+    m_effectImageOverlay->setReferenceViewer( WGEViewer::SPtr() );
+
     // forward close event
     WGEGraphicsWindow::close();
 }
@@ -393,3 +398,12 @@ void WGEViewer::setEffectsActiveDefault( bool activeByDefault )
     getVignette()->setEnabledByDefault( activeByDefault );
 }
 
+void WGEViewer::setPaused( bool pause )
+{
+    m_paused = pause;
+}
+
+bool WGEViewer::getPaused() const
+{
+    return m_paused;
+}

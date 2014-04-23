@@ -5,4 +5,5 @@ openwalnut-modules: postrm-has-useless-call-to-ldconfig
 # Although the hardening options are enabled and verified to be active during compilation, lintian complains about missing hardening options.
 # The lintian doc states that there might be many false positives. So we ignore these warnings now.
 # For details, see http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=685299 and http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=673112
+# Update (24.03.2014): now seems to work on sid. We keep this anyway for some older Debian/Ubuntu.
 openwalnut-modules: hardening-no-fortify-functions

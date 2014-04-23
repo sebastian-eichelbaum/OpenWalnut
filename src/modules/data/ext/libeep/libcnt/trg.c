@@ -25,16 +25,14 @@
  *                                                                              *
  *******************************************************************************/
 
+#include <eep/inttypes.h>
 #include <string.h>
 
 #include <cnt/cnt.h>
 #include <cnt/trg.h>
 #include <eep/eepmem.h>
 
-#if defined(WIN32) && !defined(__CYGWIN__)
-#define strcasecmp stricmp
-#define snprintf _snprintf
-#endif
+#include <eep/winsafe.h>
 
 #ifdef COMPILE_RCS
 char RCS_trg_h[] = RCS_TRG_H;
@@ -157,7 +155,7 @@ int trg_line_read_2_or_4_items(asciiline_t line, double period, trgentry_t *t)
     return TRG_EOF;
   }
   else {
-    t->sample = (slen_t) (time / period + 0.5);
+    t->sample = (uint64_t) (time / period + 0.5);
     strncpy(t->code, code, TRG_CODE_LENGTH);
     (t->code)[TRG_CODE_LENGTH] = '\0';
     return TRG_OK;
@@ -167,7 +165,7 @@ int trg_line_read_2_or_4_items(asciiline_t line, double period, trgentry_t *t)
 int trg_line_read_3_or_5_items(asciiline_t line, double period, trgentry_t *t)
 {
   double time;
-  slen_t pos;
+  uint64_t pos;
   asciiline_t code;
   asciiline_t cls_text;
   char cls_code;
@@ -194,7 +192,7 @@ int trg_line_read_3_or_5_items(asciiline_t line, double period, trgentry_t *t)
     return TRG_EOF;
   }
   else {
-    t->sample = (slen_t) (time / period + 0.5);
+    t->sample = (uint64_t) (time / period + 0.5);
     strncpy(t->code, code, TRG_CODE_LENGTH);
     (t->code)[TRG_CODE_LENGTH] = '\0';
     return TRG_OK;
@@ -229,13 +227,13 @@ int trg_line_write(trgentry_t t, double period, short chanc, FILE *Trg)
   if (t.code[0] != '\0')
   {
     if(t.cls_code == '\0')
-      sprintf(line,"%12.6f %9d %3s\n",
+      sprintf(line,"%12.6f %9" PRIu64 " %3s\n",
         (double) t.sample * period,
         SAMPLESTART_EEP20(chanc) + t.sample * SAMPLESIZE_EEP20(chanc),
         t.code
       );
     else
-      sprintf(line,"%12.6f %9d %3s cls %c\n",
+      sprintf(line,"%12.6f %9" PRIu64 " %3s cls %c\n",
 	     (double) t.sample * period,
 		 SAMPLESTART_EEP20(chanc) + t.sample * SAMPLESIZE_EEP20(chanc),
 		 t.code, t.cls_code);
@@ -287,6 +285,10 @@ void trg_sort(trg_t *trg)
   int i, nswap;
   trgentry_t tmp;
 
+  if(trg->c==0) {
+    return;
+  }
+
   do {
     nswap = 0;
     for (i = 0; i < trg->c - 1; i++) {
@@ -330,6 +332,7 @@ trg_t *trg_file_read(FILE *f, double period)
   } while (status == TRG_OK);
 
   trg_sort(trg);
+
   return trg;
 }
 
@@ -364,6 +367,7 @@ trg_t *trg_file_read_unchecked(FILE *f, double *period, short *chanc)
   } while (status == TRG_OK);
 
   trg_sort(trg);
+
   return trg;
 }
 
@@ -387,13 +391,13 @@ int    trg_file_write (trg_t *trg, FILE *f, double period, short chanc)
 #undef TRG_EOF
 #undef TRG_ERR
 
-int trg_set(trg_t *trg, slen_t sample, const char *code)
+int trg_set(trg_t *trg, uint64_t sample, const char *code)
 {
   int r = 0;
   int i;
-  int        c    = trg->c;
+  uint64_t   c    = trg->c;
   trgentry_t *v   = trg->v;
-  int        cmax = trg->cmax;
+  uint64_t   cmax = trg->cmax;
 
 
 
@@ -436,7 +440,7 @@ int trg_set(trg_t *trg, slen_t sample, const char *code)
 }
 
 /* exact copy of trg_set, but also setting 'cls' member */
-int trg_set_cls(trg_t *trg, slen_t sample, const char *code, const char cls)
+int trg_set_cls(trg_t *trg, uint64_t sample, const char *code, const char cls)
 {
   int r = 0;
   int i;
@@ -484,7 +488,7 @@ int trg_set_cls(trg_t *trg, slen_t sample, const char *code, const char cls)
   return r;
 }
 
-int trg_set_EEP20(trg_t *trg, slen_t sample, unsigned short flag)
+int trg_set_EEP20(trg_t *trg, uint64_t sample, unsigned short flag)
 {
   int r = 0;
   char code[TRG_CODE_LENGTH + 1];
@@ -509,13 +513,13 @@ int trg_get_c (trg_t *trg)
   return trg->c;
 }
 
-char *trg_get  (trg_t *trg, int i, slen_t *sample)
+char *trg_get  (trg_t *trg, int i, uint64_t *sample)
 {
   *sample = trg->v[i].sample;
   return trg->v[i].code;
 }
 
-char *trg_get_cls  (trg_t *trg, int i, slen_t *sample, char *cls)
+char *trg_get_cls  (trg_t *trg, int i, uint64_t *sample, char *cls)
 {
   *sample = trg->v[i].sample;
   *cls = trg->v[i].cls_code;
@@ -533,7 +537,7 @@ int trg_group_match(char *code, trgcode_t *grpv, short grpc)
   return 0;
 }
 
-int trg_discont_epoch(trg_t *trg, slen_t start, slen_t length)
+int trg_discont_epoch(trg_t *trg, uint64_t start, uint64_t length)
 {
   int i = 0;
 
@@ -549,7 +553,7 @@ int trg_discont_epoch(trg_t *trg, slen_t start, slen_t length)
 }
 
 
-int trg_seek(trg_t *trg, slen_t sample, const char *code, char direction)
+int trg_seek(trg_t *trg, uint64_t sample, const char *code, char direction)
 {
   int i = 0;
   int lasti = -1;
@@ -576,7 +580,7 @@ int trg_seek(trg_t *trg, slen_t sample, const char *code, char direction)
     return lasti >= 0 ? lasti : -1;
 }
 
-int trg_group_seek(trg_t *trg, slen_t sample, trgcode_t  *grpv, int grpc, char direction)
+int trg_group_seek(trg_t *trg, uint64_t sample, trgcode_t  *grpv, int grpc, char direction)
 {
   int i = 0;
   int lasti = -1;
@@ -611,7 +615,7 @@ int trg_group_seek(trg_t *trg, slen_t sample, trgcode_t  *grpv, int grpc, char d
 /* look for triggers at position sample, remove them, update trigger table,
    return number of deleted triggers */
 
-int trg_clear(trg_t *trg, slen_t sample, const char *code)
+int trg_clear(trg_t *trg, uint64_t sample, const char *code)
 {
   int *trgc = &(trg->c);
   trgentry_t **trgv = &(trg->v);

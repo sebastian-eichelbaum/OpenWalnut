@@ -68,7 +68,7 @@
   };
 
   // Provide some tags to have modules nicely grouped and ordered.
-  // NOTE: tags are handled case insesitive.
+  // NOTE: tags are handled case insensitive.
   // IMPORTANT: the order of appearance will be used by OW to classify your tags
   tag = "Navigation";
   tag = "MRT";
@@ -94,7 +94,7 @@
   online
   {
     name="Video Demonstration";
-    description="Video demonstration showing basic working principoles.";
+    description="Video demonstration showing basic working principles.";
     url="http://www.youtube.com/watch?v=5Afw6P6wWSU&context=C375513dADOEgsToPDskJXOVbrVDAV5rydr7H173AT";
   };
 

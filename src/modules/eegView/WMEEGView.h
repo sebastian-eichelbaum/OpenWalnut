@@ -34,7 +34,7 @@
 #include "core/kernel/WModule.h"
 
 // forward declarations
-class WCustomWidget;
+class WUIViewWidget;
 class WDataSetDipole;
 class WEEG2;
 class WEEGSourceCalculator;
@@ -120,6 +120,11 @@ protected:
      * Entry point after loading the module. Runs in separate thread.
      */
     virtual void moduleMain();
+
+    /**
+     * Initialize requirements for this module.
+     */
+    virtual void requirements();
 
 private:
     /**
@@ -242,7 +247,7 @@ private:
     /**
      * Custom widget which is used by this module to display its data.
      */
-    boost::shared_ptr< WCustomWidget > m_widget;
+    boost::shared_ptr< WUIViewWidget > m_widget;
 
     /**
      * GUI event handler used for interactive changing of many properties

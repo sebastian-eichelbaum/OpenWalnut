@@ -238,7 +238,7 @@ void WMIsosurface::properties()
 
     m_useTextureProp = m_properties->addProperty( "Use texture", "Use texturing of the surface?", false );
 
-    m_surfaceColor = m_properties->addProperty( "Surface color", "Description.", WColor( 0.5, 0.5, 0.5, 1.0 ) );
+    m_surfaceColor = m_properties->addProperty( "Surface color", "Description.", WColor( 1.0, 1.0, 1.0, 1.0 ) );
 
     m_useMarchingLego = m_properties->addProperty( "Voxel surface", "Not interpolated surface", false, m_recompute );
 
@@ -413,12 +413,8 @@ void WMIsosurface::renderMesh()
 
     // ------------------------------------------------
     // normals
-    if( !m_useMarchingLego->get( true ) )
-    {
-        // marching lego does not provide normals on a per-vertex-basis. Since OSG3.2, only normal binding on a per vertex basis is supported.
-        surfaceGeometry->setNormalArray( m_triMesh->getVertexNormalArray() );
-        surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
-    }
+    surfaceGeometry->setNormalArray( m_triMesh->getVertexNormalArray() );
+    surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
 
     m_surfaceGeode->addDrawable( surfaceGeometry );
     osg::ref_ptr< osg::StateSet > state = m_surfaceGeode->getOrCreateStateSet();

@@ -93,6 +93,20 @@ public:
     void pop_back();
 
     /**
+     * Add the element only if it is not inside the container until now. This is a shortcut to a combined used of find and push_back.
+     *
+     * \param x the element to push back.
+     */
+    void unique_push_back( const typename S::value_type& x );
+
+    /**
+     * Add the element only if it is not inside the container until now. This is a shortcut to a combined used of find and push_front.
+     *
+     * \param x the element to push front.
+     */
+    void unique_push_front( const typename S::value_type& x );
+
+    /**
      * Clears the container.
      */
     void clear();
@@ -286,6 +300,30 @@ void WSharedSequenceContainer< S >::push_front( const typename S::value_type& x 
     // Lock, if "a" looses focus -> look is freed
     typename WSharedObject< S >::WriteTicket a = WSharedObject< S >::getWriteTicket();
     a->get().insert( a->get().begin(), x );
+}
+
+template < typename S >
+void WSharedSequenceContainer< S >::unique_push_back( const typename S::value_type& x )
+{
+    typename WSharedObject< S >::WriteTicket a = WSharedObject< S >::getWriteTicket();
+    WSharedSequenceContainer< S >::Iterator it = std::find( a->get().begin(), a->get().end(), x );
+    if( it == a->get().end() )
+    {
+        // not found -> add
+        a->get().push_back( x );
+    }
+}
+
+template < typename S >
+void WSharedSequenceContainer< S >::unique_push_front( const typename S::value_type& x )
+{
+    typename WSharedObject< S >::WriteTicket a = WSharedObject< S >::getWriteTicket();
+    WSharedSequenceContainer< S >::Iterator it = std::find( a->get().begin(), a->get().end(), x );
+    if( it == a->get().end() )
+    {
+        // not found -> add
+        a->get().insert( a->get().begin(), x );
+    }
 }
 
 template < typename S >

@@ -83,7 +83,11 @@ uniform float u_noise3DResoultuion = 3.0;
 void main()
 {
     // Calculate the real vertex coordinate in openwalnut-scene-space
-    vec4 vertex = ( vec4( u_vertexShiftDirection.xyz, 0.0 ) * u_vertexShift ) + gl_Vertex;
+    vec4 vertex = gl_Vertex;
+#ifdef VERTEXSHIFT_ENABLED
+    // Calculate the real vertex coordinate in openwalnut-scene-space
+    vertex = ( vec4( u_vertexShiftDirection.xyz, 0.0 ) * u_vertexShift ) + gl_Vertex;
+#endif
 
     // Allow the colormapper to do some precalculations with the real vertex coordinate in ow-scene-space
     colormapping( vertex );

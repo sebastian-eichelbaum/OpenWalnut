@@ -74,7 +74,7 @@ const std::string WMWriteTransferFunction::getName() const
 const std::string WMWriteTransferFunction::getDescription() const
 {
     // Specify your module description here. Be detailed. This text is read by the user.
-    return "Allows to export transfer functions in several formats.";
+return "Allows one to export transfer functions in several formats.";
 }
 
 void WMWriteTransferFunction::connectors()

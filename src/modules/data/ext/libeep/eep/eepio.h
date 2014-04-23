@@ -36,7 +36,7 @@
 #include <eep/eepmisc.h>
 #include <eep/eepraw.h>
 
-#if !defined(WIN32) || defined(__CYGWIN__)
+#if !defined(_MSC_VER)
 typedef long long __int64;
 #endif
 
@@ -67,17 +67,6 @@ char *cfg_line_norm_cs(char *line);
     sys...:add perror output to status message
 */
 
-/* global flags to control log func details */
-extern int eepio_quiet;
-extern int eepio_doslf; /* can be set but is ignored */
-extern int eepio_log;
-
-extern int EEPDebug;
-extern int EEPBar;
-extern int eepmess_log;
-#define MESSORIGIN_SIZE 32
-extern char messorigin[MESSORIGIN_SIZE];
-
 int  eepstdout(const char *fmt, ...);
 int  eepstderr(const char *fmt, ...);
 
@@ -88,13 +77,20 @@ void sysstatus (const char *fmt, ...);
 void eeperror  (const char *fmt, ...);
 void syserror  (const char *fmt, ...);
 
+void eepio_setverbose(int); // whether to show messages
+int  eepio_getverbose();
+void eepio_setdebug(int);   // whether to show debug messages
+int  eepio_getdebug();
+void eepio_setbar(int);     // whether to show progress bar
+int  eepio_getbar();
+void eepio_setlog(int);     // whether to log
+int  eepio_getlog();
+void eepio_setmessorigin(const char *);
+
 /* 
   the eepmess.h *open funcs maintain a list of "autoremove" files here
   (the *error funcs need to know about this list for cleanup)
 */
-extern int    ar_filec;
-extern FILE **ar_file;
-extern char **ar_filename;
 void arv_fclear(void);
 
 /* -------------------------------------------------------------------
@@ -103,6 +99,16 @@ void arv_fclear(void);
 void init_eep_bar(slen_t total);
 void show_eep_bar(slen_t current);
 void free_eep_bar(void);
+
+/*
+ * file IO
+ */
+FILE     * eepio_fopen(const char *, const char *);
+int        eepio_fclose(FILE *);
+size_t     eepio_fread(void *, size_t, size_t, FILE *);
+size_t     eepio_fwrite(const void *, size_t, size_t, FILE *);
+int        eepio_fseek(FILE *, uint64_t, int);
+uint64_t   eepio_ftell(FILE *);
 
 /* A function to print a text wrapped at len characters */
 void eep_print_wrap(FILE* out, const char* text, int len);

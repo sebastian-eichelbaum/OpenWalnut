@@ -73,8 +73,13 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WMo
 
     setCacheMode( DeviceCoordinateCache );
 
+    // keep track of runtime name changes of the module
+    m_runtimeNameConnection = module->getRuntimeName()->getValueChangeCondition()->subscribeSignal(
+        boost::bind( &WQtNetworkItem::runtimeNameChanged, this )
+    );
+
     // caption
-    m_textFull = module->getName();
+    m_textFull = module->getRuntimeName()->get();
     m_text = new QGraphicsTextItem( m_textFull.c_str() );
     m_text->setParentItem( this );
     m_text->setDefaultTextColor( Qt::white );
@@ -198,6 +203,8 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WMo
 
 WQtNetworkItem::~WQtNetworkItem()
 {
+    m_runtimeNameConnection.disconnect();
+
     delete m_animation;
     delete m_animationTimer;
     delete m_removalAnimation;
@@ -541,15 +548,8 @@ void WQtNetworkItem::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* event )
         if( !m_module->isCrashed() )
         {
             std::string name = m_module->getName();
-            WPropertyBase::SPtr namePropCandidate = m_module->getProperties()->findProperty( "Name" );
-            if( namePropCandidate )
-            {
-                WPropString nameProp = namePropCandidate->toPropString();
-                if( nameProp )
-                {
-                    name = ( name == nameProp->get() ) ? name : name + " - " + nameProp->get();
-                }
-            }
+            WPropString runtimeName = m_module->getRuntimeName();
+            name = ( name == runtimeName->get() ) ? name : name + " - " + runtimeName->get();
 
             QWidget* props = WQtPropertyGroupWidget::createPropertyGroupBox(
                                 m_module->getProperties(), QString::fromStdString( name ), 0, m_networkEditor
@@ -752,6 +752,12 @@ QString WQtNetworkItem::getText()
     return QString::fromStdString( m_textFull );
 }
 
+void WQtNetworkItem::setText( std::string text )
+{
+    m_textFull = text;
+    updater();
+}
+
 void WQtNetworkItem::setCrashed()
 {
     changeState( Crashed );
@@ -873,11 +879,27 @@ void WQtNetworkItem::animatedMoveTo( qreal x, qreal y )
     animatedMoveTo( QPointF( x, y ) );
 }
 
+void WQtNetworkItem::moveTo( QPointF pos )
+{
+    moveTo( pos.x(), pos.y() );
+}
+
+void WQtNetworkItem::moveTo( qreal x, qreal y )
+{
+    setPos( x, y );
+    moveFinished();
+}
+
 void WQtNetworkItem::moveFinished()
 {
     // we have disabled the item to avoid clicking and dragging during move
     m_noDrag = false;
     positionChanged();
+    if( isSelected() )
+    {
+        // ensure visible if moved
+        m_networkEditor->getView()->focusOn( this );
+    }
 }
 
 void WQtNetworkItem::setLayedOut( bool layedOut )
@@ -899,3 +921,10 @@ bool WQtNetworkItem::wasManuallyPlaced() const
 {
     return m_wasManuallyPlaced;
 }
+
+void WQtNetworkItem::runtimeNameChanged()
+{
+    // move to gui thread, non-blocking.
+    WQt4Gui::execInGUIThreadAsync( boost::bind( &WQtNetworkItem::setText, this, m_module->getRuntimeName()->get() ) );
+}
+

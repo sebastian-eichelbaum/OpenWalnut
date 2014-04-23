@@ -182,6 +182,21 @@ public:
     void animatedMoveTo( qreal x, qreal y );
 
     /**
+     * Move item to specified position smoothly, no animation.
+     *
+     * \param pos position in world space
+     */
+    void moveTo( QPointF pos );
+
+    /**
+     * Move item to specified position smoothly, no animation.
+     *
+     * \param x x coord in world space
+     * \param y y coord in world space
+     */
+    void moveTo( qreal x, qreal y );
+
+    /**
      * Marks the item as already layed out.
      *
      * \param layedOut the layout flag
@@ -284,6 +299,13 @@ protected:
      * \param w
      */
     virtual void paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* w );
+
+    /**
+     * Set the new title text. Forces update.
+     *
+     * \param text the text
+     */
+    void setText( std::string text );
 
 private:
     /**
@@ -417,6 +439,21 @@ private:
      * If true, the mouse events do not cause a drag and move operation.
      */
     bool m_noDrag;
+
+    /**
+     * Keep track of runtime name changes of this module.
+     */
+    boost::signals2::connection m_runtimeNameConnection;
+
+    /**
+     * Update name as it has been changed.
+     */
+    void runtimeNameChanged();
+
+    /**
+     * Update name as it has been changed. Runs in GUI thread.
+     */
+    void runtimeNameChangedGT();
 
 private slots:
     /**

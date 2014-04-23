@@ -144,6 +144,26 @@ public:
      * \return the action
      */
     QAction* getCameraResetAction();
+
+    /**
+     * Called on close. Clean up all OpenGL stuff.
+     */
+    virtual void cleanUp();
+
+    /**
+     * Pause rendering. This does not free the viewer. It simply pauses rendering.
+     *
+     * \param pause true to pause.
+     */
+    void setPaused( bool pause = true );
+
+    /**
+     * Query whether the view is paused or not.
+     *
+     * \return true if paused
+     */
+    bool getPaused() const;
+
 signals:
 
     /**
@@ -304,6 +324,13 @@ protected:
      * \return true if the event got handled properly.
      */
     virtual bool event( QEvent* event );
+
+    /**
+     * Called on close. Accept the event to accept the close call.
+     *
+     * \param event the event.
+     */
+    virtual void closeEvent( QCloseEvent* event );
 
 private:
     /**

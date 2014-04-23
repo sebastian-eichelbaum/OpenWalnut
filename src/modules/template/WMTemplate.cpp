@@ -67,7 +67,6 @@
 #include "core/common/WPropertyHelper.h"
 #include "core/common/WItemSelection.h"
 #include "core/common/WItemSelectionItem.h"
-#include "core/common/WItemSelectionItemTyped.h"
 #include "core/common/WItemSelector.h"
 #include "core/graphicsEngine/WGEUtils.h"
 #include "core/graphicsEngine/WGERequirement.h"
@@ -76,9 +75,6 @@
 #include "icons/wurst.xpm"
 #include "icons/steak.xpm"
 #include "WMTemplate.h"
-
-// This line is needed by the module loader to actually find your module. You need to add this to your module too. Do NOT add a ";" here.
-W_LOADABLE_MODULE( WMTemplate )
 
 WMTemplate::WMTemplate():
     WModule()
@@ -269,6 +265,16 @@ void WMTemplate::properties()
     m_group1        = m_properties->addPropertyGroup( "First Group",  "A nice group for grouping stuff." );
     m_group1a       = m_group1->addPropertyGroup(     "Group 1a", "A group nested into \"Group 1\"." );
     m_group2        = m_properties->addPropertyGroup( "Second Group",  "Another nice group for grouping stuff." );
+
+    // You can nest property groups arbitrarily deep. ( But as with a good text, a chapter number 1.23.23.5.73.1.5 is useless. Avoid nesting too
+    // deep and avoid groups with only one or two properties. )
+    WPropGroup group = m_properties->addPropertyGroup( "Group Nesting - Level 0", "Demo for intensive group nesting." );
+    for( int d = 1; d <= 20; ++d )
+    {
+        std::string depth = string_utils::toString( d );
+        group = group->addPropertyGroup( "Group Nesting - Level " + depth, "A nested group." );
+        // NOTE: the last group will be deleted as we do not keep its shared_ptr.
+    }
 
     // To understand how the groups can be used, you should consider that m_properties itself is a WPropGroup! This means, you can use your newly
     // created groups exactly in the same way as you would use m_properties.
@@ -754,6 +760,14 @@ void WMTemplate::moduleMain()
     // Remove the geometry from the scene. If it has never been added, this call does nothing. Always remember to remove your rendering at the
     // end of the module loop.
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+
+    // Let us utilize the META file in the resources directory. This file contains several information about a module and
+    // can also contain custom values. Here, we query the "goodbye" value:
+    std::string bye = getMetaInformation()->query< std::string >(
+       "common/goodbye",       // the absolute path
+       "have a nice day"       // a default if the element does not exist or cannot be returned as std::string.
+    );
+    infoLog() << bye;
 }
 
 void WMTemplate::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )

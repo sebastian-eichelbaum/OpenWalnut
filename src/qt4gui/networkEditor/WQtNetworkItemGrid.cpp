@@ -153,6 +153,10 @@ void WQtNetworkItemGrid::physicalMoveTo( QGraphicsItem* item, int col, int row, 
     {
         ni->animatedMoveTo( p );
     }
+    else if( ni )
+    {
+        ni->moveTo( p );
+    }
     else
     {
         item->setPos( p );

@@ -25,13 +25,13 @@
 #ifndef WUI_H
 #define WUI_H
 
-#include <string>
-
 #include <boost/shared_ptr.hpp>
 
 #include "../common/WFlag.h"
-#include "../graphicsEngine/WGECamera.h"
-#include "WCustomWidget.h"
+
+#include "WUIWidgetFactory.h"
+#include "WUIViewEventHandler.h"
+#include "WUIRequirement.h"
 
 class WDataSet;
 
@@ -47,7 +47,7 @@ class WDataSet;
  *
  * \ingroup ui
  */
-class WUI : public boost::enable_shared_from_this< WUI >
+class WUI: public boost::enable_shared_from_this< WUI >
 {
 public:
     /**
@@ -78,37 +78,11 @@ public:
     virtual int run() = 0;
 
     /**
-     * Instruct to open a new custom widget. The specified condition should be the shutdown condition of the module, as the function returns only
-     * if the widget was created. To ensure that the creation is aborted properly if the module shuts down in the meantime, this condition is
-     * used.
+     * Returns the widget factory of the UI. Use it to create custom widgets.
      *
-     * \note this function blocks until the widget was created. Check the resulting pointer for NULL.
-     *
-     * \param title the title of the widget
-     * \param projectionMode the kind of projection which should be used
-     * \param shutdownCondition a condition enforcing abort of widget creation.
-     *
-     * \return the created widget
+     * \return the factory. Use this to create your widget instances.
      */
-    virtual WCustomWidget::SPtr openCustomWidget(
-            std::string title,
-            WGECamera::ProjectionMode projectionMode,
-            boost::shared_ptr< WCondition > shutdownCondition ) = 0;
-
-    /**
-     * Instruct to close a custom widget.
-     *
-     * \param title The title of the widget
-     */
-    virtual void closeCustomWidget( std::string title ) = 0;
-
-    /**
-     * Instruct to close the custom widget.
-     *
-     * \param widget the widget to close again.
-     */
-    virtual void closeCustomWidget( WCustomWidget::SPtr widget ) = 0;
-
+    virtual WUIWidgetFactory::SPtr getWidgetFactory() const = 0;
 protected:
     /**
      * Flag determining whether the UI is properly initialized.

@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WCUSTOMWIDGET_H
-#define WCUSTOMWIDGET_H
+#ifndef WUIVIEWWIDGET_H
+#define WUIVIEWWIDGET_H
 
 #include <string>
 
@@ -32,6 +32,8 @@
 #include <osg/ref_ptr>
 
 #include "../graphicsEngine/WGEViewer.h"
+
+#include "WUIWidgetBase.h"
 
 class WGEGroupNode;
 
@@ -60,31 +62,27 @@ private:
 
 /**
  * Custom widget which is created by a module to display custom information.
+ *
+ * \note Please read documentation of \ref WUIWidgetFactory for limitations, requirements and creation of these widgets.
  */
-class WCustomWidget
+class WUIViewWidget: public WUIWidgetBase
 {
+    friend class WUI;
 public:
     /**
      * Abbreviation for a shared pointer on a instance of this class.
      */
-    typedef boost::shared_ptr< WCustomWidget > SPtr;
+    typedef boost::shared_ptr< WUIViewWidget > SPtr;
 
     /**
      * Abbreviation for a const shared pointer on a instance of this class.
      */
-    typedef boost::shared_ptr< const WCustomWidget > ConstSPtr;
-
-    /**
-     * Constructor. Create a custom widget instance.
-     *
-     * \param title the title of the widget
-     */
-    explicit WCustomWidget( std::string title );
+    typedef boost::shared_ptr< const WUIViewWidget > ConstSPtr;
 
     /**
      * Destructor
      */
-    virtual ~WCustomWidget();
+    virtual ~WUIViewWidget();
 
     /**
      * Get the scene which is displayed
@@ -99,13 +97,6 @@ public:
      * \return the viewer as boost::shard_ptr
      */
     virtual boost::shared_ptr< WGEViewer > getViewer() const = 0;
-
-    /**
-     * Get the title of the widget.
-     *
-     * \return title as string
-     */
-    virtual std::string getTitle() const;
 
     /**
      * Returns the height of the viewport of the camera.
@@ -128,12 +119,28 @@ public:
      */
     virtual void addEventHandler( osgGA::GUIEventHandler* handler ) = 0;
 
-protected:
-private:
     /**
-     * The widget's title string.
+     * Remove any pre-existing camera preset. Very useful when adding custom presets or presets do not make sense at all.
      */
-    std::string m_title;
+    virtual void clearCameraPresets() = 0;
+
+    /**
+     * Add a custom camera preset. Appends at the end of any pre-existing presets. The presets are not directly specified via a matrix or
+     * quaternion. A trigger property allows implementing own callbacks to actually set the preset. This is very useful when using your own
+     * osg::CameraManupulator implementation for your view.
+     *
+     * \param preset the trigger to set the preset.
+     * \param icon optional icon.
+     */
+    virtual void addCameraPreset( WPropTrigger preset, WGEImage::SPtr icon = WGEImage::SPtr() ) = 0;
+protected:
+    /**
+     * Constructor. Create a custom widget instance.
+     *
+     * \param title the title of the widget
+     */
+    explicit WUIViewWidget( std::string title );
+private:
 };
 
-#endif  // WCUSTOMWIDGET_H
+#endif  // WUIVIEWWIDGET_H

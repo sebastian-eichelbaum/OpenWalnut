@@ -22,20 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#include "WDeferredCallEvent.h"
 
-#include "WCustomWidget.h"
-
-WCustomWidget::WCustomWidget( std::string title ):
-    m_title( title )
-{
-}
-
-WCustomWidget::~WCustomWidget()
-{
-}
-
-std::string WCustomWidget::getTitle() const
-{
-    return m_title;
-}

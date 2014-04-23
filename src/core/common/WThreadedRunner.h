@@ -45,6 +45,16 @@ class WThreadedRunner // NOLINT
 {
 public:
     /**
+     * Abbreviation to a shared_ptr to this type
+     */
+    typedef boost::shared_ptr< WThreadedRunner > SPtr;
+
+    /**
+     * Abbreviation to a const shared_ptr to this type
+     */
+    typedef boost::shared_ptr< const WThreadedRunner > ConstSPtr;
+
+    /**
      * Type used for simple thread functions.
      */
     typedef boost::function< void ( void ) > THREADFUNCTION;

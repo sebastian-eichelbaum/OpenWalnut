@@ -22,9 +22,21 @@
 //
 //---------------------------------------------------------------------------
 
+#include <QtGui/QAction>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QToolButton>
+#include <QtGui/QWidgetAction>
+
 #include "../WQt4Gui.h"
 #include "../WMainWindow.h"
+#include "../WIconManager.h"
 
+#include "core/common/WLogger.h"
+
+#include "../controlPanel/WQtPropertyGroupWidget.h"
+#include "WQtPropertyBoolAction.h"
+#include "WQtPropertyTriggerAction.h"
 #include "WQtDockTitleWidget.h"
 
 #include "WQtDockWidget.h"
@@ -33,6 +45,8 @@
 WQtDockWidget::WQtDockWidget( const QString& title, QWidget* parent, Qt::WindowFlags flags ):
     QDockWidget( title, parent, flags )
 {
+    setObjectName( title );
+
     // thats it. we now have the title bar
     m_titleBar = new WQtDockTitleWidget( this );
     setTitleBarWidget( m_titleBar );
@@ -124,3 +138,85 @@ void WQtDockWidget::closeEvent( QCloseEvent *event )
     QDockWidget::closeEvent( event );
 }
 
+void WQtDockWidget::disableCloseButton( bool disable )
+{
+    m_titleBar->disableCloseButton( disable );
+}
+
+void WQtDockWidget::addTitleProperty( WPropTrigger prop, WGEImage::SPtr icon )
+{
+    WQtPropertyTriggerAction* propAction = new WQtPropertyTriggerAction( prop, this );
+    if( !icon )
+    {
+        propAction->setIcon(  WQt4Gui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
+    }
+    else
+    {
+        propAction->setIcon( WIconManager::convertToIcon( icon ) );
+    }
+
+    addTitleAction( propAction );
+}
+
+void WQtDockWidget::addTitleProperty( WPropBool prop, WGEImage::SPtr icon )
+{
+    WQtPropertyBoolAction* propAction = new WQtPropertyBoolAction( prop, this );
+    if( !icon )
+    {
+        propAction->setIcon(  WQt4Gui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
+    }
+    else
+    {
+        propAction->setIcon( WIconManager::convertToIcon( icon ) );
+    }
+
+    addTitleAction( propAction );
+}
+
+void WQtDockWidget::addTitleProperty( WPropGroup prop, WGEImage::SPtr icon )
+{
+    // create property widgets for each effect
+    WQtPropertyGroupWidget* viewPropsWidget = WQtPropertyGroupWidget::createPropertyGroupWidget( prop );
+    QWidget* viewPropsBox =  WQtPropertyGroupWidget::createPropertyGroupBox( viewPropsWidget );
+
+    // create container for all the config widgets
+    QWidget* viewConfigWidget = new QWidget();
+    QVBoxLayout* viewConfigLayout = new QVBoxLayout();
+    viewConfigLayout->setAlignment( Qt::AlignTop );
+    viewConfigWidget->setLayout( viewConfigLayout );
+
+    // force the widget to shrink when the content shrinks.
+    QSizePolicy sizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
+    sizePolicy.setHorizontalStretch( 0 );
+    sizePolicy.setVerticalStretch( 0 );
+    viewConfigWidget->setSizePolicy( sizePolicy );
+
+    // add the property widgets to container
+    viewConfigLayout->addWidget( viewPropsBox );
+
+    // Create the toolbutton and the menu containing the config widgets
+    QWidgetAction* viewerConfigWidgetAction = new QWidgetAction( this );
+    viewerConfigWidgetAction->setDefaultWidget( viewConfigWidget );
+    QMenu* viewerConfigMenu = new QMenu();
+    viewerConfigMenu->addAction( viewerConfigWidgetAction );
+
+    QToolButton* viewerConfigBtn = new QToolButton( this );
+    viewerConfigBtn->setPopupMode( QToolButton::InstantPopup );
+
+    if( !icon )
+    {
+        viewerConfigBtn->setIcon(  WQt4Gui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
+    }
+    else
+    {
+        viewerConfigBtn->setIcon( WIconManager::convertToIcon( icon ) );
+    }
+
+    viewerConfigBtn->setToolTip( QString::fromStdString( prop->getDescription() ) );
+    viewerConfigBtn->setMenu( viewerConfigMenu );
+
+    // hide config button when properties are hidden
+    connect( viewPropsWidget, SIGNAL( hideSignal( bool ) ), viewerConfigBtn, SLOT( setHidden( bool ) ) );
+
+    addTitleButton( viewerConfigBtn );
+}

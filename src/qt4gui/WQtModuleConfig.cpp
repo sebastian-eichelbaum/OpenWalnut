@@ -312,9 +312,9 @@ void WQtModuleConfig::initPathHelper()
 void WQtModuleConfig::loadListsFromSettings( bool recommendsOnly, bool defaultModulePaths )
 {
     // update checkbox too
-    bool ignoreAllowedList = WQt4Gui::getSettings().value( "qt4gui/modules/IgnoreAllowedList", false ).toBool();
+    bool ignoreAllowedList = WQt4Gui::getSettings().value( "qt4gui/modules/IgnoreAllowedList", true ).toBool();
     m_showThemAll->setCheckState( ignoreAllowedList ? Qt::Checked : Qt::Unchecked );
-    bool ignoreRecommendsList = WQt4Gui::getSettings().value( "qt4gui/modules/IgnoreRecommendedList", false ).toBool();
+    bool ignoreRecommendsList = WQt4Gui::getSettings().value( "qt4gui/modules/IgnoreRecommendedList", true ).toBool();
     m_ignoreRecommends->setCheckState( ignoreRecommendsList ? Qt::Checked : Qt::Unchecked );
 
     // read settings

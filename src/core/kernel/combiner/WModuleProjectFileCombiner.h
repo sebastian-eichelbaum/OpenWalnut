@@ -107,7 +107,7 @@ public:
      *
      * \return Cloned instance.
      */
-    virtual SPtr clone( WProjectFile* project ) const;
+    virtual WProjectFileIO::SPtr clone( WProjectFile* project ) const;
 
     /**
      * Map a given project file ID to a module. This method must not be used by WModuleProjectFileCombiner, as it builds this mapping. All other

@@ -182,6 +182,7 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
 
     QScrollArea* scrollArea = 0;
     QGridLayout* grid = new QGridLayout();
+    grid->setAlignment( Qt::AlignTop );
     grid->addWidget( widget, 0, 0 );
     grid->setMargin( WGLOBAL_MARGIN );
     grid->setSpacing( WGLOBAL_SPACING );
@@ -190,7 +191,9 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
     if( asScrollArea )
     {
         scrollArea = new QScrollArea();
+        scrollArea->setWidgetResizable( true );
         scrollArea->setWidget( group );
+        scrollArea->setAlignment( Qt::AlignTop );
         group->show();
     }
 
@@ -198,6 +201,7 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
     QFrame* box = new QFrame( parent );
     box->setFrameShape( QFrame::StyledPanel );
     box->setObjectName( "PropertyGroupBox" );
+    box->setContentsMargins( 0, 0, 0, 0 );
     QGridLayout* boxLayout = new QGridLayout();
     boxLayout->setMargin( 0 );
     boxLayout->setSpacing( 0 );
@@ -223,6 +227,7 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
     boxLayout->addWidget( boxContent, 1, 0 );
 
     // set the button up
+    boxTitle->setMinimumHeight( WMIN_PROPGROUP_HEAD_HEIGHT );
     boxTitle->setSizePolicy( sizePolicy );
     boxTitle->setAutoRaise( true );
     boxTitle->setAutoFillBackground( true );
@@ -240,40 +245,52 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
 
     // some styling
     QPalette palette;   // the palette is used to get default colors of the style/system
-    QColor defaultCol = palette.window().color().darker( 120 );
+    QColor defaultCol = QColor( "#b9b9b9" ); // palette.window().color().darker( 120 );
+    QColor brightTextCol = QColor( "#eeeeee" );
+    QColor darkTextCol = QColor( "#444444" );
+    QColor defaultTextCol = darkTextCol; // palette.windowText().color();
     switch( widget->m_nestingDepth % 10 ) // NOTE: the first level 0 does not need a color as it does not provide a boxtitle, so we begin with 1
     {
         // All these colors are taken from the solarized pallette http://ethanschoonover.com/solarized
         case 1:
-            defaultCol = palette.window().color().darker( 150 );
+            defaultCol = QColor( "#949494" ); // palette.window().color().darker( 150 );
+            defaultTextCol = darkTextCol;
             break;
         case 2:
             defaultCol = QColor( "#268bd2" );
+            defaultTextCol = brightTextCol;
             break;
         case 3:
             defaultCol = QColor( "#2aa198" );
+            defaultTextCol = brightTextCol;
             break;
         case 4:
             defaultCol = QColor( "#859900" );
+            defaultTextCol = brightTextCol;
             break;
         case 5:
             defaultCol = QColor( "#b58900" );
+            defaultTextCol = brightTextCol;
             break;
         case 6:
             defaultCol = QColor( "#cb4b16" );
+            defaultTextCol = brightTextCol;
             break;
         case 7:
             defaultCol = QColor( "#dc322f" );
+            defaultTextCol = brightTextCol;
             break;
         case 8:
             defaultCol = QColor( "#d33682" );
+            defaultTextCol = brightTextCol;
             break;
         case 9:
             defaultCol = QColor( "#6c71c4" );
+            defaultTextCol = brightTextCol;
             break;
     }
 
-    boxTitle->setStyleSheet( "background-color: " + defaultCol.name() + "; font-weight:bold;" );
+    boxTitle->setStyleSheet( "background-color: " + defaultCol.name() + "; font-weight:bold; color: " + defaultTextCol.name() + ";" );
     box->setStyleSheet( "QFrame#PropertyGroupBox{background-color: " + defaultCol.name() + ";}" );
     content->setStyleSheet( "#PropertyGroupContent{ background-color: "+ palette.window().color().name() +";}" );
 
@@ -300,12 +317,30 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
     return box;
 }
 
-QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WPropertyGroupBase::SPtr group, const QString& title, size_t depth, QWidget* parent )
+QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WPropertyGroupBase::SPtr group, bool asScrollArea, const QString& title,
+                                                         size_t depth, QWidget* parent )
 {
+    WQtPropertyGroupWidget* propWidget =  createPropertyGroupWidget( group, title, depth, parent );
+
+    // embed nicely into some scroll area or container or ....
+    QWidget* tab =  WQtPropertyGroupWidget::createPropertyGroupBox( propWidget, asScrollArea, parent, propWidget->getName() );
     QSizePolicy sizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
     sizePolicy.setHorizontalStretch( 0 );
     sizePolicy.setVerticalStretch( 0 );
+    tab->setSizePolicy( sizePolicy );
+    tab->setWindowTitle( propWidget->getName() );
 
+    return tab;
+}
+
+QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WPropertyGroupBase::SPtr group, const QString& title, size_t depth, QWidget* parent )
+{
+    return createPropertyGroupBox( group, false, title, depth, parent );
+}
+
+WQtPropertyGroupWidget* WQtPropertyGroupWidget::createPropertyGroupWidget( WPropertyGroupBase::SPtr group, const QString& title,
+                                                                           size_t depth, QWidget* parent )
+{
     QString titleCorrected = title;
     if( title == "" )
     {
@@ -314,11 +349,8 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WPropertyGroupBase::SPt
 
     WQtPropertyGroupWidget* propWidget = new WQtPropertyGroupWidget( group, depth, parent );
     propWidget->setName( titleCorrected );
-    QWidget* tab =  WQtPropertyGroupWidget::createPropertyGroupBox( propWidget, false, parent, titleCorrected );
-    tab->setSizePolicy( sizePolicy );
-    tab->setWindowTitle( titleCorrected );
 
-    return tab;
+    return propWidget;
 }
 
 void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asScrollArea )

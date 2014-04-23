@@ -70,7 +70,7 @@ void WQtNetworkEditorView::focusOn( QGraphicsItem* item )
 void WQtNetworkEditorView::ensureVisibleSmooth( QGraphicsItem* item , int xmargin, int ymargin )
 {
     // rect of the item inside the scene -> convert from scene to viewport
-    QRectF viewRect = mapFromScene( matrix().mapRect( item->sceneBoundingRect() ) ).boundingRect();
+    QRectF viewRect = mapFromScene( item->sceneBoundingRect() ).boundingRect();
 
     // actually visible area
     qreal top = verticalScrollBar()->value();

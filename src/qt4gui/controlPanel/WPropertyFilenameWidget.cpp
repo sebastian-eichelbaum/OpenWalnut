@@ -57,6 +57,8 @@ WPropertyFilenameWidget::WPropertyFilenameWidget( WPropFilename property, QGridL
     m_infoLayout.setSpacing( WGLOBAL_SPACING );
     m_informationWidgets.setLayout( &m_infoLayout );
 
+    m_button.setMinimumHeight( WMIN_WIDGET_HEIGHT );
+
     // accept drag and drop
     setAcceptDrops( true );
 

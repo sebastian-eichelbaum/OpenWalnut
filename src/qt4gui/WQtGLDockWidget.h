@@ -69,7 +69,7 @@ public:
      *
      * \return pointer to GL widget
      */
-    boost::shared_ptr< WQtGLWidget > getGLWidget() const;
+    WQtGLWidget* getGLWidget() const;
 
     /**
      * Adds a screen capture dock using this view's screen capture callback.
@@ -108,6 +108,31 @@ public:
      */
     virtual void restoreSettings();
 
+    /**
+     * Allow turning the automatic save and restore of viewer-settings.
+     *
+     * \param enable true to enable
+     */
+    void setSaveViewerSettings( bool enable = true );
+
+    /**
+     * Check whether the automatic saving of \ref WGEViewer properties is enabled.
+     *
+     * \return true if enabled.
+     */
+    bool getSaveViewerSettings() const;
+
+    /**
+     * Get the menu used for camera presets
+     *
+     * \return the menu.
+     */
+    QMenu* getCameraPresetMenu() const;
+
+    /**
+     * Update camera button. Call this when you modify the camera preset menu.
+     */
+    void updateCameraPresetButton();
 public slots:
     /**
      * Open screen capture config options
@@ -151,7 +176,7 @@ private:
     /**
      * My GL widget.
      */
-    boost::shared_ptr<WQtGLWidget> m_glWidget;
+    WQtGLWidget* m_glWidget;
 
     /**
      * The view name and dock title.
@@ -162,6 +187,16 @@ private:
      * Manager for screen capturing of this view
      */
     WQtGLScreenCapture* m_screenCapture;
+
+    /**
+     * If true, the saveSettings method also saves the WGEViewer properties.
+     */
+    bool m_saveViewerSettings;
+
+    /**
+     * Camera presets.
+     */
+    QToolButton* m_presetBtn;
 };
 
 #endif  // WQTGLDOCKWIDGET_H

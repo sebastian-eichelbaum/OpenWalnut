@@ -52,8 +52,9 @@
 
 WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget* parent, WGECamera::ProjectionMode projectionMode,
                                   const QWidget* shareWidget ):
-    WQtDockWidget( viewTitle, parent ),
-    m_dockTitle( dockTitle )
+    WQtDockWidget( dockTitle, parent ),
+    m_dockTitle( dockTitle ),
+    m_saveViewerSettings( true )
 {
     setObjectName( QString( "GL - " ) + dockTitle );
 
@@ -63,14 +64,14 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     m_layout = new QVBoxLayout( m_panel );
     m_layout->setContentsMargins( 1, 1, 1, 1 );
 
-    m_glWidget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( viewTitle.toStdString(), m_panel, projectionMode, shareWidget ) );
+    m_glWidget = new WQtGLWidget( viewTitle.toStdString(), m_panel, projectionMode, shareWidget );
 
     // NOTE: do not remove this. When creating custom widgets using the OSG manipulators, a too small size here (or even no min size) causes the
     // cull visitor to do crap ... unknown reason ...
     setMinimumSize( 50, 50 );
 
     // add panel to layout.
-    m_layout->addWidget( m_glWidget.get() );
+    m_layout->addWidget( m_glWidget );
     m_panel->setLayout( m_layout );
     setWidget( m_panel );
 
@@ -79,35 +80,6 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
 
     // all view docks have a screen capture object
     m_screenCapture = new WQtGLScreenCapture( this );
-
-    // create property widgets for each effect
-    QWidget* viewPropsWidget = WQtPropertyGroupWidget::createPropertyGroupBox( m_glWidget->getViewer()->getProperties() );
-
-    // create container for all the config widgets
-    QWidget* viewConfigWidget = new QWidget();
-    QVBoxLayout* viewConfigLayout = new QVBoxLayout();
-    viewConfigLayout->setAlignment( Qt::AlignTop );
-    viewConfigWidget->setLayout( viewConfigLayout );
-
-    // force the widget to shrink when the content shrinks.
-    QSizePolicy sizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
-    sizePolicy.setHorizontalStretch( 0 );
-    sizePolicy.setVerticalStretch( 0 );
-    viewConfigWidget->setSizePolicy( sizePolicy );
-
-    // add the property widgets to container
-    viewConfigLayout->addWidget( viewPropsWidget );
-
-    // Create the toolbutton and the menu containing the config widgets
-    QWidgetAction* viewerConfigWidgetAction = new QWidgetAction( this );
-    viewerConfigWidgetAction->setDefaultWidget( viewConfigWidget );
-    QMenu* viewerConfigMenu = new QMenu();
-    viewerConfigMenu->addAction( viewerConfigWidgetAction );
-    QToolButton* viewerConfigBtn = new QToolButton( parent );
-    viewerConfigBtn->setPopupMode( QToolButton::InstantPopup );
-    viewerConfigBtn->setIcon(  WQt4Gui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
-    viewerConfigBtn->setToolTip( "Configure View" );
-    viewerConfigBtn->setMenu( viewerConfigMenu );
 
     // screen capture trigger
     QWidgetAction* screenCaptureWidgetAction = new QWidgetAction( this );
@@ -120,30 +92,40 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     screenShotBtn->setMenu( screenCaptureMenu );
 
     // camera presets
-    QToolButton* presetBtn = new QToolButton( parent );
-    presetBtn->setDefaultAction( getGLWidget()->getCameraResetAction() );
-    presetBtn->setMenu(  getGLWidget()->getCameraPresetsMenu() );
-    presetBtn->setPopupMode( QToolButton::MenuButtonPopup );
+    m_presetBtn = new QToolButton( parent );
+    m_presetBtn->setDefaultAction( m_glWidget->getCameraResetAction() );
+    m_presetBtn->setMenu( m_glWidget->getCameraPresetsMenu() );
+    m_presetBtn->setPopupMode( QToolButton::MenuButtonPopup );
 
     // add them to the title
     addTitleButton( screenShotBtn );
-    addTitleButton( presetBtn );
-    addTitleButton( viewerConfigBtn );
+    addTitleButton( m_presetBtn );
+
+    addTitleProperty( m_glWidget->getViewer()->getProperties() );
 }
 
 WQtGLDockWidget::~WQtGLDockWidget()
 {
     // cleanup
+    delete m_screenCapture;
+    m_screenCapture = NULL;
 }
 
 void WQtGLDockWidget::saveSettings()
 {
-    m_screenCapture->saveSettings();
+    if( m_screenCapture )
+    {
+        m_screenCapture->saveSettings();
+    }
     WQtDockWidget::saveSettings();
 
-    // visit the properties and save in QSettings. You cannot bind QSettings::setValue directly as the parameters need to be cast to QString and
-    // QVariant, which does not happen implicitly
-    m_glWidget->getViewer()->getProperties()->visitAsString( &WMainWindow::setSetting, m_dockTitle.toStdString() );
+    // optional:
+    if( m_saveViewerSettings )
+    {
+        // visit the properties and save in QSettings. You cannot bind QSettings::setValue directly as the parameters need to be cast to QString and
+        // QVariant, which does not happen implicitly
+        m_glWidget->getViewer()->getProperties()->visitAsString( &WMainWindow::setSetting, m_dockTitle.toStdString() );
+    }
 }
 
 void WQtGLDockWidget::restoreSettings()
@@ -151,34 +133,47 @@ void WQtGLDockWidget::restoreSettings()
     m_screenCapture->restoreSettings();
     WQtDockWidget::restoreSettings();
 
-    // do not forget to load the config properties of the viewer
-    WMainWindow::getSettings().beginGroup( m_dockTitle );
-    QStringList keys = WMainWindow::getSettings().allKeys();
-    // iterate all the keys in the group of this viewer. QSettings does not implement a visitor mechanism, thus we iterate manually.
-    for( QStringList::const_iterator it = keys.constBegin(); it != keys.constEnd(); ++it )
+    if( m_saveViewerSettings )
     {
-        std::string value = WMainWindow::getSettings().value( *it ).toString().toStdString();
-        std::string key = ( *it ).toStdString();
-
-        // NOTE: findProperty does not throw an exception, but setAsString.
-        WPropertyBase::SPtr prop = m_glWidget->getViewer()->getProperties()->findProperty( key );
-        if( prop )
+        // do not forget to load the config properties of the viewer
+        WMainWindow::getSettings().beginGroup( m_dockTitle );
+        QStringList keys = WMainWindow::getSettings().allKeys();
+        // iterate all the keys in the group of this viewer. QSettings does not implement a visitor mechanism, thus we iterate manually.
+        for( QStringList::const_iterator it = keys.constBegin(); it != keys.constEnd(); ++it )
         {
-            // just in case something is going wrong (faulty setting): cannot cast string to property type. Be kind and ignore it.
-            try
+            std::string value = WMainWindow::getSettings().value( *it ).toString().toStdString();
+            std::string key = ( *it ).toStdString();
+
+            // NOTE: findProperty does not throw an exception, but setAsString.
+            WPropertyBase::SPtr prop = m_glWidget->getViewer()->getProperties()->findProperty( key );
+            if( prop )
             {
-                prop->setAsString( value );
-            }
-            catch( ... )
-            {
-                // ignore faulty/old settings
+                // just in case something is going wrong (faulty setting): cannot cast string to property type. Be kind and ignore it.
+                try
+                {
+                    prop->setAsString( value );
+                }
+                catch( ... )
+                {
+                    // ignore faulty/old settings
+                }
             }
         }
+        WMainWindow::getSettings().endGroup();
     }
-    WMainWindow::getSettings().endGroup();
 }
 
-boost::shared_ptr<WQtGLWidget>WQtGLDockWidget::getGLWidget() const
+void WQtGLDockWidget::setSaveViewerSettings( bool enable )
+{
+    m_saveViewerSettings = enable;
+}
+
+bool WQtGLDockWidget::getSaveViewerSettings() const
+{
+    return m_saveViewerSettings;
+}
+
+WQtGLWidget* WQtGLDockWidget::getGLWidget() const
 {
     return m_glWidget;
 }
@@ -186,18 +181,22 @@ boost::shared_ptr<WQtGLWidget>WQtGLDockWidget::getGLWidget() const
 void WQtGLDockWidget::handleVisibilityChange( bool visible )
 {
     // this can help to reduce CPU load. Especially if multithreading viewers are used with cull thread per context.
-    m_glWidget->getViewer()->getView()->getScene()->getSceneData()->setNodeMask( visible * 0xFFFFFFFF );
+    if( m_glWidget->getViewer() )
+    {
+        m_glWidget->getViewer()->getView()->getScene()->getSceneData()->setNodeMask( visible * 0xFFFFFFFF );
+    }
 }
 
 void WQtGLDockWidget::closeEvent( QCloseEvent *event )
 {
-    getGLWidget()->getViewer()->setClosed( true );
+    event->accept();
+    m_glWidget->setPaused( true );
     WQtDockWidget::closeEvent( event );
 }
 
 void WQtGLDockWidget::showEvent( QShowEvent* event )
 {
-    getGLWidget()->getViewer()->setClosed( false );
+    m_glWidget->setPaused( false );
     WQtDockWidget::showEvent( event );
 }
 
@@ -228,6 +227,26 @@ const QString& WQtGLDockWidget::getDockTitle() const
 
 void WQtGLDockWidget::openScreenCaptureConfig()
 {
-    m_screenCapture->setWindowFlags( Qt::Tool );
-    m_screenCapture->show();
+    if( m_screenCapture )
+    {
+        m_screenCapture->setWindowFlags( Qt::Tool );
+        m_screenCapture->show();
+    }
+}
+
+void WQtGLDockWidget::updateCameraPresetButton()
+{
+    if( getCameraPresetMenu()->isEmpty() )
+    {
+        m_presetBtn->setMenu( NULL );
+    }
+    else
+    {
+        m_presetBtn->setMenu( getCameraPresetMenu() );
+    }
+}
+
+QMenu* WQtGLDockWidget::getCameraPresetMenu() const
+{
+    return m_glWidget->getCameraPresetsMenu();
 }

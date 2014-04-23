@@ -36,9 +36,9 @@
 
 #define RCS_CNT_H "$RCSfile: cnt.h,v $ $Revision: 2415 $"
 
-#include <eep/eepmisc.h>
 #include <time.h>
-/* #include <unistd.h> */
+#include <eep/stdint.h>
+#include <eep/eepmisc.h>
 #include <cnt/trg.h>
 #include <eep/val.h>
 
@@ -54,6 +54,7 @@
 /* #define CNT_TF     5 */ /* Time/frequency mode (*no* EEG (RAW3) data in file!) */
 /* #define CNT_TFRAW3 6 */ /* Both RAW3 + Time Frequency mode (e.g. both EEG + FFT/wavelet data) */
 /* #define CNT_RAWF   7 */ /* AVR files saved in RIFF format just like CNT files (new style AVR's) */
+#define CNTX_RIFF  8 /* 64-bit RIFF data type */
 
 
 /*
@@ -135,10 +136,8 @@ typedef struct eeg_dummy_t eeg_t;
   in preparation to eep_init_from_values()
 */
 eegchan_t *eep_chan_init(short chanc);
-void       eep_chan_set (eegchan_t *chanv, short chan,
-                         const char *lab, double iscale, double rscale, const char *runit);
-void       eep_chan_set_reflab(eegchan_t *chanv, short chan, 
-                         const char *reflab);
+void       eep_chan_set (eegchan_t *chanv, short chan, const char *lab, double iscale, double rscale, const char *runit);
+void       eep_chan_set_reflab(eegchan_t *chanv, short chan, const char *reflab);
 
 void eep_free(eeg_t *cnt);
 
@@ -200,8 +199,8 @@ eeg_t *eep_init_from_copy(eeg_t *src);
 #define FORGET_stdd 0x00000100
 #define FORGET_imp  0x00000200
 
-int eep_create_file(eeg_t *dst, const char *fname, FILE *f,
-               eeg_t *src, unsigned long delmask, const char *registry);
+int eep_create_file(eeg_t *dst, const char *fname, FILE *f, eeg_t *src, unsigned long delmask, const char *registry);
+int eep_create_file64(eeg_t *dst, const char *fname, FILE *f, const char *registry);
 
 
 /*
@@ -218,7 +217,7 @@ int eep_finish_file(eeg_t *cnt);
   This is specificly meant for use when an eep file is closed at one point and closed at
   anothor.
 
-  return: status 
+  return: status
 */
 int eep_fclose(eeg_t *cnt);
 
@@ -242,12 +241,12 @@ int eep_fclose(eeg_t *cnt);
 #define FLOAT_CNTBUF_SIZE(cnt, n) (eep_get_chanc(cnt) * (n) * sizeof(float))
 #define FLOAT_CNTBUF_ARRAYSIZE(cnt, n) (eep_get_chanc(cnt) * (n))
 
-int eep_seek   (eeg_t *cnt, eep_datatype_e type, slen_t sample, int relative);
-int eep_read_sraw   (eeg_t *cnt, eep_datatype_e type, sraw_t *muxbuf, slen_t n);
-int eep_read_float  (eeg_t *cnt, eep_datatype_e type, float  *muxbuf, slen_t n);
+int eep_seek   (eeg_t *cnt, eep_datatype_e type, uint64_t sample, int relative);
+int eep_read_sraw   (eeg_t *cnt, eep_datatype_e type, sraw_t *muxbuf, uint64_t n);
+int eep_read_float  (eeg_t *cnt, eep_datatype_e type, float  *muxbuf, uint64_t n);
 /* For writing, the datatype depends on what has been set by eep_prepare_to_write(some_datatype) */
-int eep_write_sraw  (eeg_t *cnt, sraw_t *muxbuf, slen_t n);
-int eep_write_float (eeg_t *cnt, float  *muxbuf, slen_t n);
+int eep_write_sraw  (eeg_t *cnt, sraw_t *muxbuf, uint64_t n);
+int eep_write_float (eeg_t *cnt, float  *muxbuf, uint64_t n);
 
 /*
   return or set the cnt trigger archive handle
@@ -271,7 +270,8 @@ void           eep_set_period(eeg_t *cnt, double period);
 short          eep_get_chanc(eeg_t *cnt);
 /* void           set_cnt_chanc(eeg_t *cnt, short chanc, eegchan_t *chanv); */
 void           eep_dup_chan(eeg_t *cnt, short chan, char *newlab);
-slen_t         eep_get_samplec(eeg_t *cnt);
+uint64_t       eep_get_samplec(eeg_t *cnt);
+int            eep_get_samplec_full(const eeg_t *cnt, uint64_t *samplec);
 
 int            eep_get_chan_index(eeg_t *cnt, const char *lab);  /* case insens., -1 if not found */
 
@@ -309,7 +309,7 @@ char*          eep_get_chan_type(eeg_t *cnt, short chan);
 int            eep_get_mode(eeg_t *cnt);
 void           eep_set_mode_EEP20(eeg_t *cnt);
 
-int            eep_prepare_to_write(eeg_t *cnt, eep_datatype_e type, slen_t epochl, short *chanv);
+int            eep_prepare_to_write(eeg_t *cnt, eep_datatype_e type, uint64_t epochl, short *chanv);
 /*int            eep_switch_to_write(eeg_t *cnt, eep_datatype_e type);*/
 
 /********************* Added functions for handling Time/Frequency data **********/
@@ -334,7 +334,7 @@ void eep_set_tf_contenttype(eeg_t *cnt, tf_content_e tf_contenttype);
 double eep_get_tf_period(eeg_t *cnt);
 void eep_set_tf_period(eeg_t *cnt, double period);
 short eep_get_tf_rate(eeg_t *cnt);
-slen_t  eep_get_tf_samplec(eeg_t *cnt);
+uint64_t eep_get_tf_samplec(eeg_t *cnt);
 
 const char* eep_get_tf_chan_unit(eeg_t *cnt, int chan_index);
 
@@ -399,6 +399,7 @@ int            eep_get_fileversion_minor(eeg_t *cnt);
     "unknown" */
 void           eep_get_dataformat(eeg_t *cnt, char *format);
 
+int            eep_has_history(eeg_t *);
 void           eep_set_history(eeg_t *cnt, const char *hist);
 void           eep_append_history(eeg_t *cnt, const char *histline);
 const char*    eep_get_history(eeg_t *cnt);

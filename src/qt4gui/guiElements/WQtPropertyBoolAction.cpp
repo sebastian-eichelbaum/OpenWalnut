@@ -38,6 +38,9 @@ WQtPropertyBoolAction::WQtPropertyBoolAction( WPropBool property, QWidget* paren
 {
     setCheckable( true );
 
+    setToolTip( QString::fromStdString( property->getDescription() ) );
+    setText( QString::fromStdString( property->getName() ) );
+
     // initialize members
     update();
 

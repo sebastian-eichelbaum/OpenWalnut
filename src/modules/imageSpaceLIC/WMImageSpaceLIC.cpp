@@ -327,6 +327,11 @@ void WMImageSpaceLIC::moduleMain()
         new WGEShaderPropertyDefineOptions< WPropBool >( m_3dNoiseAutoRes, "NOISE3DAUTORES_DISABLED", "NOISE3DAUTORES_ENABLED" )
     ) );
 
+    // This should not be needed. But somehow, the u_vertexShift uniforms does not get removed by OSG when switching to mesh.
+    transformationShader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_useSlices, "VERTEXSHIFT_DISABLED", "VERTEXSHIFT_ENABLED" )
+    ) );
+
     osg::ref_ptr< WGEOffscreenRenderPass > transformation = offscreen->addGeometryRenderPass(
         m_output,
         transformationShader,

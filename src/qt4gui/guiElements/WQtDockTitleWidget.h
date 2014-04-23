@@ -99,6 +99,13 @@ public:
      * Update help button.
      */
     virtual void updateHelp();
+
+    /**
+     * Disable close button? Might come in handy when embedding these widgets into others
+     *
+     * \param disable true to disable
+     */
+    void disableCloseButton( bool disable = true );
 protected:
     /**
      * Called upon resize. Used to switch between the more menu and the tools widget
@@ -176,7 +183,7 @@ private:
     /**
      * The parent as dock pointer
      */
-    WQtDockWidget* dockParent;
+    WQtDockWidget* m_dockParent;
 
     /**
      * We keep track of the widgets that we add

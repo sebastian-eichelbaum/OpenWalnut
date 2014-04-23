@@ -30,6 +30,7 @@
 #define RCS_RIFF_H "$RCSfile: riff.h,v $ $Revision: 1762 $"
 
 #include <stdio.h>
+#include <eep/stdint.h>
 
 /* RIFF access return values */
 #define RIFFERR_NONE 0
@@ -52,14 +53,15 @@ typedef unsigned int fourcc_t;
 */
 struct chunk {
   fourcc_t      id;
-  int           start;
-  int           size;
+  uint64_t      start;
+  uint64_t      size;
   struct chunk  *parent;
 };
 typedef struct chunk chunk_t;
 
 /* the standard FOURCC tags and formats known by the library*/
 #define FOURCC_RIFF FOURCC('R', 'I', 'F', 'F')
+#define FOURCC_RF64 FOURCC('R', 'F', '6', '4')
 #define FOURCC_LIST FOURCC('L', 'I', 'S', 'T')
 
 /*
@@ -126,7 +128,7 @@ int riff_new(FILE *f, chunk_t *chunk, fourcc_t chunktype, chunk_t *parent);
 */
 int riff_close(FILE *f, chunk_t chunk);
 
-int put_chunk(FILE *f, chunk_t out);
+int riff_put_chunk(FILE *f, chunk_t out);
 
 /*
   random access functions
@@ -136,13 +138,11 @@ int put_chunk(FILE *f, chunk_t out);
   riff_seek works like fseek with "whence" in the chunk data area
   (supported only for read access!)
 */
-int riff_write(const char *buf, size_t size, size_t num_items,
-                     FILE *f, chunk_t *chunk);
-int riff_read(char *buf, size_t size, size_t num_items,
-                    FILE *f, chunk_t chunk);
+int riff_write(const char *buf, size_t size, size_t num_items, FILE *f, chunk_t *chunk);
+int riff_read(char *buf, size_t size, size_t num_items, FILE *f, chunk_t chunk);
 int riff_seek(FILE *f, long offset, int whence, chunk_t chunk);
 
-long     get_chunk_size(chunk_t chunk);
-fourcc_t get_chunk_id(chunk_t chunk);
+long     riff_get_chunk_size(chunk_t chunk);
+fourcc_t riff_get_chunk_id(chunk_t chunk);
 
 #endif

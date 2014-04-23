@@ -23,10 +23,84 @@
 //---------------------------------------------------------------------------
 
 // Provide additional material and descriptions for your module. You can
-// provide this for multiple modules if you like.
+// provide this for multiple modules if you like. 
+// The purpose of this file is to allow the developer to provide additional
+// material for his module, like documentation links, video tutorials and 
+// similar. You should always write such a META file for your module, even
+// if you do not provide additional material (for now at least).
 
-// NOTE: everything but the module name is optional, even if this makes no
-//       sense at all.
+///////////////////////////////////////////////////////////////////////////////
+// SYNTAX
+
+// The syntax is quite simple for those who know C/C++. There are basically
+// two things to know: values, blocks and comments
+
+// 1.) values are simple name-value-pairs. Use the syntax:
+//       valueName = "value value value";
+//     Note that the value of a variable needs to be embedded into "" and
+//     must be terminated with ;
+//
+// 2.) blocks can be seen as a named group of values or blocks. Use the 
+//     syntax:
+//       "block name with space and stuff"
+//       {
+//          values ...
+//          block ...
+//       };
+//     A block is a name (use "" if it contains spaces) and a bunch of 
+//     nested values or blocks. They are embedded in pairs of {} and a
+//     block is terminated by ;
+//
+// 3.) Comments ... well as you can see they start with //. Everything after
+//     // will be ignored
+
+///////////////////////////////////////////////////////////////////////////////
+// USAGE and MEANING
+
+// OpenWalnut defines some values and blocks for certain information which can
+// will be used by the UI. But you can define your own too! This is very handy
+// if you write your toolboxes and want to avoid hard-coding several values.
+//
+// 
+// 1.) The predefined blocks and values are shown below. At this point, let us
+// have a look on how to query your own values:
+// 
+//   Assume you have a block:
+//   "Some Jokes"
+//   {
+//      "For Scientists"
+//      {
+//          joke="An electron and a positron walked into a bar ...";
+//      }; // <- do not miss the ;
+//   }; // <- do not miss the ;
+//
+//   To query the value of "joke" in your module:
+//
+//   std::string scienceJoke = getMetaInformation()->query< std::string >(
+//      "Some Jokes/For Scientists/joke", // the absolute path
+//      "not so funny default joke"       // a default if the element does
+//                                        // not exist or cannot be returned
+//                                        // as std::string.
+//   );
+//
+//   Thats it. The function getMetaInformation() is a member of WModule,
+//   thus you always have it available (but not in the constructor). The
+//   remaining part of the code is quite self-explaining. You define a
+//   return type and path. The return type tells the system that you expect
+//   an std::string at this position. The function tries to cast the found
+//   value to this type. The path is an absolute path. Very handy to define
+//   a "common" block in your META file to share information amongst multiple
+//   modules. (see below)
+//
+// 2.) The predefined values and blocks are shown below. The UI interprets them
+//     and displays it where appropriate. The Qt4 GUI for example show an 
+//     "About & Help" tab for each module.
+//    
+//   NOTE: everything but the module name is optional, even if this makes no
+//         sense at all.
+
+///////////////////////////////////////////////////////////////////////////////
+// SEMANTICS
 
 // This defines some properties of the module "Template". This must
 // match the name specified in WMTemplate::getName().
@@ -34,7 +108,7 @@
 {
   // Provide an icon. If the icon exists, it overrides the one provided by your
   // getXPMIcon method. This path is relative to your module's resource directory.
-  icon="WMTemplate.xpm";
+  icon="WMTemplateIcon.png";
 
   // Where to find the module?
   website = "http://www.openwalnut.org";
@@ -43,34 +117,36 @@
   // provided by your getDescription method.
   // HINT: multi-line strings are not supported. Please provide long texts in
   //       one line.
-  description = "This module is intended to be THE reference module. If you would like to program your own modules, you should look at this module's source.";
+  description = "Demonstrative module which tries to show the code features in OW and their usage.";
 
-  // Help file. This should be an HTML or TXT document. Only one document allowed.
-  help ="help/index.html";
-
-  // Provide a list of authors. These authors can have further information associated with them.
+  // Provide a list of authors. These authors can have further information associated with them. First,
+  // define the list of authors
   author = "OpenWalnut Project";
   author = "Students";
 
-  // Provide author information. Especially a contact address is very handy.
-  // This associates some URL and Mail contact info to "OpenWalnut Project".
+  // To provide further details on one or multiple authors, just open a new block called like
+  // the author.
+  //
+  // * all sub-values are optional
+  // * Especially a contact address is very handy.
+  // * This associates some URL and Mail contact info to "OpenWalnut Project".
   "OpenWalnut Project"
   {
     url="http://www.openwalnut.org";
     email="contact@openwalnut.org";
     what="Design, Development and Bug fixing";
   };
-  // These additional author information are optional.
-  Students
+
+  "Students"
   {
     what="Bug fixing";
-  };
+  }
 
   // Provide some tags to have modules nicely grouped and ordered.
-  // NOTE: tags are handled case insesitive.
+  // NOTE: tags are handled case insensitive.
   // IMPORTANT: the order of appearance will be used by OW to classify your tags
-  tag = "MRI";
-  tag = "fMRI";
+  tag = "Tutorial";
+  tag = "Scalar";
 
   // You can provide online resources. They are shown in the GUI. You should
   // additionally provide a description to help the user know what this is.
@@ -100,8 +176,52 @@
   // You can also provide screenshots with an optional description. Multiple screenshots allowed.
   screenshot
   {
-      description = "The rendering created by this module. It demonstrates simple OpenSceneGraph usage.";
-      filename = "template.png";
+      description = "Some red primitives";
+      filename = "templateScreenshot1.png";
+  };
+  screenshot
+  {
+      description = "The whole GUI";
+      filename = "templateScreenshot2.png";
+  };
+};
+
+// A block for sharing values amongst all template modules
+"common"
+{
+    // how to say goodbye ...
+    goodbye = "Auf Wiedersehen!";   // in german
+
+    // and a useful texture we want to use in some modules. We will load this using WGEImage.
+    amazingTexture = "amazingTexture.png";
+
+    // icons used in WMTemplateUI
+    settingsIcon = "iconBier.png";
+    boolIcon = "iconWurst.png";
+    cameraPresetIcon = "iconSteak.png";
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Further meta info
+
+// Basically the same as above, without comments. Skip this. It does not contain new information.
+"Template UI"
+{
+  icon="WMTemplateIcon.png";
+  website = "http://www.openwalnut.org";
+  description = "Demonstrative module which tries to show the custom UI features in OW and its usage.";
+  author = "OpenWalnut Project";
+  "OpenWalnut Project"
+  {
+    url="http://www.openwalnut.org";
+    email="contact@openwalnut.org";
+    what="Design, Development and Bug fixing";
+  };
+  tag = "Tutorial";
+  screenshot
+  {
+      description = "The custom UI";
+      filename = "templateUIScreenshot1.png";
   };
 };
 

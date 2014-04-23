@@ -22,49 +22,34 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WCLOSECUSTOMDOCKWIDGETEVENT_H
-#define WCLOSECUSTOMDOCKWIDGETEVENT_H
-
 #include <string>
 
-#include <QtCore/QEvent>
+#include "core/common/WException.h"
 
-#include "core/common/WCondition.h"
+#include "WUITabbedWidget.h"
 
-#include "WEventTypes.h"
-
-/**
- * A Qt event to close an existing custom dock widget if posted to the WMainWindow.
- */
-class WCloseCustomDockWidgetEvent : public QEvent
+WUITabbedWidget::WUITabbedWidget( std::string title ):
+    WUIWidgetBase( title )
 {
-public:
-    /**
-     * Constructor. Use the doneCondition to wait for the event to be processed.
-     *
-     * \param title the title of the widget to open
-     */
-    explicit WCloseCustomDockWidgetEvent( std::string title );
+    // initialize members
+}
 
-    /**
-     * Get the title of the widget to open.
-     *
-     * \return title of the widget to open
-     */
-    std::string getTitle() const;
+WUITabbedWidget::~WUITabbedWidget()
+{
+    // cleanup
+}
 
-    /**
-     * Constant which saves the number used to distinguish this event from other
-     * custom events.
-     */
-    static const QEvent::Type CUSTOM_TYPE = static_cast< QEvent::Type >( WQT_CLOSECUSTOMDOCKWIDGET );
+int WUITabbedWidget::addTab( WUIWidgetBase::SPtr widget, const std::string& label )
+{
+    if( widget->getParent().get() != this )
+    {
+        throw WException( "This widget is not parent of the widget to place via placeWidget()." );
+    }
+    return addTabImpl( widget, label );
+}
 
-protected:
-private:
-    /**
-     * the title of the widget to create
-     */
-    std::string m_title;
-};
+bool WUITabbedWidget::allowNesting() const
+{
+    return true;
+}
 
-#endif  // WCLOSECUSTOMDOCKWIDGETEVENT_H

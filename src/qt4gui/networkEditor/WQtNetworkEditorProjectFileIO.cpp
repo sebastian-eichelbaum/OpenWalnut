@@ -65,11 +65,12 @@ WProjectFileIO::SPtr WQtNetworkEditorProjectFileIO::clone( WProjectFile* project
  * Interpret a string as a ";"- separated sequence of doubles.
  *
  * \param seq   the sequence
- * \param size  the number of doubles needed
+ * \param size  the number of ints needed
+ * \param loaded will contain the number of ints really loaded.
  *
  * \return the values
  */
-int* parseIntSequence( std::string seq, int size )
+int* parseIntSequence( std::string seq, int size, int& loaded ) // NOLINT: yes it is a non const ref.
 {
     // parse the string
     // -> tokenize it and fill pointer appropriately
@@ -80,10 +81,12 @@ int* parseIntSequence( std::string seq, int size )
     // each value must be stored at the proper position
     int* values = new int[ size ];
     int i = 0;
+    loaded = 0;
     for( tokenizer::iterator it = tok.begin(); ( it != tok.end() ) && ( i < size ); ++it )
     {
         values[ i ] = string_utils::fromString< int >( ( *it ) );
         ++i;
+        ++loaded;
     }
 
     // finally, set the values
@@ -93,6 +96,7 @@ int* parseIntSequence( std::string seq, int size )
 bool WQtNetworkEditorProjectFileIO::parse( std::string line, unsigned int lineNumber )
 {
     static const boost::regex networkCoordRe( "^ *QT4GUI_NETWORK:([0-9]*)=(.*)$" );
+    static const boost::regex networkFlagsRe( "^ *QT4GUI_NETWORK_Flags:([0-9]*)=(.*)$" );
 
     // use regex to parse it
     boost::smatch matches;  // the list of matches
@@ -104,12 +108,37 @@ bool WQtNetworkEditorProjectFileIO::parse( std::string line, unsigned int lineNu
         wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Network \"" << matches[2] << "\" with module ID " << matches[1];
 
         unsigned int id = string_utils::fromString< unsigned int >( matches[1] );
-        int* coordRaw = parseIntSequence( string_utils::toString( matches[2] ), 2 );
+        int loaded = 0;
+        int* coordRaw = parseIntSequence( string_utils::toString( matches[2] ), 4, loaded );
 
-        // store. Applied later.
-        m_networkCoords[ id ] = QPoint( coordRaw[0], coordRaw[1] );
+        if( loaded == 2 ) // loaded coords
+        {
+            // store. Applied later.
+            m_networkCoords[ id ] = QPoint( coordRaw[0], coordRaw[1] );
+        }
+
         return true;
     }
+    else if( boost::regex_match( line, matches, networkFlagsRe ) )
+    {
+        // network editor coordinate
+        // matches[1] is the ID of the module
+        // matches[2] is the network coordinate
+        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Network Flags\"" << matches[2] << "\" with module ID " << matches[1];
+
+        unsigned int id = string_utils::fromString< unsigned int >( matches[1] );
+        int loaded = 0;
+        int* coordRaw = parseIntSequence( string_utils::toString( matches[2] ), 4, loaded );
+
+        if( loaded == 2 ) // loaded flags
+        {
+            // store. Applied later.
+            m_networkFlags[ id ] =  QPoint( coordRaw[0], coordRaw[1] );
+        }
+
+        return true;
+    }
+
     return false;
 }
 
@@ -140,7 +169,7 @@ void WQtNetworkEditorProjectFileIO::done()
 
     // request a reserved grid zone:
     // NOTE: future possibility?!
-    // unsigned int reservedAredID = m_networkEditor->getLayout()->reserveRect( bbTL, bbBR );
+    // unsigned int reservedAreadID = m_networkEditor->getLayout()->reserveRect( bbTL, bbBR );
 
     // get next free column
     int firstFree = m_networkEditor->getLayout()->getGrid()->getFirstFreeColumn();
@@ -159,6 +188,20 @@ void WQtNetworkEditorProjectFileIO::done()
             QPoint p = ( *it ).second - bbTL;
             p.rx() += firstFree;
             m_networkEditor->getLayout()->setModuleDefaultPosition( module, p );
+        }
+    }
+
+    for( ModuleNetworkCoordinates::const_iterator it = m_networkFlags.begin(); it != m_networkFlags.end(); ++it )
+    {
+        // map the ID to a real module
+        WModule::SPtr module = getProject()->mapToModule( ( *it ).first );
+        if( module )
+        {
+            // register in network editor instance as a default flag
+            // NOTE: we where lazy and used QPoint for storing both bools
+            QPoint p = ( *it ).second;
+            m_networkEditor->getLayout()->setModuleDefaultFlags( module, static_cast< bool >( p.x() ),
+                                                                         static_cast< bool >( p.y() ) );
         }
     }
 }
@@ -193,8 +236,9 @@ void WQtNetworkEditorProjectFileIO::save( std::ostream& output ) // NOLINT
         {
             QPoint p = grid->whereIs( item );
 
-            // NOTE: we write relative coordinates! Si subtract bounding box top-left corner from each coordinate.
+            // NOTE: we write relative coordinates! So subtract bounding box top-left corner from each coordinate.
             output << "QT4GUI_NETWORK:" << id << "=" << p.x() - bb.x() << ";" << p.y() - bb.y() << std::endl;
+            output << "QT4GUI_NETWORK_Flags:" << id << "=" << item->wasLayedOut() << ";" << item->wasManuallyPlaced() << std::endl;
         }
         // else: not in grid. We do not save info for this module
     }

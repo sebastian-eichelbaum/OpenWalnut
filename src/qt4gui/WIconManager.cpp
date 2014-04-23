@@ -26,6 +26,7 @@
 #include <string>
 
 #include <QtGui/QPixmap>
+#include <QtGui/QImage>
 
 #include "core/common/WAssert.h"
 #include "core/common/WPathHelper.h"
@@ -34,6 +35,7 @@
 #include "core/kernel/WModuleFactory.h"
 
 #include "WIconManager.h"
+#include "WNoIconDefault.xpm"
 
 void WIconManager::addMapping( const std::string& newName, const std::string& mapToThis )
 {
@@ -134,4 +136,49 @@ QIcon WIconManager::getIcon( const std::string name, const QIcon& defaultIcon )
         wlog::debug( "WIconManager" ) << "Icon \"" << name << "\" not found. Falling back to default.";
         return defaultIcon;
     }
+}
+
+QIcon WIconManager::convertToIcon( WGEImage::SPtr image )
+{
+    if( !image )
+    {
+        return getNoIconDefault();
+    }
+
+    // check some values:
+    if( ( image->getDepth() != 1 ) || ( image->getHeight() == 1 ) )
+    {
+        wlog::error( "WIconManager" ) << "Cannot use specified image as icon. It has to be 2D.";
+        return getNoIconDefault();
+    }
+
+    // we need to map the GLenum format in WGEImage to Qt's formats
+    QImage img = QImage( image->getWidth(), image->getHeight(), QImage::Format_ARGB32 );
+
+    // we manually convert the images for several reasons:
+    // 1) it is simply impossible to match all possible osg::image formats with those of QImage
+    // 2) lifetime of image->data() might be over after this call but QImage requires the data to exist until QImage is free'd
+
+    for( int y = 0; y < image->getHeight(); ++y )
+    {
+        for( int x = 0; x < image->getWidth(); ++x )
+        {
+            WColor col = image->getColor( x, y );
+            QColor qcol = QColor( 255 * col.r(), 255 * col.g(), 255 * col.b(), 255 * col.a() );
+            img.setPixel( x, y, qcol.rgba() );
+        }
+    }
+
+    // QImage require a top-left origin
+    if( image->getOrigin() == WGEImage::BOTTOM_LEFT )
+    {
+        img = img.mirrored( false, true );
+    }
+
+    return QIcon( QPixmap::fromImage( img ) );
+}
+
+QIcon WIconManager::getNoIconDefault()
+{
+    return QIcon( QPixmap( WNoIconDefault_xpm ) );
 }

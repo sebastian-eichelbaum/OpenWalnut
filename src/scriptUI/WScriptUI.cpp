@@ -195,19 +195,6 @@ int WScriptUI::run()
     return 0;
 }
 
-WCustomWidget::SPtr WScriptUI::openCustomWidget( std::string, WGECamera::ProjectionMode, boost::shared_ptr< WCondition > )
-{
-    return WCustomWidget::SPtr();
-}
-
-void WScriptUI::closeCustomWidget( std::string )
-{
-}
-
-void WScriptUI::closeCustomWidget( WCustomWidget::SPtr )
-{
-}
-
 void WScriptUI::loadToolboxes( boost::filesystem::path configPath )
 {
     // add additional module paths to the PathHelper, the rest will be done by module loader
@@ -233,4 +220,9 @@ void WScriptUI::loadToolboxes( boost::filesystem::path configPath )
             }
         }
     }
+}
+
+WUIWidgetFactory::SPtr WScriptUI::getWidgetFactory() const
+{
+    return WUIWidgetFactory::SPtr();
 }
