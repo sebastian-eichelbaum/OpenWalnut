@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#version 130
+#version 120
 
 #include "WGEColormapping-fragment.glsl"
 
@@ -30,8 +30,6 @@
 #include "WGETextureTools.glsl"
 #include "WGETransformationTools.glsl"
 #include "WGEUtils.glsl"
-
-//#include "WGEColorMaps.glsl"
 
 #include "WMImageSpaceLIC-Transformation-varyings.glsl"
 

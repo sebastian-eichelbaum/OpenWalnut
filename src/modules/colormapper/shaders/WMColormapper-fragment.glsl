@@ -22,9 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#version 130
+#version 120
 
-#include "WGEColorMaps.glsl"
+#include "WGEColorMapsImproved.glsl"
 
 /////////////////////////////////////////////////////////////////////////////
 // Varyings
@@ -61,8 +61,7 @@ uniform int u_colormap = 0;
  */
 void main()
 {
-    vec4 col = vec4( 0.0 );
-    colormap( col, vec4( v_value ), 0, 1.0, 0.0, 1.0, u_colormap, true );
+    vec4 col = colormap( vec4( v_value ), 0.0, 1.0, false, 0.0, 1.0, false, vec2( 0.0, 1.0 ), false, 1.0, u_colormap, true );
     gl_FragColor = col;
 }
 

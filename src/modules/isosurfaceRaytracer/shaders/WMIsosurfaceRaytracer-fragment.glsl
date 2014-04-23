@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#version 130
+#version 120
 
 #include "WGEColormapping-fragment.glsl"
 
@@ -166,11 +166,11 @@ void main()
     float jitter = 0.5 - texture2D( u_texture1Sampler, gl_FragCoord.xy / u_texture1SizeX ).r;
     // the point along the ray in cube coordinates
     vec3 curPoint = v_ray + v_rayStart + ( v_ray * stepDistance * jitter );
-    vec3 rayStart = curPoint;
 #else
     // the point along the ray in cube coordinates
     vec3 curPoint = v_ray + v_rayStart;
 #endif
+    vec3 rayStart = curPoint;
 
     // the step counter
     int i = 1;

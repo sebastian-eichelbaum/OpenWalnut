@@ -25,7 +25,7 @@
 #ifndef WGECOLORMAPSIMPROVED_GLSL
 #define WGECOLORMAPSIMPROVED_GLSL
 
-#version 130
+#version 120
 
 #include "WGEUtils.glsl"
 
@@ -458,6 +458,7 @@ vec4 atlas( in float value )
  * \param windowEnabled if true, the window level scaling is applied
  * \param alpha the alpha blending value
  * \param colormap the colormap index to use
+ * \param cmactive allows disabling this colormap
  */
 vec4 colormap( in vec4 value, float minV, float scaleV,
                bool clipZeroEnabled,
@@ -553,5 +554,5 @@ vec4 colormap( in vec4 value, float minV, float scaleV,
                               float( cmactive ) );    // is it active?
 }
 
-#endif // WGECOLORMAPS_GLSL
+#endif // WGECOLORMAPSIMPROVED_GLSL
 
