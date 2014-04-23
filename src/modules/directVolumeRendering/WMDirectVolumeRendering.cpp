@@ -296,6 +296,7 @@ void WMDirectVolumeRendering::moduleMain()
             // enable transparency
             osg::StateSet* rootState = cube->getOrCreateStateSet();
             rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
+            rootState->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
 
             // set proper illumination define
             illuminationAlgoDefines->activateOption( m_localIlluminationAlgo->get( true ).getItemIndexOfSelected( 0 ) );
