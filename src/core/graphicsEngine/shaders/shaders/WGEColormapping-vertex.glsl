@@ -25,7 +25,7 @@
 #ifndef WGECOLORMAPPING_VERTEX_GLSL
 #define WGECOLORMAPPING_VERTEX_GLSL
 
-#version 130
+#version 120
 
 #include "WGEColormapping-uniforms.glsl"
 #include "WGEColormapping-varyings.glsl"

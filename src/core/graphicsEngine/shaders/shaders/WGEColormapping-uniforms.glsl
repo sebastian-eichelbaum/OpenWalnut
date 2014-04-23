@@ -25,7 +25,7 @@
 #ifndef WGECOLORMAPPING_UNIFORMS_GLSL
 #define WGECOLORMAPPING_UNIFORMS_GLSL
 
-#version 130
+#version 120
 
 // All the uniforms needed. These uniforms get set by the WGEColormapping class for your Node.
 

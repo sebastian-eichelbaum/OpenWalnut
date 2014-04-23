@@ -25,7 +25,7 @@
 #ifndef WGEPOSTPROCESSORUTILS_VERTEX_GLSL
 #define WGEPOSTPROCESSORUTILS_VERTEX_GLSL
 
-#version 130
+#version 120
 
 /**
  * Does transfer the quad to image space.

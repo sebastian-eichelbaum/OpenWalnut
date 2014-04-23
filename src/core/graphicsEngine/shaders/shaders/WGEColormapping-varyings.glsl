@@ -25,7 +25,7 @@
 #ifndef WGECOLORMAPPING_VARYINGS_GLSL
 #define WGECOLORMAPPING_VARYINGS_GLSL
 
-#version 130
+#version 120
 
 /**
  * The texture coordinate in local texture space.

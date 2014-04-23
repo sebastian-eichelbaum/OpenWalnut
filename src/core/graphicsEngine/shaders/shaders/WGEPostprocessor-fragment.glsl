@@ -25,7 +25,7 @@
 #ifndef WGEPOSTPROCESSOR_FRAGMENT_GLSL
 #define WGEPOSTPROCESSOR_FRAGMENT_GLSL
 
-#version 130
+#version 120
 
 #include "WGEShadingTools.glsl"
 #include "WGETextureTools.glsl"
@@ -354,7 +354,7 @@ float getLineAO( vec2 where )
 
     // the radius of the sphere is, in screen-space, half a pixel. So the hemisphere covers nearly one pixel. Scaling by depth somehow makes it
     // more invariant for zooming
-    float maxPixels = max( u_colorSizeX, u_colorSizeY );
+    float maxPixels = max( float( u_colorSizeX ), float( u_colorSizeY ) );
     float radius = ( getZoom() * u_lineaoRadiusSS / maxPixels ) / ( 1.0 - currentPixelDepth );
 
     // some temporaries needed inside the loop

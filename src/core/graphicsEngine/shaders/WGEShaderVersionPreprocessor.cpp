@@ -90,6 +90,7 @@ std::string WGEShaderVersionPreprocessor::process( const std::string& file, cons
     std::stringstream vs;
     vs << "#version " << version << std::endl
        << "#line 1 " << std::endl << cleanedCode.str();
+    wlog::debug( "WGEShader (" + file + ")" ) << "Using GLSL version " << version;
     return vs.str();
 }
 

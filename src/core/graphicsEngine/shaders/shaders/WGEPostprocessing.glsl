@@ -25,7 +25,7 @@
 #ifndef WGEPOSTPROCESSING_GLSL
 #define WGEPOSTPROCESSING_GLSL
 
-#version 130
+#version 120
 
 // This defines some stuff needed to enable your shader to allow the result to be post-processed.
 // You'll need to do the following:

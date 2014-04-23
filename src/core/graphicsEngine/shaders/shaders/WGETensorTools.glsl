@@ -25,7 +25,7 @@
 #ifndef WGETENSORTOOLS_GLSL
 #define WGETENSORTOOLS_GLSL
 
-#version 130
+#version 120
 
 // (c) 2007 by Mario Hlawitschka
 

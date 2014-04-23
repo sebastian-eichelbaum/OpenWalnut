@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#version 130
-#extension GL_ARB_gpu_shader5 : enable
+#version 120
+#extension GL_ARB_gpu_shader5 : enable  // for inverse()
 
 // include some utility functions
 #include "WGETensorTools.glsl"

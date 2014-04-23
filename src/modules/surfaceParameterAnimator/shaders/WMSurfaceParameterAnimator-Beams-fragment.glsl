@@ -22,8 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#version 130
-#extension GL_EXT_gpu_shader4 : enable
+#version 120
 
 #include "WGETextureTools.glsl"
 #include "WGETransformationTools.glsl"
@@ -287,8 +286,8 @@ void main()
             // create a triangle function increasing time in 1/100 steps
             float relativeSpeed1 = float( u_speed1 ) / 2.0;
             float relativeSpeed2 = float( u_speed2 ) / 2.0;
-            float anim1 = ( int( timeStep * relativeSpeed1 ) % int( paramSpaceSize + maxSize + 30 ) ) - maxSize / 2.0;
-            float anim2 = ( int( timeStep * relativeSpeed2 ) % int( paramSpaceSize + maxSize + 30 ) ) - maxSize / 2.0;
+            float anim1 = mod( int( timeStep * relativeSpeed1 ), int( paramSpaceSize + maxSize + 30 ) ) - maxSize / 2.0;
+            float anim2 = mod( int( timeStep * relativeSpeed2 ), int( paramSpaceSize + maxSize + 30 ) ) - maxSize / 2.0;
 
             // To have more than one halo at a time:
             // anim1 = anim1 % 50;

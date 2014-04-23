@@ -25,17 +25,17 @@
 #ifndef WGEUTILS_GLSL
 #define WGEUTILS_GLSL
 
-#version 130
+#version 120
 
 /**
- * 
+ *
  * This makes threshold lying between min and max to lie between 0 and 1 where 0 corresponds to min and 1 to max
- * 
+ *
  * \param threshold threshold value used for cutting
  * \param min minumum of original space
  * \param max maximum of original space
- * 
- * \return 
+ *
+ * \return
  */
 float scaleZeroOne( in float threshold, in float min, in float max )
 {
@@ -44,10 +44,10 @@ float scaleZeroOne( in float threshold, in float min, in float max )
 
 /**
  * Evaluates a given value whether it is zero, or more exactly, if it can be seen as zero.
- * 
+ *
  * \param value the value to check
  * \param epsilon the epsilon to use. Default is 0.001. Much lower is not recommended since floating point precision in GLSL is not that high.
- * 
+ *
  * \return true if zero.
  */
 bool isZero( in float value, in float epsilon )
@@ -61,7 +61,7 @@ bool isZero( in float value, in float epsilon )
  *
  * \param value the value to check
  * \param epsilon the epsilon to use. Default is 0.001. Much lower is not recommended since floating point precision in GLSL is not that high.
- * 
+ *
  * \return true if zero.
  */
 bool isZero( in float value )

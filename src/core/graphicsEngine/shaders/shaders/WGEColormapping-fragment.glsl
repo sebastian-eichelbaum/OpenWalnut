@@ -25,7 +25,7 @@
 #ifndef WGECOLORMAPPING_FRAGMENT_GLSL
 #define WGECOLORMAPPING_FRAGMENT_GLSL
 
-#version 130
+#version 120
 
 #include "WGEColorMapsImproved.glsl"
 
