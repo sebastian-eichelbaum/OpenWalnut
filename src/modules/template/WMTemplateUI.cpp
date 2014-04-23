@@ -348,7 +348,7 @@ void WMTemplateUI::moduleMain()
                                      // this out for a default icon.
                                  )
     );
-    // Done :-). Head over to cameraPresetCallback.
+    // Done :-). Head over to cameraPresetCallback ...
 
     // Finally, mark the module as ready.
     //
@@ -417,5 +417,20 @@ void WMTemplateUI::cameraPresetCallback()
 {
     debugLog() << "Camera preset 1 requested.";
 
-    // This is the camera preset callback.
+    // This is the camera preset callback. This is called by our custom camera preset (a WPropTrigger). You can now modify your WUIViewWidget
+    // camera, camera manipulator and stuff like this. But be warned: this callback usually runs in the UI thread. The graphics engine might not!
+    // To circumvent this issue, you should always use OSG's callback mechanism! Always!
+    //
+    // There are two possibilities to inform your osg::NodeCallback:
+    //
+    // 1) You might set a flag here to inform the camera's update callback that the user requested this preset:
+    // m_updateCamToPreset1 = true;
+    //
+    // 2) As you might remember from WMTemplate, you can read the state of a WPropTrigger. The user clicks it, and its value
+    //    (m_myPresetTrigger->get()) will change to PV_TRIGGER_TRIGGERED. You can query this in your osg::Camera UpdateCallback, update the
+    //    camera and then reset the trigger m_myPresetTrigger->set( WPVBaseTypes::PV_TRIGGER_READY );
+    //    This version won't require you to write this callback (WMTemplateUI::cameraPresetCallback) at all.
+    //
+    // Although version two seems more comfortable as you can avoid writing this property callback, it is actually not recommended by us for a
+    // simple reason: re-usability. This method can be used from everywhere within your code and is uncoupled from any property and similar.
 }
