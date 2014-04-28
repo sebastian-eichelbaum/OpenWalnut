@@ -403,8 +403,6 @@ private:
 
     size_t m_rootCluster; //!< currently selected cluster + offset
 
-    size_t m_labelMode; //!< indicates wheter the cluster number, size of custom data should be shown on labels
-
     int m_oldViewHeight; //!< stores the old viewport resolution to check whether a resize happened
 
     int m_oldViewWidth; //!< stores the old viewport resolution to check whether a resize happened

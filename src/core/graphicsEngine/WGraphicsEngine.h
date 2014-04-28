@@ -129,6 +129,9 @@ public:
      */
     void requestShaderReload();
 
+    // Tell the compiler that we really want to use the base's subscribeSignal.
+    using WThreadedRunner::subscribeSignal;
+
     /**
      * Subscribe a specified handler to the specified signal emited by the GE.
      *

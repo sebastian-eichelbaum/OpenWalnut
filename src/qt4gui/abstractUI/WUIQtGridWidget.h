@@ -192,12 +192,6 @@ protected:
     virtual void placeWidgetImplGT( QWidget* widget, int x, int y );
 private:
     /**
-     * The Qt widget representing this abstract widget. Might be null. Check before use!
-     * \note this is the same pointer as WUIQtWidgetBase::m_widget as WQtDockWidget.
-     */
-    WQtDockWidget* m_widgetDock;
-
-    /**
      * The grid used for managing child widgets
      */
     QGridLayout* m_gridLayout;

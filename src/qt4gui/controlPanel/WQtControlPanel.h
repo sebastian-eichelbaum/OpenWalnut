@@ -292,15 +292,9 @@ private:
 
     QTabWidget* m_tabWidget; //!< pointer to the tab widget
 
-    QTabWidget* m_tabWidget2; //!< pointer to the tab widget
-
-    QSplitter* m_splitter; //!< splitter to have resizable widgets in the control panel
-
     WQtModuleHeaderTreeItem* m_tiModules; //!< header for modules
 
     WQtRoiHeaderTreeItem* m_tiRois; //!< header for ROIs
-
-    bool m_showToolBarText; //!< Show tool bar icons with text
 
     WQtDockWidget* m_roiDock;     //!< the dock widget with the ROI tree
     WQtDockWidget* m_moduleDock;  //!< the dock widget with the module tree
@@ -372,11 +366,6 @@ private:
      * programatically.
      */
     bool m_ignoreSelectionChange;
-
-    /**
-     * Ignore recursive selection update in network editor.
-     */
-    bool m_ignoreSelectionChangeNWE;
 
     /**
      * The WQtCombinerActionList needs some predicate which decides whether to exclude a certain module from the list or not. We use this

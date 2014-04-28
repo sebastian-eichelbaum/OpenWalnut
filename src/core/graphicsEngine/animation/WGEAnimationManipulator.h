@@ -164,11 +164,6 @@ private:
      * This method updates m_matrix per frame according to time elapsed.
      */
     void handleFrame();
-
-    /**
-     * If true, the animation is suspended.
-     */
-    bool m_paused;
 };
 
 #endif  // WGEANIMATIONMANIPULATOR_H

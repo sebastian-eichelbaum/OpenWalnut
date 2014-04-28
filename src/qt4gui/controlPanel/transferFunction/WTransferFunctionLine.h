@@ -105,9 +105,6 @@ private:
 
     /** the point to the right */
     WTransferFunctionPoint *right;
-
-    /** our parent widget */
-    WTransferFunctionWidget* _parent;
 };
 
 #endif  // WTRANSFERFUNCTIONLINE_H

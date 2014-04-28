@@ -62,11 +62,6 @@ public:
 protected:
 private:
     /**
-     * The main window parent.
-     */
-    WMainWindow* m_mainWindow;
-
-    /**
      * The options for toolbar style.
      */
     WSettingMenu* m_styleOptionMenu;

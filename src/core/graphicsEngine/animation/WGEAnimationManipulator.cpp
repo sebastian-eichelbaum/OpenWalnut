@@ -35,8 +35,7 @@
 WGEAnimationManipulator::WGEAnimationManipulator( WTimer::ConstSPtr timer ):
     m_matrix( osg::Matrixd::identity() ),
     m_timer( timer ),
-    m_homeOffsetTime( timer->elapsed() ),
-    m_paused( true )
+    m_homeOffsetTime( timer->elapsed() )
 {
     // initialize
 }

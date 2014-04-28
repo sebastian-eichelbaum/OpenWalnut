@@ -202,7 +202,7 @@ void WModuleProjectFileCombiner::apply()
         // if isReady now is false, the module has crashed before it got ready -> remove the module from the list
         if( ( *iter ).second->isCrashed()() )
         {
-            addError( "In the module with ID " + ( *iter ).first +
+            addError( "In the module with ID " + string_utils::toString( ( *iter ).first ) +
                       std::string( " a problem occurred. Connections and properties relating to this module will fail." ) );
             // m_modules.erase( iter );
         }

@@ -50,7 +50,6 @@ W_LOADABLE_MODULE( WMArbitraryROIs )
 
 WMArbitraryROIs::WMArbitraryROIs():
     WModule(),
-    m_textureChanged( true ),
     m_recompute( boost::shared_ptr< WCondition >( new WCondition() ) ),
     m_dataSet(),
     m_moduleNode( new WGEGroupNode() ),

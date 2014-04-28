@@ -218,12 +218,6 @@ protected:
     virtual int addTabImpl( WUIWidgetBase::SPtr widget, std::string label );
 private:
     /**
-     * The Qt widget representing this abstract widget. Might be null. Check before use!
-     * \note this is the same pointer as WUIQtWidgetBase::m_widget as WQtDockWidget.
-     */
-    WQtDockWidget* m_widgetDock;
-
-    /**
      * The tab widget used for managing child widgets
      */
     QTabWidget* m_tabWidget;

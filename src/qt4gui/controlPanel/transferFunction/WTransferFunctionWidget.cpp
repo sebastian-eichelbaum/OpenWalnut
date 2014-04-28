@@ -40,8 +40,7 @@
 #include "WTransferFunctionWidget.h"
 #include "WTransferFunctionWidget.moc"
 
-WTransferFunctionWidget::WTransferFunctionWidget( QWidget*qparent, WTransferFunctionGuiNotificationClass* parent ): BaseClass( qparent ),
-    parent( parent ),
+WTransferFunctionWidget::WTransferFunctionWidget( QWidget*qparent, WTransferFunctionGuiNotificationClass* /* parent */ ): BaseClass( qparent ),
     scene( 0x0 ),
     first( 0x0 ),
     last( 0x0 ),

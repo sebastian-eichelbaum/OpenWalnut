@@ -71,6 +71,9 @@ public:
      */
     virtual ~WGEShader();
 
+    // We do not want to override the original function with the same signature as applyDirect.
+    using osg::Program::apply;
+
     /**
      * Apply this shader to the specified node. Use this method to ensure, that reload events can be handled properly during the
      * update cycle.

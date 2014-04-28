@@ -52,7 +52,7 @@ public:
      *
      * \return bool
      */
-    bool mousePush( double, double, osgWidget::WindowManager* );
+    virtual bool mousePush( double, double, const osgWidget::WindowManager* );
 
     /**
      * getter for clicked flag, resets the flag to false

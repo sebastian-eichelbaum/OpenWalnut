@@ -289,6 +289,9 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const = 0;
 
+    // Tell the compiler that we really want to use the base's subscribeSignal.
+    using WThreadedRunner::subscribeSignal;
+
     /**
      * Connects a specified notify function with a signal this module instance is offering.
      *

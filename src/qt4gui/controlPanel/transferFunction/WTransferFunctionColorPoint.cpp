@@ -111,7 +111,7 @@ void WTransferFunctionColorPoint::paint( QPainter *painter, const QStyleOptionGr
     }
 
     QColor color = painter->pen().color();
-    color.setAlpha( 0.3 );
+    color.setAlpha( 255 * 0.3 );
     painter->setPen( QPen( color, painter->pen().width() ) );
     painter->setBrush( gradient );
 

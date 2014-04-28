@@ -182,8 +182,6 @@ void WCenterlineParameterization::newSegment( const WPosition& start, const WPos
         }
     }
 
-    m_currentStartParameter = m_currentStartParameter;
-
     WRasterParameterization::newSegment( start, end );
 }
 

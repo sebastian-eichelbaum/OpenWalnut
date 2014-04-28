@@ -30,8 +30,7 @@
 #include "WQtToolBarBase.moc"
 
 WQtToolBarBase::WQtToolBarBase( const QString& title, WMainWindow* parent ):
-    QToolBar( title, parent ),
-    m_mainWindow( parent )
+    QToolBar( title, parent )
 {
     setObjectName( title );
 

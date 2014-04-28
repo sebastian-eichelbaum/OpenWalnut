@@ -45,7 +45,6 @@
 
 #include "WQtNetworkArrow.h"
 
-const qreal Pi = 3.14;
 const QColor owRed( 248, 87, 87 );
 const QColor owGreen( 115, 225, 115 );
 
