@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMTEMPLATEUI_H
-#define WMTEMPLATEUI_H
+#ifndef WMTEMPLATECONTAINERS_H
+#define WMTEMPLATECONTAINERS_H
 
 #include <string>
 #include <vector>
@@ -40,24 +40,24 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * \class WMTemplateUI
+ * \class WMTemplateContainers
  *
- * A module that explains the usage of the abstract UI interface in OpenWalnut. Please read the C++ code.
+ * A module that explains re-use and re-combination of existing modules.
  *
  * \ingroup modules
  */
-class WMTemplateUI : public WModule
+class WMTemplateContainers : public WModule
 {
 public:
     /**
      * Constuctor.
      */
-    WMTemplateUI();
+    WMTemplateContainers();
 
     /**
      * Destructor.
      */
-    virtual ~WMTemplateUI();
+    virtual ~WMTemplateContainers();
 
     /**
      * Gives back the name of this module.
@@ -101,59 +101,6 @@ protected:
     virtual void requirements();
 
 private:
-    /**
-     * Called on every mouse drag-move event from the custom widget.
-     *
-     * \note this runs in OSG thread.
-     * \param pos New mouse position.
-     * \param button the button.
-     */
-    void handleMouseDrag( WVector2f pos, int button );
-
-    /**
-     * Called on every mouse move event from the custom widget.
-     *
-     * \note this runs in OSG thread.
-     * \param pos New mouse position.
-     */
-    void handleMouseMove( WVector2f pos );
-
-    /**
-     * Called on every resize event from the custom widget.
-     *
-     * \note this runs in OSG thread.
-     * \param x X pos
-     * \param y Y pos
-     * \param width Widht
-     * \param height Height
-     */
-    void handleResize( int x, int y, int width, int height );
-
-    /**
-     * Handle mouse clicks
-     *
-     * \param coords where
-     * \param button the button
-     */
-    void handleButtonRelease( WVector2f coords , int button );
-
-    /**
-     * Handle camera presets.
-     */
-    void cameraPresetCallback();
-
-    //! A condition for property updates.
-    boost::shared_ptr< WCondition > m_propCondition;
-
-    /**
-     * A boolean property used in this example.
-     */
-    WPropBool m_boolProp;
-
-    /**
-     * A trigger property used in this example.
-     */
-    WPropTrigger m_triggerProp;
 };
 
-#endif  // WMTEMPLATEUI_H
+#endif  // WMTEMPLATECONTAINERS_H

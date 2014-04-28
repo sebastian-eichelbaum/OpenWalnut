@@ -30,6 +30,7 @@
 #include <core/kernel/WModule.h>
 
 #include "WMTemplate.h"
+#include "WMTemplateContainers.h"
 #include "WMTemplateUI.h"
 
 // #include "WToolkit.h"
@@ -48,6 +49,7 @@ extern "C" void WLoadModule( WModuleList& m ) // NOLINT
 {
     // This line is needed by the module loader to actually find your module. You need to add this to your module too. Do NOT add a ";" here.
     m.push_back( boost::shared_ptr< WModule >( new WMTemplate ) );
+    m.push_back( boost::shared_ptr< WModule >( new WMTemplateContainers ) );
     m.push_back( boost::shared_ptr< WModule >( new WMTemplateUI ) );
 }
 
