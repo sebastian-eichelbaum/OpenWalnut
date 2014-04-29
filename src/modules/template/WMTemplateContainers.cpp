@@ -177,15 +177,45 @@ void WMTemplateContainers::moduleMain()
     // We now want the user to be able to choose the way the original data and the gaussed one get merged. For this, we forward the properties of
     // the scalar operator module:
     m_properties->addProperty( scalarOp->getProperties()->getProperty( "Operation" ) );
+    // and we want another default op:
+    scalarOp->getProperties()->getProperty( "Operation" )->set( 1 );    // the index 1 operation is A-B
 
     // The above line showed how to add single properties. But as the WPropGroup also is a property, you can add all properties of a module too:
     m_properties->addProperty( iso->getProperties() );
+    iso->getProperties()->getProperty( "Iso value" )->set ( 1 );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 3) Wire them up
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // scalaOp  operandA operandB result
+    // First, connect the modules with each other:
+
+    // Set the gauss version as the first operant by querying the connectors and connecting them:
+    scalarOp->getInputConnector( "operandA" )->connect( gauss->getOutputConnector( "out" ) );
+    // This is the same as doing it the other way around.
+    // gauss->getOutputConnector( "out" )->connect( scalarOp->getInputConnector( "operandA" ) );
+    // simple, isn't it?
+
+    // Use the arithmetic result as input for the isosurface:
+    iso->getInputConnector( "values" )->connect( scalarOp->getOutputConnector( "result" ) );
+
+    // Now, we connect our forwarding connectors:
+    m_input->forward( gauss->getInputConnector( "in" ) );
+    m_input->forward( scalarOp->getInputConnector( "operandB" ) );
+
+    // And also forward the result:
+    m_output->forward( scalarOp->getOutputConnector( "result" ) );
+
+
+
+
+
+
+
+
+
+
+
 
 
 
