@@ -33,6 +33,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
+#include "WStringUtils.h"
 #include "WProperties_Fwd.h"
 #include "WCondition.h"
 #include "WConditionSet.h"
@@ -159,6 +160,17 @@ public:
      * \return the value as a string.
      */
     virtual std::string getAsString() = 0;
+
+    /**
+     * Shortcut to set a property with a given value. This basically is a shortcut to \ref setAsString with the value being cast to string.
+     *
+     * \tparam T type of the input value
+     * \param value the value to set
+     *
+     * \return true if successful.
+     */
+    template< typename T >
+    bool set( const T& value );
 
     /**
      * This method returns a condition which gets fired whenever the property changes somehow. It is fired when:
@@ -357,6 +369,12 @@ template< typename T >
 boost::shared_ptr< WPropertyVariable< T > > WPropertyBase::toPropertyVariable()
 {
     return boost::dynamic_pointer_cast< WPropertyVariable< T > >( shared_from_this() );
+}
+
+template< typename T >
+bool WPropertyBase::set( const T& value )
+{
+    return setAsString( string_utils::toString( value ) );
 }
 
 #endif  // WPROPERTYBASE_H

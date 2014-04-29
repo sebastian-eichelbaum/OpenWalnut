@@ -30,9 +30,11 @@
 
 #include <boost/thread.hpp>
 
+#include "core/dataHandler/WDataSetScalar.h"
 #include "core/kernel/WModule.h"
-#include "core/kernel/WModuleInputData.h"
-#include "core/kernel/WModuleOutputData.h"
+#include "core/kernel/WModuleContainer.h"
+#include "core/kernel/WModuleInputForwardData.h"
+#include "core/kernel/WModuleOutputForwardData.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // If you want to learn how to program a module, refer to WMTemplate.cpp. It is an extensive tutorial on all the details.
@@ -42,11 +44,14 @@
 /**
  * \class WMTemplateContainers
  *
- * A module that explains re-use and re-combination of existing modules.
+ * A module that explains re-use and re-combination of existing modules. Therefore, we derive from WModuleContainer. A module container itself is
+ * a module, but can additionally contain modules for itself. This way, we are able to re-use other modules and re-combine them in a different
+ * way. We will be able to connect inputs and outputs of inner modules to our own connectors and, thus, will be able to forward data easily.
+ * Please read the WMTemplateContainers.cpp file for all further descriptions.
  *
  * \ingroup modules
  */
-class WMTemplateContainers : public WModule
+class WMTemplateContainers : public WModuleContainer
 {
 public:
     /**
@@ -58,18 +63,6 @@ public:
      * Destructor.
      */
     virtual ~WMTemplateContainers();
-
-    /**
-     * Gives back the name of this module.
-     * \return the module's name.
-     */
-    virtual const std::string getName() const;
-
-    /**
-     * Gives back a description of this module.
-     * \return description to module.
-     */
-    virtual const std::string getDescription() const;
 
     /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
@@ -101,6 +94,17 @@ protected:
     virtual void requirements();
 
 private:
+    /**
+     * Define an input connector, which only forwards the data. This is very useful since we want this to be some kind of "gate" to the outside
+     * world. Data going into this connector can be used by a real WModuleInputData connector of an embedded module.
+     */
+    WModuleInputForwardData< WDataSetScalar >::SPtr  m_input;
+
+    /**
+     * Define an output connector, which only forwards the data. This is very useful since we want this to be some kind of "gate" to the outside
+     * world. Data going out of this connector is originating from a real WModuleInputData connector of an embedded module.
+     */
+    WModuleOutputForwardData< WDataSetScalar >::SPtr m_output;
 };
 
 #endif  // WMTEMPLATECONTAINERS_H

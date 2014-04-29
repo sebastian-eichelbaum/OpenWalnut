@@ -421,6 +421,13 @@ public:
      */
     WPropString getRuntimeName() const;
 
+    /**
+     * This method checks whether all the requirements of the module are complied. Can be used if the instance is a prototype.
+     *
+     * \return the requirement that has failed.
+     */
+    const WRequirement* checkRequirements() const;
+
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -774,13 +781,6 @@ private:
      * Signal fired whenever a module main thread throws an exception/error.
      */
     t_ModuleErrorSignalType signal_error;
-
-    /**
-     * This method checks whether all the requirements of the module are complied.
-     *
-     * \return the requirement that has failed.
-     */
-    const WRequirement* checkRequirements() const;
 
     /**
      * The unique ID of the module instance.
