@@ -97,6 +97,9 @@ public:
      */
     virtual ~WKernel();
 
+    // Tell the compiler that we really want to use the base's subscribeSignal.
+    using WThreadedRunner::subscribeSignal;
+
     /**
      * Subscribe to several signals.
      *

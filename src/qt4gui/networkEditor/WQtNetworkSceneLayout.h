@@ -159,8 +159,6 @@ public:
 
 protected:
 private:
-    WQtNetworkScene* m_scene; //!< the scene managed by this layouter
-
     WQtNetworkItemGrid* m_grid; //!< we use a grid to place the items
 
     /**

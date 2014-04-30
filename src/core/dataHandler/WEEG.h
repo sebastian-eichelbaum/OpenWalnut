@@ -163,10 +163,6 @@ protected:
 
 private:
     /**
-     * We have only on sampling rate for all channels.
-     */
-    double m_samplingRate;
-    /**
      * Description of electrodes
      */
     std::map< std::string, size_t > m_electrodeDescriptions;

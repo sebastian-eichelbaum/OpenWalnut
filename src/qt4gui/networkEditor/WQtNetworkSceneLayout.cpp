@@ -31,8 +31,7 @@
 
 #include "WQtNetworkSceneLayout.h"
 
-WQtNetworkSceneLayout::WQtNetworkSceneLayout( WQtNetworkScene* scene, WQtNetworkItemGrid* grid ):
-    m_scene( scene ),
+WQtNetworkSceneLayout::WQtNetworkSceneLayout( WQtNetworkScene* /* scene */, WQtNetworkItemGrid* grid ):
     m_grid( grid )
 {
     // initialize members

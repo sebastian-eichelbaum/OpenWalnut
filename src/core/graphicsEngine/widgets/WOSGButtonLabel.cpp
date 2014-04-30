@@ -42,7 +42,7 @@ WOSGButtonLabel::~WOSGButtonLabel()
 {
 }
 
-bool WOSGButtonLabel::mousePush( double, double, osgWidget::WindowManager* )
+bool WOSGButtonLabel::mousePush( double, double, const osgWidget::WindowManager* )
 {
     m_clicked = true;
     if( m_pushable )

@@ -29,9 +29,9 @@
 
 #include "../common/WRequirement.h"
 
-
 /**
  * This requirement ensures that the specified prototype exists in the factory. These requirements are especially useful for container modules.
+ * It also checks the requirements of the specified prototype.
  */
 class  WPrototypeRequirement: public WRequirement // NOLINT
 {

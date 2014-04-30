@@ -225,3 +225,19 @@
   };
 };
 
+// Basically the same as above, without comments. Skip this. It does not contain new information.
+"Template Containers"
+{
+  icon="WMTemplateIcon.png";
+  website = "http://www.openwalnut.org";
+  description = "Demonstrative module which tries to show how to re-use and re-combine existing modules in containers.";
+  author = "OpenWalnut Project";
+  "OpenWalnut Project"
+  {
+    url="http://www.openwalnut.org";
+    email="contact@openwalnut.org";
+    what="Design, Development and Bug fixing";
+  };
+  tag = "Tutorial";
+};
+

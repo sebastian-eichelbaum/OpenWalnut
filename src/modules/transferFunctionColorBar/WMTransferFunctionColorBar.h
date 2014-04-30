@@ -118,11 +118,6 @@ private:
     double m_valueMin;
 
     /**
-     * The max of the current dataset. We store them here to avoid many calls to getTexture()->minimum()->get() and scale()->get().
-     */
-    double m_valueMax;
-
-    /**
      * The scaling factor of the current dataset. We store them here to avoid many calls to getTexture()->minimum()->get() and scale()->get().
      */
     double m_valueScale;

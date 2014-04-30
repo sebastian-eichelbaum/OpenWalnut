@@ -145,11 +145,6 @@ private:
                                                                               boost::shared_ptr< WValueSet< T > > vals );
 
     /**
-     * True when textures haven changed.
-     */
-    bool m_textureChanged;
-
-    /**
      * This condition denotes whether we need to recompute the surface
      */
     boost::shared_ptr< WCondition > m_recompute;

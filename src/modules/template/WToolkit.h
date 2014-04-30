@@ -25,7 +25,7 @@
 #ifndef WTOOLKIT_H
 #define WTOOLKIT_H
 
-// nothing to do here. Have a look at WToolkit.cpp for registration of all the modules inside the toolbox.
+// nothing to do here. Have a look at WToolkit.cpp for registration of all the modules inside the toolbox and refer to README.
 
 #endif  // WTOOLKIT_H
 

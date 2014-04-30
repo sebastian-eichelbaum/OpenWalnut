@@ -107,6 +107,11 @@ bool WModuleFactory::checkPrototype( boost::shared_ptr< WModule > module, Protot
     return ( ticket->get().count( module ) != 0 );
 }
 
+boost::shared_ptr< WModule > WModuleFactory::create( std::string prototype, std::string uuid )
+{
+    return create( getPrototypeByName( prototype ), uuid );
+}
+
 boost::shared_ptr< WModule > WModuleFactory::create( boost::shared_ptr< WModule > prototype, std::string uuid )
 {
     wlog::debug( "ModuleFactory" ) << "Creating new instance of prototype \"" << prototype->getName() << "\".";

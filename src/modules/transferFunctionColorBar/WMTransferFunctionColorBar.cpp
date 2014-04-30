@@ -102,39 +102,6 @@ void WMTransferFunctionColorBar::properties()
     WModule::properties();
 }
 
-namespace
-{
-    /**
-     * Formats a given string to have the specified maximum length.
-     *
-     * \param str the string
-     * \param maxLen max length
-     *
-     * \return formatted string
-     */
-    std::string format( std::string str, size_t maxLen = 45 )
-    {
-        // string will be at least 9 chars long: because of " [...] " + first and last char.
-        WAssert( maxLen >= 9, "MaxLen has to be 9 or more." );
-        std::ostringstream ss;
-
-        // cut away some stuff
-        if( str.length() > maxLen )
-        {
-            size_t keep = maxLen - 3;   // how much chars to keep?
-            size_t keepFront = keep / 2;
-            size_t keepEnd = keep - keepFront;
-
-            ss << str.substr( 0, keepFront ) << " [...] " << str.substr( str.length() - keepEnd, keepEnd );
-        }
-        else
-        {
-            ss << str;
-        }
-        return ss.str();
-    }
-}
-
 /**
  * Formats a number properly to be usable as label
  *

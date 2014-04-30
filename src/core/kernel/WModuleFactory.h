@@ -98,6 +98,18 @@ public:
     boost::shared_ptr< WModule > create( boost::shared_ptr< WModule > prototype, std::string uuid = "" );
 
     /**
+     * Create a new and initialized module using the specified prototype. This might fail if the prototype with this name cannot be found. Please
+     * refer to \ref getPrototypeByName.
+     *
+     * \param prototype the prototype to clone as name.
+     * \param uuid the uuid to use for the created module. If you specify an empty string (default), a uuid will be created. This parameter is
+     *             useful for the project loader.
+     *
+     * \return the module created using the prototype.
+     */
+    boost::shared_ptr< WModule > create( std::string prototype, std::string uuid = "" );
+
+    /**
      * Returns instance of the module factory to use to create modules.
      *
      * \return the running module factory.
@@ -126,6 +138,7 @@ public:
      * Finds a prototype using the specified name.
      *
      * \param name the name.
+     * \throw WPrototypeUnknown if the prototype is not known. Use \ref isPrototypeAvailable first to check.
      *
      * \return the prototype whose name is equal to the specified one.
      */

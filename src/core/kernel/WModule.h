@@ -289,6 +289,9 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const = 0;
 
+    // Tell the compiler that we really want to use the base's subscribeSignal.
+    using WThreadedRunner::subscribeSignal;
+
     /**
      * Connects a specified notify function with a signal this module instance is offering.
      *
@@ -417,6 +420,13 @@ public:
      * \return the runtime name.
      */
     WPropString getRuntimeName() const;
+
+    /**
+     * This method checks whether all the requirements of the module are complied. Can be used if the instance is a prototype.
+     *
+     * \return the requirement that has failed.
+     */
+    const WRequirement* checkRequirements() const;
 
 protected:
     /**
@@ -771,13 +781,6 @@ private:
      * Signal fired whenever a module main thread throws an exception/error.
      */
     t_ModuleErrorSignalType signal_error;
-
-    /**
-     * This method checks whether all the requirements of the module are complied.
-     *
-     * \return the requirement that has failed.
-     */
-    const WRequirement* checkRequirements() const;
 
     /**
      * The unique ID of the module instance.

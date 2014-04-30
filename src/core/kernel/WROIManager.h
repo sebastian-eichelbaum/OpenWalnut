@@ -32,8 +32,6 @@
 
 #include "WRMBranch.h"
 
-
-
 /**
  * Class to store and manage different ROI's for fiber selection
  */
@@ -203,8 +201,6 @@ public:
 
 protected:
 private:
-    size_t m_size; //!< number of fibers in the dataset
-
     std::list< boost::shared_ptr< WRMBranch > > m_branches; //!< list of branches in the logical tree structure
 
     /**

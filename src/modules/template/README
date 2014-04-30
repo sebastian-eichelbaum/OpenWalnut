@@ -16,6 +16,34 @@ mailing list openwalnut-dev@lists.informatik.uni-leipzig.de.
 Now, directly dive into the code. You will see, getting started with OpenWalnut module
 development is easy!
 
-2. Files:
-*********
+2. Files and Topics:
+********************
 
+- WMTemplate.*
+  -> this is where to start. In this example module, you will learn everything about
+     developing modules. It shows how to work with data, parameters, and the general
+     paradigms in OpenWalnut.
+
+- WMTemplateContainers.*
+  -> this module demonstrates the possibilities of combining modules into your own
+     container modules. You will learn how to re-use other modules in your own complex
+     networks/modules.
+
+- WMTemplateUI.*
+  -> this demonstartes the use of OpenWalnut's abstract view and widget API. You will
+     learn how to write custom views the user can interact with. It also shows how to
+     combine these views into other widgets and demonstrates the use of property widgets.
+
+- WMTemplateShaders.*
+  -> this module demonstrates OpenWalnut's powerful shader API. You will learn how to
+     expand your OSG-based geometry with GLSL shaders and, even more importantly, how to
+     interact with these shaders using your WProperties.
+
+- WMTemplateColormaps.*
+  -> this rather simple example demonstrates the colormapping API of OpenWalnut. You will
+     learn how to color arbitrary geometry using the WGEColormapping mechanism.
+
+- WMTemplateRenderPipelines.*
+  -> this demonstrates the use of OpenWalnut's offscreen processing API. You will learn
+     how to implement complex render pipelines and how to transfer data (textures) 
+     between each steps.

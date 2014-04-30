@@ -149,7 +149,8 @@ WTriangleMesh::SPtr WMeshReaderVTK::operator()( WProgressCombiner::SPtr parentPr
         triMesh->addTriangle( tri[0], tri[1], tri[2] );
         if( nbCellVerts != 3 )
         {
-            WLogger::getLogger()->addLogMessage( "Number of cell vertices should be 3 but found " + nbCellVerts, "Read Mesh", LL_ERROR );
+            WLogger::getLogger()->addLogMessage( "Number of cell vertices should be 3 but found " +
+                                                 string_utils::toString( nbCellVerts ) + ".", "Read Mesh", LL_ERROR );
             progress->finish();
             return boost::shared_ptr< WTriangleMesh >();
         }
@@ -167,7 +168,7 @@ WTriangleMesh::SPtr WMeshReaderVTK::operator()( WProgressCombiner::SPtr parentPr
         ifs >> cellType;
         if( cellType != 5 )
         {
-            WLogger::getLogger()->addLogMessage( "Invalid cell type: " + cellType, "Read Mesh", LL_ERROR );
+            WLogger::getLogger()->addLogMessage( "Invalid cell type: " + string_utils::toString( cellType ) + ".", "Read Mesh", LL_ERROR );
             progress->finish();
             return boost::shared_ptr< WTriangleMesh >();
         }

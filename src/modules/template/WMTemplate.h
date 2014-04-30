@@ -40,6 +40,10 @@
 #include "core/kernel/WModuleInputData.h"
 #include "core/kernel/WModuleOutputData.h"
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// This is your starting point. Switch to WMTemplae.cpp. For other examples, refer to the README file.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * This module is intended to be a simple template and example module. It can be used for fast creation of new modules by copying and refactoring
  * the files. It shows the basic usage of properties, update callbacks and how to wait for data.

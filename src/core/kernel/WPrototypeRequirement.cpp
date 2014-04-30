@@ -42,7 +42,13 @@ WPrototypeRequirement::~WPrototypeRequirement()
 
 bool WPrototypeRequirement::isComplied() const
 {
-    return WModuleFactory::getModuleFactory()->isPrototypeAvailable( m_prototype );
+    if( WModuleFactory::getModuleFactory()->isPrototypeAvailable( m_prototype ) )
+    {
+        WModule::SPtr proto = WModuleFactory::getModuleFactory()->getPrototypeByName( m_prototype );
+        // NOTE: checkRequirements returns a pointer to the req which failed -> no fail -> NULL returned
+        return ( proto->checkRequirements() == NULL );
+    }
+    return false;
 }
 
 std::string WPrototypeRequirement::getDescription() const

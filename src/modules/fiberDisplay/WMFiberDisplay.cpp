@@ -715,14 +715,13 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
     geometry->setVertexAttribBinding( 6, osg::Geometry::BIND_PER_PRIMITIVE_SET );
     geometry->setSecondaryColorBinding( osg::Geometry::BIND_PER_PRIMITIVE_SET );
 
-
     if( tubeMode )
     {
         // we have one vertex per line, so bind the attribute array per vertex
         startGeometry->setVertexAttribArray( 6, m_bitfieldAttribs );
-        startGeometry->setVertexAttribBinding( 6, osg::Geometry::BIND_PER_VERTEX );
+        startGeometry->setVertexAttribBinding( 6, osg::Geometry::BIND_PER_PRIMITIVE_SET );
         endGeometry->setVertexAttribArray( 6, m_bitfieldAttribs );
-        endGeometry->setVertexAttribBinding( 6, osg::Geometry::BIND_PER_VERTEX );
+        endGeometry->setVertexAttribBinding( 6, osg::Geometry::BIND_PER_PRIMITIVE_SET );
 
         startGeometry->setSecondaryColorArray( m_secondaryColor );
         startGeometry->setSecondaryColorBinding( osg::Geometry::BIND_PER_PRIMITIVE_SET );

@@ -32,8 +32,8 @@
 #include "QtGui/QStyleOption"
 #include "QtGui/QGraphicsSceneMouseEvent"
 
-WTransferFunctionLine::WTransferFunctionLine( WTransferFunctionWidget *parent )
-    : BaseClass(), lineWidth( 2.0 ), left( 0x0 ), right( 0x0 ), _parent( parent )
+WTransferFunctionLine::WTransferFunctionLine( WTransferFunctionWidget* /* parent */ )
+    : BaseClass(), lineWidth( 2.0 ), left( 0x0 ), right( 0x0 )
 {
     setPen( QPen( Qt::black, lineWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
     //this->setFlag( ItemIsMovable ); //< this has to be implemented

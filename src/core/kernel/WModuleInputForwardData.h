@@ -46,7 +46,17 @@ public:
     /**
      * Pointer to this. For convenience.
      */
-    typedef boost::shared_ptr< WModuleInputForwardData< T > > PtrType;
+    typedef boost::shared_ptr< WModuleInputForwardData< T > > SPtr;
+
+    /**
+     * Pointer to this. For convenience.
+     */
+    typedef boost::shared_ptr< const WModuleInputForwardData< T > > ConstSPtr;
+
+    /**
+     * Pointer to this. For convenience.
+     */
+    typedef SPtr PtrType;
 
     /**
      * Reference to this type.

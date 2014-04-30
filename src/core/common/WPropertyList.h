@@ -139,10 +139,7 @@ public:
      *
      * \return true if value could be set.
      */
-    virtual bool setAsString( std::string value )
-    {
-        return false;
-    }
+    virtual bool setAsString( std::string value );
 
     /**
      * Returns the current value as a string. This is useful for debugging or project files. It is not implemented as << operator, since the <<
@@ -179,6 +176,12 @@ public:
 protected:
 private:
 };
+
+template< typename T >
+bool WPropertyList< T >::setAsString( std::string /*value*/ )
+{
+    return false;
+}
 
 #endif  // WPROPERTYLIST_H
 

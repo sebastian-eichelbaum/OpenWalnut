@@ -22,17 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMTEMPLATEUI_H
-#define WMTEMPLATEUI_H
+#ifndef WMTEMPLATECONTAINERS_H
+#define WMTEMPLATECONTAINERS_H
 
 #include <string>
 #include <vector>
 
 #include <boost/thread.hpp>
 
+#include "core/dataHandler/WDataSetScalar.h"
 #include "core/kernel/WModule.h"
-#include "core/kernel/WModuleInputData.h"
-#include "core/kernel/WModuleOutputData.h"
+#include "core/kernel/WModuleContainer.h"
+#include "core/kernel/WModuleInputForwardData.h"
+#include "core/kernel/WModuleOutputForwardData.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // If you want to learn how to program a module, refer to WMTemplate.cpp. It is an extensive tutorial on all the details.
@@ -40,36 +42,27 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * \class WMTemplateUI
+ * \class WMTemplateContainers
  *
- * A module that explains the usage of the abstract UI interface in OpenWalnut. Please read the C++ code.
+ * A module that explains re-use and re-combination of existing modules. Therefore, we derive from WModuleContainer. A module container itself is
+ * a module, but can additionally contain modules for itself. This way, we are able to re-use other modules and re-combine them in a different
+ * way. We will be able to connect inputs and outputs of inner modules to our own connectors and, thus, will be able to forward data easily.
+ * Please read the WMTemplateContainers.cpp file for all further descriptions.
  *
  * \ingroup modules
  */
-class WMTemplateUI : public WModule
+class WMTemplateContainers : public WModuleContainer
 {
 public:
     /**
      * Constuctor.
      */
-    WMTemplateUI();
+    WMTemplateContainers();
 
     /**
      * Destructor.
      */
-    virtual ~WMTemplateUI();
-
-    /**
-     * Gives back the name of this module.
-     * \return the module's name.
-     */
-    virtual const std::string getName() const;
-
-    /**
-     * Gives back a description of this module.
-     * \return description to module.
-     */
-    virtual const std::string getDescription() const;
+    virtual ~WMTemplateContainers();
 
     /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
@@ -102,58 +95,16 @@ protected:
 
 private:
     /**
-     * Called on every mouse drag-move event from the custom widget.
-     *
-     * \note this runs in OSG thread.
-     * \param pos New mouse position.
-     * \param button the button.
+     * Define an input connector, which only forwards the data. This is very useful since we want this to be some kind of "gate" to the outside
+     * world. Data going into this connector can be used by a real WModuleInputData connector of an embedded module.
      */
-    void handleMouseDrag( WVector2f pos, int button );
+    WModuleInputForwardData< WDataSetScalar >::SPtr  m_input;
 
     /**
-     * Called on every mouse move event from the custom widget.
-     *
-     * \note this runs in OSG thread.
-     * \param pos New mouse position.
+     * Define an output connector, which only forwards the data. This is very useful since we want this to be some kind of "gate" to the outside
+     * world. Data going out of this connector is originating from a real WModuleInputData connector of an embedded module.
      */
-    void handleMouseMove( WVector2f pos );
-
-    /**
-     * Called on every resize event from the custom widget.
-     *
-     * \note this runs in OSG thread.
-     * \param x X pos
-     * \param y Y pos
-     * \param width Widht
-     * \param height Height
-     */
-    void handleResize( int x, int y, int width, int height );
-
-    /**
-     * Handle mouse clicks
-     *
-     * \param coords where
-     * \param button the button
-     */
-    void handleButtonRelease( WVector2f coords , int button );
-
-    /**
-     * Handle camera presets.
-     */
-    void cameraPresetCallback();
-
-    //! A condition for property updates.
-    boost::shared_ptr< WCondition > m_propCondition;
-
-    /**
-     * A boolean property used in this example.
-     */
-    WPropBool m_boolProp;
-
-    /**
-     * A trigger property used in this example.
-     */
-    WPropTrigger m_triggerProp;
+    WModuleOutputForwardData< WDataSetScalar >::SPtr m_output;
 };
 
-#endif  // WMTEMPLATEUI_H
+#endif  // WMTEMPLATECONTAINERS_H
