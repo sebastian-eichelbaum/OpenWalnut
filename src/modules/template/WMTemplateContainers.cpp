@@ -189,7 +189,7 @@ void WMTemplateContainers::moduleMain()
 
     // The above line showed how to add single properties. But as the WPropGroup also is a property, you can add all properties of a module too:
     m_properties->addProperty( iso->getProperties() );
-    iso->getProperties()->getProperty( "Iso value" )->set ( 1 );
+    iso->getProperties()->getProperty( "Iso value" )->set( 1 );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 3) Wire them up
