@@ -62,12 +62,15 @@ WMTemplateContainers::~WMTemplateContainers()
 
 boost::shared_ptr< WModule > WMTemplateContainers::factory() const
 {
+    // NOTE: Refer to WMTemplate.cpp if you do not understand these commands.
     // Same as in standard modules. Create your instance.
     return boost::shared_ptr< WModule >( new WMTemplateContainers() );
 }
 
 void WMTemplateContainers::connectors()
 {
+    // NOTE: Refer to WMTemplate.cpp if you do not understand these commands.
+
     // Remember the above scenario description? We want an scalar dataset to be modified and rendered. Thus we need an input where the user can
     // define the scalar data. In a normal module, you would use WModuleInputData< WDataSetScalar >. But our arithmetic module already has this
     // input. We just need to forward it:
@@ -89,6 +92,8 @@ void WMTemplateContainers::connectors()
 
 void WMTemplateContainers::properties()
 {
+    // NOTE: Refer to WMTemplate.cpp if you do not understand these commands.
+
     // Add properties here. But please note, that we will also forward properties of nested modules. But this has to be done in the moduleMain
     // method.
     WModule::properties();
@@ -96,6 +101,8 @@ void WMTemplateContainers::properties()
 
 void WMTemplateContainers::requirements()
 {
+    // NOTE: Refer to WMTemplate.cpp if you do not understand these commands.
+
     // You already know this method from WMTemplate. We define the requirements of this module. In our case, we want to combine other modules
     // in our container, so we need to tell OpenWalnut that we require them:
     m_requirements.push_back( new WPrototypeRequirement( "Scalar Operator" ) );
