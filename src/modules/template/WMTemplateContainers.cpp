@@ -173,6 +173,13 @@ void WMTemplateContainers::moduleMain()
     //  3) we set the value
     // Be warned! There might be one problem: the name of the property might be wrong. In this case, getProperty thows an exception. You should
     // take care about this. If not, your module will forward the exception to the top-level container -> marking your module as crashed.
+    //
+    // So basically you have three options:
+    //  1) risk the exception and let module fail in this case
+    //  2) catch the exception and try to circumvent the parameter (might not always be possible, good option if this only is an non-important
+    //     parameter)
+    //  3) use WPropertyBase::SPtr iter = gauss->getProperties()->findProperty( "Iterations" ); and check this for NULL. Same
+    //     advantages/disadvantages as 2).
 
     // We now want the user to be able to choose the way the original data and the gaussed one get merged. For this, we forward the properties of
     // the scalar operator module:
@@ -188,13 +195,22 @@ void WMTemplateContainers::moduleMain()
     // 3) Wire them up
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    // We now have modules inside our container and configured them as we like. Now, it is time to connect the modules to each other and to the
+    // outside world via our forwarding connectors we set up in the connectors() method.
+
     // First, connect the modules with each other:
 
     // Set the gauss version as the first operant by querying the connectors and connecting them:
     scalarOp->getInputConnector( "operandA" )->connect( gauss->getOutputConnector( "out" ) );
     // This is the same as doing it the other way around.
     // gauss->getOutputConnector( "out" )->connect( scalarOp->getInputConnector( "operandA" ) );
-    // simple, isn't it?
+    // It is important to understand that the connectors need to be compatible and connectable.
+    //  * compatibility means that the transfer type (the type you specify as template parameter for the connectors) can be cast into each other
+    //  * connectible means that
+    //    * you can only connect inputs to outputs (or outputs to inputs)
+    //    * you can only connect one output to a single input
+    //
+    // Keep this in mind.
 
     // Use the arithmetic result as input for the isosurface:
     iso->getInputConnector( "values" )->connect( scalarOp->getOutputConnector( "result" ) );
@@ -206,39 +222,33 @@ void WMTemplateContainers::moduleMain()
     // And also forward the result:
     m_output->forward( scalarOp->getOutputConnector( "result" ) );
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 4) Running and stopping
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // signal ready state
+    // You remember that this container is a module for itself? The you will remember to say "ready":
     ready();
+    // You are allowed to do this before you add/configure/wire the modules as above. BUT there is one problem. OpenWalnut assumes that you have
+    // set up all properties of your modules before calling ready(). So if we would have signalled ready before adding all properties, then a
+    // project file could not be loaded properly due to the missing properties.
 
-    // wait for stop request
+    // In a standard module, you would now start the main loop. If you are not interested in any further interaction with the modules or your own
+    // properties, you can simply wait until OpenWalnut tells your module to stop:
     waitForStop();
 
-    // stop container and the contained modules.
-    stop();
+    // BUT you can also implement your module main loop here. Set properties, react on property changes, change connections between module and so
+    // on. Please refer to WMTemplate.cpp for details on how this works.
+    //
+    // KEEP IN MIND: properties, connectors and modules provide WConditions and signals for nearly everything. You can register to them and thus
+    // get notified about the things you are interested in. This allows a maximum of possibilities to interact with modules and to build highly
+    // dynamic module graphs inside your container module.
 
-    // Never miss to clean up. If you miss this step, the shared_ptr might get deleted -> GUI crash
+
+    // This is an important, additional step. We need to tell our nested modules to stop working:
     debugLog() << "Shutting down ...";
+    stop();
+    // If you would leave this out, you run into a serious problem: your modules are still running while they get destroyed at the end of this
+    // function (as they are shared_ptr defined in this scope). So if you experience crashes at the end of your container module, you probably
+    // missed the stop call!
 }
 
