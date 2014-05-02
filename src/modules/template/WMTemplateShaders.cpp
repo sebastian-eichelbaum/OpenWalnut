@@ -291,13 +291,7 @@ void WMTemplateShaders::moduleMain()
     // switch between different types of rendering or want to en-/dis-able features without using large if-blocks (btw it is not recommended in
     // GLSL in any way)
 
-
-
-
-
-
-
-
+    // TODO(ebaum): write
 
     // Similar to the property-coupled uniforms, we provide property-coupled compile-time definitions. These compile-time definitions are
     // implemented as code-preprocessors. Hence the call:
