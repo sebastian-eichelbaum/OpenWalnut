@@ -116,6 +116,26 @@ private:
      * \return the plane
      */
     osg::ref_ptr< osg::Node > createPlaneGeometry();
+
+    /**
+     * Allow scaling the spheres.
+     */
+    WPropDouble m_sphereScaler;
+
+    /**
+     * Color of the plane
+     */
+    WPropColor m_planeColor;
+
+    /**
+     * Color of the spheres
+     */
+    WPropColor m_spheresColor;
+
+    /**
+     * Some weight.
+     */
+    WPropDouble m_aWeight;
 };
 
 #endif  // WMTEMPLATESHADERS_H

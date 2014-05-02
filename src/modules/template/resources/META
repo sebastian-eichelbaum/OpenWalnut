@@ -255,4 +255,9 @@
     what="Design, Development and Bug fixing";
   };
   tag = "Tutorial";
+  screenshot
+  {
+      description = "Slime brain and Spheres. The shader demo.";
+      filename = "templateShadersScreenshot1.png";
+  };
 }

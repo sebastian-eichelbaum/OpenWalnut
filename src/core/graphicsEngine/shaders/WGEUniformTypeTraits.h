@@ -78,6 +78,19 @@ namespace wge
     };
 
     /**
+     * Maps WMatrix4d to osg::Matrixd.
+     */
+    template<>
+    class UniformType< WMatrix4d >
+    {
+    public:
+        /**
+         * The best matching GLSL uniform type for the specified template parameter.
+         */
+        typedef osg::Matrixd Type;
+    };
+
+    /**
      * Maps Selection Properties to ints.
      */
     template<>
