@@ -114,6 +114,19 @@ void WMTemplateShaders::properties()
     m_aWeight->setMin( 0 );
     m_aWeight->setMax( 10 );
 
+    m_flicker = m_properties->addProperty( "Animation", "Turn the animation off or on.", true );
+
+    // Define some options:
+    WItemSelection::SPtr m_possibleSelections( new WItemSelection() );
+    m_possibleSelections->addItem( "Bump Mapping", "Make the brain pop out." );
+    m_possibleSelections->addItem( "Transparent Plane", "Make the base plane transparent." );
+    m_possibleSelections->addItem( "LSD Mode", "Make it a bit more colorful." );
+
+    m_modeSelection = m_properties->addProperty( "Plane Render Modes", "Choose what you like.", m_possibleSelections->getSelectorAll() );
+
+    // avoid that a user selects nothing
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_modeSelection );
+
     WModule::properties();
 }
 
@@ -274,7 +287,10 @@ void WMTemplateShaders::moduleMain()
     spheres->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropColor >( "u_spheresColor", m_spheresColor ) );
 
     // Thats it for uniforms. It is trivial and further example will not show any more cool features. Now we should get to shader-compile-time
-    // definitions. You all know this from C/C++ ... good old #define. This works in GLSL too and WGEShader provides a nice API for this.
+    // definitions. You all know this from C/C++ ... good old #define. This works in GLSL too and WGEShader provides a nice API for this. In
+    // OpenWalnut, the following classes are derived from WGEShaderPreprocessor and can all be add to multiple shaders, work thread-safe.
+    // Instantiation scheme is always the same, but for some of them, WGEShader already provides comfortable methods to create and add the
+    // preprocessors for you.
 
     // Add a define. They are shader specific. First we add a PI constant to the WMTemplateShaders-Spheres that we will use in its vertex shader:
     WGEShaderDefine< double >::SPtr somewhatLikePI = sphereShader->setDefine( "PI", 3.14 );
@@ -291,7 +307,43 @@ void WMTemplateShaders::moduleMain()
     // switch between different types of rendering or want to en-/dis-able features without using large if-blocks (btw it is not recommended in
     // GLSL in any way)
 
-    // TODO(ebaum): write
+    // Let us begin with simple switches, which en- or dis-able a certain code block. This is very handy when it comes to visual features which
+    // are not necessary and thus, might be turned off. (or to save GPU load if needed for something else).
+    WGEShaderDefineSwitch::SPtr bwSwitch = sphereShader->setDefine( "BW_ENABLED" );
+    // This example forces the spheres to be black & white only. By default, such simple switches are set to true. As we want colorful spheres
+    // for now, we disable this again:
+    bwSwitch->setActive( false );
+    // It is important to note here, that switches are nothing more than WGEShaderDefine< bool >. You already have seen them above.
+    // WGEShaderDefineSwitch is just an abbreviation with a more telling name. BUT there is a usage-difference ... instead
+    // of using setValue( false ), you should use setActive( false ). This method is a WGEShaderPreprocessor method and completely disables this
+    // preprocessor. The #define statement will be removed then. This is important when using #ifdef blocks in your GLSL code. If you would use
+    // setValue( false ); you will end up with BW_ENABLED still defined (and set to 0)
+
+    // Now, let us assume we want to switch not only one block on/off, but multiple at the same time? Exclusively? You can, of course, realize
+    // this with multiple WGEShaderDefineSwitch instances. But OpenWalnut provides a more comfortable option here:
+    WGEShaderDefineOptions::SPtr bwMode(                 // Create instance
+        new WGEShaderDefineOptions( "RED_ONLY",          // And specify a list of options to switch
+                                    "BLUE_ONLY",
+                                    "GREEN_ONLY",
+                                    "COMBINE"
+        )
+    );
+    // Never forget to add your preprocessor to one or multiple shaders
+    sphereShader->addPreprocessor( bwMode );
+    // Ok. We want to enable "COMBINE" mode:
+    bwMode->activateOption( 3 );
+    // When using activateOption, you have to possibilities: 1) set an option exclusively (shown above)
+    // 2) set an option and keep previous options set:
+    bwMode->activateOption( 1 );
+    bwMode->activateOption( 3, true );  // the second parameter denotes that the new option is not exclusive.
+    // This means, you have both in your shader code:
+    // #define RED_ONLY
+    // #define COMBINE
+    // Of course non-exclusive options are not always useful. But you have the possibility to turn on a set of options and allow their
+    // combination.
+
+    // Now, we have compile-time values and can define switches for blocks. As with uniforms, it is now possible to couple these to properties.
+    // This is what you will learn next:
 
     // Similar to the property-coupled uniforms, we provide property-coupled compile-time definitions. These compile-time definitions are
     // implemented as code-preprocessors. Hence the call:
@@ -304,19 +356,38 @@ void WMTemplateShaders::moduleMain()
         )
     );
 
-    // This is very handy, as you can, for
-    // example, turn on features in your shader (code that is embedded in #ifdef ... #endif blocks).
+    // The WGEShaderDefineOptions example above was just for demonstration. Now, lets add a practical example. First, we want the user to be able
+    // to switch of the "flicker" animation. For this, we already define a WPropBool and bind it to a define now:
+    sphereShader->addPreprocessor(
+        WGEShaderPreprocessor::SPtr(
+            new WGEShaderPropertyDefineOptions< WPropBool >(
+                m_flicker,                      // The property that controls this.
+                // Now list all #defines for each possible value of the given property:
+                "FLICKER_DISABLED",             // The #define (option) to set if  m_flicker->get() == false
+                "FLICKER_ENABLED"               // The #define (option) to set if  m_flicker->get() == true
+            )
+        )
+    );
+    // This, at first might look stupid to define two #defines here, since you could use #ifndef FLICKER_ENABLED too. BUT assume you later switch
+    // to a selection property which handles both of your cases (bool == true and bool == false) with two separate items. Then you will be lucky
+    // to see that your GLSL code is structured and contains both blocks separately.
 
+    // Talking about selection properties ... why not using multiple options (as above) in combination with a property? We defined a selection
+    // property above and now assign #defines to each of its possible values
+    planeShader->addPreprocessor(               // Add
+        WGEShaderPreprocessor::SPtr(            // it is a preprocessor of course
+            new WGEShaderPropertyDefineOptions< WPropSelection >(   // options based on selection
+                m_modeSelection,                // The property to use
+                // As above, mention all possible values and their respecting #define
+                "BUMPMAPPING_ENABLED",
+                "TRANSPARENTPLANE_ENABLED",
+                "LSD_ENABLED"
+            )
+        )
+    );
 
-
-    // TODO(ebaum): write
-    // WGEShaderDefineOptions,  WGEShaderPropertyDefineOptions
-    // WGEShaderDefineSwitch::SPtr gradTexEnableDefine = m_shader->setDefine( "GRADIENTTEXTURE_ENABLED" );
-
-
-
-
-
+    // Thats it. You now coupled properties to uniforms, learned how to set compile-time values and how to set and unset #defines in GLSL
+    // comfortably. In the next step, we add some textures to work with.
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 4. Textures
@@ -401,8 +472,8 @@ void WMTemplateShaders::moduleMain()
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // We want some nice animations. We already have an uniform which contains the animation time. But who increases it?
-    // OpenWalnut provides several useful callbacks for several purpose. Have a look at core/graphicsEngine/caollbacks for more.
-    // Here, we use a animation callback:;
+    // OpenWalnut provides several useful callbacks for several purpose. Have a look at core/graphicsEngine/callbacks for more.
+    // Here, we use an animation callback:
     animationTime->setUpdateCallback( new WGEShaderAnimationCallback() );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////

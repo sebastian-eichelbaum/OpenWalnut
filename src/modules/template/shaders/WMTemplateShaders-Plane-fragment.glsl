@@ -47,15 +47,33 @@ void main()
 {
     vec4 col = texture2D( u_textureSampler, v_normalizedVertex.xy );
 
+    // Now handle the different modes whe defined at C++ side
+    float light = 1.0;
+#ifdef BUMPMAPPING_ENABLED
     // Simplest bump-mapping. Make it look really ... like glibber
     vec2 grad = getGradient( u_textureSampler, v_normalizedVertex.xy, 1.0 / u_textureSizeX * 2 );
     vec3 normal = gl_NormalMatrix * vec3( grad, -1.0 );
-    float light = blinnPhongIlluminationIntensity( normalize( viewAlign( normal ) ) );
+    light = blinnPhongIlluminationIntensity( normalize( viewAlign( normal ) ) );
+#endif
+
+    float finalAlpha = 1.0;
+#ifdef TRANSPARENTPLANE_ENABLED
+    finalAlpha = col.a > 0.9 ? 1.0 : 0.5;
+#endif
 
     // Apply light and square it. This ensures max sliminess
     col.rgb = light * light * col.rgb;
 
+#ifdef LSD_ENABLED
+    // Time based dimming of the color. u_animation is a tick counter we defined at C++ side.
+    float dimmerR = 0.5 + 0.5 * sin( 1 * 3.1416 * mod( u_animation, 50.0 ) / 50.0 );
+    float dimmerG = 0.5 + 0.5 * sin( 2 * 3.1416 * mod( u_animation, 50.0 ) / 50.0 );
+    float dimmerB = 0.5 + 0.5 * sin( 3 * 3.1416 * mod( u_animation, 50.0 ) / 50.0 );
+
+    col.rgb = vec3( dimmerR * col.r, dimmerG * col.g, dimmerB * col.b );
+#endif
+
     // finally set the color and depth
-    gl_FragColor = vec4( mix( gl_Color.rgb, col.rgb, col.a ), col.a > 0.9 ? 1.0 : 0.5 );
+    gl_FragColor = vec4( mix( gl_Color.rgb, col.rgb, col.a ), finalAlpha );
 }
 

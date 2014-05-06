@@ -53,10 +53,13 @@
 // TIP: you have a long list of varying variables? Why not putting them into an separate file and include it here and in
 // your fragment shader?
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// UNIFORMS
+
 // These are the uniforms we defined in the C++ side. They are accessible in vertex, geometry and fragment shaders.
-// This is updated by a callback:
+// This is updated by a callback. We defined it on C++ side:
 uniform int u_animation;
-// These are coupled to the corresponing properties.
+// These are coupled to the corresponing properties on C++ side:
 uniform vec4 u_spheresColor;
 uniform float u_sphereScaler;
 
@@ -67,6 +70,9 @@ uniform int u_noiseSizeX;
 uniform int u_noiseSizeY;
 uniform int u_noiseSizeZ;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// VARYINGS
+
 // The surface normal
 varying vec3 v_normal;
 
@@ -76,21 +82,35 @@ varying vec3 v_normalizedVertex;
 // NOTE: We encourage you to use the "u_" prefix and "v_" prefix for your uniforms and varyings. This makes it easier to
 // distinguish them in the code.
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// FUNCTIONS
+
 void main()
 {
     // Done. The remaining code is standard GLSL.
 
-    // for easy access to texture coordinates
+    // For easy access to texture coordinates
     gl_TexCoord[0] = gl_MultiTexCoord0;
 
-    // time based dimming of the color
-    float dimmer = 0.5 + 0.5 * sin( 3.1416 * mod( u_animation, 100.0 ) / 100.0 );
+    // Now, we can add a code block which is turned on by a property. We defined this at C++ side
+    float dimmer = 1.0;
+    #ifdef FLICKER_ENABLED
+        // Time based dimming of the color. u_animation is a tick counter we defined at C++ side.
+        dimmer = 0.5 + 0.5 * sin( 3.1416 * mod( u_animation, 100.0 ) / 100.0 );
+    #endif
+    // Alternatively, you can do something if the NOT-option is on:
+    #ifdef FLICKER_DISABLED
+        // Of course, it might be stupid to add this block for a WPropBool, as this is equal to #ifndef FLICKER_ENABLED.But you might go on and
+        // change your bool property to some selection with multiple options. Than you will be thankful to see that both original cases are
+        // properly split in your GLSL code:
+        // dimmer = 0.5;
+    #endif
 
-    // prepare light
+    // Prepare light
     v_normal = gl_NormalMatrix * gl_Normal;
     v_normalizedVertex = gl_Vertex.xyz / 20.0; // trick a bit... looks cooler later
 
-    // push color and position forward through the pipeline
+    // Push color and position forward through the pipeline
     gl_FrontColor = vec4( u_spheresColor.rgb * dimmer, 1.0 );
     gl_Position = gl_ModelViewProjectionMatrix * vec4( gl_Vertex.xyz * u_sphereScaler, 1.0 );
 }

@@ -136,6 +136,16 @@ private:
      * Some weight.
      */
     WPropDouble m_aWeight;
+
+    /**
+     * Turn on/off animation.
+     */
+    WPropBool m_flicker;
+
+    /**
+     * Switch between several modes.
+     */
+    WPropSelection m_modeSelection;
 };
 
 #endif  // WMTEMPLATESHADERS_H

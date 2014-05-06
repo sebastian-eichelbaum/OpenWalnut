@@ -39,6 +39,7 @@ void main()
     // prepare light
     v_normal = gl_NormalMatrix * gl_Normal;
     v_normalizedVertex = gl_Vertex.xyz / 100.0;
+
     // for easy access to texture coordinates
     gl_TexCoord[0] = gl_MultiTexCoord0;
 
