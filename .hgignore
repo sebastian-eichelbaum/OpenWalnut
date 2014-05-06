@@ -54,3 +54,6 @@ syntax: glob
 .settings
 syntax: glob
 Release
+# VIM's YouCompleteMe addon files:
+.ycm_extra_conf.py
+.ycm_extra_conf.pyc

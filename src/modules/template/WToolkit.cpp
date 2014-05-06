@@ -32,6 +32,7 @@
 #include "WMTemplate.h"
 #include "WMTemplateContainers.h"
 #include "WMTemplateUI.h"
+#include "WMTemplateShaders.h"
 
 // #include "WToolkit.h"
 
@@ -51,6 +52,7 @@ extern "C" void WLoadModule( WModuleList& m ) // NOLINT
     m.push_back( boost::shared_ptr< WModule >( new WMTemplate ) );
     m.push_back( boost::shared_ptr< WModule >( new WMTemplateContainers ) );
     m.push_back( boost::shared_ptr< WModule >( new WMTemplateUI ) );
+    m.push_back( boost::shared_ptr< WModule >( new WMTemplateShaders ) );
 }
 
 /**

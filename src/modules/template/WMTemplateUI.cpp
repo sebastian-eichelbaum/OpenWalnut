@@ -55,27 +55,32 @@ WMTemplateUI::~WMTemplateUI()
 
 boost::shared_ptr< WModule > WMTemplateUI::factory() const
 {
+    // NOTE: Refer to WMTemplate.cpp if you do not understand these commands.
     return boost::shared_ptr< WModule >( new WMTemplateUI() );
 }
 
 const std::string WMTemplateUI::getName() const
 {
+    // NOTE: Refer to WMTemplate.cpp if you do not understand these commands.
     return "Template UI";
 }
 
 const std::string WMTemplateUI::getDescription() const
 {
+    // NOTE: Refer to WMTemplate.cpp if you do not understand these commands.
     return "Show some custom module UI.";
 }
 
 void WMTemplateUI::connectors()
 {
+    // NOTE: Refer to WMTemplate.cpp if you do not understand these commands.
     // We do not need any connectors. Have a look at WMTemplate.cpp if you want to know what this means.
     WModule::connectors();
 }
 
 void WMTemplateUI::properties()
 {
+    // NOTE: Refer to WMTemplate.cpp if you do not understand these commands.
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     // We create some dummy preferences here to use in our widgets:

@@ -43,6 +43,7 @@
 #include "../common/WPropertyTypes.h"
 #include "../common/WPropertyHelper.h"
 
+#include "WGEImage.h"
 #include "WGETextureUtils.h"
 
 /**
@@ -58,6 +59,11 @@ public:
      */
     typedef osg::ref_ptr< WGETexture< TextureType > > RPtr;
 
+    /**
+     * Convenience type for OSG reference pointer on WGETextures. OW conform name.
+     */
+    typedef osg::ref_ptr< WGETexture< TextureType > > SPtr;
+
     //! We support only 8 textures because some known hardware does not support more texture coordinates.
     static std::size_t const MAX_NUMBER_OF_TEXTURES = 8;
 
@@ -71,6 +77,15 @@ public:
      * \param min the minimum value allowing negative values too.
      */
     WGETexture( double scale = 1.0, double min = 0.0 );
+
+    /**
+     * Creates texture from given image. Scaling is set to identity.
+     *
+     * \param image the image to use as texture
+     * \param scale the scaling factor needed for de-scaling the texture values
+     * \param min the minimum value allowing negative values too.
+     */
+    WGETexture( WGEImage::SPtr image, double scale = 1.0, double min = 0.0 );
 
     /**
      * Creates texture from given image. Scaling is set to identity.
@@ -465,6 +480,18 @@ WGETexture< TextureType >::WGETexture( osg::Image* image, double scale, double m
 {
     setupProperties( scale, min );
     WGETexture< TextureType >::initTextureSize( this, image->s(), image->t(), image->r() );
+}
+
+template < typename TextureType >
+WGETexture< TextureType >::WGETexture( WGEImage::SPtr image, double scale, double min ):
+    TextureType( image->getAsOSGImage() ),
+    m_propCondition( boost::shared_ptr< WCondition >( new WCondition() ) ),
+    m_properties( boost::shared_ptr< WProperties >( new WProperties( "Texture Properties", "Properties of a texture." ) ) ),
+    m_infoProperties( boost::shared_ptr< WProperties >( new WProperties( "Texture Info Properties", "Texture's information properties." ) ) ),
+    m_needCreate( true )
+{
+    setupProperties( scale, min );
+    WGETexture< TextureType >::initTextureSize( this, image->getWidth(), image->getHeight(), image->getDepth() );
 }
 
 template < typename TextureType >

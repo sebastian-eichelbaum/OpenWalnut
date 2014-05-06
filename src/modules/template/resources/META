@@ -241,3 +241,23 @@
   tag = "Tutorial";
 };
 
+// Basically the same as above, without comments. Skip this. It does not contain new information.
+"Template Shaders"
+{
+  icon="WMTemplateIcon.png";
+  website = "http://www.openwalnut.org";
+  description = "Demonstration of use and powers of WGEShaders and related interfaces.";
+  author = "OpenWalnut Project";
+  "OpenWalnut Project"
+  {
+    url="http://www.openwalnut.org";
+    email="contact@openwalnut.org";
+    what="Design, Development and Bug fixing";
+  };
+  tag = "Tutorial";
+  screenshot
+  {
+      description = "Slime brain and Spheres. The shader demo.";
+      filename = "templateShadersScreenshot1.png";
+  };
+}

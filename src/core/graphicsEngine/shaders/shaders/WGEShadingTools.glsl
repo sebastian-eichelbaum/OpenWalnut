@@ -384,6 +384,39 @@ vec3 getGradient( in sampler3D sampler, in vec3 pos )
 }
 
 /**
+ * Calculates the gradient inside a luminance 2D texture at the specified position.
+ *
+ * \param sampler the texture sampler to use
+ * \param pos where in the texture
+ * \param stepsize the offset used in the kernel. Should be related to the nb. of voxels.
+ *
+ * \return the gradient
+ */
+vec2 getGradient( in sampler2D sampler, in vec2 pos, in float stepsize )
+{
+    float valueXP = texture2D( sampler, pos + vec2( stepsize, 0.0 ) ).r;
+    float valueXM = texture2D( sampler, pos - vec2( stepsize, 0.0 ) ).r;
+    float valueYP = texture2D( sampler, pos + vec2( 0.0, stepsize ) ).r;
+    float valueYM = texture2D( sampler, pos - vec2( 0.0, stepsize ) ).r;
+
+    return vec2( valueXP - valueXM, valueYP - valueYM );
+}
+
+/**
+ * Calculates the gradient inside a luminance 2D texture at the specified position.
+ *
+ * \param sampler the texture sampler to use
+ * \param pos where in the texture
+ *
+ * \return the gradient
+ */
+vec2 getGradient( in sampler2D sampler, in vec2 pos )
+{
+    // unfortunately the ATI driver does not allow default values for function arguments
+    return getGradient( sampler, pos, 0.005 );
+}
+
+/**
  * Calculates the gradient in a luminance 3D texture at the specified position. Unlike getGradient, this switches the orientation of the gradient
  * according to the viewing direction. This ensures, that the gradient always points towards the camera and therefore is useful as a normal.
  *
