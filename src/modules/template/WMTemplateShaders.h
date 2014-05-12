@@ -104,20 +104,6 @@ private:
     boost::shared_ptr< WCondition > m_propCondition;
 
     /**
-     * Create several spheres. This is basic OSG code.
-     *
-     * \return the spheres
-     */
-    osg::ref_ptr< osg::Node > createSphereGeometry();
-
-    /**
-     * Create a plane. This is basic OSG code.
-     *
-     * \return the plane
-     */
-    osg::ref_ptr< osg::Node > createPlaneGeometry();
-
-    /**
      * Allow scaling the spheres.
      */
     WPropDouble m_sphereScaler;

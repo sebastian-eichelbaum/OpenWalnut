@@ -58,6 +58,8 @@
 #include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
 #include "core/graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
 
+// Some utils for creating some demo geometry.
+#include "WDemoGeometry.h"
 #include "WMTemplateShaders.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -164,8 +166,8 @@ void WMTemplateShaders::moduleMain()
     rootNode->setMatrix( osg::Matrixd::rotate( 1.57, 1.0, 0.0, 0.0 ) ); // First parameter is the angle in radians.
 
     // Now we can add your demo geometry:
-    osg::ref_ptr< osg::Node > spheres = createSphereGeometry();
-    osg::ref_ptr< osg::Node > plane = createPlaneGeometry();
+    osg::ref_ptr< osg::Node > spheres = WDemoGeometry::createSphereGeometry();
+    osg::ref_ptr< osg::Node > plane = WDemoGeometry::createPlaneGeometry();
 
     // Allow blending here? Yes. We need it later.
     plane->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
@@ -514,48 +516,3 @@ void WMTemplateShaders::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( rootNode );
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ATTENTION: now it gets interesting ...
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-osg::ref_ptr< osg::Node > WMTemplateShaders::createSphereGeometry()
-{
-    // Create some spheres using the OSG functionality.  To understand the following code, we would like to refer you to the OpenSceneGraph
-    // documentation.
-
-    // add a bunch of spheres to a group and return it. Normals are set but no color.
-    osg::ref_ptr< osg::Group > group( new osg::Group );
-
-    // add 5 spheres with increasing size and add them along the X axs
-    float x = 2.0;
-    for( size_t i = 0; i < 5; ++i )
-    {
-        // Create a sphere.
-        osg::Geode* sphereGeode = new osg::Geode;
-        sphereGeode->addDrawable(
-            new osg::ShapeDrawable(
-                new osg::Sphere(
-                    osg::Vec3d( x, 50.0, 2 + i * 3 ),   // moving center
-                    2 + i * 3                           // increasing radius
-                )
-            )
-        );
-
-        // move the spheres along the X axis a bit each time
-        x += 2 + 2 * i * 3 + 10.0;
-
-        // Add to group.
-        group->addChild( sphereGeode );
-    }
-    return group;
-}
-
-osg::ref_ptr< osg::Node > WMTemplateShaders::createPlaneGeometry()
-{
-    // Create a nice plane. We use a pre-defined function in OpenWalnut's graphics engine:
-    return wge::genFinitePlane( osg::Vec3( 0.0, 0.0, 0.0 ),   // base
-                                osg::Vec3( 100.0, 0.0, 0.0 ), // spanning vector a
-                                osg::Vec3( 0.0, 100.0, 0.0 ), // spanning vector b
-                                WColor( 0.5, 0.5, 0.5, 1.0 )  // a color.
-           );
-}
