@@ -39,7 +39,7 @@ development is easy!
      expand your OSG-based geometry with GLSL shaders and, even more importantly, how to
      interact with these shaders using your WProperties.
 
-- WMTemplateColormaps.*
+- WMTemplateColormapping.*
   -> this rather simple example demonstrates the colormapping API of OpenWalnut. You will
      learn how to color arbitrary geometry using the WGEColormapping mechanism.
 
