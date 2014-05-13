@@ -260,14 +260,14 @@
       description = "Slime brain and Spheres. The shader demo.";
       filename = "templateShadersScreenshot1.png";
   };
-}
+};
 
 // Basically the same as above, without comments. Skip this. It does not contain new information.
-"Template Colormapping"
+"Template Render Pipelines"
 {
   icon="WMTemplateIcon.png";
   website = "http://www.openwalnut.org";
-  description = "Demonstration of use and powers of WGEColormapping and related interfaces.";
+  description = "Demonstration of use and powers of WGEOffscreen and related interfaces.";
   author = "OpenWalnut Project";
   "OpenWalnut Project"
   {
@@ -276,9 +276,5 @@
     what="Design, Development and Bug fixing";
   };
   tag = "Tutorial";
-  screenshot
-  {
-      description = "Slime brain and Spheres. The shader demo.";
-      filename = "templateShadersScreenshot1.png";
-  };
-}
+};
+

@@ -30,8 +30,9 @@
 // Would you program this from scratch even though you already have a gauss module, a dataset arithmetic
 // module and an isosurface module? In this example we will implement this scenario by re-using the existing tools of OpenWalnut.
 //
-// If you want to learn how to program a module, refer to WMTemplate.cpp. It is an extensive tutorial on all the details.
-// In this tutorial, we assume you already know how to write modules. For other examples, refer to the README file.
+//  You will need the knowledge of these tutorials before you can go on:
+//  * WMTemplate
+//
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <string>

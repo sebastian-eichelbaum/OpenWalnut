@@ -28,8 +28,8 @@
 // You do not know what shaders are? No nothing about GLSL, OpenGL or the OpenSceneGraph? Then this tutorial is probably not for you. This
 // tutorial demonstrates how to comfortably integrate GLSL shaders into your modules and how to interact with them (coupling with properties).
 //
-// If you want to learn how to program a module, refer to WMTemplate.cpp. It is an extensive tutorial on all the details.
-// In this tutorial, we assume you already know how to write modules.
+//  You will need the knowledge of these tutorials before you can go on:
+//  * WMTemplate
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

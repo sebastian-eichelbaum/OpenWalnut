@@ -23,7 +23,7 @@
 //---------------------------------------------------------------------------
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This is a tutorial on how to use the WGEColormapping interface. This tutorial also includes some shader files in the shaders subdirectory. You
+// This is a tutorial on how to use the WGEOfffscreen interface. This tutorial also includes some shader files in the shaders subdirectory. You
 // will be referred to them later.
 //
 //  You will need the knowledge of these tutorials before you can go on:
@@ -40,46 +40,45 @@
 
 #include "core/graphicsEngine/WGEManagedGroupNode.h"
 #include "core/graphicsEngine/WGERequirement.h"
-#include "core/graphicsEngine/WGETexture.h"
-#include "core/graphicsEngine/WGEColormapping.h"    // <- this is the awesome new header you will need
+#include "core/graphicsEngine/offscreen/WGEOffscreenRenderNode.h"    // <- this is the awesome new header you will need
 #include "core/graphicsEngine/shaders/WGEShader.h"
 
 // Some utils for creating some demo geometry.
 #include "WDemoGeometry.h"
-#include "WMTemplateColormapping.h"
+#include "WMTemplateRenderPipelines.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // All the basic setup ... Refer to WMTemplate.cpp if you do not understand these commands.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-WMTemplateColormapping::WMTemplateColormapping()
+WMTemplateRenderPipelines::WMTemplateRenderPipelines()
     : WModule()
 {
 }
 
-WMTemplateColormapping::~WMTemplateColormapping()
+WMTemplateRenderPipelines::~WMTemplateRenderPipelines()
 {
 }
 
-boost::shared_ptr< WModule > WMTemplateColormapping::factory() const
-{
-    // NOTE: Refer to WMTemplate.cpp if you do not understand these commands.
-    return boost::shared_ptr< WModule >( new WMTemplateColormapping() );
-}
-
-const std::string WMTemplateColormapping::getName() const
+boost::shared_ptr< WModule > WMTemplateRenderPipelines::factory() const
 {
     // NOTE: Refer to WMTemplate.cpp if you do not understand these commands.
-    return "Template Colormapping";
+    return boost::shared_ptr< WModule >( new WMTemplateRenderPipelines() );
 }
 
-const std::string WMTemplateColormapping::getDescription() const
+const std::string WMTemplateRenderPipelines::getName() const
+{
+    // NOTE: Refer to WMTemplate.cpp if you do not understand these commands.
+    return "Template Render Pipelines";
+}
+
+const std::string WMTemplateRenderPipelines::getDescription() const
 {
     // NOTE: Refer to WMTemplate.cpp if you do not understand these commands.
     return "Show how to use colormapping in your modules.";
 }
 
-void WMTemplateColormapping::connectors()
+void WMTemplateRenderPipelines::connectors()
 {
     // NOTE: Refer to WMTemplate.cpp if you do not understand these commands.
 
@@ -87,7 +86,7 @@ void WMTemplateColormapping::connectors()
     WModule::connectors();
 }
 
-void WMTemplateColormapping::properties()
+void WMTemplateRenderPipelines::properties()
 {
     // NOTE: Refer to WMTemplate.cpp if you do not understand these commands.
 
@@ -96,7 +95,7 @@ void WMTemplateColormapping::properties()
     WModule::properties();
 }
 
-void WMTemplateColormapping::requirements()
+void WMTemplateRenderPipelines::requirements()
 {
     // NOTE: Refer to WMTemplate.cpp if you do not understand these commands.
 
@@ -108,7 +107,7 @@ void WMTemplateColormapping::requirements()
 // ATTENTION: now it gets interesting ...
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void WMTemplateColormapping::moduleMain()
+void WMTemplateRenderPipelines::moduleMain()
 {
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
@@ -116,10 +115,18 @@ void WMTemplateColormapping::moduleMain()
     // Now, we can mark the module ready.
     ready();
 
+    // In this tutorial, we will show you how to develop quite complex offscreen render pipelines with ease in OpenWalnut. For this, we use a
+    // rather simple example. We want to render some geometry in a cartoonish way. Although this can be done in one additional pass, we split it
+    // into two additional passes here to demonstrate WGEOffscreen* a little bit more in detail.
+    //
+    // NOTE: Refer to WMTemplateShaders.cpp if you do not understand the next sections. It is important to understand these basics before going
+    // on.
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 1. Setup some geometry.
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    // So let us start by creating our geometry. This is taken from the WMTemplateShaders example_
     osg::ref_ptr< WGEGroupNode > rootNode = new WGEGroupNode();
 
     // Add Scene
@@ -139,12 +146,16 @@ void WMTemplateColormapping::moduleMain()
     rootNode->insert( plane );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 2. Setup the offscreen pipeline.
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 7. ... do stuff.
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // You already know this module loop code. You won't need to implement any further interaction between your properties and your shader.
-    // This happens automatically due to OpenWalnut's comfortable shader<->property interface we set up above. But of course the options are
-    // endless. Modify the geometry, change attributes and so on ...
+    // You already know this module loop code. You can now use your knowledge from WMTemplateShaders to implement cool features and control them
+    // in you shaders of the pipelines ...
 
     // Now the remaining module code. In our case, this is empty.
     while( !m_shutdownFlag() )
