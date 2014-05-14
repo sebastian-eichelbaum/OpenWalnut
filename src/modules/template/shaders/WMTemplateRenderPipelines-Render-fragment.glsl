@@ -24,25 +24,18 @@
 
 #version 120
 
-#include "WGETransformationTools.glsl"
-
-uniform vec4 u_planeColor;
+// For lighting functionality.
+#include "WGEShadingTools.glsl"
 
 // The surface normal
 varying vec3 v_normal;
 
-// Normalized coordinate in the bounding volume of the sphere
-varying vec3 v_normalizedVertex;
-
 void main()
 {
-    // prepare light
-    v_normal = gl_NormalMatrix * gl_Normal;
-    v_normalizedVertex = gl_Vertex.xyz / 100.0;
-
-    // for easy access to texture coordinates
-    gl_TexCoord[0] = gl_MultiTexCoord0;
-
-    gl_FrontColor = u_planeColor;
-    gl_Position = ftransform();
+    float light = blinnPhongIlluminationIntensity( normalize( viewAlign( v_normal ) ) );
+    // finally set the color and depth
+    // NOTE: you should remember that, when outputting to more than one texture (if you attached multiple color outputs), you need to use
+    // gl_FragData instead of gl_FragColor!
+    gl_FragData[0] = vec4( light, 0.0, 0.0, 1.0 );
 }
+

@@ -26,23 +26,14 @@
 
 #include "WGETransformationTools.glsl"
 
-uniform vec4 u_planeColor;
+// Now you are in the vertex shader of the first pass. All the shaders for each pass are nothing special. They are standard GLSL shaders.
 
 // The surface normal
 varying vec3 v_normal;
-
-// Normalized coordinate in the bounding volume of the sphere
-varying vec3 v_normalizedVertex;
 
 void main()
 {
     // prepare light
     v_normal = gl_NormalMatrix * gl_Normal;
-    v_normalizedVertex = gl_Vertex.xyz / 100.0;
-
-    // for easy access to texture coordinates
-    gl_TexCoord[0] = gl_MultiTexCoord0;
-
-    gl_FrontColor = u_planeColor;
     gl_Position = ftransform();
 }

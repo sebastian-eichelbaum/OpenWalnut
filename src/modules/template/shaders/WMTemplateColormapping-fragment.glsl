@@ -24,25 +24,29 @@
 
 #version 120
 
-#include "WGETransformationTools.glsl"
+// For lighting functionality.
+#include "WGEShadingTools.glsl"
 
-uniform vec4 u_planeColor;
+// For the colormapper
+#include "WGEColormapping-fragment.glsl"
 
 // The surface normal
 varying vec3 v_normal;
 
-// Normalized coordinate in the bounding volume of the sphere
-varying vec3 v_normalizedVertex;
-
 void main()
 {
-    // prepare light
-    v_normal = gl_NormalMatrix * gl_Normal;
-    v_normalizedVertex = gl_Vertex.xyz / 100.0;
+    // we can now simply query the color of this fragment!
+    vec4 col = colormapping();
 
-    // for easy access to texture coordinates
-    gl_TexCoord[0] = gl_MultiTexCoord0;
+    // Please also have a look into WGEColorMapsImproved.glsl. Use the colormap() function directly on your custom values to apply a colormap to
+    // some custom data.
 
-    gl_FrontColor = u_planeColor;
-    gl_Position = ftransform();
+    // make it more spatial ...
+    float light = blinnPhongIlluminationIntensity( normalize( viewAlign( v_normal ) ) );
+    col.rgb *= light;
+
+    // in this tutorial, we ensure there always is something to see.
+    col.a = 1.0;
+    gl_FragColor = col;
 }
+

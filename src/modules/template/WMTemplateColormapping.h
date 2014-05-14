@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMTEMPLATESHADERS_H
-#define WMTEMPLATESHADERS_H
+#ifndef WMTEMPLATECOLORMAPPING_H
+#define WMTEMPLATECOLORMAPPING_H
 
 #include <string>
 #include <vector>
@@ -39,24 +39,24 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * \class WMTemplateShaders
+ * \class WMTemplateColormapping
  *
- * A module that explains the usage of the WGEShader interface. Please read the C++ code.
+ * A module that explains the usage of the WGEColormapping interface including the GLSL codes. Please read the C++ code.
  *
  * \ingroup modules
  */
-class WMTemplateShaders : public WModule
+class WMTemplateColormapping : public WModule
 {
 public:
     /**
      * Constuctor.
      */
-    WMTemplateShaders();
+    WMTemplateColormapping();
 
     /**
      * Destructor.
      */
-    virtual ~WMTemplateShaders();
+    virtual ~WMTemplateColormapping();
 
     /**
      * Gives back the name of this module.
@@ -102,36 +102,6 @@ protected:
 private:
     //! A condition for property updates.
     boost::shared_ptr< WCondition > m_propCondition;
-
-    /**
-     * Allow scaling the spheres.
-     */
-    WPropDouble m_sphereScaler;
-
-    /**
-     * Color of the plane
-     */
-    WPropColor m_planeColor;
-
-    /**
-     * Color of the spheres
-     */
-    WPropColor m_spheresColor;
-
-    /**
-     * Some weight.
-     */
-    WPropDouble m_aWeight;
-
-    /**
-     * Turn on/off animation.
-     */
-    WPropBool m_flicker;
-
-    /**
-     * Switch between several modes.
-     */
-    WPropSelection m_modeSelection;
 };
 
-#endif  // WMTEMPLATESHADERS_H
+#endif  // WMTEMPLATECOLORMAPPING_H

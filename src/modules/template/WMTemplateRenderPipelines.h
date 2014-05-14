@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMTEMPLATESHADERS_H
-#define WMTEMPLATESHADERS_H
+#ifndef WMTEMPLATERENDERPIPELINES_H
+#define WMTEMPLATERENDERPIPELINES_H
 
 #include <string>
 #include <vector>
@@ -39,24 +39,24 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * \class WMTemplateShaders
+ * \class WMTemplateRenderPipelines
  *
- * A module that explains the usage of the WGEShader interface. Please read the C++ code.
+ * A module that explains the usage of the WGEOffscreen interface including the GLSL codes. Please read the C++ code.
  *
  * \ingroup modules
  */
-class WMTemplateShaders : public WModule
+class WMTemplateRenderPipelines : public WModule
 {
 public:
     /**
      * Constuctor.
      */
-    WMTemplateShaders();
+    WMTemplateRenderPipelines();
 
     /**
      * Destructor.
      */
-    virtual ~WMTemplateShaders();
+    virtual ~WMTemplateRenderPipelines();
 
     /**
      * Gives back the name of this module.
@@ -104,34 +104,9 @@ private:
     boost::shared_ptr< WCondition > m_propCondition;
 
     /**
-     * Allow scaling the spheres.
+     * Enable debug hud.
      */
-    WPropDouble m_sphereScaler;
-
-    /**
-     * Color of the plane
-     */
-    WPropColor m_planeColor;
-
-    /**
-     * Color of the spheres
-     */
-    WPropColor m_spheresColor;
-
-    /**
-     * Some weight.
-     */
-    WPropDouble m_aWeight;
-
-    /**
-     * Turn on/off animation.
-     */
-    WPropBool m_flicker;
-
-    /**
-     * Switch between several modes.
-     */
-    WPropSelection m_modeSelection;
+    WPropBool m_showHUD;
 };
 
-#endif  // WMTEMPLATESHADERS_H
+#endif  // WMTEMPLATERENDERPIPELINES_H

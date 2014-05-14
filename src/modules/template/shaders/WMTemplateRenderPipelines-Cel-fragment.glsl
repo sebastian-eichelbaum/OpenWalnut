@@ -24,25 +24,27 @@
 
 #version 120
 
-#include "WGETransformationTools.glsl"
+/**
+ * The texture Unit for the colors
+ */
+uniform sampler2D u_texture0Sampler;
 
-uniform vec4 u_planeColor;
-
-// The surface normal
-varying vec3 v_normal;
-
-// Normalized coordinate in the bounding volume of the sphere
-varying vec3 v_normalizedVertex;
-
+/**
+ * Main. Calculates the cel shading effect for each pixel.
+ */
 void main()
 {
-    // prepare light
-    v_normal = gl_NormalMatrix * gl_Normal;
-    v_normalizedVertex = gl_Vertex.xyz / 100.0;
+    // Get input
+    vec2 texCoord = gl_TexCoord[0].st;
+    vec4 c = texture2D( u_texture0Sampler, gl_TexCoord[0].st );
 
-    // for easy access to texture coordinates
-    gl_TexCoord[0] = gl_MultiTexCoord0;
+    // Reduce colors and output again.
+    float samples = 3;
+    gl_FragColor = vec4(
+                         vec3( int( ( c * samples ).r ),
+                               int( ( c * samples ).g ),
+                               int( ( c * samples ).b ) ) / samples, c.a );
 
-    gl_FrontColor = u_planeColor;
-    gl_Position = ftransform();
+    // IMPORTANT: we transport the alpha value of the original input pixel here.
 }
+

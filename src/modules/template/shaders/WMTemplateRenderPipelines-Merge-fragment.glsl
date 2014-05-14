@@ -24,25 +24,28 @@
 
 #version 120
 
-#include "WGETransformationTools.glsl"
+/**
+ * The texture Unit for the colors
+ */
+uniform sampler2D u_texture0Sampler;
 
-uniform vec4 u_planeColor;
+/**
+ * The texture Unit for the edges
+ */
+uniform sampler2D u_texture1Sampler;
 
-// The surface normal
-varying vec3 v_normal;
-
-// Normalized coordinate in the bounding volume of the sphere
-varying vec3 v_normalizedVertex;
-
+/**
+ * Main. Calculates the Laplace Filter for each pixel.
+ */
 void main()
 {
-    // prepare light
-    v_normal = gl_NormalMatrix * gl_Normal;
-    v_normalizedVertex = gl_Vertex.xyz / 100.0;
+    // Grab texels and mix.
+    vec4 color  = texture2D( u_texture0Sampler, gl_TexCoord[0].st );   // <- the cell shaded colors
+    float edge  = texture2D( u_texture1Sampler, gl_TexCoord[1].st ).r;   // <- the edges
+    vec4 edgeColor = vec4( 1.0 );
 
-    // for easy access to texture coordinates
-    gl_TexCoord[0] = gl_MultiTexCoord0;
-
-    gl_FrontColor = u_planeColor;
-    gl_Position = ftransform();
+    // The nice thing is, the color input stores an alpha value which tells us whether the pixel was occupied or not. This way, we transport
+    // transparence and "discards" from previous shaders properly.
+    gl_FragColor = vec4( mix( color.rgb, edgeColor.rgb, edge ), color.a );
 }
+

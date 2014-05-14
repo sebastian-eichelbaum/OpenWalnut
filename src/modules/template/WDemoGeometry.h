@@ -22,27 +22,30 @@
 //
 //---------------------------------------------------------------------------
 
-#version 120
+#ifndef WDEMOGEOMETRY_H
+#define WDEMOGEOMETRY_H
 
-#include "WGETransformationTools.glsl"
+#include <osg/Node>
 
-uniform vec4 u_planeColor;
-
-// The surface normal
-varying vec3 v_normal;
-
-// Normalized coordinate in the bounding volume of the sphere
-varying vec3 v_normalizedVertex;
-
-void main()
+/**
+ * This namespace contains functions to create demo geometry.
+ */
+namespace WDemoGeometry
 {
-    // prepare light
-    v_normal = gl_NormalMatrix * gl_Normal;
-    v_normalizedVertex = gl_Vertex.xyz / 100.0;
+    /**
+     * Create several spheres. This is basic OSG code.
+     *
+     * \return the spheres
+     */
+    osg::ref_ptr< osg::Node > createSphereGeometry();
 
-    // for easy access to texture coordinates
-    gl_TexCoord[0] = gl_MultiTexCoord0;
-
-    gl_FrontColor = u_planeColor;
-    gl_Position = ftransform();
+    /**
+     * Create a plane. This is basic OSG code.
+     *
+     * \return the plane
+     */
+    osg::ref_ptr< osg::Node > createPlaneGeometry();
 }
+
+#endif  // WDEMOGEOMETRY_H
+

@@ -24,25 +24,17 @@
 
 #version 120
 
-#include "WGETransformationTools.glsl"
-
-uniform vec4 u_planeColor;
-
-// The surface normal
-varying vec3 v_normal;
-
-// Normalized coordinate in the bounding volume of the sphere
-varying vec3 v_normalizedVertex;
-
 void main()
 {
-    // prepare light
-    v_normal = gl_NormalMatrix * gl_Normal;
-    v_normalizedVertex = gl_Vertex.xyz / 100.0;
+    // pass the color to the fragment shader
+    gl_FrontColor = gl_Color;
+    gl_BackColor =  gl_Color;
 
-    // for easy access to texture coordinates
-    gl_TexCoord[0] = gl_MultiTexCoord0;
+    // pass tex coordinates
+    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+    gl_TexCoord[1] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
 
-    gl_FrontColor = u_planeColor;
+    // transform position
     gl_Position = ftransform();
 }
+

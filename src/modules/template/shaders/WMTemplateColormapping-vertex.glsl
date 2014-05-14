@@ -24,25 +24,21 @@
 
 #version 120
 
-#include "WGETransformationTools.glsl"
-
-uniform vec4 u_planeColor;
+// Include the colormapper code:
+#include "WGEColormapping-vertex.glsl"
 
 // The surface normal
 varying vec3 v_normal;
 
-// Normalized coordinate in the bounding volume of the sphere
-varying vec3 v_normalizedVertex;
-
 void main()
 {
+    // prepare colormapping
+    colormapping();
+
+    // wow. Thats easy right? But there is more. This method is flexible. You can define your own vertex coordinates and transformations. This is
+    // especially useful if your gl_ModelviewMatrix * gl_Vertex is NOT the final world space coordinate!
+
     // prepare light
     v_normal = gl_NormalMatrix * gl_Normal;
-    v_normalizedVertex = gl_Vertex.xyz / 100.0;
-
-    // for easy access to texture coordinates
-    gl_TexCoord[0] = gl_MultiTexCoord0;
-
-    gl_FrontColor = u_planeColor;
     gl_Position = ftransform();
 }
