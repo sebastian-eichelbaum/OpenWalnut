@@ -126,11 +126,8 @@ void WMTemplateRenderPipelines::moduleMain()
     // 1. Setup some geometry.
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // So let us start by creating our geometry. This is taken from the WMTemplateShaders example_
+    // So let us start by creating our geometry. This is taken from the WMTemplateShaders example.
     osg::ref_ptr< WGEGroupNode > rootNode = new WGEGroupNode();
-
-    // Add Scene
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( rootNode );
     rootNode->setMatrix( osg::Matrixd::rotate( 1.57, 1.0, 0.0, 0.0 ) ); // First parameter is the angle in radians.
 
     // Now we can add your demo geometry:
@@ -149,9 +146,88 @@ void WMTemplateRenderPipelines::moduleMain()
     // 2. Setup the offscreen pipeline.
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    // First, is to create a node in the scene-graph, which will encapsulate our render pipeline:
+    osg::ref_ptr< WGEOffscreenRenderNode > offscreen(
+        new WGEOffscreenRenderNode(
+            // Specify a reference camera all the offscreen passes will use
+            WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera()
+        )
+    );
+    // The reference you have to specify is important to keep certain states in sync with it when you add further render passes.
+
+    // Now, we create all the passes we need. Remember the above description about what we are going to do? We will create two passes now that do
+    // a simple edge detection and a color-reduction (cell-shading alike). The results have to be merged again and shown on screen. This will be
+    // the final on-screen render pass.
+
+    // First pass: render the geometry to textures. This can be done by addGeometryRenderPass:
+    osg::ref_ptr< WGEOffscreenRenderPass > renderToTexture = offscreen->addGeometryRenderPass(
+        rootNode,                                                         // The node to render
+        new WGEShader( "WMTemplateRenderPipelines-Render", m_localPath ), // The shader to use
+        "Render"                                                          // A name. Useful for debugging
+    );
+    // You might now ask why we need the shader for the creation of the pass? Well it is not needed. There are methods available which do not
+    // require them. It simply applies your shader to the render pass itself.
+
+    // Edge Detection:
+    osg::ref_ptr< WGEOffscreenRenderPass > edgeDetection =  offscreen->addTextureProcessingPass(
+        new WGEShader( "WMTemplateRenderPipelines-Edge", m_localPath ),
+        "Edge Detection"
+    );
+
+    // Cell Shader:
+    osg::ref_ptr< WGEOffscreenRenderPass > cellShading =  offscreen->addTextureProcessingPass(
+        new WGEShader( "WMTemplateRenderPipelines-Cell", m_localPath ),
+        "Cell Shading"
+    );
+
+    // Finally, we want to merge the results on screen:
+    osg::ref_ptr< WGEOffscreenRenderPass > finalPass = offscreen->addFinalOnScreenPass(
+        new WGEShader( "WMTemplateRenderPipelines-Merge", m_localPath ),
+        "Merge"
+    );
+
+    // Thats it. We now render our geometry to a texture. But to use this rendering result in both processing passes, we have to connect the
+    // output of the first geometry render pass to the processing passes:
+
+    // So we need to tell the offscreen pass to attach the according outputs for us:
+    osg::ref_ptr< osg::Texture2D > geometryColor = renderToTexture->attach(
+        WGECamera::COLOR_BUFFER0,   // Which output?
+        GL_RGBA                     // Its pixel format
+    );
+    osg::ref_ptr< osg::Texture2D > geometryDepth = renderToTexture->attach( WGECamera::DEPTH_BUFFER );
+
+    // ... and bind these textures to both processing passes:
+    edgeDetection->bind( geometryDepth, 0 );
+    cellShading->bind( geometryColor, 0 );
+
+    // That was easy, right? Please keep in mind that each render pass is basically an OSG Camera and works as an framebuffer object.
+
+    // Lets go on and connect the output of the processing passes to the final on-screen pass. But first? Yes! Attach the outputs:
+    osg::ref_ptr< osg::Texture2D > edges = edgeDetection->attach(
+        WGECamera::COLOR_BUFFER0,   // Which output?
+        GL_LUMINANCE                // Only gray colors are needed
+    );
+
+    osg::ref_ptr< osg::Texture2D > colors = cellShading->attach(
+        WGECamera::COLOR_BUFFER0,   // Which output?
+        GL_LUMINANCE                // Only gray colors are needed
+    );
+
+    // Now we can bind them. Just like textures in a stateset (and in fact, it is not more than that).
+    finalPass->bind( colors, 0 );
+    finalPass->bind( edges, 1 );
+
+    // Finally, just like every other node, ADD to the scene.
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( offscreen );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // 7. ... do stuff.
+    // 4. Shaders!
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Now head over to the shaders. Start with WMTemplateRenderPipelines-Render-vertex.glsl.
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 4. ... do stuff.
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // You already know this module loop code. You can now use your knowledge from WMTemplateShaders to implement cool features and control them
@@ -169,6 +245,6 @@ void WMTemplateRenderPipelines::moduleMain()
 
     // Never miss to clean up. Especially remove your OSG nodes. Everything else you add to these nodes will be removed automatically.
     debugLog() << "Shutting down ...";
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( rootNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( offscreen );
 }
 
