@@ -116,6 +116,24 @@ void WMTemplateColormapping::moduleMain()
     // Now, we can mark the module ready.
     ready();
 
+    // This tutorial is about applying the global colormapping to your geometry. So, if you write a module which creates some geometry, you might
+    // want to be able to map other datasets onto this surface. The WGEColormapping interface is made for exactly this. It consists of a C++ part
+    // and a quite complex GLSL part. But before we start, here are some important facts.
+    //
+    // In OpenWalnut, most 3D scalar or vectorial datasets can be used as colormaps. The data module automatically registers compatible datasets
+    // to the global colormapper. If you create data for your own, you can use the Colormapping module to register data. Each supported
+    // WDataSetSingle instance has a method getTexture() that returns the data as OpenGL compatible texture. As these texture were derived from
+    // WGETexture they already provide a lot of comfortable features. You have learned them in the WMTemplateShaders tutorial. These textures
+    // also store their transformation matrix and set them automatically to the right texture unit as texture matrix. So, the colormapper ensures
+    // that the colormap only appears on the surface parts that intersect with the bounding volume of the original dataset!
+    //
+    // This means, you can use either global colormapping, which usually is recommended or you can use an input dataset's texture and bind it to
+    // your state. This tutorial shows the global method as binding a texture was already shown in the shader tutorial. In GLSL, we then use the
+    // GLSL colormapping implementation to actually color each fragment.
+    // To run this module, you need to create a colormap (or load a dataset). An easy way is to add a Scalar Dataset Creator module and attach a
+    // Colormapper module to it! Ensure that the colormap-data overlaps with our geometry ... i.e. somewhere in the box defined by
+    // 0,0,0 to 100,100,50.
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 1. Setup some geometry.
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -124,7 +142,6 @@ void WMTemplateColormapping::moduleMain()
 
     // Add Scene
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( rootNode );
-    rootNode->setMatrix( osg::Matrixd::rotate( 1.57, 1.0, 0.0, 0.0 ) ); // First parameter is the angle in radians.
 
     // Now we can add your demo geometry:
     osg::ref_ptr< osg::Node > spheres = WDemoGeometry::createSphereGeometry();
@@ -138,13 +155,37 @@ void WMTemplateColormapping::moduleMain()
     rootNode->insert( spheres );
     rootNode->insert( plane );
 
+    // Allow blending, since colormaps might contain transparency.
+    rootNode->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
+
+    // We use some shaders too:
+    osg::ref_ptr< WGEShader > globalShader(
+        new WGEShader(
+                        "WMTemplateColormapping",    // shader name prefix
+                        m_localPath                  // where to search?
+                     )
+    );
+    globalShader->apply( rootNode );
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // 7. ... do stuff.
+    // 2. Setup some the colormapper
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // You already know this module loop code. You won't need to implement any further interaction between your properties and your shader.
-    // This happens automatically due to OpenWalnut's comfortable shader<->property interface we set up above. But of course the options are
-    // endless. Modify the geometry, change attributes and so on ...
+    // Colormapping? One call!
+    WGEColormapping::apply( rootNode,           // Apply to all our nodes
+                            globalShader        // Tell the colormapper which shader is bound to the node
+                          );
+
+    // This was easy! You tell the colormapper on which node you want to bind it and the corresponding shader. The shader is needed as the
+    // colormapper sets several defines to the shader.
+
+    // Now we can switch over to the shader:  WMTemplateColormapping-vertex.glsl!
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 3. ... do stuff.
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // You already know this module loop code.
 
     // Now the remaining module code. In our case, this is empty.
     while( !m_shutdownFlag() )
