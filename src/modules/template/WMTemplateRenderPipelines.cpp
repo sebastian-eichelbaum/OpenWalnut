@@ -38,6 +38,7 @@
 
 #include "core/kernel/WKernel.h"
 
+#include "core/graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "core/graphicsEngine/WGEManagedGroupNode.h"
 #include "core/graphicsEngine/WGERequirement.h"
 #include "core/graphicsEngine/offscreen/WGEOffscreenRenderNode.h"    // <- this is the awesome new header you will need
@@ -92,6 +93,9 @@ void WMTemplateRenderPipelines::properties()
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
+    // show hud?
+    m_showHUD       = m_properties->addProperty( "Show HUD", "Check to enable the debugging texture HUD.", true );
+
     WModule::properties();
 }
 
@@ -121,14 +125,36 @@ void WMTemplateRenderPipelines::moduleMain()
     //
     // NOTE: Refer to WMTemplateShaders.cpp if you do not understand the next sections. It is important to understand these basics before going
     // on.
+    //
+    // First, a short overview on offscreen rendering. Nowadays in OpenGL and OSG, offscreen rendering is done using framebuffer objects (FBO).
+    // You can attach textures to certain targets on the FBO. For example, your shader wants to output a color, a normal and you will need the
+    // depth. Then you attach the first two color buffers and the depth buffer. So you get three textures. After the draw call (done internally
+    // by OSG), the textures will be filled with a color, normals and your requested depth buffer. You can then bind these textures to another
+    // state and re-use them. To write a per-pixel processing, you will use a full-screen quad and bind the mentioned textures to it. Then, you
+    // can utilize a fragment shader to process each input texture texel which matches a pixel. To write your resulting image to the on-screen
+    // framebuffer, you de-activate (unbind in OpenGL terms) the FBO and render a full-screen quad. Your fragment shader then defines the final
+    // pixel color and depth.
+    //
+    // OpenWalnut's offscreen render mechanism also follows this principles. What we have done is providing a comfortable interface to OSG
+    // cameras (they represent the FBO) and a comfortable way to bind and attach textures. This way, you are able to write complex pipelines
+    // somehow like you would write module pipelines: define a render pass, bind its inputs, define its outputs. In this tutorial, you will learn
+    // how to do this. Remember that you can also use the mechanisms shown in WMTemplateShaders to define complex parameters and switches for the
+    // shaders you use in each pass.
+    //
+    // Now lets get started ...
+    //
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 1. Setup some geometry.
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // So let us start by creating our geometry. This is taken from the WMTemplateShaders example.
+    // Create a module root node.
     osg::ref_ptr< WGEGroupNode > rootNode = new WGEGroupNode();
-    rootNode->setMatrix( osg::Matrixd::rotate( 1.57, 1.0, 0.0, 0.0 ) ); // First parameter is the angle in radians.
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( rootNode );
+
+    // So let us start by creating our geometry. This is taken from the WMTemplateShaders example.
+    osg::ref_ptr< osg::MatrixTransform > sceneNode = new osg::MatrixTransform();
+    sceneNode->setMatrix( osg::Matrixd::rotate( 1.57, 1.0, 0.0, 0.0 ) ); // First parameter is the angle in radians.
 
     // Now we can add your demo geometry:
     osg::ref_ptr< osg::Node > spheres = WDemoGeometry::createSphereGeometry();
@@ -139,8 +165,8 @@ void WMTemplateRenderPipelines::moduleMain()
     plane->getOrCreateStateSet()->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
 
     // To see our new geometry we need to add it to the group of ours:
-    rootNode->insert( spheres );
-    rootNode->insert( plane );
+    sceneNode->addChild( spheres );
+    sceneNode->addChild( plane );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 2. Setup the offscreen pipeline.
@@ -156,12 +182,12 @@ void WMTemplateRenderPipelines::moduleMain()
     // The reference you have to specify is important to keep certain states in sync with it when you add further render passes.
 
     // Now, we create all the passes we need. Remember the above description about what we are going to do? We will create two passes now that do
-    // a simple edge detection and a color-reduction (cell-shading alike). The results have to be merged again and shown on screen. This will be
+    // a simple edge detection and a color-reduction (cel-shading alike). The results have to be merged again and shown on screen. This will be
     // the final on-screen render pass.
 
     // First pass: render the geometry to textures. This can be done by addGeometryRenderPass:
     osg::ref_ptr< WGEOffscreenRenderPass > renderToTexture = offscreen->addGeometryRenderPass(
-        rootNode,                                                         // The node to render
+        sceneNode,                                                        // The node to render
         new WGEShader( "WMTemplateRenderPipelines-Render", m_localPath ), // The shader to use
         "Render"                                                          // A name. Useful for debugging
     );
@@ -174,10 +200,10 @@ void WMTemplateRenderPipelines::moduleMain()
         "Edge Detection"
     );
 
-    // Cell Shader:
-    osg::ref_ptr< WGEOffscreenRenderPass > cellShading =  offscreen->addTextureProcessingPass(
-        new WGEShader( "WMTemplateRenderPipelines-Cell", m_localPath ),
-        "Cell Shading"
+    // Cel Shader:
+    osg::ref_ptr< WGEOffscreenRenderPass > celShading =  offscreen->addTextureProcessingPass(
+        new WGEShader( "WMTemplateRenderPipelines-Cel", m_localPath ),
+        "Cel Shading"
     );
 
     // Finally, we want to merge the results on screen:
@@ -192,13 +218,16 @@ void WMTemplateRenderPipelines::moduleMain()
     // So we need to tell the offscreen pass to attach the according outputs for us:
     osg::ref_ptr< osg::Texture2D > geometryColor = renderToTexture->attach(
         WGECamera::COLOR_BUFFER0,   // Which output?
-        GL_RGBA                     // Its pixel format
+        GL_RGBA                     // Its pixel format.
     );
     osg::ref_ptr< osg::Texture2D > geometryDepth = renderToTexture->attach( WGECamera::DEPTH_BUFFER );
 
+    // The reason for choosing RGBA as pixel format is simple: we need to transport which pixel was occupied by a fragment. The default clear
+    // color of all passes is vec4(0,0,0,0). This means, no fragment -> alpha == 0.
+
     // ... and bind these textures to both processing passes:
     edgeDetection->bind( geometryDepth, 0 );
-    cellShading->bind( geometryColor, 0 );
+    celShading->bind( geometryColor, 0 );
 
     // That was easy, right? Please keep in mind that each render pass is basically an OSG Camera and works as an framebuffer object.
 
@@ -208,26 +237,54 @@ void WMTemplateRenderPipelines::moduleMain()
         GL_LUMINANCE                // Only gray colors are needed
     );
 
-    osg::ref_ptr< osg::Texture2D > colors = cellShading->attach(
+    osg::ref_ptr< osg::Texture2D > colors = celShading->attach(
         WGECamera::COLOR_BUFFER0,   // Which output?
-        GL_LUMINANCE                // Only gray colors are needed
+        GL_RGBA                     // RGBA
     );
 
     // Now we can bind them. Just like textures in a stateset (and in fact, it is not more than that).
     finalPass->bind( colors, 0 );
     finalPass->bind( edges, 1 );
 
-    // Finally, just like every other node, ADD to the scene.
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( offscreen );
+    // The final pass should also blend properly:
+    finalPass->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
+
+    // Finally, just like every other node, ADD to the node.
+    rootNode->insert( offscreen );
+
+    // IMPORTANT!
+    //
+    // OSG automatically culls invisible geometry and modifies nested camera clipping settings. This means for us that we have to tell OSG the
+    // real size of our geometry. Or else, OSG will think we are a thin plane, thus changing near-far clipping for the camera rendering the
+    // geometry which isn't just a thin plane. Thats somehow a bug or a feature. We do not know. To avoid this, we can add a cull proxy to our
+    // scene. If you know how to properly fix this (might even be located in the WGEOffscreen classes), please tell us.
+
+    // You usually get this from your dataset grid. We hardcode it.
+    WBoundingBox bbox( -100.0, -100.0, -100.0, 200.0, 200.0, 200.0 );
+    // Cull proxy. Updated on dataset change
+    osg::ref_ptr< osg::Node > cullProxy = wge::generateCullProxy( bbox );
+    rootNode->insert( cullProxy );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // 4. Shaders!
+    // 4. Debugging
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // Now head over to the shaders. Start with WMTemplateRenderPipelines-Render-vertex.glsl.
+    // Offscreen rendering has a drawback. You usually cannot see the intermediate results (textures). For this, OpenWalnut provides us with a
+    // little helper: the texture HUD.
+
+    // The texture hud is already a part of WGEOffscreenRenderNode. Your task is to activate it. It basically is an osg::Node and thus, can be
+    // activated by its node mask, a callback and a property:
+    offscreen->getTextureHUD()->addUpdateCallback( new WGENodeMaskCallback( m_showHUD ) );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // 4. ... do stuff.
+    // 5. Shaders!
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Now head over to the shaders. Start with WMTemplateRenderPipelines-Render-vertex.glsl. These shaders are trivial. There is nothing special
+    // to take care of. Especially the vertex shaders are boring. The fragment shaders can be used to process each pixel of your textures ...
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 6. ... do stuff.
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // You already know this module loop code. You can now use your knowledge from WMTemplateShaders to implement cool features and control them
@@ -245,6 +302,6 @@ void WMTemplateRenderPipelines::moduleMain()
 
     // Never miss to clean up. Especially remove your OSG nodes. Everything else you add to these nodes will be removed automatically.
     debugLog() << "Shutting down ...";
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( offscreen );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( rootNode );
 }
 
