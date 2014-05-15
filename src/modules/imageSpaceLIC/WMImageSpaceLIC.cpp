@@ -53,7 +53,6 @@
 #include "core/kernel/WKernel.h"
 
 #include "WMImageSpaceLIC.h"
-#include "WMImageSpaceLIC.xpm"
 
 // This line is needed by the module loader to actually find your module. You need to add this to your module too. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMImageSpaceLIC )
@@ -71,11 +70,6 @@ WMImageSpaceLIC::~WMImageSpaceLIC()
 boost::shared_ptr< WModule > WMImageSpaceLIC::factory() const
 {
     return boost::shared_ptr< WModule >( new WMImageSpaceLIC() );
-}
-
-const char** WMImageSpaceLIC::getXPMIcon() const
-{
-    return WMImageSpaceLIC_xpm;
 }
 
 const std::string WMImageSpaceLIC::getName() const
