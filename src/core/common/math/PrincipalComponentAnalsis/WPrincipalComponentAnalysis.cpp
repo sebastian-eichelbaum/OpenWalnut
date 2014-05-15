@@ -39,7 +39,6 @@ void WPrincipalComponentAnalysis::analyzeData( vector<WPosition> inputData )
     m_isValidPCA = true;
     m_inputData = inputData;
     m_covarianceSolver.analyzeData( m_inputData );
-    vector<double> mean = m_covarianceSolver.getMean();
     EigenSolver<MatrixXd> es( m_covarianceSolver.getCovariance() );
     m_eigenSolver = es;
     extractEigenData();
@@ -92,6 +91,10 @@ void WPrincipalComponentAnalysis::swapEigenVectors( size_t eigenVectorIndex1, si
     double prevValue = m_eigenValues[eigenVectorIndex1];
     m_eigenValues[eigenVectorIndex1] = m_eigenValues[eigenVectorIndex2];
     m_eigenValues[eigenVectorIndex2] = prevValue;
+}
+vector<double> WPrincipalComponentAnalysis::getMean()
+{
+    return m_covarianceSolver.getMean();
 }
 vector<WVector3d> WPrincipalComponentAnalysis::getDirections()
 {
