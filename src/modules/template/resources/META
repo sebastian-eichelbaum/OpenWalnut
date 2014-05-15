@@ -263,6 +263,27 @@
 };
 
 // Basically the same as above, without comments. Skip this. It does not contain new information.
+"Template Colormapping"
+{
+  icon="WMTemplateIcon.png";
+  website = "http://www.openwalnut.org";
+  description = "Demonstration of use and powers of WGEColormapping and related interfaces.";
+  author = "OpenWalnut Project";
+  "OpenWalnut Project"
+  {
+    url="http://www.openwalnut.org";
+    email="contact@openwalnut.org";
+    what="Design, Development and Bug fixing";
+  };
+  screenshot
+  {
+      description = "Colormapping on some geometry. The WGEColormapping demo.";
+      filename = "templateColormappingScreenshot1.png";
+  };
+  tag = "Tutorial";
+};
+
+// Basically the same as above, without comments. Skip this. It does not contain new information.
 "Template Render Pipelines"
 {
   icon="WMTemplateIcon.png";
@@ -274,6 +295,11 @@
     url="http://www.openwalnut.org";
     email="contact@openwalnut.org";
     what="Design, Development and Bug fixing";
+  };
+  screenshot
+  {
+      description = "Toon-like rendering using multiple rendering passes. The WGEOffscreen demo.";
+      filename = "templateRenderPipelinesScreenshot1.png";
   };
   tag = "Tutorial";
 };

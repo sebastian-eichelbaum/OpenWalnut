@@ -102,6 +102,11 @@ protected:
 private:
     //! A condition for property updates.
     boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * Enable debug hud.
+     */
+    WPropBool m_showHUD;
 };
 
 #endif  // WMTEMPLATERENDERPIPELINES_H

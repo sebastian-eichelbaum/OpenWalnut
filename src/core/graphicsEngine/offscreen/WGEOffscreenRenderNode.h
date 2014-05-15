@@ -261,7 +261,8 @@ osg::ref_ptr< T > WGEOffscreenRenderNode::addRenderPass( std::string name )
 
     // set clear mask and color according to reference cam
     pass->setClearMask( m_referenceCamera->getClearMask() );
-    pass->setClearColor( m_referenceCamera->getClearColor() );
+    // We disabled this. This is needed to transport ALPHA values properly in RGBA attachments
+    // pass->setClearColor( m_referenceCamera->getClearColor() );
 
     // inherit cull settings
     pass->setCullSettings( *m_referenceCamera );
