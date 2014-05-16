@@ -404,12 +404,15 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometryFlatShaded( WTriangleMesh
     osg::ref_ptr< osg::Geometry> geometry( new osg::Geometry );
     osg::ref_ptr< osg::Vec3Array > oldVertexArray( mesh->getVertexArray() );
     osg::ref_ptr< osg::Vec3Array > newVertexArray( new osg::Vec3Array );
+    osg::ref_ptr< osg::Vec4Array > oldVertexColorArray( mesh->getVertexColorArray() );
+    osg::ref_ptr< osg::Vec4Array > newVertexColorArray( new osg::Vec4Array );
 
     // Make separate vertices for all triangle corners
     for( size_t index = 0; index < tris.size(); ++index )
     {
         newVertexArray->push_back( (*oldVertexArray)[tris[index]] );
         surfaceElement->push_back( index );
+        newVertexColorArray->push_back( (*oldVertexColorArray)[tris[index]] );
     }
     geometry->setVertexArray( newVertexArray );
     geometry->addPrimitiveSet( surfaceElement );
@@ -417,7 +420,7 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometryFlatShaded( WTriangleMesh
     // add the mesh colors
     if( mesh->getVertexColorArray() && useMeshColor )
     {
-        geometry->setColorArray( mesh->getVertexColorArray() );
+        geometry->setColorArray( newVertexColorArray );
         geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
     }
     else

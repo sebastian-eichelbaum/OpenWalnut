@@ -415,7 +415,7 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh
     }
     else if( renderingModeSelector.getItemIndexOfSelected( 0 ) == 1 )
     {
-        geometry = wge::convertToOsgGeometryFlatShaded( mesh, m_color->get(), true, true, false );
+        geometry = wge::convertToOsgGeometryFlatShaded( mesh, m_color->get(), true, true, true );
     }
     else // if( renderingModeSelector.getItemIndexOfSelected( 0 ) == 0 )
     {
