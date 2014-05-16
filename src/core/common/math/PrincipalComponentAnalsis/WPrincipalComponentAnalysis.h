@@ -71,7 +71,7 @@ public:
      * Returns the mean coordinate of all input points.
      * \return The mean coordinate of all input points.
      */
-    vector<double> getMean();
+    WPosition getMean();
     /**
      * Returns the point distribution directions. The first one is the strongest and 
      * the last is the weakest point distribution direction. Their index corresponds to 

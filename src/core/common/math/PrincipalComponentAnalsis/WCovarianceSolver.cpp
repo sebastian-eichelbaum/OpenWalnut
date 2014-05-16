@@ -38,7 +38,7 @@ void WCovarianceSolver::analyzeData( std::vector<WPosition> dataSet )
     calculateMean();
     calculateCovariance();
 }
-vector<double> WCovarianceSolver::getMean()
+WPosition WCovarianceSolver::getMean()
 {
     return m_mean;
 }
@@ -47,8 +47,6 @@ void WCovarianceSolver::calculateMean()
     if( m_dataSet.size() == 0 )
         return;
     size_t dimensions = m_dataSet[0].size();
-    m_mean.resize( dimensions );
-    m_mean.reserve( dimensions );
     for( size_t dimension = 0; dimension < dimensions; dimension++ )
         m_mean[dimension] = 0.0;
     for( size_t index = 0; index < m_dataSet.size(); index++ )

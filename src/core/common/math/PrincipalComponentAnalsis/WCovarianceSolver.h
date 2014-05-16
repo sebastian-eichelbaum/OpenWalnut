@@ -56,7 +56,7 @@ public:
      * Returns the mean coordinate of the input point data set.
      * \return The mean of the point data set.
      */
-    vector<double> getMean();
+    WPosition getMean();
     /**
      * Returns the covariance matrix corresponding to the input point data set.
      * \return The covariances between all dimensions.
@@ -89,7 +89,7 @@ private:
     /**
      * The mean of all input points.
      */
-    vector<double> m_mean;
+    WPosition m_mean;
     /**
      * The calculated covariance matrix.
      */

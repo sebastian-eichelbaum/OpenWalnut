@@ -92,7 +92,7 @@ void WPrincipalComponentAnalysis::swapEigenVectors( size_t eigenVectorIndex1, si
     m_eigenValues[eigenVectorIndex1] = m_eigenValues[eigenVectorIndex2];
     m_eigenValues[eigenVectorIndex2] = prevValue;
 }
-vector<double> WPrincipalComponentAnalysis::getMean()
+WPosition WPrincipalComponentAnalysis::getMean()
 {
     return m_covarianceSolver.getMean();
 }
