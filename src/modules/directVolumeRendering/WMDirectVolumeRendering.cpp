@@ -90,14 +90,14 @@ const std::string WMDirectVolumeRendering::getDescription() const
 void WMDirectVolumeRendering::connectors()
 {
     // The transfer function for our DVR
-    m_transferFunction = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "transfer function", "The 1D transfer function." );
+    m_transferFunction = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "Transfer function", "The 1D transfer function." );
 
     // DVR needs one input: the scalar dataset
-    m_input = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "in", "The scalar dataset." );
+    m_input = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "Scalar data", "The scalar dataset." );
 
     // Optional: the gradient field
     m_gradients = WModuleInputData< WDataSetVector >::createAndAdd( shared_from_this(),
-            "gradients", "The gradient field of the dataset to display" );
+            "Gradients", "The gradient field of the dataset to display" );
 
     // call WModules initialization
     WModule::connectors();
