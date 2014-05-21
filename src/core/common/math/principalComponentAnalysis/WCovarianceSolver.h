@@ -51,7 +51,7 @@ public:
      * Analyzes the dimension covariances of a point data set.
      * \param dataSet The point data to be analyzed.
      */
-    void analyzeData( vector<WPosition> dataSet );
+    void analyzeData( const vector<WPosition>* dataSet );
     /**
      * Returns the mean coordinate of the input point data set.
      * \return The mean of the point data set.
@@ -62,10 +62,6 @@ public:
      * \return The covariances between all dimensions.
      */
     MatrixXd getCovariance();
-    /**
-     * Clears the input point data.
-     */
-    void clearInputData();
 
 private:
     /**
@@ -85,7 +81,7 @@ private:
     /**
      * Input point data set to be analyzed.
      */
-    vector<WPosition> m_dataSet;
+    const vector<WPosition>* m_dataSet;
     /**
      * The mean of all input points.
      */

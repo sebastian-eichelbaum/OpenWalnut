@@ -34,7 +34,7 @@ WPrincipalComponentAnalysis::~WPrincipalComponentAnalysis()
 {
 }
 
-void WPrincipalComponentAnalysis::analyzeData( vector<WPosition> inputData )
+void WPrincipalComponentAnalysis::analyzeData( const vector<WPosition>* inputData )
 {
     m_isValidPCA = true;
     m_inputData = inputData;
@@ -43,7 +43,6 @@ void WPrincipalComponentAnalysis::analyzeData( vector<WPosition> inputData )
     m_eigenSolver = es;
     extractEigenData();
     sortByVarianceDescending();
-    clearInputData();
 }
 void WPrincipalComponentAnalysis::extractEigenData()
 {
@@ -73,8 +72,8 @@ void WPrincipalComponentAnalysis::extractEigenData()
 }
 void WPrincipalComponentAnalysis::sortByVarianceDescending()
 {
-    if( m_inputData.size() == 0 ) return;
-    size_t dimensions = m_inputData[0].size();
+    if( m_inputData->size() == 0 ) return;
+    size_t dimensions = (*m_inputData)[0].size();
     for( size_t d1 = 0; d1 < dimensions - 1; d1++ )
         for( size_t d2 = d1 + 1; d2 < dimensions; d2++ )
             if( m_eigenValues[d1] < m_eigenValues[d2] )
@@ -103,10 +102,4 @@ vector<WVector3d> WPrincipalComponentAnalysis::getDirections()
 vector<double> WPrincipalComponentAnalysis::getEigenValues()
 {
     return m_eigenValues;
-}
-void WPrincipalComponentAnalysis::clearInputData()
-{
-    m_inputData.resize( 0 );
-    m_inputData.reserve( 0 );
-    m_covarianceSolver.clearInputData();
 }
