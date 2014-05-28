@@ -37,6 +37,7 @@
 #include "../common/WSharedAssociativeContainer.h"
 #include "WModuleCombinerTypes.h"
 #include "WModule.h"
+#include "WDataModule.h"
 #include "WModuleLoader.h"
 
 /**
@@ -228,6 +229,24 @@ public:
      */
     static WModule::SPtr findByUUID( std::string uuid );
 
+    /**
+     * Get all module prototypes which are of a certain type.
+     *
+     * \tparam ModuleType the type
+     *
+     * \return the list of module prototypes.
+     */
+    template< typename ModuleType >
+    std::vector< boost::shared_ptr< ModuleType > > getPrototypesByType() const;
+
+    /**
+     * Query a list of WDataModule prototypes depending on given input.
+     *
+     * \param input the input to use for matching
+     *
+     * \return the list (can be empty).
+     */
+    std::vector< WDataModule::SPtr > getDataModulePrototypesByInput( WDataModuleInput::ConstSPtr input ) const;
 protected:
     /**
      * Constructors are protected because this is a Singleton.
@@ -276,6 +295,32 @@ bool WModuleFactory::isA( boost::shared_ptr< WModule > module )
 {
     // NOTE: this is RTTI. Everybody says: do not use it. We ignore them.
     return ( dynamic_cast< T* >( module.get() ) );  // NOLINT
+}
+
+template< typename ModuleType >
+std::vector< boost::shared_ptr< ModuleType > > WModuleFactory::getPrototypesByType() const
+{
+    std::vector< boost::shared_ptr< ModuleType > > results;
+
+    // for this a read lock is sufficient, gets unlocked if it looses scope
+    PrototypeSharedContainerType::ReadTicket l = m_prototypes.getReadTicket();
+
+    // Add all modules.
+    for( PrototypeContainerConstIteratorType listIter = l->get().begin(); listIter != l->get().end();
+         ++listIter )
+    {
+        boost::shared_ptr< ModuleType > asTargetType = boost::dynamic_pointer_cast< ModuleType >( *listIter );
+
+        if( asTargetType )
+        {
+            results.push_back( asTargetType );
+        }
+    }
+
+    // unlock. No locking needed for further steps.
+    l.reset();
+
+    return results;
 }
 
 #endif  // WMODULEFACTORY_H

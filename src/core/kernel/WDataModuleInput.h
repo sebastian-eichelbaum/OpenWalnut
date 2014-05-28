@@ -22,56 +22,47 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WDataModule.h"
+#ifndef WDATAMODULEINPUT_H
+#define WDATAMODULEINPUT_H
 
-WDataModule::WDataModule():
-    m_suppressColormaps( false ),
-    m_dataModuleInput( WDataModuleInput::SPtr() )
-{
-    // initialize members
-}
+#include <boost/shared_ptr.hpp>
 
-WDataModule::~WDataModule()
+/**
+ * This class is the abstract interface to all the possible inputs a \ref WDataModule might handle. The classes can be specialized into streamed
+ * inputs, file inputs and similar.
+ */
+class WDataModuleInput
 {
-    // cleanup
-}
+public:
+    /**
+     * Convenience typedef for a boost::shared_ptr< WDataModuleInput >.
+     */
+    typedef boost::shared_ptr< WDataModuleInput > SPtr;
 
-MODULE_TYPE WDataModule::getType() const
-{
-    return MODULE_DATA;
-}
+    /**
+     * Convenience typedef for a boost::shared_ptr< const WDataModuleInput >.
+     */
+    typedef boost::shared_ptr< const WDataModuleInput > ConstSPtr;
 
-void WDataModule::setSuppressColormaps( bool suppress )
-{
-    m_suppressColormaps = suppress;
-}
+    /**
+     * Default constructor.
+     */
+    WDataModuleInput();
 
-bool WDataModule::getSuppressColormaps() const
-{
-    return m_suppressColormaps;
-}
+    /**
+     * Destructor.
+     */
+    virtual ~WDataModuleInput();
 
-void WDataModule::setInput( WDataModuleInput::SPtr input )
-{
-    // only set if not yet set
-    if( !m_dataModuleInput )
-    {
-        m_dataModuleInput = input;
-    }
-}
+    /**
+     * Return a human-readable form of the input. Like filenames, servernames and similar.
+     *
+     * \return the input as string
+     */
+    virtual std::string asString() const = 0;
+protected:
+private:
+};
 
-WDataModuleInput::SPtr WDataModule::getInput() const
-{
-    return m_dataModuleInput;
-}
-
-void WDataModule::setFilename( boost::filesystem::path /* fname */ )
-{
-    // do nothing
-}
-
-boost::filesystem::path WDataModule::getFilename() const
-{
-    return boost::filesystem::path();
-}
+#endif  // WDATAMODULEINPUT_H
 

@@ -27,6 +27,8 @@
 #include <vector>
 
 #include "core/kernel/WKernel.h"
+#include "core/kernel/WDataModuleInputFile.h"
+#include "core/kernel/WDataModuleInputFilterFile.h"
 #include "core/common/WPathHelper.h"
 #include "core/common/WStringUtils.h"
 
@@ -36,7 +38,7 @@
 W_LOADABLE_MODULE( WMReadVIM )
 
 WMReadVIM::WMReadVIM():
-    WModule()
+    WDataModule()
 {
     // Init
 }
@@ -75,9 +77,6 @@ void WMReadVIM::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_filename = m_properties->addProperty( "VIM file", "The VIM file to load", WPathHelper::getAppPath() );
-    WPropertyHelper::PC_PATHEXISTS::addTo( m_filename );
-
     m_aTrigger = m_properties->addProperty( "Read", "Read file.", WPVBaseTypes::PV_TRIGGER_READY,
                                             m_propCondition );
 
@@ -107,7 +106,10 @@ void WMReadVIM::moduleMain()
         if( m_aTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
             // open file
-            boost::filesystem::path p = m_filename->get();
+            WAssert( getInput(), "No input specified." );
+            WDataModuleInputFile::SPtr inputFile = getInputAs< WDataModuleInputFile >();
+            WAssert( inputFile, "No file input specified." );
+            boost::filesystem::path p =  inputFile->getFilename();
 
             std::ifstream ifs;
             ifs.open( p.string().c_str(), std::ifstream::in );
@@ -174,3 +176,17 @@ void WMReadVIM::moduleMain()
     }
 }
 
+std::vector< WDataModuleInputFilter::ConstSPtr > WMReadVIM::getInputFilter() const
+{
+    std::vector< WDataModuleInputFilter::ConstSPtr > filters;
+
+    // NOTE: plain extension. No wildcards or prefixing "."!
+    filters.push_back( WDataModuleInputFilter::ConstSPtr( new WDataModuleInputFilterFile( "vim", "VIM point cloud files" ) ) );
+
+    return filters;
+}
+
+boost::shared_ptr< WDataSet > WMReadVIM::getDataSet()
+{
+    return m_output->getData();
+}

@@ -28,6 +28,7 @@
 #include "WModule.h"
 #include "WModuleContainer.h"
 #include "WModuleFactory.h"
+#include "WDataModuleInputFile.h"
 
 #include "WBatchLoader.h"
 
@@ -60,14 +61,26 @@ void WBatchLoader::threadMain()
     // add a new data module for each file to load
     for( std::vector< std::string >::iterator iter = m_filenamesToLoad.begin(); iter != m_filenamesToLoad.end(); ++iter )
     {
+        WDataModuleInputFile::SPtr input( new WDataModuleInputFile( *iter ) );
+        std::vector< WDataModule::SPtr > dataModules = WModuleFactory::getModuleFactory()->getDataModulePrototypesByInput(
+            // NOTE: right now, we only support file based inputs. Will change with issue #32
+            input
+        );
+
+        if( dataModules.empty() )
+        {
+            wlog::warn( "WBatchLoader" ) << "File type of " << *iter << " not supported. Ignoring.";
+            continue;
+        }
+
         boost::shared_ptr< WModule > mod = WModuleFactory::getModuleFactory()->create(
-                WModuleFactory::getModuleFactory()->getPrototypeByName( "Data Module" )
+            dataModules[0]
         );
         WDataModule::SPtr dmod = boost::static_pointer_cast< WDataModule >( mod );
-        dmod->setSuppressColormaps( m_suppressColormaps );
 
-        // set the filename
-        dmod->setFilename( *iter );
+        // set the input
+        dmod->setSuppressColormaps( m_suppressColormaps );
+        dmod->setInput( input );
 
         m_targetContainer->add( mod );
         // serialize loading of a couple of data sets

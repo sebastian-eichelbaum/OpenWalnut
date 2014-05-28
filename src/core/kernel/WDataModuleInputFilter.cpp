@@ -22,56 +22,22 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WDataModule.h"
+#include <string>
 
-WDataModule::WDataModule():
-    m_suppressColormaps( false ),
-    m_dataModuleInput( WDataModuleInput::SPtr() )
+#include "WDataModuleInputFilter.h"
+
+WDataModuleInputFilter::WDataModuleInputFilter( std::string description ):
+    m_description( description )
 {
     // initialize members
 }
 
-WDataModule::~WDataModule()
+WDataModuleInputFilter::~WDataModuleInputFilter()
 {
     // cleanup
 }
 
-MODULE_TYPE WDataModule::getType() const
+const std::string& WDataModuleInputFilter::getDescription() const
 {
-    return MODULE_DATA;
+    return m_description;
 }
-
-void WDataModule::setSuppressColormaps( bool suppress )
-{
-    m_suppressColormaps = suppress;
-}
-
-bool WDataModule::getSuppressColormaps() const
-{
-    return m_suppressColormaps;
-}
-
-void WDataModule::setInput( WDataModuleInput::SPtr input )
-{
-    // only set if not yet set
-    if( !m_dataModuleInput )
-    {
-        m_dataModuleInput = input;
-    }
-}
-
-WDataModuleInput::SPtr WDataModule::getInput() const
-{
-    return m_dataModuleInput;
-}
-
-void WDataModule::setFilename( boost::filesystem::path /* fname */ )
-{
-    // do nothing
-}
-
-boost::filesystem::path WDataModule::getFilename() const
-{
-    return boost::filesystem::path();
-}
-

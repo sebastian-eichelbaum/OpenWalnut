@@ -29,7 +29,7 @@
 
 #include "core/dataHandler/WDataSetPoints.h"
 
-#include "core/kernel/WModule.h"
+#include "core/kernel/WDataModule.h"
 #include "core/kernel/WModuleOutputData.h"
 
 /**
@@ -37,7 +37,7 @@
  *
  * \ingroup modules
  */
-class WMReadVIM: public WModule
+class WMReadVIM: public WDataModule
 {
 public:
     /**
@@ -70,6 +70,20 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
+    /**
+     * Define a list of file filters we support.
+     *
+     * \return the list of filters
+     */
+    virtual std::vector< WDataModuleInputFilter::ConstSPtr > getInputFilter() const;
+
+    /**
+     * Getter for the dataset.
+     *
+     * \return the dataset encapsulated by this module.
+     */
+    virtual boost::shared_ptr< WDataSet > getDataSet();
+
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -101,11 +115,6 @@ private:
      * Trigger read
      */
     WPropTrigger  m_aTrigger;
-
-    /**
-     * The file to load
-     */
-    WPropFilename m_filename;
 };
 
 #endif  // WMREADVIM_H

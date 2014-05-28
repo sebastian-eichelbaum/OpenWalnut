@@ -28,17 +28,19 @@
 #include "core/common/WAssert.h"
 #include "core/common/WIOTools.h"
 #include "core/common/WPropertyHelper.h"
+#include "core/dataHandler/WDataHandler.h"
 #include "core/dataHandler/WDataSet.h"
-#include "core/dataHandler/WDataSetSingle.h"
 #include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetSingle.h"
 #include "core/dataHandler/WDataSetTimeSeries.h"
 #include "core/dataHandler/WDataSetVector.h"
-#include "core/dataHandler/WSubject.h"
-#include "core/dataHandler/WDataHandler.h"
 #include "core/dataHandler/WDataTexture3D.h"
 #include "core/dataHandler/WEEG2.h"
+#include "core/dataHandler/WSubject.h"
 #include "core/dataHandler/exceptions/WDHException.h"
 #include "core/graphicsEngine/WGEColormapping.h"
+#include "core/kernel/WDataModuleInputFile.h"
+#include "core/kernel/WDataModuleInputFilterFile.h"
 #include "core/kernel/WModuleOutputData.h"
 
 #ifdef WBIOSIG_ENABLED
@@ -58,7 +60,6 @@
 
 WMData::WMData():
     WDataModule(),
-    m_fileNameSet( false ),
     m_isTexture(),
     m_transformNoMatrix( 4, 4 ),
     m_transformSForm( 4, 4 ),
@@ -97,18 +98,22 @@ boost::shared_ptr< WDataSet > WMData::getDataSet()
     return m_dataSet;
 }
 
-void WMData::setFilename( boost::filesystem::path fname )
+std::vector< WDataModuleInputFilter::ConstSPtr > WMData::getInputFilter() const
 {
-    if( !m_fileNameSet )
-    {
-        m_fileNameSet = true;
-        m_fileName = fname;
-    }
-}
+    std::vector< WDataModuleInputFilter::ConstSPtr > filters;
 
-boost::filesystem::path WMData::getFilename() const
-{
-    return m_fileName;
+    // NOTE: plain extension. No wildcards or prefixing "."!
+    filters.push_back( WDataModuleInputFilter::ConstSPtr( new WDataModuleInputFilterFile( "nii", "NIfTI files" ) ) );
+    filters.push_back( WDataModuleInputFilter::ConstSPtr( new WDataModuleInputFilterFile( "nii.gz", "Compressed NIfTI files" ) ) );
+#ifdef WBIOSIG_ENABLED
+    filters.push_back( WDataModuleInputFilter::ConstSPtr( new WDataModuleInputFilterFile( "edf", "EEG files (BioSig)" ) ) );
+#endif
+    filters.push_back( WDataModuleInputFilter::ConstSPtr( new WDataModuleInputFilterFile( "cnt", "EEG files" ) ) );
+    filters.push_back( WDataModuleInputFilter::ConstSPtr( new WDataModuleInputFilterFile( "asc", "EEG files" ) ) );
+    filters.push_back( WDataModuleInputFilter::ConstSPtr( new WDataModuleInputFilterFile( "vtk", "VTK files, limited support" ) ) );
+    filters.push_back( WDataModuleInputFilter::ConstSPtr( new WDataModuleInputFilterFile( "fib", "VTK Fiber files" ) ) );
+    filters.push_back( WDataModuleInputFilter::ConstSPtr( new WDataModuleInputFilterFile( "fdg", "Cluster Files" ) ) );
+    return filters;
 }
 
 void WMData::connectors()
@@ -175,7 +180,11 @@ void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
 
 void WMData::moduleMain()
 {
-    WAssert( m_fileNameSet, "No filename specified." );
+    // Get the input
+    WAssert( getInput(), "No input specified." );
+    WDataModuleInputFile::SPtr inputFile = getInputAs< WDataModuleInputFile >();
+    WAssert( inputFile, "No file input specified." );
+    std::string fileName = inputFile->getFilename().string();
 
     m_transformNoMatrix.makeIdentity();
     m_transformSForm.makeIdentity();
@@ -183,8 +192,6 @@ void WMData::moduleMain()
 
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
-
-    std::string fileName = m_fileName.string();
 
     debugLog() << "Loading data from \"" << fileName << "\".";
     m_dataName->set( fileName );
