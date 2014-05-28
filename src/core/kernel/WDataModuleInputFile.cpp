@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WDataModuleInputFile.h"
 
 WDataModuleInputFile::WDataModuleInputFile( boost::filesystem::path fname ):

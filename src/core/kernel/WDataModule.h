@@ -25,6 +25,9 @@
 #ifndef WDATAMODULE_H
 #define WDATAMODULE_H
 
+#include <string>
+#include <vector>
+
 #include <boost/shared_ptr.hpp>
 
 #include "WDataModuleInput.h"
@@ -134,7 +137,7 @@ public:
      *
      * \param fname the name of the file
      *
-     * \deprecated do not use this anymore. Use \ref setInput and \ref getInputFilter to define possible data inputs.
+     * \deprecated do not use this anymore. Use setInput and getInputFilter to define possible data inputs.
      */
     OW_API_DEPRECATED virtual void setFilename( boost::filesystem::path fname );
 
@@ -143,7 +146,7 @@ public:
      *
      * \return the path of the file that has been loaded.
      *
-     * \deprecated do not use this anymore. Use \ref setInput and \ref getInputFilter to define possible data inputs.
+     * \deprecated do not use this anymore. Use setInput and getInputFilter to define possible data inputs.
      */
     OW_API_DEPRECATED virtual boost::filesystem::path getFilename() const;
 

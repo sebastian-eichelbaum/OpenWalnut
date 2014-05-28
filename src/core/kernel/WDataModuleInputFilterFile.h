@@ -37,7 +37,6 @@
 class WDataModuleInputFilterFile: public WDataModuleInputFilter
 {
 public:
-
     /**
      * Convenience typedef for a boost::shared_ptr< WDataModuleInputFilterFile >.
      */

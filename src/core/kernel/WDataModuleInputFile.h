@@ -25,6 +25,8 @@
 #ifndef WDATAMODULEINPUTFILE_H
 #define WDATAMODULEINPUTFILE_H
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 #include <boost/filesystem/path.hpp>
 
