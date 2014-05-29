@@ -125,7 +125,7 @@ void WMReadVIM::load()
     if( !ifs || ifs.bad() )
     {
         errorLog() << "Could not open file \"" << p.string() << "\".";
-        continue;
+        return;
     }
 
     boost::shared_ptr< WProgress > progress1( new WProgress( "Loading" ) );

@@ -475,7 +475,7 @@ void WMainWindow::moduleSpecificCleanup( boost::shared_ptr< WModule > /* module 
     // called for each removed module. Use this to undo modifications done due to added modules (moduleSpecificSetup)
 }
 
-void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
+void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > /* module */ )
 {
     // Add all special handlings here. This method is called whenever a module is marked "ready". You can set up the gui for special modules,
     // load certain modules for datasets and so on.
