@@ -25,6 +25,7 @@
 #include <string>
 
 #include "core/kernel/WModuleFactory.h"
+#include "core/kernel/WDataModuleInputFile.h"
 
 #include "WModuleContainerWrapper.h"
 
@@ -54,7 +55,7 @@ WModuleWrapper WModuleContainerWrapper::createDataModule( std::string const& fil
                                                     WModuleFactory::getModuleFactory()->create(
                                                       WModuleFactory::getModuleFactory()->getPrototypeByName( "Data Module" ) ) );
     dataModule->setSuppressColormaps( true );
-    dataModule->setFilename( filename );
+    dataModule->setInput( WDataModuleInputFile::SPtr( new WDataModuleInputFile( filename ) ) );
 
     m_mc->add( dataModule );
 

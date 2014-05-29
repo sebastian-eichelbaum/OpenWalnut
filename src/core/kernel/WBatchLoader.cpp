@@ -83,9 +83,7 @@ void WBatchLoader::threadMain()
         dmod->setInput( input );
 
         m_targetContainer->add( mod );
-        // serialize loading of a couple of data sets
-        // ignore the case where isCrashed is true
-        mod->isReadyOrCrashed().wait();
+        dmod->isReadyOrCrashed().wait();
 
         // add module to the list
         m_dataModules.push_back( dmod );

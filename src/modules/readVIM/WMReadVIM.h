@@ -78,13 +78,6 @@ public:
      */
     virtual std::vector< WDataModuleInputFilter::ConstSPtr > getInputFilter() const;
 
-    /**
-     * Getter for the dataset.
-     *
-     * \return the dataset encapsulated by this module.
-     */
-    virtual boost::shared_ptr< WDataSet > getDataSet();
-
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -97,10 +90,9 @@ protected:
     virtual void connectors();
 
     /**
-     * Initialize the properties for this module.
+     * Load data.
      */
-    virtual void properties();
-
+    virtual void load();
 private:
     /**
      * The output connector for the filtered data.

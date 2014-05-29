@@ -57,11 +57,35 @@ public:
     virtual ~WDataModuleInput();
 
     /**
-     * Return a human-readable form of the input. Like filenames, servernames and similar.
+     * Return a unique name for this input type. This is used to identify a certain input later.
+     *
+     * \return the name.
+     */
+    virtual std::string getName() const = 0;
+
+    /**
+     * Return a human-readable form of the input. Like filenames, server names and similar.
      *
      * \return the input as string
      */
     virtual std::string asString() const = 0;
+
+    /**
+     * Write a machine-readable string which allows to restore your specific input later. The only character which is NOT allowed is ":".
+     *
+     * \return the parameter string. ":" is not allowed.
+     */
+    virtual std::string serialize() const = 0;
+
+    /**
+     * Create an instance by using a parameter string. This is the string you define by the \ref serialize() call.
+     *
+     * \param parameter the parameter string
+     * \param name the name string
+     *
+     * \return an instance of WDataModuleInput
+     */
+    static SPtr create( std::string name, std::string parameter );
 protected:
 private:
 };

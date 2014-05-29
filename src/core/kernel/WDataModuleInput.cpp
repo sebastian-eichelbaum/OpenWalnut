@@ -22,6 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
+#include "core/common/WLogger.h"
+
+#include "WDataModuleInputFile.h"
 #include "WDataModuleInput.h"
 
 WDataModuleInput::WDataModuleInput()
@@ -32,5 +37,18 @@ WDataModuleInput::WDataModuleInput()
 WDataModuleInput::~WDataModuleInput()
 {
     // cleanup
+}
+
+WDataModuleInput::SPtr WDataModuleInput::create( std::string name, std::string parameter )
+{
+    // Please refer to issue #32. This will soon be replaced by some useful implementation which relies on input providers and input factory
+    // classes. For now, we ONLY support file inputs
+
+    if( name != "FILE" )
+    {
+        wlog::error( "WDataModuleInput" ) << "Only file inputs allowed right now. Refer to issue #32.";
+        return WDataModuleInput::SPtr();
+    }
+    return WDataModuleInput::SPtr( new WDataModuleInputFile( parameter ) );
 }
 

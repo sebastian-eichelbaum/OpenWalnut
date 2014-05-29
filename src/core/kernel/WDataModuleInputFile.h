@@ -56,6 +56,13 @@ public:
     explicit WDataModuleInputFile( boost::filesystem::path fname );
 
     /**
+     * Default constructor.
+     *
+     * \param fname the filename to use.
+     */
+    explicit WDataModuleInputFile( std::string fname );
+
+    /**
      * Destructor.
      */
     virtual ~WDataModuleInputFile();
@@ -68,11 +75,25 @@ public:
     boost::filesystem::path getFilename() const;
 
     /**
+     * Return a unique name for this input type. This is used to identify a certain input later.
+     *
+     * \return the name.
+     */
+    virtual std::string getName() const;
+
+    /**
      * The file input as human readable string.
      *
      * \return the readable form.
      */
     virtual std::string asString() const;
+
+    /**
+     * Write a machine-readable string which allows to restore your specific input later. The only character which is NOT allowed is ":".
+     *
+     * \return the parameter string. ":" is not allowed.
+     */
+    virtual std::string serialize() const;
 protected:
 private:
     /**

@@ -93,7 +93,7 @@ public:
 
     /**
      * Apply the internal module structure to the target container. Be aware, that this operation might take some time, as modules can be
-     * connected only if they are "ready", which, at least with WMData modules, might take some time. It applies the loaded project file.
+     * connected only if they are "ready", which, at least with WDataModule modules, might take some time. It applies the loaded project file.
      */
     virtual void apply();
 

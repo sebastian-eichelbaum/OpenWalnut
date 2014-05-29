@@ -93,11 +93,6 @@ const std::string WMData::getDescription() const
     return "This module encapsulates data.";
 }
 
-boost::shared_ptr< WDataSet > WMData::getDataSet()
-{
-    return m_dataSet;
-}
-
 std::vector< WDataModuleInputFilter::ConstSPtr > WMData::getInputFilter() const
 {
     std::vector< WDataModuleInputFilter::ConstSPtr > filters;
@@ -195,12 +190,6 @@ void WMData::moduleMain()
 
     debugLog() << "Loading data from \"" << fileName << "\".";
     m_dataName->set( fileName );
-
-    // remove the path up to the file name and set it as a convenient name for this module instance
-    if( fileName != "" )
-    {
-        m_runtimeName->set( string_utils::tokenize( fileName, "/" ).back() );
-    }
 
     // load it now
     std::string suffix = getSuffix( fileName );

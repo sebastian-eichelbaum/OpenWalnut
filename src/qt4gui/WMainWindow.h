@@ -506,11 +506,6 @@ private:
     void saveWindowState();
 
     /**
-     * The action controlling the auto-display feature.
-     */
-    WSettingAction* m_autoDisplaySetting;
-
-    /**
      * The action for allowing editing min and max of sliders.
      */
     WSettingAction* m_sliderMinMaxEditSetting;

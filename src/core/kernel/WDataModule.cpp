@@ -25,6 +25,8 @@
 #include "WDataModule.h"
 
 WDataModule::WDataModule():
+    WModule(),
+    m_reloadTriggered( new WCondition() ),
     m_suppressColormaps( false ),
     m_dataModuleInput( WDataModuleInput::SPtr() )
 {
@@ -65,13 +67,8 @@ WDataModuleInput::SPtr WDataModule::getInput() const
     return m_dataModuleInput;
 }
 
-void WDataModule::setFilename( boost::filesystem::path /* fname */ )
+void WDataModule::properties()
 {
-    // do nothing
-}
-
-boost::filesystem::path WDataModule::getFilename() const
-{
-    return boost::filesystem::path();
+    m_reloadTrigger = m_properties->addProperty( "Reload", "Request to reload the data.", WPVBaseTypes::PV_TRIGGER_READY, m_reloadTriggered );
 }
 

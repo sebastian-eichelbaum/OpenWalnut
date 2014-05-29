@@ -150,10 +150,6 @@ void WMainWindow::setupGUI()
                                                                false,
                                                                true    // this requires a restart
                                                        );
-    m_autoDisplaySetting = new WSettingAction( this, "qt4gui/useAutoDisplay",
-                                                     "Auto-Display",
-                                                     "If enabled, the best matching module is automatically added if some data was loaded.",
-                                                     true );
     m_sliderMinMaxEditSetting = new WSettingAction( this, std::string( "qt4gui/" ) +  std::string( "sliderMinMaxEdit" ),
                                                     "Slider Min/Max Editing",
                                                     "If enabled, the maximum and minimum values of slider can be edited.",
@@ -344,7 +340,6 @@ void WMainWindow::setupGUI()
     m_viewMenu->addAction( showNavWidgets );
     m_viewMenu->addSeparator();
     m_viewMenu->addMenu( m_permanentToolBar->getStyleMenu() );
-    m_settingsMenu->addAction( m_autoDisplaySetting );
     m_settingsMenu->addAction( m_sliderMinMaxEditSetting );
     m_settingsMenu->addAction( m_controlPanel->getModuleConfig().getConfigureAction() );
     m_settingsMenu->addSeparator();
@@ -486,7 +481,8 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
     // load certain modules for datasets and so on.
 
     // The Data Modules also play an special role. To have modules being activated when certain data got loaded, we need to hook it up here.
-    bool useAutoDisplay = m_autoDisplaySetting->get();
+    // NOTE: Auto Display is currently disabled.
+    /*bool useAutoDisplay = m_autoDisplaySetting->get();
     if( useAutoDisplay && module->getType() == MODULE_DATA )
     {
         WLogger::getLogger()->addLogMessage( "Auto Display active and Data module added. The proper module will be added.",
@@ -518,7 +514,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             // it is a point dataset -> add the point render module
             autoAdd( module, "Point Renderer" );
         }
-    }
+    }*/
 }
 
 void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
@@ -682,6 +678,7 @@ void WMainWindow::openLoadDialog()
     // NOTE: Qt Doc says we need to separate multiple filters by ";;"
     QString filters = collectFilters();
 
+    filters += QString( "Project File (*.owp *.owproj );;" );
     // add extensions of script files
     for( std::size_t k = 0; k < WKernel::getRunningKernel()->getScriptEngine()->getNumInterpreters(); ++k )
     {

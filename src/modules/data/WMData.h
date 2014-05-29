@@ -70,13 +70,6 @@ public:
     virtual const std::string getDescription() const;
 
     /**
-     * Getter for the dataset.
-     *
-     * \return the dataset encapsulated by this module.
-     */
-    virtual boost::shared_ptr< WDataSet > getDataSet();
-
-    /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
      * should never be initialized or modified in some other way. A simple new instance is required.
      *

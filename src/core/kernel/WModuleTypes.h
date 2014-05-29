@@ -28,7 +28,7 @@
 typedef enum
 {
     MODULE_ARBITRARY,   // used for ALL modules which do not play a special role (like data modules).
-    MODULE_DATA         // this flag denotes data modules only ( modules which derive from WMData )
+    MODULE_DATA         // this flag denotes data modules only ( modules which derive from WDataModule )
 }
 MODULE_TYPE;
 

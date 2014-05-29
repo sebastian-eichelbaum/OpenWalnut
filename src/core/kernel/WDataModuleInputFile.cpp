@@ -32,6 +32,12 @@ WDataModuleInputFile::WDataModuleInputFile( boost::filesystem::path fname ):
     // initialize members
 }
 
+WDataModuleInputFile::WDataModuleInputFile( std::string fname ):
+    m_filename( fname )
+{
+    // initialize members
+}
+
 WDataModuleInputFile::~WDataModuleInputFile()
 {
     // cleanup
@@ -44,6 +50,16 @@ boost::filesystem::path WDataModuleInputFile::getFilename() const
 
 std::string WDataModuleInputFile::asString() const
 {
+    return m_filename.filename().string();
+}
+
+std::string WDataModuleInputFile::serialize() const
+{
     return m_filename.string();
+}
+
+std::string WDataModuleInputFile::getName() const
+{
+    return "FILE";
 }
 
