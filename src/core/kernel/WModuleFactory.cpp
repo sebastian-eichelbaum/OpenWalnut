@@ -236,6 +236,12 @@ WCombinerTypes::WCompatiblesList WModuleFactory::getCompatiblePrototypes( boost:
         for( PrototypeContainerConstIteratorType listIter = l->get().begin(); listIter != l->get().end();
                 ++listIter )
         {
+            // ignore data modules
+            if( dynamic_cast< const WDataModule* >( ( *listIter ).get() ) )
+            {
+                continue;
+            }
+
             // get connectors of this prototype
             WModule::InputConnectorList pcons = ( *listIter )->getInputConnectors();
             if(  pcons.size() == 0  )
@@ -328,3 +334,27 @@ WModule::SPtr WModuleFactory::findByUUID( std::string uuid )
     }
 }
 
+std::vector< WDataModule::SPtr > WModuleFactory::getDataModulePrototypesByInput( WDataModuleInput::ConstSPtr input ) const
+{
+    // get all data module prototypes
+    std::vector< WDataModule::SPtr > dataModules = WModuleFactory::getModuleFactory()->getPrototypesByType< WDataModule >();
+    std::vector< WDataModule::SPtr > result;
+
+    // go through and
+    for( std::vector< WDataModule::SPtr >::const_iterator iter = dataModules.begin(); iter != dataModules.end(); ++iter )
+    {
+        // get the filters
+        std::vector< WDataModuleInputFilter::ConstSPtr > filters = ( *iter )->getInputFilter();
+        for( std::vector< WDataModuleInputFilter::ConstSPtr >::const_iterator filterIter = filters.begin(); filterIter != filters.end();
+                ++filterIter )
+        {
+            // if a filter matches, this data module is a candidate
+            if( ( *filterIter )->matches( input ) )
+            {
+                result.push_back( *iter );
+                break;
+            }
+        }
+    }
+    return result;
+}

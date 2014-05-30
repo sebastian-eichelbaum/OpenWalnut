@@ -70,8 +70,10 @@
 #include "core/kernel/WDataModule.h"
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WModule.h"
+#include "core/kernel/WModuleFactory.h"
 #include "core/kernel/WModuleCombiner.h"
 #include "core/kernel/WModuleCombinerTypes.h"
+#include "core/kernel/WDataModuleInputFilterFile.h"
 #include "core/kernel/WProjectFile.h"
 #include "core/kernel/WROIManager.h"
 #include "core/kernel/WSelectionManager.h"
@@ -148,10 +150,6 @@ void WMainWindow::setupGUI()
                                                                false,
                                                                true    // this requires a restart
                                                        );
-    m_autoDisplaySetting = new WSettingAction( this, "qt4gui/useAutoDisplay",
-                                                     "Auto-Display",
-                                                     "If enabled, the best matching module is automatically added if some data was loaded.",
-                                                     true );
     m_sliderMinMaxEditSetting = new WSettingAction( this, std::string( "qt4gui/" ) +  std::string( "sliderMinMaxEdit" ),
                                                     "Slider Min/Max Editing",
                                                     "If enabled, the maximum and minimum values of slider can be edited.",
@@ -342,7 +340,6 @@ void WMainWindow::setupGUI()
     m_viewMenu->addAction( showNavWidgets );
     m_viewMenu->addSeparator();
     m_viewMenu->addMenu( m_permanentToolBar->getStyleMenu() );
-    m_settingsMenu->addAction( m_autoDisplaySetting );
     m_settingsMenu->addAction( m_sliderMinMaxEditSetting );
     m_settingsMenu->addAction( m_controlPanel->getModuleConfig().getConfigureAction() );
     m_settingsMenu->addSeparator();
@@ -478,13 +475,14 @@ void WMainWindow::moduleSpecificCleanup( boost::shared_ptr< WModule > /* module 
     // called for each removed module. Use this to undo modifications done due to added modules (moduleSpecificSetup)
 }
 
-void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
+void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > /* module */ )
 {
     // Add all special handlings here. This method is called whenever a module is marked "ready". You can set up the gui for special modules,
     // load certain modules for datasets and so on.
 
     // The Data Modules also play an special role. To have modules being activated when certain data got loaded, we need to hook it up here.
-    bool useAutoDisplay = m_autoDisplaySetting->get();
+    // NOTE: Auto Display is currently disabled.
+    /*bool useAutoDisplay = m_autoDisplaySetting->get();
     if( useAutoDisplay && module->getType() == MODULE_DATA )
     {
         WLogger::getLogger()->addLogMessage( "Auto Display active and Data module added. The proper module will be added.",
@@ -516,7 +514,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             // it is a point dataset -> add the point render module
             autoAdd( module, "Point Renderer" );
         }
-    }
+    }*/
 }
 
 void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
@@ -644,19 +642,44 @@ void WMainWindow::newProject()
     WDataHandler::getDataHandler()->clear();
 }
 
+QString collectFilters()
+{
+    QString result;
+    QString all;
+
+    // add all the filters the data modules provide
+    std::vector< WDataModule::SPtr > dataModules = WModuleFactory::getModuleFactory()->getPrototypesByType< WDataModule >();
+
+    for( std::vector< WDataModule::SPtr >::const_iterator iter = dataModules.begin(); iter != dataModules.end(); ++iter )
+    {
+        std::vector< WDataModuleInputFilter::ConstSPtr > filters = ( *iter )->getInputFilter();
+        for( std::vector< WDataModuleInputFilter::ConstSPtr >::const_iterator filterIter = filters.begin(); filterIter != filters.end();
+                ++filterIter )
+        {
+            WDataModuleInputFilterFile::ConstSPtr ff = boost::dynamic_pointer_cast< const WDataModuleInputFilterFile >( *filterIter );
+            if( ff )
+            {
+                QString description = QString::fromStdString( ff->getDescription() );
+                QString extension = QString::fromStdString( ff->getExtension() );
+                all += QString( " *." ) + extension;
+                result += description + QString( "(*." ) + extension + QString( ");;" );
+            }
+        }
+    }
+
+    return QString( "Known file types (" ) + all + QString( ");;" ) + result;
+}
+
 void WMainWindow::openLoadDialog()
 {
     QString lastPath = WQt4Gui::getSettings().value( "LastOpenPath", "" ).toString();
 
     // build filter list
     // NOTE: Qt Doc says we need to separate multiple filters by ";;"
-    QString filters;
-    filters = QString( "Known file types (*.cnt *.edf *.asc *.nii *.nii.gz *.vtk *.fib *.owproj *.owp *.fdg);;" )
-            + QString( "Simple Project File (*.owproj *.owp);;" )
-            + QString( "EEG files (*.cnt *.edf *.asc);;" )
-            + QString( "NIfTI (*.nii *.nii.gz);;" )
-            + QString( "Fibers (*.fib);;" )
-            + QString( "Clusters (*.fdg);;" );
+    QString filters = collectFilters();
+
+    filters += QString( "Project File (*.owp *.owproj );;" );
+    // add extensions of script files
     for( std::size_t k = 0; k < WKernel::getRunningKernel()->getScriptEngine()->getNumInterpreters(); ++k )
     {
         filters += QString::fromStdString( WKernel::getRunningKernel()->getScriptEngine()->getInterpreter( k )->getName() + " (*"
@@ -1188,27 +1211,13 @@ void WMainWindow::handleDrop( QDropEvent* event )
             QString path =  url.toLocalFile();
             QFileInfo info( path );
             QString suffix =  info.completeSuffix();
-            if( suffix.endsWith( "cnt" )
-              || suffix.endsWith( "edf" )
-              || suffix.endsWith( "asc" )
-              || suffix.endsWith( "nii" )
-              || suffix.endsWith( "nii.gz" )
-              || suffix.endsWith( "fib" )
-              || suffix.endsWith( "fdg" )
-              || suffix.endsWith( "vtk" ) )
+            if( suffix == "owp" || suffix == "owproj" )
             {
-                filenames.push_back( path.toStdString() );
+                projects.push_back( path.toStdString() );
             }
             else
             {
-                if( suffix == "owp" || suffix == "owproj" )
-                {
-                    projects.push_back( path.toStdString() );
-                }
-                else
-                {
-                    unsupported.push_back( path.toStdString() );
-                }
+                filenames.push_back( path.toStdString() );
             }
         }
         if( projects.size() > 0 )
@@ -1224,21 +1233,6 @@ void WMainWindow::handleDrop( QDropEvent* event )
             m_loaderSignal( filenames );
             event->accept();
         }
-        if( unsupported.size() > 0 )
-        {
-            QString message = QString() +
-                "The following files are not supported as standard data types by OpenWalnut at the moment:<br>";
-            for( size_t i = 0; i < unsupported.size(); ++i )
-            {
-                message += QString::fromStdString( unsupported[ i ] ) + QString( "<br>" );
-            }
-            message += "There may be additional modules supporting them.<br>"
-                "All other files have been loaded and should be visible in the module "
-                "browser and network editor.";
-            QMessageBox::information( this, "Not yet implemented!",
-                    message
-                    );
-        }
     }
 }
 
@@ -1250,30 +1244,7 @@ void WMainWindow::dropEvent( QDropEvent* event )
 
 bool WMainWindow::isDropAcceptable( const QMimeData* mimeData )
 {
-    if( mimeData->hasUrls() )
-    {
-        foreach( QUrl url, mimeData->urls() )
-        {
-            QString path =  url.toLocalFile();
-            QFileInfo info( path );
-            QString suffix =  info.completeSuffix();
-            if( suffix.endsWith( "cnt" )
-              || suffix.endsWith( "edf" )
-              || suffix.endsWith( "asc" )
-              || suffix.endsWith( "nii" )
-              || suffix.endsWith( "nii.gz" )
-              || suffix.endsWith( "fib" )
-              || suffix.endsWith( "fdg" )
-              || suffix.endsWith( "vtk" )
-              || suffix.endsWith( "owp" )
-              || suffix.endsWith( "owproj" ) )
-            {
-                return true;
-            }
-        }
-    }
-
-    return false;
+    return mimeData->hasUrls();
 }
 
 void WMainWindow::dragMoveEvent( QDragMoveEvent* event )

@@ -275,7 +275,7 @@ public:
         Transformation()
     {
         // get a scaling factor
-        double zfactor = abs( factor );
+        double zfactor = std::abs( factor );
         if( factor < 1.0 )
         {
             zfactor = 1.0 / factor;

@@ -22,53 +22,33 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WDataModule.h"
+#include <string>
 
-WDataModule::WDataModule():
-    WModule(),
-    m_reloadTriggered( new WCondition() ),
-    m_suppressColormaps( false ),
-    m_dataModuleInput( WDataModuleInput::SPtr() )
+#include "core/common/WLogger.h"
+
+#include "WDataModuleInputFile.h"
+#include "WDataModuleInput.h"
+
+WDataModuleInput::WDataModuleInput()
 {
     // initialize members
 }
 
-WDataModule::~WDataModule()
+WDataModuleInput::~WDataModuleInput()
 {
     // cleanup
 }
 
-MODULE_TYPE WDataModule::getType() const
+WDataModuleInput::SPtr WDataModuleInput::create( std::string name, std::string parameter )
 {
-    return MODULE_DATA;
-}
+    // Please refer to issue #32. This will soon be replaced by some useful implementation which relies on input providers and input factory
+    // classes. For now, we ONLY support file inputs
 
-void WDataModule::setSuppressColormaps( bool suppress )
-{
-    m_suppressColormaps = suppress;
-}
-
-bool WDataModule::getSuppressColormaps() const
-{
-    return m_suppressColormaps;
-}
-
-void WDataModule::setInput( WDataModuleInput::SPtr input )
-{
-    // only set if not yet set
-    if( !m_dataModuleInput )
+    if( name != "FILE" )
     {
-        m_dataModuleInput = input;
+        wlog::error( "WDataModuleInput" ) << "Only file inputs allowed right now. Refer to issue #32.";
+        return WDataModuleInput::SPtr();
     }
-}
-
-WDataModuleInput::SPtr WDataModule::getInput() const
-{
-    return m_dataModuleInput;
-}
-
-void WDataModule::properties()
-{
-    m_reloadTrigger = m_properties->addProperty( "Reload", "Request to reload the data.", WPVBaseTypes::PV_TRIGGER_READY, m_reloadTriggered );
+    return WDataModuleInput::SPtr( new WDataModuleInputFile( parameter ) );
 }
 

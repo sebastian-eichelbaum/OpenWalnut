@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <math.h>
+#include <cmath>
 
 #include <algorithm>
 #include <string>
@@ -135,8 +136,8 @@ void WQtNetworkArrow::updatePosition( QPointF targetPoint, QPointF deviate )
 
     // the control points
     // Change some of these values to modify the bezier effect
-    double dx = abs( m_line.dx() );
-    double dy = abs( m_line.dy() );
+    double dx = std::abs( m_line.dx() );
+    double dy = std::abs( m_line.dy() );
     double minCDist = 50.0;
     double maxCDist = 250.0;
     // this magic code is the result of try and error

@@ -89,7 +89,14 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WMo
     dataModule = boost::dynamic_pointer_cast< WDataModule >( module );
     if( dataModule )
     {
-        m_subtitleFull = dataModule->getFilename().filename().string();
+        if( dataModule->getInput() )
+        {
+            m_subtitleFull = dataModule->getInput()->asString();
+        }
+        else
+        {
+            m_subtitleFull = "";
+        }
     }
     else
     {
@@ -322,7 +329,7 @@ void WQtNetworkItem::updater()
             WDataModule::SPtr dataModule = boost::dynamic_pointer_cast< WDataModule >( m_module );
             if( dataModule )
             {
-                m_subtitleFull = dataModule->getFilename().filename().string();
+                m_subtitleFull = dataModule->getInput()->asString();
             }
             else
             {

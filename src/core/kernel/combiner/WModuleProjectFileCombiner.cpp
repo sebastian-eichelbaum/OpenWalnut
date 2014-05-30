@@ -32,6 +32,7 @@
 
 #include <boost/regex.hpp>
 
+#include "../WDataModuleInputFile.h"
 #include "../WKernel.h"
 #include "../WModuleCombiner.h"
 #include "../WModuleFactory.h"
@@ -84,7 +85,8 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
 {
     // this is the proper regular expression for modules
     static const boost::regex modRe( "^ *MODULE:([0-9]*):(.*)$" );
-    static const boost::regex dataRe( "^ *DATA:([0-9]*):\"?([^\"]*)\"?$" );
+    static const boost::regex dataReComp( "^ *DATA:([0-9]*):\"?([^\"]*)\"?$" ); // compatibility to older versions.
+    static const boost::regex dataRe( "^ *DATA:([0-9]*):([^:]*):([^:]*):\"?([^\"]*)\"?$" );
     static const boost::regex conRe( "^ *CONNECTION:\\(([0-9]*),(.*)\\)->\\(([0-9]*),(.*)\\)$" );
     static const boost::regex propRe( "^ *PROPERTY:\\(([0-9]*),(.*)\\)=(.*)$" );
 
@@ -122,6 +124,40 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
     {
         // it is a dataset line
         // matches[1] is the ID
+        // matches[2] is the data module name
+        // matches[3] is the input name string
+        // matches[4] is the parameter string
+        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Data \"" << matches[2] << "\" with ID " << matches[1] <<
+                                                    " and input \"" << matches[3] << " \" with parameters \"" << matches[4] << "\"";
+
+        // create a module instance
+        boost::shared_ptr< WModule > proto = WModuleFactory::getModuleFactory()-> isPrototypeAvailable( matches[2] );
+        if( !proto )
+        {
+            addError( "There is no prototype available for module \"" + matches[2] + "\". This should not happen!. Skipping." );
+        }
+        else
+        {
+            std::string parameter = std::string( matches[4] );
+            boost::shared_ptr< WModule > module = WModuleFactory::getModuleFactory()->create( proto );
+
+            // set restore mode
+            module->setRestoreNeeded();
+            if( parameter.empty() )
+            {
+                addError( "Data modules need an additional parameter. Skipping." );
+            }
+            else
+            {
+                boost::static_pointer_cast< WDataModule >( module )->setInput( WDataModuleInput::create( matches[3], parameter ) );
+                m_modules.insert( ModuleID( string_utils::fromString< unsigned int >( matches[1] ), module ) );
+            }
+        }
+    }
+    else if( boost::regex_match( line, matches, dataReComp ) )  // for old versions of DATA lines.
+    {
+        // it is a dataset line
+        // matches[1] is the ID
         // matches[2] is the filename
         wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Data \"" << matches[2] << "\" with ID " << matches[1];
 
@@ -144,7 +180,7 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
             }
             else
             {
-                boost::static_pointer_cast< WDataModule >( module )->setFilename( parameter );
+                boost::static_pointer_cast< WDataModule >( module )->setInput( WDataModuleInput::SPtr( new WDataModuleInputFile( parameter ) ) );
                 m_modules.insert( ModuleID( string_utils::fromString< unsigned int >( matches[1] ), module ) );
             }
         }
@@ -359,7 +395,9 @@ void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
         // handle data modules separately
         if( ( *iter )->getType() == MODULE_DATA )
         {
-            output << "DATA:" << i << ":" <<  boost::static_pointer_cast< WDataModule >( ( *iter ) )->getFilename().string() << std::endl;
+            output << "DATA:" << i << ":" << boost::static_pointer_cast< WDataModule >( ( *iter ) )->getName()
+                                   << ":" << boost::static_pointer_cast< WDataModule >( ( *iter ) )->getInput()->getName()
+                                   << ":" << boost::static_pointer_cast< WDataModule >( ( *iter ) )->getInput()->serialize() << std::endl;
         }
         else
         {

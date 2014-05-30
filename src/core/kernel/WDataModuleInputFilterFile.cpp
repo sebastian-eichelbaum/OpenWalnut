@@ -22,53 +22,38 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WDataModule.h"
+#include <string>
 
-WDataModule::WDataModule():
-    WModule(),
-    m_reloadTriggered( new WCondition() ),
-    m_suppressColormaps( false ),
-    m_dataModuleInput( WDataModuleInput::SPtr() )
+#include <boost/algorithm/string/predicate.hpp>
+
+#include "WDataModuleInputFile.h"
+
+#include "WDataModuleInputFilterFile.h"
+
+WDataModuleInputFilterFile::WDataModuleInputFilterFile( std::string extension, std::string description ):
+    WDataModuleInputFilter( description ),
+    m_extension( extension )
 {
     // initialize members
 }
 
-WDataModule::~WDataModule()
+WDataModuleInputFilterFile::~WDataModuleInputFilterFile()
 {
     // cleanup
 }
 
-MODULE_TYPE WDataModule::getType() const
+bool WDataModuleInputFilterFile::matches( WDataModuleInput::ConstSPtr input ) const
 {
-    return MODULE_DATA;
-}
-
-void WDataModule::setSuppressColormaps( bool suppress )
-{
-    m_suppressColormaps = suppress;
-}
-
-bool WDataModule::getSuppressColormaps() const
-{
-    return m_suppressColormaps;
-}
-
-void WDataModule::setInput( WDataModuleInput::SPtr input )
-{
-    // only set if not yet set
-    if( !m_dataModuleInput )
+    WDataModuleInputFile::ConstSPtr file = boost::dynamic_pointer_cast< const WDataModuleInputFile >( input );
+    if( file )
     {
-        m_dataModuleInput = input;
+        return boost::algorithm::ends_with( file->getFilename().string(), m_extension );
     }
+    return false;
 }
 
-WDataModuleInput::SPtr WDataModule::getInput() const
+const std::string& WDataModuleInputFilterFile::getExtension() const
 {
-    return m_dataModuleInput;
-}
-
-void WDataModule::properties()
-{
-    m_reloadTrigger = m_properties->addProperty( "Reload", "Request to reload the data.", WPVBaseTypes::PV_TRIGGER_READY, m_reloadTriggered );
+    return m_extension;
 }
 

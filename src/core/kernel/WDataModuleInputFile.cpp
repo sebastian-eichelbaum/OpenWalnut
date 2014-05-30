@@ -22,53 +22,44 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WDataModule.h"
+#include <string>
 
-WDataModule::WDataModule():
-    WModule(),
-    m_reloadTriggered( new WCondition() ),
-    m_suppressColormaps( false ),
-    m_dataModuleInput( WDataModuleInput::SPtr() )
+#include "WDataModuleInputFile.h"
+
+WDataModuleInputFile::WDataModuleInputFile( boost::filesystem::path fname ):
+    m_filename( fname )
 {
     // initialize members
 }
 
-WDataModule::~WDataModule()
+WDataModuleInputFile::WDataModuleInputFile( std::string fname ):
+    m_filename( fname )
+{
+    // initialize members
+}
+
+WDataModuleInputFile::~WDataModuleInputFile()
 {
     // cleanup
 }
 
-MODULE_TYPE WDataModule::getType() const
+boost::filesystem::path WDataModuleInputFile::getFilename() const
 {
-    return MODULE_DATA;
+    return m_filename;
 }
 
-void WDataModule::setSuppressColormaps( bool suppress )
+std::string WDataModuleInputFile::asString() const
 {
-    m_suppressColormaps = suppress;
+    return m_filename.filename().string();
 }
 
-bool WDataModule::getSuppressColormaps() const
+std::string WDataModuleInputFile::serialize() const
 {
-    return m_suppressColormaps;
+    return m_filename.string();
 }
 
-void WDataModule::setInput( WDataModuleInput::SPtr input )
+std::string WDataModuleInputFile::getName() const
 {
-    // only set if not yet set
-    if( !m_dataModuleInput )
-    {
-        m_dataModuleInput = input;
-    }
-}
-
-WDataModuleInput::SPtr WDataModule::getInput() const
-{
-    return m_dataModuleInput;
-}
-
-void WDataModule::properties()
-{
-    m_reloadTrigger = m_properties->addProperty( "Reload", "Request to reload the data.", WPVBaseTypes::PV_TRIGGER_READY, m_reloadTriggered );
+    return "FILE";
 }
 

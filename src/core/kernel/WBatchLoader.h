@@ -36,15 +36,13 @@
 
 #include "WDataModule.h"
 
-
-
 class WModuleContainer;
 
 /**
  * Class for loading many datasets. It runs in a separate thread.
  */
-class  WBatchLoader: public WThreadedRunner,
-                                  public boost::enable_shared_from_this< WBatchLoader >
+class WBatchLoader: public WThreadedRunner,
+                    public boost::enable_shared_from_this< WBatchLoader >
 {
 public:
     /**
@@ -63,7 +61,8 @@ public:
     typedef WSharedSequenceContainer< std::vector< WDataModule::SPtr > > DataModuleList;
 
     /**
-     * Initializes the batchloader but does not start it. Use run().
+     * Initializes the batchloader but does not start it. Use run() to start. The batch-loader will always use the WDataModule which was found
+     * first if multiple match to one filename. This is the reason why WBatchLoader will be removed in the future. Follow issue #32.
      *
      * \param filenames the files to load.
      * \param targetContainer the container to which the data modules should be added.
