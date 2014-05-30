@@ -199,6 +199,11 @@ private:
     osg::ref_ptr< WDataTexture3D > m_oldColormap;
 
     /**
+     * Keep track of the old dataset
+     */
+    boost::shared_ptr< WDataSet > m_oldDataSet;
+
+    /**
      * Add the colormapping.
      *
      * \param dataSet the dataset to add

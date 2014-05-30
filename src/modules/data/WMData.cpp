@@ -182,6 +182,7 @@ void WMData::moduleMain()
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
     m_moduleState.add( m_reloadTriggered );
+    m_oldDataSet = WDataSet::SPtr();
 
     ready();
     waitRestored();
@@ -326,14 +327,31 @@ void WMData::matrixUpdate()
         break;
     }
 
+    // Update the m_dataSet
     m_dataSet = m_dataSetAsSingle->clone( newGrid );
+    // Update textures? Keep trakc of old
     m_dataSet->getTexture()->getProperties()->set( m_dataSetAsSingle->getTexture()->getProperties() );
     m_dataSetAsSingle = boost::dynamic_pointer_cast< WDataSetSingle >( m_dataSet );
-    m_output->updateData( m_dataSet );
+
+    // Remove all old props
+    if( m_oldDataSet )
+    {
+        m_properties->removeProperty( m_oldDataSet->getProperties() );
+        m_infoProperties->removeProperty( m_oldDataSet->getInformationProperties() );
+        m_infoProperties->removeProperty( m_infoProperties->findProperty( "Transformations" ) );
+    }
+
+    // Add new props
+    m_properties->addProperty( m_dataSet->getProperties() );
+    m_infoProperties->addProperty( m_dataSet->getInformationProperties() );
+    m_infoProperties->addProperty( getTransformationProperties() );
 
     // the clone() may have returned a zero-pointer, only update if it hasn't
     // this may happen if the clone() operation has not been implemented in the derived dataset class
     updateColorMap( m_dataSet );
+
+    m_oldDataSet = m_dataSet;
+    m_output->updateData( m_dataSet );
 }
 
 boost::shared_ptr< WProperties > WMData::getTransformationProperties() const
@@ -401,8 +419,6 @@ void WMData::load()
 
     // load it now
     std::string suffix = getSuffix( fileName );
-    boost::shared_ptr< WDataSet > oldDataSet = m_dataSet;
-
     if( suffix == ".nii" || ( suffix == ".gz" && ::nifti_compiled_with_zlib() ) )
     {
         if( suffix == ".gz" )  // it may be a NIfTI file too
@@ -517,19 +533,6 @@ void WMData::load()
     }
 
     debugLog() << "Loading data done.";
-
-    // Remove all old props
-    if( oldDataSet )
-    {
-        //m_properties->removeProperty( oldDataSet->getProperties() );
-        //m_infoProperties->removeProperty( oldDataSet->getInformationProperties() );
-        m_infoProperties->removeProperty( m_infoProperties->findProperty( "Transformations" ) );
-    }
-
-    // Add new props
-    //m_properties->addProperty( m_dataSet->getProperties() );
-    //m_infoProperties->addProperty( m_dataSet->getInformationProperties() );
-    m_infoProperties->addProperty( getTransformationProperties() );
 
     // set the dataset name
     m_dataSetType->set( m_dataSet->getName() );
