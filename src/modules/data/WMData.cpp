@@ -129,6 +129,10 @@ void WMData::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
+    // Add standard datamodule props
+    WDataModule::properties();
+    // m_reloadTrigger->setHidden( true ); // reload not supported
+
     // properties
     m_dataName = m_infoProperties->addProperty( "Filename", "The filename of the dataset.", std::string( "" ) );
     m_dataType = m_infoProperties->addProperty( "Data type", "The type of the single data values.", std::string( "" ) );
@@ -175,24 +179,229 @@ void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
 
 void WMData::moduleMain()
 {
+    m_moduleState.setResetable( true, true );
+    m_moduleState.add( m_propCondition );
+    m_moduleState.add( m_reloadTriggered );
+
+    ready();
+    waitRestored();
+
+    load();
+
+    while( !m_shutdownFlag() )
+    {
+        m_moduleState.wait();
+        if( m_shutdownFlag() )
+        {
+            break;
+        }
+
+        // Not supported.
+        if( m_reloadTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            load();
+            m_reloadTrigger->set( WPVBaseTypes::PV_TRIGGER_READY );
+        }
+
+        // change transform matrix (only if we have a dataset single which contains the grid)
+        if( m_matrixSelection->changed() && m_dataSetAsSingle )
+        {
+            matrixUpdate();
+        }
+    }
+
+    // remove dataset from datahandler
+    updateColorMap(  boost::shared_ptr< WDataSet >() );
+}
+
+// TODO(wiebel): move this to some central place.
+std::string WMData::getDataTypeString( boost::shared_ptr< WDataSetSingle > dss )
+{
+    std::string result;
+    switch( (*dss).getValueSet()->getDataType() )
+    {
+        case W_DT_NONE:
+            result = "none";
+            break;
+        case W_DT_BINARY:
+            result = "binary (1 bit)";
+            break;
+        case W_DT_UNSIGNED_CHAR:
+            result = "unsigned char (8 bits)";
+            break;
+        case W_DT_SIGNED_SHORT:
+            result = "signed short (16 bits)";
+            break;
+        case W_DT_SIGNED_INT:
+            result = "signed int (32 bits)";
+            break;
+        case W_DT_FLOAT:
+            result = "float (32 bits)";
+            break;
+        case W_DT_COMPLEX:
+            result = "complex";
+            break;
+        case W_DT_DOUBLE:
+            result = "double (64 bits)";
+            break;
+        case W_DT_RGB:
+            result = "RGB triple (24 bits)";
+            break;
+        case W_DT_ALL:
+            result = "ALL (not very useful)";
+            break;
+        case W_DT_INT8:
+            result = "signed char (8 bits)";
+            break;
+        case W_DT_UINT16:
+            result = "unsigned short (16 bits)";
+            break;
+        case W_DT_UINT32 :
+            result = "unsigned int (32 bits)";
+            break;
+        case W_DT_INT64:
+            result = "int64";
+            break;
+        case W_DT_UINT64:
+            result = "unsigned long long (64 bits)";
+            break;
+        case W_DT_FLOAT128:
+            result = "float (128 bits)";
+            break;
+        case W_DT_COMPLEX128:
+            result = "double pair (128 bits)";
+            break;
+        case W_DT_COMPLEX256:
+            result = " long double pair (256 bits)";
+            break;
+        case W_DT_RGBA32:
+            result = "4 byte RGBA (32 bits)";
+            break;
+        default:
+            WAssert( false, "Unknow data type in getDataTypeString" );
+    }
+    return result;
+}
+
+namespace
+{
+    // helper which gets a WMatrix< double > and returns a WMatrix4d
+    WMatrix4d WMatrixDoubleToWMatrix4d( const WMatrix< double >& matrix )
+    {
+        WAssert( matrix.getNbRows() == 4, "" );
+        WAssert( matrix.getNbCols() == 4, "" );
+        WMatrix4d result;
+        for( size_t i = 0; i < 4; ++i )
+        {
+            for( size_t j = 0; j < 4; ++j )
+            {
+                result( i, j ) = matrix( i, j );
+            }
+        }
+        return result;
+    }
+}
+
+void WMData::matrixUpdate()
+{
+    debugLog() << "Matrix mode update.";
+
+    // a new grid
+    boost::shared_ptr< WGrid > newGrid;
+    boost::shared_ptr< WGridRegular3D > oldGrid = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSetAsSingle->getGrid() );
+
+    switch( m_matrixSelection->get( true ).getItemIndexOfSelected( 0 ) )
+    {
+    case 0:
+        newGrid = boost::shared_ptr< WGrid >( new WGridRegular3D( oldGrid->getNbCoordsX(), oldGrid->getNbCoordsY(), oldGrid->getNbCoordsZ(),
+                                                                  WGridTransformOrtho( m_transformNoMatrix ) ) );
+        break;
+    case 1:
+        newGrid = boost::shared_ptr< WGrid >( new WGridRegular3D( oldGrid->getNbCoordsX(), oldGrid->getNbCoordsY(), oldGrid->getNbCoordsZ(),
+                                                                  WGridTransformOrtho( m_transformSForm ) ) );
+        break;
+    case 2:
+        newGrid = boost::shared_ptr< WGrid >( new WGridRegular3D( oldGrid->getNbCoordsX(), oldGrid->getNbCoordsY(), oldGrid->getNbCoordsZ(),
+                                                                  WGridTransformOrtho( m_transformQForm ) ) );
+        break;
+    }
+
+    m_dataSet = m_dataSetAsSingle->clone( newGrid );
+    m_dataSet->getTexture()->getProperties()->set( m_dataSetAsSingle->getTexture()->getProperties() );
+    m_dataSetAsSingle = boost::dynamic_pointer_cast< WDataSetSingle >( m_dataSet );
+    m_output->updateData( m_dataSet );
+
+    // the clone() may have returned a zero-pointer, only update if it hasn't
+    // this may happen if the clone() operation has not been implemented in the derived dataset class
+    updateColorMap( m_dataSet );
+}
+
+boost::shared_ptr< WProperties > WMData::getTransformationProperties() const
+{
+    boost::shared_ptr< WProperties > result( new WProperties( "Transformations", "Availabe transformation matrices for data-set " ) );
+    WPropGroup transformation = result->addPropertyGroup( "Transformation",
+                                                          "The transformation of this grid." );
+    WPropMatrix4X4 noMatrixTransformation = result->addProperty( "No matrix transformation",
+                                                                 "The no matrix transformation for this data set.",
+                                                                 WMatrixDoubleToWMatrix4d( m_transformNoMatrix ) );
+    WPropMatrix4X4 sformMatrixTransformation = result->addProperty( "sform matrix transformation",
+                                                                    "The sform matrix transformation for this data set.",
+                                                                    WMatrixDoubleToWMatrix4d( m_transformSForm ) );
+    WPropMatrix4X4 qformMatrixTransformation = result->addProperty( "qform matrix transformation",
+                                                                    "The qform matrix transformation for this data set.",
+                                                                    WMatrixDoubleToWMatrix4d( m_transformQForm ) );
+    return result;
+}
+
+void WMData::updateColorMap( boost::shared_ptr< WDataSet > dataSet )
+{
+
+    // remove dataset from datahandler
+    if( m_oldColormap )
+    {
+        m_properties->removeProperty( m_oldColormap->getProperties() );
+        m_infoProperties->removeProperty( m_oldColormap->getInformationProperties() );
+        WGEColormapping::deregisterTexture( m_oldColormap );
+        m_oldColormap = osg::ref_ptr< WDataTexture3D >();
+    }
+
+    if( dataSet )
+    {
+        // remove dataset from datahandler
+        if( dataSet->isTexture() )
+        {
+            if( !getSuppressColormaps() )
+            {
+                WGEColormapping::registerTexture( dataSet->getTexture(), m_runtimeName->get() );
+            }
+            m_properties->addProperty( dataSet->getTexture()->getProperties() );
+            m_infoProperties->addProperty( dataSet->getTexture()->getInformationProperties() );
+
+            m_oldColormap = dataSet->getTexture();
+        }
+    }
+}
+
+void WMData::load()
+{
     // Get the input
-    WAssert( getInput(), "No input specified." );
     WDataModuleInputFile::SPtr inputFile = getInputAs< WDataModuleInputFile >();
-    WAssert( inputFile, "No file input specified." );
+    if( !inputFile )
+    {
+        throw WModuleException( "Data modules cannot be used directly." );
+    }
     std::string fileName = inputFile->getFilename().string();
 
     m_transformNoMatrix.makeIdentity();
     m_transformSForm.makeIdentity();
     m_transformQForm.makeIdentity();
 
-    m_moduleState.setResetable( true, true );
-    m_moduleState.add( m_propCondition );
-
     debugLog() << "Loading data from \"" << fileName << "\".";
     m_dataName->set( fileName );
 
     // load it now
     std::string suffix = getSuffix( fileName );
+    boost::shared_ptr< WDataSet > oldDataSet = m_dataSet;
 
     if( suffix == ".nii" || ( suffix == ".gz" && ::nifti_compiled_with_zlib() ) )
     {
@@ -309,9 +518,17 @@ void WMData::moduleMain()
 
     debugLog() << "Loading data done.";
 
-    // register the dataset properties
-    m_properties->addProperty( m_dataSet->getProperties() );
-    m_infoProperties->addProperty( m_dataSet->getInformationProperties() );
+    // Remove all old props
+    if( oldDataSet )
+    {
+        //m_properties->removeProperty( oldDataSet->getProperties() );
+        //m_infoProperties->removeProperty( oldDataSet->getInformationProperties() );
+        m_infoProperties->removeProperty( m_infoProperties->findProperty( "Transformations" ) );
+    }
+
+    // Add new props
+    //m_properties->addProperty( m_dataSet->getProperties() );
+    //m_infoProperties->addProperty( m_dataSet->getInformationProperties() );
     m_infoProperties->addProperty( getTransformationProperties() );
 
     // set the dataset name
@@ -320,200 +537,9 @@ void WMData::moduleMain()
     // I am interested in the active property ( manually subscribe signal )
     m_active->getCondition()->subscribeSignal( boost::bind( &WMData::propertyChanged, this, m_active ) );
 
-    // textures also provide properties
-    if( m_dataSet->isTexture() )
-    {
-        if( !getSuppressColormaps() )
-        {
-            WGEColormapping::registerTexture( m_dataSet->getTexture(), m_runtimeName->get() );
-        }
-        else
-        {
-            debugLog() << "Suppressing colormap \"" << m_runtimeName->get() << "\".";
-        }
-        m_properties->addProperty( m_dataSet->getTexture()->getProperties() );
-        m_infoProperties->addProperty( m_dataSet->getTexture()->getInformationProperties() );
-    }
-
     // notify
-    m_output->updateData( m_dataSet );
-    ready();
+    m_dataSetAsSingle = boost::dynamic_pointer_cast< WDataSetSingle >( m_dataSet );
 
-    WDataSetSingle::SPtr dataSetAsSingle = boost::dynamic_pointer_cast< WDataSetSingle >( m_dataSet );
-
-    while( !m_shutdownFlag() )
-    {
-        m_moduleState.wait();
-        if( m_shutdownFlag() )
-        {
-            break;
-        }
-
-        // change transform matrix (only if we have a dataset single which contains the grid)
-        if( m_matrixSelection->changed() && dataSetAsSingle )
-        {
-            if( m_dataSet && m_isTexture )
-            {
-                // remove dataset from datahandler
-                if( m_dataSet->isTexture() )
-                {
-                    m_properties->removeProperty( m_dataSet->getTexture()->getProperties() );
-                    m_infoProperties->removeProperty( m_dataSet->getTexture()->getInformationProperties() );
-                    WGEColormapping::deregisterTexture( m_dataSet->getTexture() );
-                }
-            }
-
-            // a new grid
-            boost::shared_ptr< WGrid > newGrid;
-            boost::shared_ptr< WGridRegular3D > oldGrid = boost::dynamic_pointer_cast< WGridRegular3D >( dataSetAsSingle->getGrid() );
-
-            switch( m_matrixSelection->get( true ).getItemIndexOfSelected( 0 ) )
-            {
-            case 0:
-                newGrid = boost::shared_ptr< WGrid >( new WGridRegular3D( oldGrid->getNbCoordsX(), oldGrid->getNbCoordsY(), oldGrid->getNbCoordsZ(),
-                                                                          WGridTransformOrtho( m_transformNoMatrix ) ) );
-                break;
-            case 1:
-                newGrid = boost::shared_ptr< WGrid >( new WGridRegular3D( oldGrid->getNbCoordsX(), oldGrid->getNbCoordsY(), oldGrid->getNbCoordsZ(),
-                                                                          WGridTransformOrtho( m_transformSForm ) ) );
-                break;
-            case 2:
-                newGrid = boost::shared_ptr< WGrid >( new WGridRegular3D( oldGrid->getNbCoordsX(), oldGrid->getNbCoordsY(), oldGrid->getNbCoordsZ(),
-                                                                          WGridTransformOrtho( m_transformQForm ) ) );
-                break;
-            }
-
-            m_dataSet = dataSetAsSingle->clone( newGrid );
-
-            // the clone() may have returned a zero-pointer, only update if it hasn't
-            // this may happen if the clone() operation has not been implemented in the derived dataset class
-            if( m_dataSet )
-            {
-                m_output->updateData( m_dataSet );
-
-                if( m_isTexture )
-                {
-                    if( !getSuppressColormaps() )
-                    {
-                        WGEColormapping::registerTexture( m_dataSet->getTexture(), m_runtimeName->get() );
-                    }
-                    m_properties->addProperty( m_dataSet->getTexture()->getProperties() );
-                    m_infoProperties->addProperty( m_dataSet->getTexture()->getInformationProperties() );
-                }
-            }
-        }
-    }
-
-    // remove dataset from datahandler
-    if( m_dataSet->isTexture() )
-    {
-        m_properties->removeProperty( m_dataSet->getTexture()->getProperties() );
-        m_infoProperties->removeProperty( m_dataSet->getTexture()->getInformationProperties() );
-        WGEColormapping::deregisterTexture( m_dataSet->getTexture() );
-    }
-}
-
-// TODO(wiebel): move this to some central place.
-std::string WMData::getDataTypeString( boost::shared_ptr< WDataSetSingle > dss )
-{
-    std::string result;
-    switch( (*dss).getValueSet()->getDataType() )
-    {
-        case W_DT_NONE:
-            result = "none";
-            break;
-        case W_DT_BINARY:
-            result = "binary (1 bit)";
-            break;
-        case W_DT_UNSIGNED_CHAR:
-            result = "unsigned char (8 bits)";
-            break;
-        case W_DT_SIGNED_SHORT:
-            result = "signed short (16 bits)";
-            break;
-        case W_DT_SIGNED_INT:
-            result = "signed int (32 bits)";
-            break;
-        case W_DT_FLOAT:
-            result = "float (32 bits)";
-            break;
-        case W_DT_COMPLEX:
-            result = "complex";
-            break;
-        case W_DT_DOUBLE:
-            result = "double (64 bits)";
-            break;
-        case W_DT_RGB:
-            result = "RGB triple (24 bits)";
-            break;
-        case W_DT_ALL:
-            result = "ALL (not very useful)";
-            break;
-        case W_DT_INT8:
-            result = "signed char (8 bits)";
-            break;
-        case W_DT_UINT16:
-            result = "unsigned short (16 bits)";
-            break;
-        case W_DT_UINT32 :
-            result = "unsigned int (32 bits)";
-            break;
-        case W_DT_INT64:
-            result = "int64";
-            break;
-        case W_DT_UINT64:
-            result = "unsigned long long (64 bits)";
-            break;
-        case W_DT_FLOAT128:
-            result = "float (128 bits)";
-            break;
-        case W_DT_COMPLEX128:
-            result = "double pair (128 bits)";
-            break;
-        case W_DT_COMPLEX256:
-            result = " long double pair (256 bits)";
-            break;
-        case W_DT_RGBA32:
-            result = "4 byte RGBA (32 bits)";
-            break;
-        default:
-            WAssert( false, "Unknow data type in getDataTypeString" );
-    }
-    return result;
-}
-
-namespace
-{
-    // helper which gets a WMatrix< double > and returns a WMatrix4d
-    WMatrix4d WMatrixDoubleToWMatrix4d( const WMatrix< double >& matrix )
-    {
-        WAssert( matrix.getNbRows() == 4, "" );
-        WAssert( matrix.getNbCols() == 4, "" );
-        WMatrix4d result;
-        for( size_t i = 0; i < 4; ++i )
-        {
-            for( size_t j = 0; j < 4; ++j )
-            {
-                result( i, j ) = matrix( i, j );
-            }
-        }
-        return result;
-    }
-}
-
-boost::shared_ptr< WProperties > WMData::getTransformationProperties() const
-{
-    boost::shared_ptr< WProperties > result( new WProperties( "Transformations", "Availabe transformation matrices for data-set " ) );
-    WPropGroup transformation = result->addPropertyGroup( "Transformation",
-                                                          "The transformation of this grid." );
-    WPropMatrix4X4 noMatrixTransformation = result->addProperty( "No matrix transformation",
-                                                                 "The no matrix transformation for this data set.",
-                                                                 WMatrixDoubleToWMatrix4d( m_transformNoMatrix ) );
-    WPropMatrix4X4 sformMatrixTransformation = result->addProperty( "sform matrix transformation",
-                                                                    "The sform matrix transformation for this data set.",
-                                                                    WMatrixDoubleToWMatrix4d( m_transformSForm ) );
-    WPropMatrix4X4 qformMatrixTransformation = result->addProperty( "qform matrix transformation",
-                                                                    "The qform matrix transformation for this data set.",
-                                                                    WMatrixDoubleToWMatrix4d( m_transformQForm ) );
-    return result;
+    // Update matrix
+    matrixUpdate();
 }

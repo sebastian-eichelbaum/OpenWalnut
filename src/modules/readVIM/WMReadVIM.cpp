@@ -98,6 +98,7 @@ void WMReadVIM::moduleMain()
         if( m_reloadTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
             load();
+            m_reloadTrigger->set( WPVBaseTypes::PV_TRIGGER_READY );
         }
     }
 }
@@ -115,10 +116,12 @@ std::vector< WDataModuleInputFilter::ConstSPtr > WMReadVIM::getInputFilter() con
 void WMReadVIM::load()
 {
     // open file
-    WAssert( getInput(), "No input specified." );
     WDataModuleInputFile::SPtr inputFile = getInputAs< WDataModuleInputFile >();
-    WAssert( inputFile, "No file input specified." );
-    boost::filesystem::path p =  inputFile->getFilename();
+    if( !inputFile )
+    {
+        throw WModuleException( "Data modules cannot be used directly." );
+    }
+    boost::filesystem::path p = inputFile->getFilename();
 
     std::ifstream ifs;
     ifs.open( p.string().c_str(), std::ifstream::in );

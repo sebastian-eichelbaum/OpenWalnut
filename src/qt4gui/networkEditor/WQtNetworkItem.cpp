@@ -89,7 +89,14 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WMo
     dataModule = boost::dynamic_pointer_cast< WDataModule >( module );
     if( dataModule )
     {
-        m_subtitleFull = dataModule->getInput()->asString();
+        if( dataModule->getInput() )
+        {
+            m_subtitleFull = dataModule->getInput()->asString();
+        }
+        else
+        {
+            m_subtitleFull = "";
+        }
     }
     else
     {

@@ -154,6 +154,10 @@ protected:
     //! a standard transform (should be an identity transform)
     WMatrix< double > m_transformQForm;
 
+    /**
+     * Do the loading.
+     */
+    void load();
 private:
     /**
      * Returns info property group with the three availabe transformation matrixes
@@ -183,6 +187,28 @@ private:
      * The only output of this data module.
      */
     boost::shared_ptr< WModuleOutputData< WDataSet > > m_output;
+
+    /**
+     * As single. Can be NULL.
+     */
+    WDataSetSingle::SPtr m_dataSetAsSingle;
+
+    /**
+     * Keep track of registered colormaps.
+     */
+    osg::ref_ptr< WDataTexture3D > m_oldColormap;
+
+    /**
+     * Add the colormapping.
+     *
+     * \param dataSet the dataset to add
+     */
+    void updateColorMap( boost::shared_ptr< WDataSet > dataSet );
+
+    /**
+     * Update matrix.
+     */
+    void matrixUpdate();
 };
 
 #endif  // WMDATA_H

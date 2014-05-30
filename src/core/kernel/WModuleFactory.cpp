@@ -236,6 +236,12 @@ WCombinerTypes::WCompatiblesList WModuleFactory::getCompatiblePrototypes( boost:
         for( PrototypeContainerConstIteratorType listIter = l->get().begin(); listIter != l->get().end();
                 ++listIter )
         {
+            // ignore data modules
+            if( dynamic_cast< const WDataModule* >( ( *listIter ).get() ) )
+            {
+                continue;
+            }
+
             // get connectors of this prototype
             WModule::InputConnectorList pcons = ( *listIter )->getInputConnectors();
             if(  pcons.size() == 0  )
