@@ -66,7 +66,12 @@ public:
      * Analyzes a point data set using the Principal Component Analysis algorithm.
      * \param inputData Point data to be analyzed.
      */
-    void analyzeData( std::vector<WPosition> inputData );
+    void analyzeData( const vector<WPosition>* inputData );
+    /**
+     * Returns the mean coordinate of all input points.
+     * \return The mean coordinate of all input points.
+     */
+    WPosition getMean();
     /**
      * Returns the point distribution directions. The first one is the strongest and 
      * the last is the weakest point distribution direction. Their index corresponds to 
@@ -97,15 +102,11 @@ private:
      * \param eigenVectorIndex2 Index of the second Eigen Value and Vector
      */
     void swapEigenVectors( size_t eigenVectorIndex1, size_t eigenVectorIndex2 );
-    /**
-     * Clears the input point data.
-     */
-    void clearInputData();
 
     /**
      * Point data to be analyzed.
      */
-    vector<WPosition> m_inputData;
+    const vector<WPosition>* m_inputData;
     /**
      * Instance to analyze the covariances of the point data between each dimension pair.
      */

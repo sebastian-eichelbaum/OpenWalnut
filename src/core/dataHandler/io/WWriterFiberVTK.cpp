@@ -94,4 +94,8 @@ void WWriterFiberVTK::writeFibs( boost::shared_ptr< const WDataSetFiberVector > 
     out.write( reinterpret_cast< char* >( rawLineData ), sizeof( unsigned int ) * ( numPoints + numLines ) );
     out << lineDelimiter;
     out.close();
+
+    // free memory
+    delete[] rawLineData;
+    delete[] rawPointData;
 }
