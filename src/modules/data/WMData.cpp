@@ -330,7 +330,10 @@ void WMData::matrixUpdate()
     // Update the m_dataSet
     m_dataSet = m_dataSetAsSingle->clone( newGrid );
     // Update textures? Keep trakc of old
-    m_dataSet->getTexture()->getProperties()->set( m_dataSetAsSingle->getTexture()->getProperties() );
+    if( m_dataSet->isTexture() && m_dataSet->getTexture() )
+    {
+        m_dataSet->getTexture()->getProperties()->set( m_dataSetAsSingle->getTexture()->getProperties() );
+    }
     m_dataSetAsSingle = boost::dynamic_pointer_cast< WDataSetSingle >( m_dataSet );
 
     // Remove all old props
