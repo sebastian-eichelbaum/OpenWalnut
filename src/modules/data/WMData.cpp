@@ -305,56 +305,61 @@ namespace
 
 void WMData::matrixUpdate()
 {
-    debugLog() << "Matrix mode update.";
-
-    // a new grid
-    boost::shared_ptr< WGrid > newGrid;
-    boost::shared_ptr< WGridRegular3D > oldGrid = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSetAsSingle->getGrid() );
-
-    switch( m_matrixSelection->get( true ).getItemIndexOfSelected( 0 ) )
+    // incase that m_dataSet is not a WDataSetSingle e.g. WDataSetFibers, the cast might be NULL
+    if( boost::dynamic_pointer_cast< WDataSetSingle >( m_dataSet ) )
     {
-    case 0:
-        newGrid = boost::shared_ptr< WGrid >( new WGridRegular3D( oldGrid->getNbCoordsX(), oldGrid->getNbCoordsY(), oldGrid->getNbCoordsZ(),
-                                                                  WGridTransformOrtho( m_transformNoMatrix ) ) );
-        break;
-    case 1:
-        newGrid = boost::shared_ptr< WGrid >( new WGridRegular3D( oldGrid->getNbCoordsX(), oldGrid->getNbCoordsY(), oldGrid->getNbCoordsZ(),
-                                                                  WGridTransformOrtho( m_transformSForm ) ) );
-        break;
-    case 2:
-        newGrid = boost::shared_ptr< WGrid >( new WGridRegular3D( oldGrid->getNbCoordsX(), oldGrid->getNbCoordsY(), oldGrid->getNbCoordsZ(),
-                                                                  WGridTransformOrtho( m_transformQForm ) ) );
-        break;
+        debugLog() << "Matrix mode update.";
+
+        // a new grid
+        boost::shared_ptr< WGrid > newGrid;
+        boost::shared_ptr< WGridRegular3D > oldGrid = boost::dynamic_pointer_cast< WGridRegular3D >( m_dataSetAsSingle->getGrid() );
+
+        switch( m_matrixSelection->get( true ).getItemIndexOfSelected( 0 ) )
+        {
+        case 0:
+            newGrid = boost::shared_ptr< WGrid >( new WGridRegular3D( oldGrid->getNbCoordsX(), oldGrid->getNbCoordsY(), oldGrid->getNbCoordsZ(),
+                                                                      WGridTransformOrtho( m_transformNoMatrix ) ) );
+            break;
+        case 1:
+            newGrid = boost::shared_ptr< WGrid >( new WGridRegular3D( oldGrid->getNbCoordsX(), oldGrid->getNbCoordsY(), oldGrid->getNbCoordsZ(),
+                                                                      WGridTransformOrtho( m_transformSForm ) ) );
+            break;
+        case 2:
+            newGrid = boost::shared_ptr< WGrid >( new WGridRegular3D( oldGrid->getNbCoordsX(), oldGrid->getNbCoordsY(), oldGrid->getNbCoordsZ(),
+                                                                      WGridTransformOrtho( m_transformQForm ) ) );
+            break;
+        }
+
+        // Update the m_dataSet
+        m_dataSet = m_dataSetAsSingle->clone( newGrid );
+        // Update textures? Keep trakc of old
+        if( m_dataSet->isTexture() && m_dataSet->getTexture() )
+        {
+            m_dataSet->getTexture()->getProperties()->set( m_dataSetAsSingle->getTexture()->getProperties() );
+        }
+        m_dataSetAsSingle = boost::dynamic_pointer_cast< WDataSetSingle >( m_dataSet );
+
+        // Remove all old props
+        if( m_oldDataSet )
+        {
+            m_properties->removeProperty( m_oldDataSet->getProperties() );
+            m_infoProperties->removeProperty( m_oldDataSet->getInformationProperties() );
+            m_infoProperties->removeProperty( m_infoProperties->findProperty( "Transformations" ) );
+        }
+
+        // Add new props
+        m_properties->addProperty( m_dataSet->getProperties() );
+        m_infoProperties->addProperty( m_dataSet->getInformationProperties() );
+        m_infoProperties->addProperty( getTransformationProperties() );
+
+        // the clone() may have returned a zero-pointer, only update if it hasn't
+        // this may happen if the clone() operation has not been implemented in the derived dataset class
+        updateColorMap( m_dataSet );
+
+        m_oldDataSet = m_dataSet;
     }
 
-    // Update the m_dataSet
-    m_dataSet = m_dataSetAsSingle->clone( newGrid );
-    // Update textures? Keep trakc of old
-    if( m_dataSet->isTexture() && m_dataSet->getTexture() )
-    {
-        m_dataSet->getTexture()->getProperties()->set( m_dataSetAsSingle->getTexture()->getProperties() );
-    }
-    m_dataSetAsSingle = boost::dynamic_pointer_cast< WDataSetSingle >( m_dataSet );
-
-    // Remove all old props
-    if( m_oldDataSet )
-    {
-        m_properties->removeProperty( m_oldDataSet->getProperties() );
-        m_infoProperties->removeProperty( m_oldDataSet->getInformationProperties() );
-        m_infoProperties->removeProperty( m_infoProperties->findProperty( "Transformations" ) );
-    }
-
-    // Add new props
-    m_properties->addProperty( m_dataSet->getProperties() );
-    m_infoProperties->addProperty( m_dataSet->getInformationProperties() );
-    m_infoProperties->addProperty( getTransformationProperties() );
-
-    // the clone() may have returned a zero-pointer, only update if it hasn't
-    // this may happen if the clone() operation has not been implemented in the derived dataset class
-    updateColorMap( m_dataSet );
-
-    m_oldDataSet = m_dataSet;
-    m_output->updateData( m_dataSet );
+    m_output->updateData( m_dataSet ); // need to update output connector also in case of non WDataSetSingle, as this hasnt been done before
 }
 
 boost::shared_ptr< WProperties > WMData::getTransformationProperties() const
