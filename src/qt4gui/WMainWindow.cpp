@@ -675,9 +675,10 @@ QString collectFilters()
     for( std::size_t k = 0; k < WKernel::getRunningKernel()->getScriptEngine()->getNumInterpreters(); ++k )
     {
         QString description = QString::fromStdString( WKernel::getRunningKernel()->getScriptEngine()->getInterpreter( k )->getName() );
+        // NOTE: unlike above, this already contains the "."
         QString extension = QString::fromStdString( WKernel::getRunningKernel()->getScriptEngine()->getInterpreter( k )->getExtension() );
-        all += QString( " *." ) + extension;
-        result += description + QString( "(*." ) + extension + QString( ");;" );
+        all += QString( " *" ) + extension;
+        result += description + QString( "(*" ) + extension + QString( ");;" );
     }
 
     return QString( "Known file types (" ) + all + QString( ");;" ) + result;
