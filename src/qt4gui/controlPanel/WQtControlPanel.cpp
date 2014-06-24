@@ -201,8 +201,8 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_roiDock->setWidget( m_roiTreeWidget );
     m_roiTreeWidget->setSelectionMode( QAbstractItemView::SingleSelection );
 
-    m_moduleExcluder = new WQtModuleConfig( parent );
-    connect( m_configModuleFilterAction, SIGNAL( triggered( bool ) ), m_moduleExcluder, SLOT( configure() ) );
+    m_moduleFilterConfig = new WQtModuleConfig( parent );
+    connect( m_configModuleFilterAction, SIGNAL( triggered( bool ) ), m_moduleFilterConfig, SLOT( configure() ) );
 
     this->setAllowedAreas( Qt::AllDockWidgetAreas );
     this->setFeatures( QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
@@ -247,7 +247,7 @@ QAction* WQtControlPanel::getRoiDeleteAction() const
 void WQtControlPanel::connectSlots()
 {
     // if the user changes some white/blacklist setting: update.
-    connect( m_moduleExcluder, SIGNAL( updated() ), this, SLOT( reselectTreeItem() ) );
+    connect( m_moduleFilterConfig, SIGNAL( updated() ), this, SLOT( reselectTreeItem() ) );
     connect( m_moduleTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeTreeItem( QTreeWidgetItem*, int ) ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ),  m_roiTreeWidget, SLOT( clearSelection() ) );
@@ -1044,42 +1044,45 @@ void WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule > modu
     // acquire new action lists
     m_connectWithPrototypeActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(),
                                                               WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module ),
-                                                              m_moduleExcluder );
+                                                              m_moduleFilterConfig );
     m_connectWithModuleActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(),
                                                            WKernel::getRunningKernel()->getRootContainer()->getPossibleConnections( module ),
                                                            0, true );
 
     m_addModuleActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(),
                                                            WModuleFactory::getModuleFactory()->getAllPrototypes(),
-                                                           0, false );
+                                                           m_moduleFilterConfig, false );
     if( module )
     {
         m_disconnectActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(), module->getPossibleDisconnections() );
     }
 
     // build the add menu
-    QMenu* m = new WQtMenuFiltered( m_moduleTreeWidget );
+    QMenu* m = new WQtMenuFiltered( getMissingModuleAction(), m_moduleTreeWidget );
     m->addActions( m_addModuleActionList );
     m_addModuleAction->setDisabled( !m_addModuleActionList.size() );  // disable if no entry inside
     // delete( m_addModuleAction->menu() ); // ensure that combiners get free'd
     m_addModuleAction->setMenu( m );
 
+    // also set the bare-bones add menu in the module editor
+    m_mainWindow->getNetworkEditor()->getView()->setGlobalAddMenu( m );
+
     // build the prototype menu
-    m = new WQtMenuFiltered( m_moduleTreeWidget );
+    m = new WQtMenuFiltered( getMissingModuleAction(), m_moduleTreeWidget );
     m->addActions( m_connectWithPrototypeActionList );
     m_connectWithPrototypeAction->setDisabled( !m_connectWithPrototypeActionList.size() );  // disable if no entry inside
     // delete( m_connectWithPrototypeAction->menu() ); // ensure that combiners get free'd
     m_connectWithPrototypeAction->setMenu( m );
 
     // build the module menu
-    m = new WQtMenuFiltered( m_moduleTreeWidget );
+    m = new WQtMenuFiltered( getMissingModuleAction(), m_moduleTreeWidget );
     m->addActions( m_connectWithModuleActionList );
     m_connectWithModuleAction->setDisabled( !m_connectWithModuleActionList.size() );  // disable if no entry inside
     // delete m_connectWithModuleAction->menu();
     m_connectWithModuleAction->setMenu( m );
 
     // build the disconnect menu
-    m = new WQtMenuFiltered( m_moduleTreeWidget );
+    m = new WQtMenuFiltered( getMissingModuleAction(), m_moduleTreeWidget );
     m->addActions( m_disconnectActionList );
     m_disconnectAction->setDisabled( !m_disconnectActionList.size() );  // disable if no entry inside
     // delete( m_disconnectAction->menu() ); // ensure that combiners get free'd
@@ -1340,7 +1343,7 @@ WQtDockWidget* WQtControlPanel::getColormapperDock() const
 
 WQtModuleConfig& WQtControlPanel::getModuleConfig() const
 {
-    return *m_moduleExcluder;
+    return *m_moduleFilterConfig;
 }
 
 QAction* WQtControlPanel::getMissingModuleAction() const

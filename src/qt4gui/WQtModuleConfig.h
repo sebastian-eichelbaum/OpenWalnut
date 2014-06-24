@@ -155,27 +155,16 @@ private:
     AllowedModuleList m_allowedModules;
 
     /**
-     * List of modules we recommend in external config file.
-     */
-    AllowedModuleList m_recommendedModules;
-
-    /**
      * Reloads the whitelist and the blacklist from the QSettings.
      *
-     * \param recommendsOnly if true, only the recommended modules are set
      * \param defaultModulePaths if true, the module path list is set to default too.
      */
-    void loadListsFromSettings( bool recommendsOnly = false, bool defaultModulePaths = false );
+    void loadListsFromSettings( bool defaultModulePaths = false );
 
     /**
      * Saves the whitelist and the blacklist to the settings.
      */
     void saveListToSettings();
-
-    /**
-     * Load recommended modules.
-     */
-    void loadRecommends();
 
     /**
      * This widget contains the allowed module list
@@ -193,19 +182,14 @@ private:
     QCheckBox* m_showThemAll;
 
     /**
-     * Allows turning recommends on and off
+     * Control whether the list is interpreted as black list
      */
-    QCheckBox* m_ignoreRecommends;
+    QCheckBox* m_asBlackList;
 
     /**
      * Button responsible for removing the currently selected path in m_pathList.
      */
     QPushButton* m_removePathButton;
-
-    /**
-     * Enforces, that all modules should be shown. This is used as fallback if no recommends file was found.
-     */
-    void enforceAllModules();
 
 private slots:
 

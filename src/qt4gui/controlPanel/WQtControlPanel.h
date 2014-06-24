@@ -199,9 +199,9 @@ public:
     WQtDockWidget* getColormapperDock() const;
 
     /**
-     * Returns the module excluder. It then can be used for configuration.
+     * Returns the module config dialog. It then can be used for configuration.
      *
-     * \return the module excluder.
+     * \return the module config dialog.
      */
     WQtModuleConfig& getModuleConfig() const;
 
@@ -371,7 +371,7 @@ private:
      * The WQtCombinerActionList needs some predicate which decides whether to exclude a certain module from the list or not. We use this
      * predicate here. It is configured internally using a white and blacklist.
      */
-    WQtModuleConfig* m_moduleExcluder;
+    WQtModuleConfig* m_moduleFilterConfig;
 
     /**
      * Action giving the user fast access to the module config dialog.

@@ -25,22 +25,24 @@
 #include <vector>
 #include <string>
 
+#include <QtGui/QToolButton>
+
 #include "core/common/WLogger.h"
 #include "core/common/WStringUtils.h"
 
 #include "WQtMenuFiltered.h"
 #include "WQtMenuFiltered.moc"
 
-WQtMenuFiltered::WQtMenuFiltered( QWidget* parent ):
+WQtMenuFiltered::WQtMenuFiltered( QAction* config, QWidget* parent ):
     QMenu( parent )
 {
-    WQtMenuFiltered::setupFilter( this );
+    WQtMenuFiltered::setupFilter( this, config );
 }
 
-WQtMenuFiltered::WQtMenuFiltered( const QString& title, QWidget* parent ):
+WQtMenuFiltered::WQtMenuFiltered( const QString& title, QAction* config, QWidget* parent ):
     QMenu( title, parent )
 {
-    WQtMenuFiltered::setupFilter( this );
+    WQtMenuFiltered::setupFilter( this, config );
 }
 
 WQtMenuFiltered::~WQtMenuFiltered()
@@ -48,7 +50,7 @@ WQtMenuFiltered::~WQtMenuFiltered()
     // cleanup
 }
 
-void WQtMenuFiltered::setupFilter( WQtMenuFiltered* to )
+void WQtMenuFiltered::setupFilter( WQtMenuFiltered* to, QAction* config )
 {
     // the widget contains the label and text filter box
     QWidget* widget = new QWidget( to );
@@ -57,8 +59,18 @@ void WQtMenuFiltered::setupFilter( WQtMenuFiltered* to )
 
     QLabel* label = new QLabel( "Filter:", widget );
     to->m_edit = new QLineEdit( widget );
+
+    // add label, edit and config action
     layout->addWidget( label );
     layout->addWidget( to->m_edit );
+    if( config )
+    {
+        QToolButton* cfg = new QToolButton();
+        cfg->setDefaultAction( config );
+        cfg->setToolButtonStyle( Qt::ToolButtonIconOnly );
+        cfg->setAutoRaise( true );
+        layout->addWidget( cfg );
+    }
 
     // Add the widget as QWidgetAction
     QWidgetAction* action = new QWidgetAction( to );

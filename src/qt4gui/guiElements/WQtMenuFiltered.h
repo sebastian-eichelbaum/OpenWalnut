@@ -44,16 +44,18 @@ public:
      * Create filtered menu.
      *
      * \param parent parent widget
+     * \param config the optional configure action
      */
-    explicit WQtMenuFiltered( QWidget* parent = 0 );
+    WQtMenuFiltered( QAction* config = 0, QWidget* parent = 0 );
 
     /**
      * Create filtered menu.
      *
-     * \param title
-     * \param parent
+     * \param title the menu title
+     * \param parent the parent
+     * \param config the optional configure action
      */
-    WQtMenuFiltered( const QString& title, QWidget* parent = 0 );
+    WQtMenuFiltered( const QString& title, QAction* config = 0, QWidget* parent = 0 );
 
     /**
      * Destructor.
@@ -89,8 +91,9 @@ private:
      * Setup filter on given menu
      *
      * \param to the menu
+     * \param config optional config action shown in the filter
      */
-    static void setupFilter( WQtMenuFiltered* to );
+    static void setupFilter( WQtMenuFiltered* to, QAction* config = 0 );
 
     /**
      * Filter textfield
