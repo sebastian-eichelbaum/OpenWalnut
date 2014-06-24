@@ -133,12 +133,12 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_moduleTreeWidget->addAction( separator );
 
     // add an entry for those who search their module without luck
-    m_missingModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "missingModule" ), "Missing Module?",
+    m_configModuleFilterAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "configure" ), "Configure Modules",
                                           m_moduleTreeWidget );
-    m_missingModuleAction->setToolTip( "Having trouble finding your module? This opens the module configuration, which allows you to define the "
+    m_configModuleFilterAction->setToolTip( "Having trouble finding your module? This opens the module configuration, which allows you to define the "
                                        "modules that should be shown or hidden." );
-    m_missingModuleAction->setIconVisibleInMenu( true );
-    m_moduleTreeWidget->addAction( m_missingModuleAction );
+    m_configModuleFilterAction->setIconVisibleInMenu( true );
+    m_moduleTreeWidget->addAction( m_configModuleFilterAction );
 
     // the network editor also needs the context menu
     if( m_mainWindow->getNetworkEditor() )
@@ -150,7 +150,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
         m_mainWindow->getNetworkEditor()->getView()->addAction( m_disconnectAction );
         m_mainWindow->getNetworkEditor()->getView()->addAction( m_deleteModuleAction );
         m_mainWindow->getNetworkEditor()->getView()->addAction( separator );
-        m_mainWindow->getNetworkEditor()->getView()->addAction( m_missingModuleAction );
+        m_mainWindow->getNetworkEditor()->getView()->addAction( m_configModuleFilterAction );
 
         // also add to the title actions
         m_mainWindow->getNetworkEditor()->addTitleAction( m_addModuleAction, true );
@@ -202,7 +202,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_roiTreeWidget->setSelectionMode( QAbstractItemView::SingleSelection );
 
     m_moduleExcluder = new WQtModuleConfig( parent );
-    connect( m_missingModuleAction, SIGNAL( triggered( bool ) ), m_moduleExcluder, SLOT( configure() ) );
+    connect( m_configModuleFilterAction, SIGNAL( triggered( bool ) ), m_moduleExcluder, SLOT( configure() ) );
 
     this->setAllowedAreas( Qt::AllDockWidgetAreas );
     this->setFeatures( QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
@@ -1345,7 +1345,7 @@ WQtModuleConfig& WQtControlPanel::getModuleConfig() const
 
 QAction* WQtControlPanel::getMissingModuleAction() const
 {
-    return m_missingModuleAction;
+    return m_configModuleFilterAction;
 }
 
 void WQtControlPanel::clearAndDeleteTabs()

@@ -376,7 +376,7 @@ private:
     /**
      * Action giving the user fast access to the module config dialog.
      */
-    QAction* m_missingModuleAction;
+    QAction* m_configModuleFilterAction;
 
     /**
      * The module currently active
