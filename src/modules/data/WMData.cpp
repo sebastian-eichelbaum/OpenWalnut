@@ -381,7 +381,6 @@ boost::shared_ptr< WProperties > WMData::getTransformationProperties() const
 
 void WMData::updateColorMap( boost::shared_ptr< WDataSet > dataSet )
 {
-
     // remove dataset from datahandler
     if( m_oldColormap )
     {
