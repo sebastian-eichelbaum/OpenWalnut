@@ -59,6 +59,13 @@ public:
      * \param ymargin the margin to ensure between item border and visible scene border (y direction)
      */
     void ensureVisibleSmooth( QGraphicsItem* item , int xmargin = 50, int ymargin = 50 );
+
+    /**
+     * Set the given menu as new global add-modules menu. Can be NULL to disable.
+     *
+     * \param menu the menu to set.
+     */
+    void setGlobalAddMenu( QMenu* menu );
 signals:
     /**
      * Emitted whenever the user caused a load event.
@@ -160,11 +167,6 @@ private:
      * If true, we are in pan mode.
      */
     bool m_panning;
-
-    /**
-     * Action list
-     */
-    WQtCombinerActionList m_addModuleActionList;
 
     /**
      * The menu containing the add actions in m_addModuleActionList.

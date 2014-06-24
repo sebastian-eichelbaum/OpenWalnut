@@ -50,15 +50,15 @@ WQtNetworkEditorView::WQtNetworkEditorView( QWidget* parent ):
     setResizeAnchor( QGraphicsView::AnchorUnderMouse );
     setAcceptDrops( true );
 
-    // we need a list of all modules
-    m_addModuleActionList = WQtCombinerActionList( this, WQt4Gui::getMainWindow()->getIconManager(),
-                                                   WModuleFactory::getModuleFactory()->getAllPrototypes(),
-                                                   0, false );
-    m_addMenu = new WQtMenuFiltered( this );
-    m_addMenu->addActions( m_addModuleActionList );
+    m_addMenu = NULL;
 
     m_autoPanTimer = new QTimeLine( WNETWORKITEM_VIEWPAN_DURATION );
     connect( m_autoPanTimer, SIGNAL( valueChanged( qreal ) ), this, SLOT( autoPanTick( qreal ) ) );
+}
+
+void WQtNetworkEditorView::setGlobalAddMenu( QMenu* menu )
+{
+    m_addMenu = menu;
 }
 
 void WQtNetworkEditorView::focusOn( QGraphicsItem* item )
@@ -153,7 +153,10 @@ void WQtNetworkEditorView::mouseDoubleClickEvent( QMouseEvent* event )
         ( event->modifiers() == Qt::ControlModifier )
       )
     {
-        m_addMenu->popup( event->globalPos() );
+        if( m_addMenu )
+        {
+            m_addMenu->popup( event->globalPos() );
+        }
     }
     else if( event->modifiers() == Qt::NoModifier )
     {
@@ -193,7 +196,10 @@ void WQtNetworkEditorView::mouseReleaseEvent( QMouseEvent* event )
     // middle mouse button release: open add-menu
     if( event->button() == Qt::MidButton )
     {
-        m_addMenu->popup( event->globalPos() );
+        if( m_addMenu )
+        {
+            m_addMenu->popup( event->globalPos() );
+        }
         return;
     }
 

@@ -667,6 +667,20 @@ QString collectFilters()
         }
     }
 
+    // Project files:
+    all += QString( " *.owp *.owproj" );
+    result += QString( "Project File (*.owp *.owproj );;" );
+
+    // Interpreter files.
+    for( std::size_t k = 0; k < WKernel::getRunningKernel()->getScriptEngine()->getNumInterpreters(); ++k )
+    {
+        QString description = QString::fromStdString( WKernel::getRunningKernel()->getScriptEngine()->getInterpreter( k )->getName() );
+        // NOTE: unlike above, this already contains the "."
+        QString extension = QString::fromStdString( WKernel::getRunningKernel()->getScriptEngine()->getInterpreter( k )->getExtension() );
+        all += QString( " *" ) + extension;
+        result += description + QString( "(*" ) + extension + QString( ");;" );
+    }
+
     return QString( "Known file types (" ) + all + QString( ");;" ) + result;
 }
 
@@ -677,15 +691,7 @@ void WMainWindow::openLoadDialog()
     // build filter list
     // NOTE: Qt Doc says we need to separate multiple filters by ";;"
     QString filters = collectFilters();
-
-    filters += QString( "Project File (*.owp *.owproj );;" );
     // add extensions of script files
-    for( std::size_t k = 0; k < WKernel::getRunningKernel()->getScriptEngine()->getNumInterpreters(); ++k )
-    {
-        filters += QString::fromStdString( WKernel::getRunningKernel()->getScriptEngine()->getInterpreter( k )->getName() + " (*"
-                   + WKernel::getRunningKernel()->getScriptEngine()->getInterpreter( k )->getExtension() + ")" );
-        filters += QString( ";;" );
-    }
     filters += QString( "Any files (*)" );
 
     QStringList filenames = QFileDialog::getOpenFileNames( this, "Open Data, Project or Script", lastPath, filters );
