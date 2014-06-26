@@ -26,6 +26,7 @@
 #define WDATAMODULEINPUT_H
 
 #include <string>
+#include <ostream>
 
 #include <boost/shared_ptr.hpp>
 
@@ -77,7 +78,7 @@ public:
      *
      * \return the stream
      */
-    virtual std::ostream& serialize( std::ostream& out ) const = 0;
+    virtual std::ostream& serialize( std::ostream& out ) const = 0;     // NOLINT: yes, it is an intended non-const ref
 
     /**
      * Create an instance by using a parameter string. This is the string you define by the \ref serialize() call.

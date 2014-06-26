@@ -26,6 +26,7 @@
 #define WDATAMODULEINPUTFILE_H
 
 #include <string>
+#include <ostream>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/filesystem/path.hpp>
@@ -95,7 +96,7 @@ public:
      *
      * \return the stream
      */
-    virtual std::ostream& serialize( std::ostream& out ) const;
+    virtual std::ostream& serialize( std::ostream& out ) const;      // NOLINT: yes, it is an intended non-const ref
 protected:
 private:
     /**

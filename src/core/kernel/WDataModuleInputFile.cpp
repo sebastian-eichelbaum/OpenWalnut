@@ -53,7 +53,7 @@ std::string WDataModuleInputFile::asString() const
     return m_filename.filename().string();
 }
 
-std::ostream& WDataModuleInputFile::serialize( std::ostream& out ) const
+std::ostream& WDataModuleInputFile::serialize( std::ostream& out ) const      // NOLINT: yes, it is an intended non-const ref
 {
     // just print filename
     out << m_filename.string();
