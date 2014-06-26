@@ -89,11 +89,13 @@ public:
     virtual std::string asString() const;
 
     /**
-     * Write a machine-readable string which allows to restore your specific input later. The only character which is NOT allowed is ":".
+     * Write a machine-readable string which allows to restore your specific input later. No line-breaks and no ":".
      *
-     * \return the parameter string. ":" is not allowed.
+     * \param out the stream to serialize to
+     *
+     * \return the stream
      */
-    virtual std::string serialize() const;
+    virtual std::ostream& serialize( std::ostream& out ) const;
 protected:
 private:
     /**

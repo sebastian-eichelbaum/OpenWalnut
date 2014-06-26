@@ -397,7 +397,9 @@ void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
         {
             output << "DATA:" << i << ":" << boost::static_pointer_cast< WDataModule >( ( *iter ) )->getName()
                                    << ":" << boost::static_pointer_cast< WDataModule >( ( *iter ) )->getInput()->getName()
-                                   << ":" << boost::static_pointer_cast< WDataModule >( ( *iter ) )->getInput()->serialize() << std::endl;
+                                   << ":";
+            boost::static_pointer_cast< WDataModule >( ( *iter ) )->getInput()->serialize( output );
+            output << std::endl;
         }
         else
         {

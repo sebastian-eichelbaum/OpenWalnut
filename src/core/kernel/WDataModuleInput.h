@@ -71,11 +71,13 @@ public:
     virtual std::string asString() const = 0;
 
     /**
-     * Write a machine-readable string which allows to restore your specific input later. The only character which is NOT allowed is ":".
+     * Write a machine-readable string which allows to restore your specific input later. No line-breaks and no ":".
      *
-     * \return the parameter string. ":" is not allowed.
+     * \param out the stream to serialize to
+     *
+     * \return the stream
      */
-    virtual std::string serialize() const = 0;
+    virtual std::ostream& serialize( std::ostream& out ) const = 0;
 
     /**
      * Create an instance by using a parameter string. This is the string you define by the \ref serialize() call.
