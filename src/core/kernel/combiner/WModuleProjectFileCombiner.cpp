@@ -149,7 +149,10 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
             }
             else
             {
-                boost::static_pointer_cast< WDataModule >( module )->setInput( WDataModuleInput::create( matches[3], parameter ) );
+                if( !parameter.empty() )
+                {
+                    boost::static_pointer_cast< WDataModule >( module )->setInput( WDataModuleInput::create( matches[3], parameter ) );
+                }
                 m_modules.insert( ModuleID( string_utils::fromString< unsigned int >( matches[1] ), module ) );
             }
         }
@@ -398,7 +401,12 @@ void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
             output << "DATA:" << i << ":" << boost::static_pointer_cast< WDataModule >( ( *iter ) )->getName()
                                    << ":" << boost::static_pointer_cast< WDataModule >( ( *iter ) )->getInput()->getName()
                                    << ":";
-            boost::static_pointer_cast< WDataModule >( ( *iter ) )->getInput()->serialize( output );
+            WDataModuleInput::SPtr input = boost::static_pointer_cast< WDataModule >( ( *iter ) )->getInput();
+            if( input )
+            {
+                input->serialize( output );
+            }
+
             output << std::endl;
         }
         else

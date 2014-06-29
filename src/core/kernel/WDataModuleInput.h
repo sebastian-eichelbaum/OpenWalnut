@@ -72,7 +72,7 @@ public:
     virtual std::string asString() const = 0;
 
     /**
-     * Write a machine-readable string which allows to restore your specific input later. No line-breaks and no ":".
+     * Write a machine-readable string which allows to restore your specific input later. No line-breaks, no ":" and it must not be empty.
      *
      * \param out the stream to serialize to
      *

@@ -55,11 +55,8 @@ bool WDataModule::getSuppressColormaps() const
 
 void WDataModule::setInput( WDataModuleInput::SPtr input )
 {
-    // only set if not yet set
-    if( !m_dataModuleInput )
-    {
-        m_dataModuleInput = input;
-    }
+    m_dataModuleInput = input;
+    handleInputChange();
 }
 
 WDataModuleInput::SPtr WDataModule::getInput() const

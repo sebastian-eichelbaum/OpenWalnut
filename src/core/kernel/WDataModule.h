@@ -108,17 +108,17 @@ public:
      *
      * \param input the input to use for loading.
      */
-    virtual void setInput( WDataModuleInput::SPtr input );
+    void setInput( WDataModuleInput::SPtr input );
 
     /**
-     * Get the currently set input.
+     * Get the currently set input or NULL if none was set.
      *
      * \return the input
      */
     virtual WDataModuleInput::SPtr getInput() const;
 
     /**
-     * Get the currently set input.
+     * Get the currently set input or NULL if none was set.
      *
      * \return the input. Null if not set or type mismatch.
      *
@@ -144,6 +144,16 @@ protected:
      * The condition that is fired with m_reloadTrigger property. Use this to wake up your module.
      */
     WCondition::SPtr m_reloadTriggered;
+
+    /**
+     * Handle a newly set input. Implement this method to load the newly set input. You can get the input using the \ref getInput and \ref getInputAs
+     * methods. Please remember that it is possible to get a NULL pointer here.
+     * This happens when the user explicitly sets no input. In this case, you should clean up and reset your output connectors.
+     *
+     * \note it is very important to NOT load the data inside of this method. It is usually called in the GUI thread. This would block the whole GUI.
+     * Instead, use this method for firing a condition, which then wakes your module thread.
+     */
+    virtual void handleInputChange() = 0;
 
 private:
     /**

@@ -177,6 +177,13 @@ void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
     }
 }
 
+void WMData::handleInputChange()
+{
+    // notify the module only
+    m_reload = true;
+    m_reloadTriggered->notify();
+}
+
 void WMData::moduleMain()
 {
     m_moduleState.setResetable( true, true );
@@ -187,7 +194,8 @@ void WMData::moduleMain()
     ready();
     waitRestored();
 
-    load();
+    // force a reload
+    handleInputChange();
 
     while( !m_shutdownFlag() )
     {
@@ -200,7 +208,13 @@ void WMData::moduleMain()
         // Not supported.
         if( m_reloadTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
+            m_reload = true;
+        }
+
+        if( m_reload )
+        {
             load();
+            // always reset the trigger
             m_reloadTrigger->set( WPVBaseTypes::PV_TRIGGER_READY );
         }
 
@@ -413,9 +427,14 @@ void WMData::load()
     WDataModuleInputFile::SPtr inputFile = getInputAs< WDataModuleInputFile >();
     if( !inputFile )
     {
-        throw WModuleException( "Data modules cannot be used directly." );
+        // No input? Reset output too.
+        m_output->updateData( WDataSet::SPtr() );
+        return;
     }
     std::string fileName = inputFile->getFilename().string();
+
+    boost::shared_ptr< WProgress > progress1( new WProgress( "Loading" ) );
+    m_progress->addSubProgress( progress1 );
 
     m_transformNoMatrix.makeIdentity();
     m_transformSForm.makeIdentity();
@@ -552,4 +571,7 @@ void WMData::load()
 
     // Update matrix
     matrixUpdate();
+
+    // done. close file and report finish
+    progress1->finish();
 }

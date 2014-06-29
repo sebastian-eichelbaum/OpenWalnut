@@ -93,6 +93,17 @@ protected:
      * Load data.
      */
     virtual void load();
+
+    /**
+     * Handle a newly set input. Implement this method to load the newly set input. You can get the input using the \ref getInput and \ref getInputAs
+     * methods. Please remember that it is possible to get a NULL pointer here.
+     * This happens when the user explicitly sets no input. In this case, you should clean up and reset your output connectors.
+     *
+     * \note it is very important to NOT load the data inside of this method. It is usually called in the GUI thread. This would block the whole GUI.
+     * Instead, use this method for firing a condition, which then wakes your module thread.
+     */
+    virtual void handleInputChange();
+
 private:
     /**
      * The output connector for the filtered data.
@@ -105,9 +116,9 @@ private:
     boost::shared_ptr< WCondition > m_propCondition;
 
     /**
-     * Trigger read
+     * True if the load function needs to be called. Usually set by handleInputChange or the reload trigger
      */
-    WPropTrigger  m_aTrigger;
+    bool m_reload;
 };
 
 #endif  // WMREADVIM_H

@@ -38,7 +38,8 @@
 W_LOADABLE_MODULE( WMReadVIM )
 
 WMReadVIM::WMReadVIM():
-    WDataModule()
+    WDataModule(),
+    m_reload( false )
 {
     // Init
 }
@@ -82,7 +83,8 @@ void WMReadVIM::moduleMain()
     ready();
     waitRestored();
 
-    load();
+    // force a reload
+    handleInputChange();
 
     // main loop
     while( !m_shutdownFlag() )
@@ -97,7 +99,13 @@ void WMReadVIM::moduleMain()
 
         if( m_reloadTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
+            m_reload = true;
+        }
+
+        if( m_reload )
+        {
             load();
+            // always reset the trigger
             m_reloadTrigger->set( WPVBaseTypes::PV_TRIGGER_READY );
         }
     }
@@ -113,13 +121,24 @@ std::vector< WDataModuleInputFilter::ConstSPtr > WMReadVIM::getInputFilter() con
     return filters;
 }
 
+void WMReadVIM::handleInputChange()
+{
+    // notify the module only
+    m_reload = true;
+    m_reloadTriggered->notify();
+}
+
 void WMReadVIM::load()
 {
+    m_reload = false;
+
     // open file
     WDataModuleInputFile::SPtr inputFile = getInputAs< WDataModuleInputFile >();
     if( !inputFile )
     {
-        throw WModuleException( "Data modules cannot be used directly." );
+        // No input? Reset output too.
+        m_output->updateData( WDataSetPoints::SPtr() );
+        return;
     }
     boost::filesystem::path p = inputFile->getFilename();
 
