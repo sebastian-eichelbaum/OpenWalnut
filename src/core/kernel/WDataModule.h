@@ -111,6 +111,11 @@ public:
     void setInput( WDataModuleInput::SPtr input );
 
     /**
+     * Initiate an reloading of the data.
+     */
+    void reload();
+
+    /**
      * Get the currently set input or NULL if none was set.
      *
      * \return the input
@@ -136,16 +141,6 @@ protected:
     virtual void properties();
 
     /**
-     * A reload trigger. Ensure you call WDataModule::properties inside your properties method.
-     */
-    WPropTrigger m_reloadTrigger;
-
-    /**
-     * The condition that is fired with m_reloadTrigger property. Use this to wake up your module.
-     */
-    WCondition::SPtr m_reloadTriggered;
-
-    /**
      * Handle a newly set input. Implement this method to load the newly set input. You can get the input using the \ref getInput and \ref getInputAs
      * methods. Please remember that it is possible to get a NULL pointer here.
      * This happens when the user explicitly sets no input. In this case, you should clean up and reset your output connectors.
@@ -165,6 +160,11 @@ private:
      * The input this data module should use
      */
     WDataModuleInput::SPtr m_dataModuleInput;
+
+    /**
+     * A reload trigger. Ensure you call WDataModule::properties inside your properties method.
+     */
+    WPropTrigger m_reloadTrigger;
 };
 
 template< typename InputType >

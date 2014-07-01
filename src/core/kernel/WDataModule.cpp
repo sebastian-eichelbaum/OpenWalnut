@@ -26,7 +26,6 @@
 
 WDataModule::WDataModule():
     WModule(),
-    m_reloadTriggered( new WCondition() ),
     m_suppressColormaps( false ),
     m_dataModuleInput( WDataModuleInput::SPtr() )
 {
@@ -66,6 +65,17 @@ WDataModuleInput::SPtr WDataModule::getInput() const
 
 void WDataModule::properties()
 {
-    m_reloadTrigger = m_properties->addProperty( "Reload", "Request to reload the data.", WPVBaseTypes::PV_TRIGGER_READY, m_reloadTriggered );
+    // Until the GUI has now proper reload function with WDataModuleInput, use this forced property
+    // TODO(ebaum): this should be done via the GUI or WDataModuleInput? See issue #32
+    m_reloadTrigger = m_properties->addProperty( "Reload", "Request to reload the data.", WPVBaseTypes::PV_TRIGGER_READY,
+        boost::bind( &WDataModule::reload, this )
+    );
+    WModule::properties();
+}
+
+void WDataModule::reload()
+{
+    m_reloadTrigger->set( WPVBaseTypes::PV_TRIGGER_READY );
+    handleInputChange();
 }
 

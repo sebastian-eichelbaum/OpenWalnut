@@ -131,7 +131,6 @@ void WMData::properties()
 
     // Add standard datamodule props
     WDataModule::properties();
-    // m_reloadTrigger->setHidden( true ); // reload not supported
 
     // properties
     m_dataName = m_infoProperties->addProperty( "Filename", "The filename of the dataset.", std::string( "" ) );
@@ -181,21 +180,17 @@ void WMData::handleInputChange()
 {
     // notify the module only
     m_reload = true;
-    m_reloadTriggered->notify();
+    m_moduleState.notify();
 }
 
 void WMData::moduleMain()
 {
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
-    m_moduleState.add( m_reloadTriggered );
     m_oldDataSet = WDataSet::SPtr();
 
     ready();
     waitRestored();
-
-    // force a reload
-    handleInputChange();
 
     while( !m_shutdownFlag() )
     {
@@ -205,17 +200,9 @@ void WMData::moduleMain()
             break;
         }
 
-        // Not supported.
-        if( m_reloadTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
-        {
-            m_reload = true;
-        }
-
         if( m_reload )
         {
             load();
-            // always reset the trigger
-            m_reloadTrigger->set( WPVBaseTypes::PV_TRIGGER_READY );
         }
 
         // change transform matrix (only if we have a dataset single which contains the grid)

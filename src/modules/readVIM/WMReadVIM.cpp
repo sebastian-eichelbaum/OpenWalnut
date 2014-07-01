@@ -77,14 +77,10 @@ void WMReadVIM::connectors()
 void WMReadVIM::moduleMain()
 {
     m_moduleState.setResetable( true, true );
-    m_moduleState.add( m_reloadTriggered );
 
     // Signal ready state. Now your module can be connected by the container, which owns the module.
     ready();
     waitRestored();
-
-    // force a reload
-    handleInputChange();
 
     // main loop
     while( !m_shutdownFlag() )
@@ -97,16 +93,9 @@ void WMReadVIM::moduleMain()
             break;
         }
 
-        if( m_reloadTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
-        {
-            m_reload = true;
-        }
-
         if( m_reload )
         {
             load();
-            // always reset the trigger
-            m_reloadTrigger->set( WPVBaseTypes::PV_TRIGGER_READY );
         }
     }
 }
@@ -125,7 +114,7 @@ void WMReadVIM::handleInputChange()
 {
     // notify the module only
     m_reload = true;
-    m_reloadTriggered->notify();
+    m_moduleState.notify();
 }
 
 void WMReadVIM::load()
