@@ -109,6 +109,11 @@ public:
      */
     bool isResetable();
 
+    /**
+     * Notifies all waiting threads.
+     */
+    virtual void notify();
+
 protected:
     /**
      * Flag denoting whether the condition set should act like a one shot condition.
