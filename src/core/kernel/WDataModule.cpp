@@ -27,7 +27,8 @@
 WDataModule::WDataModule():
     WModule(),
     m_suppressColormaps( false ),
-    m_dataModuleInput( WDataModuleInput::SPtr() )
+    m_dataModuleInput( WDataModuleInput::SPtr() ),
+    m_inputChanged( new WCondition )
 {
     // initialize members
 }
@@ -55,6 +56,7 @@ bool WDataModule::getSuppressColormaps() const
 void WDataModule::setInput( WDataModuleInput::SPtr input )
 {
     m_dataModuleInput = input;
+    m_inputChanged->notify();
     handleInputChange();
 }
 
@@ -79,3 +81,7 @@ void WDataModule::reload()
     handleInputChange();
 }
 
+WCondition::ConstSPtr WDataModule::getInputChangedCondition() const
+{
+    return m_inputChanged;
+}

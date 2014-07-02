@@ -429,8 +429,10 @@ private slots:
      * \param props the properties.
      * \param infoProps the information properties shown on a separate tab
      * \param name the name used as title. Can be empty but should not.
+     * \param inject inject this widget to the property tab.
      */
-    void buildPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps, const std::string& name );
+    void buildPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps,
+                       const std::string& name, QWidget* inject = NULL );
 
     /**
      * Function gets change when a change to a tree item occurs.

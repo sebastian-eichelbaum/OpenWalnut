@@ -64,6 +64,7 @@
 #include "../events/WRoiSortEvent.h"
 #include "../guiElements/WQtModuleMetaInfo.h"
 #include "../guiElements/WQtMenuFiltered.h"
+#include "../guiElements/WQtDataModuleInput.h"
 #include "../networkEditor/WQtNetworkEditor.h"
 #include "WQtBranchTreeItem.h"
 #include "WQtColormapper.h"
@@ -932,7 +933,15 @@ void WQtControlPanel::setActiveModule( WModule::SPtr module, bool forceUpdate )
             }
         }
 
-        buildPropTab( module->getProperties(), module->getInformationProperties(), name  );
+        WDataModule::SPtr dataModule = boost::dynamic_pointer_cast< WDataModule >( module );
+        if( dataModule )
+        {
+            buildPropTab( module->getProperties(), module->getInformationProperties(), name, new WQtDataModuleInput( dataModule, this ) );
+        }
+        else
+        {
+            buildPropTab( module->getProperties(), module->getInformationProperties(), name );
+        }
     }
 
     // re-select the previous tab
@@ -990,7 +999,8 @@ void WQtControlPanel::setActiveModule( WModule::SPtr module, bool forceUpdate )
     m_ignoreSelectionChange = false;
 }
 
-void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps, const std::string& name )
+void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps, const std::string& name,
+                                    QWidget* inject )
 {
     QWidget* tab = NULL;
     QWidget* infoTab = NULL;
@@ -1004,7 +1014,21 @@ void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boos
     if( props )
     {
         propWidget = new WQtPropertyGroupWidget( props, 0, this );
-        tab =  WQtPropertyGroupWidget::createPropertyGroupBox( propWidget, false, this, QString::fromStdString( name ) );
+        tab = new QWidget( this );
+        QVBoxLayout* tabLayout = new QVBoxLayout();
+        tabLayout->setSpacing( 0 );
+        tabLayout->setAlignment( Qt::AlignTop );
+        tab->setLayout( tabLayout );
+        tabLayout->setContentsMargins( QMargins( 0, 0, 0, 0 ) );
+
+        // if we should inject something?
+        if( inject )
+        {
+            tabLayout->addWidget( inject );
+        }
+
+        // add props below it
+        tabLayout->addWidget( WQtPropertyGroupWidget::createPropertyGroupBox( propWidget, false, this, QString::fromStdString( name ) ) );
         propWidget->setName( "Settings" );
         tab->setSizePolicy( sizePolicy );
     }

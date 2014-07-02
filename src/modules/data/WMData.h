@@ -169,6 +169,10 @@ protected:
      */
     virtual void handleInputChange();
 
+    /**
+     * Clean up. Remove props and colormap.
+     */
+    void cleanUp();
 private:
     /**
      * Returns info property group with the three availabe transformation matrixes

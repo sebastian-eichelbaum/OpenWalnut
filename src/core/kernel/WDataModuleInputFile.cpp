@@ -65,3 +65,8 @@ std::string WDataModuleInputFile::getName() const
     return "FILE";
 }
 
+std::string WDataModuleInputFile::getExtendedInfo() const
+{
+    return m_filename.string();
+}
+

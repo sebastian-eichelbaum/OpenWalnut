@@ -37,6 +37,7 @@
 
 #include "../controlPanel/WQtTreeItem.h"
 #include "../controlPanel/WQtPropertyGroupWidget.h"
+#include "../guiElements/WQtDataModuleInput.h"
 
 #include "WQtNetworkArrow.h"
 #include "WQtNetworkItem.h"
@@ -329,7 +330,11 @@ void WQtNetworkItem::updater()
             WDataModule::SPtr dataModule = boost::dynamic_pointer_cast< WDataModule >( m_module );
             if( dataModule )
             {
-                m_subtitleFull = dataModule->getInput()->asString();
+                m_subtitleFull = "Idle";
+                if( dataModule->getInput() )
+                {
+                    m_subtitleFull = dataModule->getInput()->asString();
+                }
             }
             else
             {
@@ -562,8 +567,24 @@ void WQtNetworkItem::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* event )
                                 m_module->getProperties(), QString::fromStdString( name ), 0, m_networkEditor
                              );
 
+            QWidget* contents = new QWidget();
+            QVBoxLayout* contentLayout = new QVBoxLayout();
+            contents->setLayout( contentLayout );
+            contentLayout->setContentsMargins( QMargins( 0, 0, 0, 0 ) );
+            contentLayout->setSpacing( 0 );
+            contentLayout->setAlignment( Qt::AlignTop );
+
+            // if this module is a data module:
+            WDataModule::SPtr dataModule = boost::dynamic_pointer_cast< WDataModule >( m_module );
+            if( dataModule )
+            {
+                contentLayout->addWidget( new WQtDataModuleInput( dataModule ) );
+            }
+
+            contentLayout->addWidget( props );
+
             QScrollArea* sa = new QScrollArea( m_networkEditor );
-            sa->setWidget( props );
+            sa->setWidget( contents );
             sa->setWidgetResizable( true );
             sa->setWindowFlags( Qt::Window );
             sa->setWindowRole( "Properties" );

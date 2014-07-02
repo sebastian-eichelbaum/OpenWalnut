@@ -90,6 +90,13 @@ public:
     virtual std::string asString() const;
 
     /**
+     * Return some extend information for the input, like complete path, server data (username, subject name, ...). It is up to you.
+     *
+     * \return some extended information as string.
+     */
+    virtual std::string getExtendedInfo() const;
+
+    /**
      * Write a machine-readable string which allows to restore your specific input later. No line-breaks, no ":" and it must not be empty.
      *
      * \param out the stream to serialize to

@@ -171,8 +171,10 @@ void WQtPropertyGroupWidget::addGroup( WPropertyGroupBase::SPtr prop )
     addGroup( new WQtPropertyGroupWidget( prop, m_nestingDepth + 1, this ) );
 }
 
-QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget* widget, bool asScrollArea, QWidget* parent, const QString& title )
+QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( QWidget* widget, bool asScrollArea, QWidget* parent, const QString& title, int nestingLevel )
 {
+    WQtPropertyGroupWidget* gWidget = dynamic_cast< WQtPropertyGroupWidget* >( widget );
+
     QSizePolicy sizePolicy( QSizePolicy::Minimum, QSizePolicy::Maximum );
     sizePolicy.setHorizontalStretch( 0 );
     sizePolicy.setVerticalStretch( 0 );
@@ -209,7 +211,13 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
 
     // create a button as title
     WScaleToolButton* boxTitle = new WScaleToolButton( WPREFERRED_LABEL_LENGTH , box );
-    QString titleText = ( title == "" ) ? widget->getName() : title;
+
+    QString titleText = title;
+    if( gWidget )
+    {
+        titleText = ( title == "" ) ? gWidget->getName() : title;
+    }
+
     boxTitle->setText( titleText );
     boxTitle->setToolTip( titleText );
     boxLayout->addWidget( boxTitle, 0, 0 );
@@ -249,7 +257,14 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
     QColor brightTextCol = QColor( "#eeeeee" );
     QColor darkTextCol = QColor( "#444444" );
     QColor defaultTextCol = darkTextCol; // palette.windowText().color();
-    switch( widget->m_nestingDepth % 10 ) // NOTE: the first level 0 does not need a color as it does not provide a boxtitle, so we begin with 1
+
+    int nestingColorLevel = nestingLevel;
+    if( gWidget )
+    {
+        nestingColorLevel = gWidget->m_nestingDepth % 10;
+    }
+
+    switch( nestingColorLevel ) // NOTE: the first level 0 does not need a color as it does not provide a boxtitle, so we begin with 1
     {
         // All these colors are taken from the solarized pallette http://ethanschoonover.com/solarized
         case 1:

@@ -104,7 +104,7 @@ public:
     virtual std::vector< WDataModuleInputFilter::ConstSPtr > getInputFilter() const = 0;
 
     /**
-     * Set the input of this data module. This is called after construction but before running the module.
+     * Set the input of this data module. This is called after construction and running the module.
      *
      * \param input the input to use for loading.
      */
@@ -132,6 +132,13 @@ public:
     template< typename InputType >
     boost::shared_ptr< InputType > getInputAs() const;
 
+    /**
+     * Return the condition that gets triggered upon input change. This will get fired every time setInput was called, but before
+     * \ref handleInputChange.
+     *
+     * \return the condition
+     */
+    WCondition::ConstSPtr getInputChangedCondition() const;
 protected:
     /**
      * Initialize properties in this function. This function must not be called multiple times for one module instance.
@@ -165,6 +172,11 @@ private:
      * A reload trigger. Ensure you call WDataModule::properties inside your properties method.
      */
     WPropTrigger m_reloadTrigger;
+
+    /**
+     * Condition that fires whenever the input changes via setInput.
+     */
+    WCondition::SPtr m_inputChanged;
 };
 
 template< typename InputType >

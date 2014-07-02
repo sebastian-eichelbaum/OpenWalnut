@@ -408,6 +408,27 @@ void WMData::updateColorMap( boost::shared_ptr< WDataSet > dataSet )
     }
 }
 
+void WMData::cleanUp()
+{
+    // remove dataset from datahandler
+    updateColorMap(  boost::shared_ptr< WDataSet >() );
+
+    // remove props
+    if( m_oldDataSet )
+    {
+        m_properties->removeProperty( m_oldDataSet->getProperties() );
+        m_infoProperties->removeProperty( m_oldDataSet->getInformationProperties() );
+        m_infoProperties->removeProperty( m_infoProperties->findProperty( "Transformations" ) );
+    }
+
+    m_dataName->set( "" );
+    m_dataType->set( "" );
+    m_dataSetType->set( "" );
+
+    // clear connector
+    m_output->updateData( WDataSet::SPtr() );
+}
+
 void WMData::load()
 {
     // Get the input
@@ -415,7 +436,7 @@ void WMData::load()
     if( !inputFile )
     {
         // No input? Reset output too.
-        m_output->updateData( WDataSet::SPtr() );
+        cleanUp();
         return;
     }
     std::string fileName = inputFile->getFilename().string();
