@@ -45,6 +45,8 @@ class WFiberIterator;
 
 class WFiberPointsIterator;
 
+class WFiberSegmentsIterator;
+
 /**
  * Represents a simple set of WFibers.
  */
@@ -606,6 +608,34 @@ public:
     WFiberPointsIterator rend();
 
     /**
+     * Returns a forward iterator to the first segment.
+     *
+     * \return A forward iterator to the first segment.
+     */
+    WFiberSegmentsIterator sbegin();
+
+    /**
+     * Returns a forward iterator to the invalid segment after the last (i.e. an end iterator).
+     *
+     * \return A forward end iterator.
+     */
+    WFiberSegmentsIterator send();
+
+    /**
+     * Returns a backward iterator to the last segment.
+     *
+     * \return A backward iterator to the last segment.
+     */
+    WFiberSegmentsIterator srbegin();
+
+    /**
+     * Returns a backward iterator to the invalid segment before the first (i.e. an end iterator).
+     *
+     * \return A backward end iterator.
+     */
+    WFiberSegmentsIterator srend();
+
+    /**
      * Returns the number of points of the current fiber.
      *
      * \return The number of points.
@@ -661,7 +691,7 @@ public:
      *
      * \param fibers The pointer to the fiber data.
      * \param fbIdx The index of the fiber in the fiber dataset.
-     * \param idx The index of the point of the curent fiber.
+     * \param idx The index of the point of the current fiber.
      * \param reverse Whether to iterate backwards.
      */
     WFiberPointsIterator( WDataSetFibers const* fibers, std::size_t fbIdx, std::size_t idx, bool reverse = false );
@@ -697,7 +727,7 @@ public:
     /**
      * Decrement operator. Makes the iterator point to the previous point.
      *3
-     * \return The incremented iterator.
+     * \return The decremented iterator.
      */
     WFiberPointsIterator& operator-- ();
 
@@ -822,4 +852,132 @@ private:
     bool m_reverse;
 };
 
+/**
+ * \class WFiberSegmentsIterator
+ *
+ * \brief An iterator for iterating the segments of a fiber.
+ *
+ * Allows for both forward and backward iteration of segments.
+ */
+class WFiberSegmentsIterator
+{
+public:
+    /**
+     * Default contructor. Creates an invalid iterator.
+     */
+    WFiberSegmentsIterator();
+
+    /**
+     * Constructor. Creates an iterator pointing to a certain segment of a fiber.
+     *
+     * \param fibers The pointer to the fiber data.
+     * \param fbIdx The index of the fiber in the fiber dataset.
+     * \param idx The index of the starting point of the segment of the current fiber.
+     * \param reverse Whether to iterate backwards.
+     */
+    WFiberSegmentsIterator( WDataSetFibers const* fibers, std::size_t fbIdx, std::size_t idx, bool reverse = false );
+
+    /**
+     * Copy constructor.
+     *
+     * \param iter The iterator to copy from.
+     */
+    WFiberSegmentsIterator( WFiberSegmentsIterator const& iter ); //NOLINT explicit
+
+    /**
+     * Destructor.
+     */
+    ~WFiberSegmentsIterator();
+
+    /**
+     * Copy operator.
+     *
+     * \param iter The iterator to copy from.
+     *
+     * \return *this
+     */
+    WFiberSegmentsIterator& operator= ( WFiberSegmentsIterator const& iter );
+
+    /**
+     * Increment operator. Makes the iterator point to the next segment.
+     *
+     * \return The incremented iterator.
+     */
+    WFiberSegmentsIterator& operator++ ();
+
+    /**
+     * Decrement operator. Makes the iterator point to the previous segment.
+     *3
+     * \return The decremented iterator.
+     */
+    WFiberSegmentsIterator& operator-- ();
+
+    /**
+     * Increment operator. Makes the iterator point to the next segment.
+     *
+     * \return The iterator before incrementing.
+     */
+    WFiberSegmentsIterator operator++ ( int );
+
+    /**
+     * Decrement operator. Makes the iterator point to the previous segment.
+     *
+     * \return The iterator before decrementing.
+     */
+    WFiberSegmentsIterator operator-- ( int );
+
+    /**
+     * Compare to another segment iterator.
+     *
+     * \param rhs The second segment iterator.
+     *
+     * \return true, iff the two iterators point to the same segment of the same fiber and have the same directions.
+     */
+    bool operator== ( WFiberSegmentsIterator const& rhs ) const;
+
+    /**
+     * Compare to another segment iterator.
+     *
+     * \param rhs The second segment iterator.
+     *
+     * \return false, iff the two iterators point to the same segment of the same fiber and have the same directions.
+     */
+    bool operator!= ( WFiberSegmentsIterator const& rhs ) const;
+
+    /**
+     * Returns an iterator to the starting point of the segment.
+     *
+     * \return An iterator to the starting point of the segment.
+     */
+    WFiberPointsIterator start() const;
+
+    /**
+     * Returns an iterator to the end point of the segment.
+     *
+     * \return An iterator to the end point of the segment.
+     */
+    WFiberPointsIterator end() const;
+
+    /**
+     * Returns the vector from the starting point position to the end point position.
+     *
+     * \return *end() - *start()
+     */
+    osg::Vec3 direction() const;
+
+private:
+    //! The pointer to the fibers.
+    WDataSetFibers const* m_fibers;
+
+    //! The index of the fiber.
+    std::size_t m_fiberIndex;
+
+    //! The index of the current point.
+    std::size_t m_index;
+
+    //! Whether to iterate backwards.
+    bool m_reverse;
+};
+
 #endif  // WDATASETFIBERS_H
+
