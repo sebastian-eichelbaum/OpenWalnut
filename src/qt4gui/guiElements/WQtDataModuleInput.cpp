@@ -148,12 +148,19 @@ void WQtDataModuleInput::onChange()
         boost::filesystem::path p = inFile->getFilename();
         defaultPath = QString::fromStdString( p.parent_path().string() );
     }
+    else
+    {
+        defaultPath = WQt4Gui::getSettings().value( "LastOpenPath", "" ).toString();
+    }
 
-    QStringList filenames = QFileDialog::getOpenFileNames( this, "Open Data", defaultPath, result );
-    if( filenames.empty() )
+    QString filename = QFileDialog::getOpenFileName( this, "Open Data", defaultPath, result );
+    if( filename == "" )
     {
         return;
     }
+
+    // apply
+    m_module->setInput( WDataModuleInputFile::SPtr( new WDataModuleInputFile( filename.toStdString() ) ) );
 }
 
 void WQtDataModuleInput::onReload()
