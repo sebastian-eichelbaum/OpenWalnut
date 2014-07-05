@@ -36,6 +36,9 @@
 #include "../events/WPropertyChangedEvent.h"
 #include "../guiElements/WScaleToolButton.h"
 
+#include "../WQt4Gui.h"
+#include "../WMainWindow.h"
+
 #include "core/common/WPropertyGroupBase.h"
 #include "core/common/WLogger.h"
 
@@ -313,7 +316,7 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( QWidget* widget, bool a
     QSignalMapper* signalMapper = new QSignalMapper( box );
     signalMapper->setMapping( boxTitle, boxContent );
     connect( boxTitle, SIGNAL( released() ), signalMapper, SLOT( map() ) );
-    connect( signalMapper, SIGNAL( mapped( QWidget* ) ), widget, SLOT( switchVisibility( QWidget* ) ) );
+    connect( signalMapper, SIGNAL( mapped( QWidget* ) ), WQt4Gui::getMainWindow(), SLOT( switchVisibility( QWidget* ) ) );
 
     // create a body widget
     if( asScrollArea )
@@ -327,7 +330,11 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( QWidget* widget, bool a
 
     // hide the box too if the property gets hidden
     box->setHidden( widget->isHidden() );
-    connect( widget, SIGNAL( hideSignal( bool ) ), box, SLOT( setHidden( bool ) ) );
+    if( gWidget )
+    {
+        // QWidget does not provide this signal.
+        connect( gWidget, SIGNAL( hideSignal( bool ) ), box, SLOT( setHidden( bool ) ) );
+    }
 
     return box;
 }
@@ -406,7 +413,3 @@ WPropertyGroupBase::SPtr WQtPropertyGroupWidget::getPropertyGroup()
     return m_group;
 }
 
-void WQtPropertyGroupWidget::switchVisibility( QWidget* who )
-{
-    who->setVisible( !who->isVisible() );
-}

@@ -399,6 +399,13 @@ public slots:
      */
     void handleDrop( QDropEvent* event );
 
+    /**
+     * Change visibility of the given widget. Useful as there is no toggleVisibility slot in Qt.
+     *
+     * \param who the widget to switch
+     */
+    void switchVisibility( QWidget* who );
+
 private:
     /**
      * The splash screen object opened on startup.

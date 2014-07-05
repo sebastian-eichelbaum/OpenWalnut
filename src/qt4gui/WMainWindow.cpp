@@ -1326,3 +1326,7 @@ QMainWindow* WMainWindow::getDefaultCustomDockAreaWidget() const
     return m_glDock;
 }
 
+void WMainWindow::switchVisibility( QWidget* who )
+{
+    who->setVisible( !who->isVisible() );
+}
