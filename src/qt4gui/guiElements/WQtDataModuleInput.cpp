@@ -160,6 +160,9 @@ void WQtDataModuleInput::onChange()
     }
 
     // apply
+    boost::filesystem::path p( filename.toStdString() );
+    WQt4Gui::getSettings().setValue( "LastOpenPath", QString::fromStdString( p.parent_path().string() ) );
+
     m_module->setInput( WDataModuleInputFile::SPtr( new WDataModuleInputFile( filename.toStdString() ) ) );
 }
 

@@ -47,7 +47,7 @@ public:
     /**
      * Constructor.
      *
-     * \param input the input to handle
+     * \param module the data module to handle
      * \param parent the parent widget
      */
     WQtDataModuleInput( WDataModule::SPtr module, QWidget* parent = NULL );
