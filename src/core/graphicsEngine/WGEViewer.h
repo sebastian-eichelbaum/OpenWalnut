@@ -91,7 +91,7 @@ public:
      * \param y Y coordinate of widget where to create the context.
      * \param width Width of the widget.
      * \param height Height of the Widget.
-     * \param projectionMode Projection mode of the viewer.
+     * \param projectionMode Projection mode of the viewer. Currently only the orthographic mode allows the use of a pick handler.
      * \exception WGEInitFailed thrown if initialization of graphics context or graphics window has failed.
      */
     WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int x, int y, int width, int height,
@@ -203,6 +203,7 @@ public:
 
     /**
      * Getter for the pick handler
+     * Warning: At the moment only the orthographic projection mode supports a pick handler.
      *
      * \return the pick handler
      */
