@@ -789,8 +789,8 @@ private:
  * There are two ways to use the iterator. First:
  *
  * \code{.cpp}
- * for( WFiberPointsIterator fi = some_fiber_data_set_pointer->fibers().begin();
- *      fi != some_fiber_data_set_pointer->fibers().end(); ++fi )
+ * for( WFiberPointsIterator pi = some_fiber_iterator.points().begin();
+ *      pi != some_fiber_iterator.points().end(); ++pi )
  * {
  *     ...
  * }
@@ -799,8 +799,8 @@ private:
  * Second:
  *
  * \code{.cpp}
- * WFiberPointsIterator fi, fe;
- * for( ( fi, fe ) = some_fiber_data_set_pointer->fibers(); fi != fe; ++fi )
+ * WFiberPointsIterator pi, pe;
+ * for( ( pi, pe ) = some_fiber_iterator.points(); pi != pe; ++pi )
  * {
  *     ...
  * }
@@ -1017,8 +1017,8 @@ private:
  * There are two ways to use the iterator. First:
  *
  * \code{.cpp}
- * for( WFiberSegmentsIterator fi = some_fiber_data_set_pointer->fibers().begin();
- *      fi != some_fiber_data_set_pointer->fibers().end(); ++fi )
+ * for( WFiberSegmentsIterator si = some_fiber_iterator.segments().begin();
+ *      si != some_fiber_iterator.segments().end(); ++si )
  * {
  *     ...
  * }
@@ -1027,8 +1027,8 @@ private:
  * Second:
  *
  * \code{.cpp}
- * WFiberSegmentsIterator fi, fe;
- * for( ( fi, fe ) = some_fiber_data_set_pointer->fibers(); fi != fe; ++fi )
+ * WFiberSegmentsIterator si, se;
+ * for( ( si, se ) = some_fiber_iterator.segments(); si != se; ++si )
  * {
  *     ...
  * }
