@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTDATAMODULEINPUT
-#define WQTDATAMODULEINPUT
+#ifndef WQTDATAMODULEINPUT_H
+#define WQTDATAMODULEINPUT_H
 
 #include <boost/signals2/signal.hpp>
 
@@ -136,4 +136,4 @@ private:
     void onInputChangeGUI();
 };
 
-#endif  // WQTDATAMODULEINPUT
+#endif  // WQTDATAMODULEINPUT_H

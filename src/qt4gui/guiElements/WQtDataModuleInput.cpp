@@ -22,6 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+#include <vector>
+
 #include <QtGui/QAction>
 #include <QtGui/QFileDialog>
 
@@ -97,7 +100,6 @@ WQtDataModuleInput::WQtDataModuleInput( WDataModule::SPtr module, QWidget* paren
 WQtDataModuleInput::~WQtDataModuleInput()
 {
     m_inputChangeConnection.disconnect();
-
 }
 
 void WQtDataModuleInput::onInputChange()
