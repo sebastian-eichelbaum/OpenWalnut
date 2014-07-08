@@ -65,19 +65,8 @@ WDataModuleInput::SPtr WDataModule::getInput() const
     return m_dataModuleInput;
 }
 
-void WDataModule::properties()
-{
-    // Until the GUI has now proper reload function with WDataModuleInput, use this forced property
-    // TODO(ebaum): this should be done via the GUI or WDataModuleInput? See issue #32
-    m_reloadTrigger = m_properties->addProperty( "Reload", "Request to reload the data.", WPVBaseTypes::PV_TRIGGER_READY,
-        boost::bind( &WDataModule::reload, this )
-    );
-    WModule::properties();
-}
-
 void WDataModule::reload()
 {
-    m_reloadTrigger->set( WPVBaseTypes::PV_TRIGGER_READY );
     handleInputChange();
 }
 

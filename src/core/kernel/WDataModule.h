@@ -141,13 +141,6 @@ public:
     WCondition::ConstSPtr getInputChangedCondition() const;
 protected:
     /**
-     * Initialize properties in this function. This function must not be called multiple times for one module instance.
-     * The module container manages calling those functions -> so just implement it. Once initialized the number and type
-     * of all properties should be set.
-     */
-    virtual void properties();
-
-    /**
      * Handle a newly set input. Implement this method to load the newly set input. You can get the input using the \ref getInput and \ref getInputAs
      * methods. Please remember that it is possible to get a NULL pointer here.
      * This happens when the user explicitly sets no input. In this case, you should clean up and reset your output connectors.
@@ -167,11 +160,6 @@ private:
      * The input this data module should use
      */
     WDataModuleInput::SPtr m_dataModuleInput;
-
-    /**
-     * A reload trigger. Ensure you call WDataModule::properties inside your properties method.
-     */
-    WPropTrigger m_reloadTrigger;
 
     /**
      * Condition that fires whenever the input changes via setInput.
