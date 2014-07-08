@@ -554,7 +554,7 @@ WIteratorRange< WFiberSegmentsIterator > WFiberIterator::segments() const
     WAssert( numPoints() != 0, "" );
 
     return WIteratorRange< WFiberSegmentsIterator >( WFiberSegmentsIterator( m_fibers, m_index, 0 ),
-                                                     WFiberSegmentsIterator( m_fibers, m_index, numPoints() ) );
+                                                     WFiberSegmentsIterator( m_fibers, m_index, numPoints() - 1 ) );
 }
 
 WIteratorRange< WFiberSegmentsIterator > WFiberIterator::segmentsReverse() const
@@ -562,7 +562,7 @@ WIteratorRange< WFiberSegmentsIterator > WFiberIterator::segmentsReverse() const
     WAssert( numPoints() != 0, "" );
 
     return WIteratorRange< WFiberSegmentsIterator >( WFiberSegmentsIterator( m_fibers, m_index, 0, true ),
-                                                     WFiberSegmentsIterator( m_fibers, m_index, numPoints(), true ) );
+                                                     WFiberSegmentsIterator( m_fibers, m_index, numPoints() - 1, true ) );
 }
 
 std::size_t WFiberIterator::getLineStartIndex() const
