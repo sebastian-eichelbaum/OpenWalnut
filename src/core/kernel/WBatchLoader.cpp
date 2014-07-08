@@ -61,6 +61,8 @@ void WBatchLoader::threadMain()
     // add a new data module for each file to load
     for( std::vector< std::string >::iterator iter = m_filenamesToLoad.begin(); iter != m_filenamesToLoad.end(); ++iter )
     {
+        // This needs to be re-thought. Refer to #32.
+        // TODO(ebaum): change this to create WDataModuleInput using a matching WDataModuleInputFilter
         WDataModuleInputFile::SPtr input( new WDataModuleInputFile( *iter ) );
         std::vector< WDataModule::SPtr > dataModules = WModuleFactory::getModuleFactory()->getDataModulePrototypesByInput(
             // NOTE: right now, we only support file based inputs. Will change with issue #32

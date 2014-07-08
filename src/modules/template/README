@@ -47,3 +47,7 @@ development is easy!
   -> this demonstrates the use of OpenWalnut's offscreen processing API. You will learn
      how to implement complex render pipelines and how to transfer data (textures) 
      between each steps.
+
+- WMTemplaeDataLoader.*
+ -> this demonstrates the correct implementation of WDataModule modules. They can be used
+    to load data from files, servers or databases.

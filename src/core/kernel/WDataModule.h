@@ -104,21 +104,26 @@ public:
     virtual std::vector< WDataModuleInputFilter::ConstSPtr > getInputFilter() const = 0;
 
     /**
-     * Set the input of this data module. This is called after construction but before running the module.
+     * Set the input of this data module. This is called after construction and running the module.
      *
      * \param input the input to use for loading.
      */
-    virtual void setInput( WDataModuleInput::SPtr input );
+    void setInput( WDataModuleInput::SPtr input );
 
     /**
-     * Get the currently set input.
+     * Initiate an reloading of the data.
+     */
+    void reload();
+
+    /**
+     * Get the currently set input or NULL if none was set.
      *
      * \return the input
      */
     virtual WDataModuleInput::SPtr getInput() const;
 
     /**
-     * Get the currently set input.
+     * Get the currently set input or NULL if none was set.
      *
      * \return the input. Null if not set or type mismatch.
      *
@@ -127,23 +132,23 @@ public:
     template< typename InputType >
     boost::shared_ptr< InputType > getInputAs() const;
 
+    /**
+     * Return the condition that gets triggered upon input change. This will get fired every time setInput was called, but before
+     * \ref handleInputChange.
+     *
+     * \return the condition
+     */
+    WCondition::ConstSPtr getInputChangedCondition() const;
 protected:
     /**
-     * Initialize properties in this function. This function must not be called multiple times for one module instance.
-     * The module container manages calling those functions -> so just implement it. Once initialized the number and type
-     * of all properties should be set.
+     * Handle a newly set input. Implement this method to load the newly set input. You can get the input using the \ref getInput and \ref getInputAs
+     * methods. Please remember that it is possible to get a NULL pointer here.
+     * This happens when the user explicitly sets no input. In this case, you should clean up and reset your output connectors.
+     *
+     * \note it is very important to NOT load the data inside of this method. It is usually called in the GUI thread. This would block the whole GUI.
+     * Instead, use this method for firing a condition, which then wakes your module thread.
      */
-    virtual void properties();
-
-    /**
-     * A reload trigger. Ensure you call WDataModule::properties inside your properties method.
-     */
-    WPropTrigger m_reloadTrigger;
-
-    /**
-     * The condition that is fired with m_reloadTrigger property. Use this to wake up your module.
-     */
-    WCondition::SPtr m_reloadTriggered;
+    virtual void handleInputChange() = 0;
 
 private:
     /**
@@ -155,6 +160,11 @@ private:
      * The input this data module should use
      */
     WDataModuleInput::SPtr m_dataModuleInput;
+
+    /**
+     * Condition that fires whenever the input changes via setInput.
+     */
+    WCondition::SPtr m_inputChanged;
 };
 
 template< typename InputType >

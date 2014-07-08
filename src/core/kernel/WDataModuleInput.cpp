@@ -52,3 +52,8 @@ WDataModuleInput::SPtr WDataModuleInput::create( std::string name, std::string p
     return WDataModuleInput::SPtr( new WDataModuleInputFile( parameter ) );
 }
 
+std::string WDataModuleInput::getExtendedInfo() const
+{
+    return "";
+}
+

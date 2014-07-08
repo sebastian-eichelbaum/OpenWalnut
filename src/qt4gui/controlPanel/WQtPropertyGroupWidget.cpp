@@ -36,6 +36,9 @@
 #include "../events/WPropertyChangedEvent.h"
 #include "../guiElements/WScaleToolButton.h"
 
+#include "../WQt4Gui.h"
+#include "../WMainWindow.h"
+
 #include "core/common/WPropertyGroupBase.h"
 #include "core/common/WLogger.h"
 
@@ -171,8 +174,10 @@ void WQtPropertyGroupWidget::addGroup( WPropertyGroupBase::SPtr prop )
     addGroup( new WQtPropertyGroupWidget( prop, m_nestingDepth + 1, this ) );
 }
 
-QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget* widget, bool asScrollArea, QWidget* parent, const QString& title )
+QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( QWidget* widget, bool asScrollArea, QWidget* parent, const QString& title, int nestingLevel )
 {
+    WQtPropertyGroupWidget* gWidget = dynamic_cast< WQtPropertyGroupWidget* >( widget );
+
     QSizePolicy sizePolicy( QSizePolicy::Minimum, QSizePolicy::Maximum );
     sizePolicy.setHorizontalStretch( 0 );
     sizePolicy.setVerticalStretch( 0 );
@@ -209,7 +214,13 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
 
     // create a button as title
     WScaleToolButton* boxTitle = new WScaleToolButton( WPREFERRED_LABEL_LENGTH , box );
-    QString titleText = ( title == "" ) ? widget->getName() : title;
+
+    QString titleText = title;
+    if( gWidget )
+    {
+        titleText = ( title == "" ) ? gWidget->getName() : title;
+    }
+
     boxTitle->setText( titleText );
     boxTitle->setToolTip( titleText );
     boxLayout->addWidget( boxTitle, 0, 0 );
@@ -249,7 +260,14 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
     QColor brightTextCol = QColor( "#eeeeee" );
     QColor darkTextCol = QColor( "#444444" );
     QColor defaultTextCol = darkTextCol; // palette.windowText().color();
-    switch( widget->m_nestingDepth % 10 ) // NOTE: the first level 0 does not need a color as it does not provide a boxtitle, so we begin with 1
+
+    int nestingColorLevel = nestingLevel;
+    if( gWidget )
+    {
+        nestingColorLevel = gWidget->m_nestingDepth % 10;
+    }
+
+    switch( nestingColorLevel ) // NOTE: the first level 0 does not need a color as it does not provide a boxtitle, so we begin with 1
     {
         // All these colors are taken from the solarized pallette http://ethanschoonover.com/solarized
         case 1:
@@ -298,7 +316,7 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
     QSignalMapper* signalMapper = new QSignalMapper( box );
     signalMapper->setMapping( boxTitle, boxContent );
     connect( boxTitle, SIGNAL( released() ), signalMapper, SLOT( map() ) );
-    connect( signalMapper, SIGNAL( mapped( QWidget* ) ), widget, SLOT( switchVisibility( QWidget* ) ) );
+    connect( signalMapper, SIGNAL( mapped( QWidget* ) ), WQt4Gui::getMainWindow(), SLOT( switchVisibility( QWidget* ) ) );
 
     // create a body widget
     if( asScrollArea )
@@ -312,7 +330,11 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( WQtPropertyGroupWidget*
 
     // hide the box too if the property gets hidden
     box->setHidden( widget->isHidden() );
-    connect( widget, SIGNAL( hideSignal( bool ) ), box, SLOT( setHidden( bool ) ) );
+    if( gWidget )
+    {
+        // QWidget does not provide this signal.
+        connect( gWidget, SIGNAL( hideSignal( bool ) ), box, SLOT( setHidden( bool ) ) );
+    }
 
     return box;
 }
@@ -391,7 +413,3 @@ WPropertyGroupBase::SPtr WQtPropertyGroupWidget::getPropertyGroup()
     return m_group;
 }
 
-void WQtPropertyGroupWidget::switchVisibility( QWidget* who )
-{
-    who->setVisible( !who->isVisible() );
-}

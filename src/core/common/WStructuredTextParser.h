@@ -138,8 +138,6 @@ namespace WStructuredTextParser
 }
 
 
-// Doxygen has problems with the following
-// \cond Suppress_Doxygen
 /**
  * Tell boost::fusion about our types.
  */
@@ -157,7 +155,6 @@ BOOST_FUSION_ADAPT_STRUCT(
     ( std::string, m_name )
     ( std::string, m_value )
     )
-// \endcond
 
 namespace WStructuredTextParser
 {

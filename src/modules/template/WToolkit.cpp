@@ -35,6 +35,7 @@
 #include "WMTemplateShaders.h"
 #include "WMTemplateColormapping.h"
 #include "WMTemplateRenderPipelines.h"
+#include "WMTemplateDataLoader.h"
 
 // #include "WToolkit.h"
 
@@ -57,6 +58,7 @@ extern "C" void WLoadModule( WModuleList& m ) // NOLINT
     m.push_back( boost::shared_ptr< WModule >( new WMTemplateShaders ) );
     m.push_back( boost::shared_ptr< WModule >( new WMTemplateColormapping ) );
     m.push_back( boost::shared_ptr< WModule >( new WMTemplateRenderPipelines ) );
+    m.push_back( boost::shared_ptr< WModule >( new WMTemplateDataLoader ) );
 }
 
 /**

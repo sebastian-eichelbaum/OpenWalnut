@@ -78,11 +78,12 @@ public:
      * \param asScrollArea if true, the widget is embedded into a scroll area
      * \param parent the parent widget
      * \param title the title to use for the box. If empty, the property group name is used.
+     * \param nestingLevel the nesting level (defines color)
      *
      * \return the box widget
      */
-    static QWidget* createPropertyGroupBox( WQtPropertyGroupWidget* widget, bool asScrollArea = false, QWidget* parent = NULL,
-                                            const QString& title = "" );
+    static QWidget* createPropertyGroupBox( QWidget* widget, bool asScrollArea = false, QWidget* parent = NULL,
+                                            const QString& title = "", int nestingLevel = 0 );
 
     /**
      * Create a property widget using the given group.
@@ -192,13 +193,6 @@ public:
      * \return the group
      */
     WPropertyGroupBase::SPtr getPropertyGroup();
-
-public slots:
-    /**
-     * Change visibility of this group.
-     * \param who the widget to switch
-     */
-    void switchVisibility( QWidget* who );
 
 signals:
 

@@ -131,7 +131,6 @@ void WMData::properties()
 
     // Add standard datamodule props
     WDataModule::properties();
-    // m_reloadTrigger->setHidden( true ); // reload not supported
 
     // properties
     m_dataName = m_infoProperties->addProperty( "Filename", "The filename of the dataset.", std::string( "" ) );
@@ -177,17 +176,21 @@ void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
     }
 }
 
+void WMData::handleInputChange()
+{
+    // notify the module only
+    m_reload = true;
+    m_moduleState.notify();
+}
+
 void WMData::moduleMain()
 {
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
-    m_moduleState.add( m_reloadTriggered );
     m_oldDataSet = WDataSet::SPtr();
 
     ready();
     waitRestored();
-
-    load();
 
     while( !m_shutdownFlag() )
     {
@@ -197,11 +200,9 @@ void WMData::moduleMain()
             break;
         }
 
-        // Not supported.
-        if( m_reloadTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        if( m_reload )
         {
             load();
-            m_reloadTrigger->set( WPVBaseTypes::PV_TRIGGER_READY );
         }
 
         // change transform matrix (only if we have a dataset single which contains the grid)
@@ -407,15 +408,41 @@ void WMData::updateColorMap( boost::shared_ptr< WDataSet > dataSet )
     }
 }
 
+void WMData::cleanUp()
+{
+    // remove dataset from datahandler
+    updateColorMap(  boost::shared_ptr< WDataSet >() );
+
+    // remove props
+    if( m_oldDataSet )
+    {
+        m_properties->removeProperty( m_oldDataSet->getProperties() );
+        m_infoProperties->removeProperty( m_oldDataSet->getInformationProperties() );
+        m_infoProperties->removeProperty( m_infoProperties->findProperty( "Transformations" ) );
+    }
+
+    m_dataName->set( "" );
+    m_dataType->set( "" );
+    m_dataSetType->set( "" );
+
+    // clear connector
+    m_output->updateData( WDataSet::SPtr() );
+}
+
 void WMData::load()
 {
     // Get the input
     WDataModuleInputFile::SPtr inputFile = getInputAs< WDataModuleInputFile >();
     if( !inputFile )
     {
-        throw WModuleException( "Data modules cannot be used directly." );
+        // No input? Reset output too.
+        cleanUp();
+        return;
     }
     std::string fileName = inputFile->getFilename().string();
+
+    boost::shared_ptr< WProgress > progress1( new WProgress( "Loading" ) );
+    m_progress->addSubProgress( progress1 );
 
     m_transformNoMatrix.makeIdentity();
     m_transformSForm.makeIdentity();
@@ -552,4 +579,7 @@ void WMData::load()
 
     // Update matrix
     matrixUpdate();
+
+    // done. close file and report finish
+    progress1->finish();
 }
