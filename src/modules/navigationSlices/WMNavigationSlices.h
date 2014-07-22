@@ -38,8 +38,6 @@
 #include "core/common/WPropertyTypes.h"
 #include "core/graphicsEngine/WPickInfo.h"
 #include "core/graphicsEngine/WGECamera.h"
-#include "core/common/WPropTransfer.h"
-#include "core/kernel/WModuleOutputData.h"
 #include "core/kernel/WModule.h"
 
 /**
@@ -101,11 +99,6 @@ protected:
      * Initialize the properties for this module.
      */
     virtual void properties();
-
-    /**
-     * Handles positions updates of the slices and forwards them to the output connector.
-     */
-    virtual void updatePositionOutput();
 
 private:
     /**
@@ -237,8 +230,6 @@ private:
      * If true, the nav slices get positioned in the middle of the first dataset.
      */
     bool m_first;
-
-    boost::shared_ptr< WModuleOutputData< WPositionTransfer > > m_posOC;
 };
 
 #endif  // WMNAVIGATIONSLICES_H

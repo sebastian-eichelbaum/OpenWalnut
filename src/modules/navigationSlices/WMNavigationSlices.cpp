@@ -86,8 +86,6 @@ const std::string WMNavigationSlices::getDescription() const
 
 void WMNavigationSlices::connectors()
 {
-    m_posOC = WModuleOutputData< WPositionTransfer >::createAndAdd( shared_from_this(), "positions", "Positions of all slices as vector: first, xPos, second yPos, third zPos." );
-
     // call WModule's initialization
     WModule::connectors();
 }
@@ -110,19 +108,8 @@ void WMNavigationSlices::properties()
     m_yPos    = m_sliceGroup->addProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropCoronalPos() );
     m_zPos    = m_sliceGroup->addProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropAxialPos() );
 
-    // When the position changes we need to update Position output, hence updating function needs to subscribe
-    m_xPos->getUpdateCondition()->subscribeSignal( boost::bind( &WMNavigationSlices::updatePositionOutput, this ) );
-    m_yPos->getUpdateCondition()->subscribeSignal( boost::bind( &WMNavigationSlices::updatePositionOutput, this ) );
-    m_zPos->getUpdateCondition()->subscribeSignal( boost::bind( &WMNavigationSlices::updatePositionOutput, this ) );
-
     // call WModule's initialization
     WModule::properties();
-}
-
-void WMNavigationSlices::updatePositionOutput()
-{
-    WPositionTransfer::SPtr pos( new WPositionTransfer( WPosition( m_xPos->get(), m_yPos->get(), m_zPos->get() ) ) );
-    m_posOC->updateData( pos );
 }
 
 void WMNavigationSlices::initOSG()
