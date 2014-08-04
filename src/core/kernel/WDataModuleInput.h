@@ -26,6 +26,7 @@
 #define WDATAMODULEINPUT_H
 
 #include <string>
+#include <ostream>
 
 #include <boost/shared_ptr.hpp>
 
@@ -71,11 +72,20 @@ public:
     virtual std::string asString() const = 0;
 
     /**
-     * Write a machine-readable string which allows to restore your specific input later. The only character which is NOT allowed is ":".
+     * Return some extend information for the input, like complete path, server data (username, subject name, ...). It is up to you.
      *
-     * \return the parameter string. ":" is not allowed.
+     * \return some extended information as string.
      */
-    virtual std::string serialize() const = 0;
+    virtual std::string getExtendedInfo() const;
+
+    /**
+     * Write a machine-readable string which allows to restore your specific input later. No line-breaks, no ":" and it must not be empty.
+     *
+     * \param out the stream to serialize to
+     *
+     * \return the stream
+     */
+    virtual std::ostream& serialize( std::ostream& out ) const = 0;     // NOLINT: yes, it is an intended non-const ref
 
     /**
      * Create an instance by using a parameter string. This is the string you define by the \ref serialize() call.

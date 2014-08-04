@@ -173,7 +173,7 @@ namespace wge
     }
 
     /**
-     * Template specialization for double values.
+     * Template specialization for double values. This is a shortcut for osg::Uniform generation and osg::StateSet-binding.
      *
      * \param node Node where the uniform should be bound to.
      * \param prop The type of the uniform.
@@ -188,7 +188,7 @@ namespace wge
     }
 
     /**
-     * Template specialization for size_t values.
+     * Template specialization for size_t values. This is a shortcut for osg::Uniform generation and osg::StateSet-binding.
      *
      * \param node Node where the uniform should be bound to.
      * \param prop The type of the uniform.
@@ -203,7 +203,7 @@ namespace wge
     }
 
     /**
-     * Template specialization for WPropDouble values.
+     * Template specialization for WPropDouble values. This is a shortcut for osg::Uniform generation and osg::StateSet-binding.
      *
      * \param node Node where the uniform should be bound to.
      * \param prop The type of the uniform.
@@ -218,7 +218,7 @@ namespace wge
     }
 
     /**
-     * Template specialization for WPropColor values.
+     * Template specialization for WPropColor values. This is a shortcut for osg::Uniform generation and osg::StateSet-binding.
      *
      * \param node Node where the uniform should be bound to.
      * \param prop The type of the uniform.
@@ -228,6 +228,36 @@ namespace wge
     inline void bindAsUniform< WPropColor >( osg::Node* node, WPropColor prop, std::string name )
     {
         osg::ref_ptr< osg::Uniform > uniform( new WGEPropertyUniform< WPropColor >( name, prop ) );
+        osg::StateSet *states = node->getOrCreateStateSet();
+        states->addUniform( uniform );
+    }
+
+    /**
+     * Template specialization for WPropBool values. This is a shortcut for osg::Uniform generation and osg::StateSet-binding.
+     *
+     * \param node Node where the uniform should be bound to.
+     * \param prop The type of the uniform.
+     * \param name The name of the uniform.
+     */
+    template<>
+    inline void bindAsUniform< WPropBool >( osg::Node* node, WPropBool prop, std::string name )
+    {
+        osg::ref_ptr< osg::Uniform > uniform( new WGEPropertyUniform< WPropBool >( name, prop ) );
+        osg::StateSet *states = node->getOrCreateStateSet();
+        states->addUniform( uniform );
+    }
+
+    /**
+     * Template specialization for WPropInt values. This is a shortcut for osg::Uniform generation and osg::StateSet-binding.
+     *
+     * \param node Node where the uniform should be bound to.
+     * \param prop The type of the uniform.
+     * \param name The name of the uniform.
+     */
+    template<>
+    inline void bindAsUniform< WPropInt >( osg::Node* node, WPropInt prop, std::string name )
+    {
+        osg::ref_ptr< osg::Uniform > uniform( new WGEPropertyUniform< WPropInt >( name, prop ) );
         osg::StateSet *states = node->getOrCreateStateSet();
         states->addUniform( uniform );
     }

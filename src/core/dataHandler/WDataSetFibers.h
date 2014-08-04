@@ -35,6 +35,10 @@
 #include "../common/math/linearAlgebra/WPosition.h"
 #include "../common/WBoundingBox.h"
 #include "../common/WProperties.h"
+
+#include "../common/WDefines.h"  // for deprecated
+
+#include "WIteratorRange.h"
 #include "WDataSet.h"
 
 
@@ -44,6 +48,8 @@ class WFiber;
 class WFiberIterator;
 
 class WFiberPointsIterator;
+
+class WFiberSegmentsIterator;
 
 /**
  * Represents a simple set of WFibers.
@@ -415,17 +421,28 @@ public:
 
     /**
      * Returns an iterator to the first fiber of the dataset. The iterator does not allow any modification of the data.
+     * DEPRECATED: Use fibers().begin() or iterator range syntax instead.
      *
      * \return An iterator to the first fiber.
      */
-    const_iterator begin() const;
+    OW_API_DEPRECATED const_iterator begin() const;
 
     /**
      * Returns an iterator pointing beyond the last fiber. The iterator does not allow any modification of the data.
+     * DEPRECATED: Use fibers().end() or iterator range syntax instead.
      *
      * \return An iterator pointing beyond the last fiber.
      */
-    const_iterator end() const;
+    OW_API_DEPRECATED const_iterator end() const;
+
+    /**
+     * Creates a range of iterators that allows for forward iteration of the fibers in this dataset.
+     * If the current iterator is not valid, behaviour is undefined. The end iterator of the returned range
+     * is the first invalid iterator after the last fiber.
+     *
+     * \return The full range from begin to end.
+     */
+    WIteratorRange< WFiberIterator > fibers() const;
 
 protected:
     /**
@@ -493,6 +510,36 @@ private:
  * \brief An iterator for fibers of a fiber dataset.
  *
  * This class iterates fibers of a fiber dataset.
+ *
+ * There are two ways to use the iterator. First:
+ *
+ * \code{.cpp}
+ * for( WFiberIterator fi = some_fiber_data_set_pointer->fibers().begin();
+ *      fi != some_fiber_data_set_pointer->fibers().end(); ++fi )
+ * {
+ *     ...
+ * }
+ * \endcode
+ *
+ * Second:
+ *
+ * \code{.cpp}
+ * WFiberIterator fi, fe;
+ * for( ( fi, fe ) = some_fiber_data_set_pointer->fibers(); fi != fe; ++fi )
+ * {
+ *     ...
+ * }
+ * \endcode
+ *
+ * Use the provided points() and segments() functions to iterate the points or segments of
+ * the current fiber. You can also check whether an iterator points to a valid fiber by:
+ *
+ * \code{.cpp}
+ * if( iterator )
+ * {
+ *     ...
+ * }
+ * \endcode
  */
 class WFiberIterator
 {
@@ -578,32 +625,123 @@ public:
     bool operator != ( WFiberIterator const& rhs ) const;
 
     /**
+     * Creates a temporary object that is used to unpack an iterator range to two iterators.
+     * The first of these target iterators is *this, the second is the parameter of the operator.
+     *
+     * \param other The iterator to assign the end iterator of the range to.
+     * \return The unpacker to assign a range to.
+     */
+    WIteratorRangeUnpacker< WFiberIterator > operator,( WFiberIterator& other ); // NOLINT non-const ref and space intended
+
+    /**
+     * Converts to a bool that indicates whether the current iterator is valid, i.e. it points to a valid fiber
+     * and it is safe to access point or segments.
+     */
+    operator bool() const;
+
+    /**
      * Creates a point iterator for forward iteration, pointing to the first point of the fiber.
+     * DEPRECATED: Use the iterator range syntax instead.
      *
      * \return A point iterator pointing to the first point.
      */
-    WFiberPointsIterator begin();
+    OW_API_DEPRECATED WFiberPointsIterator begin();
 
     /**
      * Creates a point iterator for forward iteration, pointing beyond the last point of the fiber.
+     * DEPRECATED: Use the iterator range syntax instead.
      *
      * \return A point iterator pointing beyond the last point.
      */
-    WFiberPointsIterator end();
+    OW_API_DEPRECATED WFiberPointsIterator end();
 
     /**
      * Creates a point iterator for backward iteration, pointing to the last point of the fiber.
+     * DEPRECATED: Use the iterator range syntax instead.
      *
      * \return A point iterator pointing to the last point.
      */
-    WFiberPointsIterator rbegin();
+    OW_API_DEPRECATED WFiberPointsIterator rbegin();
 
     /**
      * Creates a point iterator for backward iteration, pointing beyond the first point of the fiber.
+     * DEPRECATED: Use the iterator range syntax instead.
      *
      * \return A point iterator pointing beyond the first point.
      */
-    WFiberPointsIterator rend();
+    OW_API_DEPRECATED WFiberPointsIterator rend();
+
+    /**
+     * Creates a range of iterators that allows for forward iteration of the points of the fiber
+     * this iterator currently points to. If the current iterator is not valid, behaviour is undefined.
+     * The end iterator of the returned range is the first invalid iterator after the last point.
+     *
+     * \return The full range from begin to end.
+     */
+    WIteratorRange< WFiberPointsIterator > points() const;
+
+    /**
+     * Creates a range of iterators that allows for reverse iteration of the points of the fiber
+     * this iterator currently points to. If the current iterator is not valid, behaviour is undefined.
+     * The end iterator of the returned range is the first invalid iterator before the first point.
+     *
+     * \return The full range from begin to end, points in reverse order starting with the last.
+     */
+    WIteratorRange< WFiberPointsIterator > pointsReverse() const;
+
+    /**
+     * Returns a forward iterator to the first segment.
+     * DEPRECATED: Use the iterator range syntax instead.
+     *
+     * \return A forward iterator to the first segment.
+     */
+    OW_API_DEPRECATED WFiberSegmentsIterator sbegin();
+
+    /**
+     * Returns a forward iterator to the invalid segment after the last (i.e. an end iterator).
+     * DEPRECATED: Use the iterator range syntax instead.
+     *
+     * \return A forward end iterator.
+     */
+    OW_API_DEPRECATED WFiberSegmentsIterator send();
+
+    /**
+     * Returns a backward iterator to the last segment.
+     * DEPRECATED: Use the iterator range syntax instead.
+     *
+     * \return A backward iterator to the last segment.
+     */
+    OW_API_DEPRECATED WFiberSegmentsIterator srbegin();
+
+    /**
+     * Returns a backward iterator to the invalid segment before the first (i.e. an end iterator).
+     * DEPRECATED: Use the iterator range syntax instead.
+     *
+     * \return A backward end iterator.
+     */
+    OW_API_DEPRECATED WFiberSegmentsIterator srend();
+
+    /**
+     * Creates a range of iterators that allows for forward iteration of the segments of the fiber
+     * this iterator currently points to. If the current iterator is not valid, behaviour is undefined.
+     * The end iterator of the returned range is the first invalid iterator after the last segment.
+     * Note that there is one segment less than there are points.
+     *
+     * \return The full range from begin to end.
+     */
+    WIteratorRange< WFiberSegmentsIterator > segments() const;
+
+    /**
+     * Creates a range of iterators that allows for reverse iteration of the segments of the fiber
+     * this iterator currently points to. If the current iterator is not valid, behaviour is undefined.
+     * The end iterator of the returned range is the first invalid iterator before the first segments.
+     * Note that there is one segment less than there are points. Additionally, note that the points
+     * returned by the start() and end() methods are also reversed, i.e. not only are the segments
+     * traversed in reverse order, but they are also oriented in the opposite direction.
+     *
+     * \return The full range from begin to end, segments in reverse order starting with the last.
+     */
+    WIteratorRange< WFiberSegmentsIterator > segmentsReverse() const;
 
     /**
      * Returns the number of points of the current fiber.
@@ -647,6 +785,38 @@ private:
  * \brief An iterator for iterating the points of a fiber.
  *
  * Allows for both forward and backward iteration of points.
+ *
+ * There are two ways to use the iterator. First:
+ *
+ * \code{.cpp}
+ * for( WFiberPointsIterator pi = some_fiber_iterator.points().begin();
+ *      pi != some_fiber_iterator.points().end(); ++pi )
+ * {
+ *     ...
+ * }
+ * \endcode
+ *
+ * Second:
+ *
+ * \code{.cpp}
+ * WFiberPointsIterator pi, pe;
+ * for( ( pi, pe ) = some_fiber_iterator.points(); pi != pe; ++pi )
+ * {
+ *     ...
+ * }
+ * \endcode
+ *
+ * Dereferencing the iterator provides the 3D position of the point. Other information can be
+ * gained via the various member functions.
+ *
+ * You can check whether an iterator points to a valid point of a fiber by:
+ *
+ * \code{.cpp}
+ * if( iterator )
+ * {
+ *     ...
+ * }
+ * \endcode
  */
 class WFiberPointsIterator
 {
@@ -661,7 +831,7 @@ public:
      *
      * \param fibers The pointer to the fiber data.
      * \param fbIdx The index of the fiber in the fiber dataset.
-     * \param idx The index of the point of the curent fiber.
+     * \param idx The index of the point of the current fiber.
      * \param reverse Whether to iterate backwards.
      */
     WFiberPointsIterator( WDataSetFibers const* fibers, std::size_t fbIdx, std::size_t idx, bool reverse = false );
@@ -697,7 +867,7 @@ public:
     /**
      * Decrement operator. Makes the iterator point to the previous point.
      *3
-     * \return The incremented iterator.
+     * \return The decremented iterator.
      */
     WFiberPointsIterator& operator-- ();
 
@@ -734,11 +904,26 @@ public:
     bool operator!= ( WFiberPointsIterator const& rhs ) const;
 
     /**
+     * Creates a temporary object that is used to unpack an iterator range to two iterators.
+     * The first of these target iterators is *this, the second is the parameter of the operator.
+     *
+     * \param other The iterator to assign the end iterator of the range to.
+     * \return The unpacker to assign a range to.
+     */
+    WIteratorRangeUnpacker< WFiberPointsIterator > operator,( WFiberPointsIterator& other ); // NOLINT non-const ref and space intended
+
+    /**
+     * Converts to a bool that indicates whether the current iterator is valid, i.e. it points to a valid point
+     * and it is safe to dereference or use functions such as getTangent().
+     */
+    operator bool() const;
+
+    /**
      * Returns the coordinates of the point currently pointed to.
      *
      * \return The current coordinates.
      */
-    WPosition operator* ();
+    WPosition operator* () const;
 
     /**
      * Returns the parameter specified in the vertex parameter array of the dataset. If no such array was set, the specified default will be
@@ -822,4 +1007,179 @@ private:
     bool m_reverse;
 };
 
+/**
+ * \class WFiberSegmentsIterator
+ *
+ * \brief An iterator for iterating the segments of a fiber.
+ *
+ * Allows for both forward and backward iteration of segments.
+ *
+ * There are two ways to use the iterator. First:
+ *
+ * \code{.cpp}
+ * for( WFiberSegmentsIterator si = some_fiber_iterator.segments().begin();
+ *      si != some_fiber_iterator.segments().end(); ++si )
+ * {
+ *     ...
+ * }
+ * \endcode
+ *
+ * Second:
+ *
+ * \code{.cpp}
+ * WFiberSegmentsIterator si, se;
+ * for( ( si, se ) = some_fiber_iterator.segments(); si != se; ++si )
+ * {
+ *     ...
+ * }
+ * \endcode
+ *
+ * Iterators to the start and end points of the segment can be gained using the start() and end()
+ * methods respectively. Note that for iterators set for reverse iteration, the start and end points are switched.
+ *
+ * You can check whether an iterator points to a valid segment of a fiber by:
+ *
+ * \code{.cpp}
+ * if( iterator )
+ * {
+ *     ...
+ * }
+ * \endcode
+ */
+class WFiberSegmentsIterator
+{
+public:
+    /**
+     * Default contructor. Creates an invalid iterator.
+     */
+    WFiberSegmentsIterator();
+
+    /**
+     * Constructor. Creates an iterator pointing to a certain segment of a fiber.
+     *
+     * \param fibers The pointer to the fiber data.
+     * \param fbIdx The index of the fiber in the fiber dataset.
+     * \param idx The index of the starting point of the segment of the current fiber.
+     * \param reverse Whether to iterate backwards.
+     */
+    WFiberSegmentsIterator( WDataSetFibers const* fibers, std::size_t fbIdx, std::size_t idx, bool reverse = false );
+
+    /**
+     * Copy constructor.
+     *
+     * \param iter The iterator to copy from.
+     */
+    WFiberSegmentsIterator( WFiberSegmentsIterator const& iter ); //NOLINT explicit
+
+    /**
+     * Destructor.
+     */
+    ~WFiberSegmentsIterator();
+
+    /**
+     * Copy operator.
+     *
+     * \param iter The iterator to copy from.
+     *
+     * \return *this
+     */
+    WFiberSegmentsIterator& operator= ( WFiberSegmentsIterator const& iter );
+
+    /**
+     * Increment operator. Makes the iterator point to the next segment.
+     *
+     * \return The incremented iterator.
+     */
+    WFiberSegmentsIterator& operator++ ();
+
+    /**
+     * Decrement operator. Makes the iterator point to the previous segment.
+     *3
+     * \return The decremented iterator.
+     */
+    WFiberSegmentsIterator& operator-- ();
+
+    /**
+     * Increment operator. Makes the iterator point to the next segment.
+     *
+     * \return The iterator before incrementing.
+     */
+    WFiberSegmentsIterator operator++ ( int );
+
+    /**
+     * Decrement operator. Makes the iterator point to the previous segment.
+     *
+     * \return The iterator before decrementing.
+     */
+    WFiberSegmentsIterator operator-- ( int );
+
+    /**
+     * Compare to another segment iterator.
+     *
+     * \param rhs The second segment iterator.
+     *
+     * \return true, iff the two iterators point to the same segment of the same fiber and have the same directions.
+     */
+    bool operator== ( WFiberSegmentsIterator const& rhs ) const;
+
+    /**
+     * Compare to another segment iterator.
+     *
+     * \param rhs The second segment iterator.
+     *
+     * \return false, iff the two iterators point to the same segment of the same fiber and have the same directions.
+     */
+    bool operator!= ( WFiberSegmentsIterator const& rhs ) const;
+
+    /**
+     * Creates a temporary object that is used to unpack an iterator range to two iterators.
+     * The first of these target iterators is *this, the second is the parameter of the operator.
+     *
+     * \param other The iterator to assign the end iterator of the range to.
+     * \return The unpacker to assign a range to.
+     */
+    WIteratorRangeUnpacker< WFiberSegmentsIterator > operator,( WFiberSegmentsIterator& other ); // NOLINT non-const ref and space intended
+
+    /**
+     * Converts to a bool that indicates whether the current iterator is valid, i.e. it points to a valid segment
+     * and it is safe to use functions such as start().
+     */
+    operator bool() const;
+
+    /**
+     * Returns an iterator to the starting point of the segment.
+     *
+     * \return An iterator to the starting point of the segment.
+     */
+    WFiberPointsIterator start() const;
+
+    /**
+     * Returns an iterator to the end point of the segment.
+     *
+     * \return An iterator to the end point of the segment.
+     */
+    WFiberPointsIterator end() const;
+
+    /**
+     * Returns the vector from the starting point position to the end point position.
+     *
+     * \return *end() - *start()
+     */
+    osg::Vec3 direction() const;
+
+private:
+    //! The pointer to the fibers.
+    WDataSetFibers const* m_fibers;
+
+    //! The index of the fiber.
+    std::size_t m_fiberIndex;
+
+    //! The index of the current point.
+    std::size_t m_index;
+
+    //! Whether to iterate backwards.
+    bool m_reverse;
+};
+
 #endif  // WDATASETFIBERS_H
+

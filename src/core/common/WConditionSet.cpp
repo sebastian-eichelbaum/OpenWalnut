@@ -82,8 +82,13 @@ void WConditionSet::remove( boost::shared_ptr< WCondition > condition )
 
 void WConditionSet::conditionFired()
 {
-    m_fired = true;
     notify();
+}
+
+void WConditionSet::notify()
+{
+    m_fired = true;
+    WCondition::notify();
 }
 
 void WConditionSet::wait() const

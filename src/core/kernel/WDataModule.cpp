@@ -26,9 +26,9 @@
 
 WDataModule::WDataModule():
     WModule(),
-    m_reloadTriggered( new WCondition() ),
     m_suppressColormaps( false ),
-    m_dataModuleInput( WDataModuleInput::SPtr() )
+    m_dataModuleInput( WDataModuleInput::SPtr() ),
+    m_inputChanged( new WCondition )
 {
     // initialize members
 }
@@ -55,11 +55,9 @@ bool WDataModule::getSuppressColormaps() const
 
 void WDataModule::setInput( WDataModuleInput::SPtr input )
 {
-    // only set if not yet set
-    if( !m_dataModuleInput )
-    {
-        m_dataModuleInput = input;
-    }
+    m_dataModuleInput = input;
+    m_inputChanged->notify();
+    handleInputChange();
 }
 
 WDataModuleInput::SPtr WDataModule::getInput() const
@@ -67,8 +65,12 @@ WDataModuleInput::SPtr WDataModule::getInput() const
     return m_dataModuleInput;
 }
 
-void WDataModule::properties()
+void WDataModule::reload()
 {
-    m_reloadTrigger = m_properties->addProperty( "Reload", "Request to reload the data.", WPVBaseTypes::PV_TRIGGER_READY, m_reloadTriggered );
+    handleInputChange();
 }
 
+WCondition::ConstSPtr WDataModule::getInputChangedCondition() const
+{
+    return m_inputChanged;
+}

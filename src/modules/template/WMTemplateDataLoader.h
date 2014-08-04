@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2009 OpenWalnut Community, BSV-Leipzig and CNCF-CBS
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -22,34 +22,43 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMREADVIM_H
-#define WMREADVIM_H
+#ifndef WMTEMPLATEDATALOADER_H
+#define WMTEMPLATEDATALOADER_H
 
 #include <string>
 #include <vector>
 
-#include "core/dataHandler/WDataSetPoints.h"
+#include "core/dataHandler/WDataSetScalar.h"
 
 #include "core/kernel/WDataModule.h"
 #include "core/kernel/WModuleOutputData.h"
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// If you want to learn how to program a module, refer to WMTemplate.cpp. It is an extensive tutorial on all the details.
+// In this tutorial, we assume you already know how to write modules. For other examples, refer to the README file.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
- * This module is intended to allow the user to filter a fiber dataset using the current ROI config
+ * \class WMTemplateDataLoader
+ *
+ * A module that explains the data loader module interface in OpenWalnut. The first important point here: derive from WDataModule.
+ *
+ * Now, please read the C++ code.
  *
  * \ingroup modules
  */
-class WMReadVIM: public WDataModule
+class WMTemplateDataLoader : public WDataModule
 {
 public:
     /**
-     * Default constructor.
+     * Constuctor.
      */
-    WMReadVIM();
+    WMTemplateDataLoader();
 
     /**
      * Destructor.
      */
-    virtual ~WMReadVIM();
+    virtual ~WMTemplateDataLoader();
 
     /**
      * Gives back the name of this module.
@@ -90,7 +99,12 @@ protected:
     virtual void connectors();
 
     /**
-     * Load data.
+     * Initialize the properties for this module.
+     */
+    virtual void properties();
+
+    /**
+     * This contains the code to load the data.
      */
     virtual void load();
 
@@ -108,7 +122,12 @@ private:
     /**
      * The output connector for the data.
      */
-    boost::shared_ptr< WModuleOutputData< WDataSetPoints > > m_output;
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output;
+
+    /**
+     * A condition used to notify about changes in several properties.
+     */
+    boost::shared_ptr< WCondition > m_propCondition;
 
     /**
      * True if the load function needs to be called. Usually set by handleInputChange or the reload trigger
@@ -116,4 +135,4 @@ private:
     bool m_reload;
 };
 
-#endif  // WMREADVIM_H
+#endif  // WMTEMPLATEDATALOADER_H
