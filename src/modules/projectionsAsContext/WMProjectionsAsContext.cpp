@@ -122,11 +122,11 @@ void WMProjectionsAsContext::properties()
 	);
 
 	// add items to dropdown menu
-	m_singleSelectionAxialTop = m_properties->addProperty( "Axial Top", "Choose action for this Plane.", m_possibleSelectionsUsingTypes->getSelector(0), m_propCondition );
+	m_singleSelectionAxialTop = m_properties->addProperty( "Axial Top", "Choose action for this Plane.", m_possibleSelectionsUsingTypes->getSelector(1), m_propCondition );
 	m_singleSelectionAxialBottom = m_properties->addProperty( "Axial Bottom", "Choose action for this Plane.", m_possibleSelectionsUsingTypes->getSelector(0), m_propCondition );
-	m_singleSelectionCoronalTop = m_properties->addProperty( "Coronal Top", "Choose action for this Plane.", m_possibleSelectionsUsingTypes->getSelector(0), m_propCondition );
+	m_singleSelectionCoronalTop = m_properties->addProperty( "Coronal Top", "Choose action for this Plane.", m_possibleSelectionsUsingTypes->getSelector(1), m_propCondition );
 	m_singleSelectionCoronalBottom = m_properties->addProperty( "Coronal Bottom", "Choose action for this Plane.", m_possibleSelectionsUsingTypes->getSelector(0), m_propCondition );
-	m_singleSelectionSagittalTop = m_properties->addProperty( "Sagittal Top", "Choose action for this Plane.", m_possibleSelectionsUsingTypes->getSelector(0), m_propCondition );
+	m_singleSelectionSagittalTop = m_properties->addProperty( "Sagittal Top", "Choose action for this Plane.", m_possibleSelectionsUsingTypes->getSelector(1), m_propCondition );
 	m_singleSelectionSagittalBottom = m_properties->addProperty( "Sagittal Bottom", "Choose action for this Plane.", m_possibleSelectionsUsingTypes->getSelector(0), m_propCondition );
 
 	// specify single selection
