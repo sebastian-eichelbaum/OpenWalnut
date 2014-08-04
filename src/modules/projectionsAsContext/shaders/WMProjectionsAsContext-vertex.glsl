@@ -30,9 +30,8 @@ varying vec3 normal;
 
 void main()
 {
-	// prepare colormapping
-	normal = /*gl_NormalMatrix */ gl_Normal;
-	colormapping();
-	gl_Position = ftransform();
+    // prepare colormapping
+    normal = /*gl_NormalMatrix */ gl_Normal;
+    colormapping();
+    gl_Position = ftransform();
 }
-

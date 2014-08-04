@@ -22,12 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMProjectionsAsContext_H
-#define WMProjectionsAsContext_H
+#ifndef WMPROJECTIONSASCONTEXT_H
+#define WMPROJECTIONSASCONTEXT_H
 
 #include <string>
-
-#include "core/kernel/WModule.h"
 
 #include "core/common/WItemSelection.h"
 #include "core/common/WItemSelectionItem.h"
@@ -43,7 +41,7 @@
 
 enum PlaneType
 {
-  NONE, MIP, COMPOSITING_F2B, COMPOSITING_B2F
+    NONE, MIP, COMPOSITING_F2B, COMPOSITING_B2F
 };
 
 // forward declarations to reduce compile dependencies
@@ -123,39 +121,39 @@ private:
      * Input connector for scalar data.
      */
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_scalarIC;
-    
+
     /**
      * The transfer function as an input data set
      */
-	boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_transferFunction;
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_transferFunction;
 
     /**
      * The OSG root node for this module. All other geodes or OSG nodes will be attached on this single node.
      */
-	osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
+    osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
     /**
      * Needed for recreating the geometry, incase when resolution changes.
      */
-	boost::shared_ptr< WCondition > m_propCondition;
-    
-	typedef WItemSelectionItemTyped< PlaneType > MyItemType;
-    
-	boost::shared_ptr< WItemSelection > m_possibleSelectionsUsingTypes;
-    
-	WPropSelection		m_singleSelectionAxialTop, m_singleSelectionAxialBottom,
-		m_singleSelectionCoronalTop, m_singleSelectionCoronalBottom,
-		m_singleSelectionSagittalTop, m_singleSelectionSagittalBottom;
-		
-	WPropDouble   m_earlyRayTerminationAlpha;
+    boost::shared_ptr< WCondition > m_propCondition;
+
+    typedef WItemSelectionItemTyped< PlaneType > MyItemType;
+
+    boost::shared_ptr< WItemSelection > m_possibleSelectionsUsingTypes;
+
+    WPropSelection        m_singleSelectionAxialTop, m_singleSelectionAxialBottom,
+        m_singleSelectionCoronalTop, m_singleSelectionCoronalBottom,
+        m_singleSelectionSagittalTop, m_singleSelectionSagittalBottom;
+
+    WPropDouble   m_earlyRayTerminationAlpha;
 
     // Output
-	WPropPosition				m_maxCoordsPosition;
-	WPropPosition				m_normalOut;
-	WPropInt					m_planeTypes[6];
+    WPropPosition                m_maxCoordsPosition;
+    WPropPosition                m_normalOut;
+    WPropInt                    m_planeTypes[6];
 
-	osg::ref_ptr< WGEShader >	m_shader;
+    osg::ref_ptr< WGEShader >    m_shader;
 
-	boost::shared_ptr< WDataSetScalar > scalarData;
+    boost::shared_ptr< WDataSetScalar > scalarData;
 };
 
-#endif  // WMProjectionsAsContext_H
+#endif  // WMPROJECTIONSASCONTEXT_H
