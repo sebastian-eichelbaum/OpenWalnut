@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMProject_H
-#define WMProject_H
+#ifndef WMProjectionsAsContext_H
+#define WMProjectionsAsContext_H
 
 #include <string>
 
@@ -55,18 +55,18 @@ class WGEManagedGroupNode;
  * Computes contour lines (aka isolines) for the given data and render them on a 2D plane.
  * \ingroup modules
  */
-class WMProject: public WModule
+class WMProjectionsAsContext: public WModule
 {
 public:
     /**
      * Creates the module for drawing contour lines.
      */
-    WMProject();
+    WMProjectionsAsContext();
 
     /**
      * Destroys this module.
      */
-    virtual ~WMProject();
+    virtual ~WMProjectionsAsContext();
 
     /**
      * Gives back the name of this module.
@@ -158,4 +158,4 @@ private:
 	boost::shared_ptr< WDataSetScalar > scalarData;
 };
 
-#endif  // WMProject_H
+#endif  // WMProjectionsAsContext_H

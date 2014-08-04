@@ -33,7 +33,7 @@ uniform sampler1D u_transferFunctionSampler; // contains the transfer function h
 
 /*
   Values are the same as in the enum Type PlaneType
-  in WMProject.h e. g. 
+  in WMProjectionsAsContext.h e. g. 
   0: None
   1: MIP
   2: Compositing F2B

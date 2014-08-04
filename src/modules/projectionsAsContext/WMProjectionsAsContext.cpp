@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2013 OpenWalnut Community, BSV-Leipzig and CNCF-CBS
+// Copyright 2014 OpenWalnut Community
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -43,42 +43,42 @@
 #include "core/graphicsEngine/WGEUtils.h"
 #include "core/graphicsEngine/WGEColormapping.h"
 
-#include "WMProject.xpm"
-#include "WMProject.h"
+#include "WMProjectionsAsContext.xpm"
+#include "WMProjectionsAsContext.h"
 
 // This line is needed by the module loader to actually find your module.
-W_LOADABLE_MODULE( WMProject )
+W_LOADABLE_MODULE( WMProjectionsAsContext )
 
-WMProject::WMProject():
+WMProjectionsAsContext::WMProjectionsAsContext():
     WModule(),
     m_propCondition( new WCondition() )
 {
 }
 
-WMProject::~WMProject()
+WMProjectionsAsContext::~WMProjectionsAsContext()
 {
 }
 
-boost::shared_ptr< WModule > WMProject::factory() const
+boost::shared_ptr< WModule > WMProjectionsAsContext::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMProject() );
+    return boost::shared_ptr< WModule >( new WMProjectionsAsContext() );
 }
 
-const char** WMProject::getXPMIcon() const
+const char** WMProjectionsAsContext::getXPMIcon() const
 {
-    return WMProject_xpm;
+    return WMProjectionsAsContext_xpm;
 }
-const std::string WMProject::getName() const
+const std::string WMProjectionsAsContext::getName() const
 {
-    return "[EDU] Project";
-}
-
-const std::string WMProject::getDescription() const
-{
-    return "This module draws projections by using different algorithms on a bounding box (Shader Deluxxe Edition).";
+    return "Projections As Context";
 }
 
-void WMProject::connectors()
+const std::string WMProjectionsAsContext::getDescription() const
+{
+    return "This module draws projections by using different algorithms on a bounding box.";
+}
+
+void WMProjectionsAsContext::connectors()
 {
     m_scalarIC = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "scalarData", "Scalar Data." );
     
@@ -87,7 +87,7 @@ void WMProject::connectors()
     WModule::connectors();
 }
 
-void WMProject::properties()
+void WMProjectionsAsContext::properties()
 {
 	m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
@@ -154,11 +154,11 @@ void WMProject::properties()
 	WModule::properties();
 }
 
-void WMProject::requirements()
+void WMProjectionsAsContext::requirements()
 {
 }
 
-void WMProject::moduleMain()
+void WMProjectionsAsContext::moduleMain()
 {
 	infoLog() << "Thrsholding example main routine started";
 
@@ -188,7 +188,7 @@ void WMProject::moduleMain()
 	m_geode = new osg::Geode();
 	
 	// create shader
-	m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMProject", m_localPath ) );
+	m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMProjectionsAsContext", m_localPath ) );
 	
 	m_geode->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
 	m_geode->getOrCreateStateSet()->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
