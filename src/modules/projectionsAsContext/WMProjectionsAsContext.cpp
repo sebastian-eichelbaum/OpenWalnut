@@ -77,7 +77,8 @@ const std::string WMProjectionsAsContext::getName() const
 
 const std::string WMProjectionsAsContext::getDescription() const
 {
-    return "This module draws projections by using different algorithms on a bounding box.";
+    return "This module draws projections of scalar data on the faces of the data set's bounding box."
+        " The data can be projected by using either MIP or DVR.";
 }
 
 void WMProjectionsAsContext::connectors()
