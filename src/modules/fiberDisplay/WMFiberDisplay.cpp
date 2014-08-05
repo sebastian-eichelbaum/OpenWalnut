@@ -790,6 +790,7 @@ void WMFiberDisplay::geometryUpdate( osg::Drawable* geometry )
             }
         }
         static_cast< osg::Geometry* >( geometry )->setSecondaryColorArray( attribs );
+        static_cast< osg::Geometry* >( geometry )->setSecondaryColorBinding( osg::Geometry::BIND_PER_PRIMITIVE_SET );
     }
 }
 
