@@ -107,6 +107,9 @@ protected:
      */
     virtual void requirements();
 
+    /**
+     * Geode holding the planes
+     */
     osg::ref_ptr< osg::Geode > m_geode;
 
 private:
@@ -124,28 +127,80 @@ private:
      * The OSG root node for this module. All other geodes or OSG nodes will be attached on this single node.
      */
     osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
+
     /**
      * Needed for recreating the geometry, incase when resolution changes.
      */
     boost::shared_ptr< WCondition > m_propCondition;
 
+    /**
+     * Typedef for plane orientation selection
+     */
     typedef WItemSelectionItemTyped< PlaneType > MyItemType;
 
+    /**
+     * Plane orientation type selection.
+     */
     boost::shared_ptr< WItemSelection > m_possibleSelectionsUsingTypes;
 
-    WPropSelection        m_singleSelectionAxialTop, m_singleSelectionAxialBottom,
-        m_singleSelectionCoronalTop, m_singleSelectionCoronalBottom,
-        m_singleSelectionSagittalTop, m_singleSelectionSagittalBottom;
+    /**
+     * Plane orientation type.
+     */
+    WPropSelection m_singleSelectionAxialTop;
 
+    /**
+     * Plane orientation type.
+     */
+    WPropSelection m_singleSelectionAxialBottom;
+
+    /**
+     * Plane orientation type.
+     */
+    WPropSelection m_singleSelectionCoronalTop;
+
+    /**
+     * Plane orientation type.
+     */
+    WPropSelection m_singleSelectionCoronalBottom;
+
+    /**
+     * Plane orientation type.
+     */
+    WPropSelection m_singleSelectionSagittalTop;
+
+    /**
+     * Plane orientation type.
+     */
+    WPropSelection m_singleSelectionSagittalBottom;
+
+    /**
+     * Threshold for early ray termination of DVR
+     */
     WPropDouble   m_earlyRayTerminationAlpha;
 
-    // Output
+    /**
+     * Info property.
+     */
     WPropPosition                m_maxCoordsPosition;
+
+    /**
+     * Info property.
+     */
     WPropPosition                m_normalOut;
+
+    /**
+     * Info property.
+     */
     WPropInt                    m_planeTypes[6];
 
+    /**
+     * Reference to shader object.
+     */
     osg::ref_ptr< WGEShader >    m_shader;
 
+    /**
+     * The treated data set.
+     */
     boost::shared_ptr< WDataSetScalar > scalarData;
 };
 
