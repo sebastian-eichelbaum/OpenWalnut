@@ -57,7 +57,7 @@ uniform float u_tubeSize;
  * This vertex attribute is the bitmask denoting whether to show the fiber or not
  */
 #ifdef BITFIELD_ENABLED
-    in float a_bitfield;
+    attribute float a_bitfield;
 #endif
 
 /////////////////////////////////////////////////////////////////////////////

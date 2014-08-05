@@ -157,7 +157,7 @@ std::string WQtTreeItem::createTooltip( WModule::SPtr module )
     conList += "</table>";
 
     tooltip += conCount ? "Yes" + conList + "<br/><br/>" : "None<br/>";
-    tooltip += "<b>Module Description: </b><br/>" + module->getDescription();
+    tooltip += "<b>Module Description: </b><br/>" + module->getMetaInformation()->getDescription();
 
     return tooltip;
 }

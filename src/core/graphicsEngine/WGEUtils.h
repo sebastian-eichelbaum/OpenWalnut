@@ -117,7 +117,10 @@ namespace wge
     WColor getNthHSVColor( int n );
 
     /**
-     * Creates a osg::Uniform with given type and name and applies it to the given node.
+     * Creates a osg::Uniform with given type and name and applies it to the given node. This is a shortcut for using WGEPropertyUniform in this way:
+     * @code
+     * node->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< T >( name, prop ) );
+     * @endcode*
      *
      * \tparam T This is the data used for the uniform. It may be a PropertyType, an integral or an osg::Uniform.
      *

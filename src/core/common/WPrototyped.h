@@ -49,7 +49,7 @@ public:
     virtual ~WPrototyped();
 
     /**
-     * Gets the name of this prototype.
+     * Gets the name of this prototype. Not allowed line-breaks, ":", "/", "\".
      *
      * \return the name.
      */
