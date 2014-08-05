@@ -45,7 +45,7 @@
 
   // Provide a list of authors. These authors can have further information associated with them.
   author = "Alexander Otte, Markus Jankowski, Michael Hamburger";
-  author =  OpenWalnut Project";
+  author = "OpenWalnut Project";
 
   "OpenWalnut Project"
   {
