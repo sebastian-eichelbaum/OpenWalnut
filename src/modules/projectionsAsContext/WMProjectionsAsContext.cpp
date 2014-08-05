@@ -45,7 +45,6 @@
 #include "core/graphicsEngine/WGEUtils.h"
 #include "core/graphicsEngine/WGEColormapping.h"
 
-#include "WMProjectionsAsContext.xpm"
 #include "WMProjectionsAsContext.h"
 
 // This line is needed by the module loader to actually find your module.
@@ -66,10 +65,6 @@ boost::shared_ptr< WModule > WMProjectionsAsContext::factory() const
     return boost::shared_ptr< WModule >( new WMProjectionsAsContext() );
 }
 
-const char** WMProjectionsAsContext::getXPMIcon() const
-{
-    return WMProjectionsAsContext_xpm;
-}
 const std::string WMProjectionsAsContext::getName() const
 {
     return "Projections As Context";
@@ -222,7 +217,7 @@ void WMProjectionsAsContext::moduleMain()
 
     // initialize a "list" to save the plane selection
     std::vector<osg::ref_ptr<osg::Geometry> > planeList;
-    for( int i = 0; i  < 6; i++ )
+    for( int i = 0; i < 6; i++ )
         planeList.push_back( NULL );
 
     // for compositing
