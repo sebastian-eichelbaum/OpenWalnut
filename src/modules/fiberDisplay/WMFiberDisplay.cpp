@@ -556,7 +556,7 @@ void WMFiberDisplay::createFiberGeode( boost::shared_ptr< WDataSetFibers > fiber
 
     // for each fiber:
     debugLog() << "Iterating over " << fibStart->size() << " fibers.";
-    debugLog() << "Number of vertices: " << fibVerts->size();
+    debugLog() << "Number of vertices: " << fibVerts->size() / 3;
     size_t currentStart = 0;
     bool tubeMode = m_tubeEnable->get( true );
     for( size_t fidx = 0; fidx < fibStart->size() ; ++fidx )
