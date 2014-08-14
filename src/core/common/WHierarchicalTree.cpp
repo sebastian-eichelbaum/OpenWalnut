@@ -39,7 +39,7 @@ WHierarchicalTree::~WHierarchicalTree()
 {
 }
 
-std::vector< size_t > WHierarchicalTree::findXBiggestClusters( size_t cluster, size_t number )
+std::vector< size_t > WHierarchicalTree::findXBiggestClusters( size_t cluster, size_t number ) const
 {
     //std::cout << number << " largest clusters for cluster: " << cluster << std::endl;
 
@@ -122,7 +122,7 @@ std::vector< size_t > WHierarchicalTree::findXBiggestClusters( size_t cluster, s
     return returnVector;
 }
 
-std::vector< size_t > WHierarchicalTree::downXLevelsFromTop( size_t level, bool hideOutliers )
+std::vector< size_t > WHierarchicalTree::downXLevelsFromTop( size_t level, bool hideOutliers ) const
 {
     if( level > m_maxLevel )
     {
