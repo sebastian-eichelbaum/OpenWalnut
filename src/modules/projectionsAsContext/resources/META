@@ -22,11 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
-"Image Space LIC"
+// Provide additional material and descriptions for your module. You can
+// provide this for multiple modules if you like.
+
+// NOTE: everything but the module name is optional, even if this makes no
+//       sense at all.
+
+"Projections As Context"
 {
   // Provide an icon. If the icon exists, it overrides the one provided by your
   // getXPMIcon method. This path is relative to your module's resource directory.
-  icon="WMImageSpaceLIC.png";
+  icon="WMProjectionsAsContext.png";
 
   // Where to find the module?
   website = "http://www.openwalnut.org";
@@ -35,23 +41,23 @@
   // provided by your getDescription method.
   // HINT: multi-line strings are not supported. Please provide long texts in
   //       one line.
-  description = "This module takes an vector dataset and creates an LIC-like texture on an arbitrary surface. You can specify the surface as input or leave it unspecified to use slices.";
+  description = "This module draws projections of scalar data on the faces of the data set's bounding box. The data can be projected by using either MIP or DVR.";
 
-  // Provide a list of authors. These authors can have further information associated with them. First,
-  // define the list of authors
+  // Provide a list of authors. These authors can have further information associated with them.
+  author = "Alexander Otte, Markus Jankowski, Michael Hamburger";
   author = "OpenWalnut Project";
 
-  // To provide further details on one or multiple authors, just open a new block called like
-  // the author.
-  //
-  // * all sub-values are optional
-  // * Especially a contact address is very handy.
-  // * This associates some URL and Mail contact info to "OpenWalnut Project".
   "OpenWalnut Project"
   {
     url="http://www.openwalnut.org";
     email="contact@openwalnut.org";
-    what="Design, Development and Bug fixing";
+    what="Bug fixing, Adaption to style";
+  };
+  "Alexander Otte, Markus Jankowski, Michael Hamburger"
+  {
+    url="http://vclabor.awmw.org";
+    email="WV-Projekt-2014-SS@vclabor.awmw.org";
+    what="Design and Development";
   };
 };
 
