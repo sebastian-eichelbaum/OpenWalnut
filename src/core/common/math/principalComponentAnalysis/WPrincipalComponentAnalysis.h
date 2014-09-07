@@ -66,7 +66,7 @@ public:
      * Analyzes a point data set using the Principal Component Analysis algorithm.
      * \param inputData Point data to be analyzed.
      */
-    void analyzeData( const vector<WPosition>* inputData );
+    void analyzeData( const vector<WPosition>& inputData );
     /**
      * Returns the mean coordinate of all input points.
      * \return The mean coordinate of all input points.
@@ -78,7 +78,7 @@ public:
      * getVariance().
      * \return Point distribution directions.
      */
-    vector<WVector3d> getDirections();
+    vector<WVector3d> getEigenVectors();
     /**
      * Returns Eigen Values (equals how much the directions of getDirections() are 
      * distributed). Its index corresponds to the indices of that method. The strengths 
@@ -104,9 +104,14 @@ private:
     void swapEigenVectors( size_t eigenVectorIndex1, size_t eigenVectorIndex2 );
 
     /**
-     * Point data to be analyzed.
+     * Point count of the input data.
      */
-    const vector<WPosition>* m_inputData;
+    size_t m_inputPointCount;
+    /**
+     * Dimension count used in the input data.
+     */
+    size_t m_dimensions;
+
     /**
      * Instance to analyze the covariances of the point data between each dimension pair.
      */
@@ -114,7 +119,7 @@ private:
     /**
      * Main point distribution directions. After process they're sorted by their strength descending.
      */
-    vector<WVector3d> m_directions;
+    vector<WVector3d> m_eigenVectors;
     /**
      * Lambda values for A*x-Lambda*x=0.
      */
