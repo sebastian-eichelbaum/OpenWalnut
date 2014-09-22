@@ -76,7 +76,7 @@ INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 # Setup the target
 ADD_EXECUTABLE( ${BinName} ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${OW_VERSION_HEADER} )
 
-# Some linux distributions need to explicitily link against X11. We add this lib here.
+# Some Linux distributions need to explicitly link against X11. We add this lib here.
 IF( CMAKE_HOST_SYSTEM MATCHES "Linux" )
     SET( ADDITIONAL_TARGET_LINK_LIBRARIES "X11" )
 ENDIF()

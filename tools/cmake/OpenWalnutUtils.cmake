@@ -675,7 +675,20 @@ FUNCTION( SETUP_MODULE _MODULE_NAME _MODULE_SOURCE_DIR _MODULE_DEPENDENCIES _MOD
 
     # Setup the target
     ADD_LIBRARY( ${MODULE_NAME} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} )
-    TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${CMAKE_STANDARD_LIBRARIES} ${OW_LIB_OPENWALNUT} ${Boost_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES} ${_MODULE_DEPENDENCIES} )
+
+    # Some Linux distributions need to explicitly link against X11. We add this lib here.
+    IF( CMAKE_HOST_SYSTEM MATCHES "Linux" )
+        SET( ADDITIONAL_TARGET_LINK_LIBRARIES "X11" )
+    ENDIF()
+
+    TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${CMAKE_STANDARD_LIBRARIES}
+                                          ${OW_LIB_OPENWALNUT} 
+                                          ${Boost_LIBRARIES}
+                                          ${OPENGL_gl_LIBRARY}
+                                          ${OPENSCENEGRAPH_LIBRARIES} 
+                                          ${ADDITIONAL_TARGET_LINK_LIBRARIES} 
+                                          ${_MODULE_DEPENDENCIES}
+                         )
 
     # Set the version of the library.
     SET_TARGET_PROPERTIES( ${MODULE_NAME} PROPERTIES
