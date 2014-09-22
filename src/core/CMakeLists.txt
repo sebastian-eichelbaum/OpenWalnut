@@ -101,7 +101,7 @@ INSTALL( FILES ${OW_VERSION_HEADER}
 )
 
 # The core does also provide some nice pkg-config file. Set this up and configure it to contain the correct install prefix
-SETUP_CONFIGURED_FILE( "core-dev" "lib/pkgconfig/openwalnut.pc" "CORE_DEV" )
+SETUP_CONFIGURED_FILE_TO( "core-dev" "lib/pkgconfig/openwalnut.pc" "CORE_DEV" "${OW_LIBRARY_DIR_RELATIVE}/pkgconfig" )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Test Setup

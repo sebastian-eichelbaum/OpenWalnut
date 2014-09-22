@@ -192,14 +192,23 @@ MESSAGE( STATUS "---------------------------------------------------------------
 
 # mimic layout of install dir for build:
 # these dirs are the same for all parts of OW
+SET( OW_LIBRARY_DIR_RELATIVE "lib" )
+SET( OW_ARCHIVE_DIR_RELATIVE "lib" )
+SET( OW_MODULE_DIR_RELATIVE "lib" )
+
+# Add Multiarch support:
+IF( OW_PACKAGE_MULTIARCH )
+    SET( OW_LIBRARY_DIR_RELATIVE "lib/${OW_PACKAGE_MULTIARCHLIBPATH}" )
+    SET( OW_ARCHIVE_DIR_RELATIVE "lib/${OW_PACKAGE_MULTIARCHLIBPATH}" )
+    SET( OW_MODULE_DIR_RELATIVE "lib/${OW_PACKAGE_MULTIARCHLIBPATH}/openwalnut" )
+ENDIF()
+
+SET( OW_LIBRARY_DIR ${PROJECT_BINARY_DIR}/${OW_LIBRARY_DIR_RELATIVE} )
+SET( OW_ARCHIVE_DIR ${PROJECT_BINARY_DIR}/${OW_ARCHIVE_DIR_RELATIVE} )
+SET( OW_MODULE_DIR ${PROJECT_BINARY_DIR}/${OW_MODULE_DIR_RELATIVE} )
+
 SET( OW_RUNTIME_DIR_RELATIVE "bin" )
 SET( OW_RUNTIME_DIR ${PROJECT_BINARY_DIR}/${OW_RUNTIME_DIR_RELATIVE} )
-SET( OW_LIBRARY_DIR_RELATIVE "lib" )
-SET( OW_LIBRARY_DIR ${PROJECT_BINARY_DIR}/${OW_LIBRARY_DIR_RELATIVE} )
-SET( OW_ARCHIVE_DIR_RELATIVE "lib" )
-SET( OW_ARCHIVE_DIR ${PROJECT_BINARY_DIR}/${OW_ARCHIVE_DIR_RELATIVE} )
-SET( OW_MODULE_DIR_RELATIVE "lib/openwalnut" )
-SET( OW_MODULE_DIR ${PROJECT_BINARY_DIR}/${OW_MODULE_DIR_RELATIVE} )
 SET( OW_MAN_DIR_RELATIVE "share/man" )
 SET( OW_MAN_DIR "${PROJECT_BINARY_DIR}/share/man" )
 
@@ -274,10 +283,8 @@ BUILD_SYSTEM_COMPILER()
 ADD_DEFINITIONS( ${OW_CPP_FLAGS_INJECT} )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-# OpenWalnut specific options
+# Platform specific options
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-# OpenWalnut specific options
 
 # sorry, linking not available properly on windows, Cygwin supports this but we do not want special rules for thousands of environments.
 # ==> keep it clean
@@ -292,6 +299,8 @@ IF( OW_PACKAGE_BUILD )
 
     OPTION( OW_PACKAGE_NOCOPY_LICENSE "Disable to copy our licensing information. Enabling this can be useful for package maintainer since several packaging systems have their own licence mechanism (i.e. Debian)." OFF )
     OPTION( OW_PACKAGE_NOCOPY_COREFONTS "Enable this if you have liberation fonts installed on your system. They will be linked. If disabled, our fonts are copied." OFF )
+
+    OPTION( OW_PACKAGE_MULTIARCH "Enable if the build should comply to the multiarch standard of the given OW_PACKAGE_PACKAGER. Right now, only Debian multiarch is formally supported." OFF )
 ENDIF()
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
