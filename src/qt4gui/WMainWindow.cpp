@@ -773,7 +773,7 @@ void WMainWindow::openAboutNemticsDialog()
     std::string filename( WPathHelper::getDocPath().string() + "/openwalnut-qt4/OpenWalnutAboutNemtics.html" );
     std::string content = readFileIntoString( filename );
     std::string windowHeading =  std::string( "About Nemtics " ) + std::string( W_VERSION );
- 	QMessageBox* b = new QMessageBox( QMessageBox::Information,
+    QMessageBox* b = new QMessageBox( QMessageBox::Information,
                                       QString::fromStdString( windowHeading ),
                                       QString::fromStdString( content ),
                                       QMessageBox::Ok,
@@ -788,7 +788,7 @@ void WMainWindow::openSupportDialog()
     std::string filename( WPathHelper::getDocPath().string() + "/openwalnut-qt4/OpenWalnutSupport.html" );
     std::string content = readFileIntoString( filename );
     std::string windowHeading =  std::string( "Professional Support " ) + std::string( W_VERSION );
- 	QMessageBox* b = new QMessageBox( QMessageBox::Information,
+    QMessageBox* b = new QMessageBox( QMessageBox::Information,
                                       QString::fromStdString( windowHeading ),
                                       QString::fromStdString( content ),
                                       QMessageBox::Ok,
