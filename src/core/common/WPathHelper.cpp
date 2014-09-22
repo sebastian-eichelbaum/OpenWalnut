@@ -31,6 +31,10 @@
 
 #include "WPathHelper.h"
 
+#ifndef W_LIB_DIR_RELATIVE
+    #define W_LIB_DIR_RELATIVE "lib"
+#endif
+
 // path helper instance as singleton
 boost::shared_ptr< WPathHelper > WPathHelper::m_instance = boost::shared_ptr< WPathHelper >();
 
@@ -61,8 +65,10 @@ void WPathHelper::setBasePaths( boost::filesystem::path appPath, boost::filesyst
     m_sharePath  = m_appPath / "../share/openwalnut";
     m_docPath    = m_appPath / "../share/doc";
     m_configPath = m_appPath / "../share/openwalnut";
-    m_libPath    = m_appPath / "../lib";
-    m_modulePath = m_libPath / "openwalnut";
+    m_libPath    = m_appPath / ".." / W_LIB_DIR_RELATIVE;   // NOTE: this variable is set by CMake.
+    // This is the default search path. Use getAllModulePaths for finding all modules, including those whose
+    // directories where defined by the user.
+    m_modulePath = m_libPath / "openwalnut"; // This is the default search path.
 
     // this is the relative path for module resources. It is relative to the path of the lib containing the module.
     // Our build system places modules in lib/openwalnut/packagename/. The relative path needs to go out of the lib directory to a share
@@ -78,7 +84,9 @@ void WPathHelper::setBasePathsOSXBundle( boost::filesystem::path appPath, boost:
     m_sharePath  = m_appPath / "../Resources/openwalnut";
     m_docPath    = m_appPath / "../Resources/doc";
     m_configPath = m_appPath / "../Resources/openwalnut";
-    m_libPath    = m_appPath / "../lib"; // TODO(mario): what is this for?
+    m_libPath    = m_appPath / ".." / W_LIB_DIR_RELATIVE;   // NOTE: this variable is set by CMake.
+    // This is the default search path. Use getAllModulePaths for finding all modules, including those whose
+    // directories where defined by the user.
     m_modulePath = m_appPath / "../Resources/modules";
 
     // this is the relative path for module resources. It is relative to the path of the lib containing the module.
@@ -147,8 +155,23 @@ boost::filesystem::path WPathHelper::getModuleResourcePath( boost::filesystem::p
     // relative path to the resources
     boost::filesystem::path resRel = getPathHelper()->m_moduleResourcePathRelative / packageName;
 
-    // return absolute paths
-    return moduleLibPath / resRel;
+    // This is related to issue #378, the multiarch support. For modules build with multiarch support, the lib dir is one step
+    // deeper nested -> hence we need to go up one more step. The resource path is always created, even if empty.
+    //
+    // If you encounter any problems, please report them to the openwalnut-dev@lists.informatik.uni-leipzig.de.
+    if( boost::filesystem::exists( moduleLibPath / resRel ) )
+    {
+        return moduleLibPath / resRel;
+    }
+    else if( boost::filesystem::exists( moduleLibPath / ".." / resRel ) )
+    {
+        return moduleLibPath / ".." / resRel;
+    }
+    else
+    {
+        // Lets hope this works ... as both paths are not found, there probably is none.
+        return moduleLibPath / resRel;
+    }
 }
 
 std::vector< boost::filesystem::path > WPathHelper::getAllModulePaths()

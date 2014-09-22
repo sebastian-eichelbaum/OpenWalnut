@@ -35,6 +35,10 @@ SET( LibName ${OW_LIB_OPENWALNUT} )
 ADD_DEFINITIONS( '-DW_LIB_PREFIX="${CMAKE_SHARED_LIBRARY_PREFIX}"' )
 ADD_DEFINITIONS( '-DW_LIB_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}"' )
 
+# Set the library path. It might be different from the expected "lib" path, especially when using multiarch or similar.
+# This definition is used by WPathHelper internally.
+ADD_DEFINITIONS( '-DW_LIB_DIR_RELATIVE="${OW_LIBRARY_DIR_RELATIVE}"' )
+
 OPTION( OW_STATIC_BUILD "Enable this to build the core library as static library." OFF )
 
 # the files to link against if we found the necessary libs for a script interpreter

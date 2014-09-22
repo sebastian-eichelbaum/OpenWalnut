@@ -356,7 +356,7 @@ void WMainWindow::setupGUI()
     this->addAction( controlPanelTrigger );  // this enables the action even if the menu bar is invisible
 
     m_helpAction = new QAction( "Help", this );
-    m_helpAction->setIcon( m_iconManager.getIcon( "help" ) );
+    m_helpAction->setIcon( m_iconManager.getIcon( "questionmark" ) );
     connect( m_helpAction, SIGNAL( triggered() ), this, SLOT( openOpenWalnutHelpDialog() ) );
     m_helpMenu = m_menuBar->addMenu( "Help" );
     m_helpMenu->addAction( m_iconManager.getIcon( "logo" ), "Welcome to OpenWalnut", this, SLOT( showWelcomeDialog() ) );
@@ -440,6 +440,7 @@ void WMainWindow::setupGUI()
     m_networkEditor->addTitleAction( m_saveAction );
     m_networkEditor->addTitleSeperator();
     m_networkEditor->addTitleAction( m_settingsAction, true );
+    m_networkEditor->addTitleAction( m_helpAction, true );
 
     // allow the control panel to complete setup
     m_controlPanel->completeGuiSetup();
