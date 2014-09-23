@@ -25,10 +25,10 @@
 #include <iostream>
 
 #include "QtCore/QMimeData"
-#include "QtGui/QColorDialog"
-#include "QtGui/QGraphicsSceneMouseEvent"
-#include "QtGui/QPainter"
-#include "QtGui/QStyleOption"
+#include "QColorDialog"
+#include "QGraphicsSceneMouseEvent"
+#include "QPainter"
+#include "QStyleOption"
 
 #include "WTransferFunctionWidget.h"
 

@@ -327,7 +327,7 @@ void WQtGLWidget::keyPressEvent( QKeyEvent* event )
     }
     if( event->text() != "" )
     {
-        m_Viewer->keyEvent( WGEViewer::KEYPRESS, *event->text().toAscii().data() );
+        m_Viewer->keyEvent( WGEViewer::KEYPRESS, event->key() );
     }
     else
     {
@@ -380,7 +380,7 @@ void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
             break;
     }
 
-    m_Viewer->keyEvent( WGEViewer::KEYRELEASE, *event->text().toAscii().data() );
+    m_Viewer->keyEvent( WGEViewer::KEYRELEASE, event->key() );
 }
 
 

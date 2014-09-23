@@ -25,7 +25,7 @@
 #ifndef WTRANSFERFUNCTIONLINE_H
 #define WTRANSFERFUNCTIONLINE_H
 
-#include "QtGui/QGraphicsLineItem"
+#include "QGraphicsLineItem"
 
 class WTransferFunctionWidget;
 class WTransferFunctionPoint;

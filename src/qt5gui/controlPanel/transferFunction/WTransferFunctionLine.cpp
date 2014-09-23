@@ -28,9 +28,9 @@
 #include "WTransferFunctionPoint.h"
 #include "WTransferFunctionWidget.h"
 
-#include "QtGui/QPainter"
-#include "QtGui/QStyleOption"
-#include "QtGui/QGraphicsSceneMouseEvent"
+#include "QPainter"
+#include "QStyleOption"
+#include "QGraphicsSceneMouseEvent"
 
 WTransferFunctionLine::WTransferFunctionLine( WTransferFunctionWidget* /* parent */ )
     : BaseClass(), lineWidth( 2.0 ), left( 0x0 ), right( 0x0 )

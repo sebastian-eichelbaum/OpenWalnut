@@ -58,7 +58,7 @@ WQtNetworkArrow::WQtNetworkArrow( WQtNetworkOutputPort *startPort, WQtNetworkInp
     setFlag( QGraphicsItem::ItemIsSelectable, true );
     setPen( QPen( Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
 
-    setAcceptsHoverEvents( true );
+    setAcceptHoverEvents( true );
 }
 
 WQtNetworkArrow::~WQtNetworkArrow()
@@ -80,9 +80,12 @@ WQtNetworkInputPort* WQtNetworkArrow::findNearestCompatibleInput( QPointF pos, f
     WQtNetworkScene* scene = WQt4Gui::getMainWindow()->getNetworkEditor()->getScene();
 
     // find items in area:
-    QList<QGraphicsItem *> items = scene->items( pos.x() - ( maxDistance / 2.0 ),
-                                                 pos.y() - ( maxDistance / 2.0 ),
-                                                 maxDistance, maxDistance );
+    QList<QGraphicsItem *> items = scene->items( static_cast< qreal >( pos.x() - ( maxDistance / 2.0 ) ),
+                                                 static_cast< qreal >( pos.y() - ( maxDistance / 2.0 ) ),
+                                                 static_cast< qreal >( maxDistance ),
+                                                 static_cast< qreal >( maxDistance ),
+                                                 Qt::IntersectsItemShape,
+                                                 Qt::AscendingOrder );
 
     // find all the connectors:
     WQtNetworkInputPort* nearest = NULL;

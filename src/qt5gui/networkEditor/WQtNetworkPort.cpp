@@ -41,7 +41,7 @@ WQtNetworkPort::WQtNetworkPort():
     setPen( QPen( Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
     m_brushNotSet = true;
 
-    setAcceptsHoverEvents( true );
+    setAcceptHoverEvents( true );
     m_arrow = NULL;
 }
 

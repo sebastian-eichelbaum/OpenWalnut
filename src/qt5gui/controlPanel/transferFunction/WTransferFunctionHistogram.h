@@ -26,7 +26,7 @@
 #define WTRANSFERFUNCTIONHISTOGRAM_H
 
 #include <vector>
-#include "QtGui/QGraphicsItem"
+#include "QGraphicsItem"
 
 class WTransferFunctionWidget;
 

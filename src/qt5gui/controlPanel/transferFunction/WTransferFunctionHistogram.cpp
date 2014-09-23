@@ -30,9 +30,9 @@
 #include "WTransferFunctionHistogram.h"
 #include "WTransferFunctionWidget.h"
 
-#include "QtGui/QPainter"
-#include "QtGui/QStyleOption"
-#include "QtGui/QGraphicsSceneMouseEvent"
+#include "QPainter"
+#include "QStyleOption"
+#include "QGraphicsSceneMouseEvent"
 
 
 WTransferFunctionHistogram::WTransferFunctionHistogram( WTransferFunctionWidget * /*parent*/ ) : BaseClass()

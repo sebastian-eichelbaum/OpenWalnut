@@ -28,21 +28,18 @@
 
 #include <QVBoxLayout>
 
-#ifndef QT4GUI_NOWEBKIT
-    #include <QtWebKit/QWebView>
-    #include <QtWebKit/QWebFrame>
-    #include <QtWebKit/QWebPage>
-    #include <QToolBar>
-    #include <QToolButton>
-    #include <QHBoxLayout>
-    #include <QWidget>
-    #include <QPixmap>
-    #include <QIcon>
-    #include <QAction>
-    #include <QtCore/QUrl>
-#else
-    #include <QTextEdit>
-#endif
+#include <QWebView>
+#include <QWebFrame>
+#include <QWebPage>
+#include <QToolBar>
+#include <QToolButton>
+#include <QHBoxLayout>
+#include <QWidget>
+#include <QPixmap>
+#include <QIcon>
+#include <QAction>
+#include <QtCore/QUrl>
+#include <QTextEdit>
 
 #include "core/common/WIOTools.h"
 #include "core/common/WLogger.h"
@@ -214,7 +211,6 @@ WQtModuleMetaInfo::WQtModuleMetaInfo( WModule::SPtr module, QWidget* parent ):
     layout->setSpacing( 0 );
     layout->setContentsMargins( 0, 0, 0, 0 );
 
-#ifndef QT4GUI_NOWEBKIT
     // create the QT webview
     QWebView* view = new QWebView( this );
 
@@ -261,12 +257,6 @@ WQtModuleMetaInfo::WQtModuleMetaInfo( WModule::SPtr module, QWidget* parent ):
 
     // the home action triggers reseContent
     connect( homeAction, SIGNAL( triggered() ), this, SLOT( resetContent() ) );
-#else
-    // no webview. Use a text widget.
-    QTextEdit* view = new QTextEdit( this );
-    layout->addWidget( view );
-    view->setText( "This feature is not supported in your OpenWalnut build. Please build OpenWalnut with Qt Webkit." );
-#endif
 }
 
 WQtModuleMetaInfo::~WQtModuleMetaInfo()
@@ -276,7 +266,6 @@ WQtModuleMetaInfo::~WQtModuleMetaInfo()
 
 void WQtModuleMetaInfo::resetContent()
 {
-#ifndef QT4GUI_NOWEBKIT
     // we use the module resource path as search URL
     std::string moduleLocation( m_module->getLocalPath().string() );
     QString locationURL( QString( "file://" ) + QString::fromStdString( moduleLocation ) + "/" );
@@ -284,5 +273,4 @@ void WQtModuleMetaInfo::resetContent()
     // set content
     std::string processedContent = htmlify( m_module->getMetaInformation() );
     m_frame->setHtml( processedContent.c_str(), QUrl( locationURL ) );
-#endif
 }

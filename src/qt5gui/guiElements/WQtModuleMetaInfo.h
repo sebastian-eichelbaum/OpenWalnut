@@ -26,9 +26,7 @@
 #define WQTMODULEMETAINFO_H
 
 #include <QWidget>
-#ifndef QT4GUI_NOWEBKIT
-    #include <QtWebKit/QWebFrame>
-#endif
+#include <QWebFrame>
 
 #include "core/kernel/WModule.h"
 

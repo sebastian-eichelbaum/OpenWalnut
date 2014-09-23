@@ -813,13 +813,13 @@ void WQtNetworkItem::activate( bool active )
 
     if( active == true )
     {
-        setAcceptsHoverEvents( true );
+        setAcceptHoverEvents( true );
         setFlag( QGraphicsItem::ItemIsSelectable, true );
         changeState( m_module->isCrashed() ? Crashed : Normal );
     }
     if( active == false )
     {
-        setAcceptsHoverEvents( false );
+        setAcceptHoverEvents( false );
         setFlag( QGraphicsItem::ItemIsSelectable, false );
         changeState( Disabled );
     }

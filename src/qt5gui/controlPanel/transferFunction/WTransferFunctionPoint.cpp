@@ -24,9 +24,9 @@
 
 #include <iostream>
 
-#include "QtGui/QPainter"
-#include "QtGui/QStyleOption"
-#include "QtGui/QGraphicsSceneMouseEvent"
+#include "QPainter"
+#include "QStyleOption"
+#include "QGraphicsSceneMouseEvent"
 
 #include "WTransferFunctionWidget.h"
 

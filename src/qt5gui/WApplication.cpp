@@ -45,56 +45,6 @@ void WApplication::setMyMainWidget( QWidget* widget )
     myMainWidget = widget;
 }
 
-void WApplication::commitData( QSessionManager& manager ) // NOLINT
-{
-    if( !myMainWidget )
-    {
-        manager.release(); // no main window, nothing to store, yet
-        return;
-    }
-
-    WMainWindow* mainWindow = dynamic_cast<WMainWindow*>( myMainWidget );
-    if( !mainWindow )
-    {
-        manager.release(); // not our main class, can't store
-        return;
-    }
-
-    QApplication::commitData( manager );
-    if( manager.allowsInteraction() )
-    {
-        int ret =  QMessageBox::warning(
-                myMainWidget,
-                tr( "OpenWalnut" ),
-                tr( "Save changes?" ),
-                QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel );
-        switch( ret )
-        {
-            case QMessageBox::Save:
-                if( mainWindow->projectSaveAll() )
-                {
-                    // we want to save and saving was successful, we are ready!
-                    manager.release();
-                }
-                else
-                {
-                    // if we want to save but saving failed, cancel action
-                    manager.cancel();
-                }
-                break;
-            case QMessageBox::Discard:
-                break;
-            case QMessageBox::Cancel:
-            default:
-                manager.cancel();
-        }
-    }
-    else
-    {
-        // no interaction allowed, what should we do?
-    }
-}
-
 bool WApplication::notify( QObject* object, QEvent* event )
 {
     // Question: can we assume that WLogger is running here?

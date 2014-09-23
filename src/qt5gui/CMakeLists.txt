@@ -35,6 +35,7 @@ SET( BinName "openwalnut-qt5" )
 
 # Package dependencies:
 FIND_PACKAGE( Qt5Widgets REQUIRED )
+FIND_PACKAGE( Qt5WebKitWidgets REQUIRED )
 
 # Includes:
 INCLUDE_DIRECTORIES( SYSTEM ${QT_INCLUDE_DIR} )
@@ -64,7 +65,10 @@ ADD_EXECUTABLE( ${BinName} ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${OW_VERSION_HE
 IF( CMAKE_HOST_SYSTEM MATCHES "Linux" )
     SET( ADDITIONAL_TARGET_LINK_LIBRARIES "X11" )
 ENDIF()
-TARGET_LINK_LIBRARIES( ${BinName} ${OW_LIB_OPENWALNUT} Qt5::Widgets ${Boost_LIBRARIES} ${ADDITIONAL_TARGET_LINK_LIBRARIES} )
+TARGET_LINK_LIBRARIES( ${BinName} ${OW_LIB_OPENWALNUT}
+                                  Qt5::Widgets Qt5::WebKitWidgets 
+                                  ${Boost_LIBRARIES} 
+                                  ${ADDITIONAL_TARGET_LINK_LIBRARIES} )
 
 # Tell CMake that someone creates this file for us. See doc of SETUP_VERSION_HEADER for details why this is needed.
 # NOTE: this needs to be placed AFTER ADD_EXECUTABLE or ADD_LIBRARY

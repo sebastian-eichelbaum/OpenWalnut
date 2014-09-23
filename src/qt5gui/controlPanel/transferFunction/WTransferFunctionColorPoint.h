@@ -25,9 +25,9 @@
 #ifndef WTRANSFERFUNCTIONCOLORPOINT_H
 #define WTRANSFERFUNCTIONCOLORPOINT_H
 
-#include "QtGui/QGraphicsItem"
+#include "QGraphicsItem"
 
-#include "QtGui/QMenu"
+#include "QMenu"
 
 class WTransferFunctionWidget;
 
@@ -41,7 +41,7 @@ class WTransferFunctionColorPoint : public QObject, public QGraphicsItem
 {
     // \cond Suppress_Doxygen
     Q_OBJECT // NOLINT
-    Q_INTERFACES( QGraphicsItem ) // NOLINT
+    // Q_INTERFACES( QGraphicsItem ) // NOLINT
     // \endcond
 
 public:

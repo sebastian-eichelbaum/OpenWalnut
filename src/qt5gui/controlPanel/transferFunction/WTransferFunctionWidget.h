@@ -27,7 +27,7 @@
 
 #include <vector>
 
-#include "QtGui/QGraphicsView"
+#include "QGraphicsView"
 
 
 class QGraphicsScene;

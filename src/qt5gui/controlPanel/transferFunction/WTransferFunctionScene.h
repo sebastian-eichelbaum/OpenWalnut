@@ -25,7 +25,7 @@
 #ifndef WTRANSFERFUNCTIONSCENE_H
 #define WTRANSFERFUNCTIONSCENE_H
 
-#include "QtGui/QGraphicsScene"
+#include "QGraphicsScene"
 
 class WTransferFunctionWidget;
 

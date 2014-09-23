@@ -45,13 +45,6 @@ public:
      */
     WApplication( int & argc, char** argv, bool GUIenabled = true );
 
-    /** manage save dialogs when the session manager asks us to
-     * take care of our data.
-     * This is an overloaded function from QT.
-     * \param manager the session manager
-     */
-    virtual void commitData( QSessionManager& manager ); // NOLINT
-
     /**
      * store the main widget for error reporting and session management
      * \param widget the main widget used, e.g., when application data

@@ -25,7 +25,7 @@
 #ifndef WTRANSFERFUNCTIONBACKGROUND_H
 #define WTRANSFERFUNCTIONBACKGROUND_H
 
-#include "QtGui/QGraphicsPixmapItem"
+#include "QGraphicsPixmapItem"
 
 class WTransferFunctionWidget;
 

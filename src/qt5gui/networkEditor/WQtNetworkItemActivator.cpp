@@ -49,7 +49,7 @@ WQtNetworkItemActivator::WQtNetworkItemActivator( boost::shared_ptr< WModule > m
     setPolygon( poly );
 
     setPen( QPen( Qt::white, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
-    setAcceptsHoverEvents( true );
+    setAcceptHoverEvents( true );
 
     // to avoid polling during paint, subscribe to the change signal
     m_notifierConnection = m_module->getProperties()->getProperty( "active" )->toPropBool()->getValueChangeCondition()->subscribeSignal(
