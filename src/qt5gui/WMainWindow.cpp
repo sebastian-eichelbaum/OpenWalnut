@@ -85,7 +85,7 @@
 #include "guiElements/WQtPropertyBoolAction.h"
 #include "abstractUI/WUIQtWidgetBase.h"
 #include "WQtMessagePopup.h"
-#include "WQt4Gui.h"
+#include "WQtGui.h"
 #include "WQtCombinerToolbar.h"
 #include "WQtGLDockWidget.h"
 #include "WQtNavGLWidget.h"
@@ -163,7 +163,7 @@ void WMainWindow::setupGUI()
     WGraphicsEngine::getGraphicsEngine()->setMultiThreadedViews( mtViews->get() );
 
     // set the log-level setting.
-    // NOTE: see WQt4Gui which reads the setting.
+    // NOTE: see WQtGui which reads the setting.
     QList< QString > logOptions;
     logOptions.push_back( "Debug" );
     logOptions.push_back( "Info" );
@@ -559,7 +559,7 @@ WQtNetworkEditor* WMainWindow::getNetworkEditor()
 
 bool WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer )
 {
-    QString lastPath = WQt4Gui::getSettings().value( "LastProjectSavePath", "" ).toString();
+    QString lastPath = WQtGui::getSettings().value( "LastProjectSavePath", "" ).toString();
     QString selected = QFileDialog::getSaveFileName( this, "Save Project as", lastPath,
                                                      "Project File (*.owproj *.owp)" );
     if( selected == "" )
@@ -569,7 +569,7 @@ bool WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
 
     // extract path and save to settings
     boost::filesystem::path p( selected.toStdString() );
-    WQt4Gui::getSettings().setValue( "LastProjectSavePath", QString::fromStdString( p.parent_path().string() ) );
+    WQtGui::getSettings().setValue( "LastProjectSavePath", QString::fromStdString( p.parent_path().string() ) );
 
     bool success = true;
     std::string filename = ( selected ).toStdString();
@@ -686,7 +686,7 @@ QString collectFilters()
 
 void WMainWindow::openLoadDialog()
 {
-    QString lastPath = WQt4Gui::getSettings().value( "LastOpenPath", "" ).toString();
+    QString lastPath = WQtGui::getSettings().value( "LastOpenPath", "" ).toString();
 
     // build filter list
     // NOTE: Qt Doc says we need to separate multiple filters by ";;"
@@ -702,7 +702,7 @@ void WMainWindow::openLoadDialog()
 
     // extract path and save to settings
     boost::filesystem::path p( filenames[0].toStdString() );
-    WQt4Gui::getSettings().setValue( "LastOpenPath", QString::fromStdString( p.parent_path().string() ) );
+    WQtGui::getSettings().setValue( "LastOpenPath", QString::fromStdString( p.parent_path().string() ) );
 
     std::vector< std::string > loadDataFilenames;
     QStringList::const_iterator constIterator;
@@ -858,7 +858,7 @@ void WMainWindow::closeStage1Thread()
     copy.clear();
 
     // notify main window -> just call close() again with updated state
-    WQt4Gui::execInGUIThreadAsync( boost::bind( &WMainWindow::closeStage2, this ) );
+    WQtGui::execInGUIThreadAsync( boost::bind( &WMainWindow::closeStage2, this ) );
 }
 
 void WMainWindow::closeStage2()
@@ -1106,11 +1106,11 @@ void WMainWindow::restoreSavedState()
 {
     wlog::info( "MainWindow" ) << "Restoring window state.";
 
-    restoreGeometry( WQt4Gui::getSettings().value( "MainWindowGeometry", "" ).toByteArray() );
-    restoreState( WQt4Gui::getSettings().value( "MainWindowState", "" ).toByteArray() );
+    restoreGeometry( WQtGui::getSettings().value( "MainWindowGeometry", "" ).toByteArray() );
+    restoreState( WQtGui::getSettings().value( "MainWindowState", "" ).toByteArray() );
 
-    m_glDock->restoreGeometry( WQt4Gui::getSettings().value( "GLDockWindowGeometry", "" ).toByteArray() );
-    m_glDock->restoreState( WQt4Gui::getSettings().value( "GLDockWindowState", "" ).toByteArray() );
+    m_glDock->restoreGeometry( WQtGui::getSettings().value( "GLDockWindowGeometry", "" ).toByteArray() );
+    m_glDock->restoreState( WQtGui::getSettings().value( "GLDockWindowState", "" ).toByteArray() );
 
     if( m_navAxial )
     {
@@ -1131,19 +1131,19 @@ void WMainWindow::saveWindowState()
     wlog::info( "MainWindow" ) << "Saving window state.";
 
     // this saves the window state to some common location on the target OS in user scope.
-    WQt4Gui::getSettings().setValue( "MainWindowState", saveState() );
-    WQt4Gui::getSettings().setValue( "GLDockWindowState", m_glDock->saveState() );
+    WQtGui::getSettings().setValue( "MainWindowState", saveState() );
+    WQtGui::getSettings().setValue( "GLDockWindowState", m_glDock->saveState() );
 
     // NOTE: Qt Doc says that saveState also saves geometry. But this somehow is wrong (at least for 4.6.3)
-    WQt4Gui::getSettings().setValue( "MainWindowGeometry", saveGeometry() );
-    WQt4Gui::getSettings().setValue( "GLDockWindowGeometry", m_glDock->saveGeometry() );
+    WQtGui::getSettings().setValue( "MainWindowGeometry", saveGeometry() );
+    WQtGui::getSettings().setValue( "GLDockWindowGeometry", m_glDock->saveGeometry() );
 
     m_messageDock->saveSettings();
 }
 
 QSettings& WMainWindow::getSettings()
 {
-    return WQt4Gui::getSettings();
+    return WQtGui::getSettings();
 }
 
 void WMainWindow::setSetting( std::string key, std::string value )

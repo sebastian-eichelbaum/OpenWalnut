@@ -44,7 +44,7 @@
 #include "core/common/WPathHelper.h"
 #include "core/kernel/WModuleFactory.h"
 #include "WMainWindow.h"
-#include "WQt4Gui.h"
+#include "WQtGui.h"
 #include "WQtModuleConfig.h"
 
 bool nameSort( WModule::ConstSPtr i, WModule::ConstSPtr j )
@@ -141,7 +141,7 @@ WQtModuleConfig::WQtModuleConfig( QWidget* parent, Qt::WindowFlags f ):
     connect( m_pathList, SIGNAL( itemSelectionChanged() ), this, SLOT( pathListSelectionChanged() ) );
 
     // for modules without icon, use this
-    QIcon noIcon = WQt4Gui::getMainWindow()->getIconManager()->getIcon( "DefaultModuleIcon" );
+    QIcon noIcon = WQtGui::getMainWindow()->getIconManager()->getIcon( "DefaultModuleIcon" );
 
     // fill the list item
     for( std::vector< WModule::ConstSPtr >::const_iterator iter = m_moduleList.begin(); iter != m_moduleList.end(); ++iter )
@@ -170,7 +170,7 @@ WQtModuleConfig::WQtModuleConfig( QWidget* parent, Qt::WindowFlags f ):
             icon->setSizePolicy( sizePolicy );
 
             // we need to enforce some size
-            QIcon modIco = WQt4Gui::getMainWindow()->getIconManager()->getIcon( ( *iter )->getName(), noIcon );
+            QIcon modIco = WQtGui::getMainWindow()->getIconManager()->getIcon( ( *iter )->getName(), noIcon );
             QPixmap qicon( modIco.pixmap( 32, 32 ) );
             qicon = qicon.scaled( 32, 32, Qt::KeepAspectRatio );
             icon->setPixmap( qicon );
@@ -219,7 +219,7 @@ void WQtModuleConfig::initPathHelper()
 {
     // we allow the user to specify additional module paths. They need to be loaded before the WModuleFactory initiates the module-load stuff.
     // Therefore, we grab the setting here and add it to WPathHelper
-    QList< QVariant > paths = WQt4Gui::getSettings().value( "qt5gui/additionalModulePaths" ).toList();
+    QList< QVariant > paths = WQtGui::getSettings().value( "qt5gui/additionalModulePaths" ).toList();
     for( QList< QVariant >::const_iterator it = paths.begin(); it != paths.end(); ++it )
     {
         std::string p = ( *it ).toString().toStdString();
@@ -230,14 +230,14 @@ void WQtModuleConfig::initPathHelper()
 void WQtModuleConfig::loadListsFromSettings( bool defaultModulePaths )
 {
     // update checkbox too
-    bool ignoreAllowedList = WQt4Gui::getSettings().value( "qt5gui/modules/IgnoreAllowedList", true ).toBool();
+    bool ignoreAllowedList = WQtGui::getSettings().value( "qt5gui/modules/IgnoreAllowedList", true ).toBool();
     m_showThemAll->setCheckState( ignoreAllowedList ? Qt::Checked : Qt::Unchecked );
 
-    bool asBlackList = WQt4Gui::getSettings().value( "qt5gui/modules/asBlackList", false ).toBool();
+    bool asBlackList = WQtGui::getSettings().value( "qt5gui/modules/asBlackList", false ).toBool();
     m_asBlackList->setCheckState( asBlackList ? Qt::Checked : Qt::Unchecked );
 
     // read settings
-    std::string allowedModules = WQt4Gui::getSettings().value( "qt5gui/modules/allowedList", "" ).toString().toStdString();
+    std::string allowedModules = WQtGui::getSettings().value( "qt5gui/modules/allowedList", "" ).toString().toStdString();
     m_allowedModules = string_utils::tokenize( allowedModules, "," );
 
     // set dialog according to the settings
@@ -254,7 +254,7 @@ void WQtModuleConfig::loadListsFromSettings( bool defaultModulePaths )
         // now, also fill the list
         // NOTE: we do not use the list in WPathHelper. This list will NOT be updated directly to ensure consistency between the path list in
         // WPathHelper and the loaded modules in WModuleFactory. WPathHelper is set correctly on next restart.
-        QList< QVariant > paths = WQt4Gui::getSettings().value( "qt5gui/additionalModulePaths" ).toList();
+        QList< QVariant > paths = WQtGui::getSettings().value( "qt5gui/additionalModulePaths" ).toList();
         for( QList< QVariant >::const_iterator it = paths.begin(); it != paths.end(); ++it )
         {
             std::string p = ( *it ).toString().toStdString();
@@ -281,9 +281,9 @@ void WQtModuleConfig::saveListToSettings()
     }
 
     // store this list in settings
-    WQt4Gui::getSettings().setValue( "qt5gui/modules/allowedList", QString::fromStdString( allowedAsString ) );
-    WQt4Gui::getSettings().setValue( "qt5gui/modules/IgnoreAllowedList", ( m_showThemAll->checkState() == Qt::Checked ) );
-    WQt4Gui::getSettings().setValue( "qt5gui/modules/asBlackList", ( m_asBlackList->checkState() == Qt::Checked ) );
+    WQtGui::getSettings().setValue( "qt5gui/modules/allowedList", QString::fromStdString( allowedAsString ) );
+    WQtGui::getSettings().setValue( "qt5gui/modules/IgnoreAllowedList", ( m_showThemAll->checkState() == Qt::Checked ) );
+    WQtGui::getSettings().setValue( "qt5gui/modules/asBlackList", ( m_asBlackList->checkState() == Qt::Checked ) );
 
     // also write the path list
     QList< QVariant > paths;
@@ -291,7 +291,7 @@ void WQtModuleConfig::saveListToSettings()
     {
         paths.push_back( m_pathList->item( i )->text() );
     }
-    WQt4Gui::getSettings().setValue( "qt5gui/additionalModulePaths", paths );
+    WQtGui::getSettings().setValue( "qt5gui/additionalModulePaths", paths );
 }
 
 bool WQtModuleConfig::operator()( std::string const& name ) const

@@ -45,7 +45,7 @@
 #include "core/common/WLogger.h"
 #include "core/common/WPathHelper.h"
 
-#include "../WQt4Gui.h"
+#include "../WQtGui.h"
 #include "../WMainWindow.h"
 
 #include "WQtModuleMetaInfo.h"
@@ -226,7 +226,7 @@ WQtModuleMetaInfo::WQtModuleMetaInfo( WModule::SPtr module, QWidget* parent ):
     toolbar->setLayout( tbLayout );
 
     // we need a special home-action to set the html content again
-    QAction* homeAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( module->getName() ),
+    QAction* homeAction = new QAction( WQtGui::getMainWindow()->getIconManager()->getIcon( module->getName() ),
                                        QString( "Back to " ) + QString::fromStdString( module->getName() ),
                                        toolbar );
     homeAction->setIconText( QString( "Back to " ) + QString::fromStdString( module->getName() ) );

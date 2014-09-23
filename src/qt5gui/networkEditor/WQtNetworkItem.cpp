@@ -952,6 +952,6 @@ bool WQtNetworkItem::wasManuallyPlaced() const
 void WQtNetworkItem::runtimeNameChanged()
 {
     // move to gui thread, non-blocking.
-    WQt4Gui::execInGUIThreadAsync( boost::bind( &WQtNetworkItem::setText, this, m_module->getRuntimeName()->get() ) );
+    WQtGui::execInGUIThreadAsync( boost::bind( &WQtNetworkItem::setText, this, m_module->getRuntimeName()->get() ) );
 }
 

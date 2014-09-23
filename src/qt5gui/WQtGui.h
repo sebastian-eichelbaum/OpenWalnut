@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQT4GUI_H
-#define WQT4GUI_H
+#ifndef WQTGUI_H
+#define WQTGUI_H
 
 #include <string>
 #include <vector>
@@ -53,10 +53,10 @@ class WMainWindow;
 class WKernel;
 
 /**
- * The QT4 Based GUI implementation. Implements WUI.
+ * The QT Based GUI implementation. Implements WUI.
  * \ingroup ui
  */
-class WQt4Gui : public WUI
+class WQtGui : public WUI
 {
 public:
     /**
@@ -66,12 +66,12 @@ public:
      * \param argc number of arguments given on command line.
      * \param argv arguments given on command line.
      */
-    WQt4Gui( const boost::program_options::variables_map& options, int argc, char** argv );
+    WQtGui( const boost::program_options::variables_map& options, int argc, char** argv );
 
     /**
      * Default destructor.
      */
-    virtual ~WQt4Gui();
+    virtual ~WQtGui();
 
     /**
      * Runs the GUI. All initialization should be done here.
@@ -305,5 +305,5 @@ private:
     WUIQtWidgetFactory::SPtr m_widgetFactory;
 };
 
-#endif  // WQT4GUI_H
+#endif  // WQTGUI_H
 

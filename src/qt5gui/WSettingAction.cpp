@@ -44,7 +44,7 @@ WSettingAction::WSettingAction( QObject* parent, std::string settingName, std::s
     setToolTip( QString::fromStdString( tooltip ) );
 
     // set with current value
-    setChecked( WQt4Gui::getSettings().value( QString::fromStdString( settingName ), defaultValue ).toBool() );
+    setChecked( WQtGui::getSettings().value( QString::fromStdString( settingName ), defaultValue ).toBool() );
 
     // handle the change
     connect( this, SIGNAL( toggled( bool ) ), this, SLOT( stateChange( bool ) ) );
@@ -62,12 +62,12 @@ bool WSettingAction::get() const
 void WSettingAction::stateChange( bool state )
 {
     // store the value
-    WQt4Gui::getSettings().setValue( m_settingName, state );
+    WQtGui::getSettings().setValue( m_settingName, state );
 
     // does this setting require restart?
     if( m_showRestartInfo )
     {
-        QMessageBox::information( WQt4Gui::getMainWindow(), QString( "Restart required" ), QString( "This setting is applied after restart." ) );
+        QMessageBox::information( WQtGui::getMainWindow(), QString( "Restart required" ), QString( "This setting is applied after restart." ) );
     }
 
     emit change( state );

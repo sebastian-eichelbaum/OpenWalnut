@@ -45,7 +45,7 @@
 #include "core/graphicsEngine/WGraphicsEngineMode.h"
 #include "core/kernel/WKernel.h"
 
-#include "WQt4Gui.h"
+#include "WQtGui.h"
 #include "WQtGLScreenCapture.h"
 #include "events/WRenderedFrameEvent.h"
 #include "events/WEventTypes.h"
@@ -104,7 +104,7 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
 
     m_Viewer->isFrameRendered()->getCondition()->subscribeSignal( boost::bind( &WQtGLWidget::notifyFirstRenderedFrame, this ) );
 
-    m_cameraResetAction = new QAction( WQt4Gui::getIconManager()->getIcon( "view" ), "Reset", this );
+    m_cameraResetAction = new QAction( WQtGui::getIconManager()->getIcon( "view" ), "Reset", this );
     connect( m_cameraResetAction, SIGNAL(  triggered( bool ) ), this, SLOT( reset() ) );
     m_cameraResetAction->setToolTip( "Reset view" );
 
@@ -117,32 +117,32 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
     // so the user may get confused. It is also not a good idea to take letters as they might be used by OpenSceneGraph widget ( like "S" for
     // statistics ).
     // By additionally adding the action to the main window, we ensure the action can be triggered even if the menu bar is hidden.
-    QAction* tmpAction = m_cameraPresetMenu->addAction( WQt4Gui::getIconManager()->getIcon( "sagittal icon" ), "Left", this,
+    QAction* tmpAction = m_cameraPresetMenu->addAction( WQtGui::getIconManager()->getIcon( "sagittal icon" ), "Left", this,
                                                         SLOT( setPresetViewLeft() ),
                                                         QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_L ) );
     tmpAction->setIconVisibleInMenu( true );
     m_cameraPresetResetMenu->addAction( tmpAction );
-    tmpAction = m_cameraPresetMenu->addAction( WQt4Gui::getIconManager()->getIcon( "sagittal icon" ), "Right", this,
+    tmpAction = m_cameraPresetMenu->addAction( WQtGui::getIconManager()->getIcon( "sagittal icon" ), "Right", this,
                                                SLOT( setPresetViewRight() ),
                                                QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_R ) );
     tmpAction->setIconVisibleInMenu( true );
     m_cameraPresetResetMenu->addAction( tmpAction );
-    tmpAction = m_cameraPresetMenu->addAction( WQt4Gui::getIconManager()->getIcon( "axial icon" ), "Superior", this,
+    tmpAction = m_cameraPresetMenu->addAction( WQtGui::getIconManager()->getIcon( "axial icon" ), "Superior", this,
                                                SLOT( setPresetViewSuperior() ),
                                                QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_S ) );
     tmpAction->setIconVisibleInMenu( true );
     m_cameraPresetResetMenu->addAction( tmpAction );
-    tmpAction = m_cameraPresetMenu->addAction( WQt4Gui::getIconManager()->getIcon( "axial icon" ), "Inferior", this,
+    tmpAction = m_cameraPresetMenu->addAction( WQtGui::getIconManager()->getIcon( "axial icon" ), "Inferior", this,
                                                SLOT( setPresetViewInferior() ),
                                                QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_I ) );
     tmpAction->setIconVisibleInMenu( true );
     m_cameraPresetResetMenu->addAction( tmpAction );
-    tmpAction = m_cameraPresetMenu->addAction( WQt4Gui::getIconManager()->getIcon( "coronal icon" ), "Anterior", this,
+    tmpAction = m_cameraPresetMenu->addAction( WQtGui::getIconManager()->getIcon( "coronal icon" ), "Anterior", this,
                                                SLOT( setPresetViewAnterior() ),
                                                QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_A ) );
     tmpAction->setIconVisibleInMenu( true );
     m_cameraPresetResetMenu->addAction( tmpAction );
-    tmpAction = m_cameraPresetMenu->addAction( WQt4Gui::getIconManager()->getIcon( "coronal icon" ), "Posterior", this,
+    tmpAction = m_cameraPresetMenu->addAction( WQtGui::getIconManager()->getIcon( "coronal icon" ), "Posterior", this,
                                                SLOT( setPresetViewPosterior() ),
                                                QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) );
     tmpAction->setIconVisibleInMenu( true );

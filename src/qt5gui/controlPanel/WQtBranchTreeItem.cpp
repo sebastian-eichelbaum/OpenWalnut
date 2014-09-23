@@ -33,7 +33,7 @@
 #include <QWidgetAction>
 
 #include "../guiElements/WScaleLabel.h"
-#include "../WQt4Gui.h"
+#include "../WQtGui.h"
 #include "../WMainWindow.h"
 #include "WPropertyBoolWidget.h"
 #include "WPropertyDoubleWidget.h"
@@ -81,7 +81,7 @@ WQtBranchTreeItem::WQtBranchTreeItem( QTreeWidgetItem* parent, boost::shared_ptr
     isnot->setToolTip( QString::fromStdString( branch->invertProperty()->getDescription() ) );
 
     QLabel* grabWidget = new QLabel( m_itemWidget );
-    grabWidget->setPixmap( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "touchpoint_small" ).pixmap( 24, 32 ) );
+    grabWidget->setPixmap( WQtGui::getMainWindow()->getIconManager()->getIcon( "touchpoint_small" ).pixmap( 24, 32 ) );
     grabWidget->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
     grabWidget->setFixedWidth( 24 );
     grabWidget->setToolTip( "Drag and drop these textures to change their composition ordering." );

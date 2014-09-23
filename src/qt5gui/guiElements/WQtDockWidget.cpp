@@ -28,7 +28,7 @@
 #include <QToolButton>
 #include <QWidgetAction>
 
-#include "../WQt4Gui.h"
+#include "../WQtGui.h"
 #include "../WMainWindow.h"
 #include "../WIconManager.h"
 
@@ -122,13 +122,13 @@ void WQtDockWidget::showHelp()
 
 void WQtDockWidget::saveSettings()
 {
-    WQt4Gui::getSettings().setValue( objectName() + "/geometry", saveGeometry() );
+    WQtGui::getSettings().setValue( objectName() + "/geometry", saveGeometry() );
 }
 
 void WQtDockWidget::restoreSettings()
 {
     // nothing to do
-    restoreGeometry( WQt4Gui::getSettings().value( objectName() + "/geometry", "" ).toByteArray() );
+    restoreGeometry( WQtGui::getSettings().value( objectName() + "/geometry", "" ).toByteArray() );
 }
 
 void WQtDockWidget::closeEvent( QCloseEvent *event )
@@ -147,7 +147,7 @@ void WQtDockWidget::addTitleProperty( WPropTrigger prop, WGEImage::SPtr icon )
     WQtPropertyTriggerAction* propAction = new WQtPropertyTriggerAction( prop, this );
     if( !icon )
     {
-        propAction->setIcon(  WQt4Gui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
+        propAction->setIcon(  WQtGui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
     }
     else
     {
@@ -162,7 +162,7 @@ void WQtDockWidget::addTitleProperty( WPropBool prop, WGEImage::SPtr icon )
     WQtPropertyBoolAction* propAction = new WQtPropertyBoolAction( prop, this );
     if( !icon )
     {
-        propAction->setIcon(  WQt4Gui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
+        propAction->setIcon(  WQtGui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
     }
     else
     {
@@ -204,7 +204,7 @@ void WQtDockWidget::addTitleProperty( WPropGroup prop, WGEImage::SPtr icon )
 
     if( !icon )
     {
-        viewerConfigBtn->setIcon(  WQt4Gui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
+        viewerConfigBtn->setIcon(  WQtGui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
     }
     else
     {

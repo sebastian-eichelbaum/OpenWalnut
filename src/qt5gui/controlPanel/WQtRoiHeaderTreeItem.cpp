@@ -32,7 +32,7 @@
 #include <QWidgetAction>
 
 #include "../guiElements/WScaleLabel.h"
-#include "../WQt4Gui.h"
+#include "../WQtGui.h"
 #include "../WMainWindow.h"
 
 #include "WQtRoiHeaderTreeItem.h"

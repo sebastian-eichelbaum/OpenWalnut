@@ -33,7 +33,7 @@
 #include "../events/WModuleDeleteEvent.h"
 #include "../events/WPropertyChangedEvent.h"
 #include "../WMainWindow.h"
-#include "../WQt4Gui.h"
+#include "../WQtGui.h"
 #include "core/common/WLogger.h"
 #include "core/common/WProgress.h"
 #include "core/common/WProgressCombiner.h"
@@ -164,7 +164,7 @@ std::string WQtTreeItem::createTooltip( WModule::SPtr module )
 void WQtTreeItem::slotDataChanged( boost::shared_ptr<WModuleConnector> connector )
 {
     // post event
-    QCoreApplication::postEvent( WQt4Gui::getMainWindow()->getControlPanel(), new WModuleConnectorEvent( m_module, connector ) );
+    QCoreApplication::postEvent( WQtGui::getMainWindow()->getControlPanel(), new WModuleConnectorEvent( m_module, connector ) );
 }
 
 void WQtTreeItem::update()
@@ -196,7 +196,7 @@ void WQtTreeItem::updateState()
         QFont curFont = font( 0 );
         curFont.setStrikeOut( true );
         setFont( 0, curFont );
-        setIcon( 0, WQt4Gui::getMainWindow()->getIconManager()->getIcon( "moduleCrashed" ) );
+        setIcon( 0, WQtGui::getMainWindow()->getIconManager()->getIcon( "moduleCrashed" ) );
 
         // this ensures that crashed modules can be deleted
         setDisabled( false );
@@ -204,7 +204,7 @@ void WQtTreeItem::updateState()
     else if( p->isPending() )
     {
         progress = "Busy " + p->getCombinedNames();
-        setIcon( 0, WQt4Gui::getMainWindow()->getIconManager()->getIcon( "moduleBusy" ) );
+        setIcon( 0, WQtGui::getMainWindow()->getIconManager()->getIcon( "moduleBusy" ) );
         std::ostringstream progressText;
 
         // construct a name for the progress indicator
@@ -244,8 +244,8 @@ void WQtTreeItem::updateState()
     if( m_deleteInProgress && !m_module->isRunning().get() && m_needPostDeleteEvent )
     {
         m_needPostDeleteEvent = false;  // this ensures the event is only posted once
-        QCoreApplication::postEvent( WQt4Gui::getMainWindow()->getNetworkEditor(), new WModuleDeleteEvent( this ) );
-        QCoreApplication::postEvent( WQt4Gui::getMainWindow()->getControlPanel(), new WModuleDeleteEvent( this ) );
+        QCoreApplication::postEvent( WQtGui::getMainWindow()->getNetworkEditor(), new WModuleDeleteEvent( this ) );
+        QCoreApplication::postEvent( WQtGui::getMainWindow()->getControlPanel(), new WModuleDeleteEvent( this ) );
     }
 
     // active ?

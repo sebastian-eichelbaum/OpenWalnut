@@ -48,7 +48,7 @@
 #include "core/kernel/WModuleFactory.h"
 #include "core/kernel/WROIManager.h"
 #include "../WMainWindow.h"
-#include "../WQt4Gui.h"
+#include "../WQtGui.h"
 #include "../WQtCombinerActionList.h"
 #include "../WQtModuleConfig.h"
 #include "../events/WEventTypes.h"
@@ -98,26 +98,26 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     separator->setSeparator( true );
     m_moduleTreeWidget->addAction( separator );
 
-    m_addModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "add" ), "Add new Module", m_moduleTreeWidget );
+    m_addModuleAction = new QAction( WQtGui::getMainWindow()->getIconManager()->getIcon( "add" ), "Add new Module", m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_addModuleAction );
     m_addModuleAction->setCheckable( false );
-    m_connectWithPrototypeAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "addAndLink" ),
+    m_connectWithPrototypeAction = new QAction( WQtGui::getMainWindow()->getIconManager()->getIcon( "addAndLink" ),
                                                 "Add Module and Connect",
                                                 m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_connectWithPrototypeAction );
     m_connectWithPrototypeAction->setCheckable( false );
-    m_connectWithModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "link" ), "Connect Existing Module",
+    m_connectWithModuleAction = new QAction( WQtGui::getMainWindow()->getIconManager()->getIcon( "link" ), "Connect Existing Module",
                                             m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_connectWithModuleAction );
     m_connectWithModuleAction->setCheckable( false );
-    m_disconnectAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "unlink" ), "Disconnect", m_moduleTreeWidget );
+    m_disconnectAction = new QAction( WQtGui::getMainWindow()->getIconManager()->getIcon( "unlink" ), "Disconnect", m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_disconnectAction );
     m_disconnectAction->setCheckable( false );
 
     // a separator to clean up the tree widget's context menu
     m_moduleTreeWidget->addAction( separator );
 
-    m_deleteModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "remove" ), "Remove Module", m_moduleTreeWidget );
+    m_deleteModuleAction = new QAction( WQtGui::getMainWindow()->getIconManager()->getIcon( "remove" ), "Remove Module", m_moduleTreeWidget );
     {
         // Set the key for removing modules
         //m_deleteModuleAction->setShortcutContext( Qt::WidgetShortcut );
@@ -133,7 +133,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_moduleTreeWidget->addAction( separator );
 
     // add an entry for those who search their module without luck
-    m_configModuleFilterAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "configure" ), "Configure Modules",
+    m_configModuleFilterAction = new QAction( WQtGui::getMainWindow()->getIconManager()->getIcon( "configure" ), "Configure Modules",
                                           m_moduleTreeWidget );
     m_configModuleFilterAction->setToolTip( "Having trouble finding your module? This opens the module configuration, which allows you to define the "
                                        "modules that should be shown or hidden." );
@@ -217,7 +217,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     connectSlots();
 
     // similar to the module delete action: a ROI delete action
-    m_deleteRoiAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "del_roi" ), "Remove ROI", m_roiTreeWidget );
+    m_deleteRoiAction = new QAction( WQtGui::getMainWindow()->getIconManager()->getIcon( "del_roi" ), "Remove ROI", m_roiTreeWidget );
     {
         // Set the key for removing modules
         m_deleteRoiAction->setShortcutContext( Qt::WidgetShortcut );

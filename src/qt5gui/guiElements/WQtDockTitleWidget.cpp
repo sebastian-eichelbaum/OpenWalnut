@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../WQt4Gui.h"
+#include "../WQtGui.h"
 #include "../WMainWindow.h"
 
 #include "core/common/WLogger.h"
@@ -67,7 +67,7 @@ void WQtDockTitleWidget::construct()
 
     // close Btn
     m_closeBtn = new QToolButton( this );
-    QAction* closeAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "popup_close" ), "Close", this );
+    QAction* closeAction = new QAction( WQtGui::getMainWindow()->getIconManager()->getIcon( "popup_close" ), "Close", this );
     connect( closeAction, SIGNAL( triggered( bool ) ), m_dockParent, SLOT( close() ) );
     m_closeBtn->setDefaultAction( closeAction );
     setupButton( m_closeBtn );
@@ -99,7 +99,7 @@ void WQtDockTitleWidget::construct()
     setupSizeConstraints( m_moreBtn );
     m_moreBtn->setFixedWidth( 32 );
     m_moreBtn->setPopupMode( QToolButton::InstantPopup );
-    m_moreBtn->setIcon(  WQt4Gui::getMainWindow()->getIconManager()->getIcon( "popup_more" ) );
+    m_moreBtn->setIcon(  WQtGui::getMainWindow()->getIconManager()->getIcon( "popup_more" ) );
     QMenu* moreMenu = new QMenu();
     QWidgetAction* moreAction = new QWidgetAction( m_toolsMenu );
     moreAction->setDefaultWidget( m_toolsMenu );
@@ -108,7 +108,7 @@ void WQtDockTitleWidget::construct()
 
     // help button
     m_helpBtn = new QToolButton( this );
-    QAction* helpAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "questionmark" ), "Help", this );
+    QAction* helpAction = new QAction( WQtGui::getMainWindow()->getIconManager()->getIcon( "questionmark" ), "Help", this );
     connect( helpAction, SIGNAL( triggered( bool ) ), m_dockParent, SLOT( showHelp() ) );
     m_helpBtn->setDefaultAction( helpAction );
     setupButton( m_helpBtn );

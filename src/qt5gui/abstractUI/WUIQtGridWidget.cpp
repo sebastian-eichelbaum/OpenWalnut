@@ -115,7 +115,7 @@ void WUIQtGridWidget::placeWidgetImpl( WUIWidgetBase::SPtr widget, int x, int y 
     // and forward call to GUI thread
     if( widgetQtwidget )
     {
-        WQt4Gui::execInGUIThread( boost::bind( &WUIQtGridWidget::placeWidgetImplGT, this, widgetQtwidget, x, y ) );
+        WQtGui::execInGUIThread( boost::bind( &WUIQtGridWidget::placeWidgetImplGT, this, widgetQtwidget, x, y ) );
     }
 }
 
@@ -131,7 +131,7 @@ void WUIQtGridWidget::setRowStretch( int row, int stretch )
 {
     if( m_gridLayout )
     {
-        WQt4Gui::execInGUIThread( boost::bind( &QGridLayout::setRowStretch, m_gridLayout, row, stretch ) );
+        WQtGui::execInGUIThread( boost::bind( &QGridLayout::setRowStretch, m_gridLayout, row, stretch ) );
     }
 }
 
@@ -139,7 +139,7 @@ void WUIQtGridWidget::setColumnStretch( int column, int stretch )
 {
     if( m_gridLayout )
     {
-        WQt4Gui::execInGUIThread( boost::bind( &QGridLayout::setColumnStretch, m_gridLayout, column, stretch ) );
+        WQtGui::execInGUIThread( boost::bind( &QGridLayout::setColumnStretch, m_gridLayout, column, stretch ) );
     }
 }
 

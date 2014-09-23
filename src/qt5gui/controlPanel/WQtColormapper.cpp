@@ -50,7 +50,7 @@
 #include "../events/WUpdateTextureSorterEvent.h"
 #include "../events/WEventTypes.h"
 #include "../guiElements/WScaleLabel.h"
-#include "../WQt4Gui.h"
+#include "../WQtGui.h"
 #include "../WMainWindow.h"
 
 #include "WQtColormapper.h"
@@ -79,17 +79,17 @@ WQtColormapper::WQtColormapper( QWidget* parent )
     m_layout->setContentsMargins( 0, 0, 0, 0 );
 
     // create the move-up/down buttons
-    QAction* downAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "go-down" ), "Move selected colormap down.", this );
+    QAction* downAction = new QAction( WQtGui::getMainWindow()->getIconManager()->getIcon( "go-down" ), "Move selected colormap down.", this );
     connect( downAction, SIGNAL( triggered() ), this, SLOT( moveItemDown() ) );
 
-    QAction* upAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "go-up" ), "Move selected colormap up.", this );
+    QAction* upAction = new QAction( WQtGui::getMainWindow()->getIconManager()->getIcon( "go-up" ), "Move selected colormap up.", this );
     connect( upAction, SIGNAL( triggered() ), this, SLOT( moveItemUp() ) );
 
-    QAction* bottomAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "go-bottom" ), "Move selected colormap to the bottom.",
+    QAction* bottomAction = new QAction( WQtGui::getMainWindow()->getIconManager()->getIcon( "go-bottom" ), "Move selected colormap to the bottom.",
                                          this );
     connect( bottomAction, SIGNAL( triggered() ), this, SLOT( moveItemBottom() ) );
 
-    QAction* topAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "go-top" ), "Move selected colormap to the top.", this );
+    QAction* topAction = new QAction( WQtGui::getMainWindow()->getIconManager()->getIcon( "go-top" ), "Move selected colormap to the top.", this );
     connect( topAction, SIGNAL( triggered() ), this, SLOT( moveItemTop() ) );
 
     addTitleAction( bottomAction );
@@ -184,7 +184,7 @@ WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGET
     QToolButton* propActionBtn = new QToolButton( m_itemWidget );
     propActionBtn->setPopupMode( QToolButton::InstantPopup );
     propActionBtn->setMenu( propActionMenu );
-    propActionBtn->setIcon( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
+    propActionBtn->setIcon( WQtGui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
     propActionBtn->setToolButtonStyle( Qt::ToolButtonIconOnly );
     propActionBtn->setContentsMargins( 0, 0, 0, 0 );
     propActionBtn->setAutoRaise( true );
@@ -192,7 +192,7 @@ WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGET
     propActionBtn->setToolTip( "Show all the configuration options for this texture and its colormap." );
 
     QLabel* grabWidget = new QLabel( m_itemWidget );
-    grabWidget->setPixmap( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "touchpoint_small" ).pixmap( 24, 32 ) );
+    grabWidget->setPixmap( WQtGui::getMainWindow()->getIconManager()->getIcon( "touchpoint_small" ).pixmap( 24, 32 ) );
     grabWidget->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
     grabWidget->setFixedWidth( 24 );
     grabWidget->setToolTip( "Drag and drop these textures to change their composition ordering." );

@@ -147,7 +147,7 @@ WQtMessagePopup::WQtMessagePopup( QWidget* parent, const QString& title, const Q
 
     QPushButton* detailsBtn = new QPushButton( "", this );
     detailsBtn->setContentsMargins( 0, 0, 0, 0 );
-    detailsBtn->setIcon( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "popup_more" ) );
+    detailsBtn->setIcon( WQtGui::getMainWindow()->getIconManager()->getIcon( "popup_more" ) );
     detailsBtn->setFixedWidth( textHeight );
     detailsBtn->setFixedHeight( textHeight );
     detailsBtn->setToolTip( "Show complete message" );
@@ -156,7 +156,7 @@ WQtMessagePopup::WQtMessagePopup( QWidget* parent, const QString& title, const Q
 
     m_closeBtn = new QPushButton( "", this );
     m_closeBtn->setContentsMargins( 0, 0, 0, 0 );
-    m_closeBtn->setIcon( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "popup_close" ) );
+    m_closeBtn->setIcon( WQtGui::getMainWindow()->getIconManager()->getIcon( "popup_close" ) );
     m_closeBtn->setFixedWidth( textHeight );
     m_closeBtn->setFixedHeight( textHeight );
     m_closeBtn->setToolTip( "Close this message" );

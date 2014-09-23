@@ -37,7 +37,7 @@
 #include "core/common/WItemSelection.h"
 
 #include "../WGuiConsts.h"
-#include "../WQt4Gui.h"
+#include "../WQtGui.h"
 #include "../WMainWindow.h"
 
 #include "WPropertySelectionWidget.h"
@@ -99,7 +99,7 @@ WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGr
 
         // add a select-all button
         QToolButton* selAllButton = new QToolButton( this );
-        QAction* act = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "select_all" ), "Select All", this );
+        QAction* act = new QAction( WQtGui::getMainWindow()->getIconManager()->getIcon( "select_all" ), "Select All", this );
         connect( act, SIGNAL( triggered( bool ) ), m_list, SLOT( selectAll() ) );
         selAllButton->setDefaultAction( act );
         selAllButton->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );

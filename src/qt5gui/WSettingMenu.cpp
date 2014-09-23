@@ -27,7 +27,7 @@
 #include <QMessageBox>
 
 #include "WMainWindow.h"
-#include "WQt4Gui.h"
+#include "WQtGui.h"
 #include "WSettingMenu.h"
 
 WSettingMenu::WSettingMenu( QWidget* parent, std::string settingName, std::string menuName, std::string tooltip, unsigned int defaultValue,
@@ -36,7 +36,7 @@ WSettingMenu::WSettingMenu( QWidget* parent, std::string settingName, std::strin
     m_settingName( QString::fromStdString( settingName ) ),
     m_showRestartInfo( showRestartInfo )
 {
-    m_currentItem = WQt4Gui::getSettings().value( m_settingName, defaultValue ).toUInt();
+    m_currentItem = WQtGui::getSettings().value( m_settingName, defaultValue ).toUInt();
 
     // setup this menu
     setToolTip( QString::fromStdString( tooltip ) );
@@ -74,12 +74,12 @@ void WSettingMenu::handleUpdate( QAction* action )
 {
     // update setting and emit signal
     m_currentItem = action->data().toUInt();
-    WQt4Gui::getSettings().setValue( m_settingName, m_currentItem );
+    WQtGui::getSettings().setValue( m_settingName, m_currentItem );
 
     // does this setting require restart?
     if( m_showRestartInfo )
     {
-        QMessageBox::information( WQt4Gui::getMainWindow(), QString( "Restart required" ), QString( "This setting is applied after restart." ) );
+        QMessageBox::information( WQtGui::getMainWindow(), QString( "Restart required" ), QString( "This setting is applied after restart." ) );
     }
 
     emit change( m_currentItem );

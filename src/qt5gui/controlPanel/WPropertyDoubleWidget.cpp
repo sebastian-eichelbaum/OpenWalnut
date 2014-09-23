@@ -32,7 +32,7 @@
 #include <QInputDialog>
 
 #include "../WGuiConsts.h"
-#include "../WQt4Gui.h"
+#include "../WQtGui.h"
 #include "../guiElements/WQtIntervalEdit.h"
 #include "core/common/WLogger.h"
 #include "core/common/WPropertyVariable.h"
@@ -70,7 +70,7 @@ WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout*
 
     // configure the interval edit
     m_vLayout.addWidget( &m_intervalEdit );
-    if( !WQt4Gui::getSettings().value( "qt5gui/sliderMinMaxEdit", false ).toBool() )
+    if( !WQtGui::getSettings().value( "qt5gui/sliderMinMaxEdit", false ).toBool() )
     {
         m_intervalEdit.hide();
     }
@@ -126,7 +126,7 @@ void WPropertyDoubleWidget::update()
 
         // updating the interval edit causes the proper values to be set in m_min and m_max
         m_slider.setHidden( false );
-        m_intervalEdit.setHidden( !WQt4Gui::getSettings().value( "qt5gui/sliderMinMaxEdit", false ).toBool() );
+        m_intervalEdit.setHidden( !WQtGui::getSettings().value( "qt5gui/sliderMinMaxEdit", false ).toBool() );
         m_slider.setValue( toSliderValue( m_integralProperty->get() ) );
     }
     else

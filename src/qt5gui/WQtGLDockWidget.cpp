@@ -38,7 +38,7 @@
 
 #include "core/graphicsEngine/WGEViewerEffect.h"
 
-#include "WQt4Gui.h"
+#include "WQtGui.h"
 #include "WMainWindow.h"
 
 #include "WSettingAction.h"

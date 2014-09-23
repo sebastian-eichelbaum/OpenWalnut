@@ -36,7 +36,7 @@
 
 #include "core/kernel/combiner/WApplyCombiner.h"
 
-#include "../WQt4Gui.h"
+#include "../WQtGui.h"
 #include "../WMainWindow.h"
 
 #include "WQtNetworkScene.h"
@@ -77,7 +77,7 @@ int WQtNetworkArrow::type() const
 
 WQtNetworkInputPort* WQtNetworkArrow::findNearestCompatibleInput( QPointF pos, float maxDistance )
 {
-    WQtNetworkScene* scene = WQt4Gui::getMainWindow()->getNetworkEditor()->getScene();
+    WQtNetworkScene* scene = WQtGui::getMainWindow()->getNetworkEditor()->getScene();
 
     // find items in area:
     QList<QGraphicsItem *> items = scene->items( static_cast< qreal >( pos.x() - ( maxDistance / 2.0 ) ),

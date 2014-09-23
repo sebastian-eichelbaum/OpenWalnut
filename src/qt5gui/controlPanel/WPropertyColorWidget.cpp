@@ -34,7 +34,7 @@
 #include "core/common/WLogger.h"
 #include "core/common/WPropertyVariable.h"
 #include "../WGuiConsts.h"
-#include "../WQt4Gui.h"
+#include "../WQtGui.h"
 #include "../WMainWindow.h"
 
 #include "WPropertyColorWidget.h"
@@ -66,7 +66,7 @@ WPropertyColorWidget::WPropertyColorWidget( WPropColor property, QGridLayout* pr
     wLayout->setSpacing( 0 );
 
     m_colButton = new QToolButton( this );
-    m_colorPickerAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "colorwheel" ), "Select Color", this );
+    m_colorPickerAction = new QAction( WQtGui::getMainWindow()->getIconManager()->getIcon( "colorwheel" ), "Select Color", this );
     connect( m_colorPickerAction, SIGNAL( triggered( bool ) ), this, SLOT( buttonClicked() ) );
     m_colButton->setDefaultAction( m_colorPickerAction );
     m_colButton->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );

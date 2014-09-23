@@ -101,7 +101,7 @@ int WUIQtTabbedWidget::addTabImpl( WUIWidgetBase::SPtr widget, std::string label
     if( widgetQtwidget )
     {
         QString s = QString::fromStdString( label );
-        return WQt4Gui::execInGUIThread< int >( boost::bind( &QTabWidget::addTab, m_tabWidget, widgetQtwidget, s ) );
+        return WQtGui::execInGUIThread< int >( boost::bind( &QTabWidget::addTab, m_tabWidget, widgetQtwidget, s ) );
     }
 
     return -1;
@@ -112,7 +112,7 @@ void WUIQtTabbedWidget::setTabText( int index, const std::string& label )
     if( m_tabWidget )
     {
         QString s = QString::fromStdString( label );
-        WQt4Gui::execInGUIThread( boost::bind( &QTabWidget::setTabText, m_tabWidget, index, s ) );
+        WQtGui::execInGUIThread( boost::bind( &QTabWidget::setTabText, m_tabWidget, index, s ) );
     }
 }
 
@@ -120,7 +120,7 @@ void WUIQtTabbedWidget::setActiveTab( int index )
 {
     if( m_tabWidget )
     {
-        WQt4Gui::execInGUIThread( boost::bind( &QTabWidget::setCurrentIndex, m_tabWidget, index ) );
+        WQtGui::execInGUIThread( boost::bind( &QTabWidget::setCurrentIndex, m_tabWidget, index ) );
     }
 }
 
@@ -129,7 +129,7 @@ void WUIQtTabbedWidget::setTabToolTip( int index, const std::string& tip )
     if( m_tabWidget )
     {
         QString s = QString::fromStdString( tip );
-        WQt4Gui::execInGUIThread( boost::bind( &QTabWidget::setTabToolTip, m_tabWidget, index, s ) );
+        WQtGui::execInGUIThread( boost::bind( &QTabWidget::setTabToolTip, m_tabWidget, index, s ) );
     }
 }
 
@@ -137,7 +137,7 @@ void WUIQtTabbedWidget::setTabEnabled( int index, bool enable )
 {
     if( m_tabWidget )
     {
-        WQt4Gui::execInGUIThread( boost::bind( &QTabWidget::setTabEnabled, m_tabWidget, index, enable ) );
+        WQtGui::execInGUIThread( boost::bind( &QTabWidget::setTabEnabled, m_tabWidget, index, enable ) );
     }
 }
 
@@ -146,7 +146,7 @@ void WUIQtTabbedWidget::setTabPosition( TabPosition position )
     QTabWidget::TabPosition posInQt =  static_cast< QTabWidget::TabPosition >( position );
     if( m_tabWidget )
     {
-        WQt4Gui::execInGUIThread( boost::bind( &QTabWidget::setTabPosition, m_tabWidget, posInQt ) );
+        WQtGui::execInGUIThread( boost::bind( &QTabWidget::setTabPosition, m_tabWidget, posInQt ) );
     }
 }
 
@@ -154,7 +154,7 @@ int WUIQtTabbedWidget::getActiveTab() const
 {
     if( m_tabWidget )
     {
-        return WQt4Gui::execInGUIThread< int >( boost::bind( &QTabWidget::currentIndex, m_tabWidget ) );
+        return WQtGui::execInGUIThread< int >( boost::bind( &QTabWidget::currentIndex, m_tabWidget ) );
     }
     return -1;
 }
@@ -163,7 +163,7 @@ int WUIQtTabbedWidget::getNumTabs() const
 {
     if( m_tabWidget )
     {
-        return WQt4Gui::execInGUIThread< int >( boost::bind( &QTabWidget::count, m_tabWidget ) );
+        return WQtGui::execInGUIThread< int >( boost::bind( &QTabWidget::count, m_tabWidget ) );
     }
     return -1;
 }

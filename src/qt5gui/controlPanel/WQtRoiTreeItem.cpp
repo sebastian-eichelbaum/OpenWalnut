@@ -32,7 +32,7 @@
 #include <QWidgetAction>
 
 #include "../guiElements/WScaleLabel.h"
-#include "../WQt4Gui.h"
+#include "../WQtGui.h"
 #include "../WMainWindow.h"
 #include "WPropertyBoolWidget.h"
 #include "WPropertyStringWidget.h"
@@ -92,7 +92,7 @@ QWidget* WQtRoiTreeItem::createWidget() const
     show->setToolTip( QString::fromStdString( m_roi->showProperty()->getDescription() ) );
 
     QLabel* grabWidget = new QLabel( itemWidget );
-    grabWidget->setPixmap( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "touchpoint_small" ).pixmap( 24, 32 ) );
+    grabWidget->setPixmap( WQtGui::getMainWindow()->getIconManager()->getIcon( "touchpoint_small" ).pixmap( 24, 32 ) );
     grabWidget->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
     grabWidget->setFixedWidth( 24 );
     grabWidget->setToolTip( "Drag and drop this ROI to change their ordering." );

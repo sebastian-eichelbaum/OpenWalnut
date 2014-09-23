@@ -32,7 +32,7 @@
 #include <QWidget>
 #include <QComboBox>
 
-#include "WQt4Gui.h"
+#include "WQtGui.h"
 #include "WMainWindow.h"
 #include "WQtMessagePopup.h"
 
@@ -66,7 +66,7 @@ WQtMessageDock::WQtMessageDock( QString dockTitle, QWidget* parent ):
     connect( m_filterCombo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( handleFilterUpdate() ) );
 
     // clear list action
-    QAction* clearAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "clear" ), "Clear Messages", this );
+    QAction* clearAction = new QAction( WQtGui::getMainWindow()->getIconManager()->getIcon( "clear" ), "Clear Messages", this );
     connect( clearAction, SIGNAL( triggered() ), this, SLOT( clearMessages() ) );
 
     // add everything too the title list

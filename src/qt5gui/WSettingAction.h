@@ -36,7 +36,7 @@
 // The issue occurs in the boost library versions 1.48 and higher,
 // and is tested in boost version 1.52 using moc version 4.8.4
 // Excluding the relevant headers removes the problem.
-#include "WQt4Gui.h"
+#include "WQtGui.h"
 #endif
 
 class WMainWindow;

@@ -164,12 +164,12 @@ void WUIQtViewWidget::realizeImpl()
 
 void WUIQtViewWidget::clearCameraPresets()
 {
-    WQt4Gui::execInGUIThread( boost::bind( &WUIQtViewWidget::clearCameraPresetsGT, this ) );
+    WQtGui::execInGUIThread( boost::bind( &WUIQtViewWidget::clearCameraPresetsGT, this ) );
 }
 
 void WUIQtViewWidget::addCameraPreset( WPropTrigger preset, WGEImage::SPtr icon )
 {
-    WQt4Gui::execInGUIThread( boost::bind( &WUIQtViewWidget::addCameraPresetGT, this, preset, icon ) );
+    WQtGui::execInGUIThread( boost::bind( &WUIQtViewWidget::addCameraPresetGT, this, preset, icon ) );
 }
 
 void WUIQtViewWidget::clearCameraPresetsGT()
@@ -190,7 +190,7 @@ void WUIQtViewWidget::addCameraPresetGT( WPropTrigger preset, WGEImage::SPtr ico
         WQtPropertyTriggerAction* propAction = new WQtPropertyTriggerAction( preset, m_widgetDock );
         if( !icon )
         {
-            propAction->setIcon(  WQt4Gui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
+            propAction->setIcon(  WQtGui::getMainWindow()->getIconManager()->getIcon( "configure" ) );
         }
         else
         {

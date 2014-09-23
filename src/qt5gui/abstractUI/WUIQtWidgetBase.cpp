@@ -26,7 +26,7 @@
 
 #include "core/common/WLogger.h"
 
-#include "../WQt4Gui.h"
+#include "../WQtGui.h"
 #include "../guiElements/WQtDockWidget.h"
 
 #include "WUIQtWidgetBase.h"
@@ -64,7 +64,7 @@ void WUIQtWidgetBase::realize( boost::shared_ptr< WCondition > abortCondition )
     conditionSet.add( doneNotify );
 
     // use the UI to do the GUI thread call
-    WQt4Gui::execInGUIThreadAsync( boost::bind( &WUIQtWidgetBase::realizeGT, this ), doneNotify );
+    WQtGui::execInGUIThreadAsync( boost::bind( &WUIQtWidgetBase::realizeGT, this ), doneNotify );
 
     // wait ...
     conditionSet.wait();
@@ -89,7 +89,7 @@ void WUIQtWidgetBase::show()
 {
     if( m_widget )
     {
-        WQt4Gui::execInGUIThread( boost::bind( &WUIQtWidgetBase::showGT, this ) );
+        WQtGui::execInGUIThread( boost::bind( &WUIQtWidgetBase::showGT, this ) );
     }
 }
 
@@ -97,7 +97,7 @@ void WUIQtWidgetBase::setVisible( bool visible )
 {
     if( m_widget )
     {
-        WQt4Gui::execInGUIThread( boost::bind( &WUIQtWidgetBase::setVisibleGT, this, visible ) );
+        WQtGui::execInGUIThread( boost::bind( &WUIQtWidgetBase::setVisibleGT, this, visible ) );
     }
 }
 
@@ -105,7 +105,7 @@ bool WUIQtWidgetBase::isVisible() const
 {
     if( m_widget )
     {
-        return WQt4Gui::execInGUIThread< bool >( boost::bind( &QWidget::isVisible, m_widget ) );
+        return WQtGui::execInGUIThread< bool >( boost::bind( &QWidget::isVisible, m_widget ) );
     }
     return false;
 }
@@ -117,7 +117,7 @@ void WUIQtWidgetBase::closeImpl()
     // move this to the GUI thread.
     if( m_widget )
     {
-        WQt4Gui::execInGUIThread( boost::bind( &WUIQtWidgetBase::closeGT, this ) );
+        WQtGui::execInGUIThread( boost::bind( &WUIQtWidgetBase::closeGT, this ) );
     }
 }
 
@@ -143,8 +143,8 @@ void WUIQtWidgetBase::closeGT()
     QDockWidget* asDock = dynamic_cast< QDockWidget* >( m_widget );
     if( asDock )
     {
-        //WQt4Gui::getSettings().setValue( m_widget->objectName() + "state", asDock->saveState() );
-        WQt4Gui::getSettings().setValue( m_widget->objectName() + "geometry", asDock->saveGeometry() );
+        //WQtGui::getSettings().setValue( m_widget->objectName() + "state", asDock->saveState() );
+        WQtGui::getSettings().setValue( m_widget->objectName() + "geometry", asDock->saveGeometry() );
     }
 
     cleanUpGT();
@@ -216,7 +216,7 @@ QWidget* WUIQtWidgetBase::embedContent( QWidget* content )
         m_widget->setVisible( true );
 
         // restore state
-        asDock->restoreGeometry( WQt4Gui::getSettings().value( m_widget->objectName() + "geometry", "" ).toByteArray() );
+        asDock->restoreGeometry( WQtGui::getSettings().value( m_widget->objectName() + "geometry", "" ).toByteArray() );
         if( !m_mainWindow->getDefaultCustomDockAreaWidget()->restoreDockWidget( asDock ) )
         {
             m_mainWindow->getDefaultCustomDockAreaWidget()->addDockWidget( m_mainWindow->getDefaultCustomDockArea(), asDock );
@@ -245,19 +245,19 @@ bool WUIQtWidgetBase::hasUIParent() const
 void WUIQtWidgetBase::addAction( WPropGroup group, WGEImage::SPtr icon )
 {
     // do in GUI thread:
-    WQt4Gui::execInGUIThread( boost::bind( &WUIQtWidgetBase::addActionGroupGT, this, group, icon ) );
+    WQtGui::execInGUIThread( boost::bind( &WUIQtWidgetBase::addActionGroupGT, this, group, icon ) );
 }
 
 void WUIQtWidgetBase::addAction( WPropTrigger trigger, WGEImage::SPtr icon )
 {
     // do in GUI thread:
-    WQt4Gui::execInGUIThread( boost::bind( &WUIQtWidgetBase::addActionTriggerGT, this, trigger, icon ) );
+    WQtGui::execInGUIThread( boost::bind( &WUIQtWidgetBase::addActionTriggerGT, this, trigger, icon ) );
 }
 
 void WUIQtWidgetBase::addAction( WPropBool toggle, WGEImage::SPtr icon )
 {
     // do in GUI thread:
-    WQt4Gui::execInGUIThread( boost::bind( &WUIQtWidgetBase::addActionBoolGT, this, toggle, icon ) );
+    WQtGui::execInGUIThread( boost::bind( &WUIQtWidgetBase::addActionBoolGT, this, toggle, icon ) );
 }
 
 void WUIQtWidgetBase::addActionGroupGT( WPropGroup group, WGEImage::SPtr icon )

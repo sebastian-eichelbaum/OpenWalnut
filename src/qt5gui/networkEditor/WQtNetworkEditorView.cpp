@@ -30,7 +30,7 @@
 #include "core/common/WLogger.h"
 #include "core/kernel/WModuleFactory.h"
 #include "../WQtCombinerActionList.h"
-#include "../WQt4Gui.h"
+#include "../WQtGui.h"
 #include "../WMainWindow.h"
 #include "../guiElements/WQtMenuFiltered.h"
 

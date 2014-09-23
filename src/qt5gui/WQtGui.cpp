@@ -62,46 +62,46 @@
 #include "events/WLogEvent.h"
 #include "WQtModuleConfig.h"
 
-#include "WQt4Gui.h"
+#include "WQtGui.h"
 
 #ifdef Q_WS_X11
     #include <X11/Xlib.h>   // NOLINT - this needs to be done AFTER Qt has set some defines in their headers and after several other
                             //          headers which are included indirectly, although it is a system header.
 #endif
 
-WMainWindow* WQt4Gui::m_mainWindow = NULL;
+WMainWindow* WQtGui::m_mainWindow = NULL;
 
-QSettings* WQt4Gui::m_settings = NULL;
+QSettings* WQtGui::m_settings = NULL;
 
-WQt4Gui::WQt4Gui( const boost::program_options::variables_map& options, int argc, char** argv )
+WQtGui::WQtGui( const boost::program_options::variables_map& options, int argc, char** argv )
     : WUI( argc, argv ),
     m_optionsMap( options ),
     m_loadDeferredOnce( true )
 {
 }
 
-WQt4Gui::~WQt4Gui()
+WQtGui::~WQtGui()
 {
     delete m_settings;
 }
 
-void WQt4Gui::moduleError( boost::shared_ptr< WModule > module, const WException& exception )
+void WQtGui::moduleError( boost::shared_ptr< WModule > module, const WException& exception )
 {
     QCoreApplication::postEvent( m_mainWindow, new WModuleCrashEvent( module, exception.what() ) );
     QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleCrashEvent( module, exception.what() ) );
 }
 
-WMainWindow* WQt4Gui::getMainWindow()
+WMainWindow* WQtGui::getMainWindow()
 {
     return m_mainWindow;
 }
 
-WIconManager* WQt4Gui::getIconManager()
+WIconManager* WQtGui::getIconManager()
 {
     return getMainWindow()->getIconManager();
 }
 
-void WQt4Gui::deferredLoad()
+void WQtGui::deferredLoad()
 {
     m_deferredLoadMutex.lock();
     if( m_loadDeferredOnce )
@@ -151,7 +151,7 @@ void WQt4Gui::deferredLoad()
     m_deferredLoadMutex.unlock();
 }
 
-int WQt4Gui::run()
+int WQtGui::run()
 {
 #ifdef Q_WS_X11
     XInitThreads();
@@ -159,7 +159,7 @@ int WQt4Gui::run()
 
     m_splash = NULL;
     // init logger
-    m_loggerConnection = WLogger::getLogger()->subscribeSignal( WLogger::AddLog, boost::bind( &WQt4Gui::slotAddLog, this, _1 ) );
+    m_loggerConnection = WLogger::getLogger()->subscribeSignal( WLogger::AddLog, boost::bind( &WQtGui::slotAddLog, this, _1 ) );
 
     // make qapp instance before using the applicationDirPath() function
 #ifdef Q_WS_MAC
@@ -203,7 +203,7 @@ int WQt4Gui::run()
     WQtModuleConfig::initPathHelper();
 
     // get the minimum log level from preferences
-    LogLevel logLevel = static_cast< LogLevel >( WQt4Gui::getSettings().value( "qt5gui/logLevel", LL_DEBUG ).toInt() );
+    LogLevel logLevel = static_cast< LogLevel >( WQtGui::getSettings().value( "qt5gui/logLevel", LL_DEBUG ).toInt() );
     WLogger::getLogger()->setDefaultLogLevel( logLevel );
 
     // print the first output
@@ -216,45 +216,45 @@ int WQt4Gui::run()
     // and startup kernel
     m_kernel = boost::shared_ptr< WKernel >( WKernel::instance( m_ge, shared_from_this() ) );
     m_kernel->run();
-    m_kernel->subscribeSignal( WKernel::KERNEL_STARTUPCOMPLETE, boost::bind( &WQt4Gui::deferredLoad, this ) );
+    m_kernel->subscribeSignal( WKernel::KERNEL_STARTUPCOMPLETE, boost::bind( &WQtGui::deferredLoad, this ) );
 
-    t_ModuleErrorSignalHandlerType func = boost::bind( &WQt4Gui::moduleError, this, _1, _2 );
+    t_ModuleErrorSignalHandlerType func = boost::bind( &WQtGui::moduleError, this, _1, _2 );
     m_kernel->getRootContainer()->addDefaultNotifier( WM_ERROR, func );
 
     // bind the GUI's slot with the signals provided by the kernel
-    WCondition::t_ConditionNotifierType newDatasetSignal = boost::bind( &WQt4Gui::slotUpdateTextureSorter, this );
+    WCondition::t_ConditionNotifierType newDatasetSignal = boost::bind( &WQtGui::slotUpdateTextureSorter, this );
     WDataHandler::getDefaultSubject()->getListChangeCondition()->subscribeSignal( newDatasetSignal );
 
     // Assoc Event
-    t_ModuleGenericSignalHandlerType assocSignal = boost::bind( &WQt4Gui::slotAddDatasetOrModuleToTree, this, _1 );
+    t_ModuleGenericSignalHandlerType assocSignal = boost::bind( &WQtGui::slotAddDatasetOrModuleToTree, this, _1 );
     m_kernel->getRootContainer()->addDefaultNotifier( WM_ASSOCIATED, assocSignal );
 
     // Ready Event
-    t_ModuleGenericSignalHandlerType readySignal = boost::bind( &WQt4Gui::slotActivateDatasetOrModuleInTree, this, _1 );
+    t_ModuleGenericSignalHandlerType readySignal = boost::bind( &WQtGui::slotActivateDatasetOrModuleInTree, this, _1 );
     m_kernel->getRootContainer()->addDefaultNotifier( WM_READY, readySignal );
 
     // Remove Event
-    t_ModuleGenericSignalHandlerType removedSignal = boost::bind( &WQt4Gui::slotRemoveDatasetOrModuleInTree, this, _1 );
+    t_ModuleGenericSignalHandlerType removedSignal = boost::bind( &WQtGui::slotRemoveDatasetOrModuleInTree, this, _1 );
     m_kernel->getRootContainer()->addDefaultNotifier( WM_REMOVED, removedSignal );
 
     // Connect Event
-    t_GenericSignalHandlerType connectionEstablishedSignal = boost::bind( &WQt4Gui::slotConnectionEstablished, this, _1, _2 );
+    t_GenericSignalHandlerType connectionEstablishedSignal = boost::bind( &WQtGui::slotConnectionEstablished, this, _1, _2 );
     m_kernel->getRootContainer()->addDefaultNotifier( CONNECTION_ESTABLISHED, connectionEstablishedSignal );
 
     // Disconnect Event
-    t_GenericSignalHandlerType connectionClosedSignal = boost::bind( &WQt4Gui::slotConnectionClosed, this, _1, _2 );
+    t_GenericSignalHandlerType connectionClosedSignal = boost::bind( &WQtGui::slotConnectionClosed, this, _1, _2 );
     m_kernel->getRootContainer()->addDefaultNotifier( CONNECTION_CLOSED, connectionClosedSignal );
 
     boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > assocRoiSignal;
     assocRoiSignal =
         boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > >(
-            new boost::function< void( osg::ref_ptr< WROI > ) > ( boost::bind( &WQt4Gui::slotAddRoiToTree, this, _1 ) ) );
+            new boost::function< void( osg::ref_ptr< WROI > ) > ( boost::bind( &WQtGui::slotAddRoiToTree, this, _1 ) ) );
     m_kernel->getRoiManager()->addAddNotifier( assocRoiSignal );
 
     boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > removeRoiSignal;
     removeRoiSignal =
         boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > >(
-            new boost::function< void( osg::ref_ptr< WROI > ) > ( boost::bind( &WQt4Gui::slotRemoveRoiFromTree, this, _1 ) ) );
+            new boost::function< void( osg::ref_ptr< WROI > ) > ( boost::bind( &WQtGui::slotRemoveRoiFromTree, this, _1 ) ) );
     m_kernel->getRoiManager()->addRemoveNotifier( removeRoiSignal );
 
     // create the window
@@ -294,13 +294,13 @@ int WQt4Gui::run()
     return qtRetCode;
 }
 
-void WQt4Gui::slotUpdateTextureSorter()
+void WQtGui::slotUpdateTextureSorter()
 {
     // create a new event for this and insert it into event queue
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WUpdateTextureSorterEvent() );
 }
 
-void WQt4Gui::slotAddLog( const WLogEntry& entry )
+void WQtGui::slotAddLog( const WLogEntry& entry )
 {
     // emit event but the main window might not be available. Check this.
     // NOTE: we disable debug log messages completely, since their extensive use in some modules causes SEVERE slowdown of the GUI as millions of
@@ -311,7 +311,7 @@ void WQt4Gui::slotAddLog( const WLogEntry& entry )
     }
 }
 
-void WQt4Gui::slotAddDatasetOrModuleToTree( boost::shared_ptr< WModule > module )
+void WQtGui::slotAddDatasetOrModuleToTree( boost::shared_ptr< WModule > module )
 {
     // create a new event for this and insert it into event queue
     if( m_mainWindow->getNetworkEditor() )
@@ -321,17 +321,17 @@ void WQt4Gui::slotAddDatasetOrModuleToTree( boost::shared_ptr< WModule > module 
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleAssocEvent( module ) );
 }
 
-void WQt4Gui::slotAddRoiToTree( osg::ref_ptr< WROI > roi )
+void WQtGui::slotAddRoiToTree( osg::ref_ptr< WROI > roi )
 {
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WRoiAssocEvent( roi ) );
 }
 
-void WQt4Gui::slotRemoveRoiFromTree( osg::ref_ptr< WROI > roi )
+void WQtGui::slotRemoveRoiFromTree( osg::ref_ptr< WROI > roi )
 {
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WRoiRemoveEvent( roi ) );
 }
 
-void WQt4Gui::slotActivateDatasetOrModuleInTree( boost::shared_ptr< WModule > module )
+void WQtGui::slotActivateDatasetOrModuleInTree( boost::shared_ptr< WModule > module )
 {
     // create a new event for this and insert it into event queue
     if( m_mainWindow->getNetworkEditor() )
@@ -342,7 +342,7 @@ void WQt4Gui::slotActivateDatasetOrModuleInTree( boost::shared_ptr< WModule > mo
     QCoreApplication::postEvent( m_mainWindow, new WModuleReadyEvent( module ) );
 }
 
-void WQt4Gui::slotRemoveDatasetOrModuleInTree( boost::shared_ptr< WModule > module )
+void WQtGui::slotRemoveDatasetOrModuleInTree( boost::shared_ptr< WModule > module )
 {
     // create a new event for this and insert it into event queue
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleRemovedEvent( module ) );
@@ -353,7 +353,7 @@ void WQt4Gui::slotRemoveDatasetOrModuleInTree( boost::shared_ptr< WModule > modu
     }
 }
 
-void WQt4Gui::slotConnectionEstablished( boost::shared_ptr<WModuleConnector> in, boost::shared_ptr<WModuleConnector> out )
+void WQtGui::slotConnectionEstablished( boost::shared_ptr<WModuleConnector> in, boost::shared_ptr<WModuleConnector> out )
 {
     // create a new event for this and insert it into event queue
     if( in->isInputConnector() )
@@ -374,7 +374,7 @@ void WQt4Gui::slotConnectionEstablished( boost::shared_ptr<WModuleConnector> in,
     }
 }
 
-void WQt4Gui::slotConnectionClosed( boost::shared_ptr<WModuleConnector> in, boost::shared_ptr<WModuleConnector> out )
+void WQtGui::slotConnectionClosed( boost::shared_ptr<WModuleConnector> in, boost::shared_ptr<WModuleConnector> out )
 {
     // create a new event for this and insert it into event queue
     if( in->isInputConnector() )
@@ -395,32 +395,32 @@ void WQt4Gui::slotConnectionClosed( boost::shared_ptr<WModuleConnector> in, boos
     }
 }
 
-boost::shared_ptr< WModule > WQt4Gui::getSelectedModule()
+boost::shared_ptr< WModule > WQtGui::getSelectedModule()
 {
     return m_mainWindow->getControlPanel()->getSelectedModule();
 }
 
-boost::signals2::signal1< void, std::vector< std::string > >* WQt4Gui::getLoadButtonSignal()
+boost::signals2::signal1< void, std::vector< std::string > >* WQtGui::getLoadButtonSignal()
 {
     return m_mainWindow->getLoaderSignal();
 }
 
-QSettings& WQt4Gui::getSettings()
+QSettings& WQtGui::getSettings()
 {
     return *m_settings;
 }
 
-const boost::program_options::variables_map& WQt4Gui::getOptionMap() const
+const boost::program_options::variables_map& WQtGui::getOptionMap() const
 {
     return m_optionsMap;
 }
 
-WUIWidgetFactory::SPtr WQt4Gui::getWidgetFactory() const
+WUIWidgetFactory::SPtr WQtGui::getWidgetFactory() const
 {
     return m_widgetFactory;
 }
 
-void WQt4Gui::execInGUIThread( boost::function< void( void ) > functor, WCondition::SPtr notify )
+void WQtGui::execInGUIThread( boost::function< void( void ) > functor, WCondition::SPtr notify )
 {
     if( !notify )
     {
@@ -432,7 +432,7 @@ void WQt4Gui::execInGUIThread( boost::function< void( void ) > functor, WConditi
     notify->wait();
 }
 
-void WQt4Gui::execInGUIThreadAsync( boost::function< void( void ) > functor, WCondition::SPtr notify )
+void WQtGui::execInGUIThreadAsync( boost::function< void( void ) > functor, WCondition::SPtr notify )
 {
     WDeferredCallEvent* ev = new WDeferredCallEvent( functor, notify );
     QCoreApplication::postEvent( getMainWindow(), ev );

@@ -33,7 +33,7 @@
 #include <QAction>
 
 #include "../WGuiConsts.h"
-#include "../WQt4Gui.h"
+#include "../WQtGui.h"
 #include "../guiElements/WQtIntervalEdit.h"
 #include "core/common/WLogger.h"
 #include "core/common/WPropertyVariable.h"
@@ -66,7 +66,7 @@ WPropertyIntervalWidget::WPropertyIntervalWidget( WPropInterval property, QGridL
     m_maxEdit.setMinimumHeight( WMIN_WIDGET_HEIGHT );
 
     // create resetButton action
-    QAction* reset = new QAction( WQt4Gui::getIconManager()->getIcon( "undo" ), "Reset to defaults", &m_resetBtn );
+    QAction* reset = new QAction( WQtGui::getIconManager()->getIcon( "undo" ), "Reset to defaults", &m_resetBtn );
     m_resetBtn.setDefaultAction( reset );
 
     m_layout.setMargin( WGLOBAL_MARGIN );

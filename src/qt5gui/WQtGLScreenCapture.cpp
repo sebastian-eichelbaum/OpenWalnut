@@ -38,7 +38,7 @@
 #include "WMainWindow.h"
 #include "WQtGLWidget.h"
 #include "WQtGLDockWidget.h"
-#include "WQt4Gui.h"
+#include "WQtGui.h"
 #include "WQtGLScreenCapture.h"
 
 WQtGLScreenCapture::WQtGLScreenCapture( WQtGLDockWidget* parent ):
@@ -141,7 +141,7 @@ WQtGLScreenCapture::WQtGLScreenCapture( WQtGLDockWidget* parent ):
 
     m_screenshotButton = new QPushButton( "Screenshot" );
     m_screenshotButton->setToolTip( "Take a screenshot of this view" );
-    m_screenshotAction = new QAction( WQt4Gui::getIconManager()->getIcon( "image" ), "Screenshot", this );
+    m_screenshotAction = new QAction( WQtGui::getIconManager()->getIcon( "image" ), "Screenshot", this );
     m_screenshotAction->setToolTip( "Take a screenshot of this view" );
     m_screenshotAction->setShortcut( QKeySequence(  Qt::Key_F12 ) );
     m_screenshotAction->setShortcutContext( Qt::ApplicationShortcut );
@@ -245,12 +245,12 @@ WQtGLScreenCapture::WQtGLScreenCapture( WQtGLDockWidget* parent ):
     QCoreApplication::postEvent( this, new QEvent( static_cast< QEvent::Type >( WQT_SCREENCAPTURE_EVENT ) ) );
 
     // add them
-    m_toolbox->insertItem( 0, m_configWidget, WQt4Gui::getIconManager()->getIcon( "preferences" ), "Configuration" );
-    m_toolbox->insertItem( 1, m_screenshotWidget, WQt4Gui::getIconManager()->getIcon( "image" ), "Screenshot" );
-    m_toolbox->insertItem( 2, m_movieWidget, WQt4Gui::getIconManager()->getIcon( "video" ), "Movie" );
+    m_toolbox->insertItem( 0, m_configWidget, WQtGui::getIconManager()->getIcon( "preferences" ), "Configuration" );
+    m_toolbox->insertItem( 1, m_screenshotWidget, WQtGui::getIconManager()->getIcon( "image" ), "Screenshot" );
+    m_toolbox->insertItem( 2, m_movieWidget, WQtGui::getIconManager()->getIcon( "video" ), "Movie" );
 
     // hide it as long as issue #127 is not done.
-    // m_toolbox->insertItem( 3, m_animationWidget, WQt4Gui::getIconManager()->getIcon( "video" ), "Animation" );
+    // m_toolbox->insertItem( 3, m_animationWidget, WQtGui::getIconManager()->getIcon( "video" ), "Animation" );
     m_animationWidget->setHidden( true );
 
     // we need to be notified about the screen grabbers state
@@ -267,18 +267,18 @@ WQtGLScreenCapture::~WQtGLScreenCapture()
 
 void WQtGLScreenCapture::saveSettings()
 {
-    WQt4Gui::getSettings().setValue( objectName() + "/resolution", m_resolutionCombo->currentIndex() );
-    WQt4Gui::getSettings().setValue( objectName() + "/customResolutionWidth", m_customWidth->text() );
-    WQt4Gui::getSettings().setValue( objectName() + "/customResolutionHeight", m_customHeight->text() );
-    WQt4Gui::getSettings().setValue( objectName() + "/filename", m_configFileEdit->text() );
+    WQtGui::getSettings().setValue( objectName() + "/resolution", m_resolutionCombo->currentIndex() );
+    WQtGui::getSettings().setValue( objectName() + "/customResolutionWidth", m_customWidth->text() );
+    WQtGui::getSettings().setValue( objectName() + "/customResolutionHeight", m_customHeight->text() );
+    WQtGui::getSettings().setValue( objectName() + "/filename", m_configFileEdit->text() );
 }
 
 void WQtGLScreenCapture::restoreSettings()
 {
-    m_customWidth->setText( WQt4Gui::getSettings().value( objectName() + "/customResolutionWidth", m_customWidth->text() ).toString() );
-    m_customHeight->setText( WQt4Gui::getSettings().value( objectName() + "/customResolutionHeight", m_customHeight->text() ).toString() );
-    m_configFileEdit->setText( WQt4Gui::getSettings().value( objectName() + "/filename", m_configFileEdit->text() ).toString() );
-    m_resolutionCombo->setCurrentIndex(  WQt4Gui::getSettings().value( objectName() + "/resolution", m_resolutionCombo->currentIndex() ).toInt() );
+    m_customWidth->setText( WQtGui::getSettings().value( objectName() + "/customResolutionWidth", m_customWidth->text() ).toString() );
+    m_customHeight->setText( WQtGui::getSettings().value( objectName() + "/customResolutionHeight", m_customHeight->text() ).toString() );
+    m_configFileEdit->setText( WQtGui::getSettings().value( objectName() + "/filename", m_configFileEdit->text() ).toString() );
+    m_resolutionCombo->setCurrentIndex(  WQtGui::getSettings().value( objectName() + "/resolution", m_resolutionCombo->currentIndex() ).toInt() );
 }
 
 QAction* WQtGLScreenCapture::getScreenshotTrigger() const

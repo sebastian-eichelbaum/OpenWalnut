@@ -36,7 +36,7 @@
 #include "../events/WPropertyChangedEvent.h"
 #include "../guiElements/WScaleToolButton.h"
 
-#include "../WQt4Gui.h"
+#include "../WQtGui.h"
 #include "../WMainWindow.h"
 
 #include "core/common/WPropertyGroupBase.h"
@@ -315,7 +315,7 @@ QWidget* WQtPropertyGroupWidget::createPropertyGroupBox( QWidget* widget, bool a
     QSignalMapper* signalMapper = new QSignalMapper( box );
     signalMapper->setMapping( boxTitle, boxContent );
     connect( boxTitle, SIGNAL( released() ), signalMapper, SLOT( map() ) );
-    connect( signalMapper, SIGNAL( mapped( QWidget* ) ), WQt4Gui::getMainWindow(), SLOT( switchVisibility( QWidget* ) ) );
+    connect( signalMapper, SIGNAL( mapped( QWidget* ) ), WQtGui::getMainWindow(), SLOT( switchVisibility( QWidget* ) ) );
 
     // create a body widget
     if( asScrollArea )

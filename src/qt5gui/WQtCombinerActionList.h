@@ -39,7 +39,7 @@
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleCombiner.h"
 #include "guiElements/WQtModuleOneToOneCombinerAction.h"
-#include "WQt4Gui.h"
+#include "WQtGui.h"
 #include "WQtModuleConfig.h"
 
 #include "WIconManager.h"

@@ -28,7 +28,7 @@
 #include <QAction>
 #include <QFileDialog>
 
-#include "../WQt4Gui.h"
+#include "../WQtGui.h"
 #include "../WIconManager.h"
 #include "../controlPanel/WQtPropertyGroupWidget.h"
 
@@ -75,7 +75,7 @@ WQtDataModuleInput::WQtDataModuleInput( WDataModule::SPtr module, QWidget* paren
     m_mainLayout->addWidget( m_label );
 
     // design the actions for both buttons
-    WIconManager* iconMgr = WQt4Gui::getIconManager();
+    WIconManager* iconMgr = WQtGui::getIconManager();
     QAction* changeAction = new QAction( iconMgr->getIcon( "load" ), "Change Source", this );
     m_changeButton->setDefaultAction( changeAction );
     QAction* reloadAction = new QAction( iconMgr->getIcon( "reload" ), "Reload Source", this );
@@ -103,7 +103,7 @@ WQtDataModuleInput::~WQtDataModuleInput()
 
 void WQtDataModuleInput::onInputChange()
 {
-    WQt4Gui::execInGUIThreadAsync( boost::bind( &WQtDataModuleInput::onInputChangeGUI, this ) );
+    WQtGui::execInGUIThreadAsync( boost::bind( &WQtDataModuleInput::onInputChangeGUI, this ) );
 }
 
 void WQtDataModuleInput::onInputChangeGUI()
@@ -151,7 +151,7 @@ void WQtDataModuleInput::onChange()
     }
     else
     {
-        defaultPath = WQt4Gui::getSettings().value( "LastOpenPath", "" ).toString();
+        defaultPath = WQtGui::getSettings().value( "LastOpenPath", "" ).toString();
     }
 
     QString filename = QFileDialog::getOpenFileName( this, "Open Data", defaultPath, result );
@@ -162,7 +162,7 @@ void WQtDataModuleInput::onChange()
 
     // apply
     boost::filesystem::path p( filename.toStdString() );
-    WQt4Gui::getSettings().setValue( "LastOpenPath", QString::fromStdString( p.parent_path().string() ) );
+    WQtGui::getSettings().setValue( "LastOpenPath", QString::fromStdString( p.parent_path().string() ) );
 
     m_module->setInput( WDataModuleInputFile::SPtr( new WDataModuleInputFile( filename.toStdString() ) ) );
 }
