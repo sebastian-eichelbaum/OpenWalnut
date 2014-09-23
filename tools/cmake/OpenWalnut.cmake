@@ -194,7 +194,7 @@ MESSAGE( STATUS "---------------------------------------------------------------
 # these dirs are the same for all parts of OW
 SET( OW_LIBRARY_DIR_RELATIVE "lib" )
 SET( OW_ARCHIVE_DIR_RELATIVE "lib" )
-SET( OW_MODULE_DIR_RELATIVE "lib" )
+SET( OW_MODULE_DIR_RELATIVE "lib/openwalnut" )
 
 # Add Multiarch support:
 IF( OW_PACKAGE_MULTIARCH )
