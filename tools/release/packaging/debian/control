@@ -105,7 +105,7 @@ Description: Loaders, algorithms and visualization modules for OpenWalnut
  This package contains the currently available modules for OpenWalnut.
 
 
-Package: openwalnut-qt4
+Package: openwalnut-qt5
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: openwalnut-modules (= ${binary:Version})
@@ -120,5 +120,5 @@ Description: Qt based user interface for OpenWalnut
  The powerful framework of OpenWalnut allows researchers and power-users to
  easily extend the functionality to their specific needs.
  .
- This package contains the QT4 GUI for OpenWalnut.
+ This package contains the QT5 GUI for OpenWalnut.
 

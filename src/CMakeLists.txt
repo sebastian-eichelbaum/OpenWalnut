@@ -95,6 +95,11 @@ ADD_CUSTOM_TARGET( install_runtime
                         -DCOMPONENT=QT4GUI
                         -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
                  )
+ADD_CUSTOM_TARGET( install_runtime
+                    ${CMAKE_COMMAND}
+                        -DCOMPONENT=QT5GUI
+                        -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
+                 )
 ADD_CUSTOM_TARGET( install_lib
                     ${CMAKE_COMMAND}
                         -DCOMPONENT=CORE
@@ -139,11 +144,22 @@ ADD_SUBDIRECTORY( core )
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # QT4 GUI
 
-OPTION( OW_GUI_QT4 "Enable this to build the QT4-based OpenWalnut GUI." ON )
+OPTION( OW_GUI_QT4 "DEPRECATED: Enable this to build the QT4-based OpenWalnut GUI." OFF )
 IF( OW_GUI_QT4 )
     # build
     ADD_SUBDIRECTORY( qt4gui )
 ENDIF()
+
+
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# QT5 GUI
+
+OPTION( OW_GUI_QT5 "Enable this to build the QT5-based OpenWalnut GUI." ON )
+IF( OW_GUI_QT5 )
+    # build
+    ADD_SUBDIRECTORY( qt5gui )
+ENDIF()
+
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # Scripting UI
