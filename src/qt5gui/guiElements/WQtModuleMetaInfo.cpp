@@ -68,7 +68,7 @@ std::string htmlify( WModuleMetaInformation::ConstSPtr meta )
     std::ostringstream ss;
 
     // the website URL is the module dir -> so we need to explicitly specify the src for icons
-    std::string iconPath = WPathHelper::getSharePath().string() + "/qt4gui/";
+    std::string iconPath = WPathHelper::getSharePath().string() + "/qt5gui/";
 
     ss << "<div style='font-family:sans-serif;'>"
     // The title

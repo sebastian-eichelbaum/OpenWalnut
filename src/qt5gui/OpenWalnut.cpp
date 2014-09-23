@@ -72,7 +72,7 @@ void printVersion()
  */
 int main( int argc, char** argv )
 {
-    WThreadedRunner::setThisThreadName( "QT4 Gui" );
+    WThreadedRunner::setThisThreadName( "QT5 Gui" );
 
     // where to write the by default?
     std::string logFile = "openwalnut.log";

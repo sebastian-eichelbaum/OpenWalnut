@@ -60,12 +60,11 @@ private:
      * The module.
      */
     WModule::SPtr m_module;
-    #ifndef QT4GUI_NOWEBKIT
+
     /**
      * the frame containing the module meta info
      */
     QWebFrame* m_frame;
-    #endif
 };
 
 #endif  // WQTMODULEMETAINFO_H

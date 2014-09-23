@@ -133,26 +133,26 @@ void WMainWindow::setupGUI()
     // Setting setup
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    WSettingAction* hideMenuAction = new WSettingAction( this, "qt4gui/showMenu",
+    WSettingAction* hideMenuAction = new WSettingAction( this, "qt5gui/showMenu",
                                                                "Show Menubar",
                                                                "Allows you to hide the menu. Can be restored using CTRL-M.",
                                                                true,
                                                                false,
                                                                QKeySequence( Qt::CTRL + Qt::Key_M ) );
 
-    WSettingAction* showNavWidgets = new WSettingAction( this, "qt4gui/showNavigationWidgets",
+    WSettingAction* showNavWidgets = new WSettingAction( this, "qt5gui/showNavigationWidgets",
                                                                "Show Navigation Views",
                                                                "Disables the navigation views completely. This can lead to a speed-up and is "
                                                                "recommended for those who do not need them.",
                                                                false,
                                                                true    // this requires a restart
                                                        );
-    m_sliderMinMaxEditSetting = new WSettingAction( this, std::string( "qt4gui/" ) +  std::string( "sliderMinMaxEdit" ),
+    m_sliderMinMaxEditSetting = new WSettingAction( this, std::string( "qt5gui/" ) +  std::string( "sliderMinMaxEdit" ),
                                                     "Slider Min/Max Editing",
                                                     "If enabled, the maximum and minimum values of slider can be edited.",
                                                     false );
 
-    WSettingAction* mtViews = new WSettingAction( this, "qt4gui/ge/multiThreadedViewer",
+    WSettingAction* mtViews = new WSettingAction( this, "qt5gui/ge/multiThreadedViewer",
                                                         "Multi-Threaded Views",
                                                         "If enabled, the graphic windows are rendered in different threads. This can speed-up "
                                                         "rendering on machines with multiple cores. WARNING: can lead to crashes sometimes.",
@@ -169,7 +169,7 @@ void WMainWindow::setupGUI()
     logOptions.push_back( "Info" );
     logOptions.push_back( "Warning" );
     logOptions.push_back( "Error" );
-    WSettingMenu* logLevels = new WSettingMenu( this, "qt4gui/logLevel",
+    WSettingMenu* logLevels = new WSettingMenu( this, "qt5gui/logLevel",
                                                       "Log-Level",
                                                       "Allows one to set the log verbosity.",
                                                       1,    // info is the default
@@ -760,7 +760,7 @@ void WMainWindow::openAboutQtDialog()
 
 void WMainWindow::openAboutDialog()
 {
-    std::string filename( WPathHelper::getDocPath().string() + "/openwalnut-qt4/OpenWalnutAbout.html" );
+    std::string filename( WPathHelper::getDocPath().string() + "/openwalnut-qt5/OpenWalnutAbout.html" );
     std::string content = readFileIntoString( filename );
     std::string windowHeading =  std::string( "About OpenWalnut " ) + std::string( W_VERSION );
     QMessageBox::about( this, windowHeading.c_str(), content.c_str() );
@@ -768,7 +768,7 @@ void WMainWindow::openAboutDialog()
 
 void WMainWindow::openAboutNemticsDialog()
 {
-    std::string filename( WPathHelper::getDocPath().string() + "/openwalnut-qt4/OpenWalnutAboutNemtics.html" );
+    std::string filename( WPathHelper::getDocPath().string() + "/openwalnut-qt5/OpenWalnutAboutNemtics.html" );
     std::string content = readFileIntoString( filename );
     std::string windowHeading =  std::string( "About Nemtics " ) + std::string( W_VERSION );
     QMessageBox* b = new QMessageBox( QMessageBox::Information,
@@ -783,7 +783,7 @@ void WMainWindow::openAboutNemticsDialog()
 
 void WMainWindow::openSupportDialog()
 {
-    std::string filename( WPathHelper::getDocPath().string() + "/openwalnut-qt4/OpenWalnutSupport.html" );
+    std::string filename( WPathHelper::getDocPath().string() + "/openwalnut-qt5/OpenWalnutSupport.html" );
     std::string content = readFileIntoString( filename );
     std::string windowHeading =  std::string( "Professional Support " ) + std::string( W_VERSION );
     QMessageBox* b = new QMessageBox( QMessageBox::Information,
@@ -798,9 +798,8 @@ void WMainWindow::openSupportDialog()
 
 void WMainWindow::openOpenWalnutHelpDialog()
 {
-    std::string filename( WPathHelper::getDocPath().string() + "/openwalnut-qt4/OpenWalnutHelp.html" );
+    std::string filename( WPathHelper::getDocPath().string() + "/openwalnut-qt5/OpenWalnutHelp.html" );
 
-#ifndef QT4GUI_NOWEBKIT
     std::string content = readFileIntoString( filename );
 
     QWidget* window = new QWidget( this, Qt::Window );
@@ -813,15 +812,10 @@ void WMainWindow::openOpenWalnutHelpDialog()
     window->show();
 
     QWebView *view = new QWebView( this );
-    QString location( QString( "file://" ) + WPathHelper::getDocPath().string().c_str() + "/openwalnut-qt4/" );
+    QString location( QString( "file://" ) + WPathHelper::getDocPath().string().c_str() + "/openwalnut-qt5/" );
     view->setHtml( content.c_str(), QUrl( location  ) );
     view->show();
     layout->addWidget( view );
-#else
-    QMessageBox::information( this, "Help", QString::fromStdString( "Sorry! Your version of OpenWalnut was not compiled with embedded help. "
-                                                                    "To open the help pages in your browser, use this link: <a href=" +
-                                                                    filename + ">Help</a>." ) );
-#endif
 }
 
 void WMainWindow::openNotImplementedDialog()
@@ -1199,7 +1193,7 @@ void WMainWindow::handleGLVendor()
 void WMainWindow::showWelcomeDialog( bool force )
 {
     // Load welcome file
-    std::string filename( WPathHelper::getDocPath().string() + "/openwalnut-qt4/OpenWalnutWelcome.html" );
+    std::string filename( WPathHelper::getDocPath().string() + "/openwalnut-qt5/OpenWalnutWelcome.html" );
     std::string content = readFileIntoString( filename );
 
     // gen ID for it using version (allows showing release/welcome message for each new release)
@@ -1212,18 +1206,11 @@ void WMainWindow::showWelcomeDialog( bool force )
     content = boost::regex_replace( content, reg2, std::string( W_VERSION ) );
 
     QWidget* w = NULL;
-#ifndef QT4GUI_NOWEBKIT
     QWebView* view = new QWebView( this );
     view->setHtml( QString::fromStdString( content ) );
     view->setMinimumWidth( 640 );
     view->page()->setLinkDelegationPolicy( QWebPage::DelegateExternalLinks );
     w = view;
-#else
-    QLabel* l = new QLabel( QString::fromStdString( content ) );
-    l->setWordWrap( true );
-    l->setMinimumWidth( 640 );
-    w = l;
-#endif
 
     WQtMessageDialog* msgDia = new WQtMessageDialog( msgID, "Welcome to OpenWalnut", w, getSettings(), this );
     msgDia->show( force );

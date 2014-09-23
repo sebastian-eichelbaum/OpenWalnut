@@ -193,17 +193,17 @@ int WQt4Gui::run()
     WPathHelper::getPathHelper()->setBasePaths( walnutBin, boost::filesystem::path( QDir::homePath().toStdString() ) / ".OpenWalnut" );
 #endif
 
-    QPixmap splashPixmap( QString::fromStdString( ( WPathHelper::getPathHelper()->getSharePath() / "qt4gui" / "splash.png" ).string() ) );
+    QPixmap splashPixmap( QString::fromStdString( ( WPathHelper::getPathHelper()->getSharePath() / "qt5gui" / "splash.png" ).string() ) );
     m_splash = new QSplashScreen( splashPixmap );
     m_splash->show();
 
     // with the correct paths, we can load the settings
-    m_settings = new QSettings( QString::fromStdString( ( WPathHelper::getHomePath() / "config.qt4gui" ).string() ), QSettings::IniFormat );
+    m_settings = new QSettings( QString::fromStdString( ( WPathHelper::getHomePath() / "config.qt5gui" ).string() ), QSettings::IniFormat );
 
     WQtModuleConfig::initPathHelper();
 
     // get the minimum log level from preferences
-    LogLevel logLevel = static_cast< LogLevel >( WQt4Gui::getSettings().value( "qt4gui/logLevel", LL_DEBUG ).toInt() );
+    LogLevel logLevel = static_cast< LogLevel >( WQt4Gui::getSettings().value( "qt5gui/logLevel", LL_DEBUG ).toInt() );
     WLogger::getLogger()->setDefaultLogLevel( logLevel );
 
     // print the first output

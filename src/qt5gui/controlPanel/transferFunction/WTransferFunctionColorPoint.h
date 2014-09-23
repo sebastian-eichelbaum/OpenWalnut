@@ -37,16 +37,11 @@ class WTransferFunctionWidget;
  * Internals:
  * The point has links to its left and right neighbors (double-linked list).
  */
-class WTransferFunctionColorPoint : public QObject, public QGraphicsItem
+class WTransferFunctionColorPoint: public QGraphicsObject
 {
-    // \cond Suppress_Doxygen
-    Q_OBJECT // NOLINT
-    // Q_INTERFACES( QGraphicsItem ) // NOLINT
-    // \endcond
-
 public:
     /** type of our base class */
-    typedef QGraphicsItem BaseClass;
+    typedef QGraphicsObject BaseClass;
 
     /**
      * Default constructor.

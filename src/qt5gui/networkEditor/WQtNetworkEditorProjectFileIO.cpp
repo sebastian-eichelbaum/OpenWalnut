@@ -95,8 +95,8 @@ int* parseIntSequence( std::string seq, int size, int& loaded ) // NOLINT: yes i
 
 bool WQtNetworkEditorProjectFileIO::parse( std::string line, unsigned int lineNumber )
 {
-    static const boost::regex networkCoordRe( "^ *QT4GUI_NETWORK:([0-9]*)=(.*)$" );
-    static const boost::regex networkFlagsRe( "^ *QT4GUI_NETWORK_Flags:([0-9]*)=(.*)$" );
+    static const boost::regex networkCoordRe( "^ *QT5GUI_NETWORK:([0-9]*)=(.*)$" );
+    static const boost::regex networkFlagsRe( "^ *QT5GUI_NETWORK_Flags:([0-9]*)=(.*)$" );
 
     // use regex to parse it
     boost::smatch matches;  // the list of matches
@@ -209,7 +209,7 @@ void WQtNetworkEditorProjectFileIO::done()
 void WQtNetworkEditorProjectFileIO::save( std::ostream& output ) // NOLINT
 {
     output << "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
-              "// Qt4GUI Network Information" << std::endl <<
+              "// Qt5GUI Network Information" << std::endl <<
               "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
               std::endl;
 
@@ -237,8 +237,8 @@ void WQtNetworkEditorProjectFileIO::save( std::ostream& output ) // NOLINT
             QPoint p = grid->whereIs( item );
 
             // NOTE: we write relative coordinates! So subtract bounding box top-left corner from each coordinate.
-            output << "QT4GUI_NETWORK:" << id << "=" << p.x() - bb.x() << ";" << p.y() - bb.y() << std::endl;
-            output << "QT4GUI_NETWORK_Flags:" << id << "=" << item->wasLayedOut() << ";" << item->wasManuallyPlaced() << std::endl;
+            output << "QT5GUI_NETWORK:" << id << "=" << p.x() - bb.x() << ";" << p.y() - bb.y() << std::endl;
+            output << "QT5GUI_NETWORK_Flags:" << id << "=" << item->wasLayedOut() << ";" << item->wasManuallyPlaced() << std::endl;
         }
         // else: not in grid. We do not save info for this module
     }
