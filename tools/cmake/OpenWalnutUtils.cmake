@@ -369,20 +369,31 @@ FUNCTION( SETUP_COMMON_DOC _target _component )
     ENDIF()
 ENDFUNCTION( SETUP_COMMON_DOC )
 
-# This function configures the soecified file in the given resource. This is especially useful for scripts where to replace certain
+# This function configures the specified file in the given resource. This is especially useful for scripts where to replace certain
 # CMake variables (like pkg-config files).
 # _resource the name of the resource in the resources directory
 # _file the file in the the resource to configure
 # _component the install component to which the file belongs
 FUNCTION( SETUP_CONFIGURED_FILE _resource _file _component )
-    SET( ResourcesPath "${PROJECT_SOURCE_DIR}/../resources/${_resource}/" )
-    CONFIGURE_FILE( "${ResourcesPath}/${_file}" "${PROJECT_BINARY_DIR}/${_file}" @ONLY )
-    # Install the file
     GET_FILENAME_COMPONENT( filepath ${_file} PATH )
-    INSTALL( FILES "${PROJECT_BINARY_DIR}/${_file}" DESTINATION "${filepath}"
+    SETUP_CONFIGURED_FILE_TO( ${_resource} ${_file} ${_component} ${filepath} )
+ENDFUNCTION( SETUP_CONFIGURED_FILE )
+
+# This function configures the specified file in the given resource. This is especially useful for scripts where to replace certain
+# CMake variables (like pkg-config files).
+# _resource the name of the resource in the resources directory
+# _file the file in the the resource to configure
+# _component the install component to which the file belongs
+# _destinationPath where to place the file as relative path (do not include filename, relative to project binary root)
+FUNCTION( SETUP_CONFIGURED_FILE_TO _resource _file _component _destinationPath )
+    SET( ResourcesPath "${PROJECT_SOURCE_DIR}/../resources/${_resource}/" )
+    GET_FILENAME_COMPONENT( filename ${_file} NAME )
+    CONFIGURE_FILE( "${ResourcesPath}/${_file}" "${PROJECT_BINARY_DIR}/${_destinationPath}/${filename}" @ONLY )
+    # Install the file
+    INSTALL( FILES "${PROJECT_BINARY_DIR}/${_file}" DESTINATION "${_destinationPath}"
                                                       COMPONENT ${_component}
            )
-ENDFUNCTION( SETUP_CONFIGURED_FILE )
+ENDFUNCTION( SETUP_CONFIGURED_FILE_TO )
 
 # This function eases the process of copying and installing additional files which not reside in the resource path.
 # It creates a target (ALL is depending on it) AND the INSTALL operation.
@@ -675,7 +686,20 @@ FUNCTION( SETUP_MODULE _MODULE_NAME _MODULE_SOURCE_DIR _MODULE_DEPENDENCIES _MOD
 
     # Setup the target
     ADD_LIBRARY( ${MODULE_NAME} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} )
-    TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${CMAKE_STANDARD_LIBRARIES} ${OW_LIB_OPENWALNUT} ${Boost_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES} ${_MODULE_DEPENDENCIES} )
+
+    # Some Linux distributions need to explicitly link against X11. We add this lib here.
+    IF( CMAKE_HOST_SYSTEM MATCHES "Linux" )
+        SET( ADDITIONAL_TARGET_LINK_LIBRARIES "X11" )
+    ENDIF()
+
+    TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${CMAKE_STANDARD_LIBRARIES}
+                                          ${OW_LIB_OPENWALNUT} 
+                                          ${Boost_LIBRARIES}
+                                          ${OPENGL_gl_LIBRARY}
+                                          ${OPENSCENEGRAPH_LIBRARIES} 
+                                          ${ADDITIONAL_TARGET_LINK_LIBRARIES} 
+                                          ${_MODULE_DEPENDENCIES}
+                         )
 
     # Set the version of the library.
     SET_TARGET_PROPERTIES( ${MODULE_NAME} PROPERTIES

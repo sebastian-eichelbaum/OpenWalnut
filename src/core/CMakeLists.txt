@@ -35,6 +35,10 @@ SET( LibName ${OW_LIB_OPENWALNUT} )
 ADD_DEFINITIONS( '-DW_LIB_PREFIX="${CMAKE_SHARED_LIBRARY_PREFIX}"' )
 ADD_DEFINITIONS( '-DW_LIB_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}"' )
 
+# Set the library path. It might be different from the expected "lib" path, especially when using multiarch or similar.
+# This definition is used by WPathHelper internally.
+ADD_DEFINITIONS( '-DW_LIB_DIR_RELATIVE="${OW_LIBRARY_DIR_RELATIVE}"' )
+
 OPTION( OW_STATIC_BUILD "Enable this to build the core library as static library." OFF )
 
 # the files to link against if we found the necessary libs for a script interpreter
@@ -66,7 +70,16 @@ ELSE()
     ADD_LIBRARY( ${LibName} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${OW_VERSION_HEADER} )
 ENDIF()
 
-TARGET_LINK_LIBRARIES( ${LibName} ${Boost_LIBRARIES} ${CMAKE_STANDARD_LIBRARIES} ${CMAKE_DL_LIBS} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES} ${INTERPRETER_LINK_LIBRARIES}
+# Some Linux distributions need to explicitly link against X11. We add this lib here.
+IF( CMAKE_HOST_SYSTEM MATCHES "Linux" )
+    SET( ADDITIONAL_TARGET_LINK_LIBRARIES "X11" )
+ENDIF()
+
+TARGET_LINK_LIBRARIES( ${LibName} ${Boost_LIBRARIES} ${CMAKE_STANDARD_LIBRARIES} ${CMAKE_DL_LIBS}
+    ${OPENGL_gl_LIBRARY}
+    ${OPENSCENEGRAPH_LIBRARIES}
+    ${INTERPRETER_LINK_LIBRARIES}
+    ${ADDITIONAL_TARGET_LINK_LIBRARIES} 
                      )
 
 # Tell CMake that someone creates this file for us. See doc of SETUP_VERSION_HEADER for details why this is needed.
@@ -92,7 +105,7 @@ INSTALL( FILES ${OW_VERSION_HEADER}
 )
 
 # The core does also provide some nice pkg-config file. Set this up and configure it to contain the correct install prefix
-SETUP_CONFIGURED_FILE( "core-dev" "lib/pkgconfig/openwalnut.pc" "CORE_DEV" )
+SETUP_CONFIGURED_FILE_TO( "core-dev" "lib/pkgconfig/openwalnut.pc" "CORE_DEV" "${OW_LIBRARY_DIR_RELATIVE}/pkgconfig" )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Test Setup

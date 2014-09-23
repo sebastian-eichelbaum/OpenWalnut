@@ -12,13 +12,14 @@
 override_dh_auto_build:
 	# Invoke standard build mechanism.
 	dh_auto_build
-	# Enable this if you have a multi-core machine and are debugging the debian packages. Disable again for upload.
+	# Enable this if you have a multi-core machine and are debugging the Debian packages. Disable again for upload.
 	# dh_auto_build -- -j10
 	# build the core api documentation too
 	dh_auto_build -- core_devdoc
 
 override_dh_auto_configure:
-	# We turn of several build options here to reduce dependencies. Later, several modules are moved to an extra package which then uses cuda/opencl and stuff.
+	# We turn of several build options here to reduce dependencies. Later, several modules are moved to an extra package which then uses cuda/opencl
+	# and stuff.
 	# NOTE: you can uncomment the last line for faster compilation/package debugging.
 	dh_auto_configure -- -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
 							-DOW_USE_CUDA=OFF\
@@ -29,6 +30,8 @@ override_dh_auto_configure:
 								-DOW_PACKAGE_NOCOPY_LICENSE=ON\
 								-DOW_PACKAGE_NOCOPY_COREFONTS=ON\
 								-DOW_PACKAGE_PACKAGER=deb\
+								-DOW_PACKAGE_MULTIARCH=ON\
+								-DOW_PACKAGE_MULTIARCHLIBPATH="$(shell dpkg-architecture -qDEB_HOST_MULTIARCH)"\
 							-DOW_MODULE_TOOLBOX_BASE=ON\
 							-DOW_MODULE_TOOLBOX_EEG=ON\
 							-DOW_MODULE_TOOLBOX_IO=ON\

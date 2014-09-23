@@ -356,14 +356,16 @@ void WMainWindow::setupGUI()
     this->addAction( controlPanelTrigger );  // this enables the action even if the menu bar is invisible
 
     m_helpAction = new QAction( "Help", this );
-    m_helpAction->setIcon( m_iconManager.getIcon( "help" ) );
+    m_helpAction->setIcon( m_iconManager.getIcon( "questionmark" ) );
     connect( m_helpAction, SIGNAL( triggered() ), this, SLOT( openOpenWalnutHelpDialog() ) );
     m_helpMenu = m_menuBar->addMenu( "Help" );
+    m_helpMenu->addAction( m_iconManager.getIcon( "logo" ), "Welcome to OpenWalnut", this, SLOT( showWelcomeDialog() ) );
     m_helpMenu->addAction( m_iconManager.getIcon( "help" ), "OpenWalnut Help", this, SLOT( openOpenWalnutHelpDialog() ),
                            QKeySequence( QKeySequence::HelpContents ) );
-    m_helpMenu->addAction( m_iconManager.getIcon( "logo" ), "Welcome to OpenWalnut", this, SLOT( showWelcomeDialog() ) );
+    m_helpMenu->addAction( m_iconManager.getIcon( "nemtics" ), "Professional Support", this, SLOT( openSupportDialog() ) );
     m_helpMenu->addSeparator();
     m_helpMenu->addAction( m_iconManager.getIcon( "logo" ), "About OpenWalnut", this, SLOT( openAboutDialog() ) );
+    m_helpMenu->addAction(  m_iconManager.getIcon( "nemtics" ), "About Nemtics", this, SLOT( openAboutNemticsDialog() ) );
     m_helpMenu->addAction(  m_iconManager.getIcon( "qt" ), "About Qt", this, SLOT( openAboutQtDialog() ) );
     m_helpAction->setMenu( m_helpMenu );
     connect( m_helpAction, SIGNAL( triggered( bool ) ), this, SLOT( openOpenWalnutHelpDialog() ) );
@@ -438,6 +440,7 @@ void WMainWindow::setupGUI()
     m_networkEditor->addTitleAction( m_saveAction );
     m_networkEditor->addTitleSeperator();
     m_networkEditor->addTitleAction( m_settingsAction, true );
+    m_networkEditor->addTitleAction( m_helpAction, true );
 
     // allow the control panel to complete setup
     m_controlPanel->completeGuiSetup();
@@ -764,6 +767,36 @@ void WMainWindow::openAboutDialog()
     std::string content = readFileIntoString( filename );
     std::string windowHeading =  std::string( "About OpenWalnut " ) + std::string( W_VERSION );
     QMessageBox::about( this, windowHeading.c_str(), content.c_str() );
+}
+
+void WMainWindow::openAboutNemticsDialog()
+{
+    std::string filename( WPathHelper::getDocPath().string() + "/openwalnut-qt4/OpenWalnutAboutNemtics.html" );
+    std::string content = readFileIntoString( filename );
+    std::string windowHeading =  std::string( "About Nemtics " ) + std::string( W_VERSION );
+    QMessageBox* b = new QMessageBox( QMessageBox::Information,
+                                      QString::fromStdString( windowHeading ),
+                                      QString::fromStdString( content ),
+                                      QMessageBox::Ok,
+                                      this );
+
+    b->setIconPixmap( m_iconManager.getIcon( "nemtics" ).pixmap( QSize( 48, 48 ) ) );
+    b->show();
+}
+
+void WMainWindow::openSupportDialog()
+{
+    std::string filename( WPathHelper::getDocPath().string() + "/openwalnut-qt4/OpenWalnutSupport.html" );
+    std::string content = readFileIntoString( filename );
+    std::string windowHeading =  std::string( "Professional Support " ) + std::string( W_VERSION );
+    QMessageBox* b = new QMessageBox( QMessageBox::Information,
+                                      QString::fromStdString( windowHeading ),
+                                      QString::fromStdString( content ),
+                                      QMessageBox::Ok,
+                                      this );
+
+    b->setIconPixmap( m_iconManager.getIcon( "nemtics" ).pixmap( QSize( 48, 48 ) ) );
+    b->show();
 }
 
 void WMainWindow::openOpenWalnutHelpDialog()
