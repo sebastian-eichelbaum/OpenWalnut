@@ -30,9 +30,9 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <QtGui/QWidget>
-#include <QtGui/QDockWidget>
-#include <QtGui/QVBoxLayout>
+#include <QWidget>
+#include <QDockWidget>
+#include <QVBoxLayout>
 
 #include "core/kernel/WModule.h"
 

@@ -25,8 +25,8 @@
 #ifndef WQTMODULETREEITEM_H
 #define WQTMODULETREEITEM_H
 
-#include <QtGui/QTreeWidgetItem>
-#include <QtGui/QProgressBar>
+#include <QTreeWidgetItem>
+#include <QProgressBar>
 #include <QtCore/QTimer>
 
 #include "WQtTreeItem.h"

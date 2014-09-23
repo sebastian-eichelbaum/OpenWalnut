@@ -27,7 +27,7 @@
 
 #include <string>
 
-#include <QtGui/QMenu>
+#include <QMenu>
 
 /**
  * Similar to WSettingAction, this can handle a multi-option setting as QMenu.

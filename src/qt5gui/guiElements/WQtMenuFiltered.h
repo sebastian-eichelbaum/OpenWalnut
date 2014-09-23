@@ -25,13 +25,13 @@
 #ifndef WQTMENUFILTERED_H
 #define WQTMENUFILTERED_H
 
-#include <QtGui/QKeyEvent>
-#include <QtGui/QMenu>
-#include <QtGui/QLineEdit>
-#include <QtGui/QLabel>
-#include <QtGui/QWidget>
-#include <QtGui/QWidgetAction>
-#include <QtGui/QHBoxLayout>
+#include <QKeyEvent>
+#include <QMenu>
+#include <QLineEdit>
+#include <QLabel>
+#include <QWidget>
+#include <QWidgetAction>
+#include <QHBoxLayout>
 
 /**
  * A menu derived from QMenu with additional filtering.

@@ -29,12 +29,12 @@
 
 #include <boost/signals2.hpp>
 
-#include <QtGui/QWidget>
-#include <QtGui/QToolBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QComboBox>
+#include <QWidget>
+#include <QToolBox>
+#include <QPushButton>
+#include <QLabel>
+#include <QLineEdit>
+#include <QComboBox>
 
 #include <osg/Camera>
 #include <osg/Image>

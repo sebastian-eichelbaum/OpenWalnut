@@ -92,11 +92,6 @@ ADD_CUSTOM_TARGET( list_install_tarets
 # install targets for different parts
 ADD_CUSTOM_TARGET( install_runtime
                     ${CMAKE_COMMAND}
-                        -DCOMPONENT=QT4GUI
-                        -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
-                 )
-ADD_CUSTOM_TARGET( install_runtime
-                    ${CMAKE_COMMAND}
                         -DCOMPONENT=QT5GUI
                         -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
                  )

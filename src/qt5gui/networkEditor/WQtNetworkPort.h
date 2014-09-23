@@ -25,9 +25,9 @@
 #ifndef WQTNETWORKPORT_H
 #define WQTNETWORKPORT_H
 
-#include <QtGui/QGraphicsRectItem>
-#include <QtGui/QGraphicsPolygonItem>
-#include <QtGui/QGraphicsLineItem>
+#include <QGraphicsRectItem>
+#include <QGraphicsPolygonItem>
+#include <QGraphicsLineItem>
 
 #include "WQtNetworkArrow.h"
 #include "WQtNetworkPort.h"

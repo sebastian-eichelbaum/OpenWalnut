@@ -27,10 +27,10 @@
 
 #include <string>
 
-#include <QtGui/QLineEdit>
-#include <QtGui/QSlider>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QToolButton>
+#include <QLineEdit>
+#include <QSlider>
+#include <QHBoxLayout>
+#include <QToolButton>
 
 #include "../guiElements/WQtIntervalEdit.h"
 #include "../guiElements/WScaleLabel.h"

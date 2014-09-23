@@ -27,11 +27,11 @@
 
 #include <string>
 
-#include <QtGui/QPushButton>
-#include <QtGui/QLabel>
-#include <QtGui/QAction>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QToolButton>
+#include <QPushButton>
+#include <QLabel>
+#include <QAction>
+#include <QHBoxLayout>
+#include <QToolButton>
 
 #include "../guiElements/WScaleLabel.h"
 

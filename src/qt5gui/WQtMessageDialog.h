@@ -25,11 +25,11 @@
 #ifndef WQTMESSAGEDIALOG_H
 #define WQTMESSAGEDIALOG_H
 
-#include <QtGui/QDialog>
-#include <QtGui/QTextEdit>
-#include <QtGui/QLabel>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QCheckBox>
+#include <QDialog>
+#include <QTextEdit>
+#include <QLabel>
+#include <QDialogButtonBox>
+#include <QCheckBox>
 #include <QtCore/QSettings>
 
 /**

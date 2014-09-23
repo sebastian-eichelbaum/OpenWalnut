@@ -24,13 +24,13 @@
 
 #include <iostream>
 
-#include <QtGui/QAction>
-#include <QtGui/QDockWidget>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QWidget>
-#include <QtGui/QComboBox>
+#include <QAction>
+#include <QDockWidget>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QWidget>
+#include <QComboBox>
 
 #include "WQt4Gui.h"
 #include "WMainWindow.h"

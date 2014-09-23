@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include <QtGui/QGridLayout>
+#include <QGridLayout>
 
 #include "core/common/WConditionOneShot.h"
 #include "core/common/WFlag.h"

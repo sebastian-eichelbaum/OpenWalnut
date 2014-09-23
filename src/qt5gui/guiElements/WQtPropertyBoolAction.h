@@ -25,7 +25,7 @@
 #ifndef WQTPROPERTYBOOLACTION_H
 #define WQTPROPERTYBOOLACTION_H
 
-#include <QtGui/QAction>
+#include <QAction>
 
 #include "core/common/WPropertyVariable.h"
 

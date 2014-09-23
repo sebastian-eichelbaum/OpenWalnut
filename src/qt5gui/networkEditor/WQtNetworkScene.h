@@ -25,8 +25,8 @@
 #ifndef WQTNETWORKSCENE_H
 #define WQTNETWORKSCENE_H
 
-#include <QtGui/QGraphicsScene>
-#include <QtGui/QGraphicsItem>
+#include <QGraphicsScene>
+#include <QGraphicsItem>
 
 /**
  * The scene containing the whole graph

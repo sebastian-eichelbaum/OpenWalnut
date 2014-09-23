@@ -28,9 +28,9 @@
 #include <string>
 #include <vector>
 
-#include <QtGui/QAction>
-#include <QtGui/QCheckBox>
-#include <QtGui/QHBoxLayout>
+#include <QAction>
+#include <QCheckBox>
+#include <QHBoxLayout>
 
 #include "core/common/WPropertyGroupBase.h"
 #include "WPropertyWidget.h"

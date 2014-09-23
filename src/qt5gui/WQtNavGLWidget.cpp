@@ -26,10 +26,10 @@
 #include <map>
 #include <string>
 
-#include <QtGui/QApplication>
-#include <QtGui/QDockWidget>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QVBoxLayout>
+#include <QApplication>
+#include <QDockWidget>
+#include <QKeyEvent>
+#include <QVBoxLayout>
 
 #include "core/graphicsEngine/WGECamera.h"
 #include "core/graphicsEngine/WGEScene.h"

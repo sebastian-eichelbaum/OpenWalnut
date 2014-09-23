@@ -29,10 +29,10 @@
 #include <limits>
 #include <iostream>
 
-#include <QtGui/QSlider>
-#include <QtGui/QLineEdit>
-#include <QtGui/QLabel>
-#include <QtGui/QGridLayout>
+#include <QSlider>
+#include <QLineEdit>
+#include <QLabel>
+#include <QGridLayout>
 
 template< typename DataType, typename DisplayType >
 DisplayType toDisplayType( const DataType& value )

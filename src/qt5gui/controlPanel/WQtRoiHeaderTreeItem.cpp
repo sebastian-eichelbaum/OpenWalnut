@@ -25,11 +25,11 @@
 #include <string>
 
 #include <QtCore/QList>
-#include <QtGui/QScrollArea>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QListWidgetItem>
-#include <QtGui/QApplication>
-#include <QtGui/QWidgetAction>
+#include <QScrollArea>
+#include <QVBoxLayout>
+#include <QListWidgetItem>
+#include <QApplication>
+#include <QWidgetAction>
 
 #include "../guiElements/WScaleLabel.h"
 #include "../WQt4Gui.h"

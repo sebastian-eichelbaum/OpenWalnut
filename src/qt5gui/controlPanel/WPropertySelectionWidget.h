@@ -27,9 +27,9 @@
 
 #include <string>
 
-#include <QtGui/QComboBox>
-#include <QtGui/QListWidget>
-#include <QtGui/QHBoxLayout>
+#include <QComboBox>
+#include <QListWidget>
+#include <QHBoxLayout>
 
 #include "WPropertyWidget.h"
 

@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include <QtGui/QApplication>
+#include <QApplication>
 
 #include "core/common/WPropertyVariable.h"
 

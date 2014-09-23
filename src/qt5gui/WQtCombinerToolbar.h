@@ -25,7 +25,7 @@
 #ifndef WQTCOMBINERTOOLBAR_H
 #define WQTCOMBINERTOOLBAR_H
 
-#include <QtGui/QToolBar>
+#include <QToolBar>
 
 #ifndef Q_MOC_RUN
 // There is an issue with the moc compiler and some boost headers where

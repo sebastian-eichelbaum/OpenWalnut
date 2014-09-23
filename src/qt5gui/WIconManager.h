@@ -30,7 +30,7 @@
 
 #include <boost/filesystem/path.hpp>
 
-#include <QtGui/QIcon>
+#include <QIcon>
 
 #include "core/graphicsEngine/WGEImage.h"
 

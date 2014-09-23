@@ -28,11 +28,11 @@
 #include <string>
 #include <iostream>
 
-#include <QtGui/QGraphicsSceneMouseEvent>
-#include <QtGui/QGraphicsLineItem>
-#include <QtGui/QGraphicsPathItem>
-#include <QtGui/QGraphicsScene>
-#include <QtGui/QPainter>
+#include <QGraphicsSceneMouseEvent>
+#include <QGraphicsLineItem>
+#include <QGraphicsPathItem>
+#include <QGraphicsScene>
+#include <QPainter>
 #include <boost/shared_ptr.hpp>
 
 #include "core/kernel/WModuleConnector.h"

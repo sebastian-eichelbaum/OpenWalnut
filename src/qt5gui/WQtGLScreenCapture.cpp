@@ -30,8 +30,8 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QEvent>
-#include <QtGui/QApplication>
-#include <QtGui/QGroupBox>
+#include <QApplication>
+#include <QGroupBox>
 
 #include "core/common/WLogger.h"
 #include "events/WEventTypes.h"

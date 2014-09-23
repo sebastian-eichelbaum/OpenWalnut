@@ -28,10 +28,10 @@
 #include <string>
 #include <vector>
 
-#include <QtGui/QMenu>
+#include <QMenu>
 #include <QtCore/QList>
-#include <QtGui/QAction>
-#include <QtGui/QWidget>
+#include <QAction>
+#include <QWidget>
 
 #include "core/kernel/combiner/WApplyCombiner.h"
 #include "core/kernel/combiner/WModuleOneToOneCombiner.h"

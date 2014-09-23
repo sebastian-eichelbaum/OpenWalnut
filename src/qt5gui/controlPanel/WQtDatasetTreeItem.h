@@ -25,7 +25,7 @@
 #ifndef WQTDATASETTREEITEM_H
 #define WQTDATASETTREEITEM_H
 
-#include <QtGui/QTreeWidgetItem>
+#include <QTreeWidgetItem>
 
 #include "core/kernel/WModule.h"
 #include "WQtTreeItem.h"

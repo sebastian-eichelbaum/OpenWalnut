@@ -29,11 +29,11 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
 
-#include <QtGui/QDockWidget>
-#include <QtGui/QListWidget>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QPushButton>
-#include <QtGui/QListWidgetItem>
+#include <QDockWidget>
+#include <QListWidget>
+#include <QVBoxLayout>
+#include <QPushButton>
+#include <QListWidgetItem>
 
 #include "core/common/WSharedSequenceContainer.h"
 #include "core/common/WSharedObject.h"

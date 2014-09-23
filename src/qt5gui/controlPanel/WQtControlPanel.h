@@ -29,12 +29,12 @@
 #include <string>
 #include <vector>
 
-#include <QtGui/QDockWidget>
-#include <QtGui/QSplitter>
-#include <QtGui/QTabWidget>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QWidget>
-#include <QtGui/QListWidget>
+#include <QDockWidget>
+#include <QSplitter>
+#include <QTabWidget>
+#include <QVBoxLayout>
+#include <QWidget>
+#include <QListWidget>
 
 #include "core/dataHandler/WDataSet.h"
 #include "core/graphicsEngine/WROI.h"

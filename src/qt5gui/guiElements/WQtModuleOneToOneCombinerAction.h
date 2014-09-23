@@ -29,7 +29,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <QtGui/QAction>
+#include <QAction>
 
 #include "core/kernel/WModule.h"
 #include "core/kernel/combiner/WModuleOneToOneCombiner.h"

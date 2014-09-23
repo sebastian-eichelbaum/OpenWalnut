@@ -24,7 +24,7 @@
 
 #include <exception>
 
-#include <QtGui/QtGui>
+#include <QtGui>
 
 #include "WMainWindow.h"
 

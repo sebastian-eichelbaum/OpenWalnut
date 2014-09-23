@@ -25,7 +25,7 @@
 #ifndef WQTNETWORKCOLORS_H
 #define WQTNETWORKCOLORS_H
 
-#include <QtGui/QColor>
+#include <QColor>
 
 // This file defines several commonly used colors
 namespace WQtNetworkColors

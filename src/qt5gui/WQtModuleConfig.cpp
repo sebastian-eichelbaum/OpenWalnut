@@ -32,14 +32,14 @@
 #include <boost/program_options.hpp>
 
 #include <QtCore/QDir>
-#include <QtGui/QCheckBox>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QFileDialog>
-#include <QtGui/QGridLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QPushButton>
-#include <QtGui/QTabWidget>
-#include <QtGui/QVBoxLayout>
+#include <QCheckBox>
+#include <QDialogButtonBox>
+#include <QFileDialog>
+#include <QGridLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QTabWidget>
+#include <QVBoxLayout>
 
 #include "core/common/WPathHelper.h"
 #include "core/kernel/WModuleFactory.h"

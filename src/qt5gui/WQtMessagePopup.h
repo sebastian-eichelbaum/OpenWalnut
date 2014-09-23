@@ -25,8 +25,8 @@
 #ifndef WQTMESSAGEPOPUP_H
 #define WQTMESSAGEPOPUP_H
 
-#include <QtGui/QWidget>
-#include <QtGui/QDialog>
+#include <QWidget>
+#include <QDialog>
 #include <QtCore/QString>
 #include <QtCore/QTimer>
 

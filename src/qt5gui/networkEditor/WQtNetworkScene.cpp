@@ -27,11 +27,11 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <QtGui/QDockWidget>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QGraphicsView>
-#include <QtGui/QGraphicsItemGroup>
-#include <QtGui/QGraphicsSceneMouseEvent>
+#include <QDockWidget>
+#include <QVBoxLayout>
+#include <QGraphicsView>
+#include <QGraphicsItemGroup>
+#include <QGraphicsSceneMouseEvent>
 
 #include "../WMainWindow.h"
 #include "WQtNetworkItem.h"

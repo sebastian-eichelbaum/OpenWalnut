@@ -25,8 +25,8 @@
 #include <cassert>
 #include <string>
 
-#include <QtGui/QPixmap>
-#include <QtGui/QImage>
+#include <QPixmap>
+#include <QImage>
 
 #include "core/common/WAssert.h"
 #include "core/common/WPathHelper.h"

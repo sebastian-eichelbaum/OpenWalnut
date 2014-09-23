@@ -25,7 +25,7 @@
 #ifndef WUIQTWIDGETBASE_H
 #define WUIQTWIDGETBASE_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 #include <boost/shared_ptr.hpp>
 

@@ -27,7 +27,7 @@
 
 #include <string>
 
-#include <QtGui/QTabWidget>
+#include <QTabWidget>
 
 #include <boost/shared_ptr.hpp>
 

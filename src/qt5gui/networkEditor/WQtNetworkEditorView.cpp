@@ -22,10 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
-#include <QtGui/QMouseEvent>
-#include <QtGui/QScrollBar>
-#include <QtGui/QWheelEvent>
-#include <QtGui/QGraphicsItem>
+#include <QMouseEvent>
+#include <QScrollBar>
+#include <QWheelEvent>
+#include <QGraphicsItem>
 
 #include "core/common/WLogger.h"
 #include "core/kernel/WModuleFactory.h"

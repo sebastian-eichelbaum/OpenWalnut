@@ -31,8 +31,8 @@
 
 #include <QtCore/QObject>
 
-#include <QtGui/QGraphicsItem>
-#include <QtGui/QWidget>
+#include <QGraphicsItem>
+#include <QWidget>
 #include <QtCore/QPoint>
 
 /**

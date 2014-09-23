@@ -32,8 +32,8 @@
 #include <boost/signals2/signal.hpp>
 #include <boost/thread.hpp>
 
-#include <QtGui/QMainWindow>
-#include <QtGui/QSplashScreen>
+#include <QMainWindow>
+#include <QSplashScreen>
 #include <QtCore/QSettings>
 
 #include "WIconManager.h"

@@ -26,9 +26,9 @@
 #include <string>
 
 
-#include <QtGui/QColorDialog>
-#include <QtGui/QDropEvent>
-#include <QtGui/QToolButton>
+#include <QColorDialog>
+#include <QDropEvent>
+#include <QToolButton>
 
 #include "core/common/WLogger.h"
 #include "core/common/WPropertyVariable.h"

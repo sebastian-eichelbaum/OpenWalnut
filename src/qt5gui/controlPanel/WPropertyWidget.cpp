@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include <QtGui/QApplication>
+#include <QApplication>
 
 #include "../events/WEventTypes.h"
 #include "../events/WPropertyChangedEvent.h"

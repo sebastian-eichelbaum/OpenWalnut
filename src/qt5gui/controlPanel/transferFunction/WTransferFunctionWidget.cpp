@@ -26,9 +26,9 @@
 #include <iostream>
 #include <vector>
 
-#include <QtGui/QGraphicsSceneMouseEvent>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QPaintEngine>
+#include <QGraphicsSceneMouseEvent>
+#include <QMouseEvent>
+#include <QPaintEngine>
 
 #include "core/common/WTransferFunction.h"
 #include "WTransferFunctionBackground.h"

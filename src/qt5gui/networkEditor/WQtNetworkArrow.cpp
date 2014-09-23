@@ -29,10 +29,10 @@
 #include <string>
 #include <iostream>
 
-#include <QtGui/QGraphicsLineItem>
-#include <QtGui/QGraphicsPathItem>
-#include <QtGui/QStyleOptionGraphicsItem>
-#include <QtGui/QPainterPath>
+#include <QGraphicsLineItem>
+#include <QGraphicsPathItem>
+#include <QStyleOptionGraphicsItem>
+#include <QPainterPath>
 
 #include "core/kernel/combiner/WApplyCombiner.h"
 

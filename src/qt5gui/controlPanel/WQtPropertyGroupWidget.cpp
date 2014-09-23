@@ -26,11 +26,11 @@
 #include <algorithm>
 
 #include <QtCore/QSignalMapper>
-#include <QtGui/QApplication>
-#include <QtGui/QGroupBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QToolButton>
-#include <QtGui/QScrollArea>
+#include <QApplication>
+#include <QGroupBox>
+#include <QPushButton>
+#include <QToolButton>
+#include <QScrollArea>
 
 #include "../events/WEventTypes.h"
 #include "../events/WPropertyChangedEvent.h"

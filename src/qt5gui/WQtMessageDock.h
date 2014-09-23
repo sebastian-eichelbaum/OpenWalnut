@@ -25,9 +25,9 @@
 #ifndef WQTMESSAGEDOCK_H
 #define WQTMESSAGEDOCK_H
 
-#include <QtGui/QDockWidget>
-#include <QtGui/QListWidget>
-#include <QtGui/QComboBox>
+#include <QDockWidget>
+#include <QListWidget>
+#include <QComboBox>
 
 #include "core/common/WLogEntry.h"
 

@@ -24,7 +24,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <QtGui/QGraphicsSceneMouseEvent>
+#include <QGraphicsSceneMouseEvent>
 
 #include "WQtNetworkPort.h"
 #include "WQtNetworkOutputPort.h"

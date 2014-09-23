@@ -29,11 +29,11 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <QtGui/QWidget>
-#include <QtGui/QStackedWidget>
-#include <QtGui/QLabel>
-#include <QtGui/QFrame>
-#include <QtGui/QGridLayout>
+#include <QWidget>
+#include <QStackedWidget>
+#include <QLabel>
+#include <QFrame>
+#include <QGridLayout>
 
 #include "core/common/WPropertyBase.h"
 #include "core/common/WPropertyTypes.h"

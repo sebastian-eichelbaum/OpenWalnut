@@ -26,10 +26,10 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <QtGui/QApplication>
-#include <QtGui/QPaintEvent>
-#include <QtGui/QGraphicsSceneMouseEvent>
-#include <QtGui/QPolygonF>
+#include <QApplication>
+#include <QPaintEvent>
+#include <QGraphicsSceneMouseEvent>
+#include <QPolygonF>
 
 #include "WQtNetworkOutputPort.h"
 #include "WQtNetworkInputPort.h"

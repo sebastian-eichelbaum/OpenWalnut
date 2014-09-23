@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 
-#include <QtGui/QApplication>
+#include <QApplication>
 
 #include "../events/WEventTypes.h"
 #include "../events/WModuleConnectorEvent.h"

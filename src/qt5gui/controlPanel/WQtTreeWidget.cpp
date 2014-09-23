@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include <QtGui/QKeyEvent>
+#include <QKeyEvent>
 
 #include "WQtSubjectTreeItem.h"
 

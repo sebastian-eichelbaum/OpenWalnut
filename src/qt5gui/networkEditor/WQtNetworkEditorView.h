@@ -26,7 +26,7 @@
 #define WQTNETWORKEDITORVIEW_H
 
 #include <QtCore/QTimeLine>
-#include <QtGui/QGraphicsView>
+#include <QGraphicsView>
 
 class QGraphicsItem;
 

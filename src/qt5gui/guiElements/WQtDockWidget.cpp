@@ -22,11 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
-#include <QtGui/QAction>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QToolButton>
-#include <QtGui/QWidgetAction>
+#include <QAction>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QToolButton>
+#include <QWidgetAction>
 
 #include "../WQt4Gui.h"
 #include "../WMainWindow.h"

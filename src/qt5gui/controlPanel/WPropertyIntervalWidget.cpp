@@ -29,8 +29,8 @@
 #include <iostream>
 #include <string>
 
-#include <QtGui/QInputDialog>
-#include <QtGui/QAction>
+#include <QInputDialog>
+#include <QAction>
 
 #include "../WGuiConsts.h"
 #include "../WQt4Gui.h"

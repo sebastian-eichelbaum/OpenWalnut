@@ -26,7 +26,7 @@
 
 #include <QtCore/QMimeData>
 #include <QtCore/QUrl>
-#include <QtGui/QGraphicsSceneDragDropEvent>
+#include <QGraphicsSceneDragDropEvent>
 
 #include "core/common/WTransferFunction.h"
 #include "WTransferFunctionScene.h"

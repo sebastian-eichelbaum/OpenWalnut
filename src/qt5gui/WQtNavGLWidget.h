@@ -28,8 +28,8 @@
 #include <map>
 #include <string>
 
-#include <QtGui/QDockWidget>
-#include <QtGui/QSlider>
+#include <QDockWidget>
+#include <QSlider>
 
 #include "core/common/WPropertyVariable.h"
 #include "core/graphicsEngine/WGEGroupNode.h"

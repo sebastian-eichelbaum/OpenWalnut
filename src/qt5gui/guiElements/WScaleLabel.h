@@ -25,7 +25,7 @@
 #ifndef WSCALELABEL_H
 #define WSCALELABEL_H
 
-#include <QtGui/QLabel>
+#include <QLabel>
 #include <QtCore/QString>
 
 #include "../WGuiConsts.h"

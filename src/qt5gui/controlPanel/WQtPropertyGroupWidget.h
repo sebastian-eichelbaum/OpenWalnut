@@ -28,8 +28,8 @@
 #include <string>
 #include <map>
 
-#include <QtGui/QGridLayout>
-#include <QtGui/QWidget>
+#include <QGridLayout>
+#include <QWidget>
 
 #include "WPropertyBoolWidget.h"
 #include "WPropertyIntWidget.h"

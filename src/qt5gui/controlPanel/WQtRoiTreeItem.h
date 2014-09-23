@@ -26,8 +26,8 @@
 #define WQTROITREEITEM_H
 
 #include <QtCore/QTimer>
-#include <QtGui/QProgressBar>
-#include <QtGui/QTreeWidgetItem>
+#include <QProgressBar>
+#include <QTreeWidgetItem>
 
 #include "core/graphicsEngine/WROI.h"
 

@@ -24,13 +24,13 @@
 
 #include <algorithm>
 
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QPushButton>
-#include <QtGui/QCloseEvent>
-#include <QtGui/QHideEvent>
-#include <QtGui/QShowEvent>
-#include <QtGui/QMessageBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QCloseEvent>
+#include <QHideEvent>
+#include <QShowEvent>
+#include <QMessageBox>
 
 #include "core/common/WLogger.h"
 

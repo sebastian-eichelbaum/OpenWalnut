@@ -25,11 +25,11 @@
 #include <cmath>
 #include <string>
 
-#include <QtGui/QPalette>
-#include <QtGui/QListWidgetItem>
-#include <QtGui/QPushButton>
-#include <QtGui/QToolButton>
-#include <QtGui/QScrollBar>
+#include <QPalette>
+#include <QListWidgetItem>
+#include <QPushButton>
+#include <QToolButton>
+#include <QScrollBar>
 
 #include "core/common/WLogger.h"
 #include "core/common/WPropertyVariable.h"

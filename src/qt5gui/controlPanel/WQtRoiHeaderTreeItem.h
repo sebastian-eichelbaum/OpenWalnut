@@ -27,7 +27,7 @@
 
 #include <string>
 
-#include <QtGui/QTreeWidgetItem>
+#include <QTreeWidgetItem>
 
 #include "WQtBranchTreeItem.h"
 #include "WQtRoiTreeItem.h"

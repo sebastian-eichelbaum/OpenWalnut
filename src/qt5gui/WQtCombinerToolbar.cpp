@@ -24,10 +24,10 @@
 
 #include <list>
 
-#include <QtGui/QAction>
-#include <QtGui/QPushButton>
-#include <QtGui/QLabel>
-#include <QtGui/QMenu>
+#include <QAction>
+#include <QPushButton>
+#include <QLabel>
+#include <QMenu>
 
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleCombiner.h"

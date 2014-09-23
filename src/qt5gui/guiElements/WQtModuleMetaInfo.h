@@ -25,7 +25,7 @@
 #ifndef WQTMODULEMETAINFO_H
 #define WQTMODULEMETAINFO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #ifndef QT4GUI_NOWEBKIT
     #include <QtWebKit/QWebFrame>
 #endif

@@ -27,9 +27,9 @@
 
 #include <string>
 
-#include <QtGui/QCheckBox>
-#include <QtGui/QAction>
-#include <QtGui/QHBoxLayout>
+#include <QCheckBox>
+#include <QAction>
+#include <QHBoxLayout>
 
 #include "../guiElements/WScaleLabel.h"
 

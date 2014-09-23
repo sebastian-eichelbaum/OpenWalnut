@@ -25,7 +25,7 @@
 #include <vector>
 #include <string>
 
-#include <QtGui/QToolButton>
+#include <QToolButton>
 
 #include "core/common/WLogger.h"
 #include "core/common/WStringUtils.h"

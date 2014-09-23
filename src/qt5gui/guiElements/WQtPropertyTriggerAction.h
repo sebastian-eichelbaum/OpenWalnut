@@ -25,7 +25,7 @@
 #ifndef WQTPROPERTYTRIGGERACTION_H
 #define WQTPROPERTYTRIGGERACTION_H
 
-#include <QtGui/QAction>
+#include <QAction>
 
 #include "core/common/WPropertyVariable.h"
 

@@ -29,7 +29,7 @@
 #include <iostream>
 #include <string>
 
-#include <QtGui/QInputDialog>
+#include <QInputDialog>
 
 #include "../WGuiConsts.h"
 #include "../WQt4Gui.h"

@@ -25,7 +25,7 @@
 #ifndef WAPPLICATION_H
 #define WAPPLICATION_H
 
-#include <QtGui/QApplication>
+#include <QApplication>
 
 class WMainWindow;
 

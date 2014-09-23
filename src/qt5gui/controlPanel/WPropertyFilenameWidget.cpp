@@ -25,7 +25,7 @@
 #include <cmath>
 #include <string>
 
-#include <QtGui/QFileDialog>
+#include <QFileDialog>
 
 #include "core/common/WLogger.h"
 #include "core/common/WPropertyVariable.h"

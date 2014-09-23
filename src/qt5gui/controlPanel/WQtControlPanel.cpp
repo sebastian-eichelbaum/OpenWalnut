@@ -31,12 +31,12 @@
 
 #include <QtCore/QList>
 #include <QtCore/QCoreApplication>
-#include <QtGui/QMenu>
-#include <QtGui/QScrollArea>
-#include <QtGui/QShortcut>
-#include <QtGui/QSplitter>
-#include <QtGui/QMessageBox>
-#include <QtGui/QVBoxLayout>
+#include <QMenu>
+#include <QScrollArea>
+#include <QShortcut>
+#include <QSplitter>
+#include <QMessageBox>
+#include <QVBoxLayout>
 
 #include "core/common/WLogger.h"
 #include "core/common/WPredicateHelper.h"

@@ -25,11 +25,11 @@
 #include <string>
 #include <iostream>
 
-#include <QtGui/QApplication>
-#include <QtGui/QColorDialog>
-#include <QtGui/QFileDialog>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QPixmap>
+#include <QApplication>
+#include <QColorDialog>
+#include <QFileDialog>
+#include <QKeyEvent>
+#include <QPixmap>
 
 #include "WQtGLWidget.h"
 

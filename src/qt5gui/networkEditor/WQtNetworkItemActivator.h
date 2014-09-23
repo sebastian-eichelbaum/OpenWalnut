@@ -27,8 +27,8 @@
 
 #include <boost/signals2.hpp>
 
-#include <QtGui/QGraphicsPolygonItem>
-#include <QtGui/QGraphicsLineItem>
+#include <QGraphicsPolygonItem>
+#include <QGraphicsLineItem>
 
 #include "WQtNetworkArrow.h"
 #include "WQtNetworkItemActivator.h"

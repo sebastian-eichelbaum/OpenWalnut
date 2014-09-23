@@ -25,7 +25,7 @@
 #ifndef WQTTREEWIDGET_H
 #define WQTTREEWIDGET_H
 
-#include <QtGui/QTreeWidget>
+#include <QTreeWidget>
 
 /**
  * tree widget for the control panel

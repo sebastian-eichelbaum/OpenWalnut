@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include <QtGui/QApplication>
+#include <QApplication>
 
 #include "../WMainWindow.h"
 #include "WUIQtViewWidget.h"

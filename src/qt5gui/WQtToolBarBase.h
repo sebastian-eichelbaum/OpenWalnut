@@ -25,8 +25,8 @@
 #ifndef WQTTOOLBARBASE_H
 #define WQTTOOLBARBASE_H
 
-#include <QtGui/QToolBar>
-#include <QtGui/QMenu>
+#include <QToolBar>
+#include <QMenu>
 
 class WMainWindow;
 class WSettingMenu;

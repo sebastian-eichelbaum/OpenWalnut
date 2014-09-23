@@ -24,7 +24,7 @@
 
 #include <list>
 
-#include <QtGui/QAction>
+#include <QAction>
 
 #include "WMainWindow.h"
 

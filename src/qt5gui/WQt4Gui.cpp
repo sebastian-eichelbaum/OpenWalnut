@@ -31,9 +31,9 @@
 #include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <QtGui/QApplication>
-#include <QtGui/QSplashScreen>
-#include <QtGui/QFileDialog>
+#include <QApplication>
+#include <QSplashScreen>
+#include <QFileDialog>
 #include <QtCore/QDir>
 #include <QtCore/QSettings>
 

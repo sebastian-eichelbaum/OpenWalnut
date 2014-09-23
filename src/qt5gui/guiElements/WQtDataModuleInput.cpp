@@ -25,8 +25,8 @@
 #include <string>
 #include <vector>
 
-#include <QtGui/QAction>
-#include <QtGui/QFileDialog>
+#include <QAction>
+#include <QFileDialog>
 
 #include "../WQt4Gui.h"
 #include "../WIconManager.h"

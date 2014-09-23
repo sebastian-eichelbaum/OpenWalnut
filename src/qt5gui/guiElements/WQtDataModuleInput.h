@@ -27,9 +27,9 @@
 
 #include <boost/signals2/signal.hpp>
 
-#include <QtGui/QWidget>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QToolButton>
+#include <QWidget>
+#include <QHBoxLayout>
+#include <QToolButton>
 
 #include "WScaleLabel.h"
 

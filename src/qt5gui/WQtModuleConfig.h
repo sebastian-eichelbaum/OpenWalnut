@@ -29,10 +29,10 @@
 #include <vector>
 #include <string>
 
-#include <QtGui/QAction>
-#include <QtGui/QDialog>
-#include <QtGui/QListWidget>
-#include <QtGui/QCheckBox>
+#include <QAction>
+#include <QDialog>
+#include <QListWidget>
+#include <QCheckBox>
 
 #include "core/kernel/WModule.h"
 

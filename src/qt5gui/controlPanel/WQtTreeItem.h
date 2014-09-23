@@ -30,8 +30,8 @@
 
 #include <boost/signals2/connection.hpp>
 
-#include <QtGui/QTreeWidgetItem>
-#include <QtGui/QProgressBar>
+#include <QTreeWidgetItem>
+#include <QProgressBar>
 #include <QtCore/QTimer>
 
 #include "WTreeItemTypes.h"

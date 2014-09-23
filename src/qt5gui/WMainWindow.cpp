@@ -31,22 +31,22 @@
 #include <boost/regex.hpp>
 #include <boost/filesystem.hpp>
 
-#include <QtGui/QApplication>
-#include <QtGui/QCloseEvent>
-#include <QtGui/QDockWidget>
-#include <QtGui/QFileDialog>
-#include <QtGui/QIcon>
-#include <QtGui/QMenu>
-#include <QtGui/QMenuBar>
-#include <QtGui/QMessageBox>
-#include <QtGui/QTextEdit>
-#include <QtGui/QShortcut>
-#include <QtGui/QSlider>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QWidget>
+#include <QApplication>
+#include <QCloseEvent>
+#include <QDockWidget>
+#include <QFileDialog>
+#include <QIcon>
+#include <QMenu>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QTextEdit>
+#include <QShortcut>
+#include <QSlider>
+#include <QVBoxLayout>
+#include <QWidget>
 #include <QtCore/QSettings>
 #include <QtCore/QUrl>
-#include <QtGui/QInputDialog>
+#include <QInputDialog>
 
 #ifndef QT4GUI_NOWEBKIT
     #include <QtWebKit/QWebView>

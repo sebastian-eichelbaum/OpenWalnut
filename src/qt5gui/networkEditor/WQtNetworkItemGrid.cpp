@@ -26,7 +26,7 @@
 
 #include <algorithm>
 
-#include <QtGui/QPainter>
+#include <QPainter>
 
 #include "core/common/WLogger.h"
 

@@ -27,12 +27,12 @@
 
 #include <string>
 
-#include <QtGui/QPushButton>
-#include <QtGui/QHBoxLayout>
+#include <QPushButton>
+#include <QHBoxLayout>
 #include <QtCore/QMimeData>
 #include <QtCore/QUrl>
-#include <QtGui/QDragEnterEvent>
-#include <QtGui/QDropEvent>
+#include <QDragEnterEvent>
+#include <QDropEvent>
 
 #include "../guiElements/WScaleLabel.h"
 

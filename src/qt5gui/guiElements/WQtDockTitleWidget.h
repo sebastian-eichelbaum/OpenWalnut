@@ -25,13 +25,13 @@
 #ifndef WQTDOCKTITLEWIDGET_H
 #define WQTDOCKTITLEWIDGET_H
 
-#include <QtGui/QDockWidget>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QToolButton>
-#include <QtGui/QLabel>
-#include <QtGui/QResizeEvent>
-#include <QtGui/QWidgetAction>
+#include <QDockWidget>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QToolButton>
+#include <QLabel>
+#include <QResizeEvent>
+#include <QWidgetAction>
 
 #include "WScaleLabel.h"
 

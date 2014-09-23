@@ -30,11 +30,11 @@
 #include <QtCore/QObject>
 #include <QtCore/QTimer>
 #include <QtCore/QTimeLine>
-#include <QtGui/QGraphicsObject>
-#include <QtGui/QGraphicsTextItem>
-#include <QtGui/QGraphicsItemAnimation>
-#include <QtGui/QPainter>
-#include <QtGui/QColor>
+#include <QGraphicsObject>
+#include <QGraphicsTextItem>
+#include <QGraphicsItemAnimation>
+#include <QPainter>
+#include <QColor>
 
 #include "core/kernel/WModule.h"
 

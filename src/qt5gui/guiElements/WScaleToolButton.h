@@ -25,7 +25,7 @@
 #ifndef WSCALETOOLBUTTON_H
 #define WSCALETOOLBUTTON_H
 
-#include <QtGui/QToolButton>
+#include <QToolButton>
 #include <QtCore/QString>
 
 #include "../WGuiConsts.h"

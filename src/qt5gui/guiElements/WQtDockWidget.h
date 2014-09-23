@@ -25,13 +25,13 @@
 #ifndef WQTDOCKWIDGET_H
 #define WQTDOCKWIDGET_H
 
-#include <QtGui/QDockWidget>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QToolButton>
-#include <QtGui/QLabel>
-#include <QtGui/QResizeEvent>
-#include <QtGui/QWidgetAction>
+#include <QDockWidget>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QToolButton>
+#include <QLabel>
+#include <QResizeEvent>
+#include <QWidgetAction>
 
 #include "core/common/WProperties.h"
 #include "core/graphicsEngine/WGEImage.h"

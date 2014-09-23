@@ -31,8 +31,8 @@
 #include <boost/signals2/signal.hpp>
 
 #include <QtCore/QTimer>
-#include <QtGui/QWidget>
-#include <QtGui/QMenu>
+#include <QWidget>
+#include <QMenu>
 #include <QtOpenGL/QGLWidget>
 #include <QtOpenGL/QGLFormat>
 

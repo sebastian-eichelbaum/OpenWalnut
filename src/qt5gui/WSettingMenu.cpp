@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include <QtGui/QMessageBox>
+#include <QMessageBox>
 
 #include "WMainWindow.h"
 #include "WQt4Gui.h"

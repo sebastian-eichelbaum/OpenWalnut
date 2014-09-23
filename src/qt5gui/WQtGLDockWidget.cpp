@@ -28,13 +28,13 @@
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
 
-#include <QtGui/QAction>
-#include <QtGui/QWidgetAction>
-#include <QtGui/QDockWidget>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QToolButton>
-#include <QtGui/QToolBar>
+#include <QAction>
+#include <QWidgetAction>
+#include <QDockWidget>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QToolButton>
+#include <QToolBar>
 
 #include "core/graphicsEngine/WGEViewerEffect.h"
 

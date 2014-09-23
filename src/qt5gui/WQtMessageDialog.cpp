@@ -24,8 +24,8 @@
 
 #include <iostream>
 
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QVBoxLayout>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 
 #include "WMainWindow.h"
 

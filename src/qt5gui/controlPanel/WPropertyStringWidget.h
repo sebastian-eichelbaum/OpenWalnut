@@ -27,9 +27,9 @@
 
 #include <string>
 
-#include <QtGui/QLineEdit>
-#include <QtGui/QSlider>
-#include <QtGui/QHBoxLayout>
+#include <QLineEdit>
+#include <QSlider>
+#include <QHBoxLayout>
 
 #include "../guiElements/WScaleLabel.h"
 #include "WPropertyWidget.h"

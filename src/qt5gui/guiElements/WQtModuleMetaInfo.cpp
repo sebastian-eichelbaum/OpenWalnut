@@ -26,22 +26,22 @@
 #include <vector>
 #include <iostream>
 
-#include <QtGui/QVBoxLayout>
+#include <QVBoxLayout>
 
 #ifndef QT4GUI_NOWEBKIT
     #include <QtWebKit/QWebView>
     #include <QtWebKit/QWebFrame>
     #include <QtWebKit/QWebPage>
-    #include <QtGui/QToolBar>
-    #include <QtGui/QToolButton>
-    #include <QtGui/QHBoxLayout>
-    #include <QtGui/QWidget>
-    #include <QtGui/QPixmap>
-    #include <QtGui/QIcon>
-    #include <QtGui/QAction>
+    #include <QToolBar>
+    #include <QToolButton>
+    #include <QHBoxLayout>
+    #include <QWidget>
+    #include <QPixmap>
+    #include <QIcon>
+    #include <QAction>
     #include <QtCore/QUrl>
 #else
-    #include <QtGui/QTextEdit>
+    #include <QTextEdit>
 #endif
 
 #include "core/common/WIOTools.h"

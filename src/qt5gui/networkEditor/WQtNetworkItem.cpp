@@ -28,9 +28,9 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <QtGui/QStyleOptionGraphicsItem>
-#include <QtGui/QTextCharFormat>
-#include <QtGui/QTextCursor>
+#include <QStyleOptionGraphicsItem>
+#include <QTextCharFormat>
+#include <QTextCursor>
 
 #include "core/common/WStringUtils.h"
 #include "core/common/WLogger.h"

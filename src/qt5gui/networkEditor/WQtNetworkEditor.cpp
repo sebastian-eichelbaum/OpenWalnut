@@ -28,10 +28,10 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <QtGui/QKeyEvent>
-#include <QtGui/QGraphicsView>
-#include <QtGui/QGraphicsItem>
-#include <QtGui/QGraphicsItemGroup>
+#include <QKeyEvent>
+#include <QGraphicsView>
+#include <QGraphicsItem>
+#include <QGraphicsItemGroup>
 
 #include "../WMainWindow.h"
 #include "WQtNetworkPort.h"

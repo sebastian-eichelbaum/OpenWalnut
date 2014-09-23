@@ -31,10 +31,10 @@
 #include <boost/program_options.hpp>
 #include <boost/function.hpp>
 
-#include <QtGui/QApplication>
+#include <QApplication>
 #include <QtCore/QSettings>
 #include <QtCore/QMutex>
-#include <QtGui/QSplashScreen>
+#include <QSplashScreen>
 
 #include "core/graphicsEngine/WROI.h"
 #include "core/graphicsEngine/WGraphicsEngine.h"
