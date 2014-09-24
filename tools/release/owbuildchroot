@@ -199,15 +199,15 @@ chroot_setup_suite()
             # multiverse and universe needed for several packs
             echo "deb http://de.archive.ubuntu.com/ubuntu $SUITE restricted universe multiverse" > ./$CHROOTDIR/etc/apt/sources.list.d/universeMultiverse.sources.list
 
-            # they provide qtwebkit
-            chroot_do apt-get -y --allow-unauthenticated install libqtwebkit-dev
+            # Specific?
+            # chroot_do apt-get -y --allow-unauthenticated install libqtwebkit-dev
         ;;
         sid | wheezy )
-            # they provide qtwebkit
-            chroot_do apt-get -y --allow-unauthenticated install libqtwebkit-dev
+            # Specific?
+            # chroot_do apt-get -y --allow-unauthenticated install libqtwebkit-dev
         ;;
         *)
-            # debian 6 does not have libqtwebkit
+            #
         ;;
     esac
 
@@ -341,7 +341,25 @@ chroot_build()
 
         echo " * Installing our build-dependencies."
         # technically, it is possible to give debootstrap the list of packs it should install. But this somehow causes it to fail on my system.
-        chroot_do apt-get -y --allow-unauthenticated install cmake libgl1-mesa-dev libopenscenegraph-dev libopenthreads-dev libqt4-dev zlib1g-dev libboost-dev libboost-program-options-dev libboost-thread-dev libboost-filesystem-dev libboost-date-time-dev libboost-system-dev libboost-signals-dev libboost-regex-dev libeigen3-dev libbiosig-dev libnifti-dev doxygen graphviz psmisc sysvinit-utils
+        chroot_do apt-get -y --allow-unauthenticated install cmake \
+                            libgl1-mesa-dev libopenscenegraph-dev libopenthreads-dev \
+                            libqt5opengl5-dev qtbase5-dev qttools5-dev libqt5webkit5-dev \
+                            zlib1g-dev \
+                            libboost-dev \
+                            libboost-program-options-dev \
+                            libboost-thread-dev \
+                            libboost-filesystem-dev \
+                            libboost-date-time-dev \
+                            libboost-system-dev \
+                            libboost-signals-dev \
+                            libboost-regex-dev \
+                            libeigen3-dev \
+                            libbiosig-dev \
+                            libnifti-dev \
+                            doxygen \
+                            graphviz \
+                            psmisc \
+                            sysvinit-utils
         if [ $? -ne 0 ]; then
             echo "  * Failed to install build dependencies. Maybe you need to add further package sources."
             chroot_umount
