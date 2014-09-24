@@ -37,15 +37,16 @@
 #include <eep/eepraw.h>
 
 #if !defined(_MSC_VER)
-typedef long long __int64;
+// typedef long long __int64;
+// OpenWalnut Change: the above line causes GCC errors when compiling for 64bit on Windows. We should use the standard types instead:
 #endif
 
 
-/* 
+/*
   cfg line preprocessing
   remove whitespaces, cut comments starting with CFG_SEP
   changes are made in-place
-  
+
   return: pointer to preprocessed line (maybe a pointer to empty string)
 */
 #define CFG_SEP ';'
@@ -54,16 +55,16 @@ char *cfg_line_norm(char *line);
 char *cfg_line_norm_cs(char *line);
 
 
-/* ------------------------------------------------------------------- 
+/* -------------------------------------------------------------------
    terminal output
     log:   normal output: parameters, statistics...
            (allows global disable, stderr/stdout duplication)
     debug: additional infos as internal tables, states...
            (global on / off switch available)
     status:error messages, warnings
-    
+
     error: same like status + clear + exit
-    
+
     sys...:add perror output to status message
 */
 
@@ -87,7 +88,7 @@ void eepio_setlog(int);     // whether to log
 int  eepio_getlog();
 void eepio_setmessorigin(const char *);
 
-/* 
+/*
   the eepmess.h *open funcs maintain a list of "autoremove" files here
   (the *error funcs need to know about this list for cleanup)
 */
@@ -116,7 +117,7 @@ void eep_print_wrap(FILE* out, const char* text, int len);
 /****************************************************
  * swap 8 bytes in long long on big endian machines *
  ****************************************************/
-__int64 eep_byteswap_8_safe(__int64);
+int64_t eep_byteswap_8_safe(int64_t);
 /***********************************************
  * swap 4 bytes in long on big endian machines *
  ***********************************************/
@@ -129,5 +130,5 @@ short eep_byteswap_2_safe(short);
  * swap 8 bytes in double *
  **************************/
 double eep_byteswap_8_double_safe(double arg);
-  
+
 #endif
