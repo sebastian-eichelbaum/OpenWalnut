@@ -195,7 +195,7 @@ chroot_setup_suite()
     # NOTE: I tested only debian sid and ubuntu natty and maverick. Maverick currently has some problem with libopenscenegraph.
     #       Please add others here if needed
     case "$SUITE" in
-        raring | saucy | quantal | precise | oneiric | natty | maverick )
+        trusty | raring | saucy | quantal | precise | oneiric | natty | maverick )
             # multiverse and universe needed for several packs
             echo "deb http://de.archive.ubuntu.com/ubuntu $SUITE restricted universe multiverse" > ./$CHROOTDIR/etc/apt/sources.list.d/universeMultiverse.sources.list
 
@@ -223,7 +223,7 @@ chroot_finalize_suite()
 {
     # handle some special suites
     case "$SUITE" in
-        saucy | raring | quantal | precise | oneiric | natty | maverick | lucid )
+        trusty | saucy | raring | quantal | precise | oneiric | natty | maverick | lucid )
             # ubuntu hack: kill this xapian-index stuff. If not done, chroot_umount will fail
             chroot_do killall -q update-apt-xapian-index | echo
         ;;
