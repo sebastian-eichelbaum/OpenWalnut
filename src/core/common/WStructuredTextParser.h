@@ -32,16 +32,21 @@
 #include <string>
 #include <vector>
 
-#include <boost/config/warning_disable.hpp>
-#include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/include/phoenix_core.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_fusion.hpp>
-#include <boost/spirit/include/phoenix_stl.hpp>
-#include <boost/spirit/include/phoenix_object.hpp>
-#include <boost/fusion/include/adapt_struct.hpp>
-#include <boost/variant/recursive_variant.hpp>
-#include <boost/fusion/include/io.hpp>
+#ifndef Q_MOC_RUN
+    // We exclude inclusion of boost fusion, since the combination of Qt 5.3 moc and Boost 1.56 causes MOC error. Moc complains
+    // about a macro in the boost headers. Moc does not need all symbols to be defined, so we leave these headers out.
+    #include <boost/config/warning_disable.hpp>
+    #include <boost/spirit/include/qi.hpp>
+    #include <boost/spirit/include/phoenix_core.hpp>
+    #include <boost/spirit/include/phoenix_operator.hpp>
+    #include <boost/spirit/include/phoenix_fusion.hpp>
+    #include <boost/spirit/include/phoenix_stl.hpp>
+    #include <boost/spirit/include/phoenix_object.hpp>
+    #include <boost/fusion/include/adapt_struct.hpp>
+    #include <boost/fusion/include/io.hpp>
+    #include <boost/variant/recursive_variant.hpp>
+#endif
+
 #include <boost/filesystem/path.hpp>
 
 #include "WStringUtils.h"
