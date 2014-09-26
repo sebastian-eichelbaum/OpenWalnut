@@ -41,6 +41,7 @@ SET( BinName "openwalnut-qt5" )
 
 # Package dependencies:
 FIND_PACKAGE( Qt5Widgets REQUIRED )
+FIND_PACKAGE( Qt5OpenGL REQUIRED )
 FIND_PACKAGE( Qt5WebKitWidgets REQUIRED )
 
 # Includes:
@@ -72,7 +73,7 @@ IF( CMAKE_HOST_SYSTEM MATCHES "Linux" )
     SET( ADDITIONAL_TARGET_LINK_LIBRARIES "X11" )
 ENDIF()
 TARGET_LINK_LIBRARIES( ${BinName} ${OW_LIB_OPENWALNUT}
-                                  Qt5::Widgets Qt5::WebKitWidgets 
+                                  Qt5::Widgets Qt5::OpenGL Qt5::WebKitWidgets 
                                   ${Boost_LIBRARIES} 
                                   ${ADDITIONAL_TARGET_LINK_LIBRARIES} )
 
