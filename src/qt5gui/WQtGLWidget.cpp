@@ -47,7 +47,6 @@
 
 #include "WQtGui.h"
 #include "WQtGLScreenCapture.h"
-#include "events/WRenderedFrameEvent.h"
 #include "events/WEventTypes.h"
 #include "WSettingAction.h"
 #include "WMainWindow.h"
@@ -101,8 +100,6 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
     connect( &m_Timer, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
     m_Timer.start( 10 );
 #endif
-
-    m_Viewer->isFrameRendered()->getCondition()->subscribeSignal( boost::bind( &WQtGLWidget::notifyFirstRenderedFrame, this ) );
 
     m_cameraResetAction = new QAction( WQtGui::getIconManager()->getIcon( "view" ), "Reset", this );
     connect( m_cameraResetAction, SIGNAL(  triggered( bool ) ), this, SLOT( reset() ) );
@@ -435,17 +432,6 @@ void WQtGLWidget::wheelEvent( QWheelEvent* event )
     }
 }
 
-bool WQtGLWidget::event( QEvent* event )
-{
-    if( event->type() == WQT_RENDERED_FRAME_EVENT )
-    {
-        emit renderedFirstFrame();
-        return true;
-    }
-
-    return WQtGLWidgetParent::event( event );
-}
-
 void WQtGLWidget::reset()
 {
     if( m_Viewer )
@@ -459,11 +445,6 @@ const QGLFormat WQtGLWidget::getDefaultFormat()
     QGLFormat format;
     format.setSwapInterval( 1 );    // according to Qt Doc, this should enable VSync. But it doesn't.
     return format;
-}
-
-void WQtGLWidget::notifyFirstRenderedFrame()
-{
-    QCoreApplication::postEvent( this, new WRenderedFrameEvent() );
 }
 
 void WQtGLWidget::setPresetViewLeft()

@@ -164,13 +164,6 @@ public:
      */
     bool getPaused() const;
 
-signals:
-
-    /**
-     * Signals that the first frame was rendered.
-     */
-    void renderedFirstFrame();
-
 public slots:
     /**
      * Resets the contained view using the installed manipulator.
@@ -314,18 +307,6 @@ protected:
     WGECamera::ProjectionMode m_initialProjectionMode;
 
     /**
-     * Custom event dispatcher. Gets called by QT's Event system every time an event got sent to this widget. This event handler
-     * processes the notifyrender events. Others get forwarded.
-     *
-     * \note QT Doc says: use event() for custom events.
-     *
-     * \param event the event that got transmitted.
-     *
-     * \return true if the event got handled properly.
-     */
-    virtual bool event( QEvent* event );
-
-    /**
      * Called on close. Accept the event to accept the close call.
      *
      * \param event the event.
@@ -347,11 +328,6 @@ private:
      * This flag is set to true if the first paint call occured. See the paint method for details.
      */
     bool m_firstPaint;
-
-    /**
-     * Called by the WGEViewer to notify about the first frame rendered
-     */
-    void notifyFirstRenderedFrame();
 
     /**
      * Camera menu

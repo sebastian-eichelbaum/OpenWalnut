@@ -190,54 +190,6 @@ WQtGLScreenCapture::WQtGLScreenCapture( WQtGLDockWidget* parent ):
     movieLayout->addWidget( m_movieStopButton );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // animation tools
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    m_animationWidget = new QWidget();
-    QVBoxLayout* animationLayout = new QVBoxLayout();
-    m_animationWidget->setLayout( animationLayout );
-
-    QLabel* nyiLabel = new QLabel();
-    nyiLabel->setWordWrap( true );
-    nyiLabel->setText( "<font color=\"#f00\">NOT YET IMPLEMENTED!</font><br/>"
-                       "We currently have one hard-coded animation sequence for testing. We are currently working on a script based animation "
-                       "system. Stay tuned."
-    );
-
-    QGroupBox* animationControlGroup = new QGroupBox( "Animation Control" );
-    QGridLayout* animationControlGroupLayout = new QGridLayout();
-    animationControlGroup->setLayout( animationControlGroupLayout );
-
-    m_animationPlayButton = new QPushButton( "Play" );
-    connect( m_animationPlayButton, SIGNAL(  clicked( bool ) ), this, SLOT( playAnim() ) );
-
-    m_animationRecButton = new QPushButton( "Record" );
-    connect( m_animationRecButton, SIGNAL(  clicked( bool ) ), this, SLOT( recAnim() ) );
-
-    m_animationStopButton = new QPushButton( "Stop" );
-    connect( m_animationStopButton, SIGNAL(  clicked( bool ) ), this, SLOT( stopAnim() ) );
-
-    animationControlGroupLayout->addWidget( m_animationPlayButton, 1, 0 );
-    animationControlGroupLayout->addWidget( m_animationRecButton, 1, 1 );
-    animationControlGroupLayout->addWidget( m_animationStopButton, 1, 2 );
-
-    QGroupBox* animationFileGroup = new QGroupBox( "Animation Script" );
-    QVBoxLayout* animationFileGroupLayout = new QVBoxLayout();
-    animationFileGroup->setLayout( animationFileGroupLayout );
-    QLabel* animationFileLabel = new QLabel();
-    animationFileLabel->setText( "Animation Script:" );
-    m_animationFileEdit = new QLineEdit();
-    m_animationFileEdit->setText( QDir::homePath() + QDir::separator() + "Animation.owanim" );
-
-    animationFileGroupLayout->addWidget( animationFileLabel );
-    animationFileGroupLayout->addWidget( m_animationFileEdit );
-
-    // plug it into the layout
-    animationLayout->addWidget( nyiLabel );
-    animationLayout->addWidget( animationFileGroup );
-    animationLayout->addWidget( animationControlGroup );
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
     // plug it together
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -248,10 +200,6 @@ WQtGLScreenCapture::WQtGLScreenCapture( WQtGLDockWidget* parent ):
     m_toolbox->insertItem( 0, m_configWidget, WQtGui::getIconManager()->getIcon( "preferences" ), "Configuration" );
     m_toolbox->insertItem( 1, m_screenshotWidget, WQtGui::getIconManager()->getIcon( "image" ), "Screenshot" );
     m_toolbox->insertItem( 2, m_movieWidget, WQtGui::getIconManager()->getIcon( "video" ), "Movie" );
-
-    // hide it as long as issue #127 is not done.
-    // m_toolbox->insertItem( 3, m_animationWidget, WQtGui::getIconManager()->getIcon( "video" ), "Animation" );
-    m_animationWidget->setHidden( true );
 
     // we need to be notified about the screen grabbers state
     m_recordConnection = m_viewer->getScreenCapture()->getRecordCondition()->subscribeSignal( boost::bind( &WQtGLScreenCapture::recCallback, this ) );
@@ -378,41 +326,9 @@ void WQtGLScreenCapture::recCallback()
     QCoreApplication::postEvent( this, new QEvent( static_cast< QEvent::Type >( WQT_SCREENCAPTURE_EVENT ) ) );
 }
 
-void WQtGLScreenCapture::playAnim()
+void WQtGLScreenCapture::toolBoxChanged( int /* index */ )
 {
-    wlog::debug( "WQtGLScreenCapture" ) << "Starting animation playback.";
-}
-
-void WQtGLScreenCapture::stopAnim()
-{
-    wlog::debug( "WQtGLScreenCapture" ) << "Stoping animation playback.";
-    m_viewer->getScreenCapture()->recordStop();
-    WGEAnimationManipulator::RefPtr anim = m_viewer->animationMode();
-    anim->home( 0 );
-}
-
-void WQtGLScreenCapture::recAnim()
-{
-    wlog::info( "WQtGLScreenCapture" ) << "Starting animation record.";
-
-    // NOTE: this needs some tuning. This is not really thread-safe
-    WGEAnimationManipulator::RefPtr anim = m_viewer->animationMode();
-    anim->setTimer( m_viewer->getScreenCapture()->getFrameTimer() );
-    anim->home( 0 );
-    m_viewer->getScreenCapture()->recordStart();
-}
-
-void WQtGLScreenCapture::toolBoxChanged( int index )
-{
-    if( index != 3 )
-    {
-        wlog::debug( "WQtGLScreenCapture" ) << "Deactivating animation mode.";
-        m_viewer->animationMode( false );
-        return;
-    }
-
-    wlog::debug( "WQtGLScreenCapture" ) << "Activating animation mode.";
-    m_viewer->animationMode();
+    // no operation if toolbox changes.
 }
 
 void WQtGLScreenCapture::resolutionChange( bool force )

@@ -132,6 +132,20 @@ public:
 #endif
 
     /**
+     * If the widget is not visible, we might be able to reduce CPU load. This does not hide the widget.
+     *
+     * \param visible true to show again.
+     */
+    void handleVisibilityChange( bool visible );
+
+    /**
+     * Update the view automatically (the default). Use this to disable it explicitly.
+     *
+     * \param continuous
+     */
+    void requestContinuousUpdate( bool continuous = true );
+
+    /**
      * Resets the view using the installed manipulator.
      */
     void reset();

@@ -49,7 +49,7 @@ WQtNavGLWidget::WQtNavGLWidget( QString viewTitle, QString dockTitle, QWidget* p
 
     m_scene = new WGEScene();
     m_scene->setDataVariance( osg::Object::DYNAMIC );
-    getGLWidget()->getViewer()->getView()->requestContinuousUpdate( false );
+    getGLWidget()->getViewer()->requestContinuousUpdate( false );
     getGLWidget()->getViewer()->setScene( m_scene );
 }
 

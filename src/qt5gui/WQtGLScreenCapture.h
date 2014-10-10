@@ -117,21 +117,6 @@ private slots:
     void resetFrames();
 
     /**
-     * Slot triggered by m_animationPlayButton.
-     */
-    void playAnim();
-
-    /**
-     * Slot triggered by m_animationStopButton.
-     */
-    void stopAnim();
-
-    /**
-     * Slot triggered by m_animationRecButton.
-     */
-    void recAnim();
-
-    /**
      * Someone changed the open tab in the toolbox.
      *
      * \param index the new index
@@ -232,31 +217,6 @@ private:
 
     QPushButton* m_movieRecButton;  //!< record button
     QPushButton* m_movieStopButton;  //!< stop button
-
-    /**
-     * The widget containing all the animation options and buttons.
-     */
-    QWidget* m_animationWidget;
-
-    /**
-     * Plays the current animation.
-     */
-    QPushButton* m_animationPlayButton;
-
-    /**
-     * Stops animation playback/record
-     */
-    QPushButton* m_animationStopButton;
-
-    /**
-     * Records the animated scene as movie.
-     */
-    QPushButton* m_animationRecButton;
-
-    /**
-     * File containing the animation.
-     */
-    QLineEdit* m_animationFileEdit;
 
     /**
      * Stores the resolution the user wants to have.

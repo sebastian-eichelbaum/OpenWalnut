@@ -179,11 +179,7 @@ WQtGLWidget* WQtGLDockWidget::getGLWidget() const
 
 void WQtGLDockWidget::handleVisibilityChange( bool visible )
 {
-    // this can help to reduce CPU load. Especially if multithreading viewers are used with cull thread per context.
-    if( m_glWidget->getViewer() )
-    {
-        m_glWidget->getViewer()->getView()->getScene()->getSceneData()->setNodeMask( visible * 0xFFFFFFFF );
-    }
+    m_glWidget->getViewer()->handleVisibilityChange( visible );
 }
 
 void WQtGLDockWidget::closeEvent( QCloseEvent *event )
