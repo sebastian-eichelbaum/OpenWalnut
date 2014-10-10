@@ -137,16 +137,6 @@ ADD_DEPENDENCIES( install_devdoc core_devdoc )
 ADD_SUBDIRECTORY( core )
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
-# QT4 GUI
-
-OPTION( OW_GUI_QT4 "DEPRECATED: Enable this to build the QT4-based OpenWalnut GUI." OFF )
-IF( OW_GUI_QT4 )
-    # build
-    ADD_SUBDIRECTORY( qt4gui )
-ENDIF()
-
-
-# -----------------------------------------------------------------------------------------------------------------------------------------------
 # QT5 GUI
 
 OPTION( OW_GUI_QT5 "Enable this to build the QT5-based OpenWalnut GUI." ON )
