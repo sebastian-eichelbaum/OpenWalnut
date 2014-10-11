@@ -106,7 +106,7 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
         m_nameOfViewer, wdata, x(), y(), width(), height(), m_initialProjectionMode );
 
     connect( &m_Timer, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
-    m_Timer.start( 40 );
+    m_Timer.start( 33 );
 #endif
 
     m_Viewer->isFrameRendered()->getCondition()->subscribeSignal( boost::bind( &WQtGLWidget::notifyFirstRenderedFrame, this ) );

@@ -26,7 +26,7 @@
 #define WGRAPHICSENGINEMODE_H
 
 // Default mode.
-#define WGEMODE_MULTITHREADED
+#define WGEMODE_SINGLETHREADED
 
 #ifdef __APPLE__
     // Single threaded mode on Apple machines
