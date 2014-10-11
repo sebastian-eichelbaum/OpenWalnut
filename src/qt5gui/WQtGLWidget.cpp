@@ -93,7 +93,11 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
 
     // initialize OpenGL context and OpenSceneGraph
 #ifdef WGEMODE_MULTITHREADED
-    osg::ref_ptr<osg::Referenced> wdata = new WindowData( winId() );
+    #ifdef _WIN32
+		osg::ref_ptr<osg::Referenced> wdata = new WindowData( reinterpret_cast< HWND >( winId() ) );
+	#else
+		osg::ref_ptr<osg::Referenced> wdata = new WindowData( winId() );
+	#endif
 
     // create viewer
     m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer(
