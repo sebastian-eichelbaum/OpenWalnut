@@ -45,9 +45,9 @@
 class WSettingAction;
 
 // Use a QGlWidget as Parent on all systems but Windows
-#ifndef _WIN32
+//#ifndef _WIN32
     #define WGEMODE_GLWIDGET
-#endif
+//#endif
 
 // See core/graphicsEngine/WGraphicsEngineMode.h for details.
 #ifdef WGEMODE_GLWIDGET
