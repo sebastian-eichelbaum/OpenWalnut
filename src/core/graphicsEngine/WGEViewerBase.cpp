@@ -34,6 +34,7 @@ WGEViewerBase::WGEViewerBase( std::string name, int x, int y, int width, int hei
 
 WGEViewerBase::~WGEViewerBase()
 {
+    // Cleanup.
 }
 
 std::string WGEViewerBase::getName() const

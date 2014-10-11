@@ -44,8 +44,13 @@
 
 class WSettingAction;
 
+// Use a QGlWidget as Parent on all systems but Windows
 #ifndef _WIN32
-    #define IS_A_QGLWIDGET
+    #define WGEMODE_GLWIDGET
+#endif
+
+// See core/graphicsEngine/WGraphicsEngineMode.h for details.
+#ifdef WGEMODE_GLWIDGET
     typedef QGLWidget WQtGLWidgetParent;
 #else
     typedef QWidget WQtGLWidgetParent;
@@ -163,6 +168,13 @@ public:
      * \return true if paused
      */
     bool getPaused() const;
+
+signals:
+
+    /**
+     * Signals that the first frame was rendered.
+     */
+    void renderedFirstFrame();
 
 public slots:
     /**
@@ -307,6 +319,18 @@ protected:
     WGECamera::ProjectionMode m_initialProjectionMode;
 
     /**
+     * Custom event dispatcher. Gets called by QT's Event system every time an event got sent to this widget. This event handler
+     * processes the notifyrender events. Others get forwarded.
+     *
+     * \note QT Doc says: use event() for custom events.
+     *
+     * \param event the event that got transmitted.
+     *
+     * \return true if the event got handled properly.
+     */
+    virtual bool event( QEvent* event );
+
+    /**
      * Called on close. Accept the event to accept the close call.
      *
      * \param event the event.
@@ -328,6 +352,11 @@ private:
      * This flag is set to true if the first paint call occured. See the paint method for details.
      */
     bool m_firstPaint;
+
+    /**
+     * Called by the WGEViewer to notify about the first frame rendered
+     */
+    void notifyFirstRenderedFrame();
 
     /**
      * Camera menu

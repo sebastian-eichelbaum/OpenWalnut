@@ -47,21 +47,29 @@
 
 #include "WQtGui.h"
 #include "WQtGLScreenCapture.h"
+#include "events/WRenderedFrameEvent.h"
 #include "events/WEventTypes.h"
 #include "WSettingAction.h"
 #include "WMainWindow.h"
 
+// See core/graphicsEngine/WGraphicsEngineMode.h for details.
 #ifdef WGEMODE_MULTITHREADED
-    #ifndef _WIN32
-        #include <osgViewer/api/X11/GraphicsWindowX11>
-        typedef osgViewer::GraphicsWindowX11::WindowData WindowData;
-    #else
+    #ifdef _WIN32
         #include <osgViewer/api/Win32/GraphicsWindowWin32>
         typedef osgViewer::GraphicsWindowWin32::WindowData WindowData;
+    #else
+        #ifdef __APPLE__
+            // HELP NEEDED
+            // Leave it undefined for now, as the MacOSX version uses single threaded right now.
+        #else
+            #include <osgViewer/api/X11/GraphicsWindowX11>
+            typedef osgViewer::GraphicsWindowX11::WindowData WindowData;
+        #endif
     #endif
+
 #endif
 
-#ifndef _WIN32
+#ifdef WGEMODE_GLWIDGET
 WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode, const QWidget* shareWidget ):
     QGLWidget( getDefaultFormat(), parent, dynamic_cast< const QGLWidget* >( shareWidget ) ),
 #else
@@ -98,8 +106,10 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
         m_nameOfViewer, wdata, x(), y(), width(), height(), m_initialProjectionMode );
 
     connect( &m_Timer, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
-    m_Timer.start( 10 );
+    m_Timer.start( 40 );
 #endif
+
+    m_Viewer->isFrameRendered()->getCondition()->subscribeSignal( boost::bind( &WQtGLWidget::notifyFirstRenderedFrame, this ) );
 
     m_cameraResetAction = new QAction( WQtGui::getIconManager()->getIcon( "view" ), "Reset", this );
     connect( m_cameraResetAction, SIGNAL(  triggered( bool ) ), this, SLOT( reset() ) );
@@ -219,7 +229,7 @@ boost::shared_ptr< WGEViewer > WQtGLWidget::getViewer() const
     return m_Viewer;
 }
 
-void WQtGLWidget::paintEvent( QPaintEvent* /*event*/ )
+void WQtGLWidget::paintEvent( QPaintEvent* event )
 {
     if( m_firstPaint )
     {
@@ -228,6 +238,7 @@ void WQtGLWidget::paintEvent( QPaintEvent* /*event*/ )
         m_firstPaint = false;
         WKernel::getRunningKernel()->getGraphicsEngine()->finalizeStartup();
     }
+    WQtGLWidgetParent::paintEvent( event );
 }
 
 #ifdef WGEMODE_SINGLETHREADED
@@ -263,7 +274,7 @@ void WQtGLWidget::resizeGL( int width, int height )
 void WQtGLWidget::paintGL()
 {
     // m_Viewer->paint();
-#ifdef IS_A_QGLWIDGET
+#ifdef WGEMODE_GLWIDGET
     if( m_Viewer )
     {
         if( !m_Viewer->getPaused() )
@@ -272,6 +283,7 @@ void WQtGLWidget::paintGL()
             WQtGLWidgetParent::paintGL();
         }
     }
+#else
 #endif
 }
 
@@ -288,7 +300,7 @@ void WQtGLWidget::resizeEvent( QResizeEvent* event )
 void WQtGLWidget::resizeGL( int width, int height )
 {
     // m_Viewer->resize( width, height );
-#ifdef IS_A_QGLWIDGET
+#ifdef WGEMODE_GLWIDGET
     // if the parent is a GL widget, issue parent method.
     WQtGLWidgetParent::resizeGL( width, height );
 #endif
@@ -432,6 +444,17 @@ void WQtGLWidget::wheelEvent( QWheelEvent* event )
     }
 }
 
+bool WQtGLWidget::event( QEvent* event )
+{
+    if( event->type() == WQT_RENDERED_FRAME_EVENT )
+    {
+        emit renderedFirstFrame();
+        return true;
+    }
+
+    return WQtGLWidgetParent::event( event );
+}
+
 void WQtGLWidget::reset()
 {
     if( m_Viewer )
@@ -445,6 +468,11 @@ const QGLFormat WQtGLWidget::getDefaultFormat()
     QGLFormat format;
     format.setSwapInterval( 1 );    // according to Qt Doc, this should enable VSync. But it doesn't.
     return format;
+}
+
+void WQtGLWidget::notifyFirstRenderedFrame()
+{
+    QCoreApplication::postEvent( this, new WRenderedFrameEvent() );
 }
 
 void WQtGLWidget::setPresetViewLeft()
