@@ -1,16 +1,45 @@
 #!/bin/bash
 
+###############################################################################
+# Install using make
+###############################################################################
+
+installDir=$(grep -ir "CMAKE_INSTALL_PREFIX" CMakeCache.txt | sed "s/^.*=//")
+if [ -z "$installDir" ]; then
+    echo "ERROR: Could not find install directory. Did you run CMake to configure the build beforehand? Exit."
+    exit -1
+fi
+
+# remove trailing slash (if any)
+installDir=${installDir%/}
+# Convert to Unix path in MSYS. Required to ensure that PATH is working. Windows paths a la c:\ will not work.
+installDir=$(cygpath -u "$installDir")
+
+echo "INFO: Installing OpenWalnut to: $installDir"
+#make install
+# Faster than make but does not ensure proper previous build!
+cmake -P cmake_install.cmake
+# Error?
+if [ $? -ne 0 ]; then
+    echo "ERROR: install failed. Did you call make first? Exit."
+    exit -1
+fi
+
+###############################################################################
+# Setup some paths
+###############################################################################
+
 # Where to copy external dependencies? Relative to current dir: bin
-target=libExt
+target="$installDir/libExt"
 mkdir -p "$target"
 
 # Extend PATH to contain "bin" to allow ldd to find libOpenWalnut and stuff
 # NOTE: leave orig path at the beginning to allow multiple runs
-PATH="$PATH:./lib/:./bin/:./$target/"
+PATH="$PATH:./lib/:./bin/:$target"
 export PATH
 
 ###############################################################################
-# Some files are not yet copied to libExt
+# Some files need to be copied to libExt "manually"
 ###############################################################################
 
 # Although linked dynamically, these files where not found:
@@ -26,11 +55,11 @@ cp -r /mingw64/bin/osgPlugins-* "$target"
 
 # Qt Plugins
 echo "Copy Qt Plugins"
-cp -r /mingw64/share/qt5/plugins/platforms "bin/"
-
+mkdir -p "$target/qtPlugins/"
+cp -r /mingw64/share/qt5/plugins/platforms "$target/qtPlugins/"
 
 ###############################################################################
-# Here is the magic:
+# Find all DLL to which the OW exe and DLL are linked to:
 ###############################################################################
 
 # Collect a list of DLL and Exe we build.
@@ -47,23 +76,27 @@ for linkable in $linkables
 do
 	echo "Found file with potential dependencies: $linkable"
 	# Get the dependencies, filter out unknowns and Windows DLL
-	winDeps=$(ldd "$linkable" | awk '{print $3;}' | grep -i "/c/Windows")
-	echo " * INFO: Windows Deps: $winDeps"
+	# winDeps=$(ldd "$linkable" | awk '{print $3;}' | grep -i "/c/Windows")
+	# echo " * INFO: Windows Deps: $winDeps"
 	unresolvedDeps=$(ldd "$linkable" | awk '{print $3;}' | grep -i "\?")
 	if [ -n "$unresolvedDeps" ]; then
 		echo " * WARN: Unresolved Deps!"
-		warnFiles="$warnFiles $linkable"
+		warnFiles="$warnFiles"$'\n'"$linkable"
 	fi
-	localDeps=$(ldd "$linkable" | awk '{print $3;}' | grep -iv "/c/Windows" | grep -iv "\?")
+	localDeps=$(ldd "$linkable" | \
+				awk '{print $3;}' | \
+				grep -iv "/c/Windows" | \
+				grep -iv "\?" | \
+				grep -iv "`pwd`")
 	if [ -n "$localDeps" ]; then
-		echo " * INFO: Dependencies found: $localDeps"
-		allDeps="$allDeps $localDeps"
+		echo " * INFO: Dependencies found: "$'\n'"$localDeps"
+		allDeps="$allDeps"$'\n'"$localDeps"
 	fi
 	echo ""
 done
 
 ###############################################################################
-# Copy and finalize
+# Copy everything
 ###############################################################################
 
 echo "DONE!"
@@ -71,12 +104,17 @@ if [ -n "$warnFiles" ]; then
 	echo "WARN: found files with unresolved dependencies. Here is a list:"
 	echo " * $warnFiles"
 	echo ""
+    echo "You will need to fix this manually, or OpenWalnut might refuse to start."
 fi
 
 echo "Found the following dependencies. Copying them to $target."
 # NOTE: might still be some doubles ...
 allDeps=$(echo "$allDeps" | sort | uniq)
-echo $allDeps
+echo "$allDeps"
 # CP complains about doubled entries
 cp $allDeps "$target"
+
+###############################################################################
+# Zipping ? Maybe done later ...
+###############################################################################
 

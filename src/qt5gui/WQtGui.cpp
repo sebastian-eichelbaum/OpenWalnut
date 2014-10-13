@@ -169,9 +169,17 @@ int WQtGui::run()
     // TODO(mario): I want a WApplication here for session handling but that code crashes
     QApplication appl( m_argc, m_argv, true );
 #endif
-
+    
     // the call path of the application, this uses QApplication which needs to be instantiated.
     boost::filesystem::path walnutBin = boost::filesystem::path( QApplication::applicationDirPath().toStdString() );
+    
+    // This is important when deploying OW as a stand-alone package, especially on Windows ... Ok. Right now,
+    // we only need this on Win. But it does not hurt on others. Probably. If you experience problems due to this
+    // code, please report it.
+    #ifdef _WIN32
+        appl.addLibraryPath( QString::fromStdString( ( walnutBin / "../libExt/qtPlugins" ).string() ) );
+    #endif
+
     // setup path helper which provides several paths to others
 #ifdef Q_WS_MAC
     // apple has a special file hierarchy in so-called bundles
