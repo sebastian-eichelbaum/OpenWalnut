@@ -245,9 +245,23 @@ _CPP_HEADERS = frozenset([
     'typeinfo', 'valarray',
     ])
 
-# Other heders which are include like system headers, starting with a '<'
+# Other headers which are include like system headers, starting with a '<'
+# We need to add all Qt5 headers too. Query them via some shell command like:
+# grep -ir "#include[ ]*<Q.*" src | sed "s/.*#include[ ]*<\(.*\)>/\1/" | sort | uniq
+
 _OTHER_HEADERS = frozenset([
-    'QtGui', 'QtCore', 'QtWebKit', 'QtOpenGL', 'GL', 'cxxtest', 'boost', 'osg','osgText', 'osgViewer', 'osgDB', 'osgUtil', 'osgGA', 'osgSim', 'Eigen', 'matrix', 'core', 'CL'
+    'QtGui', 'QtCore', 'QtWebKit', 'QtOpenGL', 'GL', 'cxxtest', 'boost', 'osg','osgText', 'osgViewer', 'osgDB', 'osgUtil', 'osgGA', 'osgSim', 'Eigen',
+    'matrix', 'core', 'CL',
+'QAction', 'QApplication', 'QCheckBox', 'QCloseEvent', 'QColor', 'QColorDialog', 'QComboBox', 'QDialog', 'QDialogButtonBox',
+'QDockWidget', 'QDragEnterEvent', 'QDropEvent', 'QFileDialog', 'QFrame', 'QGraphicsItem', 'QGraphicsItemAnimation', 'QGraphicsItemGroup',
+'QGraphicsLineItem', 'QGraphicsObject', 'QGraphicsPathItem', 'QGraphicsPolygonItem', 'QGraphicsRectItem', 'QGraphicsScene',
+'QGraphicsSceneDragDropEvent', 'QGraphicsSceneMouseEvent', 'QGraphicsTextItem', 'QGraphicsView', 'QGridLayout', 'QGroupBox',
+'QHBoxLayout', 'QHideEvent', 'QIcon', 'QImage', 'QInputDialog', 'QKeyEvent', 'QLabel', 'QLineEdit', 'QListWidget', 'QListWidgetItem',
+'QMainWindow', 'QMenu', 'QMenuBar', 'QMessageBox', 'QMimeData', 'QMouseEvent', 'QPaintEngine', 'QPainter', 'QPainterPath', 'QPaintEvent',
+'QPalette', 'QPixmap', 'QPolygonF', 'QProgressBar', 'QPushButton', 'QResizeEvent', 'QScrollArea', 'QScrollBar', 'QShortcut',
+'QShowEvent', 'QSlider', 'QSplashScreen', 'QSplitter', 'QStackedWidget', 'QStyleOptionGraphicsItem', 'QTabWidget',
+'QTextCharFormat', 'QTextCursor', 'QTextEdit', 'QtGui', 'QToolBar', 'QToolBox', 'QToolButton',
+'QTreeWidget', 'QTreeWidgetItem', 'QVBoxLayout', 'QWebFrame', 'QWebPage', 'QWebView', 'QWheelEvent', 'QWidget', 'QWidgetAction'
     ])
 
 # Assertion macros.  These are defined in base/logging.h and

@@ -190,11 +190,11 @@ int main( int argc, char** argv )
         QCoreApplication::addLibraryPath( "../libExt/qtPlugins" );
         QCoreApplication::addLibraryPath( "libExt/qtPlugins" );
     #endif
-    
+
     // initialize GUI
     // NOTE: we need a shared_ptr here since WUI uses enable_shared_from_this.
     boost::shared_ptr< WQtGui > gui( new WQtGui( optionsMap, argc, argv ) );
-    
+
     // Start GUI
     int result = gui->run();
 
