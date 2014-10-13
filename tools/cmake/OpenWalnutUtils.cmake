@@ -403,10 +403,9 @@ ENDFUNCTION( SETUP_CONFIGURED_FILE_TO )
 FUNCTION( SETUP_ADDITIONAL_FILES _destination _component )
     FOREACH( _file ${ARGN} )
         # only do if it exists
-        IF( EXISTS ${OW_VERSION_FILENAME} )
+        IF( EXISTS ${_file} )
             # create useful target name
             FILE_TO_TARGETSTRING( ${_file} fileTarget )
-
             # add a copy target
             ADD_CUSTOM_TARGET( CopyAdditionalFile_${fileTarget}_${_component}
                 ALL
