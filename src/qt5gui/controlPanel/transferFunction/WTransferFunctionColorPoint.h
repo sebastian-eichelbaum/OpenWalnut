@@ -25,7 +25,8 @@
 #ifndef WTRANSFERFUNCTIONCOLORPOINT_H
 #define WTRANSFERFUNCTIONCOLORPOINT_H
 
-#include "QGraphicsItem"
+#include <QGraphicsItem>
+#include <QGraphicsObject>
 
 #include "QMenu"
 
@@ -39,6 +40,8 @@ class WTransferFunctionWidget;
  */
 class WTransferFunctionColorPoint: public QGraphicsObject
 {
+    Q_OBJECT
+
 public:
     /** type of our base class */
     typedef QGraphicsObject BaseClass;

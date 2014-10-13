@@ -39,7 +39,9 @@
 #include "WTransferFunctionScene.h"
 #include "WTransferFunctionWidget.h"
 
-WTransferFunctionWidget::WTransferFunctionWidget( QWidget*qparent, WTransferFunctionGuiNotificationClass* /* parent */ ): BaseClass( qparent ),
+WTransferFunctionWidget::WTransferFunctionWidget( QWidget* qparent, WTransferFunctionGuiNotificationClass* parent ):
+    BaseClass( qparent ),
+    parent( parent ),
     scene( 0x0 ),
     first( 0x0 ),
     last( 0x0 ),
@@ -607,9 +609,9 @@ void WTransferFunctionWidget::updateTransferFunction()
         }
     }
 
-    // std::cout << "updating gui" << parent << std::endl;
     if( parent )
+    {
         parent->guiUpdate( tf );
-    // std::cout << "done updating gui" << std::endl;
+    }
 }
 
