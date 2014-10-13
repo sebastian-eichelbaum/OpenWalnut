@@ -1,9 +1,0 @@
-[Desktop Entry]
-Categories=Education;
-Exec=/usr/bin/openwalnut
-Name=OpenWalnut
-Icon=openwalnut
-X-KDE-StartupNotify=true
-Terminal=false
-Type=Application
-Keywords=visualization;medical data;neuroscience;
