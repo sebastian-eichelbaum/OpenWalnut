@@ -185,6 +185,12 @@ int main( int argc, char** argv )
     // the kernel, and the gui should print their version info. This helps processing crashlogs from users.
     wlog::info( "Walnut" ) << "Version: " << W_VERSION;
 
+    // Help Qt find the platform specific libs/dlls
+    #ifdef _WIN32
+        QCoreApplication::addLibraryPath( "../libExt/qtPlugins" );
+        QCoreApplication::addLibraryPath( "libExt/qtPlugins" );
+    #endif
+    
     // initialize GUI
     // NOTE: we need a shared_ptr here since WUI uses enable_shared_from_this.
     boost::shared_ptr< WQtGui > gui( new WQtGui( optionsMap, argc, argv ) );
