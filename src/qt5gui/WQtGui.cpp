@@ -169,9 +169,10 @@ int WQtGui::run()
     // TODO(mario): I want a WApplication here for session handling but that code crashes
     QApplication appl( m_argc, m_argv, true );
 #endif
-
+    
     // the call path of the application, this uses QApplication which needs to be instantiated.
     boost::filesystem::path walnutBin = boost::filesystem::path( QApplication::applicationDirPath().toStdString() );
+    
     // setup path helper which provides several paths to others
 #ifdef Q_WS_MAC
     // apple has a special file hierarchy in so-called bundles
