@@ -25,6 +25,7 @@
 #ifndef WHISTOGRAMBASIC_H
 #define WHISTOGRAMBASIC_H
 
+#include <cstddef>  // for std::size_t
 #include <utility>
 #include <vector>
 
@@ -45,7 +46,7 @@ public:
      * \param max the largest value
      * \param buckets the number of buckets
      */
-    WHistogramBasic( double min, double max, size_t buckets = 1000 );
+    WHistogramBasic( double min, double max, std::size_t buckets = 1000 );
 
     /**
      * Copy constructor. Creates a deep copy of the specified histogram.
@@ -66,7 +67,7 @@ public:
      *
      * \return elements in the bucket.
      */
-    virtual size_t operator[]( size_t index ) const;
+    virtual std::size_t operator[]( std::size_t index ) const;
 
     /**
      * Get the count of the specified bucket. Testing if the position is valid.
@@ -75,7 +76,7 @@ public:
      *
      * \return elements in the bucket
      */
-    virtual size_t at( size_t index ) const;
+    virtual std::size_t at( std::size_t index ) const;
 
     /**
      * Return the size of one specific bucket.
@@ -84,7 +85,7 @@ public:
      *
      * \return the size of a bucket.
      */
-    virtual double getBucketSize( size_t index = 0 ) const;
+    virtual double getBucketSize( std::size_t index = 0 ) const;
 
     /**
      * Returns the actual interval associated with the given index. The interval is open, meaning that
@@ -95,14 +96,14 @@ public:
      *
      * \return the open interval.
      */
-    virtual std::pair< double, double > getIntervalForIndex( size_t index ) const;
+    virtual std::pair< double, double > getIntervalForIndex( std::size_t index ) const;
 
     /**
      * Computes the number of inserted values so far.
      *
      * \return Number of values so far.
      */
-    size_t valuesSize() const;
+    std::size_t valuesSize() const;
 
     /**
      * Inserts a given value within the given range (min, max) into exactly one bin and increment its size.
@@ -116,7 +117,7 @@ private:
     /**
      * Bins to associate with the values. Each bin has the width of m_intervalWidth;
      */
-    std::vector< size_t > m_bins;
+    std::vector< std::size_t > m_bins;
 
     /**
      * The width of an interval is precomputed to save performance.
