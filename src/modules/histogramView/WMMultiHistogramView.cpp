@@ -52,9 +52,6 @@
 //! The number of inputs/datasets/histograms.
 #define NUM_INPUTS 3
 
-// This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
-W_LOADABLE_MODULE( WMMultiHistogramView )
-
 WCounter WMMultiHistogramView::m_instanceCounter;
 
 WMMultiHistogramView::WMMultiHistogramView()
