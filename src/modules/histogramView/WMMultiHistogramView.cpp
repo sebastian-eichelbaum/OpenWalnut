@@ -46,55 +46,55 @@
 #include "core/ui/WUI.h"
 #include "core/kernel/WKernel.h"
 
-#include "WMHistogramView.h"
+#include "WMMultiHistogramView.h"
 #include "WMHistogramView.xpm"
 
 //! The number of inputs/datasets/histograms.
 #define NUM_INPUTS 3
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
-W_LOADABLE_MODULE( WMHistogramView )
+W_LOADABLE_MODULE( WMMultiHistogramView )
 
-WCounter WMHistogramView::m_instanceCounter;
+WCounter WMMultiHistogramView::m_instanceCounter;
 
-WMHistogramView::WMHistogramView()
+WMMultiHistogramView::WMMultiHistogramView()
     : WModule(),
       m_mousePos(),
       m_frameSize( 0.04 )
 {
 }
 
-WMHistogramView::~WMHistogramView()
+WMMultiHistogramView::~WMMultiHistogramView()
 {
 }
 
-boost::shared_ptr< WModule > WMHistogramView::factory() const
+boost::shared_ptr< WModule > WMMultiHistogramView::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMHistogramView() );
+    return boost::shared_ptr< WModule >( new WMMultiHistogramView() );
 }
 
-const char** WMHistogramView::getXPMIcon() const
+const char** WMMultiHistogramView::getXPMIcon() const
 {
     return WMHistogramView_xpm;
 }
-const std::string WMHistogramView::getName() const
+const std::string WMMultiHistogramView::getName() const
 {
-    return "HistogramView";
+    return "MultiHistogramView";
 }
 
-const std::string WMHistogramView::getDescription() const
+const std::string WMMultiHistogramView::getDescription() const
 {
-    return "Draws histograms of one or more scalar datasets.";
+    return "Draws histograms of one or more datasets.";
 }
 
-void WMHistogramView::connectors()
+void WMMultiHistogramView::connectors()
 {
     m_input.resize( NUM_INPUTS );
 
     for( std::size_t k = 0; k < m_input.size(); ++k )
     {
-        m_input[ k ] = boost::shared_ptr< WModuleInputData< WDataSetScalar > >(
-                                      new WModuleInputData< WDataSetScalar >(
+        m_input[ k ] = boost::shared_ptr< WModuleInputData< WDataSetSingle > >(
+                                      new WModuleInputData< WDataSetSingle >(
                                             shared_from_this(),
                                             std::string( "Input dataset #" ) + string_utils::toString( k ),
                                             "A dataset to show in the histogram viewer." ) );
@@ -104,7 +104,7 @@ void WMHistogramView::connectors()
     WModule::connectors();
 }
 
-void WMHistogramView::properties()
+void WMMultiHistogramView::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
@@ -117,25 +117,25 @@ void WMHistogramView::properties()
     // add the possible histogram styles and
     // corresponding geometry generation functions
     selections->addItem( "Bars", "Draws transparent bars on top of each other." );
-    m_geometryFunctions.push_back( boost::bind( &WMHistogramView::createGeometryBars, this, 1 ) );
+    m_geometryFunctions.push_back( boost::bind( &WMMultiHistogramView::createGeometryBars, this, 1 ) );
 
     selections->addItem( "Parallel Bars", "Draws bars of the datasets next to each other per bin." );
-    m_geometryFunctions.push_back( boost::bind( &WMHistogramView::createGeometryBars, this, 2 ) );
+    m_geometryFunctions.push_back( boost::bind( &WMMultiHistogramView::createGeometryBars, this, 2 ) );
 
     selections->addItem( "Cumulative Bars", "Draws stacked bars." );
-    m_geometryFunctions.push_back( boost::bind( &WMHistogramView::createGeometryBars, this, 3 ) );
+    m_geometryFunctions.push_back( boost::bind( &WMMultiHistogramView::createGeometryBars, this, 3 ) );
 
     selections->addItem( "Curves", "Draws curves." );
-    m_geometryFunctions.push_back( boost::bind( &WMHistogramView::createGeometryCurves, this, 1 ) );
+    m_geometryFunctions.push_back( boost::bind( &WMMultiHistogramView::createGeometryCurves, this, 1 ) );
 
     selections->addItem( "Cumulative Curves", "Draws stacked curves." );
-    m_geometryFunctions.push_back( boost::bind( &WMHistogramView::createGeometryCurves, this, 2 ) );
+    m_geometryFunctions.push_back( boost::bind( &WMMultiHistogramView::createGeometryCurves, this, 2 ) );
 
     selections->addItem( "Stairs", "Draws 'stairs'." );
-    m_geometryFunctions.push_back( boost::bind( &WMHistogramView::createGeometryStairs, this, 1 ) );
+    m_geometryFunctions.push_back( boost::bind( &WMMultiHistogramView::createGeometryStairs, this, 1 ) );
 
     selections->addItem( "Cumulative Stairs", "Draws stacked 'staris'" );
-    m_geometryFunctions.push_back( boost::bind( &WMHistogramView::createGeometryStairs, this, 2 ) );
+    m_geometryFunctions.push_back( boost::bind( &WMMultiHistogramView::createGeometryStairs, this, 2 ) );
 
     // add the actual selection property
     m_styleSelection = m_properties->addProperty( "Histogram style", "How the histograms should be rendered",
@@ -155,14 +155,14 @@ void WMHistogramView::properties()
     WModule::properties();
 }
 
-void WMHistogramView::requirements()
+void WMMultiHistogramView::requirements()
 {
     // we need graphics to draw anything
     m_requirements.push_back( new WGERequirement() );
     m_requirements.push_back( new WUIRequirement() );
 }
 
-void WMHistogramView::handleMouseMove( WVector2f pos )
+void WMMultiHistogramView::handleMouseMove( WVector2f pos )
 {
     if( m_mainNode )
     {
@@ -182,7 +182,7 @@ void WMHistogramView::handleMouseMove( WVector2f pos )
     }
 }
 
-void WMHistogramView::handleResize( int /* x */, int /* y */, int width, int height )
+void WMMultiHistogramView::handleResize( int /* x */, int /* y */, int width, int height )
 {
     if( m_mainNode )
     {
@@ -201,7 +201,7 @@ void WMHistogramView::handleResize( int /* x */, int /* y */, int width, int hei
     }
 }
 
-void WMHistogramView::moduleMain()
+void WMMultiHistogramView::moduleMain()
 {
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
@@ -223,8 +223,8 @@ void WMHistogramView::moduleMain()
             getName() + string_utils::toString( m_instanceID ),
             WGECamera::TWO_D, m_shutdownFlag.getValueChangeCondition() );
     osg::ref_ptr< WUIViewEventHandler > eh = new WUIViewEventHandler( m_widget );
-    eh->subscribeMove( boost::bind( &WMHistogramView::handleMouseMove, this, _1 ) );
-    eh->subscribeResize( boost::bind( &WMHistogramView::handleResize, this, _1, _2, _3, _4 ) );
+    eh->subscribeMove( boost::bind( &WMMultiHistogramView::handleMouseMove, this, _1 ) );
+    eh->subscribeResize( boost::bind( &WMMultiHistogramView::handleResize, this, _1, _2, _3, _4 ) );
     m_widget->addEventHandler( eh );
 
     m_widget->show();
@@ -318,7 +318,7 @@ void WMHistogramView::moduleMain()
     debugLog() << "Finished. Good bye!";
 }
 
-void WMHistogramView::redraw()
+void WMMultiHistogramView::redraw()
 {
     int sel = m_styleSelection->get( true ).getItemIndexOfSelected( 0 );
     if( sel >= static_cast< int >( m_geometryFunctions.size() ) )
@@ -337,7 +337,7 @@ void WMHistogramView::redraw()
     }
 }
 
-void WMHistogramView::calculateHistograms()
+void WMMultiHistogramView::calculateHistograms()
 {
     m_histograms = std::vector< boost::shared_ptr< WHistogramBasic > >( m_data.size() );
     int histoBins = m_histoBins->get( true );
@@ -351,13 +351,13 @@ void WMHistogramView::calculateHistograms()
         {
             continue;
         }
-        if( min > m_data[ k ]->getMin() )
+        if( min > m_data[ k ]->getValueSet()->getMinimumValue() )
         {
-            min = m_data[ k ]->getMin();
+            min = m_data[ k ]->getValueSet()->getMinimumValue();
         }
-        if( max < m_data[ k ]->getMax() )
+        if( max < m_data[ k ]->getValueSet()->getMaximumValue() )
         {
-            max = m_data[ k ]->getMax();
+            max = m_data[ k ]->getValueSet()->getMaximumValue();
         }
     }
 
@@ -365,13 +365,12 @@ void WMHistogramView::calculateHistograms()
     for( std::size_t k = 0; k < m_data.size(); ++k )
     {
         // create new histogram
-        // we do not use WDataSetScalar's getHistogram here as we want to set the min and max of the histogram ourselves
         m_histograms[ k ] = boost::shared_ptr< WHistogramBasic >( new WHistogramBasic( min, max, histoBins ) );
 
         if( m_data[ k ] )
         {
             // add data
-            for( std::size_t j = 0; j < m_data[ k ]->getGrid()->size(); ++j )
+            for( std::size_t j = 0; j < m_data[ k ]->getValueSet()->size(); ++j )
             {
                 m_histograms[ k ]->insert( m_data[ k ]->getValueSet()->getScalarDouble( j ) );
             }
@@ -387,7 +386,7 @@ void WMHistogramView::calculateHistograms()
     updateHistogramMax( false );
 }
 
-void WMHistogramView::updateHistogramMax( bool cumulative )
+void WMMultiHistogramView::updateHistogramMax( bool cumulative )
 {
     double max = std::numeric_limits< double >::min();
 
@@ -415,7 +414,7 @@ void WMHistogramView::updateHistogramMax( bool cumulative )
     m_histogramUpperRight[ 1 ] = max;
 }
 
-void WMHistogramView::createGeometryBars( int type )
+void WMMultiHistogramView::createGeometryBars( int type )
 {
     // the number of valid inputs
     std::size_t numData = 0;
@@ -589,7 +588,7 @@ void WMHistogramView::createGeometryBars( int type )
     }
 }
 
-void WMHistogramView::createGeometryCurves( int type )
+void WMMultiHistogramView::createGeometryCurves( int type )
 {
     // we will accumulate histogram values in this vector
     std::vector< std::size_t > accu( m_histograms[ 0 ]->size(), 0 );
@@ -743,7 +742,7 @@ void WMHistogramView::createGeometryCurves( int type )
     }
 }
 
-void WMHistogramView::createGeometryStairs( int type )
+void WMMultiHistogramView::createGeometryStairs( int type )
 {
     // we will accumulate histogram values in this vector
     std::vector< std::size_t > accu( m_histograms[ 0 ]->size(), 0 );
@@ -836,7 +835,7 @@ void WMHistogramView::createGeometryStairs( int type )
     }
 }
 
-double WMHistogramView::findOptimalSpacing( double intervalLength, double availableSpace, double textSize )
+double WMMultiHistogramView::findOptimalSpacing( double intervalLength, double availableSpace, double textSize )
 {
     if( intervalLength < 0.0 )
     {
@@ -880,7 +879,7 @@ double WMHistogramView::findOptimalSpacing( double intervalLength, double availa
     return f[ k ] * fact;
 }
 
-void WMHistogramView::calculateFrameSize()
+void WMMultiHistogramView::calculateFrameSize()
 {
     // find optimal label spacing for y direction
     double l = m_histogramUpperRight[ 1 ];
@@ -946,7 +945,7 @@ void WMHistogramView::calculateFrameSize()
     m_frameUpperRight[ 1 ] = factorYEnd * m_frameSpacing[ 1 ];
 }
 
-void WMHistogramView::calculateFramePosition()
+void WMMultiHistogramView::calculateFramePosition()
 {
     // the funny equation estimates the number of characters needed to write a label times
     // the estimated size of a character
@@ -956,7 +955,7 @@ void WMHistogramView::calculateFramePosition()
     // all these formulas are somewhat arbitrary
 }
 
-WVector2d WMHistogramView::histogramSpaceToWindowSpace( WVector2d const& v )
+WVector2d WMMultiHistogramView::histogramSpaceToWindowSpace( WVector2d const& v )
 {
     WVector2d res = v;
 
@@ -983,7 +982,7 @@ WVector2d WMHistogramView::histogramSpaceToWindowSpace( WVector2d const& v )
     return res;
 }
 
-WVector2d WMHistogramView::windowSpaceToHistogramSpace( WVector2d const& v )
+WVector2d WMMultiHistogramView::windowSpaceToHistogramSpace( WVector2d const& v )
 {
     // note that when changing this function, you should change histogramSpaceToWindowSpace(...) accordingly
     WVector2d res = v;
@@ -998,7 +997,7 @@ WVector2d WMHistogramView::windowSpaceToHistogramSpace( WVector2d const& v )
     return res;
 }
 
-void WMHistogramView::createFrame()
+void WMMultiHistogramView::createFrame()
 {
     m_frameNode = new osg::Geode();
     m_frameNode->setDataVariance( osg::Object::STATIC );
@@ -1096,7 +1095,7 @@ void WMHistogramView::createFrame()
     m_mainNode->insert( m_frameNode );
 }
 
-void WMHistogramView::createInfo( WVector2f mousePos )
+void WMMultiHistogramView::createInfo( WVector2f mousePos )
 {
     m_createInfoMutex.lock();
     // transform mouse position to histogram space
@@ -1218,7 +1217,8 @@ void WMHistogramView::createInfo( WVector2f mousePos )
     m_createInfoMutex.unlock();
 }
 
-void WMHistogramView::createNothing()
+void WMMultiHistogramView::createNothing()
 {
     errorLog() << "This histogram style is not yet implemented.";
 }
+

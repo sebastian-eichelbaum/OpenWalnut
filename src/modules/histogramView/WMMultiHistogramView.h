@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMHISTOGRAMVIEW_H
-#define WMHISTOGRAMVIEW_H
+#ifndef WMMULTIHISTOGRAMVIEW_H
+#define WMMULTIHISTOGRAMVIEW_H
 
 #include <string>
 #include <vector>
@@ -35,7 +35,7 @@
 #include "core/common/WHistogramBasic.h"
 #include "core/common/WCounter.h"
 
-#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetSingle.h"
 
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
@@ -44,24 +44,24 @@
 
 // TODO(reichenbach): choose color of frame and marker depending on the user's chosen window background color
 /**
- * \class WMHistogramView
+ * \class WMMultiHistogramView
  *
  * A module that draws a histogram of one or mode scalar datasets in a custom widget.
  *
  * \ingroup modules
  */
-class WMHistogramView : public WModule
+class WMMultiHistogramView : public WModule
 {
 public:
     /**
      * Constuctor.
      */
-    WMHistogramView();
+    WMMultiHistogramView();
 
     /**
      * Destructor.
      */
-    virtual ~WMHistogramView();
+    virtual ~WMMultiHistogramView();
 
     /**
      * Gives back the name of this module.
@@ -317,10 +317,10 @@ private:
     // the next 3 vectors all have the same size, which is the maximum number of inputs allowed for this module
     // see NUM_INPUTS in the .cpp
     //! A vector of input connectors.
-    std::vector< boost::shared_ptr< WModuleInputData< WDataSetScalar > > > m_input;
+    std::vector< boost::shared_ptr< WModuleInputData< WDataSetSingle > > > m_input;
 
     //! A vector of current datasets.
-    std::vector< boost::shared_ptr< WDataSetScalar > > m_data;
+    std::vector< boost::shared_ptr< WDataSetSingle > > m_data;
 
     //! A vector of color properties for the datasets.
     std::vector< WPropColor > m_colors;
@@ -337,4 +337,5 @@ private:
     std::vector< boost::function< void( void ) > > m_geometryFunctions;
 };
 
-#endif  // WMHISTOGRAMVIEW_H
+#endif  // WMMULTIHISTOGRAMVIEW_H
+
