@@ -354,7 +354,6 @@ chroot_build()
                             libboost-signals-dev \
                             libboost-regex-dev \
                             libeigen3-dev \
-                            libbiosig-dev \
                             libnifti-dev \
                             doxygen \
                             graphviz \
