@@ -37,9 +37,9 @@ BINDIR=`dirname "$0"`
 # NOTE: if this command fails, script will continue execution
 #export OSG_LIBRARY_PATH=$(dirname `ldd lib/libopenwalnut.so | grep "libosgDB" | awk '{print $3;}'` 2> /dev/null)
 
-
 # Force C locale. This fixes an issue with newer boost versions. See ticket #130.
-export LC_ALL=C
+# Do you experience problems with commas and dots mixing up? Try setting this.
+# export LC_ALL=C
 
 # Check if the user has set $OPENWALNUT_USEOPTIMUS to an executable
 runner=
