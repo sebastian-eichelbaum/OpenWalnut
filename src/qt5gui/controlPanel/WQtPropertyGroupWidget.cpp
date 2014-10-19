@@ -95,7 +95,7 @@ WQtPropertyGroupWidget::WQtPropertyGroupWidget( WPropertyGroupBase::SPtr group, 
     if( hide )
     {
         // FIXME #381: do not hide by default. We need this to be fixed properly.
-        // setHidden( true );
+        setHidden( true );
     }
     // setup the update callback
     m_connection = m_group->getUpdateCondition()->subscribeSignal( boost::bind( &WQtPropertyGroupWidget::propertyChangeNotifier, this ) );
