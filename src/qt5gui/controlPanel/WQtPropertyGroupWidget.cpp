@@ -92,7 +92,7 @@ WQtPropertyGroupWidget::WQtPropertyGroupWidget( WPropertyGroupBase::SPtr group, 
     r.reset();
     // NOTE: a simple setHidden( group->isHidden() ) causes the QWidgets to popup if hidden is false. This is why we set hidden only if it really
     // is needed
-    if( hide )
+    if( hide && group->autoHideEmpty() )
     {
         // FIXME #381: do not hide by default. We need this to be fixed properly.
         setHidden( true );
