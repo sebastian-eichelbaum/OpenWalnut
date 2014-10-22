@@ -26,6 +26,7 @@
 #define WMREADLAS_H
 
 #include <string>
+#include <vector>
 
 #include "core/dataHandler/WDataSetPoints.h"
 

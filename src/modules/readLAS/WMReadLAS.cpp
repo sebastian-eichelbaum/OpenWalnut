@@ -26,9 +26,9 @@
 #include <string>
 #include <vector>
 
-#include <liblas/liblas.hpp>
-#include <liblas/reader.hpp>
-#include <liblas/point.hpp>
+#include <liblas/liblas.hpp>    // NOLINT: this is not a C system header as brainlint thinks
+#include <liblas/reader.hpp>    // NOLINT: this is not a C system header as brainlint thinks
+#include <liblas/point.hpp>     // NOLINT: this is not a C system header as brainlint thinks
 
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WDataModuleInputFile.h"
