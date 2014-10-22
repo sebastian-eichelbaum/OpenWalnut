@@ -346,11 +346,6 @@ public slots:
     void openAboutDialog();
 
     /**
-     * gets called when menu entry "About Nemtics" is activated
-     */
-    void openAboutNemticsDialog();
-
-    /**
      * gets called when menu entry "Support" is activated
      */
     void openSupportDialog();
