@@ -3,7 +3,7 @@ Section: science
 Priority: extra
 Maintainer: Sebastian Eichelbaum <openwalnut@nemtics.com>
 Uploaders: Yaroslav Halchenko <debian@onerussian.com>, Michael Hanke <michael.hanke@gmail.com>
-Build-Depends: debhelper (>= 8.0.0),
+Build-Depends: debhelper (>= 9.0.0),
                cmake (>= 2.8.11), doxygen (>= 1.6.3), graphviz (>= 2.26.3),
                libgl1-mesa-dev | libgl-dev,
                libopenscenegraph-dev (>= 3.0.0), libopenthreads-dev (>= 3.0.0),
