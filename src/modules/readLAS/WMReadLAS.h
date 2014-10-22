@@ -22,11 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMREADVIM_H
-#define WMREADVIM_H
+#ifndef WMREADLAS_H
+#define WMREADLAS_H
 
 #include <string>
-#include <vector>
 
 #include "core/dataHandler/WDataSetPoints.h"
 
@@ -34,22 +33,22 @@
 #include "core/kernel/WModuleOutputData.h"
 
 /**
- * This module loads VIM files (point data).
+ * This module loads LAS files (point data).
  *
  * \ingroup modules
  */
-class WMReadVIM: public WDataModule
+class WMReadLAS: public WDataModule
 {
 public:
     /**
      * Default constructor.
      */
-    WMReadVIM();
+    WMReadLAS();
 
     /**
      * Destructor.
      */
-    virtual ~WMReadVIM();
+    virtual ~WMReadLAS();
 
     /**
      * Gives back the name of this module.
@@ -77,7 +76,6 @@ public:
      * \return the list of filters
      */
     virtual std::vector< WDataModuleInputFilter::ConstSPtr > getInputFilter() const;
-
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -88,6 +86,11 @@ protected:
      * Initialize the connectors this module is using.
      */
     virtual void connectors();
+
+    /**
+     * Initialize the properties for this module.
+     */
+    virtual void properties();
 
     /**
      * Load data.
@@ -103,10 +106,9 @@ protected:
      * Instead, use this method for firing a condition, which then wakes your module thread.
      */
     virtual void handleInputChange();
-
 private:
     /**
-     * The output connector for the data.
+     * The output connector for the filtered data.
      */
     boost::shared_ptr< WModuleOutputData< WDataSetPoints > > m_output;
 
@@ -116,4 +118,4 @@ private:
     bool m_reload;
 };
 
-#endif  // WMREADVIM_H
+#endif  // WMREADLAS_H
