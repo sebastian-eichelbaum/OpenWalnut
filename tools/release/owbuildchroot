@@ -345,6 +345,7 @@ chroot_build()
                             libgl1-mesa-dev libopenscenegraph-dev libopenthreads-dev \
                             libqt5opengl5-dev qtbase5-dev qttools5-dev libqt5webkit5-dev \
                             liblas-dev \
+                            liblas-c-dev \
                             zlib1g-dev \
                             libboost-dev \
                             libboost-program-options-dev \
