@@ -382,7 +382,7 @@ ENDFUNCTION( SETUP_CONFIGURED_FILE )
 # This function configures the specified file in the given resource. This is especially useful for scripts where to replace certain
 # CMake variables (like pkg-config files).
 # _resource the name of the resource in the resources directory
-# _file the file in the the resource to configure
+# _file the file in the resource to configure
 # _component the install component to which the file belongs
 # _destinationPath where to place the file as relative path (do not include filename, relative to project binary root)
 FUNCTION( SETUP_CONFIGURED_FILE_TO _resource _file _component _destinationPath )
@@ -390,8 +390,8 @@ FUNCTION( SETUP_CONFIGURED_FILE_TO _resource _file _component _destinationPath )
     GET_FILENAME_COMPONENT( filename ${_file} NAME )
     CONFIGURE_FILE( "${ResourcesPath}/${_file}" "${PROJECT_BINARY_DIR}/${_destinationPath}/${filename}" @ONLY )
     # Install the file
-    INSTALL( FILES "${PROJECT_BINARY_DIR}/${_file}" DESTINATION "${_destinationPath}"
-                                                      COMPONENT ${_component}
+    INSTALL( FILES "${PROJECT_BINARY_DIR}/${_destinationPath}/${filename}" DESTINATION "${_destinationPath}"
+                                                                           COMPONENT ${_component}
            )
 ENDFUNCTION( SETUP_CONFIGURED_FILE_TO )
 

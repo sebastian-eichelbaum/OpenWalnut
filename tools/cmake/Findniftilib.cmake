@@ -36,7 +36,7 @@ IF( NIFTILIB_FOUND )
    ENDIF()
 ELSE()
    IF( niftilib_FIND_REQUIRED )
-      MESSAGE( FATAL_ERROR "Could not find niftilib." )
+       MESSAGE( FATAL_ERROR "Could not find niftilib. You can specify NIFTILIB_INCLUDE_DIR and NIFTILIB_LIBRARY_DIR environment variables to help OpenWalnut finding it." )
    ENDIF()
 ENDIF()
 

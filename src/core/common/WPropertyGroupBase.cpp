@@ -44,7 +44,8 @@ const std::string WPropertyGroupBase::separator = "/";
 
 WPropertyGroupBase::WPropertyGroupBase( std::string name, std::string description ):
     WPropertyBase( name, description ),
-    m_properties()
+    m_properties(),
+    m_autoHideEmpty( true )
 {
     // this groups update condition also fires upon group modification -> add WSharedObject condition
     m_updateCondition->add( m_properties.getChangeCondition() );
@@ -239,5 +240,15 @@ WPropertyGroupBase::PropertySharedContainerType::ReadTicket WPropertyGroupBase::
 WPropertyGroupBase::PropertySharedContainerType::ReadTicket WPropertyGroupBase::getReadTicket() const
 {
     return m_properties.getReadTicket();
+}
+
+bool WPropertyGroupBase::autoHideEmpty() const
+{
+    return m_autoHideEmpty;
+}
+
+void WPropertyGroupBase::setAutoHideEmpty( bool autoHide )
+{
+    m_autoHideEmpty = autoHide;
 }
 

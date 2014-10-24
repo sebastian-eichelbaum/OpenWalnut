@@ -46,6 +46,9 @@ FIND_PACKAGE( Qt5WebKitWidgets REQUIRED )
 
 # Includes:
 INCLUDE_DIRECTORIES( SYSTEM ${QT_INCLUDE_DIR} )
+INCLUDE_DIRECTORIES( SYSTEM ${Qt5Widgets_INCLUDE_DIRS} )
+INCLUDE_DIRECTORIES( SYSTEM ${Qt5OpenGL_INCLUDE_DIRS} )
+INCLUDE_DIRECTORIES( SYSTEM ${Qt5WebKitWidgets_INCLUDE_DIRS} )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # GUI compilation options
