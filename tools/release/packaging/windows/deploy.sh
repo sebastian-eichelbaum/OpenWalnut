@@ -45,8 +45,8 @@ export PATH
 # Although linked dynamically, these files where not found:
 # Nifti
 echo "Copy NiFTI"
-cp /nifticlib-2.0.0/znzlib/libznz.dll "$target"
-cp /nifticlib-2.0.0/niftilib/libniftiio.dll "$target"
+cp /c/ow_workspace/nifticlib-2.0.0/znzlib/libznz.dll "$target"
+cp /c/ow_workspace/nifticlib-2.0.0/niftilib/libniftiio.dll "$target"
 
 # Plugins. Not dynamically linked. Loaded on startup. Copy: 
 # OSG Plugins
