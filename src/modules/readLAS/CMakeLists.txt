@@ -43,7 +43,7 @@ GET_FILENAME_COMPONENT( MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
 # See http://liblas.org
 FIND_PACKAGE( liblas QUIET )
 IF( LIBLAS_FOUND )
-   MESSAGE( STATUS "Using system installed liblas." )
+   MESSAGE( STATUS "Using system installed liblas to build readLAS." )
    INCLUDE_DIRECTORIES( ${LIBLAS_INCLUDE_DIR} )
 
     # ------------------------------------------------------------------------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ IF( LIBLAS_FOUND )
     # module.
     SETUP_MODULE( ${MODULE_NAME}                # name of the module
                  "${CMAKE_CURRENT_SOURCE_DIR}"  # where to find the source ${CMAKE_CURRENT_SOURCE_DIR} is a good idea here mostly
-                 "${LIBLAS_LIBRARY}"            # does your module need additional libs to compile?
+                 "${LIBLAS_LIBRARY};${LIBLAS_C_LIBRARY}"   # does your module need additional libs to compile?
                  ""                             # do you want to exclude files from stylechecking? (externals for example)
     )
 ENDIF()

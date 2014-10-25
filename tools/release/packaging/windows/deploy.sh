@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# WARN: this script uses several absolute paths. if it does not work, update.
+
 ###############################################################################
 # Install using make
 ###############################################################################
@@ -47,6 +49,9 @@ export PATH
 echo "Copy NiFTI"
 cp /c/ow_workspace/nifticlib-2.0.0/znzlib/libznz.dll "$target"
 cp /c/ow_workspace/nifticlib-2.0.0/niftilib/libniftiio.dll "$target"
+
+echo "Copy LibLas"
+cp /c/ow_workspace/libLAS-1.8.0/build/libliblas* "$target"
 
 # Plugins. Not dynamically linked. Loaded on startup. Copy: 
 # OSG Plugins
