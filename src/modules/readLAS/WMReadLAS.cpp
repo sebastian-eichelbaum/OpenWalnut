@@ -141,15 +141,21 @@ void WMReadLAS::load()
     boost::filesystem::path p = inputFile->getFilename();
 
     std::ifstream ifs;
-    ifs.open( p.string().c_str(), std::ifstream::in );
+    ifs.open( p.string().c_str(), std::ios::in | std::ios::binary );
     if( !ifs || ifs.bad() )
     {
         errorLog() << "Could not open file \"" << p.string() << "\".";
         return;
     }
 
-    liblas::Reader reader( ifs );
+	liblas::ReaderFactory factory;
+    liblas::Reader reader = factory.CreateWithStream( ifs );
+	
     size_t numPoints = reader.GetHeader().GetPointRecordsCount();
+	
+    infoLog() << "LAS Header: Point Count = " << numPoints;
+	infoLog() << "LAS Header: Compressed = " << reader.GetHeader().Compressed();
+	infoLog() << "LAS Header: File Signature = " << reader.GetHeader().GetFileSignature();
 
     boost::shared_ptr< WProgress > progress1( new WProgress( "Loading" ) );
     m_progress->addSubProgress( progress1 );
@@ -162,8 +168,10 @@ void WMReadLAS::load()
     infoLog() << "Start Loading ...";
 
     // interpret file
+	size_t realNumPoints = 0;
     while( reader.ReadNextPoint() )
     {
+		realNumPoints++;
         liblas::Point const& coord = reader.GetPoint();
 
         vertices->push_back( coord.GetX() );
@@ -177,7 +185,7 @@ void WMReadLAS::load()
         ++( *progress1 );
     }
 
-    infoLog() << "Loaded " << numPoints << " points from file. Done." << bb;
+    infoLog() << "Loaded " << realNumPoints << " points from file. Done." << bb;
 
     // finally provide output data
     boost::shared_ptr< WDataSetPoints> newOutput( new WDataSetPoints( vertices, colors, bb ) );
