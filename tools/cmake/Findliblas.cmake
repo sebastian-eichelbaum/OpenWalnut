@@ -22,7 +22,7 @@ ENDIF()
 
 # NOTE: we also search the filename liblas explicitly here. The reason: on Windows, libLAS gets compiled as libliblas.dll.
 FIND_LIBRARY( LIBLAS_LIBRARY NAMES las liblas HINTS /usr/lib /usr/local/lib $ENV{LIBLAS_LIBRARY_DIR} $ENV{LIBLAS_LIBRARY_DIR}/lib $ENV{LIBLAS_LIBRARY_DIR}/build $ENV{LIBLAS_LIBRARY_DIR}/bin )
-FIND_LIBRARY( LIBLAS_C_LIBRARY NAMES las_ liblas_c HINTS /usr/lib /usr/local/lib $ENV{LIBLAS_LIBRARY_DIR} $ENV{LIBLAS_LIBRARY_DIR}/lib $ENV{LIBLAS_LIBRARY_DIR}/build $ENV{LIBLAS_LIBRARY_DIR}/bin )
+FIND_LIBRARY( LIBLAS_C_LIBRARY NAMES las_c liblas_c HINTS /usr/lib /usr/local/lib $ENV{LIBLAS_LIBRARY_DIR} $ENV{LIBLAS_LIBRARY_DIR}/lib $ENV{LIBLAS_LIBRARY_DIR}/build $ENV{LIBLAS_LIBRARY_DIR}/bin )
 
 SET( CMAKE_FIND_LIBRARY_SUFFIXES ${_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES} )
 
