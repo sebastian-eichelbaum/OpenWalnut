@@ -12,7 +12,7 @@
 override_dh_auto_build:
 	# Invoke standard build mechanism.
 	# Enable this if you have a multi-core machine and are debugging the Debian packages. Disable again for upload.
-	if test "$(OWRELEASE_JOBS)" = "" ; then \
+	if test "OWRELEASE_JOBS" = "" ; then \
 		dh_auto_build \
 	else \
 		dh_auto_build -- -j$(OWRELEASE_JOBS) \
