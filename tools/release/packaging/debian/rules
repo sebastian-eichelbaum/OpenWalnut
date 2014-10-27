@@ -11,10 +11,13 @@
 
 override_dh_auto_build:
 	# Invoke standard build mechanism.
-	dh_auto_build
 	# Enable this if you have a multi-core machine and are debugging the Debian packages. Disable again for upload.
-	# dh_auto_build -- -j10
-	# build the core api documentation too
+	if test "$(OWRELEASE_JOBS)" = "" ; then \
+		dh_auto_build \
+	else \
+		dh_auto_build -- -j$(OWRELEASE_JOBS) \
+    fi
+	# build the core api documentation too		PARALLEL_BUILD_JOBS := $(OWRELEASE_JOBS) 
 	dh_auto_build -- core_devdoc
 
 override_dh_auto_configure:
