@@ -15,7 +15,7 @@ Build-Depends: debhelper (>= 9.0.0),
                libeigen3-dev (>= 3.0.0),
                libnifti-dev (>= 2.0.0),
                zlib1g-dev (>= 1:1.2.3.4.dfsg),
-               liblas-dev (>= 1.7.0)
+               liblas-dev (>= 1.7.0),
                liblas-c-dev (>= 1.7.0)
 Standards-Version: 3.9.5
 Vcs-hg: http://source.openwalnut.org
