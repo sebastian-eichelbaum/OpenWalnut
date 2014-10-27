@@ -195,7 +195,7 @@ chroot_setup_suite()
     # NOTE: I tested only debian sid and ubuntu natty and maverick. Maverick currently has some problem with libopenscenegraph.
     #       Please add others here if needed
     case "$SUITE" in
-        trusty | raring | saucy | quantal | precise | oneiric | natty | maverick )
+        utopic | trusty | raring | saucy | quantal | precise | oneiric | natty | maverick )
             # multiverse and universe needed for several packs
             echo "deb http://de.archive.ubuntu.com/ubuntu $SUITE restricted universe multiverse" > ./$CHROOTDIR/etc/apt/sources.list.d/universeMultiverse.sources.list
 
