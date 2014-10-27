@@ -17,7 +17,7 @@ Build-Depends: debhelper (>= 9.0.0),
                zlib1g-dev (>= 1:1.2.3.4.dfsg),
                liblas-dev (>= 1.7.0),
                liblas-c-dev (>= 1.7.0)
-Standards-Version: 3.9.5
+Standards-Version: 3.9.6
 Vcs-hg: http://source.openwalnut.org
 Vcs-browser: http://source.openwalnut.org
 Homepage: http://www.openwalnut.org
