@@ -34,7 +34,7 @@
 #include "core/kernel/WModuleOutputData.h"
 
 /**
- * This module is intended to allow the user to filter a fiber dataset using the current ROI config
+ * This module loads VIM files (point data).
  *
  * \ingroup modules
  */

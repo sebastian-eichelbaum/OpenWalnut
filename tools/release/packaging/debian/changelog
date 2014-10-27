@@ -1,5 +1,13 @@
 openwalnut (OWPACK_VERSION-1) unstable; urgency=low
+  * Major functionality and stability improvements.
+  * Several bug fixes
+  * Explicitly link against X11 (Closes: #754759)
+  * Made Debian package multiarch compliant (Closes: #760064)
+  * See http://www.openwalnut.org/versions/2
 
+ -- Sebastian Eichelbaum <openwalnut@nemtics.com>  Wed, 22 Oct 2014 20:12:47 +0100
+
+openwalnut (1.4.0~rc1+hg3a3147463ee2-1) unstable; urgency=low
   * Major functionality and stability improvements.
   * Several bug fixes
   * Changed ttf-liberation dependency to fonts-liberation (Closes: #722405)

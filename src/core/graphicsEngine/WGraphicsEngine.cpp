@@ -61,12 +61,9 @@ WGraphicsEngine::WGraphicsEngine():
 {
     WLogger::getLogger()->addLogMessage( "Initializing Graphics Engine", "GE", LL_INFO );
 
-#ifdef WGEMODE_MULTITHREADED
     // initialize OSG render window
     m_viewer = osg::ref_ptr<osgViewer::CompositeViewer>( new osgViewer::CompositeViewer() );
     m_viewer->setThreadingModel( osgViewer::ViewerBase::SingleThreaded );
-#endif
-
     m_viewer->setRunMaxFrameRate( 60.0 );
 
     // initialize members

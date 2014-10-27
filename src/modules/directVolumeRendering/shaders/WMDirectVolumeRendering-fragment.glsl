@@ -24,12 +24,12 @@
 
 #version 120
 
+// This is needed if the modulo operator % is required
+#extension GL_EXT_gpu_shader4 : enable
+
 #ifdef LOCALILLUMINATION_PHONG
 #include "WGEShadingTools.glsl"
 #endif
-
-// This is needed if the modulo operator % is required
-#extension GL_EXT_gpu_shader4 : enable
 
 #include "WGEUtils.glsl"
 

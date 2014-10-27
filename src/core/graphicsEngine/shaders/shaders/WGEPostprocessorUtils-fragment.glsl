@@ -129,6 +129,21 @@ const vec2 zeroOneList = vec2( 1.0, 0.0 );
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * Adapt texture2DLod, which officially is not allowed in fragment shaders. We need a solution here.
+ *
+ * \param texture texture sampler
+ * \param where location
+ * \param lod lod. ignored.
+ *
+ * \return color.
+ */
+vec4 texture2DLodAdapter( sampler2D texture, vec2 where, float lod )
+{
+    // TODO(ebaum): find a solution
+    return texture2D( texture, where );
+}
+
+/**
  * Grabs and unscales the value inside the texture and returns it. Although this is implemented in WGETextureTools, we re-implement it
  * for having mip-map support
  *
@@ -142,11 +157,10 @@ const vec2 zeroOneList = vec2( 1.0, 0.0 );
  *
  * \return the value at the given point
  */
-vec4 texture2DUnscaledLOD( sampler2D texture, vec2 point, float minimum, float scale, float lod = 0.0 )
+vec4 texture2DUnscaledLOD( sampler2D texture, vec2 point, float minimum, float scale, float lod )
 {
-    return ( scale * texture2DLod( texture, point, lod ) ) + vec4( minimum );
+    return ( scale * texture2DLodAdapter( texture, point, lod ) ) + vec4( minimum );
 }
-
 
 /**
  * Returns the original unprocessed color value at the specified point
@@ -156,9 +170,21 @@ vec4 texture2DUnscaledLOD( sampler2D texture, vec2 point, float minimum, float s
  *
  * \return the color
  */
-vec4 getColor( in vec2 where, in float lod = 0.0 )
+vec4 getColor( in vec2 where, in float lod )
 {
-    return texture2DLod( u_colorSampler, where, lod );
+    return texture2DLodAdapter( u_colorSampler, where, lod );
+}
+
+/**
+ * Returns the original unprocessed color value at the specified point
+ *
+ * \param where the pixel to grab
+ *
+ * \return the color
+ */
+vec4 getColor( in vec2 where )
+{
+    return getColor( where, 0.0 );
 }
 
 /**
@@ -169,12 +195,24 @@ vec4 getColor( in vec2 where, in float lod = 0.0 )
  *
  * \return the color
  */
-vec4 getColor( in float lod = 0.0 )
+vec4 getColor( in float lod )
 {
     return getColor( pixelCoord, lod );
 }
 
 /**
+ * Returns the original unprocessed color value at the current pixel.
+ *
+ * \note GLSL does not officially allow default values for function arguments which is why we need this additional function.
+ *
+ * \return the color
+ */
+vec4 getColor()
+{
+    return getColor( 0.0 );
+}
+
+/**
  * Grabs the normal at the specified point. The returned normal has been de-scaled to [-1,1] and normalized The w component is 1.
  *
  * \param where the pixel to grab
@@ -182,12 +220,24 @@ vec4 getColor( in float lod = 0.0 )
  *
  * \return the normal
  */
-vec4 getNormal( in vec2 where, in float lod = 0.0 )
+vec4 getNormal( in vec2 where, in float lod )
 {
     return normalize( texture2DUnscaledLOD( u_normalSampler, where, -1.0, 2.0, lod ).xyz ).xyzz * zeroOneList.xxxy + zeroOneList.yyyx;
 }
 
 /**
+ * Grabs the normal at the specified point. The returned normal has been de-scaled to [-1,1] and normalized The w component is 1.
+ *
+ * \param where the pixel to grab
+ *
+ * \return the normal
+ */
+vec4 getNormal( in vec2 where )
+{
+    return getNormal( where, 0.0 );
+}
+
+/**
  * Grabs the normal at the current pixel. The returned normal has been de-scaled to [-1,1]. The w component is 1.
  *
  * \note GLSL does not officially allow default values for function arguments which is why we need this additional function.
@@ -195,9 +245,21 @@ vec4 getNormal( in vec2 where, in float lod = 0.0 )
  *
  * \return the normal
  */
-vec4 getNormal( in float lod = 0.0 )
+vec4 getNormal( in float lod )
 {
     return getNormal( pixelCoord, lod );
+}
+
+/**
+ * Grabs the normal at the current pixel. The returned normal has been de-scaled to [-1,1]. The w component is 1.
+ *
+ * \note GLSL does not officially allow default values for function arguments which is why we need this additional function.
+ *
+ * \return the normal
+ */
+vec4 getNormal()
+{
+    return getNormal( 0.0 );
 }
 
 /**
@@ -208,9 +270,22 @@ vec4 getNormal( in float lod = 0.0 )
  *
  * \return the normal
  */
-vec4 getTangent( in vec2 where, in float lod = 0.0 )
+vec4 getTangent( in vec2 where, in float lod )
 {
     return normalize( texture2DUnscaledLOD( u_tangentSampler, where, -1.0, 2.0, lod ).xyz ).xyzz * zeroOneList.xxxy + zeroOneList.yyyx;
+}
+
+/**
+ * Grabs the normal at the specified point. The returned normal has been de-scaled to [-1,1] and normalized The w component is 1.
+ *
+ * \param where the pixel to grab
+ * \param lod the LOD level if using mip-maps.
+ *
+ * \return the normal
+ */
+vec4 getTangent( in vec2 where )
+{
+    return getTangent( where, 0.0 );
 }
 
 /**
@@ -222,10 +297,23 @@ vec4 getTangent( in vec2 where, in float lod = 0.0 )
  *
  * \return the normal
  */
-vec4 getTangent( in float lod = 0.0 )
+vec4 getTangent( in float lod )
 {
     return getTangent( pixelCoord, lod );
 }
+
+/**
+ * Grabs the normal at the current pixel. The returned normal has been de-scaled to [-1,1]. The w component is 1.
+ *
+ * \note GLSL does not officially allow default values for function arguments which is why we need this additional function.
+ *
+ * \return the normal
+ */
+vec4 getTangent()
+{
+    return getTangent( 0.0 );
+}
+
 
 /**
  * Grabs the depth at the specified point.
@@ -235,9 +323,21 @@ vec4 getTangent( in float lod = 0.0 )
  *
  * \return the depth
  */
-float getDepth( in vec2 where, in float lod = 0.0 )
+float getDepth( in vec2 where, in float lod  )
 {
-    return texture2DLod( u_depthSampler, where, lod ).r;
+    return texture2DLodAdapter( u_depthSampler, where, lod ).r;
+}
+
+/**
+ * Grabs the depth at the specified point.
+ *
+ * \param where the position where to grab it.
+ *
+ * \return the depth
+ */
+float getDepth( in vec2 where )
+{
+    return getDepth( where, 0.0 );
 }
 
 /**
@@ -249,9 +349,21 @@ float getDepth( in vec2 where, in float lod = 0.0 )
  *
  * \return the depth
  */
-float getDepth( in float lod = 0.0 )
+float getDepth( in float lod )
 {
     return getDepth( pixelCoord, lod );
+}
+
+/**
+ * Grabs the depth at the current pixel.
+ *
+ * \note GLSL does not officially allow default values for function arguments which is why we need this additional function.
+ *
+ * \return the depth
+ */
+float getDepth()
+{
+    return getDepth( 0.0 );
 }
 
 /**
