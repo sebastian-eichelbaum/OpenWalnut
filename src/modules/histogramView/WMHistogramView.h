@@ -49,7 +49,7 @@
 /**
  * \class WMHistogramView
  *
- * A module that draws a histogram of one or mode scalar datasets in a custom widget.
+ * A module that draws a histogram.
  *
  * \ingroup modules
  */
