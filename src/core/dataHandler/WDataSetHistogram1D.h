@@ -26,8 +26,10 @@
 #define WDATASETHISTOGRAM1D_H
 
 #include <string>
+#include <vector>
 
 #include "../common/WHistogramBasic.h"
+#include "../common/WColor.h"
 
 #include "WDataSet.h"
 
@@ -55,6 +57,14 @@ public:
      * \param histo The histogram to use.
      */
     explicit WDataSetHistogram1D( boost::shared_ptr< WHistogramBasic const > const& histo );
+
+    /**
+     * Construct a histogram and allows to set an array of colors used for the bins.
+     *
+     * \param histo The histogram.
+     * \param colors An array of one color per bin.
+     */
+    WDataSetHistogram1D( boost::shared_ptr< WHistogramBasic const > const& histo, boost::shared_ptr< std::vector< WColor > const > const& colors );
 
     /**
      * Construct an empty and unusable instance. This is needed for the prototype mechanism.
@@ -94,6 +104,22 @@ public:
      */
     static boost::shared_ptr< WPrototyped > getPrototype();
 
+    /**
+     * Whether this dataset has colors associated with the bins.
+     *
+     * \return true, if this dataset has colors.
+     */
+    bool hasColors() const;
+
+    /**
+     * Get the color of a bin.
+     *
+     * \param bin The index of the bin to get the color from.
+     *
+     * \return The color of the bin.
+     */
+    WColor getColor( std::size_t bin ) const;
+
 protected:
     /**
      * The prototype as singleton.
@@ -103,6 +129,9 @@ protected:
 private:
     //! The histogram.
     boost::shared_ptr< WHistogramBasic const > const m_histogram;
+
+    //! The colors for the bins.
+    boost::shared_ptr< std::vector< WColor > const > const m_colors;
 };
 
 #endif  // WDATASETHISTOGRAM1D_H

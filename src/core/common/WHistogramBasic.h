@@ -109,8 +109,10 @@ public:
      * Inserts a given value within the given range (min, max) into exactly one bin and increment its size.
      *
      * \param value Value to insert.
+     *
+     * \return The index of the bin the value was inserted into or the maximum size_t if it was out of range.
      */
-    virtual void insert( double value );
+    virtual std::size_t insert( double value );
 
 protected:
 private:

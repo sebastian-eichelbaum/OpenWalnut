@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <vector>
 
 #include "WDataSetHistogram1D.h"
 
@@ -31,7 +32,16 @@ boost::shared_ptr< WPrototyped > WDataSetHistogram1D::m_prototype = boost::share
 
 WDataSetHistogram1D::WDataSetHistogram1D( boost::shared_ptr< WHistogramBasic const > const& histo )
     : WDataSet(),
-      m_histogram( new WHistogramBasic( *histo ) )
+      m_histogram( new WHistogramBasic( *histo ) ),
+      m_colors()
+{
+}
+
+WDataSetHistogram1D::WDataSetHistogram1D( boost::shared_ptr< WHistogramBasic const > const& histo,
+                                          boost::shared_ptr< std::vector< WColor > const > const& colors )
+    : WDataSet(),
+      m_histogram( new WHistogramBasic( *histo ) ),
+      m_colors( colors )
 {
 }
 
@@ -68,5 +78,15 @@ boost::shared_ptr< WPrototyped > WDataSetHistogram1D::getPrototype()
 boost::shared_ptr< WHistogramBasic const > const& WDataSetHistogram1D::getHistogram() const
 {
     return m_histogram;
+}
+
+bool WDataSetHistogram1D::hasColors() const
+{
+    return m_histogram && m_colors && m_colors->size() == m_histogram->size();
+}
+
+WColor WDataSetHistogram1D::getColor( std::size_t bin ) const
+{
+    return m_colors->at( bin );
 }
 
