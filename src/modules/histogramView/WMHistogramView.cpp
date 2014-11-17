@@ -332,12 +332,6 @@ void WMHistogramView::createGeometryBars()
 
     // one color per dataset
     WColor color = m_color->get( true );
-    WColor lighterColor = WColor( color[ 0 ] * 1.1, color[ 1 ] * 1.1, color[ 2 ] * 1.1, 1.0 );
-    WColor darkerColor = WColor( color[ 0 ] * 0.9, color[ 1 ] * 0.9, color[ 2 ] * 0.9, 1.0 );
-
-    color[ 3 ] = lighterColor[ 3 ] = darkerColor[ 3 ] = 0.8;
-
-    quadColors->push_back( color );
 
     // add a quad for every bar/bucket/bin
     for( std::size_t j = 0; j < m_histogram->size(); ++j )
@@ -369,6 +363,18 @@ void WMHistogramView::createGeometryBars()
         lineVertices->push_back( histogramSpaceToWindowSpace( barUpperRight ) );
         lineVertices->push_back( histogramSpaceToWindowSpace( WVector2d( barUpperRight[ 0 ], barLowerLeft[ 1 ] ) ) );
 
+        if( m_data->hasColors() )
+            color = m_data->getColor( j );
+
+        WColor lighterColor = WColor( color[ 0 ] * 1.1, color[ 1 ] * 1.1, color[ 2 ] * 1.1, 1.0 );
+        WColor darkerColor = WColor( color[ 0 ] * 0.9, color[ 1 ] * 0.9, color[ 2 ] * 0.9, 1.0 );
+        color[ 3 ] = lighterColor[ 3 ] = darkerColor[ 3 ] = 0.8;
+
+        quadColors->push_back( lighterColor );
+        quadColors->push_back( lighterColor );
+        quadColors->push_back( lighterColor );
+        quadColors->push_back( lighterColor );
+
         // outline colors
         lineColors->push_back( lighterColor );
         lineColors->push_back( lighterColor );
@@ -385,7 +391,7 @@ void WMHistogramView::createGeometryBars()
         geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 * m_histogram->size() ) );
         geometry->setVertexArray( quadVertices );
         geometry->setColorArray( quadColors );
-        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+        geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
         geometry->setTexCoordArray( 0, quadTexCoords );
 
         // enable VBO
@@ -448,11 +454,6 @@ void WMHistogramView::createGeometryCurves()
 
     // one color per dataset
     WColor color = m_color->get( true );
-    WColor c = color;
-    c[ 3 ] = 0.2;
-
-    quadColors->push_back( c );
-    lineColors->push_back( color );
 
     // add a quad for every bar/bucket/bin
     for( std::size_t j = 0; j < m_histogram->size() - 1; ++j )
@@ -469,6 +470,12 @@ void WMHistogramView::createGeometryCurves()
         quad[ 2 ] = WVector2d( quadRight, m_histogram->at( j + 1 ) );
         quad[ 3 ] = WVector2d( quadLeft, m_histogram->at( j ) );
 
+        // colors
+        WColor c = color;
+        if( m_data->hasColors() )
+            c = m_data->getColor( j );
+        c[ 3 ] = 0.2;
+
         // transform to window coords
         for( std::size_t i = 0; i < 4; ++i )
         {
@@ -482,12 +489,19 @@ void WMHistogramView::createGeometryCurves()
         quadTexCoords->push_back( WVector2d( quadRight, 0.0 ) );
         quadTexCoords->push_back( WVector2d( quadLeft, 0.0 ) );
 
+        quadColors->push_back( c );
+        quadColors->push_back( c );
+        quadColors->push_back( c );
+        quadColors->push_back( c );
+
         // line vertices
         if( j == 0 )
         {
             lineVertices->push_back( quad[ 3 ] );
+            lineColors->push_back( color );
         }
         lineVertices->push_back( quad[ 2 ] );
+        lineColors->push_back( color );
     }
 
     // create drawable for the quads
@@ -514,7 +528,7 @@ void WMHistogramView::createGeometryCurves()
         geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, m_histogram->size() ) );
         geometry->setVertexArray( lineVertices );
         geometry->setColorArray( lineColors );
-        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+        geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
 
         // enable VBO
         geometry->setUseDisplayList( false );
@@ -556,8 +570,6 @@ void WMHistogramView::createGeometryStairs()
 
     // one color per dataset
     WColor color = m_color->get( true );
-    color[ 3 ] = 1.0;
-    lineColors->push_back( color );
 
     // add lines for every bar/bucket/bin
     for( std::size_t j = 0; j < m_histogram->size(); ++j )
@@ -571,6 +583,10 @@ void WMHistogramView::createGeometryStairs()
         barLowerLeft = histogramSpaceToWindowSpace( barLowerLeft );
         barUpperRight = histogramSpaceToWindowSpace( barUpperRight );
 
+        if( m_data->hasColors() )
+            color = m_data->getColor( j );
+        color[ 3 ] = 1.0;
+
         // line vertices
         if( j == 0 )
         {
@@ -578,9 +594,12 @@ void WMHistogramView::createGeometryStairs()
         }
         lineVertices->push_back( WVector2d( barLowerLeft[ 0 ], barUpperRight[ 1 ] ) );
         lineVertices->push_back( barUpperRight );
+        lineColors->push_back( color );
+        lineColors->push_back( color );
         if( j == m_histogram->size() - 1 )
         {
             lineVertices->push_back( WVector2d( barUpperRight[ 0 ], barLowerLeft[ 1 ] ) );
+            lineColors->push_back( color );
         }
     }
 
@@ -591,7 +610,7 @@ void WMHistogramView::createGeometryStairs()
         geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, 2 * m_histogram->size() + 2 ) );
         geometry->setVertexArray( lineVertices );
         geometry->setColorArray( lineColors );
-        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+        geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
 
         // enable VBO
         geometry->setUseDisplayList( false );
