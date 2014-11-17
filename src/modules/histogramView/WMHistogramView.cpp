@@ -547,69 +547,69 @@ void WMHistogramView::createGeometryStairs()
     calculateFrameSize();
     calculateFramePosition();
 
-   // this is the geode for the histogram bars
-   osg::ref_ptr< osg::Geode > geode = new osg::Geode();
-   geode->setDataVariance( osg::Object::STATIC );
+    // this is the geode for the histogram bars
+    osg::ref_ptr< osg::Geode > geode = new osg::Geode();
+    geode->setDataVariance( osg::Object::STATIC );
 
-   osg::ref_ptr< osg::Vec2Array > lineVertices = new osg::Vec2Array;
-   osg::ref_ptr< osg::Vec4Array > lineColors = new osg::Vec4Array;
+    osg::ref_ptr< osg::Vec2Array > lineVertices = new osg::Vec2Array;
+    osg::ref_ptr< osg::Vec4Array > lineColors = new osg::Vec4Array;
 
-   // one color per dataset
-   WColor color = m_color->get( true );
-   color[ 3 ] = 1.0;
-   lineColors->push_back( color );
+    // one color per dataset
+    WColor color = m_color->get( true );
+    color[ 3 ] = 1.0;
+    lineColors->push_back( color );
 
-   // add lines for every bar/bucket/bin
-   for( std::size_t j = 0; j < m_histogram->size(); ++j )
-   {
-       // 'histogram' coords for bar j
-       std::pair< double, double > barPosHistoCoordsX = m_histogram->getIntervalForIndex( j );
-       WVector2d barLowerLeft( barPosHistoCoordsX.first, 0.0 );
-       WVector2d barUpperRight( barPosHistoCoordsX.second, m_histogram->at( j ) );
+    // add lines for every bar/bucket/bin
+    for( std::size_t j = 0; j < m_histogram->size(); ++j )
+    {
+        // 'histogram' coords for bar j
+        std::pair< double, double > barPosHistoCoordsX = m_histogram->getIntervalForIndex( j );
+        WVector2d barLowerLeft( barPosHistoCoordsX.first, 0.0 );
+        WVector2d barUpperRight( barPosHistoCoordsX.second, m_histogram->at( j ) );
 
-       // transform to window coords
-       barLowerLeft = histogramSpaceToWindowSpace( barLowerLeft );
-       barUpperRight = histogramSpaceToWindowSpace( barUpperRight );
+        // transform to window coords
+        barLowerLeft = histogramSpaceToWindowSpace( barLowerLeft );
+        barUpperRight = histogramSpaceToWindowSpace( barUpperRight );
 
-       // line vertices
-       if( j == 0 )
-       {
-           lineVertices->push_back( barLowerLeft );
-       }
-       lineVertices->push_back( WVector2d( barLowerLeft[ 0 ], barUpperRight[ 1 ] ) );
-       lineVertices->push_back( barUpperRight );
-       if( j == m_histogram->size() - 1 )
-       {
-           lineVertices->push_back( WVector2d( barUpperRight[ 0 ], barLowerLeft[ 1 ] ) );
-       }
-   }
+        // line vertices
+        if( j == 0 )
+        {
+            lineVertices->push_back( barLowerLeft );
+        }
+        lineVertices->push_back( WVector2d( barLowerLeft[ 0 ], barUpperRight[ 1 ] ) );
+        lineVertices->push_back( barUpperRight );
+        if( j == m_histogram->size() - 1 )
+        {
+            lineVertices->push_back( WVector2d( barUpperRight[ 0 ], barLowerLeft[ 1 ] ) );
+        }
+    }
 
-   // create drawable for the lines
-   {
-       osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
+    // create drawable for the lines
+    {
+        osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
 
-       geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, 2 * m_histogram->size() + 2 ) );
-       geometry->setVertexArray( lineVertices );
-       geometry->setColorArray( lineColors );
-       geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, 2 * m_histogram->size() + 2 ) );
+        geometry->setVertexArray( lineVertices );
+        geometry->setColorArray( lineColors );
+        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
-       // enable VBO
-       geometry->setUseDisplayList( false );
-       geometry->setUseVertexBufferObjects( true );
+        // enable VBO
+        geometry->setUseDisplayList( false );
+        geometry->setUseVertexBufferObjects( true );
 
-       geode->addDrawable( geometry );
-   }
+        geode->addDrawable( geometry );
+    }
 
-   // we do not want any lighting
-   osg::StateSet* state = geode->getOrCreateStateSet();
-   state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+    // we do not want any lighting
+    osg::StateSet* state = geode->getOrCreateStateSet();
+    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
 
-   // no depth test
-   state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
+    // no depth test
+    state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
 
-   state->setRenderBinDetails( 1001, "RenderBin" );
+    state->setRenderBinDetails( 1001, "RenderBin" );
 
-   m_mainNode->insert( geode );
+    m_mainNode->insert( geode );
 }
 
 double WMHistogramView::findOptimalSpacing( double intervalLength, double availableSpace, double textSize )
