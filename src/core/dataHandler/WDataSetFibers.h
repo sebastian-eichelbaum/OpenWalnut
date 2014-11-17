@@ -405,6 +405,26 @@ public:
     WPosition getTangent( size_t fiber, size_t vertex ) const;
 
     /**
+     * Returns the number of points for a given fiber.
+     *
+     * \param fiber The index of the fiber.
+     *
+     * \return The number of points of the fiber.
+     */
+    std::size_t getLengthOfLine( std::size_t fiber ) const;
+
+    /**
+     * Get the index of the first vertex of a given fiber.
+     * This is used to find the three components 3 * start, 3 * start + 1
+     * and 3 * start + 2 of the first vertex in the vertices vector.
+     *
+     * \param fiber The fiber to find the start index for.
+     *
+     * \return The start index.
+     */
+    std::size_t getStartIndex( std::size_t fiber ) const;
+
+    /**
      * Get the bounding box.
      * \return The bounding box of all lines.
      */
