@@ -49,12 +49,6 @@
 #include "WMHistogramView.h"
 #include "WMHistogramView.xpm"
 
-//! The number of inputs/datasets/histograms.
-#define NUM_INPUTS 3
-
-// This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
-W_LOADABLE_MODULE( WMHistogramView )
-
 WCounter WMHistogramView::m_instanceCounter;
 
 WMHistogramView::WMHistogramView()
@@ -84,22 +78,16 @@ const std::string WMHistogramView::getName() const
 
 const std::string WMHistogramView::getDescription() const
 {
-    return "Draws histograms of one or more scalar datasets.";
+    return "Draws a histogram.";
 }
 
 void WMHistogramView::connectors()
 {
-    m_input.resize( NUM_INPUTS );
-
-    for( std::size_t k = 0; k < m_input.size(); ++k )
-    {
-        m_input[ k ] = boost::shared_ptr< WModuleInputData< WDataSetScalar > >(
-                                      new WModuleInputData< WDataSetScalar >(
-                                            shared_from_this(),
-                                            std::string( "Input dataset #" ) + string_utils::toString( k ),
-                                            "A dataset to show in the histogram viewer." ) );
-        addConnector( m_input[ k ] );
-    }
+    m_input = boost::shared_ptr< WModuleInputData< WDataSetHistogram1D > >(
+                                 new WModuleInputData< WDataSetHistogram1D >(
+                                     shared_from_this(), "Histogram input",
+                                    "A histogram to show in the histogram viewer." ) );
+    addConnector( m_input );
 
     WModule::connectors();
 }
@@ -108,49 +96,25 @@ void WMHistogramView::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_histoBins = m_properties->addProperty( "Histogram bins", "Number of bins for the histogram.", 100, m_propCondition );
-    m_histoBins->setMin( 1 );
-    m_histoBins->setMax( 2000 );
-
     boost::shared_ptr< WItemSelection > selections( new WItemSelection() );
 
     // add the possible histogram styles and
     // corresponding geometry generation functions
     selections->addItem( "Bars", "Draws transparent bars on top of each other." );
-    m_geometryFunctions.push_back( boost::bind( &WMHistogramView::createGeometryBars, this, 1 ) );
-
-    selections->addItem( "Parallel Bars", "Draws bars of the datasets next to each other per bin." );
-    m_geometryFunctions.push_back( boost::bind( &WMHistogramView::createGeometryBars, this, 2 ) );
-
-    selections->addItem( "Cumulative Bars", "Draws stacked bars." );
-    m_geometryFunctions.push_back( boost::bind( &WMHistogramView::createGeometryBars, this, 3 ) );
+    m_geometryFunctions.push_back( boost::bind( &WMHistogramView::createGeometryBars, this ) );
 
     selections->addItem( "Curves", "Draws curves." );
-    m_geometryFunctions.push_back( boost::bind( &WMHistogramView::createGeometryCurves, this, 1 ) );
-
-    selections->addItem( "Cumulative Curves", "Draws stacked curves." );
-    m_geometryFunctions.push_back( boost::bind( &WMHistogramView::createGeometryCurves, this, 2 ) );
+    m_geometryFunctions.push_back( boost::bind( &WMHistogramView::createGeometryCurves, this ) );
 
     selections->addItem( "Stairs", "Draws 'stairs'." );
-    m_geometryFunctions.push_back( boost::bind( &WMHistogramView::createGeometryStairs, this, 1 ) );
-
-    selections->addItem( "Cumulative Stairs", "Draws stacked 'staris'" );
-    m_geometryFunctions.push_back( boost::bind( &WMHistogramView::createGeometryStairs, this, 2 ) );
+    m_geometryFunctions.push_back( boost::bind( &WMHistogramView::createGeometryStairs, this ) );
 
     // add the actual selection property
     m_styleSelection = m_properties->addProperty( "Histogram style", "How the histograms should be rendered",
                                                   selections->getSelectorFirst(), m_propCondition );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_styleSelection );
 
-    // add NUM_INPUTS color selection properties
-    m_colors.resize( NUM_INPUTS );
-
-    for( std::size_t k = 0; k < m_colors.size(); ++k )
-    {
-        m_colors[ k ] = m_properties->addProperty( std::string( "Input " ) + string_utils::toString( k ) + " color",
-                                                   std::string( "Choose a color for the histogram of input dataset " )
-                                                   + string_utils::toString( k ), WColor( 1.0, 0.0, 0.0, 1.0 ), m_propCondition );
-    }
+    m_color = m_properties->addProperty( "Color", "Choose a color for theinput histogram.", WColor( 1.0, 0.0, 0.0, 1.0 ), m_propCondition );
 
     WModule::properties();
 }
@@ -175,7 +139,7 @@ void WMHistogramView::handleMouseMove( WVector2f pos )
             m_mainNode->remove( m_markerNode );
         }
 
-        if( !m_histograms.empty() ) // Bug: module will crash on mouse events when no data was connected
+        if( m_histogram )
         {
             createInfo( pos );
         }
@@ -192,7 +156,7 @@ void WMHistogramView::handleResize( int /* x */, int /* y */, int width, int hei
         m_redrawMutex.lock();
 
         m_mainNode->clear();
-        if( m_windowHeight != 0 && m_windowWidth != 0 && m_histograms.size() != 0 )
+        if( m_windowHeight != 0 && m_windowWidth != 0 && m_histogram )
         {
             redraw();
         }
@@ -205,16 +169,9 @@ void WMHistogramView::moduleMain()
 {
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
-
-    for( std::size_t k = 0; k < m_input.size(); ++k )
-    {
-        m_moduleState.add( m_input[ k ]->getDataChangedCondition() );
-    }
+    m_moduleState.add( m_input->getDataChangedCondition() );
 
     m_instanceID = ++m_instanceCounter;
-
-    // resize data vector to the number of input connectors
-    m_data.resize( m_input.size() );
 
     ready();
 
@@ -262,36 +219,23 @@ void WMHistogramView::moduleMain()
         {
             m_redrawMutex.lock();
 
-            bool dataChanged = false;
-            bool hasData = false;
-            for( std::size_t k = 0; k < m_data.size(); ++k )
-            {
-                dataChanged = dataChanged || ( m_input[ k ]->getData() && m_data[ k ] != m_input[ k ]->getData() );
-                hasData = hasData || ( m_input[ k ]->getData() || m_data[ k ] );
-            }
+            bool dataChanged = m_input->getData() && m_input->getData() != m_data;
+            bool hasData = m_input->getData() || m_data;
 
             if( !hasData )
             {
                 continue;
             }
 
-            bool colorChanged = false;
-            for( std::size_t k = 0; k < m_colors.size(); ++k )
-            {
-                colorChanged = colorChanged | m_colors[ k ]->changed();
-            }
+            bool colorChanged = m_color->changed();
 
-            if( dataChanged || colorChanged || m_histoBins->changed() || m_styleSelection->changed() )
+            if( dataChanged || colorChanged || m_styleSelection->changed() )
             {
                 infoLog() << "Recalculating histogram.";
 
-                // get current data
-                for( std::size_t k = 0; k < m_data.size(); ++k )
-                {
-                    m_data[ k ] = m_input[ k ]->getData();
-                }
+                m_data = m_input->getData();
 
-                if( dataChanged || m_histoBins->changed() )
+                if( dataChanged )
                 {
                     calculateHistograms();
                 }
@@ -339,74 +283,25 @@ void WMHistogramView::redraw()
 
 void WMHistogramView::calculateHistograms()
 {
-    m_histograms = std::vector< boost::shared_ptr< WHistogramBasic > >( m_data.size() );
-    int histoBins = m_histoBins->get( true );
-
-    // get the maximum and minimum of all datasets
-    double min = std::numeric_limits< double >::max();
-    double max = std::numeric_limits< double >::min();
-    for( std::size_t k = 0; k < m_data.size(); ++k )
-    {
-        if( !m_data[ k ] )
-        {
-            continue;
-        }
-        if( min > m_data[ k ]->getMin() )
-        {
-            min = m_data[ k ]->getMin();
-        }
-        if( max < m_data[ k ]->getMax() )
-        {
-            max = m_data[ k ]->getMax();
-        }
-    }
-
-    // init histograms
-    for( std::size_t k = 0; k < m_data.size(); ++k )
-    {
-        // create new histogram
-        // we do not use WDataSetScalar's getHistogram here as we want to set the min and max of the histogram ourselves
-        m_histograms[ k ] = boost::shared_ptr< WHistogramBasic >( new WHistogramBasic( min, max, histoBins ) );
-
-        if( m_data[ k ] )
-        {
-            // add data
-            for( std::size_t j = 0; j < m_data[ k ]->getGrid()->size(); ++j )
-            {
-                m_histograms[ k ]->insert( m_data[ k ]->getValueSet()->getScalarDouble( j ) );
-            }
-        }
-    }
+    m_histogram = m_data->getHistogram();
 
     // these are the lower left and upper right corners of the histogram (excluding frame and labels)
-    m_histogramLowerLeft[ 0 ] = min;
+    m_histogramLowerLeft[ 0 ] = m_histogram->getMinimum();
     m_histogramLowerLeft[ 1 ] = 0.0;
 
-    m_histogramUpperRight[ 0 ] = max;
+    m_histogramUpperRight[ 0 ] = m_histogram->getMaximum();
     // this sets m_histogramUpperRight[ 1 ]
-    updateHistogramMax( false );
+    updateHistogramMax();
 }
 
-void WMHistogramView::updateHistogramMax( bool cumulative )
+void WMHistogramView::updateHistogramMax()
 {
     double max = std::numeric_limits< double >::min();
 
     // for all bins/buckets
-    for( std::size_t j = 0; j < m_histograms[ 0 ]->size(); ++j )
+    for( std::size_t j = 0; j < m_histogram->size(); ++j )
     {
-        double val = 0.0;
-        // for all histograms
-        for( std::size_t k = 0; k < m_data.size(); ++k )
-        {
-            if( cumulative )
-            {
-                val += m_histograms[ k ]->at( j );
-            }
-            else
-            {
-                val = std::max( val, static_cast< double >( m_histograms[ k ]->at( j ) ) );
-            }
-        }
+        double val = static_cast< double >( m_histogram->at( j ) );
         if( val > max )
         {
             max = val;
@@ -415,425 +310,306 @@ void WMHistogramView::updateHistogramMax( bool cumulative )
     m_histogramUpperRight[ 1 ] = max;
 }
 
-void WMHistogramView::createGeometryBars( int type )
+void WMHistogramView::createGeometryBars()
 {
-    // the number of valid inputs
-    std::size_t numData = 0;
-    for( std::size_t k = 0; k < m_data.size(); ++k )
-    {
-        if( m_data[ k ] )
-        {
-            numData++;
-        }
-    }
-
-    double const onenth = 1.0 / numData; // 1 / n
-
-    // k will be the index of the data in the m_data array
-    // while h will be index into the valid pointers in m_data
-    std::size_t h = 0;
-
-    // we will accumulate histogram values in this vector
-    std::vector< std::size_t > accu( m_histograms[ 0 ]->size(), 0 );
-
     // update the histogram size member
-    updateHistogramMax( type == 3 );
+    updateHistogramMax();
 
     // update the frame size
     calculateFrameSize();
     calculateFramePosition();
 
-    // create a drawable for every dataset
-    for( int k = m_data.size() - 1; k >= 0; --k )
+    // this is the geode for the histogram bars
+    osg::ref_ptr< osg::Geode > geode = new osg::Geode();
+    geode->setDataVariance( osg::Object::STATIC );
+
+    osg::ref_ptr< osg::Vec2Array > quadVertices = new osg::Vec2Array;
+    osg::ref_ptr< osg::Vec2Array > quadTexCoords = new osg::Vec2Array;
+    osg::ref_ptr< osg::Vec4Array > quadColors = new osg::Vec4Array;
+
+    osg::ref_ptr< osg::Vec2Array > lineVertices = new osg::Vec2Array;
+    osg::ref_ptr< osg::Vec4Array > lineColors = new osg::Vec4Array;
+
+    // one color per dataset
+    WColor color = m_color->get( true );
+    WColor lighterColor = WColor( color[ 0 ] * 1.1, color[ 1 ] * 1.1, color[ 2 ] * 1.1, 1.0 );
+    WColor darkerColor = WColor( color[ 0 ] * 0.9, color[ 1 ] * 0.9, color[ 2 ] * 0.9, 1.0 );
+
+    color[ 3 ] = lighterColor[ 3 ] = darkerColor[ 3 ] = 0.8;
+
+    quadColors->push_back( color );
+
+    // add a quad for every bar/bucket/bin
+    for( std::size_t j = 0; j < m_histogram->size(); ++j )
     {
-        // if we do not have data, there is no point in creating geometry
-        if( !m_data[ k ] )
-        {
-            // reset changed flag of colors
-            m_colors[ k ]->get( true );
-            continue;
-        }
+        // 'histogram' coords for bar j
+        std::pair< double, double > barPosHistoCoordsX = m_histogram->getIntervalForIndex( j );
+        WVector2d barLowerLeft( barPosHistoCoordsX.first, 0 );
+        WVector2d barUpperRight( barPosHistoCoordsX.second, m_histogram->at( j ) );
 
-        // this is the geode for the histogram bars
-        osg::ref_ptr< osg::Geode > geode = new osg::Geode();
-        geode->setDataVariance( osg::Object::STATIC );
+        // vertices
+        quadVertices->push_back( histogramSpaceToWindowSpace( barLowerLeft ) );
+        quadVertices->push_back( histogramSpaceToWindowSpace( WVector2d( barUpperRight[ 0 ], barLowerLeft[ 1 ] ) ) );
+        quadVertices->push_back( histogramSpaceToWindowSpace( barUpperRight ) );
+        quadVertices->push_back( histogramSpaceToWindowSpace( WVector2d( barLowerLeft[ 0 ], barUpperRight[ 1 ] ) ) );
 
-        osg::ref_ptr< osg::Vec2Array > quadVertices = new osg::Vec2Array;
-        osg::ref_ptr< osg::Vec2Array > quadTexCoords = new osg::Vec2Array;
-        osg::ref_ptr< osg::Vec4Array > quadColors = new osg::Vec4Array;
+        // tex coords
+        // these are not used yet,
+        // but they may be used to color the bars with the dataset's colormap
+        quadTexCoords->push_back( WVector2d( barPosHistoCoordsX.first, 0.0 ) );
+        quadTexCoords->push_back( WVector2d( barPosHistoCoordsX.second, 0.0 ) );
+        quadTexCoords->push_back( WVector2d( barPosHistoCoordsX.second, 0.0 ) );
+        quadTexCoords->push_back( WVector2d( barPosHistoCoordsX.first, 0.0 ) );
 
-        osg::ref_ptr< osg::Vec2Array > lineVertices = new osg::Vec2Array;
-        osg::ref_ptr< osg::Vec4Array > lineColors = new osg::Vec4Array;
+        // outline vertices
+        lineVertices->push_back( histogramSpaceToWindowSpace( barLowerLeft ) );
+        lineVertices->push_back( histogramSpaceToWindowSpace( WVector2d( barLowerLeft[ 0 ], barUpperRight[ 1 ] ) ) );
+        lineVertices->push_back( histogramSpaceToWindowSpace( WVector2d( barLowerLeft[ 0 ], barUpperRight[ 1 ] ) ) );
+        lineVertices->push_back( histogramSpaceToWindowSpace( barUpperRight ) );
+        lineVertices->push_back( histogramSpaceToWindowSpace( barUpperRight ) );
+        lineVertices->push_back( histogramSpaceToWindowSpace( WVector2d( barUpperRight[ 0 ], barLowerLeft[ 1 ] ) ) );
 
-        // one color per dataset
-        WColor color = m_colors[ k ]->get( true );
-        WColor lighterColor = WColor( color[ 0 ] * 1.1, color[ 1 ] * 1.1, color[ 2 ] * 1.1, 1.0 );
-        WColor darkerColor = WColor( color[ 0 ] * 0.9, color[ 1 ] * 0.9, color[ 2 ] * 0.9, 1.0 );
-
-        if( type == 1 && h != 0 )
-        {
-            color[ 3 ] = lighterColor[ 3 ] = darkerColor[ 3 ] = 0.8;
-        }
-        quadColors->push_back( color );
-
-        // add a quad for every bar/bucket/bin
-        for( std::size_t j = 0; j < m_histograms[ k ]->size(); ++j )
-        {
-            // 'histogram' coords for bar j
-            std::pair< double, double > barPosHistoCoordsX = m_histograms[ k ]->getIntervalForIndex( j );
-            WVector2d barLowerLeft( barPosHistoCoordsX.first, accu[ j ] );
-            WVector2d barUpperRight( barPosHistoCoordsX.second, accu[ j ] + m_histograms[ k ]->at( j ) );
-
-            // vertex position depends on whether we want to draw bars from different datasets
-            // on top of each other or next to each other
-            if( type == 2 )
-            {
-                // if next to each other, reduce width to one n'th where n is m_data.size() and then
-                // move by h / n in x-direction
-                double newWidth = onenth * ( barUpperRight[ 0 ] - barLowerLeft[ 0 ] );
-                barLowerLeft[ 0 ] = barLowerLeft[ 0 ] + newWidth * h;
-                barUpperRight[ 0 ] = barLowerLeft[ 0 ] + newWidth;
-            }
-
-            // vertices
-            quadVertices->push_back( histogramSpaceToWindowSpace( barLowerLeft ) );
-            quadVertices->push_back( histogramSpaceToWindowSpace( WVector2d( barUpperRight[ 0 ], barLowerLeft[ 1 ] ) ) );
-            quadVertices->push_back( histogramSpaceToWindowSpace( barUpperRight ) );
-            quadVertices->push_back( histogramSpaceToWindowSpace( WVector2d( barLowerLeft[ 0 ], barUpperRight[ 1 ] ) ) );
-
-            // tex coords
-            // these are not used yet,
-            // but they may be used to color the bars with the dataset's colormap
-            quadTexCoords->push_back( WVector2d( barPosHistoCoordsX.first, 0.0 ) );
-            quadTexCoords->push_back( WVector2d( barPosHistoCoordsX.second, 0.0 ) );
-            quadTexCoords->push_back( WVector2d( barPosHistoCoordsX.second, 0.0 ) );
-            quadTexCoords->push_back( WVector2d( barPosHistoCoordsX.first, 0.0 ) );
-
-            // outline vertices
-            lineVertices->push_back( histogramSpaceToWindowSpace( barLowerLeft ) );
-            lineVertices->push_back( histogramSpaceToWindowSpace( WVector2d( barLowerLeft[ 0 ], barUpperRight[ 1 ] ) ) );
-            lineVertices->push_back( histogramSpaceToWindowSpace( WVector2d( barLowerLeft[ 0 ], barUpperRight[ 1 ] ) ) );
-            lineVertices->push_back( histogramSpaceToWindowSpace( barUpperRight ) );
-            lineVertices->push_back( histogramSpaceToWindowSpace( barUpperRight ) );
-            lineVertices->push_back( histogramSpaceToWindowSpace( WVector2d( barUpperRight[ 0 ], barLowerLeft[ 1 ] ) ) );
-
-            // outline colors
-            lineColors->push_back( lighterColor );
-            lineColors->push_back( lighterColor );
-            lineColors->push_back( lighterColor );
-            lineColors->push_back( lighterColor );
-            lineColors->push_back( darkerColor );
-            lineColors->push_back( darkerColor );
-
-            if( type == 3 )
-            {
-                accu[ j ] += m_histograms[ k ]->at( j );
-            }
-        }
-
-        // create drawable for the quads
-        {
-            osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
-
-            geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 * m_histograms[ k ]->size() ) );
-            geometry->setVertexArray( quadVertices );
-            geometry->setColorArray( quadColors );
-            geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-            geometry->setTexCoordArray( 0, quadTexCoords );
-
-            // enable VBO
-            geometry->setUseDisplayList( false );
-            geometry->setUseVertexBufferObjects( true );
-
-            geode->addDrawable( geometry );
-        }
-
-        // create drawable for the outlines
-        {
-            osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
-
-            geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, 6 * m_histograms[ k ]->size() ) );
-            geometry->setVertexArray( lineVertices );
-            geometry->setColorArray( lineColors );
-            geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
-
-            // enable VBO
-            geometry->setUseDisplayList( false );
-            geometry->setUseVertexBufferObjects( true );
-
-            geode->addDrawable( geometry );
-        }
-
-        ++h;
-
-        // we do not want any lighting
-        osg::StateSet* state = geode->getOrCreateStateSet();
-        state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
-
-        // no depth test
-        state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
-
-        // enable blending if we draw bars on top of each other
-        if( type == 1 )
-        {
-            state->setMode( GL_BLEND, osg::StateAttribute::ON );
-            state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
-        }
-        else
-        {
-            state->setMode( GL_BLEND, osg::StateAttribute::OFF );
-        }
-        state->setRenderBinDetails( 1001 + m_data.size() - k, "RenderBin" );
-
-        m_mainNode->insert( geode );
+        // outline colors
+        lineColors->push_back( lighterColor );
+        lineColors->push_back( lighterColor );
+        lineColors->push_back( lighterColor );
+        lineColors->push_back( lighterColor );
+        lineColors->push_back( darkerColor );
+        lineColors->push_back( darkerColor );
     }
+
+    // create drawable for the quads
+    {
+        osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
+
+        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 * m_histogram->size() ) );
+        geometry->setVertexArray( quadVertices );
+        geometry->setColorArray( quadColors );
+        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+        geometry->setTexCoordArray( 0, quadTexCoords );
+
+        // enable VBO
+        geometry->setUseDisplayList( false );
+        geometry->setUseVertexBufferObjects( true );
+
+        geode->addDrawable( geometry );
+    }
+
+    // create drawable for the outlines
+    {
+        osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
+
+        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, 6 * m_histogram->size() ) );
+        geometry->setVertexArray( lineVertices );
+        geometry->setColorArray( lineColors );
+        geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+
+        // enable VBO
+        geometry->setUseDisplayList( false );
+        geometry->setUseVertexBufferObjects( true );
+
+        geode->addDrawable( geometry );
+    }
+
+    // we do not want any lighting
+    osg::StateSet* state = geode->getOrCreateStateSet();
+    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+
+    // no depth test
+    state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
+
+    // enable blending if we draw bars on top of each other
+    state->setMode( GL_BLEND, osg::StateAttribute::ON );
+    state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+    state->setRenderBinDetails( 1001, "RenderBin" );
+
+    m_mainNode->insert( geode );
 }
 
-void WMHistogramView::createGeometryCurves( int type )
+void WMHistogramView::createGeometryCurves()
 {
-    // we will accumulate histogram values in this vector
-    std::vector< std::size_t > accu( m_histograms[ 0 ]->size(), 0 );
-
     // update the histogram size member
-    updateHistogramMax( type == 2 );
+    updateHistogramMax();
 
     // update the frame size
     calculateFrameSize();
     calculateFramePosition();
 
-    // create a drawable for every dataset
-    for( std::size_t k = 0; k < m_data.size(); ++k )
+    // this is the geode for the histogram curve
+    osg::ref_ptr< osg::Geode > geode = new osg::Geode();
+    geode->setDataVariance( osg::Object::STATIC );
+
+    osg::ref_ptr< osg::Vec2Array > quadVertices = new osg::Vec2Array;
+    osg::ref_ptr< osg::Vec2Array > quadTexCoords = new osg::Vec2Array;
+    osg::ref_ptr< osg::Vec4Array > quadColors = new osg::Vec4Array;
+
+    osg::ref_ptr< osg::Vec2Array > lineVertices = new osg::Vec2Array;
+    osg::ref_ptr< osg::Vec4Array > lineColors = new osg::Vec4Array;
+
+    // one color per dataset
+    WColor color = m_color->get( true );
+    WColor c = color;
+    c[ 3 ] = 0.2;
+
+    quadColors->push_back( c );
+    lineColors->push_back( color );
+
+    // add a quad for every bar/bucket/bin
+    for( std::size_t j = 0; j < m_histogram->size() - 1; ++j )
     {
-        // if we do not have data, there is no point in creating geometry
-        if( !m_data[ k ] )
+        // 'histogram' coords for bar j
+        double quadLeft = m_histogram->getIntervalForIndex( j ).first + m_histogram->getIntervalForIndex( j ).second;
+        quadLeft *= 0.5;
+        double quadRight = m_histogram->getIntervalForIndex( j + 1 ).first + m_histogram->getIntervalForIndex( j + 1 ).second;
+        quadRight *= 0.5;
+
+        WVector2d quad[ 4 ];
+        quad[ 0 ] = WVector2d( quadLeft, 0.0 );
+        quad[ 1 ] = WVector2d( quadRight, 0.0 );
+        quad[ 2 ] = WVector2d( quadRight, m_histogram->at( j + 1 ) );
+        quad[ 3 ] = WVector2d( quadLeft, m_histogram->at( j ) );
+
+        // transform to window coords
+        for( std::size_t i = 0; i < 4; ++i )
         {
-            // reset changed flag of color
-            m_colors[ k ]->get( true );
-            continue;
+            quad[ i ] = histogramSpaceToWindowSpace( quad[ i ] );
+            quadVertices->push_back( quad[ i ] );
         }
 
-        // this is the geode for the histogram curve
-        osg::ref_ptr< osg::Geode > geode = new osg::Geode();
-        geode->setDataVariance( osg::Object::STATIC );
+        // tex coords
+        quadTexCoords->push_back( WVector2d( quadLeft, 0.0 ) );
+        quadTexCoords->push_back( WVector2d( quadRight, 0.0 ) );
+        quadTexCoords->push_back( WVector2d( quadRight, 0.0 ) );
+        quadTexCoords->push_back( WVector2d( quadLeft, 0.0 ) );
 
-        osg::ref_ptr< osg::Vec2Array > quadVertices = new osg::Vec2Array;
-        osg::ref_ptr< osg::Vec2Array > quadTexCoords = new osg::Vec2Array;
-        osg::ref_ptr< osg::Vec4Array > quadColors = new osg::Vec4Array;
-
-        osg::ref_ptr< osg::Vec2Array > lineVertices = new osg::Vec2Array;
-        osg::ref_ptr< osg::Vec4Array > lineColors = new osg::Vec4Array;
-
-        // one color per dataset
-        WColor color = m_colors[ k ]->get( true );
-        WColor c = color;
-
-        if( type == 1 )
+        // line vertices
+        if( j == 0 )
         {
-            c[ 3 ] = 0.2;
+            lineVertices->push_back( quad[ 3 ] );
         }
-        else
-        {
-            c[ 3 ] = 1.0;
-            c[ 2 ] = 0.8 + c[ 2 ] * 0.2;
-            c[ 1 ] = 0.8 + c[ 1 ] * 0.2;
-            c[ 0 ] = 0.8 + c[ 0 ] * 0.2;
-        }
-
-        quadColors->push_back( c );
-        lineColors->push_back( color );
-
-        // add a quad for every bar/bucket/bin
-        for( std::size_t j = 0; j < m_histograms[ k ]->size() - 1; ++j )
-        {
-            // 'histogram' coords for bar j
-            double quadLeft = m_histograms[ k ]->getIntervalForIndex( j ).first + m_histograms[ k ]->getIntervalForIndex( j ).second;
-            quadLeft *= 0.5;
-            double quadRight = m_histograms[ k ]->getIntervalForIndex( j + 1 ).first + m_histograms[ k ]->getIntervalForIndex( j + 1 ).second;
-            quadRight *= 0.5;
-
-            WVector2d quad[ 4 ];
-            quad[ 0 ] = WVector2d( quadLeft, accu[ j ] );
-            quad[ 1 ] = WVector2d( quadRight, accu[ j + 1 ] );
-            quad[ 2 ] = WVector2d( quadRight, accu[ j + 1 ] + m_histograms[ k ]->at( j + 1 ) );
-            quad[ 3 ] = WVector2d( quadLeft, accu[ j ] + m_histograms[ k ]->at( j ) );
-
-            // transform to window coords
-            for( std::size_t i = 0; i < 4; ++i )
-            {
-                quad[ i ] = histogramSpaceToWindowSpace( quad[ i ] );
-                quadVertices->push_back( quad[ i ] );
-            }
-
-            // tex coords
-            quadTexCoords->push_back( WVector2d( quadLeft, 0.0 ) );
-            quadTexCoords->push_back( WVector2d( quadRight, 0.0 ) );
-            quadTexCoords->push_back( WVector2d( quadRight, 0.0 ) );
-            quadTexCoords->push_back( WVector2d( quadLeft, 0.0 ) );
-
-            // line vertices
-            if( j == 0 )
-            {
-                lineVertices->push_back( quad[ 3 ] );
-            }
-            lineVertices->push_back( quad[ 2 ] );
-        }
-
-        if( type == 2 )
-        {
-            for( std::size_t j = 0; j < m_histograms[ k ]->size(); ++j )
-            {
-                accu[ j ] += m_histograms[ k ]->at( j );
-            }
-        }
-
-        // create drawable for the quads
-        {
-            osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
-
-            geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 * m_histograms[ k ]->size() - 4 ) );
-            geometry->setVertexArray( quadVertices );
-            geometry->setColorArray( quadColors );
-            geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-            geometry->setTexCoordArray( 0, quadTexCoords );
-
-            // enable VBO
-            geometry->setUseDisplayList( false );
-            geometry->setUseVertexBufferObjects( true );
-
-            geode->addDrawable( geometry );
-        }
-
-        // create drawable for the outlines
-        {
-            osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
-
-            geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, m_histograms[ k ]->size() ) );
-            geometry->setVertexArray( lineVertices );
-            geometry->setColorArray( lineColors );
-            geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-
-            // enable VBO
-            geometry->setUseDisplayList( false );
-            geometry->setUseVertexBufferObjects( true );
-
-            geode->addDrawable( geometry );
-        }
-
-        // we do not want any lighting
-        osg::StateSet* state = geode->getOrCreateStateSet();
-        state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
-
-        // no depth test
-        state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
-
-        // enable blending if we draw stuff on top of each other
-        if( type == 1 )
-        {
-            state->setMode( GL_BLEND, osg::StateAttribute::ON );
-            state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
-        }
-        else
-        {
-            state->setMode( GL_BLEND, osg::StateAttribute::OFF );
-        }
-
-        state->setRenderBinDetails( 1001 + m_data.size() - k, "RenderBin" );
-
-        m_mainNode->insert( geode );
+        lineVertices->push_back( quad[ 2 ] );
     }
+
+    // create drawable for the quads
+    {
+        osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
+
+        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 * m_histogram->size() - 4 ) );
+        geometry->setVertexArray( quadVertices );
+        geometry->setColorArray( quadColors );
+        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+        geometry->setTexCoordArray( 0, quadTexCoords );
+
+        // enable VBO
+        geometry->setUseDisplayList( false );
+        geometry->setUseVertexBufferObjects( true );
+
+        geode->addDrawable( geometry );
+    }
+
+    // create drawable for the outlines
+    {
+        osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
+
+        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, m_histogram->size() ) );
+        geometry->setVertexArray( lineVertices );
+        geometry->setColorArray( lineColors );
+        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+        // enable VBO
+        geometry->setUseDisplayList( false );
+        geometry->setUseVertexBufferObjects( true );
+
+        geode->addDrawable( geometry );
+    }
+
+    // we do not want any lighting
+    osg::StateSet* state = geode->getOrCreateStateSet();
+    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+
+    // no depth test
+    state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
+
+    // enable blending if we draw stuff on top of each other
+    state->setMode( GL_BLEND, osg::StateAttribute::ON );
+    state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+
+    state->setRenderBinDetails( 1001, "RenderBin" );
+
+    m_mainNode->insert( geode );
 }
 
-void WMHistogramView::createGeometryStairs( int type )
+void WMHistogramView::createGeometryStairs()
 {
-    // we will accumulate histogram values in this vector
-    std::vector< std::size_t > accu( m_histograms[ 0 ]->size(), 0 );
-
-    updateHistogramMax( type == 2 );
+    updateHistogramMax();
 
     // update the frame size
     calculateFrameSize();
     calculateFramePosition();
 
-    // create a drawable for every dataset
-    for( int k = m_data.size() - 1; k >= 0; --k )
+    // this is the geode for the histogram bars
+    osg::ref_ptr< osg::Geode > geode = new osg::Geode();
+    geode->setDataVariance( osg::Object::STATIC );
+
+    osg::ref_ptr< osg::Vec2Array > lineVertices = new osg::Vec2Array;
+    osg::ref_ptr< osg::Vec4Array > lineColors = new osg::Vec4Array;
+
+    // one color per dataset
+    WColor color = m_color->get( true );
+    color[ 3 ] = 1.0;
+    lineColors->push_back( color );
+
+    // add lines for every bar/bucket/bin
+    for( std::size_t j = 0; j < m_histogram->size(); ++j )
     {
-        // if we do not have data, there is no point in creating geometry
-        if( !m_data[ k ] )
+        // 'histogram' coords for bar j
+        std::pair< double, double > barPosHistoCoordsX = m_histogram->getIntervalForIndex( j );
+        WVector2d barLowerLeft( barPosHistoCoordsX.first, 0.0 );
+        WVector2d barUpperRight( barPosHistoCoordsX.second, m_histogram->at( j ) );
+
+        // transform to window coords
+        barLowerLeft = histogramSpaceToWindowSpace( barLowerLeft );
+        barUpperRight = histogramSpaceToWindowSpace( barUpperRight );
+
+        // line vertices
+        if( j == 0 )
         {
-            // reset changed flag of color
-            m_colors[ k ]->get( true );
-            continue;
+            lineVertices->push_back( barLowerLeft );
         }
-
-        // this is the geode for the histogram bars
-        osg::ref_ptr< osg::Geode > geode = new osg::Geode();
-        geode->setDataVariance( osg::Object::STATIC );
-
-        osg::ref_ptr< osg::Vec2Array > lineVertices = new osg::Vec2Array;
-        osg::ref_ptr< osg::Vec4Array > lineColors = new osg::Vec4Array;
-
-        // one color per dataset
-        WColor color = m_colors[ k ]->get( true );
-        color[ 3 ] = 1.0;
-        lineColors->push_back( color );
-
-        // add lines for every bar/bucket/bin
-        for( std::size_t j = 0; j < m_histograms[ k ]->size(); ++j )
+        lineVertices->push_back( WVector2d( barLowerLeft[ 0 ], barUpperRight[ 1 ] ) );
+        lineVertices->push_back( barUpperRight );
+        if( j == m_histogram->size() - 1 )
         {
-            // 'histogram' coords for bar j
-            std::pair< double, double > barPosHistoCoordsX = m_histograms[ k ]->getIntervalForIndex( j );
-            WVector2d barLowerLeft( barPosHistoCoordsX.first, accu[ j ] );
-            WVector2d barUpperRight( barPosHistoCoordsX.second, accu[ j ] + m_histograms[ k ]->at( j ) );
-
-            // transform to window coords
-            barLowerLeft = histogramSpaceToWindowSpace( barLowerLeft );
-            barUpperRight = histogramSpaceToWindowSpace( barUpperRight );
-
-            // line vertices
-            if( j == 0 )
-            {
-                lineVertices->push_back( barLowerLeft );
-            }
-            lineVertices->push_back( WVector2d( barLowerLeft[ 0 ], barUpperRight[ 1 ] ) );
-            lineVertices->push_back( barUpperRight );
-            if( j == m_histograms[ k ]->size() - 1 )
-            {
-                lineVertices->push_back( WVector2d( barUpperRight[ 0 ], barLowerLeft[ 1 ] ) );
-            }
-
-            if( type == 2 )
-            {
-                accu[ j ] += m_histograms[ k ]->at( j );
-            }
+            lineVertices->push_back( WVector2d( barUpperRight[ 0 ], barLowerLeft[ 1 ] ) );
         }
-
-        // create drawable for the lines
-        {
-            osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
-
-            geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, 2 * m_histograms[ k ]->size() + 2 ) );
-            geometry->setVertexArray( lineVertices );
-            geometry->setColorArray( lineColors );
-            geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-
-            // enable VBO
-            geometry->setUseDisplayList( false );
-            geometry->setUseVertexBufferObjects( true );
-
-            geode->addDrawable( geometry );
-        }
-
-        // we do not want any lighting
-        osg::StateSet* state = geode->getOrCreateStateSet();
-        state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
-
-        // no depth test
-        state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
-
-        state->setRenderBinDetails( 1001 + m_data.size() - k, "RenderBin" );
-
-        m_mainNode->insert( geode );
     }
+
+    // create drawable for the lines
+    {
+        osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry;
+
+        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, 2 * m_histogram->size() + 2 ) );
+        geometry->setVertexArray( lineVertices );
+        geometry->setColorArray( lineColors );
+        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+        // enable VBO
+        geometry->setUseDisplayList( false );
+        geometry->setUseVertexBufferObjects( true );
+
+        geode->addDrawable( geometry );
+    }
+
+    // we do not want any lighting
+    osg::StateSet* state = geode->getOrCreateStateSet();
+    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+
+    // no depth test
+    state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
+
+    state->setRenderBinDetails( 1001, "RenderBin" );
+
+    m_mainNode->insert( geode );
 }
 
 double WMHistogramView::findOptimalSpacing( double intervalLength, double availableSpace, double textSize )
@@ -1090,7 +866,7 @@ void WMHistogramView::createFrame()
     // no depth test
     state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
 
-    state->setRenderBinDetails( 1002 + m_data.size(), "RenderBin" );
+    state->setRenderBinDetails( 1002, "RenderBin" );
     state->setMode( GL_BLEND, osg::StateAttribute::OFF );
 
     m_mainNode->insert( m_frameNode );
@@ -1102,11 +878,6 @@ void WMHistogramView::createInfo( WVector2f mousePos )
     // transform mouse position to histogram space
     WVector2d m = windowSpaceToHistogramSpace( WVector2d( mousePos ) );
 
-    if( m_data.size() == 0 )
-    {
-        return;
-    }
-
     if( m[ 0 ] >= m_histogramLowerLeft[ 0 ] && m[ 0 ] <= m_histogramUpperRight[ 0 ] )
     {
         m_infoNode = new osg::Geode;
@@ -1115,51 +886,40 @@ void WMHistogramView::createInfo( WVector2f mousePos )
         state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
         state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
         state->setMode( GL_BLEND, osg::StateAttribute::OFF );
-        state->setRenderBinDetails( 1002 + m_data.size(), "RenderBin" );
+        state->setRenderBinDetails( 1002, "RenderBin" );
 
         // this finds the bin selected by the mouse cursor
         std::size_t bin;
-        for( bin = 0; m_histograms[ 0 ]->getIntervalForIndex( bin ).second < m[ 0 ]; ++bin )
+        for( bin = 0; m_histogram->getIntervalForIndex( bin ).second < m[ 0 ]; ++bin )
         {
         }
 
         // if the bin is in the histogram
-        if( bin < m_histograms[ 0 ]->size() )
+        if( bin < m_histogram->size() )
         {
-            // add the bin value for every dataset as a text in the top right corner of the window
-            int h = 1;
-
-            for( std::size_t k = 0; k < m_data.size(); ++k )
             {
-                if( !m_data[ k ] )
-                {
-                    continue;
-                }
-
-                WVector3d textPos( m_windowWidth - 20.0, m_windowHeight - h * 16, 0.0 );
+                WVector3d textPos( m_windowWidth - 20.0, m_windowHeight - 16, 0.0 );
 
                 osgText::Text* text = new osgText::Text;
 
                 text->setFont( WPathHelper::getAllFonts().Default.string() );
-                text->setColor( m_colors[ k ]->get( false ) );
+                text->setColor( m_color->get( false ) );
                 text->setCharacterSize( 12 );
                 text->setAlignment( osgText::TextBase::RIGHT_CENTER );
                 text->setPosition( textPos );
                 text->setLayout( osgText::Text::LEFT_TO_RIGHT );
-                text->setText( string_utils::toString( m_histograms[ k ]->at( bin ) ) );
+                text->setText( string_utils::toString( m_histogram->at( bin ) ) );
 
                 m_infoNode->addDrawable( text );
-
-                ++h;
             }
 
             // add the bin minimum and maximum
-            WVector3d textPos( m_windowWidth - 20.0, m_windowHeight - h * 16, 0.0 );
+            WVector3d textPos( m_windowWidth - 20.0, m_windowHeight - 32, 0.0 );
 
             osgText::Text* text = new osgText::Text;
             std::stringstream s;
-            s << "[" << m_histograms[ 0 ]->getIntervalForIndex( bin ).first
-              << "," << m_histograms[ 0 ]->getIntervalForIndex( bin ).second
+            s << "[" << m_histogram->getIntervalForIndex( bin ).first
+              << "," << m_histogram->getIntervalForIndex( bin ).second
               << ")";
 
             text->setFont( WPathHelper::getAllFonts().Default.string() );
@@ -1188,13 +948,13 @@ void WMHistogramView::createInfo( WVector2f mousePos )
             quadColors->push_back( WColor( 0.95, 0.95, 0.95, 1.0 ) );
 
             quadVertices->push_back( histogramSpaceToWindowSpace(
-                                        WVector2d( m_histograms[ 0 ]->getIntervalForIndex( bin ).first, 0.0 ) ) );
+                                        WVector2d( m_histogram->getIntervalForIndex( bin ).first, 0.0 ) ) );
             quadVertices->push_back( histogramSpaceToWindowSpace(
-                                        WVector2d( m_histograms[ 0 ]->getIntervalForIndex( bin ).second, 0.0 ) ) );
+                                        WVector2d( m_histogram->getIntervalForIndex( bin ).second, 0.0 ) ) );
             quadVertices->push_back( histogramSpaceToWindowSpace(
-                                        WVector2d( m_histograms[ 0 ]->getIntervalForIndex( bin ).second, m_histogramUpperRight[ 1 ] ) ) );
+                                        WVector2d( m_histogram->getIntervalForIndex( bin ).second, m_histogramUpperRight[ 1 ] ) ) );
             quadVertices->push_back( histogramSpaceToWindowSpace(
-                                        WVector2d( m_histograms[ 0 ]->getIntervalForIndex( bin ).first, m_histogramUpperRight[ 1 ] ) ) );
+                                        WVector2d( m_histogram->getIntervalForIndex( bin ).first, m_histogramUpperRight[ 1 ] ) ) );
 
             osg::Geometry* geometry = new osg::Geometry;
 
@@ -1222,3 +982,4 @@ void WMHistogramView::createNothing()
 {
     errorLog() << "This histogram style is not yet implemented.";
 }
+

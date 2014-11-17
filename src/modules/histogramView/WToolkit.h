@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2009 OpenWalnut Community, BSV-Leipzig and CNCF-CBS
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -22,47 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
-#include <algorithm>
+#ifndef WTOOLKIT_H
+#define WTOOLKIT_H
 
-#include "WAssert.h"
-#include "WHistogram.h"
+// nothing to do here. Have a look at WToolkit.cpp for registration of all the modules inside the toolbox and refer to README.
 
-WHistogram::WHistogram( double min, double max, std::size_t buckets ):
-      m_minimum( min ),
-      m_maximum( max ),
-      m_nbBuckets( buckets )
-{
-    if( min > max )
-    {
-        std::swap( m_minimum, m_maximum );
-    }
-
-    WAssert( buckets > 0, "Error: A histogram with a size of 0 does not make any sense." );
-}
-
-WHistogram::WHistogram( const WHistogram& hist ):
-      m_minimum( hist.m_minimum ),
-      m_maximum( hist.m_maximum ),
-      m_nbBuckets( hist.m_nbBuckets )
-{
-}
-
-WHistogram::~WHistogram()
-{
-}
-
-size_t WHistogram::size() const
-{
-    return m_nbBuckets;
-}
-
-double WHistogram::getMinimum() const
-{
-    return m_minimum;
-}
-
-double WHistogram::getMaximum() const
-{
-    return m_maximum;
-}
+#endif  // WTOOLKIT_H
 

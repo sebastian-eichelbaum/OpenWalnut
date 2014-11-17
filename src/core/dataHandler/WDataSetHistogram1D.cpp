@@ -22,47 +22,51 @@
 //
 //---------------------------------------------------------------------------
 
-#include <algorithm>
+#include <string>
 
-#include "WAssert.h"
-#include "WHistogram.h"
+#include "WDataSetHistogram1D.h"
 
-WHistogram::WHistogram( double min, double max, std::size_t buckets ):
-      m_minimum( min ),
-      m_maximum( max ),
-      m_nbBuckets( buckets )
+// prototype instance as singleton
+boost::shared_ptr< WPrototyped > WDataSetHistogram1D::m_prototype = boost::shared_ptr< WPrototyped >();
+
+WDataSetHistogram1D::WDataSetHistogram1D( boost::shared_ptr< WHistogramBasic const > const& histo )
+    : WDataSet(),
+      m_histogram( new WHistogramBasic( *histo ) )
 {
-    if( min > max )
+}
+
+WDataSetHistogram1D::WDataSetHistogram1D()
+    : WDataSet(),
+      m_histogram()
+{
+}
+
+WDataSetHistogram1D::~WDataSetHistogram1D()
+{
+}
+
+std::string const WDataSetHistogram1D::getName() const
+{
+    return "WDataSetHistogram1D";
+}
+
+std::string const WDataSetHistogram1D::getDescription() const
+{
+    return "A dataset that contains some 1D histogram.";
+}
+
+boost::shared_ptr< WPrototyped > WDataSetHistogram1D::getPrototype()
+{
+    if( !m_prototype )
     {
-        std::swap( m_minimum, m_maximum );
+        m_prototype = boost::shared_ptr< WPrototyped >( new WDataSetHistogram1D() );
     }
 
-    WAssert( buckets > 0, "Error: A histogram with a size of 0 does not make any sense." );
+    return m_prototype;
 }
 
-WHistogram::WHistogram( const WHistogram& hist ):
-      m_minimum( hist.m_minimum ),
-      m_maximum( hist.m_maximum ),
-      m_nbBuckets( hist.m_nbBuckets )
+boost::shared_ptr< WHistogramBasic const > const& WDataSetHistogram1D::getHistogram() const
 {
-}
-
-WHistogram::~WHistogram()
-{
-}
-
-size_t WHistogram::size() const
-{
-    return m_nbBuckets;
-}
-
-double WHistogram::getMinimum() const
-{
-    return m_minimum;
-}
-
-double WHistogram::getMaximum() const
-{
-    return m_maximum;
+    return m_histogram;
 }
 

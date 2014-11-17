@@ -32,7 +32,7 @@
 #include "WLimits.h"
 #include "WLogger.h"
 
-WHistogramBasic::WHistogramBasic( double min, double max, size_t buckets ):
+WHistogramBasic::WHistogramBasic( double min, double max, std::size_t buckets ):
     WHistogram( min, max, buckets ),
     m_bins( buckets, 0 ),
     m_intervalWidth( std::abs( m_maximum - m_minimum ) / static_cast< double >( m_nbBuckets ) )
@@ -51,12 +51,12 @@ WHistogramBasic::~WHistogramBasic()
 {
 }
 
-size_t WHistogramBasic::operator[]( size_t index ) const
+size_t WHistogramBasic::operator[]( std::size_t index ) const
 {
     return m_bins[ index ];
 }
 
-size_t WHistogramBasic::at( size_t index ) const
+size_t WHistogramBasic::at( std::size_t index ) const
 {
     if( index >= m_bins.size() )
     {
@@ -66,12 +66,12 @@ size_t WHistogramBasic::at( size_t index ) const
     return m_bins[ index ];
 }
 
-double WHistogramBasic::getBucketSize( size_t /* index */ ) const
+double WHistogramBasic::getBucketSize( std::size_t /* index */ ) const
 {
     return m_intervalWidth;
 }
 
-std::pair< double, double > WHistogramBasic::getIntervalForIndex( size_t index ) const
+std::pair< double, double > WHistogramBasic::getIntervalForIndex( std::size_t index ) const
 {
     double first = m_minimum + m_intervalWidth * index;
     double second =  m_minimum + m_intervalWidth * ( index + 1 );
@@ -97,7 +97,7 @@ void WHistogramBasic::insert( double value )
     }
     else
     {
-        m_bins.at( static_cast< size_t >( ( value - m_minimum ) / std::abs( m_maximum - m_minimum ) * ( m_nbBuckets ) ) )++;
+        m_bins.at( static_cast< std::size_t >( ( value - m_minimum ) / std::abs( m_maximum - m_minimum ) * ( m_nbBuckets ) ) )++;
     }
 }
 

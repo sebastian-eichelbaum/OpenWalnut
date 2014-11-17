@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMHISTOGRAMVIEW_H
-#define WMHISTOGRAMVIEW_H
+#ifndef WMMULTIHISTOGRAMVIEW_H
+#define WMMULTIHISTOGRAMVIEW_H
 
 #include <string>
 #include <vector>
@@ -35,7 +35,7 @@
 #include "core/common/WHistogramBasic.h"
 #include "core/common/WCounter.h"
 
-#include "core/dataHandler/WDataSetHistogram1D.h"
+#include "core/dataHandler/WDataSetSingle.h"
 
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
@@ -47,24 +47,24 @@
 
 // TODO(reichenbach): choose color of frame and marker depending on the user's chosen window background color
 /**
- * \class WMHistogramView
+ * \class WMMultiHistogramView
  *
- * A module that draws a histogram.
+ * A module that draws a histogram of one or mode scalar datasets in a custom widget.
  *
  * \ingroup modules
  */
-class WMHistogramView : public WModule
+class WMMultiHistogramView : public WModule
 {
 public:
     /**
      * Constuctor.
      */
-    WMHistogramView();
+    WMMultiHistogramView();
 
     /**
      * Destructor.
      */
-    virtual ~WMHistogramView();
+    virtual ~WMMultiHistogramView();
 
     /**
      * Gives back the name of this module.
@@ -154,7 +154,7 @@ private:
      *
      * \param cumulative If true, histogram values of the datasets will be added for each bin.
      */
-    void updateHistogramMax();
+    void updateHistogramMax( bool cumulative );
 
     /**
      * Finds a good size for the frame, depending on the chosen spacing for axis labels.
@@ -175,19 +175,31 @@ private:
     void calculateHistograms();
 
     /**
-     * Creates the geometry for histogram bars.
+     * Creates the geometry for histogram bars. The type parameter defines how the bars are drawn:
+     *
+     * 1 - transparent bars on top of each other
+     * 2 - bars of a bin are drawn next to each other
+     * 3 - stacked bars
+     *
+     * \param type The type of the bars.
      */
-    void createGeometryBars();
+    void createGeometryBars( int type );
 
     /**
      * Creates the geometry for stairs (i.e. bars that are not filled).
+     * The type parameter can be 1 (normal) or 2 (stacked).
+     *
+     * \param type The type of the stairs.
      */
-    void createGeometryStairs();
+    void createGeometryStairs( int type );
 
     /**
      * Creates the geometry for curves.
+     * The type parameter can be 1 (normal) or 2 (stacked).
+     *
+     * \param type The type of the curves.
      */
-    void createGeometryCurves();
+    void createGeometryCurves( int type );
 
     /**
      * Creates the geometry for the frame and the ticks/labels.
@@ -249,7 +261,7 @@ private:
      * A vector of histograms, one histogram per input. Histograms may be empty if an input
      * does not have a valid dataset.
      */
-    boost::shared_ptr< WHistogramBasic const > m_histogram;
+    std::vector< boost::shared_ptr< WHistogramBasic > > m_histograms;
 
     //! A condition for property updates.
     boost::shared_ptr< WCondition > m_propCondition;
@@ -305,14 +317,19 @@ private:
     //! The scene node of the custom window. All geometry nodes are added as children of this node.
     osg::ref_ptr< WGEGroupNode > m_mainNode;
 
-    //! The input connector.
-    boost::shared_ptr< WModuleInputData< WDataSetHistogram1D > > m_input;
+    // the next 3 vectors all have the same size, which is the maximum number of inputs allowed for this module
+    // see NUM_INPUTS in the .cpp
+    //! A vector of input connectors.
+    std::vector< boost::shared_ptr< WModuleInputData< WDataSetSingle > > > m_input;
 
-    //! The histogram to show.
-    boost::shared_ptr< WDataSetHistogram1D > m_data;
+    //! A vector of current datasets.
+    std::vector< boost::shared_ptr< WDataSetSingle > > m_data;
 
-    //! The color properties for the dataset.
-    WPropColor m_color;
+    //! A vector of color properties for the datasets.
+    std::vector< WPropColor > m_colors;
+
+    //! A property that is used to set the number of bins to use.
+    WPropInt m_histoBins;
 
     // the next two implement a kind of strategy pattern; the index of the selected element
     // is used as an index to the geometry functions vector
@@ -323,5 +340,5 @@ private:
     std::vector< boost::function< void( void ) > > m_geometryFunctions;
 };
 
-#endif  // WMHISTOGRAMVIEW_H
+#endif  // WMMULTIHISTOGRAMVIEW_H
 
