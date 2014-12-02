@@ -468,12 +468,12 @@ WFiberIterator WFiberIterator::operator--( int )
     return t;
 }
 
-WFiberIterator WFiberIterator::operator+ ( size_t n )
+WFiberIterator WFiberIterator::operator+ ( size_t n ) const
 {
     return WFiberIterator( m_fibers, m_index + n );
 }
 
-WFiberIterator WFiberIterator::operator- ( size_t n )
+WFiberIterator WFiberIterator::operator- ( size_t n ) const
 {
     return WFiberIterator( m_fibers, m_index - n );
 }

@@ -631,14 +631,14 @@ public:
      *
      * \return The iterator on the new place.
      */
-    WFiberIterator operator+ ( size_t n );
+    WFiberIterator operator+ ( size_t n ) const;
 
     /**
      * Minus operator. Decrements the iterator \param n times.
      *
      * \return The iterator on the new place.
      */
-    WFiberIterator operator- ( size_t n );
+    WFiberIterator operator- ( size_t n ) const;
 
     /**
      * Compare to another fiber iterator.
