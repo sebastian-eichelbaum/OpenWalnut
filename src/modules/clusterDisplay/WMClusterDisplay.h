@@ -29,14 +29,14 @@
 #include <vector>
 
 #include <osg/Geode>
+#include <osgGA/GUIEventAdapter>
+#include <osgGA/GUIEventHandler>
 
 #include "core/common/WHierarchicalTreeFibers.h"
 #include "core/graphicsEngine/geodes/WDendrogramGeode.h"
 #include "core/graphicsEngine/WFiberDrawable.h"
 #include "core/graphicsEngine/WGEManagedGroupNode.h"
 #include "core/graphicsEngine/widgets/WOSGButton.h"
-#include "core/graphicsEngine/WPickHandler.h"
-#include "core/graphicsEngine/WPickInfo.h"
 #include "core/graphicsEngine/WGECamera.h"
 #include "core/kernel/WFiberSelector.h"
 #include "core/kernel/WModule.h"
@@ -108,6 +108,37 @@ protected:
 
 
 private:
+    /**
+     * Small event handler class to catch left mouse buttons clicks in the main view.
+     */
+    class MainViewEventHandler : public osgGA::GUIEventHandler
+    {
+    public:
+        typedef boost::signals2::signal< bool ( WVector2f ) > LeftButtonPushSignalType;
+
+        /**
+         * The OSG calls this function whenever a new event has occured.
+         *
+         * \param ea Event class for storing GUI events such as mouse or keyboard interation etc.
+         *
+         * \return true if the event was handled.
+         */
+        bool handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& /* aa */ );
+
+        /**
+         * Registers a function slot to LEFT BUTTON PUSH events. Whenever the event occurs, the slot is called with current parameters.
+         *
+         * \param slot Function object having the appropriate signature according to the used SignalType.
+         */
+        void subscribeLeftButtonPush( LeftButtonPushSignalType::slot_type slot );
+
+    private:
+        /**
+         * Signal used for notification of the LEFT BUTTON PUSH event.
+         */
+        LeftButtonPushSignalType m_signalLeftButtonPush;
+    };
+
     /**
      * helper function to read a text file
      * \param fileName
@@ -202,10 +233,11 @@ private:
     std::string createLabel( size_t id );
 
     /**
-     * listenes to the pickhandler and determines if a click into the dendrogram happened
-     * \param pickInfo the pickInfo object as sent out by the pickhandler
+     * handles clicks into the dendrogram
+     * \param pos the mouse position during the click
+     * \return true if it handled the click
      */
-    void dendrogramClick( WPickInfo pickInfo );
+    bool dendrogramClick( const WVector2f& pos );
 
     /**
      * helper function to initialize a fiber display node
