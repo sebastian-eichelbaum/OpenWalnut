@@ -84,6 +84,15 @@ public:
     virtual bool connectable( boost::shared_ptr<WModuleConnector> con );
 
     /**
+     * Checks whether the specified connector is connectable to this one, but ignores compatibility the type to be transferred.
+     *
+     * \param con the connector to check against.
+     *
+     * \return true if compatible.
+     */
+    virtual bool lazyConnectable( boost::shared_ptr<WModuleConnector> con );
+
+    /**
      * Returns the prototype of the WTransferable used in this connector.
      *
      * \return the prototype of the transfered type.
