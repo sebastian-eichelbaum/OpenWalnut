@@ -343,7 +343,8 @@ void WModuleProjectFileCombiner::apply()
         // finally, connect them
         try
         {
-            con1->connect( con2 );
+            // force connection since data modules might not yet have set an output -> makes them incompatible -> con fails.
+            con1->connect( con2, true );
         }
         catch( const WException& e )
         {

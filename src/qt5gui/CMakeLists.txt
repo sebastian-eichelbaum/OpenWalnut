@@ -54,6 +54,24 @@ INCLUDE_DIRECTORIES( SYSTEM ${Qt5WebKitWidgets_INCLUDE_DIRS} )
 # GUI compilation options
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Compiling with Qt5 requires some special definitions and flags to be set.
+
+# Collect and set definitions
+SET( _QT5_DEFINITIONS "" )
+LIST( APPEND _QT5_DEFINITIONS ${Qt5Widgets_DEFINITIONS} )
+LIST( APPEND _QT5_DEFINITIONS ${Qt5OpenGL_DEFINITIONS} )
+LIST( APPEND _QT5_DEFINITIONS ${Qt5WebKitWidgets_DEFINITIONS} )
+LIST( REMOVE_DUPLICATES _QT5_DEFINITIONS )
+ADD_DEFINITIONS( ${_QT5_DEFINITIONS} )
+
+# Collect and set compiler flags
+SET( _QT5_EXECUTABLE_COMPILE_FLAGS "" )
+LIST( APPEND _QT5_EXECUTABLE_COMPILE_FLAGS ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} )
+LIST( APPEND _QT5_EXECUTABLE_COMPILE_FLAGS ${Qt5OpenGL_EXECUTABLE_COMPILE_FLAGS} )
+LIST( APPEND _QT5_EXECUTABLE_COMPILE_FLAGS ${Qt5WebKitWidgets_EXECUTABLE_COMPILE_FLAGS} )
+LIST( REMOVE_DUPLICATES _QT5_EXECUTABLE_COMPILE_FLAGS )
+SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${_QT5_EXECUTABLE_COMPILE_FLAGS}" )
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Add sources as target
 # ---------------------------------------------------------------------------------------------------------------------------------------------------

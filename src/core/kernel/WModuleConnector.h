@@ -102,12 +102,13 @@ public:
      * WModuleConnector::connectable is used to determine whether the connection is possible or not.
      *
      * \param con the connector to connect.
+     * \param force force connection even if incompatible. Used primarily for project file loader. If true, only a \ref lazyConnectable is used.
      *
      * \exception WModuleConnectionFailed if connection can not be established.
      *
      * \return true if successful
      */
-    virtual void connect( boost::shared_ptr<WModuleConnector> con );
+    virtual void connect( boost::shared_ptr<WModuleConnector> con, bool force = false );
 
     /**
      * Checks whether this connector is connected to the given one. If there is the strange case where one connector is connected
@@ -184,6 +185,16 @@ public:
      * \return true if compatible.
      */
     virtual bool connectable( boost::shared_ptr<WModuleConnector> con ) = 0;
+
+    /**
+     * Checks whether the specified connector is connectable to this one, but ignores compatibility the type to be transferred. If you implement your
+     * own connectors, please override and check for compatibility with your matching connectors, but ignore the transfer type.
+     *
+     * \param con the connector to check against.
+     *
+     * \return true if compatible.
+     */
+    virtual bool lazyConnectable( boost::shared_ptr<WModuleConnector> con ) = 0;
 
     /**
      * Returns a list of possible disconnections for this connector. Please be aware that the connections might change during the life-time of
