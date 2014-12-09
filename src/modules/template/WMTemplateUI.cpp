@@ -214,7 +214,7 @@ void WMTemplateUI::moduleMain()
         1                     // column coordinate in grid; 0 is left
     );
 
-    // we not populate the grid with additional views:
+    // we now populate the grid with additional views:
     WUIViewWidget::SPtr widgetGridRightVerticalView1 = factory->createViewWidget(
         getName() + " - Right Vertical View 1",
         WGECamera::TWO_D,
@@ -302,7 +302,7 @@ void WMTemplateUI::moduleMain()
     // overwritten them.
     widgetView->getViewer()->setEffectsActiveDefault();
 
-    // Ok. Now we have a whole bunch of modules, made an event handler and set some default effects. Is there more? Yes! In the next view code
+    // Ok. Now we have a whole bunch of modules, made an event handler and set some default effects. Is there more? Yes! In the next few code
     // lines you will learn how to customize and add "actions" to your widget.
 
     // Let us begin with the viewer settings. If you use our Qt GUI, the you will notice the little cog next to the close button of view widgets.

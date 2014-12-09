@@ -28,6 +28,8 @@
 
 #include <boost/regex.hpp>
 
+#include <osgGA/GUIEventAdapter>
+#include <osgGA/GUIEventHandler>
 #include <osgGA/StateSetManipulator>
 #include <osgGA/TrackballManipulator>
 #include <osgViewer/ViewerEventHandlers>
@@ -41,12 +43,29 @@
 #include "core/graphicsEngine/WGEUtils.h"
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WROIManager.h"
+#include "core/ui/WUIViewWidget.h"
 
 #include "WMClusterDisplay.h"
 #include "WMClusterDisplay.xpm"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMClusterDisplay )
+
+
+bool WMClusterDisplay::MainViewEventHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& /* aa */ )
+{
+//    wlog::debug( "WMClusterDisplay::MainViewEventHandler" ) << "handle";
+    if( ea.getEventType() == GUIEvents::PUSH && ea.getButton() == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON )
+    {
+        return m_signalLeftButtonPush( WVector2f( ea.getX(), ea.getY() ) );
+    }
+    return false;
+}
+
+void WMClusterDisplay::MainViewEventHandler::subscribeLeftButtonPush( LeftButtonPushSignalType::slot_type slot )
+{
+    m_signalLeftButtonPush.connect( slot );
+}
 
 WMClusterDisplay::WMClusterDisplay():
     WModule(),
@@ -368,8 +387,10 @@ void WMClusterDisplay::properties()
 
 void WMClusterDisplay::moduleMain()
 {
-    boost::signals2::connection con = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getPickHandler()->getPickSignal()->
-            connect( boost::bind( &WMClusterDisplay::dendrogramClick, this, _1 ) );
+    osg::ref_ptr< MainViewEventHandler > eh( new MainViewEventHandler );
+    eh->subscribeLeftButtonPush( boost::bind( &WMClusterDisplay::dendrogramClick, this, _1 ) );
+
+    WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getView()->addEventHandler( eh );
 
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
@@ -506,7 +527,6 @@ void WMClusterDisplay::moduleMain()
             //WKernel::getRunningKernel()->getRoiManager()->setUseExternalBitfield( m_active->get( true ) );
         }
     }
-    con.disconnect();
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
@@ -966,18 +986,17 @@ void WMClusterDisplay::setColor( std::vector<size_t> clusters, WColor color )
     }
 }
 
-void WMClusterDisplay::dendrogramClick( WPickInfo pickInfo )
+bool WMClusterDisplay::dendrogramClick( const WVector2f& pos )
 {
-    if( !m_propShowDendrogram->get() || !( pickInfo.getName() == "nothing" ) )
+    if( m_dendrogramGeode->inDendrogramArea( pos ) )
     {
-        return;
+        int x = pos[0];
+        int y = pos[1];
+        m_propSelectedCluster->set( m_dendrogramGeode->getClickedCluster( x, y ) );
+        return true;
     }
-    int x = pickInfo.getPickPixel().x();
-    int y = pickInfo.getPickPixel().y();
-
-    m_propSelectedCluster->set( m_dendrogramGeode->getClickedCluster( x, y ) );
+    return false;
 }
-
 
 void WMClusterDisplay::createFiberGeode()
 {

@@ -141,11 +141,11 @@ public:
     boost::shared_ptr< const WValueSetHistogram > getHistogram( size_t buckets = 1000 );
 
     /**
-     * Interpolate the value fo the valueset at the given position.
+     * Interpolate the value for the valueset at the given position.
      * If interpolation fails, the success parameter will be false
      * and the value returned zero.
      *
-     * \param pos The position for wich we would like to get a value.
+     * \param pos The position for which we would like to get a value.
      * \param success indicates whether the interpolation was successful
      *
      * \return Scalar value for that given position

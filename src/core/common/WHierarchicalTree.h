@@ -61,40 +61,40 @@ public:
      * getter
      * \return the number of leafes
      */
-    size_t getLeafCount();
+    size_t getLeafCount() const;
 
     /**
      * getter
      * \return the number of clusters
      */
-    size_t getClusterCount();
+    size_t getClusterCount() const;
 
     /**
      * getter
      * \return maxlevel, i.e. the level of the root cluster
      */
-    size_t getMaxLevel();
+    size_t getMaxLevel() const;
 
     /**
      * getter
      * \param cluster
      * \return the level of the selected cluster
      */
-    size_t getLevel( size_t cluster );
+    size_t getLevel( size_t cluster ) const;
 
     /**
      * getter
      * \param cluster the cluster in question
      * \return the parent for the selected cluster
      */
-    size_t getParent( size_t cluster );
+    size_t getParent( size_t cluster ) const;
 
     /**
      * getter
      * \param cluster
      * \return the custom data for the selected cluster
      */
-    float getCustomData( size_t cluster );
+    float getCustomData( size_t cluster ) const;
 
     /**
      * setter sets the color for a single cluster
@@ -108,35 +108,35 @@ public:
      * \param cluster
      * \return the color for the selected cluster
      */
-    WColor getColor( size_t cluster );
+    WColor getColor( size_t cluster ) const;
 
     /**
      * getter
      * \param cluster
      * \return children for the selected cluster
      */
-    std::pair<size_t, size_t>getChildren( size_t cluster );
+    std::pair<size_t, size_t>getChildren( size_t cluster ) const;
 
     /**
      * getter
      * \param cluster
      * \return the leafes contained in the selected cluster
      */
-    std::vector<size_t>getLeafesForCluster( size_t cluster );
+    std::vector<size_t>getLeafesForCluster( size_t cluster ) const;
 
     /**
      * getter
      * \param cluster
      * \return number of leafes for the selected cluster
      */
-    size_t size( size_t cluster );
+    size_t size( size_t cluster ) const;
 
     /**
      * checks if a cluster is a leaf or a cluster
      * \param cluster
      * \return true if it is a leaf
      */
-    bool isLeaf( size_t cluster );
+    bool isLeaf( size_t cluster ) const;
 
     /**
      * returns a number of clusters at a certain level down from top cluster
@@ -144,7 +144,7 @@ public:
      * \param hideOutliers true if clusters of size 1 should be ignored
      * \return vector containing the cluster id's
      */
-    std::vector< size_t >downXLevelsFromTop( size_t level, bool hideOutliers = false );
+    std::vector< size_t >downXLevelsFromTop( size_t level, bool hideOutliers = false ) const;
 
     /**
      * finds the X biggest clusters for a given cluster
@@ -153,7 +153,7 @@ public:
      *
      * \return the biggest clusters
      */
-    std::vector< size_t >findXBiggestClusters( size_t cluster, size_t number = 10 );
+    std::vector< size_t >findXBiggestClusters( size_t cluster, size_t number = 10 ) const;
 
     /**
      * sets the color for a selected cluster and all sub clusters
@@ -220,27 +220,27 @@ protected:
 private:
 };
 
-inline size_t WHierarchicalTree::getLeafCount()
+inline size_t WHierarchicalTree::getLeafCount() const
 {
     return m_leafCount;
 }
 
-inline size_t WHierarchicalTree::getClusterCount()
+inline size_t WHierarchicalTree::getClusterCount() const
 {
     return m_clusterCount;
 }
 
-inline size_t WHierarchicalTree::getMaxLevel()
+inline size_t WHierarchicalTree::getMaxLevel() const
 {
     return m_maxLevel;
 }
 
-inline size_t WHierarchicalTree::getLevel( size_t cluster )
+inline size_t WHierarchicalTree::getLevel( size_t cluster ) const
 {
     return m_level[cluster];
 }
 
-inline size_t WHierarchicalTree::getParent( size_t cluster )
+inline size_t WHierarchicalTree::getParent( size_t cluster ) const
 {
     if( m_level[cluster] < m_maxLevel )
     {
@@ -253,7 +253,7 @@ inline size_t WHierarchicalTree::getParent( size_t cluster )
     }
 }
 
-inline std::pair<size_t, size_t>WHierarchicalTree::getChildren( size_t cluster )
+inline std::pair<size_t, size_t>WHierarchicalTree::getChildren( size_t cluster ) const
 {
     if( m_level[cluster] > 0 )
     {
@@ -266,12 +266,12 @@ inline std::pair<size_t, size_t>WHierarchicalTree::getChildren( size_t cluster )
     }
 }
 
-inline float WHierarchicalTree::getCustomData( size_t cluster )
+inline float WHierarchicalTree::getCustomData( size_t cluster ) const
 {
     return m_customData[cluster];
 }
 
-inline size_t WHierarchicalTree::size( size_t cluster )
+inline size_t WHierarchicalTree::size( size_t cluster ) const
 {
     return getLeafesForCluster( cluster ).size();
 }
@@ -281,17 +281,17 @@ inline void WHierarchicalTree::setColor( WColor color, size_t cluster )
     m_colors[cluster] = color;
 }
 
-inline WColor WHierarchicalTree::getColor( size_t cluster )
+inline WColor WHierarchicalTree::getColor( size_t cluster ) const
 {
     return m_colors[cluster];
 }
 
-inline bool WHierarchicalTree::isLeaf( size_t cluster )
+inline bool WHierarchicalTree::isLeaf( size_t cluster ) const
 {
     return ( cluster < m_leafCount ) ? true : false;
 }
 
-inline std::vector<size_t>WHierarchicalTree::getLeafesForCluster( size_t cluster )
+inline std::vector<size_t>WHierarchicalTree::getLeafesForCluster( size_t cluster ) const
 {
     return m_containsLeafes[cluster];
 }
@@ -300,13 +300,13 @@ inline std::vector<size_t>WHierarchicalTree::getLeafesForCluster( size_t cluster
  */
 struct compSize
 {
-    WHierarchicalTree* m_tree; //!< stores pointer to tree we work on
+    const WHierarchicalTree* m_tree; //!< stores pointer to tree we work on
 
     /**
      * constructor
      * \param tree
      */
-    explicit compSize( WHierarchicalTree* tree ) :
+    explicit compSize( const WHierarchicalTree* tree ) :
         m_tree( tree )
     {
     }

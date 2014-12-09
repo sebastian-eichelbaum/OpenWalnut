@@ -35,18 +35,21 @@
 #include "core/common/WHistogramBasic.h"
 #include "core/common/WCounter.h"
 
-#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetHistogram1D.h"
 
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
 #include "core/kernel/WModuleOutputData.h"
 
+#include "core/graphicsEngine/WGEGroupNode.h"
+
+#include "core/ui/WUIViewWidget.h"
 
 // TODO(reichenbach): choose color of frame and marker depending on the user's chosen window background color
 /**
  * \class WMHistogramView
  *
- * A module that draws a histogram of one or mode scalar datasets in a custom widget.
+ * A module that draws a histogram.
  *
  * \ingroup modules
  */
@@ -151,7 +154,7 @@ private:
      *
      * \param cumulative If true, histogram values of the datasets will be added for each bin.
      */
-    void updateHistogramMax( bool cumulative );
+    void updateHistogramMax();
 
     /**
      * Finds a good size for the frame, depending on the chosen spacing for axis labels.
@@ -172,31 +175,19 @@ private:
     void calculateHistograms();
 
     /**
-     * Creates the geometry for histogram bars. The type parameter defines how the bars are drawn:
-     *
-     * 1 - transparent bars on top of each other
-     * 2 - bars of a bin are drawn next to each other
-     * 3 - stacked bars
-     *
-     * \param type The type of the bars.
+     * Creates the geometry for histogram bars.
      */
-    void createGeometryBars( int type );
+    void createGeometryBars();
 
     /**
      * Creates the geometry for stairs (i.e. bars that are not filled).
-     * The type parameter can be 1 (normal) or 2 (stacked).
-     *
-     * \param type The type of the stairs.
      */
-    void createGeometryStairs( int type );
+    void createGeometryStairs();
 
     /**
      * Creates the geometry for curves.
-     * The type parameter can be 1 (normal) or 2 (stacked).
-     *
-     * \param type The type of the curves.
      */
-    void createGeometryCurves( int type );
+    void createGeometryCurves();
 
     /**
      * Creates the geometry for the frame and the ticks/labels.
@@ -258,7 +249,7 @@ private:
      * A vector of histograms, one histogram per input. Histograms may be empty if an input
      * does not have a valid dataset.
      */
-    std::vector< boost::shared_ptr< WHistogramBasic > > m_histograms;
+    boost::shared_ptr< WHistogramBasic const > m_histogram;
 
     //! A condition for property updates.
     boost::shared_ptr< WCondition > m_propCondition;
@@ -314,19 +305,14 @@ private:
     //! The scene node of the custom window. All geometry nodes are added as children of this node.
     osg::ref_ptr< WGEGroupNode > m_mainNode;
 
-    // the next 3 vectors all have the same size, which is the maximum number of inputs allowed for this module
-    // see NUM_INPUTS in the .cpp
-    //! A vector of input connectors.
-    std::vector< boost::shared_ptr< WModuleInputData< WDataSetScalar > > > m_input;
+    //! The input connector.
+    boost::shared_ptr< WModuleInputData< WDataSetHistogram1D > > m_input;
 
-    //! A vector of current datasets.
-    std::vector< boost::shared_ptr< WDataSetScalar > > m_data;
+    //! The histogram to show.
+    boost::shared_ptr< WDataSetHistogram1D > m_data;
 
-    //! A vector of color properties for the datasets.
-    std::vector< WPropColor > m_colors;
-
-    //! A property that is used to set the number of bins to use.
-    WPropInt m_histoBins;
+    //! The color properties for the dataset.
+    WPropColor m_color;
 
     // the next two implement a kind of strategy pattern; the index of the selected element
     // is used as an index to the geometry functions vector
@@ -338,3 +324,4 @@ private:
 };
 
 #endif  // WMHISTOGRAMVIEW_H
+

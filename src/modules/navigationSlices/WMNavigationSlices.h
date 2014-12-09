@@ -38,7 +38,6 @@
 #include "core/common/WPropertyTypes.h"
 #include "core/graphicsEngine/WPickInfo.h"
 #include "core/graphicsEngine/WGECamera.h"
-
 #include "core/kernel/WModule.h"
 
 /**
