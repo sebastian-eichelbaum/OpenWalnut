@@ -92,64 +92,6 @@ boost::shared_ptr< std::set< WPosition > > WPlane::samplePoints( double stepWidt
     return result;
 }
 
-// boost::shared_ptr< std::set< WPosition > > WPlane::samplePoints( const WGridRegular3D& grid, double stepWidth )
-// {
-//     // idea: start from m_pos in m_first direction until boundary reached, increment in m_second direction from m_pos and start again
-//     boost::shared_ptr< std::set< WPosition > > result( new std::set< WPosition >() );
-//
-//     // the plane has two directions m_first and m_second
-//     const WVector3d ycrement = stepWidth * m_second;
-//     const WVector3d xcrement = stepWidth * m_first;
-//     WPosition y_offset_up = m_pos;
-//     WPosition y_offset_down = m_pos;
-//     WPosition x_offset_right = m_pos;
-//     WPosition x_offset_left = m_pos;
-//     // TODO(math): assert( grid.encloses( m_pos ) );
-//     while( grid.encloses( y_offset_up ) || grid.encloses( y_offset_down ) )
-//     {
-//         if( grid.encloses( y_offset_up ) ) // walk up
-//         {
-//             x_offset_right = y_offset_up;
-//             x_offset_left = y_offset_up;
-//             while( grid.encloses( x_offset_right ) || grid.encloses( x_offset_left ) )
-//             {
-//                 if( grid.encloses( x_offset_right ) )
-//                 {
-//                     result->insert( x_offset_right );
-//                     x_offset_right += xcrement;
-//                 }
-//                 if( grid.encloses( x_offset_left ) )
-//                 {
-//                     result->insert( x_offset_left );
-//                     x_offset_left -= xcrement;
-//                 }
-//             }
-//             y_offset_up += ycrement;
-//         }
-//         if( grid.encloses( y_offset_down ) ) // walk down
-//         {
-//             x_offset_right = y_offset_down;
-//             x_offset_left = y_offset_down;
-//             while( grid.encloses( x_offset_right ) || grid.encloses( x_offset_left ) )
-//             {
-//                 if( grid.encloses( x_offset_right ) )
-//                 {
-//                     result->insert( x_offset_right );
-//                     x_offset_right += xcrement;
-//                 }
-//                 if( grid.encloses( x_offset_left ) )
-//                 {
-//                     result->insert( x_offset_left );
-//                     x_offset_left -= xcrement;
-//                 }
-//             }
-//             y_offset_down -= ycrement;
-//         }
-//     }
-//
-//     return result;
-// }
-
 WPosition WPlane::getPointInPlane( double x, double y ) const
 {
     WVector3d sd= m_pos +

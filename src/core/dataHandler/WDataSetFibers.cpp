@@ -338,6 +338,16 @@ WPosition WDataSetFibers::getPosition( size_t fiber, size_t vertex ) const
     return WPosition( m_vertices->at( index ), m_vertices->at( index + 1 ), m_vertices->at( index + 2 ) );
 }
 
+std::size_t WDataSetFibers::getLengthOfLine( std::size_t fiber ) const
+{
+    return m_lineLengths->at( fiber );
+}
+
+std::size_t WDataSetFibers::getStartIndex( std::size_t fiber ) const
+{
+    return m_lineStartIndexes->at( fiber );
+}
+
 WPosition WDataSetFibers::getTangent( size_t fiber, size_t vertex ) const
 {
     WPosition point = getPosition( fiber, vertex );
@@ -390,6 +400,11 @@ WDataSetFibers::const_iterator WDataSetFibers::begin() const
 WDataSetFibers::const_iterator WDataSetFibers::end() const
 {
     return WFiberIterator( this, m_lineLengths->size() );
+}
+
+WIteratorRange< WFiberIterator > WDataSetFibers::fibers() const
+{
+    return WIteratorRange< WFiberIterator >( WFiberIterator( this, 0 ), WFiberIterator( this, m_lineLengths->size() ) );
 }
 
 WFiberIterator::WFiberIterator()
@@ -453,6 +468,16 @@ WFiberIterator WFiberIterator::operator--( int )
     return t;
 }
 
+WFiberIterator WFiberIterator::operator+ ( size_t n ) const
+{
+    return WFiberIterator( m_fibers, m_index + n );
+}
+
+WFiberIterator WFiberIterator::operator- ( size_t n ) const
+{
+    return WFiberIterator( m_fibers, m_index - n );
+}
+
 bool WFiberIterator::operator==( WFiberIterator const& rhs ) const
 {
     return m_fibers == rhs.m_fibers && m_index == rhs.m_index;
@@ -463,11 +488,21 @@ bool WFiberIterator::operator!=( WFiberIterator const& rhs ) const
     return !( this->operator==( rhs ) );
 }
 
+WIteratorRangeUnpacker< WFiberIterator > WFiberIterator::operator,( WFiberIterator& other ) // NOLINT non-const ref and space intended
+{
+    return WIteratorRangeUnpacker< WFiberIterator >( *this, other );
+}
+
+WFiberIterator::operator bool() const
+{
+    return m_fibers != NULL && m_index < numPoints();
+}
+
 std::size_t WFiberIterator::numPoints() const
 {
-    WAssert( m_index < m_fibers->getLineLengths()->size(), "" );
+    WAssert( m_index < m_fibers->size(), "" );
 
-    return m_fibers->getLineLengths()->operator[] ( m_index );
+    return m_fibers->getLengthOfLine( m_index );
 }
 
 WFiberPointsIterator WFiberIterator::begin()
@@ -494,14 +529,81 @@ WFiberPointsIterator WFiberIterator::rend()
     return WFiberPointsIterator( m_fibers, m_index, numPoints(), true );
 }
 
+WIteratorRange< WFiberPointsIterator > WFiberIterator::points() const
+{
+    WAssert( numPoints() != 0, "" );
+
+    return WIteratorRange< WFiberPointsIterator >( WFiberPointsIterator( m_fibers, m_index, 0 ),
+                                                   WFiberPointsIterator( m_fibers, m_index, numPoints() ) );
+}
+
+WIteratorRange< WFiberPointsIterator > WFiberIterator::pointsReverse() const
+{
+    WAssert( numPoints() != 0, "" );
+
+    return WIteratorRange< WFiberPointsIterator >( WFiberPointsIterator( m_fibers, m_index, 0, true ),
+                                                   WFiberPointsIterator( m_fibers, m_index, numPoints(), true ) );
+}
+
+WFiberSegmentsIterator WFiberIterator::sbegin()
+{
+    return WFiberSegmentsIterator( m_fibers, m_index, 0 );
+}
+
+WFiberSegmentsIterator WFiberIterator::send()
+{
+    WAssert( numPoints() != 0, "" );
+
+    return WFiberSegmentsIterator( m_fibers, m_index, numPoints() - 1 );
+}
+
+WFiberSegmentsIterator WFiberIterator::srbegin()
+{
+    return WFiberSegmentsIterator( m_fibers, m_index, 0, true );
+}
+
+WFiberSegmentsIterator WFiberIterator::srend()
+{
+    WAssert( numPoints() != 0, "" );
+
+    return WFiberSegmentsIterator( m_fibers, m_index, numPoints() - 1, true );
+}
+
+WIteratorRange< WFiberSegmentsIterator > WFiberIterator::segments() const
+{
+    WAssert( numPoints() != 0, "" );
+
+    return WIteratorRange< WFiberSegmentsIterator >( WFiberSegmentsIterator( m_fibers, m_index, 0 ),
+                                                     WFiberSegmentsIterator( m_fibers, m_index, numPoints() - 1 ) );
+}
+
+WIteratorRange< WFiberSegmentsIterator > WFiberIterator::segmentsReverse() const
+{
+    WAssert( numPoints() != 0, "" );
+
+    return WIteratorRange< WFiberSegmentsIterator >( WFiberSegmentsIterator( m_fibers, m_index, 0, true ),
+                                                     WFiberSegmentsIterator( m_fibers, m_index, numPoints() - 1, true ) );
+}
+
 std::size_t WFiberIterator::getLineStartIndex() const
 {
-    return m_fibers->getLineStartIndexes()->operator[]( getIndex() );
+    return m_fibers->getStartIndex( m_index );
 }
 
 std::size_t WFiberIterator::getIndex() const
 {
     return m_index;
+}
+
+double WFiberIterator::getFiberLength() const
+{
+    double length = 0.0;
+    WFiberSegmentsIterator si, se;
+    for( ( si, se ) = this->segments(); si != se; ++si )
+    {
+        length += si.length();
+    }
+    return length;
 }
 
 WFiberPointsIterator::WFiberPointsIterator()
@@ -573,26 +675,33 @@ WFiberPointsIterator WFiberPointsIterator::operator--( int )
     return t;
 }
 
+WFiberPointsIterator WFiberPointsIterator::operator+ ( size_t n )
+{
+    return WFiberPointsIterator( m_fibers, m_fiberIndex, m_index + n, m_reverse );
+}
+
+WFiberPointsIterator WFiberPointsIterator::operator- ( size_t n )
+{
+    return WFiberPointsIterator( m_fibers, m_fiberIndex, m_index - n, m_reverse );
+}
+
 std::size_t WFiberPointsIterator::getBaseIndex() const
 {
     WAssert( m_fibers, "" );
-    WAssert( m_fiberIndex < m_fibers->getLineLengths()->size(), "" );
-    WAssert( m_index < m_fibers->getLineLengths()->operator[] ( m_fiberIndex ), "" );
+    WAssert( m_fiberIndex < m_fibers->size(), "Index must be smaller than the number of fibers!" );
+    WAssert( m_index < m_fibers->getLengthOfLine( m_fiberIndex ), "Point index must be smaller than the number of points!" );
 
     std::size_t i = m_index;
     if( m_reverse )
     {
-        i = m_fibers->getLineLengths()->operator[] ( m_fiberIndex ) - i - 1;
+        i = m_fibers->getLengthOfLine( m_fiberIndex ) - i - 1;
     }
-    return m_fibers->getLineStartIndexes()->operator[] ( m_fiberIndex ) + i;
+    return m_fibers->getStartIndex( m_fiberIndex ) + i;
 }
 
-WPosition WFiberPointsIterator::operator*()
+WPosition WFiberPointsIterator::operator*() const
 {
-    std::size_t v = getBaseIndex();
-    return WPosition( m_fibers->getVertices()->operator[]( 3 * v + 0 ),
-                      m_fibers->getVertices()->operator[]( 3 * v + 1 ),
-                      m_fibers->getVertices()->operator[]( 3 * v + 2 ) );
+    return m_fibers->getPosition( m_fiberIndex, m_index );
 }
 
 bool WFiberPointsIterator::operator==( WFiberPointsIterator const& rhs ) const
@@ -610,8 +719,19 @@ bool WFiberPointsIterator::operator!=( WFiberPointsIterator const& rhs ) const
     return !( this->operator==( rhs ) );
 }
 
+WIteratorRangeUnpacker< WFiberPointsIterator > WFiberPointsIterator::operator,( WFiberPointsIterator& other ) // NOLINT non-const ref and space intended
+{
+    return WIteratorRangeUnpacker< WFiberPointsIterator >( *this, other );
+}
+
+WFiberPointsIterator::operator bool() const
+{
+    return m_fibers != NULL && m_fiberIndex < m_fibers->size() && m_index < m_fibers->getLengthOfLine( m_fiberIndex );
+}
+
 double WFiberPointsIterator::getParameter( double def ) const
 {
+    // TODO(reichenbach): change this to avoid the copy of a shared_ptr
     if( m_fibers->getVertexParameters() )
     {
         return m_fibers->getVertexParameters()->operator[]( getBaseIndex() );
@@ -621,12 +741,8 @@ double WFiberPointsIterator::getParameter( double def ) const
 
 WPosition WFiberPointsIterator::getTangent() const
 {
-    std::size_t v = getBaseIndex();
-    return WPosition( m_fibers->getTangents()->operator[]( 3 * v + 0 ),
-                      m_fibers->getTangents()->operator[]( 3 * v + 1 ),
-                      m_fibers->getTangents()->operator[]( 3 * v + 2 ) );
+    return m_fibers->getTangent( m_fiberIndex, m_index );
 }
-
 
 WColor WFiberPointsIterator::getColor( const boost::shared_ptr< WDataSetFibers::ColorScheme > scheme ) const
 {
@@ -677,5 +793,122 @@ WColor WFiberPointsIterator::getColor( std::size_t idx ) const
 WColor WFiberPointsIterator::getColor( std::string name ) const
 {
     return getColor( m_fibers->getColorScheme( name ) );
+}
+
+WFiberSegmentsIterator::WFiberSegmentsIterator()
+    : m_fibers( NULL ),
+      m_fiberIndex( 0 ),
+      m_index( 0 ),
+      m_reverse( false )
+{
+}
+
+WFiberSegmentsIterator::WFiberSegmentsIterator( WDataSetFibers const* fibers, std::size_t fbIdx, std::size_t idx, bool reverse )
+    : m_fibers( fibers ),
+      m_fiberIndex( fbIdx ),
+      m_index( idx ),
+      m_reverse( reverse )
+{
+}
+
+WFiberSegmentsIterator::WFiberSegmentsIterator( WFiberSegmentsIterator const& iter )
+    : m_fibers( iter.m_fibers ),
+      m_fiberIndex( iter.m_fiberIndex ),
+      m_index( iter.m_index ),
+      m_reverse( iter.m_reverse )
+{
+}
+
+WFiberSegmentsIterator::~WFiberSegmentsIterator()
+{
+}
+
+WFiberSegmentsIterator& WFiberSegmentsIterator::operator=( WFiberSegmentsIterator const& iter )
+{
+    if( this == &iter )
+    {
+        return *this;
+    }
+
+    m_fibers = iter.m_fibers;
+    m_fiberIndex = iter.m_fiberIndex;
+    m_index = iter.m_index;
+    m_reverse = iter.m_reverse;
+
+    return *this;
+}
+
+WFiberSegmentsIterator& WFiberSegmentsIterator::operator++()
+{
+    ++m_index;
+    return *this;
+}
+
+WFiberSegmentsIterator WFiberSegmentsIterator::operator++( int )
+{
+    WFiberSegmentsIterator t( m_fibers, m_fiberIndex, m_index, m_reverse );
+    ++m_index;
+    return t;
+}
+
+WFiberSegmentsIterator& WFiberSegmentsIterator::operator--()
+{
+    --m_index;
+    return *this;
+}
+
+WFiberSegmentsIterator WFiberSegmentsIterator::operator--( int )
+{
+    WFiberSegmentsIterator t( m_fibers, m_fiberIndex, m_index, m_reverse );
+    --m_index;
+    return t;
+}
+
+bool WFiberSegmentsIterator::operator==( WFiberSegmentsIterator const& rhs ) const
+{
+    if( m_reverse != rhs.m_reverse )
+    {
+        wlog::warn( "WFiberSegmentsIterator" ) << "Comparing a reverse and a normal iterator!";
+    }
+
+    return m_fibers == rhs.m_fibers && m_fiberIndex == rhs.m_fiberIndex && m_index == rhs.m_index && m_reverse == rhs.m_reverse;
+}
+
+bool WFiberSegmentsIterator::operator!=( WFiberSegmentsIterator const& rhs ) const
+{
+    return !( this->operator==( rhs ) );
+}
+
+WIteratorRangeUnpacker< WFiberSegmentsIterator > WFiberSegmentsIterator::operator,( WFiberSegmentsIterator& other ) // NOLINT non-const ref and space intended
+{
+    return WIteratorRangeUnpacker< WFiberSegmentsIterator >( *this, other );
+}
+
+WFiberSegmentsIterator::operator bool() const
+{
+    return m_fibers != NULL && m_fiberIndex < m_fibers->size() && m_index < m_fibers->getLengthOfLine( m_fiberIndex ) - 1;
+}
+
+WFiberPointsIterator WFiberSegmentsIterator::start() const
+{
+    return WFiberPointsIterator( m_fibers, m_fiberIndex, m_index, m_reverse );
+}
+
+WFiberPointsIterator WFiberSegmentsIterator::end() const
+{
+    return WFiberPointsIterator( m_fibers, m_fiberIndex, m_index + 1, m_reverse );
+}
+
+osg::Vec3 WFiberSegmentsIterator::direction() const
+{
+    if( m_index > m_fibers->getLengthOfLine( m_fiberIndex ) - 2 )
+        return osg::Vec3( 0.0, 0.0, 0.0 );
+
+    return *end() - *start();
+}
+
+double WFiberSegmentsIterator::length() const
+{
+    return distance( *start(), *end() );
 }
 

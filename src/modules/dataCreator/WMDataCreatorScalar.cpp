@@ -38,6 +38,7 @@
 #include "WDataCreatorRandom.h"
 #include "WDataCreatorSphere.h"
 #include "WDataCreatorTangle.h"
+#include "WDataCreatorTuring.h"
 
 #include "WMDataCreator.xpm"
 #include "WMDataCreatorScalar.h"
@@ -54,6 +55,7 @@ WMDataCreatorScalar::WMDataCreatorScalar():
     m_strategy.addStrategy( WDataCreatorBreyzel5::SPtr( new WDataCreatorBreyzel5() ) );
     m_strategy.addStrategy( WDataCreatorSphere::SPtr( new WDataCreatorLinearAscent() ) );
     m_strategy.addStrategy( WDataCreatorConstant::SPtr( new WDataCreatorConstant() ) );
+    m_strategy.addStrategy( WDataCreatorConstant::SPtr( new WDataCreatorTuring() ) );
 }
 
 WMDataCreatorScalar::~WMDataCreatorScalar()

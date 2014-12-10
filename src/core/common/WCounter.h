@@ -75,6 +75,20 @@ public:
         boost::shared_lock< boost::shared_mutex > lock( m_counterMutex );
         return m_counter;
     }
+
+    /**
+     * Reset the counter to 0.
+     *
+     * \return The value the counter had before the reset.
+     */
+    int reset()
+    {
+        boost::unique_lock< boost::shared_mutex > lock( m_counterMutex );
+        int tmp = m_counter;
+        m_counter = 0;
+        return tmp;
+    }
+
 private:
     //! No copy construction.
     WCounter( WCounter& /* count */ );

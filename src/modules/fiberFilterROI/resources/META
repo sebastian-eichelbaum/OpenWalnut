@@ -28,8 +28,6 @@
 // NOTE: everything but the module name is optional, even if this makes no
 //       sense at all.
 
-// This defines some properties of the module "Template". This must
-// match the name specified in WMTemplate::getName().
 "Fiber Filter ROI"
 {
   // Provide an icon. If the icon exists, it overrides the one provided by your

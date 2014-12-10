@@ -32,7 +32,7 @@
 #include "WLimits.h"
 #include "WLogger.h"
 
-WHistogramBasic::WHistogramBasic( double min, double max, size_t buckets ):
+WHistogramBasic::WHistogramBasic( double min, double max, std::size_t buckets ):
     WHistogram( min, max, buckets ),
     m_bins( buckets, 0 ),
     m_intervalWidth( std::abs( m_maximum - m_minimum ) / static_cast< double >( m_nbBuckets ) )
@@ -51,12 +51,12 @@ WHistogramBasic::~WHistogramBasic()
 {
 }
 
-size_t WHistogramBasic::operator[]( size_t index ) const
+size_t WHistogramBasic::operator[]( std::size_t index ) const
 {
     return m_bins[ index ];
 }
 
-size_t WHistogramBasic::at( size_t index ) const
+size_t WHistogramBasic::at( std::size_t index ) const
 {
     if( index >= m_bins.size() )
     {
@@ -66,39 +66,41 @@ size_t WHistogramBasic::at( size_t index ) const
     return m_bins[ index ];
 }
 
-double WHistogramBasic::getBucketSize( size_t /* index */ ) const
+double WHistogramBasic::getBucketSize( std::size_t /* index */ ) const
 {
     return m_intervalWidth;
 }
 
-std::pair< double, double > WHistogramBasic::getIntervalForIndex( size_t index ) const
+std::pair< double, double > WHistogramBasic::getIntervalForIndex( std::size_t index ) const
 {
     double first = m_minimum + m_intervalWidth * index;
     double second =  m_minimum + m_intervalWidth * ( index + 1 );
     return std::make_pair( first, second );
 }
 
-void WHistogramBasic::insert( double value )
+std::size_t WHistogramBasic::insert( double value )
 {
     if( value > m_maximum || value < m_minimum )
     {
         wlog::warn( "WHistogramBasic" ) << std::scientific << std::setprecision( 16 ) << "Inserted value out of bounds, thread: "
                                         << value << " as min, resp. max: " << m_minimum << "," << m_maximum;
-        return; // value = ( value > m_maximum ? m_maximum : m_minimum );
+        return 0u - 1u;
     }
 
     if( std::abs( m_minimum - m_maximum ) <= 2.0 * wlimits::DBL_EPS )
     {
         m_bins.at( m_nbBuckets - 1 )++;
+        return m_nbBuckets - 1;
     }
     else if( value >= ( m_maximum - m_intervalWidth ) && value <= m_maximum ) // last bin deserves extra treatment due to possbl out of bounds index
     {
         m_bins.at( m_nbBuckets - 1 )++;
+        return m_nbBuckets - 1;
     }
-    else
-    {
-        m_bins.at( static_cast< size_t >( ( value - m_minimum ) / std::abs( m_maximum - m_minimum ) * ( m_nbBuckets ) ) )++;
-    }
+
+    std::size_t bin = static_cast< std::size_t >( ( value - m_minimum ) / std::abs( m_maximum - m_minimum ) * ( m_nbBuckets ) );
+    m_bins.at( bin )++;
+    return bin;
 }
 
 size_t WHistogramBasic::valuesSize() const

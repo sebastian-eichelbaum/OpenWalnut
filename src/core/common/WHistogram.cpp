@@ -27,7 +27,7 @@
 #include "WAssert.h"
 #include "WHistogram.h"
 
-WHistogram::WHistogram( double min, double max, size_t buckets ):
+WHistogram::WHistogram( double min, double max, std::size_t buckets ):
       m_minimum( min ),
       m_maximum( max ),
       m_nbBuckets( buckets )
@@ -65,3 +65,4 @@ double WHistogram::getMaximum() const
 {
     return m_maximum;
 }
+

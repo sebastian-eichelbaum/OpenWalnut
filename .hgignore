@@ -8,9 +8,12 @@ syntax: glob
 syntax: regexp
 
 ^doc/core/html
+^doc/core/core.tag
 ^doc/developer/html
 ^doc/developer/man
 ^doc/developer/doxyerror.log
+^doc/developer/doxygen_sqlite3.db
+^doc/developer/developer.tag
 ^doc/developer/designDocuments/openWalnutDesign.aux
 ^doc/developer/designDocuments/openWalnutDesign.bbl
 ^doc/developer/designDocuments/openWalnutDesign.blg
