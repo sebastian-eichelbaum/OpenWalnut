@@ -746,7 +746,9 @@ double WFiberPointsIterator::getParameter( double def ) const
 WPosition WFiberPointsIterator::getTangent() const
 {
     if( m_reverse )
+    {
         return m_fibers->getTangent( m_fiberIndex, m_fibers->getLengthOfLine( m_fiberIndex ) - m_index - 1 );
+    }
     return m_fibers->getTangent( m_fiberIndex, m_index );
 }
 
