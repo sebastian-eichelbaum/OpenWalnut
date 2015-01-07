@@ -180,6 +180,13 @@ public:
     WColor getColor() const;
 
     /**
+     * Set the annotation for this fiber cluster.
+     *
+     * \param anno The new annotation.
+     */
+    void setAnnotation( std::string const& anno );
+
+    /**
      * Get the annotation string.
      *
      * \return The annotation string.
@@ -410,6 +417,11 @@ inline void WFiberCluster::setColor( WColor color )
 inline WColor WFiberCluster::getColor() const
 {
     return m_color;
+}
+
+inline void WFiberCluster::setAnnotation( std::string const& anno )
+{
+    m_annotation = anno;
 }
 
 inline std::string const& WFiberCluster::getAnnotation() const
