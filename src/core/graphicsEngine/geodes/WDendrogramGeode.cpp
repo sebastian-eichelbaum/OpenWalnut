@@ -359,3 +359,10 @@ void WDendrogramGeode::getClickClusterRecursive( size_t cluster, float left, flo
         }
     }
 }
+
+bool WDendrogramGeode::inDendrogramArea( const WVector2f& pos ) const
+{
+    return ( pos[0] >= m_xOff && pos[0] <= m_xOff + m_xSize &&
+             pos[1] >= m_yOff && pos[1] <= m_yOff + m_ySize );
+}
+

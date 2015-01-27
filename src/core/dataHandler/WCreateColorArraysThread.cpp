@@ -89,6 +89,9 @@ void WCreateColorArraysThread::threadMain()
             b *= -1.0;
 
         float norm = std::sqrt( r * r + g * g + b * b );
+        if( norm == 0.0 )
+            norm = 1.0;
+
         r *= 1.0 / norm;
         g *= 1.0 / norm;
         b *= 1.0 / norm;
@@ -107,6 +110,9 @@ void WCreateColorArraysThread::threadMain()
             lastz = (*m_vertices)[pc + 2];
 
             float norm = std::sqrt( rr * rr + gg * gg + bb * bb );
+            if( norm == 0.0 )
+                norm = 1.0;
+
             rr *= 1.0 / norm;
             gg *= 1.0 / norm;
             bb *= 1.0 / norm;
@@ -139,3 +145,4 @@ bool WCreateColorArraysThread::isFinished()
 {
     return m_myThreadFinished;
 }
+

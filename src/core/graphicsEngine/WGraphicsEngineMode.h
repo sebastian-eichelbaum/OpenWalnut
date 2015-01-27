@@ -25,15 +25,17 @@
 #ifndef WGRAPHICSENGINEMODE_H
 #define WGRAPHICSENGINEMODE_H
 
-#if ( defined( WGEMODE_SINGLETHREADED ) || defined( WGEMODE_MULTITHREADED ))
-    // should we do something here? No! We assume the user defined it in cmake
-#else
-    #ifdef __APPLE__
-        #define WGEMODE_SINGLETHREADED
-    #else
-        #define WGEMODE_MULTITHREADED
-    #endif
+// Default mode.
+#define WGEMODE_SINGLETHREADED
 
+#ifdef __APPLE__
+    // Single threaded mode on Apple machines
+    #define WGEMODE_SINGLETHREADED
+    #undef WGEMODE_MULTITHREADED
+#endif
+
+#ifdef _WIN32
+    // Multithreaded
 #endif
 
 #endif  // WGRAPHICSENGINEMODE_H

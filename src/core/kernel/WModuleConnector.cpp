@@ -112,7 +112,7 @@ unsigned int WModuleConnector::isConnected()
     return count;
 }
 
-void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
+void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con, bool force )
 {
     boost::shared_ptr< WModule > module = m_module.lock();    // it is "unlocked" at the end of this function as "module" looses its scope
     std::string containerName = "Unknown";
@@ -126,11 +126,25 @@ void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
                                          "ModuleContainer (" + containerName + ")", LL_INFO );
 
     // are both partners compatible to each other?
-    if( !( con->connectable( shared_from_this() ) && connectable( con ) ) )
+    if( force )
     {
-        std::ostringstream s;
-        s << "Connection between " << getCanonicalName() << " and " << con->getCanonicalName() << " failed.";
-        throw WModuleConnectorsIncompatible( s.str() );
+        // if not forced, use a complete compatibility check
+        if( !( con->lazyConnectable( shared_from_this() ) && lazyConnectable( con ) ) )
+        {
+            std::ostringstream s;
+            s << "Connection between " << getCanonicalName() << " and " << con->getCanonicalName() << " failed.";
+            throw WModuleConnectorsIncompatible( s.str() );
+        }
+    }
+    else
+    {
+        // if not forced, use a complete compatibility check
+        if( !( con->connectable( shared_from_this() ) && connectable( con ) ) )
+        {
+            std::ostringstream s;
+            s << "Connection between " << getCanonicalName() << " and " << con->getCanonicalName() << " failed.";
+            throw WModuleConnectorsIncompatible( s.str() );
+        }
     }
 
     // check whether they are already connected

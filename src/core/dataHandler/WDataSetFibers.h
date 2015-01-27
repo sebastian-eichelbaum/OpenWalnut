@@ -405,6 +405,26 @@ public:
     WPosition getTangent( size_t fiber, size_t vertex ) const;
 
     /**
+     * Returns the number of points for a given fiber.
+     *
+     * \param fiber The index of the fiber.
+     *
+     * \return The number of points of the fiber.
+     */
+    std::size_t getLengthOfLine( std::size_t fiber ) const;
+
+    /**
+     * Get the index of the first vertex of a given fiber.
+     * This is used to find the three components 3 * start, 3 * start + 1
+     * and 3 * start + 2 of the first vertex in the vertices vector.
+     *
+     * \param fiber The fiber to find the start index for.
+     *
+     * \return The start index.
+     */
+    std::size_t getStartIndex( std::size_t fiber ) const;
+
+    /**
      * Get the bounding box.
      * \return The bounding box of all lines.
      */
@@ -607,6 +627,20 @@ public:
     WFiberIterator operator-- ( int );
 
     /**
+     * Plus operator. Increments the iterator \param n times.
+     *
+     * \return The iterator on the new place.
+     */
+    WFiberIterator operator+ ( size_t n ) const;
+
+    /**
+     * Minus operator. Decrements the iterator \param n times.
+     *
+     * \return The iterator on the new place.
+     */
+    WFiberIterator operator- ( size_t n ) const;
+
+    /**
      * Compare to another fiber iterator.
      *
      * \param rhs The second fiber iterator.
@@ -771,6 +805,17 @@ public:
      */
     std::size_t getIndex() const;
 
+
+    /**
+     * The length of the line.
+     *
+     * \note This is the actual length of the line, not the number of points.
+     * \note The length is actually calculated. So it has O(n) running time.
+     *
+     * \return line length.
+     */
+    double getFiberLength() const;
+
 private:
     //! The pointer to the fibers.
     WDataSetFibers const* m_fibers;
@@ -884,6 +929,20 @@ public:
      * \return The iterator before decrementing.
      */
     WFiberPointsIterator operator-- ( int );
+
+    /**
+     * Plus operator. Increments the iterator \param n times.
+     *
+     * \return The iterator on the new place.
+     */
+    WFiberPointsIterator operator+ ( size_t n );
+
+    /**
+     * Minus operator. Decrements the iterator \param n times.
+     *
+     * \return The iterator on the new place.
+     */
+    WFiberPointsIterator operator- ( size_t n );
 
     /**
      * Compare to another point iterator.
@@ -1166,6 +1225,13 @@ public:
      * \return *end() - *start()
      */
     osg::Vec3 direction() const;
+
+    /**
+     * Returns the length of the segment.
+     *
+     * \return segment length
+     */
+    double length() const;
 
 private:
     //! The pointer to the fibers.

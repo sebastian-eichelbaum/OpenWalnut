@@ -90,6 +90,18 @@ void WDataSetPoints::init( bool calcBB )
     {
         // Store 1 value for each point (gray scale colors)
         m_colors = ColorArray( new ColorArray::element_type( m_vertices->size() / 3, 1.0 ) );
+        m_colorType = GRAY;
+    }
+
+    // which colortype do we have?
+    if( m_vertices->size() > 0 )
+    {
+        m_colorType = static_cast< ColorType >( m_colors->size() / ( m_vertices->size() / 3 ) );
+    }
+    else
+    {
+        // Ensure a defined value.
+        m_colorType = GRAY;
     }
 
     // calculate the bounding box if needed
@@ -115,9 +127,6 @@ void WDataSetPoints::init( bool calcBB )
 
         m_bb = WBoundingBox( minX, minY, minZ, maxX, maxY, maxZ );
     }
-
-    // which colortype do we have?
-    m_colorType = static_cast< ColorType >( m_colors->size() / ( m_vertices->size() / 3 ) );
 }
 
 size_t WDataSetPoints::size() const

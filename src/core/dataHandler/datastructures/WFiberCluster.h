@@ -78,7 +78,7 @@ public:
      * \param indices the indices initially used for this clustering
      * \param color the color of this cluster
      */
-    WFiberCluster( const IndexList& indices, const WColor& color = WColor() );
+    WFiberCluster( const IndexList& indices, const WColor& color = WColor(), std::string const& annotation = std::string() );
 
     /**
      * Constructs a clustering with the given set of indices. The indexlist is generated using the given iterators. It copies the elements in
@@ -88,8 +88,8 @@ public:
      * \param indicesEnd end iterator in the predefined index set
      * \param color the color of this cluster
      */
-    WFiberCluster( IndexListConstIterator indicesBegin,
-                   IndexListConstIterator indicesEnd, const WColor& color = WColor() );
+    WFiberCluster( IndexListConstIterator indicesBegin, IndexListConstIterator indicesEnd,
+                   const WColor& color = WColor(), std::string const& annotation = std::string() );
 
     /**
      * Copies the specified \ref WFiberCluster Instance. The copy does not contain a valid centerline or longest line.
@@ -178,6 +178,20 @@ public:
      * \return cluster color.
      */
     WColor getColor() const;
+
+    /**
+     * Set the annotation for this fiber cluster.
+     *
+     * \param anno The new annotation.
+     */
+    void setAnnotation( std::string const& anno );
+
+    /**
+     * Get the annotation string.
+     *
+     * \return The annotation string.
+     */
+    std::string const& getAnnotation() const;
 
     /**
      * Sets the main direction of the cluster
@@ -341,6 +355,11 @@ private:
     WColor m_color;
 
     /**
+     * An annotation for the bundle, usually a name.
+     */
+    std::string m_annotation;
+
+    /**
      * The cluster's main direction
      */
     osg::Vec3 m_mainDirection;
@@ -398,6 +417,16 @@ inline void WFiberCluster::setColor( WColor color )
 inline WColor WFiberCluster::getColor() const
 {
     return m_color;
+}
+
+inline void WFiberCluster::setAnnotation( std::string const& anno )
+{
+    m_annotation = anno;
+}
+
+inline std::string const& WFiberCluster::getAnnotation() const
+{
+    return m_annotation;
 }
 
 inline void WFiberCluster::setMainDirection( osg::Vec3 mainDirection )

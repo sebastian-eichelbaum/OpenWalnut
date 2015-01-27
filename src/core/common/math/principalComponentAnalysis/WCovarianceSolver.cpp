@@ -32,30 +32,29 @@ WCovarianceSolver::WCovarianceSolver()
 WCovarianceSolver::~WCovarianceSolver()
 {
 }
-void WCovarianceSolver::analyzeData( const vector<WPosition>* dataSet )
+void WCovarianceSolver::analyzeData( const vector<WPosition>& dataSet )
 {
-    m_dataSet = dataSet;
-    calculateMean();
-    calculateCovariance();
+    calculateMean( dataSet );
+    calculateCovariance( dataSet );
 }
 WPosition WCovarianceSolver::getMean()
 {
     return m_mean;
 }
-void WCovarianceSolver::calculateMean()
+void WCovarianceSolver::calculateMean( const vector<WPosition>& dataSet )
 {
-    if( m_dataSet->size() == 0 )
+    if( dataSet.size() == 0 )
         return;
-    size_t dimensions = (*m_dataSet)[0].size();
+    size_t dimensions = dataSet[0].size();
     for( size_t dimension = 0; dimension < dimensions; dimension++ )
         m_mean[dimension] = 0.0;
-    for( size_t index = 0; index < m_dataSet->size(); index++ )
-        for( size_t dimension = 0; dimension < (*m_dataSet)[index].size(); dimension++ )
-            m_mean[dimension] += (*m_dataSet)[index][dimension];
+    for( size_t index = 0; index < dataSet.size(); index++ )
+        for( size_t dimension = 0; dimension < dataSet[index].size(); dimension++ )
+            m_mean[dimension] += dataSet[index][dimension];
     for( size_t dimension = 0; dimension < dimensions; dimension++ )
-        m_mean[dimension] /= static_cast<double>( m_dataSet->size() );
+        m_mean[dimension] /= static_cast<double>( dataSet.size() );
 }
-void WCovarianceSolver::calculateCovariance()
+void WCovarianceSolver::calculateCovariance( const vector<WPosition>& dataSet )
 {
     size_t width = m_mean.size();
     MatrixXd newCovariance( width, width );
@@ -63,22 +62,21 @@ void WCovarianceSolver::calculateCovariance()
     for( size_t row = 0; row < width; row++ )
         for( size_t col = 0; col < width; col++ )
             m_covariance( row, col ) = 0.0;
-    for( size_t index = 0; index < m_dataSet->size(); index++ )
-        addPointToCovariance( index );
+    for( size_t index = 0; index < dataSet.size(); index++ )
+        addPointToCovariance( dataSet[index] );
     for( size_t row = 0; row < width; row++ )
         for( size_t col = 0; col < width; col++ )
-            m_covariance( row, col ) /= static_cast<double>( m_dataSet->size() ) - 1.0;
+            m_covariance( row, col ) /= static_cast<double>( dataSet.size() ) - 1.0;
 }
-void WCovarianceSolver::addPointToCovariance( size_t pointIndex )
+void WCovarianceSolver::addPointToCovariance( const WPosition& point )
 {
     size_t width = m_mean.size();
-    WPosition position = (*m_dataSet)[pointIndex];
     for( size_t row = 0; row < width; row++ )
     {
-        double rowValue = position[row] - m_mean[row];
+        double rowValue = point[row] - m_mean[row];
         for( size_t col = 0; col < width; col++ )
         {
-            double colValue = position[col] - m_mean[col];
+            double colValue = point[col] - m_mean[col];
             m_covariance( row, col ) += rowValue * colValue;
         }
     }

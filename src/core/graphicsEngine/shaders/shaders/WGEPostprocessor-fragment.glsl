@@ -26,6 +26,7 @@
 #define WGEPOSTPROCESSOR_FRAGMENT_GLSL
 
 #version 120
+#extension GL_EXT_gpu_shader4 : enable
 
 #include "WGEShadingTools.glsl"
 #include "WGETextureTools.glsl"

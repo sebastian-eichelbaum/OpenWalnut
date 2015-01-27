@@ -182,6 +182,21 @@ public:
      */
     virtual void visitAsString( PropertyStringVisitor visitor, std::string pathPrefix = "" ) const;
 
+    /**
+     * Checks whether the property group should be hidden if it is empty.
+     *
+     * \return true if it should be hidden if empty.
+     */
+    bool autoHideEmpty() const;
+
+    /**
+     * Should the property group be hidden automatically if it is empty? By default, this is true.
+     *
+     * \note this does not trigger an update. You should use this setting before adding this property to a parent group.
+     *
+     * \param autoHide true if it should be hidden automatically if empty.
+     */
+    void setAutoHideEmpty( bool autoHide = true );
 protected:
    /**
     * Helping function to find a property inside a specific group. It does not recursively find properties nested inside other property groups.
@@ -255,6 +270,10 @@ protected:
     };
 
 private:
+    /**
+     * True if the prop should be hidden if if empty.
+     */
+    bool m_autoHideEmpty;
 };
 
 #endif  // WPROPERTYGROUPBASE_H

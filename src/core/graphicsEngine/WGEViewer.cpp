@@ -407,3 +407,13 @@ bool WGEViewer::getPaused() const
 {
     return m_paused;
 }
+
+void WGEViewer::handleVisibilityChange( bool visible )
+{
+    getView()->getScene()->getSceneData()->setNodeMask( visible * 0xFFFFFFFF );
+}
+
+void WGEViewer::requestContinuousUpdate( bool continuous )
+{
+    getView()->requestContinuousUpdate( continuous );
+}

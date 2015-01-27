@@ -188,26 +188,26 @@ chroot_setup_suite()
 {
     # to be on the safe side: add NeuroDebian to all the suites
     # add the neurodebian repository as well as the eigen3 ppa. It is needed for eigen3, nifti and biosig
-    chroot_do wget -O /etc/apt/sources.list.d/neurodebian.sources.list http://neuro.debian.net/lists/$SUITE.de-md
-    chroot_do apt-key adv --recv-keys --keyserver pgp.mit.edu 2649A5A9
+    #chroot_do wget -O /etc/apt/sources.list.d/neurodebian.sources.list http://neuro.debian.net/lists/$SUITE.de-md
+    #chroot_do apt-key adv --recv-keys --keyserver pgp.mit.edu 2649A5A9
 
     # handle some special suites
     # NOTE: I tested only debian sid and ubuntu natty and maverick. Maverick currently has some problem with libopenscenegraph.
     #       Please add others here if needed
     case "$SUITE" in
-        raring | saucy | quantal | precise | oneiric | natty | maverick )
+        utopic | trusty | raring | saucy | quantal | precise | oneiric | natty | maverick )
             # multiverse and universe needed for several packs
             echo "deb http://de.archive.ubuntu.com/ubuntu $SUITE restricted universe multiverse" > ./$CHROOTDIR/etc/apt/sources.list.d/universeMultiverse.sources.list
 
-            # they provide qtwebkit
-            chroot_do apt-get -y --allow-unauthenticated install libqtwebkit-dev
+            # Specific?
+            # chroot_do apt-get -y --allow-unauthenticated install libqtwebkit-dev
         ;;
         sid | wheezy )
-            # they provide qtwebkit
-            chroot_do apt-get -y --allow-unauthenticated install libqtwebkit-dev
+            # Specific?
+            # chroot_do apt-get -y --allow-unauthenticated install libqtwebkit-dev
         ;;
         *)
-            # debian 6 does not have libqtwebkit
+            #
         ;;
     esac
 
@@ -223,7 +223,7 @@ chroot_finalize_suite()
 {
     # handle some special suites
     case "$SUITE" in
-        saucy | raring | quantal | precise | oneiric | natty | maverick | lucid )
+        trusty | saucy | raring | quantal | precise | oneiric | natty | maverick | lucid )
             # ubuntu hack: kill this xapian-index stuff. If not done, chroot_umount will fail
             chroot_do killall -q update-apt-xapian-index | echo
         ;;
@@ -341,7 +341,26 @@ chroot_build()
 
         echo " * Installing our build-dependencies."
         # technically, it is possible to give debootstrap the list of packs it should install. But this somehow causes it to fail on my system.
-        chroot_do apt-get -y --allow-unauthenticated install cmake libgl1-mesa-dev libopenscenegraph-dev libopenthreads-dev libqt4-dev zlib1g-dev libboost-dev libboost-program-options-dev libboost-thread-dev libboost-filesystem-dev libboost-date-time-dev libboost-system-dev libboost-signals-dev libboost-regex-dev libeigen3-dev libbiosig-dev libnifti-dev doxygen graphviz psmisc sysvinit-utils
+        chroot_do apt-get -y --allow-unauthenticated install cmake \
+                            libgl1-mesa-dev libopenscenegraph-dev libopenthreads-dev \
+                            libqt5opengl5-dev qtbase5-dev qttools5-dev libqt5webkit5-dev \
+                            liblas-dev \
+                            liblas-c-dev \
+                            zlib1g-dev \
+                            libboost-dev \
+                            libboost-program-options-dev \
+                            libboost-thread-dev \
+                            libboost-filesystem-dev \
+                            libboost-date-time-dev \
+                            libboost-system-dev \
+                            libboost-signals-dev \
+                            libboost-regex-dev \
+                            libeigen3-dev \
+                            libnifti-dev \
+                            doxygen \
+                            graphviz \
+                            psmisc \
+                            sysvinit-utils
         if [ $? -ne 0 ]; then
             echo "  * Failed to install build dependencies. Maybe you need to add further package sources."
             chroot_umount

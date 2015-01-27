@@ -69,6 +69,13 @@ public:
      */
     size_t getClickedCluster( int xClick, int yClick );
 
+    /**
+     * calculates if the given position is within the view area of the dendrogram
+     * \param pos the position within the view
+     * \return true if pos is within the dendrogram area, otherwise false
+     */
+    bool inDendrogramArea( const WVector2f& pos ) const;
+
 protected:
 private:
     /**

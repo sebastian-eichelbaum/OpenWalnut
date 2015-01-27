@@ -25,9 +25,8 @@
 #ifndef WHISTOGRAM_H
 #define WHISTOGRAM_H
 
+#include <cstddef>  // for std::size_t
 #include <utility>
-
-
 
 /**
  * Container which associate values with (uniform width) bins (aka intervals or buckets). This class implements the abstract interface and
@@ -43,7 +42,7 @@ public:
      * \param max the largest value
      * \param buckets the number of buckets
      */
-    WHistogram( double min, double max, size_t buckets = 1000 );
+    WHistogram( double min, double max, std::size_t buckets = 1000 );
 
     /**
      * Copy constructor. Creates a deep copy of the specified histogram.
@@ -64,7 +63,7 @@ public:
      *
      * \return elements in the bucket.
      */
-    virtual size_t operator[]( size_t index ) const = 0;
+    virtual std::size_t operator[]( std::size_t index ) const = 0;
 
     /**
      * Get the count of the specified bucket. Testing if the position is valid.
@@ -73,14 +72,14 @@ public:
      *
      * \return elements in the bucket
      */
-    virtual size_t at( size_t index ) const = 0;
+    virtual std::size_t at( std::size_t index ) const = 0;
 
     /**
      * Returns the number of buckets in the histogram with the actual mapping.
      *
      * \return number of buckets
      */
-    virtual size_t size() const;
+    virtual std::size_t size() const;
 
     /**
      * Returns the minimum value.
@@ -103,7 +102,7 @@ public:
      *
      * \return the size of a bucket.
      */
-    virtual double getBucketSize( size_t index = 0 ) const = 0;
+    virtual double getBucketSize( std::size_t index = 0 ) const = 0;
 
     /**
      * Returns the actual interval associated with the given index. The interval is open, meaning that
@@ -114,7 +113,7 @@ public:
      *
      * \return the open interval.
      */
-    virtual std::pair< double, double > getIntervalForIndex( size_t index ) const = 0;
+    virtual std::pair< double, double > getIntervalForIndex( std::size_t index ) const = 0;
 
 protected:
     /**
@@ -136,3 +135,4 @@ private:
 };
 
 #endif  // WHISTOGRAM_H
+

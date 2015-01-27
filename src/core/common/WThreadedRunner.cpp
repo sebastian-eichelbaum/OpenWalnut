@@ -174,10 +174,16 @@ const std::string& WThreadedRunner::getCrashMessage() const
     return m_crashMessage;
 }
 
+#if ( defined( __linux__ ) && !defined( __ANDROID__ ) )
 void WThreadedRunner::setThisThreadName( std::string name )
 {
-#if ( defined( __linux__ ) && !defined( __ANDROID__ ) )
     // set the name of the thread. This name is shown by the "top", for example.
     prctl( PR_SET_NAME, ( "openwalnut (" + name + ")" ).c_str() );
-#endif
 }
+#else
+void WThreadedRunner::setThisThreadName( std::string /* name */ )
+{
+    // Not supported
+}
+#endif
+

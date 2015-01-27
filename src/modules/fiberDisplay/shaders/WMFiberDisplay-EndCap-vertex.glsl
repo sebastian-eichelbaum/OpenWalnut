@@ -58,6 +58,27 @@ varying float v_discard;
  */
 varying vec4 v_secondaryColor;
 
+
+/**
+ * The output normal for the fragment shader in world-space
+ */
+varying vec3 v_normalWorld;
+
+/**
+ * The vertex coordinates in world-space
+ */
+varying vec4 v_vertex;
+
+/**
+ * The scaling component of the modelview matrix.
+ */
+varying float v_worldScale;
+
+/**
+ * This varying carries the current cluster color.
+ */
+varying vec4 v_clusterColor;
+
 /////////////////////////////////////////////////////////////////////////////
 // Variables
 /////////////////////////////////////////////////////////////////////////////
@@ -74,6 +95,12 @@ void main()
 #ifdef BITFIELD_ENABLED
     v_discard = 1.0 - a_bitfield;
 #endif
+
+    // Init with defaults
+    v_normalWorld = vec3( 0.0 );
+    v_vertex = vec4( 1.0 );
+    v_worldScale = 1.0;
+    v_clusterColor = vec4( 1.0 );
 
     v_secondaryColor = vec4( gl_SecondaryColor.rgb, 1.0 );
 

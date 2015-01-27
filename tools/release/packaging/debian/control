@@ -3,20 +3,21 @@ Section: science
 Priority: extra
 Maintainer: Sebastian Eichelbaum <openwalnut@nemtics.com>
 Uploaders: Yaroslav Halchenko <debian@onerussian.com>, Michael Hanke <michael.hanke@gmail.com>
-Build-Depends: debhelper (>= 8.0.0),
-               cmake (>= 2.8.0), doxygen (>= 1.6.3), graphviz (>= 2.26.3),
+Build-Depends: debhelper (>= 9.0.0),
+               cmake (>= 2.8.11), doxygen (>= 1.6.3), graphviz (>= 2.26.3),
                libgl1-mesa-dev | libgl-dev,
                libopenscenegraph-dev (>= 3.0.0), libopenthreads-dev (>= 3.0.0),
-               libqt4-dev (>= 4:4.6.0), libqt4-opengl-dev (>= 4:4.6.0),
-               libqtwebkit-dev (>= 2.0.0),
+               libqt5opengl5-dev (>= 5.1.0), qtbase5-dev (>= 5.1.0), qttools5-dev (>= 5.1.0),
+               libqt5webkit5-dev (>= 5.1.0),
                libboost-dev (>= 1.46.0), libboost-program-options-dev (>= 1.46.0), libboost-thread-dev (>= 1.46.0),
                libboost-filesystem-dev (>= 1.46.0), libboost-date-time-dev (>= 1.46.0), libboost-system-dev (>= 1.46.0),
                libboost-signals-dev (>= 1.46.0), libboost-regex-dev (>= 1.46.0),
                libeigen3-dev (>= 3.0.0),
-               libbiosig-dev (>= 0.85.0),
                libnifti-dev (>= 2.0.0),
-               zlib1g-dev (>= 1:1.2.3.4.dfsg)
-Standards-Version: 3.9.5
+               zlib1g-dev (>= 1:1.2.3.4.dfsg),
+               liblas-dev (>= 1.7.0),
+               liblas-c-dev (>= 1.7.0)
+Standards-Version: 3.9.6
 Vcs-hg: http://source.openwalnut.org
 Vcs-browser: http://source.openwalnut.org
 Homepage: http://www.openwalnut.org
@@ -25,6 +26,8 @@ Homepage: http://www.openwalnut.org
 Package: libopenwalnut1
 Section: libs
 Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
 Depends: fonts-liberation (>= 1.0.0), ${shlibs:Depends}, ${misc:Depends}
 Suggests: nvidia-glx | fglrx-glx
 Description: Framework for multi-modal medical and brain data visualization
@@ -86,6 +89,8 @@ Description: Developer documentation for the OpenWalnut visualization framework
 
 Package: openwalnut-modules
 Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Loaders, algorithms and visualization modules for OpenWalnut
  OpenWalnut is a tool for multi-modal medical and brain data visualization. Its
@@ -101,7 +106,7 @@ Description: Loaders, algorithms and visualization modules for OpenWalnut
  This package contains the currently available modules for OpenWalnut.
 
 
-Package: openwalnut-qt4
+Package: openwalnut-qt5
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: openwalnut-modules (= ${binary:Version})
@@ -116,5 +121,5 @@ Description: Qt based user interface for OpenWalnut
  The powerful framework of OpenWalnut allows researchers and power-users to
  easily extend the functionality to their specific needs.
  .
- This package contains the QT4 GUI for OpenWalnut.
+ This package contains the QT5 GUI for OpenWalnut.
 

@@ -34,11 +34,13 @@ WPrincipalComponentAnalysis::~WPrincipalComponentAnalysis()
 {
 }
 
-void WPrincipalComponentAnalysis::analyzeData( const vector<WPosition>* inputData )
+void WPrincipalComponentAnalysis::analyzeData( const vector<WPosition>& inputData )
 {
     m_isValidPCA = true;
-    m_inputData = inputData;
-    m_covarianceSolver.analyzeData( m_inputData );
+    m_inputPointCount = inputData.size();
+    if( m_inputPointCount > 0 )
+        m_dimensions = inputData.at( 0 ).size();
+    m_covarianceSolver.analyzeData( inputData );
     EigenSolver<MatrixXd> es( m_covarianceSolver.getCovariance() );
     m_eigenSolver = es;
     extractEigenData();
@@ -47,8 +49,8 @@ void WPrincipalComponentAnalysis::analyzeData( const vector<WPosition>* inputDat
 void WPrincipalComponentAnalysis::extractEigenData()
 {
     int count = m_eigenSolver.eigenvalues().size();
-    m_directions.reserve( count );
-    m_directions.resize( count );
+    m_eigenVectors.reserve( count );
+    m_eigenVectors.resize( count );
     m_eigenValues.reserve( count );
     m_eigenValues.resize( count );
     for( int index = 0; index < count; index++ )
@@ -66,16 +68,15 @@ void WPrincipalComponentAnalysis::extractEigenData()
             complex<double> value = vector[dimension];
             newPosition[dimension] = value.real();
         }
-        m_directions[index] = newPosition;
+        m_eigenVectors[index] = newPosition;
     }
     sortByVarianceDescending();
 }
 void WPrincipalComponentAnalysis::sortByVarianceDescending()
 {
-    if( m_inputData->size() == 0 ) return;
-    size_t dimensions = (*m_inputData)[0].size();
-    for( size_t d1 = 0; d1 < dimensions - 1; d1++ )
-        for( size_t d2 = d1 + 1; d2 < dimensions; d2++ )
+    if( m_inputPointCount == 0 ) return;
+    for( size_t d1 = 0; d1 < m_dimensions - 1; d1++ )
+        for( size_t d2 = d1 + 1; d2 < m_dimensions; d2++ )
             if( m_eigenValues[d1] < m_eigenValues[d2] )
                 swapEigenVectors( d1, d2 );
 }
@@ -83,9 +84,9 @@ void WPrincipalComponentAnalysis::swapEigenVectors( size_t eigenVectorIndex1, si
 {
     for( size_t dimension = 0; dimension < m_eigenValues.size(); dimension++ )
     {
-        double prevValue = m_directions[eigenVectorIndex1][dimension];
-        m_directions[eigenVectorIndex1][dimension] = m_directions[eigenVectorIndex2][dimension];
-        m_directions[eigenVectorIndex2][dimension] = prevValue;
+        double prevValue = m_eigenVectors[eigenVectorIndex1][dimension];
+        m_eigenVectors[eigenVectorIndex1][dimension] = m_eigenVectors[eigenVectorIndex2][dimension];
+        m_eigenVectors[eigenVectorIndex2][dimension] = prevValue;
     }
     double prevValue = m_eigenValues[eigenVectorIndex1];
     m_eigenValues[eigenVectorIndex1] = m_eigenValues[eigenVectorIndex2];
@@ -95,9 +96,9 @@ WPosition WPrincipalComponentAnalysis::getMean()
 {
     return m_covarianceSolver.getMean();
 }
-vector<WVector3d> WPrincipalComponentAnalysis::getDirections()
+vector<WVector3d> WPrincipalComponentAnalysis::getEigenVectors()
 {
-    return m_directions;
+    return m_eigenVectors;
 }
 vector<double> WPrincipalComponentAnalysis::getEigenValues()
 {

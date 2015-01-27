@@ -25,6 +25,8 @@
 #ifndef WGEVIEWEREFFECTIMAGEOVERLAY_H
 #define WGEVIEWEREFFECTIMAGEOVERLAY_H
 
+#include <osg/Texture2D>
+
 #include "core/common/WLogger.h"
 
 #include "WGEViewerEffect.h"

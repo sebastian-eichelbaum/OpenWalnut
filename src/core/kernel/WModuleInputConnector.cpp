@@ -66,6 +66,16 @@ bool WModuleInputConnector::connectable( boost::shared_ptr<WModuleConnector> con
     return false;
 }
 
+bool WModuleInputConnector::lazyConnectable( boost::shared_ptr<WModuleConnector> con )
+{
+    // output connectors are just allowed to get connected with input connectors
+    if( dynamic_cast<WModuleOutputConnector*>( con.get() ) )   // NOLINT - since we really need them here
+    {
+        return true;
+    }
+    return false;
+}
+
 void WModuleInputConnector::connectSignals( boost::shared_ptr<WModuleConnector> con )
 {
     WModuleConnector::connectSignals( con );

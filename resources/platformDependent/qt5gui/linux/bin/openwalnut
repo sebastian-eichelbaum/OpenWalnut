@@ -1,0 +1,52 @@
+#!/bin/sh
+
+# get path of this script
+BINDIR=`dirname "$0"`
+
+###################################################################################################
+# IMPORTANT: The following code is not compatible with many specifics of certain Linux Distros.
+# We disable it. If you having trouble running multiple locally installed versions of OW, you can use
+# this code again.
+#
+# You might need to adapt the LIBDIR variable. Some systems use "lib32", "lib64" and similar. Debian
+# uses lib/x86_64-linux-gnu for amd64 systems.
+
+# strip "bin" to get base directory
+# BASEDIR=`dirname "$BINDIR"`
+# LIBDIR=$BASEDIR/lib
+
+# We want to avoid that multiple system installations of OpenWalnut cause some weird loading of libs. We want ours (relative to our executable) to be loaded:
+#Libs="libopenwalnut_biosig.so.1 libopenwalnut_eep.so.1 libopenwalnut_niftiio.so.1 libopenwalnut_niftiznz.so.1"
+
+# Well, this one needs to be there! If not, your installation is wrong.
+#Preloads="$LIBDIR/libopenwalnut.so.1"
+
+# We need to ensure the libs are there. If not, do not add them to the preloads variable
+#for lib in $Libs
+#do
+#    libfile=$LIBDIR/$lib
+#    if [ -e "$libfile" ]; then
+#        Preloads=$Preloads:$libfile
+#    fi
+#done
+# Finally, export it
+#export LD_PRELOAD=$Preloads
+
+# If the user has installed OSG manually into a non-standard location, we need to set some OSG paths.
+# This command uses libopenwalnuts dependencies to find the libosgDB directory.
+# NOTE: if this command fails, script will continue execution
+#export OSG_LIBRARY_PATH=$(dirname `ldd lib/libopenwalnut.so | grep "libosgDB" | awk '{print $3;}'` 2> /dev/null)
+
+# Force C locale. This fixes an issue with newer boost versions. See ticket #130.
+# Do you experience problems with commas and dots mixing up? Try setting this.
+# export LC_ALL=C
+
+# Check if the user has set $OPENWALNUT_USEOPTIMUS to an executable
+runner=
+if [ -x "$OPENWALNUT_USEOPTIMUS" ]; then
+    echo "Optimus implementation found. Using "$OPENWALNUT_USEOPTIMUS""
+    runner=/$OPENWALNUT_USEOPTIMUS
+fi
+
+# Run OpenWalnut
+$runner $BINDIR/openwalnut-qt5 "$@"

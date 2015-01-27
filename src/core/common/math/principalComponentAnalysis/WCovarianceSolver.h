@@ -51,7 +51,7 @@ public:
      * Analyzes the dimension covariances of a point data set.
      * \param dataSet The point data to be analyzed.
      */
-    void analyzeData( const vector<WPosition>* dataSet );
+    void analyzeData( const vector<WPosition>& dataSet );
     /**
      * Returns the mean coordinate of the input point data set.
      * \return The mean of the point data set.
@@ -66,22 +66,21 @@ public:
 private:
     /**
      * Calculates the mean of the input point data coordinates.
+	 * \param dataSet Input point data that is used for the mean coordinate calculation.
      */
-    void calculateMean();
+    void calculateMean( const vector<WPosition>& dataSet );
     /**
      * Calculates the covariance of the input point data.
+	 * \param dataSet Input point data that is used for the covariance matrix 
+	 *                calculation.
      */
-    void calculateCovariance();
+    void calculateCovariance( const vector<WPosition>& dataSet );
     /**
-     * Adds a point to the covariance solver.
-     * \param pointIndex Index of a point in the data set to add to the calculation.
+     * Adds a point to the covariance matrix.
+     * \param point Point in the data set to be added to the covariance matrix..
      */
-    void addPointToCovariance( size_t pointIndex );
+    void addPointToCovariance( const WPosition& point );
 
-    /**
-     * Input point data set to be analyzed.
-     */
-    const vector<WPosition>* m_dataSet;
     /**
      * The mean of all input points.
      */
