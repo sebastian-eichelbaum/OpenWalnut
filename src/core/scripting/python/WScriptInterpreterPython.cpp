@@ -28,6 +28,7 @@
 
 #include "core/kernel/WKernel.h"
 
+#include "../wrappers/WColorWrapper.h"
 #include "../wrappers/WLoggerWrapper.h"
 #include "../wrappers/WModuleWrapper.h"
 #include "../wrappers/WPropertyGroupWrapper.h"
@@ -83,6 +84,12 @@ void WScriptInterpreterPython::initBindings()
 {
     boost::unique_lock< boost::mutex > lock( m_mutex );
 
+    m_pyMainNamespace[ "WColor" ] = pb::class_< WColorWrapper >( "WColor", pb::init< float, float, float, float >() )
+                                    .add_property( "r", &WColorWrapper::getR, &WColorWrapper::setR )
+                                    .add_property( "g", &WColorWrapper::getG, &WColorWrapper::setG )
+                                    .add_property( "b", &WColorWrapper::getB, &WColorWrapper::setB )
+                                    .add_property( "a", &WColorWrapper::getA, &WColorWrapper::setA );
+
     // bind WPropertyWrapper class to "WProperty" in the python namespace
     // no constructor in python for now
     m_pyMainNamespace[ "WProperty" ] = pb::class_< WPropertyWrapper >( "WProperty", pb::no_init )
@@ -92,12 +99,14 @@ void WScriptInterpreterPython::initBindings()
                                        .def( "getDouble", &WPropertyWrapper::getDouble )
                                        .def( "getFilename", &WPropertyWrapper::getFilename )
                                        .def( "getSelection", &WPropertyWrapper::getSelection )
+                                       .def( "getColor", &WPropertyWrapper::getColor )
                                        .def( "setBool", &WPropertyWrapper::setBool )
                                        .def( "setInt", &WPropertyWrapper::setInt )
                                        .def( "setString", &WPropertyWrapper::setString )
                                        .def( "setDouble", &WPropertyWrapper::setDouble )
                                        .def( "setFilename", &WPropertyWrapper::setFilename )
                                        .def( "setSelection", &WPropertyWrapper::setSelection )
+                                       .def( "setColor", &WPropertyWrapper::setColor )
                                        .def( "click", &WPropertyWrapper::click )
                                        .def( "getName", &WPropertyWrapper::getName )
                                        .def( "getDescription", &WPropertyWrapper::getDescription )
