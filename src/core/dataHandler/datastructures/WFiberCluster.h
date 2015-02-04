@@ -77,6 +77,7 @@ public:
      *
      * \param indices the indices initially used for this clustering
      * \param color the color of this cluster
+     * \param annotation an optional annotation string
      */
     WFiberCluster( const IndexList& indices, const WColor& color = WColor(), std::string const& annotation = std::string() );
 
@@ -87,6 +88,7 @@ public:
      * \param indicesBegin begin iterator in the predefined index set
      * \param indicesEnd end iterator in the predefined index set
      * \param color the color of this cluster
+     * \param annotation an optional annotation string
      */
     WFiberCluster( IndexListConstIterator indicesBegin, IndexListConstIterator indicesEnd,
                    const WColor& color = WColor(), std::string const& annotation = std::string() );

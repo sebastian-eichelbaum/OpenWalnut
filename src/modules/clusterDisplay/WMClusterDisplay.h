@@ -114,6 +114,7 @@ private:
     class MainViewEventHandler : public osgGA::GUIEventHandler
     {
     public:
+        //! The type for the signal used for notification on left button presses.
         typedef boost::signals2::signal< bool ( WVector2f ) > LeftButtonPushSignalType;
 
         /**
