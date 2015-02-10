@@ -28,6 +28,7 @@
 #include <string>
 
 #include "core/dataHandler/WDataSetFibers.h"
+#include "core/dataHandler/WDataSetFiberClustering.h"
 #include "core/kernel/WFiberSelector.h"
 
 #include "core/kernel/WModule.h"
@@ -97,7 +98,12 @@ private:
     /**
      * The output connector for the filtered data.
      */
-    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_output;
+    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_fiberOutput;
+
+    /**
+     * The output connector for the resulting clustering.
+     */
+    boost::shared_ptr< WModuleOutputData< WDataSetFiberClustering > > m_clusterOutput;
 
     /**
      * A condition used to notify about changes in several properties.
@@ -126,3 +132,4 @@ private:
 };
 
 #endif  // WMFIBERFILTERROI_H
+
