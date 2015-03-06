@@ -39,6 +39,15 @@ SET( BinName "openwalnut-qt5" )
 # Setup QT5
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Special handling if the user specified a QT path manually. Useful when using multiple installations of Qt.
+IF( DEFINED ENV{QTDIR} )
+    MESSAGE( "Using custom Qt path. Ensure you set the path to the directory containing the bin and lib directories." )
+    SET( CMAKE_PREFIX_PATH "$ENV{QTDIR}/lib/cmake/Qt5Widgets" ${CMAKE_PREFIX_PATH} )
+    SET( CMAKE_PREFIX_PATH "$ENV{QTDIR}/lib/cmake/Qt5OpenGL" ${CMAKE_PREFIX_PATH} )
+    SET( CMAKE_PREFIX_PATH "$ENV{QTDIR}/lib/cmake/Qt5WebKitWidgets" ${CMAKE_PREFIX_PATH} )
+    SET( CMAKE_PREFIX_PATH $ENV{QTDIR} ${CMAKE_PREFIX_PATH} )
+endif()
+
 # Package dependencies:
 FIND_PACKAGE( Qt5Widgets REQUIRED )
 FIND_PACKAGE( Qt5OpenGL REQUIRED )
