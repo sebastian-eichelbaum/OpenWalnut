@@ -39,11 +39,10 @@ SET( BinName "openwalnut-qt" )
 # Setup QT
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-OPTION( OW_GUI_FORCE_QT4 "Enable this to build the QT4-based OpenWalnut GUI." ON )
+OPTION( OW_GUI_FORCE_QT4 "Enable this to build the QT4-based OpenWalnut GUI." OFF )
 IF( OW_GUI_FORCE_QT4 )
     FIND_PACKAGE( Qt4 REQUIRED QtGui QtOpenGL QtWebKit )
     SET( QT_Link_Libs Qt4::QtGui Qt4::QtOpenGL Qt4::QtWebKit ) 
-
 ELSE()
     # Special handling if the user specified a QT path manually. Useful when using multiple installations of Qt.
     IF( DEFINED ENV{QTDIR} )
