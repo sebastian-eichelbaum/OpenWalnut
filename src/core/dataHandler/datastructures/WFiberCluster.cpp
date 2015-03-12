@@ -22,9 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
-#include <list>
-#include <vector>
 #include <algorithm>
+#include <list>
+#include <string>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
@@ -53,10 +54,11 @@ WFiberCluster::WFiberCluster( size_t index )
     m_memberIndices.push_back( index );
 }
 
-WFiberCluster::WFiberCluster( const WFiberCluster::IndexList& indices, const WColor& color )
+WFiberCluster::WFiberCluster( const WFiberCluster::IndexList& indices, const WColor& color, std::string const& annotation )
     : WTransferable(),
     m_memberIndices( indices ),
     m_color( color ),
+    m_annotation( annotation ),
     m_centerLineCreationLock( new boost::shared_mutex() ),
     m_longestLineCreationLock( new boost::shared_mutex() )
 {
@@ -64,9 +66,12 @@ WFiberCluster::WFiberCluster( const WFiberCluster::IndexList& indices, const WCo
 }
 
 WFiberCluster::WFiberCluster( WFiberCluster::IndexListConstIterator indicesBegin,
-                              WFiberCluster::IndexListConstIterator indicesEnd, const WColor& color )
+                              WFiberCluster::IndexListConstIterator indicesEnd,
+                              const WColor& color,
+                              std::string const& annotation )
     : WTransferable(),
     m_color( color ),
+    m_annotation( annotation ),
     m_centerLineCreationLock( new boost::shared_mutex() ),
     m_longestLineCreationLock( new boost::shared_mutex() )
 {
@@ -79,6 +84,7 @@ WFiberCluster::WFiberCluster( const WFiberCluster& other )
     m_memberIndices( other.m_memberIndices ),
     m_fibs( other.m_fibs ),
     m_color( other.m_color ),
+    m_annotation( other.m_annotation ),
     m_centerLineCreationLock( new boost::shared_mutex() ),  // do not copy the mutex as both instances of WFiberCluster can be modifed at the
                                                             // same time
     m_longestLineCreationLock( new boost::shared_mutex() ),

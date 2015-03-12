@@ -74,6 +74,12 @@ int WPropertyWrapper::getSelection( bool notify ) const
     return static_cast< int >( m_prop->toPropSelection()->get( notify ).getItemIndexOfSelected( 0 ) );
 }
 
+WColorWrapper WPropertyWrapper::getColor( bool notify ) const
+{
+    WColor c = m_prop->toPropColor()->get( notify );
+    return WColorWrapper( c[ 0 ], c[ 1 ], c[ 2 ], c[ 3 ] );
+}
+
 void WPropertyWrapper::setBool( bool b )
 {
     m_prop->toPropBool()->set( b, false );
@@ -105,6 +111,11 @@ void WPropertyWrapper::setSelection( int s )
     it.push_back( static_cast< std::size_t >( s ) );
     WItemSelector sel = m_prop->toPropSelection()->get().newSelector( it );
     m_prop->toPropSelection()->set( sel, false );
+}
+
+void WPropertyWrapper::setColor( WColorWrapper c )
+{
+    m_prop->toPropColor()->set( c.get(), false );
 }
 
 void WPropertyWrapper::click()

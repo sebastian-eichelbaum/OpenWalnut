@@ -44,6 +44,7 @@ IF( NOT CMAKE_BUILD_TYPE )
          CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo"
          FORCE
        )
+     SET_PROPERTY( CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "RelWithDebInfo" )
 ENDIF( NOT CMAKE_BUILD_TYPE )
 
 # guard against typos in build-type strings

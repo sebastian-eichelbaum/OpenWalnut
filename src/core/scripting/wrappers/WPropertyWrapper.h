@@ -31,6 +31,8 @@
 
 #include "core/common/WPropertyBase.h"
 
+#include "WColorWrapper.h"
+
 /**
  * \class WPropertyWrapper
  *
@@ -109,6 +111,15 @@ public:
     int getSelection( bool notify = false ) const;
 
     /**
+     * Get the color of a color property.
+     *
+     * \param notify If true, informs the property that it was read.
+     *
+     * \return The color of the property.
+     */
+    WColorWrapper getColor( bool notify = false ) const;
+
+    /**
      * Set the value of a boolean property.
      *
      * \param b The new value.
@@ -149,6 +160,13 @@ public:
      * \param s The index of the selected item.
      */
     void setSelection( int s );
+
+    /**
+     * Set the color of a color property.
+     *
+     * \param col The new color.
+     */
+    void setColor( WColorWrapper col );
 
     /**
      * Trigger a trigger property.

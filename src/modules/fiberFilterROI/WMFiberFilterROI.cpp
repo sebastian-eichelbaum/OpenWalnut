@@ -63,7 +63,10 @@ const std::string WMFiberFilterROI::getDescription() const
 void WMFiberFilterROI::connectors()
 {
     m_input = WModuleInputData< WDataSetFibers >::createAndAdd( shared_from_this(), "in", "The dataset to filter" );
-    m_output = WModuleOutputData < WDataSetFibers  >::createAndAdd( shared_from_this(), "out", "The filtered dataset" );
+
+    m_fiberOutput = WModuleOutputData < WDataSetFibers  >::createAndAdd( shared_from_this(), "out", "The filtered dataset" );
+    m_clusterOutput = WModuleOutputData < WDataSetFiberClustering >::createAndAdd( shared_from_this(), "outClusters",
+                       "A cluster dataset splitting the input data into two clusters: the selected fibers and the rest." );
 
     // call WModule's initialization
     WModule::connectors();
@@ -170,6 +173,37 @@ void WMFiberFilterROI::updateOutput()
 
     boost::shared_ptr< WDataSetFibers> newOutput( new WDataSetFibers( vertices, lineStartIndexes, lineLengths, verticesReverse,
                                                                       m_fibers->getBoundingBox() ) );
-    m_output->updateData( newOutput );
+    m_fiberOutput->updateData( newOutput );
+    progress1->finish();
+
+    progress1 = boost::shared_ptr< WProgress >( new WProgress( "Create Clustering", active->size() ) );
+    m_progress->addSubProgress( progress1 );
+
+    boost::shared_ptr< WDataSetFiberClustering > clustering( new WDataSetFiberClustering() );
+    boost::shared_ptr< WFiberCluster > cl0( new WFiberCluster() );
+    boost::shared_ptr< WFiberCluster > cl1( new WFiberCluster() );
+
+    for( size_t l = 0; l < active->size(); ++l )
+    {
+        if( ( *active )[l] )
+        {
+            WFiberCluster cl( l );
+            cl1->merge( cl );
+        }
+        else
+        {
+            WFiberCluster cl( l );
+            cl0->merge( cl );
+        }
+    }
+
+    if( cl0->size() > 0 )
+        clustering->setCluster( 0, cl0 );
+    if( cl1->size() > 0 )
+        clustering->setCluster( 1, cl1 );
+
+    m_clusterOutput->updateData( clustering );
+
     progress1->finish();
 }
+
