@@ -42,6 +42,14 @@
 WGEViewerEffectImageOverlay::WGEViewerEffectImageOverlay():
     WGEViewerEffect( "Image Overlay", "Blend in some arbitrary image." )
 {
+    m_blendOutAuto = m_properties->addProperty( "Auto Blend-Out",
+        "Make the overlay blend out automatically after a given amount of time.", true );
+
+    m_blendOutDuration = m_properties->addProperty( "Blend-Out Duration",
+        "Make the overlay blend out after this amount of time in seconds.", 4.0 );
+    m_blendOutDuration->setMin( 0.0 );
+    m_blendOutDuration->setMax( 60.0 );
+
     m_image = m_properties->addProperty( "Image", "The Image to use.", WPathHelper::getSharePath() / "GE" / "overlay.png" );
     WPropDouble scale = m_properties->addProperty( "Scale", "Scale the image in percent.", 50.0 );
     scale->setMin( 0.0 );
@@ -83,10 +91,27 @@ WGEViewerEffectImageOverlay::WGEViewerEffectImageOverlay():
     m_state->addUniform( new WGEPropertyUniform< WPropBool >( "u_toRight", moveToRight ) );
 
     m_state->addUniform( new WGEPropertyUniform< WPropDouble >( "u_overlayOpacity", opacity ) );
+    m_state->addUniform( new WGEPropertyUniform< WPropBool >( "u_overlayAutoBlendOut", m_blendOutAuto ) );
+    m_state->addUniform( new WGEPropertyUniform< WPropDouble >( "u_overlayBlendOutDuration", m_blendOutDuration ) );
+
 
     // add a callback which handles changes in viewport size
     m_updater = new Updater();
     addUpdateCallback( m_updater );
+
+    // also add an animation timer
+    osg::Uniform* animationTime(
+        new osg::Uniform(
+            "u_blendOutTimer",     // a name.
+            0                      // initial value, type of this parameter defines the uniform type in GLSL!
+        )
+    );
+    // use the predefined timer callback:
+    osg::ref_ptr< WGEShaderAnimationCallback > m_animationCallback = new WGEShaderAnimationCallback();
+    animationTime->setUpdateCallback( m_animationCallback );
+
+    // bind to geode
+    m_geode->getOrCreateStateSet()->addUniform( animationTime );
 
     // bind
     m_state->setTextureAttributeAndModes( 0, m_logoTexture, osg::StateAttribute::ON );

@@ -1,0 +1,5 @@
+?package(openwalnut):needs="X11"\
+  section="Applications/Science/Medicine"\
+  title="OpenWalnut"\
+  icon="/usr/share/pixmaps/openwalnut.xpm"\
+  command="/usr/bin/openwalnut"

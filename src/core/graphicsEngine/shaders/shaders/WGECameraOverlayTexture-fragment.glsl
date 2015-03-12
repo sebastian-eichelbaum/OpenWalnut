@@ -70,6 +70,21 @@ uniform bool u_toTop = false;
 uniform float u_overlayOpacity;
 
 /**
+ * Automatically blend out?
+ */
+uniform bool u_overlayAutoBlendOut;
+
+/**
+ * Animation timer. 100 Ticks per sec
+ */
+uniform int u_blendOutTimer;
+
+/**
+ * Howe long will it take to blend out? In seconds =
+ */
+uniform float u_overlayBlendOutDuration;
+
+/**
  * Pixel position in [0,1]
  */
 varying vec2 v_pos;
@@ -106,7 +121,12 @@ void main()
     // overlay texture
     vec4 tex = texture2D( u_overlay, coord );
 
+    // auto blend out?
+    float aSec = float( u_blendOutTimer ) / 100.0;
+    float autoBlendOut = 1.0 - ( aSec / u_overlayBlendOutDuration );
+    autoBlendOut = ( float( u_overlayAutoBlendOut ) * autoBlendOut ) + ( 1 - float( u_overlayAutoBlendOut ) );
+
     // use texture coordinate to mix along the cylinder
-    gl_FragColor = vec4( tex.rgb, u_overlayOpacity * tex.a * valid );
+    gl_FragColor = vec4( tex.rgb, autoBlendOut* u_overlayOpacity * tex.a * valid );
 }
 

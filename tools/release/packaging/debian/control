@@ -106,9 +106,11 @@ Description: Loaders, algorithms and visualization modules for OpenWalnut
  This package contains the currently available modules for OpenWalnut.
 
 
-Package: openwalnut-qt5
+Package: openwalnut
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Replaces: openwalnut-qt4 (<< 1.4.0-1~)
+Breaks: openwalnut (<< 1.4.0-1~)
 Recommends: openwalnut-modules (= ${binary:Version})
 Description: Qt based user interface for OpenWalnut
  OpenWalnut is a tool for multi-modal medical and brain data visualization. Its
@@ -121,5 +123,15 @@ Description: Qt based user interface for OpenWalnut
  The powerful framework of OpenWalnut allows researchers and power-users to
  easily extend the functionality to their specific needs.
  .
- This package contains the QT5 GUI for OpenWalnut.
+ This package contains the QT GUI for OpenWalnut.
+
+
+Package: openwalnut-qt4
+Depends: openwalnut, ${misc:Depends}
+Architecture: all
+Priority: extra
+Section: oldlibs
+Description: transitional dummy package
+ This is a transitional dummy package. It can safely be removed.
+
 

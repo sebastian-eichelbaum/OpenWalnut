@@ -29,6 +29,8 @@
 
 #include "core/common/WLogger.h"
 
+#include "callbacks/WGEShaderAnimationCallback.h"
+
 #include "WGEViewerEffect.h"
 
 class WGEViewer;
@@ -104,6 +106,21 @@ protected:
      * The filename to load.
      */
     WPropFilename m_image;
+
+    /**
+     * Enable to blend out the overlay.
+     */
+    WPropBool m_blendOutAuto;
+
+    /**
+     * Time to blend out in seconds.
+     */
+    WPropDouble m_blendOutDuration;
+
+    /**
+     * Animate blend out sequence
+     */
+    osg::ref_ptr< WGEShaderAnimationCallback > m_animationCallback;
 
     /**
      * The texture.

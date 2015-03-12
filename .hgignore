@@ -9,6 +9,7 @@ syntax: regexp
 
 ^doc/core/html
 ^doc/core/core.tag
+^doc/developer/doxygen_objdb
 ^doc/developer/html
 ^doc/developer/man
 ^doc/developer/doxyerror.log

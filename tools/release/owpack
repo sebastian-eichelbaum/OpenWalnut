@@ -184,7 +184,7 @@ Builder_TGZ()
     # openwalnut, modules, qt gui and lib -- also includes dev files
     cmake -DCOMPONENT=CORE      -DCMAKE_INSTALL_PREFIX=$BUILDER_PREFIX_DIR_REL/openwalnut -P cmake_install.cmake || FAILED=1
     cmake -DCOMPONENT=EXT       -DCMAKE_INSTALL_PREFIX=$BUILDER_PREFIX_DIR_REL/openwalnut -P cmake_install.cmake || FAILED=1
-    cmake -DCOMPONENT=QT5GUI    -DCMAKE_INSTALL_PREFIX=$BUILDER_PREFIX_DIR_REL/openwalnut -P cmake_install.cmake || FAILED=1
+    cmake -DCOMPONENT=QTGUI     -DCMAKE_INSTALL_PREFIX=$BUILDER_PREFIX_DIR_REL/openwalnut -P cmake_install.cmake || FAILED=1
     cmake -DCOMPONENT=MODULES   -DCMAKE_INSTALL_PREFIX=$BUILDER_PREFIX_DIR_REL/openwalnut -P cmake_install.cmake || FAILED=1
     cmake -DCOMPONENT=CORE_DEV  -DCMAKE_INSTALL_PREFIX=$BUILDER_PREFIX_DIR_REL/openwalnut -P cmake_install.cmake || FAILED=1
     # devdoc
@@ -277,7 +277,7 @@ Builder_DEB()
     BUILDER_DEB_UPSTREAM_SRC_TAR=$BUILDER_DEB_UPSTREAM_SRC_BASENAME.orig.tar.gz
 
     # create some place to work in
-    CreateWorkingDir "deb" "$BUILDER_DEB_UPSTREAM_SRC_DIR" "src/modules/data/ext/nifti src/modules/data/ext/biosig resources/core/share/openwalnut/fonts"
+    CreateWorkingDir "deb" "$BUILDER_DEB_UPSTREAM_SRC_DIR" "resources/platformDependent/qtgui/windows resources/core/share/openwalnut/fonts"
     if [ $? -ne 0 ]; then
         echo " * Failed to create working diretory."
         exit 1

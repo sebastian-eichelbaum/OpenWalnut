@@ -3534,7 +3534,7 @@ int trg_read_NS30(eeg_t *EEG)
             rsshift = (slen_t) (0.08 / EEG->eep_header.period + 0.5);
       break;
 
-    default: eeperror("unknonw NS cnt type (%d)\n", EEG->ns_cnttype);
+    default: eeperror("unknown NS cnt type (%d)\n", EEG->ns_cnttype);
   }
 
 

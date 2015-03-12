@@ -702,7 +702,9 @@ std::size_t WFiberPointsIterator::getBaseIndex() const
 WPosition WFiberPointsIterator::operator*() const
 {
     if( m_reverse )
+    {
         return m_fibers->getPosition( m_fiberIndex, m_fibers->getLengthOfLine( m_fiberIndex ) - m_index - 1 );
+    }
     return m_fibers->getPosition( m_fiberIndex, m_index );
 }
 

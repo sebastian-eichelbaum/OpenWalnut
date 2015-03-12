@@ -68,6 +68,7 @@ WTriangleMesh::SPtr WMeshReaderOBJ::operator()( WProgressCombiner::SPtr parentPr
     static const boost::regex faceVNRegex(  "^ *[f,F] *([0-9]+)//([0-9]+) +([0-9]+)//([0-9]+) +([0-9]+)//([0-9]+).*$" );
 
     static const boost::regex vertexRegex(  "^ *[v,V][^n] *(-?[0-9]*\\.?[0-9]*) +(-?[0-9]*\\.?[0-9]*) +(-?[0-9]*\\.?[0-9]*).*$" );
+    static const boost::regex vertexColorRegex(  "^ *[v,V][^n] *(-?[0-9]*\\.?[0-9]*) +(-?[0-9]*\\.?[0-9]*) +(-?[0-9]*\\.?[0-9]*) (-?[0-9]*\\.?[0-9]*) +(-?[0-9]*\\.?[0-9]*) +(-?[0-9]*\\.?[0-9]*).*$" ); // NOLINT
     static const boost::regex normalRegex(  "^ *[v,V][n,N] *(-?[0-9]*\\.?[0-9]*) +(-?[0-9]*\\.?[0-9]*) +(-?[0-9]*\\.?[0-9]*).*$" );
     static const boost::regex commentRegex( "^ *#.*$" );
     // please note that there are several more possible definitions ... Please see http://en.wikipedia.org/wiki/Wavefront_.obj_file
@@ -77,6 +78,7 @@ WTriangleMesh::SPtr WMeshReaderOBJ::operator()( WProgressCombiner::SPtr parentPr
     std::string line = "";
 
     std::vector< float > vertices;
+    std::vector< float > colors;
     std::vector< size_t > faces;
     std::vector< size_t > normals;
 
@@ -100,7 +102,16 @@ WTriangleMesh::SPtr WMeshReaderOBJ::operator()( WProgressCombiner::SPtr parentPr
         boost::smatch matches;  // the list of matches
 
         // check whether this is a vertex definition
-        if( boost::regex_match( line, matches, vertexRegex ) )
+        if( boost::regex_match( line, matches, vertexColorRegex ) )
+        {
+            vertices.push_back( string_utils::fromString< float >( matches[1] ) );
+            vertices.push_back( string_utils::fromString< float >( matches[2] ) );
+            vertices.push_back( string_utils::fromString< float >( matches[3] ) );
+            colors.push_back( string_utils::fromString< float >( matches[4] ) );
+            colors.push_back( string_utils::fromString< float >( matches[5] ) );
+            colors.push_back( string_utils::fromString< float >( matches[6] ) );
+        }
+        else if( boost::regex_match( line, matches, vertexRegex ) )
         {
             vertices.push_back( string_utils::fromString< float >( matches[1] ) );
             vertices.push_back( string_utils::fromString< float >( matches[2] ) );
@@ -179,6 +190,10 @@ WTriangleMesh::SPtr WMeshReaderOBJ::operator()( WProgressCombiner::SPtr parentPr
     for( size_t i = 0; i < normals.size(); i += 3 )
     {
         triMesh->setVertexNormal( i / 3, normals[ i + 0 ], normals[ i + 1 ], normals[ i + 2 ] );
+    }
+    for( size_t i = 0; i < colors.size(); i += 3 )
+    {
+        triMesh->setVertexColor( i / 3, osg::Vec4( colors[ i + 0 ], colors[ i + 1 ], colors[ i + 2 ], 1.0 ) );
     }
 
     // done.
