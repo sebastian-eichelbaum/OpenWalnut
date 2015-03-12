@@ -52,7 +52,7 @@ void WIconManager::addMapping( const std::string& newName, const std::string& ma
 QIcon WIconManager::getIcon( const std::string name )
 {
     // ensure we have a fallback icon
-    boost::filesystem::path fallback = WPathHelper::getPathHelper()->getSharePath() / "qt5gui" / "default.png";
+    boost::filesystem::path fallback = WPathHelper::getPathHelper()->getSharePath() / "qtgui" / "default.png";
     WAssert( boost::filesystem::exists( fallback ), "Found no icon named: " + name + " and no fallback icon. Installation broken?" );
     return getIcon( name, QIcon( QPixmap( QString::fromStdString( fallback.string() ) ) ) );
 }
@@ -68,7 +68,7 @@ QIcon WIconManager::getIcon( const std::string name, const QIcon& defaultIcon )
     }
 
     // search file
-    boost::filesystem::path p = WPathHelper::getPathHelper()->getSharePath() / "qt5gui" / std::string( iconFile + ".png" );
+    boost::filesystem::path p = WPathHelper::getPathHelper()->getSharePath() / "qtgui" / std::string( iconFile + ".png" );
     // and an alternative path
     boost::filesystem::path pAlt = WPathHelper::getPathHelper()->getSharePath() / ".." / "pixmaps" / std::string( iconFile + ".png" );
     if( boost::filesystem::exists( p ) )

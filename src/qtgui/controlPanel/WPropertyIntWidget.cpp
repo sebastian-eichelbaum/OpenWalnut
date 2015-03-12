@@ -70,7 +70,7 @@ WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* property
 
     // configure the interval edit
     m_vLayout.addWidget( &m_intervalEdit );
-    if( !WQtGui::getSettings().value( "qt5gui/sliderMinMaxEdit", false ).toBool() )
+    if( !WQtGui::getSettings().value( "qtgui/sliderMinMaxEdit", false ).toBool() )
     {
         m_intervalEdit.hide();
     }
@@ -126,7 +126,7 @@ void WPropertyIntWidget::update()
 
         // updating the interval edit causes the proper values to be set in m_min and m_max
         m_slider.setHidden( false );
-        m_intervalEdit.setHidden( !WQtGui::getSettings().value( "qt5gui/sliderMinMaxEdit", false ).toBool() );
+        m_intervalEdit.setHidden( !WQtGui::getSettings().value( "qtgui/sliderMinMaxEdit", false ).toBool() );
         m_slider.setValue( toSliderValue( m_integralProperty->get() ) );
     }
     else

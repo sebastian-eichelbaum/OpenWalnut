@@ -209,7 +209,7 @@ void WQtNetworkEditorProjectFileIO::done()
 void WQtNetworkEditorProjectFileIO::save( std::ostream& output ) // NOLINT
 {
     output << "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
-              "// Qt5GUI Network Information" << std::endl <<
+              "// QtGUI Network Information" << std::endl <<
               "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
               std::endl;
 

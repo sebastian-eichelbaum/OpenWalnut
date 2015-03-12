@@ -45,7 +45,7 @@ WQtToolBarBase::WQtToolBarBase( const QString& title, WMainWindow* parent ):
     styleOptions.push_back( "Text Besides Icon" );
     styleOptions.push_back( "Text Under Icon" );
     styleOptions.push_back( "Follow Style" );
-    m_styleOptionMenu = new WSettingMenu( parent, "qt5gui/" + windowTitle().toStdString() + "toolbarStyle",
+    m_styleOptionMenu = new WSettingMenu( parent, "qtgui/" + windowTitle().toStdString() + "toolbarStyle",
                                                   title.toStdString(),
                                                   "Allows one to change the style of toolbars.",
                                                   0,

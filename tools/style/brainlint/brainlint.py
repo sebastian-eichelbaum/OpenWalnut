@@ -246,7 +246,7 @@ _CPP_HEADERS = frozenset([
     ])
 
 # Other headers which are include like system headers, starting with a '<'
-# We need to add all Qt5 headers too. Query them via some shell command like:
+# We need to add all Qt headers too. Query them via some shell command like:
 # grep -ir "#include[ ]*<Q.*" src | sed "s/.*#include[ ]*<\(.*\)>/\1/" | sort | uniq
 
 _OTHER_HEADERS = frozenset([

@@ -1,4 +1,4 @@
 # Although the hardening options are enabled and verified to be active during compilation, lintian complains about missing hardening options.
 # The lintian doc states that there might be many false positives. So we ignore these warnings now.
 # For details, see http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=685299 and http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=673112
-openwalnut-qt5: hardening-no-fortify-functions
+openwalnut: hardening-no-fortify-functions

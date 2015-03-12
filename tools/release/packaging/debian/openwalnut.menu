@@ -1,4 +1,4 @@
-?package(openwalnut-qt5):needs="X11"\
+?package(openwalnut):needs="X11"\
   section="Applications/Science/Medicine"\
   title="OpenWalnut"\
   icon="/usr/share/pixmaps/openwalnut.xpm"\

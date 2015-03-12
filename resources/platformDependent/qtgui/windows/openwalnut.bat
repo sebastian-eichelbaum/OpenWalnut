@@ -2,4 +2,4 @@
 set PATH=./lib/;./bin/;./libExt/;%PATH%
 
 :: Finally, run OpenWalnut
-openwalnut-qt5.exe
+openwalnut-qt.exe

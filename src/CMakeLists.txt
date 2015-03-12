@@ -92,7 +92,7 @@ ADD_CUSTOM_TARGET( list_install_tarets
 # install targets for different parts
 ADD_CUSTOM_TARGET( install_runtime
                     ${CMAKE_COMMAND}
-                        -DCOMPONENT=QT5GUI
+                        -DCOMPONENT=QTGUI
                         -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
                  )
 ADD_CUSTOM_TARGET( install_lib
@@ -137,12 +137,12 @@ ADD_DEPENDENCIES( install_devdoc core_devdoc )
 ADD_SUBDIRECTORY( core )
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
-# QT5 GUI
+# QT GUI
 
-OPTION( OW_GUI_QT5 "Enable this to build the QT5-based OpenWalnut GUI." ON )
-IF( OW_GUI_QT5 )
+OPTION( OW_GUI_QT "Enable this to build the QT-based OpenWalnut GUI." ON )
+IF( OW_GUI_QT )
     # build
-    ADD_SUBDIRECTORY( qt5gui )
+    ADD_SUBDIRECTORY( qtgui )
 ENDIF()
 
 
