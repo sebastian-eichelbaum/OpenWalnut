@@ -142,6 +142,111 @@ vec4 getCelShading()
 
 #endif
 
+#ifdef WGE_POSTPROCESSOR_HALFTONE
+
+
+/**
+ * Rotation angle in the dither matrix. Avoid 45, 90 degrees as they create horizontal, vertical or strictly diagonal patterns.
+ */
+uniform float u_ditherRotMatrixAngle = 30.0;
+
+/**
+ * Size of the dither mask.
+ */
+uniform float u_ditherTexSize = 4.0;
+
+/**
+ * Threshold to decide whether to paint the pixel or not.
+ */
+uniform float u_ditherCrossHatchThresh = 0.9;
+
+
+uniform float u_ditherClip = 0.5;
+
+/**
+ * Hatch color. Play with transparency to achieve nice effects.
+ */
+uniform vec4 u_hatchColor = vec4( 0.1 );
+
+/**
+ * Apply the halftone hatching. Creates pencil-like effects.
+ *
+ * \param inColor input color
+ * \param where location
+ *
+ * \return the shaded pixel
+ */
+vec4 getHalftoneShading( vec4 inColor, vec2 where )
+{
+    int edgeLod = 1;
+    float edge = texture2DLod( u_texture6Sampler, where, edgeLod ).r;
+    vec4 col = vec4( u_hatchColor.rgb, 1. - step( 0.75, pow( edge, 2. ) ) );
+
+    // create the dither matrix.
+    float ditherRotMatrixAngleRad = u_ditherRotMatrixAngle * 0.0174532925;
+    mat2 ditherRotMatrix = mat2( vec2( -sin( ditherRotMatrixAngleRad ), cos( ditherRotMatrixAngleRad ) ),
+                                 vec2(  cos( ditherRotMatrixAngleRad ), sin( ditherRotMatrixAngleRad ) ) );
+
+    // calc diffuse light
+    vec3 normal = getNormal( where ).xyz;
+    vec3 lightDir = vec3( 0.0, 0.0, 1.0 );
+    float fIntensity = max( 0.0, dot( lightDir, normalize( normal ) ) );
+
+    // Transforming the fragment coordinates into halftoning texture coordinates:
+    vec2 ditherTexCoord = ditherRotMatrix * gl_FragCoord.xy;
+
+    ditherTexCoord = vec2(mod( ditherTexCoord.x, u_ditherTexSize ) / u_ditherTexSize,
+                          mod( ditherTexCoord.y, u_ditherTexSize ) / u_ditherTexSize );
+
+    // Dither kernel that generates the real halftoning texture.
+    float ditherTau = mix( u_ditherCrossHatchThresh * ditherTexCoord.y,
+                          ( 1.0 - u_ditherCrossHatchThresh ) * ditherTexCoord.x + u_ditherCrossHatchThresh,
+                          step( u_ditherCrossHatchThresh, ditherTexCoord.x ) );
+
+    // Depending on the lighting intensity and the halftoning texture value, a pixel is set or not.
+    if( fIntensity >= ditherTau )
+    {
+        if( fIntensity > ( 1.0 - u_ditherClip ) )
+        {
+            col.a=0.0;
+        }
+        else
+        {
+            col = vec4(u_hatchColor.rgb,1.0);
+        }
+    }
+    else
+    {
+        //col.a=0.0;
+    }
+
+    return col;
+}
+
+/**
+ * Apply the halftone hatching. Creates pencil-like effects.
+ *
+ * \param where location
+ *
+ * \return the shaded pixel
+ */
+vec4 getHalftoneShading( vec2 where )
+{
+    return getHalftoneShading( getColor(), where );
+}
+
+/**
+ * Apply the halftone hatching. Creates pencil-like effects.
+ *
+ * \return the shaded pixel
+ */
+vec4 getHalftoneShading()
+{
+    return getHalftoneShading( getColor(), pixelCoord );
+}
+
+#endif
+
 #ifdef WGE_POSTPROCESSOR_GAUSS
 
 /**
@@ -542,6 +647,22 @@ void main()
 #ifdef WGE_POSTPROCESSOR_CEL
     // output the depth and final color.
     gl_FragData[0] = u_effectPreBlendScale * getCelShading();
+#endif
+
+#ifdef WGE_POSTPROCESSOR_HALFTONE
+    #ifdef WGE_POSTPROCESSOR_OUTPUT_COMBINE
+        // output the depth and final color.
+        vec4 ht = getHalftoneShading();
+        vec4 color = getColor();
+
+        vec3 hatched = mix( color.rgb, ht.rgb, ht.a );
+
+        gl_FragData[0] = vec4( u_effectPreBlendScale * hatched, color.a );
+    #else
+        // output the depth and final color.
+        vec4 ht = getHalftoneShading();
+        gl_FragData[0] = vec4( u_effectPreBlendScale * ht.rgb, ht.a );
+    #endif
 #endif
 
 #ifdef WGE_POSTPROCESSOR_GAUSS

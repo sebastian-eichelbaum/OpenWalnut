@@ -25,11 +25,12 @@
 #include <string>
 #include <vector>
 
-#include "WGEPostprocessorEdgeEnhance.h"
 #include "WGEPostprocessorCelShading.h"
+#include "WGEPostprocessorEdgeEnhance.h"
 #include "WGEPostprocessorGauss.h"
-#include "WGEPostprocessorSSAO.h"
+#include "WGEPostprocessorHalftone.h"
 #include "WGEPostprocessorLineAO.h"
+#include "WGEPostprocessorSSAO.h"
 
 #include "WGEPostprocessor.h"
 
@@ -160,6 +161,7 @@ void WGEPostprocessor::initPostprocessors()
     m_postProcessors.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorGauss() ) );
     m_postProcessors.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorSSAO() ) );
     m_postProcessors.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorLineAO() ) );
+    m_postProcessors.push_back( WGEPostprocessor::SPtr( new WGEPostprocessorHalftone() ) );
 }
 
 size_t WGEPostprocessor::addPostprocessor( SPtr processor )
