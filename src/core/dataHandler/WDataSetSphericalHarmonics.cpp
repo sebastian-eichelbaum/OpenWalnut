@@ -96,11 +96,12 @@ WSymmetricSphericalHarmonic< double > WDataSetSphericalHarmonics::interpolate( c
     // ids of vertices for interpolation
     WGridRegular3D::CellVertexArray vertexIds = m_gridRegular3D->getCellVertexIds( cellId );
 
-    WPosition localPos = pos - m_gridRegular3D->getPosition( vertexIds[0] );
+    WPosition localPos = m_gridRegular3D->getTransform().directionToGridSpace( pos - m_gridRegular3D->getPosition( vertexIds[0] ) );
 
-    double lambdaX = localPos[0] / m_gridRegular3D->getOffsetX();
-    double lambdaY = localPos[1] / m_gridRegular3D->getOffsetY();
-    double lambdaZ = localPos[2] / m_gridRegular3D->getOffsetZ();
+    double lambdaX = localPos[0];
+    double lambdaY = localPos[1];
+    double lambdaZ = localPos[2];
+
     WValue< double > h( 8 );
 //         lZ     lY
 //         |      /

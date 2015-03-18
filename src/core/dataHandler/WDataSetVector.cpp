@@ -107,7 +107,7 @@ namespace
 
         *vertexIds = grid->getCellVertexIds( cellId );
 
-        WPosition localPos = grid->getTransform().positionToGridSpace( pos - grid->getPosition( ( *vertexIds )[0] ) );
+        WPosition localPos = grid->getTransform().directionToGridSpace( pos - grid->getPosition( ( *vertexIds )[0] ) );
 
         double lambdaX = localPos[0];
         double lambdaY = localPos[1];
