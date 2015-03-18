@@ -455,7 +455,7 @@ IF( CXXTEST_FOUND )
 
     # we want a more verbose testing too.
     ADD_CUSTOM_TARGET( vtest
-                       COMMAND $(MAKE) test ARGS="-V"
+                       COMMAND ${CMAKE_BUILD_TOOL} test ARGS="-V"
                        COMMENT "Runs the test in verboseness to see what actually went wrong"
                      )
   ELSE()
