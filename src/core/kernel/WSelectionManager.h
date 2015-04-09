@@ -30,11 +30,15 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../common/WProperties.h"
+
+#include "../dataHandler/WGridRegular3D.h"
+
 #include "WCrosshair.h"
 
-
-template< typename T>
-class WGridRegular3DTemplate;
+namespace osg
+{
+    class Texture3D;
+}
 
 typedef enum
 {

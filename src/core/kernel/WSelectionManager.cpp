@@ -25,6 +25,7 @@
 #include <vector>
 
 #include <osg/Matrix>
+#include <osg/Texture3D>
 
 #include "../common/math/WLinearAlgebraFunctions.h"
 #include "../graphicsEngine/WGEViewer.h"
