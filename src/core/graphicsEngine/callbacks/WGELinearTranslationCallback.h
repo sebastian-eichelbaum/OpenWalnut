@@ -169,7 +169,7 @@ void WGELinearTranslationCallback< T >::operator()( osg::Node* node, osg::NodeVi
     if( newPos != m_oldPos )
     {
         m_oldPos = newPos;
-        osg::MatrixTransform* m = static_cast< osg::MatrixTransform* >( node );
+        osg::MatrixTransform* m = dynamic_cast< osg::MatrixTransform* >( node );
         if( m )
         {
             boost::shared_ptr< WPropertyConstraintMax< typename T::element_type::DataType > > mx = m_pos->getMax();
