@@ -67,6 +67,9 @@ public:
      */
     typedef boost::shared_ptr< const WPropertyVariable< T > > ConstSPtr;
 
+    //! The type of the data of this property.
+    typedef T DataType;
+
     /**
      * Create an empty instance just containing a name.
      *

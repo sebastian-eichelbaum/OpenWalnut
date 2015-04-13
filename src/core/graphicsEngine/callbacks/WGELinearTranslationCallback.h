@@ -172,24 +172,30 @@ void WGELinearTranslationCallback< T >::operator()( osg::Node* node, osg::NodeVi
         osg::MatrixTransform* m = static_cast< osg::MatrixTransform* >( node );
         if( m )
         {
-            float max = m_pos->getMax()->getMax();
-            float min = m_pos->getMin()->getMin();
-            float size = max - min;
-            float axeLen = m_axe.length();
+            boost::shared_ptr< WPropertyConstraintMax< typename T::element_type::DataType > > mx = m_pos->getMax();
+            boost::shared_ptr< WPropertyConstraintMin< typename T::element_type::DataType > > mn = m_pos->getMin();
 
-            osg::Vec3 translation = m_axe * m_scaler * static_cast< float >( m_oldPos - min );
-
-            // set both matrices
-            if( m_texMat )
+            if( mn && mx )
             {
-                m_texMat->setMatrix( osg::Matrix::translate( translation / size / axeLen ) );
-            }
-            if( m_uniform )
-            {
-                m_uniform->set( osg::Matrix::translate( translation ) );
-            }
+                float max = mx->getMax();
+                float min = mn->getMin();
+                float size = max - min;
+                float axeLen = m_axe.length();
 
-            m->setMatrix( osg::Matrix::translate( translation ) );
+                osg::Vec3 translation = m_axe * m_scaler * static_cast< float >( m_oldPos - min );
+
+                // set both matrices
+                if( m_texMat )
+                {
+                    m_texMat->setMatrix( osg::Matrix::translate( translation / size / axeLen ) );
+                }
+                if( m_uniform )
+                {
+                    m_uniform->set( osg::Matrix::translate( translation ) );
+                }
+
+                m->setMatrix( osg::Matrix::translate( translation ) );
+            }
         }
     }
 
