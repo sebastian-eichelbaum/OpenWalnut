@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <osgGA/TrackballManipulator>
+
 #include "../../common/WLogger.h"
 
 #include "../../graphicsEngine/WGraphicsEngine.h"
@@ -39,6 +41,59 @@ void screenshot()
     else
     {
         wlog::error( "Script" ) << "No graphics engine! Cannot make screenshot!";
+    }
+}
+
+void initCamera( std::string const& view )
+{
+    if( WKernel::getRunningKernel()->getGraphicsEngine() )
+    {
+        osg::ref_ptr< osgGA::TrackballManipulator > cm = osg::dynamic_pointer_cast< osgGA::TrackballManipulator >( WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCameraManipulator() );
+        if( cm )
+        {
+            osg::Quat q;
+
+            if( view == "anterior" )
+            {
+                q = osg::Quat( 0., -0.707107, -0.707107, 0. );
+            }
+            else if( view == "posterior" )
+            {
+                q = osg::Quat( 0.707107, 0., 0., 0.707107 );
+            }
+            else if( view == "left" )
+            {
+                q = osg::Quat( 0.5, -0.5, -0.5, 0.5 );
+            }
+            else if( view == "right" )
+            {
+                q = osg::Quat( -0.5, -0.5, -0.5, -0.5 );
+            }
+            else if( view == "superior" )
+            {
+                q = osg::Quat( 0., 0., 0., 1 );
+            }
+            else if( view == "inferior" )
+            {
+                q = osg::Quat( 0., -1., 0., 0. );
+            }
+            else
+            {
+                q = osg::Quat( 0., 0., 0., 1 );
+
+                wlog::warn( "Script" ) << "Unknown preset: " << view << "!";
+            }
+
+            cm->setRotation( q );
+        }
+        else
+        {
+            wlog::warn( "Script" ) << "GL Widget does not use a TrackballManipulator. Preset cannot be used.";
+        }
+    }
+    else
+    {
+        wlog::error( "Script" ) << "No graphics engine! Cannot set camera preset!";
     }
 }
 

@@ -30,5 +30,12 @@
  */
 void screenshot();
 
+/**
+ * Set the camera to a standard view.
+ *
+ * \param view The view to set to: anterior, posterior, left, right, superior, inferior.
+ */
+void initCamera( std::string const& view );
+
 #endif  // WUTILITYFUNCTIONS_H_
 
