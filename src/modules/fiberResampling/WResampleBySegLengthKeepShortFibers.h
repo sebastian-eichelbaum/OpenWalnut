@@ -22,25 +22,41 @@
 //
 //---------------------------------------------------------------------------
 
-#include <vector>
-#include <cmath>
+#ifndef WRESAMPLEBYSEGLENGTHKEEPSHORTFIBERS_H
+#define WRESAMPLEBYSEGLENGTHKEEPSHORTFIBERS_H
 
-#include <osg/Vec3>
+#include <core/common/datastructures/WFiber.h>
+#include <core/common/WObjectNDIP.h>
 
-#include <core/common/math/WMath.h>
+#include "WResampling_I.h"
 
-#include "WResampleBySegLength.h"
-
-WResampleBySegLength::WResampleBySegLength()
-    : WObjectNDIP< WResampling_I >( "Segment Length Resampling (discard leftover and short fibers)",
-                                    "Each fiber segement is of the given length after resampling" )
+/**
+ * Resamples fibers by segment length.
+ * Does not discard any fibers.
+ */
+class WResampleBySegLengthKeepShortFibers : public WObjectNDIP< WResampling_I >
 {
-    m_segLength = m_properties->addProperty( "Length", "New Segmentlength each fiber should have afterwards", 1.0 );
-    m_segLength->setMin( 0.0 );
-}
+public:
+    /**
+     * Constructor.
+     */
+    WResampleBySegLengthKeepShortFibers();
 
-WFiber WResampleBySegLength::resample( WFiber fib ) const
-{
-    fib.resampleBySegmentLength( m_segLength->get( true ) );
-    return fib;
-}
+protected:
+    /**
+     * The given fiber is resampled by segment length and a copy is returned.
+     *
+     * \param fib Fiber to resample.
+     *
+     * \return Copy of the resampled fiber.
+     */
+    virtual WFiber resample( WFiber fib ) const;
+
+    /**
+     * Number of new sample points all tracts are resampled to.
+     */
+    WPropDouble m_segLength;
+private:
+};
+
+#endif  // WRESAMPLEBYSEGLENGTHKEEPSHORTFIBERS_H

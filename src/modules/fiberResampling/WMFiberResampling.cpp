@@ -36,6 +36,7 @@
 #include "WResampleByMaxPoints.h"
 #include "WResampleByNumPoints.h"
 #include "WResampleBySegLength.h"
+#include "WResampleBySegLengthKeepShortFibers.h"
 
 W_LOADABLE_MODULE( WMFiberResampling )
 
@@ -46,6 +47,7 @@ WMFiberResampling::WMFiberResampling():
 {
     m_strategy.addStrategy( WResampleByNumPoints::SPtr( new WResampleByNumPoints() ) );
     m_strategy.addStrategy( WResampleBySegLength::SPtr( new WResampleBySegLength() ) );
+    m_strategy.addStrategy( WResampleBySegLength::SPtr( new WResampleBySegLengthKeepShortFibers() ) );
     m_strategy.addStrategy( WResampleByMaxPoints::SPtr( new WResampleByMaxPoints() ) );
 }
 

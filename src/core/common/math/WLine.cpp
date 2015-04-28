@@ -153,30 +153,32 @@ void WLine::resampleBySegmentLength( double newSegmentLength )
     {
         return;
     }
+
     WLine newLine;
     newLine.push_back( front() );
-    for( size_t i = 1; i < size(); )
+
+    std::size_t i = 1;
+    while( i < size() )
     {
-        WPosition current = (*this)[i];
-        if( length( newLine.back() - current ) > newSegmentLength )
+        // find first point outside of a circle of radius newSegmentLength around newLine.back()
+        // its index will be k
+        std::size_t k = i;
+        while( k < size() && length( newLine.back() - at( k ) ) < newSegmentLength )
+            ++k;
+
+        if( k == size() )
         {
-            newLine.push_back( newLine.back() + normalize( ( current - newLine.back() ) * newSegmentLength ) );
-            continue;
+            break;
+        }
+
+        if( k == i )
+        {
+            newLine.push_back( newLine.back() + normalize( at( k ) - newLine.back() ) * newSegmentLength );
         }
         else
         {
-            do
-            {
-                i = i + 1;
-                current = (*this)[i];
-            }
-            while( length( newLine.back() - current ) < newSegmentLength && i < size() );
-
-            if( i >= size() ) // discard last point, as we dont want to elongate the new line
-            {
-                break;
-            }
-            const WPosition pred = ( *this )[ i - 1 ];
+            WPosition const& current = at( k );
+            WPosition const& pred = at( k - 1 );
 
             WVector3d lineDirection = current - pred;
             WAssert( lineDirection != WVector3d( 0.0, 0.0, 0.0 ), "current should be diffrent from pred" );
@@ -191,14 +193,79 @@ void WLine::resampleBySegmentLength( double newSegmentLength )
             WPosition pointOfIntersection;
             if( std::real( solution.first ) > 0.0 )
             {
-                pointOfIntersection = pred + std::real( solution.first ) * ( ( *this )[i] - pred );
+                pointOfIntersection = pred + std::real( solution.first ) * ( current - pred );
             }
             else
             {
-                pointOfIntersection = pred + std::real( solution.second ) * ( ( *this )[i] - pred );
+                pointOfIntersection = pred + std::real( solution.second ) * ( current - pred );
             }
             newLine.push_back( pointOfIntersection );
         }
+        i = k;
+    }
+    this->WMixinVector< WPosition >::operator=( newLine );
+}
+
+void WLine::resampleBySegmentLengthKeepShortFibers( double newSegmentLength )
+{
+    // eliminate duplicate points following next to another
+    removeAdjacentDuplicates();
+
+    if( empty() || size() == 1 )
+    {
+        return;
+    }
+
+    WLine newLine;
+    newLine.push_back( front() );
+
+    std::size_t i = 1;
+    while( i < size() )
+    {
+        // find first point outside of a circle of radius newSegmentLength around newLine.back()
+        // its index will be k
+        std::size_t k = i;
+        while( k < size() && length( newLine.back() - at( k ) ) < newSegmentLength )
+            ++k;
+
+        if( k == size() )
+        {
+            if( length( newLine.back() - at( k - 1 ) ) > 0.001 )
+                newLine.push_back( at( k - 1 ) );
+            break;
+        }
+
+        if( k == i )
+        {
+            newLine.push_back( newLine.back() + normalize( at( k ) - newLine.back() ) * newSegmentLength );
+        }
+        else
+        {
+            WPosition const& current = at( k );
+            WPosition const& pred = at( k - 1 );
+
+            WVector3d lineDirection = current - pred;
+            WAssert( lineDirection != WVector3d( 0.0, 0.0, 0.0 ), "current should be diffrent from pred" );
+            WVector3d o_c = pred - newLine.back(); // origin - center
+            double alpha = dot( lineDirection, lineDirection );
+            double beta = 2.0 * dot( lineDirection, o_c );
+            double gamma = dot( o_c, o_c ) - newSegmentLength * newSegmentLength;
+
+            std::pair< std::complex< double >, std::complex< double > > solution = solveRealQuadraticEquation( alpha, beta, gamma );
+            // NOTE: if this assert fires, then this algo is wrong and produces wrong results, and I've to search to bug!
+            WAssert( std::imag( solution.first ) == 0.0 && std::imag( solution.second ) == 0.0, "Imaginary solution detected." );
+            WPosition pointOfIntersection;
+            if( std::real( solution.first ) > 0.0 )
+            {
+                pointOfIntersection = pred + std::real( solution.first ) * ( current - pred );
+            }
+            else
+            {
+                pointOfIntersection = pred + std::real( solution.second ) * ( current - pred );
+            }
+            newLine.push_back( pointOfIntersection );
+        }
+        i = k;
     }
     this->WMixinVector< WPosition >::operator=( newLine );
 }

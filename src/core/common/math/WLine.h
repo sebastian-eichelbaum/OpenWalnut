@@ -71,6 +71,15 @@ public:
     void resampleBySegmentLength( double newSegementLength );
 
     /**
+     * Resample this line so there are only segements of the given length.
+     *
+     * \note There will be segments of length < newSegmentLength at the ends of the lines; no lines will be discarded.
+     *
+     * \param newSegmentLength
+     */
+    void resampleBySegmentLengthKeepShortFibers( double newSegmentLength );
+
+    /**
      * Reverses the order of the points. (mirroring)
      */
     void reverseOrder();

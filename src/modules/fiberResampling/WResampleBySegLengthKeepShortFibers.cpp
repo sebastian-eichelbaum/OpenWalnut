@@ -29,18 +29,17 @@
 
 #include <core/common/math/WMath.h>
 
-#include "WResampleBySegLength.h"
+#include "WResampleBySegLengthKeepShortFibers.h"
 
-WResampleBySegLength::WResampleBySegLength()
-    : WObjectNDIP< WResampling_I >( "Segment Length Resampling (discard leftover and short fibers)",
-                                    "Each fiber segement is of the given length after resampling" )
+WResampleBySegLengthKeepShortFibers::WResampleBySegLengthKeepShortFibers()
+    : WObjectNDIP< WResampling_I >( "Segment Length Resampling (keep short fibers)", "Each fiber segement is of the given length after resampling" )
 {
     m_segLength = m_properties->addProperty( "Length", "New Segmentlength each fiber should have afterwards", 1.0 );
     m_segLength->setMin( 0.0 );
 }
 
-WFiber WResampleBySegLength::resample( WFiber fib ) const
+WFiber WResampleBySegLengthKeepShortFibers::resample( WFiber fib ) const
 {
-    fib.resampleBySegmentLength( m_segLength->get( true ) );
+    fib.resampleBySegmentLengthKeepShortFibers( m_segLength->get( true ) );
     return fib;
 }
