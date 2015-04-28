@@ -89,3 +89,24 @@ void WLoggerWrapper::removeAllFileStreams()
         removeFileStreamNumber( i );
     }
 }
+
+void WLoggerWrapper::error( std::string const& location, std::string const& message )
+{
+    m_logger->addLogMessage( message, location, LL_ERROR );
+}
+
+void WLoggerWrapper::warning( std::string const& location, std::string const& message )
+{
+    m_logger->addLogMessage( message, location, LL_WARNING );
+}
+
+void WLoggerWrapper::info( std::string const& location, std::string const& message )
+{
+    m_logger->addLogMessage( message, location, LL_INFO );
+}
+
+void WLoggerWrapper::debug( std::string const& location, std::string const& message )
+{
+    m_logger->addLogMessage( message, location, LL_DEBUG );
+}
+

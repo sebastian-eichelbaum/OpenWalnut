@@ -100,6 +100,38 @@ public:
      */
     void removeAllFileStreams();
 
+    /**
+     * Output an error to the logs.
+     *
+     * \param location A string indicating where the error occured.
+     * \param message A message indicating what happened.
+     */
+    void error( std::string const& location, std::string const& message );
+
+    /**
+     * Output a warning to the logs.
+     *
+     * \param location A string indicating where the problem occured.
+     * \param message A message indicating what happened.
+     */
+    void warning( std::string const& location, std::string const& message );
+
+    /**
+     * Output information to the logs.
+     *
+     * \param location A string indicating where the info is from.
+     * \param message The information.
+     */
+    void info( std::string const& location, std::string const& message );
+
+    /**
+     * Output a debug message.
+     *
+     * \param location A string indicating where the message is from.
+     * \param message The debug message.
+     */
+    void debug( std::string const& location, std::string const& message );
+
 private:
     /**
      * Helper function that removes the file stream with the given index.

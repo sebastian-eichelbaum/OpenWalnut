@@ -146,7 +146,12 @@ void WScriptInterpreterPython::initBindings()
     m_pyMainNamespace[ "WLogger" ]  = pb::class_< WLoggerWrapper >( "WLogger", pb::no_init )
                                      .def( "addFileStream", &WLoggerWrapper::addFileStream )
                                      .def( "removeFileStream", &WLoggerWrapper::removeFileStream )
-                                     .def( "removeAllFileStreams", &WLoggerWrapper::removeAllFileStreams );
+                                     .def( "removeAllFileStreams", &WLoggerWrapper::removeAllFileStreams )
+                                     .def( "error", &WLoggerWrapper::error )
+                                     .def( "warning", &WLoggerWrapper::warning )
+                                     .def( "info", &WLoggerWrapper::info )
+                                     .def( "debug", &WLoggerWrapper::debug );
+
 
     m_pyMainNamespace[ "screenshot" ] = pb::make_function( &screenshot );
 
