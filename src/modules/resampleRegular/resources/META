@@ -1,0 +1,48 @@
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2015 OpenWalnut Community, Nemtics, BSV@Uni-Leipzig
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
+
+// Provide additional material and descriptions for your module. You can
+// provide this for multiple modules if you like. 
+// The purpose of this file is to allow the developers to provide additional
+// material for their module, like documentation links, video tutorials and 
+// similar. You should always write such a META file for your module, even
+// if you do not provide additional material (for now at least).
+
+// An extensively commented example of a META file can be 
+// found in src/modules/template/resources
+
+"Resample Regular"
+{
+  // Provide an icon with this name in the same directory as this file.
+  icon="WMResampleRegularIcon.png";
+
+  website = "http://www.openwalnut.org";
+  author = "OpenWalnut Project";
+  "OpenWalnut Project"
+  {
+    url="http://www.openwalnut.org";
+    email="contact@openwalnut.org";
+    what="Design, Development and Bug fixing";
+  };
+};
