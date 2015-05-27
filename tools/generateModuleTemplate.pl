@@ -8,7 +8,7 @@ $header = <<EOF
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2015 OpenWalnut Community, Nemtics, BSV\@Uni-Leipzig
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -83,13 +83,6 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
-    /**
-     * Get the icon for this module in XPM format.
-     *
-     * \\return The icon.
-     */
-    virtual const char** getXPMIcon() const;
-
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -124,7 +117,7 @@ $impl = <<EOF
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2014 OpenWalnut Community, Nemtics, BSV@Uni-Leipzig
+// Copyright 2015 OpenWalnut Community, Nemtics, BSV\@Uni-Leipzig
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -169,26 +162,18 @@ boost::shared_ptr< WModule > WM#name#::factory() const
     return boost::shared_ptr< WModule >( new WM#name#() );
 }
 
-const char** WM#name#::getXPMIcon() const
-{
-    // This is deprecated! You can still use it as fallback if you do not specify a META file.
-    //
-    // This was used to provide an icon for your module. You should use the META file in your resource directory. This file is commented and
-    // explains each entry in detail.
-    return NULL;
-}
 const std::string WM#name#::getName() const
 {
     // Specify your module name here. This name must be UNIQUE!
     return "#name#";
 }
-
+ 
 const std::string WM#name#::getDescription() const
 {
     // Specify your module description here. Be detailed. This text is read by the user.
     // See "src/modules/template/" for an extensively documented example.
-    return "No documentation yet "
-    "The best person to ask for documenation is probably the modules's creator, i.e. \\\"$creator\\\"";
+    return "No documentation yet. "
+    "The best person to ask for documenation is probably the modules's creator, i.e. the user with the name \\\"$creator\\\".";
 }
 
 void WM#name#::connectors()
@@ -218,6 +203,59 @@ void WM#name#::moduleMain()
 EOF
 ;
 
+
+$meta = <<EOF
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2015 OpenWalnut Community, Nemtics, BSV\@Uni-Leipzig
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
+
+// Provide additional material and descriptions for your module. You can
+// provide this for multiple modules if you like. 
+// The purpose of this file is to allow the developers to provide additional
+// material for their module, like documentation links, video tutorials and 
+// similar. You should always write such a META file for your module, even
+// if you do not provide additional material (for now at least).
+
+// An extensively commented example of a META file can be 
+// found in src/modules/template/resources
+
+"#name#"
+{
+  // Provide an icon with this name in the same directory as this file.
+  icon="WM#name#Icon.png";
+
+  website = "http://www.openwalnut.org";
+  author = "OpenWalnut Project";
+  "OpenWalnut Project"
+  {
+    url="http://www.openwalnut.org";
+    email="contact\@openwalnut.org";
+    what="Design, Development and Bug fixing";
+  };
+};
+EOF
+;
+
 die "Need exactly one command line argument (module name).\nPlease execute this script in the src/modules directory with the desired module name.\n" unless $#ARGV == 0;
 
 $dirname = lcfirst($ARGV[0]); # directory has to have lower case first letter
@@ -228,12 +266,19 @@ $modulename = ucfirst($ARGV[0]); # name has to have upper case first letter
 print "Generating for ".$modulename." in ".$parentdir.$dirname.".\n";
 
 mkdir $dirname;
+$resourcesDirName = "${dirname}/resources";
+print $resourcesDirName;
+mkdir $resourcesDirName;
+
 
 $header =~ s/\#name\#/$modulename/gm;
 $impl   =~ s/\#name\#/$modulename/gm;
+$meta   =~ s/\#name\#/$modulename/gm;
 
 # Set the header guards in capitals
 $header =~ s/\#NAME\#/\U$modulename/gm;
+
+
 
 open( FILE, ">${dirname}/WM${modulename}.h" ) or die;
 print FILE $header;
@@ -243,6 +288,12 @@ open( FILE, ">${dirname}/WM${modulename}.cpp" ) or die;
 print FILE $impl;
 close( FILE );
 
+open( FILE, ">${dirname}/resources/META" ) or die;
+print FILE $meta;
+close( FILE );
+
 print "Generating completed.\n";
 print "\n";
 print "Look at the template module for an introduction to module programming.\n";
+print "\n";
+print "Do not forget to add the new module to a module-*.toolbox file in order to introduce it to the build system.\n";
