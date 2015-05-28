@@ -220,7 +220,7 @@ void WMDataTypeConversion::connectors()
     // initialize connectors
     m_input = boost::shared_ptr<WModuleInputData<WDataSetSingle> >(
             new WModuleInputData<WDataSetSingle> ( shared_from_this(), "in",
-                    "The dataset to filter" ) );
+                    "The dataset whose values' type should be converted." ) );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
     addConnector( m_input );
@@ -228,7 +228,7 @@ void WMDataTypeConversion::connectors()
     // initialize connectors
     m_output = boost::shared_ptr<WModuleOutputData<WDataSetSingle> >(
             new WModuleOutputData<WDataSetSingle> ( shared_from_this(), "out",
-                    "The filtered data set." ) );
+                    "The converted dataset." ) );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
     addConnector( m_output );
