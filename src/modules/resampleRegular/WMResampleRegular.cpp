@@ -32,7 +32,8 @@
 W_LOADABLE_MODULE( WMResampleRegular )
 
 WMResampleRegular::WMResampleRegular():
-    WModule()
+    WModule(),
+    resampleStepSize( 2 )
 {
 }
 
@@ -90,7 +91,50 @@ void WMResampleRegular::requirements()
 
 void WMResampleRegular::moduleMain()
 {
+
+    m_moduleState.add( m_original->getDataChangedCondition() );
+
     // signal ready state
     ready();
+
+    debugLog() << "Waiting ...";
+    m_moduleState.wait();
+
+    std::cout<<"mmmm"<<std::endl;
+    boost::shared_ptr< WDataSetScalar > originalData = m_original->getData();
+    std::cout<<"mmmm1"<<std::endl;
+    boost::shared_ptr<WGridRegular3D> grid = boost::dynamic_pointer_cast< WGridRegular3D >( originalData->getGrid() );
+    std::cout<<"mmmm2"<<std::endl;
+
+    size_t nX = grid->getNbCoordsX();
+    size_t nY = grid->getNbCoordsY();
+    size_t nZ = grid->getNbCoordsZ();
+
+    boost::shared_ptr< WGrid > resampledGrid;
+    resampledGrid = boost::shared_ptr< WGridRegular3D >(
+        new WGridRegular3D( nY/resampleStepSize, nY/resampleStepSize, nZ/resampleStepSize ) );
+    // TODO( wiebel ): adapt transformation above
+
+    boost::shared_ptr<WValueSet<unsigned char> > vals;
+    vals = boost::dynamic_pointer_cast<WValueSet<unsigned char> >( originalData->getValueSet() );
+
+    boost::shared_ptr< std::vector< unsigned char > > theValues;
+    theValues =  boost::shared_ptr< std::vector< unsigned char > >( new std::vector< unsigned char >() );
+
+    for( size_t idZ = 0; idZ < nZ; idZ += resampleStepSize )
+    {
+        for( size_t idY = 0; idY < nY; idY += resampleStepSize )
+        {
+            for( size_t idX = 0; idX < nX; idX += resampleStepSize )
+            {
+                theValues->push_back( vals->getScalar( grid->getVoxelNum( idX, idY, idZ ) ) );
+            }
+        }
+    }
+
+    boost::shared_ptr< WValueSet< unsigned char > >  newValueSet;
+    newValueSet = boost::shared_ptr< WValueSet< unsigned char > >( new WValueSet<unsigned char>( vals->order(), vals->dimension(), theValues ) );
+
+    m_resampled->updateData( boost::shared_ptr<WDataSetScalar>( new WDataSetScalar( newValueSet, resampledGrid ) ) );
 
 }
