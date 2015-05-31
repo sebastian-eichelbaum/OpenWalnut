@@ -59,8 +59,7 @@ const std::string WMResampleRegular::getDescription() const
 {
     // Specify your module description here. Be detailed. This text is read by the user.
     // See "src/modules/template/" for an extensively documented example.
-    return "No documentation yet. "
-    "A module to resample a regular dataset with a different regular grid.";
+    return "A module to resample a regular dataset with a different regular grid.";
 }
 
 void WMResampleRegular::connectors()
