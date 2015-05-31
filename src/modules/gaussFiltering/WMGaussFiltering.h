@@ -115,7 +115,7 @@ private:
     /**
      * 1D or 3D filtering flag
      */
-    WPropBool m_mode;
+    WPropBool m_3DMaskMode;
 
     /**
      * Simple convolution using a small gauss-like mask
