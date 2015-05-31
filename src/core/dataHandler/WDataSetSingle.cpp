@@ -140,6 +140,10 @@ double WDataSetSingle::getValueAt( size_t id ) const
         {
             return static_cast< double >( boost::dynamic_pointer_cast< WValueSet< uint8_t > >( getValueSet() )->getScalar( id ) );
         }
+        case W_DT_UINT16:
+        {
+            return static_cast< double >( boost::dynamic_pointer_cast< WValueSet< uint16_t > >( getValueSet() )->getScalar( id ) );
+        }
         case W_DT_INT16:
         {
             return static_cast< double >( boost::dynamic_pointer_cast< WValueSet< int16_t > >( getValueSet() )->getScalar( id ) );
