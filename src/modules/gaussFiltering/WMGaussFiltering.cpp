@@ -123,7 +123,7 @@ std::vector<double> WMGaussFiltering::filterField( boost::shared_ptr< WValueSet<
     size_t nY = grid->getNbCoordsY();
     size_t nZ = grid->getNbCoordsZ();
 
-    if( m_mode->get(true) )
+    if( m_3DMaskMode->get(true) )
     {
         std::vector<double> newVals( vals->elementsPerValue() * nX * nY * nZ, 0. );
 
@@ -209,15 +209,15 @@ boost::shared_ptr< WValueSet< double > > WMGaussFiltering::iterativeFilterField(
     // use a custom progress combiner
     boost::shared_ptr< WProgress > prog;
 
-    if( m_mode->get() )
+    if( m_3DMaskMode->get() )
     {
-    prog = boost::shared_ptr< WProgress >(
-        new WProgress( "Gauss Filter Iteration", iterations * grid->getNbCoordsZ() ) );
+        prog = boost::shared_ptr< WProgress >(
+            new WProgress( "Gauss Filter Iteration", iterations * grid->getNbCoordsZ() ) );
     }
     else
     {
-    prog = boost::shared_ptr< WProgress >(
-        new WProgress( "Gauss Filter Iteration", 3 * iterations * grid->getNbCoordsZ() ) );
+        prog = boost::shared_ptr< WProgress >(
+            new WProgress( "Gauss Filter Iteration", 3 * iterations * grid->getNbCoordsZ() ) );
     }
     m_progress->addSubProgress( prog );
 
@@ -297,7 +297,7 @@ void WMGaussFiltering::moduleMain()
             dataChanged = ( iterations >= 1 );
         }
 
-        if( m_mode->changed() )
+        if( m_3DMaskMode->changed() )
         {
             dataChanged = true;
         }
@@ -397,11 +397,11 @@ void WMGaussFiltering::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_iterations      = m_properties->addProperty( "Iterations",         "How often should the filter be applied.", 1, m_propCondition );
+    m_iterations = m_properties->addProperty( "Iterations", "How often should the filter be applied.", 1, m_propCondition );
     m_iterations->setMin( 0 );
     m_iterations->setMax( 100 );
 
-    m_mode            = m_properties->addProperty( "Mode", "", false, m_propCondition );
+    m_3DMaskMode = m_properties->addProperty( "Filter 3D", "Filter with a 3D mask instead of three 1D masks.", false, m_propCondition );
 
     WModule::properties();
 }
