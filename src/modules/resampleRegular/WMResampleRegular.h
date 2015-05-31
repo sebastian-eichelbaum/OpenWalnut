@@ -36,26 +36,20 @@
 #include "core/dataHandler/WDataSetScalar.h"
 
 /**
- * Someone should add some documentation here.
- * Probably the best person would be the module's
- * creator, i.e. "wiebel".
- *
- * This is only an empty template for a new module. For
- * an example module containing many interesting concepts
- * and extensive documentation have a look at "src/modules/template"
- *
+ * A module to resample a regular dataset with a different regular grid.
+ * 
  * \ingroup modules
  */
 class WMResampleRegular: public WModule
 {
 public:
     /**
-     *
+     * Constructor currently only initializing the class members.
      */
     WMResampleRegular();
 
     /**
-     *
+     * Still empty destructor.
      */
     virtual ~WMResampleRegular();
 
