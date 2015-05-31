@@ -106,7 +106,6 @@ private:
     boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_resampled; //!< Connector yielding resampled data.
 
     size_t resampleStepSize; //!< Use every resampleStepSize-th value in each coordinate direction
-
 };
 
 #endif  // WMRESAMPLEREGULAR_H

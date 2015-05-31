@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <vector>
 
 #include "core/kernel/WKernel.h"
 
@@ -59,7 +60,7 @@ const std::string WMResampleRegular::getDescription() const
     // Specify your module description here. Be detailed. This text is read by the user.
     // See "src/modules/template/" for an extensively documented example.
     return "No documentation yet. "
-    "The best person to ask for documenation is probably the modules's creator, i.e. the user with the name \"wiebel\".";
+    "A module to resample a regular dataset with a different regular grid.";
 }
 
 void WMResampleRegular::connectors()
@@ -91,7 +92,6 @@ void WMResampleRegular::requirements()
 
 void WMResampleRegular::moduleMain()
 {
-
     m_moduleState.add( m_original->getDataChangedCondition() );
 
     // signal ready state
@@ -100,7 +100,6 @@ void WMResampleRegular::moduleMain()
     // loop until the module container requests the module to quit
     while( !m_shutdownFlag() )
     {
-
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
@@ -128,7 +127,7 @@ void WMResampleRegular::moduleMain()
         boost::shared_ptr< WGrid > resampledGrid;
         resampledGrid = boost::shared_ptr< WGridRegular3D >(
             new WGridRegular3D( nY/resampleStepSize, nY/resampleStepSize, nZ/resampleStepSize ) );
-        // TODO( wiebel ): adapt transformation above
+        // TODO(wiebel): adapt transformation above
 
         boost::shared_ptr<WValueSetBase> vals;
         vals = boost::dynamic_pointer_cast<WValueSetBase >( originalData->getValueSet() );
@@ -142,7 +141,7 @@ void WMResampleRegular::moduleMain()
             {
                 for( size_t idX = 1; idX < nX; idX += resampleStepSize )
                 {
-                    theValues->push_back( static_cast<float>(originalData->getValueAt( idX, idY, idZ ) ) );
+                    theValues->push_back( static_cast<float>( originalData->getValueAt( idX, idY, idZ ) ) );
                 }
             }
         }
