@@ -28,6 +28,7 @@
 #include "core/kernel/WKernel.h"
 
 #include "WMResampleRegular.h"
+#include "core/dataHandler/WGridTransformOrtho.h"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMResampleRegular )
@@ -51,14 +52,11 @@ boost::shared_ptr< WModule > WMResampleRegular::factory() const
 
 const std::string WMResampleRegular::getName() const
 {
-    // Specify your module name here. This name must be UNIQUE!
     return "Resample Regular";
 }
 
 const std::string WMResampleRegular::getDescription() const
 {
-    // Specify your module description here. Be detailed. This text is read by the user.
-    // See "src/modules/template/" for an extensively documented example.
     return "A module to resample a regular dataset with a different regular grid.";
 }
 
@@ -79,7 +77,12 @@ void WMResampleRegular::connectors()
 
 void WMResampleRegular::properties()
 {
-    // Put the code for your properties here. See "src/modules/template/" for an extensively documented example.
+    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+    m_preserverBoundingBox = m_properties->addProperty( "Preserve Bounding Box",
+                                                        "Scale the voxel distance to preserve the original dataset size (bounding box).",
+                                                        false,
+                                                        m_propCondition );
 
     WModule::properties();
 }
@@ -92,6 +95,7 @@ void WMResampleRegular::requirements()
 void WMResampleRegular::moduleMain()
 {
     m_moduleState.add( m_original->getDataChangedCondition() );
+    m_moduleState.add( m_propCondition );
 
     // signal ready state
     ready();
@@ -123,10 +127,18 @@ void WMResampleRegular::moduleMain()
         size_t nY = grid->getNbCoordsY();
         size_t nZ = grid->getNbCoordsZ();
 
+
+        WGridTransformOrthoTemplate<double> transformation( 1.0, 1.0, 1.0 );
+        if( m_preserverBoundingBox->get(true) )
+        {
+            // TODO(wiebel): adapt transformation above
+            std::cout << "BLUB" << std::endl;
+            transformation = WGridTransformOrthoTemplate<double>( resampleStepSize, resampleStepSize, resampleStepSize );
+        }
+
         boost::shared_ptr< WGrid > resampledGrid;
         resampledGrid = boost::shared_ptr< WGridRegular3D >(
-            new WGridRegular3D( nY/resampleStepSize, nY/resampleStepSize, nZ/resampleStepSize ) );
-        // TODO(wiebel): adapt transformation above
+            new WGridRegular3D( nY/resampleStepSize, nY/resampleStepSize, nZ/resampleStepSize, transformation ) );
 
         boost::shared_ptr<WValueSetBase> vals;
         vals = boost::dynamic_pointer_cast<WValueSetBase >( originalData->getValueSet() );

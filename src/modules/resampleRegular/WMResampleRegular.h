@@ -37,7 +37,7 @@
 
 /**
  * A module to resample a regular dataset with a different regular grid.
- * 
+ *
  * \ingroup modules
  */
 class WMResampleRegular: public WModule
@@ -100,6 +100,13 @@ private:
     boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_resampled; //!< Connector yielding resampled data.
 
     size_t resampleStepSize; //!< Use every resampleStepSize-th value in each coordinate direction
+
+    WPropBool m_preserverBoundingBox; //!< Optionally presever bounding box of dataset.
+
+    /**
+     * A condition used to notify about changes in several properties.
+     */
+    boost::shared_ptr< WCondition > m_propCondition;
 };
 
 #endif  // WMRESAMPLEREGULAR_H
