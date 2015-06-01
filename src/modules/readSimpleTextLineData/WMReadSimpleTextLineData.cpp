@@ -228,7 +228,7 @@ void WMReadSimpleTextLineData::load()
     WDataSetFibers::LengthArray lengths( new WDataSetFibers::LengthArray::element_type() );
     WDataSetFibers::IndexArray lineStartIndices( new WDataSetFibers::IndexArray::element_type() );
     WDataSetFibers::IndexArray verticesReverse( new WDataSetFibers::IndexArray::element_type() );
-    WDataSetFibers::VertexParemeterArray attribs( new WDataSetFibers::VertexParemeterArray::element_type() );
+    // WDataSetFibers::VertexParemeterArray attribs( new WDataSetFibers::VertexParemeterArray::element_type() );
 
     size_t currentStartIndex = 0;
 
