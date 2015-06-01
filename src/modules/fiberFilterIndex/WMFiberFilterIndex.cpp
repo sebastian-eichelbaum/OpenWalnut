@@ -134,6 +134,7 @@ void WMFiberFilterIndex::updateOutput()
     boost::shared_ptr< std::vector< size_t > >  lineStartIndexes( new std::vector< size_t >() );
     boost::shared_ptr< std::vector< size_t > >  lineLengths( new std::vector< size_t >() );
     boost::shared_ptr< std::vector< size_t > >  verticesReverse( new std::vector< size_t >() );
+    WDataSetFibers::VertexParemeterArray        vertexParameter;
 
     boost::shared_ptr< WProgress > progress1( new WProgress( "Filtering" ) );
     m_progress->addSubProgress( progress1 );
@@ -147,11 +148,26 @@ void WMFiberFilterIndex::updateOutput()
         m_output->reset();
     }
 
+    // Is there an parameter array defined in the source data?
+    bool hasAttribs = ( m_fibers->getVertexParameters() != NULL );
+
     // Get vertex data
-    size_t startIdx = 3 * m_fibers->getStartIndex( idx );
+    size_t startIdx =m_fibers->getStartIndex( idx );
+    size_t startIdx3 = 3 * startIdx;
     size_t len = m_fibers->getLengthOfLine( idx );
+    size_t len3 = 3 * len;
+
+    // Copy vertex data
     vertices->resize( len * 3 );
-    std::copy( m_fibers->getVertices()->begin() + startIdx, m_fibers->getVertices()->begin() + startIdx + 3 * len, vertices->begin() );
+    std::copy( m_fibers->getVertices()->begin() + startIdx3, m_fibers->getVertices()->begin() + startIdx3 + len3, vertices->begin() );
+
+    // Copy attrib data if any
+    if( hasAttribs )
+    {
+        vertexParameter = WDataSetFibers::VertexParemeterArray( new WDataSetFibers::VertexParemeterArray::element_type( len ) );
+        std::copy( m_fibers->getVertexParameters()->begin() + startIdx, m_fibers->getVertexParameters()->begin() + startIdx + len,
+                   vertexParameter->begin() );
+    }
 
     // As the fiber display has problems with data with less than 3 vertices -> ensure 3
     if( len == 2 )
@@ -162,6 +178,11 @@ void WMFiberFilterIndex::updateOutput()
         vertices->push_back( vertices->at( 3 ) );
         vertices->push_back( vertices->at( 4 ) );
         vertices->push_back( vertices->at( 5 ) );
+
+        if( hasAttribs )
+        {
+            vertexParameter->push_back( vertexParameter->at( 1 ) );
+        }
     }
 
     // the remaining info is trivial
@@ -170,8 +191,7 @@ void WMFiberFilterIndex::updateOutput()
     verticesReverse->resize( len, 0 );
 
     // Update output and finish
-    boost::shared_ptr< WDataSetFibers> newOutput( new WDataSetFibers( vertices, lineStartIndexes, lineLengths, verticesReverse,
-                                                                      m_fibers->getBoundingBox() ) );
+    boost::shared_ptr< WDataSetFibers> newOutput( new WDataSetFibers( vertices, lineStartIndexes, lineLengths, verticesReverse, vertexParameter ) );
     m_output->updateData( newOutput );
 
     progress1->finish();
