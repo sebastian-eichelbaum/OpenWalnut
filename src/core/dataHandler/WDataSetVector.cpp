@@ -55,6 +55,11 @@ WDataSetVector::~WDataSetVector()
 {
 }
 
+WDataSetSingle::SPtr WDataSetVector::clone( boost::shared_ptr< WValueSetBase > newValueSet, boost::shared_ptr< WGrid > newGrid ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetVector( newValueSet, newGrid ) );
+}
+
 WDataSetSingle::SPtr WDataSetVector::clone( boost::shared_ptr< WValueSetBase > newValueSet ) const
 {
     return WDataSetSingle::SPtr( new WDataSetVector( newValueSet, getGrid() ) );

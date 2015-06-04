@@ -73,6 +73,11 @@ WDataSetRawHARDI::~WDataSetRawHARDI()
 {
 }
 
+WDataSetSingle::SPtr WDataSetRawHARDI::clone( boost::shared_ptr< WValueSetBase > newValueSet, boost::shared_ptr< WGrid > newGrid ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetRawHARDI( newValueSet, newGrid, m_gradients, m_diffusionBValue ) );
+}
+
 WDataSetSingle::SPtr WDataSetRawHARDI::clone( boost::shared_ptr< WValueSetBase > newValueSet ) const
 {
     return WDataSetSingle::SPtr( new WDataSetRawHARDI( newValueSet, getGrid(), m_gradients, getDiffusionBValue() ) );

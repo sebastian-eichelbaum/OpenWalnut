@@ -68,6 +68,11 @@ const std::string WDataSetSegmentation::getDescription() const
     return "Segmentation of brain into white and gray matter, and CSF.";
 }
 
+WDataSetSingle::SPtr WDataSetSegmentation::clone( boost::shared_ptr< WValueSetBase > newValueSet, boost::shared_ptr< WGrid > newGrid ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetSegmentation( newValueSet, newGrid ) );
+}
+
 WDataSetSingle::SPtr WDataSetSegmentation::clone( boost::shared_ptr< WValueSetBase > newValueSet ) const
 {
     return WDataSetSingle::SPtr( new WDataSetSegmentation( newValueSet, getGrid() ) );

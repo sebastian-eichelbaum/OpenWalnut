@@ -42,6 +42,11 @@ WDataSetDTI::~WDataSetDTI()
 {
 }
 
+WDataSetSingle::SPtr WDataSetDTI::clone( boost::shared_ptr< WValueSetBase > newValueSet, boost::shared_ptr< WGrid > newGrid ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetDTI( newValueSet, newGrid ) );
+}
+
 WDataSetSingle::SPtr WDataSetDTI::clone( boost::shared_ptr< WValueSetBase > newValueSet ) const
 {
     return WDataSetSingle::SPtr( new WDataSetDTI( newValueSet, getGrid() ) );

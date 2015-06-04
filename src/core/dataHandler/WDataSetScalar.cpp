@@ -55,6 +55,11 @@ WDataSetScalar::~WDataSetScalar()
 {
 }
 
+WDataSetSingle::SPtr WDataSetScalar::clone( boost::shared_ptr< WValueSetBase > newValueSet, boost::shared_ptr< WGrid > newGrid ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetScalar( newValueSet, newGrid ) );
+}
+
 WDataSetSingle::SPtr WDataSetScalar::clone( boost::shared_ptr< WValueSetBase > newValueSet ) const
 {
     return WDataSetSingle::SPtr( new WDataSetScalar( newValueSet, getGrid() ) );
