@@ -26,7 +26,6 @@
 #include <string>
 #include <vector>
 
-#include <osgGA/TrackballManipulator>
 #include <osgGA/StateSetManipulator>
 #include <osgViewer/ViewerEventHandlers>
 #include <osgWidget/Util> //NOLINT
