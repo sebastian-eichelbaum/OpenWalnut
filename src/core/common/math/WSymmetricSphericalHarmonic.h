@@ -107,6 +107,14 @@ public:
     WValue< std::complex< T > > getCoefficientsComplex() const;
 
     /**
+     * Set the coeffs from complex base coeffs.
+     *
+     * \param coeffs The complex coefficients, sorted by order, then phase, ascending.
+     * \param order The order of the spherical harmonic.
+     */
+    void setFromComplex( WValue< std::complex< T > > const& coeffs, int order );
+
+    /**
      * Applies the Funk-Radon-Transformation. This is faster than matrix multiplication.
      * ( O(n) instead of O(n²) )
      *
@@ -389,6 +397,53 @@ WValue< std::complex< T > > WSymmetricSphericalHarmonic< T >::getCoefficientsCom
         }
     }
     return res;
+}
+
+template< typename T >
+void WSymmetricSphericalHarmonic< T >::setFromComplex( WValue< std::complex< T > > const& coeffs, int order )
+{
+    if( order < 0 || order % 2 == 1 )
+    {
+        return;
+    }
+
+    m_order = order;
+    int elements = ( m_order + 1 ) * ( m_order + 2 ) / 2;
+    m_SHCoefficients.resize( elements );
+    for( int k = 0; k < elements; ++k )
+    {
+        m_SHCoefficients[ k ] = 0.0;
+    }
+
+    size_t k = 0;
+    T r = 1.0 / sqrt( 2.0 );
+    std::complex< T > i( 0.0, -1.0 );
+    for( int l = 0; l <= static_cast< int >( m_order ); l += 2 )
+    {
+        if( ( l + 1 ) * ( l + 2 ) > 2 * static_cast< int >( coeffs.size() ) )
+        {
+            break;
+        }
+
+        for( int m = -l; m <= l; ++m )
+        {
+            if( m == 0 )
+            {
+                m_SHCoefficients[ k ] = coeffs[ k ].real();
+            }
+            else if( m < 0 )
+            {
+                m_SHCoefficients[ k ] = std::complex< T >( r * coeffs[ k - 2 * m ] ).real();
+                m_SHCoefficients[ k ] += std::complex< T >( ( -m % 2 == 0 ? r : -r ) * coeffs[ k ] ).real();
+            }
+            else if( m > 0 )
+            {
+                m_SHCoefficients[ k ] = std::complex< T >( i * ( m % 2 == 1 ? -r : r ) * coeffs[ k ] ).real();
+                m_SHCoefficients[ k ] += std::complex< T >( -r * i * coeffs[ k - 2 * m ] ).real();
+            }
+            ++k;
+        }
+    }
 }
 
 template< typename T >
