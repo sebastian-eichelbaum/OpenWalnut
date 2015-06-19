@@ -124,7 +124,7 @@ public:
     boost::shared_ptr< WGrid > getGrid() const;
 
     /**
-     * Get the value stored at position of the value set. This is the grid position only for scalar data sets.
+     * Get the scalar value stored at id-th position of the array of the value set. This is the id-th grid position \b only for scalar data sets.
      *
      * \param id The id'th value in the data set
      *
@@ -133,7 +133,7 @@ public:
     template< typename T > T getValueAt( size_t id );
 
     /**
-     *  Get the value stored at position of the value set. This is the grid position only for scalar data sets.
+     * Get the scalar value stored at id-th position of the array of the value set. This is the id-th grid position \b only for scalar data sets.
      *
      * \param id The id'th value in the data set
      *
