@@ -118,7 +118,7 @@ float WDataSetSegmentation::getWMProbability( int x, int y, int z ) const
   boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_grid );
   size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
 
-  return WDataSetSingle::getValueAt( whiteMatter + ( 3*id ) );
+  return WDataSetSingle::getSingleRawValue( whiteMatter + ( 3*id ) );
 }
 
 float WDataSetSegmentation::getGMProbability( int x, int y, int z ) const
@@ -126,7 +126,7 @@ float WDataSetSegmentation::getGMProbability( int x, int y, int z ) const
   boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_grid );
   size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
 
-  return WDataSetSingle::getValueAt( grayMatter + ( 3*id ) );
+  return WDataSetSingle::getSingleRawValue( grayMatter + ( 3*id ) );
 }
 
 float WDataSetSegmentation::getCSFProbability( int x, int y, int z ) const
@@ -134,7 +134,7 @@ float WDataSetSegmentation::getCSFProbability( int x, int y, int z ) const
     boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_grid );
     size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
 
-    return WDataSetSingle::getValueAt( csf + ( 3*id ) );
+    return WDataSetSingle::getSingleRawValue( csf + ( 3*id ) );
 }
 
 boost::shared_ptr< WValueSetBase > WDataSetSegmentation::convert( boost::shared_ptr< WDataSetScalar > whiteMatter,

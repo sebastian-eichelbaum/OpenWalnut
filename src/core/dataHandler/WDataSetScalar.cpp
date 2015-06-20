@@ -151,7 +151,7 @@ double WDataSetScalar::interpolate( const WPosition& pos, bool* success ) const
     double result = 0;
     for( size_t i = 0; i < 8; ++i )
     {
-        result += h[i] * WDataSetSingle::getValueAt( vertexIds[i] );
+        result += h[i] * WDataSetSingle::getSingleRawValue( vertexIds[i] );
     }
 
     *success = true;
@@ -163,7 +163,12 @@ double WDataSetScalar::getValueAt( int x, int y, int z ) const
     boost::shared_ptr< WGridRegular3D > grid = boost::dynamic_pointer_cast< WGridRegular3D >( m_grid );
     size_t id = x + y * grid->getNbCoordsX() + z * grid->getNbCoordsX() * grid->getNbCoordsY();
 
-    return WDataSetSingle::getValueAt( id );
+    return WDataSetSingle::getSingleRawValue( id );
+}
+
+double WDataSetScalar::getValueAt( size_t id ) const
+{
+    return WDataSetSingle::getSingleRawValue( id );
 }
 
 boost::shared_ptr< const WValueSetHistogram > WDataSetScalar::getHistogram( size_t buckets )
@@ -180,4 +185,3 @@ boost::shared_ptr< const WValueSetHistogram > WDataSetScalar::getHistogram( size
 
     return m_histograms[ buckets ];
 }
-

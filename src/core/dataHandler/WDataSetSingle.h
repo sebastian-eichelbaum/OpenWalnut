@@ -134,12 +134,23 @@ public:
 
     /**
      * Get the scalar value stored at id-th position of the array of the value set. This is the id-th grid position \b only for scalar data sets.
+     * \deprecated use getSingleRawValue
      *
      * \param id The id'th value in the data set
      *
      * \return Scalar value for that given position
      */
-    double getValueAt( size_t id ) const;
+    double OW_API_DEPRECATED getValueAt( size_t id ) const;
+
+    /**
+     * Get the raw scalar value stored at id-th position of the raw array of the value set.
+     * This is the value at the id-th \b grid position \b only for scalar data sets.
+     *
+     * \param id The id of the raw value to be obtained
+     *
+     * \return Scalar value for that given id
+     */
+    double getSingleRawValue( size_t id ) const;
 
     /**
      * Determines whether this dataset can be used as a texture.

@@ -281,8 +281,8 @@ void WMFiberSelection::moduleMain()
                     }
 
                     // get the value
-                    double value1 = m_voi1->getValueAt( voxel1 );
-                    double value2 = m_voi2->getValueAt( voxel2 );
+                    double value1 = m_voi1->getSingleRawValue( voxel1 );
+                    double value2 = m_voi2->getSingleRawValue( voxel2 );
 
                     // update trace structs for both VOI
                     current1.idx = k;

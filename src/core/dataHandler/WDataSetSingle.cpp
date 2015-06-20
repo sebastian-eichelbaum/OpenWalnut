@@ -139,6 +139,11 @@ boost::shared_ptr< WPrototyped > WDataSetSingle::getPrototype()
 
 double WDataSetSingle::getValueAt( size_t id ) const
 {
+    return getSingleRawValue( id );
+}
+
+double WDataSetSingle::getSingleRawValue( size_t id ) const
+{
     switch( getValueSet()->getDataType() )
     {
         case W_DT_UNSIGNED_CHAR:
@@ -171,4 +176,3 @@ double WDataSetSingle::getValueAt( size_t id ) const
 
     return 0.0; // should not be reached. Just there to quiet compiler.
 }
-

@@ -183,6 +183,13 @@ public:
      */
     double getValueAt( int x, int y, int z ) const;
 
+    /**
+     * Get the value stored at a certain grid position of the data set
+     * \param id
+     *
+     * \return the double the grid position with the given tuple.
+     */
+    double getValueAt( size_t id ) const;
 
     /**
      * Returns a prototype instantiated with the true type of the deriving class.
@@ -191,7 +198,7 @@ public:
      */
     static boost::shared_ptr< WPrototyped > getPrototype();
 
-    using WDataSetSingle::getValueAt;
+    using WDataSetSingle::getSingleRawValue;
 
 protected:
     /**
