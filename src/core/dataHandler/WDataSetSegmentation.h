@@ -225,7 +225,7 @@ WDataSetSegmentation::copyDataSetsToArray( const std::vector< boost::shared_ptr<
     {
       for( size_t voxelNumber = 0; voxelNumber < countVoxels; voxelNumber++ )
       {
-        data[ voxelNumber * voxelDim + dimIndex ] =  ( boost::static_pointer_cast< WDataSetSingle > ( *it ) )->getValueAt< T >( voxelNumber );
+        data[ voxelNumber * voxelDim + dimIndex ] =  ( boost::static_pointer_cast< WDataSetSingle > ( *it ) )->getSingleRawValue< T >( voxelNumber );
       }
       dimIndex++;
     }

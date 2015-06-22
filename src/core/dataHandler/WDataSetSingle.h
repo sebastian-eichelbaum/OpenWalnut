@@ -125,12 +125,22 @@ public:
 
     /**
      * Get the scalar value stored at id-th position of the array of the value set. This is the id-th grid position \b only for scalar data sets.
+     * \deprecated use getSingleRawValue
      *
      * \param id The id'th value in the data set
      *
      * \return Scalar value for that given position
      */
-    template< typename T > T getValueAt( size_t id );
+    template< typename T >  OW_API_DEPRECATED T getValueAt( size_t id );
+
+    /**
+     * Get the scalar value stored at id-th position of the array of the value set. This is the id-th grid position \b only for scalar data sets.
+     *
+     * \param id The id'th value in the data set
+     *
+     * \return Scalar value for that given position
+     */
+    template< typename T >  T getSingleRawValue( size_t id );
 
     /**
      * Get the scalar value stored at id-th position of the array of the value set. This is the id-th grid position \b only for scalar data sets.
@@ -210,7 +220,12 @@ private:
     osg::ref_ptr< WDataTexture3D > m_texture;
 };
 
-template< typename T > T WDataSetSingle::getValueAt( size_t id )
+template< typename T > OW_API_DEPRECATED T WDataSetSingle::getValueAt( size_t id )
+{
+    return getSingleRawValue< T >( id );
+}
+
+template< typename T > T WDataSetSingle::getSingleRawValue( size_t id )
 {
     boost::shared_ptr< WValueSet< T > > vs = boost::dynamic_pointer_cast< WValueSet< T > >( m_valueSet );
     return vs->getScalar( id );
