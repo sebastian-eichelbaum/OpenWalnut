@@ -195,7 +195,7 @@ vec4 getHalftoneShading( vec4 inColor, vec2 where )
     // Transforming the fragment coordinates into halftoning texture coordinates:
     vec2 ditherTexCoord = ditherRotMatrix * gl_FragCoord.xy;
 
-    ditherTexCoord = vec2(mod( ditherTexCoord.x, u_ditherTexSize ) / u_ditherTexSize,
+    ditherTexCoord = vec2( mod( ditherTexCoord.x, u_ditherTexSize ) / u_ditherTexSize,
                           mod( ditherTexCoord.y, u_ditherTexSize ) / u_ditherTexSize );
 
     // Dither kernel that generates the real halftoning texture.
@@ -208,11 +208,11 @@ vec4 getHalftoneShading( vec4 inColor, vec2 where )
     {
         if( fIntensity > ( 1.0 - u_ditherClip ) )
         {
-            col.a=0.0;
+            col.a = 0.0;
         }
         else
         {
-            col = vec4(u_hatchColor.rgb,1.0);
+            col = vec4( u_hatchColor.rgb, 1.0 );
         }
     }
     else

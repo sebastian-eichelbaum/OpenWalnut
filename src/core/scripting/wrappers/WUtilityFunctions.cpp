@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
 #include <osgGA/TrackballManipulator>
 
 #include "../../common/WLogger.h"
@@ -48,7 +49,8 @@ void initCamera( std::string const& view )
 {
     if( WKernel::getRunningKernel()->getGraphicsEngine() )
     {
-        osg::ref_ptr< osgGA::TrackballManipulator > cm = osg::dynamic_pointer_cast< osgGA::TrackballManipulator >( WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCameraManipulator() );
+        osg::ref_ptr< osgGA::TrackballManipulator > cm = osg::dynamic_pointer_cast< osgGA::TrackballManipulator >(
+            WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCameraManipulator() );
         if( cm )
         {
             osg::Quat q;
@@ -96,4 +98,3 @@ void initCamera( std::string const& view )
         wlog::error( "Script" ) << "No graphics engine! Cannot set camera preset!";
     }
 }
-

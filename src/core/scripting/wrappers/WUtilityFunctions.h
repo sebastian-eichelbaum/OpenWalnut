@@ -25,6 +25,8 @@
 #ifndef WUTILITYFUNCTIONS_H_
 #define WUTILITYFUNCTIONS_H_
 
+#include <string>
+
 /**
  * A function that creates a screenshot of the main view as-is.
  */
@@ -38,4 +40,3 @@ void screenshot();
 void initCamera( std::string const& view );
 
 #endif  // WUTILITYFUNCTIONS_H_
-
