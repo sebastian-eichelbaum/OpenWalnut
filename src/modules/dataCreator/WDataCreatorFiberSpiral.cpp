@@ -76,8 +76,8 @@ void WDataCreatorFiberSpiral::operator()( WProgress::SPtr progress,
         double a1 = static_cast< double >( std::rand() % 255 ) / 255.0; // NOLINT - rand_r has portability issues.
         double a2 = static_cast< double >( std::rand() % 255 ) / 255.0; // NOLINT - rand_r has portability issues.
 
-        double seedX = cos( 2.0 * piDouble * a1 ) * tubeRadius;
-        double seedY = sin( 2.0 * piDouble * a2 ) * tubeRadius;
+        double seedX = cos( 2.0 * pi() * a1 ) * tubeRadius;
+        double seedY = sin( 2.0 * pi() * a2 ) * tubeRadius;
         double seedZ = sqrt( tubeRadius - ( seedX * seedX ) - ( seedY * seedY ) );
         WPosition seed( seedX, seedY, seedZ );
 
@@ -85,7 +85,7 @@ void WDataCreatorFiberSpiral::operator()( WProgress::SPtr progress,
         for( size_t vidx = 0; vidx < numVertsPerFiber; ++vidx )
         {
             double v = static_cast< double >( vidx ) / static_cast< double >( numVertsPerFiber - 1 );
-            double degree = v * 2.0 * piDouble * numRotations;
+            double degree = v * 2.0 * pi() * numRotations;
 
             double X = seed.x() + cos( degree ) * v * spiralRadius;
             double Y = seed.y() + sin( degree ) * v * spiralRadius;

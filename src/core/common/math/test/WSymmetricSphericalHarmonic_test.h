@@ -65,14 +65,14 @@ public:
         reference.setZero();
         // j  01 02 03 04 05 06 07 08 09 10 11 12 13 14 15
         // lj  0  2  2  2  2  2  4  4  4  4  4  4  4  4  4
-        reference( 0, 0 ) = 2.0 * piDouble;
+        reference( 0, 0 ) = 2.0 * pi();
         for( size_t i = 1; i <= 5; i++ )
         {
-            reference( i, i ) = -2.0 * piDouble * 1.0 / 2.0;
+            reference( i, i ) = -2.0 * pi() * 1.0 / 2.0;
         }
         for( size_t i = 6; i <= 14; i++ )
         {
-            reference( i, i ) = 2.0 * piDouble * 3.0 / 8.0;
+            reference( i, i ) = 2.0 * pi() * 3.0 / 8.0;
         }
 
         for( size_t i = 0; i < 15; ++i )

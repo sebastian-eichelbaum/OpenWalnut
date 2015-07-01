@@ -496,9 +496,9 @@ void WMTriangleMeshRenderer::updateTransformation()
         osg::Matrixd matrixTranslateTo0 = osg::Matrixd::translate( static_cast< osg::Vec3f >( m_meshCenter ) * -1.0 );
         osg::Matrixd matrixTranslateFrom0 = osg::Matrixd::translate( static_cast< osg::Vec3f >( m_meshCenter ) );
         osg::Matrixd matrixScale = osg::Matrixd::scale( m_scaleX->get(), m_scaleY->get(), m_scaleZ->get() );
-        osg::Matrixd matrixRotateX = osg::Matrixd::rotate( m_rotateX->get() * piDouble / 180, osg::Vec3f( 1, 0, 0 ) );
-        osg::Matrixd matrixRotateY = osg::Matrixd::rotate( m_rotateY->get() * piDouble / 180, osg::Vec3f( 0, 1, 0 ) );
-        osg::Matrixd matrixRotateZ = osg::Matrixd::rotate( m_rotateZ->get() * piDouble / 180, osg::Vec3f( 0, 0, 1 ) );
+        osg::Matrixd matrixRotateX = osg::Matrixd::rotate( m_rotateX->get() * pi() / 180, osg::Vec3f( 1, 0, 0 ) );
+        osg::Matrixd matrixRotateY = osg::Matrixd::rotate( m_rotateY->get() * pi() / 180, osg::Vec3f( 0, 1, 0 ) );
+        osg::Matrixd matrixRotateZ = osg::Matrixd::rotate( m_rotateZ->get() * pi() / 180, osg::Vec3f( 0, 0, 1 ) );
         osg::Matrixd matrixRotate = matrixRotateX * matrixRotateY * matrixRotateZ;
         osg::Matrixd matrixTranslate = osg::Matrixd::translate( m_translateX->get(), m_translateY->get(), m_translateZ->get() );
         osg::Matrixd matrixComplete =

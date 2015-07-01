@@ -42,7 +42,8 @@
  *
  * \tparam T the desired type
  * \param T the parameter is only needed for deducing T. This is needed since C++ < C++11 does not allow default template types in function templates.
- * You need to set this parameter to an example value of the desired type T for pi. Usually, the default constructor will do well.
+ * You need to set this parameter to an example value of the desired type T for pi. Usually, the default constructor will do well. The default is
+ * double, so calling pi() without arguments returns a pi as double.
  *
  * \example pi( int() ) will return 3.
  *
@@ -55,10 +56,10 @@ T pi( T = double() )
 }
 
 /**
- * For the lazy programmer and backwards compatibility, define piDouble to be PI as double. Since defines are usually a bad idea (for aliasing), you
+ * For the lazy programmer and backwards compatibility, define pi() to be PI as double. Since defines are usually a bad idea (for aliasing), you
  * should avoid using this. Use the \ref pi function directly.
  */
-#define piDouble pi( double() )
+#define pi() pi( double() )
 
 /**
  * For the lazy programmer and backwards compatibility, define piFloat to be PI as float. Since defines are usually a bad idea (for aliasing), you
