@@ -161,7 +161,7 @@ double smooth( double value, double min, double max )
     }
 
     double scaledValue = ( value - min ) / max;
-    return min + max * ( 0.5 * ( 1.0 + cos( pi() + ( scaledValue * piDouble ) ) ) );
+    return min + max * ( 0.5 * ( 1.0 + cos( pi() + ( scaledValue * pi() ) ) ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

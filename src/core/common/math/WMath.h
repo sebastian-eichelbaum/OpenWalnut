@@ -41,31 +41,36 @@
  * Get a PI constant in an arbitrary type.
  *
  * \tparam T the desired type
- * \param T the parameter is only needed for deducing T. This is needed since C++ < C++11 does not allow default template types in function templates.
- * You need to set this parameter to an example value of the desired type T for pi. Usually, the default constructor will do well. The default is
- * double, so calling pi() without arguments returns a pi as double.
- *
- * \example pi( int() ) will return 3.
  *
  * \return pi in the desired type.
  */
 template< typename T >
-T pi( T = double() )
+T pi()
 {
     return boost::math::constants::pi< T >();
+}
+
+/**
+ * Get a PI constant as double.
+ *
+ * \return pi as double.
+ */
+inline double pi()
+{
+    return boost::math::constants::pi< double >();
 }
 
 /**
  * For the lazy programmer and backwards compatibility, define pi() to be PI as double. Since defines are usually a bad idea (for aliasing), you
  * should avoid using this. Use the \ref pi function directly.
  */
-#define pi() pi( double() )
+#define piDouble pi()
 
 /**
  * For the lazy programmer and backwards compatibility, define piFloat to be PI as float. Since defines are usually a bad idea (for aliasing), you
  * should avoid using this. Use the \ref pi function directly.
  */
-#define piFloat pi( float() )
+#define piFloat pi< float >()
 
 /**
  * Checks if the triangle intersects with the given plane. If you are interested in the points of
