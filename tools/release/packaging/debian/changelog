@@ -1,10 +1,11 @@
 openwalnut (OWPACK_VERSION-1) unstable; urgency=low
+  * Fixed support for GCC5 (Closes: #778050)
   * Major functionality and stability improvements.
   * Several bug fixes
   * Explicitly link against X11 (Closes: #754759)
   * Made Debian package multiarch compliant (Closes: #760064)
   * Jumped to deb compatibility level 9
-  * Dropped Qt4 support in favor of Qt5
+  * Dropped Qt4 support in favor of Qt5 (Closes: #784503)
   * Dropped support for BioSig
   * See http://www.openwalnut.org/versions/2
 

@@ -32,7 +32,7 @@
 VERSION_BASE=1.4.0
 
 # Any additonal tags?
-VERSION_TAGS="~rc2"
+VERSION_TAGS="~rc4"
 
 # Should the package number contain the HG revision?
 VERSION_INCLUDE_HG=1
