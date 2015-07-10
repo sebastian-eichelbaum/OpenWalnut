@@ -1,5 +1,5 @@
-#ifndef WMEDUPICKING_H
-#define WMEDUPICKING_H
+#ifndef WMPICKINGDVR_H
+#define WMPICKINGDVR_H
 
 #include <string>
 
@@ -26,18 +26,18 @@ class WGEManagedGroupNode;
  * Computes contour lines (aka isolines) for the given data and render them on a 2D plane.
  * \ingroup modules
  */
-class WMEDUPicking: public WModule
+class WMPickingDVR: public WModule
 {
 public:
     /**
      * Creates the module for drawing contour lines.
      */
-	WMEDUPicking();
+	WMPickingDVR();
 
     /**
      * Destroys this module.
      */
-    virtual ~WMEDUPicking();
+    virtual ~WMPickingDVR();
 
     /**
      * Gives back the name of this module.
@@ -180,4 +180,4 @@ private:
 	bool m_bIntersected;
 };
 
-#endif  // WMEDUPICKING_H
+#endif  // WMPICKINGDVR_H

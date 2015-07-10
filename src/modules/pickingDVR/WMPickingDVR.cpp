@@ -21,14 +21,14 @@
 
 #include "core/graphicsEngine/geodes/WGEGridNode.h"
 
-#include "WMEDUPicking.xpm"
-#include "WMEDUPicking.h"
-#include "WMEDUPickingHelper.h"
+#include "WMPickingDVR.xpm"
+#include "WMPickingDVR.h"
+#include "WMPickingDVRHelper.h"
 
 // This line is needed by the module loader to actually find your module.
-W_LOADABLE_MODULE( WMEDUPicking )
+W_LOADABLE_MODULE( WMPickingDVR )
 
-WMEDUPicking::WMEDUPicking():
+WMPickingDVR::WMPickingDVR():
     WModule(),
     m_propCondition( new WCondition() )
 {
@@ -37,41 +37,41 @@ WMEDUPicking::WMEDUPicking():
 	this->m_posEnd			=	osg::Vec3f(0.0, 0.0, 0.0);
 }
 
-WMEDUPicking::~WMEDUPicking()
+WMPickingDVR::~WMPickingDVR()
 {
 }
 
-boost::shared_ptr< WModule > WMEDUPicking::factory() const
+boost::shared_ptr< WModule > WMPickingDVR::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMEDUPicking() );
+    return boost::shared_ptr< WModule >( new WMPickingDVR() );
 }
 
-const char** WMEDUPicking::getXPMIcon() const
+const char** WMPickingDVR::getXPMIcon() const
 {
-    return WMEDUPicking_xpm;
+    return WMPickingDVR_xpm;
 }
-const std::string WMEDUPicking::getName() const
+const std::string WMPickingDVR::getName() const
 {
-    return "[EDU] Picking";
-}
-
-const std::string WMEDUPicking::getDescription() const
-{
-    return "Picks a 3D Position from the dataset";
+    return "Picking in DVR";
 }
 
-void WMEDUPicking::connectors()
+const std::string WMPickingDVR::getDescription() const
+{
+    return "Picks a 3D Position from the DVR rendered dataset.";
+}
+
+void WMPickingDVR::connectors()
 {
 	// The transfer function for our DVR
 	m_transferFunction = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "transfer function", "The 1D transfer function." );
 
 	//Scalar field
-    m_scalarIC = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "scalarData", "Scalar data." );
+    m_scalarIC = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "scalar data", "Scalar data." );
 
     WModule::connectors();
 }
 
-void WMEDUPicking::properties()
+void WMPickingDVR::properties()
 {
 	//Color Property
 	m_color = m_properties->addProperty( "Crosshair color", "Crosshair Color", WColor( 0.5f, 0.5f, 0.5f, 1.0f ), m_propCondition );
@@ -108,11 +108,11 @@ void WMEDUPicking::properties()
     WModule::properties();
 }
 
-void WMEDUPicking::requirements()
+void WMPickingDVR::requirements()
 {
 }
 
-void WMEDUPicking::moduleMain()
+void WMPickingDVR::moduleMain()
 {
     // get notified about data changes
     m_moduleState.setResetable( true, true );
@@ -137,7 +137,7 @@ void WMEDUPicking::moduleMain()
     osg::ref_ptr<WGECamera> camera = mainView->getCamera();
 
     //Register Pickhandler
-    mainView->getPickHandler()->getPickSignal()->connect( boost::bind( &WMEDUPicking::pickHandler, this, _1 ) );
+    mainView->getPickHandler()->getPickSignal()->connect( boost::bind( &WMPickingDVR::pickHandler, this, _1 ) );
 
     // main loop
     while( !m_shutdownFlag() )
@@ -459,7 +459,7 @@ void WMEDUPicking::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
-void WMEDUPicking::pickHandler( WPickInfo pickInfo )
+void WMPickingDVR::pickHandler( WPickInfo pickInfo )
 {
 	//Not Right Mouse
 	if(pickInfo.getMouseButton() != 2)

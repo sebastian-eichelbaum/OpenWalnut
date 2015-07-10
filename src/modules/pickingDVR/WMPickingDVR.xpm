@@ -1,5 +1,5 @@
 /* XPM */
-static const char * WMEDUPicking_xpm[] = {
+static const char * WMPickingDVR_xpm[] = {
 "32 32 312 2",
 "  	c None",
 ". 	c #FCAF60",
