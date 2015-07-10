@@ -264,10 +264,10 @@ void WMPickingDVR::moduleMain()
                 WMEDUColor<double> color;
 
                 //Get Color from transferfunction
-                color.setRed( transferFunctionData->getValueAt( iColorIdx * 4 + 0 ) );
-                color.setGreen( transferFunctionData->getValueAt( iColorIdx * 4 + 1 ) );
-                color.setBlue( transferFunctionData->getValueAt( iColorIdx * 4 + 2 ) );
-                color.setAlpha( transferFunctionData->getValueAt( iColorIdx * 4 + 3 ) );
+                color.setRed( transferFunctionData->getSingleRawValue( iColorIdx * 4 + 0 ) );
+                color.setGreen( transferFunctionData->getSingleRawValue( iColorIdx * 4 + 1 ) );
+                color.setBlue( transferFunctionData->getSingleRawValue( iColorIdx * 4 + 2 ) );
+                color.setAlpha( transferFunctionData->getSingleRawValue( iColorIdx * 4 + 3 ) );
                 color.normalize();
 
                 //gamma = alpha + beta - alpha * beta == currentAlpha + accedAlpha - currentAlpa * accedAlpha
