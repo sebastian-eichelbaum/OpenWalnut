@@ -1,3 +1,27 @@
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2015 A. Betz, D- Gerlicher, OpenWalnut Community, Nemtics, BSV@Uni-Leipzig
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
+
 #ifndef WMPICKINGDVR_H
 #define WMPICKINGDVR_H
 
@@ -9,11 +33,11 @@
 //#define WMEDU_PICKING_DEBUG
 
 //Module Defines
-#define WMEDU_PICKING_MAX_INT			"Picking - Maximum Intensity"
-#define WMEDU_PICKING_FIRST_HIT			"Picking - First Hit"
-#define WMEDU_PICKING_THRESHOLD			"Picking - Threshold"
-#define WMEDU_PICKING_MOST_CONTRIBUTING	"Picking - Most Contributing"
-#define WMEDU_PICKING_WYSIWYP			"Picking - WYSIWYP"
+#define WMEDU_PICKING_MAX_INT   "Picking - Maximum Intensity"
+#define WMEDU_PICKING_FIRST_HIT   "Picking - First Hit"
+#define WMEDU_PICKING_THRESHOLD   "Picking - Threshold"
+#define WMEDU_PICKING_MOST_CONTRIBUTING "Picking - Most Contributing"
+#define WMEDU_PICKING_WYSIWYP   "Picking - WYSIWYP"
 
 
 // forward declarations to reduce compile dependencies
@@ -32,7 +56,7 @@ public:
     /**
      * Creates the module for drawing contour lines.
      */
-	WMPickingDVR();
+    WMPickingDVR();
 
     /**
      * Destroys this module.
@@ -123,7 +147,7 @@ private:
      */
     boost::shared_ptr< WCondition > m_propCondition;
 
-	/**
+    /**
      * We want some nice shading effects, so we need a nice shader.
      */
     WGEShader::RefPtr m_shader;
@@ -147,18 +171,18 @@ private:
      * Double Property: Alpha Value and alpha Percentage
      */
     WPropDouble m_alphaThreshold;
-	
-	/**
+
+    /**
      * Double Property: Picking Crosshair Thinkness
      */
     WPropDouble m_crossThickness;
-	
-	/**
+
+    /**
      * Double Property: Picking Crosshair Size
      */
     WPropDouble m_crossSize;
-	
-	/**
+
+    /**
      * Current Method
      */
     WPropSelection m_pickingCritereaCur;
@@ -166,18 +190,18 @@ private:
     /**
      * Possible Criterion
      */
-	boost::shared_ptr< WItemSelection > m_pickingCritereaList;
+    boost::shared_ptr< WItemSelection > m_pickingCritereaList;
 
-	/**
-	 * Intersection Positions
-	 */
-	osg::Vec3f m_posStart;
-	osg::Vec3f m_posEnd;
+    /**
+     * Intersection Positions
+     */
+    osg::Vec3f m_posStart;
+    osg::Vec3f m_posEnd;
 
-	/**
-	 * Boolean to check if the intersected positions are valid
-	 */
-	bool m_bIntersected;
+    /**
+     * Boolean to check if the intersected positions are valid
+     */
+    bool m_bIntersected;
 };
 
 #endif  // WMPICKINGDVR_H
