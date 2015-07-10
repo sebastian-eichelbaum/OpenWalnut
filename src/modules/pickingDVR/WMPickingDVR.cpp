@@ -47,7 +47,6 @@
 
 #include "core/graphicsEngine/geodes/WGEGridNode.h"
 
-#include "WMPickingDVR.xpm"
 #include "WMPickingDVR.h"
 #include "WMPickingDVRHelper.h"
 
@@ -72,10 +71,6 @@ boost::shared_ptr< WModule > WMPickingDVR::factory() const
     return boost::shared_ptr< WModule >( new WMPickingDVR() );
 }
 
-const char** WMPickingDVR::getXPMIcon() const
-{
-    return WMPickingDVR_xpm;
-}
 const std::string WMPickingDVR::getName() const
 {
     return "Picking in DVR";
