@@ -25,33 +25,91 @@
 #ifndef WMPICKINGDVRHELPER_H
 #define WMPICKINGDVRHELPER_H
 
-
+/**
+ * Color converter for different scalings, i.e. [0,1] vs. [0,255]
+ */
 template <typename T>
 class WMEDUColor
 {
 private:
-    T red;
-    T green;
-    T blue;
-    T alpha;
+    T red; //!< Red color component value
+    T green; //!< Green color component value
+    T blue; //!< Blue color component value
+    T alpha; //!< Opacity compnent value
 
 public:
+    /**
+     * Standard constructor that creates transparent black.
+     */
     WMEDUColor();
-    WMEDUColor( T red, T green, T fBlue, T alpha );
 
-    //Getter
+    /**
+     * Constructor creating the color.
+     *
+     * \param red red color component value
+     * \param green green color component value
+     * \param blue blue color copmonent value
+     * \param alpha opacity component value
+     */
+    WMEDUColor( T red, T green, T blue, T alpha );
+
+    /**
+     * Get red color component value.
+     *
+     * \return red value
+     */
     T getRed();
+
+    /**
+     * Get green color component value.
+     *
+     * \return green value
+     */
     T getGreen();
+
+    /**
+     * Get blue color component value.
+     *
+     * \return blue value
+     */
     T getBlue();
+
+    /**
+     * Get opacity color component value.
+     *
+     * \return opacity value
+     */
     T getAlpha();
 
-    //Setter
+    /**
+     * Set red color component value.
+     *
+     * \param red red value
+     */
     void setRed( T red );
+
+    /**
+     * Set green color component value.
+     *
+     * \param green green value
+     */
     void setGreen( T green );
+
+    /**
+     * Set blue color component value.
+     *
+     * \param blue blue value
+     */
     void setBlue( T blue );
+
+    /**
+     * Set opacity color component value.
+     *
+     * \param alpha opacity value
+     */
     void setAlpha( T alpha );
 
-    void normalize();
+    void normalize(); //!< Scales color down from [0,255] to [0,1]
 };
 
 

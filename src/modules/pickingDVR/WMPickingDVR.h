@@ -47,7 +47,7 @@ class WGEManagedGroupNode;
 
 
 /**
- * Computes contour lines (aka isolines) for the given data and render them on a 2D plane.
+ * Allows to select a 3D position in a DVR by selecting a 2D location on the screen.
  * \ingroup modules
  */
 class WMPickingDVR: public WModule
@@ -186,9 +186,13 @@ private:
     boost::shared_ptr< WItemSelection > m_pickingCritereaList;
 
     /**
-     * Intersection Positions
+     * Intersection position start
      */
     osg::Vec3f m_posStart;
+
+    /**
+     * Intersection position end
+     */
     osg::Vec3f m_posEnd;
 
     /**
