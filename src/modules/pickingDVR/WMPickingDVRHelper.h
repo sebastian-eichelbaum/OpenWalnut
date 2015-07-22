@@ -29,7 +29,7 @@
  * Color converter for different scalings, i.e. [0,1] vs. [0,255]
  */
 template <typename T>
-class WMEDUColor
+class WMPickingColor
 {
 private:
     T red; //!< Red color component value
@@ -41,7 +41,7 @@ public:
     /**
      * Standard constructor that creates transparent black.
      */
-    WMEDUColor();
+    WMPickingColor();
 
     /**
      * Constructor creating the color.
@@ -51,7 +51,7 @@ public:
      * \param blue blue color copmonent value
      * \param alpha opacity component value
      */
-    WMEDUColor( T red, T green, T blue, T alpha );
+    WMPickingColor( T red, T green, T blue, T alpha );
 
     /**
      * Get red color component value.
@@ -114,69 +114,69 @@ public:
 
 
 template <typename T>
-WMEDUColor<T>::WMEDUColor()
-    : WMEDUColor( 0.0, 0.0, 0.0, 0.0 )
+WMPickingColor<T>::WMPickingColor()
+    : WMPickingColor( 0.0, 0.0, 0.0, 0.0 )
 {
 }
 
 template <typename T>
-WMEDUColor<T>::WMEDUColor( T red, T green, T blue, T alpha )
+WMPickingColor<T>::WMPickingColor( T red, T green, T blue, T alpha )
     : red( red ), green( green ), blue( blue ), alpha( alpha )
 {
 }
 
 //Getter
 template <typename T>
-T WMEDUColor<T>::getRed()
+T WMPickingColor<T>::getRed()
 {
     return this->red;
 }
 
 template <typename T>
-T WMEDUColor<T>::getGreen()
+T WMPickingColor<T>::getGreen()
 {
     return this->green;
 }
 
 template <typename T>
-T WMEDUColor<T>::getBlue()
+T WMPickingColor<T>::getBlue()
 {
     return this->blue;
 }
 
 template <typename T>
-T WMEDUColor<T>::getAlpha()
+T WMPickingColor<T>::getAlpha()
 {
     return this->alpha;
 }
 
 //Setter
 template <typename T>
-void WMEDUColor<T>::setRed( T red )
+void WMPickingColor<T>::setRed( T red )
 {
     this->red = red;
 }
 
 template <typename T>
-void WMEDUColor<T>::setGreen( T green )
+void WMPickingColor<T>::setGreen( T green )
 {
     this->green = green;
 }
 
 template <typename T>
-void WMEDUColor<T>::setBlue( T blue )
+void WMPickingColor<T>::setBlue( T blue )
 {
     this->blue = blue;
 }
 
 template <typename T>
-void WMEDUColor<T>::setAlpha( T alpha )
+void WMPickingColor<T>::setAlpha( T alpha )
 {
     this->alpha = alpha;
 }
 
 template <typename T>
-void WMEDUColor<T>::normalize()
+void WMPickingColor<T>::normalize()
 {
     this->red = this->red / 255.0;
     this->green = this->green / 255.0;

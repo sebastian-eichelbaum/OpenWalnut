@@ -30,14 +30,14 @@
 #include "core/kernel/WModule.h"
 
 //Debug Switch
-//#define WMEDU_PICKING_DEBUG
+//#define WMPICKINGDVR_DEBUG
 
 //Module Defines
-#define WMEDU_PICKING_MAX_INT   "Picking - Maximum Intensity"
-#define WMEDU_PICKING_FIRST_HIT   "Picking - First Hit"
-#define WMEDU_PICKING_THRESHOLD   "Picking - Threshold"
-#define WMEDU_PICKING_MOST_CONTRIBUTING "Picking - Most Contributing"
-#define WMEDU_PICKING_WYSIWYP   "Picking - WYSIWYP"
+#define WMPICKINGDVR_MAX_INT   "Picking - Maximum Intensity"
+#define WMPICKINGDVR_FIRST_HIT   "Picking - First Hit"
+#define WMPICKINGDVR_THRESHOLD   "Picking - Threshold"
+#define WMPICKINGDVR_MOST_CONTRIBUTING "Picking - Most Contributing"
+#define WMPICKINGDVR_WYSIWYP   "Picking - WYSIWYP"
 
 
 // forward declarations to reduce compile dependencies

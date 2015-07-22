@@ -115,11 +115,11 @@ void WMPickingDVR::properties()
     m_crossSize->setMax( 1000.0 );
 
     m_pickingCritereaList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_pickingCritereaList->addItem( WMEDU_PICKING_FIRST_HIT, WMEDU_PICKING_FIRST_HIT );
-    m_pickingCritereaList->addItem( WMEDU_PICKING_THRESHOLD, WMEDU_PICKING_THRESHOLD );
-    m_pickingCritereaList->addItem( WMEDU_PICKING_MOST_CONTRIBUTING, WMEDU_PICKING_MOST_CONTRIBUTING );
-    m_pickingCritereaList->addItem( WMEDU_PICKING_WYSIWYP, WMEDU_PICKING_WYSIWYP );
-    m_pickingCritereaList->addItem( WMEDU_PICKING_MAX_INT, WMEDU_PICKING_MAX_INT );
+    m_pickingCritereaList->addItem( WMPICKINGDVR_FIRST_HIT, WMPICKINGDVR_FIRST_HIT );
+    m_pickingCritereaList->addItem( WMPICKINGDVR_THRESHOLD, WMPICKINGDVR_THRESHOLD );
+    m_pickingCritereaList->addItem( WMPICKINGDVR_MOST_CONTRIBUTING, WMPICKINGDVR_MOST_CONTRIBUTING );
+    m_pickingCritereaList->addItem( WMPICKINGDVR_WYSIWYP, WMPICKINGDVR_WYSIWYP );
+    m_pickingCritereaList->addItem( WMPICKINGDVR_MAX_INT, WMPICKINGDVR_MAX_INT );
 
     m_pickingCritereaCur = m_properties->addProperty( "Picking method",
                                                       "Select a picking method",
@@ -259,7 +259,7 @@ void WMPickingDVR::moduleMain()
                 int  iColorIdx   = dScalarPercentage * transferFunctionValues->size();
 
                 //color
-                WMEDUColor<double> color;
+                WMPickingColor<double> color;
 
                 //Get Color from transferfunction
                 color.setRed( transferFunctionData->getSingleRawValue( iColorIdx * 4 + 0 ) );
@@ -274,7 +274,7 @@ void WMPickingDVR::moduleMain()
                 dCurrentAlpha = color.getAlpha();
                 dAccAlpha  = dCurrentAlpha + ( dAccAlpha - dCurrentAlpha * dAccAlpha );
 
-                if( strRenderMode == WMEDU_PICKING_MAX_INT )
+                if( strRenderMode == WMPICKINGDVR_MAX_INT )
                 {
                     //Maximum Intensity: maximal scalar value
                     if( dValue > dMaxValue )
@@ -284,7 +284,7 @@ void WMPickingDVR::moduleMain()
                         bPickedPos = true;
                     }
                 }
-                else if( strRenderMode == WMEDU_PICKING_FIRST_HIT )
+                else if( strRenderMode == WMPICKINGDVR_FIRST_HIT )
                 {
                     //First Hit: first alpha value > 0.0
                     if( dCurrentAlpha > 0.0 )
@@ -295,7 +295,7 @@ void WMPickingDVR::moduleMain()
                         break;
                     }
                 }
-                else if( strRenderMode == WMEDU_PICKING_THRESHOLD )
+                else if( strRenderMode == WMPICKINGDVR_THRESHOLD )
                 {
                     //Threshold: accumulated alpha value > threshold
                     if( dAccAlpha > this->m_alphaThreshold->get() )
@@ -306,7 +306,7 @@ void WMPickingDVR::moduleMain()
                         break;
                     }
                 }
-                else if( strRenderMode == WMEDU_PICKING_MOST_CONTRIBUTING )
+                else if( strRenderMode == WMPICKINGDVR_MOST_CONTRIBUTING )
                 {
                     //Most Contributing: maximal alpha value
                     if( dCurrentAlpha > dPickedAlpha )
@@ -316,7 +316,7 @@ void WMPickingDVR::moduleMain()
                         bPickedPos  = true;
                     }
                 }
-                else if( strRenderMode == WMEDU_PICKING_WYSIWYP )
+                else if( strRenderMode == WMPICKINGDVR_WYSIWYP )
                 {
                     //WYSIWYP: Save all the accumulated alpha values
                     vecAlphaAcc.push_back( dAccAlpha );
@@ -324,7 +324,7 @@ void WMPickingDVR::moduleMain()
             }
 
             //WYSIWYP: Calculate the largest interval
-            if( strRenderMode == WMEDU_PICKING_WYSIWYP )
+            if( strRenderMode == WMPICKINGDVR_WYSIWYP )
             {
                 //Fourth Order Finite Differencing by Daniel Gerlicher
                 unsigned int n  = vecAlphaAcc.size();
@@ -484,7 +484,7 @@ void WMPickingDVR::moduleMain()
             //Rendering: update only if picked
             if( bPickedPos )
             {
-#ifdef WMEDU_PICKING_DEBUG
+#ifdef WMPICKINGDVR_DEBUG
                 debugLog() << "[dPickedAlpha = " << dPickedAlpha << "]"
                            <<"[posPicking][X = " << posPicking.x() << " ]"
                            <<"[Y = " << posPicking.y() << " ][Z = " << posPicking.z() << "]";
