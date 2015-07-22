@@ -115,11 +115,11 @@ void WMPickingDVR::properties()
     m_crossSize->setMax( 1000.0 );
 
     m_pickingCritereaList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_pickingCritereaList->addItem( WMEDU_PICKING_MAX_INT, WMEDU_PICKING_MAX_INT );
     m_pickingCritereaList->addItem( WMEDU_PICKING_FIRST_HIT, WMEDU_PICKING_FIRST_HIT );
     m_pickingCritereaList->addItem( WMEDU_PICKING_THRESHOLD, WMEDU_PICKING_THRESHOLD );
     m_pickingCritereaList->addItem( WMEDU_PICKING_MOST_CONTRIBUTING, WMEDU_PICKING_MOST_CONTRIBUTING );
     m_pickingCritereaList->addItem( WMEDU_PICKING_WYSIWYP, WMEDU_PICKING_WYSIWYP );
+    m_pickingCritereaList->addItem( WMEDU_PICKING_MAX_INT, WMEDU_PICKING_MAX_INT );
 
     m_pickingCritereaCur = m_properties->addProperty( "Picking method",
                                                       "Select a picking method",
@@ -157,8 +157,6 @@ void WMPickingDVR::moduleMain()
     //Get Camera and Register the callback
     boost::shared_ptr< WGraphicsEngine > graphicsEngine = WGraphicsEngine::getGraphicsEngine();
     boost::shared_ptr< WGEViewer > mainView = graphicsEngine->getViewerByName( "Main View" );
-
-    osg::ref_ptr<WGECamera> camera = mainView->getCamera();
 
     //Register Pickhandler
     mainView->getPickHandler()->getPickSignal()->connect( boost::bind( &WMPickingDVR::pickHandler, this, _1 ) );
