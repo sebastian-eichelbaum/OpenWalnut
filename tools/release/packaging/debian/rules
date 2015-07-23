@@ -51,9 +51,6 @@ override_dh_auto_install:
 	cmake -DCOMPONENT=CORE_DEV  -DCMAKE_INSTALL_PREFIX=debian/libopenwalnut1-dev/usr -P build/cmake_install.cmake
 	cmake -DCOMPONENT=EXT_DEV  -DCMAKE_INSTALL_PREFIX=debian/libopenwalnut1-dev/usr -P build/cmake_install.cmake
 	# libopenwalnut1-doc
-	# Use jquery from Debian package, so prune shipped one. Taken from https://github.com/neurodebian/statsmodels/tree/debian/debian
-	# NOTE: seems not to be created anymore.
-	# -rm ./doc/core/html/jquery.js
 	cmake -DCOMPONENT=CORE_DOC  -DCMAKE_INSTALL_PREFIX=debian/libopenwalnut1-doc/usr -P build/cmake_install.cmake
 	# openwalnut
 	cmake -DCOMPONENT=QTGUI    -DCMAKE_INSTALL_PREFIX=debian/openwalnut/usr -P build/cmake_install.cmake
