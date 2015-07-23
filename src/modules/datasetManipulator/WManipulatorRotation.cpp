@@ -34,7 +34,7 @@ WManipulatorRotation::WManipulatorRotation()
     m_axis = m_properties->addProperty( "Rotation axis", "Axis to rotate around in world coordinates.", WPosition( 0.0, 0.0, 1.0 ) );
     m_angle = m_properties->addProperty( "Rotation angle", "The angle to rotate.", 0.0 );
     m_angle->setMin( 0.0 );
-    m_angle->setMax( 2.0 * piDouble );
+    m_angle->setMax( 2.0 * pi() );
 }
 
 WManipulatorRotation::~WManipulatorRotation()

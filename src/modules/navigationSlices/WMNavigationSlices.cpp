@@ -177,15 +177,15 @@ void WMNavigationSlices::initOSG()
     m_coronalOutput->setMatrix(
         osg::Matrixd::translate( -midBB[0], -midBB[1], -midBB[2] ) *
         osg::Matrixd::scale( maxSizeInv, maxSizeInv, maxSizeInv ) *
-        osg::Matrixd::rotate( -0.5 * piDouble, 1.0, 0.0 , 0.0 ) *
+        osg::Matrixd::rotate( -0.5 * pi(), 1.0, 0.0 , 0.0 ) *
         osg::Matrixd::translate( 0.0, 0.0, -0.5 )
     );
 
     m_sagittalOutput->setMatrix(
         osg::Matrixd::translate( -midBB[0], -midBB[1], -midBB[2] ) *
         osg::Matrixd::scale( maxSizeInv, maxSizeInv, maxSizeInv ) *
-        osg::Matrixd::rotate( -0.5 * piDouble, 1.0, 0.0 , 0.0 ) *
-        osg::Matrixd::rotate( 0.5 * piDouble, 0.0, 1.0 , 0.0 ) *
+        osg::Matrixd::rotate( -0.5 * pi(), 1.0, 0.0 , 0.0 ) *
+        osg::Matrixd::rotate( 0.5 * pi(), 0.0, 1.0 , 0.0 ) *
         osg::Matrixd::translate( 0.0, 0.0, -0.5 )
     );
 

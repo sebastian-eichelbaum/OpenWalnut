@@ -1,0 +1,39 @@
+<html>
+    <head>
+        <meta charset="utf-8"/>
+    </head>
+    <body><p>This toolbox is an interactive tool for exploration and visualization of hierarchical clustering results of the brain cortex. Given a
+        3D brain image and a dendrogram file, it visualizes a hierarchical tree and allows exploration of different partition solutions and their
+        visualization in 3d voxels and slide overlay. If freesurfer surfaces are available it also projects the partition results to the 3D
+        surface.</p><p>In its simplest functioning mode, here called voxel mode it requires a previously loaded 3D image such as a T1 nifti file of
+        the corresponding brain, its connection to the <em>hierchClustDisplay</em> module from this toolbox and the loading of a dendrogram file
+        encoding a previously computed full hierarchical clustering solution (such as the ones provided from the <em>hClustering</em> tools, soon
+        available on github - for more information check indicated publications or mail to: d.mor.dom@gmail.com).  This module enables exploration of
+        different partition solutions using a variety of algorithms and parameters from the <em>Cluster selections</em> command window, as well as
+        exploration of the dendrogram itself interacting directly with the displayed graph and using the commands in the <em>Dendrogram</em> window. A
+        3D rendering of the seed voxels can be displayed by checking the <em>render seed voxels</em> option in the <em>visualization</em> command
+        window, as well as activating other interesting visual options.  Tree processing options, such as outlier pruning and node collapsing are also
+        available at the corresponding command window too.  To complete the voxel visualization mode, the hierchClustDisplay module output <em>colors
+        out</em> to the <em>colormapper</em> OpenWalnut module in order to overlay the selected partition results over the loaded 3D image slides (use
+    no interpolation and  colormap: vector).</p><p>The partition results obtained through the hierchClustDisplay module can be displayed onto a
+    freesurfer surface of the corresponding subject through the usage of the second module available on this toolbox: <em>partition2mesh</em>. This
+    module takes 4 inputs, the first 2 corresponding to the two outputs of the hierchClustDisplay module. The remaining two must be connected to
+    OpenWalnut <em>Read Mesh</em> modules where freesurfer surface files must be loaded. The first surface will be the projection surface: the
+    partition voxel information from hierchClustDisplay will be projected through nearest neighbor interpolation to the vertices of the loaded surface
+    (typically, the voxels will correspond to the gm/wm boundary and the <em>original</em> freesurfer file is recommended). The second surface will be
+    visualization surface, any freesurfer surface from the same hemisphere and subject as the previously loaded can be used (pial, inflated, etc.). As
+    a last step, the output of this module must be connected to the OpenWalnut module <em>Triangle Mesh Renderer</em>, and the 3D surface projection
+    will be available (use Color mode: From Mesh).</p><p> Journal Papers: <ul> <li> Moreno-Dominguez D, Anwander A, Knösche TR (2014). A hierarchical
+    method for whole-brain connectivity-based parcellation. Human Brain Mapping 35, 5000-5025. doi: 10.1002/hbm.22528.</li> </ul>Conference Abstracts
+    <ul> <li> Moreno-Dominguez D, Anwander A, Knösche TR (2013). Multi-subject comparison of whole-brain connectivity-based hierarchical
+    parcellations. Proceedings of the 19th Annual Meeting of the Organization for Human Brain Mapping (OHBM 2013).</li> <li> Moreno-Dominguez D,
+    Anwander A, Knösche TR (2012). Matching and comparison of hierarchical trees for whole-brain connectivity-based cortex parcellation. Proceedings
+    of the 18th Annual Meeting of the Organization for Human Brain Mapping (OHBM 2012).</li> <li> Moreno-Dominguez D, Anwander A, Knösche TR (2012).
+    Dendrogram processing for whole-brain connectivity-based hierarchical parcellation. Proceedings of the 20th Annual Meeting of the International
+    Society for Magnetic Resonance in Medicine (ISMRM 2012) 688.</li> <li> Knösche TR, Moreno-Dominguez D, Anwander A (2012). Human connectome:
+    Hierarchical clustering. Proceedings of 29th Annual Scientific Meeting of European Society for Magnetic Resonance in Medicine and Biology (ESMRMB
+    2012). 126</li> <li> Anwander A, Moreno-Dominguez D, Knösche, TR (2012). Diffusion MRI based parcellation as prior knowledge in EEG/MEG source
+    reconstruction. 18th International Conference on Biomagnetism.</li> <li> Moreno-Dominguez D, Anwander A, Knösche TR (2011). Evaluation of
+    hierarchical methods for connectivity-based whole-brain parcellation. Proceedings of 28th Annual Scientific Meeting of European Society for
+    Magnetic Resonance in Medicine and Biology (ESMRMB 2011) e-Poster 492. Awarded Certificate of Merit.</li> </ul> </p></body></html>
+

@@ -316,12 +316,12 @@ void WSphericalHarmonicsCoefficientsThread< T >::threadMain()
         double scale = 1.0;
         if( m_parameter.m_normalize )
         {
-            scale *= std::sqrt( 4.0 * piDouble ) / coefficients[ 0 ];
+            scale *= std::sqrt( 4.0 * pi() ) / coefficients[ 0 ];
         }
 
         if( m_parameter.m_csa )
         {
-            coefficients[ 0 ] = 1.0 / ( 2.0 * std::sqrt( piDouble ) );
+            coefficients[ 0 ] = 1.0 / ( 2.0 * std::sqrt( pi() ) );
         }
 
         for( std::size_t j = 0; j < l; j++ )

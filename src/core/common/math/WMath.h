@@ -37,17 +37,40 @@
  * Classes and functions of math module of OpenWalnut.
  */
 
-// Pi constants - we don't use the macro M_PI, because it is not part of the C++-standard.
-// ref.: http://stackoverflow.com/questions/1727881/how-to-use-the-pi-constant-in-c
 /**
- * The pi constant in float format
+ * Get a PI constant in an arbitrary type.
+ *
+ * \tparam T the desired type
+ *
+ * \return pi in the desired type.
  */
-const float piFloat = boost::math::constants::pi<float>();
+template< typename T >
+T pi()
+{
+    return boost::math::constants::pi< T >();
+}
 
 /**
- * The pi constant in double format
+ * Get a PI constant as double.
+ *
+ * \return pi as double.
  */
-const double piDouble = boost::math::constants::pi<double>();
+inline double pi()
+{
+    return boost::math::constants::pi< double >();
+}
+
+/**
+ * For the lazy programmer and backwards compatibility, define pi() to be PI as double. Since defines are usually a bad idea (for aliasing), you
+ * should avoid using this. Use the \ref pi function directly.
+ */
+#define piDouble pi()
+
+/**
+ * For the lazy programmer and backwards compatibility, define piFloat to be PI as float. Since defines are usually a bad idea (for aliasing), you
+ * should avoid using this. Use the \ref pi function directly.
+ */
+#define piFloat pi< float >()
 
 /**
  * Checks if the triangle intersects with the given plane. If you are interested in the points of

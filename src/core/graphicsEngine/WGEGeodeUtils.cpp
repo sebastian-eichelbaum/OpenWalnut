@@ -790,11 +790,11 @@ osg::ref_ptr< osg::Group > wge::creatCoordinateSystem(
     osg::Matrixd matrixTranslateFrom0 = osg::Matrixd::translate( middle.x(), middle.y(), middle.z() );
 
     graphXTransform->setMatrix( matrixTranslateTo0 * osg::Matrixd::rotate(
-        90.0 * piDouble / 180.0,
+        90.0 * pi() / 180.0,
         osg::Vec3f( 0.0, 1.0, 0.0 ) ) * matrixTranslateFrom0
     );
     graphYTransform->setMatrix( matrixTranslateTo0 * osg::Matrixd::rotate(
-        -90.0 * piDouble / 180.0,
+        -90.0 * pi() / 180.0,
         osg::Vec3f( 1.0, 0.0, 0.0 ) ) * matrixTranslateFrom0
     );
 

@@ -160,7 +160,7 @@ namespace
 {
     double calcAreaScale( const double bucket, const size_t j )
     {
-        double theta = piDouble - ( j * bucket + ( bucket / 2.0 ) );
+        double theta = pi() - ( j * bucket + ( bucket / 2.0 ) );
         return 1.0 / sin( theta );
     }
 }
@@ -171,7 +171,7 @@ WGETexture2D::RPtr WHistogram2D::getSphereTexture()
     size_t imageWidth = m_buckets[0];
     size_t imageHeight = m_buckets[1];
     double maxCount = 0.0;
-    const double bucket = piDouble / static_cast< double >( imageHeight );
+    const double bucket = pi() / static_cast< double >( imageHeight );
     double areaScale = 0.0;
 
     for( size_t j = 0; j < imageHeight; ++j ) // get max bin for scaling

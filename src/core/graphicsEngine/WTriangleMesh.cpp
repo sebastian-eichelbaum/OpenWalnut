@@ -878,7 +878,7 @@ osg::Vec3 WTriangleMesh::estimateSmoothedVertexPosition( std::size_t vtx, float 
 
         // calc f
         double dist = ( m_verts->operator[] ( vtx ) - center ).length();
-        double f = 1.0 / ( sigmaDistance * sqrt( 2.0 * piDouble ) ) * exp( -0.5 * dist * dist );
+        double f = 1.0 / ( sigmaDistance * sqrt( 2.0 * pi() ) ) * exp( -0.5 * dist * dist );
 
         double g;
         if( !mollify )
@@ -890,7 +890,7 @@ osg::Vec3 WTriangleMesh::estimateSmoothedVertexPosition( std::size_t vtx, float 
 
             dist = ( p - pred ).length();
         }
-        g = 1.0 / ( sigmaInfluence * sqrt( 2.0 * piDouble ) ) * exp( -0.5 * dist * dist );
+        g = 1.0 / ( sigmaInfluence * sqrt( 2.0 * pi() ) ) * exp( -0.5 * dist * dist );
 
         sum += area * f * g;
         res += center * area * f * g;

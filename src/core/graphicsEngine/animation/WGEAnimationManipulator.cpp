@@ -111,12 +111,12 @@ void WGEAnimationManipulator::setTimer( WTimer::ConstSPtr timer )
 
 double degToRad( double deg )
 {
-    return deg * ( piDouble / 180.0 );
+    return deg * ( pi() / 180.0 );
 }
 
 double radToDeg( double rad )
 {
-    return rad * ( 180.0 / piDouble );
+    return rad * ( 180.0 / pi() );
 }
 
 template < typename T >
@@ -161,7 +161,7 @@ double smooth( double value, double min, double max )
     }
 
     double scaledValue = ( value - min ) / max;
-    return min + max * ( 0.5 * ( 1.0 + cos( piDouble + ( scaledValue * piDouble ) ) ) );
+    return min + max * ( 0.5 * ( 1.0 + cos( pi() + ( scaledValue * pi() ) ) ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -335,8 +335,8 @@ void WGEAnimationManipulator::handleFrame()
     // this brings the BBox to the center, makes it larger and rotates the front towards the camera
     osg::Matrixd mBBTranslate = osg::Matrixd::translate( -159.0 / 2.0, -199.0 / 2.0, -159.0 / 2.0 );
     osg::Matrixd mBBScale     = osg::Matrixd::scale( 1.5, 1.5, 1.5 );
-    osg::Matrixd mBBRotate    = osg::Matrixd::rotate( -piDouble / 2.0, 1.0, 0.0, 0.0 ) *
-                                osg::Matrixd::rotate(  piDouble, 0.0, 1.0, 0.0 );
+    osg::Matrixd mBBRotate    = osg::Matrixd::rotate( -pi() / 2.0, 1.0, 0.0, 0.0 ) *
+                                osg::Matrixd::rotate(  pi(), 0.0, 1.0, 0.0 );
     // Scene 1:
     // construct the animation here.
     Rotator rotateToBack =          Rotator( elapsed, 0.0, Transformation::axeY, 360.0, 22.5 );
@@ -360,8 +360,8 @@ void WGEAnimationManipulator::handleFrame()
     // this brings the BBox to the center, makes it larger and rotates the front towards the camera
     // osg::Matrixd mBBTranslate = osg::Matrixd::translate( -159.0 / 2.0, -199.0 / 2.0, -179.0 / 2.0 );
     // osg::Matrixd mBBScale     = osg::Matrixd::scale( 2.0, 2.0, 2.0 );
-    // osg::Matrixd mBBRotate    = osg::Matrixd::rotate( -piDouble / 2.0, 1.0, 0.0, 0.0 ) *
-    //                             osg::Matrixd::rotate(  piDouble, 0.0, 1.0, 0.0 );
+    // osg::Matrixd mBBRotate    = osg::Matrixd::rotate( -pi() / 2.0, 1.0, 0.0, 0.0 ) *
+    //                             osg::Matrixd::rotate(  pi(), 0.0, 1.0, 0.0 );
     // Transformation rotateToBack =          Rotator( elapsed, 0.0, Transformation::axeY, 360.0, 22.5 );
     // Transformation translateABitUp = Translator( elapsed, rotateToBack.finish() - 5.0, Transformation::axeY * -45.0, 0.25 );
     // Transformation zoomNei = Zoomer( elapsed,  rotateToBack.finish() - 5.0, 2.00, 0.25 );

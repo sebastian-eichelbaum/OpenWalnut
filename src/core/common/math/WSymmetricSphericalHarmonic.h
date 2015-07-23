@@ -645,7 +645,7 @@ WMatrix< T > WSymmetricSphericalHarmonic< T >::getSHFittingMatrixForConstantSoli
   wlog::debug( "" ) << "P*result: " << result;
 
   // correction factor
-  T correctionFactor = 1.0 / ( 16.0 * std::pow( static_cast< T >( piDouble ), 2 ) );
+  T correctionFactor = 1.0 / ( 16.0 * std::pow( static_cast< T >( pi() ), 2 ) );
   result *= correctionFactor;
 
   return result;
@@ -767,7 +767,7 @@ WMatrix< T > WSymmetricSphericalHarmonic< T >::calcFRTMatrix( size_t order )
     WMatrix< T > result( R, R );
     for( size_t k = 0; k <= order; k += 2 )
     {
-        T h = 2.0 * static_cast< T >( piDouble ) * static_cast< T >( std::pow( static_cast< T >( -1 ), static_cast< T >( k / 2 ) ) ) *
+        T h = 2.0 * static_cast< T >( pi() ) * static_cast< T >( std::pow( static_cast< T >( -1 ), static_cast< T >( k / 2 ) ) ) *
                     static_cast< T >( oddFactorial( ( k <= 1 ) ? 1 : k - 1 ) ) / static_cast< T >( evenFactorial( k ) );
         for( int m = -static_cast< int >( k ); m <= static_cast< int >( k ); ++m )
         {
@@ -859,7 +859,7 @@ void WSymmetricSphericalHarmonic< T >::normalize()
   T scale = 0.0;
   if( m_SHCoefficients.size() > 0 )
   {
-      scale = std::sqrt( 4.0 * static_cast< T >( piDouble ) ) * m_SHCoefficients[0];
+      scale = std::sqrt( 4.0 * static_cast< T >( pi() ) ) * m_SHCoefficients[0];
   }
   for( size_t i = 0; i < m_SHCoefficients.size(); i++ )
   {
