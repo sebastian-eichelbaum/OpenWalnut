@@ -151,8 +151,6 @@ private:
 
     /**
      * This updates the maximum value of the histograms.
-     *
-     * \param cumulative If true, histogram values of the datasets will be added for each bin.
      */
     void updateHistogramMax();
 

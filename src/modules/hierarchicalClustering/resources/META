@@ -1,0 +1,177 @@
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
+
+// Provide additional material and descriptions for your module. You can
+// provide this for multiple modules if you like. 
+// The purpose of this file is to allow the developer to provide additional
+// material for his module, like documentation links, video tutorials and 
+// similar. You should always write such a META file for your module, even
+// if you do not provide additional material (for now at least).
+
+"Partition To Mesh"
+{
+  // Provide an icon. If the icon exists, it overrides the one provided by your
+  // getXPMIcon method. This path is relative to your module's resource directory.
+  icon="WMPartition2Mesh.png";
+
+  // Provide a description, If you do so, this description overrides the one
+  // provided by your getDescription method.
+  // HINT: multi-line strings are not supported. Please provide long texts in
+  //       one line.
+  description = "Colors freesurfer meshes with results from clustering";
+
+  // Where to find the module?
+  website = "http://www.openwalnut.org";
+
+  // Provide a list of authors. These authors can have further information associated with them. First,
+  // define the list of authors
+  author = "David Moreno-Dominguez";
+  author = "OpenWalnut Project";
+
+  // To provide further details on one or multiple authors, just open a new block called like
+  // the author.
+  //
+  // * all sub-values are optional
+  // * Especially a contact address is very handy.
+  // * This associates some URL and Mail contact info to "OpenWalnut Project".
+  "OpenWalnut Project"
+  {
+    url="http://www.openwalnut.org";
+    email="contact@openwalnut.org";
+    what="Basic Development and Bug fixing";
+  };
+
+  "David Moreno-Dominguez"
+  {
+    url="www.cbs.mpg.de/~moreno";
+    email="moreno@cbs.mpg.de";
+    what="Development";
+  };
+
+  // You can also provide screenshots with an optional description. Multiple screenshots allowed.
+  screenshot
+  {
+      description = "The voxel mode";
+      filename = "general_voxel.png";
+  };
+  screenshot
+  {
+      description = "The surface mode";
+      filename = "general_surface.png";
+  };
+  screenshot
+  {
+      description = "Example Configurations";
+      filename = "module_tree_modes.png";
+  };
+
+  tag = "Hierarchical";
+  tag = "Clustering";
+  tag = "Dendrogram";
+  tag = "Parcellation";
+
+  online
+  {
+    // Name that appears for this resource. Required.
+    name="Video Tutorial";
+    // Optional description for a resource
+    description = "First Steps Tutorial, showing the toolbox in action.";
+    // The URL. Required.
+    url="https://www.youtube.com/watch?v=bfe3jqzzzSs&feature=youtu.be";
+  };
+};
+
+"Hierarchical Clustering Display"
+{
+  // Provide an icon. If the icon exists, it overrides the one provided by your
+  // getXPMIcon method. This path is relative to your module's resource directory.
+  icon="WMHierchClustDisplay.png";
+
+  // Provide a description, If you do so, this description overrides the one
+  // provided by your getDescription method.
+  // HINT: multi-line strings are not supported. Please provide long texts in
+  //       one line.
+  description = "Visualizes hierarchical clustering in dendrogram tree, texture and 3D seed voxels view";
+
+ // Where to find the module?
+  website = "http://www.openwalnut.org";
+
+  // Provide a list of authors. These authors can have further information associated with them. First,
+  // define the list of authors
+  author = "David Moreno-Dominguez";
+  author = "OpenWalnut Project";
+
+  // To provide further details on one or multiple authors, just open a new block called like
+  // the author.
+  //
+  // * all sub-values are optional
+  // * Especially a contact address is very handy.
+  // * This associates some URL and Mail contact info to "OpenWalnut Project".
+  "OpenWalnut Project"
+  {
+    url="http://www.openwalnut.org";
+    email="contact@openwalnut.org";
+    what="Basic Development and Bug fixing";
+  };
+
+  "David Moreno-Dominguez"
+  {
+    url="www.cbs.mpg.de/~moreno";
+    email="moreno@cbs.mpg.de";
+    what="Development";
+  };
+
+  // You can also provide screenshots with an optional description. Multiple screenshots allowed.
+  screenshot
+  {
+      description = "The voxel mode";
+      filename = "general_voxel.png";
+  };
+  screenshot
+  {
+      description = "The surface mode";
+      filename = "general_surface.png";
+  };
+  screenshot
+  {
+      description = "Example Configurations";
+      filename = "module_tree_modes.png";
+  };
+
+  online
+  {
+    // Name that appears for this resource. Required.
+    name="Video Tutorial";
+    // Optional description for a resource
+    description ="First Steps Tutorial, showing the toolbox in action.";
+    // The URL. Required.
+    url="https://www.youtube.com/watch?v=bfe3jqzzzSs&feature=youtu.be";
+  };
+
+  tag = "Hierarchical";
+  tag = "Clustering";
+  tag = "Dendrogram";
+  tag = "Parcellation";
+};
+
