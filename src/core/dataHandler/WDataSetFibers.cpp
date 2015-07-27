@@ -96,7 +96,7 @@ WDataSetFibers::WDataSetFibers( WDataSetFibers::VertexArray vertices,
       m_lineLengths( lineLengths ),
       m_verticesReverse( verticesReverse ),
       m_bb( boundingBox ),
-      m_vertexParameters( vertexParameters )
+      m_vertexParameters( 1, vertexParameters )
 {
     WAssert( m_vertices->size() % 3 == 0,  "Invalid vertex array."  );
     init();
@@ -112,7 +112,7 @@ WDataSetFibers::WDataSetFibers( WDataSetFibers::VertexArray vertices,
       m_lineStartIndexes( lineStartIndexes ),
       m_lineLengths( lineLengths ),
       m_verticesReverse( verticesReverse ),
-      m_vertexParameters( vertexParameters )
+      m_vertexParameters( 1, vertexParameters )
 {
     WAssert( m_vertices->size() % 3 == 0,  "Invalid vertex array."  );
     // determine bounding box
@@ -326,9 +326,24 @@ const WPropSelection WDataSetFibers::getColorSchemeProperty() const
     return m_colorProp;
 }
 
-WDataSetFibers::VertexParemeterArray WDataSetFibers::getVertexParameters() const
+WDataSetFibers::VertexParemeterArray WDataSetFibers::getVertexParameters( size_t parameterIndex ) const
 {
-    return m_vertexParameters;
+    return m_vertexParameters[ parameterIndex ];
+}
+
+void WDataSetFibers::setVertexParameters( std::vector< WDataSetFibers::VertexParemeterArray > parameters )
+{
+    m_vertexParameters = parameters;
+}
+
+WDataSetFibers::LineParemeterArray WDataSetFibers::getLineParameters( size_t parameterIndex ) const
+{
+    return m_lineParameters[ parameterIndex ];
+}
+
+void WDataSetFibers::setLineParameters( std::vector< WDataSetFibers::LineParemeterArray > parameters )
+{
+    m_lineParameters = parameters;
 }
 
 WPosition WDataSetFibers::getPosition( size_t fiber, size_t vertex ) const
@@ -733,12 +748,12 @@ WFiberPointsIterator::operator bool() const
     return m_fibers != NULL && m_fiberIndex < m_fibers->size() && m_index < m_fibers->getLengthOfLine( m_fiberIndex );
 }
 
-double WFiberPointsIterator::getParameter( double def ) const
+double WFiberPointsIterator::getParameter( double def, size_t parameterIndex ) const
 {
     // TODO(reichenbach): change this to avoid the copy of a shared_ptr
-    if( m_fibers->getVertexParameters() )
+    if( m_fibers->getVertexParameters( parameterIndex ) )
     {
-        return m_fibers->getVertexParameters()->operator[]( getBaseIndex() );
+        return m_fibers->getVertexParameters( parameterIndex )->operator[]( getBaseIndex() );
     }
     return def;
 }
