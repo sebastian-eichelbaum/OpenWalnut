@@ -270,6 +270,8 @@ void WMReadSimpleTextLineData::load()
         lAttribs.push_back( vec );
     }
 
+    // map between the indices in the source attribute list and the really used attributes
+    std::map< size_t, size_t > pAttribIdxMap;
     for( std::map< size_t, std::vector< double > >::const_iterator i = loadedPointAttribs.begin(); i != loadedPointAttribs.end(); ++i )
     {
         size_t desiredSize = loadedVertices.size();
@@ -280,12 +282,14 @@ void WMReadSimpleTextLineData::load()
             warnLog() << "Ignoring point attribute " << ( *i ).first << " as there are too few/too much items.";
         }
 
-        // Create and copy
+        // Create and do NOT copy -> why? The vertex attributes need to be "de-indexed" below. So only create the target vector and go on.
         boost::shared_ptr< WDataSetFibers::VertexParemeterArray::element_type > vec(
-            new WDataSetFibers::VertexParemeterArray::element_type( realSize ) );
-        std::copy( ( *i ).second.begin(), ( *i ).second.end(), vec->begin() );
+            new WDataSetFibers::VertexParemeterArray::element_type() );
+        pAttribIdxMap[ pAttribs.size() ] = ( *i ).first;
         pAttribs.push_back( vec );
     }
+
+
     size_t currentStartIndex = 0;
 
     // For each lineStrip, we need to add vertices and fill the run-lenght info in lengths and lineStartIndices.
@@ -304,6 +308,12 @@ void WMReadSimpleTextLineData::load()
             vertices->push_back( p[ 0 ] );
             vertices->push_back( p[ 1 ] );
             vertices->push_back( p[ 2 ] );
+
+            for( std::vector< WDataSetFibers::VertexParemeterArray >::const_iterator i = pAttribs.begin(); i != pAttribs.end(); ++i )
+            {
+                size_t attrIdx = pAttribIdxMap[ i - pAttribs.begin() ];
+                ( *i )->push_back( loadedPointAttribs[ attrIdx ][ pIdx ] );
+            }
 
             // store the current line index for each vertex
             verticesReverse->push_back( iter - loadedLineStrips.begin() );
