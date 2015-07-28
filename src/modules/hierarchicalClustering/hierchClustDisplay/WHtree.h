@@ -33,6 +33,15 @@
 // www.cbs.mpg.de/~moreno//
 // This file is also part of OpenWalnut ( http://www.openwalnut.org ).
 //
+// For more reference on the underlying algorithm and research they have been used for refer to:
+// - Moreno-Dominguez, D., Anwander, A., & Knösche, T. R. (2014).
+//   A hierarchical method for whole-brain connectivity-based parcellation.
+//   Human Brain Mapping, 35(10), 5000-5025. doi: http://dx.doi.org/10.1002/hbm.22528
+// - Moreno-Dominguez, D. (2014).
+//   Whole-brain cortical parcellation: A hierarchical method based on dMRI tractography.
+//   PhD Thesis, Max Planck Institute for Human Cognitive and Brain Sciences, Leipzig.
+//   ISBN 978-3-941504-45-5
+//
 // hClustering is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -89,16 +98,20 @@ public:
     /**
      * Constructor
      * \param treeName name of the tree
+     * \param datasetGridInit type of grid coordinate space
      * \param datasetSizeInit size of the brain dataset
+     * \param numStreamlinesInit number of streamlines per voxel on the tractograms that were processed to build this tree
+     * \param logFactorInit logarithmic normalization factor that was applied on the tracts when building the tree
      * \param leavesInit vector of leaves
      * \param nodesInit vector of nodes
+     * \param trackidInit vector of seed track ids
      * \param coordInit vector of seed voxel coordinates
      * \param discardInit vector of discarded seed voxel coordinates
-     * \param datasetGridInit type of grid coordinate space
      * \param cpccInit cpcc value of the tree
      */
-    explicit WHtree( std::string treeName, WHcoord datasetSizeInit, std::vector<WHnode> leavesInit, std::vector<WHnode> nodesInit,
-            std::vector<WHcoord> coordInit, std::list<WHcoord> discardInit, HC_GRID datasetGridInit, float cpccInit = 0 );
+    explicit WHtree( std::string treeName, HC_GRID datasetGridInit, WHcoord datasetSizeInit, size_t numStreamlinesInit, float logFactorInit,
+                     std::vector<WHnode> leavesInit, std::vector<WHnode> nodesInit, std::vector<size_t> trackidInit, std::vector<WHcoord> coordInit,
+                     std::list<WHcoord> discardInit, float cpccInit = 0 );
 
     /**
      * Constructor
@@ -136,10 +149,22 @@ public:
     size_t getNumLeaves() const;
 
     /**
-     * Returns the number of leaves of the tree
+     * Returns the number of nodes of the tree
      * \return number of leaves
      */
     size_t getNumNodes() const;
+
+    /**
+     * Returns the leaves of the tree
+     * \return leaves vector
+     */
+    std::vector<WHnode> getLeaves() const;
+
+    /**
+     * Returns the  nodes of the tree
+     * \return nodes vector
+     */
+    std::vector<WHnode> getNodes() const;
 
     /**
      * Returns the number of leaves of the tree
@@ -571,7 +596,7 @@ public:
     friend class WHtreeProcesser;
     friend class WHtreePartition;
 
-    friend class cnbTreeBuilder;
+    friend class CnbTreeBuilder;
     friend class graphTreeBuilder;
     friend class randCnbTreeBuilder;
     friend class treeComparer;
@@ -592,6 +617,12 @@ private:
 
     //! Stores the the type of coordinate grid of the dataset
     HC_GRID m_datasetGrid;
+
+    //! number of streamlines generated form each seed voxel in the tractograms used to build the tree
+    size_t m_numStreamlines;
+
+    //! logarithmic normalization factor used in the tractograms when building the tree
+    float m_logFactor;
 
     //! Stores the cpcc value of the tree
     float m_cpcc;
@@ -798,6 +829,15 @@ inline size_t WHtree::getNumNodes() const
     return m_nodes.size();
 }
 
+inline std::vector<WHnode> WHtree::getLeaves() const
+{
+    return m_leaves;
+}
+
+inline std::vector<WHnode> WHtree::getNodes() const
+{
+    return m_nodes;
+}
 inline size_t WHtree::getNumDiscarded() const
 {
     return m_discarded.size();

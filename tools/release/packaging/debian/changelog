@@ -1,4 +1,5 @@
 openwalnut (OWPACK_VERSION-1) unstable; urgency=low
+  * The system_error is not affecting OpenWalnut (Closes: #793268)
   * Fixed support for GCC5 (Closes: #778050)
   * Major functionality and stability improvements.
   * Several bug fixes

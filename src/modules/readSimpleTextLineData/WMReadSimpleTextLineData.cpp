@@ -25,6 +25,10 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <map>
+#include <algorithm>
+
+#include <boost/foreach.hpp>
 
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WDataModuleInputFile.h"
@@ -176,6 +180,8 @@ void WMReadSimpleTextLineData::load()
     std::vector< WVector3f > loadedVertices;
     typedef std::vector< size_t > LineStrip;
     std::vector< LineStrip > loadedLineStrips;
+    std::map< size_t, std::vector< double > > loadedPointAttribs;
+    std::map< size_t, std::vector< double > > loadedLineAttribs;
 
     while( !ifs.eof() )
     {
@@ -205,6 +211,7 @@ void WMReadSimpleTextLineData::load()
             loadedVertices.push_back( coord );
         }
 
+        // It is a line.
         if( string_utils::toLower( tokens[0] ) == "l" )
         {
             LineStrip ls;
@@ -219,6 +226,20 @@ void WMReadSimpleTextLineData::load()
             // NOTE: a lot of copying, but when considering overall bad performance of hard disk IO vs RAM ...
             loadedLineStrips.push_back( ls );
         }
+
+        // It is a point attribute.
+        if( string_utils::toLower( tokens[0] ) == "pa" )
+        {
+            size_t attrIdx = string_utils::fromString< size_t >( tokens[1] );
+            loadedPointAttribs[ attrIdx ].push_back( string_utils::fromString< float >( tokens[2] ) );
+        }
+
+        // It is a line attribute.
+        if( string_utils::toLower( tokens[0] ) == "la" )
+        {
+            size_t attrIdx = string_utils::fromString< size_t >( tokens[1] );
+            loadedLineAttribs[ attrIdx ].push_back( string_utils::fromString< float >( tokens[2] ) );
+        }
     }
 
     // As the DataSetFibers uses run-length encoded linestrips, we need to transform the stuff now.
@@ -228,7 +249,46 @@ void WMReadSimpleTextLineData::load()
     WDataSetFibers::LengthArray lengths( new WDataSetFibers::LengthArray::element_type() );
     WDataSetFibers::IndexArray lineStartIndices( new WDataSetFibers::IndexArray::element_type() );
     WDataSetFibers::IndexArray verticesReverse( new WDataSetFibers::IndexArray::element_type() );
-    // WDataSetFibers::VertexParemeterArray attribs( new WDataSetFibers::VertexParemeterArray::element_type() );
+
+    std::vector< WDataSetFibers::VertexParemeterArray > pAttribs;
+    std::vector< WDataSetFibers::LineParemeterArray > lAttribs;
+
+    for( std::map< size_t, std::vector< double > >::const_iterator i = loadedLineAttribs.begin(); i != loadedLineAttribs.end(); ++i )
+    {
+        size_t desiredSize = loadedLineStrips.size();
+        size_t realSize = ( *i ).second.size();
+
+        if( desiredSize != realSize )
+        {
+            warnLog() << "Ignoring line attribute " << ( *i ).first << " as there are too few/too much items.";
+        }
+
+        // Create and copy
+        boost::shared_ptr< WDataSetFibers::LineParemeterArray::element_type > vec(
+            new WDataSetFibers::LineParemeterArray::element_type( realSize ) );
+        std::copy( ( *i ).second.begin(), ( *i ).second.end(), vec->begin() );
+        lAttribs.push_back( vec );
+    }
+
+    // map between the indices in the source attribute list and the really used attributes
+    std::map< size_t, size_t > pAttribIdxMap;
+    for( std::map< size_t, std::vector< double > >::const_iterator i = loadedPointAttribs.begin(); i != loadedPointAttribs.end(); ++i )
+    {
+        size_t desiredSize = loadedVertices.size();
+        size_t realSize = ( *i ).second.size();
+
+        if( desiredSize != realSize )
+        {
+            warnLog() << "Ignoring point attribute " << ( *i ).first << " as there are too few/too much items.";
+        }
+
+        // Create and do NOT copy -> why? The vertex attributes need to be "de-indexed" below. So only create the target vector and go on.
+        boost::shared_ptr< WDataSetFibers::VertexParemeterArray::element_type > vec(
+            new WDataSetFibers::VertexParemeterArray::element_type() );
+        pAttribIdxMap[ pAttribs.size() ] = ( *i ).first;
+        pAttribs.push_back( vec );
+    }
+
 
     size_t currentStartIndex = 0;
 
@@ -249,6 +309,12 @@ void WMReadSimpleTextLineData::load()
             vertices->push_back( p[ 1 ] );
             vertices->push_back( p[ 2 ] );
 
+            for( std::vector< WDataSetFibers::VertexParemeterArray >::const_iterator i = pAttribs.begin(); i != pAttribs.end(); ++i )
+            {
+                size_t attrIdx = pAttribIdxMap[ i - pAttribs.begin() ];
+                ( *i )->push_back( loadedPointAttribs[ attrIdx ][ pIdx ] );
+            }
+
             // store the current line index for each vertex
             verticesReverse->push_back( iter - loadedLineStrips.begin() );
         }
@@ -260,12 +326,17 @@ void WMReadSimpleTextLineData::load()
         currentStartIndex += ls.size();
     }
 
-    m_output->updateData( WDataSetFibers::SPtr( new WDataSetFibers( vertices, lineStartIndices, lengths, verticesReverse, bb ) ) );
+    WDataSetFibers::SPtr ds( new WDataSetFibers( vertices, lineStartIndices, lengths, verticesReverse, bb ) );
+    ds->setVertexParameters( pAttribs );
+    ds->setLineParameters( lAttribs );
+
+    m_output->updateData( ds );
 
     // done. close file and report finish
     progress1->finish();
     ifs.close();
 
-    infoLog() << "Loaded " << loadedLineStrips.size() << " line strips from file. Done.";
+    infoLog() << "Loaded " << loadedLineStrips.size() << " line strips from file, having " << pAttribs.size() << " point attributes and "
+              << lAttribs.size() << " line attributes. Done.";
 }
 

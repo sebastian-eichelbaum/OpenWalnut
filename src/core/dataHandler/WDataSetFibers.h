@@ -99,6 +99,11 @@ public:
     typedef boost::shared_ptr< std::vector< double > > VertexParemeterArray;
 
     /**
+     * Parameter storage for each line.
+     */
+    typedef boost::shared_ptr< std::vector< double > > LineParemeterArray;
+
+    /**
      * Iterator to go through the fibers.
      */
     typedef WFiberIterator iterator;
@@ -321,8 +326,33 @@ public:
      * Get the parameter values for each vertex. Same indexing as vertices. Used to store additional scalar values for each vertex.
      *
      * \return the array. Can be NULL.
+     *
+     * \param parameterIndex there can be multiple parameters. The index defines the index of the parameter array to get. Default is 0.
      */
-    VertexParemeterArray getVertexParameters() const;
+    VertexParemeterArray getVertexParameters( size_t parameterIndex = 0 ) const;
+
+    /**
+     * Set the given array of parameters to be the vertex parameters of this fiber dataset.
+     *
+     * \param parameters the list of parameters. Can be an empty vector to remove parameters.
+     */
+    void setVertexParameters( std::vector< VertexParemeterArray > parameters );
+
+    /**
+     * Get the parameter values for each line. Same indexing as lines. Used to store additional scalar values for each line.
+     *
+     * \return the array. Can be NULL.
+     *
+     * \param parameterIndex there can be multiple parameters. The index defines the index of the parameter array to get. Default is 0.
+     */
+    LineParemeterArray getLineParameters( size_t parameterIndex = 0 ) const;
+
+    /**
+     * Set an array to be the list of line parameters.
+     *
+     * \param parameters the list of parameters. Can be an empty vector to remove parameters.
+     */
+    void setLineParameters( std::vector< LineParemeterArray > parameters );
 
     /**
      * This method adds a new color scheme to the list of available colors. The color scheme needs to have a name and description to allow the
@@ -519,9 +549,14 @@ private:
     WBoundingBox m_bb;
 
     /**
-     * Parameter array. Used to store additional scalar values for each vertex.
+     * Parameter array. Used to store additional scalar values for each vertex. Multiple parameter arrays allowed.
      */
-    VertexParemeterArray m_vertexParameters;
+    std::vector< VertexParemeterArray > m_vertexParameters;
+
+    /**
+     * Parameter array. Used to store additional scalar values for each line. Multiple parameter arrays allowed.
+     */
+    std::vector< LineParemeterArray > m_lineParameters;
 };
 
 /**
@@ -989,10 +1024,11 @@ public:
      * returned.
      *
      * \param def the default value which will be returned if no vertex parameter array was defined.
+     * \param parameterIndex the parameter to get.
      *
      * \return the value or the specified default
      */
-    double getParameter( double def = 0.0 ) const;
+    double getParameter( double def = 0.0, size_t parameterIndex = 0 ) const;
 
     /**
      * The tangent of the point.
