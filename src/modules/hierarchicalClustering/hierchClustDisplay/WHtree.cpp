@@ -33,6 +33,15 @@
 // www.cbs.mpg.de/~moreno//
 // This file is also part of OpenWalnut ( http://www.openwalnut.org ).
 //
+// For more reference on the underlying algorithm and research they have been used for refer to:
+// - Moreno-Dominguez, D., Anwander, A., & Knösche, T. R. (2014).
+//   A hierarchical method for whole-brain connectivity-based parcellation.
+//   Human Brain Mapping, 35(10), 5000-5025. doi: http://dx.doi.org/10.1002/hbm.22528
+// - Moreno-Dominguez, D. (2014).
+//   Whole-brain cortical parcellation: A hierarchical method based on dMRI tractography.
+//   PhD Thesis, Max Planck Institute for Human Cognitive and Brain Sciences, Leipzig.
+//   ISBN 978-3-941504-45-5
+//
 // hClustering is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -70,10 +79,21 @@ WHtree::WHtree( std::string filename ): m_loadStatus( false ), m_cpcc( 0 )
     readTree( filename );
 }
 
-WHtree::WHtree( std::string treeName, WHcoord datasetSizeInit, std::vector<WHnode> leavesInit, std::vector<WHnode> nodesInit,
-              std::vector<WHcoord> coordInit, std::list<WHcoord> discardInit, HC_GRID datasetGridInit, float cpccInit ):
-    m_loadStatus( false ), m_datasetSize( datasetSizeInit ), m_datasetGrid( datasetGridInit ), m_cpcc( cpccInit ), m_treeName( treeName ),
-    m_leaves( leavesInit ), m_nodes( nodesInit ), m_coordinates( coordInit ), m_discarded( discardInit )
+WHtree::WHtree( std::string treeName, HC_GRID datasetGridInit, WHcoord datasetSizeInit, size_t numStreamlinesInit, float logFactorInit,
+                std::vector< WHnode > leavesInit, std::vector< WHnode > nodesInit, std::vector< size_t > trackidInit,
+                std::vector< WHcoord > coordInit, std::list< WHcoord > discardInit, float cpccInit )
+    : m_loadStatus( false ),
+      m_datasetSize( datasetSizeInit ),
+      m_datasetGrid( datasetGridInit ),
+      m_numStreamlines( numStreamlinesInit ),
+      m_logFactor( logFactorInit ),
+      m_cpcc( cpccInit ),
+      m_treeName( treeName ),
+      m_leaves( leavesInit ),
+      m_nodes( nodesInit ),
+      m_coordinates( coordInit ),
+      m_trackids( trackidInit ),
+      m_discarded( discardInit )
 {
     if( check() )
     {
@@ -81,10 +101,20 @@ WHtree::WHtree( std::string treeName, WHcoord datasetSizeInit, std::vector<WHnod
     }
 }
 
-WHtree::WHtree( const WHtree &object ):
-    m_loadStatus( object.m_loadStatus ), m_datasetSize( object.m_datasetSize ), m_datasetGrid( object.m_datasetGrid ), m_cpcc( object.m_cpcc ),
-    m_treeName( object.m_treeName ), m_leaves( object.m_leaves ), m_nodes( object.m_nodes ), m_coordinates( object.m_coordinates ),
-    m_discarded( object.m_discarded ), m_containedLeaves( object.m_containedLeaves )
+WHtree::WHtree( const WHtree &object )
+    : m_loadStatus( object.m_loadStatus ),
+      m_datasetSize( object.m_datasetSize ),
+      m_datasetGrid( object.m_datasetGrid ),
+      m_numStreamlines( object.m_numStreamlines ),
+      m_logFactor( object.m_logFactor ),
+      m_cpcc( object.m_cpcc ),
+      m_treeName( object.m_treeName ),
+      m_leaves( object.m_leaves ),
+      m_nodes( object.m_nodes ),
+      m_coordinates( object.m_coordinates ),
+      m_trackids( object.m_trackids ),
+      m_discarded( object.m_discarded ),
+      m_containedLeaves( object.m_containedLeaves )
 {
 }
 
@@ -905,6 +935,57 @@ bool WHtree::readTree( const std::string &filename )
     }
 
     {
+        std::vector< std::vector< std::string > > streamNumberStrings = parser.getLinesForTagSeparated( "streams" );
+        if( streamNumberStrings.size() == 0 )
+        {
+            std::cerr << "WARNING @ WHtree::readTree(): tracking streams number was not found in tree file,";
+            std::cerr << " assuming streams=0 for compatibility" << std::endl;
+            m_numStreamlines = 0;
+        }
+        if( streamNumberStrings.size() > 1 )
+        {
+            std::cerr << "ERROR @ WHtree::readTree(): tracking streams number attribute has multiple lines" << std::endl;
+            return false;
+        }
+        if( streamNumberStrings[0].size() > 1 )
+        {
+            std::cerr << "ERROR @ WHtree::readTree(): tracking streams number attribute has multiple elements" << std::endl;
+            return false;
+        }
+        m_numStreamlines = string_utils::fromString< size_t >( streamNumberStrings[0][0] );
+    }
+
+    {
+        std::vector< std::vector< std::string > >logFactorStrings = parser.getLinesForTagSeparated( "logfactor" );
+        if( logFactorStrings.size() == 0 )
+        {
+            std::cerr << "WARNING @ WHtree::readTree(): logarithmic normalization factor was not found in tree file,";
+            std::cerr << " assuming logFactor=0 for compatibility" << std::endl;
+            m_logFactor = 0;
+        }
+        if( logFactorStrings.size() > 1 )
+        {
+            std::cerr << "ERROR @ WHtree::readTree():";
+            std::cerr << "logarithmic normalization factor attribute has multiple lines" << std::endl;
+            return false;
+        }
+        if( logFactorStrings[0].size() > 1 )
+        {
+            std::cerr << "ERROR @ WHtree::readTree(): logarithmic normalization factor attribute has multiple elements" << std::endl;
+            return false;
+        }
+        m_logFactor = string_utils::fromString< float >( logFactorStrings[0][0] );
+
+        if( m_logFactor != 0 && m_numStreamlines != 0 && m_logFactor != log10( m_numStreamlines ) )
+        {
+            std::cerr << "ERROR @ WHtree::readTree(): tracking streams number (";
+            std::cerr << m_numStreamlines << ") and logarithmic normalization factor (";
+            std::cerr << m_logFactor << ") are a missmatch " << std::endl;
+            return false;
+        }
+    }
+
+    {
         std::vector< std::vector< std::string> >coordStrings = parser.getLinesForTagSeparated( "coordinates" );
         m_coordinates.reserve( coordStrings.size() );
         m_leaves.reserve( coordStrings.size() );
@@ -1150,6 +1231,10 @@ bool WHtree::writeTree( const std::string &filename, const bool niftiMode ) cons
         outFile << "#cpcc" << std::endl << string_utils::toString( m_cpcc ) << std::endl << "#endcpcc" << std::endl << std::endl;
     }
 
+    outFile << "#streams" << std::endl << m_numStreamlines << std::endl << "#endstreams" << std::endl;
+
+    outFile << "#logfactor" << std::endl << m_logFactor << std::endl << "#endlogfactor" << std::endl;
+
     outFile << "#coordinates" << std::endl;
     for( std::vector<WHcoord>::const_iterator coordIter( m_coordinates.begin() ) ; coordIter != m_coordinates.end() ; ++coordIter )
     {
@@ -1266,7 +1351,13 @@ bool WHtree::writeTreeDebug( const std::string &filename ) const
     outFile << "Dataset size: " << m_datasetSize << " " << getGridString( m_datasetGrid ) << std::endl;
 
     if( m_cpcc != 0 )
+    {
         outFile << "CPCC: " <<  string_utils::toString( m_cpcc ) << std::endl << std::endl;
+    }
+
+    outFile << "Streamlines per seed voxel: " << m_numStreamlines << std::endl;
+
+    outFile << "Logarithmic normalization factor: " << m_logFactor << std::endl << std::endl;
 
     outFile << "============LEAVES============" << std::endl << std::endl;
     for( std::vector<WHnode>::const_iterator leafIter( m_leaves.begin() ); leafIter != m_leaves.end(); ++leafIter )
