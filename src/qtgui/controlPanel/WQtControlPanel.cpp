@@ -144,8 +144,8 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     if( m_mainWindow->getNetworkEditor() )
     {
         m_mainWindow->getNetworkEditor()->getView()->setContextMenuPolicy( Qt::ActionsContextMenu );
-        m_mainWindow->getNetworkEditor()->getView()->addAction( m_addModuleAction );
         m_mainWindow->getNetworkEditor()->getView()->addAction( m_connectWithPrototypeAction );
+        m_mainWindow->getNetworkEditor()->getView()->addAction( m_addModuleAction );
         m_mainWindow->getNetworkEditor()->getView()->addAction( m_connectWithModuleAction );
         m_mainWindow->getNetworkEditor()->getView()->addAction( m_disconnectAction );
         m_mainWindow->getNetworkEditor()->getView()->addAction( m_deleteModuleAction );
@@ -153,8 +153,8 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
         m_mainWindow->getNetworkEditor()->getView()->addAction( m_configModuleFilterAction );
 
         // also add to the title actions
-        m_mainWindow->getNetworkEditor()->addTitleAction( m_addModuleAction, true );
         m_mainWindow->getNetworkEditor()->addTitleAction( m_connectWithPrototypeAction, true );
+        m_mainWindow->getNetworkEditor()->addTitleAction( m_addModuleAction, true );
         m_mainWindow->getNetworkEditor()->addTitleAction( m_deleteModuleAction, true );
 
         // m_mainWindow->getNetworkEditor()->addTitleAction( m_connectWithModuleAction );
@@ -1080,8 +1080,10 @@ void WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule > modu
         m_disconnectActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(), module->getPossibleDisconnections() );
     }
 
+    QMenu* m;
+
     // build the add menu
-    QMenu* m = new WQtMenuFiltered( getMissingModuleAction(), m_moduleTreeWidget );
+    m = new WQtMenuFiltered( getMissingModuleAction(), m_moduleTreeWidget );
     m->addActions( m_addModuleActionList );
     m_addModuleAction->setDisabled( !m_addModuleActionList.size() );  // disable if no entry inside
     // delete( m_addModuleAction->menu() ); // ensure that combiners get free'd
