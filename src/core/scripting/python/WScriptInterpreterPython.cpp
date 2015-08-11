@@ -154,7 +154,6 @@ void WScriptInterpreterPython::initBindings()
 
 
     m_pyMainNamespace[ "screenshot" ] = pb::make_function( &screenshot );
-    m_pyMainNamespace[ "setScreenshotFormat" ] = pb::make_function( &setScreenshotFormat );
     m_pyMainNamespace[ "initCamera" ] = pb::make_function( &initCamera );
 
     m_logger = WLoggerWrapper( WLogger::getLogger() );
