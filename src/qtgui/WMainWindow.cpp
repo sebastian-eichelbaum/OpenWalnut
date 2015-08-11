@@ -680,7 +680,14 @@ QString collectFilters()
         result += description + QString( "(*" ) + extension + QString( ");;" );
     }
 
-    return QString( "Known file types (" ) + all + QString( ");;" ) + result;
+    // math: on 11. Aug. 2015, related issue: http://www.openwalnut.org/issues/404
+    // The following #ifdef is due to the following QT-Bug: https://bugreports.qt.io/browse/QTBUG-38303
+    // Hence, we use any file as known file type for MAC OSX only.
+    #ifdef Q_OS_OSX
+        return QString( "Known file types (* " ) + all  + QString( ");;" ) + result;
+    #else
+        return QString( "Known file types (" ) + all + QString( ");;" ) + result;
+    #endif
 }
 
 void WMainWindow::openLoadDialog()
