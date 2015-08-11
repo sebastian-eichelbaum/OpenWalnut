@@ -378,7 +378,7 @@ void WMainWindow::setupGUI()
             m_navAxial->setSliderProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropAxialPos() );
             m_navAxial->getGLWidget()->setCameraManipulator( WQtGLWidget::NO_OP );
 
-            m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
+            addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get(), Qt::Vertical );
 
             m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Coronal View", "Coronal View", this, "Coronal Slice",
                                                                                     m_mainGLWidget ) );
@@ -386,7 +386,7 @@ void WMainWindow::setupGUI()
             m_navCoronal->setSliderProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropCoronalPos() );
             m_navCoronal->getGLWidget()->setCameraManipulator( WQtGLWidget::NO_OP );
 
-            m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
+            addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get(), Qt::Vertical );
 
             m_navSagittal =
                 boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Sagittal View", "Sagittal View", this, "Sagittal Slice",
@@ -395,7 +395,7 @@ void WMainWindow::setupGUI()
             m_navSagittal->setSliderProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropSagittalPos() );
             m_navSagittal->getGLWidget()->setCameraManipulator( WQtGLWidget::NO_OP );
 
-            m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
+            addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get(), Qt::Vertical );
         }
     }
 
