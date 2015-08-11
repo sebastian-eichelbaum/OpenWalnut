@@ -27,6 +27,8 @@
 
 #include <string>
 
+#include <boost/thread.hpp>
+
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
 #include "core/kernel/WModuleOutputData.h"
@@ -104,6 +106,11 @@ private:
      * If true, the geometryUpdate() callback will upload a new filter attribute array.
      */
     bool m_fiberClusteringUpdate;
+
+    /**
+     * A mutex used to atomically update the fibers and their selector.
+     */
+    boost::mutex m_mutex;
 
     /**
      * The fiber dataset which is going to be filtered.

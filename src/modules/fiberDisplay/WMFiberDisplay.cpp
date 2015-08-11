@@ -361,7 +361,15 @@ void WMFiberDisplay::moduleMain()
         if( fibersUpdated || dataPropertiesUpdated || propertiesUpdated )
         {
             debugLog() << "Fibers updated.";
-            m_fibers = fibers;
+
+            {
+                boost::unique_lock< boost::mutex > lock( m_mutex );
+
+                m_fibers = fibers;
+
+                // get a new fiber selector
+                m_fiberSelector = boost::shared_ptr<WFiberSelector>( new WFiberSelector( fibers ) );
+            }
 
             // update the prop observer if new data is available
             m_coloringGroup->removeProperty( m_fibProps );
@@ -377,9 +385,6 @@ void WMFiberDisplay::moduleMain()
 
             // add geode to module node
             postNode->clear();
-
-            // get a new fiber selector
-            m_fiberSelector = boost::shared_ptr<WFiberSelector>( new WFiberSelector( fibers ) );
 
             // register dirty notifier
             m_roiUpdateConnection.disconnect();
@@ -743,6 +748,8 @@ void WMFiberDisplay::geometryUpdate( osg::Drawable* geometry )
 {
     if( m_fiberSelectorChanged )
     {
+        boost::unique_lock< boost::mutex > lock( m_mutex );
+
         bool overrideROIFiltering = m_fiberSelector->isNothingFiltered();
         m_roiFilterColorsOverride->set( overrideROIFiltering ? 1.0f : 0.0f );
 
