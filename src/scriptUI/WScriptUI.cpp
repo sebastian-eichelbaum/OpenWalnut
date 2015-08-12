@@ -61,7 +61,7 @@ int WScriptUI::run()
     boost::filesystem::path homePath = boost::filesystem::path( getenv( "HOME" ) );
 
     // setup path helper which provides several paths to others
-#ifdef Q_WS_MAC
+#ifdef Q_OS_OSX
     // apple has a special file hierarchy in so-called bundles
     // this code determines whether we are started from a bundle context
     // and sets the paths according to Apple's guidelines inside the bundle
