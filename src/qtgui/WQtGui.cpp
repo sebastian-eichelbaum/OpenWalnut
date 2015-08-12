@@ -155,13 +155,7 @@ int WQtGui::run()
     m_loggerConnection = WLogger::getLogger()->subscribeSignal( WLogger::AddLog, boost::bind( &WQtGui::slotAddLog, this, _1 ) );
 
     // make qapp instance before using the applicationDirPath() function
-#ifdef Q_OS_OSX
-    //TODO(mario): this should run on all platforms but crashes at least on Linux right now. Therefore, I only use it on OSX
     WApplication appl( m_argc, m_argv, true );
-#else
-    // TODO(mario): I want a WApplication here for session handling but that code crashes
-    QApplication appl( m_argc, m_argv, true );
-#endif
 
     // the call path of the application, this uses QApplication which needs to be instantiated.
     boost::filesystem::path walnutBin = boost::filesystem::path( QApplication::applicationDirPath().toStdString() );
@@ -171,15 +165,13 @@ int WQtGui::run()
     // apple has a special file hierarchy in so-called bundles
     // this code determines whether we are started from a bundle context
     // and sets the paths according to Apple's guidelines inside the bundle
-    if( QApplication::applicationDirPath().endsWith( "/MacOS" ) )
+    if( QApplication::applicationDirPath().endsWith( "/MacOS" ) ) // we are in a bundle
     {
-        // we are in a bundle
         // TODO(mario): apply default OSX behavior of using $HOME/Library/OpenWalnut ?
         WPathHelper::getPathHelper()->setBasePathsOSXBundle( walnutBin, boost::filesystem::path( QDir::homePath().toStdString() ) / ".OpenWalnut" );
     }
-    else
+    else // assume standard behavior
     {
-        // assume standard behavior
         WPathHelper::getPathHelper()->setBasePaths( walnutBin, boost::filesystem::path( QDir::homePath().toStdString() ) / ".OpenWalnut" );
     }
 #else
@@ -256,10 +248,7 @@ int WQtGui::run()
 
     m_widgetFactory = WUIQtWidgetFactory::SPtr( new WUIQtWidgetFactory( m_mainWindow ) );
 
-#ifdef Q_OS_OSX
-    //TODO(mario): this should run on all platforms but crashes at least on Linux right now. Therefore, I only use it on OSX
     appl.setMyMainWidget( m_mainWindow );
-#endif
     m_mainWindow->setupGUI();
     m_mainWindow->show();
 
