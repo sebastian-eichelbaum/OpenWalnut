@@ -646,14 +646,14 @@ void WMScalarOperator::moduleMain()
             // this keeps the result
             boost::shared_ptr< WValueSetBase > newValueSet;
 
-            // single operator operation?
+            // single operand operation?
             if( ( s == 5 ) || ( s == 6 ) || ( s == 7 ) || ( s == 8 ) )
             {
                 VisitorVSetSingleArgument visitor( s );    // the visitor cascades to the second value set
                 visitor.setBorder( m_lowerBorder->get( true ), m_upperBorder->get( true ) );
                 newValueSet = valueSetA->applyFunction( visitor );
             }
-            else  // no multiple operators:
+            else  // multiple operands:
             {
                 // valid data?
                 if( dataSetB )
@@ -666,7 +666,7 @@ void WMScalarOperator::moduleMain()
                                  ( valueSetA->rawSize() == valueSetB->rawSize() );
                     if( !match )
                     {
-                        throw WDHValueSetMismatch( std::string( "The both value sets are not of equal size, dimension and order." ) );
+                        throw WDHValueSetMismatch( std::string( "The two value sets are not of equal size, dimension and order." ) );
                     }
 
                     VisitorVSetA visitor( valueSetB.get(), s );    // the visitor cascades to the second value set
