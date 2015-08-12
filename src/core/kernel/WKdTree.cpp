@@ -33,7 +33,7 @@
 WKdTree::WKdTree( int size, float *pointArray ) :
     m_size( size ), m_pointArray( pointArray )
 {
-    WAssert( m_size > 2, "The current kD-tree implementation works only with at least 3 vertices." );
+    // WAssert( m_size > 2, "The current kD-tree implementation works only with at least 3 vertices." );
     m_tree.clear();
     m_tree.resize( m_size );
 
@@ -43,40 +43,56 @@ WKdTree::WKdTree( int size, float *pointArray ) :
         m_tree[i] = i;
 
     int root = ( m_size - 1 ) / 2;
-    m_root = root;
-    std::nth_element( m_tree.begin(), m_tree.begin() + root, m_tree.end(), lessy( m_pointArray, 0 ) );
+
+    if( m_size == 0 )
+        m_root = 0;
+
+    if( m_size > 0 )
+    {
+        m_root = root;
+        std::nth_element( m_tree.begin(), m_tree.begin() + root, m_tree.end(), lessy( m_pointArray, 0 ) );
+    }
 
     int rootLeft = ( root - 1 ) / 2;
-    std::nth_element( m_tree.begin(), m_tree.begin() + rootLeft, m_tree.begin() + root - 1, lessy( m_pointArray, 1 ) );
+    if( m_size > 2 )
+    {
+        std::nth_element( m_tree.begin(), m_tree.begin() + rootLeft, m_tree.begin() + root - 1, lessy( m_pointArray, 1 ) );
+    }
 
     int rootRight = ( m_size + root ) / 2;
-    std::nth_element( m_tree.begin() + root + 1, m_tree.begin() + rootRight, m_tree.end(), lessy( m_pointArray, 1 ) );
+    if( m_size > 1 )
+    {
+        std::nth_element( m_tree.begin() + root + 1, m_tree.begin() + rootRight, m_tree.end(), lessy( m_pointArray, 1 ) );
+    }
 
-    WKdTreeThread *thread1 = new WKdTreeThread( m_pointArray, &m_tree, 0, rootLeft - 1, 2 );
-    WKdTreeThread *thread2 = new WKdTreeThread( m_pointArray, &m_tree, rootLeft + 1, root - 1, 2 );
-    WKdTreeThread *thread3 = new WKdTreeThread( m_pointArray, &m_tree, root + 1, rootRight - 1, 2 );
-    WKdTreeThread *thread4 = new WKdTreeThread( m_pointArray, &m_tree, rootRight + 1, m_size - 1, 2 );
+    if( m_size > 2 )
+    {
+        WKdTreeThread *thread1 = new WKdTreeThread( m_pointArray, &m_tree, 0, rootLeft - 1, 2 );
+        WKdTreeThread *thread2 = new WKdTreeThread( m_pointArray, &m_tree, rootLeft + 1, root - 1, 2 );
+        WKdTreeThread *thread3 = new WKdTreeThread( m_pointArray, &m_tree, root + 1, rootRight - 1, 2 );
+        WKdTreeThread *thread4 = new WKdTreeThread( m_pointArray, &m_tree, rootRight + 1, m_size - 1, 2 );
 
-    wlog::debug( "KdTree" ) << "Start threads";
+        wlog::debug( "KdTree" ) << "Start threads";
 
-    thread1->run();
-    thread2->run();
-    thread3->run();
-    thread4->run();
+        thread1->run();
+        thread2->run();
+        thread3->run();
+        thread4->run();
 
-    wlog::debug( "KdTree" ) << "All threads started";
+        wlog::debug( "KdTree" ) << "All threads started";
 
-    thread1->wait();
-    thread2->wait();
-    thread3->wait();
-    thread4->wait();
+        thread1->wait();
+        thread2->wait();
+        thread3->wait();
+        thread4->wait();
 
-    wlog::debug( "KdTree" ) << "All threads finished";
+        wlog::debug( "KdTree" ) << "All threads finished";
 
-    delete thread1;
-    delete thread2;
-    delete thread3;
-    delete thread4;
+        delete thread1;
+        delete thread2;
+        delete thread3;
+        delete thread4;
+    }
 }
 
 WKdTree::~WKdTree()
