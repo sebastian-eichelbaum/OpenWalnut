@@ -42,7 +42,6 @@
 #include "core/graphicsEngine/WGEViewer.h"
 #include "core/graphicsEngine/WGEZoomTrackballManipulator.h"
 #include "core/graphicsEngine/WGraphicsEngine.h"
-#include "core/graphicsEngine/WGraphicsEngineMode.h"
 #include "core/kernel/WKernel.h"
 
 #include "WQtGui.h"
@@ -52,38 +51,14 @@
 #include "WSettingAction.h"
 #include "WMainWindow.h"
 
-// See core/graphicsEngine/WGraphicsEngineMode.h for details.
-#ifdef WGEMODE_MULTITHREADED
-    #ifdef _WIN32
-        #include <osgViewer/api/Win32/GraphicsWindowWin32>
-        typedef osgViewer::GraphicsWindowWin32::WindowData WindowData;
-    #else
-        #ifdef __APPLE__
-            // HELP NEEDED
-            // Leave it undefined for now, as the MacOSX version uses single threaded right now.
-        #else
-            #include <osgViewer/api/X11/GraphicsWindowX11>
-            typedef osgViewer::GraphicsWindowX11::WindowData WindowData;
-        #endif
-    #endif
-
-#endif
-
-#ifdef WGEMODE_GLWIDGET
 WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode, const QWidget* shareWidget ):
     QGLWidget( getDefaultFormat(), parent, dynamic_cast< const QGLWidget* >( shareWidget ) ),
-#else
-WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode, const QWidget* ):
-    QWidget( parent ),
-#endif
       m_nameOfViewer( nameOfViewer ),
-      m_recommendedSize(),
       m_firstPaint( true )
 {
-    m_recommendedSize.setWidth( 200 );
-    m_recommendedSize.setHeight( 200 );
-
     m_initialProjectionMode = projectionMode;
+
+    setSizePolicy( QSizePolicy( QSizePolicy::QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding ) );
 
     // required
     setAttribute( Qt::WA_PaintOnScreen );
@@ -92,17 +67,6 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
     setMouseTracking( true );
 
     // initialize OpenGL context and OpenSceneGraph
-#ifdef WGEMODE_MULTITHREADED
-    #ifdef _WIN32
-        osg::ref_ptr<osg::Referenced> wdata = new WindowData( reinterpret_cast< HWND >( winId() ) );
-    #else
-        osg::ref_ptr<osg::Referenced> wdata = new WindowData( winId() );
-    #endif
-
-    // create viewer
-    m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer(
-        m_nameOfViewer, wdata, x(), y(), width(), height(), m_initialProjectionMode );
-#else
     osg::ref_ptr<osg::Referenced> wdata; // NULL pointer since not used on Mac
 
     // create viewer
@@ -111,7 +75,6 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
 
     connect( &m_Timer, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
     m_Timer.start( 33 );
-#endif
 
     m_Viewer->isFrameRendered()->getCondition()->subscribeSignal( boost::bind( &WQtGLWidget::notifyFirstRenderedFrame, this ) );
 
@@ -183,11 +146,6 @@ void WQtGLWidget::closeEvent( QCloseEvent* event )
     WQtGLWidgetParent::closeEvent( event );
 }
 
-QSize WQtGLWidget::sizeHint() const
-{
-    return m_recommendedSize;
-}
-
 void WQtGLWidget::setCameraManipulator( WQtGLWidget::CameraManipulators manipulator )
 {
     if( !m_Viewer )
@@ -245,8 +203,6 @@ void WQtGLWidget::paintEvent( QPaintEvent* event )
     WQtGLWidgetParent::paintEvent( event );
 }
 
-#ifdef WGEMODE_SINGLETHREADED
-
 void WQtGLWidget::paintGL()
 {
     if( m_Viewer )
@@ -258,58 +214,14 @@ void WQtGLWidget::paintGL()
     }
 }
 
-void WQtGLWidget::resizeEvent( QResizeEvent* event )
-{
-    // we must hand over the event to our base class because that one takes care
-    // that resizeGL is eventually called
-    WQtGLWidgetParent::resizeEvent( event );
-}
-
 void WQtGLWidget::resizeGL( int width, int height )
 {
     if( m_Viewer )
     {
         m_Viewer->resize( width, height );
     }
-}
-
-#else
-
-void WQtGLWidget::paintGL()
-{
-    // m_Viewer->paint();
-#ifdef WGEMODE_GLWIDGET
-    if( m_Viewer )
-    {
-        if( !m_Viewer->getPaused() )
-        {
-            // if the parent is a GL widget, issue parent method.
-            WQtGLWidgetParent::paintGL();
-        }
-    }
-#else
-#endif
-}
-
-void WQtGLWidget::resizeEvent( QResizeEvent* event )
-{
-    if( m_Viewer )
-    {
-        m_Viewer->resize( event->size().width(), event->size().height() );
-    }
-
-    WQtGLWidgetParent::resizeEvent( event );
-}
-
-void WQtGLWidget::resizeGL( int width, int height )
-{
-    // m_Viewer->resize( width, height );
-#ifdef WGEMODE_GLWIDGET
-    // if the parent is a GL widget, issue parent method.
     WQtGLWidgetParent::resizeGL( width, height );
-#endif
 }
-#endif
 
 int WQtGLWidget::translateButton( QMouseEvent* event )
 {

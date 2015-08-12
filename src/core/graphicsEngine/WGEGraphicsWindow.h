@@ -28,8 +28,6 @@
 #include <boost/shared_ptr.hpp>
 #include <osgViewer/GraphicsWindow>
 
-#include "WGraphicsEngineMode.h"
-
 /**
  * Class managing a single graphics context and OSG GraphicsWindow.
  * \ingroup ge
@@ -129,27 +127,6 @@ protected:
      */
     osg::ref_ptr<osgViewer::GraphicsWindow> m_GraphicsWindow;
 
-#ifdef WGEMODE_MULTITHREADED
-     /**
-     * Creates a new OpenGL context in the calling thread. Needs to be called before any other OpenGL operation.
-     *
-     * \param x X coordinate of widget where to create the context.
-     * \param y Y coordinate of widget where to create the context.
-     * \param width Width of the widget.
-     * \param height Height of the Widget.
-     */
-    void createContext( int x, int y, int width, int height );
-
-    /**
-     * OpenSceneGraph render context.
-     */
-    osg::ref_ptr<osg::GraphicsContext> m_GraphicsContext;
-
-    /**
-     * Widget window data.
-     */
-    osg::ref_ptr<osg::Referenced> m_WindowData;
-#endif
 private:
     /**
      * Mark the window opened or closed.

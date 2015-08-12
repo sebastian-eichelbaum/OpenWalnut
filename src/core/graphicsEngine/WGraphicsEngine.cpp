@@ -46,7 +46,6 @@
 #include "WGEViewer.h"
 #include "exceptions/WGEInitFailed.h"
 #include "exceptions/WGESignalSubscriptionFailed.h"
-#include "WGraphicsEngineMode.h"
 #include "postprocessing/WGEPostprocessor.h"
 
 #include "WStaticOSGSetup.h"
@@ -82,37 +81,14 @@ WGraphicsEngine::~WGraphicsEngine()
 
 void WGraphicsEngine::setMultiThreadedViews( bool enable )
 {
-#ifdef  WGEMODE_SINGLETHREADED
     if( enable )
     {
         WLogger::getLogger()->addLogMessage( "WGraphicsEngine::setMultiThreadedViews not implemented for single threaded mode", "GE", LL_INFO );
     }
-#else
-    // ThreadingModel: enum with the following possibilities
-    //
-    //  SingleThreaded
-    //  CullDrawThreadPerContext
-    //  ThreadPerContext
-    //  DrawThreadPerContext
-    //  CullThreadPerCameraDrawThreadPerContext
-    //  ThreadPerCamera
-    //  AutomaticSelection
-    if( !enable )
-    {
-        m_viewer->setThreadingModel( osgViewer::Viewer::SingleThreaded );
-    }
-    else
-    {
-        m_viewer->setThreadingModel( osgViewer::Viewer::CullThreadPerCameraDrawThreadPerContext );
-    }
-#endif
 }
 
 bool WGraphicsEngine::isMultiThreadedViews() const
 {
-#ifdef WGEMODE_MULTITHREADED
-    return ( osgViewer::Viewer::SingleThreaded != m_viewer->getThreadingModel() );
-#endif
     // on mac, this always is false currently
     return false;
 }
@@ -149,14 +125,7 @@ boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( std::string name, os
         throw WNameNotUnique( "Viewer names need to be unique." );
     }
 
-#ifdef WGEMODE_MULTITHREADED
-    WCondition::SPtr viewerUpdateCondition( new WConditionOneShot() );
-    // finally add view (in the GE thread)
-    m_addViewers.push_back( viewer );
-    m_viewersUpdate = true;
-#else
     m_viewer->addView( viewer->getView() );
-#endif
     lock.unlock();
 
     return viewer;
@@ -173,22 +142,9 @@ void WGraphicsEngine::closeViewer( boost::shared_ptr< WGEViewer > viewer )
         m_viewers.erase( viewer->getName() );
     }
 
-#ifdef WGEMODE_MULTITHREADED
-    WCondition::SPtr viewerUpdateCondition( new WConditionOneShot() );
-    m_viewerUpdateNotifiers.push_back( viewerUpdateCondition );
-    // finally remove view (in the GE thread)
-    m_removeViewers.push_back( viewer );
-    m_viewersUpdate = true;
-#else
     m_viewer->removeView( viewer->getView() );
-#endif
 
     lock.unlock();
-
-#ifdef WGEMODE_MULTITHREADED
-    // wait until the GE thread processed our request.
-    viewerUpdateCondition->wait();
-#endif
 }
 
 void WGraphicsEngine::closeViewer( const std::string name )
@@ -199,21 +155,8 @@ void WGraphicsEngine::closeViewer( const std::string name )
         m_viewers[name]->close();
         m_viewers.erase( name );
 
-#ifdef WGEMODE_MULTITHREADED
-        WCondition::SPtr viewerUpdateCondition( new WConditionOneShot() );
-        m_viewerUpdateNotifiers.push_back( viewerUpdateCondition );
-        // finally remove view (in the GE thread)
-        m_removeViewers.push_back( m_viewers[name] );
-        m_viewersUpdate = true;
-#else
         m_viewer->removeView( m_viewers[name]->getView() );
-#endif
         lock.unlock();
-
-#ifdef WGEMODE_MULTITHREADED
-        // wait until the GE thread processed our request.
-        viewerUpdateCondition->wait();
-#endif
     }
     else
     {
@@ -303,31 +246,7 @@ void WGraphicsEngine::threadMain()
     // initialize all available postprocessors
     WGEPostprocessor::initPostprocessors();
 
-#ifdef WGEMODE_MULTITHREADED
-    // NOTE: this is needed here since the viewer might start without any widgets being initialized properly.
-    m_startThreadingCondition.wait();
-    m_running = true;
-    m_viewer->startThreading();
-
-    // do this before calling realize to ensure the initial views where added
-    applyViewerListUpdates();
-
-    if( !m_viewer->isRealized() )
-    {
-        m_viewer->realize();
-    }
-    while( !m_viewer->done() )
-    {
-        // added or removed views?
-        applyViewerListUpdates();
-        m_viewer->frame();
-    }
-    m_viewer->stopThreading();
-    m_running = false;
-#else
-    //m_startThreadingCondition.wait();
     m_running = true; // we have to make sure, that we are "running"
-#endif
 }
 
 void WGraphicsEngine::notifyStop()
@@ -335,9 +254,6 @@ void WGraphicsEngine::notifyStop()
     // when stopping the system while the GE is still waiting.
     m_startThreadingCondition.notify();
     WLogger::getLogger()->addLogMessage( "Stopping Graphics Engine", "GE", LL_INFO );
-#ifdef WGEMODE_MULTITHREADED
-    m_viewer->setDone( true );
-#endif
 }
 
 void WGraphicsEngine::finalizeStartup()
