@@ -278,6 +278,13 @@ public:
      */
     virtual WBoundingBox getBoundingBox() const;
 
+    /**
+     * Copy the values of all properties except the texture transformation into the properties of this texture.
+     *
+     * \param from The texture to copy property values from.
+     */
+    virtual void copyPropertiesExceptTransformation( osg::ref_ptr< WGETexture< TextureType > > const& from );
+
 protected:
     /**
      * Handles all property updates. Called by m_propCondition.
@@ -772,6 +779,29 @@ template < typename TextureType >
 WBoundingBox WGETexture< TextureType >::getBoundingBox() const
 {
     return WBoundingBox( 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 );
+}
+
+template < typename TextureType >
+void WGETexture< TextureType >::copyPropertiesExceptTransformation( osg::ref_ptr< WGETexture< TextureType > > const& from )
+{
+    m_name->set( from->m_name->get() );
+    m_sortIdx->set( from->m_sortIdx->get() );
+
+    m_min->set( from->m_min->get() );
+    m_scale->set( from->m_scale->get() );
+    m_alpha->set( from->m_alpha->get() );
+    m_clipZero->set( from->m_clipZero->get() );
+    m_thresholdEnabled->set( from->m_thresholdEnabled->get() );
+    m_thresholdLower->set( from->m_thresholdLower->get() );
+    m_thresholdUpper->set( from->m_thresholdUpper->get() );
+    m_windowEnabled->set( from->m_windowEnabled->get() );
+    m_window->set( from->m_window->get() );
+    m_interpolation->set( from->m_interpolation->get() );
+
+    m_colorMapSelectionsList = from->m_colorMapSelectionsList;
+    m_colorMap->set( from->m_colorMap->get() );
+
+    m_active->set( from->m_active->get() );
 }
 
 template < typename TextureType >
