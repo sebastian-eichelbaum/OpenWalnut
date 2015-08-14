@@ -57,21 +57,20 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
 {
     setObjectName( QString( "GL - " ) + dockTitle );
 
-    // the panel contains all other widgets, including the gl widget
-    // This allows adding other widgets to certain docks
-    m_panel = new QWidget( this );
-    m_layout = new QVBoxLayout( m_panel );
-    m_layout->setContentsMargins( 1, 1, 1, 1 );
-
-    m_glWidget = new WQtGLWidget( viewTitle.toStdString(), m_panel, projectionMode, shareWidget );
-
     // NOTE: do not remove this. When creating custom widgets using the OSG manipulators, a too small size here (or even no min size) causes the
     // cull visitor to do crap ... unknown reason ...
     setMinimumSize( 50, 50 );
 
-    // add panel to layout.
-    m_layout->addWidget( m_glWidget );
+    // the panel contains all other widgets, including the gl widget
+    // This allows adding other widgets to certain docks
+    m_panel = new QWidget( this );
+    m_layout = new QVBoxLayout;
     m_panel->setLayout( m_layout );
+
+    m_glWidget = new WQtGLWidget( viewTitle.toStdString(), this, projectionMode, shareWidget );
+    m_layout->addWidget( m_glWidget );
+    m_layout->setContentsMargins( 0, 0, 0, 0 );
+
     setWidget( m_panel );
 
     // we need to know whether the dock is visible or not
@@ -202,6 +201,7 @@ WQtGLScreenCapture* WQtGLDockWidget::getScreenCapture()
 
 void WQtGLDockWidget::forceGLWidgetSize( size_t w, size_t h )
 {
+    wlog::debug( "WQtGLDockWidget" ) << "Forcing GLWidget to be " << w << "x" << h;
     m_glWidget->setFixedSize( w, h );
 }
 

@@ -41,6 +41,8 @@
 
 #include <osgDB/ReadFile>
 
+#include "core/common/WLogger.h"
+
 #include "WGE2DManipulator.h"
 #include "WGEGroupNode.h"
 #include "WGENoOpManipulator.h"
@@ -49,8 +51,8 @@
 #include "WPickHandler.h"
 #include "exceptions/WGEInitFailed.h"
 
-#include "../common/WConditionOneShot.h"
-#include "../common/WThreadedRunner.h"
+#include "core/common/WConditionOneShot.h"
+#include "core/common/WThreadedRunner.h"
 
 #include "WGEViewer.h"
 
@@ -70,12 +72,7 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
 {
     try
     {
-#ifdef WGEMODE_MULTITHREADED
-        m_View = osg::ref_ptr<osgViewer::View>( new osgViewer::View );
-#else
-        // on mac, this is a viewer!
         m_View = osg::ref_ptr<osgViewer::Viewer>( new osgViewer::Viewer );
-#endif
 
         osg::ref_ptr< WGECamera > cam( new WGECamera( width, height, projectionMode ) );
         m_View->setCamera( cam );
@@ -83,11 +80,7 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
         m_View->getCamera()->setInitialDrawCallback( m_queryCallback );
         m_View->getCamera()->setFinalDrawCallback( m_screenCapture );
 
-#ifdef WGEMODE_MULTITHREADED
-        m_View->getCamera()->setGraphicsContext( m_GraphicsContext.get() );
-#else
         m_View->getCamera()->setGraphicsContext( m_GraphicsWindow.get() );
-#endif
 
         switch( projectionMode )
         {
@@ -154,12 +147,7 @@ WGEViewer::~WGEViewer()
     close();
 }
 
-#ifdef WGEMODE_SINGLETHREADED
-osg::ref_ptr<osgViewer::Viewer>
-#else
-osg::ref_ptr<osgViewer::View>
-#endif
-WGEViewer::getView()
+osg::ref_ptr<osgViewer::Viewer> WGEViewer::getView()
 {
     return m_View;
 }
@@ -233,9 +221,7 @@ WColor WGEViewer::getBgColor() const
 
 void WGEViewer::paint()
 {
-#ifdef WGEMODE_SINGLETHREADED
     m_View->frame();
-#endif
 }
 
 void WGEViewer::resize( int width, int height )
