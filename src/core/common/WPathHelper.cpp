@@ -78,18 +78,13 @@ void WPathHelper::setBasePaths( boost::filesystem::path appPath, boost::filesyst
 
 void WPathHelper::setBasePathsOSXBundle( boost::filesystem::path appPath, boost::filesystem::path homePath )
 {
-    //W_ASSERT( appPath.substr( size()-sizeof( "MacOS" ), sizeof( "MacOS" ) ) == "MacOS" );
-    m_appPath    = appPath;
-    m_homePath   = homePath;
+    setBasePaths( appPath, homePath ); // set all to ordinary paths, but the following are different:
+
     m_sharePath  = m_appPath / "../Resources/openwalnut";
     m_docPath    = m_appPath / "../Resources/doc";
     m_configPath = m_appPath / "../Resources/openwalnut";
-    m_libPath    = m_appPath / ".." / W_LIB_DIR_RELATIVE;   // NOTE: this variable is set by CMake.
-    // This is the default search path. Use getAllModulePaths for finding all modules, including those whose
-    // directories where defined by the user.
     m_modulePath = m_appPath / "../Resources/modules";
 
-    // this is the relative path for module resources. It is relative to the path of the lib containing the module.
     // The MacOSX bundle stores the modules in Resources/modules. We want the additional resources to be stored in the module's directory.
     m_moduleResourcePathRelative = boost::filesystem::path( "." );
 }
