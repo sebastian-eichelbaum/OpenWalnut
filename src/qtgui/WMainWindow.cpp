@@ -838,7 +838,7 @@ void WMainWindow::openNotImplementedDialog()
                               "It is not yet implemented." );
 }
 
-boost::signals2::signal1< void, std::vector< std::string > >* WMainWindow::getLoaderSignal()
+boost::signals2::signal< void( std::vector< std::string > ) >* WMainWindow::getLoaderSignal()
 {
     return &m_loaderSignal;
 }

@@ -148,7 +148,7 @@ public:
     /**
      * getter functions for the signales proved by the gui
      */
-    boost::signals2::signal1< void, std::vector< std::string > >* getLoadButtonSignal();
+    boost::signals2::signal< void( std::vector< std::string > ) >* getLoadButtonSignal();
 
     /**
      * Returns the current main window instance or NULL if not existent.

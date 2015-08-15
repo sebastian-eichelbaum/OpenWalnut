@@ -63,7 +63,7 @@ WPickInfo WPickHandler::getHitResult()
     return m_hitResult;
 }
 
-boost::signals2::signal1< void, WPickInfo >* WPickHandler::getPickSignal()
+boost::signals2::signal< void( WPickInfo ) >* WPickHandler::getPickSignal()
 {
     return &m_pickSignal;
 }

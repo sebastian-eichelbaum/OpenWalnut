@@ -383,7 +383,7 @@ boost::shared_ptr< WModule > WQtGui::getSelectedModule()
     return m_mainWindow->getControlPanel()->getSelectedModule();
 }
 
-boost::signals2::signal1< void, std::vector< std::string > >* WQtGui::getLoadButtonSignal()
+boost::signals2::signal< void( std::vector< std::string > ) >* WQtGui::getLoadButtonSignal()
 {
     return m_mainWindow->getLoaderSignal();
 }
