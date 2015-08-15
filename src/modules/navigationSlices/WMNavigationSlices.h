@@ -225,11 +225,6 @@ private:
     WPropBool     m_showonY; //!< indicates whether the vector should be shown on slice Y
 
     WPropBool     m_showonZ; //!< indicates whether the vector should be shown on slice Z
-
-    /**
-     * If true, the nav slices get positioned in the middle of the first dataset.
-     */
-    bool m_first;
 };
 
 #endif  // WMNAVIGATIONSLICES_H

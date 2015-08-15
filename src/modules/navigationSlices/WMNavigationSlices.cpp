@@ -53,8 +53,7 @@
 W_LOADABLE_MODULE( WMNavigationSlices )
 
 WMNavigationSlices::WMNavigationSlices():
-    WModule(),
-    m_first( true )
+    WModule()
 {
 }
 
@@ -154,14 +153,10 @@ void WMNavigationSlices::initOSG()
     m_yPos->setHidden( false );
     m_zPos->setHidden( false );
 
-    // if this is done the first time, set the slices to the center of the dataset
-    if( m_first )
-    {
-        m_first = false;
-        m_xPos->setRecommendedValue( midBB[0] );
-        m_yPos->setRecommendedValue( midBB[1] );
-        m_zPos->setRecommendedValue( midBB[2] );
-    }
+    // always update slice positions if they happen to be outside the bounding box (i.e. after shrinking the box)
+    m_xPos->setRecommendedValue( midBB[0] );
+    m_yPos->setRecommendedValue( midBB[1] );
+    m_zPos->setRecommendedValue( midBB[2] );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Navigation View Setup

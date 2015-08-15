@@ -158,7 +158,7 @@ int WQtGui::run()
     WApplication appl( m_argc, m_argv, true );
 
     // the call path of the application, this uses QApplication which needs to be instantiated.
-    boost::filesystem::path walnutBin = boost::filesystem::path( QApplication::applicationDirPath().toStdString() );
+    boost::filesystem::path walnutBin( QApplication::applicationDirPath().toStdString() );
 
     // setup path helper which provides several paths to others
 #ifdef Q_OS_OSX

@@ -277,7 +277,18 @@ void WMainWindow::setupGUI()
 
     m_permanentToolBar = new WQtToolBar( "Standard Toolbar", this );
     addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
-    m_permanentToolBar->setVisible( false );
+
+    // math: Due to this issue: http://www.openwalnut.org/issues/406 resp.
+    // http://stackoverflow.com/questions/31983269/how-to-identify-a-certain-qt-widget
+    // There might be a white box, on Apple Mac OSX only, which sometimes hides the window buttons
+    // for maximization, minimization and closing. This is extremely disturbing, hence, we leave them
+    // visible as a default. I know this fixes only the symptom, but not the origin, but I've searched
+    // some days by now and couldn't find anything. I will describe all I found so far in the ticket 406.
+    #ifndef W_OS_OSX
+        m_permanentToolBar->setVisible( false );
+    #else
+        m_permanentToolBar->setVisible( true );
+    #endif
 
     m_loadButton = new QAction( m_iconManager.getIcon( "load" ), "Load Dataset or Project", m_permanentToolBar );
     m_loadButton->setShortcut( QKeySequence(  QKeySequence::Open ) );
@@ -537,7 +548,18 @@ void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
              m_currentCompatiblesToolbar, SLOT( setToolButtonStyle( Qt::ToolButtonStyle ) ) );
 
     // and the position of the toolbar
-    toolbar->setVisible( false );
+    // math: Due to this issue: http://www.openwalnut.org/issues/406 resp.
+    // http://stackoverflow.com/questions/31983269/how-to-identify-a-certain-qt-widget
+    // There might be a white box, on Apple Mac OSX only, which sometimes hides the window buttons
+    // for maximization, minimization and closing. This is extremely disturbing, hence, we leave them
+    // visible as a default. I know this fixes only the symptom, but not the origin, but I've searched
+    // some days by now and couldn't find anything. I will describe all I found so far in the ticket 406.
+    #ifndef W_OS_OSX
+        toolbar->setVisible( false );
+    #else
+        toolbar->setVisible( true );
+    #endif
+
     addToolBar( Qt::TopToolBarArea, m_currentCompatiblesToolbar );
 }
 
