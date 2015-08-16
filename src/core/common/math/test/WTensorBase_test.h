@@ -66,7 +66,7 @@ public:
         typedef WTensorBase< 0, 0, int > T00;
 
         // standard constructor should never throw
-        TS_ASSERT_THROWS_NOTHING( T12 t12() );
+        TS_ASSERT_THROWS_NOTHING( T12 t12 );
         T12 t12;
 
         // number of data elements should be 2
@@ -82,7 +82,7 @@ public:
         }
 
         // do the same for some more tensors
-        TS_ASSERT_THROWS_NOTHING( T23 t23() );
+        TS_ASSERT_THROWS_NOTHING( T23 t23 );
         T23 t23;
         ds = T23::dataSize;
         TS_ASSERT_EQUALS( ds, 9 );
@@ -91,7 +91,7 @@ public:
             TS_ASSERT_EQUALS( t23.m_data[ k ], 0.0f );
         }
 
-        TS_ASSERT_THROWS_NOTHING( T42 t42() );
+        TS_ASSERT_THROWS_NOTHING( T42 t42 );
         T42 t42;
         ds = T42::dataSize;
         TS_ASSERT_EQUALS( ds, 16 );
@@ -100,7 +100,7 @@ public:
             TS_ASSERT_EQUALS( t42.m_data[ k ], 0 );
         }
 
-        TS_ASSERT_THROWS_NOTHING( T63 t63() );
+        TS_ASSERT_THROWS_NOTHING( T63 t63 );
         T63 t63;
         ds = T63::dataSize;
         TS_ASSERT_EQUALS( ds, 729 );
@@ -109,7 +109,7 @@ public:
             TS_ASSERT_EQUALS( t63.m_data[ k ], 0.0 );
         }
 
-        TS_ASSERT_THROWS_NOTHING( T00 t00() );
+        TS_ASSERT_THROWS_NOTHING( T00 t00 );
         T00 t00;
         TS_ASSERT_EQUALS( t00.m_data, 0 );
     }
@@ -998,7 +998,7 @@ public:
         typedef WTensorBaseSym< 0, 0, int > T00;
 
         // standard constructor should never throw
-        TS_ASSERT_THROWS_NOTHING( T12 t12() );
+        TS_ASSERT_THROWS_NOTHING( T12 t12 );
         T12 t12;
 
         // number of data elements should be 2
@@ -1015,7 +1015,7 @@ public:
 
         // do the same for some more tensors
         // symmetric tensors need less memory, 6 instead of 9 values in this case
-        TS_ASSERT_THROWS_NOTHING( T23 t23() );
+        TS_ASSERT_THROWS_NOTHING( T23 t23 );
         T23 t23;
         ds = T23::dataSize;
         TS_ASSERT_EQUALS( ds, 6 );
@@ -1024,7 +1024,7 @@ public:
             TS_ASSERT_EQUALS( t23.m_data[ k ], 0.0f );
         }
 
-        TS_ASSERT_THROWS_NOTHING( T42 t42() );
+        TS_ASSERT_THROWS_NOTHING( T42 t42 );
         T42 t42;
         ds = T42::dataSize;
         TS_ASSERT_EQUALS( ds, 5 );
@@ -1033,7 +1033,7 @@ public:
             TS_ASSERT_EQUALS( t42.m_data[ k ], 0 );
         }
 
-        TS_ASSERT_THROWS_NOTHING( T63 t63() );
+        TS_ASSERT_THROWS_NOTHING( T63 t63 );
         T63 t63;
         ds = T63::dataSize;
         TS_ASSERT_EQUALS( ds, 28 );
@@ -1042,7 +1042,7 @@ public:
             TS_ASSERT_EQUALS( t63.m_data[ k ], 0.0 );
         }
 
-        TS_ASSERT_THROWS_NOTHING( T00 t00() );
+        TS_ASSERT_THROWS_NOTHING( T00 t00 );
         T00 t00;
         TS_ASSERT_EQUALS( t00.m_data, 0 );
     }

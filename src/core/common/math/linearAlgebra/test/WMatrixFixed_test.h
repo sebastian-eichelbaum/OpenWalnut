@@ -52,14 +52,14 @@ public:
         typedef WMatrixFixed< int, 3, 2 > WMI32;
         typedef WMatrixFixed< std::size_t, 3, 2 > WMS32;
 
-        TS_ASSERT_THROWS_NOTHING( WMD32 matrix() );
-        TS_ASSERT_THROWS_NOTHING( WMF32 matrix() );
-        TS_ASSERT_THROWS_NOTHING( WMD11 matrix() );
-        TS_ASSERT_THROWS_NOTHING( WMF11 matrix() );
-        TS_ASSERT_THROWS_NOTHING( WMD44 matrix() );
-        TS_ASSERT_THROWS_NOTHING( WMF44 matrix() );
-        TS_ASSERT_THROWS_NOTHING( WMI32 matrix() );
-        TS_ASSERT_THROWS_NOTHING( WMS32 matrix() );
+        TS_ASSERT_THROWS_NOTHING( WMD32 matrix );
+        TS_ASSERT_THROWS_NOTHING( WMF32 matrix );
+        TS_ASSERT_THROWS_NOTHING( WMD11 matrix );
+        TS_ASSERT_THROWS_NOTHING( WMF11 matrix );
+        TS_ASSERT_THROWS_NOTHING( WMD44 matrix );
+        TS_ASSERT_THROWS_NOTHING( WMF44 matrix );
+        TS_ASSERT_THROWS_NOTHING( WMI32 matrix );
+        TS_ASSERT_THROWS_NOTHING( WMS32 matrix );
     }
 
     /**

@@ -44,7 +44,7 @@ public:
      */
     void testInstantiation( void )
     {
-        TS_ASSERT_THROWS_NOTHING( WTerminalColor c() );
+        TS_ASSERT_THROWS_NOTHING( WTerminalColor c );
         TS_ASSERT_THROWS_NOTHING( WTerminalColor( WTerminalColor::Bold, WTerminalColor::FGRed, WTerminalColor::BGNone ) );
     }
 

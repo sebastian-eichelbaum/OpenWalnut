@@ -239,7 +239,7 @@ QWidget* WUIQtWidgetBase::getCompellingQParent() const
 
 bool WUIQtWidgetBase::hasUIParent() const
 {
-    return getQtParent();
+    return ( getQtParent() != NULL );
 }
 
 void WUIQtWidgetBase::addAction( WPropGroup group, WGEImage::SPtr icon )
