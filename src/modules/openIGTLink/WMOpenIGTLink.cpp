@@ -280,7 +280,7 @@ void WMOpenIGTLinkSender::moduleMain()
         {
             debugLog() << "prepare sending new data";
             WDataSetScalarSPtr dataSet = m_input->getData();
-            bool dataValid = ( dataSet );
+            bool dataValid = ( dataSet != NULL );
 
             if( dataValid )
             {

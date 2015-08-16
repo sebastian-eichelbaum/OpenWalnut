@@ -141,7 +141,7 @@ void WMPartition2Mesh::moduleMain()
 
         boost::shared_ptr< WDataSetScalar > newCoordVector = m_coordInput->getData();
         bool coordsChanged = ( m_coordinateVector != newCoordVector );
-        bool coordsValid   = ( newCoordVector );
+        bool coordsValid   = ( newCoordVector != NULL );
 
         if( coordsValid )
         {
@@ -154,7 +154,7 @@ void WMPartition2Mesh::moduleMain()
 
         boost::shared_ptr< WDataSetVector > newColorVector = m_colorInput->getData();
         bool colorsChanged = ( m_colorVector != newColorVector );
-        bool colorsValid   = ( newColorVector );
+        bool colorsValid   = ( newColorVector != NULL );
 
         if( colorsValid )
         {
@@ -167,7 +167,7 @@ void WMPartition2Mesh::moduleMain()
 
         boost::shared_ptr< WTriangleMesh > newRefMesh = m_meshInput1->getData();
         bool refMeshChanged = ( m_referenceMesh != newRefMesh );
-        bool refMeshValid   = ( newRefMesh );
+        bool refMeshValid   = ( newRefMesh != NULL );
 
         if( refMeshValid )
         {
@@ -181,7 +181,7 @@ void WMPartition2Mesh::moduleMain()
 
         boost::shared_ptr< WTriangleMesh > newOutMesh = m_meshInput2->getData();
         bool outMeshChanged = ( m_outMesh != newOutMesh );
-        bool outMeshValid   = ( newOutMesh );
+        bool outMeshValid   = ( newOutMesh != NULL );
 
         if( outMeshValid )
         {

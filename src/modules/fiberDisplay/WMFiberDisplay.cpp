@@ -319,7 +319,7 @@ void WMFiberDisplay::moduleMain()
         boost::shared_ptr< WDataSetFibers > fibers = m_fiberInput->getData();
         boost::shared_ptr< WDataSetFiberClustering > fiberClustering = m_fiberClusteringInput->getData();
 
-        bool dataValid = ( fibers );
+        bool dataValid = ( fibers != NULL );
         bool dataPropertiesUpdated = propObserver->updated();
         bool propertiesUpdated = m_tubeEnable->changed() || m_plainColorMode->changed() || m_plainColor->changed();
 

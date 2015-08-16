@@ -141,7 +141,7 @@ void WMVectorPlot::moduleMain()
 
         boost::shared_ptr< WDataSetVector > newDataSet = m_input->getData();
         bool dataChanged = ( m_dataSet != newDataSet );
-        bool dataValid   = ( newDataSet );
+        bool dataValid   = ( newDataSet != NULL );
 
         if( dataChanged && dataValid )
         {

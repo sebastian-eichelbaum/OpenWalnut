@@ -111,7 +111,7 @@ void WMHARDIToSphericalHarmonics::moduleMain()
 
         boost::shared_ptr< WDataSetRawHARDI > newDataSet = m_input->getData();
         bool dataChanged = ( m_dataSet != newDataSet );
-        bool dataValid   = ( newDataSet );
+        bool dataValid   = ( newDataSet != NULL );
 
         switch( m_reconstructionTypeProp->get( true ).getItemIndexOfSelected( 0 ) )
         {

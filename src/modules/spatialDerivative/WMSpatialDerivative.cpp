@@ -116,7 +116,7 @@ void WMSpatialDerivative::moduleMain()
         bool dataUpdated = m_scalarIn->handledUpdate() || m_normalize->changed();
         boost::shared_ptr< WDataSetScalar > dataSet = m_scalarIn->getData();
 
-        bool dataValid = ( dataSet );
+        bool dataValid = ( dataSet != NULL );
 
         // reset output if input was reset/disconnected
         if( !dataValid )

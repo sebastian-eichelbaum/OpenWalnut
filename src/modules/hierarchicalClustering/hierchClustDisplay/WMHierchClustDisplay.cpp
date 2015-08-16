@@ -879,7 +879,7 @@ void WMHierchClustDisplay::moduleMain()
         }
         boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();
         bool dataChanged = ( m_anatomy != newDataSet );
-        bool dataValid   = ( newDataSet );
+        bool dataValid   = ( newDataSet != NULL );
         if( dataValid )
         {
             if( dataChanged )

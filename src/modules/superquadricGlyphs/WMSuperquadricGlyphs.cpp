@@ -440,7 +440,7 @@ void WMSuperquadricGlyphs::moduleMain()
         // has the data changes? And even more important: is it valid?
         boost::shared_ptr< WDataSetDTI > newDataSet = m_input->getData();
         bool dataChanged = ( m_dataSet != newDataSet );
-        bool dataValid   = ( newDataSet );
+        bool dataValid   = ( newDataSet != NULL );
 
         // if data is invalid, remove rendering
         if( !dataValid )

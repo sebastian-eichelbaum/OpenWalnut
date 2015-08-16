@@ -132,7 +132,7 @@ void WMTransferFunction1D::moduleMain()
         if( m_input->updated() || m_binSize->changed() )
         {
             boost::shared_ptr< WDataSetSingle > dataSet= m_input->getData();
-            bool dataValid = ( dataSet );
+            bool dataValid = ( dataSet != NULL );
             if( !dataValid )
             {
                 // FIXME: invalidate histogram in GUI

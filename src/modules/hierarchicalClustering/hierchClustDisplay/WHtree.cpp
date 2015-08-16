@@ -1210,7 +1210,7 @@ bool WHtree::writeTree( const std::string &filename, const bool niftiMode ) cons
     std::ofstream outFile( filename.c_str() );
     if( !outFile )
     {
-        std::cerr << "ERROR: unable to open out file: \"" << outFile << "\"" << std::endl;
+        std::cerr << "ERROR: unable to open out file: \"" << filename << "\"" << std::endl;
         exit( -1 );
     }
 
@@ -1344,7 +1344,7 @@ bool WHtree::writeTreeDebug( const std::string &filename ) const
     std::ofstream outFile( filename.c_str() );
     if( !outFile )
     {
-        std::cerr << "ERROR: unable to open out file: \"" << outFile << "\"" << std::endl;
+        std::cerr << "ERROR: unable to open out file: \"" << filename << "\"" << std::endl;
         exit( -1 );
     }
 
@@ -1380,7 +1380,7 @@ bool WHtree::writeTreeOldWalnut( const std::string &filename ) const
     std::ofstream outFile( filename.c_str() );
     if( !outFile )
     {
-        std::cerr << "ERROR: unable to open out file: \"" << outFile << "\"" << std::endl;
+        std::cerr << "ERROR: unable to open out file: \"" << filename << "\"" << std::endl;
         exit( -1 );
     }
 
@@ -1422,7 +1422,7 @@ bool WHtree::writeTreeSimple( const std::string &filename ) const
     std::ofstream outFile( filename.c_str() );
     if( !outFile )
     {
-        std::cerr << "ERROR: unable to open out file: \"" << outFile << "\"" << std::endl;
+        std::cerr << "ERROR: unable to open out file: \"" << filename << "\"" << std::endl;
         exit( -1 );
     }
 

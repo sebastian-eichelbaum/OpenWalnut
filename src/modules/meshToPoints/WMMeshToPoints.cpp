@@ -180,7 +180,7 @@ void WMMeshToPoints::moduleMain()
         // To query whether an input was updated, simply ask the input:
         bool dataUpdated = m_meshInput->handledUpdate();
         boost::shared_ptr< WTriangleMesh > dataSet = m_meshInput->getData();
-        bool dataValid = ( dataSet );
+        bool dataValid = ( dataSet != NULL );
         bool propsChanged = m_doRefinement->changed() || m_maxIterations->changed() || m_minDistance->changed();
 
         // reset everything if input was disconnected/invalid

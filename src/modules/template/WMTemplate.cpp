@@ -498,7 +498,7 @@ void WMTemplate::moduleMain()
 
         // Remember the above criteria. We now need to check if the data is valid. After a connect-update, it might be NULL.
         boost::shared_ptr< WDataSetSingle > dataSet = m_input->getData();
-        bool dataValid = ( dataSet );
+        bool dataValid = ( dataSet != NULL );
         // After calling getData(), the update flag is reset and false again. Please keep in mind, that the module lives in an multi-threaded
         // world where the update flag and data can change at any time. DO NEVER use getData directly in several places of your module as the
         // data returned may change between two consecutive calls! Always grab it into a local variable and use this variable.
