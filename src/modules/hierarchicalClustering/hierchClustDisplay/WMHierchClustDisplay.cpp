@@ -89,7 +89,7 @@ bool WMHierchClustDisplay::MainViewEventHandler::handle( const osgGA::GUIEventAd
     }
     if( ea.getEventType() == osgGA::GUIEventAdapter::PUSH && ea.getButton() == osgGA::GUIEventAdapter::RIGHT_MOUSE_BUTTON )
     {
-        return (true == m_signalRightButtonPush( WVector2f( ea.getX(), ea.getY() ) ) );
+        return ( true == m_signalRightButtonPush( WVector2f( ea.getX(), ea.getY() ) ) );
     }
     return false;
 }
