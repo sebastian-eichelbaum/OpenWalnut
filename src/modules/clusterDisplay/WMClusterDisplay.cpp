@@ -57,7 +57,7 @@ bool WMClusterDisplay::MainViewEventHandler::handle( const osgGA::GUIEventAdapte
 //    wlog::debug( "WMClusterDisplay::MainViewEventHandler" ) << "handle";
     if( ea.getEventType() == GUIEvents::PUSH && ea.getButton() == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON )
     {
-        return m_signalLeftButtonPush( WVector2f( ea.getX(), ea.getY() ) );
+        return ( true == m_signalLeftButtonPush( WVector2f( ea.getX(), ea.getY() ) ) );
     }
     return false;
 }
