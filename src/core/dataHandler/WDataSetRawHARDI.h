@@ -56,6 +56,22 @@ public:
                       double diffusionBValue = 1.0 );
 
     /**
+     * Constructs an instance out of:
+     *  - an appropriate value set with a vector of measure values for each voxel,
+     *  - a grid and
+     *  - the gradients used during the measurement of the different values.
+     *
+     * \param newValueSet the vector value set to use
+     * \param newGrid the grid which maps world space to the value set
+     * \param newGradients the Gradients of the
+     * \param diffusionBValues Strength of the gradient for every gradient
+     */
+    WDataSetRawHARDI( boost::shared_ptr< WValueSetBase > newValueSet,
+                      boost::shared_ptr< WGrid > newGrid,
+                      boost::shared_ptr< std::vector< WVector3d > > newGradients,
+                      boost::shared_ptr< std::vector< float > > diffusionBValues );
+
+    /**
      * Construct an empty and unusable instance. This is needed for the prototype mechanism.
      */
     WDataSetRawHARDI();
@@ -66,15 +82,16 @@ public:
     virtual ~WDataSetRawHARDI();
 
     /**
-     * Creates a copy (clone) of this instance but allows one to change the valueset. Unlike copy construction, this is a very useful function if you
-     * want to keep the dynamic type of your dataset.
-     *
-     * \param newValueSet the new valueset.
-     * \param newGrid the new grid.
-     *
-     * \return the clone
-     */
-    virtual WDataSetSingle::SPtr clone( boost::shared_ptr< WValueSetBase > newValueSet, boost::shared_ptr< WGrid > newGrid ) const;
+      * Creates a copy (clone) of this instance but allows one to change the valueset. Unlike copy construction, this is a very useful function if you
+      * want to keep the dynamic type of your dataset.
+      *
+      * \param newValueSet the new valueset.
+      * \param newGrid the new grid.
+      *
+      * \return the clone
+      */
+     virtual WDataSetSingle::SPtr clone( boost::shared_ptr< WValueSetBase > newValueSet, boost::shared_ptr< WGrid > newGrid ) const;
+
 
     /**
      * Creates a copy (clone) of this instance but allows one to change the valueset. Unlike copy construction, this is a very useful function if you
@@ -146,7 +163,7 @@ public:
      *
      * \return A vector of orientations.
      */
-    std::vector< WVector3d > const& getOrientations() const;
+    boost::shared_ptr< std::vector< WVector3d > > getOrientations() const;
 
     /**
      * Get the indexes of zero gradients.
@@ -178,6 +195,13 @@ public:
      */
     double getDiffusionBValue() const;
 
+    /**
+     * Returns the \e b-values of the diffusion if there are different values.
+     *
+     * \return a vector of b-values
+     */
+    boost::shared_ptr< std::vector< float > > getDiffusionBValues() const;
+
 protected:
     /**
      * The prototype as singleton.
@@ -186,15 +210,27 @@ protected:
 
 private:
     /**
+     * Makes only such initialization which is common to all contructors.
+     *
+     * \param newValueSet The value set
+     * \param newGrid The grid
+     * \param newGradients The gradients
+     */
+    void init( boost::shared_ptr< WValueSetBase > newValueSet,
+               boost::shared_ptr< WGrid > newGrid,
+               boost::shared_ptr< std::vector< WVector3d > > newGradients );
+    /**
      * Build indexes for the zero and non-zero gradients.
      */
     void buildGradientIndexes();
 
     boost::shared_ptr< std::vector< WVector3d > > m_gradients; //!< Gradients of measurements
+
     /**
-     * Strength (b-value) of the so-called magnetic diffusion gradient.
+     * Strength (b-value) of the so-called magnetic diffusion gradient. The vector contains only
+     * one value, incase all gradients (except b0 images) share the same b-value.
      */
-    double m_diffusionBValue;
+    boost::shared_ptr< std::vector< float > > m_diffusionBValues;
 
     /**
      * The indexes for the which gradient is zero.

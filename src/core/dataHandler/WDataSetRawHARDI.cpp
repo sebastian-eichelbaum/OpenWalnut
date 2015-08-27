@@ -33,11 +33,9 @@
 // prototype instance as singleton
 boost::shared_ptr< WPrototyped > WDataSetRawHARDI::m_prototype = boost::shared_ptr< WPrototyped >();
 
-WDataSetRawHARDI::WDataSetRawHARDI( boost::shared_ptr< WValueSetBase > newValueSet,
-                                    boost::shared_ptr< WGrid > newGrid,
-                                    boost::shared_ptr< std::vector< WVector3d > > newGradients,
-                                    double diffusionBValue )
-    : WDataSetSingle( newValueSet, newGrid ), m_gradients( newGradients ), m_diffusionBValue( diffusionBValue )
+void WDataSetRawHARDI::init( boost::shared_ptr< WValueSetBase > newValueSet,
+               boost::shared_ptr< WGrid > newGrid,
+               boost::shared_ptr< std::vector< WVector3d > > newGradients )
 {
     WAssert( newValueSet, "No value set given." );
     WAssert( newGrid, "No grid given." );
@@ -45,6 +43,25 @@ WDataSetRawHARDI::WDataSetRawHARDI( boost::shared_ptr< WValueSetBase > newValueS
     WAssert( newValueSet->size() == newGrid->size(), "Number of voxel entries unequal number of positions in grid." );
     WAssert( newValueSet->order() != newGradients->size(), "Number of gradients unequal number of entries in value set." );
     buildGradientIndexes();
+}
+
+WDataSetRawHARDI::WDataSetRawHARDI( boost::shared_ptr< WValueSetBase > newValueSet,
+                                    boost::shared_ptr< WGrid > newGrid,
+                                    boost::shared_ptr< std::vector< WVector3d > > newGradients,
+                                    double diffusionBValue )
+    : WDataSetSingle( newValueSet, newGrid ), m_gradients( newGradients ), m_diffusionBValues( new std::vector< float >( 1, diffusionBValue ) )
+{
+    init( newValueSet, newGrid, newGradients );
+}
+
+WDataSetRawHARDI::WDataSetRawHARDI( boost::shared_ptr< WValueSetBase > newValueSet,
+                                    boost::shared_ptr< WGrid > newGrid,
+                                    boost::shared_ptr< std::vector< WVector3d > > newGradients,
+                                    boost::shared_ptr< std::vector< float > > diffusionBValues )
+    : WDataSetSingle( newValueSet, newGrid ), m_gradients( newGradients ), m_diffusionBValues( diffusionBValues )
+{
+    WAssert( diffusionBValues, "No b-values given." );
+    init( newValueSet, newGrid, newGradients );
 }
 
 void WDataSetRawHARDI::buildGradientIndexes()
@@ -75,22 +92,22 @@ WDataSetRawHARDI::~WDataSetRawHARDI()
 
 WDataSetSingle::SPtr WDataSetRawHARDI::clone( boost::shared_ptr< WValueSetBase > newValueSet, boost::shared_ptr< WGrid > newGrid ) const
 {
-    return WDataSetSingle::SPtr( new WDataSetRawHARDI( newValueSet, newGrid, m_gradients, m_diffusionBValue ) );
+    return WDataSetSingle::SPtr( new WDataSetRawHARDI( newValueSet, newGrid, m_gradients, getDiffusionBValues() ) );
 }
 
 WDataSetSingle::SPtr WDataSetRawHARDI::clone( boost::shared_ptr< WValueSetBase > newValueSet ) const
 {
-    return WDataSetSingle::SPtr( new WDataSetRawHARDI( newValueSet, getGrid(), m_gradients, getDiffusionBValue() ) );
+    return WDataSetSingle::SPtr( new WDataSetRawHARDI( newValueSet, getGrid(), m_gradients, getDiffusionBValues() ) );
 }
 
 WDataSetSingle::SPtr WDataSetRawHARDI::clone( boost::shared_ptr< WGrid > newGrid ) const
 {
-    return WDataSetSingle::SPtr( new WDataSetRawHARDI( getValueSet(), newGrid, m_gradients, getDiffusionBValue() ) );
+    return WDataSetSingle::SPtr( new WDataSetRawHARDI( getValueSet(), newGrid, m_gradients, getDiffusionBValues() ) );
 }
 
 WDataSetSingle::SPtr WDataSetRawHARDI::clone() const
 {
-    return WDataSetSingle::SPtr( new WDataSetRawHARDI( getValueSet(), getGrid(), m_gradients, getDiffusionBValue() ) );
+    return WDataSetSingle::SPtr( new WDataSetRawHARDI( getValueSet(), getGrid(), m_gradients, getDiffusionBValues() ) );
 }
 
 boost::shared_ptr< WPrototyped > WDataSetRawHARDI::getPrototype()
@@ -112,14 +129,20 @@ const WVector3d& WDataSetRawHARDI::getGradient( size_t index ) const
 #endif
 }
 
-std::vector< WVector3d > const& WDataSetRawHARDI::getOrientations() const
+boost::shared_ptr< std::vector< WVector3d > > WDataSetRawHARDI::getOrientations() const
 {
-    return *m_gradients;
+    return m_gradients;
 }
 
 double WDataSetRawHARDI::getDiffusionBValue() const
 {
-  return m_diffusionBValue;
+  WAssert( ( *m_diffusionBValues ).size() == 1, "There is more then one diffusion b-value!" );
+  return ( *m_diffusionBValues )[ 0 ];
+}
+
+boost::shared_ptr< std::vector< float > > WDataSetRawHARDI::getDiffusionBValues() const
+{
+  return m_diffusionBValues;
 }
 
 std::size_t WDataSetRawHARDI::getNumberOfMeasurements() const
