@@ -86,6 +86,75 @@ public:
     WMatrix< double > getQFormTransform() const;
 
 protected:
+    /**
+     * Shorthand type for a vector of gradients.
+     */
+    typedef boost::shared_ptr< std::vector< WVector3d > > GradVec;
+
+    /** Shorthand type for a vector of bvalues. The comopents are typically given as floats, as partical b-values start
+     * at 0 and are at maximum around 17000 (see: https://dx.doi.org/10.1002/mrm.20642).
+     */
+    typedef boost::shared_ptr< std::vector< float > > BValues;
+
+    /**
+     * Reads the additional bval file if available. The file format should be (ASCII file):
+     *  - for each (x,y,z) component the bvalue must be repeated in such a form:
+     *
+     *  bval for_x-component of the first gradient followed by a newline
+     *  bval for x-component of the second gradient followed by a newline
+     *  ...
+     *  bval for x-compoennt of the last gradient followed by a newline
+     *  bval for_y-component of the first gradient followed by a newline
+     *  ...
+     *  bval for y-compoennt of the last gradient followed by a newline
+     *  bval for_z-component of the first gradient followed by a newline
+     *  ...
+     *  bval for z-compoennt of the last gradient followed by a newline
+     *
+     *  For example: three gradients, with bvalues: 0, 1000, and 1000.
+     *
+     *  0
+     *  1000
+     *  1000
+     *  0
+     *  1000
+     *  1000
+     *  0
+     *  1000
+     *  1000
+     *
+     *  for three gradients, where first all bvalues for all x-components must be given, each in a separate line, then all bavlues
+     *  for all y-components, and finally the same for the z-components. Thus there should be three times of the number of
+     *  gradients be present in such a file.
+     *
+     * \param vDim Nifti dimension
+     *
+     * \return Null ptr if not available or in case of error during read, otherwise the pointer of the vector of BValues.
+     */
+    BValues readBValuesIfAvailable( unsigned int vDim );
+
+    /**
+     * Reads the additional gradient file if available. The file format should be (ASCII file):
+     * There are three lines, each containing the x-, y-, and z-components of the gradients.
+     * The first line contains all x-components of all gradients. Thus each lines should have the same number of values, each
+     * separated by whitespace.
+     *
+     * x-comp._of_the_first_gradient x-comp._of_the_second_gradient ... x-comp._of_the_last_gradient followed by a newline
+     * y-comp._of_the_first_gradient y-comp._of_the_second_gradient ... y-comp._of_the_last_gradient followed by a newline
+     * z-comp._of_the_first_gradient z-comp._of_the_second_gradient ... z-comp._of_the_last_gradient followed by a newline
+     *
+     * For example: three gradients:
+     *
+     * 0 -0.530466 -0.294864
+     * 0 -0.558441 -0.285613
+     * 0 0.637769 -0.911856
+     *
+     * \param vDim Nifti dimension
+     *
+     * \return Null ptr if not available or in case of error during read, otherwise the pointer of the vector of gradients.
+     */
+    GradVec readGradientsIfAvailable( unsigned int vDim );
+
 private:
     /**
      * This function allows one to copy the data given as a T*

@@ -94,6 +94,121 @@ WMatrix< double > WReaderNIfTI::convertMatrix( const mat44& in )
     return out;
 }
 
+WReaderNIfTI::GradVec WReaderNIfTI::readGradientsIfAvailable( unsigned int vDim )
+{
+    std::string gradientFileName = m_fname;
+    std::string suffix = getSuffix( m_fname );
+
+    if( suffix == ".gz" )
+    {
+        WAssert( gradientFileName.length() > 3, "" );
+        gradientFileName.resize( gradientFileName.length() - 3 );
+        suffix = getSuffix( gradientFileName );
+    }
+    WAssert( suffix == ".nii", "Input file is not a nifti file." );
+
+    WAssert( gradientFileName.length() > 4, "" );
+    gradientFileName.resize( gradientFileName.length() - 4 );
+    gradientFileName += ".bvec";
+
+    GradVec result; // incase of error return NULL_ptr
+
+    // check if the file exists
+    std::ifstream i( gradientFileName.c_str() );
+    if( i.bad() || !i.is_open() )
+    {
+        if( i.is_open() )
+        {
+            i.close();
+        }
+        wlog::debug( "WReaderNIfTI" ) << "Could not find gradient file expected at: \"" << gradientFileName << "\", skipping this.";
+    }
+    else
+    {
+        wlog::debug( "WReaderNIfTI" ) << "Found b-vectors file: " << gradientFileName << " will try reading...";
+        result = GradVec( new std::vector< WVector3d >( vDim ) );
+
+        // the file should contain the x-coordinates in line 0, y-coordinates in line 1,
+        // z-coordinates in line 2
+        for( unsigned int j = 0; j < 3; ++j )
+        {
+            for( unsigned int k = 0; k < vDim; ++k )
+            {
+                i >> result->operator[] ( k )[ j ];
+            }
+        }
+        bool success = !i.eof();
+        i.close();
+        if( !success )
+        {
+            wlog::error( "WReaderNIfTI" ) << "Error while reading gradient file: did not contain enough gradients: " << result->size();
+            return GradVec(); // return Null_ptr
+        }
+        else
+        {
+            wlog::debug( "WReaderNIfTI" ) << "Successfully loaded " << result->size() << " gradients";
+        }
+    }
+    return result;
+}
+
+WReaderNIfTI::BValues WReaderNIfTI::readBValuesIfAvailable( unsigned int vDim )
+{
+    std::string bvaluesFileName = m_fname;
+    std::string suffix = getSuffix( m_fname );
+
+    if( suffix == ".gz" )
+    {
+        WAssert( bvaluesFileName.length() > 3, "" );
+        bvaluesFileName.resize( bvaluesFileName.length() - 3 );
+        suffix = getSuffix( bvaluesFileName );
+    }
+    WAssert( suffix == ".nii", "Input file is not a nifti file." );
+
+    WAssert( bvaluesFileName.length() > 4, "" );
+    bvaluesFileName.resize( bvaluesFileName.length() - 4 );
+    bvaluesFileName += ".bval";
+
+    BValues result; // return NULL_ptr in case of error
+
+    // check if the file exists
+    std::ifstream i( bvaluesFileName.c_str() );
+    if( i.bad() || !i.is_open() )
+    {
+        if( i.is_open() )
+        {
+            i.close();
+        }
+        wlog::debug( "WReaderNIfTI" ) << "Could not find b-values file expected at: \"" << bvaluesFileName << "\", skipping this.";
+    }
+    else
+    {
+        //read b-values
+        char value[ 8 ];
+        // there should be 3 * vDim values in the file
+        result = BValues( new std::vector< float >( vDim * 3, 0 ) );
+        size_t numValues = 0;
+        while( i.good() && !i.eof() )
+        {
+            i.getline( value, 8 );
+            float fVal;
+            std::istringstream( value ) >> fVal;
+            ( *result )[ numValues ] = fVal;
+            if( numValues > vDim * 3 )
+            {
+                wlog::error( "WReaderNIfTI" ) << "Too many b-Values: " << numValues << " but expected: " << vDim * 3;
+                return BValues(); // return Null_ptr
+            }
+            numValues++;
+        }
+
+        i.close();
+
+        wlog::debug( "WReaderNIfTI" ) << "Found b-values file and loaded " << result->size() << " values.";
+    }
+    return result;
+}
+
 boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
 {
     boost::shared_ptr< nifti_image > filedata( nifti_image_read( m_fname.c_str(), 1 ), &nifti_image_free );
@@ -358,55 +473,31 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
         {
             wlog::debug( "WReaderNIfTI" ) << "Load as WDataSetRawHARDI";
 
-            std::string gradientFileName = m_fname;
-            std::string suffix = getSuffix( m_fname );
+            GradVec newGradients = readGradientsIfAvailable( vDim );
+            BValues newBValues = readBValuesIfAvailable( vDim );
 
-            if( suffix == ".gz" )
+            if( !newGradients )
             {
-                WAssert( gradientFileName.length() > 3, "" );
-                gradientFileName.resize( gradientFileName.length() - 3 );
-                suffix = getSuffix( gradientFileName );
-            }
-            WAssert( suffix == ".nii", "Input file is not a nifti file." );
-
-            WAssert( gradientFileName.length() > 4, "" );
-            gradientFileName.resize( gradientFileName.length() - 4 );
-            gradientFileName += ".bvec";
-
-            // check if the file exists
-            std::ifstream i( gradientFileName.c_str() );
-            if( i.bad() || !i.is_open() )
-            {
-                if( i.is_open() )
-                {
-                    i.close();
-                }
-                // cannot find the appropriate gradient vectors, build a dataSetSingle instead of hardi
+                // cannot find the appropriate gradient vectors and/or bvalues, build a dataSetSingle instead of hardi
                 newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSingle( newValueSet, newGrid ) );
-                wlog::debug( "WReaderNIfTI" ) << "Could not find corresponding gradients file \"" << gradientFileName.c_str() <<
-                                                 "\", loading as WDataSetSingle instead.";
+                wlog::debug( "WReaderNIfTI" ) << "No gradients given. See above for expected filename. Loading as WDataSetSingle instead.";
             }
             else
             {
-                // read gradients, there should be 3 * vDim values in the file
-                typedef std::vector< WVector3d > GradVec;
-                boost::shared_ptr< GradVec > newGradients( new GradVec( vDim ) );
-
-                // the file should contain the x-coordinates in line 0, y-coordinates in line 1,
-                // z-coordinates in line 2
-                for( unsigned int j = 0; j < 3; ++j )
+                if( !newBValues )
                 {
-                    for( unsigned int k = 0; k < vDim; ++k )
-                    {
-                        i >> newGradients->operator[] ( k )[ j ];
-                    }
+                    newDataSet = boost::shared_ptr< WDataSet >( new WDataSetRawHARDI( newValueSet, newGrid, newGradients ) );
                 }
-                bool success = !i.eof();
-                i.close();
+                else
+                {
+                    newDataSet = boost::shared_ptr< WDataSet >( new WDataSetRawHARDI( newValueSet, newGrid, newGradients, newBValues ) );
+                }
+            }
 
-                WAssert( success, "Gradient file did not contain enough gradients." );
-
-                newDataSet = boost::shared_ptr< WDataSet >( new WDataSetRawHARDI( newValueSet, newGrid, newGradients ) );
+            if( newBValues && newGradients && ( newBValues->size() > 1 && newBValues->size() != newGradients->size() * 3 ) )
+            {
+                wlog::warn( "WReaderNIfTI" ) << "Be careful: there are " << newBValues->size() / 3 << " b-values but only "
+                    << newGradients->size() << " gradients.";
             }
         }
         else if( filedata->intent_code == NIFTI_INTENT_SYMMATRIX )
