@@ -261,7 +261,7 @@ _OTHER_HEADERS = frozenset([
 'QPalette', 'QPixmap', 'QPolygonF', 'QProgressBar', 'QPushButton', 'QResizeEvent', 'QScrollArea', 'QScrollBar', 'QShortcut',
 'QShowEvent', 'QSlider', 'QSplashScreen', 'QSplitter', 'QStackedWidget', 'QStyleOptionGraphicsItem', 'QTabWidget',
 'QTextCharFormat', 'QTextCursor', 'QTextEdit', 'QtGui', 'QToolBar', 'QToolBox', 'QToolButton',
-'QTreeWidget', 'QTreeWidgetItem', 'QVBoxLayout', 'QWebFrame', 'QWebPage', 'QWebView', 'QWheelEvent', 'QWidget', 'QWidgetAction'
+'QTreeWidget', 'QTreeWidgetItem', 'QVBoxLayout', 'QWebFrame', 'QWebPage', 'QWebView', 'QWheelEvent', 'QWidget', 'QWidgetAction', 'QtGlobal'
     ])
 
 # Assertion macros.  These are defined in base/logging.h and
