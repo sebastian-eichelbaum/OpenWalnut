@@ -29,7 +29,13 @@
 
 #ifdef OW_BOOST_PROGRAM_OPTIONS_FIX
 // This circumvents an issue with boost program_options. The linker complains about missing "arg".
-namespace boost { namespace program_options { std::string arg; } }
+namespace boost
+{
+    namespace program_options
+    {
+        std::string arg;
+    }
+}
 #endif  // OW_BOOST_PROGRAM_OPTIONS_FIX
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
