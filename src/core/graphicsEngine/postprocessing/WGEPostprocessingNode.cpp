@@ -46,6 +46,25 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< WGECamera > referenc
     m_possibleSelections->addItem( "None", "No postprocessing." );
 
     m_showHud = m_properties->addProperty( "Texture Debug", "If set, all intermediate texture are shown on screen for debugging.", false );
+
+    m_depthGroup = WPropGroup( new WPropertyGroup( "Additional Depth Shading", "Allows to emphasize depth by shading." ) );
+    m_shadeByDepth = m_depthGroup->addProperty( "Enable", "Enable depth-based shading.", false );
+    m_depthThresholdL = m_depthGroup->addProperty( "Lower Depth Threshold", "All depths in front of this are assumed to be foreground.", 0.25 );
+    m_depthThresholdU = m_depthGroup->addProperty( "Upper Depth Threshold",
+                                                   "All depths behind this are assumed to be background.", 0.75 );
+    m_depthThresholdU->setMin( 0.0 );
+    m_depthThresholdU->setMax( 1.0 );
+    m_depthThresholdL->setMin( 0.0 );
+    m_depthThresholdL->setMax( 1.0 );
+
+    m_depthShadeL = m_depthGroup->addProperty( "Lower Shading Intensity", "How much to shade the background.", 0.75 );
+    m_depthShadeU = m_depthGroup->addProperty( "Upper Shading Intensity",
+                                               "How much to shade the foreground. Use values higher than one to brighten the foreground.", 1.0 );
+    m_depthShadeL->setMin( 0.0 );
+    m_depthShadeL->setMax( 1.0 );
+    m_depthShadeU->setMin( 0.0 );
+    m_depthShadeU->setMax( 3.0 );
+
     m_active = m_properties->addProperty( "Enable", "If set, post-processing is enabled.", false, true );
     m_activePostprocessor = m_properties->addProperty( "Postprocessor", "Selection one of the postprocessors.",
                                                        m_possibleSelections->getSelectorFirst(),
@@ -88,8 +107,18 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< WGECamera > referenc
         m_possibleSelections->addItem( processor->getName(), processor->getDescription() );
 
         // the final step
-        osg::ref_ptr< WGEOffscreenFinalPass > output = offscreen->addFinalOnScreenPass( new WGEShader( "WGEPostprocessorCombiner" ),
-                                                                                        "Output" );
+        osg::ref_ptr< WGEShader > combinerShader( new WGEShader( "WGEPostprocessorCombiner" ) );
+        osg::ref_ptr< WGEOffscreenFinalPass > output = offscreen->addFinalOnScreenPass( combinerShader, "Output" );
+
+        // register the depth-shading values:
+        output->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_depthThresholdU", m_depthThresholdU ) );
+        output->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_depthThresholdL", m_depthThresholdL ) );
+        output->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_depthShadeU", m_depthShadeU ) );
+        output->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_depthShadeL", m_depthShadeL ) );
+
+        // Enable depth-shade via compile-time options:
+        combinerShader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+            new WGEShaderPropertyDefineOptions< WPropBool >( m_shadeByDepth, "DEPTH_SHADING_DISABLED", "DEPTH_SHADING_ENABLED" ) ) );
 
         osg::ref_ptr< osg::Texture2D > colorTex = processor->getOutput();
         colorTex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR );
@@ -107,6 +136,8 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< WGECamera > referenc
         // add the offscreen renderer and the original node to the switch
         addChild( offscreen );
     }
+
+    m_properties->addProperty( m_depthGroup );
 
     // let the props control some stuff
     addUpdateCallback( new WGESwitchCallback< WPropSelection >( m_activePostprocessor ) );
@@ -199,4 +230,7 @@ void WGEPostprocessingNode::postprocessorSelected()
     {
         m_postprocs[ i ]->getProperties()->setHidden( i != ( active - 1 ) );
     }
+
+    // Show depth shading?
+    m_depthGroup->setHidden( active == 0 );
 }

@@ -44,6 +44,15 @@ uniform sampler2D u_texture0Sampler;
 uniform sampler2D u_texture1Sampler;
 #define u_depthSampler u_texture1Sampler
 
+
+/**
+ * Depth shading parameters
+ */
+uniform float u_depthShadeL = 0.75;
+uniform float u_depthShadeU = 1.0;
+uniform float u_depthThresholdL = 0.25;
+uniform float u_depthThresholdU = 0.75;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Varying
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,6 +72,19 @@ vec2 pixelCoord = gl_TexCoord[0].st;
 //  * Get normal and depth at certain point
 //  * Blending utilities
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Returns the original unprocessed color value at the specified point
+ *
+ * \param where the pixel to grab
+ * \param lod the level of detail to get. 0 for unfiltered texture.
+ *
+ * \return the color
+ */
+vec4 getColor( in vec2 where, in float lod )
+{
+    return texture2DLod( u_colorSampler, where, lod );
+}
 
 /**
  * Returns the original unprocessed color value at the specified point
@@ -134,8 +156,53 @@ void main()
     }
 #endif
 
+    vec4 finalColor = getColor( coord );
+
+#ifdef DEPTH_SHADING_ENABLED
+    // Add some depth-based un-sharpness?
+    float dNorm = clamp( ( depth - u_depthThresholdL ) / ( u_depthThresholdU - u_depthThresholdL ), 0.0, 1.0 );
+
+    // Use this to experiment with camera focus and depth of field effects
+    /*
+    if( depth < u_depthThresholdU )
+    {
+        finalColor = getColor( coord, 0.0 );
+    }
+    else
+    {
+        float numLevels = 4.0;
+        if( dNorm < 0.25 )
+        {
+            finalColor = getColor( coord, 0.0 );
+        }
+        else
+        {
+            if ( dNorm < 0.5 )
+            {
+                finalColor = getColor( coord, 1.0 );
+            }
+            else
+            {
+                if ( dNorm < 0.75 )
+                {
+                    finalColor = getColor( coord, 2.0 );
+                }
+                else
+                {
+                    finalColor = getColor( coord, 3.0 );
+                }
+            }
+        }
+    }
+    */
+
+    // Darken by depth? Scale quadratically.
+    float dni = 2.0 * ( 1.0 - dNorm );
+    finalColor.rgb *= clamp( dni * dni, u_depthShadeL, u_depthShadeU );
+#endif  // DEPTH_SHADING_ENABLED
+
     // output the depth and final color.
-    gl_FragColor = getColor( coord );
+    gl_FragColor = finalColor;
     gl_FragDepth = depth;
 }
 
