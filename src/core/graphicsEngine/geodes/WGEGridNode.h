@@ -146,6 +146,34 @@ public:
      */
     void setGridColor( const WColor& color );
 
+    /**
+     * Set the line width of the gird.
+     *
+     * \param linewidth the linewidth. Default is 1.
+     */
+    void setGridLineWidth( int linewidth = 1 );
+
+    /**
+     * Set the line width of the bounding box.
+     *
+     * \param linewidth the linewidth. Default is 4.
+     */
+    void setBoxLineWidth( int linewidth = 4 );
+
+    /**
+     * Get the line width of the gird.
+     *
+     * \return the linewidth.
+     */
+    int getGridLineWidth() const;
+
+    /**
+     * get the line width of the bounding box.
+     *
+     * \return the linewidth.
+     */
+    int getBoxLineWidth() const;
+
 protected:
 private:
     /**
@@ -214,6 +242,16 @@ private:
      * The color of the grid.
      */
     WColor m_gridColor;
+
+    /**
+     * Line width used for the grid
+     */
+    int m_gridLineWidth;
+
+    /**
+     * The line width of the box.
+     */
+    int m_boxLineWidth;
 };
 
 #endif  // WGEGRIDNODE_H

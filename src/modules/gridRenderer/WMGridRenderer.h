@@ -115,6 +115,10 @@ private:
 
     WPropColor m_gridColor; //!< the color of the grid
 
+    WPropInt m_boxLineWidth; //!< the width of the boundary lines
+
+    WPropInt m_gridLineWidth; //!< the width of the grid lines
+
     /**
      * This condition denotes whether we need to recompute the surface
      */
