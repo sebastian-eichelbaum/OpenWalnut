@@ -90,7 +90,11 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< WGECamera > referenc
         // the final step
         osg::ref_ptr< WGEOffscreenFinalPass > output = offscreen->addFinalOnScreenPass( new WGEShader( "WGEPostprocessorCombiner" ),
                                                                                         "Output" );
-        output->bind( processor->getOutput(), 0 );
+
+        osg::ref_ptr< osg::Texture2D > colorTex = processor->getOutput();
+        colorTex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR );
+        colorTex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR );
+        output->bind( colorTex, 0 );
 
         // does this processor provide a depth?
         osg::ref_ptr< osg::Texture2D > depthTex = processor->getDepth();
