@@ -27,13 +27,13 @@
 
 #include <string>
 
-#include "core/common/WStrategyHelper.h"
 #include "core/common/WObjectNDIP.h"
-#include "core/kernel/WModule.h"
-#include "core/kernel/WModuleOutputData.h"
+#include "core/common/WStrategyHelper.h"
+#include "core/dataHandler/WDataHandlerEnums.h"
 #include "core/dataHandler/WDataSetScalar.h"
 #include "core/dataHandler/WValueSetBase.h"
-#include "core/dataHandler/WDataHandlerEnums.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleOutputData.h"
 
 #include "WDataSetSingleCreatorInterface.h"
 
