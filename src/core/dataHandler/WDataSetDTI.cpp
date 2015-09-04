@@ -27,6 +27,11 @@
 // prototype instance as singleton
 boost::shared_ptr< WPrototyped > WDataSetDTI::m_prototype = boost::shared_ptr< WPrototyped >();
 
+WDataSetDTI::WDataSetDTI()
+    : WDataSetSingle()
+{
+    // default constructor used by the prototype mechanism
+}
 
 WDataSetDTI::WDataSetDTI( boost::shared_ptr< WValueSetBase > newValueSet, boost::shared_ptr< WGrid > newGrid )
     : WDataSetSingle( newValueSet, newGrid )
@@ -67,5 +72,26 @@ WTensorSym< 2, 3, float > WDataSetDTI::getTensor( size_t index ) const
     boost::shared_ptr< WValueSet< float > > values = boost::dynamic_pointer_cast< WValueSet< float > >( m_valueSet );
     WAssert( values, "The value set of a WDataSetDTI must be a WValueSet< float >, nothing else!" );
     return WTensorSym< 2, 3, float >( values->getWValue( index ) );
+}
+
+const std::string WDataSetDTI::getName() const
+{
+    return "WDataSetDTI";
+}
+
+const std::string WDataSetDTI::getDescription() const
+{
+    return "Contains Diffusion Tensors.";
+}
+
+
+boost::shared_ptr< WPrototyped > WDataSetDTI::getPrototype()
+{
+    if( !m_prototype )
+    {
+        m_prototype = boost::shared_ptr< WPrototyped >( new WDataSetDTI() );
+    }
+
+    return m_prototype;
 }
 

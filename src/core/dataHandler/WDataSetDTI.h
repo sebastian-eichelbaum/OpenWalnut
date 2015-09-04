@@ -46,6 +46,11 @@ public:
     WDataSetDTI( boost::shared_ptr< WValueSetBase > newValueSet, boost::shared_ptr< WGrid > newGrid );
 
     /**
+     * Constructs a new set of tracts. The constructed instance is not usable but needed for prototype mechanism.
+     */
+    WDataSetDTI();
+
+    /**
      * Destructs this dataset.
      */
     ~WDataSetDTI();
@@ -99,6 +104,27 @@ public:
      * \return The new constructed symmetrical matrix as tensor.
      */
     WTensorSym< 2, 3, float > getTensor( size_t index ) const;
+
+    /**
+     * Gets the name of this prototype.
+     *
+     * \return the name.
+     */
+    virtual const std::string getName() const;
+
+    /**
+     * Gets the description for this prototype.
+     *
+     * \return the description
+     */
+    virtual const std::string getDescription() const;
+
+    /**
+     * Returns a prototype instantiated with the true type of the deriving class.
+     *
+     * \return the prototype.
+     */
+    static boost::shared_ptr< WPrototyped > getPrototype();
 
 protected:
     /**
