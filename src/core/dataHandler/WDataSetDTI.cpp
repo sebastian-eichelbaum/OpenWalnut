@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WDataSetDTI.h"
 
 // prototype instance as singleton

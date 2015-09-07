@@ -25,6 +25,8 @@
 #ifndef WDATASETDTI_H
 #define WDATASETDTI_H
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include "../common/math/WTensorSym.h"
