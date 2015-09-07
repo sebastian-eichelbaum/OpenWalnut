@@ -75,13 +75,6 @@ public:
     virtual bool lazyConnectable( boost::shared_ptr<WModuleConnector> con );
 
     /**
-     * Gets the condition variable that gets fired whenever new data has been sent.
-     *
-     * \return the condition
-     */
-    boost::shared_ptr< WCondition > getDataChangedCondition();
-
-    /**
      * Connects (subscribes) a specified notify function with a signal this module instance is offering.
      *
      * \exception WModuleSignalSubscriptionFailed thrown if the signal can't be connected.
@@ -165,11 +158,6 @@ private:
      * the message and complete the information with a this-pointer.
      */
     t_GenericSignalType signal_DataChanged;
-
-    /**
-     * Condition fired whenever data changes.
-     */
-    boost::shared_ptr< WCondition > m_dataChangedCondition;
 
     /**
      * Connection for Data Changed signal of the connected output connector.

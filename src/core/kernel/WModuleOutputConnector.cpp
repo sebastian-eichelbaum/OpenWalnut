@@ -34,8 +34,7 @@
 #include "WModuleOutputConnector.h"
 
 WModuleOutputConnector::WModuleOutputConnector( boost::shared_ptr< WModule > module, std::string name, std::string description )
-    : WModuleConnector( module, name, description ),
-      m_dataChangedCondition( new WCondition() )
+    : WModuleConnector( module, name, description )
 {
 }
 
@@ -94,9 +93,3 @@ bool WModuleOutputConnector::isOutputConnector() const
 {
     return true;
 }
-
-boost::shared_ptr< WCondition > WModuleOutputConnector::getDataChangedCondition()
-{
-    return m_dataChangedCondition;
-}
-

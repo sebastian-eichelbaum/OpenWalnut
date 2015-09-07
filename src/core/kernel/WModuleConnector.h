@@ -28,11 +28,11 @@
 #include <set>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/thread.hpp>
-#include <boost/signals2/signal.hpp>
-#include <boost/signals2/connection.hpp>
 #include <boost/bind.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/signals2/connection.hpp>
+#include <boost/signals2/signal.hpp>
+#include <boost/thread.hpp>
 
 #include "WModule.h"
 #include "WModuleCombinerTypes.h"
@@ -232,6 +232,13 @@ public:
      */
     virtual bool isOutputConnector() const = 0;
 
+    /**
+     * Gets the condition variable that gets fired whenever new data has been sent.
+     *
+     * \return the condition
+     */
+    boost::shared_ptr< WCondition > getDataChangedCondition();
+
 protected:
     /**
      * List of connectors connected to this connector.
@@ -305,6 +312,11 @@ protected:
      * Signal emitted whenever connection has been closed.
      */
     t_GenericSignalType signal_ConnectionClosed;
+
+    /**
+     * Condition fired whenever data changes. Proper calling is made in subclasses.
+     */
+    boost::shared_ptr< WCondition > m_dataChangedCondition;
 
 private:
     /**

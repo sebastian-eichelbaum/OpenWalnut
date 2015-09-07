@@ -54,15 +54,13 @@
 #include "WModuleConnector.h"
 
 WModuleConnector::WModuleConnector( boost::shared_ptr< WModule > module, std::string name, std::string description ):
-    boost::enable_shared_from_this<WModuleConnector>()
+    boost::enable_shared_from_this<WModuleConnector>(),
+    m_module( module ),
+    m_moduleName( module->getName() ),
+    m_dataChangedCondition( new WCondition() ),
+    m_name( name ),
+    m_description( description )
 {
-    // initialize members
-    m_module = module;
-    m_moduleName = module->getName();
-
-    m_name = name;
-    m_description = description;
-
     // connect standard signals
     // NOTE: these signals are NOT emitted by the connector this one is connected to, since a module can't send a "connection
     // closed" message if the connection is closed.
@@ -422,3 +420,7 @@ boost::shared_ptr< WModuleOutputConnector > WModuleConnector::toOutputConnector(
     return boost::dynamic_pointer_cast< WModuleOutputConnector >( shared_from_this() );
 }
 
+boost::shared_ptr< WCondition > WModuleConnector::getDataChangedCondition()
+{
+    return m_dataChangedCondition;
+}

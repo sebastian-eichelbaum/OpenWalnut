@@ -32,7 +32,6 @@
 
 WModuleInputConnector::WModuleInputConnector( boost::shared_ptr< WModule > module, std::string name, std::string description ):
     WModuleConnector( module, name, description ),
-    m_dataChangedCondition( new WCondition() ),
     m_updated( false )
 {
     // connect some signals
@@ -114,11 +113,6 @@ void WModuleInputConnector::notifyDataChange( boost::shared_ptr<WModuleConnector
     m_dataChangedCondition->notify();
 }
 
-boost::shared_ptr< WCondition > WModuleInputConnector::getDataChangedCondition()
-{
-    return m_dataChangedCondition;
-}
-
 void WModuleInputConnector::notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> here, boost::shared_ptr<WModuleConnector> there )
 {
     // since the output connector is not able to fill the parameter "input" we need to forward this message and fill it with the
@@ -159,4 +153,3 @@ bool WModuleInputConnector::handledUpdate()
     m_updated = false;
     return old;
 }
-
