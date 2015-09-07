@@ -24,25 +24,20 @@
 
 #include <string>
 
-// #include "WModule.h"
-#include "WModuleOutputConnector.h"
-#include "WModuleConnectorSignals.h"
 #include "../common/WCondition.h"
+#include "WModuleConnectorSignals.h"
+#include "WModuleOutputConnector.h"
 
 #include "WModuleInputConnector.h"
 
 WModuleInputConnector::WModuleInputConnector( boost::shared_ptr< WModule > module, std::string name, std::string description ):
     WModuleConnector( module, name, description ),
+    m_dataChangedCondition( new WCondition() ),
     m_updated( false )
 {
-    // initialize members
-
     // connect some signals
     // This signal is some kind of "forwarder" for the data_changed signal of an output connector.
     signal_DataChanged.connect( getSignalHandler( DATA_CHANGED ) );
-
-    // setup conditions
-    m_dataChangedCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     // if connection is closed, also fire "data change"
     signal_ConnectionClosed.connect( boost::bind( &WModuleInputConnector::setUpdated, this ) );
