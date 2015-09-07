@@ -36,7 +36,7 @@ class WModule;
 #include "../common/WPrototyped.h"
 #include "../common/WTransferable.h"
 
-
+class WCondition;
 
 /**
  * Class implementing output connection functionality between modules.
@@ -93,6 +93,13 @@ public:
     virtual bool lazyConnectable( boost::shared_ptr<WModuleConnector> con );
 
     /**
+     * Gets the condition variable that gets fired whenever new data is available.
+     *
+     * \return the condition
+     */
+    boost::shared_ptr< WCondition > getDataChangedCondition();
+
+    /**
      * Returns the prototype of the WTransferable used in this connector.
      *
      * \return the prototype of the transfered type.
@@ -135,6 +142,11 @@ private:
      * Signal fired whenever new data should be propagated. Represented by DATA_CHANGED enum- element.
      */
     t_GenericSignalType signal_DataChanged;
+
+    /**
+     * Condition fired whenever data changes.
+     */
+    boost::shared_ptr< WCondition > m_dataChangedCondition;
 };
 
 #endif  // WMODULEOUTPUTCONNECTOR_H

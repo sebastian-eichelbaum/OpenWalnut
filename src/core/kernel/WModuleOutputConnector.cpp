@@ -27,15 +27,16 @@
 #include <boost/signals2/signal.hpp>
 #include <boost/signals2/connection.hpp>
 
-#include "WModuleInputConnector.h"
+#include "../common/WCondition.h"
 #include "WModuleConnectorSignals.h"
+#include "WModuleInputConnector.h"
 
 #include "WModuleOutputConnector.h"
 
-WModuleOutputConnector::WModuleOutputConnector( boost::shared_ptr< WModule > module, std::string name, std::string description ):
-    WModuleConnector( module, name, description )
+WModuleOutputConnector::WModuleOutputConnector( boost::shared_ptr< WModule > module, std::string name, std::string description )
+    : WModuleConnector( module, name, description ),
+      m_dataChangedCondition( new WCondition() )
 {
-    // initialize members
 }
 
 WModuleOutputConnector::~WModuleOutputConnector()
@@ -81,6 +82,7 @@ boost::signals2::connection WModuleOutputConnector::subscribeSignal( MODULE_CONN
 void WModuleOutputConnector::propagateDataChange()
 {
     signal_DataChanged( boost::shared_ptr<WModuleConnector>(), shared_from_this() );
+    m_dataChangedCondition->notify();
 }
 
 bool WModuleOutputConnector::isInputConnector() const
@@ -92,3 +94,9 @@ bool WModuleOutputConnector::isOutputConnector() const
 {
     return true;
 }
+
+boost::shared_ptr< WCondition > WModuleOutputConnector::getDataChangedCondition()
+{
+    return m_dataChangedCondition;
+}
+
