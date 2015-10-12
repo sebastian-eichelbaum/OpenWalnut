@@ -68,7 +68,7 @@ WDataTexture3D::WDataTexture3D( boost::shared_ptr< WValueSetBase > valueSet, boo
     WMatrix4d const m = grid->getTransform(); // implicit cast
     Eigen::Matrix4d em = m;
 
-    transformation()->set( WMatrix4d( em ) * scale * offset );
+    transformation()->set( WMatrix4d( em.inverse() ) * scale * offset );
 
     // set the size
     WGETexture3D::initTextureSize( this, grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ() );
