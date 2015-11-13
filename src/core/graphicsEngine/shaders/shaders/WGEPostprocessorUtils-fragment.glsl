@@ -140,7 +140,7 @@ const vec2 zeroOneList = vec2( 1.0, 0.0 );
 vec4 texture2DLodAdapter( sampler2D texture, vec2 where, float lod )
 {
     // TODO(ebaum): find a solution
-    return texture2D( texture, where );
+    return texture2DLod( texture, where, lod );
 }
 
 /**

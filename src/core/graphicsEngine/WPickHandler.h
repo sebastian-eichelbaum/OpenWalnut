@@ -86,7 +86,7 @@ public:
     /**
      * returns the m_pickSignal to for registering to it.
      */
-    boost::signals2::signal1< void, WPickInfo >* getPickSignal();
+    boost::signals2::signal< void( WPickInfo ) >* getPickSignal();
 
     /**
      * setter for paint mode
@@ -126,7 +126,7 @@ private:
      */
     void updatePickInfoModifierKeys( WPickInfo* pickInfo );
 
-    boost::signals2::signal1< void, WPickInfo > m_pickSignal; //!< One can register to this signal to receive pick events.
+    boost::signals2::signal< void( WPickInfo ) > m_pickSignal; //!< One can register to this signal to receive pick events.
 };
 
 #endif  // WPICKHANDLER_H

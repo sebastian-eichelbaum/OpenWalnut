@@ -123,7 +123,7 @@ void computeSVD( const WMatrix< T >& A,
                  WMatrix< T >& V,
                  WValue< T >& S )
 {
-    Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic > eigenA( A );
+    Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic > eigenA = A;
     Eigen::JacobiSVD< Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic > > svd( eigenA, Eigen::ComputeFullU | Eigen::ComputeFullV );
     U = WMatrix< T >( svd.matrixU() );
     V = WMatrix< T >( svd.matrixV() );

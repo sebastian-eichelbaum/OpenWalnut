@@ -40,7 +40,7 @@ public:
      */
     void testInstantiation( void )
     {
-        TS_ASSERT_THROWS_NOTHING( WDataSet dataSet() );
+        TS_ASSERT_THROWS_NOTHING( WDataSet dataSet );
     }
 };
 

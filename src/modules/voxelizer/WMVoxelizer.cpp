@@ -167,7 +167,7 @@ void WMVoxelizer::moduleMain()
 
     while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
-        bool selectionPresent = m_clusterIC->getData();
+        bool selectionPresent = ( m_clusterIC->getData() != NULL );
 
         if( !m_tractIC->getData() )
         {

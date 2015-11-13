@@ -277,7 +277,18 @@ void WMainWindow::setupGUI()
 
     m_permanentToolBar = new WQtToolBar( "Standard Toolbar", this );
     addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
-    m_permanentToolBar->setVisible( false );
+
+    // math: Due to this issue: http://www.openwalnut.org/issues/406 resp.
+    // http://stackoverflow.com/questions/31983269/how-to-identify-a-certain-qt-widget
+    // There might be a white box, on Apple Mac OSX only, which sometimes hides the window buttons
+    // for maximization, minimization and closing. This is extremely disturbing, hence, we leave them
+    // visible as a default. I know this fixes only the symptom, but not the origin, but I've searched
+    // some days by now and couldn't find anything. I will describe all I found so far in the ticket 406.
+    #ifndef W_OS_OSX
+        m_permanentToolBar->setVisible( false );
+    #else
+        m_permanentToolBar->setVisible( true );
+    #endif
 
     m_loadButton = new QAction( m_iconManager.getIcon( "load" ), "Load Dataset or Project", m_permanentToolBar );
     m_loadButton->setShortcut( QKeySequence(  QKeySequence::Open ) );
@@ -378,7 +389,7 @@ void WMainWindow::setupGUI()
             m_navAxial->setSliderProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropAxialPos() );
             m_navAxial->getGLWidget()->setCameraManipulator( WQtGLWidget::NO_OP );
 
-            m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
+            addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get(), Qt::Vertical );
 
             m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Coronal View", "Coronal View", this, "Coronal Slice",
                                                                                     m_mainGLWidget ) );
@@ -386,7 +397,7 @@ void WMainWindow::setupGUI()
             m_navCoronal->setSliderProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropCoronalPos() );
             m_navCoronal->getGLWidget()->setCameraManipulator( WQtGLWidget::NO_OP );
 
-            m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
+            addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get(), Qt::Vertical );
 
             m_navSagittal =
                 boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Sagittal View", "Sagittal View", this, "Sagittal Slice",
@@ -395,7 +406,7 @@ void WMainWindow::setupGUI()
             m_navSagittal->setSliderProperty( WKernel::getRunningKernel()->getSelectionManager()->getPropSagittalPos() );
             m_navSagittal->getGLWidget()->setCameraManipulator( WQtGLWidget::NO_OP );
 
-            m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
+            addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get(), Qt::Vertical );
         }
     }
 
@@ -537,7 +548,18 @@ void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
              m_currentCompatiblesToolbar, SLOT( setToolButtonStyle( Qt::ToolButtonStyle ) ) );
 
     // and the position of the toolbar
-    toolbar->setVisible( false );
+    // math: Due to this issue: http://www.openwalnut.org/issues/406 resp.
+    // http://stackoverflow.com/questions/31983269/how-to-identify-a-certain-qt-widget
+    // There might be a white box, on Apple Mac OSX only, which sometimes hides the window buttons
+    // for maximization, minimization and closing. This is extremely disturbing, hence, we leave them
+    // visible as a default. I know this fixes only the symptom, but not the origin, but I've searched
+    // some days by now and couldn't find anything. I will describe all I found so far in the ticket 406.
+    #ifndef W_OS_OSX
+        toolbar->setVisible( false );
+    #else
+        toolbar->setVisible( true );
+    #endif
+
     addToolBar( Qt::TopToolBarArea, m_currentCompatiblesToolbar );
 }
 
@@ -680,7 +702,14 @@ QString collectFilters()
         result += description + QString( "(*" ) + extension + QString( ");;" );
     }
 
-    return QString( "Known file types (" ) + all + QString( ");;" ) + result;
+    // math: on 11. Aug. 2015, related issue: http://www.openwalnut.org/issues/404
+    // The following #ifdef is due to the following QT-Bug: https://bugreports.qt.io/browse/QTBUG-38303
+    // Hence, we use any file as known file type for MAC OSX only.
+    #ifdef Q_OS_OSX
+        return QString( "Known file types (* " ) + all  + QString( ");;" ) + result;
+    #else
+        return QString( "Known file types (" ) + all + QString( ");;" ) + result;
+    #endif
 }
 
 void WMainWindow::openLoadDialog()
@@ -809,7 +838,7 @@ void WMainWindow::openNotImplementedDialog()
                               "It is not yet implemented." );
 }
 
-boost::signals2::signal1< void, std::vector< std::string > >* WMainWindow::getLoaderSignal()
+boost::signals2::signal< void( std::vector< std::string > ) >* WMainWindow::getLoaderSignal()
 {
     return &m_loaderSignal;
 }

@@ -44,17 +44,7 @@
 
 class WSettingAction;
 
-// Use a QGlWidget as Parent on all systems but Windows
-//#ifndef _WIN32
-    #define WGEMODE_GLWIDGET
-//#endif
-
-// See core/graphicsEngine/WGraphicsEngineMode.h for details.
-#ifdef WGEMODE_GLWIDGET
-    typedef QGLWidget WQtGLWidgetParent;
-#else
-    typedef QWidget WQtGLWidgetParent;
-#endif
+typedef QGLWidget WQtGLWidgetParent;
 
 /**
  * A widget containing an open gl display area. This initializes OpenGL context and adds a view to the
@@ -84,14 +74,6 @@ public:
      * Destructor.
      */
     virtual ~WQtGLWidget();
-
-    /**
-     * Returns the recommended size for the widget to allow
-     * parent widgets to give it a proper initial layout
-     *
-     * \return size hint of widget
-     */
-    QSize sizeHint() const;
 
     /**
      * List of currently possible camera manipulators.
@@ -233,13 +215,6 @@ protected:
     /**
      * Event handler for  resize events.
      *
-     * \param event the event description.
-     */
-    virtual void resizeEvent( QResizeEvent* event );
-
-    /**
-     * Event handler for  resize events.
-     *
      * \param width the new width.
      * \param height the new height.
      */
@@ -342,11 +317,6 @@ private:
      * Timer for periodic repaints.
      */
     QTimer m_Timer;
-
-    /**
-     * Holds the recommended size for the widget
-     */
-    QSize m_recommendedSize;
 
     /**
      * This flag is set to true if the first paint call occured. See the paint method for details.

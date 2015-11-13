@@ -85,11 +85,11 @@ bool WMHierchClustDisplay::MainViewEventHandler::handle( const osgGA::GUIEventAd
 //    wlog::debug( "WMHierchClustDisplay::MainViewEventHandler" ) << "handle";
     if( ea.getEventType() == osgGA::GUIEventAdapter::PUSH && ea.getButton() == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON )
     {
-        return m_signalLeftButtonPush( WVector2f( ea.getX(), ea.getY() ) );
+        return ( true == m_signalLeftButtonPush( WVector2f( ea.getX(), ea.getY() ) ) );
     }
     if( ea.getEventType() == osgGA::GUIEventAdapter::PUSH && ea.getButton() == osgGA::GUIEventAdapter::RIGHT_MOUSE_BUTTON )
     {
-        return m_signalRightButtonPush( WVector2f( ea.getX(), ea.getY() ) );
+        return ( true == m_signalRightButtonPush( WVector2f( ea.getX(), ea.getY() ) ) );
     }
     return false;
 }
@@ -879,7 +879,7 @@ void WMHierchClustDisplay::moduleMain()
         }
         boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();
         bool dataChanged = ( m_anatomy != newDataSet );
-        bool dataValid   = ( newDataSet );
+        bool dataValid   = ( newDataSet != NULL );
         if( dataValid )
         {
             if( dataChanged )

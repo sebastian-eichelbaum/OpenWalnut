@@ -61,7 +61,7 @@ std::ostream& operator<<( std::ostream& os, const RealEigenSystem& sys );
  *
  * \param es Eigensystem consisting of eigenvalues and eigenvectors.
  */
-void sortRealEigenSystem( RealEigenSystem* es )
+inline void sortRealEigenSystem( RealEigenSystem* es )
 {
     if( ( *es )[0].first > ( *es )[2].first )
     {

@@ -113,10 +113,11 @@ namespace wge
      * Creates a osg::Geometry containing an unit cube as line-strips, having 3D texture coordinates.
      *
      * \param color the color to set for all vertices
+     * \param asLines force the cube to be made only of lines, no line strips.
      *
      * \return the geometry
      */
-    osg::ref_ptr< osg::Geometry > createUnitCubeAsLines( const WColor& color );
+    osg::ref_ptr< osg::Geometry > createUnitCubeAsLines( const WColor& color, bool asLines = false );
 
     /**
      * Extract the vertices and triangles from a WTriangleMesh and save them

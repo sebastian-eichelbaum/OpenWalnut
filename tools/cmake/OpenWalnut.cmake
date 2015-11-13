@@ -236,9 +236,9 @@ SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OW_ARCHIVE_DIR} )
 FUNCTION( BUILD_SYSTEM_COMPILER )
     # Unfortunately libstdc++'s header files don't work with mingw in ansi mode (basically libstdc++'s fault)
     IF( CMAKE_HOST_SYSTEM MATCHES "Windows" )
-        SET( CMAKE_CXX_FLAGS "-frtti -pedantic -Wall -Wno-long-long -Wextra " CACHE STRING "" FORCE )
+        SET( CMAKE_CXX_FLAGS "-frtti -pedantic -std=c++11 -Wall -Wno-long-long -Wextra " CACHE STRING "" FORCE )
     ELSE()
-        SET( CMAKE_CXX_FLAGS "-frtti -pedantic -std=c++98 -Wall -Wno-long-long -Wextra " CACHE STRING "" FORCE )
+        SET( CMAKE_CXX_FLAGS "-frtti -pedantic -std=c++11 -Wall -Wno-long-long -Wextra " CACHE STRING "" FORCE )
     ENDIF()
 
     # Darwin's ld isn't GNU and doesn't like the following

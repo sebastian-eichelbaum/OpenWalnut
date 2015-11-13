@@ -223,7 +223,7 @@ void WMIsosurfaceRaytracer::moduleMain()
         // was there an update?
         bool dataUpdated = m_input->updated() || m_gradients->updated();
         boost::shared_ptr< WDataSetScalar > dataSet = m_input->getData();
-        bool dataValid   = ( dataSet );
+        bool dataValid   = ( dataSet != NULL );
 
         // valid data available?
         if( !dataValid )

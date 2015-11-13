@@ -244,7 +244,7 @@ void WMDirectVolumeRendering::moduleMain()
         // was there an update?
         bool dataUpdated = m_input->updated() || m_gradients->updated();
         boost::shared_ptr< WDataSetScalar > dataSet = m_input->getData();
-        bool dataValid   = ( dataSet );
+        bool dataValid   = ( dataSet != NULL );
         bool propUpdated = m_localIlluminationAlgo->changed() || m_stochasticJitterEnabled->changed() ||  m_opacityCorrectionEnabled->changed() ||
             m_maximumIntensityProjectionEnabled->changed() || m_depthProjectionEnabled->changed();
 

@@ -51,7 +51,7 @@ public:
     void testInstantiation()
     {
         {
-            TS_ASSERT_THROWS_NOTHING( WGridTransformOrtho v() );
+            TS_ASSERT_THROWS_NOTHING( WGridTransformOrtho v );
             WGridTransformOrtho v;
             TS_ASSERT_EQUALS( v.getOffsetX(), 1.0 );
             TS_ASSERT_EQUALS( v.getOffsetY(), 1.0 );

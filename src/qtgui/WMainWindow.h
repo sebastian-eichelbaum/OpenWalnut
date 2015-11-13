@@ -110,7 +110,7 @@ public:
      *
      * \return the signal
      */
-    boost::signals2::signal1< void, std::vector< std::string > >* getLoaderSignal();
+    boost::signals2::signal< void( std::vector< std::string > ) >* getLoaderSignal();
 
     /**
      * Searches for a custom dock widget with a given name and returns it, if
@@ -496,7 +496,7 @@ private:
      */
     WSharedSequenceContainer< CustomWidgets > m_customWidgets;
 
-    boost::signals2::signal1< void, std::vector< std::string > > m_loaderSignal; //!< boost signal for open file dialog
+    boost::signals2::signal< void( std::vector< std::string > ) > m_loaderSignal; //!< boost signal for open file dialog
 
     /**
      * Combine a module with a prototype only if the module is available. Else, nothing happens.

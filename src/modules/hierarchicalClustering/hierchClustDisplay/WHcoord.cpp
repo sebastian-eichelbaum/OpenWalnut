@@ -138,7 +138,7 @@ std::vector<WHcoord> WHcoord::getPhysNbs( const WHcoord dataSize, const unsigned
         {
             for( coord_t k = -range; k <= range ; ++k )
             {
-                const int test( abs( i )+abs( j )+abs( k ) );
+                const int test( std::abs( i ) + std::abs( j ) + std::abs( k ) );
                 if( test == 0 )
                 {
                     continue; // dont use the voxel itself as neighbour
@@ -173,7 +173,7 @@ std::vector<WHcoord> WHcoord::getPhysNbs( const WHcoord dataSize, const unsigned
             {
                 for( coord_t k =- 2; k <= 2; k += 2 )
                 {
-                    const int test( abs( i )+abs( j )+abs( k ) );
+                    const int test( std::abs( i ) + std::abs( j ) + std::abs( k ) );
                     if( test != 2 )
                     {
                         continue;

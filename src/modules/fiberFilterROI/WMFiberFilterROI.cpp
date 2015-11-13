@@ -104,7 +104,7 @@ void WMFiberFilterROI::moduleMain()
 
         // Remember the above criteria. We now need to check if the data is valid. After a connect-update, it might be NULL.
         boost::shared_ptr< WDataSetFibers > dataSet = m_input->getData();
-        bool dataValid = ( dataSet );
+        bool dataValid = ( dataSet != NULL );
         bool dataChanged = dataSet != m_fibers;
 
         // do something with the data

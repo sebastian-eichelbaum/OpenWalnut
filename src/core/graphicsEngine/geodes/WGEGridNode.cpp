@@ -39,7 +39,9 @@ WGEGridNode::WGEGridNode( WGridRegular3D::ConstSPtr grid ):
     m_gridGeometryUpdate( true ),
     m_showLabels( true ),
     m_bbColor( WColor( 0.3, 0.3, 0.3, 1.0 ) ),
-    m_gridColor( WColor( 0.1, 0.1, 0.1, 1.0 ) )
+    m_gridColor( WColor( 0.1, 0.1, 0.1, 1.0 ) ),
+    m_gridLineWidth( 1 ),
+    m_boxLineWidth( 4 )
 {
     m_grid.getWriteTicket()->get() = grid;
 
@@ -109,7 +111,8 @@ WGEGridNode::WGEGridNode( WGridRegular3D::ConstSPtr grid ):
     addChild( m_innerGridGeode );
     addChild( m_labelGeode );
 
-    m_boundaryGeode->getOrCreateStateSet()->setAttributeAndModes( new osg::LineWidth( 4.0 ), osg::StateAttribute::ON );
+    m_boundaryGeode->getOrCreateStateSet()->setAttributeAndModes( new osg::LineWidth( m_boxLineWidth ), osg::StateAttribute::ON );
+    m_innerGridGeode->getOrCreateStateSet()->setAttributeAndModes( new osg::LineWidth( m_gridLineWidth ), osg::StateAttribute::ON );
 
     addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WGEGridNode::callback, this, _1 ) ) );
 
@@ -191,6 +194,28 @@ void WGEGridNode::setGridColor( const WColor& color )
     m_gridUpdate = true;
 }
 
+void WGEGridNode::setGridLineWidth( int linewidth )
+{
+    m_gridLineWidth = linewidth;
+    m_gridUpdate = true;
+}
+
+void WGEGridNode::setBoxLineWidth( int linewidth )
+{
+    m_boxLineWidth = linewidth;
+    m_gridUpdate = true;
+}
+
+int WGEGridNode::getGridLineWidth() const
+{
+    return m_gridLineWidth;
+}
+
+int WGEGridNode::getBoxLineWidth() const
+{
+    return m_boxLineWidth;
+}
+
 /**
  * Simply converts the vector to an string.
  *
@@ -243,6 +268,9 @@ void WGEGridNode::callback( osg::Node* /*node*/ )
             m_innerGridGeode->getDrawable( 0 )->asGeometry()->setColorArray( colors );
             m_innerGridGeode->getDrawable( 0 )->asGeometry()->setColorBinding( osg::Geometry::BIND_OVERALL );
         }
+
+        m_innerGridGeode->getOrCreateStateSet()->setAttributeAndModes( new osg::LineWidth( m_gridLineWidth ), osg::StateAttribute::ON );
+        m_boundaryGeode->getOrCreateStateSet()->setAttributeAndModes( new osg::LineWidth( m_boxLineWidth ), osg::StateAttribute::ON );
 
         m_gridUpdate = false;
     }
@@ -313,6 +341,9 @@ void WGEGridNode::callback( osg::Node* /*node*/ )
         {
             m_innerGridGeode->addDrawable( gridGeometry );
         }
+
+        m_innerGridGeode->getOrCreateStateSet()->setAttributeAndModes( new osg::LineWidth( m_gridLineWidth ), osg::StateAttribute::ON );
+        m_boundaryGeode->getOrCreateStateSet()->setAttributeAndModes( new osg::LineWidth( m_boxLineWidth ), osg::StateAttribute::ON );
 
         // we create a unit cube here as the transformation matrix already contains the proper scaling.
         m_gridGeometryUpdate = false;

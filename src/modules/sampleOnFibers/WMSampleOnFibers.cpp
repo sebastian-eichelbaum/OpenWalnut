@@ -127,7 +127,7 @@ void WMSampleOnFibers::moduleMain()
         // To query whether an input was updated, simply ask the input:
         bool dataUpdated = m_fiberInput->handledUpdate();
         boost::shared_ptr< WDataSetFibers > dataSet = m_fiberInput->getData();
-        bool dataValid = ( dataSet );
+        bool dataValid = ( dataSet != NULL );
         bool propsChanged = m_parameter ||
                             m_color->changed();
 

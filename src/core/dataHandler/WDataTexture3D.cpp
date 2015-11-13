@@ -32,7 +32,7 @@ WDataTexture3D::WDataTexture3D( boost::shared_ptr< WValueSetBase > valueSet, boo
     WGETexture3D( static_cast< float >( valueSet->getMaximumValue() - valueSet->getMinimumValue() ),
                   static_cast< float >( valueSet->getMinimumValue() ) ),
     m_valueSet( valueSet ),
-    m_boundingBox( grid->getBoundingBoxIncludingBorder() )
+    m_boundingBox( grid->getVoxelBoundingBox() )
 {
     // initialize members
     setTextureSize( grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ() );
@@ -61,11 +61,14 @@ WDataTexture3D::WDataTexture3D( boost::shared_ptr< WValueSetBase > valueSet, boo
 
     // Move to voxel center. This scaling is NOT included in the grid's transform, so we need to add it here
     WMatrix4d offset = WMatrix4d::identity();
-    offset( 0, 3 ) = 0.5 / grid->getNbCoordsX();
-    offset( 1, 3 ) = 0.5 / grid->getNbCoordsY();
-    offset( 2, 3 ) = 0.5 / grid->getNbCoordsZ();
+    offset( 3, 0 ) = 0.5 / grid->getNbCoordsX();
+    offset( 3, 1 ) = 0.5 / grid->getNbCoordsY();
+    offset( 3, 2 ) = 0.5 / grid->getNbCoordsZ();
 
-    transformation()->set( invert( static_cast< WMatrix4d >( grid->getTransform() ) ) * scale * offset );
+    WMatrix4d const m = grid->getTransform(); // implicit cast
+    Eigen::Matrix4d em = m;
+
+    transformation()->set( WMatrix4d( em.inverse() ) * scale * offset );
 
     // set the size
     WGETexture3D::initTextureSize( this, grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ() );

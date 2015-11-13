@@ -160,14 +160,14 @@ boost::shared_ptr< std::vector< T > > WMReadRawData::readDataTyped( std::string 
 
     T *data = new T[ numVoxels ];
     ifs.read( reinterpret_cast< char* >( data ), sizeof( T ) * numVoxels );
+    ifs.close();
 
     for( size_t voxelId = 0; voxelId < numVoxels; ++voxelId )
     {
         (*values)[voxelId] = data[voxelId];
     }
-    ifs.close();
 
-    delete data;
+    delete[] data;
 
     return values;
 }

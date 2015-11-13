@@ -34,6 +34,7 @@
 #include <QApplication>
 #include <QSplashScreen>
 #include <QFileDialog>
+#include <QtGlobal> // for QCoreApplication::setAttribute
 #include <QtCore/QDir>
 #include <QtCore/QSettings>
 
@@ -64,11 +65,6 @@
 
 #include "WQtGui.h"
 
-#ifdef Q_WS_X11
-    #include <X11/Xlib.h>   // NOLINT - this needs to be done AFTER Qt has set some defines in their headers and after several other
-                            //          headers which are included indirectly, although it is a system header.
-#endif
-
 WMainWindow* WQtGui::m_mainWindow = NULL;
 
 QSettings* WQtGui::m_settings = NULL;
@@ -78,6 +74,7 @@ WQtGui::WQtGui( const boost::program_options::variables_map& options, int argc, 
     m_optionsMap( options ),
     m_loadDeferredOnce( true )
 {
+    QCoreApplication::setAttribute( Qt::AA_X11InitThreads );
 }
 
 WQtGui::~WQtGui()
@@ -153,40 +150,28 @@ void WQtGui::deferredLoad()
 
 int WQtGui::run()
 {
-#ifdef Q_WS_X11
-    XInitThreads();
-#endif
-
     m_splash = NULL;
     // init logger
     m_loggerConnection = WLogger::getLogger()->subscribeSignal( WLogger::AddLog, boost::bind( &WQtGui::slotAddLog, this, _1 ) );
 
     // make qapp instance before using the applicationDirPath() function
-#ifdef Q_WS_MAC
-    //TODO(mario): this should run on all platforms but crashes at least on Linux right now. Therefore, I only use it on OSX
     WApplication appl( m_argc, m_argv, true );
-#else
-    // TODO(mario): I want a WApplication here for session handling but that code crashes
-    QApplication appl( m_argc, m_argv, true );
-#endif
 
     // the call path of the application, this uses QApplication which needs to be instantiated.
-    boost::filesystem::path walnutBin = boost::filesystem::path( QApplication::applicationDirPath().toStdString() );
+    boost::filesystem::path walnutBin( QApplication::applicationDirPath().toStdString() );
 
     // setup path helper which provides several paths to others
-#ifdef Q_WS_MAC
+#ifdef Q_OS_OSX
     // apple has a special file hierarchy in so-called bundles
     // this code determines whether we are started from a bundle context
     // and sets the paths according to Apple's guidelines inside the bundle
-    if( QApplication::applicationDirPath().endsWith( "/MacOS" ) )
+    if( QApplication::applicationDirPath().endsWith( "/MacOS" ) ) // we are in a bundle
     {
-        // we are in a bundle
         // TODO(mario): apply default OSX behavior of using $HOME/Library/OpenWalnut ?
         WPathHelper::getPathHelper()->setBasePathsOSXBundle( walnutBin, boost::filesystem::path( QDir::homePath().toStdString() ) / ".OpenWalnut" );
     }
-    else
+    else // assume standard behavior
     {
-        // assume standard behavior
         WPathHelper::getPathHelper()->setBasePaths( walnutBin, boost::filesystem::path( QDir::homePath().toStdString() ) / ".OpenWalnut" );
     }
 #else
@@ -263,10 +248,7 @@ int WQtGui::run()
 
     m_widgetFactory = WUIQtWidgetFactory::SPtr( new WUIQtWidgetFactory( m_mainWindow ) );
 
-#ifdef Q_WS_MAC
-    //TODO(mario): this should run on all platforms but crashes at least on Linux right now. Therefore, I only use it on OSX
     appl.setMyMainWidget( m_mainWindow );
-#endif
     m_mainWindow->setupGUI();
     m_mainWindow->show();
 
@@ -401,7 +383,7 @@ boost::shared_ptr< WModule > WQtGui::getSelectedModule()
     return m_mainWindow->getControlPanel()->getSelectedModule();
 }
 
-boost::signals2::signal1< void, std::vector< std::string > >* WQtGui::getLoadButtonSignal()
+boost::signals2::signal< void( std::vector< std::string > ) >* WQtGui::getLoadButtonSignal()
 {
     return m_mainWindow->getLoaderSignal();
 }

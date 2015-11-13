@@ -104,7 +104,7 @@ void WMGridRenderer::moduleMain()
         m_moduleState.wait();
 
         boost::shared_ptr< WDataSet > dataSet = m_input->getData();
-        bool dataValid = ( dataSet );
+        bool dataValid = ( dataSet != NULL );
         bool dataChanged = ( dataSet != m_dataSet );
         m_dataSet = dataSet;
 
@@ -178,6 +178,8 @@ void WMGridRenderer::moduleMain()
 
         m_gridNode->setBBoxColor( *m_bboxColor );
         m_gridNode->setGridColor( *m_gridColor );
+        m_gridNode->setGridLineWidth( m_gridLineWidth->get() );
+        m_gridNode->setBoxLineWidth( m_boxLineWidth->get() );
         updateNode( m_mode );
         m_gridNode->setGrid( regGrid );
     }
@@ -205,8 +207,14 @@ void WMGridRenderer::properties()
     WPropertyBase::PropertyChangeNotifierType  notifier = boost::bind( &WMGridRenderer::updateNode, this, _1 );
 
     m_bboxColor = m_properties->addProperty( "Bounding box color", "The color of the bounding box.", WColor( 0.3, 0.3, 0.3, 1.0 ), notifier );
+    m_boxLineWidth = m_properties->addProperty( "Bounding box line width", "The width of the grid lines.", 4, notifier );
+    m_boxLineWidth->setMin( 1 );
+    m_boxLineWidth->setMax( 10 );
 
     m_gridColor = m_properties->addProperty( "Grid color", "The color of the grid.", WColor( 0.1, 0.1, 0.1, 1.0 ), notifier );
+    m_gridLineWidth = m_properties->addProperty( "Grid line width", "The width of the grid lines.", 1, notifier );
+    m_gridLineWidth->setMin( 1 );
+    m_gridLineWidth->setMax( 10 );
 
     m_possibleModes = WItemSelection::SPtr( new WItemSelection() );
     m_possibleModes->addItem( "Labels", "Show the boundary labels.", WMGridRenderer_label_xpm );          // NOTE: you can add XPM images here.
@@ -239,6 +247,16 @@ void WMGridRenderer::updateNode( WPropertyBase::SPtr property )
     if( property == m_gridColor )
     {
         m_gridNode->setGridColor( *m_gridColor );
+    }
+
+    if( property == m_gridLineWidth )
+    {
+        m_gridNode->setGridLineWidth( m_gridLineWidth->get() );
+    }
+
+    if( property == m_boxLineWidth )
+    {
+        m_gridNode->setBoxLineWidth( m_boxLineWidth->get() );
     }
 
     // mode changed

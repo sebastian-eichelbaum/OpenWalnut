@@ -31,6 +31,7 @@
 #include "WApplication.h"
 
 #include "core/common/WException.h"
+#include "core/common/WLogger.h"
 
 #define OPENWALNUT_BUGREPORTER_URL "http://www.openwalnut.org/projects/openwalnut/issues"
 
@@ -47,57 +48,42 @@ void WApplication::setMyMainWidget( QWidget* widget )
 
 bool WApplication::notify( QObject* object, QEvent* event )
 {
-    // Question: can we assume that WLogger is running here?
-    // if so, we should log the message to the logger as well.
     bool retval = false;
-    try
+    QString exception_msg;
+    try // do the default action, but catch exceptions
     {
-        // do the default action, but catch exceptions
         retval = QApplication::notify( object, event );
     }
     catch( const WException &we )
     {
-        QMessageBox msgBox( myMainWidget );
-        msgBox.setIcon( QMessageBox::Critical );
-        msgBox.setInformativeText( tr( "An uncaught exception occurred which may be due to a corrupt installation or a programming bug. "
-                                       "Please check the openwalnut bug reporter for similar tickets and report the "
-                                       "issue including the following text:<br><br><i>" )
-                                  + we.what() +
-                                        "</i><br><br>Please report to<br><a href=\""
-                                        OPENWALNUT_BUGREPORTER_URL
-                                        "\">" OPENWALNUT_BUGREPORTER_URL "</a>" );
-        msgBox.setText( tr( "Uncaught Exception" ) );
-        QPushButton* websiteButton = msgBox.addButton( tr( "Go to web site" ), QMessageBox::ActionRole );
-        msgBox.setStandardButtons( QMessageBox::Ignore );
-        msgBox.setEscapeButton( QMessageBox::Ignore );
-
-        msgBox.exec();
-        if( msgBox.clickedButton() == websiteButton )
-        {
-            /* bool success = */ QDesktopServices::openUrl( QUrl( OPENWALNUT_BUGREPORTER_URL ) );
-        }
+        exception_msg = QString( we.what() );
     }
     catch( const std::exception &se )
     {
+        exception_msg = QString( se.what() );
+    }
+
+    if( !exception_msg.isEmpty() )
+    {
         QMessageBox msgBox( myMainWidget );
         msgBox.setIcon( QMessageBox::Critical );
-        msgBox.setInformativeText( tr( "An uncaught exception occurred which may be due to a corrupt installation or a programming bug. "
-                                      "Please check the openwalnut bug reporter for similar tickets and report the "
-                                      "issue including the following text:<br><br><i>" )
-                                  + se.what() +
-                                  "</i><br><br>Please report to<br><a href=\""
-                                  OPENWALNUT_BUGREPORTER_URL
-                                  "\">" OPENWALNUT_BUGREPORTER_URL "</a>" );
-        msgBox.setText( tr( "Uncaught Exception" ) );
+        QString info( "An uncaught exception occurred which may be due to a corrupt installation or a programming bug. "
+                      "Please check the openwalnut bug reporter for similar tickets and report the issue including the "
+                      "following text: <br><br><i>" + exception_msg + "</i><br><br> Please report to: <br><a href=\""
+                      OPENWALNUT_BUGREPORTER_URL "\">" OPENWALNUT_BUGREPORTER_URL "</a>" );
+        msgBox.setInformativeText( tr( info.toStdString().c_str() ) );
         QPushButton* websiteButton = msgBox.addButton( tr( "Go to web site" ), QMessageBox::ActionRole );
         msgBox.setStandardButtons( QMessageBox::Ignore );
         msgBox.setEscapeButton( QMessageBox::Ignore );
-
         msgBox.exec();
         if( msgBox.clickedButton() == websiteButton )
         {
-            /* bool success = */ QDesktopServices::openUrl( QUrl( OPENWALNUT_BUGREPORTER_URL ) );
+            QDesktopServices::openUrl( QUrl( OPENWALNUT_BUGREPORTER_URL ) ); // we do not have use for the bool return value
         }
+
+        // also notify the logger, as it is setup, before WApplication::exec is called
+        wlog::error( "WApplication" ) << info.remove( QRegExp( "<[^>]*>" ) ).toStdString();
     }
+
     return retval;
 }

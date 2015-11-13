@@ -166,6 +166,36 @@ private:
     WPropBool m_showHud;
 
     /**
+     * Activate depth based darkening
+     */
+    WPropBool m_shadeByDepth;
+
+    /**
+     * Lower depth threshold -> lower depth is background.
+     */
+    WPropDouble m_depthThresholdL;
+
+    /**
+     * Upper depth threshold -> higher depth is foreground.
+     */
+    WPropDouble m_depthThresholdU;
+
+    /**
+     * Lower depth shade threshold -> how dark to get
+     */
+    WPropDouble m_depthShadeL;
+
+    /**
+     * Upper depth threshold -> how bright to get.
+     */
+    WPropDouble m_depthShadeU;
+
+    /**
+     * Group these depth-shading props.
+     */
+    WPropGroup m_depthGroup;
+
+    /**
      * The property containing the currently active method or a combination.
      */
     WPropSelection m_activePostprocessor;

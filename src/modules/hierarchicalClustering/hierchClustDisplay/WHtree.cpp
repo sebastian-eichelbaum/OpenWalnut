@@ -34,7 +34,7 @@
 // This file is also part of OpenWalnut ( http://www.openwalnut.org ).
 //
 // For more reference on the underlying algorithm and research they have been used for refer to:
-// - Moreno-Dominguez, D., Anwander, A., & Knösche, T. R. (2014).
+// - Moreno-Dominguez, D., Anwander, A., & Knoesche, T. R. (2014).
 //   A hierarchical method for whole-brain connectivity-based parcellation.
 //   Human Brain Mapping, 35(10), 5000-5025. doi: http://dx.doi.org/10.1002/hbm.22528
 // - Moreno-Dominguez, D. (2014).
@@ -64,10 +64,10 @@
 #include <fstream>
 
 #include "core/common/WStringUtils.h"
-
+#include "core/common/exceptions/WFileOpenFailed.h"
+#include "core/common/WLogger.h"
 #include "WHtree.h"
 
-#define NEWBOOST true
 
 
 WHtree::WHtree(): m_loadStatus( false ), m_cpcc( 0 )
@@ -153,12 +153,23 @@ bool WHtree::check() const
 {
     if( m_nodes.empty() || m_leaves.size() < 2 )
     {
-        std::cerr << "ERROR @ WHtree::check(): only 0-1 leaf / no nodes" << std::endl;
+        wlog::error( "WHtree" ) << "ERROR @ WHtree::check(): only 0-1 leaf / no nodes";
         return false;
+    }
+    if( m_coordinates.size() != m_leaves.size() )
+    {
+        wlog::error( "WHtree" ) << "ERROR @ WHtree::check(): leaves(" << m_leaves.size() << ") and coordinates(" \
+        << m_coordinates.size() << ") vector sizes do not match";
+        return false;
+    }
+    if( m_coordinates.size() != m_trackids.size() )
+    {
+        wlog::error( "WHtree" ) << "WARNING @ WHtree::writeTree(): trackids(" << m_trackids.size() << ") and coordinates(" \
+        << m_coordinates.size() << ") vector sizes do not match. track ids will be invalid";
     }
     if( m_nodes.size() >= m_leaves.size() )
     {
-        std::cerr << "ERROR @ WHtree::check(): same number of nodes as leaves" << std::endl;
+        wlog::error( "WHtree" ) << "ERROR @ WHtree::check(): same number of nodes as leaves";
         return false;
     }
 
@@ -172,23 +183,23 @@ bool WHtree::check() const
         nodeID_t parentID( leafIter->getParent() );
         if( !parentID.first )
         {
-            std::cerr << "ERROR @ WHtree::check(): leaf has a leaf as parent" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::check(): leaf has a leaf as parent";
             return false;
         }
         std::vector<nodeID_t> kids = getNode( parentID ).getChildren();
         if( find( kids.begin(), kids.end(), leafIter->getFullID() ) == kids.end() )
         {
-            std::cerr << "ERROR @ WHtree::check(): leaf parent doesnt have leaf ID among its children" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::check(): leaf parent doesnt have leaf ID among its children";
             return false;
         }
         if( leafIter->getSize() != 1 )
         {
-            std::cerr << "ERROR @ WHtree::check(): leaf has a size other than 1" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::check(): leaf has a size other than 1";
             return false;
         }
         if( leafIter->getHLevel() != 0 )
         {
-            std::cerr << "ERROR @ WHtree::check(): leaf has  hLevel other than 0" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::check(): leaf has  hLevel other than 0";
             return false;
         }
         ++sumNodeKids[parentID.second];
@@ -207,9 +218,9 @@ bool WHtree::check() const
             nodeID_t kidParent = getNode( *kidIter ).getParent();
             if( kidParent != nodeIter->getFullID() )
             {
-                std::cerr << "ERROR @ WHtree::check(): node child (" <<  kidIter->first << "-" <<  kidIter->second << ") doesnt have node ID (";
-                std::cerr << nodeIter->isNode() << "-" <<  nodeIter->getID() << ") as its parent but instead has (" <<  kidParent.first << "-"
-                          <<  kidParent.second << ")" << std::flush;
+                wlog::error( "WHtree" ) << "ERROR @ WHtree::check(): node child (" << kidIter->first << "-" << kidIter->second
+                                        << ") doesnt have node ID (" << nodeIter->isNode() << "-" << nodeIter->getID()
+                                        << ") as its parent but instead has (" << kidParent.first << "-" << kidParent.second << ")";
                 return false;
             }
             if( kidIter->first )
@@ -225,12 +236,12 @@ bool WHtree::check() const
         nodeID_t parentID( nodeIter->getParent() );
         if( ( !parentID.first) && ( ( nodeIter+1 ) != m_nodes.end() ) )
         {
-            std::cerr << "ERROR @ WHtree::check(): node has a leaf as parent" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::check(): node has a leaf as parent";
             return false;
         }
         if( ( !nodeIter->isRoot() ) && ( ( nodeIter+1 ) == m_nodes.end() ) )
         {
-            std::cerr << "ERROR @ WHtree::check(): last node does not have 0-0 as parent" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::check(): last node does not have 0-0 as parent";
             return false;
         }
         if( !nodeIter->isRoot() )
@@ -238,20 +249,20 @@ bool WHtree::check() const
             std::vector<nodeID_t> kids = getNode( parentID ).getChildren();
             if( find( kids.begin(), kids.end(), nodeIter->getFullID() ) == kids.end() )
             {
-                std::cerr << "ERROR @ WHtree::check(): node parent doesnt have node ID among its children" << std::endl;
+                wlog::error( "WHtree" ) << "ERROR @ WHtree::check(): node parent doesnt have node ID among its children";
                 return false;
             }
             ++sumNodeKids[parentID.second];
         }
         if( nodeIter->getSize() != currentSize )
         {
-            std::cerr << "ERROR @ WHtree::check(): node " <<  nodeIter->getID() << " size (" << nodeIter->getSize()
-                      << ") is not sum of its children sizes (" <<  currentSize << ")" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::check(): node " <<  nodeIter->getID() << " size (" << nodeIter->getSize()
+                      << ") is not sum of its children sizes (" <<  currentSize << ")";
             return false;
         }
         if( nodeIter->getHLevel() != currentHLevel )
         {
-            std::cerr << "ERROR @ WHtree::check(): node hLevel is not one more than its highest child" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::check(): node hLevel is not one more than its highest child";
             return false;
         }
     }
@@ -261,7 +272,7 @@ bool WHtree::check() const
     {
         if( *iter != 1 )
         {
-            std::cerr << "ERROR @ WHtree::check(): more than one node has the same leaf as child" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::check(): more than one node has the same leaf as child";
             return false;
         }
     }
@@ -269,13 +280,13 @@ bool WHtree::check() const
     {
         if( *iter != 1 )
         {
-            std::cerr << "ERROR @ WHtree::check(): more than one node has the same node as child" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::check(): more than one node has the same node as child";
             return false;
         }
     }
     if( sumNodeParents.back() != 0 )
     {
-        std::cerr << "ERROR @ WHtree::check(): at least one node has the root node as child" << std::endl;
+        wlog::error( "WHtree" ) << "ERROR @ WHtree::check(): at least one node has the root node as child";
         return false;
     }
     for( std::vector<WHnode>::const_iterator nodeIter( m_nodes.begin() ); nodeIter != m_nodes.end(); ++nodeIter)
@@ -283,8 +294,9 @@ bool WHtree::check() const
         std::vector<nodeID_t> kids = nodeIter->getChildren();
         if( kids.size() != sumNodeKids[nodeIter->getID()] )
         {
-            std::cerr << "ERROR @ WHtree::check(): node children vector size does not match the number of nodes/leafs that have it as parent";
-            std::cerr << std::endl << nodeIter->printAllData() << std::endl;
+            wlog::error( "WHtree" )
+                << "ERROR @ WHtree::check(): node children vector size does not match the number of nodes/leafs that have it as parent" << std::endl
+                << nodeIter->printAllData();
             return false;
         }
     }
@@ -307,8 +319,8 @@ const WHnode& WHtree::getNode( const size_t thisNode ) const
 {
     if( thisNode >= m_nodes.size() )
     {
-        std::cerr << "ERROR @ WHtree::getNode: index is out of boundaries(" << thisNode << ". total nodes: "
-                  << m_nodes.size() << "), returning first node" << std::endl;
+        wlog::error( "WHtree" ) << "ERROR @ WHtree::getNode: index is out of boundaries(" << thisNode << ". total nodes: "
+                  << m_nodes.size() << "), returning first node";
         return m_nodes.front();
     }
     else
@@ -322,8 +334,8 @@ const WHnode& WHtree::getLeaf( const size_t thisLeaf ) const
 {
     if( thisLeaf >= m_leaves.size() )
     {
-        std::cerr << "ERROR @ WHtree::getLeaf: index is out of boundaries (" << thisLeaf << ". total leaves: "
-                  << m_leaves.size() << "), returning first leaf" << std::endl;
+        wlog::error( "WHtree" ) << "ERROR @ WHtree::getLeaf: index is out of boundaries (" << thisLeaf << ". total leaves: "
+                  << m_leaves.size() << "), returning first leaf";
         return m_leaves.front();
     }
     else
@@ -352,6 +364,18 @@ size_t WHtree::getLeafID( const WHcoord &thisCoord ) const
     }
 } // end getLeafID() -------------------------------------------------------------------------------------
 
+size_t WHtree::getTrackID( const size_t &leafID ) const
+{
+    if( leafID >= m_trackids.size() )
+    {
+        throw std::runtime_error( "ERROR @ WHtree::getTrackID(): leafID is out of boundaries" );
+    }
+    else
+    {
+        return m_trackids[leafID];
+    }
+} // end getTrackID() -------------------------------------------------------------------------------------
+
 
 std::vector<size_t> WHtree::getLeaves4node( const size_t nodeID ) const
 {
@@ -359,7 +383,7 @@ std::vector<size_t> WHtree::getLeaves4node( const size_t nodeID ) const
 
     if( nodeID >= m_nodes.size() )
     {
-        std::cerr << "ERROR @ WHtree::coordinate4leaf(): leafID is out of boundaries" << std::endl;
+        wlog::error( "WHtree" ) << "ERROR @ WHtree::getLeaves4node(): nodeID is out of boundaries";
         return returnVector;
     }
     else
@@ -412,7 +436,7 @@ std::vector<size_t> WHtree::getBranchNodes( const size_t nodeID ) const
     std::vector<size_t> returnVector;
     if( nodeID >= getNumNodes() )
     {
-        std::cerr << "ERROR @ WHtree::getBranchNodes(): nodeID is out of boundaries" << std::endl;
+        wlog::error( "WHtree" ) << "ERROR @ WHtree::getBranchNodes(): nodeID is out of boundaries";
         return returnVector;
     }
     else
@@ -443,7 +467,7 @@ WHcoord WHtree::getCoordinate4leaf( const size_t leafID ) const
 {
     if( leafID >= m_coordinates.size() )
     {
-        std::cerr << "ERROR @ WHtree::coordinate4leaf(): leafID is out of boundaries" << std::endl;
+        wlog::error( "WHtree" ) << "ERROR @ WHtree::coordinate4leaf(): leafID is out of boundaries";
         return WHcoord( 0, 0, 0 );
     }
     else
@@ -567,7 +591,7 @@ std::vector<nodeID_t> WHtree::getRoute2Root( const nodeID_t &nodeID ) const
     std::vector<nodeID_t> returnVector;
     if( ( nodeID.first ) && ( nodeID.second >= m_nodes.size() ) )
     {
-        std::cerr << "ERROR @ WHtree::route2Root(): leafID is out of boundaries" << std::endl;
+        wlog::error( "WHtree" ) << "ERROR @ WHtree::route2Root(): leafID is out of boundaries";
         return returnVector;
     }
     const WHnode& root( getRoot() );
@@ -619,8 +643,8 @@ std::vector<size_t> WHtree::getBaseNodes( const size_t root ) const
 {
     if( root > getRoot().getID() )
     {
-        std::cerr << "ERROR @ WHtree::getBaseNodes(): branch root ID is out of boundaries (ID: "
-                  <<  root << ", # nodes: " << getNumNodes() << ")." << std::endl;
+        wlog::error( "WHtree" ) << "ERROR @ WHtree::getBaseNodes(): branch root ID is out of boundaries (ID: "
+                  <<  root << ", # nodes: " << getNumNodes() << ").";
         return std::vector<size_t> ();
     }
 
@@ -688,6 +712,10 @@ std::vector<size_t> WHtree::getRootBaseNodes() const
 bool WHtree::testRootBaseNodes() const
 {
     std::vector<size_t> bases( getRootBaseNodes() );
+    if( bases.empty() )
+    {
+        return false;
+    }
     for( size_t i = 0; i <  bases.size(); ++i )
     {
         if( getNode( bases[i] ).getHLevel() > 1 )
@@ -731,8 +759,8 @@ void WHtree::sortBySize( std::vector<size_t>* nodeVector ) const
     {
         if( nodeVectorRef[i] >= getNumNodes() )
         {
-            std::cerr << "ERROR @ WHtree::sortBySize(): indices out of bounds (" << nodeVectorRef[i];
-            std::cerr << ". total nodes: " << getNumNodes() << ")" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::sortBySize(): indices out of bounds (" << nodeVectorRef[i]
+            << ". total nodes: " << getNumNodes() << ")";
             return;
         }
     }
@@ -746,7 +774,7 @@ void WHtree::sortBySize( std::list<size_t>* nodeList ) const
     {
         if( *iter >= getNumNodes() )
         {
-            std::cerr << "ERROR @ WHtree::sortBySize(): indices out of bounds (" << *iter << ". total nodes: " << getNumNodes() << ")" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::sortBySize(): indices out of bounds (" << *iter << ". total nodes: " << getNumNodes() << ")";
             return;
         }
     }
@@ -761,8 +789,8 @@ void WHtree::sortBySize( std::vector<nodeID_t>* nodeVector ) const
         if( ( nodeVectorRef[i].first && nodeVectorRef[i].second >= getNumNodes() ) ||
             ( !nodeVectorRef[i].first && nodeVectorRef[i].second >= getNumLeaves() ) )
         {
-            std::cerr << "ERROR @ WHtree::sortBySize(): indices out of bounds(" << nodeVectorRef[i].first << "-" << nodeVectorRef[i].second
-                      << ". total leaves: " << getNumLeaves() << ". total nodes: " << getNumNodes() << ")" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::sortBySize(): indices out of bounds(" << nodeVectorRef[ i ].first << "-"
+                                    << nodeVectorRef[ i ].second << ". total leaves: " << getNumLeaves() << ". total nodes: " << getNumNodes() << ")";
             return;
         }
     }
@@ -777,8 +805,8 @@ void WHtree::sortBySize( std::list<nodeID_t>* nodeList ) const
         if( ( iter->first && iter->second >= getNumNodes() ) ||
             ( !iter->first && iter->second >= getNumLeaves() ) )
         {
-            std::cerr << "ERROR @ WHtree::sortBySize(): indices out of bounds(" << iter->first << "-" << iter->second
-                      << ". total leaves: " << getNumLeaves() << ". total nodes: " << getNumNodes() << ")" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::sortBySize(): indices out of bounds(" << iter->first << "-" << iter->second
+                      << ". total leaves: " << getNumLeaves() << ". total nodes: " << getNumNodes() << ")";
             return;
         }
     }
@@ -874,7 +902,7 @@ bool WHtree::convert2grid( const HC_GRID newGrid )
     }
     else
     {
-        std::cerr << "ERROR @ WHtree::convert2grid(): coordinate grid not recognized" << std::endl;
+        wlog::error( "WHtree" ) << "ERROR @ WHtree::convert2grid(): coordinate grid not recognized";
         return false;
     }
 } // end convert2grid() -------------------------------------------------------------------------------------
@@ -891,14 +919,14 @@ bool WHtree::readTree( const std::string &filename )
     WFileParser parser( filename );
     if( !parser.readFile() )
     {
-        std::cerr << "ERROR @ WHtree::readTree(): Parser error" << std::endl;
+        wlog::error( "WHtree" ) << "ERROR @ WHtree::readTree(): Parser error";
         return false;
     }
 
     std::vector<std::string> lines = parser.getRawLines();
     if( lines.size() == 0 )
     {
-        std::cerr << "ERROR @ WHtree::readTree(): File is empty" << std::endl;
+        wlog::error( "WHtree" ) << "ERROR @ WHtree::readTree(): File is empty";
         return false;
     }
 
@@ -906,12 +934,12 @@ bool WHtree::readTree( const std::string &filename )
         std::vector< std::vector< std::string> >datasetStrings = parser.getLinesForTagSeparated( "imagesize" );
         if( datasetStrings.size() == 0 )
         {
-            std::cerr << "ERROR @ WHtree::readTree(): Dataset size was not found in tree file" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::readTree(): Dataset size was not found in tree file";
             return false;
         }
         if( datasetStrings.size() > 1 )
         {
-            std::cerr << "ERROR @ WHtree::readTree(): Dataset attribute had multiple lines" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::readTree(): Dataset attribute had multiple lines";
             return false;
         }
         WHcoord datasetSize( string_utils::fromString<coord_t>( datasetStrings[0][0] ),
@@ -928,7 +956,7 @@ bool WHtree::readTree( const std::string &filename )
         }
         else
         {
-            std::cerr << "ERROR @ WHtree::readTree(): Dataset grid type string \"" << gridString << "\" could not be identified" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::readTree(): Dataset grid type string \"" << gridString << "\" could not be identified";
             return false;
         }
         m_datasetSize = datasetSize;
@@ -938,18 +966,18 @@ bool WHtree::readTree( const std::string &filename )
         std::vector< std::vector< std::string > > streamNumberStrings = parser.getLinesForTagSeparated( "streams" );
         if( streamNumberStrings.size() == 0 )
         {
-            std::cerr << "WARNING @ WHtree::readTree(): tracking streams number was not found in tree file,";
-            std::cerr << " assuming streams=0 for compatibility" << std::endl;
+            wlog::error( "WHtree" ) << "WARNING @ WHtree::readTree(): tracking streams number was not found in tree file,"
+            << " assuming streams=0 for compatibility";
             m_numStreamlines = 0;
         }
         if( streamNumberStrings.size() > 1 )
         {
-            std::cerr << "ERROR @ WHtree::readTree(): tracking streams number attribute has multiple lines" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::readTree(): tracking streams number attribute has multiple lines";
             return false;
         }
         if( streamNumberStrings[0].size() > 1 )
         {
-            std::cerr << "ERROR @ WHtree::readTree(): tracking streams number attribute has multiple elements" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::readTree(): tracking streams number attribute has multiple elements";
             return false;
         }
         m_numStreamlines = string_utils::fromString< size_t >( streamNumberStrings[0][0] );
@@ -959,28 +987,28 @@ bool WHtree::readTree( const std::string &filename )
         std::vector< std::vector< std::string > >logFactorStrings = parser.getLinesForTagSeparated( "logfactor" );
         if( logFactorStrings.size() == 0 )
         {
-            std::cerr << "WARNING @ WHtree::readTree(): logarithmic normalization factor was not found in tree file,";
-            std::cerr << " assuming logFactor=0 for compatibility" << std::endl;
+            wlog::error( "WHtree" ) << "WARNING @ WHtree::readTree(): logarithmic normalization factor was not found in tree file,"
+            << " assuming logFactor=0 for compatibility";
             m_logFactor = 0;
         }
         if( logFactorStrings.size() > 1 )
         {
-            std::cerr << "ERROR @ WHtree::readTree():";
-            std::cerr << "logarithmic normalization factor attribute has multiple lines" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::readTree():"
+            << "logarithmic normalization factor attribute has multiple lines";
             return false;
         }
         if( logFactorStrings[0].size() > 1 )
         {
-            std::cerr << "ERROR @ WHtree::readTree(): logarithmic normalization factor attribute has multiple elements" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::readTree(): logarithmic normalization factor attribute has multiple elements";
             return false;
         }
         m_logFactor = string_utils::fromString< float >( logFactorStrings[0][0] );
 
-        if( m_logFactor != 0 && m_numStreamlines != 0 && m_logFactor != log10( m_numStreamlines ) )
+        if( m_logFactor != 0 && m_numStreamlines != 0 &&  std::fabs( m_logFactor - log10( m_numStreamlines ) ) > 0.00001 )
         {
-            std::cerr << "ERROR @ WHtree::readTree(): tracking streams number (";
-            std::cerr << m_numStreamlines << ") and logarithmic normalization factor (";
-            std::cerr << m_logFactor << ") are a missmatch " << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::readTree(): tracking streams number ("
+            << m_numStreamlines << ") and logarithmic normalization factor ("
+            << m_logFactor << ") are a missmatch . Log factor should be: "<< log10( m_numStreamlines );
             return false;
         }
     }
@@ -1007,7 +1035,7 @@ bool WHtree::readTree( const std::string &filename )
         {
             if( m_datasetGrid == HC_NIFTI )
             {
-                std::cerr << "ERROR @ WHtree::readTree(): no tract ids in roi file, necessary to work on nifti mode" << std::endl;
+                wlog::error( "WHtree" ) << "ERROR @ WHtree::readTree(): no tract ids in roi file, necessary to work on nifti mode";
                 return false;
             }
             else
@@ -1050,8 +1078,8 @@ bool WHtree::readTree( const std::string &filename )
                 WHnode* kid( fetchNode( *iter ) );
                 if( kid == 0 )
                 {
-                    std::cerr << "ERROR @ WHtree::readTree(): kid id (" <<  iter->first << "-" <<  iter->second << ") was out of boundaries. Nodes: "
-                              << m_nodes.size() << std::endl;
+                    wlog::error( "WHtree" ) << "ERROR @ WHtree::readTree(): kid id (" << iter->first << "-" << iter->second
+                                            << ") was out of boundaries. Nodes: " << m_nodes.size();
                     return false;
                 }
                 tempSize += kid->getSize();
@@ -1085,7 +1113,7 @@ bool WHtree::readTree( const std::string &filename )
         {
             if( cpccStrings.size() > 1 || cpccStrings[0].size() > 1 )
             {
-                std::cerr << "ERROR @ WHtree::readTree(): multiple objects on cpcc attribute" << std::endl;
+                wlog::error( "WHtree" ) << "ERROR @ WHtree::readTree(): multiple objects on cpcc attribute";
                 return false;
             }
             m_cpcc = string_utils::fromString<float>( cpccStrings[0][0] );
@@ -1137,8 +1165,8 @@ bool WHtree::readTree( const std::string &filename )
                     std::string thisCoordstring( partcolorStrings[i][j] );
                     if( thisCoordstring.size() != 11 )
                     {
-                        std::cerr << "ERROR @ WHtree::readTree(): partition colors have wrong size (" << thisCoordstring.size();
-                        std::cerr << ") while it should be 11. string: " << thisCoordstring << std::endl;
+                        wlog::error( "WHtree" ) << "ERROR @ WHtree::readTree(): partition colors have wrong size (" << thisCoordstring.size()
+                        << ") while it should be 11. string: " << thisCoordstring;
                         m_selectedColors.clear();
                         break;
                     }
@@ -1161,7 +1189,7 @@ bool WHtree::readTree( const std::string &filename )
         {
             if( m_selectedColors.size() != m_selectedPartitions.size() )
             {
-                std::cerr << "ERROR @ WHtree::readTree(): partition and colors dimensions dont match. Color field will be left empty" << std::endl;
+                wlog::error( "WHtree" ) << "ERROR @ WHtree::readTree(): partition and colors dimensions dont match. Color field will be left empty";
                 m_selectedColors.clear();
             }
             else
@@ -1170,8 +1198,8 @@ bool WHtree::readTree( const std::string &filename )
                 {
                     if( m_selectedColors[i].size() != m_selectedPartitions[i].size() )
                     {
-                        std::cerr << "ERROR @ WHtree::readTree(): partition and colors dimensions dont match.";
-                        std::cerr << " Color field will be left empty" << std::endl;
+                        wlog::error( "WHtree" ) << "ERROR @ WHtree::readTree(): partition and colors dimensions dont match."
+                        << " Color field will be left empty";
                         m_selectedColors.clear();
                         break;
                     }
@@ -1180,7 +1208,7 @@ bool WHtree::readTree( const std::string &filename )
         }
         if( m_selectedPartitions.size() != m_selectedValues.size() )
         {
-            std::cerr << "ERROR @ WHtree::readTree(): partition and value dimensions dont match. Fields will be left empty" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::readTree(): partition and value dimensions dont match. Fields will be left empty";
             clearPartitions();
         }
     }
@@ -1189,15 +1217,12 @@ bool WHtree::readTree( const std::string &filename )
 
     if( !check() )
     {
-        std::cerr << "ERROR @ WHtree::readTree(): loaded tree is not consistent" << std::endl;
+        wlog::error( "WHtree" ) << "ERROR @ WHtree::readTree(): loaded tree is not consistent";
         return false;
     }
 
-#if NEWBOOST
     m_treeName = boost::filesystem::path( filename ).stem().string();
-#else
-    m_treeName = boost::filesystem::path( filename ).stem();
-#endif
+
 
     m_loadStatus = true;
     return true;
@@ -1210,9 +1235,10 @@ bool WHtree::writeTree( const std::string &filename, const bool niftiMode ) cons
     std::ofstream outFile( filename.c_str() );
     if( !outFile )
     {
-        std::cerr << "ERROR: unable to open out file: \"" << outFile << "\"" << std::endl;
-        exit( -1 );
+        throw WFileOpenFailed( "ERROR: unable to open out file: \"" + filename + "." );
     }
+
+
 
     std::string gridString;
     if( niftiMode )
@@ -1257,12 +1283,24 @@ bool WHtree::writeTree( const std::string &filename, const bool niftiMode ) cons
     }
     outFile << "#endcoordinates" << std::endl << std::endl;
 
-    outFile << "#trackindex" << std::endl;
-    for( std::vector<size_t>::const_iterator indexIter( m_trackids.begin() ) ; indexIter != m_trackids.end() ; ++indexIter )
+    if( niftiMode )
     {
-        outFile << *indexIter << std::endl;
+        if( m_coordinates.size() != m_trackids.size() )
+        {
+            wlog::error( "WHtree" ) << "WARNING @ WHtree::writeTree(): trackids(" << m_trackids.size() << ") and coordinates("
+            << m_coordinates.size() << ") vector sizes do not match. track ids will note written to file";
+        }
+        else
+        {
+            outFile << "#trackindex" << std::endl;
+
+            for( std::vector<size_t>::const_iterator indexIter( m_trackids.begin() ) ; indexIter != m_trackids.end() ; ++indexIter )
+            {
+                outFile << *indexIter << std::endl;
+            }
+            outFile << "#endtrackindex" << std::endl << std::endl;
+        }
     }
-    outFile << "#endtrackindex" << std::endl << std::endl;
 
     outFile << "#clusters" << std::endl;
     for( std::vector<WHnode>::const_iterator nodeIter( m_nodes.begin() ) ; nodeIter != m_nodes.end() ; ++nodeIter )
@@ -1344,8 +1382,7 @@ bool WHtree::writeTreeDebug( const std::string &filename ) const
     std::ofstream outFile( filename.c_str() );
     if( !outFile )
     {
-        std::cerr << "ERROR: unable to open out file: \"" << outFile << "\"" << std::endl;
-        exit( -1 );
+        throw WFileOpenFailed( "ERROR: unable to open out file: \"" + filename + "." );
     }
 
     outFile << "Dataset size: " << m_datasetSize << " " << getGridString( m_datasetGrid ) << std::endl;
@@ -1363,6 +1400,7 @@ bool WHtree::writeTreeDebug( const std::string &filename ) const
     for( std::vector<WHnode>::const_iterator leafIter( m_leaves.begin() ); leafIter != m_leaves.end(); ++leafIter )
     {
         WHcoord currentCoord( getCoordinate4leaf( leafIter->getID() ) );
+        outFile << "ID: " << leafIter->getID() << ". Track: "  << getTrackID( leafIter->getID() );
         outFile << "Coord: " << currentCoord << " " <<  leafIter->printAllData() << std::endl;
     }
     outFile << std::endl << std::endl << "============NODES============" << std::endl << std::endl;
@@ -1380,8 +1418,7 @@ bool WHtree::writeTreeOldWalnut( const std::string &filename ) const
     std::ofstream outFile( filename.c_str() );
     if( !outFile )
     {
-        std::cerr << "ERROR: unable to open out file: \"" << outFile << "\"" << std::endl;
-        exit( -1 );
+        throw WFileOpenFailed( "ERROR: unable to open out file: \"" + filename + "." );
     }
 
 
@@ -1422,8 +1459,7 @@ bool WHtree::writeTreeSimple( const std::string &filename ) const
     std::ofstream outFile( filename.c_str() );
     if( !outFile )
     {
-        std::cerr << "ERROR: unable to open out file: \"" << outFile << "\"" << std::endl;
-        exit( -1 );
+        throw WFileOpenFailed( "ERROR: unable to open out file: \"" + filename + "." );
     }
 
     outFile << getNumLeaves() << std::endl;
@@ -1440,7 +1476,7 @@ void WHtree::insertPartitions( const std::vector<std::vector<size_t> > &selected
     clearPartitions();
     if( selectedPartitions.size() != selectedValues.size() )
     {
-        std::cerr << "ERROR @ WHtree::insertPartitions(): inserted partition set and partition value vector have different dimensions" << std::endl;
+        wlog::error( "WHtree" ) << "ERROR @ WHtree::insertPartitions(): inserted partition set and partition value vector have different dimensions";
     }
     else
     {
@@ -1452,7 +1488,7 @@ void WHtree::insertPartitions( const std::vector<std::vector<size_t> > &selected
     {
         if( selectedColors.size() != selectedPartitions.size() )
         {
-            std::cerr << "ERROR @ WHtree::insertPartitions(): inserted partition color set and partition set have different dimensions" << std::endl;
+            wlog::error( "WHtree" ) << "ERROR @ WHtree::insertPartitions(): inserted partition color set and partition set have different dimensions";
         }
         else
         {
@@ -1460,9 +1496,9 @@ void WHtree::insertPartitions( const std::vector<std::vector<size_t> > &selected
             {
                 if( selectedColors[i].size() != selectedPartitions[i].size() )
                 {
-                    std::cerr << "ERROR @ WHtree::insertPartitions(): partition and colors dimensions dont match";
-                    std::cerr << " (" << selectedPartitions[i].size() << "-" << selectedColors[i].size();
-                    std::cerr << ") Color field will be left empty" << std::endl;
+                    wlog::error( "WHtree" ) << "ERROR @ WHtree::insertPartitions(): partition and colors dimensions dont match"
+                    << " (" << selectedPartitions[i].size() << "-" << selectedColors[i].size()
+                    << ") Color field will be left empty";
                     return;
                 }
             }
@@ -1476,7 +1512,7 @@ void WHtree::insertPartColors( const std::vector<std::vector<WHcoord> > &selecte
 {
     if( selectedColors.size() != m_selectedPartitions.size() )
     {
-        std::cerr << "ERROR @ WHtree::insertPartColors(): inserted partition color set and partition set have different dimensions" << std::endl;
+        wlog::error( "WHtree" ) << "ERROR @ WHtree::insertPartColors(): inserted partition color set and partition set have different dimensions";
     }
     else
     {
@@ -1484,8 +1520,8 @@ void WHtree::insertPartColors( const std::vector<std::vector<WHcoord> > &selecte
         {
             if( selectedColors[i].size() != m_selectedPartitions[i].size() )
             {
-                std::cerr << "ERROR @ WHtree::insertPartColors(): partition and colors dimensions dont match.";
-                std::cerr << " Color field will be left empty" << std::endl;
+                wlog::error( "WHtree" ) << "ERROR @ WHtree::insertPartColors(): partition and colors dimensions dont match."
+                << " Color field will be left empty";
                 clearPartColors();
                 return;
             }
@@ -1621,7 +1657,7 @@ std::vector< std::vector< unsigned int > > WHtree::getBranching( const std::vect
             }
             else
             {
-                std::cerr << "WARNING @  WHtree::getBranching(), leaves were returned" << std::endl;
+                wlog::error( "WHtree" ) << "WARNING @  WHtree::getBranching(), leaves were returned";
             }
         }
         partitionSet->push_back( thisSet );
@@ -1809,6 +1845,8 @@ std::pair<size_t, size_t> WHtree::cleanup( std::vector<size_t> *outLookup )
     size_t discardedLeaves( 0 ), discardedNodes( 0 );
     std::vector<WHnode>::iterator leavesDelIter( m_leaves.begin() );
     std::vector<WHcoord>::iterator coordDelIter( m_coordinates.begin() );
+    std::vector< size_t >::iterator trackidIter( m_trackids.begin() );
+
     while( leavesDelIter != m_leaves.end() )
     {
         if( leavesDelIter->isFlagged() )
@@ -1817,11 +1855,13 @@ std::pair<size_t, size_t> WHtree::cleanup( std::vector<size_t> *outLookup )
             m_discarded.push_back( *coordDelIter );
             leavesDelIter = m_leaves.erase( leavesDelIter );
             coordDelIter = m_coordinates.erase( coordDelIter );
+            trackidIter = m_trackids.erase( trackidIter );
         }
         else
         {
             ++leavesDelIter;
             ++coordDelIter;
+            ++trackidIter;
         }
     }
     // eliminate discarded nodes from the vector
@@ -1848,9 +1888,9 @@ std::pair<size_t, size_t> WHtree::cleanup( std::vector<size_t> *outLookup )
 
         if( ( newID == INVALID ) || ( newParentID == INVALID ) )
         {
-            std::cerr << "Discarded " << discardedLeaves<< " and " << discardedNodes<< " nodes" << std::endl;
-            std::cerr << "Old ID: " << leavesIter->getID() << ". New ID: " << newID<< ". Old parent ID: " << leavesIter->getParent().second
-                      << ". New parent ID: " << newParentID << std::endl;
+            wlog::error( "WHtree" ) << "Discarded " << discardedLeaves<< " and " << discardedNodes<< " nodes" << std::endl
+            << "Old ID: " << leavesIter->getID() << ". New ID: " << newID<< ". Old parent ID: " << leavesIter->getParent().second
+            << ". New parent ID: " << newParentID;
 
             throw std::runtime_error( "ERROR @ WHtree::cleanup(): error updating leaf IDs, invalid lookup table value" );
         }
@@ -1880,10 +1920,10 @@ std::pair<size_t, size_t> WHtree::cleanup( std::vector<size_t> *outLookup )
         {
             if( ( nodesIter+1 ) != m_nodes.end() ) // this should only happen at the last node
             {
-                std::cerr << std::endl << "Node says its root: " << nodesIter->printAllData() << std::endl;
-                std::cerr << "New ID: " << newID << ". New parent ID: " << newParentID << std::endl;
-                std::cerr << "But last node is: " << ( m_nodes.end()-1 )->printAllData() << std::endl;
-                std::cerr << "New ID: " << lookupNodeID[( m_nodes.end()-1 )->getID()] << std::endl;
+                wlog::error( "WHtree" ) << std::endl << "Node says its root: " << nodesIter->printAllData() << std::endl
+                << "New ID: " << newID << ". New parent ID: " << newParentID << std::endl
+                << "But last node is: " << ( m_nodes.end()-1 )->printAllData() << std::endl
+                << "New ID: " << lookupNodeID[( m_nodes.end()-1 )->getID()] << std::endl;
                 throw std::runtime_error( "ERROR @ WHtree::cleanup(): pruning failed, top of tree is not last node in vector" );
             }
             nodesIter->setParent( std::make_pair( false, 0 ) );
@@ -1946,7 +1986,7 @@ size_t WHtree::debinarize( bool keepBaseNodes )
 {
     if( keepBaseNodes && !testRootBaseNodes() )
     {
-        std::cerr << "WARNING@ Debinarize: base nodes have mixed nodes and leaves, debinarize will be standard " << std::endl;
+        wlog::error( "WHtree" ) << "WARNING@ Debinarize: base nodes have mixed nodes and leaves, debinarize will be standard ";
         keepBaseNodes = false;
     }
     const size_t origNumNodes( getNumNodes() );
@@ -2056,7 +2096,7 @@ size_t WHtree::debinarize( bool keepBaseNodes )
     {
             if( validNode[i] && ( realChildren[i].empty() ) )
             {
-                std::cerr << "node (1-" << i << ") has no real children" << std::endl;
+                wlog::error( "WHtree" ) << "node (1-" << i << ") has no real children";
                 throw std::runtime_error( "ERROR @ WHtree::debinarize(): node has no real children" );
             }
     }
@@ -2113,7 +2153,8 @@ size_t WHtree::debinarize( bool keepBaseNodes )
                 size_t realDad( changeLookup[realParentsforNodes[id]] );
                 if( realDad == invalid )
                 {
-                    std::cerr << "node (1-" << id << ") is valid but has invalid dad, ( preDad was 1-" << realParentsforNodes[id] << ")" << std::endl;
+                    wlog::error( "WHtree" ) << "node (1-" << id << ") is valid but has invalid dad, ( preDad was 1-" << realParentsforNodes[ id ]
+                                            << ")";
                     throw std::runtime_error( "ERROR @ WHtree::debinarize(): error renaming nb node parents" );
                 }
                 WHnode thisnode( std::make_pair( true, changeLookup[id] ), realChildren[id],

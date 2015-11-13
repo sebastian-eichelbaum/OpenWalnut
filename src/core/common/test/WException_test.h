@@ -43,7 +43,7 @@ public:
      */
     void testInstantiation( void )
     {
-        TS_ASSERT_THROWS_NOTHING( WException e() );
+        TS_ASSERT_THROWS_NOTHING( WException e );
         TS_ASSERT_THROWS_NOTHING( WException e( std::string( "Some message" ) ) );
     }
 
