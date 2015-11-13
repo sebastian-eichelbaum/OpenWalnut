@@ -100,6 +100,16 @@
     // The URL. Required.
     url="https://www.youtube.com/watch?v=bfe3jqzzzSs&feature=youtu.be";
   };
+
+  online
+  {
+    // Name that appears for this resource. Required.
+    name="Data preparation tools.";
+    // Optional description for a resource
+    description ="Hierarchical clustering algorithms for whole-brain connectivity similarity analysis.";
+    // The URL. Required.
+    url="https://github.com/dmordom/hClustering";
+  };
 };
 
 "Hierarchical Clustering Display"
@@ -167,6 +177,16 @@
     description ="First Steps Tutorial, showing the toolbox in action.";
     // The URL. Required.
     url="https://www.youtube.com/watch?v=bfe3jqzzzSs&feature=youtu.be";
+  };
+
+  online
+  {
+    // Name that appears for this resource. Required.
+    name="Data preparation tools.";
+    // Optional description for a resource
+    description ="Hierarchical clustering algorithms for whole-brain connectivity similarity analysis.";
+    // The URL. Required.
+    url="https://github.com/dmordom/hClustering";
   };
 
   tag = "Hierarchical";

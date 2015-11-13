@@ -34,7 +34,7 @@
 // This file is also part of OpenWalnut ( http://www.openwalnut.org ).
 //
 // For more reference on the underlying algorithm and research they have been used for refer to:
-// - Moreno-Dominguez, D., Anwander, A., & Knösche, T. R. (2014).
+// - Moreno-Dominguez, D., Anwander, A., & Knoesche, T. R. (2014).
 //   A hierarchical method for whole-brain connectivity-based parcellation.
 //   Human Brain Mapping, 35(10), 5000-5025. doi: http://dx.doi.org/10.1002/hbm.22528
 // - Moreno-Dominguez, D. (2014).
@@ -65,11 +65,7 @@
 #include <list>
 #include <string>
 
-// boost library
-// Use filesystem version 2 for compatibility with newer boost versions.
-#ifndef BOOST_FILESYSTEM_VERSION
-    #define BOOST_FILESYSTEM_VERSION 2
-#endif
+
 #include <boost/filesystem.hpp>
 
 // hClustering
@@ -197,6 +193,12 @@ public:
     std::vector<WHcoord> getRoi() const;
 
     /**
+     * Returns the tractogram IDs vector
+     * \return vector containing the tractogram ids per leaf
+     */
+    std::vector<size_t> getTrackids() const;
+
+    /**
      * Returns the discarded list
      * \return list containing the discarded coordinates
      */
@@ -288,6 +290,13 @@ public:
      * \return ID of the leaf
      */
     size_t getLeafID( const WHcoord &thisCoord ) const;
+
+    /**
+     * returns the corresponding track ID to a leaf ID on the tree
+     * \param leafID input leaf ID
+     * \return ID of seed tractogram corresponding to that leaf
+     */
+    size_t getTrackID( const size_t &leafID ) const;
 
     /**
      * Returns a vector with all the leaf IDs contained in that cluster
@@ -861,6 +870,11 @@ inline float WHtree::getCpcc() const
 inline std::vector<WHcoord> WHtree::getRoi() const
 {
     return m_coordinates;
+}
+
+inline std::vector<size_t> WHtree::getTrackids() const
+{
+    return m_trackids;
 }
 
 inline std::list<WHcoord> WHtree::getDiscarded() const
