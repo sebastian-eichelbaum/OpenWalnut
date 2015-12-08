@@ -137,6 +137,15 @@ ADD_DEPENDENCIES( install_devdoc core_devdoc )
 ADD_SUBDIRECTORY( core )
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
+# Activate Boost Fix:
+
+OPTION( OW_BOOST_PO_FIX "Enable this to enable the boost::program_options linker fix." ON )
+IF( OW_BOOST_PO_FIX )
+    # Disable if you get errors relating to program_options::arg when linking the binary
+    ADD_DEFINITIONS( "-DOW_BOOST_PROGRAM_OPTIONS_FIX" )
+ENDIF()
+
+# -----------------------------------------------------------------------------------------------------------------------------------------------
 # QT GUI
 
 OPTION( OW_GUI_QT "Enable this to build the QT-based OpenWalnut GUI." ON )
