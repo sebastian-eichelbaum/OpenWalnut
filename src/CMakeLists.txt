@@ -137,9 +137,10 @@ ADD_DEPENDENCIES( install_devdoc core_devdoc )
 ADD_SUBDIRECTORY( core )
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
-# Activate Boost Fix:
+# Compilation fixes:
 
-OPTION( OW_BOOST_PO_FIX "Enable this to enable the boost::program_options linker fix." ON )
+OPTION( OW_FIX_BOOST_PO_ARG "Enable this to enable the boost::program_options linker fix." ON )
+OPTION( OW_FIX_EIGENSYSTEM_GCC_PARSE_ERROR "Enable this to disable the eigenSystem module. It causes trouble when using GCC and the latest eigen3 lib." ON )
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # QT GUI
