@@ -25,6 +25,8 @@
 #ifndef WPAGEREEGLIBEEP_H
 #define WPAGEREEGLIBEEP_H
 
+#ifdef WEEP_ENABLED
+
 #include <cstddef>
 
 #include <string>
@@ -80,5 +82,7 @@ private:
 
     std::vector< double > m_scales; //!< scale factors of the channels
 };
+
+#endif  // WEEP_ENABLED
 
 #endif  // WPAGEREEGLIBEEP_H
