@@ -66,11 +66,7 @@ cp -r /mingw64/share/qt5/plugins/platforms "$target/qtPlugins/"
 # Important: there is an issue that ldd on msys does not unveil the libQT
 # dependencies. They need to be copied explicitly here:
 echo "Copy Qt"
-cp -r /mingw64/bin/Qt5Core.dll "$target/"
-cp -r /mingw64/bin/Qt5Gui.dll "$target/"
-cp -r /mingw64/bin/Qt5Widgets.dll "$target/"
-cp -r /mingw64/bin/Qt5OpenGL.dll "$target/"
-cp -r /mingw64/bin/Qt5WebKitWidgets.dll "$target/"
+cp -r /mingw64/bin/Qt5*.dll "$target/"
 
 ###############################################################################
 # Find all DLL to which the OW exe and DLL are linked to:
