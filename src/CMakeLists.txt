@@ -141,6 +141,7 @@ ADD_SUBDIRECTORY( core )
 
 OPTION( OW_FIX_BOOST_PO_ARG "Enable this to enable the boost::program_options linker fix." ON )
 OPTION( OW_FIX_EIGENSYSTEM_GCC_PARSE_ERROR "Enable this to disable the eigenSystem module. It causes trouble when using GCC and the latest eigen3 lib." ON )
+OPTION( OW_FIX_EEP_WINDOWS_ERROR "Enable this to disable the EEP Reader. It causes trouble when in the winnt.h header on Windows." OFF )
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # QT GUI
