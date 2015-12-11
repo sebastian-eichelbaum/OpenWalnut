@@ -117,7 +117,7 @@ boost::shared_ptr< std::vector< float > > WTuringPatternCreator::create( std::si
     }
 
     // A short sleep to give the threads time to initialize themselves.
-    sleep( 1.0 );
+    boost::this_thread::sleep( boost::posix_time::seconds( 1 ) );
 
     // Progress is from 0 to number of voxels. We want it to show the percent of iterations done, though.
     double stepsPerIteration = sizeX * sizeY * sizeZ / m_numIterations;
@@ -150,7 +150,7 @@ boost::shared_ptr< std::vector< float > > WTuringPatternCreator::create( std::si
     waitCondition->notify();
 
     // Give the threads time to swedish.
-    sleep( 1.0 );
+    boost::this_thread::sleep( boost::posix_time::seconds( 1 ) );
 
     return concentration1;
 }
