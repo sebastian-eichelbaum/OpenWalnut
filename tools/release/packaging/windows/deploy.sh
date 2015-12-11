@@ -53,7 +53,7 @@ cp /c/ow_workspace/nifticlib-2.0.0/niftilib/libniftiio.dll "$target"
 echo "Copy LibLas"
 cp /c/ow_workspace/libLAS-1.8.0/build/libliblas* "$target"
 
-# Plugins. Not dynamically linked. Loaded on startup. Copy: 
+# Plugins. Not dynamically linked. Loaded on startup. Copy:
 # OSG Plugins
 echo "Copy OSG Plugins"
 cp -r /mingw64/bin/osgPlugins-* "$target"
@@ -63,12 +63,22 @@ echo "Copy Qt Plugins"
 mkdir -p "$target/qtPlugins/"
 cp -r /mingw64/share/qt5/plugins/platforms "$target/qtPlugins/"
 
+# Important: there is an issue that ldd on msys does not unveil the libQT
+# dependencies. They need to be copied explicitly here:
+echo "Copy Qt"
+cp -r /mingw64/bin/Qt5Core.dll "$target/"
+cp -r /mingw64/bin/Qt5Gui.dll "$target/"
+cp -r /mingw64/bin/Qt5Widgets.dll "$target/"
+cp -r /mingw64/bin/Qt5OpenGL.dll "$target/"
+cp -r /mingw64/bin/Qt5WebKitWidgets.dll "$target/"
+
 ###############################################################################
 # Find all DLL to which the OW exe and DLL are linked to:
 ###############################################################################
 
 # Collect a list of DLL and Exe we build.
-linkables=$(find ./lib -iname "*.dll" -or -iname "*.exe" && find ./bin -iname "*.dll" -or -iname "*.exe")
+# Important: also check the dependencies of the libs already copied to the target.
+linkables=$(find ./lib -iname "*.dll" -or -iname "*.exe" && find ./bin -iname "*.dll" -or -iname "*.exe" && find "$target" -iname "*.dll" )
 
 # Fill all DLLs into this var:
 allDeps=""
