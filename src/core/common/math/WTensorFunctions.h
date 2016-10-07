@@ -430,8 +430,7 @@ void findSymmetricSphericalFunctionMaxima( WTensorSym< order, 3, Data_T > const&
 
         for( iter = 0; iter < 100; ++iter )
         {
-            WVector3d newPosition = position + stepSize * gradient;
-            normalize( newPosition );
+            WVector3d newPosition = normalize( position + stepSize * gradient );
             WVector3d newGradient = approximateGradient( tensor, newPosition );
 
             double cos = dot( newGradient, gradient );
@@ -528,11 +527,9 @@ WVector3d approximateGradient( WTensorSym< order, 3, Data_T > const& tensor, WVe
     else
     {
         // this is vectorProduct( z, pos )
-        eXY = WVector3d( -pos[ 1 ], pos[ 0 ], 0.0 );
-        normalize( eXY );
+        eXY = normalize( WVector3d( -pos[ 1 ], pos[ 0 ], 0.0 ) );
         // this is vectorProduct( eXY, pos )
-        eZ = WVector3d( eXY[ 1 ] * pos[ 2 ], -eXY[ 0 ] * pos[ 2 ], eXY[ 0 ] * pos[ 1 ] - eXY[ 1 ] * pos[ 0 ] );
-        normalize( eZ );
+        eZ = normalize( WVector3d( eXY[ 1 ] * pos[ 2 ], -eXY[ 0 ] * pos[ 2 ], eXY[ 0 ] * pos[ 1 ] - eXY[ 1 ] * pos[ 0 ] ) );
     }
 
     double dXY = ( tensor.evaluateSphericalFunction( normalize( pos + eXY * 0.0001 ) )
