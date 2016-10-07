@@ -549,8 +549,7 @@ WVector3d approximateGradient( WTensorSym< order, 3, Data_T > const& tensor, WVe
         d = 0.0;
     }
     WVector3d res = eZ * dZ + eXY * ( dXY / std::sqrt( d ) );
-    normalize( res );
-    return res;
+    return normalize( res );
 }
 
 #endif  // WTENSORFUNCTIONS_H
