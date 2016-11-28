@@ -55,9 +55,9 @@ namespace boost
  * \par
  * http://www.openwalnut.org
  * \par
- * Copyright 2009-2014 The OpenWalnut Community,
- *           2009-2014 Nemtics,
- *           2009-2014 Abteilung fuer Bild- und Signalverarbeitung, Universitaet Leipzig,
+ * Copyright 2009-2015 The OpenWalnut Community,
+ *           2009-2015 Nemtics,
+ *           2009-2015 Abteilung fuer Bild- und Signalverarbeitung, Universitaet Leipzig,
  *           2009-2013 Max-Planck Institute of Cognitive Neuroscience, Leipzig, Germany.
  * For more information see http://www.openwalnut.org/copying
  */
@@ -69,9 +69,9 @@ void printVersion()
               << std::endl;
 
     std::cout <<
-    "Copyright 2009-2014 The OpenWalnut Community\n"
-    "          2012-2014 Nemtics\n"
-    "          2009-2014 Abteilung fuer Bild- und Signalverarbeitung, Universitaet Leipzig\n"
+    "Copyright 2009-2015 The OpenWalnut Community\n"
+    "          2012-2015 Nemtics\n"
+    "          2009-2015 Abteilung fuer Bild- und Signalverarbeitung, Universitaet Leipzig\n"
     "          2009-2013 Max-Planck Institute of Cognitive Neuroscience, Leipzig, Germany\n"
     "For more information see http://www.openwalnut.org/copying\n"
     "This program comes with ABSOLUTELY NO WARRANTY.\n"

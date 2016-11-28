@@ -2200,7 +2200,7 @@ void WMHierchClustDisplay::writePartition()
     }
     boost::filesystem::path partitionFilename = m_propPartitionFile->get();
 
-    std::ofstream streamFile( partitionFilename.c_str() );
+    std::ofstream streamFile( partitionFilename.string() );
     if( !streamFile )
     {
         errorLog() << "ERROR: unable to open partition file: \"" << partitionFilename << "\"";

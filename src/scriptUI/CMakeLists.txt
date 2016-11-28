@@ -40,6 +40,11 @@ SET( BinaryName "openwalnut-script" )
 # Add sources as target
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
+IF( OW_BOOST_PO_FIX )
+    # Disable if you get errors relating to program_options::arg when linking the binary
+    ADD_DEFINITIONS( "-DOW_BOOST_PROGRAM_OPTIONS_FIX" )
+ENDIF()
+
 # Collect the compile-files for this target
 COLLECT_COMPILE_FILES( "${CMAKE_CURRENT_SOURCE_DIR}" TARGET_CPP_FILES TARGET_H_FILES TARGET_TEST_FILES )
 

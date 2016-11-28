@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#ifdef WEEP_ENABLED
+
 extern "C"
 {
     #include <libeep/cnt/cnt.h>
@@ -117,3 +119,6 @@ boost::shared_ptr< WDataSet > WReaderLibeep::load()
     out->setFilename( m_fname );
     return out;
 }
+
+#endif  // WEEP_ENABLED
+

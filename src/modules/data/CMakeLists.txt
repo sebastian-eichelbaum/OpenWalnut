@@ -75,14 +75,19 @@ ENDIF()
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # other external libs
 
-SET( OWExtEEPName    "openwalnut_eep" )
+SET( OWExtEEPName "" )
+IF( NOT OW_FIX_EEP_WINDOWS_ERROR )
+    ADD_DEFINITIONS( "-DWEEP_ENABLED" )
 
-# libcnt needs absolute inclusion somewhere
-INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/ext/libeep )
-INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/ext )
+    SET( OWExtEEPName    "openwalnut_eep" )
 
-# build external libs in ext/
-ADD_SUBDIRECTORY( ext/libeep) # The needed external libraries
+    # libcnt needs absolute inclusion somewhere
+    INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/ext/libeep )
+    INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/ext )
+
+    # build external libs in ext/
+    ADD_SUBDIRECTORY( ext/libeep ) # The needed external libraries
+ENDIF()
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Setup for compilation

@@ -25,6 +25,8 @@
 #ifndef WREADERLIBEEP_H
 #define WREADERLIBEEP_H
 
+#ifdef WEEP_ENABLED
+
 #include <string>
 
 #include "WReaderEEG.h"
@@ -53,5 +55,7 @@ public:
 protected:
 private:
 };
+
+#endif  // WEEP_ENABLED
 
 #endif  // WREADERLIBEEP_H

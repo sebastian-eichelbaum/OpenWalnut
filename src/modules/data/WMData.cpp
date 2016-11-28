@@ -50,9 +50,11 @@
 #include "io/WReaderNIfTI.h"
 #include "io/WReaderELC.h"
 #include "io/WReaderFiberVTK.h"
-#include "io/WReaderLibeep.h"
 #include "io/WReaderVTK.h"
-#include "io/WPagerEEGLibeep.h"
+#ifdef WEEP_ENABLED
+    #include "io/WReaderLibeep.h"
+    #include "io/WPagerEEGLibeep.h"
+#endif
 #include "io/WReaderClustering.h"
 
 #include "WMData.h"
@@ -530,6 +532,7 @@ void WMData::load()
         WReaderEEGASCII eegAsciiLoader( fileName );
         m_dataSet = eegAsciiLoader.load();
     }
+#ifdef WEEP_ENABLED
     else if( suffix == ".cnt" )
     {
         boost::shared_ptr< WPagerEEG > pager( new WPagerEEGLibeep( fileName ) );
@@ -542,6 +545,7 @@ void WMData::load()
 
         m_dataSet = boost::shared_ptr< WEEG2 >( new WEEG2( pager, eegPositionsLibrary ) );
     }
+#endif
     else if( suffix == ".fib" )
     {
         WReaderFiberVTK fibReader( fileName );

@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#ifdef WEEP_ENABLED
+
 extern "C"
 {
     #include <libeep/cnt/cnt.h>
@@ -185,3 +187,6 @@ std::string WPagerEEGLibeep::getChannelLabel( std::size_t channelID ) const
 
     return eep_get_chan_label( m_eeg, channelID );
 }
+
+#endif  // WEEP_ENABLED
+
