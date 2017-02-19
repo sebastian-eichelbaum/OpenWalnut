@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2014 OpenWalnut Community
+// Copyright 2017 OpenWalnut Community
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -100,21 +100,21 @@ void WMProjectionsAsContext::properties()
     m_possibleSelectionsUsingTypes->addItem(
         MyItemType::create(
             MIP,
-            "MIP Algorithm",
+            "MIP (Maximum Intensity Projection)",
             "Show this plane using the MIP Algorithm."
             )
         );
     m_possibleSelectionsUsingTypes->addItem(
         MyItemType::create(
             COMPOSITING_F2B,
-            "Compositing (Front-to-Back) Algorithm",
+            "Compositing Front-to-Back (Transfer Function Needed)",
             "Show this plane using the Compositing Algorithm (F2B)."
             )
         );
     m_possibleSelectionsUsingTypes->addItem(
         MyItemType::create(
             COMPOSITING_B2F,
-            "Compositing (Back-to-Front) Algorithm",
+            "Compositing Back-to-Front (Transfer Function Needed)",
             "Show this plane using the Compositing Algorithm (B2F)."
             )
         );
