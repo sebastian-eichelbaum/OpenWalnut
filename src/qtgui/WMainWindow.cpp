@@ -370,7 +370,6 @@ void WMainWindow::setupGUI()
     m_helpMenu->addAction( m_iconManager.getIcon( "logo" ), "Welcome to OpenWalnut", this, SLOT( showWelcomeDialog() ) );
     m_helpMenu->addAction( m_iconManager.getIcon( "help" ), "OpenWalnut Help", this, SLOT( openOpenWalnutHelpDialog() ),
                            QKeySequence( QKeySequence::HelpContents ) );
-    m_helpMenu->addAction( m_iconManager.getIcon( "nemtics" ), "Professional Support", this, SLOT( openSupportDialog() ) );
     m_helpMenu->addSeparator();
     m_helpMenu->addAction( m_iconManager.getIcon( "logo" ), "About OpenWalnut", this, SLOT( openAboutDialog() ) );
     m_helpMenu->addAction(  m_iconManager.getIcon( "qt" ), "About Qt", this, SLOT( openAboutQtDialog() ) );
@@ -792,21 +791,6 @@ void WMainWindow::openAboutDialog()
     std::string content = readFileIntoString( filename );
     std::string windowHeading =  std::string( "About OpenWalnut " ) + std::string( W_VERSION );
     QMessageBox::about( this, windowHeading.c_str(), content.c_str() );
-}
-
-void WMainWindow::openSupportDialog()
-{
-    std::string filename( WPathHelper::getDocPath().string() + "/openwalnut-qt/OpenWalnutSupport.html" );
-    std::string content = readFileIntoString( filename );
-    std::string windowHeading =  std::string( "Professional Support " ) + std::string( W_VERSION );
-    QMessageBox* b = new QMessageBox( QMessageBox::Information,
-                                      QString::fromStdString( windowHeading ),
-                                      QString::fromStdString( content ),
-                                      QMessageBox::Ok,
-                                      this );
-
-    b->setIconPixmap( m_iconManager.getIcon( "nemtics" ).pixmap( QSize( 48, 48 ) ) );
-    b->show();
 }
 
 void WMainWindow::openOpenWalnutHelpDialog()
