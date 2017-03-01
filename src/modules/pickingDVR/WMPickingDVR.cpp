@@ -102,10 +102,6 @@ void WMPickingDVR::properties()
     m_sampleRate->setMin( 0 );
     m_sampleRate->setMax( 10000 );
 
-    m_alphaThreshold = m_properties->addProperty( "Alpha Threshold %", "Alpha Value Threshold", 0.5, m_propCondition );
-    m_alphaThreshold->setMin( 0.0 );
-    m_alphaThreshold->setMax( 1.0 );
-
     m_crossThickness = m_properties->addProperty( "Crosshair Thickness", "Crosshair Thickness", 0.5, m_propCondition );
     m_crossThickness->setMin( 0.001 );
     m_crossThickness->setMax( 1.0 );
@@ -128,6 +124,10 @@ void WMPickingDVR::properties()
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_pickingCritereaCur );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_pickingCritereaCur );
+
+    m_alphaThreshold = m_properties->addProperty( "Alpha Threshold %", "Alpha Value Threshold", 0.5, m_propCondition );
+    m_alphaThreshold->setMin( 0.0 );
+    m_alphaThreshold->setMax( 1.0 );
 
     WModule::properties();
 }
@@ -273,6 +273,8 @@ void WMPickingDVR::moduleMain()
                 //beta = accedAlpha
                 dCurrentAlpha = color.getAlpha();
                 dAccAlpha  = dCurrentAlpha + ( dAccAlpha - dCurrentAlpha * dAccAlpha );
+
+                updateModuleGUI( strRenderMode );
 
                 if( strRenderMode == WMPICKINGDVR_MAX_INT )
                 {
@@ -553,5 +555,17 @@ void WMPickingDVR::pickHandler( WPickInfo pickInfo )
 
         //Notify Main
         this->m_propCondition->notify();
+    }
+}
+
+void WMPickingDVR::updateModuleGUI( std::string strRenderMode )
+{
+    if( strRenderMode == WMPICKINGDVR_THRESHOLD )
+    {
+        m_alphaThreshold->setHidden( false );
+    }
+    else
+    {
+        m_alphaThreshold->setHidden( true );
     }
 }

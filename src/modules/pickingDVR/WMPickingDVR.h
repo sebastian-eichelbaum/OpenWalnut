@@ -111,6 +111,11 @@ private:
     void pickHandler( WPickInfo pickInfo );
 
     /**
+     * Shows and hide relevant properties according to chosen picking mode.
+     */
+    void updateModuleGUI( std::string strRenderMode );
+
+    /**
      * Input connector for scalar data.
      */
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_scalarIC;
