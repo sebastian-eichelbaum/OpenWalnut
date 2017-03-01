@@ -148,14 +148,14 @@ void WMReadLAS::load()
         return;
     }
 
-	liblas::ReaderFactory factory;
+    liblas::ReaderFactory factory;
     liblas::Reader reader = factory.CreateWithStream( ifs );
-	
+
     size_t numPoints = reader.GetHeader().GetPointRecordsCount();
-	
+
     infoLog() << "LAS Header: Point Count = " << numPoints;
-	infoLog() << "LAS Header: Compressed = " << reader.GetHeader().Compressed();
-	infoLog() << "LAS Header: File Signature = " << reader.GetHeader().GetFileSignature();
+    infoLog() << "LAS Header: Compressed = " << reader.GetHeader().Compressed();
+    infoLog() << "LAS Header: File Signature = " << reader.GetHeader().GetFileSignature();
 
     boost::shared_ptr< WProgress > progress1( new WProgress( "Loading" ) );
     m_progress->addSubProgress( progress1 );
@@ -168,10 +168,10 @@ void WMReadLAS::load()
     infoLog() << "Start Loading ...";
 
     // interpret file
-	size_t realNumPoints = 0;
+    size_t realNumPoints = 0;
     while( reader.ReadNextPoint() )
     {
-		realNumPoints++;
+        realNumPoints++;
         liblas::Point const& coord = reader.GetPoint();
 
         vertices->push_back( coord.GetX() );
@@ -195,4 +195,3 @@ void WMReadLAS::load()
     progress1->finish();
     ifs.close();
 }
-

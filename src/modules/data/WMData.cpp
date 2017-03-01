@@ -533,7 +533,7 @@ void WMData::load()
         m_dataSet = eegAsciiLoader.load();
     }
 #ifdef WEEP_ENABLED
-    else if( suffix == ".cnt" )
+    else if( suffix == ".cnt" ) // NOLINT: An else should appear after closing } in previous line
     {
         boost::shared_ptr< WPagerEEG > pager( new WPagerEEGLibeep( fileName ) );
 
@@ -546,7 +546,7 @@ void WMData::load()
         m_dataSet = boost::shared_ptr< WEEG2 >( new WEEG2( pager, eegPositionsLibrary ) );
     }
 #endif
-    else if( suffix == ".fib" )
+    else if( suffix == ".fib" ) // NOLINT: An else should appear after closing } in previous line
     {
         WReaderFiberVTK fibReader( fileName );
         m_dataSet = fibReader.read();
