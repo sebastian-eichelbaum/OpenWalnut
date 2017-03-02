@@ -366,7 +366,6 @@ void WMDirectVolumeRendering::moduleMain()
             // opacity correction
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            // create some random noise
             if( m_opacityCorrectionEnabled->get( true ) )
             {
                 opacityCorrectionEnableDefine->setActive( true );
@@ -380,7 +379,6 @@ void WMDirectVolumeRendering::moduleMain()
             // maximum intensity projection (MIP)
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            // create some random noise
             if( m_maximumIntensityProjectionEnabled->get( true ) )
             {
                 maximumIntensityProjectionEnabledDefine->setActive( true );
@@ -394,7 +392,6 @@ void WMDirectVolumeRendering::moduleMain()
             // depth projection
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            // create some random noise
             if( m_depthProjectionEnabled->get( true ) )
             {
                 depthProjectionEnabledDefine->setActive( true );
