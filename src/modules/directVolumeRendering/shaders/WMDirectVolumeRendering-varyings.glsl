@@ -36,6 +36,6 @@ varying vec3 v_ray;
 // The sampling distance
 varying float v_sampleDistance;
 
-// The steps in relation to a default steps of 128.
+// The steps in relation to a default number of steps of 128.
 varying float v_relativeSampleDistance;
 
