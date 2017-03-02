@@ -341,15 +341,17 @@ void WMPickingDVR::moduleMain()
                 double dOldDerivative = vecSecondDerivative[0];
                 for( unsigned int j = 1; j < vecSecondDerivative.size(); j++ )
                 {
+                    if( dOldDerivative < 0.0 && vecSecondDerivative[j] >= 0.0
+                        && ( vecIndicesLowerBounds.size() > 0 ) ) // need to have a lower bound already
+                    {
+                        vecIndicesUpperBounds.push_back( j );
+                    }
+
                     if( dOldDerivative <= 0.0 && vecSecondDerivative[j] > 0.0 )
                     {
                         vecIndicesLowerBounds.push_back( j );
                     }
 
-                    if( dOldDerivative < 0.0 && vecSecondDerivative[j] >= 0.0 )
-                    {
-                        vecIndicesUpperBounds.push_back( j );
-                    }
 
                     dOldDerivative = vecSecondDerivative[j];
                 }
@@ -361,10 +363,9 @@ void WMPickingDVR::moduleMain()
 
                 for( unsigned int j = 0; j < std::min( vecIndicesLowerBounds.size(), vecIndicesUpperBounds.size() ); j++ )
                 {
-                    debugLog() << "bounds " <<  vecIndicesLowerBounds[j] << " " << vecIndicesUpperBounds[j];
-
                     //Calculate Diff
                     dDiff = vecAlphaAcc[vecIndicesUpperBounds[j]] - vecAlphaAcc[vecIndicesLowerBounds[j]];
+                    debugLog() << "Interval [" <<  vecIndicesLowerBounds[j] << "," << vecIndicesUpperBounds[j] << "] = " << dDiff;
 
                     //Is Max Diff
                     if( dDiff > dMaxDiff )
@@ -373,7 +374,8 @@ void WMPickingDVR::moduleMain()
                         iSample = vecIndicesLowerBounds[j];
                     }
                 }
-                debugLog() << "iSample " << iSample;
+                debugLog() << "Sample of largest interval " << iSample;
+
                 //Calculate Position
                 if( iSample >= 0 )
                 {
