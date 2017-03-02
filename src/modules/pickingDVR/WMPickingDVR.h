@@ -26,6 +26,7 @@
 #define WMPICKINGDVR_H
 
 #include <string>
+#include <vector>
 
 #include "core/kernel/WModule.h"
 

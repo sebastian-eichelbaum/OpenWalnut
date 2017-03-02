@@ -361,7 +361,8 @@ void WMPickingDVR::moduleMain()
 
                 for( unsigned int j = 0; j < std::min( vecIndicesLowerBounds.size(), vecIndicesUpperBounds.size() ); j++ )
                 {
-                debugLog() << "bounds " <<  vecIndicesLowerBounds[j] << " " << vecIndicesUpperBounds[j];
+                    debugLog() << "bounds " <<  vecIndicesLowerBounds[j] << " " << vecIndicesUpperBounds[j];
+
                     //Calculate Diff
                     dDiff = vecAlphaAcc[vecIndicesUpperBounds[j]] - vecAlphaAcc[vecIndicesLowerBounds[j]];
 
@@ -577,6 +578,4 @@ void WMPickingDVR::calculateDerivativesWYSIWYP( const std::vector<double>& value
 
         vecSecondDerivative.push_back( dDeriv );
     }
-
-
 }
