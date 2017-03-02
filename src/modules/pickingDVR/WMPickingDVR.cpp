@@ -99,22 +99,24 @@ void WMPickingDVR::properties()
     m_color = m_properties->addProperty( "Crosshair color", "Crosshair Color", WColor( 0.5f, 0.5f, 0.5f, 1.0f ), m_propCondition );
 
     // ---> Put the code for your properties here. See "src/modules/template/" for an extensively documented example.
-    m_sampleSteps = m_properties->addProperty( "Samples - Steps", "Sample - value", 60, m_propCondition );
+    m_sampleSteps = m_properties->addProperty( "Samples - steps",
+                      "Number of samples. Choose this appropriately for the settings used for the DVR itself.",
+                       256,
+                       m_propCondition );
     m_sampleSteps->setMin( 0 );
     m_sampleSteps->setMax( 10000 );
 
     m_opacityCorrectionEnabled = m_properties->addProperty( "Opacity correction",
             "If enabled, opacities are assumed to be relative to the "
-            "sample count. If disabled, changing the sample count "
-            "varies brightness of the image.",
+            "sample count. Choose this appropriately for the settings used for the DVR itself.",
             true,
             m_propCondition );
 
-    m_crossThickness = m_properties->addProperty( "Crosshair Thickness", "Crosshair Thickness", 0.5, m_propCondition );
+    m_crossThickness = m_properties->addProperty( "Crosshair thickness", "Crosshair thickness", 0.5, m_propCondition );
     m_crossThickness->setMin( 0.001 );
     m_crossThickness->setMax( 1.0 );
 
-    m_crossSize = m_properties->addProperty( "Crosshair Size", "Crosshair Size", 100.0, m_propCondition );
+    m_crossSize = m_properties->addProperty( "Crosshair size", "Crosshair size", 100.0, m_propCondition );
     m_crossSize->setMin( 0.001 );
     m_crossSize->setMax( 1000.0 );
 
@@ -133,7 +135,10 @@ void WMPickingDVR::properties()
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_pickingCritereaCur );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_pickingCritereaCur );
 
-    m_alphaThreshold = m_properties->addProperty( "Alpha Threshold %", "Alpha Value Threshold", 0.5, m_propCondition );
+    m_alphaThreshold = m_properties->addProperty( "Alpha threshold %",
+                                                  "Alpha value threshold for threshold picking mode.",
+                                                  0.5,
+                                                  m_propCondition );
     m_alphaThreshold->setMin( 0.0 );
     m_alphaThreshold->setMax( 1.0 );
 
