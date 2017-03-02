@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <algorithm>
+#include <cmath>
 #include <string>
 #include <vector>
 
@@ -98,9 +99,16 @@ void WMPickingDVR::properties()
     m_color = m_properties->addProperty( "Crosshair color", "Crosshair Color", WColor( 0.5f, 0.5f, 0.5f, 1.0f ), m_propCondition );
 
     // ---> Put the code for your properties here. See "src/modules/template/" for an extensively documented example.
-    m_sampleRate = m_properties->addProperty( "Samples - Steps", "Sample - value", 60, m_propCondition );
-    m_sampleRate->setMin( 0 );
-    m_sampleRate->setMax( 10000 );
+    m_sampleSteps = m_properties->addProperty( "Samples - Steps", "Sample - value", 60, m_propCondition );
+    m_sampleSteps->setMin( 0 );
+    m_sampleSteps->setMax( 10000 );
+
+    m_opacityCorrectionEnabled = m_properties->addProperty( "Opacity correction",
+            "If enabled, opacities are assumed to be relative to the "
+            "sample count. If disabled, changing the sample count "
+            "varies brightness of the image.",
+            true,
+            m_propCondition );
 
     m_crossThickness = m_properties->addProperty( "Crosshair Thickness", "Crosshair Thickness", 0.5, m_propCondition );
     m_crossThickness->setMin( 0.001 );
@@ -193,16 +201,15 @@ void WMPickingDVR::moduleMain()
             //Picking Variable
             double dMax   = 0.0;
             double dMin   = 0.0;
-            double dCurrentAlpha = 0.0;
             double dAccAlpha  = 0.0;
             double dPickedAlpha = 0.0;
             double dMaxValue  = 0.0;
             bool bPickedPos  = false;
 
             //Calculate Step
-            if(this->m_sampleRate->get() > 0)
+            if(this->m_sampleSteps->get() > 0)
             {
-                vecDir = vecDir / this->m_sampleRate->get();
+                vecDir = vecDir / this->m_sampleSteps->get();
             }
 
             //Get Scalar Field
@@ -231,7 +238,7 @@ void WMPickingDVR::moduleMain()
             std::vector<double> vecAlphaAcc;
 
             //Sampling
-            for(int i = 0; i < this->m_sampleRate->get(); i++)
+            for(int i = 0; i < this->m_sampleSteps->get(); i++)
             {
                 //Scalarfield Values
                 bool bSuccess = false;
@@ -271,8 +278,22 @@ void WMPickingDVR::moduleMain()
                 //gamma = alpha + beta - alpha * beta == currentAlpha + accedAlpha - currentAlpa * accedAlpha
                 //alpha = currentAlpha
                 //beta = accedAlpha
-                dCurrentAlpha = color.getAlpha();
-                dAccAlpha  = dCurrentAlpha + ( dAccAlpha - dCurrentAlpha * dAccAlpha );
+                double dCurrentAlpha = color.getAlpha();
+                double dCurrentAlphaCorrected;
+
+                if( m_opacityCorrectionEnabled->get( true ) )
+                {
+                    const double defaultNumberOfSteps = 128.0;
+                    float relativeSampleDistance = defaultNumberOfSteps / m_sampleSteps->get();
+                    dCurrentAlphaCorrected =  1.0 - pow( 1.0 - dCurrentAlpha, relativeSampleDistance );
+                }
+                else
+                {
+                    dCurrentAlphaCorrected = dCurrentAlpha;
+                }
+
+                dAccAlpha  = dCurrentAlphaCorrected + ( dAccAlpha - dCurrentAlphaCorrected * dAccAlpha );
+
 
 
                 if( strRenderMode == WMPICKINGDVR_MAX_INT )

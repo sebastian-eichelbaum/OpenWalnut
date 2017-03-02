@@ -108,16 +108,24 @@ protected:
 private:
     /**
      * Handles picking and calculates ray start/end-position
+     *
+     * \param pickInfo class summarizing all important facts about the pick
      */
     void pickHandler( WPickInfo pickInfo );
 
     /**
      * Shows and hide relevant properties according to chosen picking mode.
+     *
+     * \param strPickingMode The type of picking criterion used
      */
-    void updateModuleGUI( std::string strRenderMode );
+    void updateModuleGUI( std::string strPickingMode );
 
     /**
      * Computes the first and second derivatives of a vector of values
+     *
+     * \param values Values for which the derivatives will be computed
+     * \param vecFirstDerivative The first derivative of the values
+     * \param vecSecondDerivative The second derivative of the values
      */
     void calculateDerivativesWYSIWYP( const std::vector<double>& values,
                                       std::vector<double>& vecFirstDerivative,
@@ -169,9 +177,15 @@ private:
     WPropColor m_color;
 
     /**
-     * Int Property: sampel Rate
+     * Number of samples along the ray
      */
-    WPropInt m_sampleRate;
+    WPropInt m_sampleSteps;
+
+    /**
+     * If active, the opacity of the classified fragment gets scaled according to sample count to ensure relative opacities even if sampling
+     * number changes (m_sampleSteps)
+     */
+    WPropBool m_opacityCorrectionEnabled;
 
     /**
      * Double Property: Alpha Value and alpha Percentage
