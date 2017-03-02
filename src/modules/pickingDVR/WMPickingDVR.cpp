@@ -167,6 +167,13 @@ void WMPickingDVR::moduleMain()
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
+        //Get Picking Mode
+        WItemSelector selector  = m_pickingCritereaCur->get( true );
+        std::string  strRenderMode = selector.at( 0 )->getName();
+        debugLog() << strRenderMode;
+
+        updateModuleGUI( strRenderMode );
+
         // woke up since the module is requested to finish?
         if( m_shutdownFlag() )
         {
@@ -191,11 +198,6 @@ void WMPickingDVR::moduleMain()
             double dPickedAlpha = 0.0;
             double dMaxValue  = 0.0;
             bool bPickedPos  = false;
-
-            //Derivative Variables
-            std::vector<double> vecFirstDerivative;
-            std::vector<double> vecSecondDerivative;
-            std::vector<double> vecAlphaAcc;
 
             //Calculate Step
             if(this->m_sampleRate->get() > 0)
@@ -226,9 +228,7 @@ void WMPickingDVR::moduleMain()
             dMin  = scalarData->getMin();
             dMaxValue = dMin;
 
-            //Get Picking Mode
-            WItemSelector selector  = m_pickingCritereaCur->get( true );
-            std::string  strRenderMode = selector.at( 0 )->getName();
+            std::vector<double> vecAlphaAcc;
 
             //Sampling
             for(int i = 0; i < this->m_sampleRate->get(); i++)
@@ -274,7 +274,6 @@ void WMPickingDVR::moduleMain()
                 dCurrentAlpha = color.getAlpha();
                 dAccAlpha  = dCurrentAlpha + ( dAccAlpha - dCurrentAlpha * dAccAlpha );
 
-                updateModuleGUI( strRenderMode );
 
                 if( strRenderMode == WMPICKINGDVR_MAX_INT )
                 {
@@ -328,112 +327,11 @@ void WMPickingDVR::moduleMain()
             //WYSIWYP: Calculate the largest interval
             if( strRenderMode == WMPICKINGDVR_WYSIWYP )
             {
-                //Fourth Order Finite Differencing by Daniel Gerlicher
-                unsigned int n  = vecAlphaAcc.size();
-                double dDeriv = 0.0;
-                double dCoeff = 1.0 / 12.0;
+                //Derivative Variables
+                std::vector<double> vecFirstDerivative;
+                std::vector<double> vecSecondDerivative;
 
-                //Calculate first derivative
-                for( unsigned int j = 0; j < n; j++ )
-                {
-                    //Forward Diff
-                    if( j == 0 )
-                    {
-                        dDeriv = dCoeff * ( -25 * vecAlphaAcc[j]
-                                            + 48 * vecAlphaAcc[j+1]
-                                            - 36 * vecAlphaAcc[j+2]
-                                            + 16 * vecAlphaAcc[j+3]
-                                            - 3 * vecAlphaAcc[j+4] );
-                    }
-                    else if( j == 1 )
-                    {
-                        dDeriv = dCoeff * ( -3 * vecAlphaAcc[j-1]
-                                            - 10 * vecAlphaAcc[j]
-                                            + 18 * vecAlphaAcc[j+1]
-                                            - 6 * vecAlphaAcc[j+2]
-                                            + 1 * vecAlphaAcc[j+3] );
-                    }
-
-                    //Backward Diff
-                    else if( j == n - 1 )
-                    {
-                        dDeriv = dCoeff * ( 25 * vecAlphaAcc[j]
-                                            - 48 * vecAlphaAcc[j-1]
-                                            + 36 * vecAlphaAcc[j-2]
-                                            - 16 * vecAlphaAcc[j-3]
-                                            + 3 * vecAlphaAcc[j-4] );
-                    }
-                    else if( j == n - 2 )
-                    {
-                        dDeriv = dCoeff * ( +3 * vecAlphaAcc[j+1]
-                                            + 10 * vecAlphaAcc[j]
-                                            - 18 * vecAlphaAcc[j-1]
-                                            + 6 * vecAlphaAcc[j-2]
-                                            - 1 * vecAlphaAcc[j-3] );
-                    }
-
-                    //Center
-                    else
-                    {
-                        dDeriv = dCoeff * ( -1 * vecAlphaAcc[j+2]
-                                            + 8 * vecAlphaAcc[j+1]
-                                            - 8 * vecAlphaAcc[j-1]
-                                            + 1 * vecAlphaAcc[j-2] );
-                    }
-
-                    vecFirstDerivative.push_back( dDeriv );
-                }
-
-                //Calculate Second derivative, by applying the first derivative
-                for( unsigned int j = 0; j < n; j++ )
-                {
-                    //Forward Diff
-                    if( j == 0 )
-                    {
-                        dDeriv = dCoeff * ( -25 * vecFirstDerivative[j]
-                                            + 48 * vecFirstDerivative[j+1]
-                                            - 36 * vecFirstDerivative[j+2]
-                                            + 16 * vecFirstDerivative[j+3]
-                                            - 3 * vecFirstDerivative[j+4] );
-                    }
-                    else if( j == 1 )
-                    {
-                        dDeriv = dCoeff * ( -3 * vecFirstDerivative[j-1]
-                                            - 10 * vecFirstDerivative[j]
-                                            + 18 * vecFirstDerivative[j+1]
-                                            - 6 * vecFirstDerivative[j+2]
-                                            + 1 * vecFirstDerivative[j+3] );
-                    }
-
-                    //Backward Diff
-                    else if( j == n - 1 )
-                    {
-                        dDeriv = dCoeff * ( 25 * vecFirstDerivative[j]
-                                            - 48 * vecFirstDerivative[j-1]
-                                            + 36 * vecFirstDerivative[j-2]
-                                            - 16 * vecFirstDerivative[j-3]
-                                            + 3 * vecFirstDerivative[j-4] );
-                    }
-                    else if( j == n - 2 )
-                    {
-                        dDeriv = dCoeff * ( +3 * vecFirstDerivative[j+1]
-                                            + 10 * vecFirstDerivative[j]
-                                            - 18 * vecFirstDerivative[j-1]
-                                            + 6 * vecFirstDerivative[j-2]
-                                            - 1 * vecFirstDerivative[j-3] );
-                    }
-
-                    //Center
-                    else
-                    {
-                        dDeriv = dCoeff * ( -1 * vecFirstDerivative[j+2]
-                                            + 8 * vecFirstDerivative[j+1]
-                                            - 8 * vecFirstDerivative[j-1]
-                                            + 1 * vecFirstDerivative[j-2] );
-                    }
-
-                    vecSecondDerivative.push_back( dDeriv );
-                }
+                calculateDerivativesWYSIWYP( vecAlphaAcc, vecFirstDerivative, vecSecondDerivative );
 
                 //Create Intervals
                 std::vector<int> vecIndicesLowerBounds;
@@ -441,7 +339,7 @@ void WMPickingDVR::moduleMain()
 
                 //Calculate Interval Boundaries
                 double dOldDerivative = vecSecondDerivative[0];
-                for( unsigned int j = 1; j < n; j++ )
+                for( unsigned int j = 1; j < vecSecondDerivative.size(); j++ )
                 {
                     if( dOldDerivative <= 0.0 && vecSecondDerivative[j] > 0.0 )
                     {
@@ -463,6 +361,7 @@ void WMPickingDVR::moduleMain()
 
                 for( unsigned int j = 0; j < std::min( vecIndicesLowerBounds.size(), vecIndicesUpperBounds.size() ); j++ )
                 {
+                debugLog() << "bounds " <<  vecIndicesLowerBounds[j] << " " << vecIndicesUpperBounds[j];
                     //Calculate Diff
                     dDiff = vecAlphaAcc[vecIndicesUpperBounds[j]] - vecAlphaAcc[vecIndicesLowerBounds[j]];
 
@@ -473,7 +372,7 @@ void WMPickingDVR::moduleMain()
                         iSample = vecIndicesLowerBounds[j];
                     }
                 }
-
+                debugLog() << "iSample " << iSample;
                 //Calculate Position
                 if( iSample >= 0 )
                 {
@@ -486,11 +385,9 @@ void WMPickingDVR::moduleMain()
             //Rendering: update only if picked
             if( bPickedPos )
             {
-#ifdef WMPICKINGDVR_DEBUG
                 debugLog() << "[dPickedAlpha = " << dPickedAlpha << "]"
                            <<"[posPicking][X = " << posPicking.x() << " ]"
                            <<"[Y = " << posPicking.y() << " ][Z = " << posPicking.z() << "]";
-#endif
 
                 osg::ref_ptr< osg::Geometry > geometry;
                 osg::ref_ptr< osg::Geode >  geode( new osg::Geode );
@@ -568,4 +465,118 @@ void WMPickingDVR::updateModuleGUI( std::string strRenderMode )
     {
         m_alphaThreshold->setHidden( true );
     }
+}
+
+void WMPickingDVR::calculateDerivativesWYSIWYP( const std::vector<double>& values,
+                                               std::vector<double>& vecFirstDerivative,
+                                               std::vector<double>& vecSecondDerivative )
+{
+    //Fourth Order Finite Differencing by Daniel Gerlicher
+    unsigned int n  = values.size();
+    double dDeriv = 0.0;
+    double dCoeff = 1.0 / 12.0;
+
+    //Calculate first derivative
+    for( unsigned int j = 0; j < n; j++ )
+    {
+        //Forward Diff
+        if( j == 0 )
+        {
+            dDeriv = dCoeff * ( -25 * values[j]
+                                + 48 * values[j+1]
+                                - 36 * values[j+2]
+                                + 16 * values[j+3]
+                                - 3 * values[j+4] );
+        }
+        else if( j == 1 )
+        {
+            dDeriv = dCoeff * ( -3 * values[j-1]
+                                - 10 * values[j]
+                                + 18 * values[j+1]
+                                - 6 * values[j+2]
+                                + 1 * values[j+3] );
+        }
+
+        //Backward Diff
+        else if( j == n - 1 )
+        {
+            dDeriv = dCoeff * ( 25 * values[j]
+                                - 48 * values[j-1]
+                                + 36 * values[j-2]
+                                - 16 * values[j-3]
+                                + 3 * values[j-4] );
+        }
+        else if( j == n - 2 )
+        {
+            dDeriv = dCoeff * ( +3 * values[j+1]
+                                + 10 * values[j]
+                                - 18 * values[j-1]
+                                + 6 * values[j-2]
+                                - 1 * values[j-3] );
+        }
+
+        //Center
+        else
+        {
+            dDeriv = dCoeff * ( -1 * values[j+2]
+                                + 8 * values[j+1]
+                                - 8 * values[j-1]
+                                + 1 * values[j-2] );
+        }
+
+        vecFirstDerivative.push_back( dDeriv );
+    }
+
+    //Calculate Second derivative, by applying the first derivative
+    for( unsigned int j = 0; j < n; j++ )
+    {
+        //Forward Diff
+        if( j == 0 )
+        {
+            dDeriv = dCoeff * ( -25 * vecFirstDerivative[j]
+                                + 48 * vecFirstDerivative[j+1]
+                                - 36 * vecFirstDerivative[j+2]
+                                + 16 * vecFirstDerivative[j+3]
+                                - 3 * vecFirstDerivative[j+4] );
+        }
+        else if( j == 1 )
+        {
+            dDeriv = dCoeff * ( -3 * vecFirstDerivative[j-1]
+                                - 10 * vecFirstDerivative[j]
+                                + 18 * vecFirstDerivative[j+1]
+                                - 6 * vecFirstDerivative[j+2]
+                                + 1 * vecFirstDerivative[j+3] );
+        }
+
+        //Backward Diff
+        else if( j == n - 1 )
+        {
+            dDeriv = dCoeff * ( 25 * vecFirstDerivative[j]
+                                - 48 * vecFirstDerivative[j-1]
+                                + 36 * vecFirstDerivative[j-2]
+                                - 16 * vecFirstDerivative[j-3]
+                                + 3 * vecFirstDerivative[j-4] );
+        }
+        else if( j == n - 2 )
+        {
+            dDeriv = dCoeff * ( +3 * vecFirstDerivative[j+1]
+                                + 10 * vecFirstDerivative[j]
+                                - 18 * vecFirstDerivative[j-1]
+                                + 6 * vecFirstDerivative[j-2]
+                                - 1 * vecFirstDerivative[j-3] );
+        }
+
+        //Center
+        else
+        {
+            dDeriv = dCoeff * ( -1 * vecFirstDerivative[j+2]
+                                + 8 * vecFirstDerivative[j+1]
+                                - 8 * vecFirstDerivative[j-1]
+                                + 1 * vecFirstDerivative[j-2] );
+        }
+
+        vecSecondDerivative.push_back( dDeriv );
+    }
+
+
 }

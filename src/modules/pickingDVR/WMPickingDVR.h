@@ -116,6 +116,13 @@ private:
     void updateModuleGUI( std::string strRenderMode );
 
     /**
+     * Computes the first and second derivatives of a vector of values
+     */
+    void calculateDerivativesWYSIWYP( const std::vector<double>& values,
+                                      std::vector<double>& vecFirstDerivative,
+                                      std::vector<double>& vecSecondDerivative );
+
+    /**
      * Input connector for scalar data.
      */
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_scalarIC;
