@@ -33,7 +33,7 @@
 #include "core/common/WException.h"
 #include "core/common/WLogger.h"
 
-#define OPENWALNUT_BUGREPORTER_URL "http://www.openwalnut.org/projects/openwalnut/issues"
+#define OPENWALNUT_BUGREPORTER_URL "http://redmine.openwalnut.org/projects/openwalnut/issues"
 
 WApplication::WApplication( int &argc, char** argv, bool GUIenabled ) // NOLINT
     : QApplication( argc, argv, GUIenabled )
