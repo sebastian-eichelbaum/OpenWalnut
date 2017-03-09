@@ -203,14 +203,14 @@ private:
     WPropDouble m_crossSize;
 
     /**
-     * Current Method
+     * Current picking method
      */
-    WPropSelection m_pickingCritereaCur;
+    WPropSelection m_pickingCriteriaCur;
 
     /**
      * Possible Criterion
      */
-    boost::shared_ptr< WItemSelection > m_pickingCritereaList;
+    boost::shared_ptr< WItemSelection > m_pickingCriteriaList;
 
     /**
      * Intersection position start

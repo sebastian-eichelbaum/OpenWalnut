@@ -120,20 +120,20 @@ void WMPickingDVR::properties()
     m_crossSize->setMin( 0.001 );
     m_crossSize->setMax( 1000.0 );
 
-    m_pickingCritereaList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_pickingCritereaList->addItem( WMPICKINGDVR_FIRST_HIT, WMPICKINGDVR_FIRST_HIT );
-    m_pickingCritereaList->addItem( WMPICKINGDVR_THRESHOLD, WMPICKINGDVR_THRESHOLD );
-    m_pickingCritereaList->addItem( WMPICKINGDVR_MOST_CONTRIBUTING, WMPICKINGDVR_MOST_CONTRIBUTING );
-    m_pickingCritereaList->addItem( WMPICKINGDVR_WYSIWYP, WMPICKINGDVR_WYSIWYP );
-    m_pickingCritereaList->addItem( WMPICKINGDVR_MAX_INT, WMPICKINGDVR_MAX_INT );
+    m_pickingCriteriaList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_pickingCriteriaList->addItem( WMPICKINGDVR_FIRST_HIT, WMPICKINGDVR_FIRST_HIT );
+    m_pickingCriteriaList->addItem( WMPICKINGDVR_THRESHOLD, WMPICKINGDVR_THRESHOLD );
+    m_pickingCriteriaList->addItem( WMPICKINGDVR_MOST_CONTRIBUTING, WMPICKINGDVR_MOST_CONTRIBUTING );
+    m_pickingCriteriaList->addItem( WMPICKINGDVR_WYSIWYP, WMPICKINGDVR_WYSIWYP );
+    m_pickingCriteriaList->addItem( WMPICKINGDVR_MAX_INT, WMPICKINGDVR_MAX_INT );
 
-    m_pickingCritereaCur = m_properties->addProperty( "Picking method",
+    m_pickingCriteriaCur = m_properties->addProperty( "Picking method",
                                                       "Select a picking method",
-                                                      m_pickingCritereaList->getSelectorFirst(),
+                                                      m_pickingCriteriaList->getSelectorFirst(),
                                                       m_propCondition );
 
-    WPropertyHelper::PC_SELECTONLYONE::addTo( m_pickingCritereaCur );
-    WPropertyHelper::PC_NOTEMPTY::addTo( m_pickingCritereaCur );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_pickingCriteriaCur );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_pickingCriteriaCur );
 
     m_alphaThreshold = m_properties->addProperty( "Alpha threshold %",
                                                   "Alpha value threshold for threshold picking mode.",
@@ -181,7 +181,7 @@ void WMPickingDVR::moduleMain()
         m_moduleState.wait();
 
         //Get Picking Mode
-        WItemSelector selector  = m_pickingCritereaCur->get( true );
+        WItemSelector selector  = m_pickingCriteriaCur->get( true );
         std::string  strRenderMode = selector.at( 0 )->getName();
         debugLog() << strRenderMode;
 
