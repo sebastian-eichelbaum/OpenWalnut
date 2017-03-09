@@ -142,6 +142,20 @@ void WMPickingDVR::properties()
     m_alphaThreshold->setMin( 0.0 );
     m_alphaThreshold->setMax( 1.0 );
 
+
+    m_wysiwypPositionTypesList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_wysiwypPositionTypesList->addItem( "Front" );
+    m_wysiwypPositionTypesList->addItem( "Center" );
+
+    m_wysiwypPositionType = m_properties->addProperty( "Pick position type",
+                                                       "Which position of the picked object should be returned?",
+                                                       m_wysiwypPositionTypesList->getSelectorFirst(),
+                                                       m_propCondition );
+
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_wysiwypPositionType );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_wysiwypPositionType );
+
+
     WModule::properties();
 }
 
@@ -382,14 +396,15 @@ void WMPickingDVR::moduleMain()
                     dOldDerivative = vecSecondDerivative[j];
                 }
 
-                //Calculate Max Diff
+                //Calculate max difference
                 double dDiff  = 0.0;
                 double dMaxDiff = 0.0;
-                int iSample  = -1;
+                int iSampleLo  = -1;
+                int iSampleUp  = -1;
 
                 for( unsigned int j = 0; j < std::min( vecIndicesLowerBounds.size(), vecIndicesUpperBounds.size() ); j++ )
                 {
-                    //Calculate Diff
+                    //Calculate diff
                     dDiff = vecAlphaAcc[vecIndicesUpperBounds[j]] - vecAlphaAcc[vecIndicesLowerBounds[j]];
                     debugLog() << "Interval [" <<  vecIndicesLowerBounds[j] << "," << vecIndicesUpperBounds[j] << "] = " << dDiff;
 
@@ -397,16 +412,26 @@ void WMPickingDVR::moduleMain()
                     if( dDiff > dMaxDiff )
                     {
                         dMaxDiff = dDiff;
-                        iSample = vecIndicesLowerBounds[j];
+                        iSampleLo = vecIndicesLowerBounds[j];
+                        iSampleUp = vecIndicesUpperBounds[j];
                     }
                 }
-                debugLog() << "Sample of largest interval " << iSample;
+                debugLog() << "Start of largest interval " << iSampleLo;
 
                 //Calculate Position
-                if( iSample >= 0 )
+                if( iSampleLo >= 0 )
                 {
                     //Calculate pick position
-                    posPicking = posStart + vecDir * iSample;
+                    if( m_wysiwypPositionType->get( true ).getItemIndexOfSelected( 0 ) == 0 )
+                    {
+                        posPicking = posStart + vecDir * iSampleLo;
+                    }
+                    else
+                    {
+                        int centerSample = ( iSampleLo + iSampleUp ) / 2;
+                        posPicking = posStart + vecDir * centerSample;
+                    }
+
                     bPickedPos = true;
                 }
             }
@@ -493,6 +518,15 @@ void WMPickingDVR::updateModuleGUI( std::string strRenderMode )
     else
     {
         m_alphaThreshold->setHidden( true );
+    }
+
+    if( strRenderMode == WMPICKINGDVR_WYSIWYP )
+    {
+        m_wysiwypPositionType->setHidden( false );
+    }
+    else
+    {
+        m_wysiwypPositionType->setHidden( true );
     }
 }
 

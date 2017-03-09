@@ -213,6 +213,16 @@ private:
     boost::shared_ptr< WItemSelection > m_pickingCriteriaList;
 
     /**
+     * Selecting the type of position obtained by WYSIWYP
+     */
+    WPropSelection m_wysiwypPositionType;
+
+    /**
+     * Possible position types for WYSIWYP
+     */
+    boost::shared_ptr< WItemSelection > m_wysiwypPositionTypesList;
+
+    /**
      * Intersection position start
      */
     osg::Vec3f m_posStart;
