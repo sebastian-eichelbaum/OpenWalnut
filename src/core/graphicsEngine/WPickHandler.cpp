@@ -262,6 +262,11 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
             {
                 ++hitr;
             }
+            // now we skip stuff with non-expressive names often used
+            else if( nodeName == "Geometry" )
+            {
+                ++hitr;
+            }
             // if ctrl is pressed we skip the first thing that gets hit by the pick
             else if( ignoreFirst )
             {
@@ -276,7 +281,7 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
 
         if( hitr == intersections.end() )
         {
-            // after everything was ignored nothing pickable remained and we have noting picked before
+            // after everything was ignored nothing pickable remained and we have nothing picked before
             // we just stop further processing.
             if(  m_startPick.getName() == "" )
             {

@@ -433,4 +433,3 @@ void WMNavigationSlices::moduleMain()
         v->getScene()->remove( m_sagittalOutput );
     }
 }
-
