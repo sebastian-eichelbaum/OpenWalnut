@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2015 OpenWalnut Community, Nemtics, BSV@Uni-Leipzig
+// Copyright 2017 OpenWalnut Community
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -32,7 +32,7 @@
 // An extensively commented example of a META file can be 
 // found in src/modules/template/resources
 
-"PickingDVREvaluation"
+"Picking in DVR Evaluation"
 {
   // Provide an icon with this name in the same directory as this file.
   icon="WMPickingDVREvaluationIcon.png";

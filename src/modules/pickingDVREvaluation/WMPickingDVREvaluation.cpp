@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2015 OpenWalnut Community, Nemtics, BSV@Uni-Leipzig
+// Copyright 2017 OpenWalnut Community
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -38,50 +38,37 @@ WMPickingDVREvaluation::WMPickingDVREvaluation():
 
 WMPickingDVREvaluation::~WMPickingDVREvaluation()
 {
-    // Cleanup!
 }
 
 boost::shared_ptr< WModule > WMPickingDVREvaluation::factory() const
 {
-    // See "src/modules/template/" for an extensively documented example.
     return boost::shared_ptr< WModule >( new WMPickingDVREvaluation() );
 }
 
 const std::string WMPickingDVREvaluation::getName() const
 {
-    // Specify your module name here. This name must be UNIQUE!
-    return "PickingDVREvaluation";
+    return "Picking in DVR Evaluation";
 }
  
 const std::string WMPickingDVREvaluation::getDescription() const
 {
-    // Specify your module description here. Be detailed. This text is read by the user.
-    // See "src/modules/template/" for an extensively documented example.
-    return "No documentation yet. "
-    "The best person to ask for documenation is probably the modules's creator, i.e. the user with the name \"wiebel\".";
+    return "Evaluate different picking techniques with regard to certain metrics.";
 }
 
 void WMPickingDVREvaluation::connectors()
 {
-    // Put the code for your connectors here. See "src/modules/template/" for an extensively documented example.
-
     WModule::connectors();
 }
 
 void WMPickingDVREvaluation::properties()
 {
-    // Put the code for your properties here. See "src/modules/template/" for an extensively documented example.
-
     WModule::properties();
 }
 
 void WMPickingDVREvaluation::requirements()
 {
-    // Put the code for your requirements here. See "src/modules/template/" for an extensively documented example.
 }
 
 void WMPickingDVREvaluation::moduleMain()
 {
-    // Put the code for your module's main functionality here.
-    // See "src/modules/template/" for an extensively documented example.
 }

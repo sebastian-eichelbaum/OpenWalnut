@@ -48,12 +48,12 @@ class WMPickingDVREvaluation: public WModule
 {
 public:
     /**
-     *
+     * A simple constructor
      */
     WMPickingDVREvaluation();
 
     /**
-     *
+     * A simple destructor
      */
     virtual ~WMPickingDVREvaluation();
 
