@@ -8,7 +8,7 @@ $header = <<EOF
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2015 OpenWalnut Community, Nemtics, BSV\@Uni-Leipzig
+// Copyright 2017 OpenWalnut Community
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -117,7 +117,7 @@ $impl = <<EOF
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2015 OpenWalnut Community, Nemtics, BSV\@Uni-Leipzig
+// Copyright 2017 OpenWalnut Community
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -209,7 +209,7 @@ $meta = <<EOF
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2015 OpenWalnut Community, Nemtics, BSV\@Uni-Leipzig
+// Copyright 2017 OpenWalnut Community
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
