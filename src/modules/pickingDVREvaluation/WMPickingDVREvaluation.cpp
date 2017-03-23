@@ -24,7 +24,9 @@
 
 #include <string>
 
+#include "core/graphicsEngine/WGERequirement.h"
 #include "core/kernel/WKernel.h"
+#include "core/ui/WUIRequirement.h"
 
 #include "WMPickingDVREvaluation.h"
 
@@ -49,7 +51,7 @@ const std::string WMPickingDVREvaluation::getName() const
 {
     return "Picking in DVR Evaluation";
 }
- 
+
 const std::string WMPickingDVREvaluation::getDescription() const
 {
     return "Evaluate different picking techniques with regard to certain metrics.";
@@ -67,6 +69,8 @@ void WMPickingDVREvaluation::properties()
 
 void WMPickingDVREvaluation::requirements()
 {
+    m_requirements.push_back( new WGERequirement() );
+    m_requirements.push_back( new WUIRequirement() );
 }
 
 void WMPickingDVREvaluation::moduleMain()

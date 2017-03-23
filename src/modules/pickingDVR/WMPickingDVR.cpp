@@ -35,13 +35,13 @@
 #include "core/dataHandler/WDataSetScalar.h"
 #include "core/graphicsEngine/WGEGeodeUtils.h"
 #include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/graphicsEngine/WGERequirement.h"
 #include "core/graphicsEngine/WGraphicsEngine.h"
 #include "core/graphicsEngine/WPickHandler.h"
 #include "core/graphicsEngine/WPickInfo.h"
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WModuleInputData.h"
-
-#include "core/graphicsEngine/geodes/WGEGridNode.h"
+#include "core/ui/WUIRequirement.h"
 
 #include "WMPickingDVR.h"
 #include "WMPickingDVRHelper.h"
@@ -156,6 +156,8 @@ void WMPickingDVR::properties()
 
 void WMPickingDVR::requirements()
 {
+    m_requirements.push_back( new WGERequirement() );
+    m_requirements.push_back( new WUIRequirement() );
 }
 
 void WMPickingDVR::moduleMain()
