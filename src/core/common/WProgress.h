@@ -40,7 +40,7 @@
  */
 class WProgress // NOLINT
 {
-friend class WProgressTest;
+friend class WProgressTest; //!< Access for test class.
 public:
     /**
      * Shared pointer on a WProgress

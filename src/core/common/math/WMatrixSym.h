@@ -45,7 +45,7 @@
 template< typename T >
 class WMatrixSym
 {
-friend class WMatrixSymTest;
+friend class WMatrixSymTest; //!< Access for test class.
 public:
     /**
      * Type of stored elements.

@@ -72,7 +72,7 @@
  */
 class WUnionFind
 {
-friend class WUnionFindTest;
+friend class WUnionFindTest; //!< Access for test class.
 public:
     /**
      * Creates a new union find datastructure with size elements where each

@@ -33,6 +33,9 @@
  */
 class WTerminalColor // NOLINT
 {
+/**
+ * Acess for the test class.
+ */
 friend class WTerminalColorTest;
 public:
     /**
@@ -193,4 +196,3 @@ private:
 };
 
 #endif  // WTERMINALCOLOR_H
-

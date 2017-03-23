@@ -53,7 +53,7 @@
  */
 class WJoinContourTree : public WTransferable // NOLINT
 {
-friend class WJoinContourTreeTest;
+friend class WJoinContourTreeTest; //!< Access for test class.
 public:
     /**
      * Initialize this with a data set for which the join tree should be computed.

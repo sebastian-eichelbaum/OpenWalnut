@@ -39,7 +39,7 @@
  */
 class WProgressCombiner: public WProgress
 {
-friend class WProgressCombinerTest;
+friend class WProgressCombinerTest; //!< Access for test class.
 public:
     /**
      * Abbreviate shared_ptr for this class.

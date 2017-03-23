@@ -37,7 +37,9 @@
 template < typename Data >
 class WSharedObjectTicketRead: public WSharedObjectTicket< Data >
 {
-// the shared object class needs protected access to create new instances
+/**
+ * The shared object class needs protected access to create new instances.
+ */
 friend class WSharedObject< Data >;
 public:
     /**
@@ -92,4 +94,3 @@ private:
 };
 
 #endif  // WSHAREDOBJECTTICKETREAD_H
-

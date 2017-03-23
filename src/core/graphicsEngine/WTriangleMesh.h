@@ -43,6 +43,9 @@
  */
 class WTriangleMesh  : public WTransferable
 {
+/**
+ * Access for test class.
+ */
 friend class WTriangleMeshTest;
 public:
     /**
