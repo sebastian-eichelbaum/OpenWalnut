@@ -142,11 +142,6 @@ private:
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_transferFunction;
 
     /**
-     * Output connector for Triangle Grid
-     */
-    boost::shared_ptr< WModuleOutputData< WTriangleMesh > > m_gridOutput;
-
-    /**
      * The OSG root node for this module. All other geodes or OSG nodes will be attached on this single node.
      */
     osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
@@ -160,11 +155,6 @@ private:
      * Needed for recreating the geometry, incase when resolution changes.
      */
     boost::shared_ptr< WCondition > m_propCondition;
-
-    /**
-     * We want some nice shading effects, so we need a nice shader.
-     */
-    WGEShader::RefPtr m_shader;
 
     /**
      * Trigger Property, will be triggered by the pickhandler

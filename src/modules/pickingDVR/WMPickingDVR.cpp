@@ -33,18 +33,13 @@
 #include <osg/CullFace>
 
 #include "core/dataHandler/WDataSetScalar.h"
-#include "core/graphicsEngine/callbacks/WGELinearTranslationCallback.h"
-#include "core/graphicsEngine/shaders/WGEPropertyUniform.h"
-#include "core/graphicsEngine/shaders/WGEShader.h"
 #include "core/graphicsEngine/WGEGeodeUtils.h"
-#include "core/graphicsEngine/WGEColormapping.h"
 #include "core/graphicsEngine/WGEManagedGroupNode.h"
 #include "core/graphicsEngine/WGraphicsEngine.h"
 #include "core/graphicsEngine/WPickHandler.h"
 #include "core/graphicsEngine/WPickInfo.h"
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WModuleInputData.h"
-#include "core/kernel/WModuleOutputData.h"
 
 #include "core/graphicsEngine/geodes/WGEGridNode.h"
 
@@ -176,10 +171,6 @@ void WMPickingDVR::moduleMain()
     // graphics setup
     m_rootNode = osg::ref_ptr< WGEManagedGroupNode >( new WGEManagedGroupNode( m_active ) );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
-
-    //Shader
-    m_shader = new WGEShader( "WGELighting", m_localPath );
-    m_shader->setDefine( "USE_MATERIAL_DIFFUSE" );
 
     //Get Camera and Register the callback
     boost::shared_ptr< WGraphicsEngine > graphicsEngine = WGraphicsEngine::getGraphicsEngine();
@@ -463,7 +454,6 @@ void WMPickingDVR::moduleMain()
 
                 m_rootNode->remove( m_geode );
                 m_geode = geode;
-                m_shader->apply( m_geode );
 
                 m_rootNode->clear();
                 m_rootNode->insert( geode );
