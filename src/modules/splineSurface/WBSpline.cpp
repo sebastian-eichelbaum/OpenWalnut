@@ -38,9 +38,9 @@ WBSpline::WBSpline( int order, std::vector< WVector3d > deBoorPoints )
         double tempKnot;
         if( i < k)
             tempKnot = k - 1;
-        if( (i >= k) && (i < n))
+        else if( (i >= k) && (i < n))
             tempKnot = i;
-        if( i >= n)
+        else //if( i >= n)
             tempKnot = n;
 
         m_knots.push_back( tempKnot );
