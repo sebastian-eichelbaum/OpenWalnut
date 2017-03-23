@@ -37,6 +37,9 @@
  */
 class WBresenhamDBL : public WBresenham
 {
+/**
+* Only UnitTests may be friends.
+*/
 friend class WBresenhamDBLTest;
 public:
     /**

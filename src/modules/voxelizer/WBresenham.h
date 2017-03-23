@@ -41,6 +41,9 @@
  */
 class WBresenham : public WRasterAlgorithm
 {
+/**
+* Only UnitTests may be friends.
+*/
 friend class WBresenhamTest;
 public:
     /**

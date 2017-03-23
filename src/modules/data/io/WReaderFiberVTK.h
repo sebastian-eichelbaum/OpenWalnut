@@ -49,6 +49,9 @@
  */
 class WReaderFiberVTK : public WReader // NOLINT
 {
+/**
+* Only UnitTests may be friends.
+*/
 friend class WReaderFiberVTKTest;
 public:
     /**

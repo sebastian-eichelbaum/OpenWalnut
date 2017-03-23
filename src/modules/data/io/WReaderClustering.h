@@ -47,6 +47,9 @@
  */
 class WReaderClustering : public WReader // NOLINT
 {
+/**
+* Only UnitTests may be friends.
+*/
 friend class WReaderClusteringTest;
 public:
     /**

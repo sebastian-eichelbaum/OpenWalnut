@@ -47,6 +47,9 @@ template< class T > class WModuleInputData;
  */
 class WMVoxelizer : public WModule
 {
+/**
+* Only UnitTests may be friends.
+*/
 friend class WMVoxelizerTest;
 public:
     /**
