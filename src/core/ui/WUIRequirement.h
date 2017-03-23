@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2009-2017 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -36,7 +36,7 @@ class WUIRequirement: public WRequirement // NOLINT
 {
 public:
     /**
-     * Create instance. If your module uses this requirement, it needs running WGE.
+     * Create instance. If your module uses this requirement, it needs running UI.
      */
     WUIRequirement();
 
