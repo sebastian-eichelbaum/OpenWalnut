@@ -601,16 +601,16 @@ public:
 
 
 
-    friend class treeManager;
-    friend class WHtreeProcesser;
-    friend class WHtreePartition;
+    friend class treeManager; //!< friend class
+    friend class WHtreeProcesser; //!< friend class
+    friend class WHtreePartition; //!< friend class
 
-    friend class CnbTreeBuilder;
-    friend class graphTreeBuilder;
-    friend class randCnbTreeBuilder;
-    friend class treeComparer;
-    friend class pruneTree;
-    friend class image2treeBuilder;
+    friend class CnbTreeBuilder; //!< friend class
+    friend class graphTreeBuilder; //!< friend class
+    friend class randCnbTreeBuilder; //!< friend class
+    friend class treeComparer; //!< friend class
+    friend class pruneTree; //!< friend class
+    friend class image2treeBuilder; //!< friend class
 
 
 protected:
