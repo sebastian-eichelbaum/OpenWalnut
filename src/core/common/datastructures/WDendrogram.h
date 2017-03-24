@@ -61,7 +61,7 @@
  */
 class WDendrogram : public WTransferable // NOLINT
 {
-friend class WDendrogramTest;
+friend class WDendrogramTest; //!< Access for test class.
 public:
     /**
      * Gets the name of this prototype.

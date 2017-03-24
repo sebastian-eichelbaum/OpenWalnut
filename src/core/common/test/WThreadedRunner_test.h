@@ -36,7 +36,7 @@
  */
 class WThreadedRunnerImpl: public WThreadedRunner
 {
-    friend class WThreadedRunnerTest;
+    friend class WThreadedRunnerTest; //!< Access for test class.
 protected:
     /**
      * Function that has to be overwritten for execution. It gets executed in a separate thread after run()
@@ -90,4 +90,3 @@ public:
 };
 
 #endif  // WTHREADEDRUNNER_TEST_H
-

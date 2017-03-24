@@ -38,7 +38,7 @@ class WFiberTest;
  */
 class WFiber : public WLine
 {
-friend class WFiberTest;
+friend class WFiberTest; //!< Access for test class.
 public:
     /**
      * Constructs a new fiber out of WPositions.

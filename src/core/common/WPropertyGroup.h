@@ -48,7 +48,7 @@
  */
 class WPropertyGroup: public WPropertyGroupBase
 {
-friend class WPropertiesTest;
+friend class WPropertiesTest;  //!< Access for test class.
 public:
     // the following typedefs are for convenience.
     typedef boost::shared_ptr< WPropertyGroup > SPtr; //!< shared pointer to object of this type

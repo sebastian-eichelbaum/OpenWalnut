@@ -42,7 +42,7 @@
  */
 class WFiberCluster: public WTransferable // NOLINT
 {
-friend class WFiberClusterTest;
+friend class WFiberClusterTest; //!< Access for test class.
 public:
     /**
      * Shared pointer abbreviation.

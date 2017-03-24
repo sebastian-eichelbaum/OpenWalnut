@@ -41,7 +41,7 @@
  */
 class WConditionSet: public WCondition
 {
-friend class WConditionSetTest;
+friend class WConditionSetTest; //!< Access for test class.
 public:
     /**
      * Shared pointer to instance of this class.

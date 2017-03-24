@@ -37,7 +37,7 @@
  */
 class Dummy : public WGrid
 {
-friend class WGridTest;
+friend class WGridTest; //!< Access for test class.
 
 public:
     /**

@@ -167,10 +167,10 @@ class WTensorBase
     // Make the appropriate tensor of order + 1 a friend, so it has access to the getPos() member.
     friend class WTensorBase< order + 1, dim, Data_T >;
 
-    // make the test class a friend
+    //! make the test class a friend
     friend class ::WTensorBaseTest;
 
-    // make the func test class a friend
+    //! make the func test class a friend
     friend class ::WTensorFuncTest;
 
 public:
@@ -438,10 +438,10 @@ class WTensorBase< 0, dim, Data_T >
     // Make the appropriate tensor of order + 1 a friend, so it has access to the getPos() member.
     friend class WTensorBase< 1, dim, Data_T >;
 
-    // make the test class a friend
+    //! make the test class a friend
     friend class ::WTensorBaseTest;
 
-    // make the func test class a friend
+    //! make the func test class a friend
     friend class ::WTensorFuncTest;
 
 public:
@@ -645,10 +645,10 @@ class WTensorBaseSym
      */
     BOOST_STATIC_ASSERT( dim != 0 );
 
-    // make the test class a friend
+    //! make the test class a friend
     friend class ::WTensorBaseSymTest;
 
-    // make the func test class a friend
+    //! make the func test class a friend
     friend class ::WTensorFuncTest;
 
 public:
@@ -1021,8 +1021,8 @@ bool WTensorBaseSym< order, dim, Data_T >::operator != ( WTensorBaseSym const& o
 template< std::size_t dim, typename Data_T >
 class WTensorBaseSym< 0, dim, Data_T >
 {
-    friend class ::WTensorBaseSymTest;
-    friend class ::WTensorFuncTest;
+    friend class ::WTensorBaseSymTest; //!< Access for test class.
+    friend class ::WTensorFuncTest; //!< Access for test class.
 
 public:
     // implementations are inline as they are trivial

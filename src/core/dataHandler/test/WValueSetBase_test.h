@@ -35,7 +35,7 @@
  */
 class Dummy : public WValueSetBase
 {
-friend class WValueSetBaseTest;
+friend class WValueSetBaseTest; //!< Access for test class.
 
 public:
     /**

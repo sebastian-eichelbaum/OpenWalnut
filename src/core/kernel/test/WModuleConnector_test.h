@@ -53,7 +53,7 @@
  */
 class WTestTransferableBase: public WTransferable
 {
-friend class WModuleConnectorTest;
+friend class WModuleConnectorTest; //!< Access for test class.
 
 public:
     /**
@@ -129,7 +129,7 @@ private:
  */
 class WTestTransferableDerived: public WTestTransferableBase
 {
-friend class WModuleConnectorTest;
+friend class WModuleConnectorTest; //!< Access for test class.
 
 public:
     /**
@@ -179,7 +179,7 @@ private:
  */
 class WModuleImpl: public WModule
 {
-friend class WModuleConnectorTest;
+friend class WModuleConnectorTest; //!< Access for test class.
 
 public:
     /**

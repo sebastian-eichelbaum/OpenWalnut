@@ -45,7 +45,7 @@
  */
 class  WModuleFactory // NOLINT
 {
-friend class WModuleFactoryTest;
+friend class WModuleFactoryTest; //!< Access for test class.
 public:
     /**
      * Shared pointer to a WModule.

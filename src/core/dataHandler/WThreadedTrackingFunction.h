@@ -232,7 +232,7 @@ namespace wtracking // note that this is not final
          */
         class IndexType
         {
-        friend class ::WThreadedTrackingFunctionTest;
+        friend class ::WThreadedTrackingFunctionTest; //!< Access for test class.
         public:
             /**
              * Construct an invalid index.

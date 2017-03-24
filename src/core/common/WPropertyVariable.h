@@ -55,7 +55,7 @@ template< typename T >
 class WPropertyVariable: public WFlag< T >,
                          public WPropertyBase
 {
-friend class WPropertyVariableTest;
+    friend class WPropertyVariableTest; //!< Access for test class.
 public:
     /**
      * Convenience typedef for a shared_ptr of WPropertyVariable.
@@ -900,4 +900,3 @@ PROPERTYCONSTRAINT_TYPE WPropertyVariable< T >::PropertyConstraint::getType()
 }
 
 #endif  // WPROPERTYVARIABLE_H
-

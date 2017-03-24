@@ -198,7 +198,7 @@ template<
 >
 class WPropertyStruct: public WPropertyGroupBase
 {
-friend class WPropertyStructTest;
+friend class WPropertyStructTest; //!< Access for test class.
 public:
    /**
     * The type of this template instantiation.

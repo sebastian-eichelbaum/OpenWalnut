@@ -46,6 +46,9 @@
  */
 class WValueSetHistogram: public WHistogram // NOLINT
 {
+/**
+* Only UnitTests should be friends.
+*/
 friend class WValueSetHistogramTest;
 public:
     /**
@@ -283,4 +286,3 @@ inline size_t WValueSetHistogram::getIndexForValue( double value ) const
 }
 
 #endif  // WVALUESETHISTOGRAM_H
-
