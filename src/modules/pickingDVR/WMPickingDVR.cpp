@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2015 A. Betz, D- Gerlicher, OpenWalnut Community, Nemtics, BSV@Uni-Leipzig
+// Copyright 2015-2017 A. Betz, D. Gerlicher, OpenWalnut Community
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -53,9 +53,9 @@ WMPickingDVR::WMPickingDVR():
 WModule(),
     m_propCondition( new WCondition() )
 {
-    this->m_bIntersected = false;
-    this->m_posStart  = osg::Vec3f( 0.0, 0.0, 0.0 );
-    this->m_posEnd   = osg::Vec3f( 0.0, 0.0, 0.0 );
+    m_bIntersected = false;
+    m_posStart  = osg::Vec3f( 0.0, 0.0, 0.0 );
+    m_posEnd   = osg::Vec3f( 0.0, 0.0, 0.0 );
 }
 
 WMPickingDVR::~WMPickingDVR()
@@ -74,7 +74,7 @@ const std::string WMPickingDVR::getName() const
 
 const std::string WMPickingDVR::getDescription() const
 {
-    return "Picks a 3D Position from the DVR rendered dataset.";
+    return "Picks a 3D Position from the DVR rendered dataset. Designed to work with orthographic projection.";
 }
 
 void WMPickingDVR::connectors()
@@ -82,7 +82,7 @@ void WMPickingDVR::connectors()
     // The transfer function for our DVR
     m_transferFunction = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "transfer function", "The 1D transfer function." );
 
-    //Scalar field
+    // Scalar field
     m_scalarIC = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "scalar data", "Scalar data." );
 
     WModule::connectors();
@@ -93,7 +93,6 @@ void WMPickingDVR::properties()
     //Color Property
     m_color = m_properties->addProperty( "Crosshair color", "Crosshair Color", WColor( 0.5f, 0.5f, 0.5f, 1.0f ), m_propCondition );
 
-    // ---> Put the code for your properties here. See "src/modules/template/" for an extensively documented example.
     m_sampleSteps = m_properties->addProperty( "Samples - steps",
                       "Number of samples. Choose this appropriately for the settings used for the DVR itself.",
                        256,
@@ -201,11 +200,11 @@ void WMPickingDVR::moduleMain()
         }
 
         //Valid Positions
-        if(this->m_bIntersected)
+        if( m_bIntersected )
         {
             //Position Variables
-            osg::Vec3f posStart  = this->m_posStart;
-            osg::Vec3f posEnd  = this->m_posEnd;
+            osg::Vec3f posStart  = m_posStart;
+            osg::Vec3f posEnd  = m_posEnd;
             osg::Vec3f posSample = posStart;
             osg::Vec3f posPicking = posStart;
             osg::Vec3f vecDir  = posEnd - posStart;
@@ -219,9 +218,9 @@ void WMPickingDVR::moduleMain()
             bool bPickedPos  = false;
 
             //Calculate Step
-            if(this->m_sampleSteps->get() > 0)
+            if( m_sampleSteps->get() > 0 )
             {
-                vecDir = vecDir / this->m_sampleSteps->get();
+                vecDir = vecDir / m_sampleSteps->get();
             }
 
             //Get Scalar Field
@@ -250,7 +249,7 @@ void WMPickingDVR::moduleMain()
             std::vector<double> vecAlphaAcc;
 
             //Sampling
-            for(int i = 0; i < this->m_sampleSteps->get(); i++)
+            for(int i = 0; i < m_sampleSteps->get(); i++)
             {
                 //Scalarfield Values
                 bool bSuccess = false;
@@ -332,7 +331,7 @@ void WMPickingDVR::moduleMain()
                 else if( strRenderMode == WMPICKINGDVR_THRESHOLD )
                 {
                     //Threshold: accumulated alpha value > threshold
-                    if( dAccAlpha > this->m_alphaThreshold->get() )
+                    if( dAccAlpha > m_alphaThreshold->get() )
                     {
                         dPickedAlpha = dCurrentAlpha;
                         posPicking  =  posSample;
@@ -491,13 +490,13 @@ void WMPickingDVR::pickHandler( WPickInfo pickInfo )
         osgUtil::LineSegmentIntersector::Intersection start= *intersections.begin();
         osgUtil::LineSegmentIntersector::Intersection end = *intersections.rbegin();
 
-        this->m_posStart = start.getWorldIntersectPoint();
-        this->m_posEnd  = end.getWorldIntersectPoint();
+        m_posStart = start.getWorldIntersectPoint();
+        m_posEnd  = end.getWorldIntersectPoint();
 
-        this->m_bIntersected = true;
+        m_bIntersected = true;
 
         //Notify Main
-        this->m_propCondition->notify();
+        m_propCondition->notify();
     }
 }
 
