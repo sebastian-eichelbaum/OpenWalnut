@@ -38,7 +38,7 @@
 template< typename T >
 class WGridTransformOrthoTemplate
 {
-    // this (friend) is necessary to allow casting
+    //! this (friend) is necessary to allow casting
     template <class U>
     friend class WGridTransformOrthoTemplate;
 public:

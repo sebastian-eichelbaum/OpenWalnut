@@ -49,7 +49,7 @@ class WItemSelector;
 class WItemSelection: public boost::enable_shared_from_this< WItemSelection >,
                       public WSharedSequenceContainer< std::vector< boost::shared_ptr< WItemSelectionItem > > >
 {
-    friend class WItemSelector; // for proper locking and unlocking
+    friend class WItemSelector; //!< for proper locking and unlocking
 public:
     /**
      * Convenience typedef for a boost::shared_ptr< WItemSelection >

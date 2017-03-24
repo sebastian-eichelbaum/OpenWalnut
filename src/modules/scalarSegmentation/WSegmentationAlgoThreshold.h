@@ -31,7 +31,7 @@
 #include "WSegmentationAlgo.h"
 
 /**
- * A very simple threshold segmentation working in two modi: If in LOWER_THRESHOLD mode than voxel
+ * A very simple threshold segmentation working in two modi: If in LOWER_THRESHOLD mode than voxels
  * that have a value smaller than the threshold are set to 0, while the rest of the voxels are set
  * to 1 where as in UPPER_THRESHOLD mode the opposite applies.
  *
@@ -103,6 +103,12 @@ private:
     WPropBool m_binarize;
 };
 
+/**
+ * This function call operator can be called by a visitor. It performs
+ * the actual segmentation as mentioned in the description of this class
+ * \param valueset operator will work on this set of values
+ * \return The resulting values after applying the segmentation criterion.
+ */
 template< typename T >
 WSegmentationAlgo::DataSetPtr WSegmentationAlgoThreshold::operator() ( WValueSet< T > const* valueset ) const
 {
