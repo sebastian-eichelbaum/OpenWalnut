@@ -31,9 +31,11 @@
 
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
-#include "core/kernel/WModuleOutputData.h"
 
-/** 
+// forward declarations to reduce compile dependencies
+class WDataSetScalar;
+
+/**
  * Someone should add some documentation here.
  * Probably the best person would be the module's
  * creator, i.e. "wiebel".
@@ -100,6 +102,30 @@ protected:
 
 
 private:
+    /**
+     * Needed for recreating the geometry, incase when resolution changes.
+     */
+    boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * The viewing and thus projection direction.
+     */
+    WPropPosition   m_viewDirection;
+
+    /**
+     * Number of samples along the ray
+     */
+    WPropInt m_sampleSteps;
+
+    /**
+     * Input connector for scalar data.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_scalarData;
+
+    /**
+     * The transfer function as an input data set
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_transferFunction;
 };
 
 #endif  // WMPICKINGDVREVALUATION_H

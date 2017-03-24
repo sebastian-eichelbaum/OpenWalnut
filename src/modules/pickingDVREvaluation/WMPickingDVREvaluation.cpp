@@ -24,6 +24,7 @@
 
 #include <string>
 
+#include "core/dataHandler/WDataSetScalar.h"
 #include "core/graphicsEngine/WGERequirement.h"
 #include "core/kernel/WKernel.h"
 #include "core/ui/WUIRequirement.h"
@@ -59,11 +60,27 @@ const std::string WMPickingDVREvaluation::getDescription() const
 
 void WMPickingDVREvaluation::connectors()
 {
+    // The transfer function for our DVR
+    m_transferFunction = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "transfer function", "The 1D transfer function." );
+
+    // Scalar field
+    m_scalarData = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "scalar data", "Scalar data." );
+
     WModule::connectors();
 }
 
 void WMPickingDVREvaluation::properties()
 {
+    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_viewDirection =  m_properties->addProperty( "Viewing Direction",
+                                                  "Viewing and thus projection direction for DVR.",
+                                                  WVector3d( 0.0, 0.0, -1.0 ),
+                                                  m_propCondition );
+    m_sampleSteps = m_properties->addProperty( "Samples - steps",
+                      "Number of samples. Choose this appropriately for the settings used for the DVR itself.",
+                       256,
+                       m_propCondition );
+
     WModule::properties();
 }
 
@@ -75,4 +92,29 @@ void WMPickingDVREvaluation::requirements()
 
 void WMPickingDVREvaluation::moduleMain()
 {
+    // get notified about data changes
+    m_moduleState.setResetable( true, true );
+    m_moduleState.add( m_scalarData->getDataChangedCondition() );
+    m_moduleState.add( m_transferFunction->getDataChangedCondition() );
+    m_moduleState.add( m_propCondition );
+
+    ready();
+
+    // main loop
+    while( !m_shutdownFlag() )
+    {
+        debugLog() << "Waiting ...";
+        m_moduleState.wait();
+
+        WDataSet::SPtr dataSet = m_scalarData->getData();
+        // is this a DS with a regular grid?
+        WDataSetSingle::SPtr dsSingle = boost::dynamic_pointer_cast< WDataSetSingle >( dataSet );
+        if( dsSingle )
+        {
+            WGridRegular3D::SPtr regGrid;
+            regGrid = boost::dynamic_pointer_cast< WGridRegular3D >( dsSingle->getGrid() );
+            WBoundingBox bbox = regGrid->getBoundingBox();
+            debugLog() << bbox.getMin()[0] << " " << bbox.getMin()[1] << " " << bbox.getMin()[1];
+        }
+    }
 }
