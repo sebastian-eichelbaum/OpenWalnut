@@ -126,6 +126,44 @@ private:
      * The transfer function as an input data set
      */
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_transferFunction;
+
+    WBoundingBox m_bbox; //!< Bounding box of the treated data set.
+    boost::shared_ptr< WDataSetScalar > m_scalarDataSet; //!< Input data as WDataSetScalar.
+    boost::shared_ptr< WDataSetSingle > m_transferFunctionData; //!< Transfer function as WDataSetSingle.
+
+    /**
+     * Get position where a given ray intersects a given axis-aligned bounding box.
+     * \param bbox The given bounding box
+     * \param origin Starting point of the ray
+     * \param dir Direction of the ray
+     *
+     * \result Intersection position. (0,0,0) if no intersection.
+     */
+    WPosition intersectBoundingBoxWithRay( const WBoundingBox& bbox, const WPosition& origin, const WVector3d& dir );
+
+    /**
+     * Importance function
+     * \param pos Location in space.
+     *
+     * \return Importance at \param pos
+     */
+    double importance( WPosition pos );
+
+    /**
+     * interaction Map of directness model. Here: DVR.
+     * \param pos Location in space.
+     *
+     * \return Result of mapping \param pos
+     */
+    WPosition interactionMapping( WPosition pos );
+
+    /**
+     * viusalization mapping of directness model. Here: Picking.
+     * \param pos Location in space.
+     *
+     * \return Result of mapping \param pos
+     */
+    WPosition visualizationMapping( WPosition pos );
 };
 
 #endif  // WMPICKINGDVREVALUATION_H

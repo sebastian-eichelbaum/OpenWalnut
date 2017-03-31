@@ -37,6 +37,7 @@ W_LOADABLE_MODULE( WMPickingDVREvaluation )
 WMPickingDVREvaluation::WMPickingDVREvaluation():
     WModule()
 {
+    m_bbox = WBoundingBox();
 }
 
 WMPickingDVREvaluation::~WMPickingDVREvaluation()
@@ -222,8 +223,63 @@ WPosition WMPickingDVREvaluation::intersectBoundingBoxWithRay( const WBoundingBo
         return result = intersectionPoint;
     }
 
-    assert( 0 && "This should not happen. Tell \"wiebel\" if it does." );
     return result;
+}
+
+double sampleTFOpacity( boost::shared_ptr< WDataSetSingle > transferFunctionData,
+                 boost::shared_ptr< WDataSetScalar > scalarData,
+                 double value )
+{
+    //Get Transferfunction Values
+    boost::shared_ptr< WValueSetBase > transferFunctionValues = transferFunctionData->getValueSet();
+
+    double max  = scalarData->getMax();
+    double min  = scalarData->getMin();
+
+    //Classification Variables
+    double dNominator = value - min;
+    double dDenominator = max - min;
+
+    if( dDenominator == 0.0 )
+    {
+        dDenominator = 0.0001;
+    }
+
+    //Classification: Convert Scalar to Color
+    double dScalarPercentage = dNominator / dDenominator;
+    int  iColorIdx   = dScalarPercentage * transferFunctionValues->size();
+
+    //color
+    //WMPickingColor<double> color;
+
+    //Get Color from transferfunction
+    // color.setRed( transferFunctionData->getSingleRawValue( iColorIdx * 4 + 0 ) );
+    // color.setGreen( transferFunctionData->getSingleRawValue( iColorIdx * 4 + 1 ) );
+    // color.setBlue( transferFunctionData->getSingleRawValue( iColorIdx * 4 + 2 ) );
+    // color.setAlpha( transferFunctionData->getSingleRawValue( iColorIdx * 4 + 3 ) );
+    // color.normalize();
+    return transferFunctionData->getSingleRawValue( iColorIdx * 4 + 3 );
+}
+
+
+double  WMPickingDVREvaluation::importance( WPosition pos )
+{
+    bool success = false;
+    double value  = m_scalarDataSet->interpolate( pos, &success );
+    assert( success && "Should not fail. Contact \"wiebel\" if it does." );
+
+    return sampleTFOpacity( m_transferFunctionData, m_scalarDataSet, value );
+}
+
+WPosition WMPickingDVREvaluation::interactionMapping( WPosition pos )
+{
+#warning interactionMapping
+    return pos;
+}
+
+WPosition WMPickingDVREvaluation::visualizationMapping( WPosition pos )
+{
+    return intersectBoundingBoxWithRay( m_bbox, pos, m_viewDirection->get( true ) );
 }
 
 void WMPickingDVREvaluation::moduleMain()
@@ -249,12 +305,37 @@ void WMPickingDVREvaluation::moduleMain()
         {
             WGridRegular3D::SPtr regGrid;
             regGrid = boost::dynamic_pointer_cast< WGridRegular3D >( dsSingle->getGrid() );
-            WBoundingBox bbox = regGrid->getBoundingBox();
-            debugLog() << "BBox min " << bbox.getMin()[0] << " " << bbox.getMin()[1] << " " << bbox.getMin()[2];
-            debugLog() << "BBox max " << bbox.getMax()[0] << " " << bbox.getMax()[1] << " " << bbox.getMax()[2];
+            m_bbox = regGrid->getBoundingBox();
+            debugLog() << "BBox min " << m_bbox.getMin()[0] << " " << m_bbox.getMin()[1] << " " << m_bbox.getMin()[2];
+            debugLog() << "BBox max " << m_bbox.getMax()[0] << " " << m_bbox.getMax()[1] << " " << m_bbox.getMax()[2];
 
-            WPosition origin( 0.2, 0.3, 0.4 );
-            intersectBoundingBoxWithRay( bbox, origin, m_viewDirection->get( true ) );
+            //Get Scalar Field
+            m_scalarDataSet = m_scalarData->getData();
+            if( !m_scalarDataSet )
+            {
+                errorLog() << "[Invalid scalar field]";
+                continue;
+            }
+
+            //Get Transferfunction Data
+            m_transferFunctionData = m_transferFunction->getData();
+            if( !m_transferFunctionData )
+            {
+                errorLog() << "[Invalid transfer function data]";
+                continue;
+            }
+
+            double deltaVI = 0;
+            for( int sampleId = 0; sampleId < m_sampleSteps->get( true ); ++sampleId )
+            {
+#warning generate samplePos
+                WPosition samplePos( 0.2, 0.3, 0.4 );
+
+                deltaVI +=
+                    importance( samplePos )
+                    * length( samplePos - interactionMapping( visualizationMapping ( samplePos ) ) );
+            }
+            infoLog() << "deltaVI = " << deltaVI;
         }
     }
 }
