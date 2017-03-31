@@ -79,7 +79,7 @@ void WMPickingDVREvaluation::properties()
                                                   m_propCondition );
     m_sampleSteps = m_properties->addProperty( "Samples - steps",
                       "Number of samples. Choose this appropriately for the settings used for the DVR itself.",
-                       256,
+                       101,
                        m_propCondition );
 
     WModule::properties();
@@ -249,15 +249,6 @@ double sampleTFOpacity( boost::shared_ptr< WDataSetSingle > transferFunctionData
     double dScalarPercentage = dNominator / dDenominator;
     int  iColorIdx   = dScalarPercentage * transferFunctionValues->size();
 
-    //color
-    //WMPickingColor<double> color;
-
-    //Get Color from transferfunction
-    // color.setRed( transferFunctionData->getSingleRawValue( iColorIdx * 4 + 0 ) );
-    // color.setGreen( transferFunctionData->getSingleRawValue( iColorIdx * 4 + 1 ) );
-    // color.setBlue( transferFunctionData->getSingleRawValue( iColorIdx * 4 + 2 ) );
-    // color.setAlpha( transferFunctionData->getSingleRawValue( iColorIdx * 4 + 3 ) );
-    // color.normalize();
     return transferFunctionData->getSingleRawValue( iColorIdx * 4 + 3 );
 }
 
@@ -265,7 +256,9 @@ double sampleTFOpacity( boost::shared_ptr< WDataSetSingle > transferFunctionData
 double  WMPickingDVREvaluation::importance( WPosition pos )
 {
     bool success = false;
-    double value  = m_scalarDataSet->interpolate( pos, &success );
+
+    // See assert in moduleMain
+    double value  = m_scalarDataSet->interpolate( pos * 0.999999, &success );
     assert( success && "Should not fail. Contact \"wiebel\" if it does." );
 
     return sampleTFOpacity( m_transferFunctionData, m_scalarDataSet, value );
@@ -305,6 +298,10 @@ void WMPickingDVREvaluation::moduleMain()
         {
             WGridRegular3D::SPtr regGrid;
             regGrid = boost::dynamic_pointer_cast< WGridRegular3D >( dsSingle->getGrid() );
+
+            assert( regGrid->getOrigin() == WPosition( 0.0, 0.0, 0.0 )
+                    && "Importance function above only if origin is at zero." );
+
             m_bbox = regGrid->getBoundingBox();
             debugLog() << "BBox min " << m_bbox.getMin()[0] << " " << m_bbox.getMin()[1] << " " << m_bbox.getMin()[2];
             debugLog() << "BBox max " << m_bbox.getMax()[0] << " " << m_bbox.getMax()[1] << " " << m_bbox.getMax()[2];
@@ -326,10 +323,12 @@ void WMPickingDVREvaluation::moduleMain()
             }
 
             double deltaVI = 0;
+
             for( int sampleId = 0; sampleId < m_sampleSteps->get( true ); ++sampleId )
             {
-#warning generate samplePos
-                WPosition samplePos( 0.2, 0.3, 0.4 );
+                size_t posId = sampleId * ( regGrid->size() / m_sampleSteps->get( true ) ) ;
+                WPosition samplePos = regGrid->getPosition( posId );
+                debugLog() << "SamplePos: " << regGrid->getPosition( posId );
 
                 deltaVI +=
                     importance( samplePos )
