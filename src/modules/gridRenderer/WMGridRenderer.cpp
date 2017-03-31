@@ -103,10 +103,10 @@ void WMGridRenderer::moduleMain()
         debugLog() << "Waiting for data ...";
         m_moduleState.wait();
 
-        boost::shared_ptr< WDataSet > dataSet = m_input->getData();
+        WDataSet::SPtr dataSet = m_input->getData();
         bool dataValid = ( dataSet != NULL );
-        bool dataChanged = ( dataSet != m_dataSet );
-        m_dataSet = dataSet;
+        bool dataChanged = ( dataSet != m_dataSetOld );
+        m_dataSetOld = dataSet;
 
         if( !dataValid )
         {

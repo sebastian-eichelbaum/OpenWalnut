@@ -132,7 +132,7 @@ private:
     /**
      * The currently handled data.
      */
-    WDataSet::SPtr m_dataSet;
+    WDataSet::SPtr m_dataSetOld;
 
     /**
      * Handles updates in properties.
