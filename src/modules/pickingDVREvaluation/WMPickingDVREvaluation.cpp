@@ -90,6 +90,152 @@ void WMPickingDVREvaluation::requirements()
     m_requirements.push_back( new WUIRequirement() );
 }
 
+
+/** \brief Intersects a ray with a plane and calculates the intersection point
+ * \param planePoint - point on plane
+ * \param v1 - first  vector of plane
+ * \param v2 - second vector of plane
+ * \param rayOrigin - point on line
+ * \param rayDir  - vector on line (i.e. slope)
+ **/
+inline bool intersectPlaneWithRay( WPosition* cutpoint,
+                                   WPosition const& planePoint,
+                                   WVector3d const& v1,
+                                   WVector3d const& v2,
+                                   WVector3d const& rayDir,
+                                   WPosition const& rayOrigin )
+{
+    WVector3d n = cross( v1, v2 );
+    n = normalize( n );              // normal vector of the plane
+
+    double const d = dot( n, planePoint );
+
+    static const double MY_EPSILON = 1e-9;
+    if( std::abs( dot( n, rayDir ) ) < MY_EPSILON)         // plane and line are parallel
+    {
+        *cutpoint = planePoint;   // otherwise it would be undefined
+        return false;
+    }
+
+    double const t = ( d - dot( n, rayOrigin ) ) / ( dot( n, rayDir ) );
+
+    *cutpoint = rayOrigin + t * rayDir;
+
+    return true;
+}
+
+bool insideBoundingBox( const WBoundingBox& bbox, const WPosition& pos )
+{
+    return pos[0] >= bbox.getMin()[0]
+        && pos[0] <= bbox.getMax()[0]
+        && pos[1] >= bbox.getMin()[1]
+        && pos[1] <= bbox.getMax()[1]
+        && pos[2] >= bbox.getMin()[2]
+        && pos[2] <= bbox.getMax()[2];
+}
+
+WPosition intersectBoundingBoxWithRay( const WBoundingBox& bbox, const WPosition& origin, const WVector3d& dir )
+{
+    WPosition result;
+    // FIXME: check order of plane vectors for outward normals
+
+    WPosition intersectionPoint;
+    bool hit;
+
+    // min X plane
+    hit = intersectPlaneWithRay( &intersectionPoint,
+                                 bbox.getMin(),
+                                 WVector3d( 0.0, 1.0, 0.0 ),
+                                 WVector3d( 0.0, 0.0, 1.0 ),
+                                 dir,
+                                 origin );
+    if( hit
+        && insideBoundingBox( bbox, intersectionPoint )
+        && dot( dir, intersectionPoint - origin ) > 0.0 )
+    {
+        std::cout << "HIT minX: " << hit << "   " << intersectionPoint << std::endl;
+        return result = intersectionPoint;
+    }
+
+    // min Y plane
+    hit = intersectPlaneWithRay( &intersectionPoint,
+                                 bbox.getMin(),
+                                 WVector3d( 1.0, 0.0, 0.0 ),
+                                 WVector3d( 0.0, 0.0, 1.0 ),
+                                 dir,
+                                 origin );
+    if( hit
+        && insideBoundingBox( bbox, intersectionPoint )
+        && dot( dir, intersectionPoint - origin ) > 0.0 )
+    {
+        std::cout << "HIT minY: " << hit << "   " << intersectionPoint << std::endl;
+        return result = intersectionPoint;
+    }
+
+    // min Z plane
+    hit = intersectPlaneWithRay( &intersectionPoint,
+                                 bbox.getMin(),
+                                 WVector3d( 0.0, 1.0, 0.0 ),
+                                 WVector3d( 1.0, 0.0, 0.0 ),
+                                 dir,
+                                 origin );
+    if( hit
+        && insideBoundingBox( bbox, intersectionPoint )
+        && dot( dir, intersectionPoint - origin ) > 0.0 )
+    {
+        std::cout << "HIT minZ: " << hit << "   " << intersectionPoint << std::endl;
+        return result = intersectionPoint;
+    }
+
+    // max X plane
+    hit = intersectPlaneWithRay( &intersectionPoint,
+                                 bbox.getMax(),
+                                 WVector3d( 0.0, 1.0, 0.0 ),
+                                 WVector3d( 0.0, 0.0, 1.0 ),
+                                 dir,
+                                 origin );
+    if( hit
+        && insideBoundingBox( bbox, intersectionPoint )
+        && dot( dir, intersectionPoint - origin ) > 0.0 )
+    {
+        std::cout << "HIT minX: " << hit << "   " << intersectionPoint << std::endl;
+        return result = intersectionPoint;
+    }
+
+    // max Y plane
+    hit = intersectPlaneWithRay( &intersectionPoint,
+                                 bbox.getMax(),
+                                 WVector3d( 1.0, 0.0, 0.0 ),
+                                 WVector3d( 0.0, 0.0, 1.0 ),
+                                 dir,
+                                 origin );
+    if( hit
+        && insideBoundingBox( bbox, intersectionPoint )
+        && dot( dir, intersectionPoint - origin ) > 0.0 )
+    {
+        std::cout << "HIT minY: " << hit << "   " << intersectionPoint << std::endl;
+        return result = intersectionPoint;
+    }
+
+    // max Z plane
+    hit = intersectPlaneWithRay( &intersectionPoint,
+                                 bbox.getMax(),
+                                 WVector3d( 0.0, 1.0, 0.0 ),
+                                 WVector3d( 1.0, 0.0, 0.0 ),
+                                 dir,
+                                 origin );
+    if( hit
+        && insideBoundingBox( bbox, intersectionPoint )
+        && dot( dir, intersectionPoint - origin ) > 0.0 )
+    {
+        std::cout << "HIT minZ: " << hit << "   " << intersectionPoint << std::endl;
+        return result = intersectionPoint;
+    }
+
+    assert( 0 && "This should not happen. Tell \"wiebel\" if it does." );
+    return result;
+}
+
 void WMPickingDVREvaluation::moduleMain()
 {
     // get notified about data changes
@@ -114,7 +260,11 @@ void WMPickingDVREvaluation::moduleMain()
             WGridRegular3D::SPtr regGrid;
             regGrid = boost::dynamic_pointer_cast< WGridRegular3D >( dsSingle->getGrid() );
             WBoundingBox bbox = regGrid->getBoundingBox();
-            debugLog() << bbox.getMin()[0] << " " << bbox.getMin()[1] << " " << bbox.getMin()[1];
+            debugLog() << "BBox min " << bbox.getMin()[0] << " " << bbox.getMin()[1] << " " << bbox.getMin()[2];
+            debugLog() << "BBox max " << bbox.getMax()[0] << " " << bbox.getMax()[1] << " " << bbox.getMax()[2];
+
+            WPosition origin( 0.2, 0.3, 0.4 );
+            intersectBoundingBoxWithRay( bbox, origin, m_viewDirection->get( true ) );
         }
     }
 }
