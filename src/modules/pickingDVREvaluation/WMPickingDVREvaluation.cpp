@@ -124,16 +124,6 @@ inline bool intersectPlaneWithRay( WPosition* cutpoint,
     return true;
 }
 
-bool insideBoundingBox( const WBoundingBox& bbox, const WPosition& pos )
-{
-    return pos[0] >= bbox.getMin()[0]
-        && pos[0] <= bbox.getMax()[0]
-        && pos[1] >= bbox.getMin()[1]
-        && pos[1] <= bbox.getMax()[1]
-        && pos[2] >= bbox.getMin()[2]
-        && pos[2] <= bbox.getMax()[2];
-}
-
 WPosition intersectBoundingBoxWithRay( const WBoundingBox& bbox, const WPosition& origin, const WVector3d& dir )
 {
     WPosition result;
@@ -150,7 +140,7 @@ WPosition intersectBoundingBoxWithRay( const WBoundingBox& bbox, const WPosition
                                  dir,
                                  origin );
     if( hit
-        && insideBoundingBox( bbox, intersectionPoint )
+        && bbox.contains( intersectionPoint )
         && dot( dir, intersectionPoint - origin ) > 0.0 )
     {
         std::cout << "HIT minX: " << hit << "   " << intersectionPoint << std::endl;
@@ -165,7 +155,7 @@ WPosition intersectBoundingBoxWithRay( const WBoundingBox& bbox, const WPosition
                                  dir,
                                  origin );
     if( hit
-        && insideBoundingBox( bbox, intersectionPoint )
+        && bbox.contains( intersectionPoint )
         && dot( dir, intersectionPoint - origin ) > 0.0 )
     {
         std::cout << "HIT minY: " << hit << "   " << intersectionPoint << std::endl;
@@ -180,7 +170,7 @@ WPosition intersectBoundingBoxWithRay( const WBoundingBox& bbox, const WPosition
                                  dir,
                                  origin );
     if( hit
-        && insideBoundingBox( bbox, intersectionPoint )
+        && bbox.contains( intersectionPoint )
         && dot( dir, intersectionPoint - origin ) > 0.0 )
     {
         std::cout << "HIT minZ: " << hit << "   " << intersectionPoint << std::endl;
@@ -195,7 +185,7 @@ WPosition intersectBoundingBoxWithRay( const WBoundingBox& bbox, const WPosition
                                  dir,
                                  origin );
     if( hit
-        && insideBoundingBox( bbox, intersectionPoint )
+        && bbox.contains( intersectionPoint )
         && dot( dir, intersectionPoint - origin ) > 0.0 )
     {
         std::cout << "HIT minX: " << hit << "   " << intersectionPoint << std::endl;
@@ -210,7 +200,7 @@ WPosition intersectBoundingBoxWithRay( const WBoundingBox& bbox, const WPosition
                                  dir,
                                  origin );
     if( hit
-        && insideBoundingBox( bbox, intersectionPoint )
+        && bbox.contains( intersectionPoint )
         && dot( dir, intersectionPoint - origin ) > 0.0 )
     {
         std::cout << "HIT minY: " << hit << "   " << intersectionPoint << std::endl;
@@ -225,7 +215,7 @@ WPosition intersectBoundingBoxWithRay( const WBoundingBox& bbox, const WPosition
                                  dir,
                                  origin );
     if( hit
-        && insideBoundingBox( bbox, intersectionPoint )
+        && bbox.contains( intersectionPoint )
         && dot( dir, intersectionPoint - origin ) > 0.0 )
     {
         std::cout << "HIT minZ: " << hit << "   " << intersectionPoint << std::endl;
