@@ -31,6 +31,14 @@
 
 #include "WMPickingDVREvaluation.h"
 
+//Module Defines
+#define WMPICKINGDVR_MAX_INT           "Picking - Maximum Intensity"
+#define WMPICKINGDVR_FIRST_HIT         "Picking - First Hit        "
+#define WMPICKINGDVR_THRESHOLD         "Picking - Threshold        "
+#define WMPICKINGDVR_MOST_CONTRIBUTING "Picking - Most Contributing"
+#define WMPICKINGDVR_HIGHEST_OPACITY   "Picking - Highest Opacity  "
+#define WMPICKINGDVR_WYSIWYP           "Picking - WYSIWYP          "
+
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMPickingDVREvaluation )
 
@@ -79,8 +87,28 @@ void WMPickingDVREvaluation::properties()
                                                   m_propCondition );
     m_sampleSteps = m_properties->addProperty( "Samples - steps",
                       "Number of samples. Choose this appropriately for the settings used for the DVR itself.",
+                       256,
+                       m_propCondition );
+    m_samplesEval = m_properties->addProperty( "Samples - Evaluation",
+                      "Number of samples. For evaluating Delta_vi.",
                        101,
                        m_propCondition );
+
+    m_pickingCriteriaList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    //m_pickingCriteriaList->addItem( WMPICKINGDVR_FIRST_HIT, WMPICKINGDVR_FIRST_HIT );
+    //m_pickingCriteriaList->addItem( WMPICKINGDVR_THRESHOLD, WMPICKINGDVR_THRESHOLD );
+    m_pickingCriteriaList->addItem( WMPICKINGDVR_MOST_CONTRIBUTING, WMPICKINGDVR_MOST_CONTRIBUTING );
+    m_pickingCriteriaList->addItem( WMPICKINGDVR_HIGHEST_OPACITY, WMPICKINGDVR_HIGHEST_OPACITY );
+    //m_pickingCriteriaList->addItem( WMPICKINGDVR_WYSIWYP, WMPICKINGDVR_WYSIWYP );
+    m_pickingCriteriaList->addItem( WMPICKINGDVR_MAX_INT, WMPICKINGDVR_MAX_INT );
+
+    m_pickingCriteriaCur = m_properties->addProperty( "Picking method",
+                                                      "Select a picking method",
+                                                      m_pickingCriteriaList->getSelectorFirst(),
+                                                      m_propCondition );
+
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_pickingCriteriaCur );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_pickingCriteriaCur );
 
     WModule::properties();
 }
@@ -144,7 +172,7 @@ WPosition WMPickingDVREvaluation::intersectBoundingBoxWithRay( const WBoundingBo
         && bbox.contains( intersectionPoint )
         && dot( dir, intersectionPoint - origin ) > 0.0 )
     {
-        debugLog() << "HIT minX: " << hit << "   " << intersectionPoint;
+        // debugLog() << "HIT minX: " << hit << "   " << intersectionPoint;
         return result = intersectionPoint;
     }
 
@@ -159,7 +187,7 @@ WPosition WMPickingDVREvaluation::intersectBoundingBoxWithRay( const WBoundingBo
         && bbox.contains( intersectionPoint )
         && dot( dir, intersectionPoint - origin ) > 0.0 )
     {
-        debugLog() << "HIT minY: " << hit << "   " << intersectionPoint;
+        // debugLog() << "HIT minY: " << hit << "   " << intersectionPoint;
         return result = intersectionPoint;
     }
 
@@ -174,7 +202,7 @@ WPosition WMPickingDVREvaluation::intersectBoundingBoxWithRay( const WBoundingBo
         && bbox.contains( intersectionPoint )
         && dot( dir, intersectionPoint - origin ) > 0.0 )
     {
-        debugLog() << "HIT minZ: " << hit << "   " << intersectionPoint;
+        // debugLog() << "HIT minZ: " << hit << "   " << intersectionPoint;
         return result = intersectionPoint;
     }
 
@@ -189,7 +217,7 @@ WPosition WMPickingDVREvaluation::intersectBoundingBoxWithRay( const WBoundingBo
         && bbox.contains( intersectionPoint )
         && dot( dir, intersectionPoint - origin ) > 0.0 )
     {
-        debugLog() << "HIT minX: " << hit << "   " << intersectionPoint;
+        // debugLog() << "HIT minX: " << hit << "   " << intersectionPoint;
         return result = intersectionPoint;
     }
 
@@ -204,7 +232,7 @@ WPosition WMPickingDVREvaluation::intersectBoundingBoxWithRay( const WBoundingBo
         && bbox.contains( intersectionPoint )
         && dot( dir, intersectionPoint - origin ) > 0.0 )
     {
-        debugLog() << "HIT minY: " << hit << "   " << intersectionPoint;
+        // debugLog() << "HIT minY: " << hit << "   " << intersectionPoint;
         return result = intersectionPoint;
     }
 
@@ -219,7 +247,7 @@ WPosition WMPickingDVREvaluation::intersectBoundingBoxWithRay( const WBoundingBo
         && bbox.contains( intersectionPoint )
         && dot( dir, intersectionPoint - origin ) > 0.0 )
     {
-        debugLog() << "HIT minZ: " << hit << "   " << intersectionPoint;
+        // debugLog() << "HIT minZ: " << hit << "   " << intersectionPoint;
         return result = intersectionPoint;
     }
 
@@ -257,22 +285,79 @@ double  WMPickingDVREvaluation::importance( WPosition pos )
 {
     bool success = false;
 
-    // See assert in moduleMain
-    double value  = m_scalarDataSet->interpolate( pos * 0.999999, &success );
+    double value  = m_scalarDataSet->interpolate( pos, &success );
     assert( success && "Should not fail. Contact \"wiebel\" if it does." );
 
     return sampleTFOpacity( m_transferFunctionData, m_scalarDataSet, value );
 }
 
-WPosition WMPickingDVREvaluation::interactionMapping( WPosition pos )
+WPosition WMPickingDVREvaluation::interactionMapping( WPosition startPos )
 {
-#warning interactionMapping
-    return pos;
+    WPosition endPos = intersectBoundingBoxWithRay( m_bbox, startPos, m_viewDirection->get( true ) );
+
+    //Get Picking Mode
+    WItemSelector selector  = m_pickingCriteriaCur->get( true );
+    std::string  strRenderMode = selector.at( 0 )->getName();
+
+#warning negative values;
+    double maxValue = 0.0;
+
+    WPosition resultPos;
+    double accAlpha  = 0.0;
+    double oldOpacity = 0.0;
+
+    WVector3d rayStep = ( 1.0 / m_sampleSteps->get( true ) ) * ( endPos - startPos );
+
+    for( int sampleId = 0; sampleId < m_sampleSteps->get( true ); ++sampleId )
+    {
+        WPosition samplePos = startPos + sampleId * rayStep *.9999;
+
+        bool success = false;
+        double scalar  = m_scalarDataSet->interpolate( samplePos, &success );
+        assert( success && "Should not fail. Contact \"wiebel\" if it does." );
+
+        if( strRenderMode == WMPICKINGDVR_MAX_INT )
+        {
+            if( scalar > maxValue )
+            {
+                maxValue = scalar;
+                resultPos = samplePos;
+            }
+        }
+        else if( strRenderMode == WMPICKINGDVR_HIGHEST_OPACITY )
+        {
+            double opacity = sampleTFOpacity( m_transferFunctionData, m_scalarDataSet, scalar );
+            if( opacity > maxValue )
+            {
+                maxValue = opacity;
+                resultPos = samplePos;
+            }
+        }
+        else if( strRenderMode == WMPICKINGDVR_MOST_CONTRIBUTING )
+        {
+            double opacity = sampleTFOpacity( m_transferFunctionData, m_scalarDataSet, scalar );
+            accAlpha  = opacity + ( accAlpha - opacity * accAlpha );
+            double contribution = accAlpha - oldOpacity;
+            if( contribution > maxValue )
+            {
+                maxValue = contribution;
+                resultPos = samplePos;
+            }
+            oldOpacity = accAlpha;
+        }
+        else
+        {
+            assert( false && "This should not happen. Contact \"wiebel\" if it does." );
+        }
+    }
+
+    return resultPos;
 }
 
 WPosition WMPickingDVREvaluation::visualizationMapping( WPosition pos )
 {
-    return intersectBoundingBoxWithRay( m_bbox, pos, m_viewDirection->get( true ) );
+    // -1 because we want to project towards the viewer.
+    return intersectBoundingBoxWithRay( m_bbox, pos, -1 * m_viewDirection->get( true ) ) * 0.9999 ;
 }
 
 void WMPickingDVREvaluation::moduleMain()
@@ -299,12 +384,9 @@ void WMPickingDVREvaluation::moduleMain()
             WGridRegular3D::SPtr regGrid;
             regGrid = boost::dynamic_pointer_cast< WGridRegular3D >( dsSingle->getGrid() );
 
-            assert( regGrid->getOrigin() == WPosition( 0.0, 0.0, 0.0 )
-                    && "Importance function above only if origin is at zero." );
-
             m_bbox = regGrid->getBoundingBox();
-            debugLog() << "BBox min " << m_bbox.getMin()[0] << " " << m_bbox.getMin()[1] << " " << m_bbox.getMin()[2];
-            debugLog() << "BBox max " << m_bbox.getMax()[0] << " " << m_bbox.getMax()[1] << " " << m_bbox.getMax()[2];
+            //debugLog() << "BBox min " << m_bbox.getMin()[0] << " " << m_bbox.getMin()[1] << " " << m_bbox.getMin()[2];
+            //debugLog() << "BBox max " << m_bbox.getMax()[0] << " " << m_bbox.getMax()[1] << " " << m_bbox.getMax()[2];
 
             //Get Scalar Field
             m_scalarDataSet = m_scalarData->getData();
@@ -324,17 +406,25 @@ void WMPickingDVREvaluation::moduleMain()
 
             double deltaVI = 0;
 
-            for( int sampleId = 0; sampleId < m_sampleSteps->get( true ); ++sampleId )
+            for( int sampleId = 0; sampleId < m_samplesEval->get( true ); ++sampleId )
             {
-                size_t posId = sampleId * ( regGrid->size() / m_sampleSteps->get( true ) ) ;
-                WPosition samplePos = regGrid->getPosition( posId );
-                debugLog() << "SamplePos: " << regGrid->getPosition( posId );
+                assert( regGrid->getOrigin() == WPosition( 0.0, 0.0, 0.0 )
+                        && "0.9999 in the following works only if origin is at zero." );
 
-                deltaVI +=
-                    importance( samplePos )
-                    * length( samplePos - interactionMapping( visualizationMapping ( samplePos ) ) );
+                size_t posId = sampleId * ( regGrid->size() / m_samplesEval->get( true ) ) ;
+                WPosition samplePos = regGrid->getPosition( posId ) * 0.999999;
+                //debugLog() << "SamplePos: " << samplePos;
+
+                double distance =  length( samplePos - interactionMapping( visualizationMapping ( samplePos ) ) );
+                deltaVI += importance( samplePos ) * distance;
+                //debugLog() << "Distance: " << distance;
             }
-            infoLog() << "deltaVI = " << deltaVI;
+
+            //Get picking mode string
+            WItemSelector selector  = m_pickingCriteriaCur->get( true );
+            std::string  strRenderMode = selector.at( 0 )->getName();
+
+            infoLog() << strRenderMode << " deltaVI = " << deltaVI;
         }
     }
 }

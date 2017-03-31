@@ -118,6 +118,21 @@ private:
     WPropInt m_sampleSteps;
 
     /**
+     * Number of samples for evaluating Delta_vi
+     */
+    WPropInt m_samplesEval;
+
+    /**
+     * Current picking method
+     */
+    WPropSelection m_pickingCriteriaCur;
+
+    /**
+     * Possible criteria
+     */
+    boost::shared_ptr< WItemSelection > m_pickingCriteriaList;
+
+    /**
      * Input connector for scalar data.
      */
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_scalarData;
@@ -151,15 +166,15 @@ private:
 
     /**
      * interaction Map of directness model. Here: DVR.
-     * \param pos Location in space.
+     * \param startPos Location in space where interaction takes place.
      *
      * \return Result of mapping \param pos
      */
-    WPosition interactionMapping( WPosition pos );
+    WPosition interactionMapping( WPosition startPos );
 
     /**
      * viusalization mapping of directness model. Here: Picking.
-     * \param pos Location in space.
+     * \param pos Location of data point in space.
      *
      * \return Result of mapping \param pos
      */
