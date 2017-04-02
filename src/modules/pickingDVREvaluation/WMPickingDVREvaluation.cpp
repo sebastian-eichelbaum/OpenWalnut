@@ -407,6 +407,9 @@ void WMPickingDVREvaluation::moduleMain()
 
             double deltaVI = 0;
 
+            boost::shared_ptr< WProgress > progress( new WProgress( "Sampling",  m_samplesEval->get( true ) ) );
+            m_progress->addSubProgress( progress );
+
             for( int sampleId = 0; sampleId < m_samplesEval->get( true ); ++sampleId )
             {
                 assert( regGrid->getOrigin() == WPosition( 0.0, 0.0, 0.0 )
@@ -419,9 +422,11 @@ void WMPickingDVREvaluation::moduleMain()
                 double distance =  length( samplePos - interactionMapping( visualizationMapping( samplePos ) ) );
                 deltaVI += importance( samplePos ) * distance;
                 //debugLog() << "Distance: " << distance;
+                ++*progress;
             }
 
-            //Get picking mode string
+            progress->finish();
+                //Get picking mode string
             WItemSelector selector  = m_pickingCriteriaCur->get( true );
             std::string  strRenderMode = selector.at( 0 )->getName();
 
