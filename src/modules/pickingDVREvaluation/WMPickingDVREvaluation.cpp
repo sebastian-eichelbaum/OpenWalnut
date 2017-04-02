@@ -435,6 +435,10 @@ void WMPickingDVREvaluation::moduleMain()
             }
 
             progress->finish();
+
+            // Normalization
+            deltaVI /= m_samplesEval->get( true );
+
                 //Get picking mode string
             WItemSelector selector  = m_pickingCriteriaCur->get( true );
             std::string  strRenderMode = selector.at( 0 )->getName();
