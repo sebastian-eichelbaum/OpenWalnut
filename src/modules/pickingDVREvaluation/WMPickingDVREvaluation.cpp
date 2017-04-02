@@ -357,7 +357,8 @@ WPosition WMPickingDVREvaluation::interactionMapping( WPosition startPos )
 WPosition WMPickingDVREvaluation::visualizationMapping( WPosition pos )
 {
     // -1 because we want to project towards the viewer.
-    return intersectBoundingBoxWithRay( m_bbox, pos, -1 * m_viewDirection->get( true ) ) * 0.9999 ;
+#warning 0.99999
+    return intersectBoundingBoxWithRay( m_bbox, pos, -1 * m_viewDirection->get( true ) ) * 0.9999;
 }
 
 void WMPickingDVREvaluation::moduleMain()
@@ -411,11 +412,11 @@ void WMPickingDVREvaluation::moduleMain()
                 assert( regGrid->getOrigin() == WPosition( 0.0, 0.0, 0.0 )
                         && "0.9999 in the following works only if origin is at zero." );
 
-                size_t posId = sampleId * ( regGrid->size() / m_samplesEval->get( true ) ) ;
+                size_t posId = sampleId * ( regGrid->size() / m_samplesEval->get( true ) );
                 WPosition samplePos = regGrid->getPosition( posId ) * 0.999999;
                 //debugLog() << "SamplePos: " << samplePos;
 
-                double distance =  length( samplePos - interactionMapping( visualizationMapping ( samplePos ) ) );
+                double distance =  length( samplePos - interactionMapping( visualizationMapping( samplePos ) ) );
                 deltaVI += importance( samplePos ) * distance;
                 //debugLog() << "Distance: " << distance;
             }

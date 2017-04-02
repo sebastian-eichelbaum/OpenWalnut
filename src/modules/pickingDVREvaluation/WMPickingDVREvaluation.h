@@ -168,7 +168,7 @@ private:
      * interaction Map of directness model. Here: DVR.
      * \param startPos Location in space where interaction takes place.
      *
-     * \return Result of mapping \param pos
+     * \return Result of mapping \param startPos
      */
     WPosition interactionMapping( WPosition startPos );
 
