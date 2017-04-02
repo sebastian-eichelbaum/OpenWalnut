@@ -299,8 +299,7 @@ WPosition WMPickingDVREvaluation::interactionMapping( WPosition startPos )
     WItemSelector selector  = m_pickingCriteriaCur->get( true );
     std::string  strRenderMode = selector.at( 0 )->getName();
 
-#warning negative values;
-    double maxValue = 0.0;
+    double maxValue = -wlimits::MAX_DOUBLE;
 
     WPosition resultPos;
     double accAlpha  = 0.0;
