@@ -283,10 +283,10 @@ double sampleTFOpacity( boost::shared_ptr< WDataSetSingle > transferFunctionData
 
 double  WMPickingDVREvaluation::importance( WPosition pos )
 {
-    bool success = false;
+    bool interpolationSuccess = false;
 
-    double value  = m_scalarDataSet->interpolate( pos, &success );
-    assert( success && "Should not fail. Contact \"wiebel\" if it does." );
+    double value  = m_scalarDataSet->interpolate( pos, &interpolationSuccess );
+    assert( interpolationSuccess && "Should not fail. Contact \"wiebel\" if it does." );
 
     return sampleTFOpacity( m_transferFunctionData, m_scalarDataSet, value );
 }
@@ -312,9 +312,9 @@ WPosition WMPickingDVREvaluation::interactionMapping( WPosition startPos )
     {
         WPosition samplePos = startPos + sampleId * rayStep *.9999;
 
-        bool success = false;
-        double scalar  = m_scalarDataSet->interpolate( samplePos, &success );
-        assert( success && "Should not fail. Contact \"wiebel\" if it does." );
+        bool interpolationSuccess = false;
+        double scalar  = m_scalarDataSet->interpolate( samplePos, &interpolationSuccess );
+        assert( interpolationSuccess && "Should not fail. Contact \"wiebel\" if it does." );
 
         if( strRenderMode == WMPICKINGDVR_MAX_INT )
         {
