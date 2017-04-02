@@ -95,7 +95,7 @@ void WMPickingDVREvaluation::properties()
                        m_propCondition );
 
     m_pickingCriteriaList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    //m_pickingCriteriaList->addItem( WMPICKINGDVR_FIRST_HIT, WMPICKINGDVR_FIRST_HIT );
+    m_pickingCriteriaList->addItem( WMPICKINGDVR_FIRST_HIT, WMPICKINGDVR_FIRST_HIT );
     //m_pickingCriteriaList->addItem( WMPICKINGDVR_THRESHOLD, WMPICKINGDVR_THRESHOLD );
     m_pickingCriteriaList->addItem( WMPICKINGDVR_MOST_CONTRIBUTING, WMPICKINGDVR_MOST_CONTRIBUTING );
     m_pickingCriteriaList->addItem( WMPICKINGDVR_HIGHEST_OPACITY, WMPICKINGDVR_HIGHEST_OPACITY );
@@ -322,6 +322,15 @@ WPosition WMPickingDVREvaluation::interactionMapping( WPosition startPos )
             {
                 maxValue = scalar;
                 resultPos = samplePos;
+            }
+        }
+        else if( strRenderMode == WMPICKINGDVR_FIRST_HIT )
+        {
+            double opacity = sampleTFOpacity( m_transferFunctionData, m_scalarDataSet, scalar );
+            if( opacity > 0.0 )
+            {
+                resultPos = samplePos;
+                break;
             }
         }
         else if( strRenderMode == WMPICKINGDVR_HIGHEST_OPACITY )
