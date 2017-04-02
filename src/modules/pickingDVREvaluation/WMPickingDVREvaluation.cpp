@@ -309,7 +309,8 @@ WPosition WMPickingDVREvaluation::interactionMapping( WPosition startPos )
 
     for( int sampleId = 0; sampleId < m_sampleSteps->get( true ); ++sampleId )
     {
-        WPosition samplePos = startPos + sampleId * rayStep *.9999;
+        // * 0.9999 to get samples inside grid
+        WPosition samplePos = startPos + sampleId * rayStep *.999999;
 
         bool interpolationSuccess = false;
         double scalar  = m_scalarDataSet->interpolate( samplePos, &interpolationSuccess );
@@ -365,8 +366,8 @@ WPosition WMPickingDVREvaluation::interactionMapping( WPosition startPos )
 WPosition WMPickingDVREvaluation::visualizationMapping( WPosition pos )
 {
     // -1 because we want to project towards the viewer.
-#warning 0.99999
-    return intersectBoundingBoxWithRay( m_bbox, pos, -1 * m_viewDirection->get( true ) ) * 0.9999;
+    // * 0.999999 to get samples inside grid also for border vertices
+    return intersectBoundingBoxWithRay( m_bbox, pos, -1 * m_viewDirection->get( true ) ) * 0.999999;
 }
 
 void WMPickingDVREvaluation::moduleMain()
@@ -421,9 +422,11 @@ void WMPickingDVREvaluation::moduleMain()
             for( int sampleId = 0; sampleId < m_samplesEval->get( true ); ++sampleId )
             {
                 assert( regGrid->getOrigin() == WPosition( 0.0, 0.0, 0.0 )
-                        && "0.9999 in the following works only if origin is at zero." );
+                        && "0.999999 in the following works only if origin is at zero." );
 
                 size_t posId = sampleId * ( regGrid->size() / m_samplesEval->get( true ) );
+
+                // * 0.9999 to get samples inside grid also for border vertices
                 WPosition samplePos = regGrid->getPosition( posId ) * 0.999999;
                 //debugLog() << "SamplePos: " << samplePos;
 
@@ -438,7 +441,7 @@ void WMPickingDVREvaluation::moduleMain()
             // Normalization
             deltaVI /= m_samplesEval->get( true );
 
-                //Get picking mode string
+            //Get picking mode string
             WItemSelector selector  = m_pickingCriteriaCur->get( true );
             std::string  strRenderMode = selector.at( 0 )->getName();
 
