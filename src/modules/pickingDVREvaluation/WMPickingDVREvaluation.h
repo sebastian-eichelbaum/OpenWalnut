@@ -133,6 +133,16 @@ private:
     boost::shared_ptr< WItemSelection > m_pickingCriteriaList;
 
     /**
+     * Current importance function
+     */
+    WPropSelection m_importanceFunctionCur;
+
+    /**
+     * Possible importance functions
+     */
+    boost::shared_ptr< WItemSelection > m_impFuncList;
+
+    /**
      * Input connector for scalar data.
      */
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_scalarData;

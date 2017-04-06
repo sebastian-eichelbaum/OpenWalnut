@@ -110,6 +110,17 @@ void WMPickingDVREvaluation::properties()
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_pickingCriteriaCur );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_pickingCriteriaCur );
 
+    m_impFuncList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_impFuncList->addItem( "Uniform (=1)" );
+    m_impFuncList->addItem( "Opacity" );
+    m_importanceFunctionCur = m_properties->addProperty( "Importance function",
+                                                      "Importance function.",
+                                                      m_impFuncList->getSelectorFirst(),
+                                                      m_propCondition );
+
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_importanceFunctionCur );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_importanceFunctionCur );
+
     WModule::properties();
 }
 
@@ -277,7 +288,8 @@ double sampleTFOpacity( boost::shared_ptr< WDataSetSingle > transferFunctionData
     double dScalarPercentage = dNominator / dDenominator;
     int  iColorIdx   = dScalarPercentage * transferFunctionValues->size();
 
-    return transferFunctionData->getSingleRawValue( iColorIdx * 4 + 3 );
+    const double normalizationFactor = 255.0; // Unsigned char
+    return transferFunctionData->getSingleRawValue( iColorIdx * 4 + 3 ) / normalizationFactor;
 }
 
 
@@ -288,7 +300,15 @@ double  WMPickingDVREvaluation::importance( WPosition pos )
     double value  = m_scalarDataSet->interpolate( pos, &interpolationSuccess );
     assert( interpolationSuccess && "Should not fail. Contact \"wiebel\" if it does." );
 
-    return sampleTFOpacity( m_transferFunctionData, m_scalarDataSet, value );
+    if( m_importanceFunctionCur->get( true ).getItemIndexOfSelected( 0 ) == 0 )
+    {
+        return 1.0;
+    }
+    else
+    {
+        double opacity = sampleTFOpacity( m_transferFunctionData, m_scalarDataSet, value );
+        return opacity;
+    }
 }
 
 WPosition WMPickingDVREvaluation::interactionMapping( WPosition startPos )
