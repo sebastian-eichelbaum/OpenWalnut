@@ -46,6 +46,13 @@
 #include "WMPickingDVR.h"
 #include "WMPickingDVRHelper.h"
 
+//Module Defines
+#define WMPICKINGDVR_MAX_INT   "Picking - Maximum Intensity"
+#define WMPICKINGDVR_FIRST_HIT   "Picking - First Hit"
+#define WMPICKINGDVR_THRESHOLD   "Picking - Threshold"
+#define WMPICKINGDVR_MOST_CONTRIBUTING "Picking - Most Contributing"
+#define WMPICKINGDVR_WYSIWYP   "Picking - WYSIWYP"
+
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMPickingDVR )
 
@@ -210,11 +217,11 @@ void WMPickingDVR::moduleMain()
             osg::Vec3f vecDir  = posEnd - posStart;
 
             //Picking Variable
-            double dMax   = 0.0;
+            double max   = 0.0;
             double dMin   = 0.0;
             double dAccAlpha  = 0.0;
             double dPickedAlpha = 0.0;
-            double dMaxValue  = 0.0;
+            double maxValue  = 0.0;
             bool bPickedPos  = false;
 
             //Calculate Step
@@ -242,9 +249,9 @@ void WMPickingDVR::moduleMain()
             //Get Transferfunction Values
             boost::shared_ptr< WValueSetBase > transferFunctionValues = transferFunctionData->getValueSet();
 
-            dMax  = scalarData->getMax();
+            max  = scalarData->getMax();
             dMin  = scalarData->getMin();
-            dMaxValue = dMin;
+            maxValue = dMin;
 
             std::vector<double> vecAlphaAcc;
 
@@ -265,7 +272,7 @@ void WMPickingDVR::moduleMain()
 
                 //Classification Variables
                 double dNominator = dValue - dMin;
-                double dDenominator = dMax - dMin;
+                double dDenominator = max - dMin;
 
                 if( dDenominator == 0.0 )
                 {
@@ -310,9 +317,9 @@ void WMPickingDVR::moduleMain()
                 if( strRenderMode == WMPICKINGDVR_MAX_INT )
                 {
                     //Maximum Intensity: maximal scalar value
-                    if( dValue > dMaxValue )
+                    if( dValue > maxValue )
                     {
-                        dMaxValue = dValue;
+                        maxValue = dValue;
                         posPicking = posSample;
                         bPickedPos = true;
                     }
@@ -341,6 +348,7 @@ void WMPickingDVR::moduleMain()
                 }
                 else if( strRenderMode == WMPICKINGDVR_MOST_CONTRIBUTING )
                 {
+#warning dCurrentAlpha could be wrong here
                     //Most Contributing: maximal alpha value
                     if( dCurrentAlpha > dPickedAlpha )
                     {
@@ -390,7 +398,7 @@ void WMPickingDVR::moduleMain()
 
                 //Calculate max difference
                 double dDiff  = 0.0;
-                double dMaxDiff = 0.0;
+                double maxDiff = 0.0;
                 int iSampleLo  = -1;
                 int iSampleUp  = -1;
 
@@ -401,9 +409,9 @@ void WMPickingDVR::moduleMain()
                     debugLog() << "Interval [" <<  vecIndicesLowerBounds[j] << "," << vecIndicesUpperBounds[j] << "] = " << dDiff;
 
                     //Is Max Diff
-                    if( dDiff > dMaxDiff )
+                    if( dDiff > maxDiff )
                     {
-                        dMaxDiff = dDiff;
+                        maxDiff = dDiff;
                         iSampleLo = vecIndicesLowerBounds[j];
                         iSampleUp = vecIndicesUpperBounds[j];
                     }

@@ -33,14 +33,6 @@
 //Debug Switch
 //#define WMPICKINGDVR_DEBUG
 
-//Module Defines
-#define WMPICKINGDVR_MAX_INT   "Picking - Maximum Intensity"
-#define WMPICKINGDVR_FIRST_HIT   "Picking - First Hit"
-#define WMPICKINGDVR_THRESHOLD   "Picking - Threshold"
-#define WMPICKINGDVR_MOST_CONTRIBUTING "Picking - Most Contributing"
-#define WMPICKINGDVR_WYSIWYP   "Picking - WYSIWYP"
-
-
 // forward declarations to reduce compile dependencies
 template< class T > class WModuleInputData;
 class WDataSetScalar;
@@ -198,7 +190,7 @@ private:
     WPropSelection m_pickingCriteriaCur;
 
     /**
-     * Possible Criterion
+     * Possible criteria
      */
     boost::shared_ptr< WItemSelection > m_pickingCriteriaList;
 
