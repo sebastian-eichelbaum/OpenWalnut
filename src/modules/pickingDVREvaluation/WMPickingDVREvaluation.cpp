@@ -94,32 +94,36 @@ void WMPickingDVREvaluation::properties()
                        101,
                        m_propCondition );
 
-    m_pickingCriteriaList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_pickingCriteriaList->addItem( WMPICKINGDVR_FIRST_HIT, WMPICKINGDVR_FIRST_HIT );
-    //m_pickingCriteriaList->addItem( WMPICKINGDVR_THRESHOLD, WMPICKINGDVR_THRESHOLD );
-    m_pickingCriteriaList->addItem( WMPICKINGDVR_MOST_CONTRIBUTING, WMPICKINGDVR_MOST_CONTRIBUTING );
-    m_pickingCriteriaList->addItem( WMPICKINGDVR_HIGHEST_OPACITY, WMPICKINGDVR_HIGHEST_OPACITY );
-    //m_pickingCriteriaList->addItem( WMPICKINGDVR_WYSIWYP, WMPICKINGDVR_WYSIWYP );
-    m_pickingCriteriaList->addItem( WMPICKINGDVR_MAX_INT, WMPICKINGDVR_MAX_INT );
+    {
+        m_pickingCriteriaList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+        m_pickingCriteriaList->addItem( WMPICKINGDVR_FIRST_HIT, WMPICKINGDVR_FIRST_HIT );
+        //m_pickingCriteriaList->addItem( WMPICKINGDVR_THRESHOLD, WMPICKINGDVR_THRESHOLD );
+        m_pickingCriteriaList->addItem( WMPICKINGDVR_MOST_CONTRIBUTING, WMPICKINGDVR_MOST_CONTRIBUTING );
+        m_pickingCriteriaList->addItem( WMPICKINGDVR_HIGHEST_OPACITY, WMPICKINGDVR_HIGHEST_OPACITY );
+        //m_pickingCriteriaList->addItem( WMPICKINGDVR_WYSIWYP, WMPICKINGDVR_WYSIWYP );
+        m_pickingCriteriaList->addItem( WMPICKINGDVR_MAX_INT, WMPICKINGDVR_MAX_INT );
 
-    m_pickingCriteriaCur = m_properties->addProperty( "Picking method",
-                                                      "Select a picking method",
-                                                      m_pickingCriteriaList->getSelectorFirst(),
-                                                      m_propCondition );
+        m_pickingCriteriaCur = m_properties->addProperty( "Picking method",
+                                                          "Select a picking method",
+                                                          m_pickingCriteriaList->getSelectorFirst(),
+                                                          m_propCondition );
 
-    WPropertyHelper::PC_SELECTONLYONE::addTo( m_pickingCriteriaCur );
-    WPropertyHelper::PC_NOTEMPTY::addTo( m_pickingCriteriaCur );
+        WPropertyHelper::PC_SELECTONLYONE::addTo( m_pickingCriteriaCur );
+        WPropertyHelper::PC_NOTEMPTY::addTo( m_pickingCriteriaCur );
+    }
 
-    m_impFuncList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_impFuncList->addItem( "Uniform (=1)" );
-    m_impFuncList->addItem( "Opacity" );
-    m_importanceFunctionCur = m_properties->addProperty( "Importance function",
-                                                      "Importance function.",
-                                                      m_impFuncList->getSelectorFirst(),
-                                                      m_propCondition );
+    {
+        m_impFuncList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+        m_impFuncList->addItem( "Uniform (=1)" );
+        m_impFuncList->addItem( "Opacity ([0,1])" );
+        m_importanceFunctionCur = m_properties->addProperty( "Importance function",
+                                                             "Importance function.",
+                                                             m_impFuncList->getSelectorFirst(),
+                                                             m_propCondition );
 
-    WPropertyHelper::PC_SELECTONLYONE::addTo( m_importanceFunctionCur );
-    WPropertyHelper::PC_NOTEMPTY::addTo( m_importanceFunctionCur );
+        WPropertyHelper::PC_SELECTONLYONE::addTo( m_importanceFunctionCur );
+        WPropertyHelper::PC_NOTEMPTY::addTo( m_importanceFunctionCur );
+    }
 
     WModule::properties();
 }
@@ -276,17 +280,17 @@ double sampleTFOpacity( boost::shared_ptr< WDataSetSingle > transferFunctionData
     double min  = scalarData->getMin();
 
     //Classification Variables
-    double dNominator = value - min;
-    double dDenominator = max - min;
+    double nominator = value - min;
+    double denominator = max - min;
 
-    if( dDenominator == 0.0 )
+    if( denominator == 0.0 )
     {
-        dDenominator = 0.0001;
+        denominator = 0.0001;
     }
 
     //Classification: Convert Scalar to Color
-    double dScalarPercentage = dNominator / dDenominator;
-    int  iColorIdx   = dScalarPercentage * transferFunctionValues->size();
+    double scalarPercentage = nominator / denominator;
+    int  iColorIdx   = scalarPercentage * transferFunctionValues->size();
 
     const double normalizationFactor = 255.0; // Unsigned char
     return transferFunctionData->getSingleRawValue( iColorIdx * 4 + 3 ) / normalizationFactor;
@@ -405,67 +409,75 @@ void WMPickingDVREvaluation::moduleMain()
     {
         debugLog() << "Waiting ...";
         m_moduleState.wait();
+        debugLog() << "Processing ...";
 
         WDataSet::SPtr dataSet = m_scalarData->getData();
-        // is this a DS with a regular grid?
+
         WDataSetSingle::SPtr dsSingle = boost::dynamic_pointer_cast< WDataSetSingle >( dataSet );
-        if( dsSingle )
+        if( !dsSingle )
         {
-            WGridRegular3D::SPtr regGrid;
-            regGrid = boost::dynamic_pointer_cast< WGridRegular3D >( dsSingle->getGrid() );
-
-            m_bbox = regGrid->getBoundingBox();
-            //debugLog() << "BBox min " << m_bbox.getMin()[0] << " " << m_bbox.getMin()[1] << " " << m_bbox.getMin()[2];
-            //debugLog() << "BBox max " << m_bbox.getMax()[0] << " " << m_bbox.getMax()[1] << " " << m_bbox.getMax()[2];
-
-            //Get Scalar Field
-            m_scalarDataSet = m_scalarData->getData();
-            if( !m_scalarDataSet )
-            {
-                errorLog() << "[Invalid scalar field]";
-                continue;
-            }
-
-            //Get Transferfunction Data
-            m_transferFunctionData = m_transferFunction->getData();
-            if( !m_transferFunctionData )
-            {
-                errorLog() << "[Invalid transfer function data]";
-                continue;
-            }
-
-            double deltaVI = 0;
-
-            boost::shared_ptr< WProgress > progress( new WProgress( "Sampling",  m_samplesEval->get( true ) ) );
-            m_progress->addSubProgress( progress );
-
-            for( int sampleId = 0; sampleId < m_samplesEval->get( true ); ++sampleId )
-            {
-                assert( regGrid->getOrigin() == WPosition( 0.0, 0.0, 0.0 )
-                        && "0.999999 in the following works only if origin is at zero." );
-
-                size_t posId = sampleId * ( regGrid->size() / m_samplesEval->get( true ) );
-
-                // * 0.9999 to get samples inside grid also for border vertices
-                WPosition samplePos = regGrid->getPosition( posId ) * 0.999999;
-                //debugLog() << "SamplePos: " << samplePos;
-
-                double distance =  length( samplePos - interactionMapping( visualizationMapping( samplePos ) ) );
-                deltaVI += importance( samplePos ) * distance;
-                //debugLog() << "Distance: " << distance;
-                ++*progress;
-            }
-
-            progress->finish();
-
-            // Normalization
-            deltaVI /= m_samplesEval->get( true );
-
-            //Get picking mode string
-            WItemSelector selector  = m_pickingCriteriaCur->get( true );
-            std::string  strRenderMode = selector.at( 0 )->getName();
-
-            infoLog() << strRenderMode << " deltaVI = " << deltaVI;
+            errorLog() << "[Invalid data set]";
+            continue;
         }
+
+        //Get Scalar Field
+        m_scalarDataSet = m_scalarData->getData();
+        if( !m_scalarDataSet )
+        {
+            errorLog() << "[Invalid scalar field]";
+            continue;
+        }
+
+        //Get Transferfunction Data
+        m_transferFunctionData = m_transferFunction->getData();
+        if( !m_transferFunctionData )
+        {
+            errorLog() << "[Invalid transfer function data]";
+            continue;
+        }
+
+        // Is this a data set with a regular grid?
+        WGridRegular3D::SPtr regGrid;
+        regGrid = boost::dynamic_pointer_cast< WGridRegular3D >( dsSingle->getGrid() );
+        if( !regGrid )
+        {
+            errorLog() << "[Invalid data set]";
+            continue;
+        }
+
+        m_bbox = regGrid->getBoundingBox();
+
+        double deltaVI = 0;
+
+        boost::shared_ptr< WProgress > progress( new WProgress( "Sampling",  m_samplesEval->get( true ) ) );
+        m_progress->addSubProgress( progress );
+
+        for( int sampleId = 0; sampleId < m_samplesEval->get( true ); ++sampleId )
+        {
+            assert( regGrid->getOrigin() == WPosition( 0.0, 0.0, 0.0 )
+                    && "0.999999 in the following works only if origin is at zero." );
+
+            size_t posId = sampleId * ( regGrid->size() / m_samplesEval->get( true ) );
+
+            // * 0.9999 to get samples inside grid also for border vertices
+            WPosition samplePos = regGrid->getPosition( posId ) * 0.999999;
+            //debugLog() << "SamplePos: " << samplePos;
+
+            double distance =  length( samplePos - interactionMapping( visualizationMapping( samplePos ) ) );
+            deltaVI += importance( samplePos ) * distance;
+            //debugLog() << "Distance: " << distance;
+            ++*progress;
+        }
+
+        progress->finish();
+
+        // Normalization
+        deltaVI /= m_samplesEval->get( true );
+
+        //Get picking mode string
+        WItemSelector selector  = m_pickingCriteriaCur->get( true );
+        std::string  strRenderMode = selector.at( 0 )->getName();
+
+        infoLog() << strRenderMode << " deltaVI = " << deltaVI;
     }
 }
