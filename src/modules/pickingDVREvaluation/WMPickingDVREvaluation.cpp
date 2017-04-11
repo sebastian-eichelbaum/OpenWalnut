@@ -32,12 +32,12 @@
 #include "WMPickingDVREvaluation.h"
 
 //Module Defines
-#define WMPICKINGDVR_MAX_INT           "Picking - Maximum Intensity"
-#define WMPICKINGDVR_FIRST_HIT         "Picking - First Hit        "
-#define WMPICKINGDVR_THRESHOLD         "Picking - Threshold        "
-#define WMPICKINGDVR_MOST_CONTRIBUTING "Picking - Most Contributing"
-#define WMPICKINGDVR_HIGHEST_OPACITY   "Picking - Highest Opacity  "
-#define WMPICKINGDVR_WYSIWYP           "Picking - WYSIWYP          "
+#define WMPICKINGDVR_MAX_INT           "Maximum intensity"
+#define WMPICKINGDVR_FIRST_HIT         "First hit        "
+#define WMPICKINGDVR_THRESHOLD         "Opacity threshold        "
+#define WMPICKINGDVR_MOST_CONTRIBUTING "Most contributing"
+#define WMPICKINGDVR_HIGHEST_OPACITY   "Highest opacity  "
+#define WMPICKINGDVR_WYSIWYP           "WYSIWYP          "
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMPickingDVREvaluation )
@@ -89,7 +89,7 @@ void WMPickingDVREvaluation::properties()
                       "Number of samples. Choose this appropriately for the settings used for the DVR itself.",
                        256,
                        m_propCondition );
-    m_samplesEval = m_properties->addProperty( "Samples - Evaluation",
+    m_samplesEval = m_properties->addProperty( "Samples - evaluation",
                       "Number of samples. For evaluating Delta_vi.",
                        101,
                        m_propCondition );
@@ -321,7 +321,7 @@ WPosition WMPickingDVREvaluation::interactionMapping( WPosition startPos )
 
     //Get Picking Mode
     WItemSelector selector  = m_pickingCriteriaCur->get( true );
-    std::string  strRenderMode = selector.at( 0 )->getName();
+    std::string  pickModeName = selector.at( 0 )->getName();
 
     double maxValue = -wlimits::MAX_DOUBLE;
 
@@ -340,7 +340,7 @@ WPosition WMPickingDVREvaluation::interactionMapping( WPosition startPos )
         double scalar  = m_scalarDataSet->interpolate( samplePos, &interpolationSuccess );
         assert( interpolationSuccess && "Should not fail. Contact \"wiebel\" if it does." );
 
-        if( strRenderMode == WMPICKINGDVR_MAX_INT )
+        if( pickModeName == WMPICKINGDVR_MAX_INT )
         {
             if( scalar > maxValue )
             {
@@ -348,7 +348,7 @@ WPosition WMPickingDVREvaluation::interactionMapping( WPosition startPos )
                 resultPos = samplePos;
             }
         }
-        else if( strRenderMode == WMPICKINGDVR_FIRST_HIT )
+        else if( pickModeName == WMPICKINGDVR_FIRST_HIT )
         {
             double opacity = sampleTFOpacity( m_transferFunctionData, m_scalarDataSet, scalar );
             if( opacity > 0.0 )
@@ -357,7 +357,7 @@ WPosition WMPickingDVREvaluation::interactionMapping( WPosition startPos )
                 break;
             }
         }
-        else if( strRenderMode == WMPICKINGDVR_HIGHEST_OPACITY )
+        else if( pickModeName == WMPICKINGDVR_HIGHEST_OPACITY )
         {
             double opacity = sampleTFOpacity( m_transferFunctionData, m_scalarDataSet, scalar );
             if( opacity > maxValue )
@@ -366,7 +366,7 @@ WPosition WMPickingDVREvaluation::interactionMapping( WPosition startPos )
                 resultPos = samplePos;
             }
         }
-        else if( strRenderMode == WMPICKINGDVR_MOST_CONTRIBUTING )
+        else if( pickModeName == WMPICKINGDVR_MOST_CONTRIBUTING )
         {
             double opacity = sampleTFOpacity( m_transferFunctionData, m_scalarDataSet, scalar );
             accAlpha  = opacity + ( accAlpha - opacity * accAlpha );
@@ -420,7 +420,7 @@ void WMPickingDVREvaluation::moduleMain()
             continue;
         }
 
-        //Get Scalar Field
+        //Get scalar field
         m_scalarDataSet = m_scalarData->getData();
         if( !m_scalarDataSet )
         {
@@ -428,7 +428,7 @@ void WMPickingDVREvaluation::moduleMain()
             continue;
         }
 
-        //Get Transferfunction Data
+        //Get transfer function data
         m_transferFunctionData = m_transferFunction->getData();
         if( !m_transferFunctionData )
         {
