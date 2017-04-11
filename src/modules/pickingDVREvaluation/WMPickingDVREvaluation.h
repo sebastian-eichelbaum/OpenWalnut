@@ -177,18 +177,20 @@ private:
     /**
      * interaction Map of directness model. Here: DVR.
      * \param startPos Location in space where interaction takes place.
+     * \param viewDir Viewing direction, i.e. direction interaction.
      *
      * \return Result of mapping \param startPos
      */
-    WPosition interactionMapping( WPosition startPos );
+    WPosition interactionMapping( const WPosition& startPos, const WVector3d& viewDir );
 
     /**
      * viusalization mapping of directness model. Here: Picking.
      * \param pos Location of data point in space.
+     * \param viewDir Viewing direction, i.e. direction of projection.
      *
      * \return Result of mapping \param pos
      */
-    WPosition visualizationMapping( WPosition pos );
+    WPosition visualizationMapping( const WPosition& pos, const WVector3d& viewDir );
 };
 
 #endif  // WMPICKINGDVREVALUATION_H

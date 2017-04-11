@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <vector>
 
 #include "core/dataHandler/WDataSetScalar.h"
 #include "core/graphicsEngine/WGERequirement.h"
@@ -81,8 +82,9 @@ void WMPickingDVREvaluation::connectors()
 void WMPickingDVREvaluation::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
-    m_viewDirection =  m_properties->addProperty( "Viewing Direction",
-                                                  "Viewing and thus projection direction for DVR.",
+    m_viewDirection =  m_properties->addProperty( "Viewing direction",
+                                                  "Viewing and thus projection direction for DVR. "
+                                                  "If [0,0,0], a multi-directional sampling be performed.",
                                                   WVector3d( 0.0, 0.0, -1.0 ),
                                                   m_propCondition );
     m_sampleSteps = m_properties->addProperty( "Samples - steps",
@@ -315,9 +317,9 @@ double  WMPickingDVREvaluation::importance( WPosition pos )
     }
 }
 
-WPosition WMPickingDVREvaluation::interactionMapping( WPosition startPos )
+WPosition WMPickingDVREvaluation::interactionMapping( const WPosition& startPos, const WVector3d& viewDir )
 {
-    WPosition endPos = intersectBoundingBoxWithRay( m_bbox, startPos, m_viewDirection->get( true ) );
+    WPosition endPos = intersectBoundingBoxWithRay( m_bbox, startPos, viewDir );
 
     //Get Picking Mode
     WItemSelector selector  = m_pickingCriteriaCur->get( true );
@@ -387,11 +389,11 @@ WPosition WMPickingDVREvaluation::interactionMapping( WPosition startPos )
     return resultPos;
 }
 
-WPosition WMPickingDVREvaluation::visualizationMapping( WPosition pos )
+WPosition WMPickingDVREvaluation::visualizationMapping( const WPosition& pos, const WVector3d& viewDir )
 {
     // -1 because we want to project towards the viewer.
     // * 0.999999 to get samples inside grid also for border vertices
-    return intersectBoundingBoxWithRay( m_bbox, pos, -1 * m_viewDirection->get( true ) ) * 0.999999;
+    return intersectBoundingBoxWithRay( m_bbox, pos, -1 * viewDir ) * 0.999999;
 }
 
 void WMPickingDVREvaluation::moduleMain()
@@ -449,35 +451,66 @@ void WMPickingDVREvaluation::moduleMain()
 
         double deltaVI = 0;
 
-        boost::shared_ptr< WProgress > progress( new WProgress( "Sampling",  m_samplesEval->get( true ) ) );
+        std::vector< WVector3d > viewingDirections;
+        if( m_viewDirection->get( true ) == WVector3d() )
+        {
+            debugLog() << "Found [0,0,0] viewing direction -> performing multi-directional sampling.";
+            for( int i_ID = -1; i_ID <= 1; ++i_ID )
+            {
+                for( int j_ID = -1; j_ID <= 1; ++j_ID )
+                {
+                    for( int k_ID = -1; k_ID <= 1; ++k_ID )
+                    {
+                        const WVector3d dir( i_ID, j_ID, k_ID );
+                        if( dir != WVector3d() )
+                        {
+                            viewingDirections.push_back( normalize( dir ) );
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            viewingDirections.push_back( m_viewDirection->get( true ) );
+        }
+
+        boost::shared_ptr< WProgress > progress( new WProgress( "Sampling",  m_samplesEval->get( true ) * viewingDirections.size() ) );
         m_progress->addSubProgress( progress );
 
-        for( int sampleId = 0; sampleId < m_samplesEval->get( true ); ++sampleId )
+
+        for( size_t viewingDirId = 0; viewingDirId < viewingDirections.size(); ++viewingDirId )
         {
-            assert( regGrid->getOrigin() == WPosition( 0.0, 0.0, 0.0 )
-                    && "0.999999 in the following works only if origin is at zero." );
+            debugLog() << "Sampling in direction " << viewingDirections[viewingDirId];
 
-            size_t posId = sampleId * ( regGrid->size() / m_samplesEval->get( true ) );
+            for( int sampleId = 0; sampleId < m_samplesEval->get( true ); ++sampleId )
+            {
+                assert( regGrid->getOrigin() == WPosition( 0.0, 0.0, 0.0 )
+                        && "0.999999 in the following works only if origin is at zero." );
 
-            // * 0.9999 to get samples inside grid also for border vertices
-            WPosition samplePos = regGrid->getPosition( posId ) * 0.999999;
-            //debugLog() << "SamplePos: " << samplePos;
+                size_t posId = sampleId * ( regGrid->size() / m_samplesEval->get( true ) );
 
-            double distance =  length( samplePos - interactionMapping( visualizationMapping( samplePos ) ) );
-            deltaVI += importance( samplePos ) * distance;
-            //debugLog() << "Distance: " << distance;
-            ++*progress;
+                // * 0.9999 to get samples inside grid also for border vertices
+                WPosition samplePos = regGrid->getPosition( posId ) * 0.999999;
+                //debugLog() << "SamplePos: " << samplePos;
+
+                WVector3d vd = viewingDirections[viewingDirId];
+                double distance =  length( samplePos - interactionMapping( visualizationMapping( samplePos, vd ), vd ) );
+                deltaVI += importance( samplePos ) * distance;
+                //debugLog() << "Distance: " << distance;
+                ++*progress;
+            }
+        }
+
+        // Normalization
+        deltaVI /= m_samplesEval->get( true ) * viewingDirections.size();
+
+        {
+            WItemSelector selector  = m_pickingCriteriaCur->get( true );
+            std::string  pickModeName = selector.at( 0 )->getName();
+            infoLog() << pickModeName << " deltaVI = " << deltaVI;
         }
 
         progress->finish();
-
-        // Normalization
-        deltaVI /= m_samplesEval->get( true );
-
-        //Get picking mode string
-        WItemSelector selector  = m_pickingCriteriaCur->get( true );
-        std::string  strRenderMode = selector.at( 0 )->getName();
-
-        infoLog() << strRenderMode << " deltaVI = " << deltaVI;
     }
 }
