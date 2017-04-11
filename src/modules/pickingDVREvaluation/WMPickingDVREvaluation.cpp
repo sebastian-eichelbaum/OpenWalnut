@@ -33,7 +33,7 @@
 #include "WMPickingDVREvaluation.h"
 
 //Module Defines
-#define WMPICKINGDVR_MAX_INT           "Maximum intensity"
+#define WMPICKINGDVR_MAX_INTENS        "Maximum intensity"
 #define WMPICKINGDVR_FIRST_HIT         "First hit        "
 #define WMPICKINGDVR_THRESHOLD         "Opacity threshold        "
 #define WMPICKINGDVR_MOST_CONTRIBUTING "Most contributing"
@@ -84,7 +84,7 @@ void WMPickingDVREvaluation::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
     m_viewDirection =  m_properties->addProperty( "Viewing direction",
                                                   "Viewing and thus projection direction for DVR. "
-                                                  "If [0,0,0], a multi-directional sampling be performed.",
+                                                  "If [0,0,0], a multi-directional sampling will be performed.",
                                                   WVector3d( 0.0, 0.0, -1.0 ),
                                                   m_propCondition );
     m_sampleSteps = m_properties->addProperty( "Samples - steps",
@@ -103,7 +103,7 @@ void WMPickingDVREvaluation::properties()
         m_pickingCriteriaList->addItem( WMPICKINGDVR_MOST_CONTRIBUTING, WMPICKINGDVR_MOST_CONTRIBUTING );
         m_pickingCriteriaList->addItem( WMPICKINGDVR_HIGHEST_OPACITY, WMPICKINGDVR_HIGHEST_OPACITY );
         //m_pickingCriteriaList->addItem( WMPICKINGDVR_WYSIWYP, WMPICKINGDVR_WYSIWYP );
-        m_pickingCriteriaList->addItem( WMPICKINGDVR_MAX_INT, WMPICKINGDVR_MAX_INT );
+        m_pickingCriteriaList->addItem( WMPICKINGDVR_MAX_INTENS, WMPICKINGDVR_MAX_INTENS );
 
         m_pickingCriteriaCur = m_properties->addProperty( "Picking method",
                                                           "Select a picking method",
@@ -118,6 +118,7 @@ void WMPickingDVREvaluation::properties()
         m_impFuncList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
         m_impFuncList->addItem( "Uniform (=1)" );
         m_impFuncList->addItem( "Opacity ([0,1])" );
+        m_impFuncList->addItem( "Intensity" );
         m_importanceFunctionCur = m_properties->addProperty( "Importance function",
                                                              "Importance function.",
                                                              m_impFuncList->getSelectorFirst(),
@@ -310,10 +311,19 @@ double  WMPickingDVREvaluation::importance( WPosition pos )
     {
         return 1.0;
     }
-    else
+    else if( m_importanceFunctionCur->get( true ).getItemIndexOfSelected( 0 ) == 1 )
     {
         double opacity = sampleTFOpacity( m_transferFunctionData, m_scalarDataSet, value );
         return opacity;
+    }
+    else if( m_importanceFunctionCur->get( true ).getItemIndexOfSelected( 0 ) == 2 )
+    {
+        return value;
+    }
+    else
+    {
+        assert( false && "Should not fail. Internal module error or bug if it does." );
+        return 0;
     }
 }
 
@@ -342,7 +352,7 @@ WPosition WMPickingDVREvaluation::interactionMapping( const WPosition& startPos,
         double scalar  = m_scalarDataSet->interpolate( samplePos, &interpolationSuccess );
         assert( interpolationSuccess && "Should not fail. Contact \"wiebel\" if it does." );
 
-        if( pickModeName == WMPICKINGDVR_MAX_INT )
+        if( pickModeName == WMPICKINGDVR_MAX_INTENS )
         {
             if( scalar > maxValue )
             {
