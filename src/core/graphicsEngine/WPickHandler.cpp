@@ -262,11 +262,11 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
             {
                 ++hitr;
             }
-            // now we skip stuff with non-expressive names often used
-            else if( nodeName == "Geometry" )
-            {
-                ++hitr;
-            }
+            // // now we skip stuff with non-expressive names often used
+            // else if( nodeName == "Geometry" )
+            // {
+            //     ++hitr;
+            // }
             // if ctrl is pressed we skip the first thing that gets hit by the pick
             else if( ignoreFirst )
             {
