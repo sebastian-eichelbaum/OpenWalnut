@@ -36,6 +36,7 @@
 #include "core/dataHandler/WDataSetPoints.h"
 #include "core/graphicsEngine/WTriangleMesh.h"
 
+#include "WManipulatorNormalize.h"
 #include "WManipulatorTranslation.h"
 #include "WManipulatorRotation.h"
 #include "WManipulatorScaling.h"
@@ -52,6 +53,7 @@ WMDatasetManipulator::WMDatasetManipulator():
     m_strategy.addStrategy( boost::shared_ptr< WObjectNDIP< WManipulatorInterface > >( new WManipulatorTranslation() ) );
     m_strategy.addStrategy( boost::shared_ptr< WObjectNDIP< WManipulatorInterface > >( new WManipulatorRotation() ) );
     m_strategy.addStrategy( boost::shared_ptr< WObjectNDIP< WManipulatorInterface > >( new WManipulatorScaling() ) );
+    m_strategy.addStrategy( boost::shared_ptr< WObjectNDIP< WManipulatorInterface > >( new WManipulatorNormalize( &m_data ) ) );
 }
 
 WMDatasetManipulator::~WMDatasetManipulator()
