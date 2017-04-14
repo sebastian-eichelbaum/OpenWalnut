@@ -69,11 +69,11 @@ bool WGEZoomTrackballManipulator::zoom( const osgGA::GUIEventAdapter& ea, osgGA:
 
     if( ea.getKey() && ea.getEventType() == osgGA::GUIEventAdapter::KEYDOWN )
     {
-        if( ea.getKey() == 45 ) // -
+        if( ea.getKey() == osgGA::GUIEventAdapter::KEY_Minus )
         {
             zoomDelta = -0.05;
         }
-        if( ea.getKey() == 43 ) // +
+        if( ea.getKey() == osgGA::GUIEventAdapter::KEY_Plus )
         {
             zoomDelta = 0.05;
         }
@@ -132,7 +132,9 @@ bool WGEZoomTrackballManipulator::handle( const osgGA::GUIEventAdapter& ea, osgG
         home( 0 );
         return true;
     }
-    else if( ea.getEventType() == osgGA::GUIEventAdapter::SCROLL || ea.getKey() == 45 ||  ea.getKey() == 43 )
+    else if( ea.getEventType() == osgGA::GUIEventAdapter::SCROLL
+             || ea.getKey() == osgGA::GUIEventAdapter::KEY_Minus
+             ||  ea.getKey() == osgGA::GUIEventAdapter::KEY_Plus )
     {
         return zoom( ea, us );
     }
@@ -173,4 +175,3 @@ bool WGEZoomTrackballManipulator::getThrow() const
 {
     return m_allowThrow;
 }
-
