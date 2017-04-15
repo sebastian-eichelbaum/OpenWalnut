@@ -38,6 +38,7 @@
 #include "core/common/WLogger.h"
 #include "core/common/WColor.h"
 #include "core/graphicsEngine/WGE2DManipulator.h"
+#include "core/graphicsEngine/WGEAdvancedManipulator.h"
 #include "core/graphicsEngine/WGENoOpManipulator.h"
 #include "core/graphicsEngine/WGEViewer.h"
 #include "core/graphicsEngine/WGEZoomTrackballManipulator.h"
@@ -157,18 +158,25 @@ void WQtGLWidget::setCameraManipulator( WQtGLWidget::CameraManipulators manipula
     switch( manipulator )
     {
         case TWO_D:
-            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"WGE2D\".",
+            WLogger::getLogger()->addLogMessage( "Switched to camera manipulator \"WGE2D\".",
                                                  "WQtGLWidget(" + m_Viewer->getName() + ")",
                                                  LL_DEBUG );
 
             m_Viewer->setCameraManipulator( new( WGE2DManipulator ) );
             break;
         case NO_OP:
-            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"WGENoOp\".",
+            WLogger::getLogger()->addLogMessage( "Switched to camera manipulator \"WGENoOp\".",
                                                  "WQtGLWidget(" + m_Viewer->getName() + ")",
                                                  LL_DEBUG );
 
             m_Viewer->setCameraManipulator( new( WGENoOpManipulator ) );
+            break;
+        case ADVANCED:
+            WLogger::getLogger()->addLogMessage( "Switched to camera manipulator \"ADVANCED\".",
+                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                                 LL_DEBUG );
+
+            m_Viewer->setCameraManipulator( new( WGEAdvancedManipulator ) );
             break;
         case TRACKBALL:
         default:
@@ -292,6 +300,9 @@ void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
             break;
         case Qt::Key_2:
             setCameraManipulator( TWO_D );
+            break;
+        case Qt::Key_3:
+            setCameraManipulator( ADVANCED );
             break;
     }
 

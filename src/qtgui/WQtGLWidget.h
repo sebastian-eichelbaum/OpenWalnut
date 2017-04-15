@@ -80,7 +80,7 @@ public:
      */
     enum CameraManipulators
     {
-        TRACKBALL, TWO_D, NO_OP
+        TRACKBALL, TWO_D, NO_OP, ADVANCED
     };
 
     /**
