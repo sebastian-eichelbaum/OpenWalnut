@@ -172,7 +172,7 @@ void WQtGLWidget::setCameraManipulator( WQtGLWidget::CameraManipulators manipula
             break;
         case TRACKBALL:
         default:
-            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"WGETrackball\".",
+            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"WGEZoomTrackball\".",
                                                  "WQtGLWidget(" + m_Viewer->getName() + ")",
                                                  LL_DEBUG );
 
