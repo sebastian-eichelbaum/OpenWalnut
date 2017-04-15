@@ -61,7 +61,7 @@ void WGEAdvancedManipulator::home( double /* currentTime */ )
 {
     osg::Vec3d center;
     osg::Vec3d dummy;
-    TrackballManipulator::getHomePosition( dummy, center, dummy);
+    TrackballManipulator::getHomePosition( dummy, center, dummy );
 
     m_zoom = 100.0 / center[0];
 
