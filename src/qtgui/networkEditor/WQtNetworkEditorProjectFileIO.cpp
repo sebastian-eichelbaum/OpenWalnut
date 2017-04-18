@@ -55,7 +55,7 @@ WQtNetworkEditorProjectFileIO::~WQtNetworkEditorProjectFileIO()
 
 WProjectFileIO::SPtr WQtNetworkEditorProjectFileIO::clone( WProjectFile* project ) const
 {
-    // nothing special. Simply create new instance.
+    // Nothing special. Simply create new instance.
     WProjectFileIO::SPtr p( new WQtNetworkEditorProjectFileIO( m_networkEditor ) );
     p->setProject( project );
     return p;
@@ -147,8 +147,8 @@ void WQtNetworkEditorProjectFileIO::done()
     // apply changes
 
     // get bounding box
-    QPoint bbTL;
-    QPoint bbBR;
+    QPoint bbTL; // top left
+    QPoint bbBR; // bottom right
     for( ModuleNetworkCoordinates::const_iterator it = m_networkCoords.begin(); it != m_networkCoords.end(); ++it )
     {
         // init first element
@@ -243,4 +243,3 @@ void WQtNetworkEditorProjectFileIO::save( std::ostream& output ) // NOLINT
         // else: not in grid. We do not save info for this module
     }
 }
-

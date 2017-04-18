@@ -180,7 +180,7 @@ private slots:
     /**
      * Called by a timer to allow updates of all module items.
      */
-    void updateCylce();
+    void updateCycle();
 };
 
 #endif  // WQTNETWORKEDITOR_H

@@ -96,7 +96,7 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent ):
     // them regularly. We use a timer here.
     QTimer* updater = new QTimer( this );
     updater->start( 100 );
-    connect( updater, SIGNAL( timeout() ), this, SLOT( updateCylce() ) );
+    connect( updater, SIGNAL( timeout() ), this, SLOT( updateCycle() ) );
 }
 
 WQtNetworkEditor::~WQtNetworkEditor()
@@ -140,7 +140,7 @@ void WQtNetworkEditor::selectItem()
     m_mainWindow->getControlPanel()->deactivateModuleSelection();
 }
 
-void WQtNetworkEditor::updateCylce()
+void WQtNetworkEditor::updateCycle()
 {
     for( QList< WQtNetworkItem* >::const_iterator i = m_items.begin(); i != m_items.end(); ++i )
     {
