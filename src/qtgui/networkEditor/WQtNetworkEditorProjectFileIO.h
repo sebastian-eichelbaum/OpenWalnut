@@ -113,6 +113,8 @@ private:
      */
     ModuleNetworkFlags m_networkFlags;
 
+    double m_networkScale; //!< Keep scale.
+
     /**
      * The bounding coordinates of the loaded grid: top-left
      */
@@ -125,4 +127,3 @@ private:
 };
 
 #endif  // WQTNETWORKEDITORPROJECTFILEIO_H
-

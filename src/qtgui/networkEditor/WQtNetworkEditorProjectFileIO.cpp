@@ -97,6 +97,7 @@ bool WQtNetworkEditorProjectFileIO::parse( std::string line, unsigned int lineNu
 {
     static const boost::regex networkCoordRe( "^ *QT5GUI_NETWORK:([0-9]*)=(.*)$" );
     static const boost::regex networkFlagsRe( "^ *QT5GUI_NETWORK_Flags:([0-9]*)=(.*)$" );
+    static const boost::regex networkScaleRe( "^ *QT5GUI_NETWORK_Scale:(.*)$" );
 
     // use regex to parse it
     boost::smatch matches;  // the list of matches
@@ -135,6 +136,13 @@ bool WQtNetworkEditorProjectFileIO::parse( std::string line, unsigned int lineNu
             // store. Applied later.
             m_networkFlags[ id ] =  QPoint( coordRaw[0], coordRaw[1] );
         }
+
+        return true;
+    }
+    else if( boost::regex_match( line, matches, networkScaleRe ) )
+    {
+        wlog::debug( "Project Loader [Parser]" ) << "Line " << lineNumber << ": Network Scale " << matches[1];
+        m_networkScale = string_utils::fromString< double >( matches[1] );
 
         return true;
     }
@@ -204,6 +212,8 @@ void WQtNetworkEditorProjectFileIO::done()
                                                                          static_cast< bool >( p.y() ) );
         }
     }
+
+    m_networkEditor->getView()->scale( m_networkScale, m_networkScale );
 }
 
 void WQtNetworkEditorProjectFileIO::save( std::ostream& output ) // NOLINT
@@ -242,4 +252,6 @@ void WQtNetworkEditorProjectFileIO::save( std::ostream& output ) // NOLINT
         }
         // else: not in grid. We do not save info for this module
     }
+
+    output << "QT5GUI_NETWORK_Scale:" << m_networkEditor->getView()->transform().m11() << std::endl;
 }
