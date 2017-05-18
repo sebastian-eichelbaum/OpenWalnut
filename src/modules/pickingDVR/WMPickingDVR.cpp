@@ -51,6 +51,7 @@
 #define WMPICKINGDVR_FIRST_HIT   "Picking - First Hit"
 #define WMPICKINGDVR_THRESHOLD   "Picking - Threshold"
 #define WMPICKINGDVR_MOST_CONTRIBUTING "Picking - Most Contributing"
+#define WMPICKINGDVR_HIGHEST_OPACITY   "Picking - Highest Opacity"
 #define WMPICKINGDVR_WYSIWYP   "Picking - WYSIWYP"
 
 // This line is needed by the module loader to actually find your module.
@@ -125,6 +126,7 @@ void WMPickingDVR::properties()
     m_pickingCriteriaList->addItem( WMPICKINGDVR_FIRST_HIT, WMPICKINGDVR_FIRST_HIT );
     m_pickingCriteriaList->addItem( WMPICKINGDVR_THRESHOLD, WMPICKINGDVR_THRESHOLD );
     m_pickingCriteriaList->addItem( WMPICKINGDVR_MOST_CONTRIBUTING, WMPICKINGDVR_MOST_CONTRIBUTING );
+    m_pickingCriteriaList->addItem( WMPICKINGDVR_HIGHEST_OPACITY, WMPICKINGDVR_HIGHEST_OPACITY );
     m_pickingCriteriaList->addItem( WMPICKINGDVR_WYSIWYP, WMPICKINGDVR_WYSIWYP );
     m_pickingCriteriaList->addItem( WMPICKINGDVR_MAX_INT, WMPICKINGDVR_MAX_INT );
 
@@ -220,6 +222,7 @@ void WMPickingDVR::moduleMain()
             double max   = 0.0;
             double dMin   = 0.0;
             double dAccAlpha  = 0.0;
+            double accAlphaOld  = 0.0;
             double dPickedAlpha = 0.0;
             double maxValue  = 0.0;
             bool bPickedPos  = false;
@@ -255,7 +258,7 @@ void WMPickingDVR::moduleMain()
 
             std::vector<double> vecAlphaAcc;
 
-            //Sampling
+            // Sampling loop
             for(int i = 0; i < m_sampleSteps->get(); i++)
             {
                 //Scalarfield Values
@@ -346,9 +349,8 @@ void WMPickingDVR::moduleMain()
                         break;
                     }
                 }
-                else if( strRenderMode == WMPICKINGDVR_MOST_CONTRIBUTING )
+                else if( strRenderMode == WMPICKINGDVR_HIGHEST_OPACITY )
                 {
-#warning dCurrentAlpha could be wrong here
                     //Most Contributing: maximal alpha value
                     if( dCurrentAlpha > dPickedAlpha )
                     {
@@ -357,12 +359,24 @@ void WMPickingDVR::moduleMain()
                         bPickedPos  = true;
                     }
                 }
+                else if( strRenderMode == WMPICKINGDVR_MOST_CONTRIBUTING )
+                {
+                    double currenAlphaIncrease = dAccAlpha - accAlphaOld;
+                    //Most Contributing: maximal alpha value
+                    if( currenAlphaIncrease > dPickedAlpha )
+                    {
+                        dPickedAlpha = currenAlphaIncrease;
+                        posPicking  =  posSample;
+                        bPickedPos  = true;
+                    }
+                    accAlphaOld = dAccAlpha;
+                }
                 else if( strRenderMode == WMPICKINGDVR_WYSIWYP )
                 {
                     //WYSIWYP: Save all the accumulated alpha values
                     vecAlphaAcc.push_back( dAccAlpha );
                 }
-            }
+            } // End of sampling loop
 
             //WYSIWYP: Calculate the largest interval
             if( strRenderMode == WMPICKINGDVR_WYSIWYP )
