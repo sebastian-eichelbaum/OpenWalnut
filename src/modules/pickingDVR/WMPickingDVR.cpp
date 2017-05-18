@@ -220,10 +220,10 @@ void WMPickingDVR::moduleMain()
 
             //Picking Variable
             double max   = 0.0;
-            double dMin   = 0.0;
-            double dAccAlpha  = 0.0;
+            double min   = 0.0;
+            double accAlpha  = 0.0;
             double accAlphaOld  = 0.0;
-            double dPickedAlpha = 0.0;
+            double pickedAlpha = 0.0;
             double maxValue  = 0.0;
             bool bPickedPos  = false;
 
@@ -253,8 +253,8 @@ void WMPickingDVR::moduleMain()
             boost::shared_ptr< WValueSetBase > transferFunctionValues = transferFunctionData->getValueSet();
 
             max  = scalarData->getMax();
-            dMin  = scalarData->getMin();
-            maxValue = dMin;
+            min  = scalarData->getMin();
+            maxValue = min;
 
             std::vector<double> vecAlphaAcc;
 
@@ -263,7 +263,7 @@ void WMPickingDVR::moduleMain()
             {
                 //Scalarfield Values
                 bool bSuccess = false;
-                double dValue  = scalarData->interpolate( posSample, &bSuccess );
+                double value  = scalarData->interpolate( posSample, &bSuccess );
 
                 //Add Step
                 posSample = posSample + vecDir;
@@ -274,17 +274,17 @@ void WMPickingDVR::moduleMain()
                 }
 
                 //Classification Variables
-                double dNominator = dValue - dMin;
-                double dDenominator = max - dMin;
+                double nomiator = value - min;
+                double denominator = max - min;
 
-                if( dDenominator == 0.0 )
+                if( denominator == 0.0 )
                 {
-                    dDenominator = 0.0001;
+                    denominator = 0.0001;
                 }
 
                 //Classification: Convert Scalar to Color
-                double dScalarPercentage = dNominator / dDenominator;
-                int  iColorIdx   = dScalarPercentage * transferFunctionValues->size();
+                double scalarPercentage = nomiator / denominator;
+                int  iColorIdx   = scalarPercentage * transferFunctionValues->size();
 
                 //color
                 WMPickingColor<double> color;
@@ -299,30 +299,30 @@ void WMPickingDVR::moduleMain()
                 //gamma = alpha + beta - alpha * beta == currentAlpha + accedAlpha - currentAlpa * accedAlpha
                 //alpha = currentAlpha
                 //beta = accedAlpha
-                double dCurrentAlpha = color.getAlpha();
-                double dCurrentAlphaCorrected;
+                double currentAlpha = color.getAlpha();
+                double currentAlphaCorrected;
 
                 if( m_opacityCorrectionEnabled->get( true ) )
                 {
                     const double defaultNumberOfSteps = 128.0;
                     float relativeSampleDistance = defaultNumberOfSteps / m_sampleSteps->get();
-                    dCurrentAlphaCorrected =  1.0 - pow( 1.0 - dCurrentAlpha, relativeSampleDistance );
+                    currentAlphaCorrected =  1.0 - pow( 1.0 - currentAlpha, relativeSampleDistance );
                 }
                 else
                 {
-                    dCurrentAlphaCorrected = dCurrentAlpha;
+                    currentAlphaCorrected = currentAlpha;
                 }
 
-                dAccAlpha  = dCurrentAlphaCorrected + ( dAccAlpha - dCurrentAlphaCorrected * dAccAlpha );
+                accAlpha  = currentAlphaCorrected + ( accAlpha - currentAlphaCorrected * accAlpha );
 
 
 
                 if( strRenderMode == WMPICKINGDVR_MAX_INT )
                 {
                     //Maximum Intensity: maximal scalar value
-                    if( dValue > maxValue )
+                    if( value > maxValue )
                     {
-                        maxValue = dValue;
+                        maxValue = value;
                         posPicking = posSample;
                         bPickedPos = true;
                     }
@@ -330,9 +330,9 @@ void WMPickingDVR::moduleMain()
                 else if( strRenderMode == WMPICKINGDVR_FIRST_HIT )
                 {
                     //First Hit: first alpha value > 0.0
-                    if( dCurrentAlpha > 0.0 )
+                    if( currentAlpha > 0.0 )
                     {
-                        dPickedAlpha = dCurrentAlpha;
+                        pickedAlpha = currentAlpha;
                         posPicking  =  posSample;
                         bPickedPos  = true;
                         break;
@@ -341,9 +341,9 @@ void WMPickingDVR::moduleMain()
                 else if( strRenderMode == WMPICKINGDVR_THRESHOLD )
                 {
                     //Threshold: accumulated alpha value > threshold
-                    if( dAccAlpha > m_alphaThreshold->get() )
+                    if( accAlpha > m_alphaThreshold->get() )
                     {
-                        dPickedAlpha = dCurrentAlpha;
+                        pickedAlpha = currentAlpha;
                         posPicking  =  posSample;
                         bPickedPos  = true;
                         break;
@@ -352,29 +352,29 @@ void WMPickingDVR::moduleMain()
                 else if( strRenderMode == WMPICKINGDVR_HIGHEST_OPACITY )
                 {
                     //Most Contributing: maximal alpha value
-                    if( dCurrentAlpha > dPickedAlpha )
+                    if( currentAlpha > pickedAlpha )
                     {
-                        dPickedAlpha = dCurrentAlpha;
+                        pickedAlpha = currentAlpha;
                         posPicking  =  posSample;
                         bPickedPos  = true;
                     }
                 }
                 else if( strRenderMode == WMPICKINGDVR_MOST_CONTRIBUTING )
                 {
-                    double currenAlphaIncrease = dAccAlpha - accAlphaOld;
+                    double currenAlphaIncrease = accAlpha - accAlphaOld;
                     //Most Contributing: maximal alpha value
-                    if( currenAlphaIncrease > dPickedAlpha )
+                    if( currenAlphaIncrease > pickedAlpha )
                     {
-                        dPickedAlpha = currenAlphaIncrease;
+                        pickedAlpha = currenAlphaIncrease;
                         posPicking  =  posSample;
                         bPickedPos  = true;
                     }
-                    accAlphaOld = dAccAlpha;
+                    accAlphaOld = accAlpha;
                 }
                 else if( strRenderMode == WMPICKINGDVR_WYSIWYP )
                 {
                     //WYSIWYP: Save all the accumulated alpha values
-                    vecAlphaAcc.push_back( dAccAlpha );
+                    vecAlphaAcc.push_back( accAlpha );
                 }
             } // End of sampling loop
 
@@ -392,31 +392,31 @@ void WMPickingDVR::moduleMain()
                 std::vector<int> vecIndicesUpperBounds;
 
                 //Calculate Interval Boundaries
-                double dOldDerivative;
+                double oldDerivative;
                 if( vecSecondDerivative.size() > 0 )
                 {
-                   dOldDerivative = vecSecondDerivative[0];
+                   oldDerivative = vecSecondDerivative[0];
                 }
 
                 for( unsigned int j = 1; j < vecSecondDerivative.size(); j++ )
                 {
-                    if( dOldDerivative < 0.0 && vecSecondDerivative[j] >= 0.0
+                    if( oldDerivative < 0.0 && vecSecondDerivative[j] >= 0.0
                         && ( vecIndicesLowerBounds.size() > 0 ) ) // need to have a lower bound already
                     {
                         vecIndicesUpperBounds.push_back( j );
                     }
 
-                    if( dOldDerivative <= 0.0 && vecSecondDerivative[j] > 0.0 )
+                    if( oldDerivative <= 0.0 && vecSecondDerivative[j] > 0.0 )
                     {
                         vecIndicesLowerBounds.push_back( j );
                     }
 
 
-                    dOldDerivative = vecSecondDerivative[j];
+                    oldDerivative = vecSecondDerivative[j];
                 }
 
                 //Calculate max difference
-                double dDiff  = 0.0;
+                double diff  = 0.0;
                 double maxDiff = 0.0;
                 int iSampleLo  = -1;
                 int iSampleUp  = -1;
@@ -424,13 +424,13 @@ void WMPickingDVR::moduleMain()
                 for( unsigned int j = 0; j < std::min( vecIndicesLowerBounds.size(), vecIndicesUpperBounds.size() ); j++ )
                 {
                     //Calculate diff
-                    dDiff = vecAlphaAcc[vecIndicesUpperBounds[j]] - vecAlphaAcc[vecIndicesLowerBounds[j]];
-                    debugLog() << "Interval [" <<  vecIndicesLowerBounds[j] << "," << vecIndicesUpperBounds[j] << "] = " << dDiff;
+                    diff = vecAlphaAcc[vecIndicesUpperBounds[j]] - vecAlphaAcc[vecIndicesLowerBounds[j]];
+                    debugLog() << "Interval [" <<  vecIndicesLowerBounds[j] << "," << vecIndicesUpperBounds[j] << "] = " << diff;
 
                     //Is Max Diff
-                    if( dDiff > maxDiff )
+                    if( diff > maxDiff )
                     {
-                        maxDiff = dDiff;
+                        maxDiff = diff;
                         iSampleLo = vecIndicesLowerBounds[j];
                         iSampleUp = vecIndicesUpperBounds[j];
                     }
@@ -458,19 +458,19 @@ void WMPickingDVR::moduleMain()
             //Rendering: update only if picked
             if( bPickedPos )
             {
-                debugLog() << "[dPickedAlpha = " << dPickedAlpha << "]"
+                debugLog() << "[pickedAlpha = " << pickedAlpha << "]"
                            <<"[posPicking][X = " << posPicking.x() << " ]"
                            <<"[Y = " << posPicking.y() << " ][Z = " << posPicking.z() << "]";
 
                 osg::ref_ptr< osg::Geometry > geometry;
                 osg::ref_ptr< osg::Geode >  geode( new osg::Geode );
 
-                double dSize  = m_crossSize->get();
-                double dThickness = m_crossThickness->get();
+                double size  = m_crossSize->get();
+                double thickness = m_crossThickness->get();
 
-                osg::ShapeDrawable* pBoxX = new osg::ShapeDrawable( new osg::Box( posPicking, dSize, dThickness, dThickness ) );
-                osg::ShapeDrawable* pBoxY = new osg::ShapeDrawable( new osg::Box( posPicking, dThickness, dSize, dThickness ) );
-                osg::ShapeDrawable* pBoxZ = new osg::ShapeDrawable( new osg::Box( posPicking, dThickness, dThickness, dSize ) );
+                osg::ShapeDrawable* pBoxX = new osg::ShapeDrawable( new osg::Box( posPicking, size, thickness, thickness ) );
+                osg::ShapeDrawable* pBoxY = new osg::ShapeDrawable( new osg::Box( posPicking, thickness, size, thickness ) );
+                osg::ShapeDrawable* pBoxZ = new osg::ShapeDrawable( new osg::Box( posPicking, thickness, thickness, size ) );
 
                 pBoxX->setColor( m_color->get() );
                 pBoxY->setColor( m_color->get() );
@@ -554,8 +554,8 @@ void WMPickingDVR::calculateDerivativesWYSIWYP( const std::vector<double>& value
 {
     //Fourth Order Finite Differencing by Daniel Gerlicher
     unsigned int n  = values.size();
-    double dDeriv = 0.0;
-    double dCoeff = 1.0 / 12.0;
+    double deriv = 0.0;
+    double coeff = 1.0 / 12.0;
 
     //Calculate first derivative
     for( unsigned int j = 0; j < n; j++ )
@@ -563,7 +563,7 @@ void WMPickingDVR::calculateDerivativesWYSIWYP( const std::vector<double>& value
         //Forward Diff
         if( j == 0 )
         {
-            dDeriv = dCoeff * ( -25 * values[j]
+            deriv = coeff * ( -25 * values[j]
                                 + 48 * values[j+1]
                                 - 36 * values[j+2]
                                 + 16 * values[j+3]
@@ -571,7 +571,7 @@ void WMPickingDVR::calculateDerivativesWYSIWYP( const std::vector<double>& value
         }
         else if( j == 1 )
         {
-            dDeriv = dCoeff * ( -3 * values[j-1]
+            deriv = coeff * ( -3 * values[j-1]
                                 - 10 * values[j]
                                 + 18 * values[j+1]
                                 - 6 * values[j+2]
@@ -581,7 +581,7 @@ void WMPickingDVR::calculateDerivativesWYSIWYP( const std::vector<double>& value
         //Backward Diff
         else if( j == n - 1 )
         {
-            dDeriv = dCoeff * ( 25 * values[j]
+            deriv = coeff * ( 25 * values[j]
                                 - 48 * values[j-1]
                                 + 36 * values[j-2]
                                 - 16 * values[j-3]
@@ -589,7 +589,7 @@ void WMPickingDVR::calculateDerivativesWYSIWYP( const std::vector<double>& value
         }
         else if( j == n - 2 )
         {
-            dDeriv = dCoeff * ( +3 * values[j+1]
+            deriv = coeff * ( +3 * values[j+1]
                                 + 10 * values[j]
                                 - 18 * values[j-1]
                                 + 6 * values[j-2]
@@ -599,13 +599,13 @@ void WMPickingDVR::calculateDerivativesWYSIWYP( const std::vector<double>& value
         //Center
         else
         {
-            dDeriv = dCoeff * ( -1 * values[j+2]
+            deriv = coeff * ( -1 * values[j+2]
                                 + 8 * values[j+1]
                                 - 8 * values[j-1]
                                 + 1 * values[j-2] );
         }
 
-        vecFirstDerivative.push_back( dDeriv );
+        vecFirstDerivative.push_back( deriv );
     }
 
     //Calculate Second derivative, by applying the first derivative
@@ -614,7 +614,7 @@ void WMPickingDVR::calculateDerivativesWYSIWYP( const std::vector<double>& value
         //Forward Diff
         if( j == 0 )
         {
-            dDeriv = dCoeff * ( -25 * vecFirstDerivative[j]
+            deriv = coeff * ( -25 * vecFirstDerivative[j]
                                 + 48 * vecFirstDerivative[j+1]
                                 - 36 * vecFirstDerivative[j+2]
                                 + 16 * vecFirstDerivative[j+3]
@@ -622,7 +622,7 @@ void WMPickingDVR::calculateDerivativesWYSIWYP( const std::vector<double>& value
         }
         else if( j == 1 )
         {
-            dDeriv = dCoeff * ( -3 * vecFirstDerivative[j-1]
+            deriv = coeff * ( -3 * vecFirstDerivative[j-1]
                                 - 10 * vecFirstDerivative[j]
                                 + 18 * vecFirstDerivative[j+1]
                                 - 6 * vecFirstDerivative[j+2]
@@ -632,7 +632,7 @@ void WMPickingDVR::calculateDerivativesWYSIWYP( const std::vector<double>& value
         //Backward Diff
         else if( j == n - 1 )
         {
-            dDeriv = dCoeff * ( 25 * vecFirstDerivative[j]
+            deriv = coeff * ( 25 * vecFirstDerivative[j]
                                 - 48 * vecFirstDerivative[j-1]
                                 + 36 * vecFirstDerivative[j-2]
                                 - 16 * vecFirstDerivative[j-3]
@@ -640,7 +640,7 @@ void WMPickingDVR::calculateDerivativesWYSIWYP( const std::vector<double>& value
         }
         else if( j == n - 2 )
         {
-            dDeriv = dCoeff * ( +3 * vecFirstDerivative[j+1]
+            deriv = coeff * ( +3 * vecFirstDerivative[j+1]
                                 + 10 * vecFirstDerivative[j]
                                 - 18 * vecFirstDerivative[j-1]
                                 + 6 * vecFirstDerivative[j-2]
@@ -650,12 +650,12 @@ void WMPickingDVR::calculateDerivativesWYSIWYP( const std::vector<double>& value
         //Center
         else
         {
-            dDeriv = dCoeff * ( -1 * vecFirstDerivative[j+2]
+            deriv = coeff * ( -1 * vecFirstDerivative[j+2]
                                 + 8 * vecFirstDerivative[j+1]
                                 - 8 * vecFirstDerivative[j-1]
                                 + 1 * vecFirstDerivative[j-2] );
         }
 
-        vecSecondDerivative.push_back( dDeriv );
+        vecSecondDerivative.push_back( deriv );
     }
 }
