@@ -378,7 +378,12 @@ void WMPickingDVR::moduleMain()
                 std::vector<int> vecIndicesUpperBounds;
 
                 //Calculate Interval Boundaries
-                double dOldDerivative = vecSecondDerivative[0];
+                double dOldDerivative;
+                if( vecSecondDerivative.size() > 0 )
+                {
+                   dOldDerivative = vecSecondDerivative[0];
+                }
+
                 for( unsigned int j = 1; j < vecSecondDerivative.size(); j++ )
                 {
                     if( dOldDerivative < 0.0 && vecSecondDerivative[j] >= 0.0
