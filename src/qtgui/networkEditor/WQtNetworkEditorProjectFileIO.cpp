@@ -41,7 +41,8 @@
 
 WQtNetworkEditorProjectFileIO::WQtNetworkEditorProjectFileIO( WQtNetworkEditor* ne ):
     WProjectFileIO(),
-    m_networkEditor( ne )
+    m_networkEditor( ne ),
+    m_networkScale( 1.0 )
 {
     // initialize members
     // We want to set the layout before actually starting the network.
