@@ -125,6 +125,11 @@ nnectors must not be handled by the module.
     /**
      * Histogram bin size
      */
+    WPropDouble m_opacityScale;
+
+    /**
+     * Histogram bin size
+     */
     WPropInt m_binSize;
 
     /**

@@ -175,10 +175,11 @@ void WTransferFunction::sample1DTransferFunction( unsigned char*array, int width
                 color[ 3 ] = ablend( a1->alpha, 1.-alphaParameter, a2->alpha, alphaParameter );
             }
         }
-        for( int j = 0; j < 4; ++j )
+        for( int j = 0; j < 3; ++j )
         {
             array[ 4*i + j ] = color[ j ]*255.;
         }
+        array[ 4*i + 3 ] = color[ 3 ] * 255.0 * m_opacityScale;
     }
 }
 

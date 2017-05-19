@@ -92,6 +92,11 @@ void WMTransferFunction1D::properties()
     tf.addColor( 1.0, WColor( 1.0, 0.0, 0.0, 1.0 ) );
     m_transferFunction = m_properties->addProperty( "Transfer Function", "The transfer function editor.", tf, m_propCondition, false );
 
+    m_opacityScale = m_properties->addProperty( "Opacity Scaling",
+                                                "Factor used to scale opacity for easier interaction",
+                                                1.0,
+                                                m_propCondition );
+
     m_binSize = m_properties->addProperty( "Histogram Resolution", "Number of bins in histogram.", 64, m_propCondition );
     m_binSize->setMin( 2 );
     m_binSize->setMax( 512 );
@@ -168,7 +173,7 @@ void WMTransferFunction1D::moduleMain()
             boost::shared_ptr< std::vector<unsigned char> > data( new std::vector<unsigned char>( resolution * 4 ) );
 
             // FIXME: get transfer function and publish the function
-
+            tf.setOpacityScale( m_opacityScale->get( true ) );
             tf.sample1DTransferFunction(  &( *data )[ 0 ], resolution, 0.0, 1.0 );
 
             boost::shared_ptr< WValueSetBase > newValueSet( new WValueSet<unsigned char>( 1, 4, data, W_DT_UNSIGNED_CHAR ) );

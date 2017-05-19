@@ -40,7 +40,7 @@ public:
     /**
      * Default constructor of a meaningless transfer function
      */
-    WTransferFunction() : m_isomin( 0. ), m_isomax( 0. )
+    WTransferFunction() : m_isomin( 0. ), m_isomax( 0. ), m_opacityScale( 1.0 )
     {
     }
 
@@ -50,7 +50,8 @@ public:
      * \param rhs the value to histogram
      */
     WTransferFunction( const WTransferFunction &rhs )
-        : m_colors( rhs.m_colors ), m_alphas( rhs.m_alphas ), m_isomin( rhs.m_isomin ), m_isomax( rhs.m_isomax ), m_histogram( rhs.m_histogram )
+        : m_colors( rhs.m_colors ), m_alphas( rhs.m_alphas ), m_isomin( rhs.m_isomin ), m_isomax( rhs.m_isomax )
+        , m_opacityScale( 1.0 ) , m_histogram( rhs.m_histogram )
     {
     }
 
@@ -116,6 +117,25 @@ public:
     }
 
     /**
+     * Get the scaling factor for the opacity.
+     *
+     * \returns scaling factor
+     */
+    double getOpacityScale() const
+    {
+        return m_opacityScale;
+    }
+
+    /**
+     * Set the scaling factor for the opacity.
+     * \param factor scaling factor of opacity values
+     */
+    void setOpacityScale( double factor )
+    {
+        m_opacityScale = factor;
+    }
+
+    /**
      * Get the isovalue at a given index in the alpha values.
      *
      * \param i the index of the point to query
@@ -145,7 +165,7 @@ public:
      */
     double getAlpha( size_t i ) const
     {
-        return m_alphas.at( i ).alpha;
+        return m_alphas.at( i ).alpha*m_opacityScale;
     }
 
     /**
@@ -356,6 +376,13 @@ private:
      * The largest used iso value.
      */
     double m_isomax;
+
+    /**
+     * Factor by which the output opacity is scaled
+     * to allow for easier specification of very small
+     * opacity values.
+     */
+    double m_opacityScale;
 
     /**
      * Sores a histogram. This is used for property-handling only
