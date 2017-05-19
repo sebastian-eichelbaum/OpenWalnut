@@ -305,7 +305,7 @@ double  WMPickingDVREvaluation::importance( WPosition pos )
     bool interpolationSuccess = false;
 
     double value  = m_scalarDataSet->interpolate( pos, &interpolationSuccess );
-    assert( interpolationSuccess && "Should not fail. Contact \"wiebel\" if it does." );
+    assert( interpolationSuccess && "Should not fail. Please file a bug report if it does." );
 
     if( m_importanceFunctionCur->get( true ).getItemIndexOfSelected( 0 ) == 0 )
     {
@@ -350,7 +350,7 @@ WPosition WMPickingDVREvaluation::interactionMapping( const WPosition& startPos,
 
         bool interpolationSuccess = false;
         double scalar  = m_scalarDataSet->interpolate( samplePos, &interpolationSuccess );
-        assert( interpolationSuccess && "Should not fail. Contact \"wiebel\" if it does." );
+        assert( interpolationSuccess && "Should not fail. Please file a bug report if it does." );
 
         if( pickModeName == WMPICKINGDVR_MAX_INTENS )
         {
@@ -392,7 +392,7 @@ WPosition WMPickingDVREvaluation::interactionMapping( const WPosition& startPos,
         }
         else
         {
-            assert( false && "This should not happen. Contact \"wiebel\" if it does." );
+            assert( false && "This should not happen. Please file a bug report if it does." );
         }
     }
 
