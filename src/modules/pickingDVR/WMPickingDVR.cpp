@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <cmath>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <osgViewer/View>
@@ -381,73 +382,19 @@ void WMPickingDVR::moduleMain()
             //WYSIWYP: Calculate the largest interval
             if( strRenderMode == WMPICKINGDVR_WYSIWYP )
             {
-                //Derivative Variables
-                std::vector<double> vecFirstDerivative;
-                std::vector<double> vecSecondDerivative;
-
-                calculateDerivativesWYSIWYP( vecAlphaAcc, vecFirstDerivative, vecSecondDerivative );
-
-                //Create Intervals
-                std::vector<int> vecIndicesLowerBounds;
-                std::vector<int> vecIndicesUpperBounds;
-
-                //Calculate Interval Boundaries
-                double oldDerivative;
-                if( vecSecondDerivative.size() > 0 )
-                {
-                   oldDerivative = vecSecondDerivative[0];
-                }
-
-                for( unsigned int j = 1; j < vecSecondDerivative.size(); j++ )
-                {
-                    if( oldDerivative < 0.0 && vecSecondDerivative[j] >= 0.0
-                        && ( vecIndicesLowerBounds.size() > 0 ) ) // need to have a lower bound already
-                    {
-                        vecIndicesUpperBounds.push_back( j );
-                    }
-
-                    if( oldDerivative <= 0.0 && vecSecondDerivative[j] > 0.0 )
-                    {
-                        vecIndicesLowerBounds.push_back( j );
-                    }
-
-
-                    oldDerivative = vecSecondDerivative[j];
-                }
-
-                //Calculate max difference
-                double diff  = 0.0;
-                double maxDiff = 0.0;
-                int sampleLo  = -1;
-                int sampleUp  = -1;
-
-                for( unsigned int j = 0; j < std::min( vecIndicesLowerBounds.size(), vecIndicesUpperBounds.size() ); j++ )
-                {
-                    //Calculate diff
-                    diff = vecAlphaAcc[vecIndicesUpperBounds[j]] - vecAlphaAcc[vecIndicesLowerBounds[j]];
-                    debugLog() << "Interval [" <<  vecIndicesLowerBounds[j] << "," << vecIndicesUpperBounds[j] << "] = " << diff;
-
-                    //Is Max Diff
-                    if( diff > maxDiff )
-                    {
-                        maxDiff = diff;
-                        sampleLo = vecIndicesLowerBounds[j];
-                        sampleUp = vecIndicesUpperBounds[j];
-                    }
-                }
-                debugLog() << "Start of largest interval " << sampleLo;
+                std::pair<int, int> bounds = calculateIntervalWYSIWYP( vecAlphaAcc );
 
                 //Calculate Position
-                if( sampleLo >= 0 )
+                if( bounds.first >= 0 )
                 {
                     //Calculate pick position
                     if( m_wysiwypPositionType->get( true ).getItemIndexOfSelected( 0 ) == 0 )
                     {
-                        posPicking = posStart + vecDir * sampleLo;
+                        posPicking = posStart + vecDir * bounds.first;
                     }
                     else
                     {
-                        int centerSample = ( sampleLo + sampleUp ) / 2;
+                        int centerSample = ( bounds.first + bounds.second ) / 2;
                         posPicking = posStart + vecDir * centerSample;
                     }
 
@@ -546,6 +493,66 @@ void WMPickingDVR::updateModuleGUI( std::string strRenderMode )
     {
         m_wysiwypPositionType->setHidden( true );
     }
+}
+
+std::pair<int, int> WMPickingDVR::calculateIntervalWYSIWYP( std::vector<double> vecAlphaAcc )
+{
+    //Derivative Variables
+    std::vector<double> vecFirstDerivative;
+    std::vector<double> vecSecondDerivative;
+
+    calculateDerivativesWYSIWYP( vecAlphaAcc, vecFirstDerivative, vecSecondDerivative );
+
+    //Create Intervals
+    std::vector<int> vecIndicesLowerBounds;
+    std::vector<int> vecIndicesUpperBounds;
+
+    //Calculate Interval Boundaries
+    double oldDerivative;
+    if( vecSecondDerivative.size() > 0 )
+    {
+        oldDerivative = vecSecondDerivative[0];
+    }
+
+    for( unsigned int j = 1; j < vecSecondDerivative.size(); j++ )
+    {
+        if( oldDerivative < 0.0 && vecSecondDerivative[j] >= 0.0
+            && ( vecIndicesLowerBounds.size() > 0 ) ) // need to have a lower bound already
+        {
+            vecIndicesUpperBounds.push_back( j );
+        }
+
+        if( oldDerivative <= 0.0 && vecSecondDerivative[j] > 0.0 )
+        {
+            vecIndicesLowerBounds.push_back( j );
+        }
+
+
+        oldDerivative = vecSecondDerivative[j];
+    }
+
+    //Calculate max difference
+    double diff  = 0.0;
+    double maxDiff = 0.0;
+    int sampleLo  = -1;
+    int sampleUp  = -1;
+
+    for( unsigned int j = 0; j < std::min( vecIndicesLowerBounds.size(), vecIndicesUpperBounds.size() ); j++ )
+    {
+        //Calculate diff
+        diff = vecAlphaAcc[vecIndicesUpperBounds[j]] - vecAlphaAcc[vecIndicesLowerBounds[j]];
+        debugLog() << "Interval [" <<  vecIndicesLowerBounds[j] << "," << vecIndicesUpperBounds[j] << "] = " << diff;
+
+        //Is Max Diff
+        if( diff > maxDiff )
+        {
+            maxDiff = diff;
+            sampleLo = vecIndicesLowerBounds[j];
+            sampleUp = vecIndicesUpperBounds[j];
+        }
+    }
+    debugLog() << "Start of largest interval " << sampleLo;
+    return std::make_pair( sampleLo, sampleUp );
 }
 
 void WMPickingDVR::calculateDerivativesWYSIWYP( const std::vector<double>& values,

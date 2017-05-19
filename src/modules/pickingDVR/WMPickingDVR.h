@@ -26,6 +26,7 @@
 #define WMPICKINGDVR_H
 
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "core/kernel/WModule.h"
@@ -111,6 +112,18 @@ private:
      * \param strPickingMode The type of picking criterion used
      */
     void updateModuleGUI( std::string strPickingMode );
+
+
+
+    /**
+     * Calculates which interval is the most visible according
+     * to WYSIWYP (http://dx.doi.org/10.1109/TVCG.2012.292)
+     *
+     * \param vecAlphaAcc The accumulated alpha values at the samples along the viewing ray
+     *
+     * \result lower and upper bounds of the determined interval
+     */
+    std::pair<int, int> calculateIntervalWYSIWYP( std::vector<double> vecAlphaAcc );
 
     /**
      * Computes the first and second derivatives of a vector of values
