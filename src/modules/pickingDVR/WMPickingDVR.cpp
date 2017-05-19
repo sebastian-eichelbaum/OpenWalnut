@@ -284,16 +284,16 @@ void WMPickingDVR::moduleMain()
 
                 //Classification: Convert Scalar to Color
                 double scalarPercentage = nomiator / denominator;
-                int  iColorIdx   = scalarPercentage * transferFunctionValues->size();
+                int  colorIdx   = scalarPercentage * transferFunctionValues->size();
 
                 //color
                 WMPickingColor<double> color;
 
                 //Get Color from transferfunction
-                color.setRed( transferFunctionData->getSingleRawValue( iColorIdx * 4 + 0 ) );
-                color.setGreen( transferFunctionData->getSingleRawValue( iColorIdx * 4 + 1 ) );
-                color.setBlue( transferFunctionData->getSingleRawValue( iColorIdx * 4 + 2 ) );
-                color.setAlpha( transferFunctionData->getSingleRawValue( iColorIdx * 4 + 3 ) );
+                color.setRed( transferFunctionData->getSingleRawValue( colorIdx * 4 + 0 ) );
+                color.setGreen( transferFunctionData->getSingleRawValue( colorIdx * 4 + 1 ) );
+                color.setBlue( transferFunctionData->getSingleRawValue( colorIdx * 4 + 2 ) );
+                color.setAlpha( transferFunctionData->getSingleRawValue( colorIdx * 4 + 3 ) );
                 color.normalize();
 
                 //gamma = alpha + beta - alpha * beta == currentAlpha + accedAlpha - currentAlpa * accedAlpha
@@ -418,8 +418,8 @@ void WMPickingDVR::moduleMain()
                 //Calculate max difference
                 double diff  = 0.0;
                 double maxDiff = 0.0;
-                int iSampleLo  = -1;
-                int iSampleUp  = -1;
+                int sampleLo  = -1;
+                int sampleUp  = -1;
 
                 for( unsigned int j = 0; j < std::min( vecIndicesLowerBounds.size(), vecIndicesUpperBounds.size() ); j++ )
                 {
@@ -431,23 +431,23 @@ void WMPickingDVR::moduleMain()
                     if( diff > maxDiff )
                     {
                         maxDiff = diff;
-                        iSampleLo = vecIndicesLowerBounds[j];
-                        iSampleUp = vecIndicesUpperBounds[j];
+                        sampleLo = vecIndicesLowerBounds[j];
+                        sampleUp = vecIndicesUpperBounds[j];
                     }
                 }
-                debugLog() << "Start of largest interval " << iSampleLo;
+                debugLog() << "Start of largest interval " << sampleLo;
 
                 //Calculate Position
-                if( iSampleLo >= 0 )
+                if( sampleLo >= 0 )
                 {
                     //Calculate pick position
                     if( m_wysiwypPositionType->get( true ).getItemIndexOfSelected( 0 ) == 0 )
                     {
-                        posPicking = posStart + vecDir * iSampleLo;
+                        posPicking = posStart + vecDir * sampleLo;
                     }
                     else
                     {
-                        int centerSample = ( iSampleLo + iSampleUp ) / 2;
+                        int centerSample = ( sampleLo + sampleUp ) / 2;
                         posPicking = posStart + vecDir * centerSample;
                     }
 
