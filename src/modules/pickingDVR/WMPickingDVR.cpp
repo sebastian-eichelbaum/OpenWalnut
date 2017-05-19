@@ -382,7 +382,7 @@ void WMPickingDVR::moduleMain()
             //WYSIWYP: Calculate the largest interval
             if( strRenderMode == WMPICKINGDVR_WYSIWYP )
             {
-                std::pair<int, int> bounds = calculateIntervalWYSIWYP( vecAlphaAcc );
+                std::pair<int, int> bounds = getWYSIWYPBounds( vecAlphaAcc );
 
                 //Calculate Position
                 if( bounds.first >= 0 )
@@ -495,7 +495,15 @@ void WMPickingDVR::updateModuleGUI( std::string strRenderMode )
     }
 }
 
-std::pair<int, int> WMPickingDVR::calculateIntervalWYSIWYP( std::vector<double> vecAlphaAcc )
+std::pair<int, int> WMPickingDVR::getWYSIWYPBounds( const std::vector<double>& vecAlphaAcc )
+{
+    std::vector<int> dummyVector;
+    return calculateIntervalsWYSIWYP( vecAlphaAcc, dummyVector );
+}
+
+
+std::pair<int, int> WMPickingDVR::calculateIntervalsWYSIWYP( const std::vector<double>& vecAlphaAcc,
+                                                             std::vector<int>& vecIndicesLowerBounds )
 {
     //Derivative Variables
     std::vector<double> vecFirstDerivative;
@@ -503,8 +511,7 @@ std::pair<int, int> WMPickingDVR::calculateIntervalWYSIWYP( std::vector<double> 
 
     calculateDerivativesWYSIWYP( vecAlphaAcc, vecFirstDerivative, vecSecondDerivative );
 
-    //Create Intervals
-    std::vector<int> vecIndicesLowerBounds;
+    // Upper bounds temporary variable ... will not be returned
     std::vector<int> vecIndicesUpperBounds;
 
     //Calculate Interval Boundaries
@@ -552,6 +559,7 @@ std::pair<int, int> WMPickingDVR::calculateIntervalWYSIWYP( std::vector<double> 
         }
     }
     debugLog() << "Start of largest interval " << sampleLo;
+
     return std::make_pair( sampleLo, sampleUp );
 }
 

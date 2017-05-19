@@ -123,7 +123,19 @@ private:
      *
      * \result lower and upper bounds of the determined interval
      */
-    std::pair<int, int> calculateIntervalWYSIWYP( std::vector<double> vecAlphaAcc );
+    std::pair<int, int> getWYSIWYPBounds( const std::vector<double>& vecAlphaAcc );
+
+    /**
+     * Calculates the object intervals according
+     * to WYSIWYP (http://dx.doi.org/10.1109/TVCG.2012.292)
+     *
+     * \param vecAlphaAcc The accumulated alpha values at the samples along the viewing ray
+     * \param vecIndicesLowerBounds Returns the lower bounds of all intervals.
+     *
+     * \result lower and upper bounds of the most visible interval
+     */
+    std::pair<int, int> calculateIntervalsWYSIWYP( const std::vector<double>& vecAlphaAcc,
+                                                   std::vector<int>& vecIndicesLowerBounds );
 
     /**
      * Computes the first and second derivatives of a vector of values
