@@ -49,8 +49,8 @@ class WModuleOutputConnector;
  */
 class  WModuleConnector: public boost::enable_shared_from_this<WModuleConnector>
 {
-friend class WModuleConnectorTest; //!< Access for test class.
-friend class WModuleProjectFileCombiner;
+    friend class WModuleConnectorTest; //!< Access for test class.
+    friend class WModuleProjectFileCombiner; //!< Access for creating a module graph automatically.
 
 public:
     /**
@@ -331,4 +331,3 @@ private:
 };
 
 #endif  // WMODULECONNECTOR_H
-

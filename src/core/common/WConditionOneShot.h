@@ -39,7 +39,7 @@
  */
 class WConditionOneShot: public WCondition
 {
-    friend class WConditionOneShot_test;
+    friend class WConditionOneShot_test; //!< Access for test class.
 public:
     /**
      * Default constructor.

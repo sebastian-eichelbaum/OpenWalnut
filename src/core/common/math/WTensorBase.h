@@ -164,7 +164,7 @@ class WTensorBase
      */
     BOOST_STATIC_ASSERT( dim != 0 );
 
-    // Make the appropriate tensor of order + 1 a friend, so it has access to the getPos() member.
+    //! Make the appropriate tensor of order + 1 a friend, so it has access to the getPos() member.
     friend class WTensorBase< order + 1, dim, Data_T >;
 
     //! make the test class a friend
@@ -313,7 +313,6 @@ private:
     static inline std::size_t getPos( Index_T pos[] );
 
     //! Stores all elements.
-    //std::vector< Data_T > m_data;
     boost::array< Data_T, dataSize > m_data;
 };
 

@@ -119,7 +119,7 @@ public:
      */
     class ColorScheme: public WItemSelectionItem
     {
-    friend class WDataSetFibers;
+        friend class WDataSetFibers; //!< Grant access for its outer class
     public:
         /**
          * different kinds of color arrays can be used in this class. This enum defines their possible types.
@@ -1284,4 +1284,3 @@ private:
 };
 
 #endif  // WDATASETFIBERS_H
-

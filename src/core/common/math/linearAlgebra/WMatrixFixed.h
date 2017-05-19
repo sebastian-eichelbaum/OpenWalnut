@@ -148,10 +148,10 @@ private:
 template< typename ValueT, size_t Rows, size_t Cols, ValueStoreTemplate ValueStoreT = ValueStore >
 class WMatrixFixed
 {
-    //! the test is a friend
+    //! Access for test class
     friend class WMatrixFixedTest;
 
-    // this is needed for access to the storage object of another matrix
+    //! This is needed for access to the storage object of another matrix
     template< typename ValueTT, size_t Rowss, size_t Colss, ValueStoreTemplate ValueStoreTT >
     friend class WMatrixFixed;
 

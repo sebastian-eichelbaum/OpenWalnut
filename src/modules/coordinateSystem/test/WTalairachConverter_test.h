@@ -34,12 +34,10 @@
 #include "../WTalairachConverter.h"
 
 /**
- * Tests the Talailrach converter class
+ * Tests the Talairach converter class
  */
 class WTalairachConverterTest : public CxxTest::TestSuite
 {
-friend class WTalairachConverter;
-
 public:
     /**
      * Set up the special points of the Talairach coordinate system

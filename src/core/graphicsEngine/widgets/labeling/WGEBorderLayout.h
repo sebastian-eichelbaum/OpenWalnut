@@ -39,7 +39,7 @@
  */
 class WGEBorderLayout: public WGEGroupNode
 {
-friend class SafeUpdateCallback;
+friend class SafeUpdateCallback; //!< Grant access for its inner class
 public:
     /**
      * Default constructor.

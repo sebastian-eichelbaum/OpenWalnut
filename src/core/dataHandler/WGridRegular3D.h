@@ -59,7 +59,7 @@
 template< typename T >
 class WGridRegular3DTemplate : public WGrid // NOLINT
 {
-    // this (friend) is necessary to allow casting
+    //! this (friend) is necessary to allow casting
     template <class U>
     friend class WGridRegular3DTemplate;
     /**

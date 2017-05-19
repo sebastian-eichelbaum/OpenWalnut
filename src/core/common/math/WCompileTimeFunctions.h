@@ -33,6 +33,7 @@
 template< std::size_t n >
 struct WFactorial
 {
+    //! compile time factorial computation result
     enum
     {
         value = n * WFactorial< n - 1 >::value
@@ -45,6 +46,7 @@ struct WFactorial
 template<>
 struct WFactorial< 0 >
 {
+    //! compile time factorial computation basis value
     enum
     {
         value = 1

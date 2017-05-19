@@ -38,7 +38,7 @@
  */
 class WCondition // NOLINT
 {
-    friend class WCondition_test;
+    friend class WCondition_test; //!< Access for test class.
 public:
     /**
      * Shared pointer type for WCondition.

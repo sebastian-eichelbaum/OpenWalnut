@@ -43,7 +43,7 @@
  */
 class WUIWidgetBase
 {
-    friend class WUIWidgetFactory;
+    friend class WUIWidgetFactory; //!< The factory needs to be able to call the constructor
 public:
     /**
      * Convenience typedef for a boost::shared_ptr< WUIWidgetBase >.
@@ -237,4 +237,3 @@ private:
 };
 
 #endif  // WUIWIDGETBASE_H
-

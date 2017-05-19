@@ -268,7 +268,7 @@ namespace WStructuredTextParser
      */
     class StructuredValueTree
     {
-        friend class WStructuredTextParserTest;
+        friend class WStructuredTextParserTest; //!< Access for test class.
     public:
         /**
          * This char is used as separator for identifying values in the tree. NEVER change this value.

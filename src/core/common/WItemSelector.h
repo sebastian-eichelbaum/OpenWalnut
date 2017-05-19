@@ -51,7 +51,7 @@
  */
 class WItemSelector // NOLINT
 {
-friend class WItemSelection;
+    friend class WItemSelection; //!< Only class allowed to instanciate this class.
 public:
     /**
      * The type used for storing index lists. It is a list of integer correlating with the elements in the managed WItemSelection class.
@@ -295,4 +295,3 @@ private:
 std::ostream& operator<<( std::ostream& out, const WItemSelector& other );
 
 #endif  // WITEMSELECTOR_H
-
