@@ -67,7 +67,6 @@ private:
  */
 class WUIViewWidget: public WUIWidgetBase
 {
-    friend class WUI;
 public:
     /**
      * Abbreviation for a shared pointer on a instance of this class.

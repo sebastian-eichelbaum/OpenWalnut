@@ -38,7 +38,6 @@
  */
 class WUIPropertyGroupWidget: public WUIWidgetBase
 {
-    friend class WUI;
 public:
     /**
      * Convenience typedef for a boost::shared_ptr< WUIPropertyGroupWidget >.
