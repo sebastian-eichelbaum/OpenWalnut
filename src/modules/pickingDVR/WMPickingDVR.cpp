@@ -99,6 +99,16 @@ void WMPickingDVR::connectors()
 
 void WMPickingDVR::properties()
 {
+    m_selectionTypesList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_selectionTypesList->addItem( "Position (Picking)" );
+    m_selectionTypesList->addItem( "Line (VisiTrace) [NOT YET IMPLEMENTED]" );
+    m_selectionType = m_properties->addProperty( "Selection type",
+                                                 "What type of structure is to be selected in the DVR?",
+                                                 m_selectionTypesList->getSelectorFirst(),
+                                                 m_propCondition );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionType );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionType );
+
     //Color Property
     m_color = m_properties->addProperty( "Crosshair color", "Crosshair Color", WColor( 0.5f, 0.5f, 0.5f, 1.0f ), m_propCondition );
 
@@ -196,29 +206,45 @@ void WMPickingDVR::moduleMain()
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
-        //Get Picking Mode
-        WItemSelector selector  = m_pickingCriteriaCur->get( true );
-        std::string  pickingMode = selector.at( 0 )->getName();
-        debugLog() << pickingMode;
-
-        updateModuleGUI( pickingMode );
-
         // woke up since the module is requested to finish?
         if( m_shutdownFlag() )
         {
             break;
         }
 
-        //Valid Positions
-        if( m_bIntersected )
-        {
-            bool pickingSuccessful = false;
-            const osg::Vec3f posPicking = getPickedDVRPosition( pickingMode, &pickingSuccessful );
+        std::string pickingMode;
 
-            if( pickingSuccessful )
+        const bool picking =  m_selectionType->get( true ).getItemIndexOfSelected( 0 ) == 0;
+        if( picking )
+        {
+            pickingMode = m_pickingCriteriaCur->get( true ).at( 0 )->getName();
+            debugLog() << pickingMode;
+        }
+        else
+        {
+            pickingMode = WMPICKINGDVR_WYSIWYP;
+            debugLog() << "VisiTrace";
+        }
+
+        updateModuleGUI( pickingMode );
+
+        if( picking )
+        {
+            // Valid position picked on proxy cube
+            if( m_bIntersected )
             {
-                updatePositionIndicator( posPicking );
+                bool pickingSuccessful = false;
+                const osg::Vec3f posPicking = getPickedDVRPosition( pickingMode, &pickingSuccessful );
+
+                if( pickingSuccessful )
+                {
+                    updatePositionIndicator( posPicking );
+                }
             }
+        }
+        else
+        {
+#warning TODO
         }
     }
 
@@ -262,6 +288,8 @@ void WMPickingDVR::pickHandler( WPickInfo pickInfo )
 
 void WMPickingDVR::updateModuleGUI( std::string strRenderMode )
 {
+    const bool picking =  m_selectionType->get( true ).getItemIndexOfSelected( 0 ) == 0;
+
     if( strRenderMode == WMPICKINGDVR_THRESHOLD )
     {
         m_alphaThreshold->setHidden( false );
@@ -278,6 +306,21 @@ void WMPickingDVR::updateModuleGUI( std::string strRenderMode )
     else
     {
         m_wysiwypPositionType->setHidden( true );
+    }
+
+    if( picking )
+    {
+        m_pickingCriteriaCur->setHidden( false );
+        m_crossThickness->setHidden( false );
+        m_crossSize->setHidden( false );
+        m_color->setHidden( false );
+    }
+    else
+    {
+        m_pickingCriteriaCur->setHidden( true );
+        m_crossThickness->setHidden( true );
+        m_crossSize->setHidden( true );
+        m_color->setHidden( true );
     }
 }
 

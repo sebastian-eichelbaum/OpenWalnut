@@ -196,6 +196,9 @@ private:
      */
     WPropBool m_triggerCalculation;
 
+    WPropSelection m_selectionType; //!< Property determining what type of structure will be selected
+    boost::shared_ptr< WItemSelection > m_selectionTypesList; //!< List of selection types for \ref m_selectionType
+
     /**
      * Color Property:
      */
