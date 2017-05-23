@@ -72,7 +72,7 @@ public:
     virtual void pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea );
 
     /**
-     * Send a pick signal with the string "unpick"
+     * Send a pick signal with the unpickString
      */
     virtual void unpick();
 
@@ -93,6 +93,8 @@ public:
      * \param mode the paint mode
      */
     void setPaintMode( int mode );
+
+    static const std::string unpickString; //!< The string indicating picking has stopped.
 
 protected:
     /**

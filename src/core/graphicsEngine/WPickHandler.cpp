@@ -28,6 +28,8 @@
 
 #include "WPickHandler.h"
 
+const std::string WPickHandler::unpickString = "unpick";
+
 WPickHandler::WPickHandler()
     : m_hitResult( WPickInfo() ),
       m_startPick( WPickInfo() ),
@@ -182,7 +184,7 @@ void WPickHandler::unpick( )
     m_inPickMode = false;
     if( m_hitResult != WPickInfo() )
     {
-        m_hitResult = WPickInfo( "unpick", m_viewerName, WPosition(), std::make_pair( 0, 0 ), WPickInfo::NONE );
+        m_hitResult = WPickInfo( WPickHandler::unpickString, m_viewerName, WPosition(), std::make_pair( 0, 0 ), WPickInfo::NONE );
         m_startPick = WPickInfo();
         m_scrollWheel = 0;
     }
@@ -290,7 +292,7 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
         }
 
         // if we have a previous pick we search for it in the list
-        if( m_startPick.getName() != ""  && m_startPick.getName() != "unpick" )
+        if( m_startPick.getName() != ""  && m_startPick.getName() != WPickHandler::unpickString )
         {
             while( ( hitr != intersections.end() ) && !startPickIsStillInList )
             {
@@ -321,7 +323,7 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
     }
 
     // Set the new pickInfo if the previously picked is still in list or we have a pick in conjunction with previously no pick
-    if( startPickIsStillInList || ( intersetionsExist && ( m_startPick.getName() == "unpick" || m_startPick.getName() == "" ) ) )
+    if( startPickIsStillInList || ( intersetionsExist && ( m_startPick.getName() == WPickHandler::unpickString || m_startPick.getName() == "" ) ) )
     {
         // if nothing was picked before, or the previously picked was found: set new pickInfo
         WPosition pickPos;
@@ -338,7 +340,7 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
     }
 
     // Use the old PickInfo with updated pixel info if we have previously picked something but the old is not in list anymore
-    if( !startPickIsStillInList && m_startPick.getName() != ""  && m_startPick.getName() != "unpick" )
+    if( !startPickIsStillInList && m_startPick.getName() != ""  && m_startPick.getName() != WPickHandler::unpickString )
     {
         pickInfo = WPickInfo( m_startPick.getName(), m_viewerName, m_startPick.getPickPosition(), std::make_pair( x, y ),
                               m_startPick.getModifierKey(), m_mouseButton, m_startPick.getPickNormal(), m_scrollWheel );

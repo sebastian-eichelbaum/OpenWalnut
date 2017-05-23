@@ -222,7 +222,7 @@ void WROIBox::updateGFX()
         m_isPicked = true;
         m_oldScrollWheel = m_pickInfo.getScrollWheel();
     }
-    if( m_isPicked && m_pickInfo.getName() == "unpick" )
+    if( m_isPicked && m_pickInfo.getName() == WPickHandler::unpickString )
     {
         // Perform all actions necessary for finishing a pick
         if( m_not->get() )

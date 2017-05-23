@@ -380,7 +380,7 @@ void WMPaintTexture::queuePaint( WPickInfo pickInfo )
         return;
     }
 
-    if( !m_painting->get() || ( pickInfo.getMouseButton() != WPickInfo::MOUSE_LEFT ) || ( pickInfo.getName() == "unpick" ) )
+    if( !m_painting->get() || ( pickInfo.getMouseButton() != WPickInfo::MOUSE_LEFT ) || ( pickInfo.getName() == WPickHandler::unpickString ) )
     {
         return;
     }

@@ -187,7 +187,7 @@ void WROISphere::updateGFX()
         m_dirty->set( true );
         m_isPicked = true;
     }
-    if( m_isPicked && m_pickInfo.getName() == "unpick" )
+    if( m_isPicked && m_pickInfo.getName() == WPickHandler::unpickString )
     {
         // Perform all actions necessary for finishing a pick
         m_pickNormal = WVector3d();
