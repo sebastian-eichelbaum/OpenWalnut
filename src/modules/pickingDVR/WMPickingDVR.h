@@ -164,7 +164,12 @@ private:
      *
      * \return The picked position.
      */
-    osg::Vec3f getPickedDVRPosition( std::string pickingMode, bool* pickingSuccess );
+    WPosition getPickedDVRPosition( std::string pickingMode, bool* pickingSuccess );
+
+    /**
+     * Create the line rendering of the VisiTrace line.
+     */
+    void updateCurveRendering();
 
     /**
      * Input connector for scalar data.
@@ -264,6 +269,10 @@ private:
      * Boolean to check if the intersected positions are valid
      */
     bool m_bIntersected;
+
+    bool m_pickInProgress; //!< Indicates whether continouos picking is still in progress.
+
+    std::vector<WPosition> m_curve3D; //!< Positions representing the from VisiTrace selection mode.
 };
 
 #endif  // WMPICKINGDVR_H

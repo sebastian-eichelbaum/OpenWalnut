@@ -28,10 +28,11 @@
 #include <utility>
 #include <vector>
 
-#include <osgViewer/View>
-#include <osg/ShapeDrawable>
-#include <osg/Geometry>
 #include <osg/CullFace>
+#include <osg/Geometry>
+#include <osg/LineWidth>
+#include <osg/ShapeDrawable>
+#include <osgViewer/View>
 
 #include "core/dataHandler/WDataSetScalar.h"
 #include "core/graphicsEngine/WGEGeodeUtils.h"
@@ -60,7 +61,8 @@ W_LOADABLE_MODULE( WMPickingDVR )
 
 WMPickingDVR::WMPickingDVR():
 WModule(),
-    m_propCondition( new WCondition() )
+    m_propCondition( new WCondition() ),
+    m_curve3D( 0 )
 {
     m_bIntersected = false;
     m_posStart  = osg::Vec3f( 0.0, 0.0, 0.0 );
@@ -101,7 +103,7 @@ void WMPickingDVR::properties()
 {
     m_selectionTypesList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_selectionTypesList->addItem( "Position (Picking)" );
-    m_selectionTypesList->addItem( "Line (VisiTrace) [NOT YET IMPLEMENTED]" );
+    m_selectionTypesList->addItem( "Line (VisiTrace) [NOT YET CORRECTLY IMPLEMENTED]" );
     m_selectionType = m_properties->addProperty( "Selection type",
                                                  "What type of structure is to be selected in the DVR?",
                                                  m_selectionTypesList->getSelectorFirst(),
@@ -222,6 +224,7 @@ void WMPickingDVR::moduleMain()
         }
         else
         {
+            //pickingMode = WMPICKINGDVR_FIRST_HIT;
             pickingMode = WMPICKINGDVR_WYSIWYP;
             debugLog() << "VisiTrace";
         }
@@ -234,7 +237,7 @@ void WMPickingDVR::moduleMain()
             if( m_bIntersected )
             {
                 bool pickingSuccessful = false;
-                const osg::Vec3f posPicking = getPickedDVRPosition( pickingMode, &pickingSuccessful );
+                const WPosition posPicking = getPickedDVRPosition( pickingMode, &pickingSuccessful );
 
                 if( pickingSuccessful )
                 {
@@ -244,7 +247,22 @@ void WMPickingDVR::moduleMain()
         }
         else
         {
-#warning TODO
+#warning Still not fixed DONE
+            if( m_pickInProgress )
+            {
+                std::cout << "PROG" << std::endl;
+            }
+            else
+            {
+                std::cout << "DONE" << std::endl;
+            }
+            bool pickingSuccessful = false;
+            const WPosition posPicking = getPickedDVRPosition( pickingMode, &pickingSuccessful );
+            if( pickingSuccessful )
+            {
+                m_curve3D.push_back( posPicking );
+            }
+            updateCurveRendering();
         }
     }
 
@@ -256,8 +274,14 @@ void WMPickingDVR::pickHandler( WPickInfo pickInfo )
     //Not Right Mouse
     if( pickInfo.getMouseButton() != 2 )
     {
+        if( pickInfo.getName() == WPickHandler::unpickString )
+        {
+            m_pickInProgress = false;
+        }
         return;
     }
+
+    m_pickInProgress = true;
 
     //Intersect with 3D
     boost::shared_ptr< WGraphicsEngine > graphicsEngine = WGraphicsEngine::getGraphicsEngine();
@@ -268,7 +292,6 @@ void WMPickingDVR::pickHandler( WPickInfo pickInfo )
 
     float fPosX = pickInfo.getPickPixel().x();
     float fPosY = pickInfo.getPickPixel().y();
-
     //Intersect
     bool bIntersected = view->computeIntersections( fPosX, fPosY, intersections, 0xFFFFFFFF );
     if( bIntersected )
@@ -313,14 +336,12 @@ void WMPickingDVR::updateModuleGUI( std::string strRenderMode )
         m_pickingCriteriaCur->setHidden( false );
         m_crossThickness->setHidden( false );
         m_crossSize->setHidden( false );
-        m_color->setHidden( false );
     }
     else
     {
         m_pickingCriteriaCur->setHidden( true );
         m_crossThickness->setHidden( true );
         m_crossSize->setHidden( true );
-        m_color->setHidden( true );
     }
 }
 
@@ -531,14 +552,14 @@ void WMPickingDVR::updatePositionIndicator( osg::Vec3f position )
     m_rootNode->insert( geode );
 }
 
-osg::Vec3f WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pickingSuccess )
+WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pickingSuccess )
 {
     //Position Variables
     osg::Vec3f posStart  = m_posStart;
     osg::Vec3f posEnd  = m_posEnd;
     osg::Vec3f posSample = posStart;
-    osg::Vec3f posPicking = posStart;
     osg::Vec3f vecDir  = posEnd - posStart;
+    WPosition posPicking = posStart;
 
     //Picking Variable
     double max   = 0.0;
@@ -560,7 +581,7 @@ osg::Vec3f WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* p
     {
         errorLog()<< "[Invalid scalar field]";
         *pickingSuccess = false;
-        return osg::Vec3f();
+        return WPosition();
     }
 
     //Get Transferfunction Data
@@ -569,7 +590,7 @@ osg::Vec3f WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* p
     {
         errorLog()<< "[Invalid transferfunction data]";
         *pickingSuccess = false;
-        return osg::Vec3f();
+        return WPosition();
     }
 
     //Get Transferfunction Values
@@ -732,4 +753,58 @@ osg::Vec3f WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* p
     }
 
     return posPicking;
+}
+
+osg::ref_ptr< osg::Geode > generateLineStripGeode( const WLine& line, const float thickness, const WColor& color )
+{
+    using osg::ref_ptr;
+    ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    ref_ptr< osg::Vec4Array > colors   = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+    ref_ptr< osg::Geometry >  geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
+
+    for( size_t i = 1; i < line.size(); ++i )
+    {
+        vertices->push_back( osg::Vec3( line[i-1][0], line[i-1][1], line[i-1][2] ) );
+        colors->push_back( wge::getRGBAColorFromDirection( line[i-1], line[i] ) );
+    }
+    vertices->push_back( osg::Vec3( line.back()[0], line.back()[1], line.back()[2] ) );
+    colors->push_back( colors->back() );
+
+    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, line.size() ) );
+    geometry->setVertexArray( vertices );
+
+    if( color != WColor( 0, 0, 0, 0 ) )
+    {
+        colors->clear();
+        colors->push_back( color );
+        geometry->setColorArray( colors );
+        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    }
+    else
+    {
+        geometry->setColorArray( colors );
+        geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );    // This will not work on OSG 3.2 you should compute the color per vertex
+    }
+
+    // line width
+    osg::StateSet* stateset = geometry->getOrCreateStateSet();
+    stateset->setAttributeAndModes( new osg::LineWidth( thickness ), osg::StateAttribute::ON );
+    stateset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+
+    osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
+    geode->addDrawable( geometry );
+    return geode;
+}
+
+void WMPickingDVR::updateCurveRendering()
+{
+    WLine line( m_curve3D );
+    if( line.size() > 1 )
+    {
+        m_rootNode->remove( m_geode );
+        m_geode = generateLineStripGeode( line, 5.0, m_color->get() );
+
+        m_rootNode->clear();
+        m_rootNode->insert( m_geode );
+    }
 }
