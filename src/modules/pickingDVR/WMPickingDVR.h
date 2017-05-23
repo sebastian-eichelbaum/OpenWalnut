@@ -149,6 +149,14 @@ private:
                                       std::vector<double>& vecSecondDerivative );
 
     /**
+     * Set the new position of the graphical representation
+     * of the  picked position.
+     *
+     * \param position The position where the indicator should appear.
+     */
+    void updatePositionIndicator( osg::Vec3f position );
+
+    /**
      * Input connector for scalar data.
      */
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_scalarIC;

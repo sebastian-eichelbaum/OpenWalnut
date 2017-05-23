@@ -406,32 +406,10 @@ void WMPickingDVR::moduleMain()
             if( bPickedPos )
             {
                 debugLog() << "[pickedAlpha = " << pickedAlpha << "]"
-                           <<"[posPicking][X = " << posPicking.x() << " ]"
-                           <<"[Y = " << posPicking.y() << " ][Z = " << posPicking.z() << "]";
+                           << "[posPicking][X = " << posPicking.x() << " ]"
+                           << "[Y = " << posPicking.y() << " ][Z = " << posPicking.z() << "]";
 
-                osg::ref_ptr< osg::Geometry > geometry;
-                osg::ref_ptr< osg::Geode >  geode( new osg::Geode );
-
-                double size  = m_crossSize->get();
-                double thickness = m_crossThickness->get();
-
-                osg::ShapeDrawable* pBoxX = new osg::ShapeDrawable( new osg::Box( posPicking, size, thickness, thickness ) );
-                osg::ShapeDrawable* pBoxY = new osg::ShapeDrawable( new osg::Box( posPicking, thickness, size, thickness ) );
-                osg::ShapeDrawable* pBoxZ = new osg::ShapeDrawable( new osg::Box( posPicking, thickness, thickness, size ) );
-
-                pBoxX->setColor( m_color->get() );
-                pBoxY->setColor( m_color->get() );
-                pBoxZ->setColor( m_color->get() );
-
-                geode->addDrawable( pBoxX );
-                geode->addDrawable( pBoxY );
-                geode->addDrawable( pBoxZ );
-
-                m_rootNode->remove( m_geode );
-                m_geode = geode;
-
-                m_rootNode->clear();
-                m_rootNode->insert( geode );
+                updatePositionIndicator( posPicking );
             }
         }
     }
@@ -673,4 +651,31 @@ void WMPickingDVR::calculateDerivativesWYSIWYP( const std::vector<double>& value
 
         vecSecondDerivative.push_back( deriv );
     }
+}
+
+void WMPickingDVR::updatePositionIndicator( osg::Vec3f position )
+{
+    osg::ref_ptr< osg::Geometry > geometry;
+    osg::ref_ptr< osg::Geode >  geode( new osg::Geode );
+
+    const double size  = m_crossSize->get();
+    const double thickness = m_crossThickness->get();
+
+    osg::ShapeDrawable* pBoxX = new osg::ShapeDrawable( new osg::Box( position, size, thickness, thickness ) );
+    osg::ShapeDrawable* pBoxY = new osg::ShapeDrawable( new osg::Box( position, thickness, size, thickness ) );
+    osg::ShapeDrawable* pBoxZ = new osg::ShapeDrawable( new osg::Box( position, thickness, thickness, size ) );
+
+    pBoxX->setColor( m_color->get() );
+    pBoxY->setColor( m_color->get() );
+    pBoxZ->setColor( m_color->get() );
+
+    geode->addDrawable( pBoxX );
+    geode->addDrawable( pBoxY );
+    geode->addDrawable( pBoxZ );
+
+    m_rootNode->remove( m_geode );
+    m_geode = geode;
+
+    m_rootNode->clear();
+    m_rootNode->insert( geode );
 }
