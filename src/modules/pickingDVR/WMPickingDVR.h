@@ -157,6 +157,16 @@ private:
     void updatePositionIndicator( osg::Vec3f position );
 
     /**
+     * Compute the position picked in the DVR
+     *
+     * \param pickingMode Which mode for picking is chosen.
+     * \param pickingSuccess Variable will be set to whether a position in the DVR has been determined or not.
+     *
+     * \return The picked position.
+     */
+    osg::Vec3f getPickedDVRPosition( std::string pickingMode, bool* pickingSuccess );
+
+    /**
      * Input connector for scalar data.
      */
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_scalarIC;

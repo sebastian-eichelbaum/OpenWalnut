@@ -198,10 +198,10 @@ void WMPickingDVR::moduleMain()
 
         //Get Picking Mode
         WItemSelector selector  = m_pickingCriteriaCur->get( true );
-        std::string  strRenderMode = selector.at( 0 )->getName();
-        debugLog() << strRenderMode;
+        std::string  pickingMode = selector.at( 0 )->getName();
+        debugLog() << pickingMode;
 
-        updateModuleGUI( strRenderMode );
+        updateModuleGUI( pickingMode );
 
         // woke up since the module is requested to finish?
         if( m_shutdownFlag() )
@@ -212,203 +212,11 @@ void WMPickingDVR::moduleMain()
         //Valid Positions
         if( m_bIntersected )
         {
-            //Position Variables
-            osg::Vec3f posStart  = m_posStart;
-            osg::Vec3f posEnd  = m_posEnd;
-            osg::Vec3f posSample = posStart;
-            osg::Vec3f posPicking = posStart;
-            osg::Vec3f vecDir  = posEnd - posStart;
+            bool pickingSuccessful = false;
+            const osg::Vec3f posPicking = getPickedDVRPosition( pickingMode, &pickingSuccessful );
 
-            //Picking Variable
-            double max   = 0.0;
-            double min   = 0.0;
-            double accAlpha  = 0.0;
-            double accAlphaOld  = 0.0;
-            double pickedAlpha = 0.0;
-            double maxValue  = 0.0;
-            bool bPickedPos  = false;
-
-            //Calculate Step
-            if( m_sampleSteps->get() > 0 )
+            if( pickingSuccessful )
             {
-                vecDir = vecDir / m_sampleSteps->get();
-            }
-
-            //Get Scalar Field
-            boost::shared_ptr< WDataSetScalar > scalarData = m_scalarIC->getData();
-            if(!scalarData)
-            {
-                errorLog()<< "[Invalid scalar field]";
-                continue;
-            }
-
-            //Get Transferfunction Data
-            boost::shared_ptr< WDataSetSingle > transferFunctionData = m_transferFunction->getData();
-            if(!transferFunctionData)
-            {
-                errorLog()<< "[Invalid transferfunction data]";
-                continue;
-            }
-
-            //Get Transferfunction Values
-            boost::shared_ptr< WValueSetBase > transferFunctionValues = transferFunctionData->getValueSet();
-
-            max  = scalarData->getMax();
-            min  = scalarData->getMin();
-            maxValue = min;
-
-            std::vector<double> vecAlphaAcc;
-
-            // Sampling loop
-            for(int i = 0; i < m_sampleSteps->get(); i++)
-            {
-                //Scalarfield Values
-                bool bSuccess = false;
-                double value  = scalarData->interpolate( posSample, &bSuccess );
-
-                //Add Step
-                posSample = posSample + vecDir;
-
-                if(!bSuccess)
-                {
-                    continue;
-                }
-
-                //Classification Variables
-                double nomiator = value - min;
-                double denominator = max - min;
-
-                if( denominator == 0.0 )
-                {
-                    denominator = 0.0001;
-                }
-
-                //Classification: Convert Scalar to Color
-                double scalarPercentage = nomiator / denominator;
-                int  colorIdx   = scalarPercentage * transferFunctionValues->size();
-
-                //color
-                WMPickingColor<double> color;
-
-                //Get Color from transferfunction
-                color.setRed( transferFunctionData->getSingleRawValue( colorIdx * 4 + 0 ) );
-                color.setGreen( transferFunctionData->getSingleRawValue( colorIdx * 4 + 1 ) );
-                color.setBlue( transferFunctionData->getSingleRawValue( colorIdx * 4 + 2 ) );
-                color.setAlpha( transferFunctionData->getSingleRawValue( colorIdx * 4 + 3 ) );
-                color.normalize();
-
-                //gamma = alpha + beta - alpha * beta == currentAlpha + accedAlpha - currentAlpa * accedAlpha
-                //alpha = currentAlpha
-                //beta = accedAlpha
-                double currentAlpha = color.getAlpha();
-                double currentAlphaCorrected;
-
-                if( m_opacityCorrectionEnabled->get( true ) )
-                {
-                    const double defaultNumberOfSteps = 128.0;
-                    float relativeSampleDistance = defaultNumberOfSteps / m_sampleSteps->get();
-                    currentAlphaCorrected =  1.0 - pow( 1.0 - currentAlpha, relativeSampleDistance );
-                }
-                else
-                {
-                    currentAlphaCorrected = currentAlpha;
-                }
-
-                accAlpha  = currentAlphaCorrected + ( accAlpha - currentAlphaCorrected * accAlpha );
-
-
-
-                if( strRenderMode == WMPICKINGDVR_MAX_INT )
-                {
-                    //Maximum Intensity: maximal scalar value
-                    if( value > maxValue )
-                    {
-                        maxValue = value;
-                        posPicking = posSample;
-                        bPickedPos = true;
-                    }
-                }
-                else if( strRenderMode == WMPICKINGDVR_FIRST_HIT )
-                {
-                    //First Hit: first alpha value > 0.0
-                    if( currentAlpha > 0.0 )
-                    {
-                        pickedAlpha = currentAlpha;
-                        posPicking  =  posSample;
-                        bPickedPos  = true;
-                        break;
-                    }
-                }
-                else if( strRenderMode == WMPICKINGDVR_THRESHOLD )
-                {
-                    //Threshold: accumulated alpha value > threshold
-                    if( accAlpha > m_alphaThreshold->get() )
-                    {
-                        pickedAlpha = currentAlpha;
-                        posPicking  =  posSample;
-                        bPickedPos  = true;
-                        break;
-                    }
-                }
-                else if( strRenderMode == WMPICKINGDVR_HIGHEST_OPACITY )
-                {
-                    //Most Contributing: maximal alpha value
-                    if( currentAlpha > pickedAlpha )
-                    {
-                        pickedAlpha = currentAlpha;
-                        posPicking  =  posSample;
-                        bPickedPos  = true;
-                    }
-                }
-                else if( strRenderMode == WMPICKINGDVR_MOST_CONTRIBUTING )
-                {
-                    double currenAlphaIncrease = accAlpha - accAlphaOld;
-                    //Most Contributing: maximal alpha value
-                    if( currenAlphaIncrease > pickedAlpha )
-                    {
-                        pickedAlpha = currenAlphaIncrease;
-                        posPicking  =  posSample;
-                        bPickedPos  = true;
-                    }
-                    accAlphaOld = accAlpha;
-                }
-                else if( strRenderMode == WMPICKINGDVR_WYSIWYP )
-                {
-                    //WYSIWYP: Save all the accumulated alpha values
-                    vecAlphaAcc.push_back( accAlpha );
-                }
-            } // End of sampling loop
-
-            //WYSIWYP: Calculate the largest interval
-            if( strRenderMode == WMPICKINGDVR_WYSIWYP )
-            {
-                std::pair<int, int> bounds = getWYSIWYPBounds( vecAlphaAcc );
-
-                //Calculate Position
-                if( bounds.first >= 0 )
-                {
-                    //Calculate pick position
-                    if( m_wysiwypPositionType->get( true ).getItemIndexOfSelected( 0 ) == 0 )
-                    {
-                        posPicking = posStart + vecDir * bounds.first;
-                    }
-                    else
-                    {
-                        int centerSample = ( bounds.first + bounds.second ) / 2;
-                        posPicking = posStart + vecDir * centerSample;
-                    }
-
-                    bPickedPos = true;
-                }
-            }
-
-            //Rendering: update only if picked
-            if( bPickedPos )
-            {
-                debugLog() << "[pickedAlpha = " << pickedAlpha << "]"
-                           << "[posPicking][X = " << posPicking.x() << " ]"
-                           << "[Y = " << posPicking.y() << " ][Z = " << posPicking.z() << "]";
-
                 updatePositionIndicator( posPicking );
             }
         }
@@ -678,4 +486,207 @@ void WMPickingDVR::updatePositionIndicator( osg::Vec3f position )
 
     m_rootNode->clear();
     m_rootNode->insert( geode );
+}
+
+osg::Vec3f WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pickingSuccess )
+{
+    //Position Variables
+    osg::Vec3f posStart  = m_posStart;
+    osg::Vec3f posEnd  = m_posEnd;
+    osg::Vec3f posSample = posStart;
+    osg::Vec3f posPicking = posStart;
+    osg::Vec3f vecDir  = posEnd - posStart;
+
+    //Picking Variable
+    double max   = 0.0;
+    double min   = 0.0;
+    double accAlpha  = 0.0;
+    double accAlphaOld  = 0.0;
+    double pickedAlpha = 0.0;
+    double maxValue  = 0.0;
+
+    //Calculate Step
+    if( m_sampleSteps->get() > 0 )
+    {
+        vecDir = vecDir / m_sampleSteps->get();
+    }
+
+    //Get Scalar Field
+    boost::shared_ptr< WDataSetScalar > scalarData = m_scalarIC->getData();
+    if(!scalarData)
+    {
+        errorLog()<< "[Invalid scalar field]";
+        *pickingSuccess = false;
+        return osg::Vec3f();
+    }
+
+    //Get Transferfunction Data
+    boost::shared_ptr< WDataSetSingle > transferFunctionData = m_transferFunction->getData();
+    if(!transferFunctionData)
+    {
+        errorLog()<< "[Invalid transferfunction data]";
+        *pickingSuccess = false;
+        return osg::Vec3f();
+    }
+
+    //Get Transferfunction Values
+    boost::shared_ptr< WValueSetBase > transferFunctionValues = transferFunctionData->getValueSet();
+
+    max  = scalarData->getMax();
+    min  = scalarData->getMin();
+    maxValue = min;
+
+    std::vector<double> vecAlphaAcc;
+
+    // Sampling loop
+    for(int i = 0; i < m_sampleSteps->get(); i++)
+    {
+        //Scalarfield Values
+        bool bSuccess = false;
+        double value  = scalarData->interpolate( posSample, &bSuccess );
+
+        //Add Step
+        posSample = posSample + vecDir;
+
+        if(!bSuccess)
+        {
+            continue;
+        }
+
+        //Classification Variables
+        double nomiator = value - min;
+        double denominator = max - min;
+
+        if( denominator == 0.0 )
+        {
+            denominator = 0.0001;
+        }
+
+        //Classification: Convert Scalar to Color
+        double scalarPercentage = nomiator / denominator;
+        int  colorIdx   = scalarPercentage * transferFunctionValues->size();
+
+        //color
+        WMPickingColor<double> color;
+
+        //Get Color from transferfunction
+        color.setRed( transferFunctionData->getSingleRawValue( colorIdx * 4 + 0 ) );
+        color.setGreen( transferFunctionData->getSingleRawValue( colorIdx * 4 + 1 ) );
+        color.setBlue( transferFunctionData->getSingleRawValue( colorIdx * 4 + 2 ) );
+        color.setAlpha( transferFunctionData->getSingleRawValue( colorIdx * 4 + 3 ) );
+        color.normalize();
+
+        //gamma = alpha + beta - alpha * beta == currentAlpha + accedAlpha - currentAlpa * accedAlpha
+        //alpha = currentAlpha
+        //beta = accedAlpha
+        double currentAlpha = color.getAlpha();
+        double currentAlphaCorrected;
+
+        if( m_opacityCorrectionEnabled->get( true ) )
+        {
+            const double defaultNumberOfSteps = 128.0;
+            float relativeSampleDistance = defaultNumberOfSteps / m_sampleSteps->get();
+            currentAlphaCorrected =  1.0 - pow( 1.0 - currentAlpha, relativeSampleDistance );
+        }
+        else
+        {
+            currentAlphaCorrected = currentAlpha;
+        }
+
+        accAlpha  = currentAlphaCorrected + ( accAlpha - currentAlphaCorrected * accAlpha );
+
+
+
+        if( pickingMode == WMPICKINGDVR_MAX_INT )
+        {
+            //Maximum Intensity: maximal scalar value
+            if( value > maxValue )
+            {
+                maxValue = value;
+                posPicking = posSample;
+                *pickingSuccess = true;
+            }
+        }
+        else if( pickingMode == WMPICKINGDVR_FIRST_HIT )
+        {
+            //First Hit: first alpha value > 0.0
+            if( currentAlpha > 0.0 )
+            {
+                pickedAlpha = currentAlpha;
+                posPicking  =  posSample;
+                *pickingSuccess  = true;
+                break;
+            }
+        }
+        else if( pickingMode == WMPICKINGDVR_THRESHOLD )
+        {
+            //Threshold: accumulated alpha value > threshold
+            if( accAlpha > m_alphaThreshold->get() )
+            {
+                pickedAlpha = currentAlpha;
+                posPicking  =  posSample;
+                *pickingSuccess  = true;
+                break;
+            }
+        }
+        else if( pickingMode == WMPICKINGDVR_HIGHEST_OPACITY )
+        {
+            //Most Contributing: maximal alpha value
+            if( currentAlpha > pickedAlpha )
+            {
+                pickedAlpha = currentAlpha;
+                posPicking  =  posSample;
+                *pickingSuccess  = true;
+            }
+        }
+        else if( pickingMode == WMPICKINGDVR_MOST_CONTRIBUTING )
+        {
+            double currenAlphaIncrease = accAlpha - accAlphaOld;
+            //Most Contributing: maximal alpha value
+            if( currenAlphaIncrease > pickedAlpha )
+            {
+                pickedAlpha = currenAlphaIncrease;
+                posPicking  =  posSample;
+                *pickingSuccess  = true;
+            }
+            accAlphaOld = accAlpha;
+        }
+        else if( pickingMode == WMPICKINGDVR_WYSIWYP )
+        {
+            //WYSIWYP: Save all the accumulated alpha values
+            vecAlphaAcc.push_back( accAlpha );
+        }
+    } // End of sampling loop
+
+    //WYSIWYP: Calculate the largest interval
+    if( pickingMode == WMPICKINGDVR_WYSIWYP )
+    {
+        std::pair<int, int> bounds = getWYSIWYPBounds( vecAlphaAcc );
+
+        //Calculate Position
+        if( bounds.first >= 0 )
+        {
+            //Calculate pick position
+            if( m_wysiwypPositionType->get( true ).getItemIndexOfSelected( 0 ) == 0 )
+            {
+                posPicking = posStart + vecDir * bounds.first;
+            }
+            else
+            {
+                int centerSample = ( bounds.first + bounds.second ) / 2;
+                posPicking = posStart + vecDir * centerSample;
+            }
+
+            *pickingSuccess = true;
+        }
+    }
+
+    if( *pickingSuccess )
+    {
+        debugLog() << "[pickedAlpha = " << pickedAlpha << "]"
+                   << "[posPicking][X = " << posPicking.x() << " ]"
+                   << "[Y = " << posPicking.y() << " ][Z = " << posPicking.z() << "]";
+    }
+
+    return posPicking;
 }
