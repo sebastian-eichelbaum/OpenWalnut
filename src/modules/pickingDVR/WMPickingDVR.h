@@ -31,14 +31,10 @@
 
 #include "core/kernel/WModule.h"
 
-//Debug Switch
-//#define WMPICKINGDVR_DEBUG
-
 // forward declarations to reduce compile dependencies
 template< class T > class WModuleInputData;
 class WDataSetScalar;
 class WGEManagedGroupNode;
-
 
 /**
  * Allows to select a 3D position in a DVR by selecting a 2D location on the screen.
@@ -171,34 +167,20 @@ private:
      */
     void updateCurveRendering();
 
-    /**
-     * Input connector for scalar data.
-     */
-    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_scalarIC;
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_scalarIC; //!< Input connector for scalar data.
 
-    /**
-     * The transfer function as an input data set
-     */
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_transferFunction;
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_transferFunction; //!< The transfer function as an input data set
 
-    /**
-     * The OSG root node for this module. All other geodes or OSG nodes will be attached on this single node.
-     */
-    osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
+    osg::ref_ptr< WGEManagedGroupNode > m_rootNode; //!< All other geodes or OSG nodes of this module will be attached on this node.
 
-    /**
-     * The geometry rendered by this module.
-     */
-    osg::ref_ptr< osg::Geode > m_geode;
+    osg::ref_ptr< osg::Geode > m_geode; //!< The geometry rendered by this module.
 
-    /**
-     * Needed for recreating the geometry, incase when resolution changes.
-     */
-    boost::shared_ptr< WCondition > m_propCondition;
+    boost::shared_ptr< WCondition > m_propCondition; //!< Needed for recreating the geometry, incase when resolution changes.
 
     WPropBool m_triggerCalculation; //!< Trigger Property, will be triggered by the pickhandle
 
     WPropSelection m_selectionType; //!< Property determining what type of structure will be selected
+
     boost::shared_ptr< WItemSelection > m_selectionTypesList; //!< List of selection types for \ref m_selectionType
 
     WPropColor m_lineColor; //!< Color of line/s indicating selected position/s
@@ -207,7 +189,7 @@ private:
 
     /**
      * If active, the opacity of the classified fragment gets scaled according to sample count to ensure relative opacities even if sampling
-     * number changes (m_sampleSteps)
+     * number changes (\ref m_sampleSteps)
      */
     WPropBool m_opacityCorrectionEnabled;
 
