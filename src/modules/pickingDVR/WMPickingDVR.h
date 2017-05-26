@@ -196,23 +196,14 @@ private:
      */
     boost::shared_ptr< WCondition > m_propCondition;
 
-    /**
-     * Trigger Property, will be triggered by the pickhandler
-     */
-    WPropBool m_triggerCalculation;
+    WPropBool m_triggerCalculation; //!< Trigger Property, will be triggered by the pickhandle
 
     WPropSelection m_selectionType; //!< Property determining what type of structure will be selected
     boost::shared_ptr< WItemSelection > m_selectionTypesList; //!< List of selection types for \ref m_selectionType
 
-    /**
-     * Color Property:
-     */
-    WPropColor m_color;
+    WPropColor m_lineColor; //!< Color of line/s indicating selected position/s
 
-    /**
-     * Number of samples along the ray
-     */
-    WPropInt m_sampleSteps;
+    WPropInt m_sampleSteps; //!< Number of samples along the ray
 
     /**
      * If active, the opacity of the classified fragment gets scaled according to sample count to ensure relative opacities even if sampling
@@ -220,55 +211,25 @@ private:
      */
     WPropBool m_opacityCorrectionEnabled;
 
-    /**
-     * Double Property: Alpha Value and alpha Percentage
-     */
-    WPropDouble m_alphaThreshold;
+    WPropDouble m_alphaThreshold; //!< Alpha value and alpha percentage
 
-    /**
-     * Double Property: Picking Crosshair Thinkness
-     */
-    WPropDouble m_crossThickness;
+    WPropDouble m_lineThickness; //!< Thinkness of line/s indicating selected position/s
 
-    /**
-     * Double Property: Picking Crosshair Size
-     */
-    WPropDouble m_crossSize;
+    WPropDouble m_crossSize; //!< Picking crosshair length of lines
 
-    /**
-     * Current picking method
-     */
-    WPropSelection m_pickingCriteriaCur;
+    WPropSelection m_pickingCriteriaCur; //!< Current picking method
 
-    /**
-     * Possible criteria
-     */
-    boost::shared_ptr< WItemSelection > m_pickingCriteriaList;
+    boost::shared_ptr< WItemSelection > m_pickingCriteriaList; //!< Possible picking criteria for \ref m_pickingCriteriaCur
 
-    /**
-     * Selecting the type of position obtained by WYSIWYP
-     */
-    WPropSelection m_wysiwypPositionType;
+    WPropSelection m_wysiwypPositionType; //!< Selecting the type of position obtained by WYSIWYP
 
-    /**
-     * Possible position types for WYSIWYP
-     */
-    boost::shared_ptr< WItemSelection > m_wysiwypPositionTypesList;
+    boost::shared_ptr< WItemSelection > m_wysiwypPositionTypesList; //!< Possible position types for WYSIWYP
 
-    /**
-     * Intersection position start
-     */
-    osg::Vec3f m_posStart;
+    osg::Vec3f m_posStart; //!< Intersection position start
 
-    /**
-     * Intersection position end
-     */
-    osg::Vec3f m_posEnd;
+    osg::Vec3f m_posEnd; //!< Intersection position end
 
-    /**
-     * Boolean to check if the intersected positions are valid
-     */
-    bool m_intersected;
+    bool m_intersected; //!< Indicates if intersected positions are valid
 
     bool m_pickInProgress; //!< Indicates whether continouos picking is still in progress.
 

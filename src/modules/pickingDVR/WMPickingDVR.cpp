@@ -111,9 +111,6 @@ void WMPickingDVR::properties()
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_selectionType );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_selectionType );
 
-    //Color Property
-    m_color = m_properties->addProperty( "Crosshair color", "Crosshair Color", WColor( 0.5f, 0.5f, 0.5f, 1.0f ), m_propCondition );
-
     m_sampleSteps = m_properties->addProperty( "Samples - steps",
                       "Number of samples. Choose this appropriately for the settings used for the DVR itself.",
                        256,
@@ -127,11 +124,23 @@ void WMPickingDVR::properties()
             true,
             m_propCondition );
 
-    m_crossThickness = m_properties->addProperty( "Crosshair thickness", "Crosshair thickness", 0.5, m_propCondition );
-    m_crossThickness->setMin( 0.001 );
-    m_crossThickness->setMax( 1.0 );
 
-    m_crossSize = m_properties->addProperty( "Crosshair size", "Crosshair size", 100.0, m_propCondition );
+    m_lineColor = m_properties->addProperty( "Line color",
+                                             "Color of line/s indicating selected position/s.",
+                                             WColor( 0.5f, 0.5f, 0.5f, 1.0f ),
+                                             m_propCondition );
+
+    m_lineThickness = m_properties->addProperty( "Line thickness",
+                                                 "Thickness of line/s indicating selected position/s.",
+                                                 0.5,
+                                                 m_propCondition );
+    m_lineThickness->setMin( 0.001 );
+    m_lineThickness->setMax( 5.0 );
+
+    m_crossSize = m_properties->addProperty( "Crosshair size",
+                                             "Length of crosshair lines.",
+                                             100.0,
+                                             m_propCondition );
     m_crossSize->setMin( 0.001 );
     m_crossSize->setMax( 1000.0 );
 
@@ -335,13 +344,11 @@ void WMPickingDVR::updateModuleGUI( std::string strRenderMode )
     if( picking )
     {
         m_pickingCriteriaCur->setHidden( false );
-        m_crossThickness->setHidden( false );
         m_crossSize->setHidden( false );
     }
     else
     {
         m_pickingCriteriaCur->setHidden( true );
-        m_crossThickness->setHidden( true );
         m_crossSize->setHidden( true );
     }
 }
@@ -399,7 +406,7 @@ std::pair<int, int> WMPickingDVR::calculateIntervalsWYSIWYP( const std::vector<d
     {
         //Calculate diff
         diff = vecAlphaAcc[vecIndicesUpperBounds[j]] - vecAlphaAcc[vecIndicesLowerBounds[j]];
-        debugLog() << "Interval [" <<  vecIndicesLowerBounds[j] << "," << vecIndicesUpperBounds[j] << "] = " << diff;
+        //debugLog() << "Interval [" <<  vecIndicesLowerBounds[j] << "," << vecIndicesUpperBounds[j] << "] = " << diff;
 
         //Is Max Diff
         if( diff > maxDiff )
@@ -409,7 +416,7 @@ std::pair<int, int> WMPickingDVR::calculateIntervalsWYSIWYP( const std::vector<d
             sampleUp = vecIndicesUpperBounds[j];
         }
     }
-    debugLog() << "Start of largest interval " << sampleLo;
+    //debugLog() << "Start of largest interval " << sampleLo;
 
     return std::make_pair( sampleLo, sampleUp );
 }
@@ -532,15 +539,15 @@ void WMPickingDVR::updatePositionIndicator( osg::Vec3f position )
     osg::ref_ptr< osg::Geode > geode( new osg::Geode );
 
     const double size  = m_crossSize->get();
-    const double thickness = m_crossThickness->get();
+    const double thickness = m_lineThickness->get();
 
     osg::ShapeDrawable* pBoxX = new osg::ShapeDrawable( new osg::Box( position, size, thickness, thickness ) );
     osg::ShapeDrawable* pBoxY = new osg::ShapeDrawable( new osg::Box( position, thickness, size, thickness ) );
     osg::ShapeDrawable* pBoxZ = new osg::ShapeDrawable( new osg::Box( position, thickness, thickness, size ) );
 
-    pBoxX->setColor( m_color->get() );
-    pBoxY->setColor( m_color->get() );
-    pBoxZ->setColor( m_color->get() );
+    pBoxX->setColor( m_lineColor->get() );
+    pBoxY->setColor( m_lineColor->get() );
+    pBoxZ->setColor( m_lineColor->get() );
 
     geode->addDrawable( pBoxX );
     geode->addDrawable( pBoxY );
@@ -748,9 +755,9 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
 
     if( *pickingSuccess )
     {
-        debugLog() << "[pickedAlpha = " << pickedAlpha << "]"
-                   << "[posPicking][X = " << posPicking.x() << " ]"
-                   << "[Y = " << posPicking.y() << " ][Z = " << posPicking.z() << "]";
+        // debugLog() << "[pickedAlpha = " << pickedAlpha << "]"
+        //            << "[posPicking][X = " << posPicking.x() << " ]"
+        //            << "[Y = " << posPicking.y() << " ][Z = " << posPicking.z() << "]";
     }
 
     return posPicking;
@@ -803,7 +810,7 @@ void WMPickingDVR::updateCurveRendering()
     if( line.size() > 1 )
     {
         m_rootNode->remove( m_geode );
-        m_geode = generateLineStripGeode( line, 5.0, m_color->get() );
+        m_geode = generateLineStripGeode( line, m_lineThickness->get(), m_lineColor->get() );
 
         m_rootNode->clear();
         m_rootNode->insert( m_geode );
