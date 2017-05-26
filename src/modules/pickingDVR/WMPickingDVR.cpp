@@ -529,7 +529,7 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
         }
 
         //Classification Variables
-        double nomiator = value - min;
+        double nominator = value - min;
         double denominator = max - min;
 
         if( denominator == 0.0 )
@@ -538,8 +538,8 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
         }
 
         //Classification: Convert Scalar to Color
-        double scalarPercentage = nomiator / denominator;
-        int  colorIdx   = scalarPercentage * transferFunctionValues->size();
+        double scalarPercentage = nominator / denominator;
+        int colorIdx = scalarPercentage * transferFunctionValues->size();
 
         //color
         WMPickingColor<double> color;
@@ -621,8 +621,8 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
             if( currenAlphaIncrease > pickedAlpha )
             {
                 pickedAlpha = currenAlphaIncrease;
-                posPicking  =  posSample;
-                *pickingSuccess  = true;
+                posPicking = posSample;
+                *pickingSuccess = true;
             }
             accAlphaOld = accAlpha;
         }
