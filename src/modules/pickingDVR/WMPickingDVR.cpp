@@ -47,6 +47,7 @@
 
 #include "WMPickingDVR.h"
 #include "WMPickingDVRHelper.h"
+#include "WVisiTrace.h"
 
 //Module Defines
 #define WMPICKINGDVR_MAX_INT   "Picking - Maximum Intensity"
@@ -263,7 +264,7 @@ void WMPickingDVR::moduleMain()
                 }
             }
         }
-        else
+        else if( selectionType == 1)
         {
             bool pickingSuccessful = false;
             const WPosition posPicking = getPickedDVRPosition( pickingMode, &pickingSuccessful );
@@ -286,6 +287,35 @@ void WMPickingDVR::moduleMain()
             {
                 m_curve3D.clear(); // Start a new line for the next line selection
             }
+        }
+        else if( selectionType == 2)
+        {
+            bool pickingSuccessful = false;
+            const WPosition posPicking = getPickedDVRPosition( pickingMode, &pickingSuccessful );
+
+#warning need to call actual relvant function here
+            //m_visiTrace.addCandidatesForRay
+
+            if( m_continuousDrawing->get()
+                || !m_pickInProgress )
+            {
+                m_curve3D = m_visiTrace.getLine();
+                updateCurveRendering();
+            }
+
+            if( m_pickInProgress )
+            {
+                m_moduleState.notify(); // Make sure that main loop is excuted until picking stopped
+            }
+            else
+            {
+                m_visiTrace.reset();
+                m_curve3D.clear(); // Start a new line for the next line selection
+            }
+        }
+        else
+        {
+            WAssert( false, "This should not happen. Internal module error." );
         }
     }
 

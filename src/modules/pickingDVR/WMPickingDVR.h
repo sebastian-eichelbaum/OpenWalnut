@@ -31,6 +31,8 @@
 
 #include "core/kernel/WModule.h"
 
+#include "WVisiTrace.h"
+
 // forward declarations to reduce compile dependencies
 template< class T > class WModuleInputData;
 class WDataSetScalar;
@@ -207,6 +209,8 @@ private:
     bool m_pickInProgress; //!< Indicates whether continouos picking is still in progress.
 
     std::vector<WPosition> m_curve3D; //!< Positions representing the from VisiTrace selection mode.
+
+    WVisiTrace m_visiTrace; //!< Class providing VisiTrace optimization.
 };
 
 #endif  // WMPICKINGDVR_H
