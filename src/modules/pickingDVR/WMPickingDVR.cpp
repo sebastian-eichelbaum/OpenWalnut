@@ -103,6 +103,7 @@ void WMPickingDVR::properties()
 {
     m_selectionTypesList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_selectionTypesList->addItem( "Position (Picking)" );
+    m_selectionTypesList->addItem( "Line (Simple)" );
     m_selectionTypesList->addItem( "Line (VisiTrace) [NOT YET CORRECTLY IMPLEMENTED]" );
     m_selectionType = m_properties->addProperty( "Selection type",
                                                  "What type of structure is to be selected in the DVR?",
@@ -225,22 +226,26 @@ void WMPickingDVR::moduleMain()
 
         std::string pickingMode;
 
-        const bool picking =  m_selectionType->get( true ).getItemIndexOfSelected( 0 ) == 0;
-        if( picking )
+        const int selectionType =  m_selectionType->get( true ).getItemIndexOfSelected( 0 );
+        if( selectionType == 0 ) // Pick
         {
             pickingMode = m_pickingCriteriaCur->get( true ).at( 0 )->getName();
             debugLog() << pickingMode;
         }
-        else
+        else if( selectionType == 1 ) // Line (Simple)
         {
-            //pickingMode = WMPICKINGDVR_FIRST_HIT;
+            pickingMode = WMPICKINGDVR_FIRST_HIT;
+            debugLog() << "Line (Simple)";
+        }
+        else if( selectionType == 2 ) // VisiTrace
+        {
             pickingMode = WMPICKINGDVR_WYSIWYP;
             debugLog() << "VisiTrace";
         }
 
         updateModuleGUI( pickingMode );
 
-        if( picking )
+        if( selectionType == 0 )
         {
             // Valid position picked on proxy cube
             if( m_intersected )
@@ -319,11 +324,11 @@ void WMPickingDVR::pickHandler( WPickInfo pickInfo )
     }
 }
 
-void WMPickingDVR::updateModuleGUI( std::string strRenderMode )
+void WMPickingDVR::updateModuleGUI( std::string pickingMode )
 {
-    const bool picking =  m_selectionType->get( true ).getItemIndexOfSelected( 0 ) == 0;
+    const bool picking = ( m_selectionType->get( true ).getItemIndexOfSelected( 0 ) == 0 );
 
-    if( strRenderMode == WMPICKINGDVR_THRESHOLD )
+    if( pickingMode == WMPICKINGDVR_THRESHOLD )
     {
         m_alphaThreshold->setHidden( false );
     }
@@ -332,7 +337,7 @@ void WMPickingDVR::updateModuleGUI( std::string strRenderMode )
         m_alphaThreshold->setHidden( true );
     }
 
-    if( strRenderMode == WMPICKINGDVR_WYSIWYP )
+    if( pickingMode == WMPICKINGDVR_WYSIWYP )
     {
         m_wysiwypPositionType->setHidden( false );
     }

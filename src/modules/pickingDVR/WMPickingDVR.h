@@ -105,9 +105,9 @@ private:
     /**
      * Shows and hide relevant properties according to chosen picking mode.
      *
-     * \param strPickingMode The type of picking criterion used
+     * \param pickingMode The type of picking criterion used
      */
-    void updateModuleGUI( std::string strPickingMode );
+    void updateModuleGUI( std::string pickingMode );
 
 
 
