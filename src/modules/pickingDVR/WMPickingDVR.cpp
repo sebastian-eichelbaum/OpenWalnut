@@ -247,22 +247,23 @@ void WMPickingDVR::moduleMain()
         }
         else
         {
-#warning Still not fixed DONE
-            if( m_pickInProgress )
-            {
-                std::cout << "PROG" << std::endl;
-            }
-            else
-            {
-                std::cout << "DONE" << std::endl;
-            }
             bool pickingSuccessful = false;
             const WPosition posPicking = getPickedDVRPosition( pickingMode, &pickingSuccessful );
             if( pickingSuccessful )
             {
                 m_curve3D.push_back( posPicking );
             }
+
             updateCurveRendering();
+
+            if( m_pickInProgress )
+            {
+                m_moduleState.notify(); // Make sure that main loop is excuted until picking stopped
+            }
+            else
+            {
+                m_curve3D.clear(); // Start a new line for the next line selection
+            }
         }
     }
 
