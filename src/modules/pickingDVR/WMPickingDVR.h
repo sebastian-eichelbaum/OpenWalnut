@@ -179,6 +179,8 @@ private:
 
     WPropBool m_triggerCalculation; //!< Trigger Property, will be triggered by the pickhandle
 
+    WPropBool m_continuousDrawing; //!< Should line be shown during drawing acrion?
+
     WPropSelection m_selectionType; //!< Property determining what type of structure will be selected
 
     boost::shared_ptr< WItemSelection > m_selectionTypesList; //!< List of selection types for \ref m_selectionType

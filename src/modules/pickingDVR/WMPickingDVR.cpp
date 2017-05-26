@@ -103,7 +103,7 @@ void WMPickingDVR::properties()
 {
     m_selectionTypesList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_selectionTypesList->addItem( "Position (Picking)" );
-    m_selectionTypesList->addItem( "Line (Simple)" );
+    m_selectionTypesList->addItem( "Line (First Hit)" );
     m_selectionTypesList->addItem( "Line (VisiTrace) [NOT YET CORRECTLY IMPLEMENTED]" );
     m_selectionType = m_properties->addProperty( "Selection type",
                                                  "What type of structure is to be selected in the DVR?",
@@ -125,6 +125,10 @@ void WMPickingDVR::properties()
             true,
             m_propCondition );
 
+    m_continuousDrawing = m_properties->addProperty( "Continuous drawing",
+            "Should line be shown during drawing action?",
+            true,
+            m_propCondition );
 
     m_lineColor = m_properties->addProperty( "Line color",
                                              "Color of line/s indicating selected position/s.",
@@ -232,10 +236,10 @@ void WMPickingDVR::moduleMain()
             pickingMode = m_pickingCriteriaCur->get( true ).at( 0 )->getName();
             debugLog() << pickingMode;
         }
-        else if( selectionType == 1 ) // Line (Simple)
+        else if( selectionType == 1 ) // Line (First Hit)
         {
             pickingMode = WMPICKINGDVR_FIRST_HIT;
-            debugLog() << "Line (Simple)";
+            debugLog() << "Line (First Hit)";
         }
         else if( selectionType == 2 ) // VisiTrace
         {
@@ -268,7 +272,11 @@ void WMPickingDVR::moduleMain()
                 m_curve3D.push_back( posPicking );
             }
 
-            updateCurveRendering();
+            if( m_continuousDrawing->get()
+                || !m_pickInProgress )
+            {
+                updateCurveRendering();
+            }
 
             if( m_pickInProgress )
             {
@@ -350,11 +358,13 @@ void WMPickingDVR::updateModuleGUI( std::string pickingMode )
     {
         m_pickingCriteriaCur->setHidden( false );
         m_crossSize->setHidden( false );
+        m_continuousDrawing->setHidden( true );
     }
     else
     {
         m_pickingCriteriaCur->setHidden( true );
         m_crossSize->setHidden( true );
+        m_continuousDrawing->setHidden( false );
     }
 }
 
