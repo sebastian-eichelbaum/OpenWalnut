@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2015 A. Betz, D. Gerlicher, OpenWalnut Community, Nemtics, BSV@Uni-Leipzig
+// Copyright 2015-2017 A. Betz, D. Gerlicher, OpenWalnut Community
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -24,6 +24,22 @@
 
 #ifndef WMPICKINGDVRHELPER_H
 #define WMPICKINGDVRHELPER_H
+
+#include <vector>
+
+namespace PickingDVRHelper
+{
+    /**
+     * Computes the first and second derivatives of a vector of values
+     *
+     * \param values Values for which the derivatives will be computed
+     * \param vecFirstDerivative The first derivative of the values
+     * \param vecSecondDerivative The second derivative of the values
+     */
+    void calculateDerivativesWYSIWYP( const std::vector<double>& values,
+                                                    std::vector<double>& vecFirstDerivative,
+                                                    std::vector<double>& vecSecondDerivative );
+}
 
 /**
  * Color converter for different scalings, i.e. [0,1] vs. [0,255]

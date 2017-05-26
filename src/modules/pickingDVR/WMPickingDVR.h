@@ -134,17 +134,6 @@ private:
                                                    std::vector<int>& vecIndicesLowerBounds );
 
     /**
-     * Computes the first and second derivatives of a vector of values
-     *
-     * \param values Values for which the derivatives will be computed
-     * \param vecFirstDerivative The first derivative of the values
-     * \param vecSecondDerivative The second derivative of the values
-     */
-    void calculateDerivativesWYSIWYP( const std::vector<double>& values,
-                                      std::vector<double>& vecFirstDerivative,
-                                      std::vector<double>& vecSecondDerivative );
-
-    /**
      * Set the new position of the graphical representation
      * of the  picked position.
      *

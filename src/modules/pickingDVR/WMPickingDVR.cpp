@@ -382,7 +382,7 @@ std::pair<int, int> WMPickingDVR::calculateIntervalsWYSIWYP( const std::vector<d
     std::vector<double> vecFirstDerivative;
     std::vector<double> vecSecondDerivative;
 
-    calculateDerivativesWYSIWYP( vecAlphaAcc, vecFirstDerivative, vecSecondDerivative );
+    PickingDVRHelper::calculateDerivativesWYSIWYP( vecAlphaAcc, vecFirstDerivative, vecSecondDerivative );
 
     // Upper bounds temporary variable ... will not be returned
     std::vector<int> vecIndicesUpperBounds;
@@ -434,118 +434,6 @@ std::pair<int, int> WMPickingDVR::calculateIntervalsWYSIWYP( const std::vector<d
     //debugLog() << "Start of largest interval " << sampleLo;
 
     return std::make_pair( sampleLo, sampleUp );
-}
-
-void WMPickingDVR::calculateDerivativesWYSIWYP( const std::vector<double>& values,
-                                               std::vector<double>& vecFirstDerivative,
-                                               std::vector<double>& vecSecondDerivative )
-{
-    //Fourth Order Finite Differencing by Daniel Gerlicher
-    unsigned int n  = values.size();
-    double deriv = 0.0;
-    double coeff = 1.0 / 12.0;
-
-    //Calculate first derivative
-    for( unsigned int j = 0; j < n; j++ )
-    {
-        //Forward Diff
-        if( j == 0 )
-        {
-            deriv = coeff * ( -25 * values[j]
-                                + 48 * values[j+1]
-                                - 36 * values[j+2]
-                                + 16 * values[j+3]
-                                - 3 * values[j+4] );
-        }
-        else if( j == 1 )
-        {
-            deriv = coeff * ( -3 * values[j-1]
-                                - 10 * values[j]
-                                + 18 * values[j+1]
-                                - 6 * values[j+2]
-                                + 1 * values[j+3] );
-        }
-
-        //Backward Diff
-        else if( j == n - 1 )
-        {
-            deriv = coeff * ( 25 * values[j]
-                                - 48 * values[j-1]
-                                + 36 * values[j-2]
-                                - 16 * values[j-3]
-                                + 3 * values[j-4] );
-        }
-        else if( j == n - 2 )
-        {
-            deriv = coeff * ( +3 * values[j+1]
-                                + 10 * values[j]
-                                - 18 * values[j-1]
-                                + 6 * values[j-2]
-                                - 1 * values[j-3] );
-        }
-
-        //Center
-        else
-        {
-            deriv = coeff * ( -1 * values[j+2]
-                                + 8 * values[j+1]
-                                - 8 * values[j-1]
-                                + 1 * values[j-2] );
-        }
-
-        vecFirstDerivative.push_back( deriv );
-    }
-
-    //Calculate Second derivative, by applying the first derivative
-    for( unsigned int j = 0; j < n; j++ )
-    {
-        //Forward Diff
-        if( j == 0 )
-        {
-            deriv = coeff * ( -25 * vecFirstDerivative[j]
-                                + 48 * vecFirstDerivative[j+1]
-                                - 36 * vecFirstDerivative[j+2]
-                                + 16 * vecFirstDerivative[j+3]
-                                - 3 * vecFirstDerivative[j+4] );
-        }
-        else if( j == 1 )
-        {
-            deriv = coeff * ( -3 * vecFirstDerivative[j-1]
-                                - 10 * vecFirstDerivative[j]
-                                + 18 * vecFirstDerivative[j+1]
-                                - 6 * vecFirstDerivative[j+2]
-                                + 1 * vecFirstDerivative[j+3] );
-        }
-
-        //Backward Diff
-        else if( j == n - 1 )
-        {
-            deriv = coeff * ( 25 * vecFirstDerivative[j]
-                                - 48 * vecFirstDerivative[j-1]
-                                + 36 * vecFirstDerivative[j-2]
-                                - 16 * vecFirstDerivative[j-3]
-                                + 3 * vecFirstDerivative[j-4] );
-        }
-        else if( j == n - 2 )
-        {
-            deriv = coeff * ( +3 * vecFirstDerivative[j+1]
-                                + 10 * vecFirstDerivative[j]
-                                - 18 * vecFirstDerivative[j-1]
-                                + 6 * vecFirstDerivative[j-2]
-                                - 1 * vecFirstDerivative[j-3] );
-        }
-
-        //Center
-        else
-        {
-            deriv = coeff * ( -1 * vecFirstDerivative[j+2]
-                                + 8 * vecFirstDerivative[j+1]
-                                - 8 * vecFirstDerivative[j-1]
-                                + 1 * vecFirstDerivative[j-2] );
-        }
-
-        vecSecondDerivative.push_back( deriv );
-    }
 }
 
 void WMPickingDVR::updatePositionIndicator( osg::Vec3f position )
