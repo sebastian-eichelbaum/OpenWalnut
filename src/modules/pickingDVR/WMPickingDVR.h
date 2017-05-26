@@ -268,7 +268,7 @@ private:
     /**
      * Boolean to check if the intersected positions are valid
      */
-    bool m_bIntersected;
+    bool m_intersected;
 
     bool m_pickInProgress; //!< Indicates whether continouos picking is still in progress.
 

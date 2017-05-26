@@ -64,7 +64,7 @@ WModule(),
     m_propCondition( new WCondition() ),
     m_curve3D( 0 )
 {
-    m_bIntersected = false;
+    m_intersected = false;
     m_posStart  = osg::Vec3f( 0.0, 0.0, 0.0 );
     m_posEnd   = osg::Vec3f( 0.0, 0.0, 0.0 );
 }
@@ -234,7 +234,7 @@ void WMPickingDVR::moduleMain()
         if( picking )
         {
             // Valid position picked on proxy cube
-            if( m_bIntersected )
+            if( m_intersected )
             {
                 bool pickingSuccessful = false;
                 const WPosition posPicking = getPickedDVRPosition( pickingMode, &pickingSuccessful );
@@ -293,8 +293,8 @@ void WMPickingDVR::pickHandler( WPickInfo pickInfo )
     float fPosX = pickInfo.getPickPixel().x();
     float fPosY = pickInfo.getPickPixel().y();
     //Intersect
-    bool bIntersected = view->computeIntersections( fPosX, fPosY, intersections, 0xFFFFFFFF );
-    if( bIntersected )
+    bool intersected = view->computeIntersections( fPosX, fPosY, intersections, 0xFFFFFFFF );
+    if( intersected )
     {
         osgUtil::LineSegmentIntersector::Intersection start= *intersections.begin();
         osgUtil::LineSegmentIntersector::Intersection end = *intersections.rbegin();
@@ -302,7 +302,7 @@ void WMPickingDVR::pickHandler( WPickInfo pickInfo )
         m_posStart = start.getWorldIntersectPoint();
         m_posEnd  = end.getWorldIntersectPoint();
 
-        m_bIntersected = true;
+        m_intersected = true;
 
         //Notify Main
         m_propCondition->notify();
@@ -528,7 +528,7 @@ void WMPickingDVR::calculateDerivativesWYSIWYP( const std::vector<double>& value
 void WMPickingDVR::updatePositionIndicator( osg::Vec3f position )
 {
     osg::ref_ptr< osg::Geometry > geometry;
-    osg::ref_ptr< osg::Geode >  geode( new osg::Geode );
+    osg::ref_ptr< osg::Geode > geode( new osg::Geode );
 
     const double size  = m_crossSize->get();
     const double thickness = m_crossThickness->get();
@@ -606,13 +606,13 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
     for(int i = 0; i < m_sampleSteps->get(); i++)
     {
         //Scalarfield Values
-        bool bSuccess = false;
-        double value  = scalarData->interpolate( posSample, &bSuccess );
+        bool success = false;
+        double value  = scalarData->interpolate( posSample, &success );
 
         //Add Step
         posSample = posSample + vecDir;
 
-        if(!bSuccess)
+        if(!success)
         {
             continue;
         }
