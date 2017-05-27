@@ -62,7 +62,7 @@ void WVisiTrace::addCandidatesForRay( const std::vector< WPosition >& positions,
 
 void WVisiTrace::performVisiTrace()
 {
-    assert( false && "Not yet implemented" );
+    WAssert( false, "Not yet implemented" );
 }
 
 void WVisiTrace::reset()
