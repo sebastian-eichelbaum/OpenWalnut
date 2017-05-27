@@ -194,7 +194,7 @@ public:
 // unset the WASSERT_AS_CASSERT flag (just in case), so WAssert throws a WException
 #ifdef WASSERT_AS_CASSERT
 #define WASSERT_FLAG_CHANGED
-#undefine WASSERT_AS_CASSERT
+#undef WASSERT_AS_CASSERT
 #endif
     /**
      * Providing a zero-Pointer as function should cause an exception.
@@ -216,7 +216,7 @@ public:
 // restore WASSERT_AS_CASSERT flag
 #ifdef WASSERT_FLAG_CHANGED
 #define WASSERT_AS_CASSERT
-#undefine WASSERT_FLAG_CHANGED
+#undef WASSERT_FLAG_CHANGED
 #endif
 
     /**

@@ -30,7 +30,7 @@
 // or any files included from there
 #ifdef WASSERT_AS_CASSERT
 #define WASSERT_FLAG_CHANGED
-#undefine WASSERT_AS_CASSERT
+#undef WASSERT_AS_CASSERT
 #endif
 
 #include <string>
@@ -2486,7 +2486,7 @@ public:
 // restore WASSERT_AS_CASSERT flag
 #ifdef WASSERT_FLAG_CHANGED
 #define WASSERT_AS_CASSERT
-#undefine WASSERT_FLAG_CHANGED
+#undef WASSERT_FLAG_CHANGED
 #endif
 
 #endif  // WTENSORBASE_TEST_H
