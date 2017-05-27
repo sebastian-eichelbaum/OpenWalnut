@@ -305,7 +305,7 @@ double  WMPickingDVREvaluation::importance( WPosition pos )
     bool interpolationSuccess = false;
 
     double value  = m_scalarDataSet->interpolate( pos, &interpolationSuccess );
-    assert( interpolationSuccess && "Should not fail. Please file a bug report if it does." );
+    WAssert( interpolationSuccess, "Should not fail. Please file a bug report if it does." );
 
     if( m_importanceFunctionCur->get( true ).getItemIndexOfSelected( 0 ) == 0 )
     {
@@ -322,7 +322,7 @@ double  WMPickingDVREvaluation::importance( WPosition pos )
     }
     else
     {
-        assert( false && "Should not fail. Internal module error or bug if it does." );
+        WAssert( false, "Should not fail. Internal module error or bug if it does." );
         return 0;
     }
 }
@@ -350,7 +350,7 @@ WPosition WMPickingDVREvaluation::interactionMapping( const WPosition& startPos,
 
         bool interpolationSuccess = false;
         double scalar  = m_scalarDataSet->interpolate( samplePos, &interpolationSuccess );
-        assert( interpolationSuccess && "Should not fail. Please file a bug report if it does." );
+        WAssert( interpolationSuccess, "Should not fail. Please file a bug report if it does." );
 
         if( pickModeName == WMPICKINGDVR_MAX_INTENS )
         {
@@ -392,7 +392,7 @@ WPosition WMPickingDVREvaluation::interactionMapping( const WPosition& startPos,
         }
         else
         {
-            assert( false && "This should not happen. Please file a bug report if it does." );
+            WAssert( false, "This should not happen. Please file a bug report if it does." );
         }
     }
 
@@ -495,8 +495,8 @@ void WMPickingDVREvaluation::moduleMain()
 
             for( int sampleId = 0; sampleId < m_samplesEval->get( true ); ++sampleId )
             {
-                assert( regGrid->getOrigin() == WPosition( 0.0, 0.0, 0.0 )
-                        && "0.999999 in the following works only if origin is at zero." );
+                WAssert( regGrid->getOrigin() == WPosition( 0.0, 0.0, 0.0 ),
+                         "0.999999 in the following works only if origin is at zero." );
 
                 size_t posId = sampleId * ( regGrid->size() / m_samplesEval->get( true ) );
 
