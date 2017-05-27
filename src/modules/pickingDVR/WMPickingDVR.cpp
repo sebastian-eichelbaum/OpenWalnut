@@ -91,10 +91,7 @@ const std::string WMPickingDVR::getDescription() const
 
 void WMPickingDVR::connectors()
 {
-    // The transfer function for our DVR
     m_transferFunction = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "transfer function", "The 1D transfer function." );
-
-    // Scalar field
     m_scalarIC = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "scalar data", "Scalar data." );
 
     WModule::connectors();
@@ -198,7 +195,7 @@ void WMPickingDVR::requirements()
 
 void WMPickingDVR::moduleMain()
 {
-    // get notified about data changes
+    // Get notified about data changes
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_scalarIC->getDataChangedCondition() );
     m_moduleState.add( m_transferFunction->getDataChangedCondition() );
@@ -206,7 +203,7 @@ void WMPickingDVR::moduleMain()
 
     ready();
 
-    // graphics setup
+    // Graphics setup
     m_rootNode = osg::ref_ptr< WGEManagedGroupNode >( new WGEManagedGroupNode( m_active ) );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
@@ -214,10 +211,10 @@ void WMPickingDVR::moduleMain()
     boost::shared_ptr< WGraphicsEngine > graphicsEngine = WGraphicsEngine::getGraphicsEngine();
     boost::shared_ptr< WGEViewer > mainView = graphicsEngine->getViewerByName( "Main View" );
 
-    //Register Pickhandler
+    // Register PickHandler
     mainView->getPickHandler()->getPickSignal()->connect( boost::bind( &WMPickingDVR::pickHandler, this, _1 ) );
 
-    // main loop
+    // Main loop
     while( !m_shutdownFlag() )
     {
         debugLog() << "Waiting ...";
@@ -336,7 +333,6 @@ void WMPickingDVR::pickHandler( WPickInfo pickInfo )
 
     m_pickInProgress = true;
 
-    //Intersect with 3D
     boost::shared_ptr< WGraphicsEngine > graphicsEngine = WGraphicsEngine::getGraphicsEngine();
     boost::shared_ptr< WGEViewer > mainView = graphicsEngine->getViewerByName( "Main View" );
 
@@ -345,7 +341,7 @@ void WMPickingDVR::pickHandler( WPickInfo pickInfo )
 
     float fPosX = pickInfo.getPickPixel().x();
     float fPosY = pickInfo.getPickPixel().y();
-    //Intersect
+
     bool intersected = view->computeIntersections( fPosX, fPosY, intersections, 0xFFFFFFFF );
     if( intersected )
     {
@@ -357,7 +353,7 @@ void WMPickingDVR::pickHandler( WPickInfo pickInfo )
 
         m_intersected = true;
 
-        //Notify Main
+        // Notify moduleMain()
         m_propCondition->notify();
     }
 }
@@ -408,7 +404,6 @@ std::pair<int, int> WMPickingDVR::getWYSIWYPBounds( const std::vector<double>& v
 std::pair<int, int> WMPickingDVR::calculateIntervalsWYSIWYP( const std::vector<double>& vecAlphaAcc,
                                                              std::vector<int>& vecIndicesLowerBounds )
 {
-    //Derivative Variables
     std::vector<double> vecFirstDerivative;
     std::vector<double> vecSecondDerivative;
 
@@ -417,7 +412,7 @@ std::pair<int, int> WMPickingDVR::calculateIntervalsWYSIWYP( const std::vector<d
     // Upper bounds temporary variable ... will not be returned
     std::vector<int> vecIndicesUpperBounds;
 
-    //Calculate Interval Boundaries
+    // Calculate iterval boundaries
     double oldDerivative;
     if( vecSecondDerivative.size() > 0 )
     {
@@ -437,19 +432,18 @@ std::pair<int, int> WMPickingDVR::calculateIntervalsWYSIWYP( const std::vector<d
             vecIndicesLowerBounds.push_back( j );
         }
 
-
         oldDerivative = vecSecondDerivative[j];
     }
 
-    //Calculate max difference
-    double diff  = 0.0;
+    // Calculate max difference
+    double diff = 0.0;
     double maxDiff = 0.0;
-    int sampleLo  = -1;
-    int sampleUp  = -1;
+    int sampleLo = -1;
+    int sampleUp = -1;
 
     for( unsigned int j = 0; j < std::min( vecIndicesLowerBounds.size(), vecIndicesUpperBounds.size() ); j++ )
     {
-        //Calculate diff
+        // Calculate opacity jump of interval
         diff = vecAlphaAcc[vecIndicesUpperBounds[j]] - vecAlphaAcc[vecIndicesLowerBounds[j]];
         //debugLog() << "Interval [" <<  vecIndicesLowerBounds[j] << "," << vecIndicesUpperBounds[j] << "] = " << diff;
 
@@ -495,14 +489,12 @@ void WMPickingDVR::updatePositionIndicator( osg::Vec3f position )
 
 WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pickingSuccess )
 {
-    //Position Variables
     osg::Vec3f posStart  = m_posStart;
     osg::Vec3f posEnd  = m_posEnd;
     osg::Vec3f posSample = posStart;
     osg::Vec3f vecDir  = posEnd - posStart;
     WPosition posPicking = posStart;
 
-    //Picking Variable
     double max   = 0.0;
     double min   = 0.0;
     double accAlpha  = 0.0;
@@ -510,13 +502,13 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
     double pickedAlpha = 0.0;
     double maxValue  = 0.0;
 
-    //Calculate Step
+    // Calculate step
     if( m_sampleSteps->get() > 0 )
     {
         vecDir = vecDir / m_sampleSteps->get();
     }
 
-    //Get Scalar Field
+    // Get scalar field
     boost::shared_ptr< WDataSetScalar > scalarData = m_scalarIC->getData();
     if(!scalarData)
     {
@@ -525,7 +517,7 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
         return WPosition();
     }
 
-    //Get Transferfunction Data
+    // Get transferfunction data
     boost::shared_ptr< WDataSetSingle > transferFunctionData = m_transferFunction->getData();
     if(!transferFunctionData)
     {
@@ -534,7 +526,7 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
         return WPosition();
     }
 
-    //Get Transferfunction Values
+    // Get transferfunction values
     boost::shared_ptr< WValueSetBase > transferFunctionValues = transferFunctionData->getValueSet();
 
     max  = scalarData->getMax();
@@ -546,9 +538,9 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
     // Sampling loop
     for(int i = 0; i < m_sampleSteps->get(); i++)
     {
-        //Scalarfield Values
+        //Scalarfield values
         bool success = false;
-        double value  = scalarData->interpolate( posSample, &success );
+        double value = scalarData->interpolate( posSample, &success );
 
         //Add Step
         posSample = posSample + vecDir;
@@ -558,7 +550,7 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
             continue;
         }
 
-        //Classification Variables
+        // Classification variables
         double nominator = value - min;
         double denominator = max - min;
 
@@ -567,23 +559,19 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
             denominator = 0.0001;
         }
 
-        //Classification: Convert Scalar to Color
+        // Classification: Convert scalar to color
         double scalarPercentage = nominator / denominator;
         int colorIdx = scalarPercentage * transferFunctionValues->size();
 
-        //color
         WMPickingColor<double> color;
 
-        //Get Color from transferfunction
+        // Get color from transferfunction
         color.setRed( transferFunctionData->getSingleRawValue( colorIdx * 4 + 0 ) );
         color.setGreen( transferFunctionData->getSingleRawValue( colorIdx * 4 + 1 ) );
         color.setBlue( transferFunctionData->getSingleRawValue( colorIdx * 4 + 2 ) );
         color.setAlpha( transferFunctionData->getSingleRawValue( colorIdx * 4 + 3 ) );
         color.normalize();
 
-        //gamma = alpha + beta - alpha * beta == currentAlpha + accedAlpha - currentAlpa * accedAlpha
-        //alpha = currentAlpha
-        //beta = accedAlpha
         double currentAlpha = color.getAlpha();
         double currentAlphaCorrected;
 
@@ -604,7 +592,7 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
 
         if( pickingMode == WMPICKINGDVR_MAX_INT )
         {
-            //Maximum Intensity: maximal scalar value
+            // Maximum Intensity: maximal scalar value
             if( value > maxValue )
             {
                 maxValue = value;
@@ -614,7 +602,7 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
         }
         else if( pickingMode == WMPICKINGDVR_FIRST_HIT )
         {
-            //First Hit: first alpha value > 0.0
+            // First Hit: first alpha value > 0.0
             if( currentAlpha > 0.0 )
             {
                 pickedAlpha = currentAlpha;
@@ -625,7 +613,7 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
         }
         else if( pickingMode == WMPICKINGDVR_THRESHOLD )
         {
-            //Threshold: accumulated alpha value > threshold
+            // Threshold: accumulated alpha value > threshold
             if( accAlpha > m_alphaThreshold->get() )
             {
                 pickedAlpha = currentAlpha;
@@ -636,7 +624,7 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
         }
         else if( pickingMode == WMPICKINGDVR_HIGHEST_OPACITY )
         {
-            //Most Contributing: maximal alpha value
+            // Highest opacity: maximal alpha value
             if( currentAlpha > pickedAlpha )
             {
                 pickedAlpha = currentAlpha;
@@ -647,7 +635,7 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
         else if( pickingMode == WMPICKINGDVR_MOST_CONTRIBUTING )
         {
             double currenAlphaIncrease = accAlpha - accAlphaOld;
-            //Most Contributing: maximal alpha value
+            // Most Contributing: maximal alpha value increase
             if( currenAlphaIncrease > pickedAlpha )
             {
                 pickedAlpha = currenAlphaIncrease;
@@ -663,15 +651,14 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
         }
     } // End of sampling loop
 
-    //WYSIWYP: Calculate the largest interval
+    // WYSIWYP: Calculate the largest interval
     if( pickingMode == WMPICKINGDVR_WYSIWYP )
     {
         std::pair<int, int> bounds = getWYSIWYPBounds( vecAlphaAcc );
 
-        //Calculate Position
         if( bounds.first >= 0 )
         {
-            //Calculate pick position
+            // Calculate pick position
             if( m_wysiwypPositionType->get( true ).getItemIndexOfSelected( 0 ) == 0 )
             {
                 posPicking = posStart + vecDir * bounds.first;
@@ -696,45 +683,48 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
     return posPicking;
 }
 
-osg::ref_ptr< osg::Geode > generateLineStripGeode( const WLine& line, const float thickness, const WColor& color )
+namespace
 {
-    using osg::ref_ptr;
-    ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-    ref_ptr< osg::Vec4Array > colors   = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    ref_ptr< osg::Geometry >  geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
-
-    for( size_t i = 1; i < line.size(); ++i )
+    osg::ref_ptr< osg::Geode > generateLineStripGeode( const WLine& line, const float thickness, const WColor& color )
     {
-        vertices->push_back( osg::Vec3( line[i-1][0], line[i-1][1], line[i-1][2] ) );
-        colors->push_back( wge::getRGBAColorFromDirection( line[i-1], line[i] ) );
+        using osg::ref_ptr;
+        ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+        ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+        ref_ptr< osg::Geometry > geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
+
+        for( size_t i = 1; i < line.size(); ++i )
+        {
+            vertices->push_back( osg::Vec3( line[i-1][0], line[i-1][1], line[i-1][2] ) );
+            colors->push_back( wge::getRGBAColorFromDirection( line[i-1], line[i] ) );
+        }
+        vertices->push_back( osg::Vec3( line.back()[0], line.back()[1], line.back()[2] ) );
+        colors->push_back( colors->back() );
+
+        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, line.size() ) );
+        geometry->setVertexArray( vertices );
+
+        if( color != WColor( 0, 0, 0, 0 ) )
+        {
+            colors->clear();
+            colors->push_back( color );
+            geometry->setColorArray( colors );
+            geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+        }
+        else
+        {
+            geometry->setColorArray( colors );
+            geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX ); // This will not work on OSG 3.2 you should compute the color per vertex
+        }
+
+        // line width
+        osg::StateSet* stateset = geometry->getOrCreateStateSet();
+        stateset->setAttributeAndModes( new osg::LineWidth( thickness ), osg::StateAttribute::ON );
+        stateset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+
+        osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
+        geode->addDrawable( geometry );
+        return geode;
     }
-    vertices->push_back( osg::Vec3( line.back()[0], line.back()[1], line.back()[2] ) );
-    colors->push_back( colors->back() );
-
-    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, line.size() ) );
-    geometry->setVertexArray( vertices );
-
-    if( color != WColor( 0, 0, 0, 0 ) )
-    {
-        colors->clear();
-        colors->push_back( color );
-        geometry->setColorArray( colors );
-        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-    }
-    else
-    {
-        geometry->setColorArray( colors );
-        geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );    // This will not work on OSG 3.2 you should compute the color per vertex
-    }
-
-    // line width
-    osg::StateSet* stateset = geometry->getOrCreateStateSet();
-    stateset->setAttributeAndModes( new osg::LineWidth( thickness ), osg::StateAttribute::ON );
-    stateset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-
-    osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
-    geode->addDrawable( geometry );
-    return geode;
 }
 
 void WMPickingDVR::updateCurveRendering()
