@@ -526,6 +526,55 @@ std::vector< std::pair< double, WPosition > > WMPickingDVR::sampleIntensityAlong
     return result;
 }
 
+double WMPickingDVR::getTFAlpha( const double scalar ) const
+{
+    // Get transferfunction data
+    boost::shared_ptr< WDataSetSingle > transferFunctionData = m_transferFunction->getData();
+    if( !transferFunctionData )
+    {
+        WAssert( false, "Invalid transferfunction data" );
+    }
+
+    // Get transferfunction values
+    boost::shared_ptr< WValueSetBase > transferFunctionValues = transferFunctionData->getValueSet();
+
+
+    // Get scalar field
+    boost::shared_ptr< WDataSetScalar > scalarData = m_scalarIC->getData();
+    if(!scalarData)
+    {
+        WAssert( false, "Invalid scalar field" );
+    }
+
+    const double max = scalarData->getMax();
+    const double min = scalarData->getMin();
+
+    // Classification variables
+    const double nominator = scalar - min;
+    double denominator = max - min;
+
+    if( denominator == 0.0 )
+    {
+        denominator = 0.0001;
+    }
+
+    // Classification: Convert scalar to color
+    double scalarPercentage = nominator / denominator;
+    int colorIdx = scalarPercentage * transferFunctionValues->size();
+
+    WMPickingColor<double> color;
+
+    // Get color from transferfunction
+    color.setRed( transferFunctionData->getSingleRawValue( colorIdx * 4 + 0 ) );
+    color.setGreen( transferFunctionData->getSingleRawValue( colorIdx * 4 + 1 ) );
+    color.setBlue( transferFunctionData->getSingleRawValue( colorIdx * 4 + 2 ) );
+    color.setAlpha( transferFunctionData->getSingleRawValue( colorIdx * 4 + 3 ) );
+    color.normalize();
+
+    return color.getAlpha();
+}
+
+
 WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pickingSuccess )
 {
     std::vector< std::pair< double, WPosition > > samples( 0 );
@@ -533,70 +582,21 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
     if( samples.size() == 0 )
     {
         *pickingSuccess = false;
+        return WPosition();
     }
 
     WPosition posPicking = m_posStart;
 
-    double max = 0.0;
-    double min = 0.0;
-    double accAlpha  = 0.0;
+    double accAlpha = 0.0;
     double accAlphaOld = 0.0;
     double pickedAlpha = 0.0;
-    double maxValue  = 0.0;
-
-
-    // Get transferfunction data
-    boost::shared_ptr< WDataSetSingle > transferFunctionData = m_transferFunction->getData();
-    if(!transferFunctionData)
-    {
-        errorLog()<< "[Invalid transferfunction data]";
-        *pickingSuccess = false;
-        return WPosition();
-    }
-
-    // Get transferfunction values
-    boost::shared_ptr< WValueSetBase > transferFunctionValues = transferFunctionData->getValueSet();
-
-    // Get scalar field
-    boost::shared_ptr< WDataSetScalar > scalarData = m_scalarIC->getData();
-    if(!scalarData)
-    {
-        errorLog()<< "[Invalid scalar field]";
-        return WPosition();
-    }
-
-    max  = scalarData->getMax();
-    min  = scalarData->getMin();
-    maxValue = min;
+    double maxValue =  -1 * std::numeric_limits< double >::max();;
 
     std::vector<double> vecAlphaAcc;
 
-    // Sampling loop
     for( unsigned int i = 0; i < samples.size(); i++ )
     {
-        // Classification variables
-        double nominator = samples[i].first - min;
-        double denominator = max - min;
-
-        if( denominator == 0.0 )
-        {
-            denominator = 0.0001;
-        }
-
-        // Classification: Convert scalar to color
-        double scalarPercentage = nominator / denominator;
-        int colorIdx = scalarPercentage * transferFunctionValues->size();
-
-        WMPickingColor<double> color;
-
-        // Get color from transferfunction
-        color.setRed( transferFunctionData->getSingleRawValue( colorIdx * 4 + 0 ) );
-        color.setGreen( transferFunctionData->getSingleRawValue( colorIdx * 4 + 1 ) );
-        color.setBlue( transferFunctionData->getSingleRawValue( colorIdx * 4 + 2 ) );
-        color.setAlpha( transferFunctionData->getSingleRawValue( colorIdx * 4 + 3 ) );
-        color.normalize();
-
-        double currentAlpha = color.getAlpha();
+        const double currentAlpha = getTFAlpha( samples[i].first );
         double currentAlphaCorrected;
 
         if( m_opacityCorrectionEnabled->get( true ) )

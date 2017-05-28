@@ -152,6 +152,15 @@ private:
     std::vector< std::pair< double, WPosition > > sampleIntensityAlongRay();
 
     /**
+     * Evaluate transfer function.
+     *
+     * \param scalar Evaluate transfer function for this value.
+     *
+     * \returnOpacity obtained from transfer function.
+     */
+    double getTFAlpha( const double scalar ) const;
+
+    /**
      * Compute the position picked in the DVR
      *
      * \param pickingMode Which mode for picking is chosen.
