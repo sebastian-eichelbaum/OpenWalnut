@@ -143,6 +143,14 @@ private:
      */
     void updatePositionIndicator( osg::Vec3f position );
 
+
+    /**
+     * Samples the scalar data set along the viewing ray.
+     *
+     * \return vector of scalar values at sample positions
+     */
+    std::vector< std::pair< double, WPosition > > sampleIntensityAlongRay();
+
     /**
      * Compute the position picked in the DVR
      *

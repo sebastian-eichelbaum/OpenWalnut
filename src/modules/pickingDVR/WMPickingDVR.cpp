@@ -321,8 +321,7 @@ void WMPickingDVR::moduleMain()
 
 void WMPickingDVR::pickHandler( WPickInfo pickInfo )
 {
-    //Not Right Mouse
-    if( pickInfo.getMouseButton() != 2 )
+    if( pickInfo.getMouseButton() != 2 ) // Not right mouse button
     {
         if( pickInfo.getName() == WPickHandler::unpickString )
         {
@@ -487,20 +486,12 @@ void WMPickingDVR::updatePositionIndicator( osg::Vec3f position )
     m_rootNode->insert( geode );
 }
 
-WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pickingSuccess )
+std::vector< std::pair< double, WPosition > > WMPickingDVR::sampleIntensityAlongRay()
 {
-    osg::Vec3f posStart  = m_posStart;
-    osg::Vec3f posEnd  = m_posEnd;
-    osg::Vec3f posSample = posStart;
-    osg::Vec3f vecDir  = posEnd - posStart;
-    WPosition posPicking = posStart;
-
-    double max   = 0.0;
-    double min   = 0.0;
-    double accAlpha  = 0.0;
-    double accAlphaOld  = 0.0;
-    double pickedAlpha = 0.0;
-    double maxValue  = 0.0;
+    osg::Vec3f posStart = m_posStart;
+    osg::Vec3f posEnd = m_posEnd;
+    osg::Vec3f posSample = m_posStart;
+    osg::Vec3f vecDir = posEnd - posStart;
 
     // Calculate step
     if( m_sampleSteps->get() > 0 )
@@ -513,9 +504,46 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
     if(!scalarData)
     {
         errorLog()<< "[Invalid scalar field]";
-        *pickingSuccess = false;
-        return WPosition();
+        return std::vector< std::pair< double, WPosition > >();
     }
+
+    std::vector< std::pair< double, WPosition > > result;
+    // Sampling loop
+    for( int i = 0; i < m_sampleSteps->get(); i++ )
+    {
+        //Scalarfield values
+        bool success = false;
+        double value = scalarData->interpolate( posSample, &success );
+
+        //Add Step
+        posSample = posSample + vecDir;
+
+        if( success )
+        {
+            result.push_back( std::make_pair( value, posSample ) );
+        }
+    }
+    return result;
+}
+
+WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pickingSuccess )
+{
+    std::vector< std::pair< double, WPosition > > samples( 0 );
+    samples = sampleIntensityAlongRay();
+    if( samples.size() == 0 )
+    {
+        *pickingSuccess = false;
+    }
+
+    WPosition posPicking = m_posStart;
+
+    double max = 0.0;
+    double min = 0.0;
+    double accAlpha  = 0.0;
+    double accAlphaOld = 0.0;
+    double pickedAlpha = 0.0;
+    double maxValue  = 0.0;
+
 
     // Get transferfunction data
     boost::shared_ptr< WDataSetSingle > transferFunctionData = m_transferFunction->getData();
@@ -529,6 +557,14 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
     // Get transferfunction values
     boost::shared_ptr< WValueSetBase > transferFunctionValues = transferFunctionData->getValueSet();
 
+    // Get scalar field
+    boost::shared_ptr< WDataSetScalar > scalarData = m_scalarIC->getData();
+    if(!scalarData)
+    {
+        errorLog()<< "[Invalid scalar field]";
+        return WPosition();
+    }
+
     max  = scalarData->getMax();
     min  = scalarData->getMin();
     maxValue = min;
@@ -536,22 +572,10 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
     std::vector<double> vecAlphaAcc;
 
     // Sampling loop
-    for(int i = 0; i < m_sampleSteps->get(); i++)
+    for( unsigned int i = 0; i < samples.size(); i++ )
     {
-        //Scalarfield values
-        bool success = false;
-        double value = scalarData->interpolate( posSample, &success );
-
-        //Add Step
-        posSample = posSample + vecDir;
-
-        if(!success)
-        {
-            continue;
-        }
-
         // Classification variables
-        double nominator = value - min;
+        double nominator = samples[i].first - min;
         double denominator = max - min;
 
         if( denominator == 0.0 )
@@ -593,10 +617,10 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
         if( pickingMode == WMPICKINGDVR_MAX_INT )
         {
             // Maximum Intensity: maximal scalar value
-            if( value > maxValue )
+            if( samples[i].first > maxValue )
             {
-                maxValue = value;
-                posPicking = posSample;
+                maxValue = samples[i].first;
+                posPicking = samples[i].second;
                 *pickingSuccess = true;
             }
         }
@@ -606,7 +630,7 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
             if( currentAlpha > 0.0 )
             {
                 pickedAlpha = currentAlpha;
-                posPicking  =  posSample;
+                posPicking  =  samples[i].second;
                 *pickingSuccess  = true;
                 break;
             }
@@ -617,7 +641,7 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
             if( accAlpha > m_alphaThreshold->get() )
             {
                 pickedAlpha = currentAlpha;
-                posPicking  =  posSample;
+                posPicking  =  samples[i].second;
                 *pickingSuccess  = true;
                 break;
             }
@@ -628,7 +652,7 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
             if( currentAlpha > pickedAlpha )
             {
                 pickedAlpha = currentAlpha;
-                posPicking  =  posSample;
+                posPicking  =  samples[i].second;
                 *pickingSuccess  = true;
             }
         }
@@ -639,7 +663,7 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
             if( currenAlphaIncrease > pickedAlpha )
             {
                 pickedAlpha = currenAlphaIncrease;
-                posPicking = posSample;
+                posPicking = samples[i].second;
                 *pickingSuccess = true;
             }
             accAlphaOld = accAlpha;
@@ -658,15 +682,23 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
 
         if( bounds.first >= 0 )
         {
+            osg::Vec3f vecDir = m_posEnd - m_posStart;
+
+            // Calculate step
+            if( m_sampleSteps->get() > 0 )
+            {
+                vecDir = vecDir / m_sampleSteps->get();
+            }
+
             // Calculate pick position
             if( m_wysiwypPositionType->get( true ).getItemIndexOfSelected( 0 ) == 0 )
             {
-                posPicking = posStart + vecDir * bounds.first;
+                posPicking = m_posStart + vecDir * bounds.first;
             }
             else
             {
                 int centerSample = ( bounds.first + bounds.second ) / 2;
-                posPicking = posStart + vecDir * centerSample;
+                posPicking = m_posStart + vecDir * centerSample;
             }
 
             *pickingSuccess = true;
