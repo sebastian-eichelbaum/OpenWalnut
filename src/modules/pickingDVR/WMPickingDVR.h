@@ -161,6 +161,16 @@ private:
     double getTFAlpha( const double scalar ) const;
 
     /**
+     * Perform front to back compositing.
+     *
+     * \param accAlpha Opacity accumulated until this step.
+     * \param currentAlpha Opacity obtained from data value at this step.
+     *
+     * \return New accumulated opacity.
+     */
+    double compositingStep( const double accAlpha, double currentAlpha );
+
+    /**
      * Compute the position picked in the DVR
      *
      * \param pickingMode Which mode for picking is chosen.

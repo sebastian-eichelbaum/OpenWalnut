@@ -574,6 +574,25 @@ double WMPickingDVR::getTFAlpha( const double scalar ) const
     return color.getAlpha();
 }
 
+double WMPickingDVR::compositingStep( double accAlpha, const double currentAlpha )
+{
+    double currentAlphaCorrected;
+
+    if( m_opacityCorrectionEnabled->get( true ) )
+    {
+        const double defaultNumberOfSteps = 128.0;
+        float relativeSampleDistance = defaultNumberOfSteps / m_sampleSteps->get();
+        currentAlphaCorrected =  1.0 - pow( 1.0 - currentAlpha, relativeSampleDistance );
+    }
+    else
+    {
+        currentAlphaCorrected = currentAlpha;
+    }
+
+    accAlpha  = currentAlphaCorrected + ( accAlpha - currentAlphaCorrected * accAlpha );
+    return accAlpha;
+}
+
 
 WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pickingSuccess )
 {
@@ -597,22 +616,7 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
     for( unsigned int i = 0; i < samples.size(); i++ )
     {
         const double currentAlpha = getTFAlpha( samples[i].first );
-        double currentAlphaCorrected;
-
-        if( m_opacityCorrectionEnabled->get( true ) )
-        {
-            const double defaultNumberOfSteps = 128.0;
-            float relativeSampleDistance = defaultNumberOfSteps / m_sampleSteps->get();
-            currentAlphaCorrected =  1.0 - pow( 1.0 - currentAlpha, relativeSampleDistance );
-        }
-        else
-        {
-            currentAlphaCorrected = currentAlpha;
-        }
-
-        accAlpha  = currentAlphaCorrected + ( accAlpha - currentAlphaCorrected * accAlpha );
-
-
+        accAlpha = compositingStep( accAlpha, currentAlpha );
 
         if( pickingMode == WMPICKINGDVR_MAX_INT )
         {
