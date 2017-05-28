@@ -57,13 +57,9 @@ public:
      * for one viewing ray. These values are the basis for visiTrace
      * computation.
      *
-     * Values in both vector are assumed to have the same order.
-     *
-     * \param positions candidate positions
-     * \param opacityJumps opacityJumps for the positions
+     * \param candidates candidate positions and corresponding opacity jumps
      */
-    void addCandidatesForRay( const std::vector< WPosition >& positions,
-                              const std::vector< double >& opacityJumps );
+    void addCandidatesForRay( const std::vector< std::pair< double, WPosition > > candidates );
 
     /**
      * Erases all data to be able to start a new VisiTrace computation.

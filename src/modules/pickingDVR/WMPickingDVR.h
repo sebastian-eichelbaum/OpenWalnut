@@ -129,11 +129,11 @@ private:
      *
      * \param vecAlphaAcc The accumulated alpha values at the samples along the viewing ray
      * \param vecIndicesLowerBounds Returns the lower bounds of all intervals.
-     *
-     * \result lower and upper bounds of the most visible interval
+     * \param vecIndicesUpperBounds Returns the upper bounds of all intervals.
      */
-    std::pair<int, int> calculateIntervalsWYSIWYP( const std::vector<double>& vecAlphaAcc,
-                                                   std::vector<int>& vecIndicesLowerBounds );
+    void calculateIntervalsWYSIWYP( const std::vector<double>& vecAlphaAcc,
+                                                   std::vector<int>& vecIndicesLowerBounds,
+                                                   std::vector<int>& vecIndicesUpperBounds );
 
     /**
      * Set the new position of the graphical representation
@@ -169,6 +169,13 @@ private:
      * \return New accumulated opacity.
      */
     double compositingStep( const double accAlpha, double currentAlpha );
+
+    /**
+     * Get the Visitrace candidates
+     *
+     * \return Candidates as pairs of opacity jump and location.
+     */
+    std::vector< std::pair< double, WPosition > > computeVisiTraceCandidates();
 
     /**
      * Compute the position picked in the DVR

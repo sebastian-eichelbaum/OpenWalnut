@@ -66,8 +66,8 @@ WModule(),
     m_curve3D( 0 )
 {
     m_intersected = false;
-    m_posStart  = osg::Vec3f( 0.0, 0.0, 0.0 );
-    m_posEnd   = osg::Vec3f( 0.0, 0.0, 0.0 );
+    m_posStart = osg::Vec3f( 0.0, 0.0, 0.0 );
+    m_posEnd = osg::Vec3f( 0.0, 0.0, 0.0 );
 }
 
 WMPickingDVR::~WMPickingDVR()
@@ -290,8 +290,11 @@ void WMPickingDVR::moduleMain()
             bool pickingSuccessful = false;
             const WPosition posPicking = getPickedDVRPosition( pickingMode, &pickingSuccessful );
 
-#warning need to call actual relvant function here
-            //m_visiTrace.addCandidatesForRay
+            std::vector< std::pair< double, WPosition > >  candidates = computeVisiTraceCandidates();
+            if( candidates.size() )
+            {
+                m_visiTrace.addCandidatesForRay( candidates );
+            }
 
             if( m_continuousDrawing->get()
                 || !m_pickInProgress )
@@ -393,25 +396,49 @@ void WMPickingDVR::updateModuleGUI( std::string pickingMode )
     }
 }
 
+
 std::pair<int, int> WMPickingDVR::getWYSIWYPBounds( const std::vector<double>& vecAlphaAcc )
 {
-    std::vector<int> dummyVector;
-    return calculateIntervalsWYSIWYP( vecAlphaAcc, dummyVector );
+    std::vector<int> vecIndicesLowerBounds;
+    std::vector<int> vecIndicesUpperBounds;
+    calculateIntervalsWYSIWYP( vecAlphaAcc, vecIndicesLowerBounds, vecIndicesUpperBounds );
+
+    // Calculate max difference
+    double diff = 0.0;
+    double maxDiff = 0.0;
+    int sampleLo = -1;
+    int sampleUp = -1;
+
+    for( unsigned int j = 0; j < std::min( vecIndicesLowerBounds.size(), vecIndicesUpperBounds.size() ); j++ )
+    {
+        // Calculate opacity jump of interval
+        diff = vecAlphaAcc[vecIndicesUpperBounds[j]] - vecAlphaAcc[vecIndicesLowerBounds[j]];
+        //debugLog() << "Interval [" <<  vecIndicesLowerBounds[j] << "," << vecIndicesUpperBounds[j] << "] = " << diff;
+
+        // Is max diff
+        if( diff > maxDiff )
+        {
+            maxDiff = diff;
+            sampleLo = vecIndicesLowerBounds[j];
+            sampleUp = vecIndicesUpperBounds[j];
+        }
+    }
+    //debugLog() << "Start of largest interval " << sampleLo;
+
+    return std::make_pair( sampleLo, sampleUp );
 }
 
 
-std::pair<int, int> WMPickingDVR::calculateIntervalsWYSIWYP( const std::vector<double>& vecAlphaAcc,
-                                                             std::vector<int>& vecIndicesLowerBounds )
+void WMPickingDVR::calculateIntervalsWYSIWYP( const std::vector<double>& vecAlphaAcc,
+                                              std::vector<int>& vecIndicesLowerBounds,
+                                              std::vector<int>& vecIndicesUpperBounds )
 {
     std::vector<double> vecFirstDerivative;
     std::vector<double> vecSecondDerivative;
 
     PickingDVRHelper::calculateDerivativesWYSIWYP( vecAlphaAcc, vecFirstDerivative, vecSecondDerivative );
 
-    // Upper bounds temporary variable ... will not be returned
-    std::vector<int> vecIndicesUpperBounds;
-
-    // Calculate iterval boundaries
+    // Calculate interval boundaries
     double oldDerivative;
     if( vecSecondDerivative.size() > 0 )
     {
@@ -433,30 +460,6 @@ std::pair<int, int> WMPickingDVR::calculateIntervalsWYSIWYP( const std::vector<d
 
         oldDerivative = vecSecondDerivative[j];
     }
-
-    // Calculate max difference
-    double diff = 0.0;
-    double maxDiff = 0.0;
-    int sampleLo = -1;
-    int sampleUp = -1;
-
-    for( unsigned int j = 0; j < std::min( vecIndicesLowerBounds.size(), vecIndicesUpperBounds.size() ); j++ )
-    {
-        // Calculate opacity jump of interval
-        diff = vecAlphaAcc[vecIndicesUpperBounds[j]] - vecAlphaAcc[vecIndicesLowerBounds[j]];
-        //debugLog() << "Interval [" <<  vecIndicesLowerBounds[j] << "," << vecIndicesUpperBounds[j] << "] = " << diff;
-
-        //Is Max Diff
-        if( diff > maxDiff )
-        {
-            maxDiff = diff;
-            sampleLo = vecIndicesLowerBounds[j];
-            sampleUp = vecIndicesUpperBounds[j];
-        }
-    }
-    //debugLog() << "Start of largest interval " << sampleLo;
-
-    return std::make_pair( sampleLo, sampleUp );
 }
 
 void WMPickingDVR::updatePositionIndicator( osg::Vec3f position )
@@ -593,6 +596,47 @@ double WMPickingDVR::compositingStep( double accAlpha, const double currentAlpha
     return accAlpha;
 }
 
+
+std::vector< std::pair< double, WPosition > > WMPickingDVR::computeVisiTraceCandidates()
+{
+    std::vector< std::pair< double, WPosition > > samples( 0 );
+    samples = sampleIntensityAlongRay();
+    if( samples.size() == 0 )
+    {
+        return std::vector< std::pair< double, WPosition > >();
+    }
+
+    WPosition posPicking = m_posStart;
+
+    double accAlpha = 0.0;
+
+    std::vector<double> vecAlphaAcc;
+
+    for( unsigned int i = 0; i < samples.size(); i++ )
+    {
+        const double currentAlpha = getTFAlpha( samples[i].first );
+        accAlpha = compositingStep( accAlpha, currentAlpha );
+        vecAlphaAcc.push_back( accAlpha );
+    }
+
+    std::vector<int> vecIndicesLowerBounds;
+    std::vector<int> vecIndicesUpperBounds;
+    calculateIntervalsWYSIWYP( vecAlphaAcc, vecIndicesLowerBounds, vecIndicesUpperBounds );
+
+    std::vector<int> opacityJumps( 0 );
+    for( unsigned int j = 0; j < std::min( vecIndicesLowerBounds.size(), vecIndicesUpperBounds.size() ); j++ )
+    {
+        opacityJumps.push_back( vecAlphaAcc[vecIndicesUpperBounds[j]] - vecAlphaAcc[vecIndicesLowerBounds[j]] );
+    }
+
+    std::vector< std::pair< double, WPosition > > candidates( 0 );
+    std::cout << vecIndicesLowerBounds.size() << " - " << opacityJumps.size() << std::endl;
+    for( size_t id = 0; id < opacityJumps.size(); ++id )
+    {
+        candidates.push_back( std::make_pair( opacityJumps[id], samples[vecIndicesLowerBounds[id]].second ) );
+    }
+    return candidates;
+}
 
 WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pickingSuccess )
 {

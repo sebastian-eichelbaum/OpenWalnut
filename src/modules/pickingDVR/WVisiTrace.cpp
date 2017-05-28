@@ -48,11 +48,16 @@ std::vector<WPosition> WVisiTrace::getLine()
     return m_curve3D;
 }
 
-void WVisiTrace::addCandidatesForRay( const std::vector< WPosition >& positions,
-                                      const std::vector< double >& opacityJumps )
+void WVisiTrace::addCandidatesForRay(  const std::vector< std::pair< double, WPosition > > candidates )
 {
-    WAssert( positions.size() == opacityJumps.size(),
-             "Each cndidate position needs to have an opacity jump value." );
+    std::vector< double > opacityJumps( candidates.size() );
+    std::vector< WPosition > positions( candidates.size() );
+
+    for( size_t id = 0; id < candidates.size(); ++id )
+    {
+        opacityJumps.push_back( candidates[id].first );
+        positions.push_back( candidates[id].second );
+    }
 
     m_candidatePositions.push_back( positions );
     m_candidateJumps.push_back( opacityJumps );
