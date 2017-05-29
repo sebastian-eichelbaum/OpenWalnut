@@ -25,6 +25,9 @@
 #ifndef WVISITRACE_H
 #define WVISITRACE_H
 
+#include <utility>
+#include <vector>
+
 /**
  * Class performing graph computations for VisiTrace algorithm.
  * The algorithm has been published here:
@@ -33,9 +36,6 @@
  * The aim is to draw smooth lines on top visible structures in direct volume
  * renderings.
  */
-
-#include <vector>
-
 class WVisiTrace
 {
 public:

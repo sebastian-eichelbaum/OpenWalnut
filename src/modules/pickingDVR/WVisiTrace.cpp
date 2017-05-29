@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <utility>
 #include <vector>
 
 #include "core/common/math/linearAlgebra/WPosition.h"

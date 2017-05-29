@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <string>
 #include <utility>
 #include <vector>
@@ -287,9 +288,6 @@ void WMPickingDVR::moduleMain()
         }
         else if( selectionType == 2)
         {
-            bool pickingSuccessful = false;
-            const WPosition posPicking = getPickedDVRPosition( pickingMode, &pickingSuccessful );
-
             std::vector< std::pair< double, WPosition > >  candidates = computeVisiTraceCandidates();
             if( candidates.size() )
             {
@@ -606,8 +604,6 @@ std::vector< std::pair< double, WPosition > > WMPickingDVR::computeVisiTraceCand
         return std::vector< std::pair< double, WPosition > >();
     }
 
-    WPosition posPicking = m_posStart;
-
     double accAlpha = 0.0;
 
     std::vector<double> vecAlphaAcc;
@@ -653,7 +649,7 @@ WPosition WMPickingDVR::getPickedDVRPosition(  std::string pickingMode, bool* pi
     double accAlpha = 0.0;
     double accAlphaOld = 0.0;
     double pickedAlpha = 0.0;
-    double maxValue =  -1 * std::numeric_limits< double >::max();;
+    double maxValue =  -1 * std::numeric_limits< double >::max();
 
     std::vector<double> vecAlphaAcc;
 

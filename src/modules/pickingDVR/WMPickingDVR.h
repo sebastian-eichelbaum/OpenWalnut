@@ -156,7 +156,7 @@ private:
      *
      * \param scalar Evaluate transfer function for this value.
      *
-     * \returnOpacity obtained from transfer function.
+     * \return Opacity obtained from transfer function.
      */
     double getTFAlpha( const double scalar ) const;
 
