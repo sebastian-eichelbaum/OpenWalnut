@@ -286,9 +286,9 @@ void WMPickingDVR::moduleMain()
                 m_curve3D.clear(); // Start a new line for the next line selection
             }
         }
-        else if( selectionType == 2)
+        else if( selectionType == 2 )
         {
-            std::vector< std::pair< double, WPosition > >  candidates = computeVisiTraceCandidates();
+            std::vector< std::pair< double, WPosition > > candidates = computeVisiTraceCandidates();
             if( candidates.size() )
             {
                 m_visiTrace.addCandidatesForRay( candidates );
