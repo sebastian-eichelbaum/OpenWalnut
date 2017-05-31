@@ -28,6 +28,8 @@
 #include <utility>
 #include <vector>
 
+#include "core/common/math/linearAlgebra/WPosition.h"
+
 /**
  * Class performing graph computations for VisiTrace algorithm.
  * The algorithm has been published here:
@@ -38,6 +40,7 @@
  */
 class WVisiTrace
 {
+    friend class WVisiTraceTest; //!< Test class needs private access.
 public:
     /**
      * Simple constructor performing initializations
@@ -50,7 +53,7 @@ public:
      *
      * \return 3D line computed by visitrace.
      */
-    std::vector<WPosition> getLine();
+    std::vector< WPosition > getLine();
 
     /**
      * Add candidate positions and corresponding opacity jump values
@@ -72,6 +75,20 @@ private:
      * Optimization resulting in the desired 3D curve (\ref m_curve3D).
      */
     void performVisiTrace();
+
+    /**
+     * Get an vector with reference ids for all nodes.
+     *
+     * \return vector containing pair of indices referencing \ref m_candidatePositions (\ref m_candidateJumps).
+     */
+    std::vector< std::pair< int, int > > getLinearizedNodesRefs() const;
+
+    /**
+     * Get ids in the vector of \ref getLinearizedNodesRefs from structure of  \ref m_candidatePositions
+     *
+     * \return vector of vectors containing correpsonding ids in linearized vector
+     */
+    std::vector< std::vector< int > > getInverseLinearizedNodesRefs() const;
 
     std::vector< std::vector< WPosition > > m_candidatePositions; //!< The candidate positions for all rays
     std::vector< std::vector< double > > m_candidateJumps; //!< The opacity jumps belonging to the intervals of the candidate positions.

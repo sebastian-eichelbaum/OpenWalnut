@@ -38,7 +38,7 @@ WVisiTrace::WVisiTrace():
 {
 }
 
-std::vector<WPosition> WVisiTrace::getLine()
+std::vector< WPosition > WVisiTrace::getLine()
 {
     if( m_dataChanged )
     {
@@ -64,6 +64,35 @@ void WVisiTrace::addCandidatesForRay(  const std::vector< std::pair< double, WPo
     m_candidateJumps.push_back( opacityJumps );
 
     m_dataChanged = true;
+}
+
+std::vector< std::pair< int, int > > WVisiTrace::getLinearizedNodesRefs() const
+{
+    std::vector< std::pair< int, int > > nodeRefs( 0 );
+    for( size_t outerId = 0; outerId < m_candidatePositions.size(); ++outerId )
+    {
+        for( size_t innerId = 0; innerId < m_candidatePositions[outerId].size(); ++innerId )
+        {
+            nodeRefs.push_back( std::make_pair( outerId, innerId ) );
+        }
+    }
+    return nodeRefs;
+}
+
+std::vector< std::vector< int > > WVisiTrace::getInverseLinearizedNodesRefs() const
+{
+    std::vector< std::vector< int > > inverseRefs( 0 );
+    size_t counter = 0;
+    for( size_t outerId = 0; outerId < m_candidatePositions.size(); ++outerId )
+    {
+        inverseRefs.push_back( std::vector< int >( 0 ) );
+        for( size_t innerId = 0; innerId < m_candidatePositions[outerId].size(); ++innerId )
+        {
+            inverseRefs[outerId].push_back( counter );
+            ++counter;
+        }
+    }
+    return inverseRefs;
 }
 
 void WVisiTrace::performVisiTrace()
