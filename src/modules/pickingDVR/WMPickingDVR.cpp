@@ -50,7 +50,7 @@
 #include "WMPickingDVRHelper.h"
 #include "WVisiTrace.h"
 
-//Module Defines
+// Module Defines
 #define WMPICKINGDVR_MAX_INT   "Picking - Maximum Intensity"
 #define WMPICKINGDVR_FIRST_HIT   "Picking - First Hit"
 #define WMPICKINGDVR_THRESHOLD   "Picking - Threshold"

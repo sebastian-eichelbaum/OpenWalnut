@@ -31,6 +31,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../WVisiTrace.h"
+#include "../../../core/common/math/test/WPositionTraits.h"
 
 /**
  * Test for WMWriteMesh
@@ -46,7 +47,7 @@ public:
     }
 
     /**
-     * Ensure instatiation does not throw and does initialization right.
+     * Ensure instantiation does not throw and does initialization right.
      */
     void testInstatiation()
     {
@@ -70,7 +71,7 @@ public:
     {
         WVisiTrace myVisiTrace;
         std::vector< std::vector< WPosition > > candidates;
-        const std::vector< int > sizes = { 2, 4, 5, 8, 3, 6 };
+        const std::vector< int > sizes = { 4, 2, 5, 8, 3, 6 };
         for( size_t id = 0; id < sizes.size(); ++id )
         {
             myVisiTrace.m_candidatePositions.push_back( std::vector< WPosition >( sizes[id] ) );
@@ -82,10 +83,10 @@ public:
 
         TS_ASSERT_EQUALS( order[0], std::make_pair( 0, 0 ) );
         TS_ASSERT_EQUALS( order[1], std::make_pair( 0, 1 ) );
-        TS_ASSERT_EQUALS( order[2], std::make_pair( 1, 0 ) );
-        TS_ASSERT_EQUALS( order[3], std::make_pair( 1, 1 ) );
+        TS_ASSERT_EQUALS( order[2], std::make_pair( 0, 2 ) );
+        TS_ASSERT_EQUALS( order[3], std::make_pair( 0, 3 ) );
 
-        TS_ASSERT_EQUALS( order[5], std::make_pair( 1, 3 ) );
+         TS_ASSERT_EQUALS( order[5], std::make_pair( 1, 1 ) );
         TS_ASSERT_EQUALS( order[6], std::make_pair( 2, 0 ) );
 
         TS_ASSERT_EQUALS( order[27], std::make_pair( 5, 5 ) );
@@ -98,7 +99,7 @@ public:
     {
         WVisiTrace myVisiTrace;
         std::vector< std::vector< WPosition > > candidates;
-        const std::vector< int > sizes = { 2, 4, 5, 8, 3, 6 };
+        const std::vector< int > sizes = { 4, 2, 5, 8, 3, 6 };
         for( size_t id = 0; id < sizes.size(); ++id )
         {
             myVisiTrace.m_candidatePositions.push_back( std::vector< WPosition >( sizes[id] ) );
@@ -110,15 +111,49 @@ public:
 
         TS_ASSERT_EQUALS( inverseRefs[0][0], 0 );
         TS_ASSERT_EQUALS( inverseRefs[0][1], 1 );
+        TS_ASSERT_EQUALS( inverseRefs[0][2], 2 );
+        TS_ASSERT_EQUALS( inverseRefs[0][3], 3 );
 
-        TS_ASSERT_EQUALS( inverseRefs[1][0], 2 );
-        TS_ASSERT_EQUALS( inverseRefs[1][1], 3 );
-        TS_ASSERT_EQUALS( inverseRefs[1][2], 4 );
-        TS_ASSERT_EQUALS( inverseRefs[1][3], 5 );
+        TS_ASSERT_EQUALS( inverseRefs[1][0], 4 );
+        TS_ASSERT_EQUALS( inverseRefs[1][1], 5 );
 
         TS_ASSERT_EQUALS( inverseRefs[2][0], 6 );
 
         TS_ASSERT_EQUALS( inverseRefs[5][5], 27 );
+    }
+
+    /**
+     * Check throwing of Dijkstra
+     */
+    void testPerformDijkstraException()
+    {
+        WVisiTrace myVisiTrace;
+
+        myVisiTrace.m_candidatePositions.push_back(
+            {
+                WPosition( 1, 0, 0 ),
+                WPosition( 1, 0, 1 ),
+                WPosition( 1, 0, 2 ),
+                WPosition( 1, 0, 3 )
+            }
+            );
+        myVisiTrace.m_candidatePositions.push_back(
+            {
+                WPosition( 1, 1, -3.5 ),
+                WPosition( 1, 1, -2.5 )
+            } );
+        myVisiTrace.m_candidatePositions.push_back(
+            {
+                WPosition( 1, 1.2, 0 ),
+                WPosition( 1, 1.2, 1 ),
+                WPosition( 1, 1.2, 2 ),
+                WPosition( 1, 1.2, 3 )
+            }
+            );
+
+        TS_ASSERT_THROWS_NOTHING( myVisiTrace.performDijkstra() );
+        TS_ASSERT_EQUALS( myVisiTrace.m_curve3D[0], WPosition( 1, 0, 0 ) );
+        TS_ASSERT_EQUALS( myVisiTrace.m_curve3D[0], WPosition( 1, 0, 0 ) );
     }
 };
 

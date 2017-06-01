@@ -90,6 +90,11 @@ private:
      */
     std::vector< std::vector< int > > getInverseLinearizedNodesRefs() const;
 
+    /**
+     * Create weighted graph and find shortest path from according to VisiTrace.
+     */ 
+    void performDijkstra();
+
     std::vector< std::vector< WPosition > > m_candidatePositions; //!< The candidate positions for all rays
     std::vector< std::vector< double > > m_candidateJumps; //!< The opacity jumps belonging to the intervals of the candidate positions.
     std::vector< WPosition > m_curve3D; //!< The 3D curve computed by VisiTrace.
