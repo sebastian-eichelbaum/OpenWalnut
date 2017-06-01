@@ -103,6 +103,12 @@ std::vector< std::vector< int > > WVisiTrace::getInverseLinearizedNodesRefs() co
 
 void WVisiTrace::performDijkstra()
 {
+    // Check if there is something to do
+    if( m_candidatePositions.size() == 0 || m_candidateJumps.size() == 0 )
+    {
+        return;
+    }
+
     //using namespace boost;
     typedef boost::adjacency_list< boost::listS, boost::vecS, boost::directedS,
                                    boost::no_property, boost::property< boost::edge_weight_t, double > > graph_t;

@@ -298,6 +298,7 @@ void WMPickingDVR::moduleMain()
                 || !m_pickInProgress )
             {
                 m_curve3D = m_visiTrace.getLine();
+                debugLog() << "Obtained line with " <<  m_curve3D.size() << " elements.";
                 updateCurveRendering();
             }
 
@@ -626,7 +627,6 @@ std::vector< std::pair< double, WPosition > > WMPickingDVR::computeVisiTraceCand
     }
 
     std::vector< std::pair< double, WPosition > > candidates( 0 );
-    std::cout << vecIndicesLowerBounds.size() << " - " << opacityJumps.size() << std::endl;
     for( size_t id = 0; id < opacityJumps.size(); ++id )
     {
         candidates.push_back( std::make_pair( opacityJumps[id], samples[vecIndicesLowerBounds[id]].second ) );
