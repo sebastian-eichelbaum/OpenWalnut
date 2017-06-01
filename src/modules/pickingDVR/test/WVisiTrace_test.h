@@ -153,7 +153,8 @@ public:
 
         TS_ASSERT_THROWS_NOTHING( myVisiTrace.performDijkstra() );
         TS_ASSERT_EQUALS( myVisiTrace.m_curve3D[0], WPosition( 1, 0, 0 ) );
-        TS_ASSERT_EQUALS( myVisiTrace.m_curve3D[0], WPosition( 1, 0, 0 ) );
+        TS_ASSERT_EQUALS( myVisiTrace.m_curve3D[1], WPosition( 1, 1, -2.5 ) );
+        TS_ASSERT_EQUALS( myVisiTrace.m_curve3D[2], WPosition( 1, 1.2, 0 ) );
     }
 };
 
