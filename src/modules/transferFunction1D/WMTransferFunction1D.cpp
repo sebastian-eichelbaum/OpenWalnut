@@ -96,6 +96,8 @@ void WMTransferFunction1D::properties()
                                                 "Factor used to scale opacity for easier interaction",
                                                 1.0,
                                                 m_propCondition );
+    m_opacityScale->setMin( 0 );
+    m_opacityScale->setMax( 1 );
 
     m_binSize = m_properties->addProperty( "Histogram Resolution", "Number of bins in histogram.", 64, m_propCondition );
     m_binSize->setMin( 2 );
@@ -165,7 +167,7 @@ void WMTransferFunction1D::moduleMain()
             m_transferFunction->set( tf );
         }
 
-        if( m_resolution->changed() || tfChanged )
+        if( m_resolution->changed() || tfChanged || m_opacityScale->changed() )
         {
             // debugLog() << "resampling transfer function";
             unsigned int resolution = m_resolution->get( true );
