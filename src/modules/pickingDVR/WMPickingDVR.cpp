@@ -64,7 +64,8 @@ W_LOADABLE_MODULE( WMPickingDVR )
 WMPickingDVR::WMPickingDVR():
 WModule(),
     m_propCondition( new WCondition() ),
-    m_curve3D( 0 )
+    m_curve3D( 0 ),
+    m_oldRayStart( 0.0, 0.0, 0.0 )
 {
     m_intersected = false;
     m_posStart = osg::Vec3f( 0.0, 0.0, 0.0 );
@@ -288,10 +289,23 @@ void WMPickingDVR::moduleMain()
         }
         else if( selectionType == 2 )
         {
-            std::vector< std::pair< double, WPosition > > candidates = computeVisiTraceCandidates();
-            if( candidates.size() )
+            if( m_oldRayStart != WPosition( m_posStart ) )
             {
-                m_visiTrace.addCandidatesForRay( candidates );
+                m_oldRayStart = m_posStart;
+
+                std::vector< std::pair< double, WPosition > > candidates = computeVisiTraceCandidates();
+
+                std::cout << std::endl << "...##... ";
+                for( auto rayPos : candidates )
+                {
+                    std::cout << rayPos.second << " == ";
+                }
+                std::cout << std::endl;
+
+                if( candidates.size() )
+                {
+                    m_visiTrace.addCandidatesForRay( candidates );
+                }
             }
 
             if( m_continuousDrawing->get()
@@ -600,6 +614,7 @@ std::vector< std::pair< double, WPosition > > WMPickingDVR::computeVisiTraceCand
 {
     std::vector< std::pair< double, WPosition > > samples( 0 );
     samples = sampleIntensityAlongRay();
+
     if( samples.size() == 0 )
     {
         return std::vector< std::pair< double, WPosition > >();

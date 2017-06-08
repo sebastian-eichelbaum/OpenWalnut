@@ -245,6 +245,8 @@ private:
     std::vector<WPosition> m_curve3D; //!< Positions representing the from VisiTrace selection mode.
 
     WVisiTrace m_visiTrace; //!< Class providing VisiTrace optimization.
+
+    WPosition m_oldRayStart; //!< Used to check if position of picking has changed
 };
 
 #endif  // WMPICKINGDVR_H
