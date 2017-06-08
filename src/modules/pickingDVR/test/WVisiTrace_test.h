@@ -137,14 +137,15 @@ public:
                 WPosition( 1, 0, 3 )
             }
             );
-        myVisiTrace.m_candidateJumps.push_back( { 1.0, 1.0, 1.0, 1.0 } );
+        myVisiTrace.m_candidateJumps.push_back( { 1.0, 1.0, 1.0, 1.0 } ); // NOLINT
 
         myVisiTrace.m_candidatePositions.push_back(
             {
                 WPosition( 1, 1, -3.5 ),
                 WPosition( 1, 1, -2.5 )
-            } );
-        myVisiTrace.m_candidateJumps.push_back( { 1.0, 1.0 } );
+            }
+            );
+        myVisiTrace.m_candidateJumps.push_back( { 1.0, 1.0 } ); // NOLINT
 
         myVisiTrace.m_candidatePositions.push_back(
             {
@@ -154,7 +155,7 @@ public:
                 WPosition( 1, 1.2, 3 )
             }
             );
-        myVisiTrace.m_candidateJumps.push_back( { 1.0, 1.0, 1.0, 1.0 } );
+        myVisiTrace.m_candidateJumps.push_back( { 1.0, 1.0, 1.0, 1.0 } ); // NOLINT
 
         TS_ASSERT( myVisiTrace.m_candidatePositions.size() != 0 );
         TS_ASSERT_THROWS_NOTHING( myVisiTrace.performDijkstra() );
@@ -166,7 +167,7 @@ public:
 
 
     /**
-     * Does \ref addCandidatesForRay actually add positions
+     * Does addCandidatesForRay() actually add positions
      */
     void testAddingPositions()
     {
@@ -181,7 +182,7 @@ public:
             const double someDoubleValue1 = 1.1;
             for( size_t id = 0; id < numCands1; ++id )
             {
-                cands1.push_back( std::make_pair( someDoubleValue1 * id, WPosition( someDoubleValue1 * id, someDoubleValue1, someDoubleValue1 ) ));
+                cands1.push_back( std::make_pair( someDoubleValue1 * id, WPosition( someDoubleValue1 * id, someDoubleValue1, someDoubleValue1 ) ) );
             }
             visiTraceAdding.addCandidatesForRay( cands1 );
         }
@@ -190,7 +191,7 @@ public:
             const double someDoubleValue2 = 1.2;
             for( size_t id = 0; id < numCands2; ++id )
             {
-                cands2.push_back( std::make_pair( someDoubleValue2 * id, WPosition( someDoubleValue2 * id, someDoubleValue2, someDoubleValue2 ) ));
+                cands2.push_back( std::make_pair( someDoubleValue2 * id, WPosition( someDoubleValue2 * id, someDoubleValue2, someDoubleValue2 ) ) );
             }
             visiTraceAdding.addCandidatesForRay( cands2 );
         }
@@ -199,7 +200,7 @@ public:
             const double someDoubleValue3 = 1.3;
             for( size_t id = 0; id < numCands3; ++id )
             {
-                cands3.push_back( std::make_pair( someDoubleValue3 * id, WPosition( someDoubleValue3 * id, someDoubleValue3, someDoubleValue3 ) ));
+                cands3.push_back( std::make_pair( someDoubleValue3 * id, WPosition( someDoubleValue3 * id, someDoubleValue3, someDoubleValue3 ) ) );
             }
             visiTraceAdding.addCandidatesForRay( cands3 );
         }

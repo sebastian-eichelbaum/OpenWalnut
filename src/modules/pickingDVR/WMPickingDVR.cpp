@@ -294,14 +294,6 @@ void WMPickingDVR::moduleMain()
                 m_oldRayStart = m_posStart;
 
                 std::vector< std::pair< double, WPosition > > candidates = computeVisiTraceCandidates();
-
-                std::cout << std::endl << "...##... ";
-                for( auto rayPos : candidates )
-                {
-                    std::cout << rayPos.second << " == ";
-                }
-                std::cout << std::endl;
-
                 if( candidates.size() )
                 {
                     m_visiTrace.addCandidatesForRay( candidates );

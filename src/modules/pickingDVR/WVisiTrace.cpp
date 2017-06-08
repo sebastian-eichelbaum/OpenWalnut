@@ -109,7 +109,6 @@ void WVisiTrace::performDijkstra()
         return;
     }
 
-    //using namespace boost;
     typedef boost::adjacency_list< boost::listS, boost::vecS, boost::directedS,
                                    boost::no_property, boost::property< boost::edge_weight_t, double > > graph_t;
     typedef boost::graph_traits< graph_t >::vertex_descriptor vertex_descriptor;
