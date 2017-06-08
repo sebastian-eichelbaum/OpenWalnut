@@ -104,7 +104,7 @@ void WMPickingDVR::properties()
     m_selectionTypesList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_selectionTypesList->addItem( "Position (Picking)" );
     m_selectionTypesList->addItem( "Line (First Hit)" );
-    m_selectionTypesList->addItem( "Line (VisiTrace) [NOT YET CORRECTLY IMPLEMENTED]" );
+    m_selectionTypesList->addItem( "Line (VisiTrace)" );
     m_selectionType = m_properties->addProperty( "Selection type",
                                                  "What type of structure is to be selected in the DVR?",
                                                  m_selectionTypesList->getSelectorFirst(),

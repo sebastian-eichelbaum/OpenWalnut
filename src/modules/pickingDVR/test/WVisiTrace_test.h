@@ -86,7 +86,7 @@ public:
         TS_ASSERT_EQUALS( order[2], std::make_pair( 0, 2 ) );
         TS_ASSERT_EQUALS( order[3], std::make_pair( 0, 3 ) );
 
-         TS_ASSERT_EQUALS( order[5], std::make_pair( 1, 1 ) );
+        TS_ASSERT_EQUALS( order[5], std::make_pair( 1, 1 ) );
         TS_ASSERT_EQUALS( order[6], std::make_pair( 2, 0 ) );
 
         TS_ASSERT_EQUALS( order[27], std::make_pair( 5, 5 ) );
@@ -123,7 +123,7 @@ public:
     }
 
     /**
-     * Check throwing of Dijkstra
+     * Check throwing of Dijkstra and result according to VisiTrace with constant opacity weights.
      */
     void testPerformDijkstraException()
     {
@@ -137,7 +137,7 @@ public:
                 WPosition( 1, 0, 3 )
             }
             );
-        myVisiTrace.m_candidateJumps.push_back( { 1.0, 1.0, 1.0, 1.0 } ); // NOLINT
+        myVisiTrace.m_candidateJumps.push_back( { 0.5, 0.5, 0.5, 0.5 } ); // NOLINT
 
         myVisiTrace.m_candidatePositions.push_back(
             {
@@ -145,7 +145,7 @@ public:
                 WPosition( 1, 1, -2.5 )
             }
             );
-        myVisiTrace.m_candidateJumps.push_back( { 1.0, 1.0 } ); // NOLINT
+        myVisiTrace.m_candidateJumps.push_back( { 0.5, 0.5 } ); // NOLINT
 
         myVisiTrace.m_candidatePositions.push_back(
             {
@@ -155,11 +155,11 @@ public:
                 WPosition( 1, 1.2, 3 )
             }
             );
-        myVisiTrace.m_candidateJumps.push_back( { 1.0, 1.0, 1.0, 1.0 } ); // NOLINT
+        myVisiTrace.m_candidateJumps.push_back( { 0.5, 0.5, 0.5, 0.5 } ); // NOLINT
 
-        TS_ASSERT( myVisiTrace.m_candidatePositions.size() != 0 );
+        TS_ASSERT_EQUALS( myVisiTrace.m_candidatePositions.size(), 3 );
         TS_ASSERT_THROWS_NOTHING( myVisiTrace.performDijkstra() );
-        TS_ASSERT( myVisiTrace.m_curve3D.size() !=0 );
+        TS_ASSERT_EQUALS( myVisiTrace.m_curve3D.size(), 3 );
         TS_ASSERT_EQUALS( myVisiTrace.m_curve3D[0], WPosition( 1, 0, 0 ) );
         TS_ASSERT_EQUALS( myVisiTrace.m_curve3D[1], WPosition( 1, 1, -2.5 ) );
         TS_ASSERT_EQUALS( myVisiTrace.m_curve3D[2], WPosition( 1, 1.2, 0 ) );

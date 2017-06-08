@@ -132,12 +132,15 @@ void WVisiTrace::performDijkstra()
     }
 
     std::vector< Edge > edgeVector( 0 );
-    std::vector< double > weightsV( 0 );
+    std::vector< double > distanceWeights( 0 );
+    std::vector< double > opacityWeights( 0 );
+
     // Edges from virtual start node to candidates of first ray
     for( auto candi : linearizedInverse[0] )
     {
         edgeVector.push_back( Edge( startNodeId, candi + numVirtNodes ) );
-        weightsV.push_back( 1 );
+        distanceWeights.push_back( 1 );
+        opacityWeights.push_back( 1 );
     }
 
     // Edges from candidates of one ray to those of the next ray
@@ -152,8 +155,25 @@ void WVisiTrace::performDijkstra()
                 WPosition firstPos = m_candidatePositions[rayId][firstId];
                 WPosition secondPos = m_candidatePositions[rayId+1][secondId];
                 double distance = length( firstPos - secondPos );
-                weightsV.push_back( distance );
+                distanceWeights.push_back( distance );
+                opacityWeights.push_back( 1 - m_candidateJumps[rayId+1][secondId] );
             }
+        }
+    }
+
+    // Normalize distance weights
+    {
+        double maxDistance = 0;
+        for( auto distance : distanceWeights )
+        {
+            if( distance > maxDistance )
+            {
+                maxDistance = distance;
+            }
+        }
+        for( double& weight : distanceWeights ) // NOLINT
+        {
+            weight /= maxDistance;
         }
     }
 
@@ -161,11 +181,19 @@ void WVisiTrace::performDijkstra()
     for( auto candi : linearizedInverse[linearizedInverse.size()-1] )
     {
         edgeVector.push_back( Edge( candi + numVirtNodes, endNodeId ) );
-        weightsV.push_back( 1 );
+        distanceWeights.push_back( 1 );
+        opacityWeights.push_back( 1 );
+    }
+
+    WAssert( distanceWeights.size() == opacityWeights.size(), "Internal error: Need as many opacities as positions." );
+    std::vector< double > overallWeights( distanceWeights.size() );
+    for( size_t weightId = 0; weightId < overallWeights.size(); ++weightId )
+    {
+        overallWeights[weightId] = opacityWeights[weightId] * distanceWeights[weightId] * distanceWeights[weightId];
     }
 
     Edge* edge_array = &edgeVector[0];
-    double* weights = &weightsV[0];
+    double* weights = &overallWeights[0];
     int num_arcs = edgeVector.size();
 
     graph_t g( edge_array, edge_array + num_arcs, weights, num_nodes );
