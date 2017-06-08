@@ -57,8 +57,8 @@ std::vector< WPosition > WVisiTrace::getLine()
 
 void WVisiTrace::addCandidatesForRay(  const std::vector< std::pair< double, WPosition > > candidates )
 {
-    std::vector< double > opacityJumps( candidates.size() );
-    std::vector< WPosition > positions( candidates.size() );
+    std::vector< double > opacityJumps( 0 );
+    std::vector< WPosition > positions( 0 );
 
     for( size_t id = 0; id < candidates.size(); ++id )
     {
