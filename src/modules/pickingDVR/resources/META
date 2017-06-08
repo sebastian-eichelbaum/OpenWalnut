@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2015 OpenWalnut Community, Nemtics, BSV@Uni-Leipzig
+// Copyright 2015-2017 OpenWalnut Community, Nemtics, BSV@Uni-Leipzig
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -30,6 +30,23 @@
   icon="WMPickingDVRIcon.png";
 
   website = "http://www.openwalnut.org";
+
+  description = "Picks a 3D position or line from the DVR rendered dataset. Designed to work with orthographic projection.<br><br>For positions it implements a couple of different picking techniques including WYSIWYP. For lines it implements VisiTrace.";
+
+  online
+  {
+    name="WYSIWYP";
+    description="Scientific paper describing WYSIWYP algorithm.";
+    url="http://dx.doi.org/10.1109/TVCG.2012.292";
+  };
+
+  online
+  {
+    name="VisiTrace";
+    description="Scientific paper describing VisiTrace algorithm.";
+    url="http://dx.doi.org/10.2312/PE.EuroVisShort.EuroVisShort2013.091-095";
+  };
+
   author = "Alexander Betz, Daniel Gerlicher";
   author = "OpenWalnut Project";
   "Alexander Betz, Daniel Gerlicher"

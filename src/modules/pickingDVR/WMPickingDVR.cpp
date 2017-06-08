@@ -88,7 +88,7 @@ const std::string WMPickingDVR::getName() const
 
 const std::string WMPickingDVR::getDescription() const
 {
-    return "Picks a 3D Position from the DVR rendered dataset. Designed to work with orthographic projection.";
+    return ""; // See META file in resources directory instead.
 }
 
 void WMPickingDVR::connectors()
