@@ -70,10 +70,7 @@ const std::string WMDatasetProfile::getName() const
 
 const std::string WMDatasetProfile::getDescription() const
 {
-    // Specify your module description here. Be detailed. This text is read by the user.
-    // See "src/modules/template/" for an extensively documented example.
-    return "No documentation yet. "
-    "The best person to ask for documenation is probably the modules's creator, i.e. \"schurade\"";
+    return "Show values along a 3D profile through the dataset as a graph.";
 }
 
 void WMDatasetProfile::connectors()
@@ -91,27 +88,27 @@ void WMDatasetProfile::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     m_snapSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_snapSelectionsList->addItem( "free", "" );
-    m_snapSelectionsList->addItem( "axial", "" );
-    m_snapSelectionsList->addItem( "coronal", "" );
-    m_snapSelectionsList->addItem( "sagittal", "" );
+    m_snapSelectionsList->addItem( "Free", "No snapping." );
+    m_snapSelectionsList->addItem( "Axial slice", "Snap to axial slice." );
+    m_snapSelectionsList->addItem( "Coronal slice", "Snap to coronal slice." );
+    m_snapSelectionsList->addItem( "Sagittal slice", "Snap to sagittal slice." );
 
-    m_snapSelection = m_properties->addProperty( "Snap to",  "snap",
+    m_snapSelection = m_properties->addProperty( "Snap to", "Snap the profile to one of the slices of the Navigation Slices Module.",
             m_snapSelectionsList->getSelectorFirst(), m_propCondition );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_snapSelection );
 
-    m_propAddKnobTrigger = m_properties->addProperty( "Add knob", "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
+    m_propAddKnobTrigger = m_properties->addProperty( "Add knob", "Add a segment and a corresponding manipulator knob to profile.", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
 
-    m_graphColor = m_properties->addProperty( "Graph color", "Description.", WColor( 0.2, 0.2, 0.2, 1.0 ) );
+    m_graphColor = m_properties->addProperty( "Graph color", "Color of the curve representing the data profile graph.", WColor( 0.2, 0.2, 0.2, 1.0 ) );
 
-    m_propLength = m_properties->addProperty( "Length", "Description.", 60.0 );
+    m_propLength = m_properties->addProperty( "Length", "Length of profile segments. Needs to activated by Use Length property", 60.0 );
     m_propLength->setMin( 1 );
     m_propLength->setMax( 500 );
-    m_propUseLength = m_properties->addProperty( "Use length", "Description.", false );
+    m_propUseLength = m_properties->addProperty( "Use length", "Apply the value of the Length property.", false );
 
-    m_propInterpolate = m_properties->addProperty( "Interpolate", "Description.", true );
+    m_propInterpolate = m_properties->addProperty( "Interpolate", "Use value of voxel closest to sample or interpolate between surrounding values.", true );
 
-    m_propNumSamples = m_properties->addProperty( "Number of sample points", "Description.", 100 );
+    m_propNumSamples = m_properties->addProperty( "Number of sample points", "Number of samples along the overall profile.", 100 );
     m_propNumSamples->setMin( 1 );
     m_propNumSamples->setMax( 500 );
 
@@ -148,7 +145,7 @@ void WMDatasetProfile::moduleMain()
 
         boost::shared_ptr< WDataSetScalar > newDataSet = m_input->getData();
         bool dataChanged = ( m_dataSet != newDataSet );
-        bool dataValid   = ( newDataSet != NULL );
+        bool dataValid = ( newDataSet != NULL );
 
         if( dataValid )
         {
@@ -466,7 +463,7 @@ osg::ref_ptr< osg::Geode > WMDatasetProfile::createGraphGeode()
     float value;
 
     float overallLength = 0;
-    std::vector<float>segmentLengths;
+    std::vector<float> segmentLengths;
     for( size_t k = 0; k < knobs.size() - 1 ; ++k )
     {
         WPosition p = ( knobs[k+1]->getPosition() - knobs[k]->getPosition() );
