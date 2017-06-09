@@ -479,7 +479,7 @@ osg::ref_ptr< osg::Geode > WMDatasetProfile::createGraphGeode()
     for( size_t k = 0; k < knobs.size() - 1 ; ++k )
     {
         float l1 = segmentLengths[k] / overallLength;
-        int steps = 100 * l1;
+        int steps = m_propNumSamples->get() * l1;
 
         knobPositions.push_back( x );
         WPosition p1 = ( knobs[k+1]->getPosition() - knobs[k]->getPosition() ) / static_cast<float>( steps );
@@ -497,7 +497,7 @@ osg::ref_ptr< osg::Geode > WMDatasetProfile::createGraphGeode()
             }
 
 
-            x = x + ( m_oldViewWidth /  100 );
+            x = x + ( m_oldViewWidth /  m_propNumSamples->get() );
             y = 10 + ( value / max * ( m_oldViewHeight - 20 ) / 2 );
             vertices->push_back( osg::Vec3( x, y, 0 ) );
         }
