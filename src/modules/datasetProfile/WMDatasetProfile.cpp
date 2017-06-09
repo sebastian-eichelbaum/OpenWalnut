@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2009, 2017 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -449,6 +449,11 @@ osg::ref_ptr< osg::Geode > WMDatasetProfile::createGraphGridGeode()
 
 osg::ref_ptr< osg::Geode > WMDatasetProfile::createGraphGeode()
 {
+    if( !m_dataSet )
+    {
+        return osg::ref_ptr< osg::Geode >();
+    }
+
     osg::ref_ptr< osg::Geode > newGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() );
 
     osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
