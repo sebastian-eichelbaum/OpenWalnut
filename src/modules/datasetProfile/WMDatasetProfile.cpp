@@ -97,16 +97,25 @@ void WMDatasetProfile::properties()
             m_snapSelectionsList->getSelectorFirst(), m_propCondition );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_snapSelection );
 
-    m_propAddKnobTrigger = m_properties->addProperty( "Add knob", "Add a segment and a corresponding manipulator knob to profile.", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
+    m_propAddKnobTrigger = m_properties->addProperty( "Add knob",
+                                                      "Add a segment and a corresponding manipulator knob to profile.",
+                                                      WPVBaseTypes::PV_TRIGGER_READY,
+                                                      m_propCondition );
 
-    m_graphColor = m_properties->addProperty( "Graph color", "Color of the curve representing the data profile graph.", WColor( 0.2, 0.2, 0.2, 1.0 ) );
+    m_graphColor = m_properties->addProperty( "Graph color",
+                                              "Color of the curve representing the data profile graph.",
+                                              WColor( 0.2, 0.2, 0.2, 1.0 ) );
 
-    m_propLength = m_properties->addProperty( "Length", "Length of profile segments. Needs to activated by Use Length property", 60.0 );
+    m_propLength = m_properties->addProperty( "Length",
+                                              "Length of profile segments. Needs to activated by Use Length property",
+                                              60.0 );
     m_propLength->setMin( 1 );
     m_propLength->setMax( 500 );
     m_propUseLength = m_properties->addProperty( "Use length", "Apply the value of the Length property.", false );
 
-    m_propInterpolate = m_properties->addProperty( "Interpolate", "Use value of voxel closest to sample or interpolate between surrounding values.", true );
+    m_propInterpolate = m_properties->addProperty( "Interpolate",
+                                                   "Use value of voxel closest to sample or interpolate between surrounding values.",
+                                                   true );
 
     m_propNumSamples = m_properties->addProperty( "Number of sample points", "Number of samples along the overall profile.", 100 );
     m_propNumSamples->setMin( 1 );
