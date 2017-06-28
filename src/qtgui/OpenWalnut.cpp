@@ -119,7 +119,7 @@ int main( int argc, char** argv )
     catch( const po::error &e )
     {
         std::cerr << e.what() << std::endl;
-        return false;
+        return -1;
     }
 
     po::notify( optionsMap );
