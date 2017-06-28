@@ -574,6 +574,7 @@ FUNCTION( GET_VERSION_STRING _version _api_version )
         STRING( REGEX REPLACE "\\+gitX" "" OW_VERSION ${OW_VERSION_FILE} )
     ELSE()
         # if we have the mercurial info -> complement the version string
+        STRING( REGEX REPLACE "\n$" "" OW_VERSION_GIT "${OW_VERSION_GIT}" )
         STRING( REGEX REPLACE "gitX" "git${OW_VERSION_GIT}" OW_VERSION ${OW_VERSION_FILE} )
     ENDIF()
   
