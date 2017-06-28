@@ -81,41 +81,49 @@ void genReactionDiffusion( unsigned char* target,
     /////////////////////////////////////////////////////////////////////////////////////////////
 
     // at first create some mem
-    // FIXME clean up this mess. There may be a way to reduce memory cost
-    float grid1[tileWidth][tileHeight];
-    float grid1Min= 3.0;
-    float grid1Max= 5.0;
-    float grid1Base= 4.0;
+    float grid1Min = 3.0;
+    float grid1Max = 5.0;
+    float grid1Base = 4.0;
+    std::vector< std::vector< float > > grid1( tileWidth,
+                                               std::vector< float >( tileHeight, grid1Base ) );
 
-    float grid2[tileWidth][tileHeight];
-    float grid2Base= 4.0;
+    float grid2Base = 4.0;
+    std::vector< std::vector< float > > grid2( tileWidth,
+                                               std::vector< float >( tileHeight, grid2Base ) );
 
-    float delta1[tileWidth][tileHeight];
-    float delta2[tileWidth][tileHeight];
+    std::vector< std::vector< float > > delta1( tileWidth,
+                                                std::vector< float >( tileHeight, 0.0f ) );
+    std::vector< std::vector< float > > delta2( tileWidth,
+                                                std::vector< float >( tileHeight, 0.0f ) );
 
-    float noise[tileWidth][tileHeight];
+    std::vector< std::vector< float > > noise( tileWidth,
+                                               std::vector< float >( tileHeight, 0.0f ) );
 
-    float noiseRangeMin=0.1;
-    float noiseRangeMax=5.0;
+    float noiseRangeMin = 0.1;
+    float noiseRangeMax = 5.0;
 
-    float noiseRange= noiseRangeMin + ((noiseRangeMax - noiseRangeMin)*spotIrregularity); // the highter the more irregular "spots"
-    float noiseBase=12.0;
+    float noiseRange =
+        noiseRangeMin + ( ( noiseRangeMax - noiseRangeMin ) *
+                          spotIrregularity ); // the highter the more irregular "spots"
+    float noiseBase = 12.0;
 
     /////////////////////////////////////////////////////////////////////////////////////////////
     // 2: init the grids and create random seed used during turing iteration
     /////////////////////////////////////////////////////////////////////////////////////////////
 
     // init grids
-    srand48(time(0));
-    for (unsigned int y=0; y<tileHeight; y++)
-      for( unsigned int x=0; x<tileWidth; x++ )
-      {
-        grid1[x][y]=grid1Base;
-        grid2[x][y]=grid2Base;
-        noise[x][y]=noiseBase + (-noiseRange + (drand48() * 2.0 * noiseRange));
-        delta1[x][y]=0.0;
-        delta2[x][y]=0.0;
-      }
+    srand48( time( 0 ) );
+    for( unsigned int y = 0; y < tileHeight; y++ )
+    {
+        for( unsigned int x = 0; x < tileWidth; x++ )
+        {
+            // grid1[ x ][ y ] = grid1Base;
+            // grid2[ x ][ y ] = grid2Base;
+            noise[ x ][ y ] = noiseBase + ( -noiseRange + ( drand48() * 2.0 * noiseRange ) );
+            // delta1[ x ][ y ] = 0.0;
+            // delta2[ x ][ y ] = 0.0;
+        }
+    }
 
     /////////////////////////////////////////////////////////////////////////////////////////////
     // 3: turing iteration
@@ -128,58 +136,67 @@ void genReactionDiffusion( unsigned char* target,
     float d2= 0.0625 / 2.0;
     float speed = 1.0;
 
-    for (unsigned int iteration = 0; iteration<iterations; iteration++)
+    for( unsigned int iteration = 0; iteration < iterations; iteration++ )
     {
-      // go through each cell in grid
-      for (unsigned int i = 0; i < tileWidth; i++)
-      {
-        // this ensures we have an "endless" plane -> creates seamless textures
-        unsigned int iPrev = (i + tileWidth - 1) % tileWidth;
-        unsigned int iNext = (i + 1) % tileWidth;
-
-        for (unsigned int j = 0; j < tileHeight; j++)
+        // go through each cell in grid
+        for( unsigned int i = 0; i < tileWidth; i++ )
         {
-          // this ensures we have an "endless" plane -> creates seamless textures
-          unsigned int jPrev = (j + tileHeight - 1) % tileHeight;
-          unsigned int jNext = (j + 1) % tileHeight;
+            // this ensures we have an "endless" plane -> creates seamless textures
+            unsigned int iPrev = ( i + tileWidth - 1 ) % tileWidth;
+            unsigned int iNext = ( i + 1 ) % tileWidth;
 
-          /*
-          // try the other laplacian filter
-          float laplacian1=  grid1[iPrev][jPrev] +      grid1[i][jPrev]  + grid1[iNext][jPrev] +
-                             grid1[iPrev][j]     - (8.0*grid1[i][j])     + grid1[iNext][j] +
-                             grid1[iPrev][jNext] +      grid1[i][jNext]  + grid1[iNext][jNext];
+            for( unsigned int j = 0; j < tileHeight; j++ )
+            {
+                // this ensures we have an "endless" plane -> creates seamless textures
+                unsigned int jPrev = ( j + tileHeight - 1 ) % tileHeight;
+                unsigned int jNext = ( j + 1 ) % tileHeight;
 
-          float laplacian2=  grid2[iPrev][jPrev] +      grid2[i][jPrev]  + grid2[iNext][jPrev] +
-                             grid2[iPrev][j]     - (8.0*grid2[i][j])     + grid2[iNext][j] +
-                             grid2[iPrev][jNext] +      grid2[i][jNext]  + grid2[iNext][jNext];
-          */
+                /*
+                // try the other laplacian filter
+                float laplacian1=  grid1[iPrev][jPrev] +      grid1[i][jPrev]  + grid1[iNext][jPrev]
+                + grid1[iPrev][j]     - (8.0*grid1[i][j])     + grid1[iNext][j] +
+                                   grid1[iPrev][jNext] +      grid1[i][jNext]  +
+                grid1[iNext][jNext];
 
-          // apply laplace filter around current grid point
-          float laplacian1=grid1[i][jPrev] + grid1[i][jNext] + grid1[iPrev][j] + grid1[iNext][j] - 4.0 * grid1[i][j];
-          float laplacian2=grid2[i][jPrev] + grid2[i][jNext] + grid2[iPrev][j] + grid2[iNext][j] - 4.0 * grid2[i][j];
+                float laplacian2=  grid2[iPrev][jPrev] +      grid2[i][jPrev]  + grid2[iNext][jPrev]
+                + grid2[iPrev][j]     - (8.0*grid2[i][j])     + grid2[iNext][j] +
+                                   grid2[iPrev][jNext] +      grid2[i][jNext]  +
+                grid2[iNext][jNext];
+                */
 
-          // diffusion reaction
-          delta1[i][j] = ka * (16 - grid1[i][j] * grid2[i][j]) + d1 * laplacian1;
-          delta2[i][j] = ka * (grid1[i][j] * grid2[i][j] - grid2[i][j] - noise[i][j]) + d2 * laplacian2;
+                // apply laplace filter around current grid point
+                float laplacian1 = grid1[ i ][ jPrev ] + grid1[ i ][ jNext ] + grid1[ iPrev ][ j ] +
+                                   grid1[ iNext ][ j ] - 4.0 * grid1[ i ][ j ];
+                float laplacian2 = grid2[ i ][ jPrev ] + grid2[ i ][ jNext ] + grid2[ iPrev ][ j ] +
+                                   grid2[ iNext ][ j ] - 4.0 * grid2[ i ][ j ];
+
+                // diffusion reaction
+                delta1[ i ][ j ] =
+                    ka * ( 16 - grid1[ i ][ j ] * grid2[ i ][ j ] ) + d1 * laplacian1;
+                delta2[ i ][ j ] =
+                    ka * ( grid1[ i ][ j ] * grid2[ i ][ j ] - grid2[ i ][ j ] - noise[ i ][ j ] ) +
+                    d2 * laplacian2;
+            }
         }
-      }
 
-      // apply delta and find min and max value
-      grid1Min= 1e20;
-      grid1Max=-1e20;
+        // apply delta and find min and max value
+        grid1Min = 1e20;
+        grid1Max = -1e20;
 
-      for (unsigned int i = 0; i < tileWidth; i++)
-        for (unsigned int j = 0; j < tileHeight; j++)
+        for( unsigned int i = 0; i < tileWidth; i++ )
         {
-          grid1[i][j]+=(speed * delta1[i][j]);
-          grid2[i][j]+=(speed * delta2[i][j]);
-          if (grid2[i][j] < 0)
-            grid2[i][j] = 0;
+            for( unsigned int j = 0; j < tileHeight; j++ )
+            {
+                grid1[ i ][ j ] += ( speed * delta1[ i ][ j ] );
+                grid2[ i ][ j ] += ( speed * delta2[ i ][ j ] );
+                if( grid2[ i ][ j ] < 0 )
+                    grid2[ i ][ j ] = 0;
 
-          if (grid1[i][j] < grid1Min)
-            grid1Min=grid1[i][j];
-          if (grid1[i][j] > grid1Max)
-            grid1Max=grid1[i][j];
+                if( grid1[ i ][ j ] < grid1Min )
+                    grid1Min = grid1[ i ][ j ];
+                if( grid1[ i ][ j ] > grid1Max )
+                    grid1Max = grid1[ i ][ j ];
+            }
         }
     }
 
@@ -187,9 +204,14 @@ void genReactionDiffusion( unsigned char* target,
     // 4: scale grid and copy to target
     /////////////////////////////////////////////////////////////////////////////////////////////
 
-    for (unsigned int x = 0; x < tileWidth; x++)
-      for (unsigned int y = 0; y < tileHeight; y++)
-        target[(y*width) + x]=255.0*(grid1[x][y] - grid1Min) / (grid1Max - grid1Min);
+    for( unsigned int x = 0; x < tileWidth; x++ )
+    {
+        for( unsigned int y = 0; y < tileHeight; y++ )
+        {
+            target[ ( y * width ) + x ] =
+                255.0 * ( grid1[ x ][ y ] - grid1Min ) / ( grid1Max - grid1Min );
+        }
+    }
 }
 
 WMImageSpaceTensorLIC::WMImageSpaceTensorLIC():
