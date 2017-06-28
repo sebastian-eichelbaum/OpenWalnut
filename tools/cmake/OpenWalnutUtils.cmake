@@ -536,7 +536,7 @@ ENDFUNCTION( SETUP_DEV_INSTALL )
 # _default a default string you specify if all version check methods fail
 FUNCTION( GET_VERSION_STRING _version _api_version )
     # Undef the OW_VERSION variable
-    UNSET( OW_VERSION_HG )
+    UNSET( OW_VERSION_GIT )
     UNSET( OW_VERSION_FILE )
 
     # Grab version file.
@@ -545,7 +545,7 @@ FUNCTION( GET_VERSION_STRING _version _api_version )
         # Read the version file
         FILE( READ ${OW_VERSION_FILENAME} OW_VERSION_FILE_CONTENT )
         # The first regex will mathc 
-        STRING( REGEX REPLACE ".*[^#]VERSION=([0-9]+\\.[0-9]+\\.[0-9]+[_~a-z,A-Z,0-9]*(\\+hgX?[0-9]*)?).*" "\\1"  OW_VERSION_FILE  ${OW_VERSION_FILE_CONTENT} ) 
+        STRING( REGEX REPLACE ".*[^#]VERSION=([0-9]+\\.[0-9]+\\.[0-9]+[_~a-z,A-Z,0-9]*(\\+gitX?[0-9]*)?).*" "\\1"  OW_VERSION_FILE  ${OW_VERSION_FILE_CONTENT} ) 
         STRING( COMPARE EQUAL ${OW_VERSION_FILE} ${OW_VERSION_FILE_CONTENT}  OW_VERSION_FILE_INVALID )
         IF( OW_VERSION_FILE_INVALID )
             UNSET( OW_VERSION_FILE )
@@ -562,24 +562,25 @@ FUNCTION( GET_VERSION_STRING _version _api_version )
         MESSAGE( FATAL_ERROR "Could not parse \"${PROJECT_SOURCE_DIR}/../VERSION\"." )
     ENDIF()
 
-    # Use hg to query version information.
-    # -> the nice thing is: if hg is not available, no compilation errors anymore
+    # Use git to query version information.
+    # -> the nice thing is: if git is not available, no compilation errors anymore
     # NOTE: it is run insde the project source directory
-    EXECUTE_PROCESS( COMMAND hg parents --template "{node|short}" OUTPUT_VARIABLE OW_VERSION_HG RESULT_VARIABLE hgParentsRetVar 
+    EXECUTE_PROCESS( COMMAND git rev-parse --short HEAD OUTPUT_VARIABLE OW_VERSION_GIT RESULT_VARIABLE gitRetVar 
                      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                     )
-    IF( NOT ${hgParentsRetVar} STREQUAL 0 )
-        UNSET( OW_VERSION_HG )
-        # be more nice if we do not find mercruial version. The simply strip the +hg tag.
-        STRING( REGEX REPLACE "\\+hgX" "" OW_VERSION ${OW_VERSION_FILE} )
+    IF( NOT ${gitRetVar} STREQUAL 0 )
+        UNSET( OW_VERSION_GIT )
+        # be more nice if we do not find git version. The simply strip the +git tag.
+        STRING( REGEX REPLACE "\\+gitX" "" OW_VERSION ${OW_VERSION_FILE} )
     ELSE()
         # if we have the mercurial info -> complement the version string
-        STRING( REGEX REPLACE "hgX" "hg${OW_VERSION_HG}" OW_VERSION ${OW_VERSION_FILE} )
+        STRING( REGEX REPLACE "gitX" "git${OW_VERSION_GIT}" OW_VERSION ${OW_VERSION_FILE} )
     ENDIF()
   
     SET( ${_version} ${OW_VERSION} PARENT_SCOPE )
 
-    # we need to separate the API version too. This basically is the same as the release version, but without the HG statement
+    # we need to separate the API version too. This basically is the same as the release version,
+    # but without the Git statement
     STRING( REGEX REPLACE "([0-9]+\\.[0-9]+\\.[0-9]).*" "\\1"  OW_API_VERSION ${OW_VERSION} ) 
     SET( ${_api_version} ${OW_API_VERSION} PARENT_SCOPE )
 
@@ -597,15 +598,15 @@ ENDFUNCTION( GET_VERSION_STRING )
 # _OW_VERSION_HEADER the filename where to store the header. Should be absolute.
 # _PREFIX the string used as prefix in the header. Useful if you have multiple version headers.
 FUNCTION( SETUP_VERSION_HEADER _OW_VERSION_HEADER _PREFIX )
-    # This ensures that an nonexisting .hg/dirstate file won't cause a compile error (do not know how to make target)
-    SET( HG_DEP "" )
-    IF( EXISTS ${PROJECT_SOURCE_DIR}/../.hg/dirstate )
-        SET( HG_DEP ${PROJECT_SOURCE_DIR}/../.hg/dirstate )
+    # This ensures that an nonexisting .git/index file won't cause a compile error (do not know how to make target)
+    SET( GIT_DEP "" )
+    IF( EXISTS ${PROJECT_SOURCE_DIR}/../.git/index )
+        SET( GIT_DEP ${PROJECT_SOURCE_DIR}/../.git/index )
     ENDIF()
 
     # The file WVersion.* needs the version definition.
     ADD_CUSTOM_COMMAND( OUTPUT ${_OW_VERSION_HEADER}
-                        DEPENDS ${PROJECT_SOURCE_DIR}/../VERSION ${HG_DEP}
+        DEPENDS ${PROJECT_SOURCE_DIR}/../VERSION ${GIT_DEP}
                         COMMAND ${CMAKE_COMMAND} -D PROJECT_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -D HEADER_FILENAME:STRING=${_OW_VERSION_HEADER} -D PREFIX:STRING=${_PREFIX} -P OpenWalnutVersion.cmake
                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../tools/cmake/
                         COMMENT "Creating Version Header ${_OW_VERSION_HEADER}."

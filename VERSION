@@ -3,9 +3,9 @@
 # set properly or CMake will fail.
 #
 # SYNTAX: * The version string always is 1.2.3
-#         * With an optional postfix of "+hg1234".
+#         * With an optional postfix of "+git1234".
 #           This is useful if building is done by scripts. If you want to automatically
-#           add the correct HG revision, use only +hgX without number.
+#           add the correct Git revision, use only +gitX without number.
 #         * You can add beta or release candidate flags by appending b123 or rc123 directly
 #           after the version number.
 #
@@ -15,12 +15,12 @@
 #
 # Examples:
 #   VERSION=1.2.0
-#   VERSION=1.2.0+hgX  -> replaces the X with the current revision number
-#   VERSION=1.2.0+hg1234 -> here, revision number was set by the build scripts for example.
-#   VERSION=1.2.0b1+hgX -> first beta version
-#   VERSION=1.2.0rc1+hgX -> first release candidate version
-#   VERSION=1.2.0sometext1+hgX -> even arbitrary texts are allowd. Be careful as many packaging
+#   VERSION=1.2.0+gitX  -> replaces the X with the current revision number
+#   VERSION=1.2.0+git1234 -> here, revision number was set by the build scripts for example.
+#   VERSION=1.2.0b1+gitX -> first beta version
+#   VERSION=1.2.0rc1+gitX -> first release candidate version
+#   VERSION=1.2.0sometext1+gitX -> even arbitrary texts are allowd. Be careful as many packaging
 #                                 systems refuse to accept these arbitrary version strings.
 
 # The current version string:
-VERSION=1.5.0dev+hgX
+VERSION=1.5.0dev+gitX
