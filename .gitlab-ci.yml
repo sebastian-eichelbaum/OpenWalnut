@@ -6,7 +6,7 @@ buildAndTest:
         script:
                 - mkdir -p build
                 - cd build
-                - cmake .. -DCMAKE_BUILD_TYPE=Release
+                - cmake ../src -DCMAKE_BUILD_TYPE=Release
                 - make vtest
                 - make stylecheck
                 - make doc
