@@ -1,5 +1,4 @@
-OpenWalnut
-==========
+# OpenWalnut
 
 OpenWalnut is an open source tool for multi-modal medical and brain data
 visualization. Its universality allows it to be easily extended and used in a
@@ -13,19 +12,16 @@ GNU/Linux operating systems.
 - please refer to http://www.openwalnut.org for extensive documentation 
   and information.
 
-AUTHORS AND CONTRIBUTORS
-========================
+# AUTHORS AND CONTRIBUTORS
 
 See the files "AUTHORS" and "CONTRIBUTORS".
 
-LICENSE
-=======
+# LICENSE
 
 OpenWalnut is licensed under the terms of the LGPLv3.
 See "COPYING" and "COPYING.LESSER".
 
-CONTACT
-=======
+# CONTACT
 
 If you have questions, comments, problems or find Bugs, contact us using:
  
@@ -42,8 +38,7 @@ If you have questions, comments, problems or find Bugs, contact us using:
    follow the instructions.
 * IRC: Occasionally you can contact us at irc.freenode.net #ow.
 
-INSTALLING
-==========
+# INSTALLING
 
 You have several options for installing OpenWalnut.
  * Build it -> see next section
@@ -54,47 +49,46 @@ You have several options for installing OpenWalnut.
     * We are currently working on a OpenWalnut package which is intended to be
       released in NeuroDebian (http://neuro.debian.net/)
 
-BUILDING
-========
+# BUILDING
 
 As you currently read this README, we presume that you already have the source.
 If not, check http://www.openwalnut.org. There, you can download source archives
 and get the URL to our mercurial repository.
 
-Required Dependencies:
-----------------------
+## Required Dependencies:
 
 * Qt4 (>= 4.6)
 * OpenSceneGraph (>= 2.8.0)
 * Boost (>= 1.42.0)
 
-Compilation on Unix-like systems:
----------------------------------
+## Compilation on Unix-like systems:
 
 If you have installed all required third party libs, you can compile OpenWalnut
 by using the common routine:
 
+```sh
 cd build
 cmake ../src
 make
 make install -- this is optional and installs everything.
+```
 
 After that, OpenWalnut can be used inside the build directory.
 
 If you want to install only a part of OpenWalnut, you can issue
 
+```sh
 make list_install_tarets
+```
 
 The listed targets will then only install the specified part.
 
-Compilation on Windows and Mac:
--------------------------------
+## Compilation on Windows and Mac:
 
 This is a little bit more complicated. We give you a step-by-step explanation
 on http://www.openwalnut.org.
 
-BINARY DISTRIBUTION
-===================
+# BINARY DISTRIBUTION
 
 If you have received OpenWalnut in binary form, you can always acquire the
 code at http://www.openwalnut.org or from your distributor. In the binary
@@ -103,14 +97,12 @@ If so, the licenses are re-distributed along the libraries. We did not modify
 the sources. However, you can get the sources of these libraries by contacting
 us.
 
-USING
-=====
+# USING
 
 After starting OpenWalnut, press F1 to get an introductory help. More 
 information is available online at http://www.openwalnut.org
 
-DEVELOPING
-==========
+# DEVELOPING
 
 If you want to develop modules for OpenWalnut, have a look at 
 src/modules/template, which contains an extensively documented example module.
