@@ -1,0 +1,13 @@
+stages:
+        - test
+
+buildAndTest:
+        stage: test
+        script:
+                - mkdir -p build
+                - cd build
+                - cmake ../src -DCMAKE_BUILD_TYPE=Release
+                - make
+                - make vtest
+                - make stylecheck
+                - make doc
