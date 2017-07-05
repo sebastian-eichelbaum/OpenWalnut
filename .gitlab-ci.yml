@@ -3,11 +3,14 @@ stages:
 
 buildAndTest:
         stage: test
+        cache:
+                paths:
+                        - build
         script:
                 - mkdir -p build
                 - cd build
                 - cmake ../src -DCMAKE_BUILD_TYPE=Release
-                - make
+                - make -j 8
                 - make vtest
                 - make stylecheck
                 - make doc
