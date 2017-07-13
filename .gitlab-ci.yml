@@ -1,15 +1,34 @@
 stages:
         - test
+        - testDebug
 
 buildAndTest:
         stage: test
         cache:
                 paths:
-                        - build
+                        - build/release
         script:
                 - mkdir -p build
                 - cd build
+                - mkdir -p release
+                - cd release
                 - cmake ../src -DCMAKE_BUILD_TYPE=Release
+                - make -j 8
+                - make vtest
+                - make stylecheck
+                - make doc
+                
+buildAndTestDebug:
+        stage: testDebug
+        cache:
+                paths:
+                        - build/debug
+        script:
+                - mkdir -p build
+                - cd build
+                - mkdir -p debug
+                - cd debug
+                - cmake ../src -DCMAKE_BUILD_TYPE=Debug
                 - make -j 8
                 - make vtest
                 - make stylecheck
