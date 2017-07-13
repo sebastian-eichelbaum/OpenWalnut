@@ -1,6 +1,16 @@
 stages:
+        - initialJobs
         - test
         - testDebug
+
+init1:
+        stage: initialJobs
+        script:
+                - echo "Init1 job output"
+init2:
+        stage: initialJobs
+        script:
+                - echo "Init2 job output"
 
 buildAndTest:
         stage: test
