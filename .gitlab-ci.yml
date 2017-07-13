@@ -12,7 +12,7 @@ buildAndTest:
                 - cd build
                 - mkdir -p release
                 - cd release
-                - cmake ../src -DCMAKE_BUILD_TYPE=Release
+                - cmake ../../src -DCMAKE_BUILD_TYPE=Release
                 - make -j 8
                 - make vtest
                 - make stylecheck
@@ -28,7 +28,7 @@ buildAndTestDebug:
                 - cd build
                 - mkdir -p debug
                 - cd debug
-                - cmake ../src -DCMAKE_BUILD_TYPE=Debug
+                - cmake ../../src -DCMAKE_BUILD_TYPE=Debug
                 - make -j 8
                 - make vtest
                 - make stylecheck
