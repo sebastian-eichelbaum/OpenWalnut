@@ -7,10 +7,12 @@ init1:
         stage: initialJobs
         script:
                 - echo "Init1 job output"
+                - exit 0
 init2:
         stage: initialJobs
         script:
                 - echo "Init2 job output"
+                - exit 1
 
 buildAndTest:
         stage: test
