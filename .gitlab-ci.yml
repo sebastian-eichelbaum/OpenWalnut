@@ -1,5 +1,6 @@
 stages:
         - initialJobs
+        - stylecheck_doc
         - test
         - testDebug
 
@@ -24,6 +25,22 @@ init2:
                 - exit 1
         allow_failure: true
 
+stylecheck_doc_job:
+        stage: stylecheck_doc
+        cache:
+                key: "CacheRelease"
+                paths:
+                        - build/release
+        script:
+                - ls
+                - mkdir -p build
+                - cd build
+                - ls
+                - mkdir -p release
+                - ls
+                - make stylecheck
+                - make doc
+
 buildAndTest:
         stage: test
         cache:
@@ -39,8 +56,6 @@ buildAndTest:
                 - cmake ../../src -DCMAKE_BUILD_TYPE=Release
                 - make -j 8
                 - make vtest
-                - make stylecheck
-                - make doc
                 
 buildAndTestDebug:
         stage: testDebug
@@ -57,5 +72,3 @@ buildAndTestDebug:
                 - cmake ../../src -DCMAKE_BUILD_TYPE=Debug
                 - make -j 8
                 - make vtest
-                - make stylecheck
-                - make doc
