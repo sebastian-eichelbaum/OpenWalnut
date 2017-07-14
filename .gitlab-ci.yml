@@ -1,11 +1,11 @@
 stages:
-        - initialJobs
-        - stylecheck_doc
-        - testRelease
-        - testDebug
+        - Initializtion
+        - Stylecheck_doc_stage
+        - Build_and_test_release_stage
+        - Build_and_test_debug_stage
 
 create_directry_and_cmake___release:
-        stage: initialJobs
+        stage: Initialization
         cache:
                 key: "CacheRelease"
                 paths:
@@ -22,7 +22,7 @@ create_directry_and_cmake___release:
                 - ls
                 
 create_directry_and_cmake___debug:
-        stage: initialJobs
+        stage: Initialization
         cache:
                 key: "CacheDebug"
                 paths:
@@ -39,68 +39,55 @@ create_directry_and_cmake___debug:
                 - ls
 
 stylecheck_job:
-        stage: stylecheck_doc
+        stage: Stylecheck_doc_stage
         cache:
                 key: "CacheRelease"
                 paths:
                         - build/release
         script:
                 - pwd
-                - ls
-                - mkdir -p build
-                - cd build
-                - ls
-                - mkdir -p release
-                - ls
-                - cd release
+                - cd build/release
+                - pwd 
                 - ls
                 - make stylecheck
 
 doc_job:
-        stage: stylecheck_doc
+        stage: Stylecheck_doc_stage
         cache:
                 key: "CacheDebug"
                 paths:
                         - build/debug
         script:
                 - pwd
-                - ls
-                - mkdir -p build
-                - cd build
-                - ls
-                - mkdir -p debug
-                - ls
-                - cd debug
+                - cd build/debug
+                - pwd
                 - ls
                 - make doc
 
 buildAndTest:
-        stage: testRelease
+        stage: Build_and_test_release_stage
         cache:
                 key: "CacheRelease"
                 paths:
                         - build/release
         script:
                 - pwd
-                - mkdir -p build
-                - cd build
-                - mkdir -p release
-                - cd release
+                - cd build/release
+                - pwd
+                - ls
                 - make -j 8
                 - make vtest
                 
 buildAndTestDebug:
-        stage: testDebug
+        stage: Build_and_test_debug_stage
         cache:
                 key: "CacheDebug"
                 paths:
                         - build/debug
         script:
                 - pwd
-                - mkdir -p build
-                - cd build
-                - mkdir -p debug
-                - cd debug
+                - cd build/debug
+                - pwd
                 - ls
                 - make -j 8
                 - make vtest
