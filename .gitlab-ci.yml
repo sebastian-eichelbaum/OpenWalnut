@@ -12,18 +12,14 @@ init1:
                         - build/release
         script:
                 - echo "Init1 job output"
+                - ls
                 - mkdir -p build
                 - cd build
                 - mkdir -p release
                 - cd release
+                - ls
                 - cmake ../../src -DCMAKE_BUILD_TYPE=Release
-                - exit 0
-init2:
-        stage: initialJobs
-        script:
-                - echo "Init2 job output"
-                - exit 1
-        allow_failure: true
+                - ls
 
 stylecheck_doc_job:
         stage: stylecheck_doc
@@ -32,12 +28,16 @@ stylecheck_doc_job:
                 paths:
                         - build/release
         script:
+                - pwd
                 - ls
                 - mkdir -p build
                 - cd build
                 - ls
                 - mkdir -p release
                 - ls
+                - cd release
+                - ls
+                - cmake ../../src -DCMAKE_BUILD_TYPE=Release
                 - make stylecheck
                 - make doc
 
