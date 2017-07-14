@@ -5,8 +5,17 @@ stages:
 
 init1:
         stage: initialJobs
+        cache:
+                key: "CacheRelease"
+                paths:
+                        - build/release
         script:
                 - echo "Init1 job output"
+                - mkdir -p build
+                - cd build
+                - mkdir -p release
+                - cd release
+                - cmake ../../src -DCMAKE_BUILD_TYPE=Release
                 - exit 0
 init2:
         stage: initialJobs
