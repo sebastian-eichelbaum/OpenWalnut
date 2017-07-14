@@ -1,10 +1,10 @@
 stages:
         - initialJobs
         - stylecheck_doc
-        - test
+        - testRelease
         - testDebug
 
-create_directry_and_cmake:
+create_directry_and_cmake___release:
         stage: initialJobs
         cache:
                 key: "CacheRelease"
@@ -19,6 +19,23 @@ create_directry_and_cmake:
                 - cd release
                 - ls
                 - cmake ../../src -DCMAKE_BUILD_TYPE=Release
+                - ls
+                
+create_directry_and_cmake___debug:
+        stage: initialJobs
+        cache:
+                key: "CacheDebug"
+                paths:
+                        - build/debug
+        script:
+                - echo "Init1 job output"
+                - ls
+                - mkdir -p build
+                - cd build
+                - mkdir -p debug
+                - cd debug
+                - ls
+                - cmake ../../src -DCMAKE_BUILD_TYPE=Debug
                 - ls
 
 stylecheck_job:
@@ -42,23 +59,23 @@ stylecheck_job:
 doc_job:
         stage: stylecheck_doc
         cache:
-                key: "CacheRelease"
+                key: "CacheDebug"
                 paths:
-                        - build/release
+                        - build/debug
         script:
                 - pwd
                 - ls
                 - mkdir -p build
                 - cd build
                 - ls
-                - mkdir -p release
+                - mkdir -p debug
                 - ls
-                - cd release
+                - cd debug
                 - ls
                 - make doc
 
 buildAndTest:
-        stage: test
+        stage: testRelease
         cache:
                 key: "CacheRelease"
                 paths:
@@ -84,6 +101,6 @@ buildAndTestDebug:
                 - cd build
                 - mkdir -p debug
                 - cd debug
-                - cmake ../../src -DCMAKE_BUILD_TYPE=Debug
+                - ls
                 - make -j 8
                 - make vtest
