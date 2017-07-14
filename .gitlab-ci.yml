@@ -13,13 +13,16 @@ init2:
         script:
                 - echo "Init2 job output"
                 - exit 1
+        allow_failure: true
 
 buildAndTest:
         stage: test
         cache:
+                key: "CacheRelease"
                 paths:
                         - build/release
         script:
+                - pwd
                 - mkdir -p build
                 - cd build
                 - mkdir -p release
@@ -33,9 +36,11 @@ buildAndTest:
 buildAndTestDebug:
         stage: testDebug
         cache:
+                key: "CacheDebug"
                 paths:
                         - build/debug
         script:
+                - pwd
                 - mkdir -p build
                 - cd build
                 - mkdir -p debug
