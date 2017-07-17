@@ -11,6 +11,7 @@ lvimrc
 # Generated doc
 **/doc/developer/html/*
 **/doc/developer/doxygen_sqlite3.db
+**/doc/developer/*.tag
 
 # Ignore contents of the build directory
 **/build/*
