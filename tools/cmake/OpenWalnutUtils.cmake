@@ -272,7 +272,12 @@ FUNCTION( SETUP_STYLECHECKER _TargetName _CheckFiles _Excludes )
 
     # add a new target for this lib
     ADD_CUSTOM_TARGET( stylecheck_${_TargetName}
+                       # The following COMMAND will cause printing of the errors if there are errors
+                       # and no ouput if no errors occured (not even the number of errors, i.e. 0)
                        COMMAND  cat ${BrainLinterListFile} | xargs ${XARGS_OPTIONS} ${PROJECT_SOURCE_DIR}/../tools/style/brainlint/brainlint.py ${STYLECHECK_OPTIONS} 2>&1 | grep -iv 'Total errors found: 0$$' | cat
+                       # The following COMMAND will cause will produce the exit code corresponding to
+                       # whether there have been errors (2) or not (0).
+                       COMMAND  cat ${BrainLinterListFile} | xargs ${XARGS_OPTIONS} ${PROJECT_SOURCE_DIR}/../tools/style/brainlint/brainlint.py ${STYLECHECK_OPTIONS} 2>&1 | grep -qi 'Total errors found: 0$$'
                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                        COMMENT "Check if ${_TargetName} complies to CodingStandard"
     )
