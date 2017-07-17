@@ -35,7 +35,6 @@
 class WTuringTextureCreator
 {
 public:
-
     WTuringTextureCreator( std::size_t numThreads = boost::thread::hardware_concurrency() );
 
     ~WTuringTextureCreator();
@@ -49,11 +48,9 @@ public:
     void setNumIterations( std::size_t iter );
 
 private:
-
     class TextureThread : public WThreadedRunner
     {
     public:
-
         TextureThread( std::size_t id, std::size_t max );
 
         ~TextureThread();
@@ -70,7 +67,6 @@ private:
         virtual void threadMain();
 
     private:
-
         std::size_t m_id;
 
         std::size_t m_maxThreads;

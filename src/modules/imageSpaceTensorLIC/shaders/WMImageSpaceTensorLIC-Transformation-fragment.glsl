@@ -126,14 +126,14 @@ uniform float u_clipFA = 0.01;
 // computes FA from eigenvalues
 float getFA( vec3 evalues )
 {
-  float sqrt32 = sqrt(3./2.); // would make this const, if compiler let me
+  float sqrt32 = sqrt( 3. / 2. ); // would make this const, if compiler let me
   float I1 = evalues.x+evalues.y+evalues.z;
-  float mu = I1/3.;
+  float mu = I1 / 3.;
   vec3 deriv;
-  deriv.x = (evalues.x-mu);
-  deriv.y = (evalues.y-mu);
-  deriv.z = (evalues.z-mu);
-  float FA = sqrt32 * length(deriv)/length(evalues);
+  deriv.x = ( evalues.x - mu );
+  deriv.y = ( evalues.y - mu );
+  deriv.z = ( evalues.z - mu );
+  float FA = sqrt32 * length( deriv ) / length( evalues );
   return FA;
 }
 
@@ -157,11 +157,11 @@ void main()
     // find nearest cube planes in direction of the normal
     int nearestPlane = 0;
     float smallestD = 1e10;
-    vec3 cubeBase = vec3( 0.0 );//cubeBaseX, cubeBaseY, cubeBaseZ);
+    vec3 cubeBase = vec3( 0.0 ); //cubeBaseX, cubeBaseY, cubeBaseZ);
 
 #ifdef CUBETEXTUREMAPPING_VARIANT1_A
     // try each of the 6 planes and find nearest (positive) hit
-    for( int axis=0; axis<3; axis++ )
+    for( int axis = 0; axis < 3; axis++ )
     {
         // search the n in :  vertex[axis]+n*_normal[axis] = 1.0 | 0.0
         float n1 = ( 1.0 - v[axis] ) / v_normalObject[axis];
@@ -185,7 +185,7 @@ void main()
 
 #ifdef CUBETEXTUREMAPPING_VARIANT1_B
     // try each of the 6 planes and find nearest (positive) hit
-    for( int axis=0; axis<3; axis++ )
+    for( int axis = 0; axis < 3; axis++ )
     {
         float d1 = v[axis];
         float d2 = 1.0 - v[axis];
@@ -196,7 +196,7 @@ void main()
         float d = min( d1, d2 );
 
         // smaller than currently found one?
-        if ( d < smallestD )
+        if( d < smallestD )
         {
             smallestD = d;
             nearestPlane = axis;
@@ -245,7 +245,7 @@ void main()
 #endif
 
 #ifdef CUBETEXTUREMAPPING_VARIANT2
-    vec3 v = v_vertex.xyz;// - floor( v_vertex.xyz );
+    vec3 v = v_vertex.xyz; // - floor( v_vertex.xyz );
     float scaler = ( u_noiseResoultuion / 100.0 );
     v*=scaler;
     if( abs( v_normalObject.x ) == max( abs( v_normalObject.x ), max( abs( v_normalObject.y ), abs( v_normalObject.z ) ) ) )
@@ -263,7 +263,7 @@ void main()
 #endif
 
 #ifdef CUBETEXTUREMAPPING_VARIANT3
-    float scaler = 10.0 / u_noiseResoultuion ;
+    float scaler = 10.0 / u_noiseResoultuion;
     noiseTexCoords = vec2( scaler * gl_FragCoord.x / u_texture3SizeX,
                            scaler * gl_FragCoord.y / u_texture3SizeY );
 #endif
@@ -357,6 +357,5 @@ void main()
     gl_FragData[1] = vec4( light, noise, gl_FragCoord.z, 1.0 );
     gl_FragData[2] = vec4( abs( evals.r - evals.g ), fa, 0.0, 1.0 );
     gl_FragData[3] = cmap;
-
 }
 
