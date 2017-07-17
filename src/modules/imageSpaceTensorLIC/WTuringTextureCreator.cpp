@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <iostream>
 #include <vector>
 
@@ -239,12 +240,18 @@ void WTuringTextureCreator::TextureThread::threadMain()
 
         // diffusion
         ( *m_delta1 )[ idx ] = m_spotFactor * ( 16.0f - ( *m_concentration1 )[ idx ] * ( *m_concentration2 )[ idx ] ) + m_diffusionConstant1 * dc1;
-        ( *m_delta2 )[ idx ] = m_spotFactor * ( ( *m_concentration1 )[ idx ] * ( *m_concentration2 )[ idx ] - ( *m_concentration2 )[ idx ] - ( *m_noise )[ idx ] ) + m_diffusionConstant2 * dc2;
+        ( *m_delta2 )[ idx ] = m_spotFactor *
+            ( ( *m_concentration1 )[ idx ] * ( *m_concentration2 )[ idx ]
+              - ( *m_concentration2 )[ idx ] - ( *m_noise )[ idx ] )
+            + m_diffusionConstant2 * dc2;
     }
 }
 
-void WTuringTextureCreator::TextureThread::setBufferPointers( std::vector< float > const* concentration1, std::vector< float > const* concentration2,
-                                                              std::vector< float > const* noise, std::vector< float >* delta1, std::vector< float >* delta2 )
+void WTuringTextureCreator::TextureThread::setBufferPointers( std::vector< float > const* concentration1,
+                                                              std::vector< float > const* concentration2,
+                                                              std::vector< float > const* noise,
+                                                              std::vector< float >* delta1,
+                                                              std::vector< float >* delta2 )
 {
     WPrecond( concentration1 != 0, "Invalid pointer!" );
     WPrecond( concentration2 != 0, "Invalid pointer!" );

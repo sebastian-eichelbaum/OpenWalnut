@@ -74,7 +74,7 @@ void genReactionDiffusion( unsigned char* target,
                            unsigned int width, unsigned int /* height */,
                            unsigned int iterations,
                            float spotSize,
-                           float spotIrregularity)
+                           float spotIrregularity )
 {
     /////////////////////////////////////////////////////////////////////////////////////////////
     // 1: get memory
@@ -131,7 +131,7 @@ void genReactionDiffusion( unsigned char* target,
 
     float kaMin = 0.02;
     float kaMax = 0.6;
-    float ka = (kaMin + ((kaMax - kaMin) * (1.0-spotSize))) / 15.0;        // size of spots
+    float ka = ( kaMin + ( ( kaMax - kaMin ) * ( 1.0 - spotSize ) ) ) / 15.0;        // size of spots
     float d1= 0.25 / 2.0;
     float d2= 0.0625 / 2.0;
     float speed = 1.0;

@@ -38,7 +38,6 @@
 class WTuringTextureCreator
 {
 public:
-
     /**
      * Constructor. Initializes threading but does not yet start texture creation.
      *
@@ -150,7 +149,6 @@ private:
         virtual void threadMain();
 
     private:
-
         /**
          * ID of the thread.
          */
