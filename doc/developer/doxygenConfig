@@ -550,6 +550,7 @@ WARN_FORMAT            = "$file:$line: $text"
 
 WARN_LOGFILE           =
 
+WARN_AS_ERROR          = YES
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
@@ -590,9 +591,11 @@ RECURSIVE              = YES
 # excluded from the INPUT source files. This way you can easily exclude a
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
+# "ext" is excluded because we do not want to document external code
+# "WStructuredTextParser" and "WTensorBase" confuse doxygen (see https://bsvgit.informatik.uni-leipzig.de/openwalnut/openwalnut/issues/408#note_6673 )
 EXCLUDE                = src/modules/data/ext \
-                         src/modules/lic/fibernavigator \
-                         src/modules/lic/fantom
+                         src/core/common/WStructuredTextParser.cpp \
+                         src/core/common/math/WTensorBase.h
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or
 # directories that are symbolic links (a Unix filesystem feature) are excluded
