@@ -115,7 +115,7 @@ How to build the Debian package
 
 You can use owpack for this. If not, cd to openwalnut-VERSION and ensure you
 copied our debian config directory from tools/packaging there. Ensure to remove
-the .hg files inside the directory since they somehow interfere with debuild.
+the .git files inside the directory since they might somehow interfere with debuild.
 
 Call debuild -us -uc (see man dpkg-buildpackage). This will build the code
 and might print several warnings and errors (lintian - the checking utility).
