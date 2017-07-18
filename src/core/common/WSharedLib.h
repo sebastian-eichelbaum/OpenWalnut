@@ -35,7 +35,7 @@
 /**
  * This class loads shared libraries and provides function pointers. This is especially useful for dynamic loading of shared libraries during
  * runtime. This works on Windows, Linux and Mac OS and is based on the openbug shared_lib implementation by
- * Christian Heine <heine@informatik.uni-leipzig.de>. For more details, see http://www.informatik.uni-leipzig.de/~hg/openbug .
+ * Christian Heine <heine@informatik.uni-leipzig.de>.
  *
  * \note This class performs locking so that under any system variables of shared_lib may be used in multi-threaded environments.
  * \warning Because the POSIX standard does not enforce thread safety for the functions dlopen, dlclose, dlerror, and dlsym, these should not

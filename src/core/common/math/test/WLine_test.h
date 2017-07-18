@@ -311,11 +311,8 @@ public:
     }
 
     /**
-     * The max segemnent length is the maximum length over all segments (p_i<->p_j). For further
-     * information look just on the name of the test function, I think this is really precised ;).
-     * (Ha one more line in hg churn!)
-     * BTW: If there are multiple max lengths (equidistant sampled tracts) the first shall be
-     * chosen, BTW: this is totally stupid!, if they are equals it doesn't matter anyway, huh???
+     * The max segemnent length is the maximum length over all segments (p_i<->p_j). 
+     * BTW: If there are multiple max lengths (equidistant sampled tracts) the first shall be chosen
      */
     void testMaxSegementLength( void )
     {
