@@ -256,7 +256,7 @@ $meta = <<EOF
 EOF
 ;
 
-die "Need exactly one command line argument (module name).\nPlease execute this script in the src/modules directory with the desired module name.\n" unless $#ARGV == 0;
+die "Need exactly one command line argument (module name).\nPlease execute this script in the src/modules directory with the desired module name.\n\nExample: MYOPENWALNUTPATH/tools/generateModuleTemplate.pl newModuleName\n         --> This will create a directory named newModuleName containing the files\n             WMNewModuleName.cpp and WMNewModuleName.h along with a META file in\n             the resources subdirectory.\n" unless $#ARGV == 0;
 
 $dirname = lcfirst($ARGV[0]); # directory has to have lower case first letter
 use Cwd;
