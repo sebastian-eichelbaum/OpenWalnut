@@ -27,6 +27,7 @@
 #include "../common/WLogger.h"
 
 #include "WPickHandler.h"
+#include "../common/WAssert.h"
 
 const std::string WPickHandler::unpickString = "unpick";
 
@@ -36,7 +37,7 @@ WPickHandler::WPickHandler()
       m_shift( false ),
       m_ctrl( false ),
       m_viewerName( "" ),
-      m_paintMode( 0 ),
+      m_paintMode( false ),
       m_mouseButton( WPickInfo::NOMOUSE ),
       m_inPickMode( false ),
       m_scrollWheel( 0 )
@@ -49,7 +50,7 @@ WPickHandler::WPickHandler( std::string viewerName )
       m_shift( false ),
       m_ctrl( false ),
       m_viewerName( viewerName ),
-      m_paintMode( 0 ),
+      m_paintMode( false ),
       m_mouseButton( WPickInfo::NOMOUSE ),
       m_inPickMode( false ),
       m_scrollWheel( 0 )
@@ -87,7 +88,7 @@ bool WPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAda
                     pick( view, ea );
                 }
             }
-            if( ( buttonMask == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON ) && ( m_paintMode == 1 ) )
+            if( ( buttonMask == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON ) && ( m_paintMode ) )
             {
                 m_mouseButton = WPickInfo::MOUSE_LEFT;
                 osgViewer::View* view = static_cast< osgViewer::View* >( &aa );
@@ -260,7 +261,7 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
         {
             std::string nodeName = extractSuitableName( hitr );
             // now we skip everything that starts with an underscore if not in paint mode
-            if(  nodeName[0] == '_' && ( m_paintMode == 0  ) )
+            if(  nodeName[0] == '_' && ( !m_paintMode ) )
             {
                 ++hitr;
             }
@@ -355,7 +356,20 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
     m_pickSignal( getHitResult() );
 }
 
+void WPickHandler::setPaintMode( bool paintMode )
+{
+    m_paintMode = paintMode;
+}
+
 void WPickHandler::setPaintMode( int mode )
 {
-    m_paintMode = mode;
+    WAssert( mode == 1 || mode == 0, "Unexpected value" );
+    if( mode == 1 )
+    {
+        m_paintMode = true;
+    }
+    else
+    {
+        m_paintMode = false;
+    }
 }

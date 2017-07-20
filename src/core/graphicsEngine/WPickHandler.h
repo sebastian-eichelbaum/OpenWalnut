@@ -90,9 +90,16 @@ public:
 
     /**
      * setter for paint mode
+     * \deprecated use variant taking bool instead.
      * \param mode the paint mode
      */
-    void setPaintMode( int mode );
+    OW_API_DEPRECATED void setPaintMode( int mode );
+
+    /**
+     * Set in paint mode
+     * \param paintMode Should we switch to paint mode?
+     */
+     void setPaintMode( bool paintMode );
 
     static const std::string unpickString; //!< The string indicating picking has stopped.
 
@@ -108,18 +115,6 @@ protected:
      */
     virtual ~WPickHandler();
 
-    WPickInfo m_hitResult; //!< Textual representation of the result of a pick.
-    WPickInfo m_startPick; //!< indicates what was first picked. Should be "" after unpick.
-    bool m_shift; //!< is shift pressed?
-    bool m_ctrl; //!< is ctrl pressed?
-    std::string m_viewerName; //!< which viewer sends the signal
-    int m_paintMode; //!< the paint mode
-    WPickInfo::WMouseButton m_mouseButton; //!< stores mouse button that initiated the pick
-
-    bool m_inPickMode;  //!< if true, the pick handler currently is in pick mode.
-
-    int32_t m_scrollWheel; //!< the virtual value of the scrollwheel
-
 private:
     /**
      * Sets the current modifiers to the provided pickInfo
@@ -129,6 +124,18 @@ private:
     void updatePickInfoModifierKeys( WPickInfo* pickInfo );
 
     boost::signals2::signal< void( WPickInfo ) > m_pickSignal; //!< One can register to this signal to receive pick events.
+
+    WPickInfo m_hitResult; //!< Textual representation of the result of a pick.
+    WPickInfo m_startPick; //!< indicates what was first picked. Should be "" after unpick.
+    bool m_shift; //!< is shift pressed?
+    bool m_ctrl; //!< is ctrl pressed?
+    std::string m_viewerName; //!< which viewer sends the signal
+    bool m_paintMode; //!< the paint mode
+    WPickInfo::WMouseButton m_mouseButton; //!< stores mouse button that initiated the pick
+
+    bool m_inPickMode;  //!< if true, the pick handler currently is in pick mode.
+
+    int32_t m_scrollWheel; //!< the virtual value of the scrollwheel
 };
 
 #endif  // WPICKHANDLER_H

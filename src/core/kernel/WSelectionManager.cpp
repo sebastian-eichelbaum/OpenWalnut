@@ -140,7 +140,7 @@ void WSelectionManager::setPaintMode( WPaintMode mode )
 
     osg::static_pointer_cast<WGEZoomTrackballManipulator>(
             WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCameraManipulator() )->setPaintMode( mode );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getPickHandler()->setPaintMode( mode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getPickHandler()->setPaintMode( mode == PAINTMODE_PAINT );
 }
 
 WPaintMode WSelectionManager::getPaintMode()
