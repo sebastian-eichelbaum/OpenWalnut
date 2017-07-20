@@ -68,7 +68,7 @@ public:
      * \note the number of floats in colors (if not NULL) must be vertices->size() / 3  times one of 1,3, or 4
      *
      * \param vertices the vertices of the points, stored in x1,y1,z1,x2,y2,z2, ..., xn,yn,zn scheme
-     * \param colors the colors of each vertex. Can be NULL.. Stored as R1,G1,B1,A1, ... Rn,Gn,Bn,An
+     * \param colors the colors of each vertex. Can be NULL. Stored as R1,G1,B1,A1, ... Rn,Gn,Bn,An
      * \param boundingBox The bounding box of the points (first minimum, second maximum).
      */
     WDataSetPoints( VertexArray vertices, ColorArray colors,
@@ -82,12 +82,12 @@ public:
      * \note the number of floats in colors (if not NULL) must be vertices->size() / 3  times one of 1,3, or 4
      *
      * \param vertices the vertices of the points, stored in x1,y1,z1,x2,y2,z2, ..., xn,yn,zn scheme
-     * \param colors the colors of each vertex. Can be NULL.. Stored as R1,[G1,B1,[A1,]] ... Rn,[Gn,Bn,[An]]
+     * \param colors the colors of each vertex. Can be NULL. Stored as R1,[G1,B1,[A1,]] ... Rn,[Gn,Bn,[An]]
      */
     WDataSetPoints( VertexArray vertices, ColorArray colors );
 
     /**
-     * Constructs a new set of points. The constructed instance is empty..
+     * Constructs a new set of points. The constructed instance is empty.
      */
     WDataSetPoints();
 
