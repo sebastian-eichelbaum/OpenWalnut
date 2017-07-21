@@ -56,6 +56,7 @@
 class WGEGroupNode;
 #include "WGEScreenCapture.h"
 class WPickHandler;
+class WMouseLocationHandler;
 #include "animation/WGEAnimationManipulator.h"
 
 #include "WGEViewerEffectHorizon.h"
@@ -219,6 +220,13 @@ public:
     osg::ref_ptr< WPickHandler > getPickHandler();
 
     /**
+     * Getter for the mouse loection handler
+     *
+     * \return the mouse location handler
+     */
+    osg::ref_ptr< WMouseLocationHandler > getMouseLocationHandler();
+
+    /**
      * Queries the OpenGL vendor info.
      *
      * \return Vendor string.
@@ -346,6 +354,11 @@ protected:
      * Pointer to the pick handler of the viewer.
      */
     osg::ref_ptr<WPickHandler> m_pickHandler;
+
+    /**
+     * Pointer to the mouse location handler of the viewer.
+     */
+    osg::ref_ptr<WMouseLocationHandler> m_mouseLocationHandler;
 
     /**
      * reference to the scene which is displayed by viewer

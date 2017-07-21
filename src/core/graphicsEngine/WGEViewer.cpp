@@ -49,6 +49,7 @@
 #include "WGEZoomTrackballManipulator.h"
 #include "WGraphicsEngine.h"
 #include "WPickHandler.h"
+#include "WMouseLocationHandler.h"
 #include "exceptions/WGEInitFailed.h"
 
 #include "core/common/WConditionOneShot.h"
@@ -81,6 +82,9 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
         m_View->getCamera()->setFinalDrawCallback( m_screenCapture );
 
         m_View->getCamera()->setGraphicsContext( m_GraphicsWindow.get() );
+
+        m_mouseLocationHandler = new WMouseLocationHandler( name );
+        m_View->addEventHandler( m_mouseLocationHandler );
 
         switch( projectionMode )
         {
@@ -256,6 +260,11 @@ std::string WGEViewer::getName() const
 osg::ref_ptr< WPickHandler > WGEViewer::getPickHandler()
 {
     return m_pickHandler;
+}
+
+osg::ref_ptr< WMouseLocationHandler > WGEViewer::getMouseLocationHandler()
+{
+    return m_mouseLocationHandler;
 }
 
 void WGEViewer::reset()
