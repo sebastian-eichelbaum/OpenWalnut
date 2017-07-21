@@ -77,7 +77,7 @@ private:
     void calculateCovariance( const vector<WPosition>& dataSet );
     /**
      * Adds a point to the covariance matrix.
-     * \param point Point in the data set to be added to the covariance matrix..
+     * \param point Point in the data set to be added to the covariance matrix.
      */
     void addPointToCovariance( const WPosition& point );
 

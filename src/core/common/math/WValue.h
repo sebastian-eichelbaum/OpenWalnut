@@ -81,7 +81,7 @@ public:
 
     /**
      * Create a WValue from the given Eigen::VectorXd.
-     * \param newValues The Eigen::VectorXd with the values..
+     * \param newValues The Eigen::VectorXd with the values.
      */
     explicit WValue( const Eigen::VectorXd& newValues )
         : m_components( static_cast< std::size_t >( newValues.size() ) )
@@ -91,7 +91,7 @@ public:
 
     /**
      * Create a WValue from the given Eigen::VectorXf.
-     * \param newValues The Eigen::VectorXf with the values..
+     * \param newValues The Eigen::VectorXf with the values.
      */
     explicit WValue( const Eigen::VectorXf& newValues )
         : m_components( static_cast< std::size_t >( newValues.size() ) )
@@ -101,7 +101,7 @@ public:
 
     /**
      * Create a WValue from the given Eigen::VectorXi.
-     * \param newValues The Eigen::VectorXi with the values..
+     * \param newValues The Eigen::VectorXi with the values.
      */
     explicit WValue( const Eigen::VectorXi& newValues )
         : m_components( static_cast< std::size_t >( newValues.size() ) )
