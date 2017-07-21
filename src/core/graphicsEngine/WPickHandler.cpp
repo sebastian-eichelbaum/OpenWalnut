@@ -24,8 +24,6 @@
 
 #include <string>
 
-#include "../common/WLogger.h"
-
 #include "WPickHandler.h"
 #include "../common/WAssert.h"
 
@@ -224,7 +222,7 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
     osgUtil::LineSegmentIntersector::Intersections intersections;
     m_hitResult = WPickInfo();
     float x = ea.getX(); // pixel position in x direction
-    float y = ea.getY(); // pixel position in x direction
+    float y = ea.getY(); // pixel position in y direction
 
     WPickInfo pickInfo;
 

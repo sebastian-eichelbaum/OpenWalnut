@@ -99,7 +99,7 @@ public:
      * Set in paint mode
      * \param paintMode Should we switch to paint mode?
      */
-     void setPaintMode( bool paintMode );
+    void setPaintMode( bool paintMode );
 
     static const std::string unpickString; //!< The string indicating picking has stopped.
 
@@ -108,7 +108,7 @@ protected:
      * Virtual destructor needed because of virtual function.
      *
      * This desctructor is protected to avoid accidentally deleting
-     * a instance of WPickHandler.
+     * an instance of WPickHandler.
      * This follows the philosophy of OSG to avoid problems in multithreaded
      * environments, since these pointers are used deep in the OSG where
      * a deletion could cause a segfault.
