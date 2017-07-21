@@ -155,7 +155,10 @@ void WMGridRenderer::moduleMain()
             WBoundingBox bb = dsPoints->getBoundingBox();
 
             // this basically is a fake but we need a grid for WGEGridNode. So we construct one using the BBox
-            WGridTransformOrtho gridTransform( bb.xMax() - bb.xMin(), bb.yMax() - bb.yMin(), bb.zMax() - bb.zMin() );
+            const double makeFakeNonZero = 0.000001;
+            WGridTransformOrtho gridTransform( bb.xMax() - bb.xMin() + makeFakeNonZero,
+                                               bb.yMax() - bb.yMin() + makeFakeNonZero,
+                                               bb.zMax() - bb.zMin() + makeFakeNonZero );
             gridTransform.translate( WVector3d( bb.xMin(), bb.yMin(), bb.zMin() ) );
             regGrid = WGridRegular3D::SPtr( new WGridRegular3D( 2, 2, 2, gridTransform ) );
         }
