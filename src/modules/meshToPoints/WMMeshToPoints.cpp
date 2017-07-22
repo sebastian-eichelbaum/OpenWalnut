@@ -63,12 +63,12 @@ const std::string WMMeshToPoints::getName() const
 
 const std::string WMMeshToPoints::getDescription() const
 {
-    return "This module converts mesh data to points by using the fiber vertex points and colors.";
+    return "This module converts mesh data to points by using the mesh vertex points and colors.";
 }
 
 void WMMeshToPoints::connectors()
 {
-    // The input fiber dataset
+    // The input triangle mesh
     m_meshInput = boost::shared_ptr< WModuleInputData < WTriangleMesh > >(
         new WModuleInputData< WTriangleMesh >( shared_from_this(), "mesh", "The mesh dataset" )
     );
