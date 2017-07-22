@@ -73,6 +73,12 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
+    /**
+     * Get the icon for this module in XPM format.
+     * \return the icon.
+     */
+    virtual const char** getXPMIcon() const;
+
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -107,4 +113,3 @@ private:
 };
 
 #endif  // WMFIBERRESAMPLING_H
-

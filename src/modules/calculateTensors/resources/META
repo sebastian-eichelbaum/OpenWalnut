@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2015-2017 OpenWalnut Community, Nemtics, BSV@Uni-Leipzig
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -22,37 +22,22 @@
 //
 //---------------------------------------------------------------------------
 
-// Provide additional material and descriptions for your module. You can
-// provide this for multiple modules if you like.
+// An extensively commented example of a META file can be 
+// found in src/modules/template/resources
 
-// NOTE: everything but the module name is optional, even if this makes no
-//       sense at all.
-
-"Sample On Fibers"
+"Calculate Tensors"
 {
-  // Provide an icon. If the icon exists, it overrides the one provided by your
-  // getXPMIcon method. This path is relative to your module's resource directory.
-  icon="WMSampleOnFibers.png";
+  icon="WMCalculateTensors.png";
 
-  // Where to find the module?
   website = "http://www.openwalnut.org";
 
-  // Provide a description, If you do so, this description overrides the one
-  // provided by your getDescription method.
-  // HINT: multi-line strings are not supported. Please provide long texts in
-  //       one line.
-  description = "This module allows you to sample points on fibers using the parameters on ea fiber.";
+  description = "Calculates diffusion tensors from an input sh dataset.";
 
-  // Provide a list of authors. These authors can have further information associated with them.
   author = "OpenWalnut Project";
-
-  // Provide author information. Especially a contact address is very handy.
-  // This associates some URL and Mail contact info to "OpenWalnut Project".
   "OpenWalnut Project"
   {
     url="http://www.openwalnut.org";
     email="contact@openwalnut.org";
-    what="Design, Development and Bug fixing";
+    what="Development, adaption to style and bug fixing";
   };
 };
-

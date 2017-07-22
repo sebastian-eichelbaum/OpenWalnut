@@ -62,7 +62,7 @@ const std::string WMFibersToPoints::getName() const
 
 const std::string WMFibersToPoints::getDescription() const
 {
-    return "This module converts fiber data to points by using the fiber vertex points and colors..";
+    return "This module converts fiber data to points by using the fiber vertex points and colors.";
 }
 
 void WMFibersToPoints::connectors()

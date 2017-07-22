@@ -62,7 +62,7 @@ const std::string WMSampleOnFibers::getName() const
 
 const std::string WMSampleOnFibers::getDescription() const
 {
-    return "This module allows you to sample points on fibers using the parameters on ea fiber.";
+    return "This module allows you to sample points on fibers using the parameters on a fiber.";
 }
 
 void WMSampleOnFibers::connectors()

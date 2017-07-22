@@ -33,6 +33,7 @@
 #include <core/kernel/WKernel.h>
 
 #include "WMFiberResampling.h"
+#include "WMFiberResampling.xpm"
 #include "WResampleByMaxPoints.h"
 #include "WResampleByNumPoints.h"
 #include "WResampleBySegLength.h"
@@ -58,6 +59,11 @@ WMFiberResampling::~WMFiberResampling()
 boost::shared_ptr< WModule > WMFiberResampling::factory() const
 {
     return boost::shared_ptr< WModule >( new WMFiberResampling() );
+}
+
+const char** WMFiberResampling::getXPMIcon() const
+{
+    return WMFiberResampling_xpm;
 }
 
 const std::string WMFiberResampling::getName() const

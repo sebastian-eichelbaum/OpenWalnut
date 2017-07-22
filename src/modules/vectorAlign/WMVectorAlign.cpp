@@ -28,6 +28,7 @@
 #include "core/dataHandler/WDataSetVector.h"
 #include "core/kernel/WKernel.h"
 #include "WMVectorAlign.h"
+#include "WMVectorAlign.xpm"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMVectorAlign )
@@ -48,7 +49,7 @@ boost::shared_ptr< WModule > WMVectorAlign::factory() const
 
 const char** WMVectorAlign::getXPMIcon() const
 {
-    return NULL; // Please put a real icon here.
+    return WMVectorAlign_xpm; // Please put a real icon here.
 }
 
 const std::string WMVectorAlign::getName() const
