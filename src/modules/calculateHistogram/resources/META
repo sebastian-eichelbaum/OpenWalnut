@@ -1,0 +1,43 @@
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2017 OpenWalnut Community
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
+
+// An extensively commented example of a META file can be 
+// found in src/modules/template/resources
+
+"CalculateHistogram"
+{
+  icon="WMCalculateHistogram.png";
+
+  website = "http://www.openwalnut.org";
+
+  description = "Calculates the histogram of the values found in the input dataset.";
+
+  author = "OpenWalnut Project";
+  "OpenWalnut Project"
+  {
+    url="http://www.openwalnut.org";
+    email="contact@openwalnut.org";
+    what="Development, adaption to style and bug fixing";
+  };
+};
