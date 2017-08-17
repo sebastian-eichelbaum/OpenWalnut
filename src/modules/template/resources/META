@@ -207,7 +207,7 @@
 // Basically the same as above, without comments. Skip this. It does not contain new information.
 "Template UI"
 {
-  icon="WMTemplateIcon.png";
+  icon="WMTemplateIcon_UI.png";
   website = "http://www.openwalnut.org";
   description = "Demonstrative module which tries to show the custom UI features in OW and its usage.";
   author = "OpenWalnut Project";
@@ -244,7 +244,7 @@
 // Basically the same as above, without comments. Skip this. It does not contain new information.
 "Template Shaders"
 {
-  icon="WMTemplateIcon.png";
+  icon="WMTemplateIcon_Shader.png";
   website = "http://www.openwalnut.org";
   description = "Demonstration of use and powers of WGEShaders and related interfaces.";
   author = "OpenWalnut Project";
@@ -265,7 +265,7 @@
 // Basically the same as above, without comments. Skip this. It does not contain new information.
 "Template Colormapping"
 {
-  icon="WMTemplateIcon.png";
+  icon="WMTemplateIcon_Colormap.png";
   website = "http://www.openwalnut.org";
   description = "Demonstration of use and powers of WGEColormapping and related interfaces.";
   author = "OpenWalnut Project";
@@ -286,7 +286,7 @@
 // Basically the same as above, without comments. Skip this. It does not contain new information.
 "Template Render Pipelines"
 {
-  icon="WMTemplateIcon.png";
+  icon="WMTemplateIcon_Render.png";
   website = "http://www.openwalnut.org";
   description = "Demonstration of use and powers of WGEOffscreen and related interfaces.";
   author = "OpenWalnut Project";
