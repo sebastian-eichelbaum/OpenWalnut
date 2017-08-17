@@ -33,7 +33,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // How to create your own module in OpenWalnut? Here are the steps to take:
 //   * Setup your module building framework
-//     * See http://redmine.openwalnut.org/projects/openwalnut/wiki/Module_ExternalDevelopment for details
+//     * See https://bsvgit.informatik.uni-leipzig.de/openwalnut/openwalnut/wikis/Module_ExternalDevelopment for details
 //   * copy the template module directory
 //   * think about a name for your module
 //   * rename the files from WMTemplate.cpp and WMTemplate.h to WMYourModuleName.cpp and WMYourModuleName.h
@@ -414,7 +414,7 @@ void WMTemplate::moduleMain()
     // that your thread misses the event. The resettable flag for those condition sets can help here. Whenever a condition, managed by the
     // condition set, fires, the moduleState variable remembers it. So, the next call to m_moduleState.wait() will immediately return and reset
     // the "memory" of the moduleState. For more details, see:
-    // http://redmine.openwalnut.org/projects/openwalnut/wiki/MultithreadingHowto#How-to-wait-correctly
+    // https://bsvgit.informatik.uni-leipzig.de/openwalnut/openwalnut/wikis/MultithreadingHowto#how-to-wait-correctly
 
     // Most probably, your module will be a module providing some kind of visual output. In this case, the WGEManagedGroupNode is very handy.
     // It allows you to insert several nodes and transform them as the WGEGroupNode (from which WGEManagedGroupNode is derived from) is also

@@ -157,7 +157,7 @@
     // Optional description for a resource
     description ="First Steps Tutorial, showing the first steps to take with OpenWalnut.";
     // The URL. Required.
-    url="http://redmine.openwalnut.org/projects/openwalnut/wiki/FirstSteps";
+    url="https://bsvgit.informatik.uni-leipzig.de/openwalnut/openwalnut/wikis/FirstSteps";
   };
   // Multiple online resources allowed.
   online

@@ -278,7 +278,7 @@ void WMainWindow::setupGUI()
     m_permanentToolBar = new WQtToolBar( "Standard Toolbar", this );
     addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
 
-    // math: Due to this issue: http://redmine.openwalnut.org/issues/406 resp.
+    // math: Due to the OLD issue 406 resp.
     // http://stackoverflow.com/questions/31983269/how-to-identify-a-certain-qt-widget
     // There might be a white box, on Apple Mac OSX only, which sometimes hides the window buttons
     // for maximization, minimization and closing. This is extremely disturbing, hence, we leave them
@@ -547,7 +547,7 @@ void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
              m_currentCompatiblesToolbar, SLOT( setToolButtonStyle( Qt::ToolButtonStyle ) ) );
 
     // and the position of the toolbar
-    // math: Due to this issue: http://redmine.openwalnut.org/issues/406 resp.
+    // math: Due to the OLD issue 406 resp.
     // http://stackoverflow.com/questions/31983269/how-to-identify-a-certain-qt-widget
     // There might be a white box, on Apple Mac OSX only, which sometimes hides the window buttons
     // for maximization, minimization and closing. This is extremely disturbing, hence, we leave them
@@ -701,7 +701,7 @@ QString collectFilters()
         result += description + QString( "(*" ) + extension + QString( ");;" );
     }
 
-    // math: on 11. Aug. 2015, related issue: http://redmine.openwalnut.org/issues/404
+    // math: on 11. Aug. 2015, related old issues 404
     // The following #ifdef is due to the following QT-Bug: https://bugreports.qt.io/browse/QTBUG-38303
     // Hence, we use any file as known file type for MAC OSX only.
     #ifdef Q_OS_OSX
