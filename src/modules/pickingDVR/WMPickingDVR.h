@@ -111,6 +111,11 @@ private:
     void setPickPositionSource();
 
     /**
+     * Set the current pick position to the \ref WSinglePosition from the connector.
+     */
+    void setPickPositionFromConnector();
+
+    /**
      * Shows and hide relevant properties according to chosen picking mode.
      *
      * \param pickingMode The type of picking criterion used

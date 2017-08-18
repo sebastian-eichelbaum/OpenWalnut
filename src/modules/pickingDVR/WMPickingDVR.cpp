@@ -258,26 +258,7 @@ void WMPickingDVR::moduleMain()
         {
             if( m_externalScreenPos->isConnected() != 0 && m_externalScreenPos->getData() )
             {
-                float fPosX = ( *( m_externalScreenPos->getData() ) )[0];
-                float fPosY = ( *( m_externalScreenPos->getData() ) )[1];
-
-                boost::shared_ptr< WGraphicsEngine > graphicsEngine = WGraphicsEngine::getGraphicsEngine();
-                boost::shared_ptr< WGEViewer > mainView = graphicsEngine->getViewerByName( "Main View" );
-
-                osg::ref_ptr< osgViewer::Viewer > view = mainView->getView();
-                osgUtil::LineSegmentIntersector::Intersections intersections;
-
-                bool intersected = view->computeIntersections( fPosX, fPosY, intersections, 0xFFFFFFFF );
-                if( intersected )
-                {
-                    osgUtil::LineSegmentIntersector::Intersection start= *intersections.begin();
-                    osgUtil::LineSegmentIntersector::Intersection end = *intersections.rbegin();
-
-                    m_posStart = start.getWorldIntersectPoint();
-                    m_posEnd  = end.getWorldIntersectPoint();
-
-                    m_intersected = true;
-                }
+                setPickPositionFromConnector();
             }
 
             // Valid position picked on proxy cube
@@ -420,6 +401,28 @@ void WMPickingDVR::setPickPositionSource()
     }
 }
 
+void WMPickingDVR::setPickPositionFromConnector()
+{
+    float fPosX = ( *( m_externalScreenPos->getData() ) )[0];
+    float fPosY = ( *( m_externalScreenPos->getData() ) )[1];
+
+    boost::shared_ptr< WGraphicsEngine > graphicsEngine = WGraphicsEngine::getGraphicsEngine();
+    boost::shared_ptr< WGEViewer > mainView = graphicsEngine->getViewerByName( "Main View" );
+    osg::ref_ptr< osgViewer::Viewer > view = mainView->getView();
+    osgUtil::LineSegmentIntersector::Intersections intersections;
+
+    bool intersected = view->computeIntersections( fPosX, fPosY, intersections, 0xFFFFFFFF );
+    if( intersected )
+    {
+        osgUtil::LineSegmentIntersector::Intersection start= *intersections.begin();
+        osgUtil::LineSegmentIntersector::Intersection end = *intersections.rbegin();
+
+        m_posStart = start.getWorldIntersectPoint();
+        m_posEnd  = end.getWorldIntersectPoint();
+
+        m_intersected = true;
+    }
+}
 
 void WMPickingDVR::updateModuleGUI( std::string pickingMode )
 {
