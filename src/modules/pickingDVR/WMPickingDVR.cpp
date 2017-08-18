@@ -35,6 +35,7 @@
 #include <osg/ShapeDrawable>
 #include <osgViewer/View>
 
+#include "core/common/datastructures/WSinglePosition.h"
 #include "core/dataHandler/WDataSetScalar.h"
 #include "core/graphicsEngine/WGEGeodeUtils.h"
 #include "core/graphicsEngine/WGEManagedGroupNode.h"
@@ -64,10 +65,11 @@ W_LOADABLE_MODULE( WMPickingDVR )
 WMPickingDVR::WMPickingDVR():
 WModule(),
     m_propCondition( new WCondition() ),
+    m_intersected( false ),
     m_curve3D( 0 ),
-    m_oldRayStart( 0.0, 0.0, 0.0 )
+    m_oldRayStart( 0.0, 0.0, 0.0 ),
+    m_pickHandlerConnected( false )
 {
-    m_intersected = false;
     m_posStart = osg::Vec3f( 0.0, 0.0, 0.0 );
     m_posEnd = osg::Vec3f( 0.0, 0.0, 0.0 );
 }
@@ -93,8 +95,15 @@ const std::string WMPickingDVR::getDescription() const
 
 void WMPickingDVR::connectors()
 {
-    m_transferFunction = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "transfer function", "The 1D transfer function." );
-    m_scalarIC = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "scalar data", "Scalar data." );
+    m_transferFunction = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(),
+                                                                           "transfer function",
+                                                                           "The 1D transfer function." );
+    m_scalarIC = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(),
+                                                                   "scalar data",
+                                                                   "Scalar data." );
+    m_externalScreenPos = WModuleInputData< WSinglePosition >::createAndAdd( shared_from_this(),
+                                                                             "External Screen Position",
+                                                                             "External screen position for picking." );
 
     WModule::connectors();
 }
@@ -201,6 +210,7 @@ void WMPickingDVR::moduleMain()
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_scalarIC->getDataChangedCondition() );
     m_moduleState.add( m_transferFunction->getDataChangedCondition() );
+    m_moduleState.add( m_externalScreenPos->getDataChangedCondition() );
     m_moduleState.add( m_propCondition );
 
     ready();
@@ -213,9 +223,6 @@ void WMPickingDVR::moduleMain()
     boost::shared_ptr< WGraphicsEngine > graphicsEngine = WGraphicsEngine::getGraphicsEngine();
     boost::shared_ptr< WGEViewer > mainView = graphicsEngine->getViewerByName( "Main View" );
 
-    // Register PickHandler
-    mainView->getPickHandler()->getPickSignal()->connect( boost::bind( &WMPickingDVR::pickHandler, this, _1 ) );
-
     // Main loop
     while( !m_shutdownFlag() )
     {
@@ -227,6 +234,28 @@ void WMPickingDVR::moduleMain()
         {
             break;
         }
+
+        if( m_externalScreenPos->isConnected() == 0 )
+        {
+            if( !m_pickHandlerConnected )
+            {
+                // Register PickHandler
+                mainView->getPickHandler()->getPickSignal()->connect( boost::bind( &WMPickingDVR::pickHandler, this, _1 ) );
+                m_pickHandlerConnected = true;
+            }
+        }
+        else
+        {
+            if( m_pickHandlerConnected )
+            {
+                // Register PickHandler
+                mainView->getPickHandler()->getPickSignal()->disconnect( boost::bind( &WMPickingDVR::pickHandler, this, _1 ) );
+                m_pickHandlerConnected = false;
+            }
+        }
+
+
+
 
         std::string pickingMode;
 
@@ -251,6 +280,30 @@ void WMPickingDVR::moduleMain()
 
         if( selectionType == 0 )
         {
+            if( m_externalScreenPos->isConnected() != 0 && m_externalScreenPos->getData() )
+            {
+                float fPosX = ( *( m_externalScreenPos->getData() ) )[0];
+                float fPosY = ( *( m_externalScreenPos->getData() ) )[1];
+
+                boost::shared_ptr< WGraphicsEngine > graphicsEngine = WGraphicsEngine::getGraphicsEngine();
+                boost::shared_ptr< WGEViewer > mainView = graphicsEngine->getViewerByName( "Main View" );
+
+                osg::ref_ptr< osgViewer::Viewer > view = mainView->getView();
+                osgUtil::LineSegmentIntersector::Intersections intersections;
+
+                bool intersected = view->computeIntersections( fPosX, fPosY, intersections, 0xFFFFFFFF );
+                if( intersected )
+                {
+                    osgUtil::LineSegmentIntersector::Intersection start= *intersections.begin();
+                    osgUtil::LineSegmentIntersector::Intersection end = *intersections.rbegin();
+
+                    m_posStart = start.getWorldIntersectPoint();
+                    m_posEnd  = end.getWorldIntersectPoint();
+
+                    m_intersected = true;
+                }
+            }
+
             // Valid position picked on proxy cube
             if( m_intersected )
             {
@@ -343,7 +396,7 @@ void WMPickingDVR::pickHandler( WPickInfo pickInfo )
     boost::shared_ptr< WGraphicsEngine > graphicsEngine = WGraphicsEngine::getGraphicsEngine();
     boost::shared_ptr< WGEViewer > mainView = graphicsEngine->getViewerByName( "Main View" );
 
-    osg::ref_ptr<osgViewer::Viewer> view = mainView->getView();
+    osg::ref_ptr< osgViewer::Viewer > view = mainView->getView();
     osgUtil::LineSegmentIntersector::Intersections intersections;
 
     float fPosX = pickInfo.getPickPixel().x();
