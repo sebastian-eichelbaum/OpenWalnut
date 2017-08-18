@@ -106,13 +106,16 @@ private:
     void pickHandler( WPickInfo pickInfo );
 
     /**
+     * Check if a \ref WSinglePosition is connected and dis/connects pick signal from clicking accordingly.
+     */
+    void setPickPositionSource();
+
+    /**
      * Shows and hide relevant properties according to chosen picking mode.
      *
      * \param pickingMode The type of picking criterion used
      */
     void updateModuleGUI( std::string pickingMode );
-
-
 
     /**
      * Calculates which interval is the most visible according

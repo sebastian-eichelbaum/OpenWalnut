@@ -219,10 +219,6 @@ void WMPickingDVR::moduleMain()
     m_rootNode = osg::ref_ptr< WGEManagedGroupNode >( new WGEManagedGroupNode( m_active ) );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
-    //Get Camera and Register the callback
-    boost::shared_ptr< WGraphicsEngine > graphicsEngine = WGraphicsEngine::getGraphicsEngine();
-    boost::shared_ptr< WGEViewer > mainView = graphicsEngine->getViewerByName( "Main View" );
-
     // Main loop
     while( !m_shutdownFlag() )
     {
@@ -235,27 +231,7 @@ void WMPickingDVR::moduleMain()
             break;
         }
 
-        if( m_externalScreenPos->isConnected() == 0 )
-        {
-            if( !m_pickHandlerConnected )
-            {
-                // Register PickHandler
-                mainView->getPickHandler()->getPickSignal()->connect( boost::bind( &WMPickingDVR::pickHandler, this, _1 ) );
-                m_pickHandlerConnected = true;
-            }
-        }
-        else
-        {
-            if( m_pickHandlerConnected )
-            {
-                // Register PickHandler
-                mainView->getPickHandler()->getPickSignal()->disconnect( boost::bind( &WMPickingDVR::pickHandler, this, _1 ) );
-                m_pickHandlerConnected = false;
-            }
-        }
-
-
-
+        setPickPositionSource();
 
         std::string pickingMode;
 
@@ -417,6 +393,33 @@ void WMPickingDVR::pickHandler( WPickInfo pickInfo )
         m_propCondition->notify();
     }
 }
+
+void WMPickingDVR::setPickPositionSource()
+{
+    // Get Camera and Register the callback
+    boost::shared_ptr< WGraphicsEngine > graphicsEngine = WGraphicsEngine::getGraphicsEngine();
+    boost::shared_ptr< WGEViewer > mainView = graphicsEngine->getViewerByName( "Main View" );
+
+    if( m_externalScreenPos->isConnected() == 0 )
+    {
+        if( !m_pickHandlerConnected )
+        {
+            // Register PickHandler
+            mainView->getPickHandler()->getPickSignal()->connect( boost::bind( &WMPickingDVR::pickHandler, this, _1 ) );
+            m_pickHandlerConnected = true;
+        }
+    }
+    else
+    {
+        if( m_pickHandlerConnected )
+        {
+            // Register PickHandler
+            mainView->getPickHandler()->getPickSignal()->disconnect( boost::bind( &WMPickingDVR::pickHandler, this, _1 ) );
+            m_pickHandlerConnected = false;
+        }
+    }
+}
+
 
 void WMPickingDVR::updateModuleGUI( std::string pickingMode )
 {
