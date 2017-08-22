@@ -79,7 +79,7 @@ public:
      *
      * \return reference to the (i,j) element of the table
      */
-    T& operator()( size_t i, size_t j ) throw( WOutOfBounds );
+    T& operator()( size_t i, size_t j );
 
     /**
      * Const version of the element access.
@@ -91,7 +91,7 @@ public:
      *
      * \return Const reference to the (i,j) element of the table
      */
-    const T& operator()( size_t i, size_t j ) const throw( WOutOfBounds );
+    const T& operator()( size_t i, size_t j ) const;
 
     /**
      * Returns the number of elements stored in this matrix.
@@ -117,7 +117,7 @@ public:
      *
      * \param data new data in row major arrangement
      */
-    void setData( const std::vector< T > &data ) throw( WOutOfBounds );
+    void setData( const std::vector< T > &data );
 
     /**
      * Renders the matrix to a full nxn matrix, where the main diagonal is set to 0.0 and the m(i,j) == m(j,i).
@@ -153,7 +153,7 @@ inline WMatrixSym< T >::WMatrixSym()
 }
 
 template< typename T >
-inline const T& WMatrixSym< T >::operator()( size_t i, size_t j ) const throw( WOutOfBounds )
+inline const T& WMatrixSym< T >::operator()( size_t i, size_t j ) const
 {
     if( i == j || i >= m_n || j >= m_n )
     {
@@ -170,7 +170,7 @@ inline const T& WMatrixSym< T >::operator()( size_t i, size_t j ) const throw( W
 
 
 template< typename T >
-inline T& WMatrixSym< T >::operator()( size_t i, size_t j ) throw( WOutOfBounds )
+inline T& WMatrixSym< T >::operator()( size_t i, size_t j )
 {
     if( i == j || i >= m_n || j >= m_n )
     {
@@ -313,7 +313,7 @@ inline const typename std::vector< T >& WMatrixSym< T >::getData() const
 }
 
 template< typename T >
-inline void WMatrixSym< T >::setData( const std::vector< T > &data ) throw( WOutOfBounds )
+inline void WMatrixSym< T >::setData( const std::vector< T > &data )
 {
     if( m_n * ( m_n - 1 ) / 2 != data.size() )
     {
