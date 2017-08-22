@@ -112,6 +112,7 @@ boost::shared_ptr< WDataSet > WReaderVTK::read()
         break;
     case TENSORS:
         ds = boost::shared_ptr< WDataSet >( new WDataSetDTI( values, grid ) );
+        break;
     case ARRAYS:
         if( values->dimension() > 6 )
         {

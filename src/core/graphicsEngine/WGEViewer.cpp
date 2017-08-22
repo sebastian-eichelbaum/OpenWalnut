@@ -93,6 +93,7 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
                 m_View->addEventHandler( m_pickHandler );
                 if( name != std::string( "Main View" ) )
                     break;
+                /* FALLTHRU */
             case( WGECamera::PERSPECTIVE ):
                 // camera manipulator
                 m_View->setCameraManipulator( new WGEZoomTrackballManipulator() );

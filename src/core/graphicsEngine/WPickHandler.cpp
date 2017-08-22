@@ -118,6 +118,7 @@ bool WPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAda
                         break;
                     case osgGA::GUIEventAdapter::SCROLL_DOWN:
                         m_scrollWheel--;
+                        break;
                     case osgGA::GUIEventAdapter::SCROLL_2D:
                         // FIXME: the osg doc tells us nothing about this value, but is seems to be always 120 or -120
                         if( ea.getScrollingDeltaY() > 0 )
