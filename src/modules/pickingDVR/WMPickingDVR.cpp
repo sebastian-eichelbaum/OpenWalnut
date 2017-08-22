@@ -503,7 +503,7 @@ void WMPickingDVR::calculateIntervalsWYSIWYP( const std::vector<double>& vecAlph
     PickingDVRHelper::calculateDerivativesWYSIWYP( vecAlphaAcc, vecFirstDerivative, vecSecondDerivative );
 
     // Calculate interval boundaries
-    double oldDerivative;
+    double oldDerivative = 0; // irrelevant, just initialized to quiet compiler.
     if( vecSecondDerivative.size() > 0 )
     {
         oldDerivative = vecSecondDerivative[0];
