@@ -33,6 +33,7 @@ extern "C"
 #include <cstddef>
 #include <cstdio>
 
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -84,9 +85,7 @@ WPagerEEGLibeep::~WPagerEEGLibeep()
     int status = eep_fclose( m_eeg );
     if( status != CNTERR_NONE )
     {
-        std::ostringstream stream;
-        stream << getFilename() << " could not be closed. Libeep status code: " << status;
-        throw WDHIOFailure( stream.str() );
+        std::cout << getFilename() << " could not be closed. Libeep status code: " << status << std::endl;
     }
 }
 
@@ -189,4 +188,3 @@ std::string WPagerEEGLibeep::getChannelLabel( std::size_t channelID ) const
 }
 
 #endif  // WEEP_ENABLED
-
