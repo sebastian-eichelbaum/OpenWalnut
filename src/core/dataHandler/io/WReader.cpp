@@ -28,17 +28,17 @@
 #include "../exceptions/WDHNoSuchFile.h"
 #include "WReader.h"
 
-WReader::WReader( std::string fname ) throw( WDHNoSuchFile )
+WReader::WReader( std::string fname )
 {
     setFilename( fname ); // not in constructor list since fileExcsits check
 }
 
-void WReader::setFileName( std::string fname ) throw( WDHNoSuchFile )
+void WReader::setFileName( std::string fname )
 {
     setFilename( fname );
 }
 
-void WReader::setFilename( std::string fname ) throw( WDHNoSuchFile )
+void WReader::setFilename( std::string fname )
 {
     m_fname = fname;
     if( !fileExists( m_fname ) )

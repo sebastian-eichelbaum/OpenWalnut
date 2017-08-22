@@ -1000,7 +1000,7 @@ public:
      *
      * \throw WOutOfBounds if the specified index is invalid
      */
-    ValueT& at( size_t row, size_t col ) throw( WOutOfBounds )
+    ValueT& at( size_t row, size_t col )
     {
         if( ( row >= Rows ) || ( col >= Cols ) )
         {
@@ -1023,7 +1023,7 @@ public:
      *
      * \throw WOutOfBounds if the specified index is invalid
      */
-    const ValueT& at( size_t row, size_t col ) const throw( WOutOfBounds )
+    const ValueT& at( size_t row, size_t col ) const
     {
         if( ( row >= Rows ) || ( col >= Cols ) )
         {

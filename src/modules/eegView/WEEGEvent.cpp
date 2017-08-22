@@ -55,7 +55,7 @@ WEEGEvent::WEEGEvent( double time,
                       osg::ref_ptr< WGEGroupNode > parentNode,
                       bool snapToDipole,
                       bool proofOfConcept,
-                      boost::shared_ptr< WDataSetDipoles > dipoles ) throw( WOutOfBounds )
+                      boost::shared_ptr< WDataSetDipoles > dipoles )
     : m_time( time ),
       m_parentNode( parentNode )
 {

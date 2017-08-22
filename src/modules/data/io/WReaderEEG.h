@@ -45,7 +45,7 @@ protected:
      * \param fileName Path to be loaded
      * \throw WDHIOFailure in case of an error
      */
-    explicit WReaderEEG( std::string fileName ) throw( WDHIOFailure );
+    explicit WReaderEEG( std::string fileName );
 
     /**
      * Load electrode positions from ELC file with same name

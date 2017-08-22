@@ -65,7 +65,7 @@ public:
                osg::ref_ptr< WGEGroupNode > parentNode,
                bool snapToDipole,
                bool proofOfConcept,
-               boost::shared_ptr< WDataSetDipoles > dipoles ) throw( WOutOfBounds );
+               boost::shared_ptr< WDataSetDipoles > dipoles );
 
     /**
      * Constructor for an empty event

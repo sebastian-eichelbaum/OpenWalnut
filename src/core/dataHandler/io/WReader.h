@@ -45,7 +45,7 @@ public:
      * \param fname path to file which should be loaded
      * \throws WDHNoSuchFile
      */
-    explicit WReader( std::string fname ) throw( WDHNoSuchFile );
+    explicit WReader( std::string fname );
 
     /**
      * Reset the file name and checks if it exists.
@@ -54,7 +54,7 @@ public:
      * \throws WDHNoSuchFile
      * \deprecated use setFilename instead.
      */
-    OW_API_DEPRECATED void setFileName( std::string fname ) throw( WDHNoSuchFile );
+    OW_API_DEPRECATED void setFileName( std::string fname );
 
     /**
      * Reset the file name and checks if it exists.
@@ -62,7 +62,7 @@ public:
      * \param fname file name
      * \throws WDHNoSuchFile
      */
-    void setFilename( std::string fname ) throw( WDHNoSuchFile );
+    void setFilename( std::string fname );
 
 protected:
     std::string m_fname; //!< Absolute path of the file to read from

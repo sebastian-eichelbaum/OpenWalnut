@@ -78,7 +78,7 @@ public:
      *
      * \return position
      */
-    WPosition getPosition() const throw( WDHException );
+    WPosition getPosition() const;
 
 protected:
 private:

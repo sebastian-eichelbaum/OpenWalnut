@@ -53,7 +53,7 @@ public:
      * \param label label of the electrode
      * \return position of the electrode
      */
-    WPosition getPosition( std::string label ) const throw( WOutOfBounds );
+    WPosition getPosition( std::string label ) const;
 
 protected:
 private:

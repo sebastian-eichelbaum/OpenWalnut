@@ -32,7 +32,7 @@
 
 #include "WReaderEEG.h"
 
-WReaderEEG::WReaderEEG( std::string fileName ) throw( WDHIOFailure )
+WReaderEEG::WReaderEEG( std::string fileName )
     : WReader( fileName )
 {
 }
