@@ -191,6 +191,7 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor* editor, boost::shared_ptr< WMo
         // no outputs but inputs -> sink
         m_itemColor = WQtNetworkColors::SinkModule;
     }
+    m_itemColor.setAlpha( 240 );
 
     m_hidden = new WQtNetworkItemActivator( m_module );
     m_hidden->setParentItem( this );
@@ -954,4 +955,3 @@ void WQtNetworkItem::runtimeNameChanged()
     // move to gui thread, non-blocking.
     WQtGui::execInGUIThreadAsync( boost::bind( &WQtNetworkItem::setText, this, m_module->getRuntimeName()->get() ) );
 }
-
