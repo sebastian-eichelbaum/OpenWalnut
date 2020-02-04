@@ -223,6 +223,8 @@ private:
      */
     QComboBox* m_resolutionCombo;
 
+    QPushButton* m_resolutionButton;
+
     /**
      * Widget for entering a custom resolution width
      */

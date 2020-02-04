@@ -94,15 +94,15 @@ WQtGLScreenCapture::WQtGLScreenCapture( WQtGLDockWidget* parent ):
     m_customWidth->setValidator( new QIntValidator( 0, 4096, m_customWidth ) );
     m_customHeight->setValidator( new QIntValidator( 0, 4096, m_customHeight ) );
 
-    QPushButton* resolutionButton = new QPushButton( "Set" );
-    resolutionButton->setCheckable( true );
+    m_resolutionButton = new QPushButton( "Set" );
+    m_resolutionButton->setCheckable( true );
     resolutionGroupLayout->addWidget( m_resolutionCombo, 0, 0, 1, 2 );
-    resolutionGroupLayout->addWidget( resolutionButton, 0, 2 );
+    resolutionGroupLayout->addWidget( m_resolutionButton, 0, 2 );
     resolutionGroupLayout->addWidget( new QLabel( "Custom Resolution" ), 1, 0, 1, 3 );
     resolutionGroupLayout->addWidget( m_customWidth, 2, 0 );
     resolutionGroupLayout->addWidget( m_customHeight, 2, 1 );
 
-    connect( resolutionButton, SIGNAL( toggled( bool ) ), this, SLOT( resolutionChange( bool ) ) );
+    connect( m_resolutionButton, SIGNAL( toggled( bool ) ), this, SLOT( resolutionChange( bool ) ) );
 
     // filename config
     QGroupBox* fileGroup = new QGroupBox( "Output Files" );
@@ -219,6 +219,7 @@ void WQtGLScreenCapture::saveSettings()
     WQtGui::getSettings().setValue( objectName() + "/customResolutionWidth", m_customWidth->text() );
     WQtGui::getSettings().setValue( objectName() + "/customResolutionHeight", m_customHeight->text() );
     WQtGui::getSettings().setValue( objectName() + "/filename", m_configFileEdit->text() );
+    WQtGui::getSettings().setValue( objectName() + "/customResolutionSet", m_resolutionButton->isChecked() );
 }
 
 void WQtGLScreenCapture::restoreSettings()
@@ -227,6 +228,7 @@ void WQtGLScreenCapture::restoreSettings()
     m_customHeight->setText( WQtGui::getSettings().value( objectName() + "/customResolutionHeight", m_customHeight->text() ).toString() );
     m_configFileEdit->setText( WQtGui::getSettings().value( objectName() + "/filename", m_configFileEdit->text() ).toString() );
     m_resolutionCombo->setCurrentIndex(  WQtGui::getSettings().value( objectName() + "/resolution", m_resolutionCombo->currentIndex() ).toInt() );
+    m_resolutionButton->setChecked(  WQtGui::getSettings().value( objectName() + "/customResolutionSet", false ).toBool() );
 }
 
 QAction* WQtGLScreenCapture::getScreenshotTrigger() const

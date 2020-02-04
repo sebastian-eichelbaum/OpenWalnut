@@ -234,7 +234,7 @@ void WMHARDIToSphericalHarmonics::moduleMain()
             m_progress->addSubProgress( parameter.m_progress );
 
             debugLog() << "Starting calculation.";
-
+/*
             HARDICalculation hc( parameter, m_multiThreaded->get( true ), m_dataSet->getGrid(), gradients );
             HARDICalculation::result_type res = m_dataSet->getValueSet()->applyFunction( hc );
 
@@ -248,6 +248,7 @@ void WMHARDIToSphericalHarmonics::moduleMain()
             {
                 m_outputResiduals->updateData( res.second );
             }
+            */
         }
     }
 
