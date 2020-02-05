@@ -201,6 +201,7 @@ int WQtGui::run()
 
     // and startup kernel
     m_kernel = boost::shared_ptr< WKernel >( WKernel::instance( m_ge, shared_from_this() ) );
+    m_kernel->setUnattendedMode( m_optionsMap.count( "unattended" ) > 0 );
     m_kernel->run();
     m_kernel->subscribeSignal( WKernel::KERNEL_STARTUPCOMPLETE, boost::bind( &WQtGui::deferredLoad, this ) );
 

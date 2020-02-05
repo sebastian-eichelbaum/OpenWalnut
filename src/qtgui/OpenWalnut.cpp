@@ -103,6 +103,7 @@ int main( int argc, char** argv )
     desc.add_options()
         ( "help,h", "Prints this help message" )
         ( "version,v", "Prints the version information" )
+        ( "unattended,u", "Run without expecting user input. Useful for automation of project file processing." )
         ( "log,l", po::value< std::string >(), ( std::string( "The log-file to use. If not specified, \"" ) + logFile +
                                                  std::string( "\" is used in the current directory." ) ).c_str() )
         ( "project,p", po::value< std::string >(), "Project file to be loaded on startup." )

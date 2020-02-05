@@ -34,6 +34,7 @@
 #include <QGroupBox>
 
 #include "core/common/WLogger.h"
+#include "core/kernel/WKernel.h"
 #include "events/WEventTypes.h"
 #include "WMainWindow.h"
 #include "WQtGLWidget.h"
@@ -238,6 +239,12 @@ QAction* WQtGLScreenCapture::getScreenshotTrigger() const
 
 void WQtGLScreenCapture::handleImage( size_t /* framesLeft */, size_t totalFrames, osg::ref_ptr< osg::Image > image ) const
 {
+    if( WKernel::getRunningKernel()->isUnattendedMode() )
+    {
+        wlog::debug( "WQtGLScreenCapture" ) << "Unattended mode. Ignoring frame.";
+        return;
+    }
+
     std::string filename = m_configFileEdit->text().toStdString();
     std::ostringstream ss;
 
@@ -325,6 +332,10 @@ void WQtGLScreenCapture::resetFrames()
 
 void WQtGLScreenCapture::recCallback()
 {
+    if( WKernel::getRunningKernel()->isUnattendedMode() )
+    {
+        return;
+    }
     QCoreApplication::postEvent( this, new QEvent( static_cast< QEvent::Type >( WQT_SCREENCAPTURE_EVENT ) ) );
 }
 

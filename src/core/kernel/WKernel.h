@@ -216,6 +216,27 @@ public:
      */
     WTimer::ConstSPtr getTimer() const;
 
+    /**
+     * Quit the system.
+     * \param hard if true, quit without proper shutdown.
+     */
+    void quit( bool hard = false ) const;
+
+    /**
+     * If true, the system runs in an unattended mode. No user interaction expected.
+     *
+     * \return true if enabled.
+     */
+    bool isUnattendedMode() const;
+
+    /**
+     * En-/Disable unattended mode. In this mode, some features that require manual input are disabled and it serves as
+     * a hint to some module to just process data without any further user interaction.
+     *
+     * \param unattended true to enable
+     */
+    void setUnattendedMode( bool unattended = true );
+
 protected:
     /**
      * Constructor is protected because this class is a singleton. Awaits an INITIALIZED graphics engine an UI.
@@ -291,6 +312,11 @@ private:
      * Notified when the startup, including GE and UI has been completed.
      */
     WConditionOneShot m_startupCompleted;
+
+    /**
+     * Unattended mode
+     */
+    bool m_unattendedMode;
 };
 
 #endif  // WKERNEL_H

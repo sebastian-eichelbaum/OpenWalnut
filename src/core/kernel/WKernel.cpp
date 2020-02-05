@@ -30,6 +30,7 @@
     #include <mach-o/dyld.h>
 #endif
 
+#include <stdlib.h>
 #include <string>
 #include <vector>
 
@@ -55,7 +56,8 @@ WKernel* WKernel::m_kernel = NULL;
 
 WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WUI > ui ):
     WThreadedRunner(),
-    m_timer( WTimer::SPtr( new WRealtimeTimer() ) )
+    m_timer( WTimer::SPtr( new WRealtimeTimer() ) ),
+    m_unattendedMode( false )
 {
     WLogger::getLogger()->addLogMessage( "Initializing Kernel", "Kernel", LL_INFO );
     wlog::debug( "Kernel" ) << "Version: " << W_VERSION;
@@ -238,4 +240,22 @@ boost::signals2::connection WKernel::subscribeSignal( WKernel::KERNEL_SIGNAL sig
             throw WKernelException( s.str() );
             break;
     }
+}
+
+void WKernel::quit( bool hard ) const
+{
+    if( hard )
+    {
+        exit( 0 );
+    }
+}
+
+bool WKernel::isUnattendedMode() const
+{
+    return m_unattendedMode;
+}
+
+void WKernel::setUnattendedMode( bool unattended )
+{
+    m_unattendedMode = unattended;
 }
