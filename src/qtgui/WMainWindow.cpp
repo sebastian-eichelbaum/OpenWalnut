@@ -1006,7 +1006,7 @@ bool WMainWindow::event( QEvent* event )
         }
     }
 
-    if( event->type() == WQT_LOADFINISHED )
+    if( ( event->type() == WQT_LOADFINISHED ) && !WKernel::getRunningKernel()->isUnattendedMode() )
     {
         // convert event
         WLoadFinishedEvent* e1 = dynamic_cast< WLoadFinishedEvent* >( event );
