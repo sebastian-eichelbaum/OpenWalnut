@@ -93,7 +93,7 @@ void WMScreenCapture::moduleMain()
         debugLog() << "Waiting for data ...";
         m_moduleState.wait();
 
-        WDataSet::SPtr dataSet = m_input->getData();
+        boost::shared_ptr< WTransferable > dataSet = m_input->getData();
         bool dataValid = ( dataSet != NULL );
         bool dataChanged = ( dataSet != m_dataSetOld );
         m_dataSetOld = dataSet;
@@ -185,8 +185,8 @@ void WMScreenCapture::projLoadFinished( boost::filesystem::path /* file */, std:
 void WMScreenCapture::connectors()
 {
     // initialize connectors
-    m_input = boost::shared_ptr< WModuleInputData < WDataSet  > >(
-        new WModuleInputData< WDataSet >( shared_from_this(),
+    m_input = boost::shared_ptr< WModuleInputData < WTransferable  > >(
+        new WModuleInputData< WTransferable >( shared_from_this(),
                                                                "in", "The dataset to show" )
         );
 

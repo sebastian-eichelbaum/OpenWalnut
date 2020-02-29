@@ -100,7 +100,7 @@ protected:
     virtual void properties();
 
 private:
-    boost::shared_ptr< WModuleInputData< WDataSet > > m_input;  //!< Input connector required by this module.
+    boost::shared_ptr< WModuleInputData< WTransferable > > m_input;  //!< Input connector required by this module.
 
     /**
      * The output connector used to provide the calculated data to other modules.
@@ -138,7 +138,7 @@ private:
     /**
      * The currently handled data.
      */
-    WDataSet::SPtr m_dataSetOld;
+    boost::shared_ptr< WTransferable > m_dataSetOld;
 
     /**
      * \ref WGEScreenCapture callback.
