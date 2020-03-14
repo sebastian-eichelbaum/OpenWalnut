@@ -326,6 +326,8 @@ void WMReadSimpleTextLineData::load()
         currentStartIndex += ls.size();
     }
 
+    // bb.expandBy( WVector3f( 0, 0, 0 ) );
+
     WDataSetFibers::SPtr ds( new WDataSetFibers( vertices, lineStartIndices, lengths, verticesReverse, bb ) );
     ds->setVertexParameters( pAttribs );
     ds->setLineParameters( lAttribs );
