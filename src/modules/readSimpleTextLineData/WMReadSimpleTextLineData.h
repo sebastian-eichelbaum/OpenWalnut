@@ -90,6 +90,11 @@ protected:
     virtual void connectors();
 
     /**
+     * Initialize the properties for this module.
+     */
+    virtual void properties();
+
+    /**
      * Load data.
      */
     virtual void load();
@@ -109,6 +114,10 @@ private:
      * The output connector for the data.
      */
     boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_output;
+
+    boost::shared_ptr< WCondition > m_propCondition;  //!< A condition used to notify about changes in several properties.
+
+    WPropBool m_forceIncludeOrigin; //!< The BB should include the origin
 
     /**
      * True if the load function needs to be called. Usually set by handleInputChange or the reload trigger

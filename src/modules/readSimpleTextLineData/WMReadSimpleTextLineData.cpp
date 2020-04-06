@@ -78,9 +78,18 @@ void WMReadSimpleTextLineData::connectors()
     WModule::connectors();
 }
 
+void WMReadSimpleTextLineData::properties()
+{
+    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_forceIncludeOrigin = m_properties->addProperty( "Force Origin", "Force the BB to include (0,0,0).", false, m_propCondition );
+
+    WDataModule::properties();
+}
+
 void WMReadSimpleTextLineData::moduleMain()
 {
     m_moduleState.setResetable( true, true );
+    m_moduleState.add( m_propCondition );
 
     // Signal ready state. Now your module can be connected by the container, which owns the module.
     ready();
@@ -97,7 +106,7 @@ void WMReadSimpleTextLineData::moduleMain()
             break;
         }
 
-        if( m_reload )
+        if( m_reload || m_forceIncludeOrigin->changed() )
         {
             load();
         }
@@ -326,7 +335,10 @@ void WMReadSimpleTextLineData::load()
         currentStartIndex += ls.size();
     }
 
-    // bb.expandBy( WVector3f( 0, 0, 0 ) );
+    if( m_forceIncludeOrigin->get() )
+    {
+        bb.expandBy( WVector3f( 0, 0, 0 ) );
+    }
 
     WDataSetFibers::SPtr ds( new WDataSetFibers( vertices, lineStartIndices, lengths, verticesReverse, bb ) );
     ds->setVertexParameters( pAttribs );
