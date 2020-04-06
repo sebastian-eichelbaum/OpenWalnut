@@ -332,6 +332,13 @@ public:
     VertexParemeterArray getVertexParameters( size_t parameterIndex = 0 ) const;
 
     /**
+     * Get the number of available vertex parameters.
+     *
+     * \return the number of available parameters
+     */
+    size_t getVertexParametersSize() const;
+
+    /**
      * Set the given array of parameters to be the vertex parameters of this fiber dataset.
      *
      * \param parameters the list of parameters. Can be an empty vector to remove parameters.
@@ -346,6 +353,13 @@ public:
      * \param parameterIndex there can be multiple parameters. The index defines the index of the parameter array to get. Default is 0.
      */
     LineParemeterArray getLineParameters( size_t parameterIndex = 0 ) const;
+
+    /**
+     * Get the number of available line parameters.
+     *
+     * \return the number of available parameters
+     */
+    size_t getLineParametersSize() const;
 
     /**
      * Set an array to be the list of line parameters.

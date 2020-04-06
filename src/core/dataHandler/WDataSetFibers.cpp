@@ -336,6 +336,11 @@ void WDataSetFibers::setVertexParameters( std::vector< WDataSetFibers::VertexPar
     m_vertexParameters = parameters;
 }
 
+size_t WDataSetFibers::getVertexParametersSize() const
+{
+    return m_vertexParameters.size();
+}
+
 WDataSetFibers::LineParemeterArray WDataSetFibers::getLineParameters( size_t parameterIndex ) const
 {
     return m_lineParameters[ parameterIndex ];
@@ -344,6 +349,11 @@ WDataSetFibers::LineParemeterArray WDataSetFibers::getLineParameters( size_t par
 void WDataSetFibers::setLineParameters( std::vector< WDataSetFibers::LineParemeterArray > parameters )
 {
     m_lineParameters = parameters;
+}
+
+size_t WDataSetFibers::getLineParametersSize() const
+{
+    return m_lineParameters.size();
 }
 
 WPosition WDataSetFibers::getPosition( size_t fiber, size_t vertex ) const
