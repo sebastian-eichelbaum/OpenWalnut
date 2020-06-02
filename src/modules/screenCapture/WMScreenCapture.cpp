@@ -115,6 +115,17 @@ void WMScreenCapture::moduleMain()
             continue;
         }
 
+        if( m_skip->get() )
+        {
+            debugLog() << "Skip " << m_imageFile->get().string();
+
+            // How to set the data to the output and how to notify other modules about it?
+            m_output->updateData( boost::shared_ptr<WDataSetSingle>( new WDataSetSingle() ) );
+
+            handleExit(m_exitDelay->get());
+            continue;
+        }
+
         boost::shared_ptr< WProgress > progress( new WProgress( "Doing work", 6 ) );
         m_progress->addSubProgress( progress );
 
@@ -155,17 +166,21 @@ void WMScreenCapture::moduleMain()
         // How to set the data to the output and how to notify other modules about it?
         m_output->updateData( boost::shared_ptr<WDataSetSingle>( new WDataSetSingle() ) );
 
-        if( m_exitDelay->get() < 0 )
-        {
-            progress->finish();
-            continue;
-        }
-
         ++*progress;
-        msleep( 1000 * m_exitDelay->get() );
+        handleExit( m_exitDelay->get() );
         progress->finish();
-        WKernel::getRunningKernel()->quit( true );
     }
+}
+
+void WMScreenCapture::handleExit(int delay)
+{
+    if( delay < 0 )
+    {
+        return;
+    }
+
+    msleep( 1000 * delay );
+    WKernel::getRunningKernel()->quit( true );
 }
 
 void WMScreenCapture::handleImage( size_t /* framesLeft */, size_t /* totalFrames */,
@@ -216,6 +231,8 @@ void WMScreenCapture::properties()
     m_loadProjDelay->setMin( -1 );
     m_loadProjDelay->setMax( 10000 );
     m_projFile = m_properties->addProperty( "Project File", "Load this file before capture.", WPathHelper::getAppPath() / "camera.owp" );
+
+    m_skip = m_properties->addProperty( "Skip", "Allows to skip this capture.", false );
 
     WModule::properties();
 }

@@ -115,6 +115,8 @@ private:
 
     WPropBool m_unattendedOnly; //!< If true, only in unattended mode, the actions take place
 
+    WPropBool m_skip; //!< If true, all opps are skipped and the output is notified directly
+
     WPropFilename m_projFile; //!< The proj file to load before capture.
     WPropInt m_loadProjDelay;    //!< Load a file before capture?
 
@@ -149,6 +151,8 @@ private:
      * Project got loaded.
      */
     void projLoadFinished( boost::filesystem::path file, std::vector< std::string > errors, std::vector< std::string > warnings );
+
+    void handleExit(int delay);
 
 };
 #endif  // WMSCREENCAPTURE_H
