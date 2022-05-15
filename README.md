@@ -1,5 +1,8 @@
 # OpenWalnut
 
+**ATTENTION** This fork is stale. I have added some minor features I needed. For the latest version, refer to
+[openwalnut.org](https://openwalnut.org).
+
 OpenWalnut is an open source tool for multi-modal medical and brain data
 visualization. Its universality allows it to be easily extended and used in a
 large variety of application cases. It is both, a tool for the scientific user
@@ -9,7 +12,7 @@ entirely in Standard C++ and using a number of portable libraries (e.g.
 OpenSceneGraph and  Qt), it runs on all Windows platforms, OSX, and
 GNU/Linux operating systems.
 
-- please refer to http://www.openwalnut.org for extensive documentation 
+- please refer to http://www.openwalnut.org for extensive documentation
   and information.
 
 # AUTHORS AND CONTRIBUTORS
@@ -24,11 +27,11 @@ See "COPYING" and "COPYING.LESSER".
 # CONTACT
 
 If you have questions, comments, problems or find Bugs, contact us using:
- 
+
 * Mailing list: openwalnut@lists.informatik.uni-leipzig.de
  * Very low traffic at the moment ( < 1 mail per month), you might want to try
    the developer mailing list below.
- * To join the list visit 
+ * To join the list visit
    http://lists.informatik.uni-leipzig.de/mailman/listinfo/openwalnut and follow
    the instructions.
 * Developer Mailing list: openwalnut-dev@lists.informatik.uni-leipzig.de
@@ -92,19 +95,19 @@ on http://www.openwalnut.org.
 
 If you have received OpenWalnut in binary form, you can always acquire the
 code at http://www.openwalnut.org or from your distributor. In the binary
-packages we provide, we might include open source, third-party libraries. 
+packages we provide, we might include open source, third-party libraries.
 If so, the licenses are re-distributed along the libraries. We did not modify
 the sources. However, you can get the sources of these libraries by contacting
 us.
 
 # USING
 
-After starting OpenWalnut, press F1 to get an introductory help. More 
+After starting OpenWalnut, press F1 to get an introductory help. More
 information is available online at http://www.openwalnut.org
 
 # DEVELOPING
 
-If you want to develop modules for OpenWalnut, have a look at 
+If you want to develop modules for OpenWalnut, have a look at
 src/modules/template, which contains an extensively documented example module.
 More information is available online. The wiki, especially the development
 section, is very helpful. Besides this, an online API documentation is available
